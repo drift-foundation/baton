@@ -39,7 +39,13 @@ EXIT_DAMAGE = 6
 EXIT_GATED = 7
 
 PROTOCOL_VERSION = 8
-TOOL_VERSION = "3.0.0"
+# 4.0.0 changes the delivery envelope breakingly (`body` becomes the typed,
+# multipart `content`) while the PROTOCOL stays 8: protocol 8 has never existed
+# on disk, so both breaking changes define one released schema and cost one
+# teardown rather than two. An instance created by the pre-release 3.0.0 build
+# is not a protocol-8 instance; exact schema-text validation refuses it rather
+# than misreading it.
+TOOL_VERSION = "4.0.0"
 SQLITE_MIN = (3, 37, 0)  # STRICT tables
 BUSY_TIMEOUT_MS = 10_000
 TRANSIENT_BODY_MAX_BYTES = 64 * 1024
@@ -55,6 +61,51 @@ HEX32_RE = re.compile(r"^[a-f0-9]{32}$")
 KIND_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 THREAD_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,127}$")
 ROOT_ID_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$")
+
+# -- content envelope -------------------------------------------------------
+#
+# Baton TRANSPORTS content and never renders it. These constants describe
+# bytes; nothing here interprets them. A transport that renders is a transport
+# with an injection surface.
+
+# RFC 2045 token, restricted to the RFC 7230 character set. Deliberately
+# stricter than RFC 2045's grammar: fail closed on anything exotic rather than
+# store a media type this build cannot round-trip byte-for-byte.
+MEDIA_TOKEN_RE = re.compile(r"^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$")
+
+# The default for a body published without a declared type. Every message this
+# project has ever carried is Markdown, `materialize` has always emitted `.md`,
+# and the protocol document names Markdown as the review-document format.
+# RFC 7763 makes the charset parameter REQUIRED for text/markdown, so the
+# default states it rather than leaving it to be assumed downstream.
+DEFAULT_CONTENT_TYPE = "text/markdown; charset=utf-8"
+DEFAULT_CONTAINER_TYPE = "multipart/mixed"
+
+DISPOSITION_INLINE = "inline"
+DISPOSITION_ATTACHMENT = "attachment"
+DISPOSITIONS = frozenset((DISPOSITION_INLINE, DISPOSITION_ATTACHMENT))  # RFC 2183
+
+# Delivery representation names. Exactly one is ever present on a leaf part,
+# and `encoding` names which -- so a consumer dispatches on one key instead of
+# probing for two that must never both appear.
+ENCODING_TEXT = "text"
+ENCODING_BASE64 = "base64"
+
+# Projection suffixes by media type. Naming only: nothing here parses, renders,
+# or transforms the bytes.
+_PROJECTION_SUFFIXES = {
+	"text/markdown": ".md",
+	"text/plain": ".txt",
+	"text/html": ".html",
+	"text/csv": ".csv",
+	"application/json": ".json",
+	"application/pdf": ".pdf",
+	"image/png": ".png",
+	"image/jpeg": ".jpg",
+	"image/svg+xml": ".svg",
+}
+_PROJECTION_SUFFIX_DEFAULT = ".bin"
+_KNOWN_PROJECTION_SUFFIXES = frozenset(_PROJECTION_SUFFIXES.values()) | {_PROJECTION_SUFFIX_DEFAULT}
 
 DB_NAME = "mailbox.sqlite3"
 
@@ -95,6 +146,285 @@ def _utc_now_iso() -> str:
 
 def new_id() -> str:
 	return secrets.token_hex(16)
+
+
+# ---------------------------------------------------------------------------
+# Content envelope: media types, parts, and the manifest digest
+# ---------------------------------------------------------------------------
+
+def parse_media_type(raw: str) -> tuple[str, str, dict[str, str]]:
+	"""Parse an RFC 2045 media type with parameters into
+	`(type, subtype, params)`, canonicalized: type, subtype and parameter
+	NAMES lowercased (they are case-insensitive), parameter values preserved
+	except `charset`, which RFC 2046 also defines as case-insensitive.
+
+	Strict on purpose. An unparseable or ambiguous type is refused at
+	publication rather than stored and delivered as something a consumer must
+	guess at -- a mislabelled part is worse than an unlabelled one, because a
+	consumer acts on the label."""
+	if type(raw) is not str:
+		raise BatonError("content_type must be a string")
+	text = raw.strip()
+	if not text:
+		raise BatonError("content_type must not be empty")
+	head, sep, tail = text.partition(";")
+	main, slash, sub = head.strip().partition("/")
+	if not slash:
+		raise BatonError(
+			f"content_type {raw!r} is not TYPE/SUBTYPE (e.g. 'text/markdown; charset=utf-8')")
+	main = main.strip().lower()
+	sub = sub.strip().lower()
+	if not MEDIA_TOKEN_RE.match(main) or not MEDIA_TOKEN_RE.match(sub):
+		raise BatonError(f"content_type {raw!r} has an invalid type or subtype token")
+	params: dict[str, str] = {}
+	rest = tail if sep else ""
+	while rest.strip():
+		name, eq, remainder = rest.partition("=")
+		name = name.strip().lower()
+		if not eq or not MEDIA_TOKEN_RE.match(name):
+			raise BatonError(f"content_type {raw!r} has a malformed parameter")
+		if name in params:
+			raise BatonError(f"content_type {raw!r} repeats the {name!r} parameter")
+		remainder = remainder.lstrip()
+		if remainder.startswith('"'):
+			value, rest = _scan_quoted(remainder, raw)
+		else:
+			value, _, rest = remainder.partition(";")
+			value = value.strip()
+			if not MEDIA_TOKEN_RE.match(value):
+				raise BatonError(
+					f"content_type {raw!r} parameter {name!r} is neither a token nor a quoted string")
+		if name == "charset":
+			value = value.lower()
+		params[name] = value
+	# RFC 7763 makes charset REQUIRED for text/markdown. Requiring it for every
+	# text/* subtype costs a caller nine characters and removes the only
+	# question a consumer would otherwise have to answer by sniffing.
+	if main == "text" and "charset" not in params:
+		raise BatonError(
+			f"content_type {raw!r} must declare a charset parameter (RFC 7763 requires it for "
+			f"text/markdown, and delivery encoding depends on it) -- e.g. '{text}; charset=utf-8'")
+	if main == "multipart" and params:
+		raise BatonError(
+			"a multipart container type takes no parameters here; part order is structural, "
+			"not a boundary string")
+	return main, sub, params
+
+
+def _scan_quoted(text: str, raw: str) -> tuple[str, str]:
+	"""Consume one RFC 2045 quoted-string from the head of `text`, returning
+	`(value, remainder-after-the-next-semicolon)`."""
+	out = []
+	index = 1
+	while index < len(text):
+		char = text[index]
+		if char == "\\" and index + 1 < len(text):
+			out.append(text[index + 1])
+			index += 2
+			continue
+		if char == '"':
+			trailing = text[index + 1:].lstrip()
+			if trailing.startswith(";"):
+				return "".join(out), trailing[1:]
+			if trailing:
+				raise BatonError(f"content_type {raw!r} has trailing junk after a quoted parameter")
+			return "".join(out), ""
+		if ord(char) < 0x20 or ord(char) == 0x7F:
+			raise BatonError(f"content_type {raw!r} has a control character in a quoted parameter")
+		out.append(char)
+		index += 1
+	raise BatonError(f"content_type {raw!r} has an unterminated quoted parameter")
+
+
+def canonical_media_type(raw: str) -> str:
+	"""Round-trip a media type through `parse_media_type` into ONE canonical
+	spelling. The manifest digest hashes this string, so `text/markdown;
+	charset=UTF-8` and `text/markdown;charset=utf-8` must not be two different
+	contents -- and equally must not collide with a genuinely different type."""
+	main, sub, params = parse_media_type(raw)
+	out = f"{main}/{sub}"
+	for name in sorted(params):
+		value = params[name]
+		if MEDIA_TOKEN_RE.match(value):
+			out += f"; {name}={value}"
+		else:
+			escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+			out += f'; {name}="{escaped}"'
+	return out
+
+
+def is_container_type(content_type: str) -> bool:
+	return content_type.split("/", 1)[0].lower() == "multipart"
+
+
+def validate_filename(name: str | None) -> str | None:
+	"""RFC 2183 `filename` is ADVISORY METADATA. Baton never opens, creates, or
+	names a file from it -- `materialize` derives its own name from the caller's
+	explicit `--prefix` and `--dir`. It is still validated here, because the
+	obvious hazard is a consumer that is less careful, and a transport that
+	forwards `../../etc/authorized_keys` unchallenged has helped."""
+	if name is None:
+		return None
+	if type(name) is not str:
+		raise BatonError("filename must be a string")
+	if not name or len(name) > 255:
+		raise BatonError("filename must be 1..255 characters")
+	if name in (".", ".."):
+		raise BatonError(f"filename {name!r} is a directory reference")
+	for bad, why in (("/", "path separator"), ("\\", "path separator"),
+	                 ("\x00", "NUL byte")):
+		if bad in name:
+			raise BatonError(f"filename {name!r} contains a {why}")
+	if any(ord(ch) < 0x20 or ord(ch) == 0x7F for ch in name):
+		raise BatonError(f"filename {name!r} contains a control character")
+	if name.startswith("-"):
+		raise BatonError(f"filename {name!r} starts with '-' and could be read as an option")
+	return name
+
+
+def normalize_parts(spec: Any, *, where: str = "content") -> list[dict]:
+	"""Normalize a caller's part specification into the canonical tree the
+	store writes and the manifest digest hashes.
+
+	A leaf carries `content_type`, `disposition`, optional `filename`, and
+	`body` bytes. A container carries a `multipart/*` `content_type` and a
+	non-empty `parts` list, and carries no bytes of its own. Nesting is
+	arbitrary depth, so `multipart/alternative` inside `multipart/mixed` is a
+	row layout that already exists rather than a schema change."""
+	if not isinstance(spec, (list, tuple)) or not spec:
+		raise BatonError(f"{where}: parts must be a non-empty list")
+	out = []
+	for index, raw in enumerate(spec):
+		if not isinstance(raw, dict):
+			raise BatonError(f"{where}[{index}]: each part must be an object")
+		unknown = set(raw) - {"content_type", "disposition", "filename", "body", "parts"}
+		if unknown:
+			raise BatonError(f"{where}[{index}]: unknown part field(s) {sorted(unknown)}")
+		content_type = canonical_media_type(raw.get("content_type") or DEFAULT_CONTENT_TYPE)
+		disposition = raw.get("disposition") or DISPOSITION_INLINE
+		if disposition not in DISPOSITIONS:
+			raise BatonError(
+				f"{where}[{index}]: disposition must be one of {sorted(DISPOSITIONS)} (RFC 2183)")
+		body = raw.get("body")
+		children = raw.get("parts")
+		node = {"content_type": content_type, "disposition": disposition,
+		        "filename": None, "body": None, "sha256": None, "size": None, "parts": None}
+		if is_container_type(content_type):
+			if body is not None:
+				raise BatonError(
+					f"{where}[{index}]: a {content_type} container holds parts, not bytes")
+			if raw.get("filename") is not None:
+				raise BatonError(f"{where}[{index}]: a container part has no filename")
+			node["parts"] = normalize_parts(children, where=f"{where}[{index}].parts")
+		else:
+			if children is not None:
+				raise BatonError(
+					f"{where}[{index}]: only a multipart/* part may hold nested parts")
+			if not isinstance(body, (bytes, bytearray)):
+				raise BatonError(f"{where}[{index}]: a leaf part requires a bytes body")
+			body = bytes(body)
+			node["filename"] = validate_filename(raw.get("filename"))
+			node["body"] = body
+			node["sha256"] = hashlib.sha256(body).hexdigest()
+			node["size"] = len(body)
+			# A part declaring charset=utf-8 whose bytes are not valid UTF-8 is
+			# a lie about its own content, and it is cheaper to refuse it here
+			# than to hand every consumer a decode error later.
+			if _delivery_encoding(content_type) == ENCODING_TEXT:
+				try:
+					body.decode("utf-8")
+				except UnicodeDecodeError as exc:
+					raise BatonError(
+						f"{where}[{index}]: content_type declares charset=utf-8 but the bytes are "
+						f"not valid UTF-8 ({exc})") from exc
+		out.append(node)
+	return out
+
+
+def _delivery_encoding(content_type: str) -> str:
+	"""Which of the two delivery representations a part uses -- decided by the
+	DECLARED media type, never by whether the bytes happen to decode.
+
+	This is the whole point of the typed envelope. The old representation
+	emitted a `utf8` field only when the bytes decoded, so the same field
+	appeared and disappeared based on content and a consumer could not dispatch
+	on it. Now `text/...; charset=utf-8` always delivers `text`, everything else
+	always delivers `base64`, and exactly one of them is ever present."""
+	main, _, params = parse_media_type(content_type)
+	if main == "text" and params.get("charset") == "utf-8":
+		return ENCODING_TEXT
+	return ENCODING_BASE64
+
+
+def content_spec(body: bytes | None, parts: Any, *, content_type: str | None = None,
+                 disposition: str | None = None, filename: str | None = None,
+                 container_type: str | None = None,
+                 where: str = "content") -> tuple[str | None, list[dict] | None]:
+	"""Normalize the two authoring surfaces into ONE manifest.
+
+	`body` is the single-leaf convenience the CLI exposes; `parts` is the
+	general form the store has always been able to write. Both produce the same
+	shape, so a single-part message is not a special case anywhere below this
+	function -- which is the difference between multipart readiness and an
+	array with one element in it."""
+	if parts is not None:
+		if body is not None:
+			raise BatonError(f"{where}: pass either body or parts, never both")
+		if content_type is not None or disposition is not None or filename is not None:
+			raise BatonError(
+				f"{where}: per-part metadata belongs on each part, not beside the parts list")
+		nodes = normalize_parts(parts, where=where)
+	elif body is not None:
+		nodes = normalize_parts(
+			[{"content_type": content_type, "disposition": disposition,
+			  "filename": filename, "body": body}], where=where)
+	else:
+		return None, None
+	container = canonical_media_type(container_type or DEFAULT_CONTAINER_TYPE)
+	if not is_container_type(container):
+		raise BatonError(
+			f"{where}: the envelope content_type must be multipart/* (got {container!r})")
+	return container, nodes
+
+
+def total_content_size(nodes: list[dict]) -> int:
+	return sum((node["size"] or 0) if node["parts"] is None else total_content_size(node["parts"])
+	           for node in nodes)
+
+
+def _check_transient_size(nodes: list[dict]) -> None:
+	"""The transient ceiling bounds the MESSAGE, summed across its parts.
+	Bounding each part instead would let a caller carry an unbounded transient
+	payload by splitting it, which is the same row growing by another name."""
+	total = total_content_size(nodes)
+	if total > TRANSIENT_BODY_MAX_BYTES:
+		raise BatonError(
+			f"transient content exceeds {TRANSIENT_BODY_MAX_BYTES} bytes "
+			f"across all parts ({total})")
+
+
+def manifest_digest(container_type: str, nodes: list[dict]) -> str:
+	"""The identity of a message's COMPLETE ordered part manifest, metadata
+	included -- not merely of its bytes.
+
+	`_verify_retry` compares this. Two retries that differ in part order,
+	`content_type`, `disposition` or `filename` are different operations even
+	when every byte matches, and hashing the manifest rather than the payload
+	is what makes them fail closed instead of silently reporting
+	`already_committed` for an operation that was never committed."""
+	def canon(items):
+		return [{
+			"content_type": node["content_type"],
+			"disposition": node["disposition"],
+			"filename": node["filename"],
+			"sha256": node["sha256"],
+			"size": node["size"],
+			"parts": canon(node["parts"]) if node["parts"] is not None else None,
+		} for node in items]
+	document = {"content_type": canonical_media_type(container_type), "parts": canon(nodes)}
+	encoded = json.dumps(document, sort_keys=True, separators=(",", ":"),
+	                     ensure_ascii=True).encode("utf-8")
+	return hashlib.sha256(encoded).hexdigest()
 
 
 _TS_FMT = "%Y-%m-%dT%H:%M:%SZ"
@@ -389,19 +719,44 @@ _TABLES: dict[str, str] = {
 		"CREATE TABLE contents(content_id TEXT PRIMARY KEY, body BLOB NOT NULL, "
 		"sha256 TEXT NOT NULL, size INTEGER NOT NULL, created_ts TEXT NOT NULL) STRICT"
 	),
+	# Every body is an ordered tree of parts, owned by a message, a notice, or a
+	# close disposition. Part order and metadata live HERE, never as columns on
+	# the owner and never as a serialized blob, so a second part -- or a nested
+	# multipart/alternative -- is an insert rather than a protocol bump.
+	#
+	# A container part (content_type multipart/*) has children and no bytes; a
+	# leaf part has bytes and no children. `content_id` may go NULL on a leaf
+	# when a transient body is scrubbed: the identity (sha256, size) survives
+	# the bytes, which is exactly the transient contract.
+	"parts": (
+		"CREATE TABLE parts(part_id TEXT PRIMARY KEY, "
+		"owner_kind TEXT NOT NULL CHECK(owner_kind IN ('message','notice','disposition')), "
+		"owner_id TEXT NOT NULL, parent_part_id TEXT REFERENCES parts(part_id), "
+		"ordinal INTEGER NOT NULL CHECK(ordinal >= 0), "
+		"content_type TEXT NOT NULL, "
+		"disposition TEXT NOT NULL CHECK(disposition IN ('inline','attachment')), "
+		"filename TEXT, content_id TEXT REFERENCES contents(content_id), "
+		"sha256 TEXT, size INTEGER, created_ts TEXT NOT NULL, "
+		"CHECK(parent_part_id IS NOT part_id), "
+		"CHECK((sha256 IS NULL) = (size IS NULL)), "
+		"CHECK((content_type LIKE 'multipart/%') = (sha256 IS NULL)), "
+		"CHECK(NOT (content_type LIKE 'multipart/%' "
+		"AND (content_id IS NOT NULL OR filename IS NOT NULL)))) STRICT"
+	),
 	"messages": (
 		"CREATE TABLE messages(id TEXT PRIMARY KEY, "
 		"from_participant TEXT NOT NULL, to_participant TEXT NOT NULL, "
 		"kind TEXT NOT NULL, thread_id TEXT, "
 		"retention TEXT NOT NULL CHECK(retention IN ('durable','transient')), "
-		"content_id TEXT REFERENCES contents(content_id), content_sha256 TEXT, "
+		"content_type TEXT, manifest_sha256 TEXT, "
 		"attach_root_id TEXT, attach_path TEXT, attach_sha256 TEXT, "
 		"attach_size INTEGER, attach_generation INTEGER, "
 		"outcome TEXT, created_ts TEXT NOT NULL, "
 		"state TEXT NOT NULL CHECK(state IN ('pending','claimed','completed','closed','expired','quarantined')), "
 		"responds_to TEXT REFERENCES messages(id), completed_ts TEXT, "
 		"CHECK((state IN ('pending','claimed')) = (completed_ts IS NULL)), "
-		"CHECK((content_sha256 IS NOT NULL) + (attach_root_id IS NOT NULL) = 1), "
+		"CHECK((manifest_sha256 IS NOT NULL) + (attach_root_id IS NOT NULL) = 1), "
+		"CHECK((content_type IS NULL) = (manifest_sha256 IS NULL)), "
 		"CHECK((attach_root_id IS NULL) = (attach_path IS NULL) "
 		"AND (attach_root_id IS NULL) = (attach_sha256 IS NULL) "
 		"AND (attach_root_id IS NULL) = (attach_size IS NULL) "
@@ -419,14 +774,14 @@ _TABLES: dict[str, str] = {
 		"CREATE TABLE dispositions(claim_id TEXT PRIMARY KEY REFERENCES claims(claim_id), "
 		"kind TEXT NOT NULL CHECK(kind IN ('reply','close')), outcome TEXT, "
 		"retention TEXT NOT NULL CHECK(retention IN ('durable','transient')), "
-		"content_id TEXT REFERENCES contents(content_id), content_sha256 TEXT, "
-		"response_message_id TEXT REFERENCES messages(id), created_ts TEXT NOT NULL) STRICT"
+		"content_type TEXT, manifest_sha256 TEXT, "
+		"response_message_id TEXT REFERENCES messages(id), created_ts TEXT NOT NULL, "
+		"CHECK((content_type IS NULL) = (manifest_sha256 IS NULL))) STRICT"
 	),
 	"notices": (
 		"CREATE TABLE notices(id TEXT PRIMARY KEY, from_participant TEXT NOT NULL, "
-
-		"kind TEXT NOT NULL, content_id TEXT REFERENCES contents(content_id), "
-		"content_sha256 TEXT, created_ts TEXT NOT NULL, "
+		"kind TEXT NOT NULL, content_type TEXT NOT NULL, "
+		"manifest_sha256 TEXT NOT NULL, created_ts TEXT NOT NULL, "
 		"ttl_seconds INTEGER NOT NULL CHECK(ttl_seconds >= 1)) STRICT"
 	),
 	"notice_seen": (
@@ -480,6 +835,18 @@ _INDEXES: dict[str, str] = {
 	"messages_thread_idx": "CREATE INDEX messages_thread_idx ON messages(thread_id)",
 	"claims_one_active_idx": "CREATE UNIQUE INDEX claims_one_active_idx ON claims(message_id) WHERE state='active'",
 	"claims_message_idx": "CREATE INDEX claims_message_idx ON claims(message_id)",
+	# Two PARTIAL unique indexes rather than one composite: SQLite treats NULLs
+	# as distinct in a UNIQUE constraint, so a single index over
+	# (owner, parent_part_id, ordinal) would leave top-level ordinals -- the
+	# ones with a NULL parent -- entirely unconstrained. Order is enforced at
+	# both levels or it is enforced nowhere.
+	"parts_root_order_idx": (
+		"CREATE UNIQUE INDEX parts_root_order_idx ON parts(owner_kind, owner_id, ordinal) "
+		"WHERE parent_part_id IS NULL"),
+	"parts_child_order_idx": (
+		"CREATE UNIQUE INDEX parts_child_order_idx ON parts(parent_part_id, ordinal) "
+		"WHERE parent_part_id IS NOT NULL"),
+	"parts_owner_idx": "CREATE INDEX parts_owner_idx ON parts(owner_kind, owner_id)",
 }
 
 _CTX = "(SELECT op_id FROM op_context WHERE one_row=1)"
@@ -522,17 +889,9 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_msg_frozen_cols": (
 		"CREATE TRIGGER trg_msg_frozen_cols BEFORE UPDATE OF id, from_participant, to_participant, kind, "
-		"thread_id, retention, content_sha256, attach_root_id, attach_path, attach_sha256, attach_size, "
-		"attach_generation, outcome, created_ts, responds_to ON messages "
+		"thread_id, retention, content_type, manifest_sha256, attach_root_id, attach_path, attach_sha256, "
+		"attach_size, attach_generation, outcome, created_ts, responds_to ON messages "
 		"BEGIN SELECT RAISE(ABORT, 'immutable message column'); END"
-	),
-	"trg_msg_content_scrub_only": (
-		f"CREATE TRIGGER trg_msg_content_scrub_only BEFORE UPDATE OF content_id ON messages "
-		f"WHEN new.content_id IS NOT NULL OR old.content_id IS NULL "
-		f"OR old.retention IS NOT 'transient' "
-		f"OR (old.state NOT IN ('completed','closed') AND new.state NOT IN ('completed','closed')) "
-		f"OR {_CTX} IS NULL OR {_CTX_VERB} NOT IN ('reply','close','gc') "
-		f"BEGIN SELECT RAISE(ABORT, 'scrub is restricted to a terminal transient message in a consuming operation'); END"
 	),
 	"trg_msg_completed_ts_guard": (
 		"CREATE TRIGGER trg_msg_completed_ts_guard BEFORE UPDATE OF completed_ts ON messages "
@@ -580,11 +939,42 @@ _TRIGGERS: dict[str, str] = {
 		f"WHEN {_CTX} IS NULL "
 		f"BEGIN SELECT RAISE(ABORT, 'disposition insert requires operation context'); END"
 	),
+	# A reply's disposition and its response message describe the SAME content,
+	# so the manifest digests must agree. Under multipart this covers part
+	# order, media types, dispositions and filenames -- not only the bytes.
 	"trg_disp_reply_hash": (
 		"CREATE TRIGGER trg_disp_reply_hash BEFORE INSERT ON dispositions "
 		"WHEN new.kind='reply' AND (new.response_message_id IS NULL "
-		"OR new.content_sha256 IS NOT (SELECT content_sha256 FROM messages WHERE id=new.response_message_id)) "
-		"BEGIN SELECT RAISE(ABORT, 'reply disposition content hash mismatch'); END"
+		"OR new.manifest_sha256 IS NOT (SELECT manifest_sha256 FROM messages WHERE id=new.response_message_id) "
+		"OR new.content_type IS NOT (SELECT content_type FROM messages WHERE id=new.response_message_id)) "
+		"BEGIN SELECT RAISE(ABORT, 'reply disposition content manifest mismatch'); END"
+	),
+	"trg_parts_insert_guard": (
+		f"CREATE TRIGGER trg_parts_insert_guard BEFORE INSERT ON parts "
+		f"WHEN {_CTX} IS NULL "
+		f"BEGIN SELECT RAISE(ABORT, 'part insert requires operation context'); END"
+	),
+	"trg_parts_frozen_cols": (
+		"CREATE TRIGGER trg_parts_frozen_cols BEFORE UPDATE OF part_id, owner_kind, owner_id, "
+		"parent_part_id, ordinal, content_type, disposition, filename, sha256, size, created_ts ON parts "
+		"BEGIN SELECT RAISE(ABORT, 'immutable part column'); END"
+	),
+	# The part-level successor to the message content scrub guard: dropping the
+	# bytes of a terminal transient message is the ONLY permitted content_id
+	# mutation, and the owning message must actually be transient and terminal.
+	"trg_parts_scrub_only": (
+		f"CREATE TRIGGER trg_parts_scrub_only BEFORE UPDATE OF content_id ON parts "
+		f"WHEN new.content_id IS NOT NULL OR old.content_id IS NULL "
+		f"OR old.owner_kind IS NOT 'message' "
+		f"OR NOT EXISTS(SELECT 1 FROM messages m WHERE m.id = old.owner_id "
+		f"AND m.retention='transient' AND m.state IN ('completed','closed')) "
+		f"OR {_CTX} IS NULL OR {_CTX_VERB} NOT IN ('reply','close','gc') "
+		f"BEGIN SELECT RAISE(ABORT, 'scrub is restricted to a terminal transient message part in a consuming operation'); END"
+	),
+	"trg_parts_delete_guard": (
+		f"CREATE TRIGGER trg_parts_delete_guard BEFORE DELETE ON parts "
+		f"WHEN {_CTX_VERB} IS NULL OR {_CTX_VERB} NOT IN ('gc','expire') "
+		f"BEGIN SELECT RAISE(ABORT, 'parts are removable only by gc or expire'); END"
 	),
 	"trg_disp_update": (
 		"CREATE TRIGGER trg_disp_update BEFORE UPDATE ON dispositions "
@@ -1061,11 +1451,17 @@ class Store:
 				f"attachment {msg['attach_path']!r} no longer matches its pinned hash; refusing", EXIT_DAMAGE)
 
 	def send(self, sender: str, recipient: str, *, kind: str,
-	         body: bytes | None, thread_id: str | None = None,
+	         body: bytes | None = None, parts: Any = None,
+	         content_type: str | None = None, disposition: str | None = None,
+	         filename: str | None = None, container_type: str | None = None,
+	         thread_id: str | None = None,
 	         retention: str = RETENTION_DURABLE, outcome: str | None = None,
 	         responds_to: str | None = None, attach: Any = None) -> str:
-		if (body is None) == (attach is None):
-			raise BatonError("a message requires exactly one of body or attachment (XOR)")
+		container, nodes = content_spec(
+			body, parts, content_type=content_type, disposition=disposition,
+			filename=filename, container_type=container_type, where="send content")
+		if (nodes is None) == (attach is None):
+			raise BatonError("a message requires exactly one of content or attachment (XOR)")
 		attach_cols = self._resolve_attachment(attach) if attach is not None else None
 		self._check_identity(sender)
 		self._check_participant(recipient, "send")
@@ -1075,33 +1471,29 @@ class Store:
 			raise BatonError(f"invalid thread id {thread_id!r}")
 		if retention not in RETENTIONS:
 			raise BatonError(f"invalid retention {retention!r}")
-		if retention == RETENTION_TRANSIENT and body is not None and len(body) > TRANSIENT_BODY_MAX_BYTES:
-			raise BatonError(f"transient body exceeds {TRANSIENT_BODY_MAX_BYTES} bytes")
+		if retention == RETENTION_TRANSIENT and nodes is not None:
+			_check_transient_size(nodes)
 		self._txn_begin("send", participant=sender)
 		try:
 			message_id = self._insert_message(
-				sender, recipient, kind=kind, body=body, thread_id=thread_id,
-				retention=retention, outcome=outcome, responds_to=responds_to,
-				attach_cols=attach_cols)
+				sender, recipient, kind=kind, container_type=container, nodes=nodes,
+				thread_id=thread_id, retention=retention, outcome=outcome,
+				responds_to=responds_to, attach_cols=attach_cols)
 			self._txn_commit()
 			return message_id
 		except BaseException:
 			self._txn_rollback()
 			raise
 
-	def _insert_message(self, sender: str, recipient: str, *, kind: str, body: bytes | None,
+	def _insert_message(self, sender: str, recipient: str, *, kind: str,
+	                    container_type: str | None, nodes: list[dict] | None,
 	                    thread_id: str | None, retention: str, outcome: str | None,
 	                    responds_to: str | None, attach_cols: tuple | None = None) -> str:
 		now = _utc_now_iso()
 		message_id = new_id()
-		content_id = None
-		sha = None
-		if body is not None:
-			content_id = new_id()
-			sha = hashlib.sha256(body).hexdigest()
-			self.conn.execute(
-				"INSERT INTO contents(content_id, body, sha256, size, created_ts) VALUES(?,?,?,?,?)",
-				(content_id, body, sha, len(body), now))
+		manifest = None
+		if nodes is not None:
+			manifest = manifest_digest(container_type, nodes)
 		a_root, a_path, a_sha, a_size = attach_cols if attach_cols is not None else (None, None, None, None)
 		a_gen = None
 		if attach_cols is not None:
@@ -1112,12 +1504,125 @@ class Store:
 			a_gen = binding["binding_generation"]
 		self.conn.execute(
 			"INSERT INTO messages(id, from_participant, to_participant, kind, thread_id, retention, "
-			"content_id, content_sha256, attach_root_id, attach_path, attach_sha256, attach_size, "
+			"content_type, manifest_sha256, attach_root_id, attach_path, attach_sha256, attach_size, "
 			"attach_generation, outcome, created_ts, state, responds_to) "
 			"VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'pending', ?)",
-			(message_id, sender, recipient, kind, thread_id, retention, content_id, sha,
+			(message_id, sender, recipient, kind, thread_id, retention, container_type, manifest,
 			 a_root, a_path, a_sha, a_size, a_gen, outcome, now, responds_to))
+		if nodes is not None:
+			self._write_parts("message", message_id, nodes, now)
 		return message_id
+
+	# -- parts --------------------------------------------------------------
+
+	def _write_parts(self, owner_kind: str, owner_id: str, nodes: list[dict],
+	                 now: str, *, retain: bool = True) -> None:
+		"""Persist a normalized part tree. `retain=False` records the manifest
+		(types, order, hashes, sizes) without keeping the bytes -- the transient
+		contract, which has always been "identity survives, payload does not"."""
+		def write(items: list[dict], parent_id: str | None) -> None:
+			for ordinal, node in enumerate(items):
+				part_id = new_id()
+				content_id = None
+				if node["parts"] is None and retain:
+					content_id = new_id()
+					self.conn.execute(
+						"INSERT INTO contents(content_id, body, sha256, size, created_ts) "
+						"VALUES(?,?,?,?,?)",
+						(content_id, node["body"], node["sha256"], node["size"], now))
+				self.conn.execute(
+					"INSERT INTO parts(part_id, owner_kind, owner_id, parent_part_id, ordinal, "
+					"content_type, disposition, filename, content_id, sha256, size, created_ts) "
+					"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+					(part_id, owner_kind, owner_id, parent_id, ordinal, node["content_type"],
+					 node["disposition"], node["filename"], content_id,
+					 node["sha256"], node["size"], now))
+				if node["parts"] is not None:
+					write(node["parts"], part_id)
+		write(nodes, None)
+
+	def _read_parts(self, owner_kind: str, owner_id: str) -> list[dict]:
+		"""Rebuild the stored part tree in document order, with the bytes of
+		every retained leaf. A row that is unreachable from the roots, or a
+		parent cycle, is DAMAGE: the manifest digest would no longer describe
+		what is stored, and delivering it would be delivering a lie."""
+		rows = self.conn.execute(
+			"SELECT p.part_id, p.parent_part_id, p.ordinal, p.content_type, p.disposition, "
+			"p.filename, p.sha256, p.size, c.body "
+			"FROM parts p LEFT JOIN contents c ON c.content_id = p.content_id "
+			"WHERE p.owner_kind=? AND p.owner_id=? ORDER BY p.ordinal",
+			(owner_kind, owner_id)).fetchall()
+		if not rows:
+			return []
+		by_parent: dict = {}
+		for row in rows:
+			by_parent.setdefault(row["parent_part_id"], []).append(row)
+		seen: set[str] = set()
+
+		def build(parent_id: str | None) -> list[dict]:
+			out = []
+			for row in sorted(by_parent.get(parent_id, []), key=lambda r: r["ordinal"]):
+				if row["part_id"] in seen:
+					raise BatonError(
+						f"part tree for {owner_kind} {owner_id!r} contains a cycle", EXIT_DAMAGE)
+				seen.add(row["part_id"])
+				container = is_container_type(row["content_type"])
+				out.append({
+					"part_id": row["part_id"],
+					"content_type": row["content_type"],
+					"disposition": row["disposition"],
+					"filename": row["filename"],
+					"sha256": row["sha256"],
+					"size": row["size"],
+					"body": row["body"],
+					"parts": build(row["part_id"]) if container else None,
+				})
+			return out
+		tree = build(None)
+		if len(seen) != len(rows):
+			raise BatonError(
+				f"part tree for {owner_kind} {owner_id!r} has {len(rows) - len(seen)} unreachable "
+				f"row(s); the stored manifest is incomplete", EXIT_DAMAGE)
+		return tree
+
+	def _parts_depth_first(self, owner_kind: str, owner_id: str) -> list[sqlite3.Row]:
+		"""Owner's part rows deepest-first, so deletes never orphan a child
+		behind its parent's foreign key."""
+		rows = self.conn.execute(
+			"SELECT part_id, parent_part_id, content_id FROM parts "
+			"WHERE owner_kind=? AND owner_id=?", (owner_kind, owner_id)).fetchall()
+		parents = {row["part_id"]: row["parent_part_id"] for row in rows}
+		depths = {}
+		for part_id in parents:
+			depth, cursor, walked = 0, part_id, set()
+			while parents.get(cursor) is not None:
+				if cursor in walked:
+					raise BatonError(
+						f"part tree for {owner_kind} {owner_id!r} contains a cycle", EXIT_DAMAGE)
+				walked.add(cursor)
+				cursor = parents[cursor]
+				depth += 1
+			depths[part_id] = depth
+		return sorted(rows, key=lambda r: -depths[r["part_id"]])
+
+	def _delete_parts(self, owner_kind: str, owner_id: str) -> None:
+		for row in self._parts_depth_first(owner_kind, owner_id):
+			self.conn.execute("DELETE FROM parts WHERE part_id=?", (row["part_id"],))
+			if row["content_id"] is not None:
+				self.conn.execute(
+					"DELETE FROM contents WHERE content_id=?", (row["content_id"],))
+
+	def _scrub_parts(self, owner_kind: str, owner_id: str) -> None:
+		"""Drop the BYTES of every retained leaf while leaving the manifest --
+		order, media types, dispositions, filenames, sizes and hashes -- intact.
+		A consumed transient message can still prove what it carried."""
+		for row in self.conn.execute(
+				"SELECT part_id, content_id FROM parts WHERE owner_kind=? AND owner_id=? "
+				"AND content_id IS NOT NULL", (owner_kind, owner_id)).fetchall():
+			self.conn.execute(
+				"UPDATE parts SET content_id=NULL WHERE part_id=?", (row["part_id"],))
+			self.conn.execute(
+				"DELETE FROM contents WHERE content_id=?", (row["content_id"],))
 
 	def _first_deliverable(self, participant: str) -> tuple[str | None, int]:
 		"""Oldest pending message whose attachment still verifies, in
@@ -1189,7 +1694,7 @@ class Store:
 		row = self.conn.execute(
 			"SELECT c.claim_id, c.message_id, c.participant, c.state AS claim_state, "
 			"m.from_participant, m.to_participant, m.kind, m.thread_id, m.retention, "
-			"m.content_id, m.content_sha256, m.state AS message_state "
+			"m.content_type, m.manifest_sha256, m.state AS message_state "
 			"FROM claims c JOIN messages m ON m.id = c.message_id WHERE c.claim_id=?",
 			(claim_id,)).fetchone()
 		if row is None:
@@ -1209,16 +1714,25 @@ class Store:
 
 	def _existing_disposition(self, claim_id: str) -> sqlite3.Row | None:
 		return self.conn.execute(
-			"SELECT d.claim_id, d.kind, d.outcome, d.retention, d.content_id, d.content_sha256, "
+			"SELECT d.claim_id, d.kind, d.outcome, d.retention, d.content_type, d.manifest_sha256, "
 			"d.response_message_id, d.created_ts FROM dispositions d WHERE d.claim_id=?",
 			(claim_id,)).fetchone()
 
 	def _verify_retry(self, existing: sqlite3.Row, *, op: str, message_kind: str | None,
-	                  outcome: str | None, body: bytes | None, recipient: str | None,
+	                  outcome: str | None, container_type: str | None,
+	                  nodes: list[dict] | None, recipient: str | None,
 	                  thread_id: str | None = None, retention: str | None = None) -> dict:
-		"""Round-12 retry idempotence: validate the retried operation against
-		the committed disposition; matching retries redeliver, mismatches fail
-		closed. Transient bodies may already be scrubbed — compare hashes."""
+		"""Retry idempotence: validate the retried operation against the
+		committed disposition; matching retries redeliver, mismatches fail
+		closed.
+
+		Identity is the COMPLETE ORDERED PART MANIFEST, metadata included --
+		not the body bytes. Two retries whose parts differ in order, media
+		type, disposition or filename are different operations even when every
+		byte matches, and comparing manifest digests is what makes them fail
+		closed rather than report `already_committed` for something that was
+		never committed. Bytes may already be scrubbed; the manifest survives
+		scrubbing, which is the other reason to compare it."""
 		if existing["kind"] != op:
 			raise BatonError(
 				f"claim already has a committed {existing['kind']} disposition; retried {op} mismatches", EXIT_PROTOCOL)
@@ -1226,10 +1740,11 @@ class Store:
 			raise BatonError("retried outcome differs from the committed disposition", EXIT_PROTOCOL)
 		if retention is not None and existing["retention"] != retention:
 			raise BatonError("retried retention differs from the committed disposition", EXIT_PROTOCOL)
-		committed_sha = existing["content_sha256"]
-		retry_sha = hashlib.sha256(body).hexdigest() if body is not None else None
-		if committed_sha != retry_sha:
-			raise BatonError("retried content differs from the committed disposition", EXIT_PROTOCOL)
+		committed_manifest = existing["manifest_sha256"]
+		retry_manifest = manifest_digest(container_type, nodes) if nodes is not None else None
+		if existing["content_type"] != container_type or committed_manifest != retry_manifest:
+			raise BatonError(
+				"retried content manifest differs from the committed disposition", EXIT_PROTOCOL)
 		response_id = existing["response_message_id"]
 		if response_id is not None:
 			row = self.conn.execute(
@@ -1248,25 +1763,31 @@ class Store:
 			"claim_id": existing["claim_id"],
 			"kind": existing["kind"],
 			"outcome": existing["outcome"],
-			"content_sha256": committed_sha,
+			"content_type": existing["content_type"],
+			"manifest_sha256": committed_manifest,
 			"retention": existing["retention"],
 			"response_message_id": response_id,
 			"created_ts": existing["created_ts"],
 		}
 
 	def _scrub_transient_incoming(self, row: sqlite3.Row) -> None:
-		if row["retention"] == RETENTION_TRANSIENT and row["content_id"] is not None:
-			self.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (row["message_id"],))
-			self.conn.execute("DELETE FROM contents WHERE content_id=?", (row["content_id"],))
+		if row["retention"] == RETENTION_TRANSIENT and row["manifest_sha256"] is not None:
+			self._scrub_parts("message", row["message_id"])
 
 	def reply(self, claim_id: str, *, participant: str, kind: str,
-	          body: bytes | None, outcome: str | None = None,
+	          body: bytes | None = None, parts: Any = None,
+	          content_type: str | None = None, disposition: str | None = None,
+	          filename: str | None = None, container_type: str | None = None,
+	          outcome: str | None = None,
 	          recipient: str | None = None, thread_id: str | None = None,
 	          retention: str | None = None) -> dict:
 		if not KIND_RE.match(kind):
 			raise BatonError(f"invalid kind {kind!r}")
-		if body is None:
-			raise BatonError("reply requires a body (a close is the bodyless disposition)")
+		container, nodes = content_spec(
+			body, parts, content_type=content_type, disposition=disposition,
+			filename=filename, container_type=container_type, where="reply content")
+		if nodes is None:
+			raise BatonError("reply requires content (a close is the contentless disposition)")
 		if retention is not None and retention not in RETENTIONS:
 			raise BatonError(f"invalid retention {retention!r}")
 		self._txn_begin("reply")
@@ -1282,7 +1803,8 @@ class Store:
 			existing = self._existing_disposition(claim_id)
 			if existing is not None:
 				result = self._verify_retry(existing, op='reply', message_kind=kind, outcome=outcome,
-				                            body=body, recipient=effective_recipient,
+				                            container_type=container, nodes=nodes,
+				                            recipient=effective_recipient,
 				                            thread_id=effective_thread, retention=effective_retention)
 				self._txn_rollback()
 				return result
@@ -1293,17 +1815,18 @@ class Store:
 			thread = effective_thread
 			# v5-preserved surface: explicit override permitted, default inherit
 			# (v5 respond(): response_retention = retention or envelope retention).
-			if effective_retention == RETENTION_TRANSIENT and len(body) > TRANSIENT_BODY_MAX_BYTES:
-				raise BatonError(f"transient body exceeds {TRANSIENT_BODY_MAX_BYTES} bytes")
+			if effective_retention == RETENTION_TRANSIENT:
+				_check_transient_size(nodes)
 			response_id = self._insert_message(
-				row["to_participant"], to, kind=kind, body=body, thread_id=thread,
-				retention=effective_retention, outcome=outcome, responds_to=row["message_id"])
+				row["to_participant"], to, kind=kind, container_type=container, nodes=nodes,
+				thread_id=thread, retention=effective_retention, outcome=outcome,
+				responds_to=row["message_id"])
 			now = _utc_now_iso()
-			sha = hashlib.sha256(body).hexdigest() if body is not None else None
+			manifest = manifest_digest(container, nodes)
 			self.conn.execute(
-				"INSERT INTO dispositions(claim_id, kind, outcome, retention, content_id, content_sha256, "
-				"response_message_id, created_ts) VALUES(?, 'reply', ?, ?, NULL, ?, ?, ?)",
-				(claim_id, outcome, effective_retention, sha, response_id, now))
+				"INSERT INTO dispositions(claim_id, kind, outcome, retention, content_type, "
+				"manifest_sha256, response_message_id, created_ts) VALUES(?, 'reply', ?, ?, ?, ?, ?, ?)",
+				(claim_id, outcome, effective_retention, container, manifest, response_id, now))
 			self.conn.execute(
 				"UPDATE claims SET state='completed', terminal_ts=? WHERE claim_id=?", (now, claim_id))
 			self.conn.execute(
@@ -1315,7 +1838,8 @@ class Store:
 				"claim_id": claim_id,
 				"kind": kind,
 				"outcome": outcome,
-				"content_sha256": sha,
+				"content_type": container,
+				"manifest_sha256": manifest,
 				"retention": effective_retention,
 				"response_message_id": response_id,
 				"created_ts": now,
@@ -1325,10 +1849,16 @@ class Store:
 			raise
 
 	def close_claim(self, claim_id: str, *, participant: str,
-	                body: bytes | None = None, outcome: str | None = None,
+	                body: bytes | None = None, parts: Any = None,
+	                content_type: str | None = None, disposition: str | None = None,
+	                filename: str | None = None, container_type: str | None = None,
+	                outcome: str | None = None,
 	                retention: str | None = None) -> dict:
 		if retention is not None and retention not in RETENTIONS:
 			raise BatonError(f"invalid retention {retention!r}")
+		container, nodes = content_spec(
+			body, parts, content_type=content_type, disposition=disposition,
+			filename=filename, container_type=container_type, where="close content")
 		self._txn_begin("close")
 		try:
 			row = self._load_active_claim(claim_id, participant)
@@ -1337,30 +1867,28 @@ class Store:
 			existing = self._existing_disposition(claim_id)
 			if existing is not None:
 				result = self._verify_retry(existing, op='close', message_kind=None, outcome=outcome,
-				                            body=body, recipient=None, retention=effective_retention)
+				                            container_type=container, nodes=nodes,
+				                            recipient=None, retention=effective_retention)
 				self._txn_rollback()
 				return result
 			if row["claim_state"] != "active":
 				raise BatonError(f"claim {claim_id!r} is {row['claim_state']}, not active", EXIT_PROTOCOL)
 			now = _utc_now_iso()
-			content_id = None
-			sha = None
-			if body is not None:
+			manifest = None
+			if nodes is not None:
 				# The EFFECTIVE disposition retention (override or inherit)
-				# decides retained body vs hash-only identity (T16).
-				sha = hashlib.sha256(body).hexdigest()
-				if effective_retention == RETENTION_TRANSIENT:
-					if len(body) > TRANSIENT_BODY_MAX_BYTES:
-						raise BatonError(f"transient body exceeds {TRANSIENT_BODY_MAX_BYTES} bytes")
-				else:
-					content_id = new_id()
-					self.conn.execute(
-						"INSERT INTO contents(content_id, body, sha256, size, created_ts) VALUES(?,?,?,?,?)",
-						(content_id, body, sha, len(body), now))
+				# decides retained bytes vs manifest-only identity (T16). The
+				# manifest is recorded either way, so a transient close can
+				# still prove exactly what it carried.
+				manifest = manifest_digest(container, nodes)
+				retain = effective_retention != RETENTION_TRANSIENT
+				if not retain:
+					_check_transient_size(nodes)
+				self._write_parts("disposition", claim_id, nodes, now, retain=retain)
 			self.conn.execute(
-				"INSERT INTO dispositions(claim_id, kind, outcome, retention, content_id, content_sha256, "
-				"response_message_id, created_ts) VALUES(?, 'close', ?, ?, ?, ?, NULL, ?)",
-				(claim_id, outcome, effective_retention, content_id, sha, now))
+				"INSERT INTO dispositions(claim_id, kind, outcome, retention, content_type, "
+				"manifest_sha256, response_message_id, created_ts) VALUES(?, 'close', ?, ?, ?, ?, NULL, ?)",
+				(claim_id, outcome, effective_retention, container, manifest, now))
 			self.conn.execute(
 				"UPDATE claims SET state='completed', terminal_ts=? WHERE claim_id=?", (now, claim_id))
 			self.conn.execute(
@@ -1372,7 +1900,8 @@ class Store:
 				"claim_id": claim_id,
 				"kind": "close",
 				"outcome": outcome,
-				"content_sha256": sha,
+				"content_type": container,
+				"manifest_sha256": manifest,
 				"retention": effective_retention,
 				"response_message_id": None,
 				"created_ts": now,
@@ -1384,11 +1913,19 @@ class Store:
 	# -- notices ------------------------------------------------------------
 
 	def send_notice(self, sender: str, *, kind: str,
-	                body: bytes, ttl_seconds: int | None = None) -> str:
+	                body: bytes | None = None, parts: Any = None,
+	                content_type: str | None = None, disposition: str | None = None,
+	                filename: str | None = None, container_type: str | None = None,
+	                ttl_seconds: int | None = None) -> str:
 		"""Broadcast a notice with a FINITE lifetime (default 86400s, the v5
 		protocol TTL). Immortal notices are not constructible. The exact
 		authoring participant is recorded immutably and
-		is the only identity permitted to expire the notice early."""
+		is the only identity permitted to expire the notice early.
+
+		Notices use the SAME content representation as directed messages --
+		same parts table, same manifest digest, same envelope. The two inbound
+		channels diverged once before, and a consumer had to special-case which
+		one it was reading; that is why there is one code path here."""
 		self._check_identity(sender)
 		if not KIND_RE.match(kind):
 			raise BatonError(f"invalid kind {kind!r}")
@@ -1396,21 +1933,22 @@ class Store:
 			ttl_seconds = DEFAULT_NOTICE_TTL_SECONDS
 		if type(ttl_seconds) is not int or ttl_seconds < 1:
 			raise BatonError("ttl_seconds must be a positive integer")
-		if len(body) > TRANSIENT_BODY_MAX_BYTES:
-			raise BatonError(f"notice body exceeds {TRANSIENT_BODY_MAX_BYTES} bytes")
+		container, nodes = content_spec(
+			body, parts, content_type=content_type, disposition=disposition,
+			filename=filename, container_type=container_type, where="notice content")
+		if nodes is None:
+			raise BatonError("a notice requires content")
+		_check_transient_size(nodes)
 		self._txn_begin("send", participant=sender)
 		try:
 			now = _utc_now_iso()
 			notice_id = new_id()
-			content_id = new_id()
-			sha = hashlib.sha256(body).hexdigest()
-			self.conn.execute(
-				"INSERT INTO contents(content_id, body, sha256, size, created_ts) VALUES(?,?,?,?,?)",
-				(content_id, body, sha, len(body), now))
+			manifest = manifest_digest(container, nodes)
 			self.conn.execute(
 				"INSERT INTO notices(id, from_participant, kind, "
-				"content_id, content_sha256, created_ts, ttl_seconds) VALUES(?,?,?,?,?,?,?)",
-				(notice_id, sender, kind, content_id, sha, now, ttl_seconds))
+				"content_type, manifest_sha256, created_ts, ttl_seconds) VALUES(?,?,?,?,?,?,?)",
+				(notice_id, sender, kind, container, manifest, now, ttl_seconds))
+			self._write_parts("notice", notice_id, nodes, now)
 			self._txn_commit()
 			return notice_id
 		except BaseException:
@@ -1438,8 +1976,8 @@ class Store:
 		try:
 			now = _utc_now_iso()
 			rows = self.conn.execute(
-				"SELECT n.id, n.from_participant, n.kind, n.content_sha256, n.created_ts, "
-				"n.ttl_seconds, c.body FROM notices n LEFT JOIN contents c ON c.content_id=n.content_id "
+				"SELECT n.id, n.from_participant, n.kind, n.content_type, n.manifest_sha256, "
+				"n.created_ts, n.ttl_seconds FROM notices n "
 				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
 				"WHERE s.notice_id=n.id AND s.participant=?) "
 				"ORDER BY n.created_ts, n.id",
@@ -1455,6 +1993,7 @@ class Store:
 					"VALUES(?,?,?)", (row["id"], participant, now))
 				entry = dict(row)
 				entry["seen_ts"] = now
+				entry["parts"] = self._read_parts("notice", row["id"])
 				unseen.append(entry)
 			_fault("see:selected")
 			self._txn_commit()
@@ -1493,13 +2032,13 @@ class Store:
 			now = _utc_now_iso()
 			if notice_id is not None:
 				rows = self.conn.execute(
-					"SELECT id, from_participant, content_id, created_ts, "
+					"SELECT id, from_participant, created_ts, "
 					"ttl_seconds FROM notices WHERE id=?", (notice_id,)).fetchall()
 				if not rows:
 					raise BatonError(f"unknown notice {notice_id!r}", EXIT_NONE)
 			else:
 				rows = self.conn.execute(
-					"SELECT id, from_participant, content_id, created_ts, "
+					"SELECT id, from_participant, created_ts, "
 					"ttl_seconds FROM notices").fetchall()
 			removed = []
 			for row in rows:
@@ -1512,9 +2051,8 @@ class Store:
 							f"authoring participant; a dead author's notice is "
 							f"swept when its TTL elapses")
 					continue
+				self._delete_parts("notice", row["id"])
 				self.conn.execute("DELETE FROM notices WHERE id=?", (row["id"],))
-				if row["content_id"] is not None:
-					self.conn.execute("DELETE FROM contents WHERE content_id=?", (row["content_id"],))
 				removed.append(row["id"])
 			self._txn_commit()
 			return removed
@@ -1787,27 +2325,21 @@ class Store:
 					for (cid,) in self.conn.execute(
 							"SELECT claim_id FROM claims WHERE message_id=?", (mid,)).fetchall():
 						disp = self.conn.execute(
-							"SELECT content_id FROM dispositions WHERE claim_id=?", (cid,)).fetchone()
+							"SELECT claim_id FROM dispositions WHERE claim_id=?", (cid,)).fetchone()
 						if disp is not None:
+							self._delete_parts("disposition", cid)
 							self.conn.execute("DELETE FROM dispositions WHERE claim_id=?", (cid,))
-							if disp["content_id"] is not None:
-								self.conn.execute(
-									"DELETE FROM contents WHERE content_id=?", (disp["content_id"],))
 						self.conn.execute("DELETE FROM claims WHERE claim_id=?", (cid,))
 				for mid in ordered:
-					content = self.conn.execute(
-						"SELECT content_id FROM messages WHERE id=?", (mid,)).fetchone()
+					self._delete_parts("message", mid)
 					self.conn.execute("DELETE FROM messages WHERE id=?", (mid,))
-					if content is not None and content["content_id"] is not None:
-						self.conn.execute("DELETE FROM contents WHERE content_id=?", (content["content_id"],))
 					removed_messages.append(mid)
 			expired = []
 			for row in self.conn.execute(
-					"SELECT id, content_id, created_ts, ttl_seconds FROM notices").fetchall():
+					"SELECT id, created_ts, ttl_seconds FROM notices").fetchall():
 				if _notice_expired(row["created_ts"], row["ttl_seconds"], now_ts):
+					self._delete_parts("notice", row["id"])
 					self.conn.execute("DELETE FROM notices WHERE id=?", (row["id"],))
-					if row["content_id"] is not None:
-						self.conn.execute("DELETE FROM contents WHERE content_id=?", (row["content_id"],))
 					expired.append(row["id"])
 			self._txn_commit()
 			return {"messages": removed_messages, "notices": expired, "cutoff": cutoff}
@@ -1818,13 +2350,12 @@ class Store:
 	# -- reads --------------------------------------------------------------
 
 	def get_message(self, message_id: str) -> dict:
-		row = self.conn.execute(
-			"SELECT m.*, c.body, c.size AS content_size "
-			"FROM messages m LEFT JOIN contents c ON c.content_id = m.content_id "
-			"WHERE m.id=?", (message_id,)).fetchone()
+		row = self.conn.execute("SELECT * FROM messages WHERE id=?", (message_id,)).fetchone()
 		if row is None:
 			raise BatonError(f"unknown message {message_id!r}", EXIT_NONE)
-		return dict(row)
+		out = dict(row)
+		out["parts"] = self._read_parts("message", message_id) if row["manifest_sha256"] else []
+		return out
 
 	def get_claim(self, claim_id: str) -> dict:
 		row = self.conn.execute("SELECT * FROM claims WHERE claim_id=?", (claim_id,)).fetchone()
@@ -3130,41 +3661,93 @@ def wait_for_message(config_path: str, participant: str, *,
 				watch.close()
 
 
-def _body_repr(body: bytes | None, expected_sha256: str | None,
-               expected_size: int | None = None) -> dict | None:
-	"""Deterministic lossless JSON representation of a byte body: base64 +
-	size + sha256 (RECOMPUTED — a stored-metadata mismatch is damage, never
-	delivered), plus an exact utf8 field when the bytes decode cleanly."""
+def _part_repr(node: dict) -> dict:
+	"""One part of a delivered content envelope.
+
+	A container carries its nested `parts` and no bytes. A leaf carries
+	`size`, `sha256`, and EXACTLY ONE delivery representation, named by
+	`encoding`: `text` for `text/...; charset=utf-8`, `base64` for everything
+	else. Never both -- the same bytes were previously emitted twice, as `utf8`
+	AND `base64`, and the `utf8` field came and went depending on whether the
+	content happened to decode, which left a consumer nothing stable to
+	dispatch on.
+
+	`encoding` is null, with neither content key present, when a transient body
+	has been scrubbed: the manifest outlives the payload, so a consumed
+	transient part still states what it was and what it hashed to."""
+	out = {
+		"content_type": node["content_type"],
+		"disposition": node["disposition"],
+		"filename": node["filename"],
+	}
+	if node["parts"] is not None:
+		out["parts"] = [_part_repr(child) for child in node["parts"]]
+		return out
+	out["size"] = node["size"]
+	out["sha256"] = node["sha256"]
+	body = node["body"]
 	if body is None:
-		return None
-	import base64
+		out["encoding"] = None
+		return out
+	# Metadata is RECOMPUTED from the bytes: a stored-metadata disagreement is
+	# damage, and damage is never delivered.
 	actual_sha = hashlib.sha256(body).hexdigest()
-	if expected_sha256 is not None and actual_sha != expected_sha256:
+	if node["sha256"] is not None and actual_sha != node["sha256"]:
 		raise BatonError(
-			"content bytes do not match their recorded sha256; refusing to deliver "
+			"part bytes do not match their recorded sha256; refusing to deliver "
 			"contradictory metadata", EXIT_DAMAGE)
-	if expected_size is not None and len(body) != expected_size:
+	if node["size"] is not None and len(body) != node["size"]:
 		raise BatonError(
-			"content bytes do not match their recorded size; refusing to deliver", EXIT_DAMAGE)
-	rep = {"base64": base64.b64encode(body).decode("ascii"), "size": len(body),
-	       "sha256": actual_sha}
-	try:
-		rep["utf8"] = body.decode("utf-8")
-	except UnicodeDecodeError:
-		pass
-	return rep
+			"part bytes do not match their recorded size; refusing to deliver", EXIT_DAMAGE)
+	encoding = _delivery_encoding(node["content_type"])
+	out["encoding"] = encoding
+	if encoding == ENCODING_TEXT:
+		try:
+			out[ENCODING_TEXT] = body.decode("utf-8")
+		except UnicodeDecodeError as exc:
+			raise BatonError(
+				f"part declares charset=utf-8 but its stored bytes do not decode ({exc}); "
+				f"refusing to deliver", EXIT_DAMAGE) from exc
+	else:
+		import base64
+		out[ENCODING_BASE64] = base64.b64encode(body).decode("ascii")
+	return out
+
+
+def _content_repr(container_type: str | None, nodes: list[dict] | None,
+                  expected_manifest: str | None) -> dict | None:
+	"""The typed content envelope: a container type plus an ORDERED part list,
+	always -- a single-part message is not a different shape.
+
+	The manifest digest is recomputed from what is actually stored and checked
+	against what the owner row recorded, so a part that was added, dropped,
+	reordered or retyped behind the API is damage rather than a quiet
+	redefinition of the message."""
+	if not container_type:
+		return None
+	nodes = nodes or []
+	actual = manifest_digest(container_type, nodes)
+	if expected_manifest is not None and actual != expected_manifest:
+		raise BatonError(
+			"stored parts do not match the recorded content manifest; refusing to deliver "
+			"contradictory metadata", EXIT_DAMAGE)
+	return {
+		"content_type": container_type,
+		"manifest_sha256": actual,
+		"parts": [_part_repr(node) for node in nodes],
+	}
 
 
 def _delivery(store: Store, claim: dict) -> dict:
 	"""The ONE lossless delivery shape shared by claim and wait: claim
-	metadata plus the immutable message envelope with its body (lossless) or
-	pinned attachment tuple."""
+	metadata plus the immutable message envelope with its typed content
+	envelope or pinned attachment tuple."""
 	msg = store.get_message(claim["message_id"])
-	body = msg.pop("body", None)
 	envelope = {k: msg[k] for k in (
 		"id", "from_participant", "to_participant", "kind", "thread_id", "retention",
-		"content_sha256", "outcome", "created_ts", "state", "responds_to")}
-	envelope["body"] = _body_repr(body, msg["content_sha256"], msg.get("content_size"))
+		"outcome", "created_ts", "state", "responds_to")}
+	envelope["content"] = _content_repr(
+		msg["content_type"], msg.get("parts"), msg["manifest_sha256"])
 	if msg["attach_root_id"] is not None:
 		envelope["attachment"] = {
 			"root_id": msg["attach_root_id"], "path": msg["attach_path"],
@@ -3188,9 +3771,9 @@ def _notice_delivery(notice: dict) -> dict:
 	receipt written with the read is the whole disposition — nothing to reply
 	to, nothing to close."""
 	envelope = {k: notice[k] for k in (
-		"id", "from_participant", "kind", "content_sha256", "created_ts",
-		"ttl_seconds", "seen_ts")}
-	envelope["body"] = _body_repr(notice.get("body"), notice["content_sha256"])
+		"id", "from_participant", "kind", "created_ts", "ttl_seconds", "seen_ts")}
+	envelope["content"] = _content_repr(
+		notice["content_type"], notice.get("parts"), notice["manifest_sha256"])
 	return {"notice": envelope}
 
 
@@ -3334,19 +3917,57 @@ def doctor(config_path: str) -> dict:
 					f"op {op_id} has {len(tuples)} distinct attribution tuples "
 					"(one transaction, one identity)")
 		# Content bytes: recorded size/sha must describe the stored bytes,
-		# and every content row must have EXACTLY ONE owner.
+		# and every content row must be owned by EXACTLY ONE part.
 		for r in store.conn.execute("SELECT content_id, body, sha256, size FROM contents"):
 			if len(r["body"]) != r["size"] or hashlib.sha256(r["body"]).hexdigest() != r["sha256"]:
 				report["problems"].append(
 					f"content {r['content_id']} bytes disagree with recorded size/sha256")
 			owners = store.conn.execute(
-				"SELECT (SELECT COUNT(*) FROM messages WHERE content_id=?) + "
-				"(SELECT COUNT(*) FROM dispositions WHERE content_id=?) + "
-				"(SELECT COUNT(*) FROM notices WHERE content_id=?)",
-				(r["content_id"], r["content_id"], r["content_id"])).fetchone()[0]
+				"SELECT COUNT(*) FROM parts WHERE content_id=?", (r["content_id"],)).fetchone()[0]
 			if owners != 1:
 				report["problems"].append(
-					f"content {r['content_id']} has {owners} owners (exactly one required)")
+					f"content {r['content_id']} has {owners} owning part(s) (exactly one required)")
+		# Parts: a leaf's stored bytes must match the part's own hash and size,
+		# and every owner's stored tree must still hash to the manifest digest
+		# recorded on the owner row. A part added, dropped, reordered or
+		# retyped behind the API changes what the message MEANS while leaving
+		# every individual byte intact, so the manifest is the only check that
+		# catches it.
+		for r in store.conn.execute(
+				"SELECT p.part_id, p.owner_kind, p.owner_id, p.sha256, p.size, c.body "
+				"FROM parts p JOIN contents c ON c.content_id = p.content_id"):
+			if len(r["body"]) != r["size"] or hashlib.sha256(r["body"]).hexdigest() != r["sha256"]:
+				report["problems"].append(
+					f"part {r['part_id']} bytes disagree with its recorded size/sha256")
+		owner_manifests = [
+			("message", "SELECT id, content_type, manifest_sha256 FROM messages "
+			            "WHERE manifest_sha256 IS NOT NULL"),
+			("notice", "SELECT id, content_type, manifest_sha256 FROM notices"),
+			("disposition", "SELECT claim_id AS id, content_type, manifest_sha256 FROM dispositions "
+			                "WHERE manifest_sha256 IS NOT NULL AND response_message_id IS NULL"),
+		]
+		for owner_kind, query in owner_manifests:
+			for r in store.conn.execute(query):
+				try:
+					nodes = store._read_parts(owner_kind, r["id"])
+					if not nodes:
+						report["problems"].append(
+							f"{owner_kind} {r['id']} records a content manifest but stores no parts")
+						continue
+					if manifest_digest(r["content_type"], nodes) != r["manifest_sha256"]:
+						report["problems"].append(
+							f"{owner_kind} {r['id']} stored parts do not hash to its recorded "
+							f"content manifest")
+				except BatonError as exc:
+					report["problems"].append(f"{owner_kind} {r['id']}: {exc}")
+		orphans = store.conn.execute(
+			"SELECT COUNT(*) FROM parts p WHERE NOT EXISTS("
+			"SELECT 1 FROM messages m WHERE p.owner_kind='message' AND m.id=p.owner_id) "
+			"AND NOT EXISTS(SELECT 1 FROM notices n WHERE p.owner_kind='notice' AND n.id=p.owner_id) "
+			"AND NOT EXISTS(SELECT 1 FROM dispositions d WHERE p.owner_kind='disposition' "
+			"AND d.claim_id=p.owner_id)").fetchone()[0]
+		if orphans:
+			report["problems"].append(f"{orphans} part row(s) reference no surviving owner")
 		# Retained attachments: verify pinned path/size/hash through the
 		# existing no-follow authority — a mutated or unreadable attachment
 		# is a problem, not a healthy report.
@@ -3472,11 +4093,16 @@ def doctor(config_path: str) -> dict:
 				continue
 			try:
 				for name in sorted(os.listdir(dfd)):
-					if not name.endswith(".md") or not any(
+					stem, _, ext = name.rpartition(".")
+					if not stem or ("." + ext) not in _KNOWN_PROJECTION_SUFFIXES or not any(
 							name.startswith(prefix + "-") for prefix in prefixes):
 						continue
 					projections["checked"] += 1
-					stem = name[:-3]
+					# A non-zero part appends "-part<address>"; the message id is
+					# the field before it.
+					head, sep, tail = stem.rpartition("-part")
+					if sep and all(c.isdigit() or c == "-" for c in tail) and tail:
+						stem = head
 					mid = stem.rsplit("-", 1)[-1]
 					if mid not in durable_ids:
 						projections["orphans"].append(os.path.join(proj_dir, name))
@@ -3494,9 +4120,9 @@ def dump(config_path: str) -> dict:
 	"""Human-inspection snapshot of every protocol table (read-only)."""
 	out: dict = {}
 	with open_instance(config_path, readonly=True, _for_ceremony=True) as store:
-		for table in ("instance_meta", "op_context", "messages", "claims", "dispositions",
-		              "contents", "notices", "notice_seen", "recoveries", "ceremonies",
-		              "moves", "accepted_roots"):
+		for table in ("instance_meta", "op_context", "messages", "parts", "claims",
+		              "dispositions", "contents", "notices", "notice_seen", "quarantines",
+		              "recoveries", "ceremonies", "moves", "accepted_roots"):
 			rows = []
 			for r in store.conn.execute(f"SELECT * FROM {table}"):
 				row = dict(r)
@@ -3513,27 +4139,80 @@ def dump(config_path: str) -> dict:
 	return out
 
 
+def resolve_part(nodes: list[dict], path: str) -> dict:
+	"""Address ONE part by its position in the ordered manifest.
+
+	`0` is the first top-level part; `1.2` is the third child of the second.
+	Dotted addressing exists now rather than later so that nesting a
+	`multipart/alternative` inside a message needs no new command surface --
+	the addressing scheme already reaches it."""
+	if not path:
+		raise BatonError("part address must not be empty")
+	cursor = nodes
+	node = None
+	for index, element in enumerate(path.split(".")):
+		if not element.isdigit():
+			raise BatonError(
+				f"part address {path!r} must be dot-separated non-negative integers (e.g. '0' or '1.2')")
+		ordinal = int(element)
+		if cursor is None:
+			raise BatonError(
+				f"part {'.'.join(path.split('.')[:index])} is not a container; "
+				f"{path!r} addresses nothing", EXIT_NONE)
+		if ordinal >= len(cursor):
+			raise BatonError(
+				f"part address {path!r} is out of range: only {len(cursor)} part(s) at that level",
+				EXIT_NONE)
+		node = cursor[ordinal]
+		cursor = node["parts"]
+	return node
+
+
+def projection_suffix(content_type: str) -> str:
+	"""Filename suffix for a projection, by media type. NAMING only -- nothing
+	here parses, renders, or transforms the bytes. An unmapped type gets
+	`.bin`, which is honest rather than a guess."""
+	main, sub, _ = parse_media_type(content_type)
+	return _PROJECTION_SUFFIXES.get(f"{main}/{sub}", _PROJECTION_SUFFIX_DEFAULT)
+
+
 def materialize(config_path: str, message_id: str, target_dir: str,
-                prefix: str = "message") -> str:
-	"""Re-emit a durable message body as a byte-exact projection file in
+                prefix: str = "message", part: str = "0") -> str:
+	"""Re-emit ONE durable message part as a byte-exact projection file in
 	target_dir (idempotent: an existing exact file is accepted). Projections
-	are caches, never protocol state."""
+	are caches, never protocol state.
+
+	Part `0` keeps the historical unsuffixed filename, so the single-part case
+	that every existing projection directory holds does not churn; any other
+	part appends `-part<address>`. The suffix follows the part's declared media
+	type, so a Markdown part is still `.md`."""
 	with open_instance(config_path, readonly=True) as store:
 		msg = store.get_message(message_id)
 		if msg["retention"] != RETENTION_DURABLE:
 			raise BatonError(
 				f"message {message_id!r} is transient; materializing it would create a "
 				"durable copy that defeats the retention contract")
-		if msg["body"] is None:
+		if not msg["manifest_sha256"]:
 			raise BatonError(
-				f"message {message_id!r} has no retained body (attachment-only); nothing "
+				f"message {message_id!r} has no retained content (attachment-only); nothing "
 				"to materialize")
-		body = msg["body"]
+		node = resolve_part(msg["parts"], part)
+		if node["parts"] is not None:
+			raise BatonError(
+				f"part {part!r} of message {message_id!r} is a {node['content_type']} container; "
+				f"address one of its {len(node['parts'])} leaf part(s) instead")
+		if node["body"] is None:
+			raise BatonError(
+				f"part {part!r} of message {message_id!r} has no retained bytes; nothing "
+				"to materialize")
+		body = node["body"]
+		suffix = projection_suffix(node["content_type"])
 	dirfd = _open_dir_no_follow(target_dir, "projection directory")
 	try:
 		if not KIND_RE.match(prefix):
 			raise BatonError(f"invalid projection prefix {prefix!r}")
-		name = f"{prefix}-{msg['created_ts'].replace(':', '-')}-{message_id}.md"
+		part_tag = "" if part == "0" else "-part" + part.replace(".", "-")
+		name = f"{prefix}-{msg['created_ts'].replace(':', '-')}-{message_id}{part_tag}{suffix}"
 		_publish_bytes_at(dirfd, name, body, 0o644, hashlib.sha256(body).hexdigest())
 		return os.path.join(target_dir, name)
 	finally:
@@ -3612,6 +4291,17 @@ def _build_parser():
 	def ident(c):
 		c.add_argument("--participant", required=True)
 
+	def content_opts(c):
+		"""Type the one part this command publishes. The CLI writes a
+		single-leaf manifest; the storage layer and the delivery envelope are
+		multipart throughout, so a repeatable per-part flag is a capability
+		extension rather than another protocol redesign."""
+		c.add_argument("--content-type", default=DEFAULT_CONTENT_TYPE,
+		               help=f"IANA media type of the body (default: {DEFAULT_CONTENT_TYPE})")
+		c.add_argument("--disposition", choices=sorted(DISPOSITIONS),
+		               default=DISPOSITION_INLINE, help="RFC 2183 content disposition")
+		c.add_argument("--filename", help="advisory filename for the part (RFC 2183)")
+
 
 	cmd("init", help="create a new instance beside --config")
 	c = cmd("regen", help="accept a generation+1 config")
@@ -3626,11 +4316,13 @@ def _build_parser():
 	group = c.add_mutually_exclusive_group()
 	group.add_argument("--body", help="body file or - for stdin (default: stdin)")
 	group.add_argument("--attach", help="ROOT_ID:REL/PATH — attachment-only message")
+	content_opts(c)
 	c = cmd("send-notice", help="broadcast a notice (finite TTL)")
 	ident(c)
 	c.add_argument("--kind", required=True)
 	c.add_argument("--ttl-seconds", type=int)
 	c.add_argument("--body", default="-")
+	content_opts(c)
 	c = cmd("claim", help="claim one pending message")
 	ident(c)
 	c.add_argument("--message-id")
@@ -3652,12 +4344,14 @@ def _build_parser():
 	c.add_argument("--retention", choices=sorted(RETENTIONS))
 	c.add_argument("--outcome")
 	c.add_argument("--body", default="-")
+	content_opts(c)
 	c = cmd("close", help="close a held claim (terminal disposition)")
 	ident(c)
 	c.add_argument("claim_id")
 	c.add_argument("--outcome")
 	c.add_argument("--retention", choices=sorted(RETENTIONS))
 	c.add_argument("--body")
+	content_opts(c)
 	c = cmd("recover-claim", help="capability-authorized recovery of an abandoned claim")
 	ident(c)
 	c.add_argument("claim_id")
@@ -3677,10 +4371,12 @@ def _build_parser():
 	cmd("doctor", help="read-only diagnosis")
 	cmd("dump", help="read-only table snapshot")
 	cmd("inspect", help="move/maintenance state (read-only)")
-	c = cmd("materialize", help="re-emit a durable body as a projection file")
+	c = cmd("materialize", help="re-emit one durable content part as a projection file")
 	c.add_argument("message_id")
 	c.add_argument("--dir", required=True)
 	c.add_argument("--prefix", default="message")
+	c.add_argument("--part", default="0",
+	               help="part address in the ordered manifest, e.g. 0 or 1.2 (default: 0)")
 	c = cmd("maintenance-enter", help="set the maintenance gate")
 	ident(c)
 	c.add_argument("--reason", required=True)
@@ -3735,14 +4431,17 @@ def main(argv: list[str] | None = None) -> int:
 			with open_instance(ns.config) as store:
 				message_id = store.send(
 					ns.participant, ns.to, kind=ns.kind,
-					body=body, thread_id=ns.thread, retention=ns.retention,
+					body=body, content_type=ns.content_type, disposition=ns.disposition,
+					filename=ns.filename, thread_id=ns.thread, retention=ns.retention,
 					outcome=ns.outcome, attach=_parse_attach(ns.attach))
 			_print_result({"message_id": message_id})
 		elif ns.command == "send-notice":
 			with open_instance(ns.config) as store:
 				notice_id = store.send_notice(
 					ns.participant, kind=ns.kind,
-					body=_read_body(ns.body) or b"", ttl_seconds=ns.ttl_seconds)
+					body=_read_body(ns.body) or b"",
+					content_type=ns.content_type, disposition=ns.disposition,
+					filename=ns.filename, ttl_seconds=ns.ttl_seconds)
 			_print_result({"notice_id": notice_id})
 		elif ns.command == "claim":
 			with open_instance(ns.config) as store:
@@ -3757,9 +4456,9 @@ def main(argv: list[str] | None = None) -> int:
 		elif ns.command == "see":
 			with open_instance(ns.config) as store:
 				seen = store.see(ns.participant)
-			for notice in seen:
-				notice["body"] = _body_repr(notice.get("body"), notice.get("content_sha256"))
-			_print_result({"notices": seen})
+			# One representation for both inbound channels: `see` prints the
+			# same content envelope `wait` delivers under {"notice": ...}.
+			_print_result({"notices": [_notice_delivery(n)["notice"] for n in seen]})
 		elif ns.command == "expire":
 			with open_instance(ns.config) as store:
 				removed = store.expire(ns.participant,
@@ -3769,14 +4468,19 @@ def main(argv: list[str] | None = None) -> int:
 			with open_instance(ns.config) as store:
 				result = store.reply(ns.claim_id, participant=ns.participant,
 				                     kind=ns.kind, body=_read_body(ns.body),
-				                     outcome=ns.outcome, recipient=ns.to,
+				                     content_type=ns.content_type, disposition=ns.disposition,
+				                     filename=ns.filename, outcome=ns.outcome, recipient=ns.to,
 				                     thread_id=ns.thread, retention=ns.retention)
 			_print_result(result)
 		elif ns.command == "close":
 			with open_instance(ns.config) as store:
-				result = store.close_claim(ns.claim_id, participant=ns.participant,
-				                           body=_read_body(ns.body), outcome=ns.outcome,
-				                           retention=ns.retention)
+				body = _read_body(ns.body)
+				result = store.close_claim(
+					ns.claim_id, participant=ns.participant, body=body,
+					content_type=ns.content_type if body is not None else None,
+					disposition=ns.disposition if body is not None else None,
+					filename=ns.filename if body is not None else None,
+					outcome=ns.outcome, retention=ns.retention)
 			_print_result(result)
 		elif ns.command == "recover-claim":
 			with open_instance(ns.config) as store:
@@ -3803,7 +4507,7 @@ def main(argv: list[str] | None = None) -> int:
 		elif ns.command == "inspect":
 			_print_result(move_status_inspect(ns.config))
 		elif ns.command == "materialize":
-			path = materialize(ns.config, ns.message_id, ns.dir, prefix=ns.prefix)
+			path = materialize(ns.config, ns.message_id, ns.dir, prefix=ns.prefix, part=ns.part)
 			_print_result({"projection": path})
 		elif ns.command == "maintenance-enter":
 			_print_result(maintenance_enter(

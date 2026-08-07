@@ -137,7 +137,7 @@ bounds transient-metadata garbage collection.
 
 `send` (body from stdin/file XOR `--attach ROOT:REL/PATH`), `send-notice`
 (finite TTL, default 86400s), `claim` (one lossless delivery: claim metadata
-plus envelope with base64+sha256 body or pinned attachment tuple), `wait`
+plus envelope with a typed content envelope or pinned attachment tuple), `wait`
 (the same directed delivery, or a broadcast notice — see below),
 `reply` / `close` (effectively-once: retries redeliver the committed
 disposition and mismatches fail closed), `see` / `expire` (notices),
@@ -202,10 +202,65 @@ At-least-once would require per-recipient acknowledgement — that is a claim,
 and a notice has no per-recipient message row to claim. Use a directed message
 for anything that must not be missed.
 
-Projections: `materialize --dir DIR --prefix P` re-emits a durable body as a
-byte-exact `P-<created>-<id>.md` file. The prefix is an EXPLICIT caller
+Projections: `materialize --dir DIR --prefix P [--part N]` re-emits one
+durable content part as a byte-exact `P-<created>-<id>.md` file. The suffix
+follows the part's declared media type; part `0` keeps the unsuffixed name and
+any other part appends `-part<address>`. The prefix is an EXPLICIT caller
 choice; participants' configured `projection_prefix`/`projection_dir` define
 which files `doctor` owns and inventories (orphans are warnings).
+
+## Content: typed and multipart-capable
+
+Every body travels as an ordered collection of typed parts, even when there is
+exactly one. A delivery carries `content`, not a bare body:
+
+    "content": {
+      "content_type": "multipart/mixed",
+      "manifest_sha256": "...",
+      "parts": [
+        {"content_type": "text/markdown; charset=utf-8",
+         "disposition": "inline", "filename": null,
+         "size": 17, "sha256": "...",
+         "encoding": "text", "text": "# Handoff\nReady.\n"}
+      ]
+    }
+
+`content_type` is an IANA media type with parameters (RFC 2045);
+`disposition` is `inline` or `attachment` with an optional `filename`
+(RFC 2183). Markdown's `charset` parameter is required by RFC 7763, and Baton
+requires it for every `text/*` type.
+
+A leaf carries EXACTLY ONE delivery representation, named by `encoding`:
+`text` for `text/...; charset=utf-8`, `base64` for everything else. Never both.
+The choice follows the DECLARED type, not whether the bytes happen to decode,
+so a consumer dispatches on one stable key. `encoding` is null, with neither
+content key present, once a transient body has been scrubbed — the manifest
+outlives the payload.
+
+Baton TRANSPORTS content and never renders it. No HTML, no Markdown, no
+transcoding: rendering is a consumer concern, and a transport that renders is a
+transport with an injection surface. `filename` is advisory metadata that
+Baton never uses to open, create, or name a file; it is validated at
+publication anyway, because a consumer downstream may be less careful.
+
+Parts are their own rows with explicit ordering, so containers nest —
+`multipart/alternative` inside `multipart/mixed`, and deeper — without a schema
+change. Undeclared content defaults to `text/markdown; charset=utf-8`; bytes
+that contradict a declared charset are refused at publication rather than
+delivered under a label that misdescribes them.
+
+The CLI publishes one part per message (`--content-type`, `--disposition`,
+`--filename`); the storage layer and the delivery envelope are multipart
+throughout, so writing multipart over the CLI is a capability extension rather
+than another protocol change. Readers must not assume the one-part
+restriction.
+
+Retry identity is the complete ordered part manifest, metadata included. Two
+retries that differ in part order, media type, disposition, or filename are
+different operations even when every byte matches, and fail closed as
+mismatches.
+
+Directed messages and notices use the same content representation.
 
 ## Maintenance and moves
 

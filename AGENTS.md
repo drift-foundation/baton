@@ -21,5 +21,5 @@
 
 - Read `AGENTS-MAILBOX-PROTO.md` in full before publishing or consuming Baton handoffs. The local deployment supplies the executable and explicit absolute config path; never infer or hard-code either in repository policy.
 - This project's coordination identities are `baton.reviewer` for the reviewer and `baton.implementer` for the implementer. Resolve role-only instructions to those identities; never substitute a participant from another domain.
-- Use one stable 32-hex seed and one active consumer path per actor instance. Process every claim immediately with `reply` or `close`.
+- Run exactly one active consumer path per participant — never two concurrent `wait`s for the same address. Two consumers need two participant addresses, not one shared identity. Process every claim immediately with `reply` or `close`.
 - The SQLite instance is the only coordination authority. Never mutate it with raw SQL or manually reconstruct protocol state.

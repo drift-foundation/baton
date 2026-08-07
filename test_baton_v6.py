@@ -49,9 +49,44 @@ def store(instance):
 
 
 def send_one(store, body=b"hello", retention="durable", sender="acme.reviewer",
-             recipient="acme.implementer", kind="question", thread="topic-1"):
+             recipient="acme.implementer", kind="question", thread="topic-1",
+             **content):
 	return store.send(sender, recipient, kind=kind,
-	                  body=body, thread_id=thread, retention=retention)
+	                  body=body, thread_id=thread, retention=retention, **content)
+
+
+BINARY_TYPE = "application/octet-stream"
+
+
+def only_part(content):
+	"""The single leaf of a one-part content envelope. Every message carries a
+	multipart container even when it holds exactly one part, so this asserts
+	the shape rather than assuming it."""
+	assert content["content_type"] == b6.DEFAULT_CONTAINER_TYPE
+	assert len(content["parts"]) == 1
+	return content["parts"][0]
+
+
+def part_bytes(part):
+	"""Raw bytes of a delivered leaf, through whichever ONE representation it
+	carries. Returns None for a scrubbed part, which has neither."""
+	if part["encoding"] == b6.ENCODING_TEXT:
+		return part["text"].encode("utf-8")
+	if part["encoding"] == b6.ENCODING_BASE64:
+		import base64
+		return base64.b64decode(part["base64"])
+	assert part["encoding"] is None
+	return None
+
+
+def delivered_bytes(content):
+	return part_bytes(only_part(content))
+
+
+def stored_body(store, message_id):
+	"""Bytes of a stored message's first leaf, or None once scrubbed."""
+	parts = store.get_message(message_id)["parts"]
+	return parts[0]["body"] if parts else None
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +232,7 @@ class TestSendClaim:
 		assert claim["state"] == "active"
 		msg = store.get_message(mid)
 		assert msg["state"] == "claimed"
-		assert msg["body"] == b"payload"
+		assert stored_body(store, mid) == b"payload"
 
 	def test_claim_empty_mailbox_is_none(self, store):
 		with pytest.raises(b6.BatonError) as excinfo:
@@ -315,7 +350,7 @@ class TestReplyClose:
 		assert out["to_participant"] == "acme.reviewer"
 		assert out["state"] == "pending"
 		assert out["responds_to"] == mid
-		assert out["body"] == b"the answer"
+		assert stored_body(store, result["response_message_id"]) == b"the answer"
 		assert store.get_message(mid)["state"] == "completed"
 		assert store.get_claim(claim["claim_id"])["state"] == "completed"
 
@@ -337,7 +372,7 @@ class TestReplyClose:
 		claim = store.claim("acme.implementer")
 		store.reply(claim["claim_id"], participant=claim["participant"],
 		            kind="answer", body=b"committed", outcome="ok")
-		with pytest.raises(b6.BatonError, match="content differs"):
+		with pytest.raises(b6.BatonError, match="content manifest differs"):
 			store.reply(claim["claim_id"], participant=claim["participant"],
 			            kind="answer", body=b"different", outcome="ok")
 		with pytest.raises(b6.BatonError, match="outcome differs"):
@@ -435,31 +470,37 @@ class TestReplyClose:
 class TestRetentionContent:
 	def test_transient_scrub_in_consuming_txn(self, store):
 		mid = send_one(store, body=b"ephemeral", retention="transient")
-		sha = store.get_message(mid)["content_sha256"]
+		manifest = store.get_message(mid)["manifest_sha256"]
+		part_sha = store.get_message(mid)["parts"][0]["sha256"]
 		claim = store.claim("acme.implementer")
 		store.close_claim(claim["claim_id"], participant=claim["participant"], outcome="seen")
 		msg = store.get_message(mid)
-		assert msg["content_id"] is None
-		assert msg["body"] is None
-		assert msg["content_sha256"] == sha
+		# The bytes go; the MANIFEST stays. A consumed transient message can
+		# still state what it carried, what type it was, and what it hashed to.
+		assert msg["parts"][0]["body"] is None
+		assert msg["parts"][0]["sha256"] == part_sha
+		assert msg["parts"][0]["content_type"] == b6.DEFAULT_CONTENT_TYPE
+		assert msg["manifest_sha256"] == manifest
 		assert msg["state"] == "closed"
+		assert store.conn.execute(
+			"SELECT content_id FROM parts WHERE owner_id=?", (mid,)).fetchone()[0] is None
 
 	def test_durable_body_retained(self, store):
 		mid = send_one(store, body=b"the record", retention="durable")
 		claim = store.claim("acme.implementer")
 		store.close_claim(claim["claim_id"], participant=claim["participant"])
-		assert store.get_message(mid)["body"] == b"the record"
+		assert stored_body(store, mid) == b"the record"
 
 	def test_per_owner_content_rows_no_dedup(self, store):
 		send_one(store, body=b"identical bytes", retention="transient")
 		mid2 = send_one(store, body=b"identical bytes", retention="durable")
 		count = store.conn.execute(
 			"SELECT COUNT(*) FROM contents WHERE sha256=?",
-			(store.get_message(mid2)["content_sha256"],)).fetchone()[0]
+			(store.get_message(mid2)["parts"][0]["sha256"],)).fetchone()[0]
 		assert count == 2
 		claim = store.claim("acme.implementer")
 		store.close_claim(claim["claim_id"], participant=claim["participant"])
-		assert store.get_message(mid2)["body"] == b"identical bytes"
+		assert stored_body(store, mid2) == b"identical bytes"
 
 	def test_contents_immutable(self, store):
 		send_one(store)
@@ -680,19 +721,27 @@ class TestTransientClose:
 		                           body=body, outcome="noted")
 		import hashlib
 		sha = hashlib.sha256(body).hexdigest()
-		assert result["content_sha256"] == sha
 		count = store.conn.execute(
 			"SELECT COUNT(*) FROM contents WHERE sha256=?", (sha,)).fetchone()[0]
 		assert count == 0
+		# The disposition keeps the whole manifest -- media type, size and hash
+		# of each part -- while holding none of the bytes.
 		disp = store.conn.execute(
-			"SELECT content_id, content_sha256 FROM dispositions WHERE claim_id=?",
+			"SELECT content_type, manifest_sha256 FROM dispositions WHERE claim_id=?",
 			(claim["claim_id"],)).fetchone()
-		assert disp["content_id"] is None
-		assert disp["content_sha256"] == sha
+		assert disp["content_type"] == b6.DEFAULT_CONTAINER_TYPE
+		assert disp["manifest_sha256"] == result["manifest_sha256"]
+		part = store.conn.execute(
+			"SELECT content_id, sha256, size, content_type FROM parts "
+			"WHERE owner_kind='disposition' AND owner_id=?", (claim["claim_id"],)).fetchone()
+		assert part["content_id"] is None
+		assert part["sha256"] == sha
+		assert part["size"] == len(body)
+		assert part["content_type"] == b6.DEFAULT_CONTENT_TYPE
 		retry = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                          body=body, outcome="noted")
 		assert retry["already_committed"] is True
-		with pytest.raises(b6.BatonError, match="content differs"):
+		with pytest.raises(b6.BatonError, match="content manifest differs"):
 			store.close_claim(claim["claim_id"], participant=claim["participant"],
 			                  body=b"other", outcome="noted")
 
@@ -708,8 +757,8 @@ class TestTransientClose:
 		claim = store.claim("acme.implementer")
 		store.close_claim(claim["claim_id"], participant=claim["participant"], body=b"kept record")
 		row = store.conn.execute(
-			"SELECT c.body FROM dispositions d JOIN contents c ON c.content_id=d.content_id "
-			"WHERE d.claim_id=?", (claim["claim_id"],)).fetchone()
+			"SELECT c.body FROM parts p JOIN contents c ON c.content_id=p.content_id "
+			"WHERE p.owner_kind='disposition' AND p.owner_id=?", (claim["claim_id"],)).fetchone()
 		assert row["body"] == b"kept record"
 
 
@@ -717,14 +766,16 @@ class TestScrubAndTimestampGuards:
 	def test_uncontextual_scrub_rejected(self, store):
 		mid = send_one(store, body=b"x", retention="transient")
 		with pytest.raises(sqlite3.IntegrityError, match="consuming operation"):
-			store.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (mid,))
+			store.conn.execute(
+				"UPDATE parts SET content_id=NULL WHERE owner_kind='message' AND owner_id=?", (mid,))
 
 	def test_wrong_verb_scrub_rejected(self, store):
 		mid = send_one(store, body=b"x", retention="transient")
 		store._txn_begin("claim")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="consuming operation"):
-				store.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (mid,))
+				store.conn.execute(
+				"UPDATE parts SET content_id=NULL WHERE owner_kind='message' AND owner_id=?", (mid,))
 		finally:
 			store._txn_rollback()
 
@@ -815,7 +866,7 @@ class TestNotices:
 		                        body=b"all hands")
 		seen = store.see("acme.implementer")
 		assert [n["id"] for n in seen] == [nid]
-		assert seen[0]["body"] == b"all hands"
+		assert seen[0]["parts"][0]["body"] == b"all hands"
 		assert store.see("acme.implementer") == []
 		other = store.see("acme.reviewer")
 		assert [n["id"] for n in other] == [nid]
@@ -1023,17 +1074,20 @@ class TestDispositionRetention:
 		store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                  body=b"promoted record", retention="durable")
 		row = store.conn.execute(
-			"SELECT c.body FROM dispositions d JOIN contents c ON c.content_id=d.content_id "
-			"WHERE d.claim_id=?", (claim["claim_id"],)).fetchone()
+			"SELECT c.body FROM parts p JOIN contents c ON c.content_id=p.content_id "
+			"WHERE p.owner_kind='disposition' AND p.owner_id=?", (claim["claim_id"],)).fetchone()
 		assert row["body"] == b"promoted record"
 
 	def test_close_override_durable_to_transient_drops_body(self, store):
 		send_one(store, retention="durable")
 		claim = store.claim("acme.implementer")
+		import hashlib as _h
 		result = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                           body=b"ephemeral note", retention="transient")
+		assert result["manifest_sha256"] is not None
 		count = store.conn.execute(
-			"SELECT COUNT(*) FROM contents WHERE sha256=?", (result["content_sha256"],)).fetchone()[0]
+			"SELECT COUNT(*) FROM contents WHERE sha256=?",
+			(_h.sha256(b"ephemeral note").hexdigest(),)).fetchone()[0]
 		assert count == 0
 		with pytest.raises(b6.BatonError, match="retention differs"):
 			store.close_claim(claim["claim_id"], participant=claim["participant"],
@@ -1072,9 +1126,9 @@ class TestNoticeAuthorship:
 			store._txn_begin("send")
 			try:
 				store.conn.execute(
-					"INSERT INTO notices(id, from_participant, kind, "
-					"content_sha256, created_ts, ttl_seconds) "
-					"VALUES('immortal', 'hq.lead', 'k', 'sha', 'now', 0)")
+					"INSERT INTO notices(id, from_participant, kind, content_type, "
+					"manifest_sha256, created_ts, ttl_seconds) "
+					"VALUES('immortal', 'hq.lead', 'k', 'multipart/mixed', 'sha', 'now', 0)")
 			finally:
 				store._txn_rollback()
 
@@ -1084,9 +1138,9 @@ class TestNoticeAuthorship:
 			store.conn.execute("UPDATE notices SET from_participant='hq.forged' WHERE id=?", (nid,))
 		with pytest.raises(sqlite3.IntegrityError, match="context"):
 			store.conn.execute(
-				"INSERT INTO notices(id, from_participant, kind, "
-				"content_sha256, created_ts, ttl_seconds) "
-				"VALUES('raw', 'hq.lead', 'k', 'sha', 'now', 60)")
+				"INSERT INTO notices(id, from_participant, kind, content_type, "
+				"manifest_sha256, created_ts, ttl_seconds) "
+				"VALUES('raw', 'hq.lead', 'k', 'multipart/mixed', 'sha', 'now', 60)")
 		with pytest.raises(sqlite3.IntegrityError, match="context"):
 			store.conn.execute(
 				"INSERT INTO notice_seen(notice_id, participant, seen_ts) "
@@ -1236,7 +1290,8 @@ class TestStateCoupledTriggers:
 		store._txn_begin("reply")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="terminal transient"):
-				store.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (mid,))
+				store.conn.execute(
+				"UPDATE parts SET content_id=NULL WHERE owner_kind='message' AND owner_id=?", (mid,))
 		finally:
 			store._txn_rollback()
 
@@ -1247,7 +1302,8 @@ class TestStateCoupledTriggers:
 		store._txn_begin("close")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="terminal transient"):
-				store.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (mid,))
+				store.conn.execute(
+				"UPDATE parts SET content_id=NULL WHERE owner_kind='message' AND owner_id=?", (mid,))
 		finally:
 			store._txn_rollback()
 
@@ -1500,9 +1556,9 @@ class TestBidirectionalCoupling:
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute(
 					"INSERT INTO messages(id, from_participant, to_participant, kind, retention, "
-					"content_sha256, created_ts, state, completed_ts) "
+					"content_type, manifest_sha256, created_ts, state, completed_ts) "
 					"VALUES('prefilled', 'acme.reviewer', 'acme.implementer', 'k', 'durable', "
-					"'sha', 'now', 'pending', 'already')")
+					"'multipart/mixed', 'sha', 'now', 'pending', 'already')")
 		finally:
 			store._txn_rollback()
 
@@ -1657,8 +1713,8 @@ class TestDurableCloseAnchor:
 			"SELECT COUNT(*) FROM messages WHERE id=?", (mid,)).fetchone()[0] == 1
 		assert store.get_claim(claim["claim_id"])["state"] == "completed"
 		row = store.conn.execute(
-			"SELECT c.body FROM dispositions d JOIN contents c ON c.content_id=d.content_id "
-			"WHERE d.claim_id=?", (claim["claim_id"],)).fetchone()
+			"SELECT c.body FROM parts p JOIN contents c ON c.content_id=p.content_id "
+			"WHERE p.owner_kind='disposition' AND p.owner_id=?", (claim["claim_id"],)).fetchone()
 		assert row["body"] == b"durable signoff record"
 		retry = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                          body=b"durable signoff record", outcome="signed_off",
@@ -2597,7 +2653,7 @@ class TestWait:
 		result = b6.wait_for_message(instance, "acme.implementer",
 		                            timeout_s=5)
 		assert result["claim"]["state"] == "active"
-		assert result["message"]["body"]["utf8"] == "hello"
+		assert delivered_bytes(result["message"]["content"]) == b"hello"
 
 	def test_wait_wakes_on_late_send(self, instance):
 		def sender():
@@ -2738,7 +2794,7 @@ class TestCli:
 		assert code == 0
 		delivery = json.loads(out)
 		claim_id = delivery["claim"]["claim_id"]
-		assert delivery["message"]["body"]["utf8"] == "question body"
+		assert delivered_bytes(delivery["message"]["content"]) == b"question body"
 		assert delivery["message"]["attachment"] is None
 		monkeypatch.setattr("sys.stdin", type("S", (), {"buffer": __import__("io").BytesIO(b"answer body")})())
 		code, out = self._run("--config", config_path, "reply", claim_id,
@@ -2801,29 +2857,55 @@ class TestLosslessDelivery:
 		import base64
 		raw = bytes(range(256))
 		mid = store.send("acme.reviewer", "acme.implementer",
-		                 kind="blob", body=raw)
+		                 kind="blob", body=raw, content_type=BINARY_TYPE)
 		claim = store.claim("acme.implementer", message_id=mid)
 		delivery = b6._delivery(store, claim)
-		body = delivery["message"]["body"]
-		assert base64.b64decode(body["base64"]) == raw
-		assert body["size"] == 256
-		assert "utf8" not in body
+		part = only_part(delivery["message"]["content"])
+		assert part["encoding"] == b6.ENCODING_BASE64
+		assert base64.b64decode(part["base64"]) == raw
+		assert part["size"] == 256
+		# Exactly ONE representation, chosen by the declared type.
+		assert "text" not in part
 		mid2 = store.send("acme.reviewer", "acme.implementer",
 		                  kind="empty", body=b"")
 		claim2 = store.claim("acme.implementer", message_id=mid2)
-		body2 = b6._delivery(store, claim2)["message"]["body"]
-		assert body2["size"] == 0 and body2["utf8"] == ""
+		part2 = only_part(b6._delivery(store, claim2)["message"]["content"])
+		assert part2["size"] == 0 and part2["encoding"] == b6.ENCODING_TEXT
+		assert part2["text"] == "" and "base64" not in part2
+
+	def test_undeclared_binary_is_refused_not_mislabelled(self, store):
+		"""The default type declares charset=utf-8, so bytes that are not UTF-8
+		are refused at publication with the fix named.
+
+		Falling back to base64 whenever the bytes failed to decode would put
+		back exactly what this envelope removed: a representation that changes
+		with the payload, leaving the declared type describing something the
+		content is not. A consumer acts on the label, so a wrong label is worse
+		than a refusal."""
+		with pytest.raises(b6.BatonError, match="not valid UTF-8"):
+			store.send("acme.reviewer", "acme.implementer", kind="blob", body=b"\xff\xfe")
+		# Declaring the type is the whole fix, and it round-trips losslessly.
+		mid = store.send("acme.reviewer", "acme.implementer", kind="blob",
+		                 body=b"\xff\xfe", content_type=BINARY_TYPE)
+		claim = store.claim("acme.implementer", message_id=mid)
+		assert delivered_bytes(b6._delivery(store, claim)["message"]["content"]) == b"\xff\xfe"
 
 	def test_transient_body_readable_after_claim_until_consumed(self, store):
 		mid = store.send("acme.reviewer", "acme.implementer",
 		                 kind="t", body=b"still here", retention="transient")
 		claim = store.claim("acme.implementer", message_id=mid)
 		delivery = b6._delivery(store, claim)
-		assert delivery["message"]["body"]["utf8"] == "still here"
+		assert delivered_bytes(delivery["message"]["content"]) == b"still here"
 		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		post = b6._delivery(store, dict(claim))
-		assert post["message"]["body"] is None
-		assert post["message"]["content_sha256"] is not None
+		# Bytes gone, manifest intact: the part still declares its type, size
+		# and hash, and the envelope still hashes to the recorded manifest.
+		scrubbed = only_part(post["message"]["content"])
+		assert scrubbed["encoding"] is None
+		assert "text" not in scrubbed and "base64" not in scrubbed
+		assert scrubbed["sha256"] is not None
+		assert scrubbed["content_type"] == b6.DEFAULT_CONTENT_TYPE
+		assert post["message"]["content"]["manifest_sha256"] is not None
 
 	def test_attachment_delivery_tuple(self, tmp_path):
 		root = tmp_path / "evidence"
@@ -2840,7 +2922,7 @@ class TestLosslessDelivery:
 			                 kind="ev", body=None, attach={"root_id": "evidence", "path": "e.md"})
 			claim = store.claim("acme.implementer", message_id=mid)
 			delivery = b6._delivery(store, claim)
-			assert delivery["message"]["body"] is None
+			assert delivery["message"]["content"] is None
 			att = delivery["message"]["attachment"]
 			assert att["root_id"] == "evidence" and att["path"] == "e.md"
 			assert att["sha256"] and att["size"] == 8 and att["generation"] == 1
@@ -2934,7 +3016,7 @@ class TestCliTotality:
 		assert code == 0
 		delivery = json.loads(out)
 		assert delivery["message"]["attachment"]["path"] == "e.md"
-		assert delivery["message"]["body"] is None
+		assert delivery["message"]["content"] is None
 
 
 class TestEventMatrix:
@@ -3094,9 +3176,10 @@ class TestEventMatrix:
 				                    timeout_s=0.1, rescan_interval_s=bad_interval)
 
 
-def notice_one(store, body=b"all hands", kind="announcement", ttl_seconds=None):
+def notice_one(store, body=b"all hands", kind="announcement", ttl_seconds=None,
+               **content):
 	return store.send_notice("hq.lead", kind=kind,
-	                         body=body, ttl_seconds=ttl_seconds)
+	                         body=body, ttl_seconds=ttl_seconds, **content)
 
 
 class TestWaitNoticeDelivery:
@@ -3126,7 +3209,7 @@ class TestWaitNoticeDelivery:
 		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=30, rescan_interval_s=20)
 		elapsed = _time.monotonic() - start
 		thread.join()
-		assert result["notice"]["body"]["utf8"] == "broadcast"
+		assert delivered_bytes(result["notice"]["content"]) == b"broadcast"
 		assert elapsed < 15  # woken by the watch, not the 20s safety rescan
 
 	def test_existing_unseen_notice_delivered_immediately(self, instance):
@@ -3226,7 +3309,7 @@ class TestWaitNoticeDelivery:
 			live = notice_one(st, body=b"still live", kind="announcement")
 		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert result["notice"]["id"] == live
-		assert result["notice"]["body"]["utf8"] == "still live"
+		assert delivered_bytes(result["notice"]["content"]) == b"still live"
 		with b6.open_instance(instance) as st:
 			# the expired notice was skipped, never marked seen
 			assert [row[0] for row in st.conn.execute(
@@ -3275,7 +3358,7 @@ class TestWaitNoticeDelivery:
 		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert set(result) == {"claim", "message"}
 		assert result["message"]["id"] == mid
-		assert result["message"]["body"]["utf8"] == "directed"
+		assert delivered_bytes(result["message"]["content"]) == b"directed"
 		assert result["claim"]["state"] == "active"
 		with b6.open_instance(instance) as st:
 			# no receipt written while a directed message was the delivery
@@ -3286,7 +3369,7 @@ class TestWaitNoticeDelivery:
 			nid = notice_one(st, body=b"broadcast")
 			send_one(st, body=b"directed")
 		first = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
-		assert first["message"]["body"]["utf8"] == "directed"
+		assert delivered_bytes(first["message"]["content"]) == b"directed"
 		second = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert second["notice"]["id"] == nid
 
@@ -3330,7 +3413,7 @@ class TestWaitNoticeDelivery:
 		thread.start()
 		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=30, rescan_interval_s=0.2)
 		thread.join()
-		assert result["notice"]["body"]["utf8"] == "polled"
+		assert delivered_bytes(result["notice"]["content"]) == b"polled"
 
 	def test_notice_arm_race_closed_by_requery(self, instance, monkeypatch):
 		"""A notice published in the window between the first query and the
@@ -3344,7 +3427,7 @@ class TestWaitNoticeDelivery:
 		monkeypatch.setattr(b6, "_FAULT_HOOK", publish_during_arm)
 		start = _time.monotonic()
 		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=30, rescan_interval_s=25)
-		assert result["notice"]["body"]["utf8"] == "raced"
+		assert delivered_bytes(result["notice"]["content"]) == b"raced"
 		assert _time.monotonic() - start < 10  # requery caught it; no event needed
 
 	# -- the idle waiter stays read-only -----------------------------------
@@ -3413,23 +3496,29 @@ class TestWaitNoticeDelivery:
 
 	# -- lossless body -----------------------------------------------------
 
-	@pytest.mark.parametrize("body", [b"\xc3\xa9 broadcast\n", b"\xff\xfe\x00binary"])
-	def test_notice_body_lossless(self, instance, body):
-		import base64, hashlib as _h
+	@pytest.mark.parametrize("body,content_type", [
+		(b"\xc3\xa9 broadcast\n", b6.DEFAULT_CONTENT_TYPE),
+		(b"\xff\xfe\x00binary", BINARY_TYPE)])
+	def test_notice_body_lossless(self, instance, body, content_type):
+		"""A notice carries the SAME content envelope as a directed message,
+		and each part uses exactly one representation, chosen by its declared
+		type rather than by whether the bytes happen to decode."""
+		import hashlib as _h
 		with b6.open_instance(instance) as st:
-			notice_one(st, body=body)
+			notice_one(st, body=body, content_type=content_type)
 		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		notice = result["notice"]
-		rep = notice["body"]
-		assert base64.b64decode(rep["base64"]) == body
+		content = notice["content"]
+		assert content["content_type"] == b6.DEFAULT_CONTAINER_TYPE
+		rep = only_part(content)
+		assert part_bytes(rep) == body
 		assert rep["size"] == len(body)
-		assert rep["sha256"] == _h.sha256(body).hexdigest() == notice["content_sha256"]
-		try:
-			decoded = body.decode("utf-8")
-		except UnicodeDecodeError:
-			assert "utf8" not in rep  # undecodable bytes travel base64-only
+		assert rep["sha256"] == _h.sha256(body).hexdigest()
+		assert rep["content_type"] == content_type
+		if content_type == BINARY_TYPE:
+			assert rep["encoding"] == b6.ENCODING_BASE64 and "text" not in rep
 		else:
-			assert rep["utf8"] == decoded
+			assert rep["encoding"] == b6.ENCODING_TEXT and "base64" not in rep
 		assert notice["kind"] == "announcement"
 		assert notice["seen_ts"] and notice["created_ts"]
 		assert notice["ttl_seconds"] == b6.DEFAULT_NOTICE_TTL_SECONDS
@@ -3526,7 +3615,7 @@ class TestDamagedAttachmentQueue:
 			claim = st.claim("acme.implementer")
 			assert claim["message_id"] == healthy
 			delivery = b6._delivery(st, claim)
-		assert delivery["message"]["body"]["utf8"] == "still deliverable"
+		assert delivered_bytes(delivery["message"]["content"]) == b"still deliverable"
 		with b6.open_instance(config_path) as st:
 			# the damaged message is untouched: still pending, still unclaimed
 			assert st.get_message(damaged)["state"] == "pending"
@@ -3545,7 +3634,7 @@ class TestDamagedAttachmentQueue:
 		thread.start()
 		result = b6.wait_for_message(config_path, "acme.implementer", timeout_s=30, rescan_interval_s=20)
 		thread.join()
-		assert result["message"]["body"]["utf8"] == "published later"
+		assert delivered_bytes(result["message"]["content"]) == b"published later"
 
 	def test_damaged_only_queue_waits_without_spinning(self, tmp_path, monkeypatch):
 		"""Damage must read as 'nothing eligible', not as an error and not as
@@ -3620,7 +3709,7 @@ class TestDamagedAttachmentQueue:
 			delivery = b6._delivery(st, claim)
 			assert set(delivery) == {"claim", "message"}
 			assert delivery["message"]["attachment"]["path"] == "EVIDENCE.md"
-			assert delivery["message"]["body"] is None
+			assert delivery["message"]["content"] is None
 			result = st.reply(claim["claim_id"], participant=claim["participant"],
 			                  kind="response", body=b"ack")
 			assert result["already_committed"] is False
@@ -3668,7 +3757,7 @@ class TestDamagedAttachmentQueue:
 		thread.start()
 		result = b6.wait_for_message(config_path, "acme.implementer", timeout_s=30, rescan_interval_s=0.2)
 		thread.join()
-		assert result["message"]["body"]["utf8"] == "polled past damage"
+		assert delivered_bytes(result["message"]["content"]) == b"polled past damage"
 
 	def test_notice_still_delivered_when_only_damage_pends(self, tmp_path):
 		"""The two inbound channels stay independent: damaged directed mail
@@ -4036,7 +4125,7 @@ class TestSnapshot:
 		# the snapshot is a usable instance on its own, with the same content
 		b6.maintenance_exit(os.path.join(dest, "baton.json"), reason="open the copy", **LEAD_ID)
 		with b6.open_instance(os.path.join(dest, "baton.json")) as copy:
-			assert copy.get_message(mid)["body"] == b"must survive a restore"
+			assert stored_body(copy, mid) == b"must survive a restore"
 		b6.maintenance_exit(config_path, reason="done", **LEAD_ID)
 
 	def test_snapshot_persists_its_own_directory_entry(self, tmp_path, monkeypatch):
@@ -4174,7 +4263,7 @@ class TestAtomicWaitDelivery:
 		monkeypatch.setattr(b6, "_FAULT_HOOK", gate_after_claim)
 		result = b6.wait_for_message(instance, "acme.implementer",
 		                             timeout_s=10)
-		assert result["message"]["body"]["utf8"] == "already owned"
+		assert delivered_bytes(result["message"]["content"]) == b"already owned"
 
 	def test_content_hash_mismatch_is_damage_not_delivery(self, instance):
 		with b6.open_instance(instance) as st:
@@ -4356,7 +4445,7 @@ class TestRound4Additions:
 		monkeypatch.setattr(b6, "_FAULT_HOOK", gate_at_seam)
 		result = b6.wait_for_message(instance, "acme.implementer",
 		                             timeout_s=10)
-		assert result["message"]["body"]["utf8"] == "claimed then gated"
+		assert delivered_bytes(result["message"]["content"]) == b"claimed then gated"
 
 
 class TestAttributionCoherence:
@@ -4402,6 +4491,413 @@ class TestAttributionCoherence:
 # ---------------------------------------------------------------------------
 # Phase 5: packaging, distribution, extraction purity
 # ---------------------------------------------------------------------------
+
+class TestTypedContentEnvelope:
+	"""Acceptance for the typed, multipart-capable content envelope.
+
+	One requirement per test, against the finding's required list."""
+
+	# -- 1. an ordered parts collection from protocol inception ------------
+
+	def test_every_message_carries_a_multipart_envelope(self, store):
+		"""Even a one-part message delivers the container shape, so a reader
+		never has to handle two envelope layouts and a second part is not a
+		new shape."""
+		mid = send_one(store, body=b"single")
+		claim = store.claim("acme.implementer", message_id=mid)
+		content = b6._delivery(store, claim)["message"]["content"]
+		assert content["content_type"] == "multipart/mixed"
+		assert isinstance(content["parts"], list) and len(content["parts"]) == 1
+		assert content["manifest_sha256"]
+
+	def test_notice_and_message_share_one_representation(self, store):
+		"""The two inbound channels diverged once before. Same bytes and type
+		on each must produce the same content envelope."""
+		body = b"same bytes\n"
+		mid = send_one(store, body=body)
+		claim = store.claim("acme.implementer", message_id=mid)
+		directed = b6._delivery(store, claim)["message"]["content"]
+		store.send_notice("hq.lead", kind="announcement", body=body)
+		broadcast = b6._notice_delivery(store.see("acme.reviewer")[0])["notice"]["content"]
+		assert directed == broadcast
+
+	# -- 2. leaf metadata and exactly one representation -------------------
+
+	def test_leaf_carries_full_metadata_and_one_representation(self, store):
+		mid = store.send("acme.reviewer", "acme.implementer", kind="doc",
+		                 body=b"%PDF-1.4\n", content_type="application/pdf",
+		                 disposition="attachment", filename="report.pdf")
+		claim = store.claim("acme.implementer", message_id=mid)
+		part = only_part(b6._delivery(store, claim)["message"]["content"])
+		assert part["content_type"] == "application/pdf"
+		assert part["disposition"] == "attachment"
+		assert part["filename"] == "report.pdf"
+		assert part["size"] == 9
+		assert part["sha256"]
+		assert part["encoding"] == b6.ENCODING_BASE64
+		assert "text" not in part
+
+	def test_representation_follows_the_declared_type_not_the_bytes(self, store):
+		"""The old `utf8` field appeared only when the bytes decoded, so the
+		same key came and went with the payload. Identical ASCII bytes under
+		two declared types must now deliver through different keys."""
+		ascii_bytes = b"plain ascii"
+		as_text = store.send("acme.reviewer", "acme.implementer", kind="a",
+		                     body=ascii_bytes)
+		as_blob = store.send("acme.reviewer", "acme.implementer", kind="b",
+		                     body=ascii_bytes, content_type=BINARY_TYPE)
+		text_part = only_part(b6._delivery(
+			store, store.claim("acme.implementer", message_id=as_text))["message"]["content"])
+		blob_part = only_part(b6._delivery(
+			store, store.claim("acme.implementer", message_id=as_blob))["message"]["content"])
+		assert text_part["encoding"] == b6.ENCODING_TEXT
+		assert "base64" not in text_part
+		assert blob_part["encoding"] == b6.ENCODING_BASE64
+		assert "text" not in blob_part
+		assert part_bytes(text_part) == part_bytes(blob_part) == ascii_bytes
+
+	def test_no_delivered_part_ever_carries_both_representations(self, store):
+		"""Swept structurally rather than per-case: whatever the tree, no leaf
+		may carry `text` and `base64` at once."""
+		mid = store.send("acme.reviewer", "acme.implementer", kind="mixed", parts=[
+			{"content_type": "text/plain; charset=utf-8", "body": b"words"},
+			{"content_type": "image/png", "body": b"\x89PNG"},
+			{"content_type": "text/markdown; charset=iso-8859-1", "body": b"\xe9"},
+		])
+		claim = store.claim("acme.implementer", message_id=mid)
+		content = b6._delivery(store, claim)["message"]["content"]
+
+		def walk(part):
+			if "parts" in part:
+				for child in part["parts"]:
+					walk(child)
+				return
+			present = [k for k in ("text", "base64") if k in part]
+			assert len(present) == 1, f"{part['content_type']} delivered {present}"
+			assert part["encoding"] == present[0]
+		for node in content["parts"]:
+			walk(node)
+
+	# -- 3. order and metadata stored independently of the owner row -------
+
+	def test_parts_are_rows_with_explicit_order_not_owner_columns(self, store):
+		mid = store.send("acme.reviewer", "acme.implementer", kind="ordered", parts=[
+			{"content_type": "text/plain; charset=utf-8", "body": b"first"},
+			{"content_type": "text/plain; charset=utf-8", "body": b"second"},
+			{"content_type": "text/plain; charset=utf-8", "body": b"third"},
+		])
+		rows = store.conn.execute(
+			"SELECT ordinal, sha256 FROM parts WHERE owner_kind='message' AND owner_id=? "
+			"AND parent_part_id IS NULL ORDER BY ordinal", (mid,)).fetchall()
+		assert [r["ordinal"] for r in rows] == [0, 1, 2]
+		import hashlib as _h
+		assert [r["sha256"] for r in rows] == [
+			_h.sha256(b).hexdigest() for b in (b"first", b"second", b"third")]
+		# The message row holds a container type and a manifest digest only --
+		# no per-part column exists to hold a second part's metadata.
+		columns = {r[1] for r in store.conn.execute("PRAGMA table_info(messages)")}
+		assert "content_id" not in columns and "content_sha256" not in columns
+		assert {"content_type", "manifest_sha256"} <= columns
+
+	def test_part_order_is_uniquely_constrained_at_every_level(self, store):
+		"""SQLite treats NULLs as distinct in a UNIQUE constraint, so a single
+		composite index would leave TOP-LEVEL ordinals unconstrained. Both
+		levels are checked because that was the easy thing to get wrong."""
+		mid = store.send("acme.reviewer", "acme.implementer", kind="dup", parts=[
+			{"content_type": "multipart/alternative", "parts": [
+				{"content_type": "text/plain; charset=utf-8", "body": b"a"},
+			]},
+		])
+		root = store.conn.execute(
+			"SELECT part_id FROM parts WHERE owner_id=? AND parent_part_id IS NULL",
+			(mid,)).fetchone()[0]
+		store._txn_begin("send")
+		try:
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute(
+					"INSERT INTO parts(part_id, owner_kind, owner_id, parent_part_id, ordinal, "
+					"content_type, disposition, sha256, size, created_ts) "
+					"VALUES('dup-root', 'message', ?, NULL, 0, 'text/plain; charset=utf-8', "
+					"'inline', 'x', 1, 'now')", (mid,))
+		finally:
+			store._txn_rollback()
+		store._txn_begin("send")
+		try:
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute(
+					"INSERT INTO parts(part_id, owner_kind, owner_id, parent_part_id, ordinal, "
+					"content_type, disposition, sha256, size, created_ts) "
+					"VALUES('dup-child', 'message', ?, ?, 0, 'text/plain; charset=utf-8', "
+					"'inline', 'x', 1, 'now')", (mid, root))
+		finally:
+			store._txn_rollback()
+
+	def test_container_part_holds_no_bytes_and_leaf_holds_no_children(self, store):
+		"""Enforced by the schema, not only by the Python that normally writes
+		it -- the same standard every other guarded table is held to."""
+		mid = send_one(store)
+		store._txn_begin("send")
+		try:
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute(
+					"INSERT INTO parts(part_id, owner_kind, owner_id, parent_part_id, ordinal, "
+					"content_type, disposition, sha256, size, created_ts) "
+					"VALUES('bad-container', 'message', ?, NULL, 9, 'multipart/mixed', "
+					"'inline', 'deadbeef', 4, 'now')", (mid,))
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute(
+					"INSERT INTO parts(part_id, owner_kind, owner_id, parent_part_id, ordinal, "
+					"content_type, disposition, sha256, size, created_ts) "
+					"VALUES('bad-leaf', 'message', ?, NULL, 8, 'text/plain; charset=utf-8', "
+					"'inline', NULL, NULL, 'now')", (mid,))
+		finally:
+			store._txn_rollback()
+
+	# -- 4. retry identity covers the whole manifest, metadata included ----
+
+	@pytest.mark.parametrize("changed", ["content_type", "disposition", "filename"])
+	def test_retry_with_identical_bytes_but_changed_metadata_fails_closed(self, store, changed):
+		"""THE requirement of this finding. Every byte matches; only metadata
+		moved. Comparing a body hash would report `already_committed` for an
+		operation that was never committed."""
+		send_one(store)
+		claim = store.claim("acme.implementer")
+		base = dict(kind="answer", body=b"identical", content_type="text/plain; charset=utf-8",
+		            disposition="inline", filename="a.txt")
+		store.reply(claim["claim_id"], participant=claim["participant"], **base)
+		retried = dict(base)
+		retried[changed] = {"content_type": "text/markdown; charset=utf-8",
+		                    "disposition": "attachment", "filename": "b.txt"}[changed]
+		with pytest.raises(b6.BatonError, match="content manifest differs") as excinfo:
+			store.reply(claim["claim_id"], participant=claim["participant"], **retried)
+		assert excinfo.value.exit_code == b6.EXIT_PROTOCOL
+		# The unchanged retry still redelivers, so the refusal above is the
+		# metadata check and not a broken retry path.
+		again = store.reply(claim["claim_id"], participant=claim["participant"], **base)
+		assert again["already_committed"] is True
+
+	def test_retry_with_reordered_parts_fails_closed(self, store):
+		"""Same bytes, same metadata, different ORDER. Order is part of what
+		the message means, so it is part of the manifest."""
+		send_one(store)
+		claim = store.claim("acme.implementer")
+		first = {"content_type": "text/plain; charset=utf-8", "body": b"one"}
+		second = {"content_type": "text/plain; charset=utf-8", "body": b"two"}
+		store.reply(claim["claim_id"], participant=claim["participant"],
+		            kind="answer", parts=[first, second])
+		with pytest.raises(b6.BatonError, match="content manifest differs"):
+			store.reply(claim["claim_id"], participant=claim["participant"],
+			            kind="answer", parts=[second, first])
+		assert store.reply(claim["claim_id"], participant=claim["participant"],
+		                   kind="answer", parts=[first, second])["already_committed"] is True
+
+	def test_close_retry_metadata_mismatch_also_fails_closed(self, store):
+		"""`reply` and `close` are two seams; a test of one would not catch
+		them diverging."""
+		send_one(store)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"],
+		                  body=b"noted", content_type="text/plain; charset=utf-8")
+		with pytest.raises(b6.BatonError, match="content manifest differs"):
+			store.close_claim(claim["claim_id"], participant=claim["participant"],
+			                  body=b"noted", content_type="text/markdown; charset=utf-8")
+
+	# -- 5. materialize addresses a specific part --------------------------
+
+	def test_materialize_addresses_a_part(self, tmp_path):
+		target = tmp_path / "proj"
+		target.mkdir()
+		instance = str(tmp_path / "baton.json")
+		cfg = make_config()
+		cfg["participants"]["acme.implementer"] = {
+			"projection_dir": str(target), "projection_prefix": "review"}
+		with open(instance, "w") as handle:
+			json.dump(cfg, handle)
+		b6.init_instance(instance)
+		with b6.open_instance(instance) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="report", parts=[
+				{"content_type": "text/markdown; charset=utf-8", "body": b"# summary\n"},
+				{"content_type": "multipart/alternative", "parts": [
+					{"content_type": "text/plain; charset=utf-8", "body": b"plain\n"},
+					{"content_type": "text/html; charset=utf-8", "body": b"<p>rich</p>\n"},
+				]},
+			])
+		# Part 0 keeps the historical unsuffixed name so single-part projection
+		# directories do not churn; the suffix follows the declared type.
+		zero = b6.materialize(instance, mid, str(target), prefix="review")
+		assert zero.endswith(f"{mid}.md")
+		assert open(zero, "rb").read() == b"# summary\n"
+		nested = b6.materialize(instance, mid, str(target), prefix="review", part="1.1")
+		assert nested.endswith(f"{mid}-part1-1.html")
+		assert open(nested, "rb").read() == b"<p>rich</p>\n"
+		# A container has no bytes to project, and an absent part is EXIT_NONE.
+		with pytest.raises(b6.BatonError, match="container"):
+			b6.materialize(instance, mid, str(target), prefix="review", part="1")
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.materialize(instance, mid, str(target), prefix="review", part="7")
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+		# doctor still reconciles the projection directory it owns, across the
+		# new per-part filenames as well as the historical unsuffixed one.
+		report = b6.doctor(instance)
+		assert report["projections"]["checked"] == 2
+		assert report["projections"]["orphans"] == []
+
+	# -- 6/7. readers accept multipart; containers nest without a schema change
+
+	def test_nested_containers_need_no_schema_change(self, store):
+		"""multipart/alternative inside multipart/mixed, round-tripped through
+		storage and delivery on the SAME tables a one-part message uses."""
+		before = {r[0] for r in store.conn.execute(
+			"SELECT name FROM sqlite_master WHERE type='table'")}
+		mid = store.send("acme.reviewer", "acme.implementer", kind="rich", parts=[
+			{"content_type": "multipart/alternative", "parts": [
+				{"content_type": "text/plain; charset=utf-8", "body": b"plain\n"},
+				{"content_type": "text/html; charset=utf-8", "body": b"<p>rich</p>\n"},
+			]},
+			{"content_type": "image/png", "disposition": "attachment",
+			 "filename": "chart.png", "body": b"\x89PNG\r\n\x1a\n"},
+		])
+		after = {r[0] for r in store.conn.execute(
+			"SELECT name FROM sqlite_master WHERE type='table'")}
+		assert before == after
+		claim = store.claim("acme.implementer", message_id=mid)
+		content = b6._delivery(store, claim)["message"]["content"]
+		alternative, image = content["parts"]
+		assert alternative["content_type"] == "multipart/alternative"
+		assert [p["content_type"] for p in alternative["parts"]] == [
+			"text/plain; charset=utf-8", "text/html; charset=utf-8"]
+		assert alternative["parts"][0]["text"] == "plain\n"
+		assert "size" not in alternative and "encoding" not in alternative
+		assert image["filename"] == "chart.png" and image["disposition"] == "attachment"
+		assert part_bytes(image) == b"\x89PNG\r\n\x1a\n"
+
+	def test_multipart_survives_gc_and_expire(self, store):
+		"""Deleting a tree must not orphan children behind a parent's foreign
+		key, and must take every content row with it."""
+		nid = store.send_notice("hq.lead", kind="announcement", parts=[
+			{"content_type": "multipart/alternative", "parts": [
+				{"content_type": "text/plain; charset=utf-8", "body": b"n-plain"},
+			]},
+		], ttl_seconds=1)
+		assert store.conn.execute(
+			"SELECT COUNT(*) FROM parts WHERE owner_id=?", (nid,)).fetchone()[0] == 2
+		store.expire("hq.lead", notice_id=nid)
+		assert store.conn.execute(
+			"SELECT COUNT(*) FROM parts WHERE owner_id=?", (nid,)).fetchone()[0] == 0
+		assert store.conn.execute("SELECT COUNT(*) FROM contents").fetchone()[0] == 0
+
+	# -- open questions, answered ------------------------------------------
+
+	def test_default_content_type_is_declared_markdown(self, store):
+		"""An undeclared body defaults to text/markdown WITH a charset, and the
+		type is stated in every delivery rather than left implicit."""
+		assert b6.DEFAULT_CONTENT_TYPE == "text/markdown; charset=utf-8"
+		mid = send_one(store, body=b"# hi\n")
+		claim = store.claim("acme.implementer", message_id=mid)
+		part = only_part(b6._delivery(store, claim)["message"]["content"])
+		assert part["content_type"] == "text/markdown; charset=utf-8"
+
+	def test_text_types_must_declare_a_charset(self, store):
+		"""RFC 7763 makes charset required for text/markdown, and the delivery
+		encoding depends on it, so a bare text/* type is refused with the fix
+		named rather than silently rewritten."""
+		with pytest.raises(b6.BatonError, match="charset"):
+			send_one(store, body=b"x", content_type="text/markdown")
+		with pytest.raises(b6.BatonError, match="charset"):
+			send_one(store, body=b"x", content_type="text/plain")
+		# Non-text types need no charset.
+		assert send_one(store, body=b"x", content_type="application/pdf")
+
+	@pytest.mark.parametrize("raw,canonical", [
+		("text/markdown; charset=UTF-8", "text/markdown; charset=utf-8"),
+		("TEXT/Markdown;charset=utf-8", "text/markdown; charset=utf-8"),
+		("text/markdown ; charset=utf-8 ", "text/markdown; charset=utf-8"),
+		('text/plain; charset="utf-8"', "text/plain; charset=utf-8"),
+	])
+	def test_media_types_canonicalize_to_one_spelling(self, raw, canonical):
+		"""The manifest digest hashes this string, so two spellings of one type
+		must not read as two different contents."""
+		assert b6.canonical_media_type(raw) == canonical
+
+	@pytest.mark.parametrize("raw", [
+		"", "text", "text/", "/markdown", "text/markdown; charset",
+		"text/markdown; charset=utf-8; charset=ascii", 'text/plain; charset="utf-8',
+		"text/pl ain; charset=utf-8", "multipart/mixed; boundary=xyz"])
+	def test_malformed_media_types_are_refused(self, raw):
+		with pytest.raises(b6.BatonError):
+			b6.canonical_media_type(raw)
+
+	@pytest.mark.parametrize("name", [
+		"../escape", "a/b", "a\\b", ".", "..", "-rf", "nul\x00byte", "ctrl\x01", "", "x" * 256])
+	def test_filename_is_validated_even_though_it_is_advisory(self, store, name):
+		"""Baton never opens or names a file from `filename`; it is validated
+		anyway, because the consumer downstream may be less careful and a
+		transport that forwards `../../authorized_keys` unchallenged has
+		helped."""
+		with pytest.raises(b6.BatonError):
+			send_one(store, body=b"x", filename=name)
+
+	def test_materialize_ignores_the_advisory_filename(self, instance, tmp_path):
+		target = tmp_path / "proj"
+		target.mkdir()
+		with b6.open_instance(instance) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="doc",
+			                 body=b"# doc\n", filename="attacker-chosen.md")
+		path = b6.materialize(instance, mid, str(target), prefix="review")
+		assert os.path.basename(path).startswith("review-")
+		assert "attacker-chosen" not in path
+
+	def test_transient_ceiling_bounds_the_message_not_each_part(self, store):
+		"""Bounding each part instead would let a caller carry an unbounded
+		transient payload by splitting it."""
+		half = b"x" * (b6.TRANSIENT_BODY_MAX_BYTES // 2 + 1)
+		with pytest.raises(b6.BatonError, match="across all parts"):
+			store.send("acme.reviewer", "acme.implementer", kind="big",
+			           retention="transient", parts=[
+				{"content_type": BINARY_TYPE, "body": half},
+				{"content_type": BINARY_TYPE, "body": half}])
+
+	# -- damage: the manifest is the check bytes alone cannot make ---------
+
+	def test_tampered_part_tree_is_damage_not_a_silent_redefinition(self, instance):
+		"""A part dropped behind the API leaves every remaining byte valid.
+		Only the manifest digest notices, and it must refuse to deliver."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="two", parts=[
+				{"content_type": "text/plain; charset=utf-8", "body": b"one"},
+				{"content_type": "text/plain; charset=utf-8", "body": b"two"},
+			])
+		_raw_corrupt(instance, lambda conn: conn.execute(
+			"DELETE FROM parts WHERE owner_id=? AND ordinal=1", (mid,)))
+		with b6.open_instance(instance) as store:
+			claim = store.claim("acme.implementer", message_id=mid)
+			with pytest.raises(b6.BatonError) as excinfo:
+				b6._delivery(store, claim)
+			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+		report = b6.doctor(instance)
+		assert report["ok"] is False
+		assert any("content manifest" in p for p in report["problems"])
+
+	def test_retyped_part_is_damage(self, instance):
+		"""Same bytes, same order, different declared type: the message now
+		means something else, and the manifest is what catches it."""
+		with b6.open_instance(instance) as store:
+			mid = send_one(store, body=b"# doc\n")
+		_raw_corrupt(instance, lambda conn: conn.execute(
+			"UPDATE parts SET content_type='text/html; charset=utf-8' WHERE owner_id=?", (mid,)))
+		report = b6.doctor(instance)
+		assert report["ok"] is False
+		assert any("content manifest" in p for p in report["problems"])
+
+	def test_dump_covers_the_parts_table(self, instance):
+		with b6.open_instance(instance) as store:
+			send_one(store, body=b"dumped")
+		out = b6.dump(instance)
+		assert "parts" in out and len(out["parts"]) == 1
+		assert out["parts"][0]["content_type"] == b6.DEFAULT_CONTENT_TYPE
+		# Bytes stay redacted wherever they appear.
+		assert "bytes>" in out["contents"][0]["body"]
+
 
 class TestPackaging:
 	def _builder(self):
@@ -4537,7 +5033,7 @@ class TestPackaging:
 		proc = run("claim", "--participant", "team.implementer")
 		assert proc.returncode == 0, proc.stderr
 		delivery = json.loads(proc.stdout)
-		assert delivery["message"]["body"]["utf8"] == "distribution body"
+		assert delivered_bytes(delivery["message"]["content"]) == b"distribution body"
 		proc = run("reply", delivery["claim"]["claim_id"], "--participant",
 		           "team.implementer",
 		           "--kind", "a", stdin=b"distribution answer")

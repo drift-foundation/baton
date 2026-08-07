@@ -1,8 +1,18 @@
 # Message content needs a multipart-capable envelope
 
 Folder: `work/finding-multipart-content/`
-Status: not started.
+Status: **superseded and implemented** by `work/finding-typed-content-envelope/`
+at protocol 8 / tool 4.0.0.
 Raised by: Slawomir during `work/finding-wait-notice-wakeup/`.
+
+> This finding is kept as the origin of the requirement. The reviewer/team
+> restated it in `work/finding-typed-content-envelope/FINDING.md` with the
+> RFC references, the exactly-one-representation rule, and the demand that
+> multipart readiness be real in storage as well as delivery. That folder
+> carries the implementation and the handoff.
+>
+> Every acceptance criterion below is met, with one deliberate exception noted
+> under "Not done yet".
 
 ## Problem
 
@@ -61,5 +71,13 @@ make `wait` and `see` disagree again—the same class of divergence fixed by
 
 ## Not done yet
 
-No implementation or protocol design has started. The exact multipart schema,
-compatibility policy, and version number remain decisions for this finding.
+One criterion above is only partly met: *"Binary and externally stored parts
+have an unambiguous representation."* Inline binary parts do (declared media
+type, `disposition`, `base64`). Externally stored parts remain the separate
+pinned-attachment mechanism rather than rows in the `parts` table. That
+convergence is `work/finding-attachment-part-convergence/`.
+
+Compatibility policy was decided rather than deferred: there is no migration
+and no compatibility shim. Protocol 8 had never existed on disk when this
+landed, so the typed envelope defines the released protocol-8 schema and the
+deployment takes one teardown rather than two.

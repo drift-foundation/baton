@@ -44,8 +44,21 @@ distinct participant addresses rather than sharing one identity.
   mismatch fails closed.
 - Durable review/response documents: bodies live IN the store; use
   `materialize --dir <finding folder> --prefix review|implementation-response`
-  to emit the byte-exact `.md` projection for humans. Projections are
+  to emit the byte-exact projection for humans. Add `--part N` to address a
+  specific part of a multipart message (default `0`). Projections are
   caches; the store is the authority.
+- Content is TYPED. Every delivery carries `content` with a `content_type`
+  and an ordered `parts` list, even for a single part. Each leaf states its
+  media type, `disposition`, optional advisory `filename`, size and hash, and
+  carries exactly one representation named by `encoding` — `text` for
+  `text/...; charset=utf-8`, `base64` otherwise, never both. Declare
+  `--content-type` when publishing anything that is not Markdown; the default
+  is `text/markdown; charset=utf-8` and a `text/*` type must state its
+  charset. Bytes that contradict the declared charset are refused at
+  publication. Baton transports content and never renders it.
+- Retries must repeat the WHOLE manifest: the same parts, in the same order,
+  with the same media types, dispositions and filenames. Identical bytes under
+  changed metadata are a different operation and fail closed.
 - Evidence files already in the tree travel as attachments:
   `--attach ROOT:relative/path` (hash-pinned at publication; mutation fails
   the claim).
