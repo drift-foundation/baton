@@ -1,12 +1,76 @@
-# baton — portable coordination over one transactional authority
+# Baton — portable coordination over one transactional authority
 
-Baton is a standalone, stdlib-only coordination tool: role-addressed
-handoffs, broadcast notices, and audited administrative ceremonies over a
-single SQLite database. It has no dependency on any host project; every
-instance is defined entirely by one explicitly passed strict-JSON config.
+Baton is a standalone coordination tool for agents and humans, providing
+role-addressed handoffs, broadcast notices, and audited administrative
+operations over a single SQLite database. It has no dependency on any host
+project; every instance is defined entirely by one explicitly passed
+strict-JSON config.
 
-Floors (fail-closed, documented exit code 2): Python >= 3.11, the sqlite3
-module, SQLite library >= 3.37.0. Linux, local filesystems only.
+## How a team uses Baton
+
+A team gives each participant a scoped address such as `team.implementer` or
+`team.reviewer`. The implementer publishes a handoff to the reviewer. One
+reviewer claims it, completes the review, and replies through the same
+transactional channel. The implementer then receives that response. Baton
+records who claimed and completed each handoff, prevents two consumers from
+owning the same work, and preserves durable reports for later inspection.
+
+Addresses are not limited to implementation and review. A deployment can add
+participants such as `team.security`, `team.release`, or `org.lead` without
+changing the protocol. Broadcast notices provide status updates that every
+participant may see but nobody claims.
+
+## Quick example
+
+The included example config defines an implementer, a reviewer, and a lead.
+Create a temporary mailbox instance:
+
+    BATON="$PWD/bin/baton"
+    DEMO=/tmp/baton-demo
+    mkdir -p "$DEMO"
+    cp example-baton.json "$DEMO/baton.json"
+    "$BATON" --config "$DEMO/baton.json" init
+
+The implementer publishes a durable handoff:
+
+    IMPLEMENTER_SEED=22222222222222222222222222222222
+    printf '%s\n' '# Handoff' 'The implementation is ready for review.' > "$DEMO/handoff.md"
+    "$BATON" --config "$DEMO/baton.json" send \
+      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED" \
+      --to team.reviewer --kind implementation_handoff --retention durable \
+      --body "$DEMO/handoff.md"
+
+The reviewer waits for work. `wait` prints the claimed message and its
+`claim_id` as JSON:
+
+    REVIEWER_SEED=11111111111111111111111111111111
+    "$BATON" --config "$DEMO/baton.json" wait \
+      --participant team.reviewer --actor reviewer-1 --seed "$REVIEWER_SEED"
+
+After reviewing, copy that `claim_id` into the reply command:
+
+    CLAIM_ID="paste-claim-id-here"
+    printf '%s\n' '# Review' 'Approved.' > "$DEMO/review.md"
+    "$BATON" --config "$DEMO/baton.json" reply "$CLAIM_ID" \
+      --participant team.reviewer --actor reviewer-1 --seed "$REVIEWER_SEED" \
+      --kind review --outcome approved --retention durable \
+      --body "$DEMO/review.md"
+
+The implementer receives the response with the same participant identity used
+to send the handoff:
+
+    "$BATON" --config "$DEMO/baton.json" wait \
+      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED"
+
+For production use, keep the config and SQLite database in a dedicated local
+instance directory outside participating project trees. Each long-lived actor
+uses one stable 32-hex seed and one active consumer path.
+
+## Minimum requirements
+
+Requires Python 3.11 or newer, Linux, and SQLite 3.37.0 or newer on a local
+filesystem. No third-party Python packages are required. Missing runtime
+requirements fail closed with documented exit code 2.
 
 ## Instance
 
@@ -50,14 +114,16 @@ at most one instance with a given UUID can ever be active through the API.
 
 ## Exit codes
 
-0 success · 2 environment floor · 3 nothing eligible · 4 validation/usage ·
-5 race/busy · 6 integrity damage · 7 gated (maintenance/moved).
+0 success · 2 minimum requirements unmet · 3 nothing eligible ·
+4 validation/usage · 5 race/busy · 6 integrity damage ·
+7 gated (maintenance/moved).
 
 ## Distribution
 
 `python3 build_zipapp.py [outdir]` builds a deterministic executable
 `baton` zipapp and writes `DISTRIBUTION.json` (tool/protocol versions,
-floors, artifact hash). Same inputs, same bytes. A complete deployment also
-ships the generic `AGENTS-MAILBOX-PROTO.md` beside the executable; consumer
-projects keep only their local participant bindings and discover paths from
-the deployment rather than hard-coding a checkout or host layout.
+minimum runtime versions, artifact hash). Same inputs, same bytes. A complete
+deployment also ships the generic `AGENTS-MAILBOX-PROTO.md` beside the
+executable; consumer projects keep only their local participant bindings and
+discover paths from the deployment rather than hard-coding a checkout or host
+layout.
