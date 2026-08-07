@@ -1,7 +1,11 @@
 # Maintenance entry active-claim race
 
-Status: **implemented for protocol 7; protocol-6 fallback explicitly
-deferred**.
+Status: **implemented for protocol 7; the protocol-6 fallback is moot.**
+
+The deferred protocol-6 entry-time check no longer has anything to guard: the
+in-place 6 → 7 migration path was removed from the tool, so there is no
+supported cutover that enters maintenance through a protocol-6 executable. The
+protocol-7 guarantee below is the whole contract.
 
 During a protocol migration the preflight scan and `maintenance-enter` are
 separate operations. A claim can be created between them. If maintenance entry
@@ -16,13 +20,19 @@ same ceremony closes both, and a refused move binds no `moves` row.
 `test_maintenance_entry_refuses_active_claims_atomically` and the four
 related adversarial regressions pass.
 
-The preserved protocol-6 executable does not provide the same entry-time
-check. Slawomir explicitly deferred that fallback work on 2026-08-07: the live
-authority is already protocol 7, the protocol-6 executable is retained for
-read-only access to the retired archive, and an in-place protocol-6 cutover is
-not the current operational path. This limitation remains recorded here; it
-does not block the protocol-7 release.
+## Historical: the protocol-6 fallback gap
 
-Before any protocol-6 in-place cutover is promoted back to a live operational
-path, its source-side maintenance entry must gain the same atomic refusal or
-the migration contract must be revised explicitly.
+Recorded for the reasoning, not as outstanding work.
+
+While an in-place 6 → 7 cutover still existed, it entered maintenance through
+the protocol-6 executable, which had no such entry-time check — so on that one
+path the preflight scan was the only guard. Slawomir deferred closing it on
+2026-08-07 rather than cut a protocol-6 release for a path that was about to
+stop being operational.
+
+It then stopped existing: the in-place migration was removed from the tool
+altogether. There is no supported cutover that enters maintenance through a
+protocol-6 executable, so there is nothing left to defer and nothing to do
+before some future cutover. Should a migration path ever be reintroduced, its
+source-side maintenance entry needs this same atomic refusal from the start —
+that is the lesson worth carrying, and the whole of what remains here.

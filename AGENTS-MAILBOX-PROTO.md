@@ -1,6 +1,6 @@
-# Baton agent mailbox protocol — v6
+# Baton agent mailbox protocol — v7
 
-An agent coordination channel running **Baton protocol 6** has one SQLite
+An agent coordination channel running **Baton protocol 7** has one SQLite
 transactional authority per instance, no filename-state, and is defined
 entirely by an explicit config. Consult the Baton distribution's `README.md`
 for the command and storage contract.

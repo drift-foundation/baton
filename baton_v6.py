@@ -187,19 +187,13 @@ _PARTICIPANT_FIELDS = frozenset(("identity", "singleton_actor", "projection_pref
 _CAPABILITIES = frozenset(("recovery", "config"))
 
 
-def validate_config(obj: Any, *, allow_prior_protocol: bool = False) -> dict:
-	"""Strict config validation. `allow_prior_protocol` additionally accepts
-	the ONE protocol this tool can migrate from — needed to open a
-	pre-migration instance, and to open a pre-migration SNAPSHOT, which must
-	pair the old database with the old config to be restorable at all."""
+def validate_config(obj: Any) -> dict:
 	if type(obj) is not dict:
 		raise BatonError("config: top level must be an object")
 	_reject_unknown(obj, _CONFIG_FIELDS, "config")
 	if _expect_int(obj, "config_version", "config") != 1:
 		raise BatonError("config: unsupported config_version")
-	protocol = _expect_int(obj, "protocol_version", "config")
-	if protocol != PROTOCOL_VERSION and not (
-			allow_prior_protocol and protocol == PROTOCOL_VERSION - 1):
+	if _expect_int(obj, "protocol_version", "config") != PROTOCOL_VERSION:
 		raise BatonError(f"config: protocol_version must be {PROTOCOL_VERSION}")
 	_expect_int(obj, "generation", "config", minimum=1)
 	mailbox = obj.get("mailbox")
@@ -250,8 +244,7 @@ def validate_config(obj: Any, *, allow_prior_protocol: bool = False) -> dict:
 	return obj
 
 
-def _read_config_at(dirfd: int, name: str, *,
-                    allow_prior_protocol: bool = False) -> tuple[dict, str]:
+def _read_config_at(dirfd: int, name: str) -> tuple[dict, str]:
 	"""Open the config existing-only/no-follow RELATIVE to the held instance
 	dirfd and read through the fd — no re-resolution window exists between
 	validation and read, and the config binds to the same directory identity
@@ -276,7 +269,7 @@ def _read_config_at(dirfd: int, name: str, *,
 		text = raw.decode("utf-8")
 	except UnicodeDecodeError as exc:
 		raise BatonError(f"config is not valid UTF-8: {exc}") from exc
-	config = validate_config(loads_strict(text), allow_prior_protocol=allow_prior_protocol)
+	config = validate_config(loads_strict(text))
 	return config, canonical_sha256(config)
 
 
@@ -774,71 +767,6 @@ _TRIGGERS: dict[str, str] = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Protocol 6 — the ONLY schema protocol 7 can be migrated from. Frozen here on
-# purpose: a migration that cannot state exactly what it is migrating from
-# cannot refuse to run against something else, and silently carrying a damaged
-# or unrecognized v6 database forward into 7 is worse than refusing.
-# ---------------------------------------------------------------------------
-
-_V6_MESSAGES = (
-	"CREATE TABLE messages(id TEXT PRIMARY KEY, "
-	"from_participant TEXT NOT NULL, to_participant TEXT NOT NULL, "
-	"kind TEXT NOT NULL, thread_id TEXT, "
-	"retention TEXT NOT NULL CHECK(retention IN ('durable','transient')), "
-	"content_id TEXT REFERENCES contents(content_id), content_sha256 TEXT, "
-	"attach_root_id TEXT, attach_path TEXT, attach_sha256 TEXT, "
-	"attach_size INTEGER, attach_generation INTEGER, "
-	"outcome TEXT, created_ts TEXT NOT NULL, "
-	"state TEXT NOT NULL CHECK(state IN ('pending','claimed','completed','closed','expired')), "
-	"responds_to TEXT REFERENCES messages(id), completed_ts TEXT, "
-	"CHECK((state IN ('pending','claimed')) = (completed_ts IS NULL)), "
-	"CHECK((content_sha256 IS NOT NULL) + (attach_root_id IS NOT NULL) = 1), "
-	"CHECK((attach_root_id IS NULL) = (attach_path IS NULL) "
-	"AND (attach_root_id IS NULL) = (attach_sha256 IS NULL) "
-	"AND (attach_root_id IS NULL) = (attach_size IS NULL) "
-	"AND (attach_root_id IS NULL) = (attach_generation IS NULL))) STRICT"
-)
-
-_V6_MSG_EDGE = (
-	"CREATE TRIGGER trg_msg_edge BEFORE UPDATE OF state ON messages "
-	"WHEN NOT ((old.state='pending' AND new.state='claimed') "
-	"OR (old.state='claimed' AND new.state IN ('completed','closed','pending'))) "
-	"BEGIN SELECT RAISE(ABORT, 'illegal message state edge'); END"
-)
-
-_V6_COMPLETED_TS_GUARD = (
-	"CREATE TRIGGER trg_msg_completed_ts_guard BEFORE UPDATE OF completed_ts ON messages "
-	"WHEN NOT ((old.state='claimed' AND new.state IN ('completed','closed') AND new.completed_ts IS NOT NULL) "
-	"OR (old.state='claimed' AND new.state='pending' AND new.completed_ts IS NULL)) "
-	"BEGIN SELECT RAISE(ABORT, 'completed_ts changes only with its own terminal transition'); END"
-)
-
-_V6_META_FROZEN = (
-	"CREATE TRIGGER trg_meta_frozen BEFORE UPDATE OF one_row, uuid, protocol, created_ts "
-	"ON instance_meta BEGIN SELECT RAISE(ABORT, 'instance identity is immutable'); END"
-)
-
-# Objects protocol 7 introduced; absent from a valid v6 database.
-_V7_ADDED = (("table", "quarantines"), ("trigger", "trg_quarantine_insert_guard"),
-             ("trigger", "trg_quarantine_frozen"), ("trigger", "trg_quarantine_delete_guard"),
-             ("trigger", "trg_meta_protocol_guard"))
-
-
-def _expected_schema_v6() -> dict[tuple[str, str], str]:
-	"""The protocol-6 schema, derived from the current definitions by undoing
-	exactly the protocol-7 deltas. Derivation rather than a second full copy
-	keeps the two from diverging silently."""
-	expected = _expected_schema()
-	for key in _V7_ADDED:
-		del expected[key]
-	expected[("table", "messages")] = _V6_MESSAGES
-	expected[("trigger", "trg_msg_edge")] = _V6_MSG_EDGE
-	expected[("trigger", "trg_msg_completed_ts_guard")] = _V6_COMPLETED_TS_GUARD
-	expected[("trigger", "trg_meta_frozen")] = _V6_META_FROZEN
-	return expected
-
-
 def _expected_schema() -> dict[tuple[str, str], str]:
 	expected: dict[tuple[str, str], str] = {}
 	for name, sql in _TABLES.items():
@@ -855,7 +783,8 @@ def _expected_schema() -> dict[tuple[str, str], str]:
 # ---------------------------------------------------------------------------
 
 class Store:
-	"""One open handle on a protocol-6 instance. Not thread-safe."""
+	"""One open handle on an instance at the supported protocol. Not
+	thread-safe."""
 
 	def __init__(self, config_path: str, config: dict, config_digest: str,
 	             dirfd: int, dbfd: int, conn: sqlite3.Connection, readonly: bool) -> None:
@@ -926,11 +855,7 @@ class Store:
 			"FROM instance_meta WHERE one_row=1").fetchone()
 		if row is None:
 			raise BatonError("instance_meta row is missing", EXIT_DAMAGE)
-		# A migration is the ONE transaction that legitimately begins on the
-		# previous protocol — it is what moves it. Every other verb still
-		# refuses, so this is not a general relaxation.
-		if row["protocol"] != PROTOCOL_VERSION and not (
-				ceremony == "migrate" and row["protocol"] == PROTOCOL_VERSION - 1):
+		if row["protocol"] != PROTOCOL_VERSION:
 			raise BatonError(f"instance protocol {row['protocol']} unsupported", EXIT_PROTOCOL)
 		if row["move_status"] == "moved" and ceremony != "move":
 			raise BatonError(f"instance has moved to {row['moved_to']!r}; refusing", EXIT_GATED)
@@ -946,11 +871,10 @@ class Store:
 		if row["maintenance"] == 1 and ceremony not in (
 				"move", "migrate", "maintenance", "quarantine"):
 			raise BatonError("instance is under maintenance; write operations are gated", EXIT_GATED)
-		if ceremony in ("regen", "migrate"):
-			# Both accept a generation+1 config, so both check the same race.
+		if ceremony == "regen":
 			if row["accepted_generation"] != self.config["generation"] - 1:
 				raise BatonError(
-					f"{ceremony} race: accepted generation is now {row['accepted_generation']}, "
+					f"regen race: accepted generation is now {row['accepted_generation']}, "
 					f"offered {self.config['generation']}", EXIT_RACE)
 		elif (row["accepted_generation"] != self.config["generation"]
 				or row["config_sha256"] != self.config_digest):
@@ -1988,14 +1912,10 @@ def _apply_connection_contract(conn: sqlite3.Connection, readonly: bool) -> None
 		conn.execute("PRAGMA synchronous=FULL")
 
 
-def _validate_schema(conn: sqlite3.Connection, *, for_migrate: bool = False) -> None:
-	"""Exact schema identity. With `for_migrate`, the ONE older protocol this
-	tool can migrate from is also accepted — validated against that protocol's
-	own frozen schema, never leniently. An unrecognized or altered v6 database
-	still fails closed rather than being carried forward."""
+def _validate_schema(conn: sqlite3.Connection) -> None:
+	"""Exact schema identity."""
 	user_version = conn.execute("PRAGMA user_version").fetchone()[0]
-	migratable = for_migrate and user_version == PROTOCOL_VERSION - 1
-	if user_version != PROTOCOL_VERSION and not migratable:
+	if user_version != PROTOCOL_VERSION:
 		raise BatonError(
 			f"database protocol {user_version} does not match supported protocol {PROTOCOL_VERSION}", EXIT_PROTOCOL)
 	actual: dict[tuple[str, str], str] = {}
@@ -2003,7 +1923,7 @@ def _validate_schema(conn: sqlite3.Connection, *, for_migrate: bool = False) -> 
 			"SELECT type, name, sql FROM sqlite_master "
 			"WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name"):
 		actual[(typ, name)] = sql
-	expected = _expected_schema_v6() if migratable else _expected_schema()
+	expected = _expected_schema()
 	if actual != expected:
 		missing = sorted(set(expected) - set(actual))
 		extra = sorted(set(actual) - set(expected))
@@ -2019,32 +1939,16 @@ def _validate_schema(conn: sqlite3.Connection, *, for_migrate: bool = False) -> 
 
 
 def _check_meta(conn: sqlite3.Connection, config: dict, config_digest: str, readonly: bool,
-                for_regen: bool = False, for_ceremony: bool = False,
-                for_migrate: bool = False) -> None:
+                for_regen: bool = False, for_ceremony: bool = False) -> None:
 	row = conn.execute("SELECT * FROM instance_meta WHERE one_row=1").fetchone()
 	if row is None:
 		raise BatonError("instance_meta row is missing", EXIT_DAMAGE)
-	# `migrating` is true only when there is actually an older protocol to
-	# move: opening a migrate handle against an ALREADY-migrated instance is
-	# the idempotent retry path and must behave like an ordinary open, config
-	# equality and all.
-	migrating = for_migrate and row["protocol"] == PROTOCOL_VERSION - 1
-	if row["protocol"] != PROTOCOL_VERSION and not migrating:
+	if row["protocol"] != PROTOCOL_VERSION:
 		raise BatonError(f"instance protocol {row['protocol']} unsupported", EXIT_PROTOCOL)
-	# The generation+1 rule belongs to the act of migrating, not to merely
-	# reading a pre-migration instance: a read-only migrate-mode open is an
-	# inspection (validating a snapshot, checking state after a rollback) and
-	# such an instance legitimately sits at its own accepted generation.
-	if for_regen or (migrating and not readonly):
-		# A migration necessarily changes the config too — `protocol_version`
-		# lives there — so it accepts a generation+1 config in the same
-		# transaction that moves the schema, exactly as regen does. Leaving
-		# the config claiming the old protocol while the database moved would
-		# be a durable lie about the instance.
-		what = "regen" if for_regen else "migrate"
+	if for_regen:
 		if config["generation"] != row["accepted_generation"] + 1:
 			raise BatonError(
-				f"{what} requires config generation {row['accepted_generation'] + 1} "
+				f"regen requires config generation {row['accepted_generation'] + 1} "
 				f"(accepted {row['accepted_generation']}, offered {config['generation']})")
 	elif row["accepted_generation"] != config["generation"] or row["config_sha256"] != config_digest:
 		raise BatonError(
@@ -2134,13 +2038,12 @@ def init_instance(config_path: str) -> None:
 
 
 def open_instance(config_path: str, *, readonly: bool = False, _for_regen: bool = False,
-                  _for_ceremony: bool = False, _for_migrate: bool = False) -> Store:
+                  _for_ceremony: bool = False) -> Store:
 	dirfd = open_instance_dir(config_path)
 	dbfd = -1
 	conn = None
 	try:
-		config, digest = _read_config_at(dirfd, os.path.basename(config_path),
-		                                 allow_prior_protocol=_for_migrate)
+		config, digest = _read_config_at(dirfd, os.path.basename(config_path))
 		flags = (os.O_RDONLY if readonly else os.O_RDWR) | os.O_NOFOLLOW | os.O_CLOEXEC
 		try:
 			dbfd = os.open(DB_NAME, flags, dir_fd=dirfd)
@@ -2155,9 +2058,9 @@ def open_instance(config_path: str, *, readonly: bool = False, _for_regen: bool 
 		try:
 			_verify_db_identity(conn, dbfd, dirfd)
 			_apply_connection_contract(conn, readonly)
-			_validate_schema(conn, for_migrate=_for_migrate)
+			_validate_schema(conn)
 			_check_meta(conn, config, digest, readonly, for_regen=_for_regen,
-			            for_ceremony=_for_ceremony, for_migrate=_for_migrate)
+			            for_ceremony=_for_ceremony)
 		except sqlite3.DatabaseError as exc:
 			raise BatonError(f"database failed open validation: {exc}", EXIT_DAMAGE) from exc
 		return Store(config_path, config, digest, dirfd, dbfd, conn, readonly)
@@ -2895,181 +2798,6 @@ def abort_move(config_path: str, *, participant: str, actor: str, seed: str, tok
 			raise
 
 
-_MESSAGE_COLUMNS = (
-	"id, from_participant, to_participant, kind, thread_id, retention, content_id, "
-	"content_sha256, attach_root_id, attach_path, attach_sha256, attach_size, "
-	"attach_generation, outcome, created_ts, state, responds_to, completed_ts")
-
-
-def _migrate_6_to_7(store: Store, participant: str, actor: str, seed: str) -> dict:
-	"""Rebuild `messages` with the protocol-7 state CHECK, add the quarantine
-	table and its guards, and re-point the protocol field.
-
-	Why a rebuild rather than ALTER: SQLite cannot alter a CHECK constraint,
-	and `ALTER TABLE … RENAME` rewrites the stored CREATE text with quoting
-	that `_validate_schema`'s exact-text comparison would then reject. So the
-	rows go into an unconstrained holding table, `messages` is dropped (taking
-	its triggers with it), recreated from the byte-exact protocol-7 text, and
-	refilled — with the triggers rebuilt AFTER the refill, because
-	`trg_msg_insert_guard` only permits pending births and would reject the
-	restore of already-claimed rows.
-
-	The transaction ends with a full `_validate_schema` against protocol 7.
-	That is the real safety property: the migration proves it produced exactly
-	the expected schema before it commits, so a partial or mistaken rebuild
-	rolls back rather than becoming the new authority."""
-	conn = store.conn
-	before = conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
-	# PRAGMA foreign_keys is a no-op inside a transaction, so it is set here
-	# and restored in the caller's finally.
-	conn.execute("PRAGMA foreign_keys=OFF")
-	store._txn_begin("migrate", actor, seed, participant=participant, ceremony="migrate")
-	try:
-		# The drain is a CUTOVER INVARIANT, not an operator instruction: an
-		# active claim means someone owns work across the rebuild, and the
-		# scan-to-migrate window is exactly where a late claim would slip in.
-		# Checked here, under the write lock, where it cannot be raced.
-		active = conn.execute(
-			"SELECT claim_id FROM claims WHERE state='active' ORDER BY claimed_ts").fetchall()
-		if active:
-			raise BatonError(
-				f"{len(active)} active claim(s) still held (first {active[0][0]!r}); the "
-				"instance must be drained before migrating — resolve or recover them",
-				EXIT_RACE)
-		conn.execute(f"CREATE TABLE _mig_messages AS SELECT {_MESSAGE_COLUMNS} FROM messages")
-		conn.execute("DROP TABLE messages")
-		conn.execute(_TABLES["messages"])
-		conn.execute(f"INSERT INTO messages({_MESSAGE_COLUMNS}) "
-		             f"SELECT {_MESSAGE_COLUMNS} FROM _mig_messages")
-		conn.execute("DROP TABLE _mig_messages")
-		# DROP TABLE takes the table's indexes with it, not just its triggers.
-		for sql in _INDEXES.values():
-			if " ON messages(" in sql:
-				conn.execute(sql)
-		for name, sql in _TRIGGERS.items():
-			if " ON messages " in sql:
-				conn.execute(sql)
-		conn.execute(_TABLES["quarantines"])
-		for name in ("trg_quarantine_insert_guard", "trg_quarantine_frozen",
-		             "trg_quarantine_delete_guard"):
-			conn.execute(_TRIGGERS[name])
-		# Protocol stays CONTINUOUSLY guarded across the swap. The narrowed
-		# guard is installed FIRST, while the v6 blanket-frozen trigger is
-		# still in place, so there is no instant at which `protocol` is
-		# unprotected — then the blanket trigger is replaced. Doing it the
-		# other way round would open exactly the window this ceremony exists
-		# to avoid.
-		conn.execute(_TRIGGERS["trg_meta_protocol_guard"])
-		_fault("migrate:protocol-guard-installed")
-		conn.execute("DROP TRIGGER trg_meta_frozen")
-		conn.execute(_TRIGGERS["trg_meta_frozen"])
-		conn.execute(f"PRAGMA user_version={PROTOCOL_VERSION}")
-		conn.execute("UPDATE instance_meta SET protocol=? WHERE one_row=1", (PROTOCOL_VERSION,))
-		# Accept the generation+1 config in the SAME transaction. The config
-		# carries protocol_version, so schema and config must move together or
-		# the instance is left describing itself incorrectly.
-		conn.execute(
-			"UPDATE instance_meta SET accepted_generation=?, config_sha256=? WHERE one_row=1",
-			(store.config["generation"], store.config_digest))
-		after = conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
-		if after != before:
-			raise BatonError(
-				f"migration lost rows: {before} messages before, {after} after", EXIT_DAMAGE)
-		violations = conn.execute("PRAGMA foreign_key_check").fetchall()
-		if violations:
-			raise BatonError(
-				f"migration left {len(violations)} foreign key violation(s)", EXIT_DAMAGE)
-		_validate_schema(conn)  # must be EXACTLY protocol 7 before we commit
-		_audit_ceremony(store, "migrate", participant, actor, seed,
-		                f"migrated protocol 6 to {PROTOCOL_VERSION}; {before} messages preserved",
-		                None)
-		store._txn_commit()
-		return {"migrated": True, "from_protocol": PROTOCOL_VERSION - 1,
-		        "protocol": PROTOCOL_VERSION, "messages_preserved": before,
-		        "accepted_generation": store.config["generation"]}
-	except BaseException:
-		store._txn_rollback()
-		raise
-
-
-def migrate_instance(config_path: str, *, participant: str, actor: str, seed: str,
-                     snapshot_dir: str | None = None) -> dict:
-	"""Audited schema migration. Protocol 6 is the only schema this tool can
-	migrate from, and it is validated exactly against protocol 6's own frozen
-	definition first — an altered or damaged v6 database is refused rather
-	than carried forward. Requires the `config` capability and the maintenance
-	gate, so the instance is quiet for every participant while it runs."""
-	with open_instance(config_path, _for_ceremony=True, _for_migrate=True) as store:
-		store._require_capability(participant, actor, seed, "config", "migrate")
-		row = store.conn.execute(
-			"SELECT maintenance FROM instance_meta WHERE one_row=1").fetchone()
-		if row["maintenance"] != 1:
-			raise BatonError("migrate requires the maintenance gate to be set first")
-		row_meta = _meta(store)
-		current = store.conn.execute("PRAGMA user_version").fetchone()[0]
-		if current == PROTOCOL_VERSION:
-			# Idempotent: a retry after a committed migration is a no-op, not
-			# a failure — a lost response must never make an operator guess.
-			return {"migrated": False, "protocol": PROTOCOL_VERSION,
-			        "detail": "instance is already at the supported protocol"}
-		if current != PROTOCOL_VERSION - 1:
-			store._txn_begin("migrate", actor, seed, participant=participant, ceremony="migrate")
-			try:
-				_audit_ceremony(store, "migrate", participant, actor, seed,
-				                f"attempted migration; no path from protocol {current}", None)
-				store._txn_commit()
-			except BaseException:
-				store._txn_rollback()
-				raise
-			raise BatonError(
-				f"no migration path exists from protocol {current} to {PROTOCOL_VERSION}",
-				EXIT_PROTOCOL)
-		# The migration takes its OWN validated pre-migration snapshot. Leaving
-		# this to the operator meant trusting a hand-rolled `cp` of a WAL
-		# database to be a coherent backup, which it is not; and the older
-		# executable — the only one that can open the pre-migration instance —
-		# has no snapshot verb, so there was no supported way to do it by hand.
-		# Reconstruct the ACCEPTED (pre-migration) config and prove it by
-		# digest. This does double duty:
-		#   * the snapshot must pair the old database with the config that
-		#     matches it. Copying the on-disk config would pair a protocol-6
-		#     database with the protocol-7 config, and the result opens under
-		#     neither executable — a rollback artifact that cannot roll back.
-		#   * if setting exactly `generation` and `protocol_version` back does
-		#     NOT reproduce the accepted digest, the offered config changed
-		#     something else, and a migration is not the ceremony for that.
-		prior = dict(store.config)
-		prior["generation"] = row_meta["accepted_generation"]
-		prior["protocol_version"] = PROTOCOL_VERSION - 1
-		if canonical_sha256(prior) != row_meta["config_sha256"]:
-			raise BatonError(
-				"the offered config differs from the accepted one in more than 'generation' "
-				"and 'protocol_version'; migrate accepts only the protocol bump — use regen "
-				"for other config changes", EXIT_PROTOCOL)
-		snapshot = None
-		if snapshot_dir is not None:
-			snapshot = _take_snapshot(store, config_path, snapshot_dir, row_meta,
-			                          for_migrate=True,
-			                          config_bytes=canonical_dumps(prior).encode("utf-8"))
-			if snapshot["protocol"] != PROTOCOL_VERSION - 1:
-				raise BatonError(
-					f"pre-migration snapshot is protocol {snapshot['protocol']}, expected "
-					f"{PROTOCOL_VERSION - 1}; refusing", EXIT_DAMAGE)
-			_fault("migrate:snapshot-taken")
-		try:
-			result = _migrate_6_to_7(store, participant, actor, seed)
-		finally:
-			store.conn.execute("PRAGMA foreign_keys=ON")
-		if snapshot is not None:
-			if snapshot["messages"] != result["messages_preserved"]:
-				raise BatonError(
-					f"snapshot holds {snapshot['messages']} messages but the migration "
-					f"preserved {result['messages_preserved']}; investigate before using "
-					f"either", EXIT_DAMAGE)
-			result["snapshot"] = snapshot
-		return result
-
-
 def _read_config_bytes_at(dirfd: int, config_name: str) -> bytes:
 	"""Read the config through the HELD instance dirfd, no-follow, refusing a
 	non-regular file — the same discipline the move ceremony uses."""
@@ -3093,12 +2821,38 @@ def quarantine_attachment_instance(config_path: str, message_id: str, *, partici
                                    actor: str, seed: str, reason: str) -> dict:
 	"""Ceremony entry point for the quarantine disposition. Opens as a
 	ceremony so it can run while the instance is under a PLAIN maintenance
-	gate — repairing instance health belongs in the same quiet window as a
-	migration, before participants are let back in. Move-gated instances are
-	still refused, inside the transaction where the check cannot be raced."""
+	gate — repairing instance health belongs in the same quiet window as any
+	other administrative work, before participants are let back in. Move-gated
+	instances are still refused, inside the transaction where the check cannot
+	be raced."""
 	with open_instance(config_path, _for_ceremony=True) as store:
 		return store.quarantine_attachment(message_id, participant=participant,
 		                                   actor=actor, seed=seed, reason=reason)
+
+
+def migrate_instance(config_path: str, *, participant: str, actor: str, seed: str) -> dict:
+	"""Schema migration gate. Protocol 7 is the only schema this tool knows.
+	The authorized ATTEMPT is durably audited before the unsupported result is
+	reported, so the gate's audit claim is true today. A migration path is
+	added only alongside a protocol bump, together with the frozen definition
+	of the protocol it migrates from."""
+	with open_instance(config_path, _for_ceremony=True) as store:
+		store._require_capability(participant, actor, seed, "config", "migrate")
+		row = store.conn.execute(
+			"SELECT maintenance FROM instance_meta WHERE one_row=1").fetchone()
+		if row["maintenance"] != 1:
+			raise BatonError("migrate requires the maintenance gate to be set first")
+		store._txn_begin("migrate", actor, seed, participant=participant, ceremony="migrate")
+		try:
+			_audit_ceremony(store, "migrate", participant, actor, seed,
+			                f"attempted migration; no path from protocol {PROTOCOL_VERSION}", None)
+			store._txn_commit()
+		except BaseException:
+			store._txn_rollback()
+			raise
+		raise BatonError(
+			f"no migration path exists from protocol {PROTOCOL_VERSION}; this tool only "
+			"gains one alongside a protocol bump", EXIT_PROTOCOL)
 
 
 def snapshot_instance(config_path: str, dest_dir: str, *, participant: str, actor: str,
@@ -3131,11 +2885,10 @@ def snapshot_instance(config_path: str, dest_dir: str, *, participant: str, acto
 
 
 def _take_snapshot(store: Store, config_path: str, dest_dir: str,
-                   meta_row: sqlite3.Row, for_migrate: bool = False,
-                   config_bytes: bytes | None = None) -> dict:
-	"""Snapshot core, shared by the `snapshot` verb and by `migrate`, which
-	takes its own pre-migration copy rather than trusting an operator to have
-	made a good one."""
+                   meta_row: sqlite3.Row) -> dict:
+	"""Validated copy of a quiesced instance: drain the WAL, publish the
+	database and config through the hash-verified fsynced no-clobber path,
+	then open the copy and check it."""
 	active = store.conn.execute(
 		"SELECT COUNT(*) FROM claims WHERE state='active'").fetchone()[0]
 	checkpoint_drain(store)  # fold the WAL in; proves the instance is quiet
@@ -3153,8 +2906,7 @@ def _take_snapshot(store: Store, config_path: str, dest_dir: str,
 			os.fsync(parent_fd)
 		finally:
 			os.close(parent_fd)
-	if config_bytes is None:
-		config_bytes = _read_config_bytes_at(store.dirfd, os.path.basename(config_path))
+	config_bytes = _read_config_bytes_at(store.dirfd, os.path.basename(config_path))
 	config_sha = hashlib.sha256(config_bytes).hexdigest()
 	dst_dirfd = _open_dir_no_follow(dest, "snapshot directory")
 	try:
@@ -3163,11 +2915,9 @@ def _take_snapshot(store: Store, config_path: str, dest_dir: str,
 			store.dbfd, os.fstat(store.dbfd).st_size, dst_dirfd, DB_NAME, 0o600)
 	finally:
 		os.close(dst_dirfd)
-	# Prove the snapshot is a usable instance NOW, not when it is needed. A
-	# pre-migration snapshot is still the OLD protocol, so it is validated in
-	# migrate mode — against that protocol's own frozen schema, not leniently.
+	# Prove the snapshot is a usable instance NOW, not when it is needed.
 	with open_instance(os.path.join(dest, "baton.json"), readonly=True,
-	                   _for_ceremony=True, _for_migrate=for_migrate) as copy:
+	                   _for_ceremony=True) as copy:
 		meta = copy.conn.execute(
 			"SELECT uuid, protocol, accepted_generation FROM instance_meta "
 			"WHERE one_row=1").fetchone()
@@ -3967,8 +3717,6 @@ def _build_parser():
 	c.add_argument("--reason", required=True)
 	c = cmd("migrate", help="audited migration gate")
 	ident(c)
-	c.add_argument("--snapshot-dir",
-	               help="take a validated pre-migration snapshot into this directory")
 	return parser
 
 
@@ -4101,8 +3849,7 @@ def main(argv: list[str] | None = None) -> int:
 				reason=ns.reason))
 		elif ns.command == "migrate":
 			_print_result(migrate_instance(ns.config, participant=ns.participant,
-			                               actor=ns.actor, seed=ns.seed,
-			                               snapshot_dir=ns.snapshot_dir))
+			                               actor=ns.actor, seed=ns.seed))
 		else:  # pragma: no cover
 			raise BatonError(f"unknown command {ns.command!r}")
 		return 0

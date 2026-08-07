@@ -3,10 +3,11 @@
 **This is the primary and default procedure for any Baton protocol
 migration.** Availability of the coordination channel is the invariant.
 
-The in-place migration procedure lives in `RUNBOOK-offline-migration.md` and
-is **never** used on a live deployment. It applies only off the live path: a
-retired authority being repaired for archival, an optional state port, or
-another deployment upgrading on its own schedule.
+There is no in-place migration procedure. The 6 → 7 path and its runbook
+were removed once this deployment moved to a fresh protocol-7 instance, so
+the availability-first cutover below is not merely the preferred option — it
+is the only one the tool supports. `migrate` is an audited refusal that gains
+a path only alongside a future protocol bump.
 
 ## The invariant
 

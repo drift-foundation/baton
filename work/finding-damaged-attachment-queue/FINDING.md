@@ -314,13 +314,20 @@ handoff ids continue to be reported to Slawomir.
 
 ## Review round 1 — eight items, all addressed
 
-Reviewer reproduced four defects with adversarial tests; all four now pass,
-kept as a separate check rather than absorbed. Suite: **322 passed, 0 failed**.
+**Time-scoped record, 2026-08-07.** This section describes the tree as it
+stood at that review. Items referencing `migrate` or `migrate --snapshot-dir`
+describe a migration capability that has since been **removed**; the flag no
+longer exists. The quarantine, `snapshot`, `gc`, schema-guard and
+maintenance-entry outcomes below are all still live.
+
+Reviewer reproduced four defects with adversarial tests; all four passed at the
+time, kept as a separate check rather than absorbed. Suite then:
+**322 passed, 0 failed**.
 
 | # | Item | Resolution |
 | --- | --- | --- |
 | 1 | Quarantine must run under the gate | Ceremony `quarantine`: authorized under a plain maintenance gate, refused during `moving`/`moved` inside the transaction. Ordinary writes stay gated. |
-| 2 | WAL-unsafe backup/restore | `snapshot` verb reusing `checkpoint_drain` + the move ceremony's hash-verified fsynced no-clobber publish, then opens and validates the copy. `migrate --snapshot-dir` takes it automatically. |
+| 2 | WAL-unsafe backup/restore | `snapshot` verb reusing `checkpoint_drain` + the move ceremony's hash-verified fsynced no-clobber publish, then opens and validates the copy. (`migrate --snapshot-dir` also took one automatically; that flag has since been removed with the migration.) |
 | 3 | Retry depended on the file staying damaged | `_committed_quarantine` resolves retry identity before any file is read, comparing the full `(participant, actor, seed, reason)` tuple; in-transaction repeat preserved for races. |
 | 4 | Quarantine row broke `gc` | Quarantine-referenced messages are retained anchors alongside recovery-referenced ones. |
 | 5 | `quarantined` reachable under any verb | `trg_msg_edge` requires `verb = 'quarantine'` on the edge. `doctor` gained bidirectional coherence checks (record exists, pin matches, prior/current state agree, exactly one `quarantine` ledger edge). |
@@ -344,10 +351,12 @@ generation-3 config is staged, it captured a protocol-6 database paired with
 the protocol-7 config — openable by neither executable. A rollback artifact
 that cannot roll back is worse than none, because it invites false confidence.
 
-Fixed by having `migrate --snapshot-dir` write a **reconstructed generation-2
-protocol-6 config** beside the old database. The reconstruction is proved, not
-assumed: setting `generation` and `protocol_version` back must reproduce the
-accepted `config_sha256`, or the migration refuses. That single mechanism also
+Fixed at the time by having `migrate --snapshot-dir` write a **reconstructed
+generation-2 protocol-6 config** beside the old database, proved rather than
+assumed: setting `generation` and `protocol_version` back had to reproduce the
+accepted `config_sha256` or the migration refused. Both the flag and the
+migration have since been removed; the durable lesson is that a snapshot must
+pair a database with the config that matches it, and prove the pairing. That single mechanism also
 enforces the "diff is exactly two fields" property, pointing at `regen` for
 anything else. `validate_config` and `_check_meta` gained a scoped
 prior-protocol allowance so a pre-migration instance and its snapshot can be
@@ -368,12 +377,13 @@ The default and primary migration shape is therefore: retire the old mailbox
 intact, stand up a **verified empty** instance on the target protocol at the
 canonical path, reconnect immediately, and treat any port as a separate
 optional recovery operation performed only on demonstrated need. This is
-`RUNBOOK.md`. The in-place procedure is `RUNBOOK-offline-migration.md` and is
-never used on a live deployment.
+`RUNBOOK.md`. The in-place procedure has been removed from both the docs and
+the tool.
 
 Established by Slawomir after this deployment could not coordinate for over
-**ten hours** during an in-place cutover. The in-place machinery still ships
-and remains useful when applied to a *copy*, where it costs no availability.
+**ten hours** during an in-place cutover. The in-place machinery has since
+been removed from the tool entirely, so the invariant is now enforced by there
+being no in-place path to reach for.
 
 I designed this migration in-place, which maximizes continuity and minimizes
 moving parts. What I underweighted is that it makes the whole deployment's
@@ -384,10 +394,12 @@ order to unblock it was the channel that was blocked. Pending messages are
 cheap to re-send; a jammed coordination channel is expensive precisely because
 working around it requires the channel.
 
-The in-place machinery is not wasted — it is the correct procedure for
-migrating a *copy*, which is what the offline port in step 4 is, and what
-repairing the retired authority now is. Applied off the live path it carries
-no availability cost.
+At the time I argued the in-place machinery was not wasted, because it was
+still the correct procedure for migrating a *copy*. That argument no longer
+applies: the machinery was removed, and nobody had used it off the live path
+either. Recorded because "we can keep it, it is useful elsewhere" is a
+comfortable thing to believe about code you have just been told not to run,
+and here it turned out not to be true.
 
 ## Live-instance authority — resolved by the mailbox reset
 

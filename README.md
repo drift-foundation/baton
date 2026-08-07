@@ -142,9 +142,41 @@ plus envelope with base64+sha256 body or pinned attachment tuple), `wait`
 (the same directed delivery, or a broadcast notice — see below),
 `reply` / `close` (effectively-once: retries redeliver the committed
 disposition and mismatches fail closed), `see` / `expire` (notices),
-`recover-claim` (requires the `recovery` capability and a reason), `gc`,
-`regen` (accept a generation+1 config; requires `config`), `scan`,
-`doctor`, `dump`, `inspect`, `materialize`.
+`recover-claim` (requires the `recovery` capability and a reason),
+`quarantine-attachment` (terminal disposition for a message whose pinned
+attachment no longer verifies; requires `recovery` and a reason — see below),
+`snapshot` (validated copy of a maintenance-gated instance; requires
+`config`), `gc`, `regen` (accept a generation+1 config; requires `config`),
+`scan`, `doctor`, `dump`, `inspect`, `materialize`.
+
+`migrate` is an audited gate, not a conversion capability. It requires the
+participant's `config` capability and the maintenance gate, durably audits the
+attempt, and then refuses with exit 4 — this build knows one protocol and has
+no path to convert an instance from another. A migration path is added only
+alongside a protocol bump. To move an instance to a newer protocol, retire it intact and start a
+fresh one at the target protocol: coordination comes back in minutes, and
+anything still needed is re-sent. Converting in place keeps more history but
+takes the channel down for the whole conversion, including for whoever would
+have to review it.
+
+## Damaged attachments
+
+An attachment is hash-pinned when the message is published, so editing the
+file afterwards invalidates the pin. `claim` and `wait` **skip** such a
+message and deliver the next healthy one, rather than failing the whole queue;
+naming it explicitly with `--message-id` still fails closed. Skipped damage is
+listed by `scan` under `damaged` and by `doctor`.
+
+A skipped message stays pending until dispositioned. `quarantine-attachment`
+is that disposition: it records the original pin and the observed failure in a
+permanent audit row and moves the message to a terminal `quarantined` state,
+without ever claiming it — damaged content is never delivered, so no claim is
+created. An already-terminal message is acknowledged without rewriting its
+history. `doctor` then reports the damage as an acknowledged warning rather
+than an unresolved problem.
+
+The practical lesson: send a document that is still being edited as a
+`--body`, which is copied into the store, and attach only what is final.
 
 ## What `wait` delivers
 

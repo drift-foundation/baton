@@ -44,8 +44,10 @@ channel is expensive precisely because working around it requires the channel.
 
 **Documented, not engineered.** The procedure is `RUNBOOK.md` in
 `work/finding-damaged-attachment-queue/`, which was restructured so the fast
-fresh-instance cutover *is* the runbook; the in-place procedure moved to
-`RUNBOOK-offline-migration.md`, scoped to off-live use only.
+fresh-instance cutover *is* the runbook. The in-place procedure was first
+demoted to a separate off-live document and has since been removed outright,
+along with the migration code it described — the invariant is now enforced by
+the tool having no in-place path to reach for.
 
 That satisfies the runbook half of the requirement. The architecture half is
 open.

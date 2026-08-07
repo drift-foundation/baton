@@ -20,10 +20,10 @@ SEED_B = "b" * 32
 SEED_C = "c" * 32
 
 
-def make_config(generation: int = 1, protocol: int | None = None) -> dict:
+def make_config(generation: int = 1) -> dict:
 	return {
 		"config_version": 1,
-		"protocol_version": b6.PROTOCOL_VERSION if protocol is None else protocol,
+		"protocol_version": b6.PROTOCOL_VERSION,
 		"generation": generation,
 		"mailbox": {"name": "acme-local"},
 		"participants": {
@@ -1931,19 +1931,22 @@ class TestMoveFaultMatrix:
 
 
 class TestMigrateGate:
-	def test_migrate_requires_maintenance_and_is_a_noop_when_current(self, instance):
-		"""Since protocol 7 exists, migrating an ALREADY-current instance is an
-		idempotent no-op rather than an error — a lost response must never
-		make an operator guess whether the migration ran. The gate is still
-		required, and a genuine older protocol is covered by
-		TestMigration6to7."""
+	def test_migrate_requires_maintenance_and_reports_no_path(self, instance):
+		"""The gate is an audited refusal, not a capability: this tool knows
+		only protocol 7, and gains a migration path only alongside a protocol
+		bump together with the frozen definition of what it migrates from.
+		The ATTEMPT is durably audited before the refusal is reported."""
 		with pytest.raises(b6.BatonError, match="maintenance gate"):
 			b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
 		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
 		                     reason="migration attempt")
-		result = b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
-		assert result["migrated"] is False
-		assert result["protocol"] == b6.PROTOCOL_VERSION
+		with pytest.raises(b6.BatonError, match="no migration path") as excinfo:
+			b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+		assert excinfo.value.exit_code == b6.EXIT_PROTOCOL
+		with b6.open_instance(instance, _for_ceremony=True) as st:
+			rows = st.conn.execute(
+				"SELECT reason FROM ceremonies WHERE kind='migrate'").fetchall()
+			assert len(rows) == 1 and "attempted migration" in rows[0][0]
 
 	def test_migrate_requires_capability(self, instance):
 		with pytest.raises(b6.BatonError, match="'config' capability"):
@@ -3860,72 +3863,6 @@ class TestQuarantineAttachment:
 		assert b6.doctor(config_path)["ok"] is True
 
 
-def _downgrade_to_v6(config_path, extra=None, maintenance=False):
-	"""Reverse exactly the protocol-7 deltas to produce a GENUINE protocol-6
-	database, restoring v6's own frozen trigger set rather than v7's. Setting
-	`maintenance` here stands in for the protocol-6 binary having run
-	`maintenance-enter` — which is what the real runbook does, because the
-	protocol-7 tool cannot open a protocol-6 instance to gate it."""
-	# A GENUINE protocol-6 instance also has a protocol-6 config accepted:
-	# downgrading only the database would leave the stored config digest
-	# describing a protocol-7 config, which no real v6 instance ever had.
-	cfg = json.load(open(config_path))
-	cfg["protocol_version"] = 6
-	with open(config_path, "w") as handle:
-		json.dump(cfg, handle)
-	v6_digest = b6.canonical_sha256(cfg)
-	db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
-	conn = sqlite3.connect(db)
-	try:
-		conn.execute("PRAGMA foreign_keys=OFF")
-		for (name,) in conn.execute(
-				"SELECT name FROM sqlite_master WHERE type='trigger'").fetchall():
-			conn.execute(f"DROP TRIGGER {name}")
-		conn.execute("UPDATE instance_meta SET config_sha256=?", (v6_digest,))
-		conn.execute("DROP TABLE quarantines")
-		cols = b6._MESSAGE_COLUMNS
-		conn.execute(f"CREATE TABLE _m AS SELECT {cols} FROM messages")
-		conn.execute("DROP TABLE messages")
-		conn.execute(b6._V6_MESSAGES)
-		conn.execute(f"INSERT INTO messages({cols}) SELECT {cols} FROM _m")
-		conn.execute("DROP TABLE _m")
-		for (typ, name), sql in b6._expected_schema_v6().items():
-			if typ == "index" and " ON messages(" in sql:
-				conn.execute(sql)
-		conn.execute("UPDATE instance_meta SET protocol=6")
-		conn.execute("PRAGMA user_version=6")
-		if maintenance:
-			conn.execute("UPDATE instance_meta SET maintenance=1, maintainer_actor='lead', "
-			             "maintainer_reason='protocol 7 upgrade' WHERE one_row=1")
-		if extra is not None:
-			extra(conn)
-		for (typ, name), sql in b6._expected_schema_v6().items():
-			if typ == "trigger":
-				conn.execute(sql)
-		conn.commit()
-	finally:
-		conn.close()
-
-
-def _v6_maintenance_enter(config_path):
-	"""Stand-in for `maintenance-enter` run by the PROTOCOL-6 binary, which is
-	what the runbook prescribes: the protocol-7 tool cannot open a protocol-6
-	instance normally, so the gate is set by the tool that matches the
-	instance before the config is swapped."""
-	db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
-	conn = sqlite3.connect(db)
-	try:
-		guard = conn.execute(
-			"SELECT sql FROM sqlite_master WHERE name='trg_meta_gate_guard'").fetchone()[0]
-		conn.execute("DROP TRIGGER trg_meta_gate_guard")
-		conn.execute("UPDATE instance_meta SET maintenance=1, maintainer_actor='lead', "
-		             "maintainer_reason='protocol 7 upgrade' WHERE one_row=1")
-		conn.execute(guard)
-		conn.commit()
-	finally:
-		conn.close()
-
-
 class TestQuarantineUnderGate:
 	"""Review round 1: the accepted operating sequence is migrate → quarantine
 	→ verify healthy → reopen. Quarantine must therefore run WITH the
@@ -4151,274 +4088,6 @@ class TestSnapshot:
 		b6.maintenance_exit(os.path.join(dest, "baton.json"), reason="check", **LEAD_ID)
 		with b6.open_instance(os.path.join(dest, "baton.json")) as copy:
 			assert copy.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 20
-
-
-def _v6_resolve_claim(config_path, claim_id, message_id):
-	"""Stand-in for the PROTOCOL-6 binary draining a claim before the window:
-	the protocol-7 module cannot open a protocol-6 instance to do it."""
-	db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
-	conn = sqlite3.connect(db)
-	try:
-		saved = {n: sql for (n, sql) in conn.execute(
-			"SELECT name, sql FROM sqlite_master WHERE type='trigger'").fetchall()}
-		for name in saved:
-			conn.execute(f"DROP TRIGGER {name}")
-		conn.execute("UPDATE claims SET state='completed', terminal_ts=? WHERE claim_id=?",
-		             ("2026-01-01T00:00:00Z", claim_id))
-		conn.execute("UPDATE messages SET state='closed', completed_ts=? WHERE id=?",
-		             ("2026-01-01T00:00:00Z", message_id))
-		for sql in saved.values():
-			conn.execute(sql)
-		conn.commit()
-	finally:
-		conn.close()
-
-
-class TestMigration6to7:
-	def _v6_instance(self, tmp_path, maintenance=True, extra=None):
-		"""A protocol-6 database carrying real state — a pending message, a
-		closed one, and an attachment-backed one — so the migration is proved
-		against rows in every shape it must preserve."""
-		config_path, root = _attach_instance(tmp_path)
-		with b6.open_instance(config_path) as st:
-			pending = send_one(st, body=b"survives the migration")
-			done = send_one(st, body=b"already handled")
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=done)
-			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
-		attached, _ = _send_attached(config_path, root, "EVIDENCE.md")
-		_downgrade_to_v6(config_path, extra=extra, maintenance=maintenance)
-		return config_path, root, pending, done, attached
-
-	def _offer_v7_config(self, config_path, root, generation=2):
-		"""The generation+1 config the migration accepts: same instance, same
-		roots, `protocol_version` moved to 7. The config carries the protocol,
-		so it must move with the schema."""
-		cfg = make_config(generation=generation)
-		cfg["roots"] = {"src": str(root)}
-		with open(config_path, "w") as handle:
-			json.dump(cfg, handle)
-
-	def test_migration_preserves_state_and_reaches_protocol_7(self, tmp_path):
-		config_path, root, pending, done, attached = self._v6_instance(
-			tmp_path, maintenance=False)
-		self._offer_v7_config(config_path, root)
-		with pytest.raises(b6.BatonError, match="protocol 6 does not match"):
-			b6.open_instance(config_path)  # a v6 database is not openable by v7
-		with pytest.raises(b6.BatonError, match="maintenance gate"):
-			b6.migrate_instance(config_path, **LEAD_ID)
-		_v6_maintenance_enter(config_path)  # what the v6 binary does in the runbook
-		result = b6.migrate_instance(config_path, **LEAD_ID)
-		assert result == {"migrated": True, "from_protocol": 6, "protocol": 7,
-		                  "messages_preserved": 3, "accepted_generation": 2}
-		b6.maintenance_exit(config_path, reason="upgrade complete", **LEAD_ID)
-		with b6.open_instance(config_path) as st:
-			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 7
-			assert st.get_message(pending)["state"] == "pending"
-			assert st.get_message(pending)["body"] == b"survives the migration"
-			assert st.get_message(done)["state"] == "closed"
-			assert st.get_message(attached)["attach_path"] == "EVIDENCE.md"
-			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 0
-			# the ledger written before the migration is still intact
-			assert st.conn.execute(
-				"SELECT COUNT(*) FROM transitions WHERE entity='message'").fetchone()[0] >= 4
-			# and ordinary work still functions afterwards
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=pending)
-			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
-			assert st.get_message(pending)["state"] == "closed"
-		assert b6.doctor(config_path)["ok"] is True
-
-	def test_migration_takes_its_own_validated_snapshot(self, tmp_path):
-		"""The pre-migration backup is the migration's job, not an operator's
-		`cp`: the only executable that can open the pre-migration instance is
-		the older one, which has no snapshot verb, so a hand-rolled backup of
-		a WAL database was the only alternative — and that is not a coherent
-		backup contract."""
-		config_path, root, pending, done, attached = self._v6_instance(tmp_path)
-		self._offer_v7_config(config_path, root)
-		snap = str(tmp_path / "pre7")
-		result = b6.migrate_instance(config_path, snapshot_dir=snap, **LEAD_ID)
-		assert result["migrated"] is True
-		assert result["snapshot"]["protocol"] == 6  # the OLD protocol, as taken
-		assert result["snapshot"]["messages"] == result["messages_preserved"] == 3
-		import hashlib as _h
-		assert _h.sha256(open(os.path.join(snap, "mailbox.sqlite3"), "rb").read()).hexdigest() \
-			== result["snapshot"]["database_sha256"]
-		# The snapshot is a restorable protocol-6 instance: strip siblings as a
-		# restore onto a fresh directory would, and it still opens and holds
-		# every message with its state intact.
-		for sibling in ("mailbox.sqlite3-wal", "mailbox.sqlite3-shm"):
-			path = os.path.join(snap, sibling)
-			if os.path.exists(path):
-				os.unlink(path)
-		snap_config = os.path.join(snap, "baton.json")
-		with b6.open_instance(snap_config, readonly=True, _for_ceremony=True,
-		                      _for_migrate=True) as copy:
-			assert copy.conn.execute("PRAGMA user_version").fetchone()[0] == 6
-			assert copy.get_message(pending)["state"] == "pending"
-			assert copy.get_message(done)["state"] == "closed"
-			assert copy.get_message(attached)["attach_path"] == "EVIDENCE.md"
-		# and the live instance really did move
-		with b6.open_instance(config_path, _for_ceremony=True) as st:
-			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 7
-
-	def test_migration_is_audited_and_idempotent(self, tmp_path):
-		config_path, root, *_ = self._v6_instance(tmp_path)
-		self._offer_v7_config(config_path, root)
-		b6.migrate_instance(config_path, **LEAD_ID)
-		again = b6.migrate_instance(config_path, **LEAD_ID)
-		assert again["migrated"] is False and again["protocol"] == 7
-		with b6.open_instance(config_path, _for_ceremony=True) as st:
-			rows = st.conn.execute(
-				"SELECT reason FROM ceremonies WHERE kind='migrate'").fetchall()
-			assert len(rows) == 1  # the no-op retry adds no second record
-			assert "migrated protocol 6 to 7" in rows[0][0]
-			assert "3 messages preserved" in rows[0][0]
-
-	def test_migration_requires_capability(self, tmp_path):
-		config_path, root, *_ = self._v6_instance(tmp_path)
-		self._offer_v7_config(config_path, root)
-		with pytest.raises(b6.BatonError, match="config"):
-			b6.migrate_instance(config_path, participant="acme.implementer",
-			                    actor="imp1", seed=SEED_B)
-		with b6.open_instance(config_path, _for_ceremony=True, _for_migrate=True) as st:
-			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 6
-
-	def test_migration_requires_a_generation_bump(self, tmp_path):
-		"""The config carries protocol_version, so migrating without offering
-		a new generation would leave the config describing protocol 6."""
-		config_path, root, *_ = self._v6_instance(tmp_path)
-		self._offer_v7_config(config_path, root, generation=1)
-		with pytest.raises(b6.BatonError, match="migrate requires config generation 2"):
-			b6.migrate_instance(config_path, **LEAD_ID)
-
-	def test_migration_refuses_an_altered_v6_schema(self, tmp_path):
-		"""A database that is not exactly protocol 6 is refused, not carried
-		forward. Silently migrating damage would launder it."""
-		config_path, root, *_ = self._v6_instance(
-			tmp_path, extra=lambda conn: conn.execute("CREATE TABLE stowaway(x TEXT)"))
-		self._offer_v7_config(config_path, root)
-		with pytest.raises(b6.BatonError, match="schema validation failed") as excinfo:
-			b6.migrate_instance(config_path, **LEAD_ID)
-		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
-
-	def test_no_path_from_an_unknown_protocol(self, tmp_path):
-		config_path, root, *_ = self._v6_instance(
-			tmp_path, extra=lambda conn: [
-				conn.execute("PRAGMA user_version=3"),
-				conn.execute("UPDATE instance_meta SET protocol=3")])
-		self._offer_v7_config(config_path, root)
-		with pytest.raises(b6.BatonError, match="protocol 3"):
-			b6.migrate_instance(config_path, **LEAD_ID)
-
-	def test_migration_refuses_while_a_claim_is_active(self, tmp_path):
-		"""The drain is a cutover invariant checked inside the transaction,
-		not merely a runbook precondition — that closes the scan-to-migrate
-		window where a late claim would otherwise slip in."""
-		config_path, root = _attach_instance(tmp_path)
-		with b6.open_instance(config_path) as st:
-			mid = send_one(st)
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-		_downgrade_to_v6(config_path, maintenance=True)
-		self._offer_v7_config(config_path, root)
-		with pytest.raises(b6.BatonError) as excinfo:
-			b6.migrate_instance(config_path, **LEAD_ID)
-		assert excinfo.value.exit_code == b6.EXIT_RACE
-		assert "active claim" in str(excinfo.value)
-		db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
-		probe = sqlite3.connect(db)
-		assert probe.execute("PRAGMA user_version").fetchone()[0] == 6  # untouched
-		probe.close()
-		# Draining is the protocol-6 binary's job in the runbook; simulate it.
-		_v6_resolve_claim(config_path, claim["claim_id"], mid)
-		assert b6.migrate_instance(config_path, **LEAD_ID)["migrated"] is True
-
-	def test_protocol_stays_guarded_across_the_trigger_swap(self, tmp_path, monkeypatch):
-		"""At the seam where the narrowed guard is installed, the v6 blanket
-		guard must STILL be present — there is no unprotected instant — and a
-		fault there must roll back to exactly the v6 guards."""
-		config_path, root, *_ = self._v6_instance(tmp_path)
-		self._offer_v7_config(config_path, root)
-		seen = {}
-		opened = []
-		real_open = b6.open_instance
-		def capture(*args, **kwargs):
-			store = real_open(*args, **kwargs)
-			opened.append(store)
-			return store
-		monkeypatch.setattr(b6, "open_instance", capture)
-		def inspect(point):
-			if point == "migrate:protocol-guard-installed":
-				# The migration's OWN connection: a separate one could not see
-				# uncommitted schema, so it would prove nothing.
-				seen["triggers"] = {n for (n,) in opened[-1].conn.execute(
-					"SELECT name FROM sqlite_master WHERE type='trigger' "
-					"AND name IN ('trg_meta_frozen','trg_meta_protocol_guard')")}
-				raise RuntimeError("fault at the guard seam")
-		monkeypatch.setattr(b6, "_FAULT_HOOK", inspect)
-		with pytest.raises(RuntimeError, match="guard seam"):
-			b6.migrate_instance(config_path, **LEAD_ID)
-		monkeypatch.setattr(b6, "_FAULT_HOOK", None)
-		monkeypatch.setattr(b6, "open_instance", real_open)
-		# BOTH guards were live at the seam: protocol was never unprotected
-		assert seen["triggers"] == {"trg_meta_frozen", "trg_meta_protocol_guard"}
-		with b6.open_instance(config_path, _for_ceremony=True, _for_migrate=True) as st:
-			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 6
-			restored = st.conn.execute(
-				"SELECT sql FROM sqlite_master WHERE name='trg_meta_frozen'").fetchone()[0]
-			assert restored == b6._V6_META_FROZEN  # exact v6 guard, byte for byte
-			assert st.conn.execute(
-				"SELECT COUNT(*) FROM sqlite_master WHERE name='trg_meta_protocol_guard'"
-			).fetchone()[0] == 0
-		assert b6.migrate_instance(config_path, **LEAD_ID)["migrated"] is True
-
-	def test_protocol_guard_refuses_a_multi_step_jump(self, instance):
-		"""Verb alone is not enough authority: the guard also pins the advance
-		to exactly one step, so a migration cannot skip or reverse versions."""
-		with b6.open_instance(instance) as st:
-			st._txn_begin("migrate", "lead", SEED_C, participant="hq.lead")
-			try:
-				with pytest.raises(sqlite3.IntegrityError, match="one step"):
-					st.conn.execute("UPDATE instance_meta SET protocol=99 WHERE one_row=1")
-				with pytest.raises(sqlite3.IntegrityError, match="one step"):
-					st.conn.execute("UPDATE instance_meta SET protocol=? WHERE one_row=1",
-					                (b6.PROTOCOL_VERSION - 1,))
-			finally:
-				st._txn_rollback()
-		with b6.open_instance(instance) as st:  # and not without the verb at all
-			st._txn_begin("send", "lead", SEED_C, participant="hq.lead")
-			try:
-				with pytest.raises(sqlite3.IntegrityError, match="audited migration"):
-					st.conn.execute("UPDATE instance_meta SET protocol=? WHERE one_row=1",
-					                (b6.PROTOCOL_VERSION + 1,))
-			finally:
-				st._txn_rollback()
-
-	def test_failed_migration_rolls_back_to_intact_v6(self, tmp_path):
-		"""The rebuild is all-or-nothing: an instance that fails mid-migration
-		must remain a usable protocol-6 instance, not a half-converted one."""
-		config_path, root, pending, done, attached = self._v6_instance(tmp_path)
-		self._offer_v7_config(config_path, root)
-		real_validate = b6._validate_schema
-		def fail_final_validation(conn, *, for_migrate=False):
-			if not for_migrate:
-				raise b6.BatonError("simulated post-rebuild validation failure",
-				                    b6.EXIT_DAMAGE)
-			return real_validate(conn, for_migrate=for_migrate)
-		b6._validate_schema = fail_final_validation
-		try:
-			with pytest.raises(b6.BatonError, match="simulated"):
-				b6.migrate_instance(config_path, **LEAD_ID)
-		finally:
-			b6._validate_schema = real_validate
-		with b6.open_instance(config_path, _for_ceremony=True, _for_migrate=True) as st:
-			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 6
-			assert st.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 3
-			assert st.get_message(pending)["state"] == "pending"
-			assert st.get_message(done)["state"] == "closed"
-			assert st.get_message(attached)["attach_path"] == "EVIDENCE.md"
-		# and the retry after the fault succeeds cleanly
-		result = b6.migrate_instance(config_path, **LEAD_ID)
-		assert result["migrated"] is True and result["messages_preserved"] == 3
 
 
 class TestDoctorLogical:
