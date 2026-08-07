@@ -1,8 +1,8 @@
 {
-  "schema_for": "baton.json (protocol 7 instance config; strict JSON — unknown fields reject)",
+  "schema_for": "baton.json (protocol 8 instance config; strict JSON — unknown fields reject)",
   "fields": {
     "config_version": {"type": "int", "required": true, "value": 1},
-    "protocol_version": {"type": "int", "required": true, "value": 7},
+    "protocol_version": {"type": "int", "required": true, "value": 8},
     "generation": {"type": "int", "required": true, "minimum": 1},
     "mailbox": {"type": "object", "required": true,
                 "fields": {"name": {"type": "string", "required": true,
@@ -10,9 +10,6 @@
     "participants": {"type": "object", "required": true, "non_empty": true,
       "key_pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$", "key_max_length": 64,
       "value_fields": {
-        "identity": {"type": "string", "required": true, "one_of": ["agent", "singleton"]},
-        "singleton_actor": {"type": "string", "required_iff": "identity == singleton",
-                             "pattern": "^[a-z][a-z0-9_-]*$", "max_length": 32},
         "capabilities": {"type": "list[string]", "required": false, "unique": true,
                           "items_one_of": ["recovery", "config"]},
         "projection_prefix": {"type": "string", "required": false,

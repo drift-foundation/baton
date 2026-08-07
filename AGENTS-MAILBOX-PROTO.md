@@ -1,6 +1,6 @@
-# Baton agent mailbox protocol — v7
+# Baton agent mailbox protocol — v8
 
-An agent coordination channel running **Baton protocol 7** has one SQLite
+An agent coordination channel running **Baton protocol 8** has one SQLite
 transactional authority per instance, no filename-state, and is defined
 entirely by an explicit config. Consult the Baton distribution's `README.md`
 for the command and storage contract.
@@ -25,9 +25,14 @@ Never consume or claim through another domain's participant, even if a
 message looks relevant. Cross-domain work must name the intended scoped
 address.
 
-Every identity-bearing invocation passes `--participant <address> --actor
-<name> --seed <32-hex>`; use one live seed per actor instance and one consumer
-path per actor/seed (never two concurrent `wait`s for the same identity).
+Every identity-bearing invocation passes `--participant <address>`. The
+participant address IS the identity: there is no actor and no seed. Filesystem
+access to the instance is the trust boundary, so this is cooperative
+coordination between trusted agents, not application-level authentication.
+
+Run exactly ONE consumer path per participant — never two concurrent `wait`s
+for the same address. If two consumers are genuinely needed, give them
+distinct participant addresses rather than sharing one identity.
 
 ## Working the channel
 
@@ -50,7 +55,7 @@ path per actor/seed (never two concurrent `wait`s for the same identity).
   `{"claim": ..., "message": ...}`. A directed message always wins when both
   are available. Notices are never claimed, so there is nothing to `reply`
   or `close`; the seen receipt commits with the read, which makes broadcast
-  at-most-once per participant+actor. Directed messages remain the durable
+  at-most-once per participant. Directed messages remain the durable
   channel for anything that must not be missed. Authors may `expire` early.
 - Never mutate the database with raw SQL; every table is guarded and
   doctor treats bypasses as corruption. `doctor`/`scan`/`dump`/`inspect`

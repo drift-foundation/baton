@@ -1,4 +1,4 @@
-"""Protocol-6 Baton storage-core tests (Handoff 1: T1-T6, T9, T10, T16-T18, T23-T25 core).
+"""Protocol-8 Baton storage-core tests (Handoff 1: T1-T6, T9, T10, T16-T18, T23-T25 core).
 
 Fixtures are deliberately neutral (no host-project names): a small
 multi-workspace shop with participants under `acme.*` and `hq.*`.
@@ -15,9 +15,6 @@ import pytest
 
 import baton_v6 as b6
 
-SEED_A = "a" * 32
-SEED_B = "b" * 32
-SEED_C = "c" * 32
 
 
 def make_config(generation: int = 1) -> dict:
@@ -27,10 +24,9 @@ def make_config(generation: int = 1) -> dict:
 		"generation": generation,
 		"mailbox": {"name": "acme-local"},
 		"participants": {
-			"acme.reviewer": {"identity": "agent"},
-			"acme.implementer": {"identity": "agent"},
-			"hq.lead": {"identity": "singleton", "singleton_actor": "lead",
-			            "capabilities": ["recovery", "config"]},
+			"acme.reviewer": {},
+			"acme.implementer": {},
+			"hq.lead": {"capabilities": ["recovery", "config"]},
 		},
 		"roots": {},
 	}
@@ -54,7 +50,7 @@ def store(instance):
 
 def send_one(store, body=b"hello", retention="durable", sender="acme.reviewer",
              recipient="acme.implementer", kind="question", thread="topic-1"):
-	return store.send(sender, recipient, actor="rev1", seed=SEED_A, kind=kind,
+	return store.send(sender, recipient, kind=kind,
 	                  body=body, thread_id=thread, retention=retention)
 
 
@@ -139,7 +135,7 @@ class TestInitOpen:
 
 	def test_config_content_drift_refused(self, instance, tmp_path):
 		cfg = make_config()
-		cfg["participants"]["acme.newcomer"] = {"identity": "agent"}
+		cfg["participants"]["acme.newcomer"] = {}
 		with open(instance, "w") as handle:
 			json.dump(cfg, handle)
 		with pytest.raises(b6.BatonError, match="digest"):
@@ -196,7 +192,7 @@ class TestStrictJson:
 class TestSendClaim:
 	def test_send_then_claim_roundtrip(self, store):
 		mid = send_one(store, body=b"payload")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		assert claim["message_id"] == mid
 		assert claim["state"] == "active"
 		msg = store.get_message(mid)
@@ -205,40 +201,51 @@ class TestSendClaim:
 
 	def test_claim_empty_mailbox_is_none(self, store):
 		with pytest.raises(b6.BatonError) as excinfo:
-			store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			store.claim("acme.implementer")
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 
 	def test_undeclared_participants_rejected(self, store):
 		with pytest.raises(b6.BatonError, match="not declared"):
-			store.send("acme.reviewer", "acme.ghost", actor="rev1", seed=SEED_A,
+			store.send("acme.reviewer", "acme.ghost",
 			           kind="question", body=b"x")
 		with pytest.raises(b6.BatonError, match="not declared"):
-			store.send("acme.ghost", "acme.reviewer", actor="rev1", seed=SEED_A,
+			store.send("acme.ghost", "acme.reviewer",
 			           kind="question", body=b"x")
 
-	def test_singleton_actor_enforced(self, store):
-		with pytest.raises(b6.BatonError, match="singleton"):
-			store.send("hq.lead", "acme.reviewer", actor="intruder", seed=SEED_C,
-			           kind="ruling", body=b"x")
-		store.send("hq.lead", "acme.reviewer", actor="lead", seed=SEED_C,
-		           kind="ruling", body=b"x")
+	def test_participant_address_is_the_whole_identity(self, store):
+		"""There is no second factor. A caller either names a configured
+		participant or does not; nothing further is presented or validated."""
+		store.send("hq.lead", "acme.reviewer", kind="ruling", body=b"x")
+		with pytest.raises(b6.BatonError, match="not declared in the config"):
+			store.send("hq.ghost", "acme.reviewer", kind="ruling", body=b"x")
+		with pytest.raises(b6.BatonError, match="not declared in the config"):
+			store.claim("acme.nobody")
 
-	def test_actor_grammar_and_budget(self, store):
-		with pytest.raises(b6.BatonError, match="invalid actor"):
-			store.claim("acme.implementer", actor="Bad", seed=SEED_B)
-		with pytest.raises(b6.BatonError, match="invalid actor"):
-			store.claim("acme.implementer", actor="a" * 33, seed=SEED_B)
-		with pytest.raises(b6.BatonError, match="invalid seed"):
-			store.claim("acme.implementer", actor="imp1", seed="short")
+	def test_old_identity_config_is_rejected_not_ignored(self, tmp_path):
+		"""A pre-8 config that still declares actors must fail closed. Silently
+		accepting it would leave operators believing an actor binding is
+		enforced when nothing enforces it."""
+		for stale in ({"identity": "agent"},
+		              {"identity": "singleton", "singleton_actor": "lead"},
+		              {"singleton_actor": "lead"},
+		              # named explicitly so generic unknown-field handling
+		              # cannot silently become the only thing rejecting these
+		              {"actor": "k"},
+		              {"seed": "a" * 32},
+		              {"actor": "k", "seed": "a" * 32}):
+			cfg = make_config()
+			cfg["participants"]["acme.reviewer"] = stale
+			with pytest.raises(b6.BatonError, match="removed at protocol"):
+				b6.validate_config(cfg)
 
 	def test_body_xor_attach_exactly_one(self, store):
 		with pytest.raises(b6.BatonError, match="exactly one"):
-			store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			store.send("acme.reviewer", "acme.implementer",
 			           kind="question", body=b"x", attach={"root_id": "r", "path": "p"})
 		with pytest.raises(b6.BatonError, match="exactly one"):
-			store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			store.send("acme.reviewer", "acme.implementer",
 			           kind="question", body=None)
-		store._txn_begin("send", "rev1", SEED_A)
+		store._txn_begin("send")
 		try:
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute(
@@ -256,7 +263,7 @@ class TestSendClaim:
 def _race_claim(config_path, results):
 	try:
 		with b6.open_instance(config_path) as st:
-			claim = st.claim("acme.implementer", actor=f"imp{os.getpid() % 97}", seed=SEED_B)
+			claim = st.claim("acme.implementer")
 			results.put(("won", claim["claim_id"]))
 	except b6.BatonError as exc:
 		results.put(("lost", exc.exit_code))
@@ -282,13 +289,13 @@ class TestClaimRace:
 
 	def test_partial_unique_index_backstop(self, store):
 		mid = send_one(store)
-		store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-		store._txn_begin("claim", "imp2", SEED_C)
+		store.claim("acme.implementer", message_id=mid)
+		store._txn_begin("claim")
 		try:
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute(
-					"INSERT INTO claims(claim_id, message_id, actor, seed, claimed_ts, state) "
-					"VALUES(?, ?, 'imp2', ?, 'now', 'active')", (b6.new_id(), mid, SEED_C))
+					"INSERT INTO claims(claim_id, message_id, participant, claimed_ts, state) "
+					"VALUES(?, ?, 'acme.implementer', 'now', 'active')", (b6.new_id(), mid))
 		finally:
 			store._txn_rollback()
 
@@ -300,8 +307,8 @@ class TestClaimRace:
 class TestReplyClose:
 	def test_reply_publishes_and_completes(self, store):
 		mid = send_one(store, body=b"question?")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		result = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+		claim = store.claim("acme.implementer")
+		result = store.reply(claim["claim_id"], participant=claim["participant"],
 		                     kind="answer", body=b"the answer", outcome="done")
 		assert result["already_committed"] is False
 		out = store.get_message(result["response_message_id"])
@@ -314,10 +321,10 @@ class TestReplyClose:
 
 	def test_reply_retry_is_redelivery_not_recreation(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		first = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+		claim = store.claim("acme.implementer")
+		first = store.reply(claim["claim_id"], participant=claim["participant"],
 		                    kind="answer", body=b"same bytes", outcome="ok")
-		retry = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+		retry = store.reply(claim["claim_id"], participant=claim["participant"],
 		                    kind="answer", body=b"same bytes", outcome="ok")
 		assert retry["already_committed"] is True
 		assert retry["response_message_id"] == first["response_message_id"]
@@ -327,58 +334,91 @@ class TestReplyClose:
 
 	def test_reply_retry_content_mismatch_fails_closed(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"],
 		            kind="answer", body=b"committed", outcome="ok")
 		with pytest.raises(b6.BatonError, match="content differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+			store.reply(claim["claim_id"], participant=claim["participant"],
 			            kind="answer", body=b"different", outcome="ok")
 		with pytest.raises(b6.BatonError, match="outcome differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+			store.reply(claim["claim_id"], participant=claim["participant"],
 			            kind="answer", body=b"committed", outcome="changed")
 		with pytest.raises(b6.BatonError, match="mismatches"):
-			store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B, outcome="ok")
+			store.close_claim(claim["claim_id"], participant=claim["participant"], outcome="ok")
 
 	def test_failed_reply_leaves_nothing(self, store):
 		mid = send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		with pytest.raises(b6.BatonError, match="not declared"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+			store.reply(claim["claim_id"], participant=claim["participant"],
 			            kind="answer", body=b"x", recipient="acme.ghost")
 		assert store.get_message(mid)["state"] == "claimed"
 		assert store._existing_disposition(claim["claim_id"]) is None
-		result = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+		result = store.reply(claim["claim_id"], participant=claim["participant"],
 		                     kind="answer", body=b"x")
 		assert result["already_committed"] is False
 
 	def test_reply_wrong_owner_refused(self, store):
+		"""Only the participant that holds the claim may dispose of it. Under
+		protocol 8 that is the whole of ownership: there is no credential to
+		present in place of being the recipient."""
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		with pytest.raises(b6.BatonError, match="owned by"):
-			store.reply(claim["claim_id"], actor="imp2", seed=SEED_C, kind="answer", body=b"x")
+		claim = store.claim("acme.implementer")
+		with pytest.raises(b6.BatonError, match="belongs to"):
+			store.reply(claim["claim_id"], participant="acme.reviewer",
+			            kind="answer", body=b"x")
+		with pytest.raises(b6.BatonError, match="belongs to"):
+			store.close_claim(claim["claim_id"], participant="hq.lead")
+		# the true owner still can
+		assert store.reply(claim["claim_id"], participant="acme.implementer",
+		                   kind="answer", body=b"x")["already_committed"] is False
+		# ...and the refusal survives the commit. A retry is where an ownership
+		# check is most likely to be skipped, because the disposition already
+		# exists and the code is looking for idempotence rather than authority.
+		with pytest.raises(b6.BatonError, match="belongs to"):
+			store.reply(claim["claim_id"], participant="acme.reviewer",
+			            kind="answer", body=b"x")
+		with pytest.raises(b6.BatonError, match="belongs to"):
+			store.close_claim(claim["claim_id"], participant="acme.reviewer")
+		# the owner's exact retry still redelivers the committed disposition
+		assert store.reply(claim["claim_id"], participant="acme.implementer",
+		                   kind="answer", body=b"x")["already_committed"] is True
+
+	def test_close_ownership_enforced_on_first_and_retry(self, store):
+		"""The close seam has its own ownership check; a test of reply alone
+		would not catch a divergence between them."""
+		send_one(store)
+		claim = store.claim("acme.implementer")
+		with pytest.raises(b6.BatonError, match="belongs to"):
+			store.close_claim(claim["claim_id"], participant="acme.reviewer")
+		store.close_claim(claim["claim_id"], participant="acme.implementer")
+		with pytest.raises(b6.BatonError, match="belongs to"):
+			store.close_claim(claim["claim_id"], participant="acme.reviewer")
+		assert store.close_claim(claim["claim_id"],
+		                         participant="acme.implementer")["already_committed"] is True
 
 	def test_close_with_outcome_and_body(self, store):
 		mid = send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		result = store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		claim = store.claim("acme.implementer")
+		result = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                           body=b"final signoff", outcome="signed_off")
 		assert result["already_committed"] is False
 		assert store.get_message(mid)["state"] == "closed"
-		retry = store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		retry = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                          body=b"final signoff", outcome="signed_off")
 		assert retry["already_committed"] is True
 
 	def test_bodyless_close(self, store):
 		mid = send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		assert store.get_message(mid)["state"] == "closed"
 
 	def test_second_disposition_blocked_by_constraint(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B, outcome="ok")
-		store._txn_begin("close", "imp1", SEED_B)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"], outcome="ok")
+		store._txn_begin("close")
 		try:
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute(
@@ -396,8 +436,8 @@ class TestRetentionContent:
 	def test_transient_scrub_in_consuming_txn(self, store):
 		mid = send_one(store, body=b"ephemeral", retention="transient")
 		sha = store.get_message(mid)["content_sha256"]
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B, outcome="seen")
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"], outcome="seen")
 		msg = store.get_message(mid)
 		assert msg["content_id"] is None
 		assert msg["body"] is None
@@ -406,8 +446,8 @@ class TestRetentionContent:
 
 	def test_durable_body_retained(self, store):
 		mid = send_one(store, body=b"the record", retention="durable")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		assert store.get_message(mid)["body"] == b"the record"
 
 	def test_per_owner_content_rows_no_dedup(self, store):
@@ -417,13 +457,13 @@ class TestRetentionContent:
 			"SELECT COUNT(*) FROM contents WHERE sha256=?",
 			(store.get_message(mid2)["content_sha256"],)).fetchone()[0]
 		assert count == 2
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		assert store.get_message(mid2)["body"] == b"identical bytes"
 
 	def test_contents_immutable(self, store):
 		send_one(store)
-		store._txn_begin("send", "rev1", SEED_A)
+		store._txn_begin("send")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="immutable"):
 				store.conn.execute("UPDATE contents SET body=X'00'")
@@ -432,7 +472,7 @@ class TestRetentionContent:
 
 	def test_content_delete_needs_authorized_verb(self, store):
 		send_one(store)
-		store._txn_begin("send", "rev1", SEED_A)
+		store._txn_begin("send")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="retention"):
 				store.conn.execute("DELETE FROM contents")
@@ -447,10 +487,10 @@ class TestRetentionContent:
 class TestLedger:
 	def test_birth_and_transition_events(self, store):
 		mid = send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
 		rows = store.conn.execute(
-			"SELECT entity, entity_id, from_state, to_state, verb, actor FROM transitions ORDER BY seq").fetchall()
+			"SELECT entity, entity_id, from_state, to_state, verb, participant FROM transitions ORDER BY seq").fetchall()
 		events = [(r["entity"], r["from_state"], r["to_state"], r["verb"]) for r in rows]
 		assert ("message", None, "pending", "send") in events
 		assert ("claim", None, "active", "claim") in events
@@ -458,7 +498,7 @@ class TestLedger:
 		assert ("message", "claimed", "completed", "reply") in events
 		assert ("claim", "active", "completed", "reply") in events
 		assert ("message", None, "pending", "reply") in events  # outgoing birth
-		assert all(r["actor"] in ("rev1", "imp1") for r in rows)
+		assert all(r["participant"] in ("acme.reviewer", "acme.implementer") for r in rows)
 
 	def test_uncontextual_mutation_fails_closed(self, store):
 		mid = send_one(store)
@@ -471,23 +511,23 @@ class TestLedger:
 
 	def test_context_bearing_direct_sql_is_logged(self, store):
 		mid = send_one(store)
-		store._txn_begin("claim", "imp9", SEED_C)
+		store._txn_begin("claim", participant="acme.implementer")
 		try:
 			store.conn.execute(
-				"INSERT INTO claims(claim_id, message_id, actor, seed, claimed_ts, state) "
-				"VALUES('deadbeef', ?, 'imp9', ?, 'now', 'active')", (mid, SEED_C))
+				"INSERT INTO claims(claim_id, message_id, participant, claimed_ts, state) "
+				"VALUES('deadbeef', ?, 'acme.implementer', 'now', 'active')", (mid,))
 			store._txn_commit()
 		except BaseException:
 			store._txn_rollback()
 			raise
 		row = store.conn.execute(
-			"SELECT actor, verb FROM transitions WHERE entity='claim' AND entity_id='deadbeef'").fetchone()
-		assert row["actor"] == "imp9"
+			"SELECT participant, verb FROM transitions WHERE entity='claim' AND entity_id='deadbeef'").fetchone()
+		assert row["participant"] == "acme.implementer"
 		assert row["verb"] == "claim"
 
 	def test_illegal_state_edge_aborts(self, store):
 		mid = send_one(store)
-		store._txn_begin("claim", "imp1", SEED_B)
+		store._txn_begin("claim")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="illegal message state edge"):
 				store.conn.execute("UPDATE messages SET state='completed' WHERE id=?", (mid,))
@@ -496,22 +536,22 @@ class TestLedger:
 
 	def test_ledger_append_only(self, store):
 		send_one(store)
-		store._txn_begin("send", "rev1", SEED_A)
+		store._txn_begin("send")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="append-only"):
 				store.conn.execute("DELETE FROM transitions")
 			with pytest.raises(sqlite3.IntegrityError, match="append-only"):
-				store.conn.execute("UPDATE transitions SET actor='forged'")
+				store.conn.execute("UPDATE transitions SET participant='hq.forged'")
 		finally:
 			store._txn_rollback()
 
 	def test_claim_history_immutable_columns(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store._txn_begin("claim", "imp1", SEED_B)
+		claim = store.claim("acme.implementer")
+		store._txn_begin("claim")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="immutable claim column"):
-				store.conn.execute("UPDATE claims SET actor='rewritten' WHERE claim_id=?",
+				store.conn.execute("UPDATE claims SET participant='hq.lead' WHERE claim_id=?",
 				                   (claim["claim_id"],))
 		finally:
 			store._txn_rollback()
@@ -525,11 +565,10 @@ class TestBusy:
 	def test_second_writer_gets_bounded_busy(self, instance, monkeypatch):
 		monkeypatch.setattr(b6, "BUSY_TIMEOUT_MS", 200)
 		with b6.open_instance(instance) as st1, b6.open_instance(instance) as st2:
-			st1._txn_begin("send", "rev1", SEED_A)
+			st1._txn_begin("send")
 			try:
 				with pytest.raises(b6.BatonError) as excinfo:
-					st2.send("acme.reviewer", "acme.implementer", actor="rev2",
-					         seed=SEED_A, kind="question", body=b"x")
+					st2.send("acme.reviewer", "acme.implementer", kind="question", body=b"x")
 				assert excinfo.value.exit_code == b6.EXIT_RACE
 			finally:
 				st1._txn_rollback()
@@ -554,7 +593,7 @@ class TestExtractionPurity:
 class TestTxnTimeGates:
 	def test_stale_open_writer_blocked_by_maintenance(self, instance):
 		with b6.open_instance(instance) as a:
-			b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+			b6.maintenance_enter(instance, participant="hq.lead",
 			                     reason="gate test")
 			with pytest.raises(b6.BatonError) as excinfo:
 				send_one(a)
@@ -566,15 +605,13 @@ class TestTxnTimeGates:
 		dest.mkdir()
 		dest_config = str(dest / "baton.json")
 		with b6.open_instance(instance) as a:
-			token = b6.maintenance_enter(instance, participant="hq.lead", actor="lead",
-			                             seed=SEED_C, reason="moving", move=True,
+			token = b6.maintenance_enter(instance, participant="hq.lead", reason="moving", move=True,
 			                             destination=dest_config)["move_token"]
-			b6.move_copy(instance, participant="hq.lead", actor="lead", seed=SEED_C)
-			b6.move_bind_destination(dest_config, participant="hq.lead", actor="lead",
-			                         seed=SEED_C, token=token)
-			b6.move_activate(dest_config, participant="hq.lead", actor="lead", seed=SEED_C,
+			b6.move_copy(instance, participant="hq.lead")
+			b6.move_bind_destination(dest_config, participant="hq.lead", token=token)
+			b6.move_activate(dest_config, participant="hq.lead",
 			                 token=token)
-			b6.move_decommission(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+			b6.move_decommission(instance, participant="hq.lead",
 			                     token=token, moved_to=dest_config)
 			with pytest.raises(b6.BatonError) as excinfo:
 				send_one(a)
@@ -587,7 +624,7 @@ class TestTxnTimeGates:
 			store.conn.execute("UPDATE instance_meta SET uuid='forged' WHERE one_row=1")
 		with pytest.raises(sqlite3.IntegrityError, match="regen/migrate"):
 			store.conn.execute("UPDATE instance_meta SET accepted_generation=9 WHERE one_row=1")
-		store._txn_begin("move", "lead", SEED_C, ceremony=None)
+		store._txn_begin("move", ceremony=None)
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="illegal move_status edge"):
 				store.conn.execute(
@@ -602,7 +639,7 @@ class TestTxnTimeGates:
 		try:
 			with open(instance, "w") as handle:
 				json.dump(make_config(generation=2), handle)
-			b6.regen_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+			b6.regen_instance(instance, participant="hq.lead")
 			with pytest.raises(b6.BatonError, match="stale"):
 				send_one(a)
 		finally:
@@ -614,7 +651,7 @@ class TestTxnTimeGates:
 		with open(instance, "w") as handle:
 			json.dump(make_config(generation=3), handle)
 		with pytest.raises(b6.BatonError, match="regen requires config generation 2"):
-			b6.regen_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+			b6.regen_instance(instance, participant="hq.lead")
 
 
 class TestTxnStrand:
@@ -637,9 +674,9 @@ class TestTxnStrand:
 class TestTransientClose:
 	def test_transient_close_retains_identity_not_bytes(self, store):
 		send_one(store, body=b"incoming", retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		body = b"should be transient"
-		result = store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		result = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                           body=body, outcome="noted")
 		import hashlib
 		sha = hashlib.sha256(body).hexdigest()
@@ -652,24 +689,24 @@ class TestTransientClose:
 			(claim["claim_id"],)).fetchone()
 		assert disp["content_id"] is None
 		assert disp["content_sha256"] == sha
-		retry = store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		retry = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                          body=body, outcome="noted")
 		assert retry["already_committed"] is True
 		with pytest.raises(b6.BatonError, match="content differs"):
-			store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+			store.close_claim(claim["claim_id"], participant=claim["participant"],
 			                  body=b"other", outcome="noted")
 
 	def test_transient_close_body_cap(self, store):
 		send_one(store, body=b"x", retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		with pytest.raises(b6.BatonError, match="exceeds"):
-			store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+			store.close_claim(claim["claim_id"], participant=claim["participant"],
 			                  body=b"y" * (b6.TRANSIENT_BODY_MAX_BYTES + 1))
 
 	def test_durable_close_retains_body(self, store):
 		send_one(store, body=b"incoming", retention="durable")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B, body=b"kept record")
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"], body=b"kept record")
 		row = store.conn.execute(
 			"SELECT c.body FROM dispositions d JOIN contents c ON c.content_id=d.content_id "
 			"WHERE d.claim_id=?", (claim["claim_id"],)).fetchone()
@@ -684,7 +721,7 @@ class TestScrubAndTimestampGuards:
 
 	def test_wrong_verb_scrub_rejected(self, store):
 		mid = send_one(store, body=b"x", retention="transient")
-		store._txn_begin("claim", "imp1", SEED_B)
+		store._txn_begin("claim")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="consuming operation"):
 				store.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (mid,))
@@ -693,8 +730,8 @@ class TestScrubAndTimestampGuards:
 
 	def test_uncontextual_timestamp_rewrites_rejected(self, store):
 		mid = send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		with pytest.raises(sqlite3.IntegrityError, match="completed_ts"):
 			store.conn.execute("UPDATE messages SET completed_ts='1999-01-01T00:00:00Z' WHERE id=?", (mid,))
 		with pytest.raises(sqlite3.IntegrityError, match="terminal_ts"):
@@ -730,41 +767,41 @@ class TestCrashAtomicInit:
 class TestRetryRouting:
 	def test_retry_thread_mismatch_fails_closed(self, store):
 		send_one(store, thread="topic-1")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 		            body=b"x", thread_id="topic-1")
 		with pytest.raises(b6.BatonError, match="thread differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+			store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 			            body=b"x", thread_id="topic-2")
 
 	def test_retry_recipient_and_kind_mismatch(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
 		with pytest.raises(b6.BatonError, match="kind differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="other", body=b"x")
+			store.reply(claim["claim_id"], participant=claim["participant"], kind="other", body=b"x")
 		with pytest.raises(b6.BatonError, match="recipient differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+			store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 			            body=b"x", recipient="hq.lead")
 
 
 class TestRetentionOverride:
 	def test_response_inherits_by_default(self, store):
 		send_one(store, retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		result = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"r")
+		claim = store.claim("acme.implementer")
+		result = store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"r")
 		assert store.get_message(result["response_message_id"])["retention"] == "transient"
 
 	def test_explicit_override_preserved_from_v5(self, store):
 		send_one(store, retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		result = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+		claim = store.claim("acme.implementer")
+		result = store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 		                     body=b"r", retention="durable")
 		assert store.get_message(result["response_message_id"])["retention"] == "durable"
 		with pytest.raises(b6.BatonError, match="invalid retention"):
 			send_one(store)
-			claim2 = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-			store.reply(claim2["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+			claim2 = store.claim("acme.implementer")
+			store.reply(claim2["claim_id"], participant=claim2["participant"], kind="answer",
 			            body=b"r", retention="forever")
 
 
@@ -774,22 +811,22 @@ class TestRetentionOverride:
 
 class TestNotices:
 	def test_see_marks_and_dedupes(self, store):
-		nid = store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="announcement",
+		nid = store.send_notice("hq.lead", kind="announcement",
 		                        body=b"all hands")
-		seen = store.see("acme.implementer", actor="imp1", seed=SEED_B)
+		seen = store.see("acme.implementer")
 		assert [n["id"] for n in seen] == [nid]
 		assert seen[0]["body"] == b"all hands"
-		assert store.see("acme.implementer", actor="imp1", seed=SEED_B) == []
-		other = store.see("acme.reviewer", actor="rev1", seed=SEED_A)
+		assert store.see("acme.implementer") == []
+		other = store.see("acme.reviewer")
 		assert [n["id"] for n in other] == [nid]
 
 	def test_author_early_expire_single_txn(self, store):
-		nid = store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="announcement",
+		nid = store.send_notice("hq.lead", kind="announcement",
 		                        body=b"oops")
-		store.see("acme.implementer", actor="imp1", seed=SEED_B)
-		with pytest.raises(b6.BatonError, match="not its exact author instance"):
-			store.expire("acme.implementer", actor="imp1", seed=SEED_B, notice_id=nid)
-		removed = store.expire("hq.lead", actor="lead", seed=SEED_C, notice_id=nid)
+		store.see("acme.implementer")
+		with pytest.raises(b6.BatonError, match="not its exact authoring participant"):
+			store.expire("acme.implementer", notice_id=nid)
+		removed = store.expire("hq.lead", notice_id=nid)
 		assert removed == [nid]
 		assert store.conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0] == 0
 		assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
@@ -797,11 +834,11 @@ class TestNotices:
 
 	def test_ttl_sweep(self, store):
 		import time
-		store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="tick",
+		store.send_notice("hq.lead", kind="tick",
 		                  body=b"short", ttl_seconds=1)
-		keep = store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="keep", body=b"long")
+		keep = store.send_notice("hq.lead", kind="keep", body=b"long")
 		time.sleep(1.1)
-		removed = store.expire("hq.lead", actor="lead", seed=SEED_C)
+		removed = store.expire("hq.lead")
 		assert len(removed) == 1
 		remaining = [r[0] for r in store.conn.execute("SELECT id FROM notices")]
 		assert remaining == [keep]
@@ -810,55 +847,55 @@ class TestNotices:
 class TestRecovery:
 	def test_recover_then_reclaim_preserves_history(self, store):
 		mid = send_one(store)
-		claim1 = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		result = store.recover_claim(claim1["claim_id"], participant="hq.lead", actor="lead", seed=SEED_C,
+		claim1 = store.claim("acme.implementer")
+		result = store.recover_claim(claim1["claim_id"], participant="hq.lead",
 		                             reason="imp1 host died")
 		assert result["message_id"] == mid
 		assert store.get_message(mid)["state"] == "pending"
 		old = store.get_claim(claim1["claim_id"])
 		assert old["state"] == "recovered"
-		assert old["actor"] == "imp1"
-		claim2 = store.claim("acme.implementer", actor="imp2", seed=SEED_C)
+		assert old["participant"] == "acme.implementer"
+		claim2 = store.claim("acme.implementer")
 		assert claim2["claim_id"] != claim1["claim_id"]
 		assert claim2["message_id"] == mid
 		audits = store.conn.execute(
-			"SELECT claim_id, actor, reason FROM recoveries").fetchall()
+			"SELECT claim_id, participant, reason FROM recoveries").fetchall()
 		assert len(audits) == 1
 		assert audits[0]["claim_id"] == claim1["claim_id"]
 		assert audits[0]["reason"] == "imp1 host died"
 
 	def test_recovery_requires_reason(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		with pytest.raises(b6.BatonError, match="reason"):
-			store.recover_claim(claim["claim_id"], participant="hq.lead", actor="lead", seed=SEED_C, reason="  ")
+			store.recover_claim(claim["claim_id"], participant="hq.lead", reason="  ")
 
 	def test_recovered_claim_cannot_reply(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.recover_claim(claim["claim_id"], participant="hq.lead", actor="lead", seed=SEED_C, reason="dead")
+		claim = store.claim("acme.implementer")
+		store.recover_claim(claim["claim_id"], participant="hq.lead", reason="dead")
 		with pytest.raises(b6.BatonError, match="recovered"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"late")
+			store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"late")
 
 	def test_recover_inactive_claim_refused(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		with pytest.raises(b6.BatonError, match="not active"):
-			store.recover_claim(claim["claim_id"], participant="hq.lead", actor="lead", seed=SEED_C, reason="x")
+			store.recover_claim(claim["claim_id"], participant="hq.lead", reason="x")
 
 
 class TestGc:
 	def _consume_transient(self, store):
 		mid = send_one(store, body=b"old news", retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer", message_id=mid)
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		return mid
 
 	def test_gc_removes_aged_transient_with_ledger_events(self, store):
 		mid = self._consume_transient(store)
 		future = "2027-01-01T00:00:00Z"
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now=future)
+		result = store.gc(participant="hq.lead", now=future)
 		assert mid in result["messages"]
 		assert store.conn.execute(
 			"SELECT COUNT(*) FROM messages WHERE id=?", (mid,)).fetchone()[0] == 0
@@ -873,21 +910,21 @@ class TestGc:
 		durable_mid = send_one(store, body=b"keep me", retention="durable")
 		recent_mid = self._consume_transient(store)
 		rec_mid = send_one(store, body=b"rec", retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=rec_mid)
-		store.recover_claim(claim["claim_id"], participant="hq.lead", actor="lead", seed=SEED_C, reason="dead")
-		claim2 = store.claim("acme.implementer", actor="imp2", seed=SEED_C, message_id=rec_mid)
-		store.close_claim(claim2["claim_id"], actor="imp2", seed=SEED_C)
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		claim = store.claim("acme.implementer", message_id=rec_mid)
+		store.recover_claim(claim["claim_id"], participant="hq.lead", reason="dead")
+		claim2 = store.claim("acme.implementer", message_id=rec_mid)
+		store.close_claim(claim2["claim_id"], participant=claim2["participant"])
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert recent_mid in result["messages"]
 		assert rec_mid not in result["messages"]  # recovery-referenced audit chain preserved
 		assert durable_mid not in result["messages"]
-		result2 = store.gc(participant="hq.lead", actor="lead", seed=SEED_C)  # real now: nothing aged
+		result2 = store.gc(participant="hq.lead")  # real now: nothing aged
 		assert result2["messages"] == []
 
 	def test_gc_permanent_ledger_and_recoveries(self, store):
 		self._consume_transient(store)
 		before = store.conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0]
-		store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		after = store.conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0]
 		assert after > before  # gc appended events, deleted none
 
@@ -910,12 +947,12 @@ class TestAttachments:
 
 	def test_attachment_pinned_and_claimable(self, rooted):
 		store, root = rooted
-		mid = store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		mid = store.send("acme.reviewer", "acme.implementer",
 		                 kind="evidence", body=None,
 		                 attach={"root_id": "evidence", "path": "sub/report.md"})
 		msg = store.get_message(mid)
 		assert msg["attach_sha256"] is not None
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		assert claim["message_id"] == mid
 
 	def test_post_publication_mutation_fails_at_claim(self, rooted):
@@ -925,15 +962,15 @@ class TestAttachments:
 		fails closed with the damage diagnostic. Both halves asserted: the
 		guarded property is that the tampered bytes never reach a consumer."""
 		store, root = rooted
-		mid = store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		mid = store.send("acme.reviewer", "acme.implementer",
 		                 kind="evidence", body=None,
 		                 attach={"root_id": "evidence", "path": "sub/report.md"})
 		(root / "sub" / "report.md").write_bytes(b"tampered")
 		with pytest.raises(b6.BatonError, match="pinned hash") as excinfo:
-			store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+			store.claim("acme.implementer", message_id=mid)
 		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
 		with pytest.raises(b6.BatonError) as excinfo:
-			store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			store.claim("acme.implementer")
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 		assert "damaged attachments" in str(excinfo.value)
 		assert store.get_message(mid)["state"] == "pending"
@@ -945,19 +982,19 @@ class TestAttachments:
 		outside.write_bytes(b"outside")
 		os.symlink(outside, root / "escape.md")
 		with pytest.raises(b6.BatonError, match="symlink"):
-			store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			store.send("acme.reviewer", "acme.implementer",
 			           kind="evidence", body=None,
 			           attach={"root_id": "evidence", "path": "escape.md"})
 		for bad in ("../outside.md", "/etc/passwd", "sub/../../x", ""):
 			with pytest.raises(b6.BatonError):
-				store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+				store.send("acme.reviewer", "acme.implementer",
 				           kind="evidence", body=None,
 				           attach={"root_id": "evidence", "path": bad})
 
 	def test_undeclared_root_refused(self, rooted):
 		store, root = rooted
 		with pytest.raises(b6.BatonError, match="not declared"):
-			store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			store.send("acme.reviewer", "acme.implementer",
 			           kind="evidence", body=None,
 			           attach={"root_id": "ghost", "path": "x.md"})
 
@@ -971,19 +1008,19 @@ class TestAttachments:
 class TestDispositionRetention:
 	def test_reply_retry_retention_mismatch_fails_closed(self, store):
 		send_one(store, retention="durable")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
 		with pytest.raises(b6.BatonError, match="retention differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+			store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 			            body=b"x", retention="transient")
-		retry = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
+		retry = store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
 		assert retry["already_committed"] is True
 		assert retry["retention"] == "durable"
 
 	def test_close_override_transient_to_durable_retains_body(self, store):
 		send_one(store, retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                  body=b"promoted record", retention="durable")
 		row = store.conn.execute(
 			"SELECT c.body FROM dispositions d JOIN contents c ON c.content_id=d.content_id "
@@ -992,104 +1029,110 @@ class TestDispositionRetention:
 
 	def test_close_override_durable_to_transient_drops_body(self, store):
 		send_one(store, retention="durable")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		result = store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		claim = store.claim("acme.implementer")
+		result = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                           body=b"ephemeral note", retention="transient")
 		count = store.conn.execute(
 			"SELECT COUNT(*) FROM contents WHERE sha256=?", (result["content_sha256"],)).fetchone()[0]
 		assert count == 0
 		with pytest.raises(b6.BatonError, match="retention differs"):
-			store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+			store.close_claim(claim["claim_id"], participant=claim["participant"],
 			                  body=b"ephemeral note", retention="durable")
-		retry = store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		retry = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                          body=b"ephemeral note", retention="transient")
 		assert retry["already_committed"] is True
 
 	def test_close_invalid_retention(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		with pytest.raises(b6.BatonError, match="invalid retention"):
-			store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+			store.close_claim(claim["claim_id"], participant=claim["participant"],
 			                  body=b"x", retention="forever")
 
 
 class TestNoticeAuthorship:
-	def test_same_participant_different_actor_cannot_early_expire(self, store):
-		nid = store.send_notice("acme.reviewer", actor="rev1", seed=SEED_A,
-		                        kind="announcement", body=b"mine")
-		with pytest.raises(b6.BatonError, match="exact author instance"):
-			store.expire("acme.reviewer", actor="rev2", seed=SEED_B, notice_id=nid)
-		with pytest.raises(b6.BatonError, match="exact author instance"):
-			store.expire("acme.reviewer", actor="rev1", seed=SEED_C, notice_id=nid)
-		removed = store.expire("acme.reviewer", actor="rev1", seed=SEED_A, notice_id=nid)
+	def test_only_the_authoring_participant_may_expire_early(self, store):
+		"""Authorship is the participant. Any other participant is refused;
+		the author itself succeeds."""
+		nid = store.send_notice("acme.reviewer", kind="announcement", body=b"mine")
+		for other in ("acme.implementer", "hq.lead"):
+			with pytest.raises(b6.BatonError, match="exact authoring participant"):
+				store.expire(other, notice_id=nid)
+		removed = store.expire("acme.reviewer", notice_id=nid)
 		assert removed == [nid]
 
 	def test_ttl_default_finite(self, store):
-		nid = store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="note", body=b"x")
+		nid = store.send_notice("hq.lead", kind="note", body=b"x")
 		ttl = store.conn.execute("SELECT ttl_seconds FROM notices WHERE id=?", (nid,)).fetchone()[0]
 		assert ttl == b6.DEFAULT_NOTICE_TTL_SECONDS
 		with pytest.raises(b6.BatonError, match="positive"):
-			store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="note",
+			store.send_notice("hq.lead", kind="note",
 			                  body=b"x", ttl_seconds=0)
 		with pytest.raises(sqlite3.IntegrityError):
-			store._txn_begin("send", "lead", SEED_C)
+			store._txn_begin("send")
 			try:
 				store.conn.execute(
-					"INSERT INTO notices(id, from_participant, author_actor, author_seed, kind, "
+					"INSERT INTO notices(id, from_participant, kind, "
 					"content_sha256, created_ts, ttl_seconds) "
-					"VALUES('immortal', 'hq.lead', 'lead', ?, 'k', 'sha', 'now', 0)", (SEED_C,))
+					"VALUES('immortal', 'hq.lead', 'k', 'sha', 'now', 0)")
 			finally:
 				store._txn_rollback()
 
 	def test_notice_immutability_and_context(self, store):
-		nid = store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="note", body=b"x")
+		nid = store.send_notice("hq.lead", kind="note", body=b"x")
 		with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-			store.conn.execute("UPDATE notices SET author_actor='forged' WHERE id=?", (nid,))
+			store.conn.execute("UPDATE notices SET from_participant='hq.forged' WHERE id=?", (nid,))
 		with pytest.raises(sqlite3.IntegrityError, match="context"):
 			store.conn.execute(
-				"INSERT INTO notices(id, from_participant, author_actor, author_seed, kind, "
+				"INSERT INTO notices(id, from_participant, kind, "
 				"content_sha256, created_ts, ttl_seconds) "
-				"VALUES('raw', 'hq.lead', 'lead', 'seed', 'k', 'sha', 'now', 60)")
+				"VALUES('raw', 'hq.lead', 'k', 'sha', 'now', 60)")
 		with pytest.raises(sqlite3.IntegrityError, match="context"):
 			store.conn.execute(
-				"INSERT INTO notice_seen(notice_id, participant, actor, seed, seen_ts) "
-				"VALUES(?, 'acme.reviewer', 'rev1', 'seed', 'now')", (nid,))
+				"INSERT INTO notice_seen(notice_id, participant, seen_ts) "
+				"VALUES(?, 'acme.reviewer', 'now')", (nid,))
 
 
 class TestRecoveryAuthority:
 	def test_unconfigured_participant_refused(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		with pytest.raises(b6.BatonError, match="not declared"):
 			store.recover_claim(claim["claim_id"], participant="ghost.admin",
-			                    actor="unconfigured", seed=SEED_C, reason="x")
+			                    reason="x")
 
 	def test_participant_without_capability_refused(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		with pytest.raises(b6.BatonError, match="'recovery' capability"):
 			store.recover_claim(claim["claim_id"], participant="acme.reviewer",
-			                    actor="rev1", seed=SEED_A, reason="x")
+			                    reason="x")
 
-	def test_wrong_singleton_actor_refused(self, store):
+	def test_recovery_still_requires_the_capability(self, store):
+		"""Recovery authority is an explicit capability, unchanged by the
+		identity simplification — it is not inferred from being a
+		participant."""
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		with pytest.raises(b6.BatonError, match="singleton"):
-			store.recover_claim(claim["claim_id"], participant="hq.lead",
-			                    actor="impostor", seed=SEED_C, reason="x")
+		claim = store.claim("acme.implementer")
+		with pytest.raises(b6.BatonError, match="recovery"):
+			store.recover_claim(claim["claim_id"], participant="acme.reviewer",
+			                    reason="x")
+		result = store.recover_claim(claim["claim_id"], participant="hq.lead",
+		                             reason="host died")
+		assert result["claim_id"] == claim["claim_id"]
 
 	def test_agent_with_declared_capability_allowed(self, tmp_path):
 		config_path = str(tmp_path / "baton.json")
 		cfg = make_config()
-		cfg["participants"]["acme.oncall"] = {"identity": "agent", "capabilities": ["recovery"]}
+		cfg["participants"]["acme.oncall"] = {"capabilities": ["recovery"]}
 		with open(config_path, "w") as handle:
 			json.dump(cfg, handle)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as st:
 			send_one(st)
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
 			st.recover_claim(claim["claim_id"], participant="acme.oncall",
-			                 actor="oncall1", seed=SEED_C, reason="authority is a capability")
+			                 reason="authority is a capability")
 
 	def test_unknown_capability_rejected_in_config(self):
 		cfg = make_config()
@@ -1099,11 +1142,10 @@ class TestRecoveryAuthority:
 
 	def test_audit_row_carries_full_identity(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.recover_claim(claim["claim_id"], participant="hq.lead", actor="lead",
-		                    seed=SEED_C, reason="host died")
-		row = store.conn.execute("SELECT participant, actor, seed FROM recoveries").fetchone()
-		assert (row["participant"], row["actor"], row["seed"]) == ("hq.lead", "lead", SEED_C)
+		claim = store.claim("acme.implementer")
+		store.recover_claim(claim["claim_id"], participant="hq.lead", reason="host died")
+		row = store.conn.execute("SELECT participant FROM recoveries").fetchone()
+		assert row["participant"] == "hq.lead"
 		ledger = store.conn.execute(
 			"SELECT participant FROM transitions WHERE verb='recover' AND entity='claim'").fetchone()
 		assert ledger["participant"] == "hq.lead"
@@ -1112,11 +1154,11 @@ class TestRecoveryAuthority:
 		with open(instance, "w") as handle:
 			json.dump(make_config(generation=2), handle)
 		with pytest.raises(b6.BatonError, match="'config' capability"):
-			b6.regen_instance(instance, participant="acme.reviewer", actor="rev1", seed=SEED_A)
+			b6.regen_instance(instance, participant="acme.reviewer")
 
 	def test_gc_requires_configured_participant(self, store):
 		with pytest.raises(b6.BatonError, match="not declared"):
-			store.gc(participant="ghost.admin", actor="x", seed=SEED_C)
+			store.gc(participant="ghost.admin")
 
 
 class TestRegenLiveState:
@@ -1128,16 +1170,16 @@ class TestRegenLiveState:
 		with open(instance, "w") as handle:
 			json.dump(cfg, handle)
 		with pytest.raises(b6.BatonError, match="named by live"):
-			b6.regen_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+			b6.regen_instance(instance, participant="hq.lead")
 
 	def test_additive_change_accepted(self, instance):
 		with b6.open_instance(instance) as st:
 			send_one(st)
 		cfg = make_config(generation=2)
-		cfg["participants"]["acme.newcomer"] = {"identity": "agent"}
+		cfg["participants"]["acme.newcomer"] = {}
 		with open(instance, "w") as handle:
 			json.dump(cfg, handle)
-		result = b6.regen_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+		result = b6.regen_instance(instance, participant="hq.lead")
 		assert result["accepted_generation"] == 2
 
 	def test_attachment_root_remap_refused(self, tmp_path):
@@ -1153,35 +1195,35 @@ class TestRegenLiveState:
 			json.dump(cfg, handle)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as st:
-			mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="evidence", body=None, attach={"root_id": "evidence", "path": "e.md"})
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)  # durable, retained
+			claim = st.claim("acme.implementer", message_id=mid)
+			st.close_claim(claim["claim_id"], participant=claim["participant"])  # durable, retained
 		cfg2 = make_config(generation=2)
 		cfg2["roots"] = {"evidence": str(other)}
 		with open(config_path, "w") as handle:
 			json.dump(cfg2, handle)
 		with pytest.raises(b6.BatonError, match="keep its accepted mapping"):
-			b6.regen_instance(config_path, participant="hq.lead", actor="lead", seed=SEED_C)
+			b6.regen_instance(config_path, participant="hq.lead")
 		cfg3 = make_config(generation=2)
 		cfg3["roots"] = {"evidence": str(root), "extra": str(other)}
 		with open(config_path, "w") as handle:
 			json.dump(cfg3, handle)
-		result = b6.regen_instance(config_path, participant="hq.lead", actor="lead", seed=SEED_C)
+		result = b6.regen_instance(config_path, participant="hq.lead")
 		assert result["accepted_generation"] == 2
 
 	def test_regen_exact_next_race(self, instance):
 		with open(instance, "w") as handle:
 			json.dump(make_config(generation=2), handle)
-		b6.regen_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+		b6.regen_instance(instance, participant="hq.lead")
 		with pytest.raises(b6.BatonError, match="regen requires config generation 3"):
-			b6.regen_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+			b6.regen_instance(instance, participant="hq.lead")
 
 
 class TestStateCoupledTriggers:
 	def test_context_bearing_wrong_row_timestamp_rejected(self, store):
 		mid = send_one(store)  # pending
-		store._txn_begin("reply", "imp1", SEED_B)
+		store._txn_begin("reply")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="terminal transition"):
 				store.conn.execute(
@@ -1191,7 +1233,7 @@ class TestStateCoupledTriggers:
 
 	def test_context_bearing_pending_scrub_rejected(self, store):
 		mid = send_one(store, retention="transient")  # pending transient
-		store._txn_begin("reply", "imp1", SEED_B)
+		store._txn_begin("reply")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="terminal transient"):
 				store.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (mid,))
@@ -1200,9 +1242,9 @@ class TestStateCoupledTriggers:
 
 	def test_durable_terminal_scrub_rejected(self, store):
 		mid = send_one(store, retention="durable")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
-		store._txn_begin("close", "imp1", SEED_B)
+		claim = store.claim("acme.implementer")
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
+		store._txn_begin("close")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="terminal transient"):
 				store.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (mid,))
@@ -1211,8 +1253,8 @@ class TestStateCoupledTriggers:
 
 	def test_terminal_ts_without_edge_rejected(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store._txn_begin("reply", "imp1", SEED_B)
+		claim = store.claim("acme.implementer")
+		store._txn_begin("reply")
 		try:
 			with pytest.raises(sqlite3.IntegrityError, match="terminal transition"):
 				store.conn.execute(
@@ -1282,7 +1324,7 @@ class TestAttachmentSnapshot:
 		monkeypatch.setattr(b6, "_FAULT_HOOK", mutate)
 		with b6.open_instance(config_path) as st:
 			with pytest.raises(b6.BatonError, match="changed while being hashed"):
-				st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+				st.send("acme.reviewer", "acme.implementer",
 				        kind="evidence", body=None, attach={"root_id": "evidence", "path": "e.md"})
 
 
@@ -1340,20 +1382,20 @@ class TestRootBindingGenerations:
 	def test_unrelated_regen_does_not_invalidate_attachments(self, bound):
 		config_path, root, tmp_path = bound
 		with b6.open_instance(config_path) as st:
-			mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="evidence", body=None, attach={"root_id": "evidence", "path": "e.md"})
 			assert st.get_message(mid)["attach_generation"] == 1
 		cfg = make_config(generation=2)
 		cfg["roots"] = {"evidence": str(root)}
-		cfg["participants"]["acme.newcomer"] = {"identity": "agent"}
+		cfg["participants"]["acme.newcomer"] = {}
 		with open(config_path, "w") as handle:
 			json.dump(cfg, handle)
-		b6.regen_instance(config_path, participant="hq.lead", actor="lead", seed=SEED_C)
+		b6.regen_instance(config_path, participant="hq.lead")
 		with b6.open_instance(config_path) as st:
 			binding = st.conn.execute(
 				"SELECT binding_generation FROM accepted_roots WHERE root_id='evidence'").fetchone()
 			assert binding["binding_generation"] == 1  # unchanged root keeps its binding
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)  # still verifiable
+			claim = st.claim("acme.implementer")  # still verifiable
 			assert claim["message_id"] == mid
 
 	def test_new_root_gets_current_generation(self, bound):
@@ -1364,7 +1406,7 @@ class TestRootBindingGenerations:
 		cfg["roots"] = {"evidence": str(root), "extra": str(extra)}
 		with open(config_path, "w") as handle:
 			json.dump(cfg, handle)
-		b6.regen_instance(config_path, participant="hq.lead", actor="lead", seed=SEED_C)
+		b6.regen_instance(config_path, participant="hq.lead")
 		with b6.open_instance(config_path) as st:
 			rows = {r["root_id"]: r["binding_generation"] for r in st.conn.execute(
 				"SELECT root_id, binding_generation FROM accepted_roots")}
@@ -1377,17 +1419,17 @@ class TestRootBindingGenerations:
 		delivering an attachment resolved through the wrong binding."""
 		config_path, root, tmp_path = bound
 		with b6.open_instance(config_path) as st:
-			mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="evidence", body=None,
 			              attach={"root_id": "evidence", "path": "e.md"})
 		_raw_corrupt(config_path, lambda conn: conn.execute(
 			"UPDATE accepted_roots SET binding_generation=9 WHERE root_id='evidence'"))
 		with b6.open_instance(config_path) as st:
 			with pytest.raises(b6.BatonError, match="binding generation") as excinfo:
-				st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+				st.claim("acme.implementer", message_id=mid)
 			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
 			with pytest.raises(b6.BatonError) as excinfo:
-				st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+				st.claim("acme.implementer")
 			assert excinfo.value.exit_code == b6.EXIT_NONE
 			assert st.get_message(mid)["state"] == "pending"
 
@@ -1400,32 +1442,32 @@ class TestRootBindingGenerations:
 class TestEffectiveRouteRetry:
 	def test_first_explicit_retry_omitted_fails_closed(self, store):
 		send_one(store, thread="t1")  # from acme.reviewer
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 		            body=b"x", recipient="hq.lead", thread_id="t2")
 		with pytest.raises(b6.BatonError, match="recipient differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
+			store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
 
 	def test_first_explicit_thread_retry_omitted_fails_closed(self, store):
 		send_one(store, thread="t1")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 		            body=b"x", thread_id="t2")
 		with pytest.raises(b6.BatonError, match="thread differs"):
-			store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
+			store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
 
 	def test_first_default_retry_omitted_redelivers(self, store):
 		send_one(store, thread="t1")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
-		retry = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
+		retry = store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
 		assert retry["already_committed"] is True
 
 	def test_first_default_retry_explicit_same_redelivers(self, store):
 		send_one(store, thread="t1")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer", body=b"x")
-		retry = store.reply(claim["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"], kind="answer", body=b"x")
+		retry = store.reply(claim["claim_id"], participant=claim["participant"], kind="answer",
 		                    body=b"x", recipient="acme.reviewer", thread_id="t1")
 		assert retry["already_committed"] is True
 
@@ -1433,8 +1475,8 @@ class TestEffectiveRouteRetry:
 class TestBidirectionalCoupling:
 	def test_terminal_transition_without_timestamp_rejected(self, store):
 		mid = send_one(store)
-		store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store._txn_begin("reply", "imp1", SEED_B)
+		store.claim("acme.implementer")
+		store._txn_begin("reply")
 		try:
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute("UPDATE messages SET state='completed' WHERE id=?", (mid,))
@@ -1443,8 +1485,8 @@ class TestBidirectionalCoupling:
 
 	def test_claim_terminal_without_timestamp_rejected(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
-		store._txn_begin("reply", "imp1", SEED_B)
+		claim = store.claim("acme.implementer")
+		store._txn_begin("reply")
 		try:
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute("UPDATE claims SET state='completed' WHERE claim_id=?",
@@ -1453,7 +1495,7 @@ class TestBidirectionalCoupling:
 			store._txn_rollback()
 
 	def test_prefilled_terminal_timestamp_birth_rejected(self, store):
-		store._txn_begin("send", "rev1", SEED_A)
+		store._txn_begin("send")
 		try:
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute(
@@ -1468,17 +1510,17 @@ class TestBidirectionalCoupling:
 class TestGcReplyChains:
 	def _chain(self, store, incoming_retention="transient", response_retention=None):
 		mid_a = send_one(store, retention=incoming_retention)
-		claim_a = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid_a)
-		result = store.reply(claim_a["claim_id"], actor="imp1", seed=SEED_B, kind="answer",
+		claim_a = store.claim("acme.implementer", message_id=mid_a)
+		result = store.reply(claim_a["claim_id"], participant=claim_a["participant"], kind="answer",
 		                     body=b"resp", retention=response_retention)
 		mid_b = result["response_message_id"]
-		claim_b = store.claim("acme.reviewer", actor="rev1", seed=SEED_A, message_id=mid_b)
-		store.close_claim(claim_b["claim_id"], actor="rev1", seed=SEED_A)
+		claim_b = store.claim("acme.reviewer", message_id=mid_b)
+		store.close_claim(claim_b["claim_id"], participant=claim_b["participant"])
 		return mid_a, mid_b, claim_a["claim_id"]
 
 	def test_all_transient_chain_collected(self, store):
 		mid_a, mid_b, _ = self._chain(store)
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert set(result["messages"]) >= {mid_a, mid_b}
 		remaining = store.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
 		assert remaining == 0
@@ -1486,7 +1528,7 @@ class TestGcReplyChains:
 	def test_durable_incoming_anchors_transient_response(self, store):
 		mid_a, mid_b, _ = self._chain(store, incoming_retention="durable",
 		                              response_retention="transient")
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert mid_a not in result["messages"]
 		assert mid_b not in result["messages"]  # retained disposition anchors its response metadata
 		assert store.conn.execute(
@@ -1495,19 +1537,19 @@ class TestGcReplyChains:
 	def test_transient_incoming_anchored_by_durable_response(self, store):
 		mid_a, mid_b, _ = self._chain(store, incoming_retention="transient",
 		                              response_retention="durable")
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert mid_a not in result["messages"]  # retained child references its parent
 		assert mid_b not in result["messages"]
 
 	def test_gc_never_aborts_and_retry_after_gc_is_clean(self, store):
 		mid_a, mid_b, claim_a = self._chain(store)
 		ledger_before = store.conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0]
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert set(result["messages"]) >= {mid_a, mid_b}
 		assert store.conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] > ledger_before
 		with pytest.raises(b6.BatonError, match="unknown claim"):
-			store.reply(claim_a, actor="imp1", seed=SEED_B, kind="answer", body=b"resp")
-		again = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+			store.reply(claim_a, participant="acme.implementer", kind="answer", body=b"resp")
+		again = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert again["messages"] == []
 
 
@@ -1539,24 +1581,24 @@ class TestComponentWalkNoFollow:
 
 class TestSeenAndRecoveryGuards:
 	def test_notice_seen_immutable_and_delete_guarded(self, store):
-		nid = store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind="note", body=b"x")
-		store.see("acme.implementer", actor="imp1", seed=SEED_B)
+		nid = store.send_notice("hq.lead", kind="note", body=b"x")
+		store.see("acme.implementer")
 		with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-			store.conn.execute("UPDATE notice_seen SET seed='forged'")
+			store.conn.execute("UPDATE notice_seen SET participant='hq.forged'")
 		with pytest.raises(sqlite3.IntegrityError, match="removable only"):
 			store.conn.execute("DELETE FROM notice_seen")
 		assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 1
-		removed = store.expire("hq.lead", actor="lead", seed=SEED_C, notice_id=nid)
+		removed = store.expire("hq.lead", notice_id=nid)
 		assert removed == [nid]
 		assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
 
 	def test_uncontextual_recovery_row_rejected(self, store):
 		send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer")
 		with pytest.raises(sqlite3.IntegrityError, match="context"):
 			store.conn.execute(
-				"INSERT INTO recoveries(recovery_id, claim_id, participant, actor, seed, reason, "
-				"created_ts) VALUES('forged', ?, 'ghost.admin', 'x', 'y', 'because', 'now')",
+				"INSERT INTO recoveries(recovery_id, claim_id, participant, reason, "
+				"created_ts) VALUES('forged', ?, 'ghost.admin', 'because', 'now')",
 				(claim["claim_id"],))
 
 
@@ -1580,7 +1622,7 @@ class TestSnapshotHardening:
 		monkeypatch.setattr(b6, "_FAULT_HOOK", mutate)
 		with b6.open_instance(config_path) as store:
 			with pytest.raises(b6.BatonError, match="changed while being hashed"):
-				store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+				store.send("acme.reviewer", "acme.implementer",
 				           kind="evidence", body=None, attach={"root_id": "evidence", "path": "e.md"})
 
 	def test_fifo_attachment_rejected_without_hanging(self, tmp_path):
@@ -1596,7 +1638,7 @@ class TestSnapshotHardening:
 		try:
 			with b6.open_instance(config_path) as store:
 				with pytest.raises(b6.BatonError, match="not a regular file"):
-					store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+					store.send("acme.reviewer", "acme.implementer",
 					           kind="evidence", body=None, attach={"root_id": "evidence", "path": "pipe"})
 		finally:
 			os.unlink(root / "pipe")  # host tooling that scans tmp trees must never meet a FIFO
@@ -1605,11 +1647,11 @@ class TestSnapshotHardening:
 class TestDurableCloseAnchor:
 	def test_transient_envelope_durable_close_retained(self, store):
 		mid = send_one(store, retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		claim = store.claim("acme.implementer", message_id=mid)
+		store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                  body=b"durable signoff record", outcome="signed_off",
 		                  retention="durable")
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert mid not in result["messages"]
 		assert store.conn.execute(
 			"SELECT COUNT(*) FROM messages WHERE id=?", (mid,)).fetchone()[0] == 1
@@ -1618,16 +1660,16 @@ class TestDurableCloseAnchor:
 			"SELECT c.body FROM dispositions d JOIN contents c ON c.content_id=d.content_id "
 			"WHERE d.claim_id=?", (claim["claim_id"],)).fetchone()
 		assert row["body"] == b"durable signoff record"
-		retry = store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B,
+		retry = store.close_claim(claim["claim_id"], participant=claim["participant"],
 		                          body=b"durable signoff record", outcome="signed_off",
 		                          retention="durable")
 		assert retry["already_committed"] is True
 
 	def test_transient_envelope_transient_close_still_collected(self, store):
 		mid = send_one(store, retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B, outcome="seen")
-		result = store.gc(participant="hq.lead", actor="lead", seed=SEED_C, now="2027-01-01T00:00:00Z")
+		claim = store.claim("acme.implementer", message_id=mid)
+		store.close_claim(claim["claim_id"], participant=claim["participant"], outcome="seen")
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
 		assert mid in result["messages"]
 
 
@@ -1637,8 +1679,7 @@ class TestDurableCloseAnchor:
 
 class TestMaintenance:
 	def test_enter_gates_writes_and_exit_clears(self, instance):
-		result = b6.maintenance_enter(instance, participant="hq.lead", actor="lead",
-		                              seed=SEED_C, reason="planned upkeep")
+		result = b6.maintenance_enter(instance, participant="hq.lead", reason="planned upkeep")
 		assert result == {"maintenance": True, "move_token": None, "destination": None}
 		with pytest.raises(b6.BatonError) as excinfo:
 			with b6.open_instance(instance) as st:
@@ -1647,7 +1688,7 @@ class TestMaintenance:
 		with b6.open_instance(instance, readonly=True) as ro:
 			assert ro.conn.execute(
 				"SELECT maintainer_reason FROM instance_meta").fetchone()[0] == "planned upkeep"
-		b6.maintenance_exit(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+		b6.maintenance_exit(instance, participant="hq.lead",
 		                    reason="done")
 		with b6.open_instance(instance) as st:
 			send_one(st)
@@ -1657,21 +1698,19 @@ class TestMaintenance:
 
 	def test_enter_requires_capability_and_reason(self, instance):
 		with pytest.raises(b6.BatonError, match="'config' capability"):
-			b6.maintenance_enter(instance, participant="acme.reviewer", actor="rev1",
-			                     seed=SEED_A, reason="nope")
+			b6.maintenance_enter(instance, participant="acme.reviewer", reason="nope")
 		with pytest.raises(b6.BatonError, match="reason"):
-			b6.maintenance_enter(instance, participant="hq.lead", actor="lead",
-			                     seed=SEED_C, reason=" ")
+			b6.maintenance_enter(instance, participant="hq.lead", reason=" ")
 
 	def test_double_enter_refused(self, instance):
-		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+		b6.maintenance_enter(instance, participant="hq.lead",
 		                     reason="first")
 		with pytest.raises(b6.BatonError, match="already under maintenance"):
-			b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+			b6.maintenance_enter(instance, participant="hq.lead",
 			                     reason="second")
 
 	def test_ceremony_rows_immutable(self, instance):
-		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+		b6.maintenance_enter(instance, participant="hq.lead",
 		                     reason="upkeep")
 		with b6.open_instance(instance, _for_ceremony=True) as st:
 			with pytest.raises(sqlite3.IntegrityError, match="immutable"):
@@ -1680,8 +1719,8 @@ class TestMaintenance:
 				st.conn.execute("DELETE FROM ceremonies")
 			with pytest.raises(sqlite3.IntegrityError, match="context"):
 				st.conn.execute(
-					"INSERT INTO ceremonies(ceremony_id, kind, participant, actor, seed, created_ts) "
-					"VALUES('raw', 'migrate', 'p.q', 'a', 'b', 'now')")
+					"INSERT INTO ceremonies(ceremony_id, kind, participant, created_ts) "
+					"VALUES('raw', 'migrate', 'p.q', 'now')")
 
 
 class TestCheckpointDrain:
@@ -1718,12 +1757,11 @@ class TestMoveCeremony:
 		return config_path, str(dest / "baton.json")
 
 	def _enter(self, config_path, dest_config):
-		return b6.maintenance_enter(config_path, participant="hq.lead", actor="lead",
-		                            seed=SEED_C, reason="relocating", move=True,
+		return b6.maintenance_enter(config_path, participant="hq.lead", reason="relocating", move=True,
 		                            destination=dest_config)["move_token"]
 
 	def _lead(self):
-		return {"participant": "hq.lead", "actor": "lead", "seed": SEED_C}
+		return {"participant": "hq.lead"}
 
 	def test_full_move_happy_path_with_idempotent_retries(self, tmp_path):
 		config_path, dest_config = self._setup(tmp_path)
@@ -1804,7 +1842,7 @@ class TestMoveCeremony:
 		b6.move_copy(config_path, **self._lead())
 		for path in (config_path, dest_config):
 			with pytest.raises(b6.BatonError, match="generic maintenance clear is refused"):
-				b6.maintenance_exit(path, participant="hq.lead", actor="lead", seed=SEED_C,
+				b6.maintenance_exit(path, participant="hq.lead",
 				                    reason="oops")
 
 	def test_abort_is_source_only(self, tmp_path):
@@ -1841,7 +1879,7 @@ class TestMoveCeremony:
 		config_path, dest_config = self._setup(tmp_path)
 		with pytest.raises(b6.BatonError, match="maintenance_enter"):
 			b6.move_copy(config_path, **self._lead())
-		b6.maintenance_enter(config_path, participant="hq.lead", actor="lead", seed=SEED_C,
+		b6.maintenance_enter(config_path, participant="hq.lead",
 		                     reason="plain, not move")
 		with pytest.raises(b6.BatonError, match="maintenance_enter"):
 			b6.move_copy(config_path, **self._lead())
@@ -1859,11 +1897,9 @@ class TestMoveCeremony:
 		for bad in ("relative/baton.json", "/nonexistent-dir/baton.json",
 		            str(tmp_path / "dest") + "/", str(tmp_path)):
 			with pytest.raises(b6.BatonError):
-				b6.maintenance_enter(config_path, participant="hq.lead", actor="lead",
-				                     seed=SEED_C, reason="move", move=True, destination=bad)
+				b6.maintenance_enter(config_path, participant="hq.lead", reason="move", move=True, destination=bad)
 		with pytest.raises(b6.BatonError, match="boolean"):
-			b6.maintenance_enter(config_path, participant="hq.lead", actor="lead",
-			                     seed=SEED_C, reason="move", move=1,
+			b6.maintenance_enter(config_path, participant="hq.lead", reason="move", move=1,
 			                     destination=str(tmp_path / "dest" / "baton.json"))
 
 	def test_crash_window_zero_active_and_human_recovery(self, tmp_path):
@@ -1888,7 +1924,7 @@ def _move_copy_with_fault(config_path, point, queue):
 			os._exit(9)
 	mod._FAULT_HOOK = hook
 	try:
-		mod.move_copy(config_path, participant="hq.lead", actor="lead", seed="c" * 32)
+		mod.move_copy(config_path, participant="hq.lead")
 		queue.put("completed")
 	except mod.BatonError as exc:
 		queue.put(f"error:{exc}")
@@ -1910,8 +1946,7 @@ class TestMoveFaultMatrix:
 		dest = tmp_path / "dest"
 		dest.mkdir()
 		dest_config = str(dest / "baton.json")
-		token = b6.maintenance_enter(config_path, participant="hq.lead", actor="lead",
-		                             seed=SEED_C, reason="relocating", move=True,
+		token = b6.maintenance_enter(config_path, participant="hq.lead", reason="relocating", move=True,
 		                             destination=dest_config)["move_token"]
 		ctx = multiprocessing.get_context("spawn")
 		queue = ctx.Queue()
@@ -1920,12 +1955,10 @@ class TestMoveFaultMatrix:
 		proc.join(60)
 		assert proc.exitcode == 9
 		# Fresh-process resume of the SAME move: completes to 'copied'.
-		result = b6.move_copy(config_path, participant="hq.lead", actor="lead", seed=SEED_C)
+		result = b6.move_copy(config_path, participant="hq.lead")
 		assert result["stage"] == "copied"
-		b6.move_bind_destination(dest_config, token=token, participant="hq.lead",
-		                         actor="lead", seed=SEED_C)
-		b6.move_activate(dest_config, token=token, participant="hq.lead", actor="lead",
-		                 seed=SEED_C)
+		b6.move_bind_destination(dest_config, token=token, participant="hq.lead")
+		b6.move_activate(dest_config, token=token, participant="hq.lead")
 		with b6.open_instance(dest_config) as st:
 			assert len(st.scan("acme.implementer")["pending"]) == 1
 
@@ -1933,15 +1966,15 @@ class TestMoveFaultMatrix:
 class TestMigrateGate:
 	def test_migrate_requires_maintenance_and_reports_no_path(self, instance):
 		"""The gate is an audited refusal, not a capability: this tool knows
-		only protocol 7, and gains a migration path only alongside a protocol
+		only protocol 8, and gains a migration path only alongside a protocol
 		bump together with the frozen definition of what it migrates from.
 		The ATTEMPT is durably audited before the refusal is reported."""
 		with pytest.raises(b6.BatonError, match="maintenance gate"):
-			b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
-		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+			b6.migrate_instance(instance, participant="hq.lead")
+		b6.maintenance_enter(instance, participant="hq.lead",
 		                     reason="migration attempt")
 		with pytest.raises(b6.BatonError, match="no migration path") as excinfo:
-			b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+			b6.migrate_instance(instance, participant="hq.lead")
 		assert excinfo.value.exit_code == b6.EXIT_PROTOCOL
 		with b6.open_instance(instance, _for_ceremony=True) as st:
 			rows = st.conn.execute(
@@ -1950,7 +1983,7 @@ class TestMigrateGate:
 
 	def test_migrate_requires_capability(self, instance):
 		with pytest.raises(b6.BatonError, match="'config' capability"):
-			b6.migrate_instance(instance, participant="acme.reviewer", actor="rev1", seed=SEED_A)
+			b6.migrate_instance(instance, participant="acme.reviewer")
 
 
 # ---------------------------------------------------------------------------
@@ -1970,13 +2003,12 @@ def _move_setup(tmp_path):
 	dest = tmp_path / "dest"
 	dest.mkdir()
 	dest_config = str(dest / "baton.json")
-	token = b6.maintenance_enter(config_path, participant="hq.lead", actor="lead",
-	                             seed=SEED_C, reason="relocating", move=True,
+	token = b6.maintenance_enter(config_path, participant="hq.lead", reason="relocating", move=True,
 	                             destination=dest_config)["move_token"]
 	return config_path, dest_config, token
 
 
-LEAD = {"participant": "hq.lead", "actor": "lead", "seed": "c" * 32}
+LEAD = {"participant": "hq.lead"}
 
 
 class TestPostBindClone:
@@ -2246,8 +2278,7 @@ class TestSourceRouteBinding:
 		b6.init_instance(config_path)
 		dest = tmp_path / "dest"
 		dest.mkdir()
-		token = b6.maintenance_enter(config_path, participant="hq.lead", actor="lead",
-		                             seed=SEED_C, reason="ok", move=True,
+		token = b6.maintenance_enter(config_path, participant="hq.lead", reason="ok", move=True,
 		                             destination=str(dest / "baton.json"))["move_token"]
 		state = b6.move_status_inspect(config_path)
 		assert state["move_peer"] == str(dest / "baton.json")
@@ -2421,8 +2452,7 @@ class TestSameDirectoryMove:
 		b6.init_instance(config_path)
 		for bad_dest in (config_path, str(src / "other-config.json")):
 			with pytest.raises(b6.BatonError, match="same directory"):
-				b6.maintenance_enter(config_path, participant="hq.lead", actor="lead",
-				                     seed=SEED_C, reason="fold", move=True, destination=bad_dest)
+				b6.maintenance_enter(config_path, participant="hq.lead", reason="fold", move=True, destination=bad_dest)
 			with b6.open_instance(config_path) as st:
 				send_one(st)  # source remains active and unchanged after refusal
 
@@ -2470,7 +2500,7 @@ class TestBindingSoleAuthority:
 	def test_forged_binding_uuid_is_corruption(self, tmp_path):
 		config_path, dest_config, token = _move_setup(tmp_path)
 		with b6.open_instance(config_path, _for_ceremony=True) as st:
-			st._txn_begin("move_enter", "lead", SEED_C, ceremony="move")
+			st._txn_begin("move_enter", ceremony="move")
 			try:
 				st.conn.execute(
 					"INSERT INTO moves(token, instance_uuid, source_config, source_dev, source_ino, "
@@ -2495,7 +2525,7 @@ class TestBindingSoleAuthority:
 	def test_binding_insert_requires_entry_verb(self, tmp_path):
 		config_path, dest_config, token = _move_setup(tmp_path)
 		with b6.open_instance(config_path, _for_ceremony=True) as st:
-			st._txn_begin("move", "lead", SEED_C, ceremony="move")
+			st._txn_begin("move", ceremony="move")
 			try:
 				with pytest.raises(sqlite3.IntegrityError, match="move entry"):
 					st.conn.execute(
@@ -2564,7 +2594,7 @@ class TestWait:
 	def test_wait_returns_existing_immediately(self, instance):
 		with b6.open_instance(instance) as st:
 			send_one(st)
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                            timeout_s=5)
 		assert result["claim"]["state"] == "active"
 		assert result["message"]["body"]["utf8"] == "hello"
@@ -2577,7 +2607,7 @@ class TestWait:
 		thread = threading.Thread(target=sender)
 		thread.start()
 		start = _time.monotonic()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                            timeout_s=30, rescan_interval_s=20)
 		elapsed = _time.monotonic() - start
 		thread.join()
@@ -2586,7 +2616,7 @@ class TestWait:
 
 	def test_wait_timeout_is_clean_none(self, instance):
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+			b6.wait_for_message(instance, "acme.implementer",
 			                    timeout_s=0.3, rescan_interval_s=0.1)
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 
@@ -2601,16 +2631,16 @@ class TestWait:
 				send_one(st)
 		thread = threading.Thread(target=sender)
 		thread.start()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                            timeout_s=30, rescan_interval_s=0.2)
 		thread.join()
 		assert result["claim"]["state"] == "active"
 
 	def test_wait_stands_down_when_gated(self, instance):
-		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+		b6.maintenance_enter(instance, participant="hq.lead",
 		                     reason="gate")
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+			b6.wait_for_message(instance, "acme.implementer",
 			                    timeout_s=5)
 		assert excinfo.value.exit_code == b6.EXIT_GATED
 
@@ -2619,7 +2649,7 @@ class TestObservability:
 	def test_doctor_healthy_and_scratch_report(self, instance, tmp_path):
 		with b6.open_instance(instance) as st:
 			send_one(st)
-			st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			st.claim("acme.implementer")
 		report = b6.doctor(instance)
 		assert report["ok"] is True
 		assert report["messages_by_state"] == {"claimed": 1}
@@ -2631,6 +2661,32 @@ class TestObservability:
 		assert report["unrecognized_files"] == ["surprise.txt"]
 		assert report["ok"] is True  # residue is a warning, never a problem
 		assert len(report["warnings"]) == 2
+
+	def test_dump_carries_no_bearer_credential(self, instance):
+		"""Protocol 8 has no credential to leak, and this asserts it stays that
+		way. The protocol-7 defect was exactly this: an unauthenticated
+		read-only view printed the only authentication factor, and one
+		participant authenticated as another using a value read from it."""
+		with b6.open_instance(instance) as st:
+			send_one(st)
+			claim = st.claim("acme.implementer")
+			st.close_claim(claim["claim_id"], participant="acme.implementer")
+			nid = st.send_notice("hq.lead", kind="ann", body=b"x")
+			st.see("acme.reviewer")
+			assert nid
+		snapshot = b6.dump(instance)
+
+		def walk(node, path=""):
+			if isinstance(node, dict):
+				for key, value in node.items():
+					assert "seed" not in key.lower(), f"credential key at {path}.{key}"
+					assert "actor" not in key.lower(), f"actor key at {path}.{key}"
+					walk(value, f"{path}.{key}")
+			elif isinstance(node, list):
+				for i, value in enumerate(node):
+					walk(value, f"{path}[{i}]")
+		walk(snapshot)
+		assert "seed" not in json.dumps(snapshot).lower()
 
 	def test_dump_redacts_bodies(self, instance):
 		with b6.open_instance(instance) as st:
@@ -2652,8 +2708,8 @@ class TestObservability:
 	def test_materialize_refuses_scrubbed(self, instance, tmp_path):
 		with b6.open_instance(instance) as st:
 			mid = send_one(st, body=b"gone", retention="transient")
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
-			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
+			st.close_claim(claim["claim_id"], participant=claim["participant"])
 		with pytest.raises(b6.BatonError, match="transient"):
 			b6.materialize(instance, mid, str(tmp_path))
 
@@ -2674,13 +2730,11 @@ class TestCli:
 		assert code == 0
 		monkeypatch.setattr("sys.stdin", type("S", (), {"buffer": __import__("io").BytesIO(b"question body")})())
 		code, out = self._run("--config", config_path, "send",
-		                      "--participant", "acme.reviewer", "--actor", "rev1",
-		                      "--seed", SEED_A, "--to", "acme.implementer",
+		                      "--participant", "acme.reviewer", "--to", "acme.implementer",
 		                      "--kind", "question", "--thread", "t1")
 		assert code == 0
 		code, out = self._run("--config", config_path, "claim",
-		                      "--participant", "acme.implementer", "--actor", "imp1",
-		                      "--seed", SEED_B)
+		                      "--participant", "acme.implementer")
 		assert code == 0
 		delivery = json.loads(out)
 		claim_id = delivery["claim"]["claim_id"]
@@ -2688,8 +2742,7 @@ class TestCli:
 		assert delivery["message"]["attachment"] is None
 		monkeypatch.setattr("sys.stdin", type("S", (), {"buffer": __import__("io").BytesIO(b"answer body")})())
 		code, out = self._run("--config", config_path, "reply", claim_id,
-		                      "--participant", "acme.implementer", "--actor", "imp1",
-		                      "--seed", SEED_B, "--kind", "answer", "--outcome", "done")
+		                      "--participant", "acme.implementer", "--kind", "answer", "--outcome", "done")
 		assert code == 0
 		assert json.loads(out)["already_committed"] is False
 		code, out = self._run("--config", config_path, "scan")
@@ -2702,16 +2755,13 @@ class TestCli:
 			json.dump(make_config(), handle)
 		self._run("--config", config_path, "init")
 		code, _ = self._run("--config", config_path, "claim",
-		                    "--participant", "acme.implementer", "--actor", "imp1",
-		                    "--seed", SEED_B)
+		                    "--participant", "acme.implementer")
 		assert code == b6.EXIT_NONE
 		code, _ = self._run("--config", config_path, "maintenance-enter",
-		                    "--participant", "hq.lead", "--actor", "lead",
-		                    "--seed", SEED_C, "--reason", "gate")
+		                    "--participant", "hq.lead", "--reason", "gate")
 		assert code == 0
 		code, _ = self._run("--config", config_path, "send",
-		                    "--participant", "acme.reviewer", "--actor", "rev1",
-		                    "--seed", SEED_A, "--to", "acme.implementer",
+		                    "--participant", "acme.reviewer", "--to", "acme.implementer",
 		                    "--kind", "k", "--body", "/dev/null")
 		assert code == b6.EXIT_GATED
 		code, _ = self._run("--config", config_path, "doctor")
@@ -2750,27 +2800,27 @@ class TestLosslessDelivery:
 	def test_non_utf8_and_empty_bodies(self, store):
 		import base64
 		raw = bytes(range(256))
-		mid = store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		mid = store.send("acme.reviewer", "acme.implementer",
 		                 kind="blob", body=raw)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+		claim = store.claim("acme.implementer", message_id=mid)
 		delivery = b6._delivery(store, claim)
 		body = delivery["message"]["body"]
 		assert base64.b64decode(body["base64"]) == raw
 		assert body["size"] == 256
 		assert "utf8" not in body
-		mid2 = store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		mid2 = store.send("acme.reviewer", "acme.implementer",
 		                  kind="empty", body=b"")
-		claim2 = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid2)
+		claim2 = store.claim("acme.implementer", message_id=mid2)
 		body2 = b6._delivery(store, claim2)["message"]["body"]
 		assert body2["size"] == 0 and body2["utf8"] == ""
 
 	def test_transient_body_readable_after_claim_until_consumed(self, store):
-		mid = store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		mid = store.send("acme.reviewer", "acme.implementer",
 		                 kind="t", body=b"still here", retention="transient")
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+		claim = store.claim("acme.implementer", message_id=mid)
 		delivery = b6._delivery(store, claim)
 		assert delivery["message"]["body"]["utf8"] == "still here"
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		post = b6._delivery(store, dict(claim))
 		assert post["message"]["body"] is None
 		assert post["message"]["content_sha256"] is not None
@@ -2786,9 +2836,9 @@ class TestLosslessDelivery:
 			json.dump(cfg, handle)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as store:
-			mid = store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			mid = store.send("acme.reviewer", "acme.implementer",
 			                 kind="ev", body=None, attach={"root_id": "evidence", "path": "e.md"})
-			claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+			claim = store.claim("acme.implementer", message_id=mid)
 			delivery = b6._delivery(store, claim)
 			assert delivery["message"]["body"] is None
 			att = delivery["message"]["attachment"]
@@ -2827,16 +2877,14 @@ class TestCliTotality:
 	def test_body_attach_mutually_exclusive_at_parser(self, tmp_path):
 		config_path = self._instance(tmp_path)
 		code, _, _ = self._run("--config", config_path, "send",
-		                       "--participant", "acme.reviewer", "--actor", "rev1",
-		                       "--seed", SEED_A, "--to", "acme.implementer", "--kind", "k",
+		                       "--participant", "acme.reviewer", "--to", "acme.implementer", "--kind", "k",
 		                       "--body", "/dev/null", "--attach", "r:p")
 		assert code == b6.EXIT_PROTOCOL  # argparse mutual exclusion -> 4
 
 	def test_missing_body_file_clean(self, tmp_path):
 		config_path = self._instance(tmp_path)
 		code, _, err = self._run("--config", config_path, "send",
-		                         "--participant", "acme.reviewer", "--actor", "rev1",
-		                         "--seed", SEED_A, "--to", "acme.implementer", "--kind", "k",
+		                         "--participant", "acme.reviewer", "--to", "acme.implementer", "--kind", "k",
 		                         "--body", "/nonexistent/body.txt")
 		assert code == b6.EXIT_PROTOCOL
 		assert "unreadable" in err and "Traceback" not in err
@@ -2844,8 +2892,7 @@ class TestCliTotality:
 	def test_bad_attach_syntax_clean(self, tmp_path):
 		config_path = self._instance(tmp_path)
 		code, _, err = self._run("--config", config_path, "send",
-		                         "--participant", "acme.reviewer", "--actor", "rev1",
-		                         "--seed", SEED_A, "--to", "acme.implementer", "--kind", "k",
+		                         "--participant", "acme.reviewer", "--to", "acme.implementer", "--kind", "k",
 		                         "--attach", "no-colon")
 		assert code == b6.EXIT_PROTOCOL
 		assert "ROOT_ID" in err
@@ -2862,12 +2909,10 @@ class TestCliTotality:
 		config_path = self._instance(tmp_path)
 		for bad in ("nan", "inf", "-1"):
 			code, _, err = self._run("--config", config_path, "wait",
-			                         "--participant", "acme.implementer", "--actor", "imp1",
-			                         "--seed", SEED_B, "--timeout", bad)
+			                         "--participant", "acme.implementer", "--timeout", bad)
 			assert code == b6.EXIT_PROTOCOL
 		code, _, _ = self._run("--config", config_path, "wait",
-		                       "--participant", "acme.implementer", "--actor", "imp1",
-		                       "--seed", SEED_B, "--timeout", "0.1", "--interval", "0")
+		                       "--participant", "acme.implementer", "--timeout", "0.1", "--interval", "0")
 		assert code == b6.EXIT_PROTOCOL
 
 	def test_cli_attachment_path(self, tmp_path):
@@ -2881,13 +2926,11 @@ class TestCliTotality:
 			json.dump(cfg, handle)
 		b6.main(["--config", config_path, "init"])
 		code, out, _ = self._run("--config", config_path, "send",
-		                         "--participant", "acme.reviewer", "--actor", "rev1",
-		                         "--seed", SEED_A, "--to", "acme.implementer",
+		                         "--participant", "acme.reviewer", "--to", "acme.implementer",
 		                         "--kind", "ev", "--attach", "evidence:e.md")
 		assert code == 0
 		code, out, _ = self._run("--config", config_path, "claim",
-		                         "--participant", "acme.implementer", "--actor", "imp1",
-		                         "--seed", SEED_B)
+		                         "--participant", "acme.implementer")
 		assert code == 0
 		delivery = json.loads(out)
 		assert delivery["message"]["attachment"]["path"] == "e.md"
@@ -2904,7 +2947,7 @@ class TestEventMatrix:
 					send_one(st)
 		monkeypatch.setattr(b6, "_FAULT_HOOK", publish_during_arm)
 		start = _time.monotonic()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                            timeout_s=30, rescan_interval_s=25)
 		assert result["claim"]["state"] == "active"
 		assert _time.monotonic() - start < 10  # requery caught it; no event needed
@@ -2912,8 +2955,8 @@ class TestEventMatrix:
 	def test_wal_checkpoint_reset_still_wakes(self, instance):
 		with b6.open_instance(instance) as st:
 			send_one(st)
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
-			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
+			st.close_claim(claim["claim_id"], participant=claim["participant"])
 			st.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 		def sender():
 			_time.sleep(0.4)
@@ -2921,7 +2964,7 @@ class TestEventMatrix:
 				send_one(st)
 		thread = threading.Thread(target=sender)
 		thread.start()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                            timeout_s=30, rescan_interval_s=20)
 		thread.join()
 		assert result["claim"]["state"] == "active"
@@ -2980,7 +3023,7 @@ class TestEventMatrix:
 		thread = threading.Thread(target=sender)
 		thread.start()
 		before = opens["count"]
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                             timeout_s=30, rescan_interval_s=0.2)
 		thread.join()
 		assert result["claim"]["state"] == "active"
@@ -3001,7 +3044,7 @@ class TestEventMatrix:
 				send_one(st)
 		thread = threading.Thread(target=churn_and_send)
 		thread.start()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                             timeout_s=30, rescan_interval_s=20)
 		thread.join()
 		assert result["claim"]["state"] == "active"
@@ -3021,7 +3064,7 @@ class TestEventMatrix:
 					send_one(st)  # published during the first degraded sleep
 			real_sleep(0.01)
 		monkeypatch.setattr(_t, "sleep", recording_sleep)
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                             timeout_s=None, rescan_interval_s=3.0)
 		assert result["claim"]["state"] == "active"
 		assert sleeps[0] == 3.0  # the CONFIGURED interval reached sleep() exactly
@@ -3029,12 +3072,12 @@ class TestEventMatrix:
 	def test_gate_while_blocked_stands_down(self, instance):
 		def gater():
 			_time.sleep(0.4)
-			b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+			b6.maintenance_enter(instance, participant="hq.lead",
 			                     reason="mid-wait gate")
 		thread = threading.Thread(target=gater)
 		thread.start()
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+			b6.wait_for_message(instance, "acme.implementer",
 			                    timeout_s=30, rescan_interval_s=0.2)
 		thread.join()
 		assert excinfo.value.exit_code == b6.EXIT_GATED
@@ -3043,16 +3086,16 @@ class TestEventMatrix:
 		import math
 		for bad_timeout in (float("nan"), float("inf"), -1, True):
 			with pytest.raises(b6.BatonError, match="finite|timeout"):
-				b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+				b6.wait_for_message(instance, "acme.implementer",
 				                    timeout_s=bad_timeout, rescan_interval_s=1)
 		for bad_interval in (0, -5, float("nan"), True):
 			with pytest.raises(b6.BatonError, match="rescan"):
-				b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+				b6.wait_for_message(instance, "acme.implementer",
 				                    timeout_s=0.1, rescan_interval_s=bad_interval)
 
 
 def notice_one(store, body=b"all hands", kind="announcement", ttl_seconds=None):
-	return store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind=kind,
+	return store.send_notice("hq.lead", kind=kind,
 	                         body=body, ttl_seconds=ttl_seconds)
 
 
@@ -3080,8 +3123,7 @@ class TestWaitNoticeDelivery:
 		thread = threading.Thread(target=publisher)
 		thread.start()
 		start = _time.monotonic()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=30, rescan_interval_s=20)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=30, rescan_interval_s=20)
 		elapsed = _time.monotonic() - start
 		thread.join()
 		assert result["notice"]["body"]["utf8"] == "broadcast"
@@ -3090,8 +3132,7 @@ class TestWaitNoticeDelivery:
 	def test_existing_unseen_notice_delivered_immediately(self, instance):
 		with b6.open_instance(instance) as st:
 			nid = notice_one(st)
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert set(result) == {"notice"}  # a notice delivery is never claim-shaped
 		assert result["notice"]["id"] == nid
 		assert result["notice"]["from_participant"] == "hq.lead"
@@ -3101,8 +3142,7 @@ class TestWaitNoticeDelivery:
 	def test_notice_delivery_creates_no_claim(self, instance):
 		with b6.open_instance(instance) as st:
 			nid = notice_one(st)
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert result["notice"]["id"] == nid
 		with b6.open_instance(instance) as st:
 			assert st.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
@@ -3110,8 +3150,8 @@ class TestWaitNoticeDelivery:
 			assert st.conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 0
 			# the receipt is the ONLY state the delivery wrote
 			assert [tuple(row) for row in st.conn.execute(
-				"SELECT participant, actor FROM notice_seen")] == [
-				("acme.implementer", "imp1")]
+				"SELECT participant FROM notice_seen")] == [
+				("acme.implementer",)]
 		assert b6.doctor(instance)["ok"] is True
 
 	# -- receipt: written once, atomically ---------------------------------
@@ -3119,12 +3159,10 @@ class TestWaitNoticeDelivery:
 	def test_notice_not_delivered_twice(self, instance):
 		with b6.open_instance(instance) as st:
 			nid = notice_one(st)
-		first = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                            seed=SEED_B, timeout_s=5)
+		first = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert first["notice"]["id"] == nid
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=0.4, rescan_interval_s=0.1)
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 
 	def test_notice_receipt_atomic_with_selection(self, instance, monkeypatch):
@@ -3140,13 +3178,11 @@ class TestWaitNoticeDelivery:
 				raise Boom("crash between receipt insert and commit")
 		monkeypatch.setattr(b6, "_FAULT_HOOK", blow_up)
 		with pytest.raises(Boom):
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=5)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		monkeypatch.setattr(b6, "_FAULT_HOOK", None)
 		with b6.open_instance(instance) as st:
 			assert st.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert result["notice"]["id"] == nid
 
 	def test_receipt_survives_crash_after_commit(self, instance, monkeypatch):
@@ -3163,21 +3199,19 @@ class TestWaitNoticeDelivery:
 			raise Died("consumer died holding the delivery")
 		monkeypatch.setattr(b6, "_notice_delivery", die_after_commit)
 		with pytest.raises(Died):
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=5)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		monkeypatch.undo()
 		with b6.open_instance(instance) as st:
 			assert [tuple(row) for row in st.conn.execute(
-				"SELECT notice_id, participant, actor FROM notice_seen")] == [
-				(nid, "acme.implementer", "imp1")]
-		# the same actor does NOT get a second chance...
+				"SELECT notice_id, participant FROM notice_seen")] == [
+				(nid, "acme.implementer")]
+		# the same participant does NOT get a second chance...
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=0.4, rescan_interval_s=0.1)
 		assert excinfo.value.exit_code == b6.EXIT_NONE
-		# ...and the loss is scoped to that receipt, not to the notice
-		other = b6.wait_for_message(instance, "acme.implementer", actor="imp2",
-		                            seed=SEED_A, timeout_s=5)
+		# ...and the loss is scoped to that receipt, not to the notice: a
+		# different participant still receives it
+		other = b6.wait_for_message(instance, "acme.reviewer", timeout_s=5)
 		assert other["notice"]["id"] == nid
 
 	def test_expired_oldest_does_not_mask_live_notice(self, instance):
@@ -3190,8 +3224,7 @@ class TestWaitNoticeDelivery:
 		_time.sleep(1.2)
 		with b6.open_instance(instance) as st:
 			live = notice_one(st, body=b"still live", kind="announcement")
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert result["notice"]["id"] == live
 		assert result["notice"]["body"]["utf8"] == "still live"
 		with b6.open_instance(instance) as st:
@@ -3202,35 +3235,32 @@ class TestWaitNoticeDelivery:
 
 	def test_author_receives_own_notice(self, instance):
 		"""Parity with `see`, which has never excluded self-authored notices.
-		The receipt key is (notice_id, participant, actor), so an author's own
+		The receipt key is (notice_id, participant), so an author's own
 		waiter is just another reader. Pinned here because the contract is now
 		documented; if Slawomir rules the other way, `see` and `wait` must
 		change together — this test is the tripwire for changing only one."""
 		with b6.open_instance(instance) as st:
-			nid = st.send_notice("acme.implementer", actor="imp1", seed=SEED_B,
+			nid = st.send_notice("acme.implementer",
 			                     kind="announcement", body=b"self broadcast")
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert result["notice"]["id"] == nid
 		assert result["notice"]["from_participant"] == "acme.implementer"
 		with b6.open_instance(instance) as st:
-			assert st.see("acme.implementer", actor="imp1", seed=SEED_B) == []
+			assert st.see("acme.implementer") == []
 
 	def test_wait_and_see_share_one_receipt(self, instance):
 		"""`wait` and `see` read the same receipt table through the same code
 		path, so neither can redeliver what the other consumed."""
 		with b6.open_instance(instance) as st:
 			nid = notice_one(st)
-		delivered = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                                seed=SEED_B, timeout_s=5)
+		delivered = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert delivered["notice"]["id"] == nid
 		with b6.open_instance(instance) as st:
-			assert st.see("acme.implementer", actor="imp1", seed=SEED_B) == []
+			assert st.see("acme.implementer") == []
 			# the reverse direction: consumed by `see`, invisible to `wait`
-			assert [n["id"] for n in st.see("acme.reviewer", actor="rev1",
-			                                seed=SEED_A)] == [nid]
+			assert [n["id"] for n in st.see("acme.reviewer",)] == [nid]
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.reviewer", actor="rev1", seed=SEED_A,
+			b6.wait_for_message(instance, "acme.reviewer",
 			                    timeout_s=0.4, rescan_interval_s=0.1)
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 
@@ -3242,8 +3272,7 @@ class TestWaitNoticeDelivery:
 		with b6.open_instance(instance) as st:
 			notice_one(st, body=b"broadcast")  # published FIRST
 			mid = send_one(st, body=b"directed")
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert set(result) == {"claim", "message"}
 		assert result["message"]["id"] == mid
 		assert result["message"]["body"]["utf8"] == "directed"
@@ -3256,34 +3285,35 @@ class TestWaitNoticeDelivery:
 		with b6.open_instance(instance) as st:
 			nid = notice_one(st, body=b"broadcast")
 			send_one(st, body=b"directed")
-		first = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                            seed=SEED_B, timeout_s=5)
+		first = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert first["message"]["body"]["utf8"] == "directed"
-		second = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		second = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert second["notice"]["id"] == nid
 
-	# -- independent per-participant / per-actor delivery ------------------
+	# -- independent per-participant delivery ------------------------------
 
 	def test_notice_delivered_to_each_participant(self, instance):
 		with b6.open_instance(instance) as st:
 			nid = notice_one(st)
-		for participant, actor, seed in (("acme.implementer", "imp1", SEED_B),
-		                                 ("acme.reviewer", "rev1", SEED_A)):
-			result = b6.wait_for_message(instance, participant, actor=actor, seed=seed,
+		for participant in ("acme.implementer", "acme.reviewer"):
+			result = b6.wait_for_message(instance, participant,
 			                             timeout_s=5)
 			assert result["notice"]["id"] == nid
 
-	def test_notice_delivered_to_each_actor(self, instance):
+	def test_notice_receipt_is_per_participant(self, instance):
+		"""Actors are gone: a notice is seen once per participant, and each
+		participant receives its own independent copy."""
 		with b6.open_instance(instance) as st:
 			nid = notice_one(st)
-		for actor, seed in (("imp1", SEED_B), ("imp2", SEED_A)):
-			result = b6.wait_for_message(instance, "acme.implementer", actor=actor,
-			                             seed=seed, timeout_s=5)
+		for participant in ("acme.implementer", "acme.reviewer"):
+			result = b6.wait_for_message(instance, participant, timeout_s=5)
 			assert result["notice"]["id"] == nid
 		with b6.open_instance(instance) as st:
 			assert st.conn.execute(
 				"SELECT COUNT(*) FROM notice_seen WHERE notice_id=?", (nid,)).fetchone()[0] == 2
+			assert [tuple(r) for r in st.conn.execute(
+				"SELECT participant FROM notice_seen ORDER BY participant")] == [
+				("acme.implementer",), ("acme.reviewer",)]
 
 	# -- the wake paths ----------------------------------------------------
 
@@ -3298,8 +3328,7 @@ class TestWaitNoticeDelivery:
 				notice_one(st, body=b"polled")
 		thread = threading.Thread(target=publisher)
 		thread.start()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=30, rescan_interval_s=0.2)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=30, rescan_interval_s=0.2)
 		thread.join()
 		assert result["notice"]["body"]["utf8"] == "polled"
 
@@ -3314,8 +3343,7 @@ class TestWaitNoticeDelivery:
 					notice_one(st, body=b"raced")
 		monkeypatch.setattr(b6, "_FAULT_HOOK", publish_during_arm)
 		start = _time.monotonic()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=30, rescan_interval_s=25)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=30, rescan_interval_s=25)
 		assert result["notice"]["body"]["utf8"] == "raced"
 		assert _time.monotonic() - start < 10  # requery caught it; no event needed
 
@@ -3334,15 +3362,13 @@ class TestWaitNoticeDelivery:
 			return real_begin(self, verb, *args, **kwargs)
 		monkeypatch.setattr(b6.Store, "_txn_begin", counting_begin)
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=0.5, rescan_interval_s=0.02)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=0.5, rescan_interval_s=0.02)
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 		assert begins == []  # many poll cycles, zero write transactions
 		with b6.open_instance(instance) as st:
 			notice_one(st)
 		begins.clear()
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert result["notice"]["from_participant"] == "hq.lead"
 		assert begins == ["see"]  # exactly one, and only once there is work
 
@@ -3359,8 +3385,7 @@ class TestWaitNoticeDelivery:
 		_time.sleep(1.2)
 		monkeypatch.setattr(b6.Store, "_txn_begin", counting_begin)
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=0.4, rescan_interval_s=0.1)
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 		# an expired notice must not make the waiter spin on the write lock
 		assert begins == []
@@ -3371,20 +3396,18 @@ class TestWaitNoticeDelivery:
 	def test_notice_path_respects_gate(self, instance):
 		with b6.open_instance(instance) as st:
 			notice_one(st)
-		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+		b6.maintenance_enter(instance, participant="hq.lead",
 		                     reason="gate")
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=5)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert excinfo.value.exit_code == b6.EXIT_GATED
 
 	def test_seen_only_notice_times_out_clean(self, instance):
 		with b6.open_instance(instance) as st:
 			notice_one(st)
-			st.see("acme.implementer", actor="imp1", seed=SEED_B)
+			st.see("acme.implementer")
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=0.4, rescan_interval_s=0.1)
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 		assert "notice" in str(excinfo.value)  # the diagnostic covers both channels
 
@@ -3395,8 +3418,7 @@ class TestWaitNoticeDelivery:
 		import base64, hashlib as _h
 		with b6.open_instance(instance) as st:
 			notice_one(st, body=body)
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		notice = result["notice"]
 		rep = notice["body"]
 		assert base64.b64decode(rep["base64"]) == body
@@ -3419,8 +3441,7 @@ class TestWaitNoticeDelivery:
 		_raw_corrupt(instance, lambda conn: conn.execute(
 			"UPDATE contents SET body=X'6861636b6564'"))  # 'hacked'
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=5)
+			b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
 		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
 
 	# -- CLI ---------------------------------------------------------------
@@ -3428,20 +3449,19 @@ class TestWaitNoticeDelivery:
 	def test_cli_wait_delivers_notice(self, instance):
 		code, out, _ = self._run(
 			"--config", instance, "send-notice", "--participant", "hq.lead",
-			"--actor", "lead", "--seed", SEED_C, "--kind", "announcement",
+			"--kind", "announcement",
 			"--body", "/dev/stdin")
 		assert code == 0
 		code, out, _ = self._run(
 			"--config", instance, "wait", "--participant", "acme.implementer",
-			"--actor", "imp1", "--seed", SEED_B, "--timeout", "5")
+			"--timeout", "5")
 		assert code == 0
 		delivery = json.loads(out)
 		assert "claim" not in delivery
 		assert delivery["notice"]["kind"] == "announcement"
 		# and the CLI `see` agrees it is consumed
 		code, out, _ = self._run(
-			"--config", instance, "see", "--participant", "acme.implementer",
-			"--actor", "imp1", "--seed", SEED_B)
+			"--config", instance, "see", "--participant", "acme.implementer")
 		assert code == 0 and json.loads(out)["notices"] == []
 
 	# -- `see` itself is unregressed ---------------------------------------
@@ -3452,17 +3472,17 @@ class TestWaitNoticeDelivery:
 		stamps = {row[0]: row[1] for row in
 		          store.conn.execute("SELECT id, created_ts FROM notices")}
 		oldest, newest = sorted((first, second), key=lambda i: (stamps[i], i))
-		one = store.see("acme.implementer", actor="imp1", seed=SEED_B, limit=1)
+		one = store.see("acme.implementer", limit=1)
 		assert [n["id"] for n in one] == [oldest]
-		rest = store.see("acme.implementer", actor="imp1", seed=SEED_B)
+		rest = store.see("acme.implementer")
 		assert [n["id"] for n in rest] == [newest]  # unlimited call still full-drains
-		assert store.see("acme.implementer", actor="imp1", seed=SEED_B) == []
+		assert store.see("acme.implementer") == []
 
 	@pytest.mark.parametrize("bad", [0, -1, 1.5, "1", True])
 	def test_see_rejects_bad_limit(self, store, bad):
 		notice_one(store)
 		with pytest.raises(b6.BatonError, match="limit"):
-			store.see("acme.implementer", actor="imp1", seed=SEED_B, limit=bad)
+			store.see("acme.implementer", limit=bad)
 
 
 def _attach_instance(tmp_path):
@@ -3483,7 +3503,7 @@ def _send_attached(config_path, root, name, body=b"original bytes\n"):
 	path = root / name
 	path.write_bytes(body)
 	with b6.open_instance(config_path) as st:
-		mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		mid = st.send("acme.reviewer", "acme.implementer",
 		              kind="evidence", body=None,
 		              attach={"root_id": "src", "path": name})
 	return mid, path
@@ -3503,7 +3523,7 @@ class TestDamagedAttachmentQueue:
 		path.write_bytes(b"edited after publication\n")  # invalidates the pin
 		with b6.open_instance(config_path) as st:
 			healthy = send_one(st, body=b"still deliverable")
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
 			assert claim["message_id"] == healthy
 			delivery = b6._delivery(st, claim)
 		assert delivery["message"]["body"]["utf8"] == "still deliverable"
@@ -3523,8 +3543,7 @@ class TestDamagedAttachmentQueue:
 				send_one(st, body=b"published later")
 		thread = threading.Thread(target=sender)
 		thread.start()
-		result = b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=30, rescan_interval_s=20)
+		result = b6.wait_for_message(config_path, "acme.implementer", timeout_s=30, rescan_interval_s=20)
 		thread.join()
 		assert result["message"]["body"]["utf8"] == "published later"
 
@@ -3542,8 +3561,7 @@ class TestDamagedAttachmentQueue:
 			return real_begin(self, verb, *args, **kwargs)
 		monkeypatch.setattr(b6.Store, "_txn_begin", counting_begin)
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
-			                    seed=SEED_B, timeout_s=0.5, rescan_interval_s=0.02)
+			b6.wait_for_message(config_path, "acme.implementer", timeout_s=0.5, rescan_interval_s=0.02)
 		assert excinfo.value.exit_code == b6.EXIT_NONE  # eligible-nothing, not damage
 		assert begins == []
 		with b6.open_instance(config_path) as st:
@@ -3556,7 +3574,7 @@ class TestDamagedAttachmentQueue:
 		path.write_bytes(b"edited after publication\n")
 		with b6.open_instance(config_path) as st:
 			with pytest.raises(b6.BatonError) as excinfo:
-				st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=damaged)
+				st.claim("acme.implementer", message_id=damaged)
 			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
 			assert "pinned hash" in str(excinfo.value)
 			assert st.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
@@ -3597,13 +3615,13 @@ class TestDamagedAttachmentQueue:
 		config_path, root = _attach_instance(tmp_path)
 		mid, _ = _send_attached(config_path, root, "EVIDENCE.md", body=b"intact\n")
 		with b6.open_instance(config_path) as st:
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
 			assert claim["message_id"] == mid
 			delivery = b6._delivery(st, claim)
 			assert set(delivery) == {"claim", "message"}
 			assert delivery["message"]["attachment"]["path"] == "EVIDENCE.md"
 			assert delivery["message"]["body"] is None
-			result = st.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+			result = st.reply(claim["claim_id"], participant=claim["participant"],
 			                  kind="response", body=b"ack")
 			assert result["already_committed"] is False
 			assert st.get_message(mid)["state"] == "completed"
@@ -3627,10 +3645,10 @@ class TestDamagedAttachmentQueue:
 			stamps = {row[0]: row[1] for row in
 			          st.conn.execute("SELECT id, created_ts FROM messages")}
 			expected = sorted([first, second], key=lambda i: (stamps[i], i))
-			assert [st.claim("acme.implementer", actor="imp1", seed=SEED_B)["message_id"],
-			        st.claim("acme.implementer", actor="imp1", seed=SEED_B)["message_id"]] == expected
+			assert [st.claim("acme.implementer")["message_id"],
+			        st.claim("acme.implementer")["message_id"]] == expected
 			with pytest.raises(b6.BatonError) as excinfo:
-				st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+				st.claim("acme.implementer")
 			assert excinfo.value.exit_code == b6.EXIT_NONE  # only damage left
 			assert "damaged attachments" in str(excinfo.value)
 
@@ -3648,8 +3666,7 @@ class TestDamagedAttachmentQueue:
 				send_one(st, body=b"polled past damage")
 		thread = threading.Thread(target=sender)
 		thread.start()
-		result = b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=30, rescan_interval_s=0.2)
+		result = b6.wait_for_message(config_path, "acme.implementer", timeout_s=30, rescan_interval_s=0.2)
 		thread.join()
 		assert result["message"]["body"]["utf8"] == "polled past damage"
 
@@ -3661,8 +3678,7 @@ class TestDamagedAttachmentQueue:
 		path.write_bytes(b"edited after publication\n")
 		with b6.open_instance(config_path) as st:
 			nid = notice_one(st, body=b"broadcast past damage")
-		result = b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
-		                             seed=SEED_B, timeout_s=5)
+		result = b6.wait_for_message(config_path, "acme.implementer", timeout_s=5)
 		assert result["notice"]["id"] == nid
 
 	def test_missing_attachment_file_also_skipped(self, tmp_path):
@@ -3673,8 +3689,7 @@ class TestDamagedAttachmentQueue:
 		path.unlink()
 		with b6.open_instance(config_path) as st:
 			healthy = send_one(st, body=b"unaffected")
-			assert st.claim("acme.implementer", actor="imp1",
-			                seed=SEED_B)["message_id"] == healthy
+			assert st.claim("acme.implementer")["message_id"] == healthy
 			assert [d["id"] for d in st.scan()["damaged"]] == [damaged]
 
 	def test_cli_scan_exposes_damage(self, tmp_path):
@@ -3692,7 +3707,7 @@ class TestDamagedAttachmentQueue:
 		assert "failure" in report["damaged"][0]
 
 
-LEAD_ID = {"participant": "hq.lead", "actor": "lead", "seed": SEED_C}
+LEAD_ID = {"participant": "hq.lead"}
 
 
 def _damage(config_path, root, name="EVIDENCE.md"):
@@ -3722,7 +3737,7 @@ class TestQuarantineAttachment:
 			assert row["attach_path"] == "EVIDENCE.md" and row["attach_root_id"] == "src"
 			assert row["attach_sha256"] == msg["attach_sha256"]
 			assert row["prior_state"] == "pending"
-			assert row["participant"] == "hq.lead" and row["actor"] == "lead"
+			assert row["participant"] == "hq.lead"
 			assert row["reason"] == "pin invalidated by edit"
 			assert "pinned hash" in row["failure"]
 			# and the transition is in the immutable ledger under its own verb
@@ -3767,7 +3782,7 @@ class TestQuarantineAttachment:
 			# authority is an explicit capability, never inferred
 			with pytest.raises(b6.BatonError, match="recovery"):
 				st.quarantine_attachment(mid, reason="unauthorized",
-				                         participant="acme.implementer", actor="imp1", seed=SEED_B)
+				                         participant="acme.implementer")
 			with pytest.raises(b6.BatonError, match="reason"):
 				st.quarantine_attachment(mid, reason="   ", **LEAD_ID)
 			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 0
@@ -3791,7 +3806,7 @@ class TestQuarantineAttachment:
 		config_path, root = _attach_instance(tmp_path)
 		mid, path = _send_attached(config_path, root, "EVIDENCE.md")
 		with b6.open_instance(config_path) as st:
-			st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			st.claim("acme.implementer")
 			path.write_bytes(b"edited while claimed\n")
 			with pytest.raises(b6.BatonError) as excinfo:
 				st.quarantine_attachment(mid, reason="damaged mid-flight", **LEAD_ID)
@@ -3806,8 +3821,8 @@ class TestQuarantineAttachment:
 		config_path, root = _attach_instance(tmp_path)
 		mid, path = _send_attached(config_path, root, "EVIDENCE.md")
 		with b6.open_instance(config_path) as st:
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
-			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
+			st.close_claim(claim["claim_id"], participant=claim["participant"])
 			assert st.get_message(mid)["state"] == "closed"
 		path.write_bytes(b"edited long after delivery\n")
 		assert b6.doctor(config_path)["ok"] is False
@@ -3829,11 +3844,11 @@ class TestQuarantineAttachment:
 				st.conn.execute("DELETE FROM quarantines")
 			with pytest.raises(sqlite3.IntegrityError, match="quarantine ceremony"):
 				st.conn.execute(
-					"INSERT INTO quarantines(quarantine_id, message_id, participant, actor, "
-					"seed, reason, prior_state, attach_root_id, attach_path, attach_sha256, "
+					"INSERT INTO quarantines(quarantine_id, message_id, participant, "
+					"reason, prior_state, attach_root_id, attach_path, attach_sha256, "
 					"attach_size, attach_generation, failure, created_ts) "
-					"VALUES('x',?,'hq.lead','lead',?,'r','pending','src','p','s',1,1,'f','t')",
-					(mid, SEED_C))
+					"VALUES('x',?,'hq.lead','r','pending','src','p','s',1,1,'f','t')",
+					(mid,))
 
 	def test_quarantined_message_is_not_reclaimable(self, tmp_path):
 		config_path, root = _attach_instance(tmp_path)
@@ -3841,7 +3856,7 @@ class TestQuarantineAttachment:
 		with b6.open_instance(config_path) as st:
 			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
 			with pytest.raises(b6.BatonError) as excinfo:
-				st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+				st.claim("acme.implementer", message_id=mid)
 			assert excinfo.value.exit_code in (b6.EXIT_NONE, b6.EXIT_DAMAGE)
 			assert st.get_message(mid)["state"] == "quarantined"
 			# and the illegal revival edge is refused by the schema itself
@@ -3855,8 +3870,7 @@ class TestQuarantineAttachment:
 		out = io.StringIO()
 		with contextlib.redirect_stdout(out):
 			code = b6.main(["--config", config_path, "quarantine-attachment", mid,
-			                "--participant", "hq.lead", "--actor", "lead", "--seed", SEED_C,
-			                "--reason", "stale pin from a doc edited after publication"])
+			                "--participant", "hq.lead", "--reason", "stale pin from a doc edited after publication"])
 		assert code == 0
 		result = json.loads(out.getvalue())
 		assert result["state"] == "quarantined" and result["already_committed"] is False
@@ -3933,7 +3947,7 @@ class TestQuarantineUnderGate:
 		mid = _damage(config_path, root)
 		cfg = json.load(open(config_path))
 		cfg["participants"]["hq.deputy"] = {
-			"identity": "singleton", "singleton_actor": "deputy",
+
 			"capabilities": ["recovery", "config"]}
 		cfg["generation"] = 2
 		with open(config_path, "w") as handle:
@@ -3942,8 +3956,7 @@ class TestQuarantineUnderGate:
 		with b6.open_instance(config_path) as st:
 			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
 			with pytest.raises(b6.BatonError, match="participant"):
-				st.quarantine_attachment(mid, reason="stale pin", participant="hq.deputy",
-				                         actor="deputy", seed=SEED_A)
+				st.quarantine_attachment(mid, reason="stale pin", participant="hq.deputy")
 			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 1
 
 
@@ -3956,16 +3969,16 @@ class TestMaintenanceDrainInvariant:
 	def test_maintenance_entry_refuses_active_claims_atomically(self, instance):
 		with b6.open_instance(instance) as st:
 			mid = send_one(st)
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
 		with pytest.raises(b6.BatonError) as excinfo:
 			b6.maintenance_enter(instance, reason="upgrade", **LEAD_ID)
 		assert excinfo.value.exit_code == b6.EXIT_RACE
 		assert "active claim" in str(excinfo.value)
-		assert "imp1" in str(excinfo.value)  # names the holder
+		assert "acme.implementer" in str(excinfo.value)  # names the holder
 		# REFUSAL LEAVES THE INSTANCE UNGATED, so the holder can still drain
 		with b6.open_instance(instance) as st:
 			assert b6._meta(st)["maintenance"] == 0
-			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+			st.close_claim(claim["claim_id"], participant=claim["participant"])
 			assert st.get_message(mid)["state"] == "closed"
 		assert b6.maintenance_enter(instance, reason="upgrade",
 		                            **LEAD_ID)["maintenance"] is True
@@ -3973,7 +3986,7 @@ class TestMaintenanceDrainInvariant:
 	def test_refusal_writes_no_ceremony_record(self, instance):
 		with b6.open_instance(instance) as st:
 			send_one(st)
-			st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			st.claim("acme.implementer")
 		with pytest.raises(b6.BatonError):
 			b6.maintenance_enter(instance, reason="upgrade", **LEAD_ID)
 		with b6.open_instance(instance) as st:
@@ -3984,7 +3997,7 @@ class TestMaintenanceDrainInvariant:
 	def test_move_entry_refuses_active_claims_too(self, instance, tmp_path):
 		with b6.open_instance(instance) as st:
 			send_one(st)
-			st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			st.claim("acme.implementer")
 		dest = tmp_path / "dest"
 		dest.mkdir()
 		with pytest.raises(b6.BatonError) as excinfo:
@@ -4001,7 +4014,7 @@ class TestMaintenanceDrainInvariant:
 		the gate — the refusal points at the right remedy."""
 		with b6.open_instance(instance) as st:
 			send_one(st)
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			claim = st.claim("acme.implementer")
 			st.recover_claim(claim["claim_id"], reason="host died", **LEAD_ID)
 		assert b6.maintenance_enter(instance, reason="upgrade",
 		                            **LEAD_ID)["maintenance"] is True
@@ -4063,8 +4076,7 @@ class TestSnapshot:
 			b6.snapshot_instance(config_path, dest, **LEAD_ID)
 		b6.maintenance_enter(config_path, reason="upgrade", **LEAD_ID)
 		with pytest.raises(b6.BatonError, match="config"):
-			b6.snapshot_instance(config_path, dest, participant="acme.implementer",
-			                     actor="imp1", seed=SEED_B)
+			b6.snapshot_instance(config_path, dest, participant="acme.implementer")
 
 	def test_snapshot_folds_the_wal_in(self, tmp_path):
 		"""The reason a bare `cp` is not a backup: committed state can live in
@@ -4119,7 +4131,7 @@ class TestDoctorLogical:
 			mid = send_one(st, body=b"t", retention="transient")
 			with pytest.raises(b6.BatonError, match="transient"):
 				b6.materialize(instance, mid, str(tmp_path))
-			st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+			st.claim("acme.implementer", message_id=mid)
 			with pytest.raises(b6.BatonError, match="transient"):
 				b6.materialize(instance, mid, str(tmp_path))
 
@@ -4143,7 +4155,7 @@ def _raw_set_maintenance(config_path, reason="externally gated"):
 		guard = conn.execute(
 			"SELECT sql FROM sqlite_master WHERE name='trg_meta_gate_guard'").fetchone()[0]
 		conn.execute("DROP TRIGGER trg_meta_gate_guard")
-		conn.execute("UPDATE instance_meta SET maintenance=1, maintainer_actor='lead', "
+		conn.execute("UPDATE instance_meta SET maintenance=1, maintainer_participant='lead', "
 		             "maintainer_reason=? WHERE one_row=1", (reason,))
 		conn.execute(guard)
 		conn.commit()
@@ -4160,7 +4172,7 @@ class TestAtomicWaitDelivery:
 				b6._FAULT_HOOK = None
 				_raw_set_maintenance(instance, "post-claim gate")
 		monkeypatch.setattr(b6, "_FAULT_HOOK", gate_after_claim)
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                             timeout_s=10)
 		assert result["message"]["body"]["utf8"] == "already owned"
 
@@ -4170,7 +4182,7 @@ class TestAtomicWaitDelivery:
 		_raw_corrupt(instance, lambda conn: conn.execute(
 			"UPDATE contents SET body=X'6861636b6564'"))  # 'hacked'
 		with b6.open_instance(instance) as st:
-			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+			claim = st.claim("acme.implementer", message_id=mid)
 			with pytest.raises(b6.BatonError, match="recorded sha256") as excinfo:
 				b6._delivery(st, claim)
 			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
@@ -4191,7 +4203,7 @@ class TestAcceptedRootsGuards:
 				st.conn.execute("DELETE FROM accepted_roots")
 			with pytest.raises(sqlite3.IntegrityError, match="regen"):
 				st.conn.execute("UPDATE accepted_roots SET binding_generation=9")
-			st._txn_begin("move", "lead", SEED_C, ceremony=None)
+			st._txn_begin("move", ceremony=None)
 			try:
 				with pytest.raises(sqlite3.IntegrityError, match="regen"):
 					st.conn.execute(
@@ -4206,7 +4218,7 @@ class TestAcceptedRootsGuards:
 		cfg2["roots"] = {"evidence": str(root), "extra": str(extra)}
 		with open(config_path, "w") as handle:
 			json.dump(cfg2, handle)
-		result = b6.regen_instance(config_path, participant="hq.lead", actor="lead", seed=SEED_C)
+		result = b6.regen_instance(config_path, participant="hq.lead")
 		assert result["accepted_generation"] == 2
 
 
@@ -4215,8 +4227,8 @@ class TestAuditChainDoctor:
 		mid = send_one(store)
 		_raw_corrupt(store.config_path, lambda conn: conn.execute(
 			"INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, "
-			"participant, actor, seed, verb, at_ts) VALUES('message', ?, NULL, 'pending', "
-			"'forged0000000000forged0000000000', 'p.q', 'a', 'b', 'send', 'now')", (mid,)))
+			"participant, verb, at_ts) VALUES('message', ?, NULL, 'pending', "
+			"'forged0000000000forged0000000000', 'p.q', 'send', 'now')", (mid,)))
 		report = b6.doctor(store.config_path)
 		assert any("birth" in p for p in report["problems"])
 
@@ -4224,16 +4236,16 @@ class TestAuditChainDoctor:
 		mid = send_one(store)
 		_raw_corrupt(store.config_path, lambda conn: conn.execute(
 			"INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, "
-			"participant, actor, seed, verb, at_ts) VALUES('message', ?, 'completed', 'closed', "
-			"'forged0000000000forged0000000000', 'p.q', 'a', 'b', 'close', 'now')", (mid,)))
+			"participant, verb, at_ts) VALUES('message', ?, 'completed', 'closed', "
+			"'forged0000000000forged0000000000', 'p.q', 'close', 'now')", (mid,)))
 		report = b6.doctor(store.config_path)
 		assert any("breaks" in p or "illegal edge" in p or "disagrees" in p
 		           for p in report["problems"])
 
 	def test_wrong_tail_detected(self, store):
 		mid = send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer", message_id=mid)
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		_raw_corrupt(store.config_path, lambda conn: conn.execute(
 			"DELETE FROM transitions WHERE entity='message' AND to_state='closed'"))
 		report = b6.doctor(store.config_path)
@@ -4250,7 +4262,7 @@ class TestAuditChainDoctor:
 			json.dump(cfg, handle)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as st:
-			st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			st.send("acme.reviewer", "acme.implementer",
 			        kind="ev", body=None, attach={"root_id": "evidence", "path": "e.md"})
 		assert b6.doctor(config_path)["ok"] is True
 		(root / "e.md").write_bytes(b"tampered")
@@ -4275,7 +4287,7 @@ class TestAuditChainDoctor:
 			json.dump(cfg, handle)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as st:
-			mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="q", body=b"# record\\n")
 		path = b6.materialize(config_path, mid, str(proj))
 		report = b6.doctor(config_path)
@@ -4298,13 +4310,13 @@ class TestStrictJsonOutput:
 class TestRound4Additions:
 	def test_forged_attribution_detected(self, store):
 		mid = send_one(store)
-		claim = store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
-		store.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		claim = store.claim("acme.implementer", message_id=mid)
+		store.close_claim(claim["claim_id"], participant=claim["participant"])
 		# Valid chain/edge/verb; ONLY the attribution is malformed.
 		_raw_corrupt(store.config_path, lambda conn: conn.execute(
-			"UPDATE transitions SET seed='not-a-seed' WHERE entity='claim'"))
+			"UPDATE transitions SET participant='NotAnAddress' WHERE entity='claim'"))
 		report = b6.doctor(store.config_path)
-		assert any("malformed seed" in p for p in report["problems"])
+		assert any("malformed participant" in p for p in report["problems"])
 		assert not any("birth" in p or "breaks" in p or "illegal" in p or "disagrees" in p
 		               for p in report["problems"])
 
@@ -4319,7 +4331,7 @@ class TestRound4Additions:
 			json.dump(cfg, handle)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as st:
-			mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="q", body=b"# record\n")
 		path = b6.materialize(config_path, mid, str(proj), prefix="review")
 		assert os.path.basename(path).startswith("review-")
@@ -4342,7 +4354,7 @@ class TestRound4Additions:
 				b6._FAULT_HOOK = None
 				_raw_set_maintenance(instance, "between claim and fetch")
 		monkeypatch.setattr(b6, "_FAULT_HOOK", gate_at_seam)
-		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
+		result = b6.wait_for_message(instance, "acme.implementer",
 		                             timeout_s=10)
 		assert result["message"]["body"]["utf8"] == "claimed then gated"
 
@@ -4350,7 +4362,7 @@ class TestRound4Additions:
 class TestAttributionCoherence:
 	def test_impossible_edge_verb_pairing_detected(self, store):
 		mid = send_one(store)
-		store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+		store.claim("acme.implementer", message_id=mid)
 		# Chain and tail stay valid; ONLY the verb becomes impossible for
 		# the pending->claimed edge.
 		_raw_corrupt(store.config_path, lambda conn: conn.execute(
@@ -4363,15 +4375,15 @@ class TestAttributionCoherence:
 
 	def test_same_op_attribution_split_detected(self, store):
 		mid = send_one(store)
-		store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+		store.claim("acme.implementer", message_id=mid)
 		# The claim transaction emits two rows under one op_id; split the
-		# actor on exactly one of them, keeping every field lexically valid.
+		# participant on exactly one of them, keeping every field lexically valid.
 		def split(conn):
 			op = conn.execute(
 				"SELECT op_id FROM transitions WHERE verb='claim' LIMIT 1").fetchone()[0]
 			seq = conn.execute(
 				"SELECT seq FROM transitions WHERE op_id=? ORDER BY seq LIMIT 1", (op,)).fetchone()[0]
-			conn.execute("UPDATE transitions SET actor='other' WHERE seq=?", (seq,))
+			conn.execute("UPDATE transitions SET participant='hq.other' WHERE seq=?", (seq,))
 		_raw_corrupt(store.config_path, split)
 		report = b6.doctor(store.config_path)
 		assert any("distinct attribution tuples" in p for p in report["problems"])
@@ -4518,17 +4530,16 @@ class TestPackaging:
 				[_sys.executable, str(root / "bin" / "baton"), "--config", config_path, *args],
 				input=stdin, capture_output=True, cwd=str(poison), env=env, timeout=60)
 		assert run("init").returncode == 0
-		proc = run("send", "--participant", "team.reviewer", "--actor", "r1",
-		           "--seed", "a" * 32, "--to", "team.implementer", "--kind", "q",
+		proc = run("send", "--participant", "team.reviewer",
+		           "--to", "team.implementer", "--kind", "q",
 		           stdin=b"distribution body")
 		assert proc.returncode == 0, proc.stderr
-		proc = run("claim", "--participant", "team.implementer", "--actor", "i1",
-		           "--seed", "b" * 32)
+		proc = run("claim", "--participant", "team.implementer")
 		assert proc.returncode == 0, proc.stderr
 		delivery = json.loads(proc.stdout)
 		assert delivery["message"]["body"]["utf8"] == "distribution body"
 		proc = run("reply", delivery["claim"]["claim_id"], "--participant",
-		           "team.implementer", "--actor", "i1", "--seed", "b" * 32,
+		           "team.implementer",
 		           "--kind", "a", stdin=b"distribution answer")
 		assert proc.returncode == 0, proc.stderr
 		assert json.loads(proc.stdout)["already_committed"] is False

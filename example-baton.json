@@ -1,13 +1,21 @@
 {
   "config_version": 1,
-  "protocol_version": 7,
+  "protocol_version": 8,
   "generation": 1,
-  "mailbox": {"name": "example-local"},
+  "mailbox": {
+    "name": "example-local"
+  },
   "participants": {
-    "team.reviewer": {"identity": "agent", "projection_prefix": "review"},
-    "team.implementer": {"identity": "agent"},
-    "org.lead": {"identity": "singleton", "singleton_actor": "lead",
-                 "capabilities": ["recovery", "config"]}
+    "team.reviewer": {
+      "projection_prefix": "review"
+    },
+    "team.implementer": {},
+    "org.lead": {
+      "capabilities": [
+        "recovery",
+        "config"
+      ]
+    }
   },
   "roots": {},
   "retention_days": 90

@@ -1,4 +1,4 @@
-"""Protocol-6 Baton: one logical transactional coordination authority.
+"""Protocol-8 Baton: one logical transactional coordination authority.
 
 All protocol state lives in a single SQLite database (`mailbox.sqlite3`
 beside the explicitly passed config); there are no filename-state
@@ -38,8 +38,8 @@ EXIT_RACE = 5
 EXIT_DAMAGE = 6
 EXIT_GATED = 7
 
-PROTOCOL_VERSION = 7
-TOOL_VERSION = "2.0.0"
+PROTOCOL_VERSION = 8
+TOOL_VERSION = "3.0.0"
 SQLITE_MIN = (3, 37, 0)  # STRICT tables
 BUSY_TIMEOUT_MS = 10_000
 TRANSIENT_BODY_MAX_BYTES = 64 * 1024
@@ -50,10 +50,7 @@ RETENTION_DURABLE = "durable"
 RETENTION_TRANSIENT = "transient"
 RETENTIONS = frozenset((RETENTION_DURABLE, RETENTION_TRANSIENT))
 
-ACTOR_MAX = 32
 ADDRESS_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$")
-ACTOR_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
-SEED_RE = re.compile(r"^[a-f0-9]{32}$")
 HEX32_RE = re.compile(r"^[a-f0-9]{32}$")
 KIND_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 THREAD_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,127}$")
@@ -183,7 +180,10 @@ def _reject_unknown(obj: dict, allowed: frozenset[str], where: str) -> None:
 
 _CONFIG_FIELDS = frozenset(("config_version", "protocol_version", "generation", "mailbox", "participants", "roots", "retention_days"))
 _MAILBOX_FIELDS = frozenset(("name",))
-_PARTICIPANT_FIELDS = frozenset(("identity", "singleton_actor", "projection_prefix", "projection_dir", "capabilities"))
+_PARTICIPANT_FIELDS = frozenset(("projection_prefix", "projection_dir", "capabilities"))
+# Removed at protocol 8: a participant address is the complete logical
+# identity, so there is no actor to bind and no per-process credential.
+_REMOVED_PARTICIPANT_FIELDS = ("identity", "singleton_actor", "actor", "seed")
 _CAPABILITIES = frozenset(("recovery", "config"))
 
 
@@ -210,14 +210,16 @@ def validate_config(obj: Any) -> dict:
 			raise BatonError(f"{where}: invalid participant address")
 		if type(spec) is not dict:
 			raise BatonError(f"{where}: must be an object")
+		# A pre-8 config is REJECTED with the reason, never silently accepted
+		# with its identity fields ignored — a config that still describes
+		# actors would otherwise read as enforced when nothing enforces it.
+		stale = [f for f in _REMOVED_PARTICIPANT_FIELDS if f in spec]
+		if stale:
+			raise BatonError(
+				f"{where}: {', '.join(stale)} removed at protocol {PROTOCOL_VERSION}; the "
+				f"participant address is the complete identity, so there is no actor to "
+				f"declare or bind")
 		_reject_unknown(spec, _PARTICIPANT_FIELDS, where)
-		identity = _expect_str(spec, "identity", where)
-		if identity not in ("agent", "singleton"):
-			raise BatonError(f"{where}: identity must be 'agent' or 'singleton'")
-		if identity == "singleton":
-			_expect_str(spec, "singleton_actor", where, pattern=ACTOR_RE, maxlen=ACTOR_MAX)
-		elif "singleton_actor" in spec:
-			raise BatonError(f"{where}: singleton_actor is only valid for identity 'singleton'")
 		if "capabilities" in spec:
 			caps = spec["capabilities"]
 			if type(caps) is not list or any(type(c) is not str for c in caps):
@@ -367,7 +369,7 @@ _TABLES: dict[str, str] = {
 		"accepted_generation INTEGER NOT NULL CHECK(accepted_generation>=1), "
 		"config_sha256 TEXT NOT NULL, "
 		"maintenance INTEGER NOT NULL DEFAULT 0 CHECK(maintenance IN (0,1)), "
-		"maintainer_actor TEXT, maintainer_reason TEXT, "
+		"maintainer_participant TEXT, maintainer_reason TEXT, "
 		"move_status TEXT NOT NULL DEFAULT 'none' CHECK(move_status IN ('none','moving','moved')), "
 		"move_token TEXT, move_role TEXT CHECK(move_role IN ('source','destination')), "
 		"move_peer TEXT, move_source TEXT, moved_to TEXT, created_ts TEXT NOT NULL, "
@@ -381,7 +383,7 @@ _TABLES: dict[str, str] = {
 	),
 	"op_context": (
 		"CREATE TABLE op_context(one_row INTEGER PRIMARY KEY CHECK(one_row=1), "
-		"op_id TEXT, participant TEXT, actor TEXT, seed TEXT, verb TEXT, ts TEXT) STRICT"
+		"op_id TEXT, participant TEXT, verb TEXT, ts TEXT) STRICT"
 	),
 	"contents": (
 		"CREATE TABLE contents(content_id TEXT PRIMARY KEY, body BLOB NOT NULL, "
@@ -408,7 +410,7 @@ _TABLES: dict[str, str] = {
 	"claims": (
 		"CREATE TABLE claims(claim_id TEXT PRIMARY KEY, "
 		"message_id TEXT NOT NULL REFERENCES messages(id), "
-		"actor TEXT NOT NULL, seed TEXT NOT NULL, claimed_ts TEXT NOT NULL, "
+		"participant TEXT NOT NULL, claimed_ts TEXT NOT NULL, "
 		"state TEXT NOT NULL CHECK(state IN ('active','completed','recovered')), "
 		"terminal_ts TEXT, "
 		"CHECK((state = 'active') = (terminal_ts IS NULL))) STRICT"
@@ -422,21 +424,20 @@ _TABLES: dict[str, str] = {
 	),
 	"notices": (
 		"CREATE TABLE notices(id TEXT PRIMARY KEY, from_participant TEXT NOT NULL, "
-		"author_actor TEXT NOT NULL, author_seed TEXT NOT NULL, "
+
 		"kind TEXT NOT NULL, content_id TEXT REFERENCES contents(content_id), "
 		"content_sha256 TEXT, created_ts TEXT NOT NULL, "
 		"ttl_seconds INTEGER NOT NULL CHECK(ttl_seconds >= 1)) STRICT"
 	),
 	"notice_seen": (
 		"CREATE TABLE notice_seen(notice_id TEXT NOT NULL REFERENCES notices(id) ON DELETE CASCADE, "
-		"participant TEXT NOT NULL, actor TEXT NOT NULL, seed TEXT NOT NULL, "
-		"seen_ts TEXT NOT NULL, PRIMARY KEY(notice_id, participant, actor)) STRICT"
+		"participant TEXT NOT NULL, seen_ts TEXT NOT NULL, "
+		"PRIMARY KEY(notice_id, participant)) STRICT"
 	),
 	"quarantines": (
 		"CREATE TABLE quarantines(quarantine_id TEXT PRIMARY KEY, "
 		"message_id TEXT NOT NULL UNIQUE REFERENCES messages(id), "
-		"participant TEXT NOT NULL, actor TEXT NOT NULL, seed TEXT NOT NULL, "
-		"reason TEXT NOT NULL, prior_state TEXT NOT NULL, "
+		"participant TEXT NOT NULL, reason TEXT NOT NULL, prior_state TEXT NOT NULL, "
 		"attach_root_id TEXT NOT NULL, attach_path TEXT NOT NULL, "
 		"attach_sha256 TEXT NOT NULL, attach_size INTEGER NOT NULL, "
 		"attach_generation INTEGER NOT NULL, "
@@ -445,15 +446,14 @@ _TABLES: dict[str, str] = {
 	"recoveries": (
 		"CREATE TABLE recoveries(recovery_id TEXT PRIMARY KEY, "
 		"claim_id TEXT NOT NULL REFERENCES claims(claim_id), "
-		"participant TEXT NOT NULL, actor TEXT NOT NULL, seed TEXT NOT NULL, "
-		"reason TEXT NOT NULL, created_ts TEXT NOT NULL) STRICT"
+		"participant TEXT NOT NULL, reason TEXT NOT NULL, created_ts TEXT NOT NULL) STRICT"
 	),
 	"ceremonies": (
 		"CREATE TABLE ceremonies(ceremony_id TEXT PRIMARY KEY, "
 		"kind TEXT NOT NULL CHECK(kind IN ('maintenance_enter','maintenance_exit',"
 		"'move_bind_destination','move_activate','move_decommission','abort_move','migrate')), "
-		"participant TEXT NOT NULL, actor TEXT NOT NULL, seed TEXT NOT NULL, "
-		"reason TEXT, token TEXT, peer TEXT, created_ts TEXT NOT NULL) STRICT"
+		"participant TEXT NOT NULL, reason TEXT, token TEXT, peer TEXT, "
+		"created_ts TEXT NOT NULL) STRICT"
 	),
 	"moves": (
 		"CREATE TABLE moves(token TEXT PRIMARY KEY, instance_uuid TEXT NOT NULL, "
@@ -469,7 +469,7 @@ _TABLES: dict[str, str] = {
 		"CREATE TABLE transitions(seq INTEGER PRIMARY KEY AUTOINCREMENT, "
 		"entity TEXT NOT NULL CHECK(entity IN ('message','claim')), "
 		"entity_id TEXT NOT NULL, from_state TEXT, to_state TEXT NOT NULL, "
-		"op_id TEXT NOT NULL, participant TEXT, actor TEXT NOT NULL, seed TEXT NOT NULL, "
+		"op_id TEXT NOT NULL, participant TEXT, "
 		"verb TEXT NOT NULL, at_ts TEXT NOT NULL) STRICT"
 	),
 }
@@ -483,9 +483,7 @@ _INDEXES: dict[str, str] = {
 }
 
 _CTX = "(SELECT op_id FROM op_context WHERE one_row=1)"
-_CTX_ACTOR = "(SELECT actor FROM op_context WHERE one_row=1)"
 _CTX_PART = "(SELECT participant FROM op_context WHERE one_row=1)"
-_CTX_SEED = "(SELECT seed FROM op_context WHERE one_row=1)"
 _CTX_VERB = "(SELECT verb FROM op_context WHERE one_row=1)"
 _CTX_TS = "(SELECT ts FROM op_context WHERE one_row=1)"
 
@@ -497,8 +495,8 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_msg_birth": (
 		f"CREATE TRIGGER trg_msg_birth AFTER INSERT ON messages "
-		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, actor, seed, verb, at_ts) "
-		f"VALUES('message', new.id, NULL, new.state, {_CTX}, {_CTX_PART}, {_CTX_ACTOR}, {_CTX_SEED}, {_CTX_VERB}, {_CTX_TS}); END"
+		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, verb, at_ts) "
+		f"VALUES('message', new.id, NULL, new.state, {_CTX}, {_CTX_PART}, {_CTX_VERB}, {_CTX_TS}); END"
 	),
 	"trg_msg_update_guard": (
 		f"CREATE TRIGGER trg_msg_update_guard BEFORE UPDATE OF state ON messages "
@@ -519,8 +517,8 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_msg_transition": (
 		f"CREATE TRIGGER trg_msg_transition AFTER UPDATE OF state ON messages "
-		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, actor, seed, verb, at_ts) "
-		f"VALUES('message', new.id, old.state, new.state, {_CTX}, {_CTX_PART}, {_CTX_ACTOR}, {_CTX_SEED}, {_CTX_VERB}, {_CTX_TS}); END"
+		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, verb, at_ts) "
+		f"VALUES('message', new.id, old.state, new.state, {_CTX}, {_CTX_PART}, {_CTX_VERB}, {_CTX_TS}); END"
 	),
 	"trg_msg_frozen_cols": (
 		"CREATE TRIGGER trg_msg_frozen_cols BEFORE UPDATE OF id, from_participant, to_participant, kind, "
@@ -555,8 +553,8 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_claim_birth": (
 		f"CREATE TRIGGER trg_claim_birth AFTER INSERT ON claims "
-		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, actor, seed, verb, at_ts) "
-		f"VALUES('claim', new.claim_id, NULL, new.state, {_CTX}, {_CTX_PART}, {_CTX_ACTOR}, {_CTX_SEED}, {_CTX_VERB}, {_CTX_TS}); END"
+		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, verb, at_ts) "
+		f"VALUES('claim', new.claim_id, NULL, new.state, {_CTX}, {_CTX_PART}, {_CTX_VERB}, {_CTX_TS}); END"
 	),
 	"trg_claim_update_guard": (
 		f"CREATE TRIGGER trg_claim_update_guard BEFORE UPDATE OF state ON claims "
@@ -570,11 +568,11 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_claim_transition": (
 		f"CREATE TRIGGER trg_claim_transition AFTER UPDATE OF state ON claims "
-		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, actor, seed, verb, at_ts) "
-		f"VALUES('claim', new.claim_id, old.state, new.state, {_CTX}, {_CTX_PART}, {_CTX_ACTOR}, {_CTX_SEED}, {_CTX_VERB}, {_CTX_TS}); END"
+		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, verb, at_ts) "
+		f"VALUES('claim', new.claim_id, old.state, new.state, {_CTX}, {_CTX_PART}, {_CTX_VERB}, {_CTX_TS}); END"
 	),
 	"trg_claim_frozen_cols": (
-		"CREATE TRIGGER trg_claim_frozen_cols BEFORE UPDATE OF claim_id, message_id, actor, seed, claimed_ts ON claims "
+		"CREATE TRIGGER trg_claim_frozen_cols BEFORE UPDATE OF claim_id, message_id, participant, claimed_ts ON claims "
 		"BEGIN SELECT RAISE(ABORT, 'immutable claim column'); END"
 	),
 	"trg_disp_insert_guard": (
@@ -613,8 +611,8 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_msg_gc_ledger": (
 		f"CREATE TRIGGER trg_msg_gc_ledger AFTER DELETE ON messages "
-		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, actor, seed, verb, at_ts) "
-		f"VALUES('message', old.id, old.state, 'gc', {_CTX}, {_CTX_PART}, {_CTX_ACTOR}, {_CTX_SEED}, {_CTX_VERB}, {_CTX_TS}); END"
+		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, verb, at_ts) "
+		f"VALUES('message', old.id, old.state, 'gc', {_CTX}, {_CTX_PART}, {_CTX_VERB}, {_CTX_TS}); END"
 	),
 	"trg_claim_delete_guard": (
 		f"CREATE TRIGGER trg_claim_delete_guard BEFORE DELETE ON claims "
@@ -623,8 +621,8 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_claim_gc_ledger": (
 		f"CREATE TRIGGER trg_claim_gc_ledger AFTER DELETE ON claims "
-		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, actor, seed, verb, at_ts) "
-		f"VALUES('claim', old.claim_id, old.state, 'gc', {_CTX}, {_CTX_PART}, {_CTX_ACTOR}, {_CTX_SEED}, {_CTX_VERB}, {_CTX_TS}); END"
+		f"BEGIN INSERT INTO transitions(entity, entity_id, from_state, to_state, op_id, participant, verb, at_ts) "
+		f"VALUES('claim', old.claim_id, old.state, 'gc', {_CTX}, {_CTX_PART}, {_CTX_VERB}, {_CTX_TS}); END"
 	),
 	"trg_notice_insert_guard": (
 		f"CREATE TRIGGER trg_notice_insert_guard BEFORE INSERT ON notices "
@@ -732,7 +730,7 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_meta_gate_guard": (
 		f"CREATE TRIGGER trg_meta_gate_guard BEFORE UPDATE OF maintenance, move_status, move_token, "
-		f"move_role, move_peer, move_source, moved_to, maintainer_actor, maintainer_reason ON instance_meta "
+		f"move_role, move_peer, move_source, moved_to, maintainer_participant, maintainer_reason ON instance_meta "
 		f"WHEN {_CTX} IS NULL OR {_CTX_VERB} NOT IN ('maintenance','move','move_enter') "
 		f"BEGIN SELECT RAISE(ABORT, 'gate/move state changes only under an authorized ceremony'); END"
 	),
@@ -814,7 +812,7 @@ class Store:
 
 	# -- transaction discipline --------------------------------------------
 
-	def _txn_begin(self, verb: str, actor: str, seed: str, *, participant: str | None = None,
+	def _txn_begin(self, verb: str, *, participant: str | None = None,
 	               ceremony: str | None = None) -> str:
 		"""Open a write transaction: BEGIN IMMEDIATE, then re-read and enforce
 		the instance gates against THIS handle's config (open-time checks are
@@ -824,10 +822,6 @@ class Store:
 		open transaction."""
 		if self.readonly:
 			raise BatonError("read-only store cannot execute write operations")
-		if not ACTOR_RE.match(actor) or len(actor) > ACTOR_MAX:
-			raise BatonError(f"invalid actor {actor!r} (grammar [a-z][a-z0-9_-]*, max {ACTOR_MAX})")
-		if not SEED_RE.match(seed):
-			raise BatonError("invalid seed (expect 32 lowercase hex)")
 		op_id = new_id()
 		try:
 			self.conn.execute("BEGIN IMMEDIATE")
@@ -836,8 +830,8 @@ class Store:
 		try:
 			self._enforce_gates_in_txn(ceremony)
 			self.conn.execute(
-				"UPDATE op_context SET op_id=?, participant=?, actor=?, seed=?, verb=?, ts=? WHERE one_row=1",
-				(op_id, participant, actor, seed, verb, _utc_now_iso()))
+				"UPDATE op_context SET op_id=?, participant=?, verb=?, ts=? WHERE one_row=1",
+				(op_id, participant, verb, _utc_now_iso()))
 			return op_id
 		except BaseException as exc:
 			self._txn_rollback()
@@ -884,8 +878,7 @@ class Store:
 
 	def _txn_commit(self) -> None:
 		self.conn.execute(
-			"UPDATE op_context SET op_id=NULL, participant=NULL, actor=NULL, seed=NULL, verb=NULL, ts=NULL "
-			"WHERE one_row=1")
+			"UPDATE op_context SET op_id=NULL, participant=NULL, verb=NULL, ts=NULL WHERE one_row=1")
 		self.conn.execute("COMMIT")
 
 	def _txn_rollback(self) -> None:
@@ -944,26 +937,23 @@ class Store:
 				"move binding names a different instance uuid; refusing (corruption)", EXIT_DAMAGE)
 		return row
 
-	def _require_capability(self, address: str, actor: str, seed: str,
-	                        capability: str, what: str) -> None:
+	def _require_capability(self, address: str, capability: str, what: str) -> None:
 		"""Administrative authority is an EXPLICIT config declaration, never
 		inferred from endpoint cardinality: the participant must carry the
 		named capability in addition to ordinary identity validation. The
 		host deployment decides which endpoint holds it."""
-		self._check_actor_for(address, actor, seed)
+		self._check_identity(address)
 		caps = self.config["participants"][address].get("capabilities", [])
 		if capability not in caps:
 			raise BatonError(
 				f"{what} requires the {capability!r} capability, which {address!r} does not hold")
 
-	def _check_actor_for(self, address: str, actor: str, seed: str) -> None:
-		if not ACTOR_RE.match(actor) or len(actor) > ACTOR_MAX:
-			raise BatonError(f"invalid actor {actor!r} (grammar [a-z][a-z0-9_-]*, max {ACTOR_MAX})")
-		if not SEED_RE.match(seed):
-			raise BatonError("invalid seed (expect 32 lowercase hex)")
-		spec = self._check_participant(address, "actor check")
-		if spec["identity"] == "singleton" and spec["singleton_actor"] != actor:
-			raise BatonError(f"participant {address!r} is a singleton bound to actor {spec['singleton_actor']!r}")
+	def _check_identity(self, address: str) -> dict:
+		"""The participant address IS the identity. There is no second factor
+		to validate: a caller either names a configured participant or does
+		not. Trust that the caller is who it says is the deployment's, not
+		Baton's — filesystem access to the instance is the boundary."""
+		return self._check_participant(address, "identity check")
 
 	# -- operations ---------------------------------------------------------
 
@@ -1070,14 +1060,14 @@ class Store:
 			raise BatonError(
 				f"attachment {msg['attach_path']!r} no longer matches its pinned hash; refusing", EXIT_DAMAGE)
 
-	def send(self, sender: str, recipient: str, *, actor: str, seed: str, kind: str,
+	def send(self, sender: str, recipient: str, *, kind: str,
 	         body: bytes | None, thread_id: str | None = None,
 	         retention: str = RETENTION_DURABLE, outcome: str | None = None,
 	         responds_to: str | None = None, attach: Any = None) -> str:
 		if (body is None) == (attach is None):
 			raise BatonError("a message requires exactly one of body or attachment (XOR)")
 		attach_cols = self._resolve_attachment(attach) if attach is not None else None
-		self._check_actor_for(sender, actor, seed)
+		self._check_identity(sender)
 		self._check_participant(recipient, "send")
 		if not KIND_RE.match(kind):
 			raise BatonError(f"invalid kind {kind!r}")
@@ -1087,7 +1077,7 @@ class Store:
 			raise BatonError(f"invalid retention {retention!r}")
 		if retention == RETENTION_TRANSIENT and body is not None and len(body) > TRANSIENT_BODY_MAX_BYTES:
 			raise BatonError(f"transient body exceeds {TRANSIENT_BODY_MAX_BYTES} bytes")
-		self._txn_begin("send", actor, seed, participant=sender)
+		self._txn_begin("send", participant=sender)
 		try:
 			message_id = self._insert_message(
 				sender, recipient, kind=kind, body=body, thread_id=thread_id,
@@ -1153,8 +1143,8 @@ class Store:
 			return candidate, skipped
 		return None, skipped
 
-	def claim(self, participant: str, *, actor: str, seed: str, message_id: str | None = None) -> dict:
-		self._check_actor_for(participant, actor, seed)
+	def claim(self, participant: str, *, message_id: str | None = None) -> dict:
+		self._check_identity(participant)
 		if message_id is None:
 			# Attachment pins are enforced at selection: post-publication
 			# mutation fails closed before the claim transaction begins (file
@@ -1174,13 +1164,13 @@ class Store:
 			# caller asked for this message, so quietly substituting another
 			# would be a lie about what was delivered.
 			self.verify_attachment(message_id)
-		self._txn_begin("claim", actor, seed, participant=participant)
+		self._txn_begin("claim", participant=participant)
 		try:
 			claim_id = new_id()
 			now = _utc_now_iso()
 			self.conn.execute(
-				"INSERT INTO claims(claim_id, message_id, actor, seed, claimed_ts, state) "
-				"VALUES(?,?,?,?,?, 'active')", (claim_id, message_id, actor, seed, now))
+				"INSERT INTO claims(claim_id, message_id, participant, claimed_ts, state) "
+				"VALUES(?,?,?,?, 'active')", (claim_id, message_id, participant, now))
 			cur = self.conn.execute(
 				"UPDATE messages SET state='claimed' WHERE id=? AND state='pending' AND to_participant=?",
 				(message_id, participant))
@@ -1195,17 +1185,26 @@ class Store:
 			self._txn_rollback()
 			raise
 
-	def _load_active_claim(self, claim_id: str, actor: str, seed: str) -> sqlite3.Row:
+	def _load_active_claim(self, claim_id: str, participant: str) -> sqlite3.Row:
 		row = self.conn.execute(
-			"SELECT c.claim_id, c.message_id, c.actor, c.seed, c.state AS claim_state, "
+			"SELECT c.claim_id, c.message_id, c.participant, c.state AS claim_state, "
 			"m.from_participant, m.to_participant, m.kind, m.thread_id, m.retention, "
 			"m.content_id, m.content_sha256, m.state AS message_state "
 			"FROM claims c JOIN messages m ON m.id = c.message_id WHERE c.claim_id=?",
 			(claim_id,)).fetchone()
 		if row is None:
 			raise BatonError(f"unknown claim {claim_id!r}")
-		if row["actor"] != actor or row["seed"] != seed:
-			raise BatonError(f"claim {claim_id!r} is owned by actor {row['actor']!r}, not {actor!r}")
+		# Ownership is the claiming participant, which the schema records and
+		# which must equal the message recipient. A caller that is not that
+		# participant cannot dispose of the claim, and there is no credential
+		# to present in place of being it.
+		if row["participant"] != participant:
+			raise BatonError(
+				f"claim {claim_id!r} belongs to {row['participant']!r}, not {participant!r}")
+		if row["to_participant"] != participant:
+			raise BatonError(
+				f"claim {claim_id!r} is on a message addressed to {row['to_participant']!r}; "
+				f"only the recipient may dispose of it", EXIT_PROTOCOL)
 		return row
 
 	def _existing_disposition(self, claim_id: str) -> sqlite3.Row | None:
@@ -1260,7 +1259,7 @@ class Store:
 			self.conn.execute("UPDATE messages SET content_id=NULL WHERE id=?", (row["message_id"],))
 			self.conn.execute("DELETE FROM contents WHERE content_id=?", (row["content_id"],))
 
-	def reply(self, claim_id: str, *, actor: str, seed: str, kind: str,
+	def reply(self, claim_id: str, *, participant: str, kind: str,
 	          body: bytes | None, outcome: str | None = None,
 	          recipient: str | None = None, thread_id: str | None = None,
 	          retention: str | None = None) -> dict:
@@ -1270,9 +1269,9 @@ class Store:
 			raise BatonError("reply requires a body (a close is the bodyless disposition)")
 		if retention is not None and retention not in RETENTIONS:
 			raise BatonError(f"invalid retention {retention!r}")
-		self._txn_begin("reply", actor, seed)
+		self._txn_begin("reply")
 		try:
-			row = self._load_active_claim(claim_id, actor, seed)
+			row = self._load_active_claim(claim_id, participant)
 			self.conn.execute("UPDATE op_context SET participant=? WHERE one_row=1", (row["to_participant"],))
 			effective_retention = retention if retention is not None else row["retention"]
 			# None means INHERIT on both first publication and retry — the
@@ -1325,14 +1324,14 @@ class Store:
 			self._txn_rollback()
 			raise
 
-	def close_claim(self, claim_id: str, *, actor: str, seed: str,
+	def close_claim(self, claim_id: str, *, participant: str,
 	                body: bytes | None = None, outcome: str | None = None,
 	                retention: str | None = None) -> dict:
 		if retention is not None and retention not in RETENTIONS:
 			raise BatonError(f"invalid retention {retention!r}")
-		self._txn_begin("close", actor, seed)
+		self._txn_begin("close")
 		try:
-			row = self._load_active_claim(claim_id, actor, seed)
+			row = self._load_active_claim(claim_id, participant)
 			self.conn.execute("UPDATE op_context SET participant=? WHERE one_row=1", (row["to_participant"],))
 			effective_retention = retention if retention is not None else row["retention"]
 			existing = self._existing_disposition(claim_id)
@@ -1384,13 +1383,13 @@ class Store:
 
 	# -- notices ------------------------------------------------------------
 
-	def send_notice(self, sender: str, *, actor: str, seed: str, kind: str,
+	def send_notice(self, sender: str, *, kind: str,
 	                body: bytes, ttl_seconds: int | None = None) -> str:
 		"""Broadcast a notice with a FINITE lifetime (default 86400s, the v5
 		protocol TTL). Immortal notices are not constructible. The exact
-		author instance (participant+actor+seed) is recorded immutably and
+		authoring participant is recorded immutably and
 		is the only identity permitted to expire the notice early."""
-		self._check_actor_for(sender, actor, seed)
+		self._check_identity(sender)
 		if not KIND_RE.match(kind):
 			raise BatonError(f"invalid kind {kind!r}")
 		if ttl_seconds is None:
@@ -1399,7 +1398,7 @@ class Store:
 			raise BatonError("ttl_seconds must be a positive integer")
 		if len(body) > TRANSIENT_BODY_MAX_BYTES:
 			raise BatonError(f"notice body exceeds {TRANSIENT_BODY_MAX_BYTES} bytes")
-		self._txn_begin("send", actor, seed, participant=sender)
+		self._txn_begin("send", participant=sender)
 		try:
 			now = _utc_now_iso()
 			notice_id = new_id()
@@ -1409,22 +1408,22 @@ class Store:
 				"INSERT INTO contents(content_id, body, sha256, size, created_ts) VALUES(?,?,?,?,?)",
 				(content_id, body, sha, len(body), now))
 			self.conn.execute(
-				"INSERT INTO notices(id, from_participant, author_actor, author_seed, kind, "
-				"content_id, content_sha256, created_ts, ttl_seconds) VALUES(?,?,?,?,?,?,?,?,?)",
-				(notice_id, sender, actor, seed, kind, content_id, sha, now, ttl_seconds))
+				"INSERT INTO notices(id, from_participant, kind, "
+				"content_id, content_sha256, created_ts, ttl_seconds) VALUES(?,?,?,?,?,?,?)",
+				(notice_id, sender, kind, content_id, sha, now, ttl_seconds))
 			self._txn_commit()
 			return notice_id
 		except BaseException:
 			self._txn_rollback()
 			raise
 
-	def see(self, participant: str, *, actor: str, seed: str,
+	def see(self, participant: str, *,
 	        limit: int | None = None) -> list[dict]:
-		"""Mark not-yet-seen live notices seen for (participant, actor) and
+		"""Mark not-yet-seen live notices seen for a participant and
 		return them oldest-first. One transaction; broadcast, never claimable.
 		Selection and receipt commit together, so a crash before the commit
 		leaves the notice deliverable and a crash after it does not redeliver
-		— broadcast is at-most-once per (participant, actor) by construction,
+		— broadcast is at-most-once per participant by construction,
 		because a claimless read has no acknowledgement to wait for.
 
 		`limit` bounds how many notices this call consumes: `see` drains
@@ -1432,19 +1431,19 @@ class Store:
 		ordering tiebreak is the notice id, matching `claim`'s total order —
 		timestamps are second-resolution, so created_ts alone is not a total
 		order."""
-		self._check_actor_for(participant, actor, seed)
+		self._check_identity(participant)
 		if limit is not None and (type(limit) is not int or limit < 1):
 			raise BatonError("limit must be a positive integer or None")
-		self._txn_begin("see", actor, seed, participant=participant)
+		self._txn_begin("see", participant=participant)
 		try:
 			now = _utc_now_iso()
 			rows = self.conn.execute(
 				"SELECT n.id, n.from_participant, n.kind, n.content_sha256, n.created_ts, "
 				"n.ttl_seconds, c.body FROM notices n LEFT JOIN contents c ON c.content_id=n.content_id "
 				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
-				"WHERE s.notice_id=n.id AND s.participant=? AND s.actor=?) "
+				"WHERE s.notice_id=n.id AND s.participant=?) "
 				"ORDER BY n.created_ts, n.id",
-				(participant, actor)).fetchall()
+				(participant,)).fetchall()
 			unseen = []
 			for row in rows:
 				if limit is not None and len(unseen) >= limit:
@@ -1452,8 +1451,8 @@ class Store:
 				if _notice_expired(row["created_ts"], row["ttl_seconds"], now):
 					continue
 				self.conn.execute(
-					"INSERT INTO notice_seen(notice_id, participant, actor, seed, seen_ts) "
-					"VALUES(?,?,?,?,?)", (row["id"], participant, actor, seed, now))
+					"INSERT INTO notice_seen(notice_id, participant, seen_ts) "
+					"VALUES(?,?,?)", (row["id"], participant, now))
 				entry = dict(row)
 				entry["seen_ts"] = now
 				unseen.append(entry)
@@ -1464,8 +1463,8 @@ class Store:
 			self._txn_rollback()
 			raise
 
-	def has_unseen_notice(self, participant: str, *, actor: str) -> bool:
-		"""READ-ONLY probe: does a live notice exist that (participant, actor)
+	def has_unseen_notice(self, participant: str) -> bool:
+		"""READ-ONLY probe: does a live notice exist that this participant
 		has not seen? `see` opens a write transaction, and a waiter polls
 		indefinitely — without this probe an idle waiter would BEGIN IMMEDIATE
 		on every poll, contending with real writers and letting an unrelated
@@ -1477,41 +1476,40 @@ class Store:
 		for row in self.conn.execute(
 				"SELECT n.created_ts, n.ttl_seconds FROM notices n "
 				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
-				"WHERE s.notice_id=n.id AND s.participant=? AND s.actor=?)",
-				(participant, actor)):
+				"WHERE s.notice_id=n.id AND s.participant=?)",
+				(participant,)):
 			if not _notice_expired(row["created_ts"], row["ttl_seconds"], now):
 				return True
 		return False
 
-	def expire(self, participant: str, *, actor: str, seed: str,
+	def expire(self, participant: str, *,
 	           notice_id: str | None = None) -> list[str]:
 		"""Delete expired notices (and, via CASCADE, their seen rows) plus
 		their content rows in ONE transaction. An explicit id may also be
 		expired early by its author."""
-		self._check_actor_for(participant, actor, seed)
-		self._txn_begin("expire", actor, seed, participant=participant)
+		self._check_identity(participant)
+		self._txn_begin("expire", participant=participant)
 		try:
 			now = _utc_now_iso()
 			if notice_id is not None:
 				rows = self.conn.execute(
-					"SELECT id, from_participant, author_actor, author_seed, content_id, created_ts, "
+					"SELECT id, from_participant, content_id, created_ts, "
 					"ttl_seconds FROM notices WHERE id=?", (notice_id,)).fetchall()
 				if not rows:
 					raise BatonError(f"unknown notice {notice_id!r}", EXIT_NONE)
 			else:
 				rows = self.conn.execute(
-					"SELECT id, from_participant, author_actor, author_seed, content_id, created_ts, "
+					"SELECT id, from_participant, content_id, created_ts, "
 					"ttl_seconds FROM notices").fetchall()
 			removed = []
 			for row in rows:
 				elapsed = _notice_expired(row["created_ts"], row["ttl_seconds"], now)
-				exact_author = (row["from_participant"] == participant
-				                and row["author_actor"] == actor and row["author_seed"] == seed)
+				exact_author = row["from_participant"] == participant
 				if not elapsed and not (notice_id is not None and exact_author):
 					if notice_id is not None:
 						raise BatonError(
 							f"notice {notice_id!r} is not expired and the caller is not its exact "
-							f"author instance (participant+actor+seed); a dead author's notice is "
+							f"authoring participant; a dead author's notice is "
 							f"swept when its TTL elapses")
 					continue
 				self.conn.execute("DELETE FROM notices WHERE id=?", (row["id"],))
@@ -1526,17 +1524,17 @@ class Store:
 
 	# -- recovery -----------------------------------------------------------
 
-	def recover_claim(self, claim_id: str, *, participant: str, actor: str, seed: str,
+	def recover_claim(self, claim_id: str, *, participant: str,
 	                  reason: str) -> dict:
-		"""Capability-authorized dead-seed recovery: the recovering identity
+		"""Capability-authorized recovery of an abandoned claim: the recovering identity
 		must hold the config-declared 'recovery' capability. Closes the exact
 		immutable claim attempt as recovered, records the audit row with the
-		full participant+actor+seed identity, and re-pends the message — one
+		recovering participant, and re-pends the message — one
 		transaction; history is never rewritten."""
 		if type(reason) is not str or not reason.strip():
 			raise BatonError("recovery requires a non-empty --reason")
-		self._require_capability(participant, actor, seed, "recovery", "claim recovery")
-		self._txn_begin("recover", actor, seed, participant=participant)
+		self._require_capability(participant, "recovery", "claim recovery")
+		self._txn_begin("recover", participant=participant)
 		try:
 			row = self.conn.execute(
 				"SELECT c.state, c.message_id, m.state AS message_state FROM claims c "
@@ -1550,8 +1548,8 @@ class Store:
 			self.conn.execute(
 				"UPDATE claims SET state='recovered', terminal_ts=? WHERE claim_id=?", (now, claim_id))
 			self.conn.execute(
-				"INSERT INTO recoveries(recovery_id, claim_id, participant, actor, seed, reason, created_ts) "
-				"VALUES(?,?,?,?,?,?,?)", (recovery_id, claim_id, participant, actor, seed, reason, now))
+				"INSERT INTO recoveries(recovery_id, claim_id, participant, reason, created_ts) "
+				"VALUES(?,?,?,?,?)", (recovery_id, claim_id, participant, reason, now))
 			cur = self.conn.execute(
 				"UPDATE messages SET state='pending', completed_ts=NULL WHERE id=? AND state='claimed'",
 				(row["message_id"],))
@@ -1564,19 +1562,18 @@ class Store:
 			self._txn_rollback()
 			raise
 
-	def _committed_quarantine(self, message_id: str, participant: str, actor: str,
-	                          seed: str, reason: str) -> dict | None:
+	def _committed_quarantine(self, message_id: str, participant: str, reason: str) -> dict | None:
 		"""Read-only retry resolution. Returns the committed disposition for an
 		EXACT retry, None when no record exists, and fails closed when the
 		record exists under a different identity or reason — the full
-		(participant, actor, seed, reason) tuple is the retry identity, so a
+		(participant, reason) pair is the retry identity, so a
 		second operator cannot silently inherit someone else's audit row."""
 		row = self.conn.execute(
 			"SELECT * FROM quarantines WHERE message_id=?", (message_id,)).fetchone()
 		if row is None:
 			return None
 		mismatch = [name for name, offered in (
-			("participant", participant), ("actor", actor), ("seed", seed), ("reason", reason))
+			("participant", participant), ("reason", reason))
 			if row[name] != offered]
 		if mismatch:
 			raise BatonError(
@@ -1589,8 +1586,8 @@ class Store:
 		        "message_id": message_id, "prior_state": row["prior_state"],
 		        "state": state, "failure": row["failure"], "created_ts": row["created_ts"]}
 
-	def quarantine_attachment(self, message_id: str, *, participant: str, actor: str,
-	                          seed: str, reason: str) -> dict:
+	def quarantine_attachment(self, message_id: str, *, participant: str,
+	                          reason: str) -> dict:
 		"""Capability-authorized disposition for a message whose pinned
 		attachment can no longer be verified. `claim` already SKIPS such a
 		message so it cannot block the queue; this is how it stops being
@@ -1613,7 +1610,7 @@ class Store:
 		reason fails closed rather than silently re-labelling the record."""
 		if type(reason) is not str or not reason.strip():
 			raise BatonError("quarantine requires a non-empty --reason")
-		self._require_capability(participant, actor, seed, "recovery", "attachment quarantine")
+		self._require_capability(participant, "recovery", "attachment quarantine")
 		msg = self.get_message(message_id)
 		if msg["attach_root_id"] is None:
 			raise BatonError(
@@ -1625,7 +1622,7 @@ class Store:
 		# exact retry must still redeliver the committed record rather than
 		# fail as "verifies cleanly". Effectively-once cannot depend on the
 		# world holding still.
-		committed = self._committed_quarantine(message_id, participant, actor, seed, reason)
+		committed = self._committed_quarantine(message_id, participant, reason)
 		if committed is not None:
 			return committed
 		# Only now the read-only file IO, and outside the write lock, exactly
@@ -1640,7 +1637,7 @@ class Store:
 			raise BatonError(
 				f"message {message_id!r} verifies cleanly; refusing to quarantine an "
 				"undamaged message")
-		self._txn_begin("quarantine", actor, seed, participant=participant,
+		self._txn_begin("quarantine", participant=participant,
 		                ceremony="quarantine")
 		try:
 			row = self.conn.execute(
@@ -1654,7 +1651,7 @@ class Store:
 				"SELECT * FROM quarantines WHERE message_id=?", (message_id,)).fetchone()
 			if existing is not None:
 				self._txn_rollback()
-				result = self._committed_quarantine(message_id, participant, actor, seed, reason)
+				result = self._committed_quarantine(message_id, participant, reason)
 				if result is None:  # raced with a DIFFERENT identity/reason
 					raise BatonError(
 						f"message {message_id!r} was quarantined concurrently by another "
@@ -1667,10 +1664,10 @@ class Store:
 			now = _utc_now_iso()
 			quarantine_id = new_id()
 			self.conn.execute(
-				"INSERT INTO quarantines(quarantine_id, message_id, participant, actor, seed, "
+				"INSERT INTO quarantines(quarantine_id, message_id, participant, "
 				"reason, prior_state, attach_root_id, attach_path, attach_sha256, attach_size, "
-				"attach_generation, failure, created_ts) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-				(quarantine_id, message_id, participant, actor, seed, reason, state,
+				"attach_generation, failure, created_ts) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+				(quarantine_id, message_id, participant, reason, state,
 				 msg["attach_root_id"], msg["attach_path"], msg["attach_sha256"],
 				 msg["attach_size"], msg["attach_generation"], failure, now))
 			if state == "pending":
@@ -1701,16 +1698,16 @@ class Store:
 
 	# -- gc ------------------------------------------------------------------
 
-	def gc(self, *, participant: str, actor: str, seed: str, now: str | None = None) -> dict:
+	def gc(self, *, participant: str, now: str | None = None) -> dict:
 		"""Bounded deletion of TRANSIENT terminal message metadata older than
 		retention_days, plus expired-notice sweep. Durable messages and the
 		transitions/recoveries audit trail are permanent. Every deletion
 		emits a final ledger event via the gc triggers."""
-		self._check_actor_for(participant, actor, seed)
+		self._check_identity(participant)
 		retention_days = self.config.get("retention_days", DEFAULT_RETENTION_DAYS)
 		now_ts = now if now is not None else _utc_now_iso()
 		cutoff = _iso_minus_days(now_ts, retention_days)
-		self._txn_begin("gc", actor, seed, participant=participant)
+		self._txn_begin("gc", participant=participant)
 		try:
 			# Retention-graph fixpoint (reply links form deletion dependencies
 			# in BOTH directions): start from aged transient terminal messages
@@ -1842,7 +1839,7 @@ class Store:
 			f"SELECT id, from_participant, to_participant, kind, thread_id, created_ts "
 			f"FROM messages {where} {'AND' if where else 'WHERE'} state='pending' ORDER BY created_ts", args)]
 		claimed = [dict(r) for r in self.conn.execute(
-			f"SELECT m.id, m.from_participant, m.to_participant, c.claim_id, c.actor, c.claimed_ts "
+			f"SELECT m.id, m.from_participant, m.to_participant, c.claim_id, c.participant AS claimed_by, c.claimed_ts "
 			f"FROM messages m JOIN claims c ON c.message_id=m.id AND c.state='active' "
 			f"{where.replace('to_participant', 'm.to_participant')} {'AND' if where else 'WHERE'} m.state='claimed' "
 			f"ORDER BY c.claimed_ts", args)]
@@ -2073,7 +2070,7 @@ def open_instance(config_path: str, *, readonly: bool = False, _for_regen: bool 
 		raise
 
 
-def regen_instance(config_path: str, *, participant: str, actor: str, seed: str) -> dict:
+def regen_instance(config_path: str, *, participant: str) -> dict:
 	"""Accept a new config in ONE transaction. Requirements enforced inside
 	the transaction: capability authority; offered generation exactly
 	accepted+1; NO participant named by a live (pending/claimed) message or
@@ -2082,8 +2079,8 @@ def regen_instance(config_path: str, *, participant: str, actor: str, seed: str)
 	the accepted_roots table is the publication-time authority). Additive
 	changes are always safe."""
 	with open_instance(config_path, _for_regen=True) as store:
-		store._require_capability(participant, actor, seed, "config", "regen")
-		store._txn_begin("regen", actor, seed, participant=participant, ceremony="regen")
+		store._require_capability(participant, "config", "regen")
+		store._txn_begin("regen", participant=participant, ceremony="regen")
 		try:
 			new_participants = set(store.config["participants"])
 			live = store.conn.execute(
@@ -2132,13 +2129,13 @@ CHECKPOINT_DRAIN_ATTEMPTS = 50
 CHECKPOINT_DRAIN_SLEEP_S = 0.1
 
 
-def _audit_ceremony(store: Store, kind: str, participant: str, actor: str, seed: str,
+def _audit_ceremony(store: Store, kind: str, participant: str,
                     reason: str | None, token: str | None, peer: str | None = None) -> str:
 	ceremony_id = new_id()
 	store.conn.execute(
-		"INSERT INTO ceremonies(ceremony_id, kind, participant, actor, seed, reason, token, peer, created_ts) "
-		"VALUES(?,?,?,?,?,?,?,?,?)",
-		(ceremony_id, kind, participant, actor, seed, reason, token, peer, _utc_now_iso()))
+		"INSERT INTO ceremonies(ceremony_id, kind, participant, reason, token, peer, created_ts) "
+		"VALUES(?,?,?,?,?,?,?)",
+		(ceremony_id, kind, participant, reason, token, peer, _utc_now_iso()))
 	return ceremony_id
 
 
@@ -2151,7 +2148,7 @@ def _meta(store: Store) -> sqlite3.Row:
 	return store.conn.execute("SELECT * FROM instance_meta WHERE one_row=1").fetchone()
 
 
-def maintenance_enter(config_path: str, *, participant: str, actor: str, seed: str,
+def maintenance_enter(config_path: str, *, participant: str,
                       reason: str, move: bool = False, destination: str | None = None) -> dict:
 	"""Set the maintenance gate. For a move, the ONE canonical destination
 	directory is bound atomically with the token BEFORE any copy exists, and
@@ -2195,9 +2192,9 @@ def maintenance_enter(config_path: str, *, participant: str, actor: str, seed: s
 	elif destination is not None:
 		raise BatonError("destination is only valid with move=True")
 	with open_instance(config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "maintenance")
+		store._require_capability(participant, "config", "maintenance")
 		verb = "move_enter" if move else "maintenance"
-		store._txn_begin(verb, actor, seed, participant=participant,
+		store._txn_begin(verb, participant=participant,
 		                 ceremony="move" if move else "maintenance")
 		try:
 			row = _meta(store)
@@ -2211,12 +2208,12 @@ def maintenance_enter(config_path: str, *, participant: str, actor: str, seed: s
 			# any staged config) before anyone can. Refusing here leaves the
 			# instance ungated, so the holder simply finishes their work.
 			active = store.conn.execute(
-				"SELECT claim_id, actor FROM claims WHERE state='active' "
+				"SELECT claim_id, participant FROM claims WHERE state='active' "
 				"ORDER BY claimed_ts, claim_id").fetchall()
 			if active:
 				raise BatonError(
-					f"{len(active)} active claim(s) held (first {active[0]['claim_id']!r} by "
-					f"actor {active[0]['actor']!r}); resolve or recover them before gating — "
+					f"{len(active)} active claim(s) held (first {active[0]['claim_id']!r} held by "
+					f"{active[0]['participant']!r}); resolve or recover them before gating — "
 					f"reply and close are gated, so a claim cannot be drained once the gate "
 					f"is set", EXIT_RACE)
 			token = new_id() if move else None
@@ -2233,10 +2230,10 @@ def maintenance_enter(config_path: str, *, participant: str, actor: str, seed: s
 						"move source and destination are the same directory; a move must "
 						"change the instance's directory identity")
 				store.conn.execute(
-					"UPDATE instance_meta SET maintenance=1, maintainer_actor=?, maintainer_reason=?, "
+					"UPDATE instance_meta SET maintenance=1, maintainer_participant=?, maintainer_reason=?, "
 					"move_status='moving', move_token=?, move_role='source', move_peer=?, "
 					"move_source=? WHERE one_row=1",
-					(actor, reason, token, destination, source_route))
+					(participant, reason, token, destination, source_route))
 				store.conn.execute(
 					"INSERT INTO moves(token, instance_uuid, source_config, source_dev, source_ino, "
 					"destination_config, destination_dev, destination_ino, created_ts) "
@@ -2245,9 +2242,9 @@ def maintenance_enter(config_path: str, *, participant: str, actor: str, seed: s
 					 destination, dest_identity.st_dev, dest_identity.st_ino, _utc_now_iso()))
 			else:
 				store.conn.execute(
-					"UPDATE instance_meta SET maintenance=1, maintainer_actor=?, maintainer_reason=? "
-					"WHERE one_row=1", (actor, reason))
-			_audit_ceremony(store, "maintenance_enter", participant, actor, seed, reason, token,
+					"UPDATE instance_meta SET maintenance=1, maintainer_participant=?, maintainer_reason=? "
+					"WHERE one_row=1", (participant, reason))
+			_audit_ceremony(store, "maintenance_enter", participant, reason, token,
 			                peer=destination)
 			store._txn_commit()
 			_fault("enter:committed")
@@ -2257,7 +2254,7 @@ def maintenance_enter(config_path: str, *, participant: str, actor: str, seed: s
 			raise
 
 
-def maintenance_exit(config_path: str, *, participant: str, actor: str, seed: str,
+def maintenance_exit(config_path: str, *, participant: str,
                      reason: str) -> dict:
 	"""Clear a plain maintenance gate. Any instance that is part of a move
 	(source OR copied destination) DEFAULT-REFUSES this generic clear —
@@ -2266,8 +2263,8 @@ def maintenance_exit(config_path: str, *, participant: str, actor: str, seed: st
 	if type(reason) is not str or not reason.strip():
 		raise BatonError("maintenance exit requires a non-empty --reason")
 	with open_instance(config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "maintenance")
-		store._txn_begin("maintenance", actor, seed, participant=participant, ceremony="maintenance")
+		store._require_capability(participant, "config", "maintenance")
+		store._txn_begin("maintenance", participant=participant, ceremony="maintenance")
 		try:
 			row = _meta(store)
 			if row["maintenance"] == 0:
@@ -2279,9 +2276,9 @@ def maintenance_exit(config_path: str, *, participant: str, actor: str, seed: st
 					"use abort-move with the exact token and a destination-destroyed "
 					"attestation", EXIT_GATED)
 			store.conn.execute(
-				"UPDATE instance_meta SET maintenance=0, maintainer_actor=NULL, "
+				"UPDATE instance_meta SET maintenance=0, maintainer_participant=NULL, "
 				"maintainer_reason=NULL WHERE one_row=1")
-			_audit_ceremony(store, "maintenance_exit", participant, actor, seed, reason, None)
+			_audit_ceremony(store, "maintenance_exit", participant, reason, None)
 			store._txn_commit()
 			return {"maintenance": False}
 		except BaseException:
@@ -2447,7 +2444,7 @@ def _publish_bytes_at(dst_dirfd: int, dst_name: str, data: bytes, mode: int,
 	os.fsync(dst_dirfd)
 
 
-def move_copy(config_path: str, *, participant: str, actor: str, seed: str) -> dict:
+def move_copy(config_path: str, *, participant: str) -> dict:
 	"""Copy the drained, move-gated SOURCE to its BOUND destination config
 	path (set at maintenance_enter — never a call-site argument). The DB
 	bytes are read from the HELD, identity-verified descriptor after drain;
@@ -2459,7 +2456,7 @@ def move_copy(config_path: str, *, participant: str, actor: str, seed: str) -> d
 	ceremony/token/UUID history and reports it instead of demanding byte
 	equality. Unexplained artifacts fail closed."""
 	with open_instance(config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "move copy")
+		store._require_capability(participant, "config", "move copy")
 		row = _meta(store)
 		if row["move_status"] != "moving" or row["move_role"] != "source":
 			raise BatonError("move copy requires the move-gated SOURCE (maintenance_enter(move=True))")
@@ -2584,7 +2581,7 @@ def move_copy(config_path: str, *, participant: str, actor: str, seed: str) -> d
 	        "already_committed": False, "checkpoint": (log, ckpt)}
 
 
-def move_bind_destination(dest_config_path: str, *, participant: str, actor: str, seed: str,
+def move_bind_destination(dest_config_path: str, *, participant: str,
                           token: str) -> dict:
 	"""After both files are durably present and the copy validates, flip ONLY
 	the copy to role='destination' (audited, exact token). The ceremony
@@ -2592,8 +2589,8 @@ def move_bind_destination(dest_config_path: str, *, participant: str, actor: str
 	by the source — a copy placed anywhere else refuses — and records its
 	peer. Idempotent by committed ceremony."""
 	with open_instance(dest_config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "move destination binding")
-		store._txn_begin("move", actor, seed, participant=participant, ceremony="move")
+		store._require_capability(participant, "config", "move destination binding")
+		store._txn_begin("move", participant=participant, ceremony="move")
 		try:
 			row = _meta(store)
 			committed = _committed_ceremony(store, "move_bind_destination", token)
@@ -2617,7 +2614,7 @@ def move_bind_destination(dest_config_path: str, *, participant: str, actor: str
 			bound_config = binding["destination_config"]
 			store.conn.execute(
 				"UPDATE instance_meta SET move_role='destination' WHERE one_row=1")
-			_audit_ceremony(store, "move_bind_destination", participant, actor, seed, None, token,
+			_audit_ceremony(store, "move_bind_destination", participant, None, token,
 			                peer=bound_config)
 			store._txn_commit()
 			_fault("bind:committed")
@@ -2627,14 +2624,14 @@ def move_bind_destination(dest_config_path: str, *, participant: str, actor: str
 			raise
 
 
-def move_activate(dest_config_path: str, *, participant: str, actor: str, seed: str,
+def move_activate(dest_config_path: str, *, participant: str,
                   token: str) -> dict:
 	"""Activate the BOUND destination: requires moving + role='destination'
 	+ exact token. Retries discover the committed ceremony and return
 	already_committed after validating the token."""
 	with open_instance(dest_config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "move activation")
-		store._txn_begin("move", actor, seed, participant=participant, ceremony="move")
+		store._require_capability(participant, "config", "move activation")
+		store._txn_begin("move", participant=participant, ceremony="move")
 		try:
 			row = _meta(store)
 			committed = _committed_ceremony(store, "move_activate", token)
@@ -2661,10 +2658,10 @@ def move_activate(dest_config_path: str, *, participant: str, actor: str, seed: 
 			                               "activation DESTINATION route")
 			bound_route = binding["destination_config"]
 			store.conn.execute(
-				"UPDATE instance_meta SET maintenance=0, maintainer_actor=NULL, maintainer_reason=NULL, "
+				"UPDATE instance_meta SET maintenance=0, maintainer_participant=NULL, maintainer_reason=NULL, "
 				"move_status='none', move_token=NULL, move_role=NULL, move_peer=NULL, "
 				"move_source=NULL WHERE one_row=1")
-			_audit_ceremony(store, "move_activate", participant, actor, seed, None, token,
+			_audit_ceremony(store, "move_activate", participant, None, token,
 			                peer=bound_route)
 			store._txn_commit()
 			_fault("activate:committed")
@@ -2674,7 +2671,7 @@ def move_activate(dest_config_path: str, *, participant: str, actor: str, seed: 
 			raise
 
 
-def move_decommission(source_config_path: str, *, participant: str, actor: str, seed: str,
+def move_decommission(source_config_path: str, *, participant: str,
                       token: str, moved_to: str) -> dict:
 	"""Mark the SOURCE 'moved' forever: requires moving + role='source' +
 	exact token, and moved_to must equal the bound destination. Retries
@@ -2682,8 +2679,8 @@ def move_decommission(source_config_path: str, *, participant: str, actor: str, 
 	if type(moved_to) is not str or not os.path.isabs(moved_to) or moved_to != os.path.normpath(moved_to):
 		raise BatonError("moved_to must be a canonical absolute path")
 	with open_instance(source_config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "move decommission")
-		store._txn_begin("move", actor, seed, participant=participant, ceremony="move")
+		store._require_capability(participant, "config", "move decommission")
+		store._txn_begin("move", participant=participant, ceremony="move")
 		try:
 			row = _meta(store)
 			committed = _committed_ceremony(store, "move_decommission", token)
@@ -2745,7 +2742,7 @@ def move_decommission(source_config_path: str, *, participant: str, actor: str, 
 			store.conn.execute(
 				"UPDATE instance_meta SET move_status='moved', moved_to=? WHERE one_row=1",
 				(moved_to,))
-			_audit_ceremony(store, "move_decommission", participant, actor, seed, None, token,
+			_audit_ceremony(store, "move_decommission", participant, None, token,
 			                peer=moved_to)
 			store._txn_commit()
 			_fault("decommission:committed")
@@ -2755,7 +2752,7 @@ def move_decommission(source_config_path: str, *, participant: str, actor: str, 
 			raise
 
 
-def abort_move(config_path: str, *, participant: str, actor: str, seed: str, token: str,
+def abort_move(config_path: str, *, participant: str, token: str,
                destination_destroyed: bool, reason: str) -> dict:
 	"""Abort an in-flight move — SOURCE ONLY. Requires the exact token plus
 	an explicit attestation that the destination copy is destroyed (or was
@@ -2771,8 +2768,8 @@ def abort_move(config_path: str, *, participant: str, actor: str, seed: str, tok
 	if type(reason) is not str or not reason.strip():
 		raise BatonError("abort-move requires a non-empty --reason")
 	with open_instance(config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "abort-move")
-		store._txn_begin("move", actor, seed, participant=participant, ceremony="move")
+		store._require_capability(participant, "config", "abort-move")
+		store._txn_begin("move", participant=participant, ceremony="move")
 		try:
 			row = _meta(store)
 			if row["move_status"] != "moving":
@@ -2787,10 +2784,10 @@ def abort_move(config_path: str, *, participant: str, actor: str, seed: str, tok
 			store._validate_route_identity(binding["source_config"], binding["source_dev"],
 			                               binding["source_ino"], "abort SOURCE route")
 			store.conn.execute(
-				"UPDATE instance_meta SET maintenance=0, maintainer_actor=NULL, maintainer_reason=NULL, "
+				"UPDATE instance_meta SET maintenance=0, maintainer_participant=NULL, maintainer_reason=NULL, "
 				"move_status='none', move_token=NULL, move_role=NULL, move_peer=NULL, "
 				"move_source=NULL WHERE one_row=1")
-			_audit_ceremony(store, "abort_move", participant, actor, seed, reason, token)
+			_audit_ceremony(store, "abort_move", participant, reason, token)
 			store._txn_commit()
 			return {"aborted": True}
 		except BaseException:
@@ -2818,7 +2815,7 @@ def _read_config_bytes_at(dirfd: int, config_name: str) -> bytes:
 
 
 def quarantine_attachment_instance(config_path: str, message_id: str, *, participant: str,
-                                   actor: str, seed: str, reason: str) -> dict:
+                                   reason: str) -> dict:
 	"""Ceremony entry point for the quarantine disposition. Opens as a
 	ceremony so it can run while the instance is under a PLAIN maintenance
 	gate — repairing instance health belongs in the same quiet window as any
@@ -2827,24 +2824,24 @@ def quarantine_attachment_instance(config_path: str, message_id: str, *, partici
 	be raced."""
 	with open_instance(config_path, _for_ceremony=True) as store:
 		return store.quarantine_attachment(message_id, participant=participant,
-		                                   actor=actor, seed=seed, reason=reason)
+		                                   reason=reason)
 
 
-def migrate_instance(config_path: str, *, participant: str, actor: str, seed: str) -> dict:
-	"""Schema migration gate. Protocol 7 is the only schema this tool knows.
+def migrate_instance(config_path: str, *, participant: str) -> dict:
+	"""Schema migration gate. Protocol 8 is the only schema this tool knows.
 	The authorized ATTEMPT is durably audited before the unsupported result is
 	reported, so the gate's audit claim is true today. A migration path is
 	added only alongside a protocol bump, together with the frozen definition
 	of the protocol it migrates from."""
 	with open_instance(config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "migrate")
+		store._require_capability(participant, "config", "migrate")
 		row = store.conn.execute(
 			"SELECT maintenance FROM instance_meta WHERE one_row=1").fetchone()
 		if row["maintenance"] != 1:
 			raise BatonError("migrate requires the maintenance gate to be set first")
-		store._txn_begin("migrate", actor, seed, participant=participant, ceremony="migrate")
+		store._txn_begin("migrate", participant=participant, ceremony="migrate")
 		try:
-			_audit_ceremony(store, "migrate", participant, actor, seed,
+			_audit_ceremony(store, "migrate", participant,
 			                f"attempted migration; no path from protocol {PROTOCOL_VERSION}", None)
 			store._txn_commit()
 		except BaseException:
@@ -2855,8 +2852,7 @@ def migrate_instance(config_path: str, *, participant: str, actor: str, seed: st
 			"gains one alongside a protocol bump", EXIT_PROTOCOL)
 
 
-def snapshot_instance(config_path: str, dest_dir: str, *, participant: str, actor: str,
-                      seed: str) -> dict:
+def snapshot_instance(config_path: str, dest_dir: str, *, participant: str) -> dict:
 	"""Take a validated, restorable copy of a QUIESCED instance.
 
 	Rationale: a bare `cp` of a WAL-mode database is not a backup contract —
@@ -2871,7 +2867,7 @@ def snapshot_instance(config_path: str, dest_dir: str, *, participant: str, acto
 	Requires the maintenance gate: a snapshot of a live instance would be a
 	snapshot of a moving target."""
 	with open_instance(config_path, _for_ceremony=True) as store:
-		store._require_capability(participant, actor, seed, "config", "snapshot")
+		store._require_capability(participant, "config", "snapshot")
 		row = _meta(store)
 		if row["maintenance"] != 1:
 			raise BatonError(
@@ -2943,7 +2939,7 @@ def move_status_inspect(config_path: str) -> dict:
 				binding = dict(b)
 		return {
 			"maintenance": bool(row["maintenance"]),
-			"maintainer_actor": row["maintainer_actor"],
+			"maintainer_participant": row["maintainer_participant"],
 			"maintainer_reason": row["maintainer_reason"],
 			"move_status": row["move_status"],
 			"move_token": row["move_token"],
@@ -3044,7 +3040,7 @@ def _struct_unpack_from(data: bytes, offset: int) -> tuple:
 	return struct.unpack_from("iIII", data, offset)
 
 
-def wait_for_message(config_path: str, participant: str, *, actor: str, seed: str,
+def wait_for_message(config_path: str, participant: str, *,
                      timeout_s: float | None = None,
                      rescan_interval_s: float = WAIT_RESCAN_INTERVAL_S) -> dict:
 	"""Query → arm directory watch → REQUERY → block; every event is only a
@@ -3078,7 +3074,7 @@ def wait_for_message(config_path: str, participant: str, *, actor: str, seed: st
 		try:
 			with open_instance(config_path) as store:
 				try:
-					claim = store.claim(participant, actor=actor, seed=seed)
+					claim = store.claim(participant)
 				except BatonError as exc:
 					if exc.exit_code != EXIT_NONE:
 						raise
@@ -3089,9 +3085,9 @@ def wait_for_message(config_path: str, participant: str, *, actor: str, seed: st
 					# Store, never a second open.
 					_fault("wait:claimed")
 					return _delivery(store, claim)
-				if not store.has_unseen_notice(participant, actor=actor):
+				if not store.has_unseen_notice(participant):
 					return None  # idle poll stays read-only; no write lock taken
-				notices = store.see(participant, actor=actor, seed=seed, limit=1)
+				notices = store.see(participant, limit=1)
 				return _notice_delivery(notices[0]) if notices else None
 		except BatonError as exc:
 			if exc.exit_code == EXIT_NONE:
@@ -3227,7 +3223,7 @@ def doctor(config_path: str) -> dict:
 			r[0]: r[1] for r in store.conn.execute(
 				"SELECT state, COUNT(*) FROM messages GROUP BY state")}
 		report["active_claims"] = [dict(r) for r in store.conn.execute(
-			"SELECT claim_id, message_id, actor, claimed_ts FROM claims WHERE state='active'")]
+			"SELECT claim_id, message_id, participant, claimed_ts FROM claims WHERE state='active'")]
 		report["notices"] = store.conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0]
 		ctx = store.conn.execute("SELECT op_id FROM op_context WHERE one_row=1").fetchone()
 		if ctx["op_id"] is not None:
@@ -3272,7 +3268,7 @@ def doctor(config_path: str) -> dict:
 		op_groups: dict = {}
 		for r in store.conn.execute(
 				"SELECT seq, entity, entity_id, from_state, to_state, op_id, participant, "
-				"actor, seed, verb, at_ts FROM transitions ORDER BY seq"):
+				"verb, at_ts FROM transitions ORDER BY seq"):
 			chains.setdefault((r["entity"], r["entity_id"]), []).append(
 				(r["from_state"], r["to_state"]))
 			if r["verb"] not in _KNOWN_VERBS:
@@ -3280,10 +3276,6 @@ def doctor(config_path: str) -> dict:
 					f"transition {r['seq']} has unknown verb {r['verb']!r}")
 			if not HEX32_RE.match(r["op_id"] or ""):
 				report["problems"].append(f"transition {r['seq']} has malformed op_id")
-			if not ACTOR_RE.match(r["actor"] or "") or len(r["actor"] or "") > ACTOR_MAX:
-				report["problems"].append(f"transition {r['seq']} has malformed actor")
-			if not SEED_RE.match(r["seed"] or ""):
-				report["problems"].append(f"transition {r['seq']} has malformed seed")
 			if r["participant"] is not None and (not ADDRESS_RE.match(r["participant"])
 					or len(r["participant"]) > 64):
 				report["problems"].append(f"transition {r['seq']} has malformed participant")
@@ -3297,7 +3289,7 @@ def doctor(config_path: str) -> dict:
 					f"transition {r['seq']}: edge {r['from_state']!r}->{r['to_state']!r} "
 					f"cannot be produced by verb {r['verb']!r}")
 			op_groups.setdefault(r["op_id"], set()).add(
-				(r["participant"], r["actor"], r["seed"], r["verb"], r["at_ts"]))
+				(r["participant"], r["verb"], r["at_ts"]))
 		for key, chain in chains.items():
 			entity, entity_id = key
 			edges = _MSG_EDGES if entity == "message" else _CLAIM_EDGES
@@ -3617,10 +3609,9 @@ def _build_parser():
 		c = sub.add_parser(name, **kwargs)
 		return c
 
-	def ident(c, singleton_ok=True):
+	def ident(c):
 		c.add_argument("--participant", required=True)
-		c.add_argument("--actor", required=True)
-		c.add_argument("--seed", required=True)
+
 
 	cmd("init", help="create a new instance beside --config")
 	c = cmd("regen", help="accept a generation+1 config")
@@ -3667,7 +3658,7 @@ def _build_parser():
 	c.add_argument("--outcome")
 	c.add_argument("--retention", choices=sorted(RETENTIONS))
 	c.add_argument("--body")
-	c = cmd("recover-claim", help="capability-authorized dead-seed recovery")
+	c = cmd("recover-claim", help="capability-authorized recovery of an abandoned claim")
 	ident(c)
 	c.add_argument("claim_id")
 	c.add_argument("--reason", required=True)
@@ -3738,72 +3729,67 @@ def main(argv: list[str] | None = None) -> int:
 			init_instance(ns.config)
 			_print_result({"initialized": True, "config": ns.config})
 		elif ns.command == "regen":
-			_print_result(regen_instance(ns.config, participant=ns.participant,
-			                             actor=ns.actor, seed=ns.seed))
+			_print_result(regen_instance(ns.config, participant=ns.participant,))
 		elif ns.command == "send":
 			body = None if ns.attach is not None else _read_body(ns.body if ns.body is not None else "-")
 			with open_instance(ns.config) as store:
 				message_id = store.send(
-					ns.participant, ns.to, actor=ns.actor, seed=ns.seed, kind=ns.kind,
+					ns.participant, ns.to, kind=ns.kind,
 					body=body, thread_id=ns.thread, retention=ns.retention,
 					outcome=ns.outcome, attach=_parse_attach(ns.attach))
 			_print_result({"message_id": message_id})
 		elif ns.command == "send-notice":
 			with open_instance(ns.config) as store:
 				notice_id = store.send_notice(
-					ns.participant, actor=ns.actor, seed=ns.seed, kind=ns.kind,
+					ns.participant, kind=ns.kind,
 					body=_read_body(ns.body) or b"", ttl_seconds=ns.ttl_seconds)
 			_print_result({"notice_id": notice_id})
 		elif ns.command == "claim":
 			with open_instance(ns.config) as store:
-				claim = store.claim(ns.participant, actor=ns.actor, seed=ns.seed,
+				claim = store.claim(ns.participant,
 				                    message_id=ns.message_id)
 				result = _delivery(store, claim)
 			_print_result(result)
 		elif ns.command == "wait":
-			result = wait_for_message(ns.config, ns.participant, actor=ns.actor,
-			                          seed=ns.seed, timeout_s=ns.timeout,
+			result = wait_for_message(ns.config, ns.participant, timeout_s=ns.timeout,
 			                          rescan_interval_s=ns.interval)
 			_print_result(result)
 		elif ns.command == "see":
 			with open_instance(ns.config) as store:
-				seen = store.see(ns.participant, actor=ns.actor, seed=ns.seed)
+				seen = store.see(ns.participant)
 			for notice in seen:
 				notice["body"] = _body_repr(notice.get("body"), notice.get("content_sha256"))
 			_print_result({"notices": seen})
 		elif ns.command == "expire":
 			with open_instance(ns.config) as store:
-				removed = store.expire(ns.participant, actor=ns.actor, seed=ns.seed,
+				removed = store.expire(ns.participant,
 				                       notice_id=ns.notice_id)
 			_print_result({"expired": removed})
 		elif ns.command == "reply":
 			with open_instance(ns.config) as store:
-				result = store.reply(ns.claim_id, actor=ns.actor, seed=ns.seed,
+				result = store.reply(ns.claim_id, participant=ns.participant,
 				                     kind=ns.kind, body=_read_body(ns.body),
 				                     outcome=ns.outcome, recipient=ns.to,
 				                     thread_id=ns.thread, retention=ns.retention)
 			_print_result(result)
 		elif ns.command == "close":
 			with open_instance(ns.config) as store:
-				result = store.close_claim(ns.claim_id, actor=ns.actor, seed=ns.seed,
+				result = store.close_claim(ns.claim_id, participant=ns.participant,
 				                           body=_read_body(ns.body), outcome=ns.outcome,
 				                           retention=ns.retention)
 			_print_result(result)
 		elif ns.command == "recover-claim":
 			with open_instance(ns.config) as store:
-				result = store.recover_claim(ns.claim_id, participant=ns.participant,
-				                             actor=ns.actor, seed=ns.seed, reason=ns.reason)
+				result = store.recover_claim(ns.claim_id, participant=ns.participant, reason=ns.reason)
 			_print_result(result)
 		elif ns.command == "snapshot":
-			_print_result(snapshot_instance(ns.config, ns.dir, participant=ns.participant,
-			                                actor=ns.actor, seed=ns.seed))
+			_print_result(snapshot_instance(ns.config, ns.dir, participant=ns.participant,))
 		elif ns.command == "quarantine-attachment":
 			_print_result(quarantine_attachment_instance(
-				ns.config, ns.message_id, participant=ns.participant,
-				actor=ns.actor, seed=ns.seed, reason=ns.reason))
+				ns.config, ns.message_id, participant=ns.participant, reason=ns.reason))
 		elif ns.command == "gc":
 			with open_instance(ns.config) as store:
-				result = store.gc(participant=ns.participant, actor=ns.actor, seed=ns.seed)
+				result = store.gc(participant=ns.participant)
 			_print_result(result)
 		elif ns.command == "scan":
 			with open_instance(ns.config, readonly=True, _for_ceremony=True) as store:
@@ -3821,35 +3807,32 @@ def main(argv: list[str] | None = None) -> int:
 			_print_result({"projection": path})
 		elif ns.command == "maintenance-enter":
 			_print_result(maintenance_enter(
-				ns.config, participant=ns.participant, actor=ns.actor, seed=ns.seed,
+				ns.config, participant=ns.participant,
 				reason=ns.reason, move=ns.move, destination=ns.destination))
 		elif ns.command == "maintenance-exit":
 			_print_result(maintenance_exit(
-				ns.config, participant=ns.participant, actor=ns.actor, seed=ns.seed,
-				reason=ns.reason))
+				ns.config, participant=ns.participant, reason=ns.reason))
 		elif ns.command == "move-copy":
-			_print_result(move_copy(ns.config, participant=ns.participant,
-			                        actor=ns.actor, seed=ns.seed))
+			_print_result(move_copy(ns.config, participant=ns.participant,))
 		elif ns.command == "move-bind":
 			_print_result(move_bind_destination(
-				ns.config, participant=ns.participant, actor=ns.actor, seed=ns.seed,
+				ns.config, participant=ns.participant,
 				token=ns.token))
 		elif ns.command == "move-activate":
 			_print_result(move_activate(
-				ns.config, participant=ns.participant, actor=ns.actor, seed=ns.seed,
+				ns.config, participant=ns.participant,
 				token=ns.token))
 		elif ns.command == "move-decommission":
 			_print_result(move_decommission(
-				ns.config, participant=ns.participant, actor=ns.actor, seed=ns.seed,
+				ns.config, participant=ns.participant,
 				token=ns.token, moved_to=ns.moved_to))
 		elif ns.command == "abort-move":
 			_print_result(abort_move(
-				ns.config, participant=ns.participant, actor=ns.actor, seed=ns.seed,
+				ns.config, participant=ns.participant,
 				token=ns.token, destination_destroyed=ns.destination_destroyed,
 				reason=ns.reason))
 		elif ns.command == "migrate":
-			_print_result(migrate_instance(ns.config, participant=ns.participant,
-			                               actor=ns.actor, seed=ns.seed))
+			_print_result(migrate_instance(ns.config, participant=ns.participant,))
 		else:  # pragma: no cover
 			raise BatonError(f"unknown command {ns.command!r}")
 		return 0

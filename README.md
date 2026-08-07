@@ -33,26 +33,24 @@ Create a temporary mailbox instance:
 
 The implementer publishes a durable handoff:
 
-    IMPLEMENTER_SEED=22222222222222222222222222222222
     printf '%s\n' '# Handoff' 'The implementation is ready for review.' > "$DEMO/handoff.md"
     "$BATON" --config "$DEMO/baton.json" send \
-      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED" \
+      --participant team.implementer \
       --to team.reviewer --kind implementation_handoff --retention durable \
       --body "$DEMO/handoff.md"
 
 The reviewer waits for work. `wait` prints the claimed message and its
 `claim_id` as JSON:
 
-    REVIEWER_SEED=11111111111111111111111111111111
     "$BATON" --config "$DEMO/baton.json" wait \
-      --participant team.reviewer --actor reviewer-1 --seed "$REVIEWER_SEED"
+      --participant team.reviewer
 
 After reviewing, copy that `claim_id` into the reply command:
 
     CLAIM_ID="paste-claim-id-here"
     printf '%s\n' '# Review' 'Approved.' > "$DEMO/review.md"
     "$BATON" --config "$DEMO/baton.json" reply "$CLAIM_ID" \
-      --participant team.reviewer --actor reviewer-1 --seed "$REVIEWER_SEED" \
+      --participant team.reviewer \
       --kind review --outcome approved --retention durable \
       --body "$DEMO/review.md"
 
@@ -60,7 +58,7 @@ The implementer receives the response with the same participant identity used
 to send the handoff:
 
     "$BATON" --config "$DEMO/baton.json" wait \
-      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED"
+      --participant team.implementer
 
 ### Quick inline messages
 
@@ -70,7 +68,7 @@ body to stdin):
 
     printf '%s\n' "I'm still working and testing; give me more time." | \
       "$BATON" --config "$DEMO/baton.json" send-notice \
-      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED" \
+      --participant team.implementer \
       --kind working_status --ttl-seconds 3600 --body -
 
 That status is broadcast, wakes `wait`, records no claim, and needs no reply
@@ -78,11 +76,11 @@ or close. Use a directed `send` when a particular recipient must acknowledge
 and disposition the message:
 
     printf '%s\n' 'Ready for review.' | "$BATON" --config "$DEMO/baton.json" send \
-      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED" \
+      --participant team.implementer \
       --to team.reviewer --kind ping --retention transient --body -
 
     printf '%s\n' 'Approved.' | "$BATON" --config "$DEMO/baton.json" reply "$CLAIM_ID" \
-      --participant team.reviewer --actor reviewer-1 --seed "$REVIEWER_SEED" \
+      --participant team.reviewer \
       --kind review --outcome approved --retention durable --body -
 
 Substantive reviews and implementation responses should remain durable bodies
@@ -92,8 +90,9 @@ short protocol acknowledgements stay inline. Where those folders live, and how
 they are named, is the consuming project's policy — not Baton's.
 
 For production use, keep the config and SQLite database in a dedicated local
-instance directory outside participating project trees. Each long-lived actor
-uses one stable 32-hex seed and one active consumer path.
+instance directory outside participating project trees. Each participant
+runs exactly one active consumer path; two consumers need two participant
+addresses, not one shared identity.
 
 ## Minimum requirements
 
@@ -128,8 +127,8 @@ Create one with:
     baton --config /abs/path/instance/baton.json init
 
 See `example-baton.json` for the config shape: participants are dotted
-addresses with `identity` `agent` (any actor) or `singleton` (one bound
-actor); administrative authority is granted ONLY by an explicit
+addresses, and the address is the whole identity — there is no actor and no
+seed. Administrative authority is granted ONLY by an explicit
 `capabilities` list (`recovery`, `config`) — never inferred from identity.
 `roots` name the directories attachments may reference. `retention_days`
 bounds transient-metadata garbage collection.
@@ -193,8 +192,9 @@ ever receives directed traffic sees the directed shape unchanged.
 A notice is not claimed — there is nothing to `reply` to or `close`. The
 `notice_seen` receipt commits in the same transaction as the read, exactly as
 `see` has always done, so `wait` and `see` never deliver the same notice twice
-to the same participant+actor. Each participant, and each actor of a
-participant, receives its own independent copy.
+to the same participant. Each participant receives its own independent copy;
+there is one receipt per participant, because the participant address is the
+whole identity.
 
 That receipt is also why broadcast is **at-most-once**: a consumer that dies
 after the commit but before acting on the bytes does not get the notice again.
