@@ -44,8 +44,14 @@ path per actor/seed (never two concurrent `wait`s for the same identity).
 - Evidence files already in the tree travel as attachments:
   `--attach ROOT:relative/path` (hash-pinned at publication; mutation fails
   the claim).
-- Broadcasts: `send-notice` (finite TTL); consume with `see`; authors may
-  `expire` early.
+- Broadcasts: `send-notice` (finite TTL); consume with `see`, or receive
+  them on the blocking `wait` path — a notice wakes a waiter and is
+  delivered as `{"notice": ...}` rather than the directed
+  `{"claim": ..., "message": ...}`. A directed message always wins when both
+  are available. Notices are never claimed, so there is nothing to `reply`
+  or `close`; the seen receipt commits with the read, which makes broadcast
+  at-most-once per participant+actor. Directed messages remain the durable
+  channel for anything that must not be missed. Authors may `expire` early.
 - Never mutate the database with raw SQL; every table is guarded and
   doctor treats bypasses as corruption. `doctor`/`scan`/`dump`/`inspect`
   are the read-only views.

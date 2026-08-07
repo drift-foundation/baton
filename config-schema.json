@@ -1,8 +1,8 @@
 {
-  "schema_for": "baton.json (protocol 6 instance config; strict JSON — unknown fields reject)",
+  "schema_for": "baton.json (protocol 7 instance config; strict JSON — unknown fields reject)",
   "fields": {
     "config_version": {"type": "int", "required": true, "value": 1},
-    "protocol_version": {"type": "int", "required": true, "value": 6},
+    "protocol_version": {"type": "int", "required": true, "value": 7},
     "generation": {"type": "int", "required": true, "minimum": 1},
     "mailbox": {"type": "object", "required": true,
                 "fields": {"name": {"type": "string", "required": true,

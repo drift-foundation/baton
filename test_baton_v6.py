@@ -20,10 +20,10 @@ SEED_B = "b" * 32
 SEED_C = "c" * 32
 
 
-def make_config(generation: int = 1) -> dict:
+def make_config(generation: int = 1, protocol: int | None = None) -> dict:
 	return {
 		"config_version": 1,
-		"protocol_version": 6,
+		"protocol_version": b6.PROTOCOL_VERSION if protocol is None else protocol,
 		"generation": generation,
 		"mailbox": {"name": "acme-local"},
 		"participants": {
@@ -68,7 +68,7 @@ class TestInitOpen:
 		with b6.open_instance(instance) as st:
 			assert st.conn.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
 			row = st.conn.execute("SELECT * FROM instance_meta").fetchone()
-			assert row["protocol"] == 6
+			assert row["protocol"] == b6.PROTOCOL_VERSION
 			assert row["accepted_generation"] == 1
 
 	def test_init_refuses_existing_db(self, instance):
@@ -919,14 +919,25 @@ class TestAttachments:
 		assert claim["message_id"] == mid
 
 	def test_post_publication_mutation_fails_at_claim(self, rooted):
+		"""Tampered content is never delivered. Since the skip-and-continue
+		contract, a PLAIN claim reports nothing deliverable (so one damaged
+		message cannot block the queue) while an EXPLICITLY named target still
+		fails closed with the damage diagnostic. Both halves asserted: the
+		guarded property is that the tampered bytes never reach a consumer."""
 		store, root = rooted
-		store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
-		           kind="evidence", body=None,
-		           attach={"root_id": "evidence", "path": "sub/report.md"})
+		mid = store.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		                 kind="evidence", body=None,
+		                 attach={"root_id": "evidence", "path": "sub/report.md"})
 		(root / "sub" / "report.md").write_bytes(b"tampered")
 		with pytest.raises(b6.BatonError, match="pinned hash") as excinfo:
-			store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			store.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
 		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+		with pytest.raises(b6.BatonError) as excinfo:
+			store.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+		assert "damaged attachments" in str(excinfo.value)
+		assert store.get_message(mid)["state"] == "pending"
+		assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
 
 	def test_containment_and_symlink_refusal(self, rooted, tmp_path):
 		store, root = rooted
@@ -1360,16 +1371,25 @@ class TestRootBindingGenerations:
 			assert rows == {"evidence": 1, "extra": 2}
 
 	def test_binding_generation_mismatch_is_damage(self, bound):
+		"""A root rebound under a different generation is damage, and is
+		treated as such by both claim paths: explicit target fails closed with
+		the diagnostic, plain claim skips it as undeliverable rather than
+		delivering an attachment resolved through the wrong binding."""
 		config_path, root, tmp_path = bound
 		with b6.open_instance(config_path) as st:
-			st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
-			        kind="evidence", body=None, attach={"root_id": "evidence", "path": "e.md"})
+			mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+			              kind="evidence", body=None,
+			              attach={"root_id": "evidence", "path": "e.md"})
 		_raw_corrupt(config_path, lambda conn: conn.execute(
 			"UPDATE accepted_roots SET binding_generation=9 WHERE root_id='evidence'"))
 		with b6.open_instance(config_path) as st:
 			with pytest.raises(b6.BatonError, match="binding generation") as excinfo:
-				st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+				st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
 			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+			with pytest.raises(b6.BatonError) as excinfo:
+				st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			assert excinfo.value.exit_code == b6.EXIT_NONE
+			assert st.get_message(mid)["state"] == "pending"
 
 
 # ---------------------------------------------------------------------------
@@ -1911,13 +1931,19 @@ class TestMoveFaultMatrix:
 
 
 class TestMigrateGate:
-	def test_migrate_requires_maintenance_and_reports_no_path(self, instance):
+	def test_migrate_requires_maintenance_and_is_a_noop_when_current(self, instance):
+		"""Since protocol 7 exists, migrating an ALREADY-current instance is an
+		idempotent no-op rather than an error — a lost response must never
+		make an operator guess whether the migration ran. The gate is still
+		required, and a genuine older protocol is covered by
+		TestMigration6to7."""
 		with pytest.raises(b6.BatonError, match="maintenance gate"):
 			b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
 		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
 		                     reason="migration attempt")
-		with pytest.raises(b6.BatonError, match="no migration path"):
-			b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+		result = b6.migrate_instance(instance, participant="hq.lead", actor="lead", seed=SEED_C)
+		assert result["migrated"] is False
+		assert result["protocol"] == b6.PROTOCOL_VERSION
 
 	def test_migrate_requires_capability(self, instance):
 		with pytest.raises(b6.BatonError, match="'config' capability"):
@@ -3022,6 +3048,1379 @@ class TestEventMatrix:
 				                    timeout_s=0.1, rescan_interval_s=bad_interval)
 
 
+def notice_one(store, body=b"all hands", kind="announcement", ttl_seconds=None):
+	return store.send_notice("hq.lead", actor="lead", seed=SEED_C, kind=kind,
+	                         body=body, ttl_seconds=ttl_seconds)
+
+
+class TestWaitNoticeDelivery:
+	"""A broadcast notice must WAKE and be DELIVERED by `wait`. Before this
+	work the wake happened and the delivery did not: the waiter requeried only
+	claimable directed messages, so an unseen notice was reachable solely
+	through `see` — a command a blocked waiter is by definition not running."""
+
+	def _run(self, *argv):
+		import io, contextlib
+		out = io.StringIO()
+		err = io.StringIO()
+		with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+			code = b6.main(list(argv))
+		return code, out.getvalue(), err.getvalue()
+
+	# -- wake + delivery ---------------------------------------------------
+
+	def test_notice_wakes_blocked_wait(self, instance):
+		def publisher():
+			_time.sleep(0.5)
+			with b6.open_instance(instance) as st:
+				notice_one(st, body=b"broadcast")
+		thread = threading.Thread(target=publisher)
+		thread.start()
+		start = _time.monotonic()
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=30, rescan_interval_s=20)
+		elapsed = _time.monotonic() - start
+		thread.join()
+		assert result["notice"]["body"]["utf8"] == "broadcast"
+		assert elapsed < 15  # woken by the watch, not the 20s safety rescan
+
+	def test_existing_unseen_notice_delivered_immediately(self, instance):
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st)
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert set(result) == {"notice"}  # a notice delivery is never claim-shaped
+		assert result["notice"]["id"] == nid
+		assert result["notice"]["from_participant"] == "hq.lead"
+
+	# -- no claim, ever ----------------------------------------------------
+
+	def test_notice_delivery_creates_no_claim(self, instance):
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st)
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert result["notice"]["id"] == nid
+		with b6.open_instance(instance) as st:
+			assert st.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
+			assert st.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 0
+			assert st.conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0] == 0
+			# the receipt is the ONLY state the delivery wrote
+			assert [tuple(row) for row in st.conn.execute(
+				"SELECT participant, actor FROM notice_seen")] == [
+				("acme.implementer", "imp1")]
+		assert b6.doctor(instance)["ok"] is True
+
+	# -- receipt: written once, atomically ---------------------------------
+
+	def test_notice_not_delivered_twice(self, instance):
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st)
+		first = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                            seed=SEED_B, timeout_s=5)
+		assert first["notice"]["id"] == nid
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+
+	def test_notice_receipt_atomic_with_selection(self, instance, monkeypatch):
+		"""Selection and receipt commit together: a crash after the receipt
+		insert but before commit leaves NO receipt, and the notice stays
+		deliverable."""
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st, body=b"atomic")
+		class Boom(Exception):
+			pass
+		def blow_up(point):
+			if point == "see:selected":
+				raise Boom("crash between receipt insert and commit")
+		monkeypatch.setattr(b6, "_FAULT_HOOK", blow_up)
+		with pytest.raises(Boom):
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=5)
+		monkeypatch.setattr(b6, "_FAULT_HOOK", None)
+		with b6.open_instance(instance) as st:
+			assert st.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert result["notice"]["id"] == nid
+
+	def test_receipt_survives_crash_after_commit(self, instance, monkeypatch):
+		"""The other half of the atomicity contract: once the receipt commits,
+		it stays committed even if the consumer dies before it can act on the
+		bytes. That is the documented at-most-once property — broadcast has no
+		acknowledgement to wait for, so a post-commit crash loses the notice
+		rather than redelivering it."""
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st, body=b"lost to the crash")
+		class Died(Exception):
+			pass
+		def die_after_commit(_notice):
+			raise Died("consumer died holding the delivery")
+		monkeypatch.setattr(b6, "_notice_delivery", die_after_commit)
+		with pytest.raises(Died):
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=5)
+		monkeypatch.undo()
+		with b6.open_instance(instance) as st:
+			assert [tuple(row) for row in st.conn.execute(
+				"SELECT notice_id, participant, actor FROM notice_seen")] == [
+				(nid, "acme.implementer", "imp1")]
+		# the same actor does NOT get a second chance...
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+		# ...and the loss is scoped to that receipt, not to the notice
+		other = b6.wait_for_message(instance, "acme.implementer", actor="imp2",
+		                            seed=SEED_A, timeout_s=5)
+		assert other["notice"]["id"] == nid
+
+	def test_expired_oldest_does_not_mask_live_notice(self, instance):
+		"""TTL filtering happens in Python, after the ordered SELECT, so an
+		expired oldest row must be skipped rather than consuming the limit. A
+		future `LIMIT 1` pushed into SQL would silently reintroduce exactly
+		this: `wait` blocking forever behind a dead notice."""
+		with b6.open_instance(instance) as st:
+			dead = notice_one(st, body=b"already dead", kind="tick", ttl_seconds=1)
+		_time.sleep(1.2)
+		with b6.open_instance(instance) as st:
+			live = notice_one(st, body=b"still live", kind="announcement")
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert result["notice"]["id"] == live
+		assert result["notice"]["body"]["utf8"] == "still live"
+		with b6.open_instance(instance) as st:
+			# the expired notice was skipped, never marked seen
+			assert [row[0] for row in st.conn.execute(
+				"SELECT notice_id FROM notice_seen")] == [live]
+			assert dead != live
+
+	def test_author_receives_own_notice(self, instance):
+		"""Parity with `see`, which has never excluded self-authored notices.
+		The receipt key is (notice_id, participant, actor), so an author's own
+		waiter is just another reader. Pinned here because the contract is now
+		documented; if Slawomir rules the other way, `see` and `wait` must
+		change together — this test is the tripwire for changing only one."""
+		with b6.open_instance(instance) as st:
+			nid = st.send_notice("acme.implementer", actor="imp1", seed=SEED_B,
+			                     kind="announcement", body=b"self broadcast")
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert result["notice"]["id"] == nid
+		assert result["notice"]["from_participant"] == "acme.implementer"
+		with b6.open_instance(instance) as st:
+			assert st.see("acme.implementer", actor="imp1", seed=SEED_B) == []
+
+	def test_wait_and_see_share_one_receipt(self, instance):
+		"""`wait` and `see` read the same receipt table through the same code
+		path, so neither can redeliver what the other consumed."""
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st)
+		delivered = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                                seed=SEED_B, timeout_s=5)
+		assert delivered["notice"]["id"] == nid
+		with b6.open_instance(instance) as st:
+			assert st.see("acme.implementer", actor="imp1", seed=SEED_B) == []
+			# the reverse direction: consumed by `see`, invisible to `wait`
+			assert [n["id"] for n in st.see("acme.reviewer", actor="rev1",
+			                                seed=SEED_A)] == [nid]
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.reviewer", actor="rev1", seed=SEED_A,
+			                    timeout_s=0.4, rescan_interval_s=0.1)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+
+	# -- directed-message parity -------------------------------------------
+
+	def test_directed_message_wins_over_notice(self, instance):
+		"""Claimable work is never delayed behind advisory broadcast, and the
+		directed delivery shape is untouched."""
+		with b6.open_instance(instance) as st:
+			notice_one(st, body=b"broadcast")  # published FIRST
+			mid = send_one(st, body=b"directed")
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert set(result) == {"claim", "message"}
+		assert result["message"]["id"] == mid
+		assert result["message"]["body"]["utf8"] == "directed"
+		assert result["claim"]["state"] == "active"
+		with b6.open_instance(instance) as st:
+			# no receipt written while a directed message was the delivery
+			assert st.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
+
+	def test_notice_delivered_after_directed_drains(self, instance):
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st, body=b"broadcast")
+			send_one(st, body=b"directed")
+		first = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                            seed=SEED_B, timeout_s=5)
+		assert first["message"]["body"]["utf8"] == "directed"
+		second = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert second["notice"]["id"] == nid
+
+	# -- independent per-participant / per-actor delivery ------------------
+
+	def test_notice_delivered_to_each_participant(self, instance):
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st)
+		for participant, actor, seed in (("acme.implementer", "imp1", SEED_B),
+		                                 ("acme.reviewer", "rev1", SEED_A)):
+			result = b6.wait_for_message(instance, participant, actor=actor, seed=seed,
+			                             timeout_s=5)
+			assert result["notice"]["id"] == nid
+
+	def test_notice_delivered_to_each_actor(self, instance):
+		with b6.open_instance(instance) as st:
+			nid = notice_one(st)
+		for actor, seed in (("imp1", SEED_B), ("imp2", SEED_A)):
+			result = b6.wait_for_message(instance, "acme.implementer", actor=actor,
+			                             seed=seed, timeout_s=5)
+			assert result["notice"]["id"] == nid
+		with b6.open_instance(instance) as st:
+			assert st.conn.execute(
+				"SELECT COUNT(*) FROM notice_seen WHERE notice_id=?", (nid,)).fetchone()[0] == 2
+
+	# -- the wake paths ----------------------------------------------------
+
+	def test_notice_delivered_on_degraded_polling(self, instance, monkeypatch):
+		class Broken:
+			def __init__(self, _dir):
+				raise OSError("inotify unavailable")
+		monkeypatch.setattr(b6, "_InotifyWatch", Broken)
+		def publisher():
+			_time.sleep(0.4)
+			with b6.open_instance(instance) as st:
+				notice_one(st, body=b"polled")
+		thread = threading.Thread(target=publisher)
+		thread.start()
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=30, rescan_interval_s=0.2)
+		thread.join()
+		assert result["notice"]["body"]["utf8"] == "polled"
+
+	def test_notice_arm_race_closed_by_requery(self, instance, monkeypatch):
+		"""A notice published in the window between the first query and the
+		armed watch is caught by the post-arm requery, not by the rescan."""
+		published = {}
+		def publish_during_arm(point):
+			if point == "wait:armed" and not published:
+				published["done"] = True
+				with b6.open_instance(instance) as st:
+					notice_one(st, body=b"raced")
+		monkeypatch.setattr(b6, "_FAULT_HOOK", publish_during_arm)
+		start = _time.monotonic()
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=30, rescan_interval_s=25)
+		assert result["notice"]["body"]["utf8"] == "raced"
+		assert _time.monotonic() - start < 10  # requery caught it; no event needed
+
+	# -- the idle waiter stays read-only -----------------------------------
+
+	def test_idle_wait_takes_no_write_transaction(self, instance, monkeypatch):
+		"""`see` transacts, but a waiter polls indefinitely. An idle poll must
+		stay read-only: BEGIN IMMEDIATE on every cycle would contend with real
+		writers, and an unrelated transient busy raises EXIT_RACE, which
+		stands the waiter down. Before the read-only probe this loop opened a
+		write transaction per poll."""
+		begins = []
+		real_begin = b6.Store._txn_begin
+		def counting_begin(self, verb, *args, **kwargs):
+			begins.append(verb)
+			return real_begin(self, verb, *args, **kwargs)
+		monkeypatch.setattr(b6.Store, "_txn_begin", counting_begin)
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=0.5, rescan_interval_s=0.02)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+		assert begins == []  # many poll cycles, zero write transactions
+		with b6.open_instance(instance) as st:
+			notice_one(st)
+		begins.clear()
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert result["notice"]["from_participant"] == "hq.lead"
+		assert begins == ["see"]  # exactly one, and only once there is work
+
+	# -- TTL, gates, timeout -----------------------------------------------
+
+	def test_expired_notice_never_delivered(self, instance, monkeypatch):
+		begins = []
+		real_begin = b6.Store._txn_begin
+		def counting_begin(self, verb, *args, **kwargs):
+			begins.append(verb)
+			return real_begin(self, verb, *args, **kwargs)
+		with b6.open_instance(instance) as st:
+			notice_one(st, body=b"short", kind="tick", ttl_seconds=1)
+		_time.sleep(1.2)
+		monkeypatch.setattr(b6.Store, "_txn_begin", counting_begin)
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+		# an expired notice must not make the waiter spin on the write lock
+		assert begins == []
+		with b6.open_instance(instance) as st:
+			# an expired notice is never marked seen either
+			assert st.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
+
+	def test_notice_path_respects_gate(self, instance):
+		with b6.open_instance(instance) as st:
+			notice_one(st)
+		b6.maintenance_enter(instance, participant="hq.lead", actor="lead", seed=SEED_C,
+		                     reason="gate")
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=5)
+		assert excinfo.value.exit_code == b6.EXIT_GATED
+
+	def test_seen_only_notice_times_out_clean(self, instance):
+		with b6.open_instance(instance) as st:
+			notice_one(st)
+			st.see("acme.implementer", actor="imp1", seed=SEED_B)
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=0.4, rescan_interval_s=0.1)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+		assert "notice" in str(excinfo.value)  # the diagnostic covers both channels
+
+	# -- lossless body -----------------------------------------------------
+
+	@pytest.mark.parametrize("body", [b"\xc3\xa9 broadcast\n", b"\xff\xfe\x00binary"])
+	def test_notice_body_lossless(self, instance, body):
+		import base64, hashlib as _h
+		with b6.open_instance(instance) as st:
+			notice_one(st, body=body)
+		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		notice = result["notice"]
+		rep = notice["body"]
+		assert base64.b64decode(rep["base64"]) == body
+		assert rep["size"] == len(body)
+		assert rep["sha256"] == _h.sha256(body).hexdigest() == notice["content_sha256"]
+		try:
+			decoded = body.decode("utf-8")
+		except UnicodeDecodeError:
+			assert "utf8" not in rep  # undecodable bytes travel base64-only
+		else:
+			assert rep["utf8"] == decoded
+		assert notice["kind"] == "announcement"
+		assert notice["seen_ts"] and notice["created_ts"]
+		assert notice["ttl_seconds"] == b6.DEFAULT_NOTICE_TTL_SECONDS
+		assert json.loads(json.dumps(result)) == result  # delivery is JSON-clean
+
+	def test_notice_delivery_refuses_corrupt_body(self, instance):
+		with b6.open_instance(instance) as st:
+			notice_one(st, body=b"real bytes")
+		_raw_corrupt(instance, lambda conn: conn.execute(
+			"UPDATE contents SET body=X'6861636b6564'"))  # 'hacked'
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(instance, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=5)
+		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+
+	# -- CLI ---------------------------------------------------------------
+
+	def test_cli_wait_delivers_notice(self, instance):
+		code, out, _ = self._run(
+			"--config", instance, "send-notice", "--participant", "hq.lead",
+			"--actor", "lead", "--seed", SEED_C, "--kind", "announcement",
+			"--body", "/dev/stdin")
+		assert code == 0
+		code, out, _ = self._run(
+			"--config", instance, "wait", "--participant", "acme.implementer",
+			"--actor", "imp1", "--seed", SEED_B, "--timeout", "5")
+		assert code == 0
+		delivery = json.loads(out)
+		assert "claim" not in delivery
+		assert delivery["notice"]["kind"] == "announcement"
+		# and the CLI `see` agrees it is consumed
+		code, out, _ = self._run(
+			"--config", instance, "see", "--participant", "acme.implementer",
+			"--actor", "imp1", "--seed", SEED_B)
+		assert code == 0 and json.loads(out)["notices"] == []
+
+	# -- `see` itself is unregressed ---------------------------------------
+
+	def test_see_limit_partial_drain(self, store):
+		first = notice_one(store, body=b"1", kind="a")
+		second = notice_one(store, body=b"2", kind="b")
+		stamps = {row[0]: row[1] for row in
+		          store.conn.execute("SELECT id, created_ts FROM notices")}
+		oldest, newest = sorted((first, second), key=lambda i: (stamps[i], i))
+		one = store.see("acme.implementer", actor="imp1", seed=SEED_B, limit=1)
+		assert [n["id"] for n in one] == [oldest]
+		rest = store.see("acme.implementer", actor="imp1", seed=SEED_B)
+		assert [n["id"] for n in rest] == [newest]  # unlimited call still full-drains
+		assert store.see("acme.implementer", actor="imp1", seed=SEED_B) == []
+
+	@pytest.mark.parametrize("bad", [0, -1, 1.5, "1", True])
+	def test_see_rejects_bad_limit(self, store, bad):
+		notice_one(store)
+		with pytest.raises(b6.BatonError, match="limit"):
+			store.see("acme.implementer", actor="imp1", seed=SEED_B, limit=bad)
+
+
+def _attach_instance(tmp_path):
+	"""An instance whose config declares an attachment root, plus that root."""
+	root = tmp_path / "src"
+	root.mkdir()
+	config_path = str(tmp_path / "baton.json")
+	cfg = make_config()
+	cfg["roots"] = {"src": str(root)}
+	with open(config_path, "w") as handle:
+		json.dump(cfg, handle)
+	b6.init_instance(config_path)
+	return config_path, root
+
+
+def _send_attached(config_path, root, name, body=b"original bytes\n"):
+	"""Publish an attachment-backed message and return (message_id, path)."""
+	path = root / name
+	path.write_bytes(body)
+	with b6.open_instance(config_path) as st:
+		mid = st.send("acme.reviewer", "acme.implementer", actor="rev1", seed=SEED_A,
+		              kind="evidence", body=None,
+		              attach={"root_id": "src", "path": name})
+	return mid, path
+
+
+class TestDamagedAttachmentQueue:
+	"""A message whose pinned attachment changed after publication must not
+	block the messages behind it. Before this work `Store.claim` selected the
+	single oldest pending message, verified its pin, and had no fallthrough —
+	so one damaged message made every plain `claim`/`wait` for that recipient
+	fail with EXIT_DAMAGE permanently, and the damaged message could not be
+	claimed, closed, or collected in order to clear it."""
+
+	def test_damaged_head_does_not_block_healthy_message(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")  # invalidates the pin
+		with b6.open_instance(config_path) as st:
+			healthy = send_one(st, body=b"still deliverable")
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			assert claim["message_id"] == healthy
+			delivery = b6._delivery(st, claim)
+		assert delivery["message"]["body"]["utf8"] == "still deliverable"
+		with b6.open_instance(config_path) as st:
+			# the damaged message is untouched: still pending, still unclaimed
+			assert st.get_message(damaged)["state"] == "pending"
+			assert st.conn.execute(
+				"SELECT COUNT(*) FROM claims WHERE message_id=?", (damaged,)).fetchone()[0] == 0
+
+	def test_wait_receives_message_published_behind_damage(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		_, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		def sender():
+			_time.sleep(0.4)
+			with b6.open_instance(config_path) as st:
+				send_one(st, body=b"published later")
+		thread = threading.Thread(target=sender)
+		thread.start()
+		result = b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=30, rescan_interval_s=20)
+		thread.join()
+		assert result["message"]["body"]["utf8"] == "published later"
+
+	def test_damaged_only_queue_waits_without_spinning(self, tmp_path, monkeypatch):
+		"""Damage must read as 'nothing eligible', not as an error and not as
+		a reason to churn: the waiter stays live, opens no write transaction,
+		and creates no claim."""
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		begins = []
+		real_begin = b6.Store._txn_begin
+		def counting_begin(self, verb, *args, **kwargs):
+			begins.append(verb)
+			return real_begin(self, verb, *args, **kwargs)
+		monkeypatch.setattr(b6.Store, "_txn_begin", counting_begin)
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
+			                    seed=SEED_B, timeout_s=0.5, rescan_interval_s=0.02)
+		assert excinfo.value.exit_code == b6.EXIT_NONE  # eligible-nothing, not damage
+		assert begins == []
+		with b6.open_instance(config_path) as st:
+			assert st.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
+			assert st.get_message(damaged)["state"] == "pending"
+
+	def test_explicit_claim_of_damaged_still_fails_closed(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		with b6.open_instance(config_path) as st:
+			with pytest.raises(b6.BatonError) as excinfo:
+				st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=damaged)
+			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+			assert "pinned hash" in str(excinfo.value)
+			assert st.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
+			assert st.get_message(damaged)["state"] == "pending"
+
+	def test_skipped_damage_stays_pending_and_visible(self, tmp_path):
+		"""Skipping is not erasure: the damaged message keeps its pin and
+		stays inventoried, and `scan` reports it in a machine-readable way
+		without disturbing the healthy pending list."""
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		with b6.open_instance(config_path) as st:
+			healthy = send_one(st, body=b"fine")
+			report = st.scan("acme.implementer")
+		assert sorted(m["id"] for m in report["pending"]) == sorted([damaged, healthy])
+		assert [d["id"] for d in report["damaged"]] == [damaged]
+		entry = report["damaged"][0]
+		assert entry["to_participant"] == "acme.implementer"
+		assert entry["attachment"]["path"] == "EVIDENCE.md"
+		assert entry["attachment"]["root_id"] == "src"
+		assert "pinned hash" in entry["failure"]
+		assert b6.doctor(config_path)["ok"] is False  # still a problem until dispositioned
+
+	def test_scan_damaged_empty_when_healthy(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		_send_attached(config_path, root, "EVIDENCE.md")
+		with b6.open_instance(config_path) as st:
+			send_one(st)
+			report = st.scan()
+		assert report["damaged"] == []
+		assert len(report["pending"]) == 2
+		assert b6.doctor(config_path)["ok"] is True
+
+	def test_healthy_attachment_claim_reply_unchanged(self, tmp_path):
+		"""Parity: an undamaged attachment message still claims, delivers its
+		pinned tuple, and completes through reply exactly as before."""
+		config_path, root = _attach_instance(tmp_path)
+		mid, _ = _send_attached(config_path, root, "EVIDENCE.md", body=b"intact\n")
+		with b6.open_instance(config_path) as st:
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			assert claim["message_id"] == mid
+			delivery = b6._delivery(st, claim)
+			assert set(delivery) == {"claim", "message"}
+			assert delivery["message"]["attachment"]["path"] == "EVIDENCE.md"
+			assert delivery["message"]["body"] is None
+			result = st.reply(claim["claim_id"], actor="imp1", seed=SEED_B,
+			                  kind="response", body=b"ack")
+			assert result["already_committed"] is False
+			assert st.get_message(mid)["state"] == "completed"
+
+	def test_ordering_is_deterministic_across_multiple_damaged(self, tmp_path):
+		"""Skipping preserves (created_ts, id) order over the healthy
+		remainder rather than reshuffling the queue."""
+		config_path, root = _attach_instance(tmp_path)
+		_, p1 = _send_attached(config_path, root, "a.md")
+		with b6.open_instance(config_path) as st:
+			first = send_one(st, body=b"first healthy")
+		_, p2 = _send_attached(config_path, root, "b.md")
+		with b6.open_instance(config_path) as st:
+			second = send_one(st, body=b"second healthy")
+		p1.write_bytes(b"mutated\n")
+		p2.write_bytes(b"mutated\n")
+		with b6.open_instance(config_path) as st:
+			# created_ts is second-resolution, so the total order is
+			# (created_ts, id) — derive the expectation rather than assuming
+			# publication order survived a same-second tie.
+			stamps = {row[0]: row[1] for row in
+			          st.conn.execute("SELECT id, created_ts FROM messages")}
+			expected = sorted([first, second], key=lambda i: (stamps[i], i))
+			assert [st.claim("acme.implementer", actor="imp1", seed=SEED_B)["message_id"],
+			        st.claim("acme.implementer", actor="imp1", seed=SEED_B)["message_id"]] == expected
+			with pytest.raises(b6.BatonError) as excinfo:
+				st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			assert excinfo.value.exit_code == b6.EXIT_NONE  # only damage left
+			assert "damaged attachments" in str(excinfo.value)
+
+	def test_degraded_polling_also_skips_damage(self, tmp_path, monkeypatch):
+		class Broken:
+			def __init__(self, _dir):
+				raise OSError("inotify unavailable")
+		monkeypatch.setattr(b6, "_InotifyWatch", Broken)
+		config_path, root = _attach_instance(tmp_path)
+		_, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		def sender():
+			_time.sleep(0.4)
+			with b6.open_instance(config_path) as st:
+				send_one(st, body=b"polled past damage")
+		thread = threading.Thread(target=sender)
+		thread.start()
+		result = b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=30, rescan_interval_s=0.2)
+		thread.join()
+		assert result["message"]["body"]["utf8"] == "polled past damage"
+
+	def test_notice_still_delivered_when_only_damage_pends(self, tmp_path):
+		"""The two inbound channels stay independent: damaged directed mail
+		must not suppress broadcast delivery."""
+		config_path, root = _attach_instance(tmp_path)
+		_, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		with b6.open_instance(config_path) as st:
+			nid = notice_one(st, body=b"broadcast past damage")
+		result = b6.wait_for_message(config_path, "acme.implementer", actor="imp1",
+		                             seed=SEED_B, timeout_s=5)
+		assert result["notice"]["id"] == nid
+
+	def test_missing_attachment_file_also_skipped(self, tmp_path):
+		"""Damage is not only a changed hash — a deleted file must skip too,
+		and must not be mistaken for an empty queue."""
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.unlink()
+		with b6.open_instance(config_path) as st:
+			healthy = send_one(st, body=b"unaffected")
+			assert st.claim("acme.implementer", actor="imp1",
+			                seed=SEED_B)["message_id"] == healthy
+			assert [d["id"] for d in st.scan()["damaged"]] == [damaged]
+
+	def test_cli_scan_exposes_damage(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		import io, contextlib
+		out = io.StringIO()
+		with contextlib.redirect_stdout(out):
+			code = b6.main(["--config", config_path, "scan",
+			                "--participant", "acme.implementer"])
+		assert code == 0
+		report = json.loads(out.getvalue())
+		assert [d["id"] for d in report["damaged"]] == [damaged]
+		assert "failure" in report["damaged"][0]
+
+
+LEAD_ID = {"participant": "hq.lead", "actor": "lead", "seed": SEED_C}
+
+
+def _damage(config_path, root, name="EVIDENCE.md"):
+	mid, path = _send_attached(config_path, root, name)
+	path.write_bytes(b"edited after publication\n")
+	return mid
+
+
+class TestQuarantineAttachment:
+	"""The audited disposition for damaged attachments. `claim` skips them so
+	they cannot block a queue; this is how they stop being unresolved, and it
+	is deliberately NOT a claim — a claim asserts Baton verified the message
+	enough to deliver it, and damaged content is never delivered."""
+
+	def test_quarantine_pending_is_atomic_and_audited(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		with b6.open_instance(config_path) as st:
+			result = st.quarantine_attachment(mid, reason="pin invalidated by edit", **LEAD_ID)
+			assert result["already_committed"] is False
+			assert result["prior_state"] == "pending" and result["state"] == "quarantined"
+			assert "pinned hash" in result["failure"]
+			msg = st.get_message(mid)
+			assert msg["state"] == "quarantined" and msg["completed_ts"] is not None
+			# the ORIGINAL pin survives on the message AND in the audit row
+			row = st.conn.execute("SELECT * FROM quarantines WHERE message_id=?", (mid,)).fetchone()
+			assert row["attach_path"] == "EVIDENCE.md" and row["attach_root_id"] == "src"
+			assert row["attach_sha256"] == msg["attach_sha256"]
+			assert row["prior_state"] == "pending"
+			assert row["participant"] == "hq.lead" and row["actor"] == "lead"
+			assert row["reason"] == "pin invalidated by edit"
+			assert "pinned hash" in row["failure"]
+			# and the transition is in the immutable ledger under its own verb
+			edge = st.conn.execute(
+				"SELECT from_state, to_state, verb FROM transitions "
+				"WHERE entity='message' AND entity_id=? ORDER BY rowid DESC LIMIT 1",
+				(mid,)).fetchone()
+			assert tuple(edge) == ("pending", "quarantined", "quarantine")
+
+	def test_quarantine_clears_the_queue_block(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		assert b6.doctor(config_path)["ok"] is False
+		with b6.open_instance(config_path) as st:
+			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
+			assert st.scan("acme.implementer")["pending"] == []
+			assert st.scan("acme.implementer")["damaged"] == []
+		report = b6.doctor(config_path)
+		assert report["ok"] is True  # acknowledged damage no longer blocks health
+		assert report["quarantined"] == [mid]
+		assert any("quarantined" in w for w in report["warnings"])  # still visible
+
+	def test_quarantine_refuses_healthy_message(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid, _ = _send_attached(config_path, root, "EVIDENCE.md")
+		with b6.open_instance(config_path) as st:
+			with pytest.raises(b6.BatonError, match="verifies cleanly"):
+				st.quarantine_attachment(mid, reason="no damage here", **LEAD_ID)
+			assert st.get_message(mid)["state"] == "pending"
+			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 0
+
+	def test_quarantine_refuses_unknown_bodyless_and_unauthorized(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		with b6.open_instance(config_path) as st:
+			with pytest.raises(b6.BatonError) as excinfo:
+				st.quarantine_attachment("0" * 32, reason="ghost", **LEAD_ID)
+			assert excinfo.value.exit_code == b6.EXIT_NONE
+			plain = send_one(st)  # body-backed, no attachment to damage
+			with pytest.raises(b6.BatonError, match="no attachment"):
+				st.quarantine_attachment(plain, reason="not applicable", **LEAD_ID)
+			# authority is an explicit capability, never inferred
+			with pytest.raises(b6.BatonError, match="recovery"):
+				st.quarantine_attachment(mid, reason="unauthorized",
+				                         participant="acme.implementer", actor="imp1", seed=SEED_B)
+			with pytest.raises(b6.BatonError, match="reason"):
+				st.quarantine_attachment(mid, reason="   ", **LEAD_ID)
+			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 0
+
+	def test_quarantine_retry_is_idempotent_and_mismatch_fails_closed(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		with b6.open_instance(config_path) as st:
+			first = st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
+			again = st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
+			assert again["already_committed"] is True
+			assert again["quarantine_id"] == first["quarantine_id"]
+			assert again["prior_state"] == "pending"
+			with pytest.raises(b6.BatonError, match="differs from the committed"):
+				st.quarantine_attachment(mid, reason="a different story", **LEAD_ID)
+			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 1
+
+	def test_quarantine_refuses_a_claimed_message(self, tmp_path):
+		"""In-flight work is not silently dispositioned out from under its
+		owner; the claim must be resolved or recovered first."""
+		config_path, root = _attach_instance(tmp_path)
+		mid, path = _send_attached(config_path, root, "EVIDENCE.md")
+		with b6.open_instance(config_path) as st:
+			st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			path.write_bytes(b"edited while claimed\n")
+			with pytest.raises(b6.BatonError) as excinfo:
+				st.quarantine_attachment(mid, reason="damaged mid-flight", **LEAD_ID)
+			assert excinfo.value.exit_code == b6.EXIT_RACE
+			assert st.get_message(mid)["state"] == "claimed"
+			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 0
+
+	def test_quarantine_of_already_terminal_message(self, tmp_path):
+		"""The `da19ba84` case: content really was delivered, and only the
+		retained attachment later went stale. History is acknowledged, never
+		rewritten — the terminal state stays exactly as it was."""
+		config_path, root = _attach_instance(tmp_path)
+		mid, path = _send_attached(config_path, root, "EVIDENCE.md")
+		with b6.open_instance(config_path) as st:
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+			assert st.get_message(mid)["state"] == "closed"
+		path.write_bytes(b"edited long after delivery\n")
+		assert b6.doctor(config_path)["ok"] is False
+		with b6.open_instance(config_path) as st:
+			result = st.quarantine_attachment(mid, reason="retained pin went stale", **LEAD_ID)
+			assert result["prior_state"] == "closed"
+			assert result["state"] == "closed"  # NOT rewritten to quarantined
+			assert st.get_message(mid)["state"] == "closed"
+		assert b6.doctor(config_path)["ok"] is True
+
+	def test_quarantine_records_are_immutable_and_permanent(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		with b6.open_instance(config_path) as st:
+			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
+			with pytest.raises(sqlite3.IntegrityError, match="immutable"):
+				st.conn.execute("UPDATE quarantines SET reason='rewritten'")
+			with pytest.raises(sqlite3.IntegrityError, match="permanent"):
+				st.conn.execute("DELETE FROM quarantines")
+			with pytest.raises(sqlite3.IntegrityError, match="quarantine ceremony"):
+				st.conn.execute(
+					"INSERT INTO quarantines(quarantine_id, message_id, participant, actor, "
+					"seed, reason, prior_state, attach_root_id, attach_path, attach_sha256, "
+					"attach_size, attach_generation, failure, created_ts) "
+					"VALUES('x',?,'hq.lead','lead',?,'r','pending','src','p','s',1,1,'f','t')",
+					(mid, SEED_C))
+
+	def test_quarantined_message_is_not_reclaimable(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		with b6.open_instance(config_path) as st:
+			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
+			with pytest.raises(b6.BatonError) as excinfo:
+				st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+			assert excinfo.value.exit_code in (b6.EXIT_NONE, b6.EXIT_DAMAGE)
+			assert st.get_message(mid)["state"] == "quarantined"
+			# and the illegal revival edge is refused by the schema itself
+			with pytest.raises(sqlite3.IntegrityError, match="illegal message state edge"):
+				st.conn.execute("UPDATE messages SET state='pending' WHERE id=?", (mid,))
+
+	def test_cli_quarantine_roundtrip(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		import io, contextlib
+		out = io.StringIO()
+		with contextlib.redirect_stdout(out):
+			code = b6.main(["--config", config_path, "quarantine-attachment", mid,
+			                "--participant", "hq.lead", "--actor", "lead", "--seed", SEED_C,
+			                "--reason", "stale pin from a doc edited after publication"])
+		assert code == 0
+		result = json.loads(out.getvalue())
+		assert result["state"] == "quarantined" and result["already_committed"] is False
+		assert b6.doctor(config_path)["ok"] is True
+
+
+def _downgrade_to_v6(config_path, extra=None, maintenance=False):
+	"""Reverse exactly the protocol-7 deltas to produce a GENUINE protocol-6
+	database, restoring v6's own frozen trigger set rather than v7's. Setting
+	`maintenance` here stands in for the protocol-6 binary having run
+	`maintenance-enter` — which is what the real runbook does, because the
+	protocol-7 tool cannot open a protocol-6 instance to gate it."""
+	# A GENUINE protocol-6 instance also has a protocol-6 config accepted:
+	# downgrading only the database would leave the stored config digest
+	# describing a protocol-7 config, which no real v6 instance ever had.
+	cfg = json.load(open(config_path))
+	cfg["protocol_version"] = 6
+	with open(config_path, "w") as handle:
+		json.dump(cfg, handle)
+	v6_digest = b6.canonical_sha256(cfg)
+	db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
+	conn = sqlite3.connect(db)
+	try:
+		conn.execute("PRAGMA foreign_keys=OFF")
+		for (name,) in conn.execute(
+				"SELECT name FROM sqlite_master WHERE type='trigger'").fetchall():
+			conn.execute(f"DROP TRIGGER {name}")
+		conn.execute("UPDATE instance_meta SET config_sha256=?", (v6_digest,))
+		conn.execute("DROP TABLE quarantines")
+		cols = b6._MESSAGE_COLUMNS
+		conn.execute(f"CREATE TABLE _m AS SELECT {cols} FROM messages")
+		conn.execute("DROP TABLE messages")
+		conn.execute(b6._V6_MESSAGES)
+		conn.execute(f"INSERT INTO messages({cols}) SELECT {cols} FROM _m")
+		conn.execute("DROP TABLE _m")
+		for (typ, name), sql in b6._expected_schema_v6().items():
+			if typ == "index" and " ON messages(" in sql:
+				conn.execute(sql)
+		conn.execute("UPDATE instance_meta SET protocol=6")
+		conn.execute("PRAGMA user_version=6")
+		if maintenance:
+			conn.execute("UPDATE instance_meta SET maintenance=1, maintainer_actor='lead', "
+			             "maintainer_reason='protocol 7 upgrade' WHERE one_row=1")
+		if extra is not None:
+			extra(conn)
+		for (typ, name), sql in b6._expected_schema_v6().items():
+			if typ == "trigger":
+				conn.execute(sql)
+		conn.commit()
+	finally:
+		conn.close()
+
+
+def _v6_maintenance_enter(config_path):
+	"""Stand-in for `maintenance-enter` run by the PROTOCOL-6 binary, which is
+	what the runbook prescribes: the protocol-7 tool cannot open a protocol-6
+	instance normally, so the gate is set by the tool that matches the
+	instance before the config is swapped."""
+	db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
+	conn = sqlite3.connect(db)
+	try:
+		guard = conn.execute(
+			"SELECT sql FROM sqlite_master WHERE name='trg_meta_gate_guard'").fetchone()[0]
+		conn.execute("DROP TRIGGER trg_meta_gate_guard")
+		conn.execute("UPDATE instance_meta SET maintenance=1, maintainer_actor='lead', "
+		             "maintainer_reason='protocol 7 upgrade' WHERE one_row=1")
+		conn.execute(guard)
+		conn.commit()
+	finally:
+		conn.close()
+
+
+class TestQuarantineUnderGate:
+	"""Review round 1: the accepted operating sequence is migrate → quarantine
+	→ verify healthy → reopen. Quarantine must therefore run WITH the
+	maintenance gate still closed, while still refusing a move."""
+
+	def test_quarantine_runs_under_maintenance_and_doctor_agrees(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		b6.maintenance_enter(config_path, reason="protocol upgrade", **LEAD_ID)
+		result = b6.quarantine_attachment_instance(
+			config_path, mid, reason="stale pin", **LEAD_ID)
+		assert result["state"] == "quarantined"
+		report = b6.doctor(config_path)  # verified BEFORE reopening
+		assert report["ok"] is True and report["quarantined"] == [mid]
+		b6.maintenance_exit(config_path, reason="done", **LEAD_ID)
+		assert b6.doctor(config_path)["ok"] is True
+
+	def test_ordinary_writes_stay_gated_while_quarantine_is_allowed(self, tmp_path):
+		"""The exception is scoped to the ceremony, not a hole in the gate."""
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		b6.maintenance_enter(config_path, reason="upgrade", **LEAD_ID)
+		with b6.open_instance(config_path, _for_ceremony=True) as st:
+			with pytest.raises(b6.BatonError) as excinfo:
+				send_one(st)
+			assert excinfo.value.exit_code == b6.EXIT_GATED
+			assert st.quarantine_attachment(mid, reason="ok", **LEAD_ID)["state"] == "quarantined"
+
+	def test_quarantine_refused_during_a_move(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		dest = tmp_path / "dest"
+		dest.mkdir()
+		b6.maintenance_enter(config_path, reason="moving", move=True,
+		                     destination=str(dest / "baton.json"), **LEAD_ID)
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.quarantine_attachment_instance(config_path, mid, reason="nope", **LEAD_ID)
+		assert excinfo.value.exit_code == b6.EXIT_GATED
+		assert "move" in str(excinfo.value)
+
+	def test_doctor_flags_incoherent_quarantine_state(self, tmp_path):
+		"""Both directions of the state/audit agreement are checked."""
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		with b6.open_instance(config_path) as st:
+			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
+		assert b6.doctor(config_path)["ok"] is True
+		_raw_corrupt(config_path, lambda conn: conn.execute(
+			"UPDATE quarantines SET attach_sha256='0'*64"))
+		report = b6.doctor(config_path)
+		assert report["ok"] is False
+		assert any("different pin" in p for p in report["problems"])
+
+	def test_doctor_flags_quarantined_state_without_record(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		_raw_corrupt(config_path, lambda conn: conn.execute(
+			"UPDATE messages SET state='quarantined', completed_ts='2099-01-01T00:00:00Z' "
+			"WHERE id=?", (mid,)))
+		report = b6.doctor(config_path)
+		assert report["ok"] is False
+		assert any("no quarantine record" in p for p in report["problems"])
+
+	def test_retry_identity_is_the_full_tuple(self, tmp_path):
+		"""A second operator cannot inherit someone else's audit row by
+		offering the same reason."""
+		config_path, root = _attach_instance(tmp_path)
+		mid = _damage(config_path, root)
+		cfg = json.load(open(config_path))
+		cfg["participants"]["hq.deputy"] = {
+			"identity": "singleton", "singleton_actor": "deputy",
+			"capabilities": ["recovery", "config"]}
+		cfg["generation"] = 2
+		with open(config_path, "w") as handle:
+			json.dump(cfg, handle)
+		b6.regen_instance(config_path, **LEAD_ID)
+		with b6.open_instance(config_path) as st:
+			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
+			with pytest.raises(b6.BatonError, match="participant"):
+				st.quarantine_attachment(mid, reason="stale pin", participant="hq.deputy",
+				                         actor="deputy", seed=SEED_A)
+			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 1
+
+
+class TestMaintenanceDrainInvariant:
+	"""The no-active-claims invariant belongs to the operation that CLOSES the
+	gate. `reply` and `close` are themselves gated, so a claim that survives
+	into maintenance has lost its normal route to resolution — catching it
+	later, at migrate time, is too late to be 'just a retry'."""
+
+	def test_maintenance_entry_refuses_active_claims_atomically(self, instance):
+		with b6.open_instance(instance) as st:
+			mid = send_one(st)
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.maintenance_enter(instance, reason="upgrade", **LEAD_ID)
+		assert excinfo.value.exit_code == b6.EXIT_RACE
+		assert "active claim" in str(excinfo.value)
+		assert "imp1" in str(excinfo.value)  # names the holder
+		# REFUSAL LEAVES THE INSTANCE UNGATED, so the holder can still drain
+		with b6.open_instance(instance) as st:
+			assert b6._meta(st)["maintenance"] == 0
+			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+			assert st.get_message(mid)["state"] == "closed"
+		assert b6.maintenance_enter(instance, reason="upgrade",
+		                            **LEAD_ID)["maintenance"] is True
+
+	def test_refusal_writes_no_ceremony_record(self, instance):
+		with b6.open_instance(instance) as st:
+			send_one(st)
+			st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		with pytest.raises(b6.BatonError):
+			b6.maintenance_enter(instance, reason="upgrade", **LEAD_ID)
+		with b6.open_instance(instance) as st:
+			assert st.conn.execute(
+				"SELECT COUNT(*) FROM ceremonies WHERE kind='maintenance_enter'"
+			).fetchone()[0] == 0
+
+	def test_move_entry_refuses_active_claims_too(self, instance, tmp_path):
+		with b6.open_instance(instance) as st:
+			send_one(st)
+			st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+		dest = tmp_path / "dest"
+		dest.mkdir()
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.maintenance_enter(instance, reason="moving", move=True,
+			                     destination=str(dest / "baton.json"), **LEAD_ID)
+		assert excinfo.value.exit_code == b6.EXIT_RACE
+		with b6.open_instance(instance) as st:
+			row = b6._meta(st)
+			assert row["maintenance"] == 0 and row["move_status"] == "none"
+			assert st.conn.execute("SELECT COUNT(*) FROM moves").fetchone()[0] == 0
+
+	def test_recovered_claim_no_longer_blocks_the_gate(self, instance):
+		"""A dead holder is unblocked through `recover-claim`, not by forcing
+		the gate — the refusal points at the right remedy."""
+		with b6.open_instance(instance) as st:
+			send_one(st)
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B)
+			st.recover_claim(claim["claim_id"], reason="host died", **LEAD_ID)
+		assert b6.maintenance_enter(instance, reason="upgrade",
+		                            **LEAD_ID)["maintenance"] is True
+
+
+class TestSnapshot:
+	def test_snapshot_is_validated_and_restorable(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		with b6.open_instance(config_path) as st:
+			mid = send_one(st, body=b"must survive a restore")
+		b6.maintenance_enter(config_path, reason="upgrade", **LEAD_ID)
+		dest = str(tmp_path / "snap")
+		result = b6.snapshot_instance(config_path, dest, **LEAD_ID)
+		assert result["protocol"] == b6.PROTOCOL_VERSION
+		assert result["messages"] == 1 and result["active_claims"] == 0
+		import hashlib as _h
+		assert _h.sha256(open(os.path.join(dest, "mailbox.sqlite3"), "rb").read()).hexdigest() \
+			== result["database_sha256"]
+		# the snapshot is a usable instance on its own, with the same content
+		b6.maintenance_exit(os.path.join(dest, "baton.json"), reason="open the copy", **LEAD_ID)
+		with b6.open_instance(os.path.join(dest, "baton.json")) as copy:
+			assert copy.get_message(mid)["body"] == b"must survive a restore"
+		b6.maintenance_exit(config_path, reason="done", **LEAD_ID)
+
+	def test_snapshot_persists_its_own_directory_entry(self, tmp_path, monkeypatch):
+		"""The publication helpers fsync the copied files and the destination
+		directory, which persists what is INSIDE dest — not dest's own entry
+		in its parent. A crash after the migration commits could otherwise
+		lose the rollback directory's name with every byte in it synced."""
+		config_path, root = _attach_instance(tmp_path)
+		with b6.open_instance(config_path) as st:
+			send_one(st)
+		b6.maintenance_enter(config_path, reason="upgrade", **LEAD_ID)
+		synced = []
+		real_fsync = os.fsync
+		def recording_fsync(fd):
+			try:
+				st = os.fstat(fd)
+				synced.append((st.st_dev, st.st_ino))
+			except OSError:
+				pass
+			return real_fsync(fd)
+		monkeypatch.setattr(os, "fsync", recording_fsync)
+		parent = tmp_path / "backups"
+		parent.mkdir()
+		dest = str(parent / "snap")
+		b6.snapshot_instance(config_path, dest, **LEAD_ID)
+		monkeypatch.undo()
+		parent_st = os.stat(parent)
+		assert (parent_st.st_dev, parent_st.st_ino) in synced, \
+			"parent directory was never fsynced; the snapshot dir entry is not durable"
+		dest_st = os.stat(dest)
+		assert (dest_st.st_dev, dest_st.st_ino) in synced
+
+	def test_snapshot_requires_gate_and_capability(self, tmp_path):
+		config_path, root = _attach_instance(tmp_path)
+		dest = str(tmp_path / "snap")
+		with pytest.raises(b6.BatonError, match="maintenance gate"):
+			b6.snapshot_instance(config_path, dest, **LEAD_ID)
+		b6.maintenance_enter(config_path, reason="upgrade", **LEAD_ID)
+		with pytest.raises(b6.BatonError, match="config"):
+			b6.snapshot_instance(config_path, dest, participant="acme.implementer",
+			                     actor="imp1", seed=SEED_B)
+
+	def test_snapshot_folds_the_wal_in(self, tmp_path):
+		"""The reason a bare `cp` is not a backup: committed state can live in
+		the -wal sibling. The snapshot drains it first, so the single copied
+		file carries everything."""
+		config_path, root = _attach_instance(tmp_path)
+		with b6.open_instance(config_path) as st:
+			for i in range(20):
+				send_one(st, body=f"row {i}".encode())
+		b6.maintenance_enter(config_path, reason="upgrade", **LEAD_ID)
+		dest = str(tmp_path / "snap")
+		result = b6.snapshot_instance(config_path, dest, **LEAD_ID)
+		assert result["messages"] == 20
+		# The copied MAIN FILE is self-contained: discard every sibling, as a
+		# restore onto a fresh directory would, and it still holds everything.
+		# That is the property a bare `cp` of a WAL database does not have.
+		for sibling in ("mailbox.sqlite3-wal", "mailbox.sqlite3-shm"):
+			path = os.path.join(dest, sibling)
+			if os.path.exists(path):
+				os.unlink(path)
+		b6.maintenance_exit(os.path.join(dest, "baton.json"), reason="check", **LEAD_ID)
+		with b6.open_instance(os.path.join(dest, "baton.json")) as copy:
+			assert copy.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 20
+
+
+def _v6_resolve_claim(config_path, claim_id, message_id):
+	"""Stand-in for the PROTOCOL-6 binary draining a claim before the window:
+	the protocol-7 module cannot open a protocol-6 instance to do it."""
+	db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
+	conn = sqlite3.connect(db)
+	try:
+		saved = {n: sql for (n, sql) in conn.execute(
+			"SELECT name, sql FROM sqlite_master WHERE type='trigger'").fetchall()}
+		for name in saved:
+			conn.execute(f"DROP TRIGGER {name}")
+		conn.execute("UPDATE claims SET state='completed', terminal_ts=? WHERE claim_id=?",
+		             ("2026-01-01T00:00:00Z", claim_id))
+		conn.execute("UPDATE messages SET state='closed', completed_ts=? WHERE id=?",
+		             ("2026-01-01T00:00:00Z", message_id))
+		for sql in saved.values():
+			conn.execute(sql)
+		conn.commit()
+	finally:
+		conn.close()
+
+
+class TestMigration6to7:
+	def _v6_instance(self, tmp_path, maintenance=True, extra=None):
+		"""A protocol-6 database carrying real state — a pending message, a
+		closed one, and an attachment-backed one — so the migration is proved
+		against rows in every shape it must preserve."""
+		config_path, root = _attach_instance(tmp_path)
+		with b6.open_instance(config_path) as st:
+			pending = send_one(st, body=b"survives the migration")
+			done = send_one(st, body=b"already handled")
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=done)
+			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+		attached, _ = _send_attached(config_path, root, "EVIDENCE.md")
+		_downgrade_to_v6(config_path, extra=extra, maintenance=maintenance)
+		return config_path, root, pending, done, attached
+
+	def _offer_v7_config(self, config_path, root, generation=2):
+		"""The generation+1 config the migration accepts: same instance, same
+		roots, `protocol_version` moved to 7. The config carries the protocol,
+		so it must move with the schema."""
+		cfg = make_config(generation=generation)
+		cfg["roots"] = {"src": str(root)}
+		with open(config_path, "w") as handle:
+			json.dump(cfg, handle)
+
+	def test_migration_preserves_state_and_reaches_protocol_7(self, tmp_path):
+		config_path, root, pending, done, attached = self._v6_instance(
+			tmp_path, maintenance=False)
+		self._offer_v7_config(config_path, root)
+		with pytest.raises(b6.BatonError, match="protocol 6 does not match"):
+			b6.open_instance(config_path)  # a v6 database is not openable by v7
+		with pytest.raises(b6.BatonError, match="maintenance gate"):
+			b6.migrate_instance(config_path, **LEAD_ID)
+		_v6_maintenance_enter(config_path)  # what the v6 binary does in the runbook
+		result = b6.migrate_instance(config_path, **LEAD_ID)
+		assert result == {"migrated": True, "from_protocol": 6, "protocol": 7,
+		                  "messages_preserved": 3, "accepted_generation": 2}
+		b6.maintenance_exit(config_path, reason="upgrade complete", **LEAD_ID)
+		with b6.open_instance(config_path) as st:
+			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 7
+			assert st.get_message(pending)["state"] == "pending"
+			assert st.get_message(pending)["body"] == b"survives the migration"
+			assert st.get_message(done)["state"] == "closed"
+			assert st.get_message(attached)["attach_path"] == "EVIDENCE.md"
+			assert st.conn.execute("SELECT COUNT(*) FROM quarantines").fetchone()[0] == 0
+			# the ledger written before the migration is still intact
+			assert st.conn.execute(
+				"SELECT COUNT(*) FROM transitions WHERE entity='message'").fetchone()[0] >= 4
+			# and ordinary work still functions afterwards
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=pending)
+			st.close_claim(claim["claim_id"], actor="imp1", seed=SEED_B)
+			assert st.get_message(pending)["state"] == "closed"
+		assert b6.doctor(config_path)["ok"] is True
+
+	def test_migration_takes_its_own_validated_snapshot(self, tmp_path):
+		"""The pre-migration backup is the migration's job, not an operator's
+		`cp`: the only executable that can open the pre-migration instance is
+		the older one, which has no snapshot verb, so a hand-rolled backup of
+		a WAL database was the only alternative — and that is not a coherent
+		backup contract."""
+		config_path, root, pending, done, attached = self._v6_instance(tmp_path)
+		self._offer_v7_config(config_path, root)
+		snap = str(tmp_path / "pre7")
+		result = b6.migrate_instance(config_path, snapshot_dir=snap, **LEAD_ID)
+		assert result["migrated"] is True
+		assert result["snapshot"]["protocol"] == 6  # the OLD protocol, as taken
+		assert result["snapshot"]["messages"] == result["messages_preserved"] == 3
+		import hashlib as _h
+		assert _h.sha256(open(os.path.join(snap, "mailbox.sqlite3"), "rb").read()).hexdigest() \
+			== result["snapshot"]["database_sha256"]
+		# The snapshot is a restorable protocol-6 instance: strip siblings as a
+		# restore onto a fresh directory would, and it still opens and holds
+		# every message with its state intact.
+		for sibling in ("mailbox.sqlite3-wal", "mailbox.sqlite3-shm"):
+			path = os.path.join(snap, sibling)
+			if os.path.exists(path):
+				os.unlink(path)
+		snap_config = os.path.join(snap, "baton.json")
+		with b6.open_instance(snap_config, readonly=True, _for_ceremony=True,
+		                      _for_migrate=True) as copy:
+			assert copy.conn.execute("PRAGMA user_version").fetchone()[0] == 6
+			assert copy.get_message(pending)["state"] == "pending"
+			assert copy.get_message(done)["state"] == "closed"
+			assert copy.get_message(attached)["attach_path"] == "EVIDENCE.md"
+		# and the live instance really did move
+		with b6.open_instance(config_path, _for_ceremony=True) as st:
+			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 7
+
+	def test_migration_is_audited_and_idempotent(self, tmp_path):
+		config_path, root, *_ = self._v6_instance(tmp_path)
+		self._offer_v7_config(config_path, root)
+		b6.migrate_instance(config_path, **LEAD_ID)
+		again = b6.migrate_instance(config_path, **LEAD_ID)
+		assert again["migrated"] is False and again["protocol"] == 7
+		with b6.open_instance(config_path, _for_ceremony=True) as st:
+			rows = st.conn.execute(
+				"SELECT reason FROM ceremonies WHERE kind='migrate'").fetchall()
+			assert len(rows) == 1  # the no-op retry adds no second record
+			assert "migrated protocol 6 to 7" in rows[0][0]
+			assert "3 messages preserved" in rows[0][0]
+
+	def test_migration_requires_capability(self, tmp_path):
+		config_path, root, *_ = self._v6_instance(tmp_path)
+		self._offer_v7_config(config_path, root)
+		with pytest.raises(b6.BatonError, match="config"):
+			b6.migrate_instance(config_path, participant="acme.implementer",
+			                    actor="imp1", seed=SEED_B)
+		with b6.open_instance(config_path, _for_ceremony=True, _for_migrate=True) as st:
+			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 6
+
+	def test_migration_requires_a_generation_bump(self, tmp_path):
+		"""The config carries protocol_version, so migrating without offering
+		a new generation would leave the config describing protocol 6."""
+		config_path, root, *_ = self._v6_instance(tmp_path)
+		self._offer_v7_config(config_path, root, generation=1)
+		with pytest.raises(b6.BatonError, match="migrate requires config generation 2"):
+			b6.migrate_instance(config_path, **LEAD_ID)
+
+	def test_migration_refuses_an_altered_v6_schema(self, tmp_path):
+		"""A database that is not exactly protocol 6 is refused, not carried
+		forward. Silently migrating damage would launder it."""
+		config_path, root, *_ = self._v6_instance(
+			tmp_path, extra=lambda conn: conn.execute("CREATE TABLE stowaway(x TEXT)"))
+		self._offer_v7_config(config_path, root)
+		with pytest.raises(b6.BatonError, match="schema validation failed") as excinfo:
+			b6.migrate_instance(config_path, **LEAD_ID)
+		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+
+	def test_no_path_from_an_unknown_protocol(self, tmp_path):
+		config_path, root, *_ = self._v6_instance(
+			tmp_path, extra=lambda conn: [
+				conn.execute("PRAGMA user_version=3"),
+				conn.execute("UPDATE instance_meta SET protocol=3")])
+		self._offer_v7_config(config_path, root)
+		with pytest.raises(b6.BatonError, match="protocol 3"):
+			b6.migrate_instance(config_path, **LEAD_ID)
+
+	def test_migration_refuses_while_a_claim_is_active(self, tmp_path):
+		"""The drain is a cutover invariant checked inside the transaction,
+		not merely a runbook precondition — that closes the scan-to-migrate
+		window where a late claim would otherwise slip in."""
+		config_path, root = _attach_instance(tmp_path)
+		with b6.open_instance(config_path) as st:
+			mid = send_one(st)
+			claim = st.claim("acme.implementer", actor="imp1", seed=SEED_B, message_id=mid)
+		_downgrade_to_v6(config_path, maintenance=True)
+		self._offer_v7_config(config_path, root)
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.migrate_instance(config_path, **LEAD_ID)
+		assert excinfo.value.exit_code == b6.EXIT_RACE
+		assert "active claim" in str(excinfo.value)
+		db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
+		probe = sqlite3.connect(db)
+		assert probe.execute("PRAGMA user_version").fetchone()[0] == 6  # untouched
+		probe.close()
+		# Draining is the protocol-6 binary's job in the runbook; simulate it.
+		_v6_resolve_claim(config_path, claim["claim_id"], mid)
+		assert b6.migrate_instance(config_path, **LEAD_ID)["migrated"] is True
+
+	def test_protocol_stays_guarded_across_the_trigger_swap(self, tmp_path, monkeypatch):
+		"""At the seam where the narrowed guard is installed, the v6 blanket
+		guard must STILL be present — there is no unprotected instant — and a
+		fault there must roll back to exactly the v6 guards."""
+		config_path, root, *_ = self._v6_instance(tmp_path)
+		self._offer_v7_config(config_path, root)
+		seen = {}
+		opened = []
+		real_open = b6.open_instance
+		def capture(*args, **kwargs):
+			store = real_open(*args, **kwargs)
+			opened.append(store)
+			return store
+		monkeypatch.setattr(b6, "open_instance", capture)
+		def inspect(point):
+			if point == "migrate:protocol-guard-installed":
+				# The migration's OWN connection: a separate one could not see
+				# uncommitted schema, so it would prove nothing.
+				seen["triggers"] = {n for (n,) in opened[-1].conn.execute(
+					"SELECT name FROM sqlite_master WHERE type='trigger' "
+					"AND name IN ('trg_meta_frozen','trg_meta_protocol_guard')")}
+				raise RuntimeError("fault at the guard seam")
+		monkeypatch.setattr(b6, "_FAULT_HOOK", inspect)
+		with pytest.raises(RuntimeError, match="guard seam"):
+			b6.migrate_instance(config_path, **LEAD_ID)
+		monkeypatch.setattr(b6, "_FAULT_HOOK", None)
+		monkeypatch.setattr(b6, "open_instance", real_open)
+		# BOTH guards were live at the seam: protocol was never unprotected
+		assert seen["triggers"] == {"trg_meta_frozen", "trg_meta_protocol_guard"}
+		with b6.open_instance(config_path, _for_ceremony=True, _for_migrate=True) as st:
+			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 6
+			restored = st.conn.execute(
+				"SELECT sql FROM sqlite_master WHERE name='trg_meta_frozen'").fetchone()[0]
+			assert restored == b6._V6_META_FROZEN  # exact v6 guard, byte for byte
+			assert st.conn.execute(
+				"SELECT COUNT(*) FROM sqlite_master WHERE name='trg_meta_protocol_guard'"
+			).fetchone()[0] == 0
+		assert b6.migrate_instance(config_path, **LEAD_ID)["migrated"] is True
+
+	def test_protocol_guard_refuses_a_multi_step_jump(self, instance):
+		"""Verb alone is not enough authority: the guard also pins the advance
+		to exactly one step, so a migration cannot skip or reverse versions."""
+		with b6.open_instance(instance) as st:
+			st._txn_begin("migrate", "lead", SEED_C, participant="hq.lead")
+			try:
+				with pytest.raises(sqlite3.IntegrityError, match="one step"):
+					st.conn.execute("UPDATE instance_meta SET protocol=99 WHERE one_row=1")
+				with pytest.raises(sqlite3.IntegrityError, match="one step"):
+					st.conn.execute("UPDATE instance_meta SET protocol=? WHERE one_row=1",
+					                (b6.PROTOCOL_VERSION - 1,))
+			finally:
+				st._txn_rollback()
+		with b6.open_instance(instance) as st:  # and not without the verb at all
+			st._txn_begin("send", "lead", SEED_C, participant="hq.lead")
+			try:
+				with pytest.raises(sqlite3.IntegrityError, match="audited migration"):
+					st.conn.execute("UPDATE instance_meta SET protocol=? WHERE one_row=1",
+					                (b6.PROTOCOL_VERSION + 1,))
+			finally:
+				st._txn_rollback()
+
+	def test_failed_migration_rolls_back_to_intact_v6(self, tmp_path):
+		"""The rebuild is all-or-nothing: an instance that fails mid-migration
+		must remain a usable protocol-6 instance, not a half-converted one."""
+		config_path, root, pending, done, attached = self._v6_instance(tmp_path)
+		self._offer_v7_config(config_path, root)
+		real_validate = b6._validate_schema
+		def fail_final_validation(conn, *, for_migrate=False):
+			if not for_migrate:
+				raise b6.BatonError("simulated post-rebuild validation failure",
+				                    b6.EXIT_DAMAGE)
+			return real_validate(conn, for_migrate=for_migrate)
+		b6._validate_schema = fail_final_validation
+		try:
+			with pytest.raises(b6.BatonError, match="simulated"):
+				b6.migrate_instance(config_path, **LEAD_ID)
+		finally:
+			b6._validate_schema = real_validate
+		with b6.open_instance(config_path, _for_ceremony=True, _for_migrate=True) as st:
+			assert st.conn.execute("PRAGMA user_version").fetchone()[0] == 6
+			assert st.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 3
+			assert st.get_message(pending)["state"] == "pending"
+			assert st.get_message(done)["state"] == "closed"
+			assert st.get_message(attached)["attach_path"] == "EVIDENCE.md"
+		# and the retry after the fault succeeds cleanly
+		result = b6.migrate_instance(config_path, **LEAD_ID)
+		assert result["migrated"] is True and result["messages_preserved"] == 3
+
+
 class TestDoctorLogical:
 	def test_orphan_content_detected(self, store):
 		send_one(store, body=b"x")
@@ -3060,6 +4459,29 @@ class TestDoctorLogical:
 # Round-3 additions: atomic wait delivery, root guards, audit-chain doctor
 # ---------------------------------------------------------------------------
 
+def _raw_set_maintenance(config_path, reason="externally gated"):
+	"""Set the maintenance gate WITHOUT going through `maintenance_enter`.
+
+	Since the drain invariant landed, the ceremony refuses to gate an instance
+	that has an active claim — which is the point. The seam it protects is
+	still real, because a gate can arrive by other routes: a concurrent
+	process on an older executable, or a future ceremony. These tests
+	construct that condition directly so the delivery-robustness property
+	stays covered rather than becoming unreachable and untested."""
+	db = os.path.join(os.path.dirname(config_path), "mailbox.sqlite3")
+	conn = sqlite3.connect(db)
+	try:
+		guard = conn.execute(
+			"SELECT sql FROM sqlite_master WHERE name='trg_meta_gate_guard'").fetchone()[0]
+		conn.execute("DROP TRIGGER trg_meta_gate_guard")
+		conn.execute("UPDATE instance_meta SET maintenance=1, maintainer_actor='lead', "
+		             "maintainer_reason=? WHERE one_row=1", (reason,))
+		conn.execute(guard)
+		conn.commit()
+	finally:
+		conn.close()
+
+
 class TestAtomicWaitDelivery:
 	def test_gate_after_claim_still_delivers(self, instance, monkeypatch):
 		with b6.open_instance(instance) as st:
@@ -3067,8 +4489,7 @@ class TestAtomicWaitDelivery:
 		def gate_after_claim(point):
 			if point == "wait:claimed":
 				b6._FAULT_HOOK = None
-				b6.maintenance_enter(instance, participant="hq.lead", actor="lead",
-				                     seed=SEED_C, reason="post-claim gate")
+				_raw_set_maintenance(instance, "post-claim gate")
 		monkeypatch.setattr(b6, "_FAULT_HOOK", gate_after_claim)
 		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
 		                             timeout_s=10)
@@ -3250,8 +4671,7 @@ class TestRound4Additions:
 		def gate_at_seam(point):
 			if point == "wait:claimed":
 				b6._FAULT_HOOK = None
-				b6.maintenance_enter(instance, participant="hq.lead", actor="lead",
-				                     seed=SEED_C, reason="between claim and fetch")
+				_raw_set_maintenance(instance, "between claim and fetch")
 		monkeypatch.setattr(b6, "_FAULT_HOOK", gate_at_seam)
 		result = b6.wait_for_message(instance, "acme.implementer", actor="imp1", seed=SEED_B,
 		                             timeout_s=10)

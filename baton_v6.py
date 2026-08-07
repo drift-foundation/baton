@@ -38,8 +38,8 @@ EXIT_RACE = 5
 EXIT_DAMAGE = 6
 EXIT_GATED = 7
 
-PROTOCOL_VERSION = 6
-TOOL_VERSION = "1.0.0"
+PROTOCOL_VERSION = 7
+TOOL_VERSION = "2.0.0"
 SQLITE_MIN = (3, 37, 0)  # STRICT tables
 BUSY_TIMEOUT_MS = 10_000
 TRANSIENT_BODY_MAX_BYTES = 64 * 1024
@@ -187,13 +187,19 @@ _PARTICIPANT_FIELDS = frozenset(("identity", "singleton_actor", "projection_pref
 _CAPABILITIES = frozenset(("recovery", "config"))
 
 
-def validate_config(obj: Any) -> dict:
+def validate_config(obj: Any, *, allow_prior_protocol: bool = False) -> dict:
+	"""Strict config validation. `allow_prior_protocol` additionally accepts
+	the ONE protocol this tool can migrate from — needed to open a
+	pre-migration instance, and to open a pre-migration SNAPSHOT, which must
+	pair the old database with the old config to be restorable at all."""
 	if type(obj) is not dict:
 		raise BatonError("config: top level must be an object")
 	_reject_unknown(obj, _CONFIG_FIELDS, "config")
 	if _expect_int(obj, "config_version", "config") != 1:
 		raise BatonError("config: unsupported config_version")
-	if _expect_int(obj, "protocol_version", "config") != PROTOCOL_VERSION:
+	protocol = _expect_int(obj, "protocol_version", "config")
+	if protocol != PROTOCOL_VERSION and not (
+			allow_prior_protocol and protocol == PROTOCOL_VERSION - 1):
 		raise BatonError(f"config: protocol_version must be {PROTOCOL_VERSION}")
 	_expect_int(obj, "generation", "config", minimum=1)
 	mailbox = obj.get("mailbox")
@@ -244,7 +250,8 @@ def validate_config(obj: Any) -> dict:
 	return obj
 
 
-def _read_config_at(dirfd: int, name: str) -> tuple[dict, str]:
+def _read_config_at(dirfd: int, name: str, *,
+                    allow_prior_protocol: bool = False) -> tuple[dict, str]:
 	"""Open the config existing-only/no-follow RELATIVE to the held instance
 	dirfd and read through the fd — no re-resolution window exists between
 	validation and read, and the config binds to the same directory identity
@@ -269,7 +276,7 @@ def _read_config_at(dirfd: int, name: str) -> tuple[dict, str]:
 		text = raw.decode("utf-8")
 	except UnicodeDecodeError as exc:
 		raise BatonError(f"config is not valid UTF-8: {exc}") from exc
-	config = validate_config(loads_strict(text))
+	config = validate_config(loads_strict(text), allow_prior_protocol=allow_prior_protocol)
 	return config, canonical_sha256(config)
 
 
@@ -396,7 +403,7 @@ _TABLES: dict[str, str] = {
 		"attach_root_id TEXT, attach_path TEXT, attach_sha256 TEXT, "
 		"attach_size INTEGER, attach_generation INTEGER, "
 		"outcome TEXT, created_ts TEXT NOT NULL, "
-		"state TEXT NOT NULL CHECK(state IN ('pending','claimed','completed','closed','expired')), "
+		"state TEXT NOT NULL CHECK(state IN ('pending','claimed','completed','closed','expired','quarantined')), "
 		"responds_to TEXT REFERENCES messages(id), completed_ts TEXT, "
 		"CHECK((state IN ('pending','claimed')) = (completed_ts IS NULL)), "
 		"CHECK((content_sha256 IS NOT NULL) + (attach_root_id IS NOT NULL) = 1), "
@@ -431,6 +438,16 @@ _TABLES: dict[str, str] = {
 		"CREATE TABLE notice_seen(notice_id TEXT NOT NULL REFERENCES notices(id) ON DELETE CASCADE, "
 		"participant TEXT NOT NULL, actor TEXT NOT NULL, seed TEXT NOT NULL, "
 		"seen_ts TEXT NOT NULL, PRIMARY KEY(notice_id, participant, actor)) STRICT"
+	),
+	"quarantines": (
+		"CREATE TABLE quarantines(quarantine_id TEXT PRIMARY KEY, "
+		"message_id TEXT NOT NULL UNIQUE REFERENCES messages(id), "
+		"participant TEXT NOT NULL, actor TEXT NOT NULL, seed TEXT NOT NULL, "
+		"reason TEXT NOT NULL, prior_state TEXT NOT NULL, "
+		"attach_root_id TEXT NOT NULL, attach_path TEXT NOT NULL, "
+		"attach_sha256 TEXT NOT NULL, attach_size INTEGER NOT NULL, "
+		"attach_generation INTEGER NOT NULL, "
+		"failure TEXT NOT NULL, created_ts TEXT NOT NULL) STRICT"
 	),
 	"recoveries": (
 		"CREATE TABLE recoveries(recovery_id TEXT PRIMARY KEY, "
@@ -496,10 +513,16 @@ _TRIGGERS: dict[str, str] = {
 		f"BEGIN SELECT RAISE(ABORT, 'uncontextual message state mutation'); END"
 	),
 	"trg_msg_edge": (
-		"CREATE TRIGGER trg_msg_edge BEFORE UPDATE OF state ON messages "
-		"WHEN NOT ((old.state='pending' AND new.state='claimed') "
-		"OR (old.state='claimed' AND new.state IN ('completed','closed','pending'))) "
-		"BEGIN SELECT RAISE(ABORT, 'illegal message state edge'); END"
+		# The quarantined edge carries its authorizing verb IN the guard: a
+		# transaction running any other verb cannot manufacture a quarantined
+		# message, so "explicit audited recovery" holds at the schema
+		# boundary rather than only in the Python that normally calls it.
+		f"CREATE TRIGGER trg_msg_edge BEFORE UPDATE OF state ON messages "
+		f"WHEN NOT ((old.state='pending' AND new.state='claimed') "
+		f"OR (old.state='claimed' AND new.state IN ('completed','closed','pending')) "
+		f"OR (old.state='pending' AND new.state='quarantined' "
+		f"AND {_CTX_VERB} IS 'quarantine')) "
+		f"BEGIN SELECT RAISE(ABORT, 'illegal message state edge (quarantine requires its own verb)'); END"
 	),
 	"trg_msg_transition": (
 		f"CREATE TRIGGER trg_msg_transition AFTER UPDATE OF state ON messages "
@@ -523,7 +546,8 @@ _TRIGGERS: dict[str, str] = {
 	"trg_msg_completed_ts_guard": (
 		"CREATE TRIGGER trg_msg_completed_ts_guard BEFORE UPDATE OF completed_ts ON messages "
 		"WHEN NOT ((old.state='claimed' AND new.state IN ('completed','closed') AND new.completed_ts IS NOT NULL) "
-		"OR (old.state='claimed' AND new.state='pending' AND new.completed_ts IS NULL)) "
+		"OR (old.state='claimed' AND new.state='pending' AND new.completed_ts IS NULL) "
+		"OR (old.state='pending' AND new.state='quarantined' AND new.completed_ts IS NOT NULL)) "
 		"BEGIN SELECT RAISE(ABORT, 'completed_ts changes only with its own terminal transition'); END"
 	),
 	"trg_claim_terminal_ts_guard": (
@@ -632,6 +656,19 @@ _TRIGGERS: dict[str, str] = {
 		f"WHEN {_CTX_VERB} IS NULL OR {_CTX_VERB} NOT IN ('expire','gc') "
 		f"BEGIN SELECT RAISE(ABORT, 'notice_seen receipts are removable only by expire or gc'); END"
 	),
+	"trg_quarantine_insert_guard": (
+		f"CREATE TRIGGER trg_quarantine_insert_guard BEFORE INSERT ON quarantines "
+		f"WHEN {_CTX} IS NULL OR {_CTX_VERB} IS NOT 'quarantine' "
+		f"BEGIN SELECT RAISE(ABORT, 'quarantine records are written only by the quarantine ceremony'); END"
+	),
+	"trg_quarantine_frozen": (
+		"CREATE TRIGGER trg_quarantine_frozen BEFORE UPDATE ON quarantines "
+		"BEGIN SELECT RAISE(ABORT, 'quarantine records are immutable'); END"
+	),
+	"trg_quarantine_delete_guard": (
+		"CREATE TRIGGER trg_quarantine_delete_guard BEFORE DELETE ON quarantines "
+		"BEGIN SELECT RAISE(ABORT, 'quarantine records are permanent audit'); END"
+	),
 	"trg_recoveries_insert_guard": (
 		f"CREATE TRIGGER trg_recoveries_insert_guard BEFORE INSERT ON recoveries "
 		f"WHEN {_CTX} IS NULL "
@@ -679,8 +716,21 @@ _TRIGGERS: dict[str, str] = {
 		"BEGIN SELECT RAISE(ABORT, 'move bindings are immutable'); END"
 	),
 	"trg_meta_frozen": (
-		"CREATE TRIGGER trg_meta_frozen BEFORE UPDATE OF one_row, uuid, protocol, created_ts "
+		"CREATE TRIGGER trg_meta_frozen BEFORE UPDATE OF one_row, uuid, created_ts "
 		"ON instance_meta BEGIN SELECT RAISE(ABORT, 'instance identity is immutable'); END"
+	),
+	"trg_meta_protocol_guard": (
+		# The protocol field was previously immutable, which made an in-place
+		# schema migration impossible without dropping a guard. It now changes
+		# under exactly one verb, so migration is expressible without ever
+		# disarming the schema's own protection.
+		# Constrained to a SINGLE forward step as well as to the verb: a
+		# migration that skipped versions, or ran backwards, would be a
+		# different operation than the one this tool knows how to perform.
+		f"CREATE TRIGGER trg_meta_protocol_guard BEFORE UPDATE OF protocol ON instance_meta "
+		f"WHEN {_CTX} IS NULL OR {_CTX_VERB} IS NOT 'migrate' "
+		f"OR new.protocol IS NOT old.protocol + 1 "
+		f"BEGIN SELECT RAISE(ABORT, 'protocol advances one step, only under an audited migration'); END"
 	),
 	"trg_meta_config_guard": (
 		f"CREATE TRIGGER trg_meta_config_guard BEFORE UPDATE OF accepted_generation, config_sha256 "
@@ -722,6 +772,71 @@ _TRIGGERS: dict[str, str] = {
 		"BEGIN SELECT RAISE(ABORT, 'recovery records are immutable'); END"
 	),
 }
+
+
+# ---------------------------------------------------------------------------
+# Protocol 6 — the ONLY schema protocol 7 can be migrated from. Frozen here on
+# purpose: a migration that cannot state exactly what it is migrating from
+# cannot refuse to run against something else, and silently carrying a damaged
+# or unrecognized v6 database forward into 7 is worse than refusing.
+# ---------------------------------------------------------------------------
+
+_V6_MESSAGES = (
+	"CREATE TABLE messages(id TEXT PRIMARY KEY, "
+	"from_participant TEXT NOT NULL, to_participant TEXT NOT NULL, "
+	"kind TEXT NOT NULL, thread_id TEXT, "
+	"retention TEXT NOT NULL CHECK(retention IN ('durable','transient')), "
+	"content_id TEXT REFERENCES contents(content_id), content_sha256 TEXT, "
+	"attach_root_id TEXT, attach_path TEXT, attach_sha256 TEXT, "
+	"attach_size INTEGER, attach_generation INTEGER, "
+	"outcome TEXT, created_ts TEXT NOT NULL, "
+	"state TEXT NOT NULL CHECK(state IN ('pending','claimed','completed','closed','expired')), "
+	"responds_to TEXT REFERENCES messages(id), completed_ts TEXT, "
+	"CHECK((state IN ('pending','claimed')) = (completed_ts IS NULL)), "
+	"CHECK((content_sha256 IS NOT NULL) + (attach_root_id IS NOT NULL) = 1), "
+	"CHECK((attach_root_id IS NULL) = (attach_path IS NULL) "
+	"AND (attach_root_id IS NULL) = (attach_sha256 IS NULL) "
+	"AND (attach_root_id IS NULL) = (attach_size IS NULL) "
+	"AND (attach_root_id IS NULL) = (attach_generation IS NULL))) STRICT"
+)
+
+_V6_MSG_EDGE = (
+	"CREATE TRIGGER trg_msg_edge BEFORE UPDATE OF state ON messages "
+	"WHEN NOT ((old.state='pending' AND new.state='claimed') "
+	"OR (old.state='claimed' AND new.state IN ('completed','closed','pending'))) "
+	"BEGIN SELECT RAISE(ABORT, 'illegal message state edge'); END"
+)
+
+_V6_COMPLETED_TS_GUARD = (
+	"CREATE TRIGGER trg_msg_completed_ts_guard BEFORE UPDATE OF completed_ts ON messages "
+	"WHEN NOT ((old.state='claimed' AND new.state IN ('completed','closed') AND new.completed_ts IS NOT NULL) "
+	"OR (old.state='claimed' AND new.state='pending' AND new.completed_ts IS NULL)) "
+	"BEGIN SELECT RAISE(ABORT, 'completed_ts changes only with its own terminal transition'); END"
+)
+
+_V6_META_FROZEN = (
+	"CREATE TRIGGER trg_meta_frozen BEFORE UPDATE OF one_row, uuid, protocol, created_ts "
+	"ON instance_meta BEGIN SELECT RAISE(ABORT, 'instance identity is immutable'); END"
+)
+
+# Objects protocol 7 introduced; absent from a valid v6 database.
+_V7_ADDED = (("table", "quarantines"), ("trigger", "trg_quarantine_insert_guard"),
+             ("trigger", "trg_quarantine_frozen"), ("trigger", "trg_quarantine_delete_guard"),
+             ("trigger", "trg_meta_protocol_guard"))
+
+
+def _expected_schema_v6() -> dict[tuple[str, str], str]:
+	"""The protocol-6 schema, derived from the current definitions by undoing
+	exactly the protocol-7 deltas. Derivation rather than a second full copy
+	keeps the two from diverging silently."""
+	expected = _expected_schema()
+	for key in _V7_ADDED:
+		del expected[key]
+	expected[("table", "messages")] = _V6_MESSAGES
+	expected[("trigger", "trg_msg_edge")] = _V6_MSG_EDGE
+	expected[("trigger", "trg_msg_completed_ts_guard")] = _V6_COMPLETED_TS_GUARD
+	expected[("trigger", "trg_meta_frozen")] = _V6_META_FROZEN
+	return expected
 
 
 def _expected_schema() -> dict[tuple[str, str], str]:
@@ -811,16 +926,31 @@ class Store:
 			"FROM instance_meta WHERE one_row=1").fetchone()
 		if row is None:
 			raise BatonError("instance_meta row is missing", EXIT_DAMAGE)
-		if row["protocol"] != PROTOCOL_VERSION:
+		# A migration is the ONE transaction that legitimately begins on the
+		# previous protocol — it is what moves it. Every other verb still
+		# refuses, so this is not a general relaxation.
+		if row["protocol"] != PROTOCOL_VERSION and not (
+				ceremony == "migrate" and row["protocol"] == PROTOCOL_VERSION - 1):
 			raise BatonError(f"instance protocol {row['protocol']} unsupported", EXIT_PROTOCOL)
 		if row["move_status"] == "moved" and ceremony != "move":
 			raise BatonError(f"instance has moved to {row['moved_to']!r}; refusing", EXIT_GATED)
-		if row["maintenance"] == 1 and ceremony not in ("move", "migrate", "maintenance"):
+		# Quarantine is authorized DURING a plain maintenance gate — the whole
+		# point is to repair instance health in the same quiet window as a
+		# migration, before reopening to participants. It is emphatically not
+		# authorized during a move: a half-copied instance must not acquire
+		# dispositions its peer will never see.
+		if ceremony == "quarantine" and row["move_status"] != "none":
+			raise BatonError(
+				f"instance move is {row['move_status']!r}; quarantine is refused during a move",
+				EXIT_GATED)
+		if row["maintenance"] == 1 and ceremony not in (
+				"move", "migrate", "maintenance", "quarantine"):
 			raise BatonError("instance is under maintenance; write operations are gated", EXIT_GATED)
-		if ceremony == "regen":
+		if ceremony in ("regen", "migrate"):
+			# Both accept a generation+1 config, so both check the same race.
 			if row["accepted_generation"] != self.config["generation"] - 1:
 				raise BatonError(
-					f"regen race: accepted generation is now {row['accepted_generation']}, "
+					f"{ceremony} race: accepted generation is now {row['accepted_generation']}, "
 					f"offered {self.config['generation']}", EXIT_RACE)
 		elif (row["accepted_generation"] != self.config["generation"]
 				or row["config_sha256"] != self.config_digest):
@@ -998,8 +1128,20 @@ class Store:
 				f"attachment root {msg['attach_root_id']!r} binding generation "
 				f"{accepted['binding_generation']} does not match the pinned "
 				f"{msg['attach_generation']}", EXIT_DAMAGE)
-		_, _, sha, size = self._resolve_attachment(
-			{"root_id": msg["attach_root_id"], "path": msg["attach_path"]})
+		try:
+			_, _, sha, size = self._resolve_attachment(
+				{"root_id": msg["attach_root_id"], "path": msg["attach_path"]})
+		except BatonError as exc:
+			# The attachment resolved cleanly at publication, so ANY failure to
+			# re-resolve it now is post-publication damage, not a usage error:
+			# a deleted, replaced, or newly unreadable file is the same class of
+			# problem as a changed hash and must be skippable and reportable in
+			# the same way. Re-raise unchanged if it was already damage.
+			if exc.exit_code == EXIT_DAMAGE:
+				raise
+			raise BatonError(
+				f"attachment {msg['attach_path']!r} can no longer be resolved: {exc}",
+				EXIT_DAMAGE) from exc
 		if sha != msg["attach_sha256"] or size != msg["attach_size"]:
 			raise BatonError(
 				f"attachment {msg['attach_path']!r} no longer matches its pinned hash; refusing", EXIT_DAMAGE)
@@ -1063,19 +1205,51 @@ class Store:
 			 a_root, a_path, a_sha, a_size, a_gen, outcome, now, responds_to))
 		return message_id
 
+	def _first_deliverable(self, participant: str) -> tuple[str | None, int]:
+		"""Oldest pending message whose attachment still verifies, in
+		deterministic (created_ts, id) order, plus how many were skipped as
+		damaged. SKIP AND CONTINUE: a message whose pinned file changed after
+		publication must not block the healthy messages behind it — before
+		this existed, one such message made every claim for that recipient
+		fail with EXIT_DAMAGE forever, and it could not be claimed, closed, or
+		collected in order to clear it. Skipping never mutates the damaged
+		message; it stays pending and surfaces through `scan` and `doctor`."""
+		ids = [row[0] for row in self.conn.execute(
+			"SELECT id FROM messages WHERE to_participant=? AND state='pending' "
+			"ORDER BY created_ts, id", (participant,))]
+		skipped = 0
+		for candidate in ids:
+			try:
+				self.verify_attachment(candidate)
+			except BatonError as exc:
+				if exc.exit_code != EXIT_DAMAGE:
+					raise
+				skipped += 1
+				continue
+			return candidate, skipped
+		return None, skipped
+
 	def claim(self, participant: str, *, actor: str, seed: str, message_id: str | None = None) -> dict:
 		self._check_actor_for(participant, actor, seed)
 		if message_id is None:
-			row = self.conn.execute(
-				"SELECT id FROM messages WHERE to_participant=? AND state='pending' "
-				"ORDER BY created_ts, id LIMIT 1", (participant,)).fetchone()
-			if row is None:
+			# Attachment pins are enforced at selection: post-publication
+			# mutation fails closed before the claim transaction begins (file
+			# IO stays outside the write lock).
+			message_id, skipped = self._first_deliverable(participant)
+			if message_id is None:
+				# EXIT_NONE, never EXIT_DAMAGE — "nothing eligible" is what
+				# keeps a waiter alive and able to receive a later healthy
+				# publication instead of standing it down permanently.
+				if skipped:
+					raise BatonError(
+						f"no deliverable message for {participant!r}: {skipped} pending "
+						f"message(s) have damaged attachments (see scan/doctor)", EXIT_NONE)
 				raise BatonError(f"no message addressed to {participant!r} is pending", EXIT_NONE)
-			message_id = row[0]
-		# Attachment pins are enforced at claim: post-publication mutation
-		# fails closed before the claim transaction begins (file IO stays
-		# outside the write lock).
-		self.verify_attachment(message_id)
+		else:
+			# An EXPLICITLY named target still fails closed on damage: the
+			# caller asked for this message, so quietly substituting another
+			# would be a lie about what was delivered.
+			self.verify_attachment(message_id)
 		self._txn_begin("claim", actor, seed, participant=participant)
 		try:
 			claim_id = new_id()
@@ -1320,10 +1494,23 @@ class Store:
 			self._txn_rollback()
 			raise
 
-	def see(self, participant: str, *, actor: str, seed: str) -> list[dict]:
-		"""Mark every not-yet-seen live notice seen for (participant, actor)
-		and return them. One transaction; broadcast, never claimable."""
+	def see(self, participant: str, *, actor: str, seed: str,
+	        limit: int | None = None) -> list[dict]:
+		"""Mark not-yet-seen live notices seen for (participant, actor) and
+		return them oldest-first. One transaction; broadcast, never claimable.
+		Selection and receipt commit together, so a crash before the commit
+		leaves the notice deliverable and a crash after it does not redeliver
+		— broadcast is at-most-once per (participant, actor) by construction,
+		because a claimless read has no acknowledgement to wait for.
+
+		`limit` bounds how many notices this call consumes: `see` drains
+		everything, while `wait` takes exactly one delivery at a time. The
+		ordering tiebreak is the notice id, matching `claim`'s total order —
+		timestamps are second-resolution, so created_ts alone is not a total
+		order."""
 		self._check_actor_for(participant, actor, seed)
+		if limit is not None and (type(limit) is not int or limit < 1):
+			raise BatonError("limit must be a positive integer or None")
 		self._txn_begin("see", actor, seed, participant=participant)
 		try:
 			now = _utc_now_iso()
@@ -1331,21 +1518,46 @@ class Store:
 				"SELECT n.id, n.from_participant, n.kind, n.content_sha256, n.created_ts, "
 				"n.ttl_seconds, c.body FROM notices n LEFT JOIN contents c ON c.content_id=n.content_id "
 				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
-				"WHERE s.notice_id=n.id AND s.participant=? AND s.actor=?) ORDER BY n.created_ts",
+				"WHERE s.notice_id=n.id AND s.participant=? AND s.actor=?) "
+				"ORDER BY n.created_ts, n.id",
 				(participant, actor)).fetchall()
 			unseen = []
 			for row in rows:
+				if limit is not None and len(unseen) >= limit:
+					break
 				if _notice_expired(row["created_ts"], row["ttl_seconds"], now):
 					continue
 				self.conn.execute(
 					"INSERT INTO notice_seen(notice_id, participant, actor, seed, seen_ts) "
 					"VALUES(?,?,?,?,?)", (row["id"], participant, actor, seed, now))
-				unseen.append(dict(row))
+				entry = dict(row)
+				entry["seen_ts"] = now
+				unseen.append(entry)
+			_fault("see:selected")
 			self._txn_commit()
 			return unseen
 		except BaseException:
 			self._txn_rollback()
 			raise
+
+	def has_unseen_notice(self, participant: str, *, actor: str) -> bool:
+		"""READ-ONLY probe: does a live notice exist that (participant, actor)
+		has not seen? `see` opens a write transaction, and a waiter polls
+		indefinitely — without this probe an idle waiter would BEGIN IMMEDIATE
+		on every poll, contending with real writers and letting an unrelated
+		transient busy (EXIT_RACE) stand it down. `claim` already reads for a
+		candidate before transacting; this is the notice-side equivalent.
+		Racing is harmless: `see` re-filters under the write lock and simply
+		returns nothing if the notice expired or was consumed meanwhile."""
+		now = _utc_now_iso()
+		for row in self.conn.execute(
+				"SELECT n.created_ts, n.ttl_seconds FROM notices n "
+				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
+				"WHERE s.notice_id=n.id AND s.participant=? AND s.actor=?)",
+				(participant, actor)):
+			if not _notice_expired(row["created_ts"], row["ttl_seconds"], now):
+				return True
+		return False
 
 	def expire(self, participant: str, *, actor: str, seed: str,
 	           notice_id: str | None = None) -> list[str]:
@@ -1428,6 +1640,141 @@ class Store:
 			self._txn_rollback()
 			raise
 
+	def _committed_quarantine(self, message_id: str, participant: str, actor: str,
+	                          seed: str, reason: str) -> dict | None:
+		"""Read-only retry resolution. Returns the committed disposition for an
+		EXACT retry, None when no record exists, and fails closed when the
+		record exists under a different identity or reason — the full
+		(participant, actor, seed, reason) tuple is the retry identity, so a
+		second operator cannot silently inherit someone else's audit row."""
+		row = self.conn.execute(
+			"SELECT * FROM quarantines WHERE message_id=?", (message_id,)).fetchone()
+		if row is None:
+			return None
+		mismatch = [name for name, offered in (
+			("participant", participant), ("actor", actor), ("seed", seed), ("reason", reason))
+			if row[name] != offered]
+		if mismatch:
+			raise BatonError(
+				f"message {message_id!r} already has a committed quarantine; retried "
+				f"{', '.join(mismatch)} differs from the committed record — refusing to "
+				f"re-label an audit record", EXIT_PROTOCOL)
+		state = self.conn.execute(
+			"SELECT state FROM messages WHERE id=?", (message_id,)).fetchone()["state"]
+		return {"already_committed": True, "quarantine_id": row["quarantine_id"],
+		        "message_id": message_id, "prior_state": row["prior_state"],
+		        "state": state, "failure": row["failure"], "created_ts": row["created_ts"]}
+
+	def quarantine_attachment(self, message_id: str, *, participant: str, actor: str,
+	                          seed: str, reason: str) -> dict:
+		"""Capability-authorized disposition for a message whose pinned
+		attachment can no longer be verified. `claim` already SKIPS such a
+		message so it cannot block the queue; this is how it stops being
+		unresolved.
+
+		It is deliberately NOT a claim. A claim asserts that Baton verified
+		the message well enough to deliver it, and damaged content was never
+		delivered — recording it as claimed-and-closed would put a lie in the
+		ledger. Instead the message reaches a terminal `quarantined` state and
+		an immutable `quarantines` row records the ORIGINAL pin alongside the
+		observed failure, so the evidence of what was published survives the
+		disposition. The message's own attach_* columns are never touched.
+
+		An already-terminal message keeps its state: its content really was
+		delivered, and only the retained attachment later went stale, so the
+		quarantine row is an acknowledgement rather than a state change. That
+		is the case that restores instance health without rewriting history.
+
+		One transaction. Exact retry is idempotent; a retry with a different
+		reason fails closed rather than silently re-labelling the record."""
+		if type(reason) is not str or not reason.strip():
+			raise BatonError("quarantine requires a non-empty --reason")
+		self._require_capability(participant, actor, seed, "recovery", "attachment quarantine")
+		msg = self.get_message(message_id)
+		if msg["attach_root_id"] is None:
+			raise BatonError(
+				f"message {message_id!r} has no attachment; quarantine applies only to "
+				"attachment-backed messages")
+		# Committed retry identity is settled BEFORE any external file is
+		# consulted. The attachment is mutable and outside our control — if
+		# someone restores the original bytes after a committed quarantine, an
+		# exact retry must still redeliver the committed record rather than
+		# fail as "verifies cleanly". Effectively-once cannot depend on the
+		# world holding still.
+		committed = self._committed_quarantine(message_id, participant, actor, seed, reason)
+		if committed is not None:
+			return committed
+		# Only now the read-only file IO, and outside the write lock, exactly
+		# as claim's own pin check is.
+		try:
+			self.verify_attachment(message_id)
+		except BatonError as exc:
+			if exc.exit_code != EXIT_DAMAGE:
+				raise
+			failure = str(exc)
+		else:
+			raise BatonError(
+				f"message {message_id!r} verifies cleanly; refusing to quarantine an "
+				"undamaged message")
+		self._txn_begin("quarantine", actor, seed, participant=participant,
+		                ceremony="quarantine")
+		try:
+			row = self.conn.execute(
+				"SELECT state FROM messages WHERE id=?", (message_id,)).fetchone()
+			if row is None:
+				raise BatonError(f"unknown message {message_id!r}", EXIT_NONE)
+			state = row["state"]
+			# Repeat under the write lock: another writer may have committed
+			# the same quarantine between the pre-check and the lock.
+			existing = self.conn.execute(
+				"SELECT * FROM quarantines WHERE message_id=?", (message_id,)).fetchone()
+			if existing is not None:
+				self._txn_rollback()
+				result = self._committed_quarantine(message_id, participant, actor, seed, reason)
+				if result is None:  # raced with a DIFFERENT identity/reason
+					raise BatonError(
+						f"message {message_id!r} was quarantined concurrently by another "
+						"identity or reason", EXIT_RACE)
+				return result
+			if state == "claimed":
+				raise BatonError(
+					f"message {message_id!r} is claimed; resolve or recover the claim before "
+					"quarantining", EXIT_RACE)
+			now = _utc_now_iso()
+			quarantine_id = new_id()
+			self.conn.execute(
+				"INSERT INTO quarantines(quarantine_id, message_id, participant, actor, seed, "
+				"reason, prior_state, attach_root_id, attach_path, attach_sha256, attach_size, "
+				"attach_generation, failure, created_ts) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+				(quarantine_id, message_id, participant, actor, seed, reason, state,
+				 msg["attach_root_id"], msg["attach_path"], msg["attach_sha256"],
+				 msg["attach_size"], msg["attach_generation"], failure, now))
+			if state == "pending":
+				cur = self.conn.execute(
+					"UPDATE messages SET state='quarantined', completed_ts=? "
+					"WHERE id=? AND state='pending'", (now, message_id))
+				if cur.rowcount != 1:
+					# Another writer claimed it between the read and the lock.
+					raise BatonError(
+						f"message {message_id!r} changed state during quarantine", EXIT_RACE)
+				final_state = "quarantined"
+			else:
+				final_state = state  # already terminal: acknowledge, never rewrite
+			self._txn_commit()
+			return {"already_committed": False, "quarantine_id": quarantine_id,
+			        "message_id": message_id, "prior_state": state, "state": final_state,
+			        "failure": failure, "created_ts": now}
+		except sqlite3.IntegrityError as exc:
+			self._txn_rollback()
+			raise BatonError(f"quarantine lost a race: {exc}", EXIT_RACE) from exc
+		except BaseException:
+			self._txn_rollback()
+			raise
+
+	def quarantined_message_ids(self) -> set[str]:
+		"""Message ids with a committed quarantine acknowledgement."""
+		return {row[0] for row in self.conn.execute("SELECT message_id FROM quarantines")}
+
 	# -- gc ------------------------------------------------------------------
 
 	def gc(self, *, participant: str, actor: str, seed: str, now: str | None = None) -> dict:
@@ -1461,11 +1808,20 @@ class Store:
 			# responds_to graph → contents. One call always makes its bounded
 			# progress or returns empty; it can never abort on a valid graph
 			# (a corrupted/self-referential graph fails closed instead).
+			# A quarantine row is permanent audit that references the message,
+			# so a quarantined subject is a RETAINED ANCHOR exactly as a
+			# recovery-referenced one is. Without this the message stays a
+			# candidate, its disposition and claim get deleted, and the
+			# message delete then fails the foreign key — rolling the whole
+			# transaction back, so one valid audit record would make bounded
+			# GC fail forever.
 			candidates = {row[0] for row in self.conn.execute(
 				"SELECT m.id FROM messages m WHERE m.retention='transient' "
 				"AND m.state IN ('completed','closed') AND m.completed_ts < ? "
 				"AND NOT EXISTS (SELECT 1 FROM claims c JOIN recoveries rec ON rec.claim_id=c.claim_id "
-				"WHERE c.message_id = m.id)", (cutoff,))}
+				"WHERE c.message_id = m.id) "
+				"AND NOT EXISTS (SELECT 1 FROM quarantines q WHERE q.message_id = m.id)",
+				(cutoff,))}
 			while True:
 				anchored = set()
 				for mid in candidates:
@@ -1566,7 +1922,24 @@ class Store:
 			f"FROM messages m JOIN claims c ON c.message_id=m.id AND c.state='active' "
 			f"{where.replace('to_participant', 'm.to_participant')} {'AND' if where else 'WHERE'} m.state='claimed' "
 			f"ORDER BY c.claimed_ts", args)]
-		return {"pending": pending, "claimed": claimed}
+		# The machine-readable view of what `claim` skips. Damaged entries stay
+		# in `pending` as well, because they ARE pending — this is an extra
+		# lens on the same rows, not a separate queue. `doctor` remains the
+		# whole-instance view and also covers already-terminal messages whose
+		# retained attachment later went stale.
+		damaged = []
+		for entry in pending:
+			try:
+				self.verify_attachment(entry["id"])
+			except BatonError as exc:
+				if exc.exit_code != EXIT_DAMAGE:
+					raise
+				msg = self.get_message(entry["id"])
+				damaged.append({**entry, "failure": str(exc), "attachment": {
+					"root_id": msg["attach_root_id"], "path": msg["attach_path"],
+					"sha256": msg["attach_sha256"], "size": msg["attach_size"],
+					"generation": msg["attach_generation"]}})
+		return {"pending": pending, "claimed": claimed, "damaged": damaged}
 
 
 # ---------------------------------------------------------------------------
@@ -1615,9 +1988,14 @@ def _apply_connection_contract(conn: sqlite3.Connection, readonly: bool) -> None
 		conn.execute("PRAGMA synchronous=FULL")
 
 
-def _validate_schema(conn: sqlite3.Connection) -> None:
+def _validate_schema(conn: sqlite3.Connection, *, for_migrate: bool = False) -> None:
+	"""Exact schema identity. With `for_migrate`, the ONE older protocol this
+	tool can migrate from is also accepted — validated against that protocol's
+	own frozen schema, never leniently. An unrecognized or altered v6 database
+	still fails closed rather than being carried forward."""
 	user_version = conn.execute("PRAGMA user_version").fetchone()[0]
-	if user_version != PROTOCOL_VERSION:
+	migratable = for_migrate and user_version == PROTOCOL_VERSION - 1
+	if user_version != PROTOCOL_VERSION and not migratable:
 		raise BatonError(
 			f"database protocol {user_version} does not match supported protocol {PROTOCOL_VERSION}", EXIT_PROTOCOL)
 	actual: dict[tuple[str, str], str] = {}
@@ -1625,7 +2003,7 @@ def _validate_schema(conn: sqlite3.Connection) -> None:
 			"SELECT type, name, sql FROM sqlite_master "
 			"WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name"):
 		actual[(typ, name)] = sql
-	expected = _expected_schema()
+	expected = _expected_schema_v6() if migratable else _expected_schema()
 	if actual != expected:
 		missing = sorted(set(expected) - set(actual))
 		extra = sorted(set(actual) - set(expected))
@@ -1641,16 +2019,32 @@ def _validate_schema(conn: sqlite3.Connection) -> None:
 
 
 def _check_meta(conn: sqlite3.Connection, config: dict, config_digest: str, readonly: bool,
-                for_regen: bool = False, for_ceremony: bool = False) -> None:
+                for_regen: bool = False, for_ceremony: bool = False,
+                for_migrate: bool = False) -> None:
 	row = conn.execute("SELECT * FROM instance_meta WHERE one_row=1").fetchone()
 	if row is None:
 		raise BatonError("instance_meta row is missing", EXIT_DAMAGE)
-	if row["protocol"] != PROTOCOL_VERSION:
+	# `migrating` is true only when there is actually an older protocol to
+	# move: opening a migrate handle against an ALREADY-migrated instance is
+	# the idempotent retry path and must behave like an ordinary open, config
+	# equality and all.
+	migrating = for_migrate and row["protocol"] == PROTOCOL_VERSION - 1
+	if row["protocol"] != PROTOCOL_VERSION and not migrating:
 		raise BatonError(f"instance protocol {row['protocol']} unsupported", EXIT_PROTOCOL)
-	if for_regen:
+	# The generation+1 rule belongs to the act of migrating, not to merely
+	# reading a pre-migration instance: a read-only migrate-mode open is an
+	# inspection (validating a snapshot, checking state after a rollback) and
+	# such an instance legitimately sits at its own accepted generation.
+	if for_regen or (migrating and not readonly):
+		# A migration necessarily changes the config too — `protocol_version`
+		# lives there — so it accepts a generation+1 config in the same
+		# transaction that moves the schema, exactly as regen does. Leaving
+		# the config claiming the old protocol while the database moved would
+		# be a durable lie about the instance.
+		what = "regen" if for_regen else "migrate"
 		if config["generation"] != row["accepted_generation"] + 1:
 			raise BatonError(
-				f"regen requires config generation {row['accepted_generation'] + 1} "
+				f"{what} requires config generation {row['accepted_generation'] + 1} "
 				f"(accepted {row['accepted_generation']}, offered {config['generation']})")
 	elif row["accepted_generation"] != config["generation"] or row["config_sha256"] != config_digest:
 		raise BatonError(
@@ -1740,12 +2134,13 @@ def init_instance(config_path: str) -> None:
 
 
 def open_instance(config_path: str, *, readonly: bool = False, _for_regen: bool = False,
-                  _for_ceremony: bool = False) -> Store:
+                  _for_ceremony: bool = False, _for_migrate: bool = False) -> Store:
 	dirfd = open_instance_dir(config_path)
 	dbfd = -1
 	conn = None
 	try:
-		config, digest = _read_config_at(dirfd, os.path.basename(config_path))
+		config, digest = _read_config_at(dirfd, os.path.basename(config_path),
+		                                 allow_prior_protocol=_for_migrate)
 		flags = (os.O_RDONLY if readonly else os.O_RDWR) | os.O_NOFOLLOW | os.O_CLOEXEC
 		try:
 			dbfd = os.open(DB_NAME, flags, dir_fd=dirfd)
@@ -1760,9 +2155,9 @@ def open_instance(config_path: str, *, readonly: bool = False, _for_regen: bool 
 		try:
 			_verify_db_identity(conn, dbfd, dirfd)
 			_apply_connection_contract(conn, readonly)
-			_validate_schema(conn)
+			_validate_schema(conn, for_migrate=_for_migrate)
 			_check_meta(conn, config, digest, readonly, for_regen=_for_regen,
-			            for_ceremony=_for_ceremony)
+			            for_ceremony=_for_ceremony, for_migrate=_for_migrate)
 		except sqlite3.DatabaseError as exc:
 			raise BatonError(f"database failed open validation: {exc}", EXIT_DAMAGE) from exc
 		return Store(config_path, config, digest, dirfd, dbfd, conn, readonly)
@@ -1905,6 +2300,22 @@ def maintenance_enter(config_path: str, *, participant: str, actor: str, seed: s
 			row = _meta(store)
 			if row["maintenance"] == 1:
 				raise BatonError("instance is already under maintenance")
+			# The no-active-claims invariant belongs to the operation that
+			# CLOSES the gate, checked in the same transaction. `reply` and
+			# `close` are themselves gated, so a claim that survives into
+			# maintenance has lost its normal route to resolution: the holder
+			# cannot drain it, and the operator must exit the gate (undoing
+			# any staged config) before anyone can. Refusing here leaves the
+			# instance ungated, so the holder simply finishes their work.
+			active = store.conn.execute(
+				"SELECT claim_id, actor FROM claims WHERE state='active' "
+				"ORDER BY claimed_ts, claim_id").fetchall()
+			if active:
+				raise BatonError(
+					f"{len(active)} active claim(s) held (first {active[0]['claim_id']!r} by "
+					f"actor {active[0]['actor']!r}); resolve or recover them before gating — "
+					f"reply and close are gated, so a claim cannot be drained once the gate "
+					f"is set", EXIT_RACE)
 			token = new_id() if move else None
 			if move:
 				source_route = config_path
@@ -2484,27 +2895,288 @@ def abort_move(config_path: str, *, participant: str, actor: str, seed: str, tok
 			raise
 
 
-def migrate_instance(config_path: str, *, participant: str, actor: str, seed: str) -> dict:
-	"""Schema migration gate. Protocol 6 is the only schema this tool knows.
-	The authorized ATTEMPT is durably audited before the unsupported result
-	is reported, so the gate's audit claim is true today."""
-	with open_instance(config_path, _for_ceremony=True) as store:
+_MESSAGE_COLUMNS = (
+	"id, from_participant, to_participant, kind, thread_id, retention, content_id, "
+	"content_sha256, attach_root_id, attach_path, attach_sha256, attach_size, "
+	"attach_generation, outcome, created_ts, state, responds_to, completed_ts")
+
+
+def _migrate_6_to_7(store: Store, participant: str, actor: str, seed: str) -> dict:
+	"""Rebuild `messages` with the protocol-7 state CHECK, add the quarantine
+	table and its guards, and re-point the protocol field.
+
+	Why a rebuild rather than ALTER: SQLite cannot alter a CHECK constraint,
+	and `ALTER TABLE … RENAME` rewrites the stored CREATE text with quoting
+	that `_validate_schema`'s exact-text comparison would then reject. So the
+	rows go into an unconstrained holding table, `messages` is dropped (taking
+	its triggers with it), recreated from the byte-exact protocol-7 text, and
+	refilled — with the triggers rebuilt AFTER the refill, because
+	`trg_msg_insert_guard` only permits pending births and would reject the
+	restore of already-claimed rows.
+
+	The transaction ends with a full `_validate_schema` against protocol 7.
+	That is the real safety property: the migration proves it produced exactly
+	the expected schema before it commits, so a partial or mistaken rebuild
+	rolls back rather than becoming the new authority."""
+	conn = store.conn
+	before = conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+	# PRAGMA foreign_keys is a no-op inside a transaction, so it is set here
+	# and restored in the caller's finally.
+	conn.execute("PRAGMA foreign_keys=OFF")
+	store._txn_begin("migrate", actor, seed, participant=participant, ceremony="migrate")
+	try:
+		# The drain is a CUTOVER INVARIANT, not an operator instruction: an
+		# active claim means someone owns work across the rebuild, and the
+		# scan-to-migrate window is exactly where a late claim would slip in.
+		# Checked here, under the write lock, where it cannot be raced.
+		active = conn.execute(
+			"SELECT claim_id FROM claims WHERE state='active' ORDER BY claimed_ts").fetchall()
+		if active:
+			raise BatonError(
+				f"{len(active)} active claim(s) still held (first {active[0][0]!r}); the "
+				"instance must be drained before migrating — resolve or recover them",
+				EXIT_RACE)
+		conn.execute(f"CREATE TABLE _mig_messages AS SELECT {_MESSAGE_COLUMNS} FROM messages")
+		conn.execute("DROP TABLE messages")
+		conn.execute(_TABLES["messages"])
+		conn.execute(f"INSERT INTO messages({_MESSAGE_COLUMNS}) "
+		             f"SELECT {_MESSAGE_COLUMNS} FROM _mig_messages")
+		conn.execute("DROP TABLE _mig_messages")
+		# DROP TABLE takes the table's indexes with it, not just its triggers.
+		for sql in _INDEXES.values():
+			if " ON messages(" in sql:
+				conn.execute(sql)
+		for name, sql in _TRIGGERS.items():
+			if " ON messages " in sql:
+				conn.execute(sql)
+		conn.execute(_TABLES["quarantines"])
+		for name in ("trg_quarantine_insert_guard", "trg_quarantine_frozen",
+		             "trg_quarantine_delete_guard"):
+			conn.execute(_TRIGGERS[name])
+		# Protocol stays CONTINUOUSLY guarded across the swap. The narrowed
+		# guard is installed FIRST, while the v6 blanket-frozen trigger is
+		# still in place, so there is no instant at which `protocol` is
+		# unprotected — then the blanket trigger is replaced. Doing it the
+		# other way round would open exactly the window this ceremony exists
+		# to avoid.
+		conn.execute(_TRIGGERS["trg_meta_protocol_guard"])
+		_fault("migrate:protocol-guard-installed")
+		conn.execute("DROP TRIGGER trg_meta_frozen")
+		conn.execute(_TRIGGERS["trg_meta_frozen"])
+		conn.execute(f"PRAGMA user_version={PROTOCOL_VERSION}")
+		conn.execute("UPDATE instance_meta SET protocol=? WHERE one_row=1", (PROTOCOL_VERSION,))
+		# Accept the generation+1 config in the SAME transaction. The config
+		# carries protocol_version, so schema and config must move together or
+		# the instance is left describing itself incorrectly.
+		conn.execute(
+			"UPDATE instance_meta SET accepted_generation=?, config_sha256=? WHERE one_row=1",
+			(store.config["generation"], store.config_digest))
+		after = conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+		if after != before:
+			raise BatonError(
+				f"migration lost rows: {before} messages before, {after} after", EXIT_DAMAGE)
+		violations = conn.execute("PRAGMA foreign_key_check").fetchall()
+		if violations:
+			raise BatonError(
+				f"migration left {len(violations)} foreign key violation(s)", EXIT_DAMAGE)
+		_validate_schema(conn)  # must be EXACTLY protocol 7 before we commit
+		_audit_ceremony(store, "migrate", participant, actor, seed,
+		                f"migrated protocol 6 to {PROTOCOL_VERSION}; {before} messages preserved",
+		                None)
+		store._txn_commit()
+		return {"migrated": True, "from_protocol": PROTOCOL_VERSION - 1,
+		        "protocol": PROTOCOL_VERSION, "messages_preserved": before,
+		        "accepted_generation": store.config["generation"]}
+	except BaseException:
+		store._txn_rollback()
+		raise
+
+
+def migrate_instance(config_path: str, *, participant: str, actor: str, seed: str,
+                     snapshot_dir: str | None = None) -> dict:
+	"""Audited schema migration. Protocol 6 is the only schema this tool can
+	migrate from, and it is validated exactly against protocol 6's own frozen
+	definition first — an altered or damaged v6 database is refused rather
+	than carried forward. Requires the `config` capability and the maintenance
+	gate, so the instance is quiet for every participant while it runs."""
+	with open_instance(config_path, _for_ceremony=True, _for_migrate=True) as store:
 		store._require_capability(participant, actor, seed, "config", "migrate")
 		row = store.conn.execute(
 			"SELECT maintenance FROM instance_meta WHERE one_row=1").fetchone()
 		if row["maintenance"] != 1:
 			raise BatonError("migrate requires the maintenance gate to be set first")
-		store._txn_begin("migrate", actor, seed, participant=participant, ceremony="migrate")
+		row_meta = _meta(store)
+		current = store.conn.execute("PRAGMA user_version").fetchone()[0]
+		if current == PROTOCOL_VERSION:
+			# Idempotent: a retry after a committed migration is a no-op, not
+			# a failure — a lost response must never make an operator guess.
+			return {"migrated": False, "protocol": PROTOCOL_VERSION,
+			        "detail": "instance is already at the supported protocol"}
+		if current != PROTOCOL_VERSION - 1:
+			store._txn_begin("migrate", actor, seed, participant=participant, ceremony="migrate")
+			try:
+				_audit_ceremony(store, "migrate", participant, actor, seed,
+				                f"attempted migration; no path from protocol {current}", None)
+				store._txn_commit()
+			except BaseException:
+				store._txn_rollback()
+				raise
+			raise BatonError(
+				f"no migration path exists from protocol {current} to {PROTOCOL_VERSION}",
+				EXIT_PROTOCOL)
+		# The migration takes its OWN validated pre-migration snapshot. Leaving
+		# this to the operator meant trusting a hand-rolled `cp` of a WAL
+		# database to be a coherent backup, which it is not; and the older
+		# executable — the only one that can open the pre-migration instance —
+		# has no snapshot verb, so there was no supported way to do it by hand.
+		# Reconstruct the ACCEPTED (pre-migration) config and prove it by
+		# digest. This does double duty:
+		#   * the snapshot must pair the old database with the config that
+		#     matches it. Copying the on-disk config would pair a protocol-6
+		#     database with the protocol-7 config, and the result opens under
+		#     neither executable — a rollback artifact that cannot roll back.
+		#   * if setting exactly `generation` and `protocol_version` back does
+		#     NOT reproduce the accepted digest, the offered config changed
+		#     something else, and a migration is not the ceremony for that.
+		prior = dict(store.config)
+		prior["generation"] = row_meta["accepted_generation"]
+		prior["protocol_version"] = PROTOCOL_VERSION - 1
+		if canonical_sha256(prior) != row_meta["config_sha256"]:
+			raise BatonError(
+				"the offered config differs from the accepted one in more than 'generation' "
+				"and 'protocol_version'; migrate accepts only the protocol bump — use regen "
+				"for other config changes", EXIT_PROTOCOL)
+		snapshot = None
+		if snapshot_dir is not None:
+			snapshot = _take_snapshot(store, config_path, snapshot_dir, row_meta,
+			                          for_migrate=True,
+			                          config_bytes=canonical_dumps(prior).encode("utf-8"))
+			if snapshot["protocol"] != PROTOCOL_VERSION - 1:
+				raise BatonError(
+					f"pre-migration snapshot is protocol {snapshot['protocol']}, expected "
+					f"{PROTOCOL_VERSION - 1}; refusing", EXIT_DAMAGE)
+			_fault("migrate:snapshot-taken")
 		try:
-			_audit_ceremony(store, "migrate", participant, actor, seed,
-			                "attempted migration; no path from protocol 6", None)
-			store._txn_commit()
-		except BaseException:
-			store._txn_rollback()
-			raise
-		raise BatonError(
-			f"no migration path exists from protocol {PROTOCOL_VERSION}; this tool only "
-			"gains one alongside a protocol bump", EXIT_PROTOCOL)
+			result = _migrate_6_to_7(store, participant, actor, seed)
+		finally:
+			store.conn.execute("PRAGMA foreign_keys=ON")
+		if snapshot is not None:
+			if snapshot["messages"] != result["messages_preserved"]:
+				raise BatonError(
+					f"snapshot holds {snapshot['messages']} messages but the migration "
+					f"preserved {result['messages_preserved']}; investigate before using "
+					f"either", EXIT_DAMAGE)
+			result["snapshot"] = snapshot
+		return result
+
+
+def _read_config_bytes_at(dirfd: int, config_name: str) -> bytes:
+	"""Read the config through the HELD instance dirfd, no-follow, refusing a
+	non-regular file — the same discipline the move ceremony uses."""
+	cfd = os.open(config_name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=dirfd)
+	try:
+		if not stat.S_ISREG(os.fstat(cfd).st_mode):
+			raise BatonError(f"config {config_name!r} is not a regular file; refusing",
+			                 EXIT_DAMAGE)
+		data = b""
+		while True:
+			chunk = os.read(cfd, 1 << 20)
+			if not chunk:
+				break
+			data += chunk
+		return data
+	finally:
+		os.close(cfd)
+
+
+def quarantine_attachment_instance(config_path: str, message_id: str, *, participant: str,
+                                   actor: str, seed: str, reason: str) -> dict:
+	"""Ceremony entry point for the quarantine disposition. Opens as a
+	ceremony so it can run while the instance is under a PLAIN maintenance
+	gate — repairing instance health belongs in the same quiet window as a
+	migration, before participants are let back in. Move-gated instances are
+	still refused, inside the transaction where the check cannot be raced."""
+	with open_instance(config_path, _for_ceremony=True) as store:
+		return store.quarantine_attachment(message_id, participant=participant,
+		                                   actor=actor, seed=seed, reason=reason)
+
+
+def snapshot_instance(config_path: str, dest_dir: str, *, participant: str, actor: str,
+                      seed: str) -> dict:
+	"""Take a validated, restorable copy of a QUIESCED instance.
+
+	Rationale: a bare `cp` of a WAL-mode database is not a backup contract —
+	the committed state may live partly in `-wal`, so the copy can be torn or
+	stale. This drains the WAL with the same `checkpoint_drain` the move
+	ceremony uses (TRUNCATE until it reports converged, which also proves no
+	other reader/writer is active), then publishes the database and config
+	through the same hash-verified, fsynced, no-clobber streaming copy that
+	publishes a move. Finally it OPENS the copy and validates it, so the
+	snapshot is known-good before it is ever needed.
+
+	Requires the maintenance gate: a snapshot of a live instance would be a
+	snapshot of a moving target."""
+	with open_instance(config_path, _for_ceremony=True) as store:
+		store._require_capability(participant, actor, seed, "config", "snapshot")
+		row = _meta(store)
+		if row["maintenance"] != 1:
+			raise BatonError(
+				"snapshot requires the maintenance gate to be set first (a snapshot of a "
+				"live instance is a snapshot of a moving target)")
+		if row["move_status"] != "none":
+			raise BatonError(
+				f"instance move is {row['move_status']!r}; snapshot is refused during a move",
+				EXIT_GATED)
+		return _take_snapshot(store, config_path, dest_dir, row)
+
+
+def _take_snapshot(store: Store, config_path: str, dest_dir: str,
+                   meta_row: sqlite3.Row, for_migrate: bool = False,
+                   config_bytes: bytes | None = None) -> dict:
+	"""Snapshot core, shared by the `snapshot` verb and by `migrate`, which
+	takes its own pre-migration copy rather than trusting an operator to have
+	made a good one."""
+	active = store.conn.execute(
+		"SELECT COUNT(*) FROM claims WHERE state='active'").fetchone()[0]
+	checkpoint_drain(store)  # fold the WAL in; proves the instance is quiet
+	dest = os.path.abspath(dest_dir)
+	# Creating the directory is not enough: the publication helpers fsync the
+	# copied files and `dest` itself, which persists the entries INSIDE dest,
+	# but not dest's own entry in its parent. A crash after the migration
+	# commits could then lose the rollback directory's NAME even though every
+	# byte inside it was synced. Persist the parent link too.
+	created = not os.path.isdir(dest)
+	os.makedirs(dest, exist_ok=True)
+	if created:
+		parent_fd = _open_dir_no_follow(os.path.dirname(dest) or "/", "snapshot parent directory")
+		try:
+			os.fsync(parent_fd)
+		finally:
+			os.close(parent_fd)
+	if config_bytes is None:
+		config_bytes = _read_config_bytes_at(store.dirfd, os.path.basename(config_path))
+	config_sha = hashlib.sha256(config_bytes).hexdigest()
+	dst_dirfd = _open_dir_no_follow(dest, "snapshot directory")
+	try:
+		_publish_bytes_at(dst_dirfd, "baton.json", config_bytes, 0o600, config_sha)
+		db_sha = _stream_publish_from_fd(
+			store.dbfd, os.fstat(store.dbfd).st_size, dst_dirfd, DB_NAME, 0o600)
+	finally:
+		os.close(dst_dirfd)
+	# Prove the snapshot is a usable instance NOW, not when it is needed. A
+	# pre-migration snapshot is still the OLD protocol, so it is validated in
+	# migrate mode — against that protocol's own frozen schema, not leniently.
+	with open_instance(os.path.join(dest, "baton.json"), readonly=True,
+	                   _for_ceremony=True, _for_migrate=for_migrate) as copy:
+		meta = copy.conn.execute(
+			"SELECT uuid, protocol, accepted_generation FROM instance_meta "
+			"WHERE one_row=1").fetchone()
+		messages = copy.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+		if meta["uuid"] != meta_row["uuid"]:
+			raise BatonError("snapshot holds a different instance uuid; refusing", EXIT_DAMAGE)
+	return {"snapshot_dir": dest, "database_sha256": db_sha, "config_sha256": config_sha,
+	        "protocol": meta["protocol"], "accepted_generation": meta["accepted_generation"],
+	        "messages": messages, "active_claims": active}
 
 
 def move_status_inspect(config_path: str) -> dict:
@@ -2629,7 +3301,13 @@ def wait_for_message(config_path: str, participant: str, *, actor: str, seed: st
 	prompt to requery the transactional store. The 60s safety rescan always
 	applies; without inotify this degrades to pure interval polling. A gated
 	(maintenance/moved) instance makes the waiter stand down with the gate's
-	own diagnostic rather than spinning."""
+	own diagnostic rather than spinning.
+
+	The requery covers BOTH inbound channels — a claimable directed message,
+	or failing that an unseen live broadcast notice. A notice commit wakes the
+	directory watch like any other write, so requerying only `messages` would
+	wake the waiter and then send it back to sleep with the notice
+	undelivered."""
 	import math
 	import time
 	if timeout_s is not None and (type(timeout_s) not in (int, float)
@@ -2640,24 +3318,39 @@ def wait_for_message(config_path: str, participant: str, *, actor: str, seed: st
 		raise BatonError("rescan interval must be a finite positive number")
 	deadline = (time.monotonic() + timeout_s) if timeout_s is not None else None
 
-	def try_claim() -> dict | None:
+	def try_deliver() -> dict | None:
+		"""One requery of both channels through ONE open, validated Store, so
+		a gate stands the whole waiter down and the post-arm requery closes
+		the query→arm race for notices exactly as it does for messages.
+		Directed messages win: claimable work must never be delayed behind
+		advisory broadcast, which also keeps the directed path's timing and
+		delivery shape unchanged for consumers that never receive notices."""
 		try:
 			with open_instance(config_path) as store:
-				claim = store.claim(participant, actor=actor, seed=seed)
-				# Deterministic seam BETWEEN claim commit and content fetch:
-				# an instance transition here must not strand the claim — the
-				# delivery below reads through this SAME open, validated
-				# Store, never a second open.
-				_fault("wait:claimed")
-				return _delivery(store, claim)
+				try:
+					claim = store.claim(participant, actor=actor, seed=seed)
+				except BatonError as exc:
+					if exc.exit_code != EXIT_NONE:
+						raise
+				else:
+					# Deterministic seam BETWEEN claim commit and content fetch:
+					# an instance transition here must not strand the claim — the
+					# delivery below reads through this SAME open, validated
+					# Store, never a second open.
+					_fault("wait:claimed")
+					return _delivery(store, claim)
+				if not store.has_unseen_notice(participant, actor=actor):
+					return None  # idle poll stays read-only; no write lock taken
+				notices = store.see(participant, actor=actor, seed=seed, limit=1)
+				return _notice_delivery(notices[0]) if notices else None
 		except BatonError as exc:
 			if exc.exit_code == EXIT_NONE:
 				return None
 			raise  # gates (EXIT_GATED) and real errors stand the waiter down
 
-	claim = try_claim()
-	if claim is not None:
-		return claim
+	delivery = try_deliver()
+	if delivery is not None:
+		return delivery
 	instance_dir = os.path.dirname(config_path)
 	while True:
 		watch = None
@@ -2667,25 +3360,25 @@ def wait_for_message(config_path: str, participant: str, *, actor: str, seed: st
 			except OSError:
 				watch = None  # degraded: pure polling
 			_fault("wait:armed")
-			claim = try_claim()  # requery closes the query→arm race
-			if claim is not None:
-				return claim
+			delivery = try_deliver()  # requery closes the query→arm race
+			if delivery is not None:
+				return delivery
 			remaining = None if deadline is None else deadline - time.monotonic()
 			if remaining is not None and remaining <= 0:
 				raise BatonError(
-					f"no message addressed to {participant!r} arrived within the timeout",
+					f"no message or notice for {participant!r} arrived within the timeout",
 					EXIT_NONE)
 			slice_s = rescan_interval_s if remaining is None else min(rescan_interval_s, remaining)
 			if watch is not None:
 				flags = watch.poll(slice_s)
 				if flags["revalidate"]:
 					watch.close()
-					watch = None  # full re-open validation happens in try_claim
+					watch = None  # full re-open validation happens in try_deliver
 			else:
 				time.sleep(slice_s)  # degraded polling honors the configured interval
-			claim = try_claim()
-			if claim is not None:
-				return claim
+			delivery = try_deliver()
+			if delivery is not None:
+				return delivery
 		finally:
 			if watch is not None:
 				watch.close()
@@ -2736,6 +3429,25 @@ def _delivery(store: Store, claim: dict) -> dict:
 	return {"claim": claim, "message": envelope}
 
 
+def _notice_delivery(notice: dict) -> dict:
+	"""The broadcast delivery shape `wait` returns for a notice, distinguished
+	from a directed delivery by key: `{'notice': ...}` versus
+	`{'claim': ..., 'message': ...}`. The directed shape gains and loses
+	nothing, so a consumer that only ever receives directed traffic sees no
+	change at all.
+
+	There is no claim here, and none is constructible: a `claims` row
+	references `messages(id)`, and a notice is one row read by every
+	participant with no per-recipient message to own. The `notice_seen`
+	receipt written with the read is the whole disposition — nothing to reply
+	to, nothing to close."""
+	envelope = {k: notice[k] for k in (
+		"id", "from_participant", "kind", "content_sha256", "created_ts",
+		"ttl_seconds", "seen_ts")}
+	envelope["body"] = _body_repr(notice.get("body"), notice["content_sha256"])
+	return {"notice": envelope}
+
+
 # ---------------------------------------------------------------------------
 # Observability: doctor / dump / materialize
 # ---------------------------------------------------------------------------
@@ -2776,11 +3488,13 @@ def doctor(config_path: str) -> dict:
 		# (GC'd subjects keep their permanent history).
 		_MSG_EDGES = {(None, "pending"), ("pending", "claimed"), ("claimed", "completed"),
 		              ("claimed", "closed"), ("claimed", "pending"),
+		              ("pending", "quarantined"),
 		              ("completed", "gc"), ("closed", "gc")}
 		_CLAIM_EDGES = {(None, "active"), ("active", "completed"), ("active", "recovered"),
 		                ("completed", "gc"), ("recovered", "gc"), ("active", "gc")}
 		_KNOWN_VERBS = {"send", "claim", "reply", "close", "see", "expire", "recover",
-		                "regen", "gc", "maintenance", "move", "move_enter", "migrate"}
+		                "regen", "gc", "maintenance", "move", "move_enter", "migrate",
+		                "quarantine"}
 		# The finite edge -> producing-verb table: an edge outside its verb
 		# set is an unexplained audit record even with valid syntax.
 		_EDGE_VERBS = {
@@ -2789,6 +3503,7 @@ def doctor(config_path: str) -> dict:
 			("message", "claimed", "completed"): {"reply"},
 			("message", "claimed", "closed"): {"close"},
 			("message", "claimed", "pending"): {"recover"},
+			("message", "pending", "quarantined"): {"quarantine"},
 			("message", "completed", "gc"): {"gc"},
 			("message", "closed", "gc"): {"gc"},
 			("claim", None, "active"): {"claim"},
@@ -2893,12 +3608,63 @@ def doctor(config_path: str) -> dict:
 		# Retained attachments: verify pinned path/size/hash through the
 		# existing no-follow authority — a mutated or unreadable attachment
 		# is a problem, not a healthy report.
+		# Damage that has been explicitly dispositioned through the quarantine
+		# ceremony is a WARNING, not a problem: it is acknowledged, audited,
+		# and no longer blocking anything. Only unresolved damage keeps the
+		# instance unhealthy — otherwise there would be no way to reach a
+		# healthy instance after a pin legitimately went stale.
+		acknowledged = store.quarantined_message_ids()
 		for r in store.conn.execute(
 				"SELECT id FROM messages WHERE attach_root_id IS NOT NULL"):
 			try:
 				store.verify_attachment(r["id"])
 			except BatonError as exc:
-				report["problems"].append(f"attachment of message {r['id']}: {exc}")
+				if r["id"] in acknowledged:
+					report["warnings"].append(
+						f"attachment of message {r['id']} is damaged but quarantined: {exc}")
+				else:
+					report["problems"].append(f"attachment of message {r['id']}: {exc}")
+		report["quarantined"] = sorted(acknowledged)
+		# Quarantine coherence: the state and its audit row must agree, in
+		# both directions. A quarantined message with no row, or a row whose
+		# recorded pin disagrees with the message's immutable columns, means
+		# something produced the state outside the ceremony.
+		for row in store.conn.execute(
+				"SELECT id FROM messages WHERE state='quarantined'"):
+			if row["id"] not in acknowledged:
+				report["problems"].append(
+					f"message {row['id']} is quarantined with no quarantine record")
+		for q in store.conn.execute("SELECT * FROM quarantines"):
+			msg = store.conn.execute(
+				"SELECT state, attach_root_id, attach_path, attach_sha256, attach_size, "
+				"attach_generation FROM messages WHERE id=?", (q["message_id"],)).fetchone()
+			if msg is None:
+				report["problems"].append(
+					f"quarantine {q['quarantine_id']} references missing message {q['message_id']}")
+				continue
+			pinned = ("attach_root_id", "attach_path", "attach_sha256", "attach_size",
+			          "attach_generation")
+			if any(msg[col] != q[col] for col in pinned):
+				report["problems"].append(
+					f"quarantine {q['quarantine_id']} records a different pin than message "
+					f"{q['message_id']} still carries")
+			if q["prior_state"] == "pending":
+				if msg["state"] != "quarantined":
+					report["problems"].append(
+						f"quarantine {q['quarantine_id']} recorded prior_state 'pending' but "
+						f"message {q['message_id']} is {msg['state']!r}, not quarantined")
+				edge = store.conn.execute(
+					"SELECT verb FROM transitions WHERE entity='message' AND entity_id=? "
+					"AND from_state='pending' AND to_state='quarantined'",
+					(q["message_id"],)).fetchall()
+				if [e["verb"] for e in edge] != ["quarantine"]:
+					report["problems"].append(
+						f"message {q['message_id']} lacks exactly one 'quarantine' ledger edge "
+						f"for its pending->quarantined transition")
+			elif msg["state"] != q["prior_state"]:
+				report["problems"].append(
+					f"quarantine {q['quarantine_id']} acknowledged message {q['message_id']} in "
+					f"state {q['prior_state']!r} but it is now {msg['state']!r}")
 		# Attachment pins: pinned root must be the accepted binding at the
 		# pinned generation and match the live config mapping.
 		config_roots = store.config.get("roots", {})
@@ -3155,6 +3921,14 @@ def _build_parser():
 	ident(c)
 	c.add_argument("claim_id")
 	c.add_argument("--reason", required=True)
+	c = cmd("quarantine-attachment",
+	        help="capability-authorized disposition for a damaged attachment")
+	ident(c)
+	c.add_argument("message_id")
+	c.add_argument("--reason", required=True)
+	c = cmd("snapshot", help="validated copy of a maintenance-gated instance")
+	ident(c)
+	c.add_argument("--dir", required=True)
 	c = cmd("gc", help="bounded retention garbage collection")
 	ident(c)
 	c = cmd("scan", help="pending/claimed inventory")
@@ -3193,6 +3967,8 @@ def _build_parser():
 	c.add_argument("--reason", required=True)
 	c = cmd("migrate", help="audited migration gate")
 	ident(c)
+	c.add_argument("--snapshot-dir",
+	               help="take a validated pre-migration snapshot into this directory")
 	return parser
 
 
@@ -3270,6 +4046,13 @@ def main(argv: list[str] | None = None) -> int:
 				result = store.recover_claim(ns.claim_id, participant=ns.participant,
 				                             actor=ns.actor, seed=ns.seed, reason=ns.reason)
 			_print_result(result)
+		elif ns.command == "snapshot":
+			_print_result(snapshot_instance(ns.config, ns.dir, participant=ns.participant,
+			                                actor=ns.actor, seed=ns.seed))
+		elif ns.command == "quarantine-attachment":
+			_print_result(quarantine_attachment_instance(
+				ns.config, ns.message_id, participant=ns.participant,
+				actor=ns.actor, seed=ns.seed, reason=ns.reason))
 		elif ns.command == "gc":
 			with open_instance(ns.config) as store:
 				result = store.gc(participant=ns.participant, actor=ns.actor, seed=ns.seed)
@@ -3318,7 +4101,8 @@ def main(argv: list[str] | None = None) -> int:
 				reason=ns.reason))
 		elif ns.command == "migrate":
 			_print_result(migrate_instance(ns.config, participant=ns.participant,
-			                               actor=ns.actor, seed=ns.seed))
+			                               actor=ns.actor, seed=ns.seed,
+			                               snapshot_dir=ns.snapshot_dir))
 		else:  # pragma: no cover
 			raise BatonError(f"unknown command {ns.command!r}")
 		return 0

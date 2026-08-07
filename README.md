@@ -62,6 +62,35 @@ to send the handoff:
     "$BATON" --config "$DEMO/baton.json" wait \
       --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED"
 
+### Quick inline messages
+
+Short ACKs, pings, and decisions do not need temporary files. Pass `--body -`
+and pipe the bytes on standard input (`send` and `reply` also default their
+body to stdin):
+
+    printf '%s\n' "I'm still working and testing; give me more time." | \
+      "$BATON" --config "$DEMO/baton.json" send-notice \
+      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED" \
+      --kind working_status --ttl-seconds 3600 --body -
+
+That status is broadcast, wakes `wait`, records no claim, and needs no reply
+or close. Use a directed `send` when a particular recipient must acknowledge
+and disposition the message:
+
+    printf '%s\n' 'Ready for review.' | "$BATON" --config "$DEMO/baton.json" send \
+      --participant team.implementer --actor implementer-1 --seed "$IMPLEMENTER_SEED" \
+      --to team.reviewer --kind ping --retention transient --body -
+
+    printf '%s\n' 'Approved.' | "$BATON" --config "$DEMO/baton.json" reply "$CLAIM_ID" \
+      --participant team.reviewer --actor reviewer-1 --seed "$REVIEWER_SEED" \
+      --kind review --outcome approved --retention durable --body -
+
+Substantive reviews and implementation responses should remain durable bodies
+and be materialized into whatever review folder the consuming project uses
+(`materialize --dir DIR --prefix P`). The file is a human-facing artifact;
+short protocol acknowledgements stay inline. Where those folders live, and how
+they are named, is the consuming project's policy — not Baton's.
+
 For production use, keep the config and SQLite database in a dedicated local
 instance directory outside participating project trees. Each long-lived actor
 uses one stable 32-hex seed and one active consumer path.
@@ -71,6 +100,23 @@ uses one stable 32-hex seed and one active consumer path.
 Requires Python 3.11 or newer, Linux, and SQLite 3.37.0 or newer on a local
 filesystem. No third-party Python packages are required. Missing runtime
 requirements fail closed with documented exit code 2.
+
+## Development
+
+The checked-in `justfile` provides the local development workflow. These
+recipes require `just`, but the shipped Baton executable does not. The
+repository-local `.venv` contains development tooling only; Baton remains a
+stdlib-only zipapp.
+
+- `just venv` creates `.venv` when needed and installs the pinned packages in
+  `requirements-dev.txt`.
+- `just test` runs the complete reusable suite in `test_baton_v6.py`.
+- `just build` rebuilds the deterministic `bin/baton` zipapp and refreshes
+  `DISTRIBUTION.json`.
+
+After a fresh clone, run `just venv` once, then use `just test` for normal
+verification. Test and build recipes fail with a direct instruction if the
+local venv has not been bootstrapped.
 
 ## Instance
 
@@ -91,13 +137,38 @@ bounds transient-metadata garbage collection.
 ## Core commands
 
 `send` (body from stdin/file XOR `--attach ROOT:REL/PATH`), `send-notice`
-(finite TTL, default 86400s), `claim` / `wait` (one lossless delivery shape:
-claim metadata plus envelope with base64+sha256 body or pinned attachment
-tuple), `reply` / `close` (effectively-once: retries redeliver the committed
+(finite TTL, default 86400s), `claim` (one lossless delivery: claim metadata
+plus envelope with base64+sha256 body or pinned attachment tuple), `wait`
+(the same directed delivery, or a broadcast notice — see below),
+`reply` / `close` (effectively-once: retries redeliver the committed
 disposition and mismatches fail closed), `see` / `expire` (notices),
 `recover-claim` (requires the `recovery` capability and a reason), `gc`,
 `regen` (accept a generation+1 config; requires `config`), `scan`,
 `doctor`, `dump`, `inspect`, `materialize`.
+
+## What `wait` delivers
+
+`wait` blocks until exactly one delivery is available on either inbound
+channel and prints it as JSON. The two shapes are distinguished by key:
+
+    {"claim": {...}, "message": {...}}   a directed message, now claimed
+    {"notice": {...}}                    a broadcast notice, marked seen
+
+A pending directed message always wins when both are available, so claimable
+work is never delayed behind advisory broadcast, and a consumer that only
+ever receives directed traffic sees the directed shape unchanged.
+
+A notice is not claimed — there is nothing to `reply` to or `close`. The
+`notice_seen` receipt commits in the same transaction as the read, exactly as
+`see` has always done, so `wait` and `see` never deliver the same notice twice
+to the same participant+actor. Each participant, and each actor of a
+participant, receives its own independent copy.
+
+That receipt is also why broadcast is **at-most-once**: a consumer that dies
+after the commit but before acting on the bytes does not get the notice again.
+At-least-once would require per-recipient acknowledgement — that is a claim,
+and a notice has no per-recipient message row to claim. Use a directed message
+for anything that must not be missed.
 
 Projections: `materialize --dir DIR --prefix P` re-emits a durable body as a
 byte-exact `P-<created>-<id>.md` file. The prefix is an EXPLICIT caller
@@ -120,10 +191,11 @@ at most one instance with a given UUID can ever be active through the API.
 
 ## Distribution
 
-`python3 build_zipapp.py [outdir]` builds a deterministic executable
-`baton` zipapp and writes `DISTRIBUTION.json` (tool/protocol versions,
-minimum runtime versions, artifact hash). Same inputs, same bytes. A complete
-deployment also ships the generic `AGENTS-MAILBOX-PROTO.md` beside the
-executable; consumer projects keep only their local participant bindings and
-discover paths from the deployment rather than hard-coding a checkout or host
-layout.
+`just build` invokes `build_zipapp.py` to build the canonical deterministic
+`bin/baton` zipapp and refresh `DISTRIBUTION.json` (tool/protocol versions,
+minimum runtime versions, artifact hash). `python3 build_zipapp.py [outdir]`
+remains available when building into another distribution root. Same inputs,
+same bytes. A complete deployment also ships the generic
+`AGENTS-MAILBOX-PROTO.md` beside the executable; consumer projects keep only
+their local participant bindings and discover paths from the deployment rather
+than hard-coding a checkout or host layout.
