@@ -114,22 +114,38 @@ against a live authority — unvalidated rows in the single transactional
 authority would be a worse failure than the outage such a port would be trying
 to undo.
 
-## What this deployment did, 2026-08-07
+## Cutover record
 
-Executed as above, by the reviewer, after the in-place cutover stalled:
+This procedure has been executed three times, all on 2026-08-07: 6 to 7 (by
+the reviewer, after an in-place cutover stalled), 7 to 8, and 8 to 9. Each
+retirement, its archive path and what it preserved are tabulated in
+`FINDING.md` beside this file.
 
-- Retired intact to
-  `/home/sl/src/mailbox-retired-protocol6-20260807T1249Z`
-  (uuid `0231b16a81ef2522d630e8d1a81d8c97`, protocol 6, generation 2,
-  59 messages, 273 transitions, `quick_check: ok` — verified read-only).
-- Fresh protocol-7 instance at `/home/sl/src/mailbox/`,
-  uuid `1063b97dbba0ed1382ae386bb9f9240f`, `doctor ok: true`.
-- Reset notice broadcast; participants reconnected and re-sent.
-- No port performed. Nobody has needed one.
+No port was ever performed. Nobody has needed one — which is the invariant
+above holding in practice rather than in theory.
 
-Consequences worth carrying forward: the three damaged attachment records are
-in the retired archive, not the live channel, so live `doctor` is `ok: true`
-and their repair is unhurried and optional. The protocol-6 executable at
-`/home/sl/src/baton-protocol6/bin/baton`
-(`cf2de45ef5963daec6a63806fbfacf0638e4d450e8c5fa08b081d596018977c9`) is now the
-only way to read the retired authority and must be preserved.
+## Preserve the executable of every retired era
+
+**A retired authority can only be read by the executable of its own
+protocol.** Schema validation is exact, so a newer build refuses an older
+instance rather than misreading it: a protocol mismatch exits 4, and schema
+tampering within a matching protocol exits 6. Both fail closed, and neither
+gives you the data.
+
+Each versioned deployment directory is therefore the only key to its archive
+and must not be deleted:
+
+| Archive | Readable only by |
+|---|---|
+| `mailbox-retired-protocol6-20260807T1249Z` | `baton-protocol6/bin/baton` |
+| `mailbox-protocol7-retired-20260807` | the protocol-7 build |
+| `mailbox-protocol8-retired-20260807T234737Z` | `baton-protocol8/bin/baton` |
+
+This is why the deployment path is versioned rather than overwritten in place.
+It also means an agent still pointing at an old path fails closed on a
+protocol error instead of silently reading a dead mailbox — the failure mode
+worth having.
+
+Also carried forward: damaged attachment records left in a retired archive are
+not on the live channel, so live `doctor` stays `ok: true` and their repair is
+unhurried and optional.

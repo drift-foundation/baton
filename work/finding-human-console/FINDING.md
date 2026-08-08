@@ -8,7 +8,7 @@ Status: queued next; not started.
 > obsolete: a participant address is now the whole identity, and the typed
 > content envelope has landed. Product acceptance criteria are unchanged.
 Priority: **#1 immediately after the post-cutover cleanup review closes.**
-Raised by: Slawomir during `work/finding-wait-notice-wakeup/`.
+Raised by: Slawomir, 2026-08-07, while the wait/notice delivery work was in flight.
 
 ## Problem
 
@@ -37,14 +37,18 @@ can violate claim and receipt invariants and are treated as corruption by
 
 ## Sequencing
 
-Next after the post-cutover cleanup review closes, including
-`work/finding-attachment-part-convergence/`.
+Next after the post-cutover cleanup review closes.
 
-**The multipart dependency is gone.** The typed content envelope shipped in
-`work/finding-typed-content-envelope/`, so the console is built against the
-real content model rather than against a placeholder to be replaced later.
-That removes the part/view isolation this finding previously called for as a
-hedge: there is nothing left to swap in.
+**The multipart dependency is gone.** The typed content envelope and the
+convergence of attachments into parts both shipped in protocol 9, so the
+console is built against the real content model rather than a placeholder to
+be replaced later. That removes the part/view isolation this finding
+previously called for as a hedge: there is nothing left to swap in.
+
+The contract to build against is `README.md` ("Content: typed and
+multipart-capable" and "Subject"), `AGENTS-MAILBOX-PROTO.md`, and the
+`TestTypedContentEnvelope`, `TestAttachmentPartConvergence` and `TestSubject`
+suites — not any prior finding document.
 
 What the console can now rely on:
 

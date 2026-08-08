@@ -2,9 +2,9 @@
 
 Folder: `work/finding-live-first-mailbox-upgrade/`
 Requirement from Slawomir, relayed and scoped by the reviewer, 2026-08-07.
-Recorded separately so it is not entangled with
-`work/finding-damaged-attachment-queue/`, and **not to be broadened while
-communications are live**.
+Recorded separately so it is not entangled with the damaged-attachment work
+it arose alongside, and **not to be broadened while communications are
+live**.
 
 ## The failure to prevent
 
@@ -42,12 +42,13 @@ channel is expensive precisely because working around it requires the channel.
 
 ## Status
 
-**Documented, not engineered.** The procedure is `RUNBOOK.md` in
-`work/finding-damaged-attachment-queue/`, which was restructured so the fast
-fresh-instance cutover *is* the runbook. The in-place procedure was first
-demoted to a separate off-live document and has since been removed outright,
-along with the migration code it described — the invariant is now enforced by
-the tool having no in-place path to reach for.
+**Documented, not engineered.** The procedure is `RUNBOOK.md` beside this
+file, kept here because it is live operational doctrine rather than a record
+of finished work. The fast fresh-instance cutover *is* the runbook: the
+in-place procedure was demoted to a separate document and then removed
+outright, along with the migration code it described, so the invariant is now
+enforced by the tool having no in-place path to reach for. `migrate` is an
+audited refusal that gains a path only alongside a future protocol bump.
 
 That satisfies the runbook half of the requirement. The architecture half is
 open.
