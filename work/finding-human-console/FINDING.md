@@ -2,22 +2,27 @@
 
 Folder: `work/finding-human-console/`
 Status: queued next; not started.
-Priority: **#1 immediately after the current protocol-7 work lands.**
+
+> Refreshed 2026-08-07 for the shipped protocol. The seed-based identity model
+> and the protocol-7 sequencing this finding originally assumed are both
+> obsolete: a participant address is now the whole identity, and the typed
+> content envelope has landed. Product acceptance criteria are unchanged.
+Priority: **#1 immediately after the post-cutover cleanup review closes.**
 Raised by: Slawomir during `work/finding-wait-notice-wakeup/`.
 
 ## Problem
 
 Raw Baton JSON is an appropriate machine protocol but a poor human interface.
-Reading and responding from a terminal currently exposes transport details,
-including base64 bodies and seeds, and makes claim lifecycle actions easy to
-get wrong.
+Reading and responding from a terminal exposes transport details -- base64
+payloads, manifest digests, part trees -- and makes claim lifecycle actions
+easy to get wrong.
 
 ## Required direction
 
 Provide a console or UI that:
 
 - presents readable message parts;
-- hides base64 and actor seeds by default;
+- hides base64 payloads and integrity metadata by default;
 - shows pending and claimed state clearly;
 - provides explicit wait/inbox, reply, close, notice, and attachment actions;
 - makes it clear when a consumed directed message still requires `reply` or
@@ -32,15 +37,25 @@ can violate claim and receipt invariants and are treated as corruption by
 
 ## Sequencing
 
-This is the next finding after the immediate protocol-7 work lands. It does
-not wait for `work/finding-multipart-content/`: the current human workflow is
-already too rough for safe routine use.
+Next after the post-cutover cleanup review closes, including
+`work/finding-attachment-part-convergence/`.
 
-The first console increment must make today's text-message protocol usable,
-while isolating content rendering behind a part/view boundary so multipart
-can replace the current body envelope without rewriting claim lifecycle and
-inbox interaction. Multipart remains separate versioned protocol work and is
-integrated when available.
+**The multipart dependency is gone.** The typed content envelope shipped in
+`work/finding-typed-content-envelope/`, so the console is built against the
+real content model rather than against a placeholder to be replaced later.
+That removes the part/view isolation this finding previously called for as a
+hedge: there is nothing left to swap in.
+
+What the console can now rely on:
+
+- every body is an ordered `parts` tree with a declared `content_type`,
+  `disposition` and optional advisory `filename`;
+- each leaf carries exactly ONE representation, named by `encoding` -- `text`
+  or `base64` -- so rendering dispatches on one stable key instead of probing;
+- `filename` is advisory and must NEVER be used to open, create or name a
+  file, which is a console-side hazard as much as a protocol one;
+- Baton itself renders nothing. A console that renders HTML or Markdown owns
+  that injection surface entirely and must treat every part as hostile input.
 
 ## Acceptance criteria
 
@@ -54,10 +69,13 @@ integrated when available.
   `reply_with_claim.sh`, and `close_with_claim.sh` helpers are first-class
   console actions rather than machine-specific scripts.
 - A human can inspect and publish notices and work with attachments.
-- Content is rendered according to its declared part metadata, with safe
-  fallbacks for unsupported media.
-- Seeds and encoded binary bodies are not displayed unless explicitly
-  requested.
+- Content is rendered according to its declared `content_type`, with safe
+  fallbacks for unsupported media and no execution of untrusted markup.
+- Encoded binary payloads and integrity metadata are not displayed unless
+  explicitly requested.
+- Multipart messages are navigable: a human can see that several parts exist,
+  choose among `multipart/alternative` variants, and materialize a specific
+  part.
 - Claim state and the next required lifecycle action are always visible.
 - Every state-changing action goes through the Baton executable/API and
   preserves its transactional and audit guarantees.

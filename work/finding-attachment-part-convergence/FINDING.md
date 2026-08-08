@@ -1,7 +1,9 @@
 # Attachments and parts are two models for one idea
 
 Folder: `work/finding-attachment-part-convergence/`
-Status: **open; not started.**
+Status: **implemented** at protocol 9 / tool 5.1.0; see `IMPLEMENTATION.md`
+in this folder. **Deployed 2026-08-07**: the protocol-8 authority was retired
+intact and protocol 9 is live.
 Raised by the implementer while closing
 `work/finding-typed-content-envelope/`, 2026-08-07.
 

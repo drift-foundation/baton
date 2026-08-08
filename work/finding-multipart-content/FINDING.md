@@ -71,11 +71,11 @@ make `wait` and `see` disagree again—the same class of divergence fixed by
 
 ## Not done yet
 
-One criterion above is only partly met: *"Binary and externally stored parts
-have an unambiguous representation."* Inline binary parts do (declared media
-type, `disposition`, `base64`). Externally stored parts remain the separate
-pinned-attachment mechanism rather than rows in the `parts` table. That
-convergence is `work/finding-attachment-part-convergence/`.
+**All criteria are now met.** The last outstanding one -- *"Binary and
+externally stored parts have an unambiguous representation"* -- was closed at
+protocol 9 by `work/finding-attachment-part-convergence/`: an externally
+stored part is a `parts` row with a declared media type, disposition,
+filename, order and hash, covered by the same manifest as inline content.
 
 Compatibility policy was decided rather than deferred: there is no migration
 and no compatibility shim. Protocol 8 had never existed on disk when this

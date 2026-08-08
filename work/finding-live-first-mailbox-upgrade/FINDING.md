@@ -104,3 +104,38 @@ matter.
 - The protocol-6 executable
   (`cf2de45ef5963daec6a63806fbfacf0638e4d450e8c5fa08b081d596018977c9`) is the
   only thing that can read the retired authority and must be preserved.
+
+## Cutover record
+
+The contract has now been exercised twice in one day, both times without an
+in-place migration and both times with the retired instance preserved whole.
+
+| Retired | Preserved at | Live now |
+|---|---|---|
+| protocol 6 | `mailbox-retired-protocol6-20260807T1249Z` | — |
+| protocol 7 | `mailbox-protocol7-retired-20260807` | — |
+| protocol 8 | `mailbox-protocol8-retired-20260807T234737Z` | protocol 9 |
+
+What made the last cutover cheap, and is worth repeating:
+
+- **Both breaking changes rode one protocol bump.** The typed content envelope
+  was pinned to land inside protocol 8 before that authority was ever
+  initialized, so it cost one teardown rather than two.
+- **Participants were stood down deliberately before the swap**, with active
+  claims disposed first. Zero claims were active at retirement, so nothing was
+  orphaned.
+- **The ledger was read before retiring** to establish who was actually on the
+  channel. Only two participants had ever transacted, which is what made the
+  outage window a non-event.
+- **Undelivered messages were enumerated, then re-sent by hand** on the new
+  authority. One message was stranded and one was re-sent.
+- **Retirement is a rename, never a delete**, so every cutover so far remains
+  reversible and inspectable.
+
+The step that still hurts: reconnect instructions cannot travel through the
+channel being replaced. The broadcast can only be published after the new
+authority exists, so every participant needs an out-of-band nudge. That is the
+gap `work/finding-human-console/` closes for the human, and it is the reason
+the deployment path is versioned (`baton-protocol9/`) rather than overwritten
+in place — an agent still pointing at the old executable fails closed with a
+protocol error instead of silently reading a dead mailbox.

@@ -83,6 +83,20 @@ def delivered_bytes(content):
 	return part_bytes(only_part(content))
 
 
+def external_row(store, message_id):
+	"""The stored external part row of a message."""
+	return store.conn.execute(
+		"SELECT * FROM parts WHERE owner_kind='message' AND owner_id=? AND storage='external'",
+		(message_id,)).fetchone()
+
+
+def external_part(content, index=0):
+	"""The external leaf of a delivered content envelope. An attachment is a
+	PART now, so it is addressed through the manifest like any other."""
+	leaves = [p for p in content["parts"] if p.get("storage") == "external"]
+	return leaves[index]
+
+
 def stored_body(store, message_id):
 	"""Bytes of a stored message's first leaf, or None once scrubbed."""
 	parts = store.get_message(message_id)["parts"]
@@ -273,11 +287,18 @@ class TestSendClaim:
 			with pytest.raises(b6.BatonError, match="removed at protocol"):
 				b6.validate_config(cfg)
 
-	def test_body_xor_attach_exactly_one(self, store):
-		with pytest.raises(b6.BatonError, match="exactly one"):
+	def test_message_requires_content_and_may_carry_both_kinds(self, store):
+		"""Protocol 9 removed the body-XOR-attachment rule. A message can now
+		carry an inline explanation AND pinned evidence, which is the whole
+		point of converging attachments into parts -- the old model forced
+		splitting one statement across two messages.
+
+		An unknown root still fails, and a message with no content at all is
+		still refused."""
+		with pytest.raises(b6.BatonError, match="not declared in the config"):
 			store.send("acme.reviewer", "acme.implementer",
 			           kind="question", body=b"x", attach={"root_id": "r", "path": "p"})
-		with pytest.raises(b6.BatonError, match="exactly one"):
+		with pytest.raises(b6.BatonError, match="requires content"):
 			store.send("acme.reviewer", "acme.implementer",
 			           kind="question", body=None)
 		store._txn_begin("send")
@@ -1001,8 +1022,7 @@ class TestAttachments:
 		mid = store.send("acme.reviewer", "acme.implementer",
 		                 kind="evidence", body=None,
 		                 attach={"root_id": "evidence", "path": "sub/report.md"})
-		msg = store.get_message(mid)
-		assert msg["attach_sha256"] is not None
+		assert external_row(store, mid)["sha256"] is not None
 		claim = store.claim("acme.implementer")
 		assert claim["message_id"] == mid
 
@@ -1440,7 +1460,7 @@ class TestRootBindingGenerations:
 		with b6.open_instance(config_path) as st:
 			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="evidence", body=None, attach={"root_id": "evidence", "path": "e.md"})
-			assert st.get_message(mid)["attach_generation"] == 1
+			assert external_row(st, mid)["generation"] == 1
 		cfg = make_config(generation=2)
 		cfg["roots"] = {"evidence": str(root)}
 		cfg["participants"]["acme.newcomer"] = {}
@@ -2795,7 +2815,7 @@ class TestCli:
 		delivery = json.loads(out)
 		claim_id = delivery["claim"]["claim_id"]
 		assert delivered_bytes(delivery["message"]["content"]) == b"question body"
-		assert delivery["message"]["attachment"] is None
+		assert all(p["attachment"] is None for p in delivery["message"]["content"]["parts"])
 		monkeypatch.setattr("sys.stdin", type("S", (), {"buffer": __import__("io").BytesIO(b"answer body")})())
 		code, out = self._run("--config", config_path, "reply", claim_id,
 		                      "--participant", "acme.implementer", "--kind", "answer", "--outcome", "done")
@@ -2897,15 +2917,18 @@ class TestLosslessDelivery:
 		delivery = b6._delivery(store, claim)
 		assert delivered_bytes(delivery["message"]["content"]) == b"still here"
 		store.close_claim(claim["claim_id"], participant=claim["participant"])
-		post = b6._delivery(store, dict(claim))
-		# Bytes gone, manifest intact: the part still declares its type, size
-		# and hash, and the envelope still hashes to the recorded manifest.
-		scrubbed = only_part(post["message"]["content"])
-		assert scrubbed["encoding"] is None
-		assert "text" not in scrubbed and "base64" not in scrubbed
-		assert scrubbed["sha256"] is not None
-		assert scrubbed["content_type"] == b6.DEFAULT_CONTENT_TYPE
-		assert post["message"]["content"]["manifest_sha256"] is not None
+		# Bytes gone, manifest intact -- checked in STORAGE, because delivery
+		# now refuses a leaf without bytes on any path. A message is delivered
+		# only while pending or claimed, so absent bytes there always mean
+		# something removed them, whatever the retention says.
+		stored = store.get_message(mid)["parts"][0]
+		assert stored["body"] is None
+		assert stored["sha256"] is not None
+		assert stored["content_type"] == b6.DEFAULT_CONTENT_TYPE
+		assert store.get_message(mid)["manifest_sha256"] is not None
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6._delivery(store, dict(claim))
+		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
 
 	def test_attachment_delivery_tuple(self, tmp_path):
 		root = tmp_path / "evidence"
@@ -2922,10 +2945,14 @@ class TestLosslessDelivery:
 			                 kind="ev", body=None, attach={"root_id": "evidence", "path": "e.md"})
 			claim = store.claim("acme.implementer", message_id=mid)
 			delivery = b6._delivery(store, claim)
-			assert delivery["message"]["content"] is None
-			att = delivery["message"]["attachment"]
-			assert att["root_id"] == "evidence" and att["path"] == "e.md"
-			assert att["sha256"] and att["size"] == 8 and att["generation"] == 1
+			part = external_part(delivery["message"]["content"])
+			assert part["attachment"]["root_id"] == "evidence"
+			assert part["attachment"]["path"] == "e.md"
+			assert part["attachment"]["generation"] == 1
+			assert part["sha256"] and part["size"] == 8
+			# Bytes are POINTED AT, never inlined into the envelope.
+			assert part["encoding"] is None
+			assert "text" not in part and "base64" not in part
 
 
 class TestCliTotality:
@@ -3015,8 +3042,7 @@ class TestCliTotality:
 		                         "--participant", "acme.implementer")
 		assert code == 0
 		delivery = json.loads(out)
-		assert delivery["message"]["attachment"]["path"] == "e.md"
-		assert delivery["message"]["content"] is None
+		assert external_part(delivery["message"]["content"])["attachment"]["path"] == "e.md"
 
 
 class TestEventMatrix:
@@ -3683,8 +3709,8 @@ class TestDamagedAttachmentQueue:
 		assert [d["id"] for d in report["damaged"]] == [damaged]
 		entry = report["damaged"][0]
 		assert entry["to_participant"] == "acme.implementer"
-		assert entry["attachment"]["path"] == "EVIDENCE.md"
-		assert entry["attachment"]["root_id"] == "src"
+		assert entry["parts"][0]["path"] == "EVIDENCE.md"
+		assert entry["parts"][0]["root_id"] == "src"
 		assert "pinned hash" in entry["failure"]
 		assert b6.doctor(config_path)["ok"] is False  # still a problem until dispositioned
 
@@ -3708,8 +3734,8 @@ class TestDamagedAttachmentQueue:
 			assert claim["message_id"] == mid
 			delivery = b6._delivery(st, claim)
 			assert set(delivery) == {"claim", "message"}
-			assert delivery["message"]["attachment"]["path"] == "EVIDENCE.md"
-			assert delivery["message"]["content"] is None
+			assert external_part(
+				delivery["message"]["content"])["attachment"]["path"] == "EVIDENCE.md"
 			result = st.reply(claim["claim_id"], participant=claim["participant"],
 			                  kind="response", body=b"ack")
 			assert result["already_committed"] is False
@@ -3821,10 +3847,13 @@ class TestQuarantineAttachment:
 			assert "pinned hash" in result["failure"]
 			msg = st.get_message(mid)
 			assert msg["state"] == "quarantined" and msg["completed_ts"] is not None
-			# the ORIGINAL pin survives on the message AND in the audit row
+			# the ORIGINAL pin survives on the PART and in the audit row
 			row = st.conn.execute("SELECT * FROM quarantines WHERE message_id=?", (mid,)).fetchone()
-			assert row["attach_path"] == "EVIDENCE.md" and row["attach_root_id"] == "src"
-			assert row["attach_sha256"] == msg["attach_sha256"]
+			assert row["path"] == "EVIDENCE.md" and row["root_id"] == "src"
+			part = external_row(st, mid)
+			assert row["sha256"] == part["sha256"]
+			assert row["part_id"] == part["part_id"]
+			assert row["part_ordinal"] == "0"
 			assert row["prior_state"] == "pending"
 			assert row["participant"] == "hq.lead"
 			assert row["reason"] == "pin invalidated by edit"
@@ -3866,7 +3895,7 @@ class TestQuarantineAttachment:
 				st.quarantine_attachment("0" * 32, reason="ghost", **LEAD_ID)
 			assert excinfo.value.exit_code == b6.EXIT_NONE
 			plain = send_one(st)  # body-backed, no attachment to damage
-			with pytest.raises(b6.BatonError, match="no attachment"):
+			with pytest.raises(b6.BatonError, match="no externally stored part"):
 				st.quarantine_attachment(plain, reason="not applicable", **LEAD_ID)
 			# authority is an explicit capability, never inferred
 			with pytest.raises(b6.BatonError, match="recovery"):
@@ -3934,9 +3963,10 @@ class TestQuarantineAttachment:
 			with pytest.raises(sqlite3.IntegrityError, match="quarantine ceremony"):
 				st.conn.execute(
 					"INSERT INTO quarantines(quarantine_id, message_id, participant, "
-					"reason, prior_state, attach_root_id, attach_path, attach_sha256, "
-					"attach_size, attach_generation, failure, created_ts) "
-					"VALUES('x',?,'hq.lead','r','pending','src','p','s',1,1,'f','t')",
+					"reason, prior_state, part_id, part_ordinal, content_type, root_id, "
+					"path, sha256, size, generation, failure, created_ts) "
+					"VALUES('x',?,'hq.lead','r','pending','p0','0','text/plain; charset=utf-8',"
+					"'src','p','s',1,1,'f','t')",
 					(mid,))
 
 	def test_quarantined_message_is_not_reclaimable(self, tmp_path):
@@ -4014,7 +4044,7 @@ class TestQuarantineUnderGate:
 			st.quarantine_attachment(mid, reason="stale pin", **LEAD_ID)
 		assert b6.doctor(config_path)["ok"] is True
 		_raw_corrupt(config_path, lambda conn: conn.execute(
-			"UPDATE quarantines SET attach_sha256='0'*64"))
+			"UPDATE quarantines SET sha256='0'*64"))
 		report = b6.doctor(config_path)
 		assert report["ok"] is False
 		assert any("different pin" in p for p in report["problems"])
@@ -4889,6 +4919,240 @@ class TestTypedContentEnvelope:
 		assert report["ok"] is False
 		assert any("content manifest" in p for p in report["problems"])
 
+	# -- byte presence: the check the manifest deliberately cannot make -----
+
+	def test_missing_bytes_outside_retention_is_damage_not_a_scrub(self, instance):
+		"""Reported by baton.reviewer against the committed protocol-8 build,
+		reproduced before fixing.
+
+		The manifest digest EXCLUDES byte presence, on purpose, so that it
+		survives lawful transient scrubbing. That left nothing checking byte
+		presence at all: deleting a durable message's content rows read as
+		healthy and delivered `encoding: null`, indistinguishable from a
+		consumed transient."""
+		with b6.open_instance(instance) as store:
+			mid = send_one(store, body=b"durable payload", retention="durable")
+
+		def strip(conn):
+			cid = conn.execute(
+				"SELECT content_id FROM parts WHERE owner_id=?", (mid,)).fetchone()[0]
+			conn.execute("UPDATE parts SET content_id=NULL WHERE owner_id=?", (mid,))
+			conn.execute("DELETE FROM contents WHERE content_id=?", (cid,))
+		_raw_corrupt(instance, strip)
+
+		report = b6.doctor(instance)
+		assert report["ok"] is False
+		assert any("no stored bytes" in p for p in report["problems"])
+		with b6.open_instance(instance) as store:
+			claim = store.claim("acme.implementer", message_id=mid)
+			with pytest.raises(b6.BatonError) as excinfo:
+				b6._delivery(store, claim)
+			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+
+	def test_lawful_transient_scrub_stays_healthy(self, instance):
+		"""The other side of the same check: the legitimate case must not
+		become a false positive, or the check above is useless."""
+		with b6.open_instance(instance) as store:
+			mid = send_one(store, body=b"ephemeral", retention="transient")
+			claim = store.claim("acme.implementer", message_id=mid)
+			store.close_claim(claim["claim_id"], participant=claim["participant"])
+			stored = store.get_message(mid)["parts"][0]
+			assert stored["body"] is None and stored["sha256"] is not None
+		report = b6.doctor(instance)
+		assert report["ok"] is True and report["problems"] == []
+
+	def test_notice_part_without_bytes_is_always_damage(self, instance):
+		"""A notice is never scrubbed -- expire and gc delete it whole -- so a
+		notice part with no bytes has no lawful explanation."""
+		with b6.open_instance(instance) as store:
+			nid = notice_one(store, body=b"broadcast")
+		_raw_corrupt(instance, lambda conn: conn.execute(
+			"UPDATE parts SET content_id=NULL WHERE owner_id=?", (nid,)))
+		report = b6.doctor(instance)
+		assert report["ok"] is False
+		assert any("no stored bytes" in p for p in report["problems"])
+
+	# -- reply dispositions were excluded from the manifest pass -----------
+
+	def test_reply_disposition_manifest_is_checked_against_its_response(self, instance):
+		"""Reported by baton.reviewer, reproduced before fixing.
+
+		A reply disposition stores no parts of its own -- its content IS the
+		response message -- so the owner-manifest pass skipped it and left it
+		unchecked entirely. doctor read healthy while effectively-once was
+		broken underneath: a CORRECT retry was refused as a mismatch."""
+		with b6.open_instance(instance) as store:
+			send_one(store)
+			claim = store.claim("acme.implementer")
+			store.reply(claim["claim_id"], participant=claim["participant"],
+			            kind="answer", body=b"the answer")
+		_raw_corrupt(instance, lambda conn: conn.execute(
+			"UPDATE dispositions SET manifest_sha256=? WHERE claim_id=?",
+			("0" * 64, claim["claim_id"])))
+		report = b6.doctor(instance)
+		assert report["ok"] is False
+		assert any("reply disposition" in p and "disagrees" in p
+		           for p in report["problems"])
+
+	def test_reply_disposition_cannot_dangle_past_its_response(self, instance):
+		"""Deleting the response message out from under a reply disposition is
+		caught by FOREIGN KEY integrity at open, before doctor's own pass runs.
+
+		That is the stronger guarantee, so it is what gets pinned. doctor keeps
+		a branch for a dangling reference so the manifest pass reports rather
+		than crashes, but the reference should never reach it."""
+		with b6.open_instance(instance) as store:
+			send_one(store)
+			claim = store.claim("acme.implementer")
+			result = store.reply(claim["claim_id"], participant=claim["participant"],
+			                     kind="answer", body=b"the answer")
+		_raw_corrupt(instance, lambda conn: conn.execute(
+			"DELETE FROM messages WHERE id=?", (result["response_message_id"],)))
+		with pytest.raises(b6.BatonError, match="foreign_key_check") as excinfo:
+			b6.doctor(instance)
+		assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+
+	# -- R4: explicit metadata is validated, never silently defaulted -------
+
+	@pytest.mark.parametrize("field,value", [
+		("content_type", ""), ("disposition", ""), ("filename", ""),
+		("content_type", "not-a-media-type"), ("disposition", "sideways"),
+	])
+	def test_explicit_invalid_metadata_is_rejected_not_defaulted(self, store, field, value):
+		"""`raw.get(k) or DEFAULT` could not tell "absent" from "supplied
+		empty", so an explicit empty content_type became text/markdown and an
+		explicit empty disposition became inline -- the caller asked for
+		something meaningless and got silence plus a type it never named."""
+		with pytest.raises(b6.BatonError):
+			store.send("acme.reviewer", "acme.implementer", kind="k",
+			           parts=[{"body": b"x", field: value}])
+
+	def test_absent_metadata_still_defaults(self, store):
+		"""The other side of the same check: omitting a field must still
+		default, or the fix above is just a new way to fail."""
+		nodes = b6.normalize_parts([{"body": b"x"}])
+		assert nodes[0]["content_type"] == b6.DEFAULT_CONTENT_TYPE
+		assert nodes[0]["disposition"] == b6.DISPOSITION_INLINE
+		assert nodes[0]["filename"] is None
+
+	@pytest.mark.parametrize("kwargs", [
+		{"content_type": "application/pdf"},
+		{"disposition": "attachment"},
+		{"filename": "evidence.pdf"},
+		{"container_type": "multipart/alternative"},
+	])
+	def test_metadata_without_content_is_refused(self, store, kwargs):
+		"""content_spec returned (None, None) and discarded everything passed
+		beside it. An attachment-only send or a bodyless close that names a
+		content type is asking for something the operation cannot do, and
+		dropping it silently tells the caller it worked."""
+		with pytest.raises(b6.BatonError, match="no content to describe"):
+			b6.content_spec(None, None, **kwargs)
+
+	def test_bodyless_close_refuses_content_metadata(self, store):
+		send_one(store)
+		claim = store.claim("acme.implementer")
+		with pytest.raises(b6.BatonError, match="no content to describe"):
+			store.close_claim(claim["claim_id"], participant=claim["participant"],
+			                  content_type="application/pdf")
+		# The same close without the metadata still works.
+		assert store.close_claim(claim["claim_id"],
+		                         participant=claim["participant"])["kind"] == "close"
+
+	def test_attachment_only_send_applies_content_metadata(self, tmp_path):
+		"""Under convergence this metadata is no longer orphaned -- it types
+		the external PART, which is exactly what the old model could not do.
+		An attachment used to arrive with no declared media type at all."""
+		root = tmp_path / "evidence"
+		root.mkdir()
+		(root / "e.md").write_bytes(b"evidence")
+		config_path = str(tmp_path / "baton.json")
+		cfg = make_config()
+		cfg["roots"] = {"evidence": str(root)}
+		with open(config_path, "w") as handle:
+			json.dump(cfg, handle)
+		b6.init_instance(config_path)
+		with b6.open_instance(config_path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="ev",
+			                 attach={"root_id": "evidence", "path": "e.md"},
+			                 content_type="text/plain; charset=utf-8",
+			                 filename="e.md")
+			claim = store.claim("acme.implementer", message_id=mid)
+			part = external_part(b6._delivery(store, claim)["message"]["content"])
+			assert part["content_type"] == "text/plain; charset=utf-8"
+			assert part["disposition"] == "attachment"
+			assert part["filename"] == "e.md"
+		# An undeclared external part gets the RFC 2046 unknown-bytes type
+		# rather than a guess sniffed from the file extension.
+		with b6.open_instance(config_path) as store:
+			mid2 = store.send("acme.reviewer", "acme.implementer", kind="ev",
+			                  attach={"root_id": "evidence", "path": "e.md"})
+			claim2 = store.claim("acme.implementer", message_id=mid2)
+			part2 = external_part(b6._delivery(store, claim2)["message"]["content"])
+			assert part2["content_type"] == b6.DEFAULT_ATTACHMENT_TYPE
+
+	def test_cli_flags_do_not_forge_an_explicit_value(self, tmp_path):
+		"""argparse defaults would make an omitted flag indistinguishable from
+		an explicit one, which is what let the store default silently."""
+		parser = b6._build_parser()
+		ns = parser.parse_args(["--config", "/x", "send", "--participant", "a.b",
+		                        "--to", "c.d", "--kind", "k"])
+		assert ns.content_type is None and ns.disposition is None and ns.filename is None
+		ns2 = parser.parse_args(["--config", "/x", "send", "--participant", "a.b",
+		                         "--to", "c.d", "--kind", "k",
+		                         "--content-type", "application/pdf"])
+		assert ns2.content_type == "application/pdf"
+
+	# -- R5: filename bound is bytes, as the contract claims ---------------
+
+	def test_filename_cap_is_bytes_not_characters(self, store):
+		"""The documented cap was 255 bytes while the code counted Python
+		characters, so 255 multibyte characters -- 510 bytes -- passed. The
+		bound is bytes because that is what a filesystem enforces."""
+		assert b6.validate_filename("a" * 255) == "a" * 255
+		with pytest.raises(b6.BatonError, match="255 bytes"):
+			b6.validate_filename("a" * 256)
+		with pytest.raises(b6.BatonError, match="255 bytes"):
+			b6.validate_filename("é" * 255)   # 510 bytes as UTF-8
+		assert b6.validate_filename("é" * 127)  # 254 bytes, fits
+
+	# -- R5: gc must reach the actual deletion path, not only expire -------
+
+	def test_multipart_survives_gc(self, store):
+		"""The earlier coverage exercised only `expire`. gc has its own
+		deletion path, and parts.parent_part_id is a self-referencing foreign
+		key -- deleting a nested tree parent-first would orphan its children."""
+		mid = store.send("acme.reviewer", "acme.implementer", kind="nested",
+		                 retention="transient", parts=[
+			{"content_type": "multipart/alternative", "parts": [
+				{"content_type": "text/plain; charset=utf-8", "body": b"a"},
+				{"content_type": "text/plain; charset=utf-8", "body": b"b"},
+			]},
+			{"content_type": "text/plain; charset=utf-8", "body": b"c"},
+		])
+		claim = store.claim("acme.implementer", message_id=mid)
+		# The close disposition owns its own nested tree as well, so gc must
+		# clear both owners. It stays transient: a DURABLE close deliberately
+		# anchors the message against collection, which would make this test
+		# pass for the wrong reason.
+		store.close_claim(claim["claim_id"], participant=claim["participant"],
+		                  retention="transient", parts=[
+			{"content_type": "multipart/alternative", "parts": [
+				{"content_type": "text/plain; charset=utf-8", "body": b"closed"},
+			]},
+		])
+		assert store.conn.execute(
+			"SELECT COUNT(*) FROM parts WHERE owner_id=?", (mid,)).fetchone()[0] == 4
+		assert store.conn.execute(
+			"SELECT COUNT(*) FROM parts WHERE owner_id=?",
+			(claim["claim_id"],)).fetchone()[0] == 2
+		result = store.gc(participant="hq.lead", now="2027-01-01T00:00:00Z")
+		assert mid in result["messages"]
+		for owner in (mid, claim["claim_id"]):
+			assert store.conn.execute(
+				"SELECT COUNT(*) FROM parts WHERE owner_id=?", (owner,)).fetchone()[0] == 0
+		assert store.conn.execute("SELECT COUNT(*) FROM contents").fetchone()[0] == 0
+
 	def test_dump_covers_the_parts_table(self, instance):
 		with b6.open_instance(instance) as store:
 			send_one(store, body=b"dumped")
@@ -4897,6 +5161,398 @@ class TestTypedContentEnvelope:
 		assert out["parts"][0]["content_type"] == b6.DEFAULT_CONTENT_TYPE
 		# Bytes stay redacted wherever they appear.
 		assert "bytes>" in out["contents"][0]["body"]
+
+
+class TestAttachmentPartConvergence:
+	"""R3: external storage is a PART representation, not a second content
+	model. One message, one ordered manifest, one retry identity."""
+
+	@pytest.fixture
+	def rooted(self, tmp_path):
+		root = tmp_path / "src"
+		root.mkdir()
+		(root / "EVIDENCE.md").write_bytes(b"pinned evidence\n")
+		(root / "SECOND.md").write_bytes(b"second evidence\n")
+		config_path = str(tmp_path / "baton.json")
+		cfg = make_config()
+		cfg["roots"] = {"src": str(root)}
+		with open(config_path, "w") as handle:
+			json.dump(cfg, handle)
+		b6.init_instance(config_path)
+		return config_path, root
+
+	def test_messages_table_has_no_attachment_columns(self, store):
+		"""The five `attach_*` columns are gone. Their absence is the check --
+		while they exist, something can keep writing the old model."""
+		columns = {r[1] for r in store.conn.execute("PRAGMA table_info(messages)")}
+		assert not any(c.startswith("attach") for c in columns)
+		part_columns = {r[1] for r in store.conn.execute("PRAGMA table_info(parts)")}
+		assert {"storage", "root_id", "path", "generation"} <= part_columns
+
+	def test_inline_note_and_pinned_evidence_in_one_message(self, rooted):
+		"""The case protocol 8 could not express at all: a `CHECK` forced a
+		choice between "here is the file" and "here is what it means", so one
+		statement had to be split across two messages that could interleave."""
+		config_path, _ = rooted
+		with b6.open_instance(config_path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="report", parts=[
+				{"content_type": "text/markdown; charset=utf-8",
+				 "body": b"# Findings\nSee attached.\n"},
+				{"content_type": "text/markdown; charset=utf-8", "disposition": "attachment",
+				 "filename": "EVIDENCE.md", "attach": "src:EVIDENCE.md"},
+			])
+			claim = store.claim("acme.implementer", message_id=mid)
+			content = b6._delivery(store, claim)["message"]["content"]
+		inline, external = content["parts"]
+		assert inline["storage"] == "inline"
+		assert inline["text"] == "# Findings\nSee attached.\n"
+		assert inline["attachment"] is None
+		assert external["storage"] == "external"
+		assert external["content_type"] == "text/markdown; charset=utf-8"
+		assert external["attachment"]["path"] == "EVIDENCE.md"
+		# External bytes are POINTED AT, never copied into the envelope.
+		assert external["encoding"] is None
+		assert "text" not in external and "base64" not in external
+		assert external["sha256"] and external["size"] == 16
+
+	def test_several_external_parts_in_one_message(self, rooted):
+		"""One attachment per message was a limit with no reason to exist once
+		parts are rows."""
+		config_path, _ = rooted
+		with b6.open_instance(config_path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="report", parts=[
+				{"content_type": "text/markdown; charset=utf-8",
+				 "disposition": "attachment", "attach": "src:EVIDENCE.md"},
+				{"content_type": "text/markdown; charset=utf-8",
+				 "disposition": "attachment", "attach": "src:SECOND.md"},
+			])
+			claim = store.claim("acme.implementer", message_id=mid)
+			parts = b6._delivery(store, claim)["message"]["content"]["parts"]
+		assert [p["attachment"]["path"] for p in parts] == ["EVIDENCE.md", "SECOND.md"]
+
+	def test_manifest_covers_external_parts_through_one_mechanism(self, rooted):
+		"""Retry identity is ONE mechanism. The same bytes pinned at a
+		different path, or carried inline instead of externally, are different
+		messages -- only one of them can go stale under your feet."""
+		config_path, root = rooted
+		with b6.open_instance(config_path) as store:
+			send_one(store)
+			claim = store.claim("acme.implementer")
+			base = dict(kind="answer", parts=[
+				{"content_type": "text/markdown; charset=utf-8",
+				 "disposition": "attachment", "attach": "src:EVIDENCE.md"}])
+			store.reply(claim["claim_id"], participant=claim["participant"], **base)
+			assert store.reply(claim["claim_id"], participant=claim["participant"],
+			                   **base)["already_committed"] is True
+			# Same bytes, different root path -> different manifest.
+			(root / "COPY.md").write_bytes(b"pinned evidence\n")
+			with pytest.raises(b6.BatonError, match="content manifest differs"):
+				store.reply(claim["claim_id"], participant=claim["participant"],
+				            kind="answer", parts=[
+					{"content_type": "text/markdown; charset=utf-8",
+					 "disposition": "attachment", "attach": "src:COPY.md"}])
+			# Same bytes, carried INLINE instead of pinned -> different manifest.
+			with pytest.raises(b6.BatonError, match="content manifest differs"):
+				store.reply(claim["claim_id"], participant=claim["participant"],
+				            kind="answer", parts=[
+					{"content_type": "text/markdown; charset=utf-8",
+					 "disposition": "attachment", "body": b"pinned evidence\n"}])
+
+	def test_damaged_external_part_never_delivers_and_does_not_block(self, rooted):
+		"""The behaviour from the damaged-attachment work must survive
+		convergence: damaged content is never delivered, and one damaged
+		message must not block the healthy ones behind it."""
+		config_path, root = rooted
+		with b6.open_instance(config_path) as store:
+			damaged = store.send("acme.reviewer", "acme.implementer", kind="ev", parts=[
+				{"content_type": "text/markdown; charset=utf-8",
+				 "body": b"note beside the evidence\n"},
+				{"content_type": "text/markdown; charset=utf-8",
+				 "disposition": "attachment", "attach": "src:EVIDENCE.md"},
+			])
+			healthy = send_one(store, body=b"published behind the damage")
+		(root / "EVIDENCE.md").write_bytes(b"replaced after publication\n")
+		with b6.open_instance(config_path) as store:
+			# The healthy message behind it is delivered, not blocked.
+			claim = store.claim("acme.implementer")
+			assert claim["message_id"] == healthy
+			store.close_claim(claim["claim_id"], participant=claim["participant"])
+			# Naming the damaged one explicitly still fails closed.
+			with pytest.raises(b6.BatonError) as excinfo:
+				store.claim("acme.implementer", message_id=damaged)
+			assert excinfo.value.exit_code == b6.EXIT_DAMAGE
+			# Its INLINE part is healthy, but the message is damaged as a whole:
+			# partial delivery would be delivering an incomplete statement.
+			scan = store.scan("acme.implementer")
+			assert [d["id"] for d in scan["damaged"]] == [damaged]
+			assert scan["damaged"][0]["parts"][0]["path"] == "EVIDENCE.md"
+
+	def test_quarantine_records_the_damaged_part(self, rooted):
+		config_path, root = rooted
+		with b6.open_instance(config_path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="ev", parts=[
+				{"content_type": "text/markdown; charset=utf-8", "body": b"note\n"},
+				{"content_type": "text/markdown; charset=utf-8",
+				 "disposition": "attachment", "attach": "src:EVIDENCE.md"},
+			])
+		(root / "EVIDENCE.md").write_bytes(b"replaced\n")
+		with b6.open_instance(config_path) as store:
+			result = store.quarantine_attachment(mid, participant="hq.lead",
+			                                     reason="pin invalidated")
+			assert result["state"] == "quarantined"
+			row = store.conn.execute(
+				"SELECT * FROM quarantines WHERE message_id=?", (mid,)).fetchone()
+			# The audit row names the PART, by id and by manifest address, so
+			# a reader can tell WHICH of several attachments went stale.
+			assert row["part_ordinal"] == "1"
+			assert row["path"] == "EVIDENCE.md"
+			assert row["content_type"] == "text/markdown; charset=utf-8"
+			part = store.conn.execute(
+				"SELECT part_id FROM parts WHERE part_id=?", (row["part_id"],)).fetchone()
+			assert part is not None
+		report = b6.doctor(config_path)
+		assert report["ok"] is True   # acknowledged damage no longer blocks health
+		assert any("quarantined" in w for w in report["warnings"])
+
+	def test_doctor_reports_a_damaged_external_part(self, rooted):
+		config_path, root = rooted
+		with b6.open_instance(config_path) as store:
+			store.send("acme.reviewer", "acme.implementer", kind="ev", parts=[
+				{"content_type": "text/markdown; charset=utf-8",
+				 "disposition": "attachment", "attach": "src:EVIDENCE.md"}])
+		(root / "EVIDENCE.md").write_bytes(b"mutated\n")
+		report = b6.doctor(config_path)
+		assert report["ok"] is False
+		assert any("pinned hash" in p for p in report["problems"])
+
+	def test_external_part_survives_regen_and_holds_its_binding(self, rooted):
+		"""Root binding generations were pinned per message; they are pinned
+		per part now, and regen must still refuse to strand them."""
+		config_path, root = rooted
+		with b6.open_instance(config_path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="ev",
+			                 attach="src:EVIDENCE.md")
+			assert external_row(store, mid)["generation"] == 1
+		cfg = make_config(generation=2)
+		cfg["roots"] = {}          # drops a root a live part still pins
+		with open(config_path, "w") as handle:
+			json.dump(cfg, handle)
+		with pytest.raises(b6.BatonError, match="must keep its accepted mapping"):
+			b6.regen_instance(config_path, participant="hq.lead")
+
+	def test_external_parts_are_refused_where_damage_cannot_be_resolved(self, rooted):
+		"""Reported by baton.reviewer at the release gate, reproduced before
+		fixing: external leaves were accepted on notices and close
+		dispositions, pinned at publication, and then never verified again.
+
+		A damaged broadcast was the worst of it -- `see` committed the
+		at-most-once receipt and delivered the pin, so that participant lost
+		the content permanently while `doctor` reported healthy.
+
+		The contract chosen: external storage lives only where its damage
+		lifecycle does. A message has claim-time verification,
+		skip-and-continue, quarantine and doctor. A notice has no claim to
+		skip or quarantine, and its receipt commits inside a write transaction
+		where file IO does not belong. A close disposition is never delivered
+		at all."""
+		config_path, _ = rooted
+		external = [{"content_type": "text/markdown; charset=utf-8",
+		             "disposition": "attachment", "attach": "src:EVIDENCE.md"}]
+		with b6.open_instance(config_path) as store:
+			with pytest.raises(b6.BatonError, match="notice cannot carry an externally stored part"):
+				store.send_notice("hq.lead", kind="announcement", parts=external)
+			mid = send_one(store)
+			claim = store.claim("acme.implementer", message_id=mid)
+			with pytest.raises(b6.BatonError,
+			                   match="close disposition cannot carry an externally stored part"):
+				store.close_claim(claim["claim_id"], participant=claim["participant"],
+				                  retention="durable", parts=external)
+			# Nested inside a container is still refused -- the check walks.
+			with pytest.raises(b6.BatonError, match="cannot carry an externally stored part"):
+				store.send_notice("hq.lead", kind="announcement", parts=[
+					{"content_type": "multipart/alternative", "parts": external}])
+			# A directed message still accepts it, and the claim still resolves.
+			assert store.send("acme.reviewer", "acme.implementer", kind="ev",
+			                  attach="src:EVIDENCE.md")
+
+	def test_doctor_catches_an_external_part_on_a_forbidden_owner(self, rooted):
+		"""Defence in depth: publication refuses it, and doctor still reports
+		one that reached the table another way."""
+		config_path, _ = rooted
+		with b6.open_instance(config_path) as store:
+			store.send("acme.reviewer", "acme.implementer", kind="ev",
+			           attach="src:EVIDENCE.md")
+		_raw_corrupt(config_path, lambda conn: conn.execute(
+			"UPDATE parts SET owner_kind='notice' WHERE storage='external'"))
+		report = b6.doctor(config_path)
+		assert report["ok"] is False
+		assert any("damage lifecycle" in p for p in report["problems"])
+
+	def test_attach_sugar_validates_explicit_metadata(self, rooted):
+		"""R4 reappeared in the attachment-only `send` sugar: `content_type or
+		DEFAULT` cannot tell absent from empty, so an explicit "" was silently
+		defaulted instead of reaching its validator."""
+		config_path, _ = rooted
+		with b6.open_instance(config_path) as store:
+			with pytest.raises(b6.BatonError):
+				store.send("acme.reviewer", "acme.implementer", kind="ev",
+				           attach="src:EVIDENCE.md", content_type="")
+			with pytest.raises(b6.BatonError):
+				store.send("acme.reviewer", "acme.implementer", kind="ev",
+				           attach="src:EVIDENCE.md", disposition="")
+			# Absent still defaults.
+			mid = store.send("acme.reviewer", "acme.implementer", kind="ev",
+			                 attach="src:EVIDENCE.md")
+			claim = store.claim("acme.implementer", message_id=mid)
+			part = external_part(b6._delivery(store, claim)["message"]["content"])
+			assert part["content_type"] == b6.DEFAULT_ATTACHMENT_TYPE
+			assert part["disposition"] == b6.DISPOSITION_ATTACHMENT
+
+	def test_cli_sends_body_and_attachment_together(self, rooted):
+		config_path, _ = rooted
+		import io, contextlib
+		out = io.StringIO()
+		old_stdin = sys.stdin if False else None
+		with contextlib.redirect_stdout(out):
+			code = b6.main(["--config", config_path, "send",
+			                "--participant", "acme.reviewer", "--to", "acme.implementer",
+			                "--kind", "ev", "--body", str(_write_tmp_body(config_path)),
+			                "--attach", "src:EVIDENCE.md"])
+		assert code == 0
+		out2 = io.StringIO()
+		with contextlib.redirect_stdout(out2):
+			assert b6.main(["--config", config_path, "claim",
+			                "--participant", "acme.implementer"]) == 0
+		parts = json.loads(out2.getvalue())["message"]["content"]["parts"]
+		assert [p["storage"] for p in parts] == ["inline", "external"]
+		assert parts[0]["text"] == "explanation\n"
+		assert parts[1]["attachment"]["path"] == "EVIDENCE.md"
+
+
+def _write_tmp_body(config_path):
+	path = os.path.join(os.path.dirname(config_path), "note.md")
+	with open(path, "wb") as handle:
+		handle.write(b"explanation\n")
+	return path
+
+
+class TestSubject:
+	"""A structured, immutable, one-line subject — what an inbox lists before
+	anything is opened. Optional at the protocol level so status traffic can
+	fall back to `kind`, but lossless and validated when supplied."""
+
+	def test_subject_is_carried_losslessly_to_delivery(self, store):
+		mid = send_one(store, subject="Review the protocol-9 handoff")
+		claim = store.claim("acme.implementer", message_id=mid)
+		envelope = b6._delivery(store, claim)["message"]
+		assert envelope["subject"] == "Review the protocol-9 handoff"
+		assert store.get_message(mid)["subject"] == "Review the protocol-9 handoff"
+
+	def test_subject_is_optional_and_absent_stays_null(self, store):
+		"""Status traffic falls back to `kind`; an absent subject must not
+		become an empty string or a synthesized one."""
+		mid = send_one(store)
+		claim = store.claim("acme.implementer", message_id=mid)
+		assert b6._delivery(store, claim)["message"]["subject"] is None
+
+	def test_subject_appears_in_scan_for_inbox_listing(self, store):
+		"""An inbox lists without opening anything, so the subject has to be
+		in the listing view, not only in the delivery."""
+		send_one(store, subject="Needs your decision")
+		entry = store.scan("acme.implementer")["pending"][0]
+		assert entry["subject"] == "Needs your decision"
+
+	def test_notice_carries_a_subject_too(self, store):
+		nid = store.send_notice("hq.lead", kind="announcement",
+		                        subject="Channel maintenance at 14:00", body=b"details")
+		seen = store.see("acme.implementer")
+		assert seen[0]["id"] == nid
+		assert b6._notice_delivery(seen[0])["notice"]["subject"] == "Channel maintenance at 14:00"
+
+	def test_reply_inherits_the_subject_it_answers(self, store):
+		"""So a thread reads as one conversation in an inbox rather than as
+		unrelated lines."""
+		send_one(store, subject="Protocol 9 review")
+		claim = store.claim("acme.implementer")
+		result = store.reply(claim["claim_id"], participant=claim["participant"],
+		                     kind="answer", body=b"done")
+		assert store.get_message(result["response_message_id"])["subject"] == "Protocol 9 review"
+
+	def test_reply_may_override_the_subject(self, store):
+		send_one(store, subject="Protocol 9 review")
+		claim = store.claim("acme.implementer")
+		result = store.reply(claim["claim_id"], participant=claim["participant"],
+		                     kind="answer", subject="Blocker found", body=b"done")
+		assert store.get_message(result["response_message_id"])["subject"] == "Blocker found"
+
+	def test_retry_compares_the_effective_subject(self, store):
+		"""Inherited on both sides must match; an explicit change is a
+		different operation and fails closed."""
+		send_one(store, subject="Protocol 9 review")
+		claim = store.claim("acme.implementer")
+		store.reply(claim["claim_id"], participant=claim["participant"],
+		            kind="answer", body=b"done")
+		# Inherited retry still matches the inherited commit.
+		assert store.reply(claim["claim_id"], participant=claim["participant"],
+		                   kind="answer", body=b"done")["already_committed"] is True
+		# Explicitly restating the inherited value also matches.
+		assert store.reply(claim["claim_id"], participant=claim["participant"],
+		                   kind="answer", subject="Protocol 9 review",
+		                   body=b"done")["already_committed"] is True
+		with pytest.raises(b6.BatonError, match="subject differs"):
+			store.reply(claim["claim_id"], participant=claim["participant"],
+			            kind="answer", subject="Something else", body=b"done")
+
+	@pytest.mark.parametrize("bad", [
+		"", "   ", " leading", "trailing ", "two\nlines", "tab\there",
+		"bell\x07", "\x7f", "x" * 256, "é" * 200])
+	def test_invalid_subjects_are_rejected_not_sanitized(self, store, bad):
+		"""Rejected rather than stripped: a newline or control character in a
+		subject is a display-injection hazard for every consumer that lists an
+		inbox, and quietly fixing it leaves the sender believing they sent
+		something they did not."""
+		with pytest.raises(b6.BatonError):
+			send_one(store, subject=bad)
+
+	def test_subject_bound_is_bytes_not_characters(self, store):
+		"""Same lesson as `filename`: a character count is not what any
+		downstream store enforces."""
+		assert b6.validate_subject("a" * 255) == "a" * 255
+		with pytest.raises(b6.BatonError, match="255 bytes"):
+			b6.validate_subject("a" * 256)
+		with pytest.raises(b6.BatonError, match="255 bytes"):
+			b6.validate_subject("é" * 200)      # 400 bytes as UTF-8
+		assert b6.validate_subject("é" * 127)    # 254 bytes, fits
+
+	def test_subject_is_immutable(self, store):
+		mid = send_one(store, subject="Original")
+		with pytest.raises(sqlite3.IntegrityError, match="immutable message column"):
+			store.conn.execute("UPDATE messages SET subject='Rewritten' WHERE id=?", (mid,))
+
+	def test_cli_send_and_reply_carry_a_subject(self, instance, tmp_path):
+		import io, contextlib
+		body = tmp_path / "b.md"
+		body.write_bytes(b"hello\n")
+
+		def run(*argv):
+			out = io.StringIO()
+			with contextlib.redirect_stdout(out):
+				code = b6.main(list(argv))
+			return code, out.getvalue()
+
+		code, _ = run("--config", instance, "send", "--participant", "acme.reviewer",
+		              "--to", "acme.implementer", "--kind", "q",
+		              "--subject", "Please review", "--body", str(body))
+		assert code == 0
+		code, out = run("--config", instance, "claim", "--participant", "acme.implementer")
+		delivery = json.loads(out)
+		assert delivery["message"]["subject"] == "Please review"
+		code, out = run("--config", instance, "reply", delivery["claim"]["claim_id"],
+		                "--participant", "acme.implementer", "--kind", "a",
+		                "--body", str(body))
+		assert code == 0
+		code, out = run("--config", instance, "claim", "--participant", "acme.reviewer")
+		assert json.loads(out)["message"]["subject"] == "Please review"   # inherited
 
 
 class TestPackaging:
@@ -5068,3 +5724,25 @@ class TestPackaging:
 			set(b6._PARTICIPANT_FIELDS)
 		example = b6.loads_strict(open(os.path.join(here, "example-baton.json")).read())
 		b6.validate_config(example)
+
+
+class TestScanInboxMetadata:
+	"""An inbox lists before it opens anything, on both sides of a claim."""
+
+	def test_scan_carries_inbox_metadata_on_pending_and_claimed(self, store):
+		"""Post-gate cleanup requested by baton.reviewer. Showing a subject
+		only until someone claims a message hides it exactly when the holder
+		most needs to know what they are holding."""
+		mid = send_one(store, subject="Decide on the rollout", kind="question",
+		               thread="topic-1")
+		pending = store.scan("acme.implementer")["pending"][0]
+		assert pending["subject"] == "Decide on the rollout"
+		assert pending["kind"] == "question" and pending["thread_id"] == "topic-1"
+		store.claim("acme.implementer", message_id=mid)
+		claimed = store.scan("acme.implementer")["claimed"][0]
+		assert claimed["subject"] == "Decide on the rollout"
+		assert claimed["kind"] == "question" and claimed["thread_id"] == "topic-1"
+		assert claimed["claimed_by"] == "acme.implementer"
+		# Same metadata keys on both sides, so one renderer serves both.
+		for key in ("kind", "subject", "thread_id"):
+			assert key in pending and key in claimed

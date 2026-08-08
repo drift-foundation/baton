@@ -1,7 +1,9 @@
 # The seed is not a credential boundary; the participant address is the identity
 
 Folder: `work/finding-seed-credential-boundary/`
-Status: **confirmed; contract chosen by Slawomir; implementation not started.**
+Status: **implemented, reviewed and committed** as `b7a7a6f` (protocol 8,
+tool 3.0.0); see `IMPLEMENTATION.md` and `REVIEW.md` in this folder. The
+seedless identity model carried forward unchanged through protocol 9.
 Raised: 2026-08-07, after `web.implementer` authenticated as
 `baton.implementer` using a seed read out of `dump`.
 

@@ -1,7 +1,8 @@
 # Message content needs a typed, multipart-capable envelope
 
 Folder: `work/finding-typed-content-envelope/`
-Status: **implemented** at protocol 8 / tool 4.0.0; see `IMPLEMENTATION.md`
+Status: **implemented** at protocol 8 / tool 4.0.0 and shipped in the live
+protocol-9 release; see `IMPLEMENTATION.md`
 in this folder. Supersedes `work/finding-multipart-content/`. The one open
 question left unclosed — attachment convergence — is recorded as
 `work/finding-attachment-part-convergence/`.

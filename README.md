@@ -37,6 +37,7 @@ The implementer publishes a durable handoff:
     "$BATON" --config "$DEMO/baton.json" send \
       --participant team.implementer \
       --to team.reviewer --kind implementation_handoff --retention durable \
+      --subject "Payment retry logic ready for review" \
       --body "$DEMO/handoff.md"
 
 The reviewer waits for work. `wait` prints the claimed message and its
@@ -135,9 +136,9 @@ bounds transient-metadata garbage collection.
 
 ## Core commands
 
-`send` (body from stdin/file XOR `--attach ROOT:REL/PATH`), `send-notice`
+`send` (body from stdin/file and/or `--attach ROOT:REL/PATH`), `send-notice`
 (finite TTL, default 86400s), `claim` (one lossless delivery: claim metadata
-plus envelope with a typed content envelope or pinned attachment tuple), `wait`
+plus the typed content envelope), `wait`
 (the same directed delivery, or a broadcast notice — see below),
 `reply` / `close` (effectively-once: retries redeliver the committed
 disposition and mismatches fail closed), `see` / `expire` (notices),
@@ -158,17 +159,19 @@ anything still needed is re-sent. Converting in place keeps more history but
 takes the channel down for the whole conversion, including for whoever would
 have to review it.
 
-## Damaged attachments
+## Damaged external parts
 
-An attachment is hash-pinned when the message is published, so editing the
+An external part is hash-pinned when the message is published, so editing the
 file afterwards invalidates the pin. `claim` and `wait` **skip** such a
 message and deliver the next healthy one, rather than failing the whole queue;
-naming it explicitly with `--message-id` still fails closed. Skipped damage is
-listed by `scan` under `damaged` and by `doctor`.
+naming it explicitly with `--message-id` still fails closed. A message is
+damaged if ANY of its external parts is: delivering the healthy parts alone
+would deliver an incomplete statement. Skipped damage is listed by `scan`
+under `damaged`, per part, and by `doctor`.
 
 A skipped message stays pending until dispositioned. `quarantine-attachment`
-is that disposition: it records the original pin and the observed failure in a
-permanent audit row and moves the message to a terminal `quarantined` state,
+is that disposition: it records the damaged part — by id and manifest address —
+along with its original pin and the observed failure, in a permanent audit row and moves the message to a terminal `quarantined` state,
 without ever claiming it — damaged content is never delivered, so no claim is
 created. An already-terminal message is acknowledged without rewriting its
 history. `doctor` then reports the damage as an acknowledged warning rather
@@ -209,6 +212,23 @@ any other part appends `-part<address>`. The prefix is an EXPLICIT caller
 choice; participants' configured `projection_prefix`/`projection_dir` define
 which files `doctor` owns and inventories (orphans are warnings).
 
+## Subject
+
+`--subject` is a one-line human summary — what an inbox shows before anything
+is opened. It is immutable, carried losslessly to delivery, and listed by
+`scan`, so a consumer can triage without fetching bodies.
+
+It is optional: status and machine traffic can fall back to `kind`. When
+supplied it must be a single line of plain text with no leading or trailing
+whitespace, no control characters, and at most 255 bytes as UTF-8. Invalid
+subjects are **rejected, not sanitized** — a newline in a subject is a
+display-injection hazard for anything rendering an inbox, and silently
+stripping it would leave the sender believing they sent something they did not.
+
+`reply` inherits the subject it is answering unless given its own, so a thread
+reads as one conversation. Retries compare the EFFECTIVE subject: an inherited
+retry matches an inherited commit, and an explicit change fails closed.
+
 ## Content: typed and multipart-capable
 
 Every body travels as an ordered collection of typed parts, even when there is
@@ -230,12 +250,15 @@ exactly one. A delivery carries `content`, not a bare body:
 (RFC 2183). Markdown's `charset` parameter is required by RFC 7763, and Baton
 requires it for every `text/*` type.
 
-A leaf carries EXACTLY ONE delivery representation, named by `encoding`:
-`text` for `text/...; charset=utf-8`, `base64` for everything else. Never both.
-The choice follows the DECLARED type, not whether the bytes happen to decode,
-so a consumer dispatches on one stable key. `encoding` is null, with neither
-content key present, once a transient body has been scrubbed — the manifest
-outlives the payload.
+An **inline** leaf carries EXACTLY ONE delivery representation, named by
+`encoding`: `text` for `text/...; charset=utf-8`, `base64` for everything
+else. Never both. The choice follows the DECLARED type, not whether the bytes
+happen to decode, so a consumer dispatches on one stable key.
+
+`encoding` is `null`, with neither content key present, in two cases: an
+**external** leaf, which carries an `attachment` pin instead of bytes, and an
+inline leaf whose transient body has been scrubbed — the manifest outlives the
+payload. `storage` distinguishes them.
 
 Baton TRANSPORTS content and never renders it. No HTML, no Markdown, no
 transcoding: rendering is a consumer concern, and a transport that renders is a
@@ -243,17 +266,45 @@ transport with an injection surface. `filename` is advisory metadata that
 Baton never uses to open, create, or name a file; it is validated at
 publication anyway, because a consumer downstream may be less careful.
 
+### Inline and external parts
+
+A leaf's bytes are stored **inline** (copied into the store) or **externally**
+(`--attach ROOT:REL/PATH`, hash-pinned in a configured root and verified at
+claim time). Both are ordinary parts: same media type, disposition, filename,
+ordering, size and hash contract, and both are covered by the manifest, so
+retry identity is one mechanism rather than two. A delivered leaf states which
+through `storage`; an external leaf carries an `attachment` pin and no bytes,
+because pointing at the file is the entire reason it lives outside the store.
+
+A message may carry **any mix** of inline and external parts, in any order —
+an explanation beside its evidence in one message, or several attachments.
+Earlier protocols allowed exactly one attachment and made it mutually
+exclusive with content, which forced one statement to be split across two
+messages that could interleave on the queue.
+
+An external part whose type the caller does not declare gets
+`application/octet-stream` — the RFC 2046 unknown-bytes type, not a guess
+sniffed from the file extension.
+
+**External parts are permitted only on directed messages.** A pinned file can
+go stale after publication, and only a directed message has the lifecycle to
+notice and resolve that: claim-time verification, skip-and-continue, the
+audited quarantine ceremony, and `doctor`. A notice has no claim to skip or
+quarantine and commits its seen receipt inside the read transaction; a close
+disposition is never delivered. Both refuse an external part at publication
+rather than publish a pin that nothing verifies.
+
 Parts are their own rows with explicit ordering, so containers nest —
 `multipart/alternative` inside `multipart/mixed`, and deeper — without a schema
 change. Undeclared content defaults to `text/markdown; charset=utf-8`; bytes
 that contradict a declared charset are refused at publication rather than
 delivered under a label that misdescribes them.
 
-The CLI publishes one part per message (`--content-type`, `--disposition`,
-`--filename`); the storage layer and the delivery envelope are multipart
-throughout, so writing multipart over the CLI is a capability extension rather
-than another protocol change. Readers must not assume the one-part
-restriction.
+The CLI publishes at most one inline part plus one external part per message
+(`--body`, `--attach`, typed by `--content-type`, `--disposition`,
+`--filename`); the storage layer and the delivery envelope carry arbitrary
+multipart trees, so richer CLI authoring is a capability extension rather than
+another protocol change. Readers must not assume any writer restriction.
 
 Retry identity is the complete ordered part manifest, metadata included. Two
 retries that differ in part order, media type, disposition, or filename are
