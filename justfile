@@ -28,11 +28,33 @@ test:
 	set -euo pipefail
 	[[ -x "{{PY}}" ]] || { echo "error: venv missing; run 'just venv' first" >&2; exit 1; }
 	"{{PY}}" -c 'import pytest' >/dev/null 2>&1 || { echo "error: pytest missing; run 'just venv' first" >&2; exit 1; }
-	PYTHONPATH=. "{{PY}}" -m pytest -q test_baton_v6.py
+	PYTHONPATH=. "{{PY}}" -m pytest -q \
+		test_baton_v6.py \
+		test_core_parity.py \
+		test_core_api.py \
+		test_tui_safe_text.py \
+		test_tui_editor.py \
+		test_tui_state.py \
+		test_tui_render.py \
+		test_tui_driver.py \
+		test_tui_pty.py \
+		test_packaging_isolation.py \
+		test_docs_consistency.py
 
 # Rebuild the deterministic standalone distribution and manifest.
+#
+# The CLI and the console have SEPARATE builders on purpose: the surest way to
+# keep the released CLI byte-frozen is for the code that could change it never
+# to run when the console is rebuilt.
 build:
 	#!/usr/bin/env bash
 	set -euo pipefail
 	[[ -x "{{PY}}" ]] || { echo "error: venv missing; run 'just venv' first" >&2; exit 1; }
 	"{{PY}}" build_zipapp.py
+
+# Rebuild the console (baton-tui) distribution and its manifest.
+build-tui:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	[[ -x "{{PY}}" ]] || { echo "error: venv missing; run 'just venv' first" >&2; exit 1; }
+	"{{PY}}" build_tui.py

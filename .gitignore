@@ -4,3 +4,4 @@ __pycache__/
 .venv/
 .coverage
 htmlcov/
+.claude/settings.local.json

@@ -1,0 +1,22 @@
+{
+  "artifact": "bin/baton-tui",
+  "artifact_sha256": "3ef94453c3d7f64827f02b837413a33dce3960d447df3cdcf46aa94e8792b292",
+  "core_api_version": 1,
+  "members": [
+    "__main__.py",
+    "baton_core/__init__.py",
+    "baton_core/_impl.py",
+    "baton_tui/__init__.py",
+    "baton_tui/driver.py",
+    "baton_tui/editor.py",
+    "baton_tui/keys.py",
+    "baton_tui/render.py",
+    "baton_tui/safe_text.py",
+    "baton_tui/state.py"
+  ],
+  "protocol_version": 9,
+  "python_min": "3.11",
+  "requires_core_api": 1,
+  "tool": "baton-tui",
+  "tui_version": "0.1.0"
+}

@@ -1,10 +1,18 @@
-# Baton — portable coordination over one transactional authority
+# Baton — coordination between humans and AI agents
 
 Baton is a standalone coordination tool for agents and humans, providing
 role-addressed handoffs, broadcast notices, and audited administrative
 operations over a single SQLite database. It has no dependency on any host
 project; every instance is defined entirely by one explicitly passed
 strict-JSON config.
+
+Baton needs no Internet connection or coordination service. It runs fully
+offline and can be completely sandboxed. Participants coordinate as peers
+through a shared SQLite mailbox; there is no privileged coordinator, daemon,
+or always-on server.
+
+![Baton terminal inbox with message list and detail panes](assets/artwork/baton-tui.png)
+
 
 ## How a team uses Baton
 
@@ -95,6 +103,86 @@ instance directory outside participating project trees. Each participant
 runs exactly one active consumer path; two consumers need two participant
 addresses, not one shared identity.
 
+## Human terminal inbox
+
+`baton-tui` is the separately packaged, SSH-friendly human console. Start it
+with the same explicit instance config and participant address used by the
+CLI:
+
+    /absolute/path/to/bin/baton-tui \
+      --config /absolute/path/to/baton.json \
+      --participant human.operator
+
+The screen is stacked: a full-width message list on top, one horizontal rule,
+and a full-width detail pane below it, with the status bar on the bottom row.
+The list is newest-first, so new work is at the top and history is below it;
+delivery order is unaffected, and `claim` and `wait` still take the oldest
+pending message.
+
+**Highlighting an inbound directed message claims it and shows its body** —
+moving with the arrow keys or `j`/`k` takes ownership of the row you land on,
+because scrolling to a message and then pressing a second key to read it is a
+ceremony a human console does not need. Moving across several pending messages
+therefore leaves several claims owed; nothing is ever auto-closed, the header
+counts what you owe, and quitting with work outstanding asks first.
+
+A broadcast is different and stays explicit: highlighting one shows only its
+headers, and `Enter` is what marks it seen and returns its text. Once a
+directed message is open, `r` replies — straight into your external editor,
+because that is the reply people actually write — `R` is the quick one where
+the subject line IS the message, and `c` closes. `n` opens the recipient
+picker. `Tab` moves focus between the list and the detail pane, and the
+navigation keys follow it. For multipart messages, `[`/`]` select the
+previous/next part and `m` materializes the selected part into the
+participant's configured projection directory. The status bar keeps claim obligations and errors
+visible.
+
+Each row carries a one-cell status column before the date. Alignment, not
+punctuation, marks its boundary:
+
+It answers one question: **does someone wait on you, and if so have you read
+it and answered?** The exact protocol state stays in the detail pane; this is
+how the list reads.
+
+While an item is **live**, the glyph says who owns the next action:
+
+| glyph | meaning |
+|---|---|
+| `•` | addressed to you and not yet opened |
+| `○` | opened and yours — a reply or close is still owed |
+| `▷` | you sent it; the recipient has not picked it up |
+| `▶` | they picked it up — the next action is owed by them |
+| `!` | a notice you have not seen |
+
+Once it is **done**, direction stops mattering — the party column already says
+who acted — so the same mark is used whichever side answered:
+
+| glyph | meaning |
+|---|---|
+| `✓` | nothing is owed — replied, closed, or a notice you have seen |
+| `E` | expired |
+| `X` | quarantined |
+| `N` | a notice you authored |
+| `x` | content withheld — its parts failed their pins |
+| `?` | a state this console does not understand — worth reporting |
+
+Whether a message was replied to or closed is in the detail pane, exactly. The
+list answers the question you scan for — is anything still owed — and does not
+spend a cell repeating an answer you can read in full one pane down.
+
+Where the terminal cannot draw them, `•○▷▶✓` fall back to `*`, `o`, `Q`, `P`
+and `D`. That is a fallback spelling, not the notation.
+
+The panes themselves carry message content and nothing else. The bottom row is
+a single status line reporting what the console did; `?` opens the full
+shortcut and lifecycle reference, and this file carries the same notation.
+Both panes get the whole terminal width, which is what a subject line and a
+Markdown body each need most.
+
+The TUI and agent CLI are separate artifacts. The TUI currently imports the
+shared `baton-core` package; the existing CLI remains frozen on its original
+implementation until the separately reviewed core-adoption stage.
+
 ## Minimum requirements
 
 Requires Python 3.11 or newer, Linux, and SQLite 3.37.0 or newer on a local
@@ -110,9 +198,12 @@ stdlib-only zipapp.
 
 - `just venv` creates `.venv` when needed and installs the pinned packages in
   `requirements-dev.txt`.
-- `just test` runs the complete reusable suite in `test_baton_v6.py`.
+- `just test` runs the complete protocol, core, TUI, PTY, parity, and
+  packaging-isolation suite.
 - `just build` rebuilds the deterministic `bin/baton` zipapp and refreshes
   `DISTRIBUTION.json`.
+- `just build-tui` independently rebuilds `bin/baton-tui` and refreshes
+  `DISTRIBUTION-TUI.json` without invoking the CLI builder.
 
 After a fresh clone, run `just venv` once, then use `just test` for normal
 verification. Test and build recipes fail with a direct instruction if the

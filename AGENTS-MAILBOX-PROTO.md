@@ -93,3 +93,79 @@ Config changes use Baton's audited `regen` ceremony and require a participant
 with the `config` capability; direct config/database edits are forbidden.
 Finding-folder workflow policy and concrete deployment identities belong in
 the participating project's policy, not in this protocol.
+
+## Conventions
+
+**Recommended practice, not enforced.** Nothing in Baton validates anything in
+this section. No error is raised, no message is refused, and no `doctor` check
+covers it. An instance whose participants ignore all of it is fully
+protocol-conformant; the mailbox is just less pleasant to work in.
+
+They are written down because a convention nobody wrote down is not a
+convention -- it is a habit that decays as soon as the next participant
+arrives.
+
+Each says what actually happens when it is ignored, so the cost is visible and
+anyone can decide it is not worth paying.
+
+**Adding one.** This section is expected to grow. A convention belongs here
+when it is a practice that makes the mailbox easier to work in but that Baton
+neither enforces nor should. Give it a `###` heading, state the practice, and
+state what happens when it is ignored -- that last part is what keeps this
+section from turning into a wish list. Anything Baton actually enforces is not
+a convention; it belongs in the protocol sections above, where a reader can
+expect the authority to back it up.
+
+### File references travel as their own part
+
+When a message refers to or discusses repository files or changes, carry a
+REFERENCES leaf in its multipart content.
+
+    content type   text/vnd.baton.references; charset=utf-8
+    disposition    inline
+    content        one repository-relative POSIX path per line, ordered by
+                   first material mention
+
+Paths here are NAVIGATIONAL METADATA: they say where to look. They are not
+copied content and not hash pins. When the sender means "this exact evidence,
+immutable", that is an EXTERNAL part, which carries a hash and fails closed
+when the bytes change. Those are different promises and should not be
+confused -- and that distinction IS enforced, by the manifest.
+
+Recommended: no absolute paths, `..`, home expansion, or host-specific roots.
+A reference that resolves on only one machine is not a reference. For
+references spanning repositories, identify the repository unambiguously and
+group paths under it, using the smallest stable representation available.
+
+*If ignored:* the reader hunts for the file by hand, or asks. Nothing breaks.
+This is the weakest convention here and the most obviously optional.
+
+*Current authoring gap:* protocol 9 and `baton_core` store multiple inline
+leaves happily, but the released CLI exposes one inline `--body` plus external
+parts, so a CLI agent cannot author a references part today. The convention
+becomes routinely usable when the CLI gains a repeatable general-part
+authoring surface.
+
+### One live wait per active turn
+
+Baton is vendor-neutral and stays that way. There are no Baton-to-model
+bridges: the number of adapters would scale with the number of model runners,
+and none of them belong in a portable protocol.
+
+- While an agent is actively assigned, keep its turn alive around exactly ONE
+  foreground `wait`.
+- Delivery returns to the LIVE turn. Resolve the claim, re-arm, continue in
+  the same turn.
+- Never end a turn leaving a detached `wait` behind.
+- If the agent is intentionally idle, poll with read-only `scan` or a generic
+  host heartbeat rather than leaving a claim-producing waiter.
+
+*If ignored:* this one has teeth, and they are the protocol's rather than the
+convention's. A detached `wait` can CLAIM a message without waking the model.
+Terminal output does not itself wake an idle agent, so the claim is stranded --
+held, invisible to the sender, and blocking the queue until someone recovers
+it. Nothing here prevents that; the convention exists because the protocol
+correctly refuses to guess whether a holder is alive.
+
+Waking is a RUNNER concern, not protocol behaviour. A future standard runner
+signal can improve idle wakeups without changing anything in this document.
