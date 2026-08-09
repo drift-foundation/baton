@@ -228,15 +228,28 @@ def test_the_core_is_a_library_not_a_runnable_artifact():
 	assert not hasattr(baton_core, "main")
 
 
-def test_the_frozen_cli_remains_the_released_implementation():
-	"""Until an explicit decision says otherwise, `bin/baton` is built from
-	the frozen `baton_v6.py` and knows nothing about the core."""
+def test_the_cli_is_built_from_the_core_and_the_oracle_is_not_shipped():
+	"""The explicit decision arrived: stage 1A adopts the core.
+
+	SUPERSEDED, and in exactly one direction. This asserted that `bin/baton`
+	contained `baton_v6.py` and no core; it now asserts the reverse. What has
+	NOT changed is the reason the test exists — the executable must contain
+	one implementation, and it must be obvious which.
+
+	`baton_v6.py` staying OUT of the archive is the load-bearing half. It
+	remains in the tree as the differential oracle, and an oracle that ships
+	inside the thing it measures has stopped being one."""
 	import ast
 
 	with zipfile.ZipFile(ARTIFACT) as archive:
 		names = archive.namelist()
-	assert "baton_v6.py" in names
-	assert not any(n.startswith("baton_core/") for n in names)
+	assert any(n.startswith("baton_core/") for n in names), names
+	assert "baton_core/_impl.py" in names
+	assert "baton_v6.py" not in names, "the frozen oracle is inside the artifact"
+	assert not any("baton_tui" in n for n in names)
+
+	# And the oracle still knows nothing about the core, so the two
+	# implementations cannot converge by one importing the other.
 	source = ast.parse((HERE / "baton_v6.py").read_text())
 	for node in ast.walk(source):
 		if isinstance(node, ast.Import):
@@ -244,3 +257,24 @@ def test_the_frozen_cli_remains_the_released_implementation():
 				assert not alias.name.startswith("baton_core")
 		elif isinstance(node, ast.ImportFrom) and node.module:
 			assert not node.module.startswith("baton_core")
+
+
+def test_the_cli_entry_point_is_a_door_not_a_widened_surface():
+	"""The CLI needs `main`; a library that exports one invites being run.
+
+	`baton_core.cli` is the single importer, and `import baton_core` still
+	gets a library with no `main` on it. Pinned because the tempting shortcut
+	-- putting `main` back on the package, or importing `_impl` from the
+	bootstrap -- would make a private module part of the distribution contract
+	by accident."""
+	import sys
+	sys.path.insert(0, str(HERE))
+	import baton_core
+	import baton_core.cli
+	assert not hasattr(baton_core, "main"), "the package surface widened"
+	assert callable(baton_core.cli.main)
+
+	bootstrap = (HERE / "build_zipapp.py").read_text()
+	assert "from baton_core.cli import main" in bootstrap
+	assert "from baton_core._impl" not in bootstrap, \
+		"the bootstrap reaches into a private module"

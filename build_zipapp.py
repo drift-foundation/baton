@@ -37,7 +37,7 @@ except ImportError:
     sys.stderr.write("baton: the Python sqlite3 module is unavailable\\n")
     sys.exit(2)
 
-from baton_v6 import main
+from baton_core.cli import main
 
 sys.exit(main())
 '''
@@ -49,13 +49,21 @@ def build(root: str) -> dict:
 	field is that root-relative path. The schema/example/docs assets live
 	beside the manifest in a checked-in root (the package directory itself
 	is the canonical root)."""
-	source_path = os.path.join(HERE, "baton_v6.py")
+	# The CLI is built from `baton_core` now. `baton_v6.py` is NOT packaged
+	# and is not imported by anything shipped: it stays in the tree as the
+	# frozen differential ORACLE, which is the instrument parity is measured
+	# with. Packaging it here would put the measurement inside the thing being
+	# measured.
+	source_path = os.path.join(HERE, "baton_core", "_impl.py")
 	with open(source_path, "rb") as handle:
 		source = handle.read()
-	members = [
-		("__main__.py", BOOTSTRAP.encode("utf-8")),
-		("baton_v6.py", source),
-	]
+	members = [("__main__.py", BOOTSTRAP.encode("utf-8"))]
+	core_dir = os.path.join(HERE, "baton_core")
+	for name in sorted(os.listdir(core_dir)):
+		if not name.endswith(".py"):
+			continue
+		with open(os.path.join(core_dir, name), "rb") as handle:
+			members.append((f"baton_core/{name}", handle.read()))
 	buffer = io.BytesIO()
 	buffer.write(b"#!/usr/bin/env python3\n")
 	with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_STORED) as archive:
@@ -82,13 +90,18 @@ def build(root: str) -> dict:
 			handle.write(proto)
 
 	sys.path.insert(0, HERE)
-	import baton_v6
+	import baton_core
+	# `source_sha256` keeps its meaning -- the hash of the implementation
+	# source -- and that source is now `baton_core/_impl.py` rather than
+	# `baton_v6.py`. The field is not redefined to cover the whole archive:
+	# `artifact_sha256` already pins every packaged byte, and two fields
+	# saying the same thing is how they stop agreeing.
 	manifest = {
 		"tool": "baton",
-		"tool_version": baton_v6.TOOL_VERSION,
-		"protocol_version": baton_v6.PROTOCOL_VERSION,
+		"tool_version": baton_core.TOOL_VERSION,
+		"protocol_version": baton_core.PROTOCOL_VERSION,
 		"python_min": "3.11",
-		"sqlite_min": ".".join(map(str, baton_v6.SQLITE_MIN)),
+		"sqlite_min": ".".join(map(str, baton_core._impl.SQLITE_MIN)),
 		"artifact": "bin/baton",
 		"artifact_sha256": hashlib.sha256(payload).hexdigest(),
 		"source_sha256": hashlib.sha256(source).hexdigest(),

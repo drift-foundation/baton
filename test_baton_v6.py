@@ -5594,9 +5594,14 @@ class TestPackaging:
 		assert os.path.isfile(committed_artifact), "checked-in bin/baton must exist"
 		assert _h.sha256(open(committed_artifact, "rb").read()).hexdigest() == \
 			committed["artifact_sha256"]
-		here_src = open(os.path.join(os.path.dirname(__file__), "baton_v6.py"), "rb").read()
+		# SUPERSEDED SOURCE: the CLI is built from `baton_core` now, so
+		# `source_sha256` pins the core's implementation rather than the
+		# frozen oracle. `baton_v6.py` stays in the tree as the differential
+		# oracle and is deliberately NOT what the manifest describes.
+		here_src = open(os.path.join(os.path.dirname(__file__),
+		                             "baton_core", "_impl.py"), "rb").read()
 		assert committed["source_sha256"] == _h.sha256(here_src).hexdigest(), \
-			"committed manifest is stale against baton_v6.py — rerun build_zipapp.py"
+			"committed manifest is stale against baton_core/_impl.py — rerun build_zipapp.py"
 		# The generic protocol doc ships in the distribution root and is
 		# hash-pinned by the manifest.
 		proto_built = root / manifest["protocol_doc"]
@@ -5616,7 +5621,11 @@ class TestPackaging:
 			assert type(node).__name__ != "Match"
 		lines = builder.BOOTSTRAP.splitlines()
 		floor_idx = next(i for i, l in enumerate(lines) if "version_info < (3, 11)" in l)
-		import_idx = next(i for i, l in enumerate(lines) if "from baton_v6" in l)
+		# The bootstrap imports the CORE now. What this test is about is
+		# unchanged and is the whole reason it exists: the floor check must
+		# come BEFORE the import, or an old interpreter dies on the import
+		# instead of printing the diagnostic the exit code promises.
+		import_idx = next(i for i, l in enumerate(lines) if "from baton_core" in l)
 		assert floor_idx < import_idx
 
 	def test_zipapp_imports_own_module_under_poisoned_cwd(self, tmp_path):
@@ -5636,6 +5645,11 @@ class TestPackaging:
 	REUSABLE_ASSETS = ["baton_v6.py", "test_baton_v6.py", "build_zipapp.py",
 	                   "example-baton.json", "config-schema.json", "README.md",
 	                   "baton", "DISTRIBUTION.json", "AGENTS-MAILBOX-PROTO.md"]
+	# The CLI is built from the core, so the core is a reusable asset too: a
+	# bare checkout that cannot build the executable is not a reusable
+	# checkout. `baton_v6.py` stays in the list because the differential
+	# oracle travels with the tests that compare against it.
+	REUSABLE_PACKAGES = ["baton_core"]
 
 	@pytest.mark.skipif(os.environ.get("BATON_ISOLATED") == "1",
 	                    reason="already inside the isolated run")
@@ -5649,6 +5663,8 @@ class TestPackaging:
 		for asset in self.REUSABLE_ASSETS:
 			src = os.path.join(here, asset)
 			shutil.copy(src, iso / asset)
+		for package in self.REUSABLE_PACKAGES:
+			shutil.copytree(os.path.join(here, package), iso / package)
 		(iso / "bin").mkdir()
 		shutil.copy(os.path.join(here, "bin", "baton"), iso / "bin" / "baton")
 		env = {"PATH": os.environ["PATH"], "PYTHONPATH": str(iso),
@@ -5709,7 +5725,15 @@ class TestPackaging:
 		# self-reference.
 		banned = ("dri" + "ft-lang", "dri" + "ft.", "/wo" + "rk/",
 		          "fin" + "ding-", "AGE" + "NTS.md")
-		for asset in self.REUSABLE_ASSETS + [os.path.join("bin", "baton")]:
+		assets = self.REUSABLE_ASSETS + [os.path.join("bin", "baton")]
+		# Every packaged core module too. It ships inside the executable now,
+		# so a host needle in it travels exactly as far as one in the old
+		# single source file did.
+		for package in self.REUSABLE_PACKAGES:
+			for name in sorted(os.listdir(os.path.join(here, package))):
+				if name.endswith(".py"):
+					assets.append(os.path.join(package, name))
+		for asset in assets:
 			path = os.path.join(here, asset)
 			data = open(path, "rb").read()
 			for needle in banned:

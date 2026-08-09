@@ -23,17 +23,66 @@ exists so the BUMP happens once, not so the review does.
 | Two-second dwell before TUI claim-on-highlight | this file, below |
 | Presence leases, targeted blocker events, participant-pane filtering | this file, below |
 
-## Sequencing
+## Sequencing — AGREED, and this is the order
 
-1. Land the current protocol-9 TUI + core commit.
-2. CLI-to-core adoption, protocol 9, parity proven against the frozen oracle,
-   landed separately. This removes the duplicated schema so every rename below
-   is written once.
-3. Protocol 10 as one bump carrying the rest.
+Proposed by the implementer, agreed by the reviewer with two separations and
+two corrections. Landed commit `870799a` is step 0.
 
-Step 2 before step 3 is not preference: `filename` lives in the SCHEMA TEXT,
-which exists in two copies until adoption lands. Renaming it earlier means
-either writing a breaking change twice or editing the frozen oracle.
+### Stage 1A — the CLI adopts `baton_core`, still protocol 9
+
+Pure adoption and nothing else. `bin/baton` changes its artifact bytes; its
+behaviour and the protocol do not. `baton_v6.py` stays FROZEN as the
+differential oracle — it is the instrument parity is measured with, so editing
+it destroys the measurement. Acceptance is the existing corpus, differential
+parity against that oracle, a deterministic package rebuild, and an explicit
+artifact/hash handoff. No fresh authority, no cutover.
+
+### Stage 1B — CLI multipart/references authoring, still protocol 9
+
+Only after 1A is independently reviewed. The stored multipart tree already
+exists in protocol 9, so AUTHORING it is CLI surface rather than a wire
+change — which is the reviewer's correction to my sorting, and it is right.
+Kept separate so 1A stays reviewable as pure adoption instead of mixing
+migration with new behaviour.
+
+### Stage 2 — one protocol-10 bump, one cutover
+
+Each item written against the shape the previous one leaves:
+
+1. `filename` -> `part_name`. Pure rename, first, so every later contract
+   touching parts is written in the new vocabulary rather than translated.
+2. Scoped/team and multi-recipient audiences. This changes what a RECIPIENT
+   is, and the items below all reference recipients.
+3. Participant-authorized read/materialize, and reread authority. AFTER
+   audiences, because audiences define who is a party — the reviewer's
+   correction to my proposal, which had put this in stage 1. The audit answer
+   belongs here too if it needs schema: an unrecorded privileged read must not
+   be the final contract.
+4. Append-only claim progress AND targeted blockers — same implementation
+   stage, DISTINCT contracts. Progress is claim-bound. A blocker is a directed
+   participant relationship, can exist without a claim, is viewer-relative,
+   and is never a blocked claim phase. I had proposed folding them into one;
+   the separation is the reviewer's and is the sharper reading.
+5. Priority, queue ordering, fairness.
+6. Durable per-participant dismissal.
+7. Presence leases last.
+
+Presence going last is accepted. It is NOT the protocol's first expiry
+concept, and describing it that way was my error: notices already carry
+TTL/expiry semantics.
+
+### Stage 3 — TUI, after the bump, no wire change
+
+1. Re-reading, backed by the participant-authorized authority read from stage
+   2.3. The console must NOT keep a second source of truth for durable
+   authority content — which is the reviewer's constraint on my "keep what it
+   was delivered" sketch, and it is the right one.
+2. The two-second claim-on-highlight dwell.
+3. The participant pane, presence display, and read-only conversation filter.
+
+Stage 1A before everything is not preference: `filename` lives in SCHEMA TEXT
+that exists in two copies until adoption lands. Renaming earlier means writing
+a breaking change twice, or editing the frozen oracle.
 
 ## Why one boundary
 

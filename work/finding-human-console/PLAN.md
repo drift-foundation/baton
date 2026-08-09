@@ -405,3 +405,91 @@ Inside the quick-reply subject editor every browse letter is ordinary text:
 the text modes are a separate key table, so no special case is needed. One was
 written and then deleted, because removing it changed no test -- which is the
 definition of dead code that looks load-bearing.
+
+## Stage 1A — the CLI adopts `baton_core`
+
+Landed against protocol 9, behaviour unchanged, `baton_v6.py` untouched.
+
+`bin/baton` now packages `baton_core` and nothing else. `baton_v6.py` is NOT
+in the archive: it stays in the tree as the differential ORACLE, and an oracle
+that ships inside the thing it measures has stopped being one. Archive members
+are exactly `__main__.py`, `baton_core/{__init__,_impl,cli}.py`.
+
+`baton_core.cli` is a new three-line module and it is a DOOR, not a widened
+surface. `baton_core` still pops `main` and `_build_parser` off the package —
+a library that offers a command line invites being run as one — so the
+executable needed somewhere explicit to get in. Importing `baton_core.cli`
+says "I am the command line" and there is exactly one such importer; reaching
+into `_impl` from the bootstrap would have made a private module part of the
+distribution contract by accident. Pinned both ways.
+
+`source_sha256` keeps its meaning — the hash of the implementation source —
+and that source is now `baton_core/_impl.py`. It is deliberately NOT redefined
+to cover the whole archive: `artifact_sha256` already pins every packaged
+byte, and two fields saying the same thing is how they stop agreeing.
+
+### Superseded contracts, each recorded
+
+- `test_the_frozen_cli_remains_the_released_implementation` said the CLI
+  contains `baton_v6.py` and no core. It said "until an explicit decision says
+  otherwise"; the decision arrived. It now asserts the reverse, and the
+  load-bearing half is the oracle staying OUT.
+- the corpus's distribution-root contract pinned the manifest against
+  `baton_v6.py`; it pins `baton_core/_impl.py` now.
+- the bootstrap floor test looked for `from baton_v6`; it looks for
+  `from baton_core`, and what it is actually about is unchanged — the floor
+  check must precede the import, or an old interpreter dies on the import
+  instead of printing the diagnostic its exit code promises.
+
+### Two guards that got STRONGER, and one that caught me
+
+The isolated-checkout test copies the core package now: a bare checkout that
+cannot build the executable is not a reusable checkout.
+
+The extraction purity gate covers every packaged core module. It ships inside
+the executable, so a host needle in it travels exactly as far as one in the
+old single source file did.
+
+And that gate caught a word I wrote. A comment of mine used a host project
+name in passing; the guard refused the build asset. Reworded rather than
+weakened — the gate was right and I was careless.
+
+### Evidence
+
+    full suite               1883 passed
+    git diff --check         clean
+    parity vs oracle         6 passed (test_core_parity.py)
+    two builds               89932cefdaf3c135b85bcb0d7ea616169e66b8222fe2a5c7d1479340832055a7
+                             identical both times
+
+The artifact moved twice inside this stage, both times because
+`baton_core/__init__.py` is PACKAGED — a docstring in the executable is part
+of the artifact.
+
+    4d5eeeff…   the adoption itself
+    f309d6d3…   three live descriptions corrected; the one in this file was
+                asserting the opposite of the artifact while shipping inside it
+    89932cef…   the two compatibility records separated (below)
+
+### Two records, and they are not the same record
+
+I wrote "the divergences are additive and read-only: ... and the removal of
+`list_received`". A removal is not additive; the sentence contradicted itself.
+Review caught it. They are two separate facts:
+
+OBSERVABLE PARITY, what the differential harness sees. Exactly two, both
+additions: a manifest `address` on each delivered part, and `created_ts` on
+claimed scan rows. Anything else differing fails the harness as unrecorded.
+
+CLIENT API, what the package offers a front end. Adds `list_roots`,
+`list_notice_activity`, `read_claimed_external_part` and two columns on
+`list_messages`; removes `list_received`, which served a view that no longer
+exists.
+
+A removal there is not a parity divergence at all — it is a method the
+oracle's callers never had, because the oracle has no front end.
+    baton_v6.py              unchanged, not in the archive
+    protocol                 9, unchanged
+
+The packed executable was also driven end to end by hand — init, send, claim,
+reply, doctor — on a throwaway instance.

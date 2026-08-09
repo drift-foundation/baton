@@ -1,34 +1,53 @@
 """Baton core: Baton semantics as an importable library.
 
-`baton-tui` (the human console) is the current front end over this package.
-Protocol, schema, validation, storage, claim, reply, notice, attachment and
-audit behaviour live here, and SQLite is private to this package: a front end
-that opens the database directly has become a second implementation of the
-protocol.
+BOTH front ends are over this package now: `baton-tui`, the human console, and
+`baton`, the agent CLI. Protocol, schema, validation, storage, claim, reply,
+notice, attachment and audit behaviour live here, and SQLite is private to
+this package: a front end that opens the database directly has become a second
+implementation of the protocol.
 
 This is a LIBRARY package, not a runnable artifact: it has no `__main__` and
-no command line.
+no command line of its own. `baton_core.cli` is the one door the CLI comes in
+through, and it is a door rather than a widened surface — `import baton_core`
+gets a library with no `main` on it.
 
-WHAT IS TRUE TODAY, stated exactly because an earlier version of this
-paragraph was not. The released `baton` CLI does NOT use this package: it is
-still built from the top-level `baton_v6.py`, and `_impl.py` is a
-byte-for-byte copy of that file plus a small set of recorded read-only
-additions. So the same behaviour deliberately exists in two places right now.
-That duplication is the FROZEN PARITY INTERVAL, not an accident and not a
-steady state:
+WHAT IS TRUE TODAY, stated exactly because two earlier versions of this
+paragraph were not. Stage 1A landed: `bin/baton` is built from this package
+and no longer contains `baton_v6.py`. Protocol 9 and the CLI's behaviour are
+unchanged by that adoption; only the artifact bytes moved.
 
-- `baton_v6.py` is frozen and hash-pinned for the whole interval, and serves
-  as the oracle.
-- Fixes land HERE only. A fix applied to both copies would make them agree
+`baton_v6.py` remains in the tree, frozen, and is NOT shipped. Its only job is
+to be the differential ORACLE:
+
+- it stays byte-identical, because it is the instrument parity is measured
+  with;
+- fixes land HERE only. A fix applied to both copies would make them agree
   with each other about the wrong answer, and the oracle would have quietly
-  stopped being an oracle.
+  stopped being an oracle;
 - `test_core_parity.py` drives both through the same operations and records
   every deliberate divergence rather than reconciling it silently.
 
-CLI adoption of this package is approved as a SEPARATE, later stage, on its
-own branch and with its own review; it is not scheduled here and nothing in
-this package assumes it. Until it lands, the CLI source, artifact, builder and
-distribution stay untouched.
+Two records, and they are NOT the same record. Conflating them once produced
+the sentence "the divergences are additive ... and the removal of
+`list_received`", which contradicts itself.
+
+OBSERVABLE PARITY -- what the differential harness sees when both
+implementations are driven through the same operations. Exactly two, and both
+are ADDITIONS:
+
+- a manifest `address` on each delivered part, making the envelope
+  self-addressing;
+- `created_ts` on claimed scan rows.
+
+Anything else differing is an unrecorded divergence and fails the harness.
+
+CLIENT API -- what this package offers a front end, which the oracle never
+had a reason to. Additions: `list_roots`, `list_notice_activity`,
+`read_claimed_external_part`, and two columns on `list_messages`. One removal:
+`list_received`, which served a view that no longer exists.
+
+A removal here is not a parity divergence. It is a method the oracle's callers
+never had, because the oracle has no front end.
 """
 
 from ._impl import *          # noqa: F401,F403  -- surface parity with the oracle

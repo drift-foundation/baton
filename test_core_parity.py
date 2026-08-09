@@ -1,15 +1,20 @@
 """Differential parity: frozen `baton_v6` oracle vs `baton_core`.
 
-The temporary duplication is scaffolding, and its danger is not duplication
-itself -- it is a defect fixed in one copy, after which the two agree with
-each other about the wrong answer and the oracle has quietly stopped being an
-oracle. These tests drive BOTH implementations through the same operations on
-fresh equivalent instances and compare what a caller can actually observe:
-delivery JSON, error text and exit codes, and `doctor` output.
+Since stage 1A the core is what SHIPS: `bin/baton` and `bin/baton-tui` are
+both built from it, and `baton_v6.py` is packaged in neither. It stays in the
+tree for one job -- to be the reference for what the CLI did before adoption,
+so a behaviour change can still be caught by something that did not change
+with it.
 
-`baton_v6.py` is frozen for the whole scaffolding period. If a defect appears,
-it is fixed in `baton_core` only and the divergence is recorded here
-deliberately, never reconciled by editing the oracle.
+The danger was never duplication itself. It is a defect fixed in BOTH copies,
+after which the two agree with each other about the wrong answer and the
+oracle has quietly stopped being an oracle. So fixes land in `baton_core`
+only, the oracle stays byte-identical, and every deliberate divergence is
+recorded here rather than reconciled by editing the reference.
+
+These tests drive both implementations through the same operations on fresh
+equivalent instances and compare what a caller can actually observe: delivery
+JSON, error text and exit codes, and `doctor` output.
 """
 
 from __future__ import annotations
@@ -184,9 +189,13 @@ def test_recorded_divergences_are_still_real(tmp_path, key):
 
 def test_divergence_is_additive_only(tmp_path):
 	"""Core may ADD to a row shape. It must not drop or change a field the
-	oracle produced. If the CLI ever adopts this core -- a separate decision,
-	not scheduled -- it would inherit any silent removal, and until then the
-	oracle is the reference for what the released behaviour IS."""
+	oracle produced.
+
+	The CLI HAS adopted the core -- stage 1A -- so this is no longer a
+	precaution about a hypothetical future: a silent removal here is a silent
+	removal in the released executable. The oracle remains the reference for
+	what the behaviour WAS at adoption, which is the only thing that can catch
+	a drop after it."""
 	results = {}
 	for name, impl in IMPLS:
 		config_path, root = _config(tmp_path, name)

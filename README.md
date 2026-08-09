@@ -179,9 +179,11 @@ shortcut and lifecycle reference, and this file carries the same notation.
 Both panes get the whole terminal width, which is what a subject line and a
 Markdown body each need most.
 
-The TUI and agent CLI are separate artifacts. The TUI currently imports the
-shared `baton-core` package; the existing CLI remains frozen on its original
-implementation until the separately reviewed core-adoption stage.
+The TUI and agent CLI are separate artifacts built from the same shared
+`baton-core` package, so there is one implementation of the protocol behind
+both. They ship independently: the console declares the core API version it
+was built against, which lets it move on its own cadence while the wire
+contract moves on the protocol's.
 
 ## Minimum requirements
 
