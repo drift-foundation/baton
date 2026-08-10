@@ -3597,7 +3597,44 @@ class TestWaitNoticeDelivery:
 
 	# -- CLI ---------------------------------------------------------------
 
-	def test_cli_wait_delivers_notice(self, instance):
+	def test_cli_wait_exits_3_when_the_timeout_finds_nothing(self, instance):
+		"""The exit status is a PUBLIC contract now that the docs tell runner
+		loops to branch on it, and it was pinned only one layer down.
+
+		`test_blocking_readiness_times_out_like_wait` asserts the helper
+		raises with EXIT_NONE. That would stay green if dispatch, error
+		handling or the exit-code mapping changed underneath it -- and the
+		thing that breaks is every supervisor that treats non-zero as failure
+		and would start reporting an idle mailbox as an error.
+
+		Asserted through `main`, which is what those loops actually call."""
+		code, out, _ = self._run(
+			"--config", instance, "wait", "--participant", "acme.implementer",
+			"--timeout", "0.2", "--interval", "0.1")
+		assert code == 3, f"idle timeout exited {code}, not the documented 3"
+		assert out == "", "an idle timeout printed a readiness object"
+
+	def test_cli_wait_exits_0_when_work_exists(self, instance):
+		"""The other half of the documented pair, at the same boundary."""
+		with b6.open_instance(instance) as store:
+			send_one(store)
+		code, out, _ = self._run(
+			"--config", instance, "wait", "--participant", "acme.implementer",
+			"--timeout", "5")
+		assert code == 0
+		assert json.loads(out)["ready"] is True
+
+	def test_cli_wait_reports_a_notice_without_consuming_it(self, instance):
+		"""REWRITTEN for the 2026-08-10 ruling that plain `wait` is read-only.
+
+		It previously asserted that `wait` delivered the notice AND that a
+		following `see` found nothing left -- i.e. that waiting consumed it.
+		That is exactly the behaviour the ruling removed, so the old assertion
+		could not be kept: an unattended `wait` consuming a broadcast is the
+		same hazard as one holding a claim.
+
+		What replaces it is the mirror property: `wait` says a notice is
+		there, and `see` still finds it."""
 		code, out, _ = self._run(
 			"--config", instance, "send-notice", "--participant", "hq.lead",
 			"--kind", "announcement",
@@ -3607,13 +3644,14 @@ class TestWaitNoticeDelivery:
 			"--config", instance, "wait", "--participant", "acme.implementer",
 			"--timeout", "5")
 		assert code == 0
-		delivery = json.loads(out)
-		assert "claim" not in delivery
-		assert delivery["notice"]["kind"] == "announcement"
-		# and the CLI `see` agrees it is consumed
+		state = json.loads(out)
+		assert state["ready"] is True and state["channel"] == "notice"
+		assert "notice" not in state and "claim" not in state
+		# STILL THERE: reading it is `see`'s job, and waiting did not do it.
 		code, out, _ = self._run(
 			"--config", instance, "see", "--participant", "acme.implementer")
-		assert code == 0 and json.loads(out)["notices"] == []
+		assert code == 0
+		assert [n["kind"] for n in json.loads(out)["notices"]] == ["announcement"]
 
 	# -- `see` itself is unregressed ---------------------------------------
 
@@ -7311,3 +7349,238 @@ class TestNoticeDuplicateWarning:
 			                  possible_duplicate=True)
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute("UPDATE notices SET possible_duplicate=0")
+
+
+class TestReplyPublication:
+	"""A response is a directed message, so it has a publication too.
+
+	It did not. `send` created the publication and `reply` called
+	`_insert_message` directly, so every response carried a NULL link and
+	delivered `audience: []` -- while the stage plan already required
+	otherwise. The two creation paths are now one, which is the part that
+	stops this recurring."""
+
+	def test_a_reply_creates_its_own_publication(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			result = store.reply(claim["claim_id"], participant="acme.implementer",
+			                     kind="a", body=b"y\n")
+			row = store.conn.execute(
+				"SELECT publication_id FROM messages WHERE id=?",
+				(result["response_message_id"],)).fetchone()
+		assert row["publication_id"] is not None, \
+			"the response message has no publication record"
+
+	def test_the_reply_audience_is_the_original_sender(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			store.reply(claim["claim_id"], participant="acme.implementer",
+			            kind="a", body=b"y\n")
+			delivered = b6._delivery(store, store.claim("hq.lead"))
+		assert delivered["message"]["audience"] == ["hq.lead"], \
+			"a reply does not name its own single recipient"
+
+	def test_a_retried_reply_does_not_mint_a_second_publication(self, instance):
+		"""The claim disposition stays the effectively-once key. If a retry
+		published again, one response would have two publication records and
+		the audience would depend on which was read."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			first = store.reply(claim["claim_id"], participant="acme.implementer",
+			                    kind="a", body=b"y\n")
+			before = store.conn.execute("SELECT COUNT(*) FROM publications").fetchone()[0]
+			again = store.reply(claim["claim_id"], participant="acme.implementer",
+			                    kind="a", body=b"y\n")
+			after = store.conn.execute("SELECT COUNT(*) FROM publications").fetchone()[0]
+		assert again["already_committed"] is True
+		assert again["response_message_id"] == first["response_message_id"]
+		assert after == before, "the retry created another publication"
+
+	def test_no_directed_message_is_left_without_a_publication(self, instance):
+		"""The invariant itself, over every path that creates one. A future
+		fifth verb that inserts a message directly fails here rather than in
+		somebody's delivery six weeks later."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", ["acme.implementer", "acme.reviewer"],
+			           kind="q", subject="s", body=b"x\n")
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			store.reply(claim["claim_id"], participant="acme.implementer",
+			            kind="a", body=b"y\n")
+			orphans = store.conn.execute(
+				"SELECT id, kind FROM messages WHERE publication_id IS NULL").fetchall()
+		assert [dict(r) for r in orphans] == []
+
+
+class TestReadiness:
+	"""Blocking readiness: says work exists, takes none of it.
+
+	The safety property is not "it returns quickly" -- it is that a process
+	left in a terminal that never wakes its agent cannot end up holding work.
+	Every test here is really asking the same question: did observing change
+	anything?"""
+
+	def test_readiness_reports_directed_work_without_claiming_it(self, instance):
+		with b6.open_instance(instance) as store:
+			send_one(store)
+			state = store.readiness("acme.implementer")
+			claims = store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0]
+			# The work is STILL THERE for an ordinary consumer.
+			claim = store.claim("acme.implementer")
+		assert state["ready"] is True and state["channel"] == "message"
+		assert claims == 0, "readiness created a claim"
+		assert claim["message_id"] == state["message_id"]
+
+	def test_readiness_returns_no_content(self, instance):
+		"""Metadata only. A readiness result carrying the body would make the
+		'safe' verb the one that quietly delivers work nobody acknowledged."""
+		with b6.open_instance(instance) as store:
+			send_one(store)
+			state = store.readiness("acme.implementer")
+		assert "content" not in state and "parts" not in state
+		assert "subject" not in state and "body" not in state
+
+	def test_readiness_reports_a_notice_without_writing_a_receipt(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="ann", body=b"deploy\n")
+			state = store.readiness("acme.implementer")
+			receipts = store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0]
+			# Still deliverable: the receipt belongs to `see`, not to looking.
+			delivered = store.see("acme.implementer")
+		assert state["ready"] is True and state["channel"] == "notice"
+		assert receipts == 0, "readiness consumed the notice"
+		assert len(delivered) == 1
+
+	def test_readiness_does_not_name_the_notice(self, instance):
+		"""Naming one would invite the caller to consume that specific notice,
+		while `see` drains oldest-first -- so a notice arriving in between
+		would be consumed under another one's name."""
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="ann", body=b"one\n")
+			state = store.readiness("acme.implementer")
+		assert "notice_id" not in state
+
+	def test_directed_work_outranks_a_notice(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="ann", body=b"deploy\n")
+			send_one(store)
+			state = store.readiness("acme.implementer")
+		assert state["channel"] == "message"
+
+	def test_an_empty_inbox_is_not_ready(self, instance):
+		with b6.open_instance(instance) as store:
+			state = store.readiness("acme.implementer")
+		assert state["ready"] is False and state["channel"] is None
+
+	def test_blocking_readiness_wakes_on_a_late_send_without_claiming(self, instance):
+		"""The reviewer's regression target: this must fail if the event wake
+		is dead, not pass a minute later on the safety rescan. The rescan is
+		set to 20s and the assertion is 15s, so only a real filesystem event
+		can satisfy it."""
+		def sender():
+			_time.sleep(0.5)
+			with b6.open_instance(instance) as st:
+				send_one(st)
+		thread = threading.Thread(target=sender)
+		thread.start()
+		start = _time.monotonic()
+		state = b6.wait_for_readiness(instance, "acme.implementer",
+		                              timeout_s=30, rescan_interval_s=20)
+		elapsed = _time.monotonic() - start
+		thread.join()
+		assert state["ready"] is True and state["channel"] == "message"
+		assert elapsed < 15, "woken by the safety rescan, not the watch"
+		with b6.open_instance(instance) as store:
+			assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0, \
+				"the readiness waiter claimed the message"
+
+	def test_blocking_readiness_times_out_like_wait(self, instance):
+		with pytest.raises(b6.BatonError) as excinfo:
+			b6.wait_for_readiness(instance, "acme.implementer",
+			                      timeout_s=0.3, rescan_interval_s=0.1)
+		assert excinfo.value.exit_code == b6.EXIT_NONE
+
+	def test_readiness_returns_the_same_result_twice(self, instance):
+		"""Idempotent BECAUSE it writes nothing. A consuming waiter cannot
+		say this, and it is what makes an unattended readiness process
+		harmless."""
+		with b6.open_instance(instance) as store:
+			send_one(store)
+			first = store.readiness("acme.implementer")
+			second = store.readiness("acme.implementer")
+		assert first == second
+
+	def test_a_damaged_head_is_ready_and_says_it_is_damaged(self, tmp_path):
+		"""Ruled 2026-08-10, and it reverses what I built first.
+
+		I had readiness skip damaged messages, because `claim` does. That
+		hides the one state a human most needs to see: it would report the
+		queue as healthy and shorter than it is, and the damaged message would
+		sit at the head unmentioned. There IS something here and it IS next --
+		what it needs is `quarantine` rather than `claim`, and the result says
+		so."""
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		with b6.open_instance(config_path) as store:
+			state = store.readiness("acme.implementer")
+		assert state["ready"] is True
+		assert state["message_id"] == damaged
+		assert state["damaged"] is True
+
+	def test_readiness_never_scans_past_the_head(self, tmp_path):
+		"""The FIFO half of the same ruling. Reporting the healthy message
+		behind a damaged one answers "what could be claimed", which is not
+		what was asked -- and it is how the damaged head goes unnoticed."""
+		config_path, root = _attach_instance(tmp_path)
+		damaged, path = _send_attached(config_path, root, "EVIDENCE.md")
+		path.write_bytes(b"edited after publication\n")
+		# A REAL second apart, not a forged timestamp: `created_ts` has
+		# second resolution, so two sends in the same second are ordered by a
+		# random id and "the head" would not be well defined. The guard
+		# refuses a bare UPDATE to fake it, which is the right answer -- the
+		# ordering this test depends on has to be the ordering the store
+		# actually produces.
+		_time.sleep(1.1)
+		with b6.open_instance(config_path) as store:
+			healthy = send_one(store, body=b"fine")
+			state = store.readiness("acme.implementer")
+		assert state["message_id"] == damaged, "readiness looked past the head"
+		assert state["message_id"] != healthy
+
+
+class TestOrphanPublicationDoctor:
+	"""`doctor` had four publication checks and every one of them validated
+	rows that HAVE a publication. Nothing looked for a message without one,
+	which is why the defect reached a live instance and was reported ok."""
+
+	def test_a_healthy_instance_reports_no_orphans(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			store.reply(claim["claim_id"], participant="acme.implementer",
+			            kind="a", body=b"y\n")
+		report = b6.doctor(instance)
+		assert report["ok"] is True, report["problems"]
+
+	def test_the_schema_refuses_a_message_with_no_publication(self, instance):
+		"""The invariant moved from "doctor notices" to "the database
+		refuses", ruled 2026-08-10.
+
+		This test REPLACED one that constructed an orphan and asserted doctor
+		reported it. That test can no longer be written: with `NOT NULL` in
+		place there is no way to produce the row, which is a better outcome
+		than a diagnosis of it. The doctor check is kept as a backstop for
+		authorities created by earlier protocol-10 builds -- the live one has
+		28 such rows right now -- and it stops being reachable once that is
+		archived and cut over."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			store.conn.execute(
+				"UPDATE op_context SET op_id='t', participant='hq.lead', "
+				"verb='gc', ts='2026-01-01T00:00:00Z' WHERE one_row=1")
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute("UPDATE messages SET publication_id=NULL WHERE id=?", (mid,))

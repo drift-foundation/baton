@@ -95,3 +95,12 @@ Any fix here changes the schema, and every protocol-10 schema change so far has
 left Slawomir's console unable to open the mailbox until migrated in place.
 That is tracked in the handoff and is his call, not something to bundle into a
 defect fix.
+
+## Final disposition ruling — 2026-08-10
+
+Do not repair or port the 28 historical orphan replies. Archive the current
+authority intact and cut over quickly to a fresh authority once the replacement
+build is ready. The fresh schema makes `messages.publication_id` `NOT NULL`, so
+the invariant is enforced at insertion rather than depending only on `doctor`
+and every future author remembering it. No migration or rewrite is performed
+on the archived authority.

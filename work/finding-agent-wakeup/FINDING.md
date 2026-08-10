@@ -1,16 +1,20 @@
 # Agent wakeup integration
 
-Status: finding only; do not widen the current protocol-10 audience work.
+Status: **immediate post-checkpoint priority**, promoted by Slawomir on
+2026-08-10 after repeated operational stalls. Do not bury this behind the
+remaining audience/TUI polish: safe non-claiming monitoring is needed for the
+reviewer to remain reachable while those reviews run.
 
 Direction confirmed by Slawomir on 2026-08-10: add a blocking, read-only
 readiness wait (working names `peek`/`ready`) that returns when eligible work
 exists but does not claim or consume it. Final command naming remains a design
 task.
 
-Open follow-up: whether protocol 10 should instead change the existing `wait`
-default to read-only. Slawomir confirmed that compatibility is not a blocker:
-only this deployment uses it and all role briefs can adopt the protocol-10
-contract together.
+CLI surface ruled by Slawomir on 2026-08-10: protocol-10 plain `wait` is the
+read-only readiness operation. Compatibility is not a blocker: only this
+deployment uses protocol 10 and all role briefs can adopt the contract
+together. Do not also ship `ready` or `scan --wait` as aliases for the same
+operation.
 
 ## What Baton already does
 
@@ -83,12 +87,29 @@ held, unanswered claim into merely delayed work. That is the safety property
 needed by the current agent host without weakening the efficient one-step path
 for consumers that are actually running.
 
-## Protocol-10 choice after compatibility was waived
+## Protocol-10 surface ruling
 
-Two coherent surfaces remain; do not accidentally ship both spellings for the
-same concept.
+## Readiness queue semantics — ruled 2026-08-10
 
-### A — make `wait` read-only (current reviewer recommendation)
+Slawomir ruled that a read-only readiness wait observes the directed queue in
+deterministic FIFO order and returns **the first pending message it encounters**.
+It does not scan ahead looking for a healthier or more interesting row:
+
+- when that message verifies, return its metadata as deliverable;
+- when its external content is damaged, return that same message as a damage
+  event with no content and no claim;
+- do not claim, mark seen, quarantine, skip, or otherwise mutate anything.
+
+The caller decides the next operation: claim the deliverable id, inspect or
+quarantine the damaged id, or run a broader scan. Existing consuming `claim`
+keeps its skip-and-continue behavior so a caller that deliberately proceeds
+can still reach healthy work behind damage.
+
+This is deliberately not a complete damage inventory. Readiness reports what
+the FIFO observation encountered; it does not inspect the whole queue merely
+to prove whether later damage exists.
+
+### Ruled: make `wait` read-only
 
 `wait` blocks until eligible directed work or a notice exists, returns only
 readiness metadata, and writes nothing. The active consumer then calls
@@ -105,7 +126,7 @@ The exact notice follow-up must be pinned: a readiness result names one notice,
 so consuming it must not accidentally drain a different notice that arrived
 first.
 
-### B — preserve consuming `wait`; extend `scan`
+### Rejected alternative: preserve consuming `wait`; extend `scan`
 
 Keep today's atomic `wait`. Extend existing read-only `scan` with a blocking
 mode such as `scan --wait`; plain `scan` remains an immediate snapshot.

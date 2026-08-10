@@ -1006,7 +1006,14 @@ _TABLES: dict[str, str] = {
 		"outcome TEXT, created_ts TEXT NOT NULL, "
 		"state TEXT NOT NULL CHECK(state IN ('pending','claimed','completed','closed','expired','quarantined')), "
 		"responds_to TEXT REFERENCES messages(id), completed_ts TEXT, "
-		"publication_id TEXT REFERENCES publications(publication_id), "
+		# NOT NULL, ruled 2026-08-10. Every directed message belongs to a
+		# publication, and for a while that was true only because two code
+		# paths both remembered to do it -- one of them did not, and `doctor`
+		# could not see it. An invariant the schema states is one no future
+		# author can forget. Fresh authorities only: the historical orphans
+		# are archived intact rather than repaired, so nothing has to be
+		# reconstructed to satisfy this.
+		"publication_id TEXT NOT NULL REFERENCES publications(publication_id), "
 		"CHECK((state IN ('pending','claimed')) = (completed_ts IS NULL))) STRICT"
 	),
 	"claims": (
@@ -1945,18 +1952,10 @@ class Store:
 		self._txn_begin("send", participant=sender)
 		try:
 			now = _utc_now_iso()
-			publication_id = new_id()
-			self.conn.execute(
-				"INSERT INTO publications(publication_id, from_participant, kind, "
-				"subject, thread_id, retention, outcome, content_type, "
-				"manifest_sha256, created_ts, possible_duplicate) "
-				"VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-				(publication_id, sender, kind, subject, thread_id, retention,
-				 outcome, container, manifest_digest(container, nodes), now,
-				 1 if possible_duplicate else 0))
-			self.conn.executemany(
-				"INSERT INTO publication_audience(publication_id, participant) VALUES(?,?)",
-				[(publication_id, address) for address in sorted(recipients)])
+			publication_id = self._publish(
+				sender, recipients, kind=kind, subject=subject, thread_id=thread_id,
+				retention=retention, outcome=outcome, container_type=container,
+				nodes=nodes, now=now, possible_duplicate=possible_duplicate)
 			# ATOMIC: every delivery or none. A partial audience would leave
 			# some recipients holding work the others were never told about,
 			# with nothing in the store able to say which.
@@ -1970,6 +1969,36 @@ class Store:
 		except BaseException:
 			self._txn_rollback()
 			raise
+
+	def _publish(self, sender: str, recipients, *, kind: str, subject: str | None,
+	             thread_id: str | None, retention: str, outcome: str | None,
+	             container_type: str, nodes: list[dict] | None, now: str,
+	             possible_duplicate: bool = False) -> str:
+		"""The publication record and its frozen audience. Returns its id.
+
+		ONE path for every directed message, which is the whole point of
+		extracting it. `reply` used to insert its response message directly
+		and skipped this, so every reply carried a NULL publication link and
+		delivered `audience: []` -- a contract violation that lived for as
+		long as there were two ways to create a directed message.
+
+		Callers must already be inside the transaction that creates the
+		deliveries: a publication without its messages is exactly the partial
+		state the audience record exists to make impossible.
+		"""
+		publication_id = new_id()
+		self.conn.execute(
+			"INSERT INTO publications(publication_id, from_participant, kind, "
+			"subject, thread_id, retention, outcome, content_type, "
+			"manifest_sha256, created_ts, possible_duplicate) "
+			"VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+			(publication_id, sender, kind, subject, thread_id, retention,
+			 outcome, container_type, manifest_digest(container_type, nodes), now,
+			 1 if possible_duplicate else 0))
+		self.conn.executemany(
+			"INSERT INTO publication_audience(publication_id, participant) VALUES(?,?)",
+			[(publication_id, address) for address in sorted(recipients)])
+		return publication_id
 
 	def _insert_message(self, sender: str, recipient: str, *, kind: str,
 	                    subject: str | None, container_type: str, nodes: list[dict],
@@ -2137,6 +2166,57 @@ class Store:
 				continue
 			return candidate, skipped
 		return None, skipped
+
+	def readiness(self, participant: str) -> dict:
+		"""What is at the HEAD of this participant's queue, taking none of it.
+
+		Strict FIFO, ruled 2026-08-10: the first pending directed message in
+		(created_ts, id) order, healthy or DAMAGED, and never a look past it.
+
+		I first built this on `claim`'s eligibility, which skips damaged
+		messages to find one it can take. That was wrong for an observation.
+		Scanning ahead makes readiness answer a different question from the
+		one asked -- "what could be claimed" instead of "what is next" -- and
+		it HIDES a damaged head: the one state a human most needs to see,
+		reported as though the queue were healthy and shorter than it is.
+
+		`damaged` therefore rides on the result. A damaged head is still
+		ready in the sense that matters: there is something here, it is next,
+		and it needs attention. What it needs may be `quarantine` rather than
+		`claim`, and saying so is the point.
+
+		ALWAYS returns a dict. `ready` false means the queue is empty, which
+		is different from a queue whose head cannot be claimed.
+
+		Metadata only: no parts, no body, no subject -- the caller is told
+		work exists, not handed it. Observation writes nothing: no claim, no
+		notice receipt, no ledger event, no write lock at all.
+		"""
+		self._check_identity(participant)
+		row = self.conn.execute(
+			"SELECT id, from_participant, kind, created_ts FROM messages "
+			"WHERE to_participant=? AND state='pending' "
+			"ORDER BY created_ts, id LIMIT 1", (participant,)).fetchone()
+		if row is not None:
+			try:
+				self.verify_attachment(row["id"])
+			except BatonError as exc:
+				if exc.exit_code != EXIT_DAMAGE:
+					raise
+				damaged = True
+			else:
+				damaged = False
+			return {"ready": True, "channel": "message", "message_id": row["id"],
+			        "from_participant": row["from_participant"], "kind": row["kind"],
+			        "created_ts": row["created_ts"], "damaged": damaged}
+		if self.has_unseen_notice(participant):
+			# The notice is NOT named. A readiness result that named one would
+			# invite the caller to consume that specific notice, while `see`
+			# drains oldest-first -- so a notice arriving in between would be
+			# consumed under another one's name. Readiness says the channel is
+			# non-empty; `see` decides what that means.
+			return {"ready": True, "channel": "notice"}
+		return {"ready": False, "channel": None}
 
 	def claim(self, participant: str, *, message_id: str | None = None) -> dict:
 		self._check_identity(participant)
@@ -2322,12 +2402,21 @@ class Store:
 			# (v5 respond(): response_retention = retention or envelope retention).
 			if effective_retention == RETENTION_TRANSIENT:
 				_check_transient_size(nodes)
+			now = _utc_now_iso()
+			# A RESPONSE IS A DIRECTED MESSAGE, so it gets its own
+			# single-recipient publication like any other. Reached only on the
+			# FIRST commit: the retry path above returns the committed
+			# disposition before here, so a retried reply cannot mint a second
+			# publication for the same response.
+			publication_id = self._publish(
+				row["to_participant"], [to], kind=kind, subject=effective_subject,
+				thread_id=thread, retention=effective_retention, outcome=outcome,
+				container_type=container, nodes=nodes, now=now)
 			response_id = self._insert_message(
 				row["to_participant"], to, kind=kind, subject=effective_subject,
 				container_type=container, nodes=nodes,
 				thread_id=thread, retention=effective_retention, outcome=outcome,
-				responds_to=row["message_id"])
-			now = _utc_now_iso()
+				responds_to=row["message_id"], publication_id=publication_id)
 			manifest = manifest_digest(container, nodes)
 			self.conn.execute(
 				"INSERT INTO dispositions(claim_id, kind, outcome, retention, content_type, "
@@ -3591,6 +3680,25 @@ class Store:
 			"ORDER BY participant", (publication_id,))]
 		return members, bool(row["possible_duplicate"])
 
+	def publication_deliveries(self, publication_id: str) -> dict:
+		"""Which message each recipient of one publication received.
+
+		The mapping the stage plan pinned and the return value never carried.
+		A caller that addressed three participants got one publication id and
+		no way to say "and THIS is the delivery I made to the reviewer" -- so
+		following up on one recipient's copy meant querying the store for
+		something the publishing call already knew.
+
+		Read from `messages`, deliberately, unlike `publication_of` which
+		reads the canonical audience. The question here is "what delivery
+		exists for whom", and a collected delivery genuinely has no message to
+		name. An audience member missing from this mapping is information, not
+		an error -- `doctor` is what decides whether it is a problem.
+		"""
+		return {row["to_participant"]: row["id"] for row in self.conn.execute(
+			"SELECT to_participant, id FROM messages WHERE publication_id=? "
+			"ORDER BY to_participant", (publication_id,))}
+
 	def get_claim(self, claim_id: str) -> dict:
 		row = self.conn.execute("SELECT * FROM claims WHERE claim_id=?", (claim_id,)).fetchone()
 		if row is None:
@@ -4823,6 +4931,31 @@ def _struct_unpack_from(data: bytes, offset: int) -> tuple:
 	return struct.unpack_from("iIII", data, offset)
 
 
+def wait_for_readiness(config_path: str, participant: str, *,
+                       timeout_s: float | None = None,
+                       rescan_interval_s: float = WAIT_RESCAN_INTERVAL_S) -> dict:
+	"""Block until work EXISTS, and take none of it.
+
+	Same arming, requery and gate behaviour as `wait_for_message` -- literally
+	the same loop -- with a read-only probe in place of the consuming one.
+	Sharing the loop is the point: the query-to-arm race close and the safety
+	rescan are subtle, and a second copy of them would slowly diverge.
+
+	Safe to leave in a background terminal that may never wake its agent. That
+	is the whole reason it exists: a consuming waiter in that position creates
+	an active claim with no model turn available to answer it, and the work
+	sits held. A missed wake here delays work instead of holding it.
+
+	Several consumers may wake for the same message. `claim` remains the
+	transaction that decides who owns it, exactly as before.
+	"""
+	def probe(store):
+		state = store.readiness(participant)
+		return state if state["ready"] else None
+	return _blocking_wait(config_path, participant, probe=probe, timeout_s=timeout_s,
+	                      rescan_interval_s=rescan_interval_s)
+
+
 def wait_for_message(config_path: str, participant: str, *,
                      timeout_s: float | None = None,
                      rescan_interval_s: float = WAIT_RESCAN_INTERVAL_S) -> dict:
@@ -4845,6 +4978,46 @@ def wait_for_message(config_path: str, participant: str, *,
 	if (type(rescan_interval_s) not in (int, float)
 			or not math.isfinite(rescan_interval_s) or rescan_interval_s <= 0):
 		raise BatonError("rescan interval must be a finite positive number")
+	def probe(store):
+		"""Directed messages win: claimable work must never be delayed behind
+		advisory broadcast, which also keeps the directed path's timing and
+		delivery shape unchanged for consumers that never receive notices."""
+		try:
+			claim = store.claim(participant)
+		except BatonError as exc:
+			if exc.exit_code != EXIT_NONE:
+				raise
+		else:
+			# Deterministic seam BETWEEN claim commit and content fetch: an
+			# instance transition here must not strand the claim -- the
+			# delivery below reads through this SAME open, validated Store,
+			# never a second open.
+			_fault("wait:claimed")
+			return _delivery(store, claim)
+		if not store.has_unseen_notice(participant):
+			return None  # idle poll stays read-only; no write lock taken
+		notices = store.see(participant, limit=1)
+		return _notice_delivery(notices[0]) if notices else None
+	return _blocking_wait(config_path, participant, probe=probe, timeout_s=timeout_s,
+	                      rescan_interval_s=rescan_interval_s)
+
+
+def _blocking_wait(config_path: str, participant: str, *, probe,
+                   timeout_s: float | None, rescan_interval_s: float) -> dict:
+	"""The arm/requery/block loop, with WHAT to look for left to the caller.
+
+	`probe` receives one open, validated Store and returns a result or None.
+	It runs inside that single open so a gate stands the whole waiter down and
+	the post-arm requery closes the query-to-arm race identically for every
+	probe."""
+	import math
+	import time
+	if timeout_s is not None and (type(timeout_s) not in (int, float)
+			or not math.isfinite(timeout_s) or timeout_s < 0):
+		raise BatonError("timeout must be a finite nonnegative number")
+	if (type(rescan_interval_s) not in (int, float)
+			or not math.isfinite(rescan_interval_s) or rescan_interval_s <= 0):
+		raise BatonError("rescan interval must be a finite positive number")
 	deadline = (time.monotonic() + timeout_s) if timeout_s is not None else None
 
 	def try_deliver() -> dict | None:
@@ -4856,22 +5029,7 @@ def wait_for_message(config_path: str, participant: str, *,
 		delivery shape unchanged for consumers that never receive notices."""
 		try:
 			with open_instance(config_path) as store:
-				try:
-					claim = store.claim(participant)
-				except BatonError as exc:
-					if exc.exit_code != EXIT_NONE:
-						raise
-				else:
-					# Deterministic seam BETWEEN claim commit and content fetch:
-					# an instance transition here must not strand the claim — the
-					# delivery below reads through this SAME open, validated
-					# Store, never a second open.
-					_fault("wait:claimed")
-					return _delivery(store, claim)
-				if not store.has_unseen_notice(participant):
-					return None  # idle poll stays read-only; no write lock taken
-				notices = store.see(participant, limit=1)
-				return _notice_delivery(notices[0]) if notices else None
+				return probe(store)
 		except BatonError as exc:
 			if exc.exit_code == EXIT_NONE:
 				return None
@@ -5128,6 +5286,26 @@ def doctor(config_path: str) -> dict:
 				"WHERE a.publication_id=p.publication_id)"):
 			report["problems"].append(
 				f"publication {row['publication_id']} has an empty audience")
+		# THE ORPHAN LINK. `messages.publication_id` is nullable, and for as
+		# long as `reply` inserted its response directly it produced a
+		# directed message with no publication record -- delivered as
+		# `audience: []`, which reads as "nobody" where the truth is
+		# "unrecorded". Both creation paths now publish, so a new orphan means
+		# a THIRD path appeared; the existing ones are pre-fix rows that a
+		# backfill has not reached yet.
+		#
+		# A PROBLEM rather than a warning: the audience is what later
+		# participant-authorized reread will check, and an unrecorded one
+		# cannot be checked. The message is still claimable and closable, so
+		# nothing is stuck -- but nothing will notice this on its own either,
+		# which is how it survived to reach a live instance.
+		orphans = [row["id"] for row in store.conn.execute(
+			"SELECT id FROM messages WHERE publication_id IS NULL ORDER BY created_ts, id")]
+		if orphans:
+			shown = ", ".join(orphans[:5]) + (" ..." if len(orphans) > 5 else "")
+			report["problems"].append(
+				f"{len(orphans)} directed message(s) have no publication record "
+				f"and deliver an empty audience: {shown}")
 		for row in store.conn.execute(
 				"SELECT m.id, m.to_participant, m.publication_id FROM messages m "
 				"WHERE m.publication_id IS NOT NULL AND NOT EXISTS "
@@ -5955,7 +6133,8 @@ def _build_parser():
 	c = cmd("claim", help="claim one pending message")
 	ident(c)
 	c.add_argument("--message-id")
-	c = cmd("wait", help="claim, blocking until a message arrives")
+	c = cmd("wait", help="block until work exists; READ-ONLY, claims nothing "
+	                     "(then use claim or see to consume it)")
 	ident(c)
 	c.add_argument("--timeout", type=float)
 	c.add_argument("--interval", type=float, default=WAIT_RESCAN_INTERVAL_S)
@@ -6099,8 +6278,20 @@ def main(argv: list[str] | None = None) -> int:
 					part_name=ns.part_name if parts is None else None,
 					thread_id=ns.thread, retention=ns.retention,
 					outcome=ns.outcome, attach=attach)
-			_print_result({"publication_id" if isinstance(ns.to, list)
-			               and len(ns.to) > 1 else "message_id": message_id})
+			# BOTH IDENTITIES, always. The plan pinned `publication_id` on the
+			# single-recipient result and the recipient-to-message mapping on
+			# the multi-recipient one; the result carried one bare string
+			# either way, so a caller could not follow up on an individual
+			# delivery without going back to the store for what the call it
+			# just made already knew.
+			with open_instance(ns.config) as store:
+				if isinstance(ns.to, list) and len(ns.to) > 1:
+					_print_result({"publication_id": message_id,
+					               "recipients": store.publication_deliveries(message_id)})
+				else:
+					_print_result({
+						"message_id": message_id,
+						"publication_id": store.get_message(message_id)["publication_id"]})
 		elif ns.command == "send-notice":
 			with open_instance(ns.config) as store:
 				parts = _authored_parts(ns, roots=store.list_roots())
@@ -6121,8 +6312,17 @@ def main(argv: list[str] | None = None) -> int:
 				result = _delivery(store, claim)
 			_print_result(result)
 		elif ns.command == "wait":
-			result = wait_for_message(ns.config, ns.participant, timeout_s=ns.timeout,
-			                          rescan_interval_s=ns.interval)
+			# READ-ONLY, ruled 2026-08-10. `wait` used to claim the message it
+			# returned, which made the most obvious command the one that is
+			# unsafe to leave running: an agent host can yield a terminal into
+			# the background and never wake the agent, and the claim sits held
+			# with nobody able to answer it.
+			#
+			# Now a missed wake delays work instead of holding it. Consumption
+			# is explicit -- `claim` for directed work, `see` for a notice --
+			# and there is deliberately no second spelling of this verb.
+			result = wait_for_readiness(ns.config, ns.participant, timeout_s=ns.timeout,
+			                            rescan_interval_s=ns.interval)
 			_print_result(result)
 		elif ns.command == "see":
 			with open_instance(ns.config) as store:

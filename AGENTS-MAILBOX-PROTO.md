@@ -30,9 +30,11 @@ participant address IS the identity: there is no actor and no seed. Filesystem
 access to the instance is the trust boundary, so this is cooperative
 coordination between trusted agents, not application-level authentication.
 
-Run exactly ONE consumer path per participant — never two concurrent `wait`s
-for the same address. If two consumers are genuinely needed, give them
-distinct participant addresses rather than sharing one identity.
+Run exactly ONE consumer path per participant. Concurrent `wait`s are harmless
+now that waiting writes nothing — what must not be shared is CLAIMING: two
+claimers on one address race for the same work and each answers for an
+identity the other also speaks as. If two consumers are genuinely needed, give
+them distinct participant addresses rather than sharing one identity.
 
 ## Working the channel
 
@@ -41,8 +43,10 @@ distinct participant addresses rather than sharing one identity.
   anything is opened, and `scan` shows it. `reply` inherits the subject it
   answers unless you pass your own; retries must repeat the EFFECTIVE subject.
   Status pings may omit it and fall back to `kind`.
-- Consume with `wait` (blocking) or `claim`; both return the lossless
-  delivery (claim + envelope + body/attachment). Process a claim
+- `wait` blocks until work exists and reports it READ-ONLY: channel, message
+  id, sender, kind, and whether the head is damaged. It claims nothing and
+  writes nothing. Consume with `claim` (directed) or `see` (notice); `claim`
+  returns the lossless delivery (claim + envelope + body/attachment). Process a claim
   immediately: `reply` (publishes the response and completes the claim in
   one transaction) or `close` (terminal disposition). Retries are
   effectively-once: an exact retry reports `already_committed`, any
@@ -88,11 +92,12 @@ distinct participant addresses rather than sharing one identity.
 - Broadcasts: `send-notice` (finite TTL), to everyone or to one team with
   `--scope 'team.*'` — QUOTE it, or the shell may expand it. The audience is
   expanded and FROZEN at publication in both cases, so a participant added
-  later never acquires an older notice. Consume with `see`, or receive
-  them on the blocking `wait` path — a notice wakes a waiter and is
-  delivered as `{"notice": ...}` rather than the directed
-  `{"claim": ..., "message": ...}`. A directed message always wins when both
-  are available. Notices are never claimed, so there is nothing to `reply`
+  later never acquires an older notice. `see` RECEIVES them; `wait` only
+  reports that one is there — a notice wakes a waiter, which reports
+  `{"ready": true, "channel": "notice"}` and leaves it unread for `see`. The
+  notice is deliberately NOT named: `see` drains oldest-first, so naming one
+  would invite consuming a specific notice under another one's name. A
+  directed message always wins when both are available. Notices are never claimed, so there is nothing to `reply`
   or `close`; the seen receipt commits with the read, which makes broadcast
   at-most-once per participant. Directed messages remain the durable
   channel for anything that must not be missed. Authors may `expire` early.
@@ -204,26 +209,32 @@ matters beyond presentation: leaf order is part of the manifest digest, and the
 manifest is what retry compares. At most one part may read standard input, and
 that collision is refused before anything is read.
 
-### One live wait per active turn
+### One live consumer per active turn
 
 Baton is vendor-neutral and stays that way. There are no Baton-to-model
 bridges: the number of adapters would scale with the number of model runners,
 and none of them belong in a portable protocol.
 
 - While an agent is actively assigned, keep its turn alive around exactly ONE
-  foreground `wait`.
-- Delivery returns to the LIVE turn. Resolve the claim, re-arm, continue in
-  the same turn.
-- Never end a turn leaving a detached `wait` behind.
-- If the agent is intentionally idle, poll with read-only `scan` or a generic
-  host heartbeat rather than leaving a claim-producing waiter.
+  foreground `wait`, and `claim` what it reports in the SAME turn.
+- READINESS returns to the live turn; the DELIVERY arrives from the `claim`
+  you then make in that same turn. Resolve the claim, re-arm, continue.
+- `wait` exits 0 when work exists and 3 when the timeout elapses with nothing.
+  A runner loop can branch on the status alone; 3 is idle, not an error.
+- Never end a turn holding an unanswered claim.
+- A `wait` is safe to leave running; a CLAIM is not. That is the whole reason
+  the two are separate verbs.
 
-*If ignored:* this one has teeth, and they are the protocol's rather than the
-convention's. A detached `wait` can CLAIM a message without waking the model.
-Terminal output does not itself wake an idle agent, so the claim is stranded --
-held, invisible to the sender, and blocking the queue until someone recovers
-it. Nothing here prevents that; the convention exists because the protocol
-correctly refuses to guess whether a holder is alive.
+*If ignored:* the teeth are on `claim`, not on `wait`. Terminal output does
+not itself wake an idle agent, so a claim taken by a process whose turn has
+ended is stranded -- held, invisible to the sender, and blocking the queue
+until someone recovers it. Nothing here prevents that; the protocol correctly
+refuses to guess whether a holder is alive.
+
+`wait` used to claim, which put those teeth on the most obvious command in the
+tool. Protocol 10 moved them: a missed wake now delays work instead of holding
+it. The convention above survives because claiming still has to happen inside
+a live turn.
 
 Waking is a RUNNER concern, not protocol behaviour. A future standard runner
 signal can improve idle wakeups without changing anything in this document.

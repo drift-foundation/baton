@@ -48,11 +48,26 @@ The implementer publishes a durable handoff:
       --subject "Payment retry logic ready for review" \
       --body "$DEMO/handoff.md"
 
-The reviewer waits for work. `wait` prints the claimed message and its
-`claim_id` as JSON:
+The reviewer waits for work. `wait` is READ-ONLY: it blocks until something is
+there and says what, taking none of it.
 
     "$BATON" --config "$DEMO/baton.json" wait \
       --participant team.reviewer
+
+    {"ready": true, "channel": "message", "message_id": "...",
+     "from_participant": "team.implementer", "kind": "implementation_handoff",
+     "created_ts": "...", "damaged": false}
+
+Then take THAT message. Pass the `message_id` readiness reported rather than
+running a bare `claim`: bare `claim` selects the oldest CLAIMABLE message,
+which skips a damaged head and may pick a different message if the queue moved
+in between. Naming the id is what makes the two steps one decision.
+
+    MESSAGE_ID="paste-message-id-here"
+    "$BATON" --config "$DEMO/baton.json" claim \
+      --participant team.reviewer --message-id "$MESSAGE_ID"
+
+`claim` prints the message and its `claim_id`.
 
 After reviewing, copy that `claim_id` into the reply command:
 
@@ -64,10 +79,16 @@ After reviewing, copy that `claim_id` into the reply command:
       --body "$DEMO/review.md"
 
 The implementer receives the response with the same participant identity used
-to send the handoff:
+to send the handoff — the same two steps, and the same rule about naming the
+id `wait` reported. Capture the SECOND wait's id; reusing the first one would
+name the handoff this response is answering:
 
     "$BATON" --config "$DEMO/baton.json" wait \
       --participant team.implementer
+
+    RESPONSE_ID="paste-message-id-from-that-wait"
+    "$BATON" --config "$DEMO/baton.json" claim \
+      --participant team.implementer --message-id "$RESPONSE_ID"
 
 ### Quick inline messages
 
@@ -81,7 +102,7 @@ body to stdin):
       --kind working_status --ttl-seconds 3600 --body -
 
 That status is broadcast, wakes `wait`, records no claim, and needs no reply
-or close. Use a directed `send` when a particular recipient must acknowledge
+or close — read it with `see`. Use a directed `send` when a particular recipient must acknowledge
 and disposition the message:
 
     printf '%s\n' 'Ready for review.' | "$BATON" --config "$DEMO/baton.json" send \
@@ -170,8 +191,8 @@ CLI:
 The screen is stacked: a full-width message list on top, one horizontal rule,
 and a full-width detail pane below it, with the status bar on the bottom row.
 The list is newest-first, so new work is at the top and history is below it;
-delivery order is unaffected, and `claim` and `wait` still take the oldest
-pending message.
+delivery order is unaffected, and `claim` still takes the oldest pending
+message.
 
 **Highlighting an inbound directed message claims it and shows its body** —
 moving with the arrow keys or `j`/`k` takes ownership of the row you land on,
@@ -286,7 +307,8 @@ bounds transient-metadata garbage collection.
 `send` (body from stdin/file and/or `--attach ROOT:REL/PATH`), `send-notice`
 (finite TTL, default 86400s), `claim` (one lossless delivery: claim metadata
 plus the typed content envelope), `wait`
-(the same directed delivery, or a broadcast notice — see below),
+(blocks until work exists and reports READINESS ONLY — no claim, no receipt;
+consume with `claim` or `see`, see below),
 `reply` / `close` (effectively-once: retries redeliver the committed
 disposition and mismatches fail closed), `see` / `expire` (notices),
 `recover-claim` (requires the `recovery` capability and a reason),
@@ -309,9 +331,14 @@ have to review it.
 ## Damaged external parts
 
 An external part is hash-pinned when the message is published, so editing the
-file afterwards invalidates the pin. `claim` and `wait` **skip** such a
-message and deliver the next healthy one, rather than failing the whole queue;
-naming it explicitly with `--message-id` still fails closed. A message is
+file afterwards invalidates the pin. `claim` **skips** such a message and
+delivers the next healthy one, rather than failing the whole queue; naming it
+explicitly with `--message-id` still fails closed.
+
+`wait` does NOT skip it. Readiness reports the head of the queue as it stands,
+with `damaged: true` — the two verbs answer different questions, and an
+observation that quietly stepped over a damaged message would report the queue
+as healthy and shorter than it is. A message is
 damaged if ANY of its external parts is: delivering the healthy parts alone
 would deliver an incomplete statement. Skipped damage is listed by `scan`
 under `damaged`, per part, and by `doctor`.
@@ -327,24 +354,54 @@ than an unresolved problem.
 The practical lesson: send a document that is still being edited as a
 `--body`, which is copied into the store, and attach only what is final.
 
-## What `wait` delivers
+## What `wait` reports
 
-`wait` blocks until exactly one delivery is available on either inbound
-channel and prints it as JSON. The two shapes are distinguished by key:
+`wait` blocks until work exists on either inbound channel and prints
+readiness — metadata only. It writes nothing: no claim, no notice receipt, no
+ledger event.
 
-    {"claim": {...}, "message": {...}}   a directed message, now claimed
-    {"notice": {...}}                    a broadcast notice, marked seen
+    {"ready": true, "channel": "message", "message_id": "...",
+     "from_participant": "...", "kind": "...", "created_ts": "...",
+     "damaged": false}
+    {"ready": true, "channel": "notice"}
 
-A pending directed message always wins when both are available, so claimable
-work is never delayed behind advisory broadcast, and a consumer that only
-ever receives directed traffic sees the directed shape unchanged.
+Consumption is a separate, explicit step: `claim` for directed work, `see` for
+a notice. There is deliberately no second spelling of `wait` — no `ready`
+verb, no `scan --wait`.
 
-A notice is not claimed — there is nothing to `reply` to or `close`. The
-`notice_seen` receipt commits in the same transaction as the read, exactly as
-`see` has always done, so `wait` and `see` never deliver the same notice twice
-to the same participant. Each participant receives its own independent copy;
-there is one receipt per participant, because the participant address is the
-whole identity.
+For runner loops, the EXIT CODE is the whole answer and the JSON is detail:
+
+    0    work exists; the readiness object was printed
+    3    the timeout elapsed with nothing waiting
+
+So a supervisor can branch on the status without parsing anything, and `3` is
+an ordinary idle result rather than an error.
+
+WHY IT IS SPLIT. `wait` used to claim the message it returned, which made the
+most obvious command the one that is unsafe to leave running. An agent host
+can put a long-running terminal in the background and never wake the agent
+when it exits; the claim is then held with nobody able to answer it. Now a
+missed wake DELAYS work instead of holding it. Several consumers may wake for
+the same message — `claim` remains the transaction that decides who owns it.
+
+A directed message always wins when both channels have something, so claimable
+work is never delayed behind advisory broadcast.
+
+Readiness reports the HEAD of the queue in `(created_ts, id)` order, healthy or
+damaged, and never looks past it. `damaged: true` means the next message has a
+pinned attachment that changed after publication: what it needs is
+`quarantine`, not `claim`. Reporting the healthy message behind it would answer
+"what could be claimed" instead of "what is next", and would leave the damaged
+head unmentioned.
+
+A notice result does NOT name the notice. `see` drains oldest-first, so naming
+one would invite consuming a specific notice under another one's name.
+
+A notice is never claimed — there is nothing to `reply` to or `close`. The
+`notice_seen` receipt commits in the same transaction as the `see` that reads
+it, so a notice is delivered at most once per participant. Each participant
+receives its own independent copy; there is one receipt per participant,
+because the participant address is the whole identity.
 
 That receipt is also why broadcast is **at-most-once**: a consumer that dies
 after the commit but before acting on the bytes does not get the notice again.
