@@ -11,6 +11,26 @@ offline and can be completely sandboxed. Participants coordinate as peers
 through a shared SQLite mailbox; there is no privileged coordinator, daemon,
 or always-on server.
 
+## Why Baton exists
+
+The world is still learning how humans and AI agents should work together.
+Agents need enough context to preserve technical detail and make sound
+decisions. Humans coordinating many agents and projects need the opposite
+view: concise subjects, summaries, clear obligations, and visible outcomes.
+Neither side should have to give up the information the other needs.
+
+Without an adapter between those views, the human becomes the adapter:
+scrolling through transcripts, watching terminals, relaying messages, and
+hand-editing plans just to discover what needs attention. That does not scale
+as the number of agents, teams, and concurrent projects grows.
+
+Baton keeps the short operational view and the full record together. A
+one-line subject makes an inbox scannable; typed multipart content,
+references, and durable findings preserve the context behind it; claims and
+dispositions show who owes the next action and whether it is done. The goal is
+not to discard complexity, but to present each participant with the amount of
+it they need at that moment.
+
 ![Baton terminal inbox with message list and detail panes](assets/artwork/baton-tui.png)
 
 
@@ -90,11 +110,54 @@ name the handoff this response is answering:
     "$BATON" --config "$DEMO/baton.json" claim \
       --participant team.implementer --message-id "$RESPONSE_ID"
 
-### Quick inline messages
+An explicitly supplied body must contain at least one byte: a zero-byte part
+asserts that content exists and is empty, which no sender means. Use `--tweet`
+when the subject is the whole message, and `close` when a disposition needs no
+content at all.
 
-Short ACKs, pings, and decisions do not need temporary files. Pass `--body -`
-and pipe the bytes on standard input (`send` and `reply` also default their
-body to stdin):
+### One-line messages: `--tweet`
+
+When the whole message IS one line, say so:
+
+    "$BATON" --config "$DEMO/baton.json" send \
+      --participant team.implementer --to team.reviewer --kind status \
+      --tweet "Still testing; give me more time"
+
+    "$BATON" --config "$DEMO/baton.json" reply "$CLAIM_ID" \
+      --participant team.reviewer --kind review --tweet "Approved"
+
+The text becomes the message's SUBJECT and no body is published. It is an
+ordinary directed message otherwise: same kind, same claim, same reply or
+close owed.
+
+`--tweet -` reads the line from stdin and removes exactly one trailing
+newline, so an ordinary pipeline works:
+
+    printf 'ship it when the suite is green\n' | "$BATON" ... send \
+      --participant team.implementer --to team.reviewer --kind status --tweet -
+
+Only the line terminator is forgiven — a leading space or a second newline is
+still refused, because the text has to be a valid subject: one line, no
+control characters, at most 255 bytes of UTF-8.
+
+`--tweet` is EXCLUSIVE with `--subject` and with every content option
+(`--body`, `--part`, `--references`, `--attach`, `--content-type`,
+`--disposition`, `--part-name`). Combining them is refused rather than
+resolved: dropping the body would lose content, and dropping the flag would
+make it decorative. Notices do not have `--tweet` — a broadcast has no
+recipient obligation to carry its meaning forward.
+
+WHY IT IS AN EXPLICIT OPTION. The alternative was to treat "no body supplied"
+as a subject-only message. But an absence is also what a broken pipe, a
+truncated heredoc, or a missing input file looks like — so an empty message
+would be reachable by accident, which is exactly how zero-byte messages were
+being published before this existed.
+
+### Quick inline messages with a body
+
+Short ACKs and decisions that DO have a body do not need temporary files. Pass
+`--body -` and pipe the bytes on standard input (`send` and `reply` also
+default their body to stdin):
 
     printf '%s\n' "I'm still working and testing; give me more time." | \
       "$BATON" --config "$DEMO/baton.json" send-notice \
@@ -207,7 +270,13 @@ directed message is open, `r` replies — straight into your external editor,
 because that is the reply people actually write — `R` is the quick one where
 the subject line IS the message, and `c` closes. `n` opens the recipient
 picker. `Tab` moves focus between the list and the detail pane, and the
-navigation keys follow it. For multipart messages, `[`/`]` select the
+navigation keys follow it; `Enter` from the list is the forward half of that
+— it opens the selected message and moves focus into the detail pane. `Enter`
+does not toggle back: `Tab` is the reversible one.
+
+`Enter` is also the explicit way to open a pending message without waiting out
+the two-second dwell. The dwell exists so that scrolling past work does not
+claim it; pressing a key is not scrolling past. For multipart messages, `[`/`]` select the
 previous/next part and `m` materializes the selected part into the
 participant's configured projection directory. The status bar keeps claim obligations and errors
 visible.
@@ -316,7 +385,8 @@ disposition and mismatches fail closed), `see` / `expire` (notices),
 attachment no longer verifies; requires `recovery` and a reason — see below),
 `snapshot` (validated copy of a maintenance-gated instance; requires
 `config`), `gc`, `regen` (accept a generation+1 config; requires `config`),
-`scan`, `doctor`, `dump`, `inspect`, `materialize`.
+`scan`, `doctor`, `dump`, `inspect`, `materialize` (participant-scoped
+reread of a message or an already-seen notice).
 
 `migrate` is an audited gate, not a conversion capability. It requires the
 participant's `config` capability and the maintenance gate, durably audits the
@@ -409,8 +479,18 @@ At-least-once would require per-recipient acknowledgement — that is a claim,
 and a notice has no per-recipient message row to claim. Use a directed message
 for anything that must not be missed.
 
-Projections: `materialize --dir DIR --prefix P [--part N]` re-emits one
-durable content part as a byte-exact `P-<created>-<id>.md` file. The suffix
+Projections: `materialize --participant WHO --dir DIR --prefix P [--part N]`
+re-emits one durable content part as a byte-exact `P-<created>-<id>.md` file.
+
+`--participant` is REQUIRED, and the read is authorized against the immutable
+publication-time audience: you may read back a message you sent or were
+addressed in, and a notice you authored or have already SEEN. Rereading a
+notice writes no second receipt — at-most-once is a property of delivery, and
+you already had these bytes. A non-party is refused exactly as an unknown id
+is, so the surface says nothing about what exists.
+
+The `recovery` capability does not grant this: it repairs claims and is not a
+key to other participants' content. The suffix
 follows the part's declared media type; part `0` keeps the unsuffixed name and
 any other part appends `-part<address>`. The prefix is an EXPLICIT caller
 choice; participants' configured `projection_prefix`/`projection_dir` define
