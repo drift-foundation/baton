@@ -40,6 +40,11 @@ import pytest
 
 import baton_core._impl as b6
 
+# The REPOSITORY ROOT. Named once: this file used to sit at the root, so
+# `os.path.dirname(__file__)` was the root by coincidence. Under `src/` that
+# coincidence is gone and every repository path has to say what it means.
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 
 def make_config(generation: int = 1) -> dict:
@@ -672,8 +677,7 @@ class TestExtractionPurity:
 		This read `baton_v6.py` until protocol 10 retired it, at which point it
 		was checking the purity of a file nobody ships while the file everyone
 		ships went unchecked."""
-		source = open(os.path.join(os.path.dirname(__file__),
-		                           "baton_core", "_impl.py")).read()
+		source = open(os.path.join(REPO, "src", "baton_core", "_impl.py")).read()
 		# The SAME needles the packaging gate uses, and scoped for a reason:
 		# a bare "dri"+"ft" bans an ordinary English word, and the core uses
 		# it as a verb twice ("the exclusion cannot drift"). Pointing this at
@@ -5666,7 +5670,7 @@ class TestPackaging:
 	def _builder(self):
 		import importlib.util
 		spec = importlib.util.spec_from_file_location(
-			"build_zipapp", os.path.join(os.path.dirname(__file__), "build_zipapp.py"))
+			"build_zipapp", os.path.join(REPO, "tools", "build_zipapp.py"))
 		builder = importlib.util.module_from_spec(spec)
 		spec.loader.exec_module(builder)
 		return builder
@@ -5691,13 +5695,16 @@ class TestPackaging:
 		builder = self._builder()
 		root = tmp_path / "dist"
 		manifest = builder.build(str(root))
-		assert (root / "DISTRIBUTION.json").is_file()
+		# The manifest sits under `dist/` of its root now, beside its sibling.
+		# The CONTRACT is unchanged: paths inside it resolve from the root,
+		# not from wherever the manifest happens to sit.
+		assert (root / "dist" / "DISTRIBUTION.json").is_file()
 		artifact = root / manifest["artifact"]
 		assert artifact.is_file(), "manifest artifact must resolve from the distribution root"
 		assert _h.sha256(artifact.read_bytes()).hexdigest() == manifest["artifact_sha256"]
-		committed = json.loads(open(os.path.join(os.path.dirname(__file__),
+		committed = json.loads(open(os.path.join(REPO, "dist",
 		                                          "DISTRIBUTION.json")).read())
-		committed_artifact = os.path.join(os.path.dirname(__file__), committed["artifact"])
+		committed_artifact = os.path.join(REPO, committed["artifact"])
 		assert os.path.isfile(committed_artifact), "checked-in bin/baton must exist"
 		assert _h.sha256(open(committed_artifact, "rb").read()).hexdigest() == \
 			committed["artifact_sha256"]
@@ -5705,16 +5712,23 @@ class TestPackaging:
 		# `source_sha256` pins the core's implementation rather than the
 		# frozen oracle. `baton_v6.py` stays in the tree as the differential
 		# oracle and is deliberately NOT what the manifest describes.
-		here_src = open(os.path.join(os.path.dirname(__file__),
-		                             "baton_core", "_impl.py"), "rb").read()
+		here_src = open(os.path.join(REPO, "src", "baton_core", "_impl.py"), "rb").read()
 		assert committed["source_sha256"] == _h.sha256(here_src).hexdigest(), \
 			"committed manifest is stale against baton_core/_impl.py — rerun build_zipapp.py"
 		# The generic protocol doc ships in the distribution root and is
 		# hash-pinned by the manifest.
+		# RESOLVED FROM THE BUILT ROOT, which is the whole contract. I had
+		# resolved this against the source repository during the layout
+		# refactor, and that masked a real defect: the builder recorded the
+		# document's path without copying it, so an alternate root contained a
+		# manifest naming a file that root did not have. A manifest path that
+		# only resolves somewhere else is not a distribution root.
 		proto_built = root / manifest["protocol_doc"]
-		assert proto_built.is_file()
-		assert _h.sha256(proto_built.read_bytes()).hexdigest() == manifest["protocol_doc_sha256"]
-		proto_committed = os.path.join(os.path.dirname(__file__), committed["protocol_doc"])
+		assert proto_built.is_file(), \
+			"the manifest names a protocol document the built root does not contain"
+		assert _h.sha256(proto_built.read_bytes()).hexdigest() == \
+			manifest["protocol_doc_sha256"]
+		proto_committed = os.path.join(REPO, committed["protocol_doc"])
 		assert os.path.isfile(proto_committed)
 		assert _h.sha256(open(proto_committed, "rb").read()).hexdigest() == \
 			committed["protocol_doc_sha256"], "committed manifest stale against the protocol doc"
@@ -5757,15 +5771,29 @@ class TestPackaging:
 		assert proc.returncode == 0, proc.stderr
 		assert "poisoned" not in proc.stderr
 
-	REUSABLE_ASSETS = ["test_core_conformance.py", "build_zipapp.py",
-	                   "example-baton.json", "config-schema.json", "README.md",
-	                   "baton", "DISTRIBUTION.json", "AGENTS-MAILBOX-PROTO.md"]
+	# (source path, destination path) inside the isolated checkout. The
+	# checkout MIRRORS THE LAYOUT rather than flattening it: the layout is
+	# now part of what makes a checkout usable -- the builders read `src/`,
+	# the suite is discovered under `tests/`, and a flat copy would prove a
+	# shape nobody ships. The destination paths are also why the copied
+	# `test_core_conformance.py` can still find its own repository root.
+	REUSABLE_ASSETS = [
+		("tests/core/test_core_conformance.py", "tests/core/test_core_conformance.py"),
+		("tests/conftest.py", "tests/conftest.py"),
+		("tools/build_zipapp.py", "tools/build_zipapp.py"),
+		("examples/baton.json", "examples/baton.json"),
+		("schema/config-schema.json", "schema/config-schema.json"),
+		("README.md", "README.md"),
+		("compat/baton-protocol6-shim", "compat/baton-protocol6-shim"),
+		("dist/DISTRIBUTION.json", "dist/DISTRIBUTION.json"),
+		("docs/AGENTS-MAILBOX-PROTO.md", "docs/AGENTS-MAILBOX-PROTO.md"),
+	]
 	# The CLI is built from the core, so the core is a reusable asset too: a
 	# bare checkout that cannot build the executable is not a reusable
 	# checkout. `baton_v6.py` is NO LONGER in the list: protocol 10 retired
 	# it, nothing imports it, and shipping a retired implementation inside a
 	# reusable checkout invites someone to build against it.
-	REUSABLE_PACKAGES = ["baton_core"]
+	REUSABLE_PACKAGES = [("src/baton_core", "src/baton_core")]
 
 	@pytest.mark.skipif(os.environ.get("BATON_ISOLATED") == "1",
 	                    reason="already inside the isolated run")
@@ -5775,19 +5803,23 @@ class TestPackaging:
 		import shutil, subprocess, sys as _sys
 		iso = tmp_path / "iso"
 		iso.mkdir()
-		here = os.path.dirname(__file__)
-		for asset in self.REUSABLE_ASSETS:
-			src = os.path.join(here, asset)
-			shutil.copy(src, iso / asset)
-		for package in self.REUSABLE_PACKAGES:
-			shutil.copytree(os.path.join(here, package), iso / package)
+		for src_rel, dst_rel in self.REUSABLE_ASSETS:
+			dst = iso / dst_rel
+			dst.parent.mkdir(parents=True, exist_ok=True)
+			shutil.copy(os.path.join(REPO, src_rel), dst)
+		for src_rel, dst_rel in self.REUSABLE_PACKAGES:
+			shutil.copytree(os.path.join(REPO, src_rel), iso / dst_rel)
 		(iso / "bin").mkdir()
-		shutil.copy(os.path.join(here, "bin", "baton"), iso / "bin" / "baton")
-		env = {"PATH": os.environ["PATH"], "PYTHONPATH": str(iso),
+		shutil.copy(os.path.join(REPO, "bin", "baton"), iso / "bin" / "baton")
+		# PYTHONPATH points at the isolated `src/`, which is where the
+		# packages are. `tests/conftest.py` would do it too; both are copied,
+		# and the env var is what proves the checkout needs no help from this
+		# repository.
+		env = {"PATH": os.environ["PATH"], "PYTHONPATH": str(iso / "src"),
 		       "BATON_ISOLATED": "1", "HOME": str(tmp_path)}
 		proc = subprocess.run(
-			[_sys.executable, "-m", "pytest", "test_core_conformance.py", "-q", "-x",
-			 "-p", "no:cacheprovider"],
+			[_sys.executable, "-m", "pytest", "tests/core/test_core_conformance.py",
+			 "-q", "-x", "-p", "no:cacheprovider"],
 			capture_output=True, text=True, cwd=str(iso), env=env, timeout=420)
 		assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-2000:]
 		assert " passed" in proc.stdout
@@ -5815,7 +5847,7 @@ class TestPackaging:
 		inst = tmp_path / "inst"
 		inst.mkdir()
 		config_path = str(inst / "baton.json")
-		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"), config_path)
+		shutil.copy(os.path.join(REPO, "examples", "baton.json"), config_path)
 		env = {"PATH": os.environ["PATH"], "PYTHONPATH": str(poison), "HOME": str(tmp_path)}
 		def run(*args, stdin=b""):
 			return subprocess.run(
@@ -5861,7 +5893,7 @@ class TestPackaging:
 		(files / "two.txt").write_text("third leaf\n")
 		(files / "refs.txt").write_text("src:baton_core/_impl.py\nsrc:README.md\n")
 		config = json.loads(
-			open(os.path.join(os.path.dirname(__file__), "example-baton.json")).read())
+			open(os.path.join(REPO, "examples", "baton.json")).read())
 		config["roots"] = {"src": str(files)}
 		config_path = str(inst / "baton.json")
 		open(config_path, "w").write(json.dumps(config))
@@ -5959,7 +5991,7 @@ class TestPackaging:
 		inst.mkdir()
 		config_path = str(inst / "baton.json")
 		import shutil
-		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		shutil.copy(os.path.join(REPO, "examples", "baton.json"),
 		            config_path)
 		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
 
@@ -5993,7 +6025,7 @@ class TestPackaging:
 		(files / "one.md").write_text("first leaf\n")
 		(files / "refs.txt").write_text("src:baton_core/_impl.py\n")
 		config = json.loads(
-			open(os.path.join(os.path.dirname(__file__), "example-baton.json")).read())
+			open(os.path.join(REPO, "examples", "baton.json")).read())
 		config["roots"] = {"src": str(files)}
 		config_path = str(inst / "baton.json")
 		open(config_path, "w").write(json.dumps(config))
@@ -6342,7 +6374,7 @@ class TestPackaging:
 		inst.mkdir()
 		import shutil
 		config_path = str(inst / "baton.json")
-		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		shutil.copy(os.path.join(REPO, "examples", "baton.json"),
 		            config_path)
 		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
 		for verb in ("send", "send-notice", "reply", "close"):
@@ -6359,35 +6391,38 @@ class TestPackaging:
 	def test_extraction_purity_grep_gate(self):
 		"""Project-specific needles across EVERY reusable asset, including
 		the packed archive bytes."""
-		here = os.path.dirname(__file__)
 		# Needles are split-constructed so this tuple (and this comment) can
 		# never match itself: host policy-file references are banned, while
 		# the distribution's own protocol document is a legitimate
 		# self-reference.
 		banned = ("dri" + "ft-lang", "dri" + "ft.", "/wo" + "rk/",
 		          "fin" + "ding-", "AGE" + "NTS.md")
-		assets = self.REUSABLE_ASSETS + [os.path.join("bin", "baton")]
+		# REUSABLE_ASSETS is (source, destination) pairs now; the source path
+		# is what exists in this repository.
+		assets = [src for src, _dst in self.REUSABLE_ASSETS]
+		assets.append(os.path.join("bin", "baton"))
 		# Every packaged core module too. It ships inside the executable now,
 		# so a host needle in it travels exactly as far as one in the old
 		# single source file did.
-		for package in self.REUSABLE_PACKAGES:
-			for name in sorted(os.listdir(os.path.join(here, package))):
+		for package, _dst in self.REUSABLE_PACKAGES:
+			for name in sorted(os.listdir(os.path.join(REPO, package))):
 				if name.endswith(".py"):
 					assets.append(os.path.join(package, name))
 		for asset in assets:
-			path = os.path.join(here, asset)
+			path = os.path.join(REPO, asset)
 			data = open(path, "rb").read()
 			for needle in banned:
 				assert needle.encode() not in data, \
 					f"{needle!r} found in reusable asset {asset}"
 
 	def test_schema_asset_matches_validator_and_example(self):
-		here = os.path.dirname(__file__)
-		schema = json.loads(open(os.path.join(here, "config-schema.json")).read())
+		schema = json.loads(open(os.path.join(REPO, "schema",
+		                                      "config-schema.json")).read())
 		assert set(schema["fields"]) == set(b6._CONFIG_FIELDS)
 		assert set(schema["fields"]["participants"]["value_fields"]) == \
 			set(b6._PARTICIPANT_FIELDS)
-		example = b6.loads_strict(open(os.path.join(here, "example-baton.json")).read())
+		example = b6.loads_strict(
+			open(os.path.join(REPO, "examples", "baton.json")).read())
 		b6.validate_config(example)
 
 
@@ -6524,7 +6559,7 @@ class TestPartNameIsNotAFilename:
 		inst = tmp_path / "inst"
 		inst.mkdir()
 		config_path = str(inst / "baton.json")
-		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		shutil.copy(os.path.join(REPO, "examples", "baton.json"),
 		            config_path)
 		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
 
@@ -6671,7 +6706,7 @@ class TestScopedNoticeAudience:
 		home = tmp_path / "inst"
 		home.mkdir()
 		config_path = str(home / "baton.json")
-		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		shutil.copy(os.path.join(REPO, "examples", "baton.json"),
 		            config_path)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as store:
@@ -6805,7 +6840,7 @@ class TestScopedNoticeAudience:
 		inst = tmp_path / "inst"
 		inst.mkdir()
 		config_path = str(inst / "baton.json")
-		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		shutil.copy(os.path.join(REPO, "examples", "baton.json"),
 		            config_path)
 		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
 
@@ -6847,7 +6882,7 @@ class TestScopedNoticeAudience:
 		home = tmp_path / "inst"
 		home.mkdir()
 		config_path = str(home / "baton.json")
-		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		shutil.copy(os.path.join(REPO, "examples", "baton.json"),
 		            config_path)
 		b6.init_instance(config_path)
 		with b6.open_instance(config_path) as store:

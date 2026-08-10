@@ -29,8 +29,10 @@ def test_the_retired_oracle_is_still_byte_identical():
 	While parity was active this guarded the MEASUREMENT: an edited oracle
 	would have made every parity assertion meaningless. Now it guards the
 	EVIDENCE. The assertion is unchanged; what it protects is not."""
-	here = os.path.dirname(os.path.abspath(__file__))
-	with open(os.path.join(here, "baton_v6.py"), "rb") as handle:
+	# `compat/`, not this test's own directory: the frozen evidence moved out
+	# of the executable surface, which is what the layout refactor was for.
+	root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+	with open(os.path.join(root, "compat", "baton_v6.py"), "rb") as handle:
 		digest = hashlib.sha256(handle.read()).hexdigest()
 	assert digest == FROZEN, \
 		"baton_v6.py changed; it is retained as protocol-9 evidence and is frozen"
@@ -52,7 +54,7 @@ def test_nothing_imports_the_retired_oracle():
 	reformatted line would all have walked past -- and it was three imports
 	inside multiprocessing entry points that this test was written to catch in
 	the first place. `ast` sees them wherever they are."""
-	root = pathlib.Path(__file__).resolve().parent
+	root = pathlib.Path(__file__).resolve().parents[2]
 	offenders = []
 	for path in sorted(root.rglob("*.py")):
 		if path.name in ("baton_v6.py", pathlib.Path(__file__).name):
@@ -82,7 +84,7 @@ def test_the_conformance_corpus_runs_against_the_shipping_core():
 	someone re-pointed it back at the oracle -- or at anything else -- the
 	suite would still pass 432 tests while testing a module that is no longer
 	shipped, and nothing else would notice."""
-	root = pathlib.Path(__file__).resolve().parent
-	corpus = (root / "test_core_conformance.py").read_text()
+	root = pathlib.Path(__file__).resolve().parents[2]
+	corpus = (root / "tests" / "core" / "test_core_conformance.py").read_text()
 	assert "import baton_core._impl as b6" in corpus
 	assert "import baton_v6" not in corpus

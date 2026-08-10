@@ -1,7 +1,7 @@
 {
   "artifact": "bin/baton",
   "artifact_sha256": "15873a37099ee36b7bac8ef459cf401ecd3825889e7e1f56d1cb7fd226e462e4",
-  "protocol_doc": "AGENTS-MAILBOX-PROTO.md",
+  "protocol_doc": "docs/AGENTS-MAILBOX-PROTO.md",
   "protocol_doc_sha256": "58cb1a1b14669e8ce0462e323fcd7c1518f6d4f7338a8d002bd34eeb174b7b5a",
   "protocol_version": 10,
   "python_min": "3.11",

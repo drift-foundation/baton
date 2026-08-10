@@ -17,7 +17,8 @@ import re
 
 import pytest
 
-FINDING_DIR = pathlib.Path(__file__).parent / "work" / "finding-human-console"
+FINDING_DIR = (pathlib.Path(__file__).resolve().parents[2]
+               / "work" / "finding-human-console")
 
 # The three DURABLE DOCUMENTS, named rather than globbed.
 #

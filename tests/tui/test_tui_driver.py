@@ -5839,7 +5839,7 @@ def test_help_and_readme_carry_the_new_mapping_once(env):
 	mapping = dict(reply_rows)
 	assert "editor" in mapping["r"], mapping["r"]
 	assert "subject line IS the message" in mapping["R"], mapping["R"]
-	readme = Path(__file__).resolve().parent.joinpath("README.md").read_text()
+	readme = Path(__file__).resolve().parents[2].joinpath("README.md").read_text()
 	assert "`r` replies — straight into your external editor" in readme
 	assert "`R` is the quick one" in readme
 	# The old mapping must be ABSENT, not merely joined by the new one.
@@ -6603,8 +6603,8 @@ def test_every_opened_detail_shape_can_be_synchronised(env, tmp_path):
 	import re
 	from pathlib import Path
 	from baton_tui.state import InboxState
-	source = Path(__file__).resolve().parent.joinpath(
-		"baton_tui", "render.py").read_text()
+	source = Path(__file__).resolve().parents[2].joinpath(
+		"src", "baton_tui", "render.py").read_text()
 	drawn = set(re.findall(r'"(\w+)" in detail', source))
 	state = InboxState("acme.implementer")
 	handled = set()

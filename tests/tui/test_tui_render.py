@@ -2343,7 +2343,7 @@ def test_help_and_readme_own_the_notation_the_panes_gave_up(env):
 	from baton_tui.keys import HELP_SECTIONS
 	help_text = " ".join(f"{key} {text}" for _title, rows in HELP_SECTIONS
 	                     for key, text, *_ in rows)
-	readme = Path(__file__).resolve().parent.joinpath("README.md").read_text()
+	readme = Path(__file__).resolve().parents[2].joinpath("README.md").read_text()
 	# What the READER owes, and what the other side has done. Both sets, in
 	# both owners: the glyph on the row is deliberately terse, so the place it
 	# is explained has to be complete.
@@ -2519,7 +2519,7 @@ def test_no_human_facing_legend_writes_a_control_chord_in_capitals(env):
 		                       for key, label, *_ in rows),
 		"modal legends": " ".join(label for rows in K.MODE_LEGENDS.values()
 		                          for label, _keys, _cond in rows),
-		"README": Path(__file__).resolve().parent.joinpath("README.md").read_text(),
+		"README": Path(__file__).resolve().parents[2].joinpath("README.md").read_text(),
 		"the drawn screen": "\n".join(drawn),
 	}
 	for name, text in surfaces.items():

@@ -123,11 +123,14 @@ def _replay(transcript: str, columns: int = 100, lines: int = 30) -> list[str]:
 
 def _drive(config_path, keys, columns=100, lines=30, settle=1.2):
 	"""Run the console on a real PTY, send keys, return what was drawn."""
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	pid, fd = pty.fork()
 	if pid == 0:                                    # child: becomes the console
 		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = here
+		os.environ["PYTHONPATH"] = os.path.join(here, "src")
 		os.execv(sys.executable, [
 			sys.executable, "-c",
 			"import sys; from baton_tui.driver import main; "
@@ -216,11 +219,14 @@ def test_resize_does_not_crash_the_console(tmp_path):
 	import struct
 	import termios
 	config_path, _ = _instance(tmp_path)
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	pid, fd = pty.fork()
 	if pid == 0:
 		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = here
+		os.environ["PYTHONPATH"] = os.path.join(here, "src")
 		os.execv(sys.executable, [
 			sys.executable, "-c",
 			"import sys; from baton_tui.driver import main; "
@@ -320,11 +326,14 @@ def test_the_selection_attribute_moves_between_rows_on_a_real_terminal(tmp_path)
 		store.send("acme.reviewer", "acme.implementer", kind="q",
 		           subject="Second row for the highlight", body=b"y\n")
 
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	pid, fd = pty.fork()
 	if pid == 0:
 		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = here
+		os.environ["PYTHONPATH"] = os.path.join(here, "src")
 		os.execv(sys.executable, [
 			sys.executable, "-c",
 			"import sys; from baton_tui.driver import main; "
@@ -456,11 +465,14 @@ def test_the_highlight_covers_one_list_row_on_a_real_terminal(tmp_path):
 			store.send("acme.reviewer", "acme.implementer", kind="q",
 			           subject=f"Row {index}", body=b"y\n")
 
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	pid, fd = pty.fork()
 	if pid == 0:
 		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = here
+		os.environ["PYTHONPATH"] = os.path.join(here, "src")
 		os.environ["LANG"] = "C.UTF-8"
 		os.execv(sys.executable, [
 			sys.executable, "-c",
@@ -514,11 +526,14 @@ def test_the_part_marker_is_drawn_and_differs_from_the_row_highlight(tmp_path):
 			{"content_type": "text/plain; charset=utf-8", "body": b"second leaf\n"},
 		])
 
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	pid, fd = pty.fork()
 	if pid == 0:
 		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = here
+		os.environ["PYTHONPATH"] = os.path.join(here, "src")
 		os.environ["LANG"] = "C.UTF-8"
 		os.execv(sys.executable, [
 			sys.executable, "-c",
@@ -575,11 +590,14 @@ def _console(tmp_path, config_path, script, columns=100, lines=24, settle=0.7,
 	import struct
 	import termios
 
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	pid, fd = pty.fork()
 	if pid == 0:
 		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = here
+		os.environ["PYTHONPATH"] = os.path.join(here, "src")
 		os.environ["LANG"] = "C.UTF-8"
 		argv = ["--config", config_path, "--participant", "acme.implementer"]
 		if editor:
@@ -779,11 +797,14 @@ def test_the_divider_draws_as_a_continuous_rule_on_a_real_terminal(tmp_path):
 			store.send("acme.reviewer", "acme.implementer", kind="q",
 			           subject=f"Row {index}", body=b"y\n")
 
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	pid, fd = pty.fork()
 	if pid == 0:
 		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = here
+		os.environ["PYTHONPATH"] = os.path.join(here, "src")
 		os.environ["LANG"] = "C.UTF-8"
 		os.execv(sys.executable, [
 			sys.executable, "-c",
@@ -924,7 +945,10 @@ def _packaged_console(tmp_path, config_path, script, columns=100, lines=24,
 	import struct
 	import termios
 
-	here = os.path.dirname(os.path.abspath(__file__))
+	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
+	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
+	# path it needs has to travel in the environment.
+	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 	archive = os.path.join(here, "bin", "baton-tui")
 	assert os.path.isfile(archive), "bin/baton-tui must be built"
 	pid, fd = pty.fork()

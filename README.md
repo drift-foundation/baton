@@ -71,7 +71,7 @@ Create a temporary mailbox instance:
     BATON="$PWD/bin/baton"
     DEMO=/tmp/baton-demo
     mkdir -p "$DEMO"
-    cp example-baton.json "$DEMO/baton.json"
+    cp examples/baton.json "$DEMO/baton.json"
     "$BATON" --config "$DEMO/baton.json" init
 
 The implementer publishes a durable handoff:
@@ -365,13 +365,13 @@ repository-local `.venv` contains development tooling only; Baton remains a
 stdlib-only zipapp.
 
 - `just venv` creates `.venv` when needed and installs the pinned packages in
-  `requirements-dev.txt`.
+  `tools/requirements-dev.txt`.
 - `just test` runs the complete protocol, core, TUI, PTY, parity, and
   packaging-isolation suite.
 - `just build` rebuilds the deterministic `bin/baton` zipapp and refreshes
-  `DISTRIBUTION.json`.
+  `dist/DISTRIBUTION.json`.
 - `just build-tui` independently rebuilds `bin/baton-tui` and refreshes
-  `DISTRIBUTION-TUI.json` without invoking the CLI builder.
+  `dist/DISTRIBUTION-TUI.json` without invoking the CLI builder.
 
 After a fresh clone, run `just venv` once, then use `just test` for normal
 verification. Test and build recipes fail with a direct instruction if the
@@ -386,7 +386,7 @@ Create one with:
 
     baton --config /abs/path/instance/baton.json init
 
-See `example-baton.json` for the config shape: participants are dotted
+See `examples/baton.json` for the config shape: participants are dotted
 addresses, and the address is the whole identity — there is no actor and no
 seed. Administrative authority is granted ONLY by an explicit
 `capabilities` list (`recovery`, `config`) — never inferred from identity.
@@ -677,13 +677,35 @@ at most one instance with a given UUID can ever be active through the API.
 4 validation/usage · 5 race/busy · 6 integrity damage ·
 7 gated (maintenance/moved).
 
+## Repository layout
+
+    src/        baton_core (the protocol library) and baton_tui (the console)
+    tests/      core, tui, packaging -- discovered recursively
+    tools/      the two zipapp builders and the dev requirements
+    docs/       the generic protocol document
+    examples/   a config to copy
+    schema/     the config schema
+    dist/       distribution manifests
+    bin/        the checked-in standalone artifacts
+    compat/     frozen protocol-9 evidence, imported by nothing
+    work/       findings, plans and progress journals
+
+Five files stay at the root, each because that is where it is found: this
+README, `LICENSE`, the repository's agent-policy document, the `justfile` that
+bare `just` reads, and `.gitignore` -- the tracked, zero-configuration
+repository-wide ignore policy. A test pins that boundary so the flat root does
+not return one convenient file at a time.
+
 ## Distribution
 
-`just build` invokes `build_zipapp.py` to build the canonical deterministic
-`bin/baton` zipapp and refresh `DISTRIBUTION.json` (tool/protocol versions,
-minimum runtime versions, artifact hash). `python3 build_zipapp.py [outdir]`
-remains available when building into another distribution root. Same inputs,
-same bytes. A complete deployment also ships the generic
-`AGENTS-MAILBOX-PROTO.md` beside the executable; consumer projects keep only
+`just build` invokes `tools/build_zipapp.py` to build the canonical
+deterministic `bin/baton` zipapp and refresh `dist/DISTRIBUTION.json`
+(tool/protocol versions, minimum runtime versions, artifact hash).
+`python3 tools/build_zipapp.py [outdir]` remains available when building into
+another distribution root. Same inputs, same bytes. A distribution root is
+self-contained: building into one copies `docs/AGENTS-MAILBOX-PROTO.md` there
+and the manifest pins its hash, so every path the manifest records resolves
+from the root it sits in. Building in place targets the canonical file and
+creates no duplicate. Consumer projects keep only
 their local participant bindings and discover paths from the deployment rather
 than hard-coding a checkout or host layout.

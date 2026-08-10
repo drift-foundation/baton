@@ -24,7 +24,11 @@ import stat
 import sys
 import zipfile
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+# See `build_zipapp.py`: explicit source layout rather than "this file's own
+# directory is also the source root".
+HERE = os.path.dirname(os.path.abspath(__file__))          # tools/
+ROOT = os.path.dirname(HERE)                                # repository root
+SRC = os.path.join(ROOT, "src")
 FIXED_DATE = (2020, 1, 1, 0, 0, 0)
 
 BOOTSTRAP = '''\
@@ -64,7 +68,7 @@ PACKAGES = ("baton_core", "baton_tui")
 def _members() -> list[tuple[str, bytes]]:
 	members = [("__main__.py", BOOTSTRAP.encode("utf-8"))]
 	for package in PACKAGES:
-		directory = os.path.join(HERE, package)
+		directory = os.path.join(SRC, package)
 		for name in sorted(os.listdir(directory)):
 			if not name.endswith(".py"):
 				continue
@@ -91,7 +95,7 @@ def build(root: str) -> dict:
 		handle.write(payload)
 	os.chmod(target, os.stat(target).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
-	sys.path.insert(0, HERE)
+	sys.path.insert(0, SRC)
 	import baton_core
 	import baton_tui
 	manifest = {
@@ -107,12 +111,14 @@ def build(root: str) -> dict:
 	}
 	# A SEPARATE manifest: DISTRIBUTION.json belongs to the CLI and is not
 	# touched during the trial.
-	with open(os.path.join(root, "DISTRIBUTION-TUI.json"), "w") as handle:
+	manifest_path = os.path.join(root, "dist", "DISTRIBUTION-TUI.json")
+	os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+	with open(manifest_path, "w") as handle:
 		json.dump(manifest, handle, indent=2, sort_keys=True)
 		handle.write("\n")
 	return manifest
 
 
 if __name__ == "__main__":
-	out = sys.argv[1] if len(sys.argv) > 1 else HERE
+	out = sys.argv[1] if len(sys.argv) > 1 else ROOT
 	print(json.dumps(build(out), indent=2, sort_keys=True))

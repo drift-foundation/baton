@@ -93,3 +93,33 @@ delivery envelopes, retry identity, and authority semantics as frozen for this
 release. A newly discovered integrity, authorization, delivery, or
 queue-liveness defect may reopen the boundary only through a named finding and
 explicit release decision. New workflow features do not.
+
+## Cross-team onboarding gate — ruled 2026-08-10
+
+Slawomir ruled that repository cleanup lands as its own reviewed commit before
+other teams are brought onboard. `baton.reviewer` owns the release gate after
+that commit; a successful implementation review alone is not permission to
+announce or begin onboarding.
+
+The reviewer clears onboarding only after verifying the committed state:
+
+1. the repository-layout finding is review-approved and committed by
+   Slawomir, with a clean worktree;
+2. the root contains only the approved five-file allowlist (`.gitignore`,
+   `README.md`, `LICENSE`, `AGENTS.md`, and `justfile`) plus directories;
+3. the complete suite passed against the frozen layout candidate and the
+   committed tree contains those exact reviewed source/test bytes;
+4. deterministic CLI and TUI builds match their distribution manifests,
+   retain the approved member boundaries, and run outside the repository
+   without `PYTHONPATH`;
+5. frozen protocol evidence retains its pinned hash and active source imports
+   none of it;
+6. the live protocol-10 authority remains ungated and `doctor` reports
+   `ok: true` with no problems;
+7. packaged smoke covers readiness, claim, reply/close, scoped notice,
+   multi-recipient delivery, subject-only `--tweet`, and participant-authorized
+   reread.
+
+Only an explicit reviewer approval after these checks opens cross-team
+onboarding. Any failure stays local to Baton and is corrected before peers are
+asked to depend on it.
