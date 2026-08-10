@@ -76,7 +76,9 @@ from .state import (PICKER_LABELS, VIEW_SENT, MODE_COMPOSE, MODE_CONFIRM_QUIT,
                     FOCUS_DETAIL, FOCUS_LIST,
                     FOLLOW_UP_ANSWERED, FOLLOW_UP_SENT, IN_REFERENCE_TO,
                     MODE_HELP, MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_REPLY,
-                    ROW_MESSAGE, ROW_NOTICE, SEV_ERROR, SEV_INFO, SEV_SUCCESS,
+                    MODE_CONFIRM_DISCARD, ROW_DRAFT, ROW_MESSAGE, ROW_NOTICE,
+                    SEV_ERROR, SEV_INFO,
+                    SEV_SUCCESS,
                     SEV_WARNING, list_capacity, list_top)
 
 # Severity markers. Text, not colour: the console must be readable over SSH on
@@ -169,7 +171,20 @@ OPENED = "○"            # inbound and mine; a reply or close is still owed
 QUEUED = "▷"            # outbound, waiting for the other side to pick it up
 PICKED_UP = "▶"         # outbound and theirs; they own the next action
 COMPLETED = "✓"         # ordinarily finished: replied, closed, or seen
-DAMAGED = "x"
+# `~` for withheld content, RULED. It was `x`, which protocol 10 binds as the
+# bulk MARK key -- so a damaged row would have shown the letter of the key
+# that selects it, in the column beside it. The glyph moved rather than the
+# key: `x` for a checkbox is muscle memory a human already has, and a status
+# mark is internal vocabulary nobody has ever typed. Move the cheap side.
+#
+# `~` reads as "approximate, not the real thing", which is what a row whose
+# parts failed their pins IS.
+DAMAGED = "~"
+# A retained draft: being written, and never handed to the authority. Ruled.
+# It says "in progress" without implying anything was queued, claimed,
+# delivered or completed, and it is distinct from every mark above -- none of
+# which can describe something the store has never seen.
+DRAFT = "✎"
 
 # Non-UTF-8 terminals. `Q`/`P` are the FALLBACK spelling of `▷`/`▶` rather
 # than the normal presentation, and completion falls back to one
@@ -179,8 +194,20 @@ DAMAGED = "x"
 # flagged as such in the handoff: `*` for unopened, because it is the loudest
 # ASCII mark available and unopened is the state that most wants attention,
 # and `o` for opened, because it is the same shape as `○`.
+# Lowercase `d` for a draft, ruled, and lowercase for a stated reason:
+# uppercase `D` is the DISCARD key, and a status column that shows the letter
+# of the destructive command next to the thing it destroys is an invitation.
+#
+# `=` for completion, ruled, and for the same reason one step removed. It was
+# `D`, chosen when no command owned that letter; `D` now discards a draft, so
+# every finished row on a non-UTF terminal was showing the letter of a
+# destructive command. Harmless in dispatch and misleading to read. `=` is
+# neutral, settled, and one cell in every encoding.
+#
+# UTF-8 is unaffected: `✓` is unchanged and is what almost every terminal
+# actually shows.
 ASCII_GLYPHS = {UNOPENED: "*", OPENED: "o", QUEUED: "Q", PICKED_UP: "P",
-                COMPLETED: "D"}
+                COMPLETED: "=", DRAFT: "d"}
 
 
 def _status_glyph(row: dict, notice_seen: str = NOTICE_SEEN_MARK) -> str:
@@ -199,6 +226,11 @@ def _status_glyph(row: dict, notice_seen: str = NOTICE_SEEN_MARK) -> str:
 	Direction is read from the ROW, not from the caller, so an inbound and an
 	outbound row in equivalent store states cannot disagree about which
 	vocabulary they belong to."""
+	if row["row_type"] == ROW_DRAFT:
+		# Before every other test. A draft has no store state to read, so
+		# falling through would ask questions about an entity the authority
+		# has never seen.
+		return DRAFT
 	if row["row_type"] == ROW_NOTICE:
 		# `!` is ATTENTION -- an unseen broadcast. Once seen it is history,
 		# and the mark says the receipt exists rather than demanding a look.
@@ -635,12 +667,11 @@ def render(state, columns: int = 100, lines: int = 24, *,
 		out.extend(_inbox_pane(state, columns, top_lines, thread=thread,
 		                       deep=deep, notice_seen=notice_seen,
 		                       status=status))
-		# The rule carries the DETAIL label now. R7 pinned it edge-to-edge;
-		# the focus ruling supersedes that presentation detail, because a
-		# focus nobody can see is a focus that does not exist. It is still one
-		# row, still full width, and still unbroken to the right of the label.
-		label = f"{focus_mark(state, FOCUS_DETAIL)}DETAIL "
-		out.append(_cell(label + divider * max(0, columns - len(label)), columns))
+		# The rule carries the focus mark and the IDENTITY, not a label. The
+		# lower pane is self-evidently the selected message; naming it spent a
+		# word saying so. The participant is genuinely useful and genuinely
+		# secondary, which is what the right-hand end of a rule is for.
+		out.append(_detail_rule(state, columns, divider))
 		out.extend(_detail_pane(state, columns, detail_lines, marker=marker))
 	out.extend(_footer(state, columns))
 	return [line.rstrip() for line in out[:lines]]
@@ -689,6 +720,52 @@ FOCUS_MARK = "> "
 FOCUS_BLANK = "  "
 
 
+# Cells of rule that must remain to the LEFT of the identity for it to read as
+# right-aligned against something rather than as a stray word near the edge.
+MIN_RULE_CELLS = 8
+
+
+def _detail_rule(state, columns: int, divider: str) -> str:
+	"""The rule between the panes: focus mark, fill, then the identity.
+
+	This row IS the lower pane's header, which is why the `DETAIL` label lived
+	here and why the identity replaces it. The identity is not on the status
+	line: an empty status is pinned to be a BLANK row, and a decoration
+	printed there would quietly end that.
+
+	One row, full width, unbroken between the mark and the identity -- R7's
+	edge-to-edge property, measured the same way it always was.
+
+	DECORATIVE, and it degrades first. On a terminal too narrow to hold it
+	with a clear run of rule to its left, the rule simply goes to the edge:
+	losing the participant name costs the human something they can get from
+	`?` or their own shell, while letting it crowd or truncate costs them a
+	name that is WRONG rather than absent.
+	"""
+	mark = focus_mark(state, FOCUS_DETAIL)
+	# The row ends in RULE, not in the identity, and that last cell is not
+	# decoration.
+	#
+	# A real terminal does not reliably draw the rightmost cell of a
+	# full-width row -- writing it can wrap the cursor, so curses declines.
+	# With the identity flush right that cost its last character, and a
+	# packaged run drew `acme.implemente`: a participant address that does not
+	# exist. Absent is fine; wrong is not, and a name one letter short is
+	# wrong in the way that sends someone looking for the wrong mailbox.
+	# Ending with rule means the cell the terminal may drop is one nobody
+	# reads.
+	#
+	# No trailing SPACE for the same job: `render` rstrips every row, so a
+	# blank there is not drawn and the rule comes up short of the edge --
+	# which several tests measure, correctly, in display cells.
+	identity = f" {state.participant}"
+	fill = max(0, columns - display_width(mark))
+	lead = fill - display_width(identity) - 1
+	if lead >= MIN_RULE_CELLS:
+		return _cell(mark + divider * lead + identity + divider, columns)
+	return _cell(mark + divider * fill, columns)
+
+
 def focus_mark(state, pane: str) -> str:
 	return FOCUS_MARK if state.focus == pane else FOCUS_BLANK
 
@@ -712,17 +789,25 @@ def _header(state, columns: int) -> str:
 	owed = state.unresolved_count()
 	warning = f"  ⚠ {_cell(state.warning, columns // 3)}" if state.warning else ""
 	mark = focus_mark(state, FOCUS_LIST)
+	# THE COUNT IS THE INFORMATION. The product name, the participant, an
+	# all-caps pane label and a pair of brackets used to compete with it on
+	# this one line; none of them told the human anything the screen did not
+	# already say. Identity moved to the lower rule, where it is available
+	# without being in the way.
+	#
+	# Which view you are in stays, and stays first. The two lists look alike
+	# at a glance and acting on the wrong one is the class of mistake this
+	# console exists to prevent -- SENT cannot act on anything, but believing
+	# you are in it while in MESSAGES very much can.
+	#
+	# The focus mark stays too. It is one leading cell, it is what the
+	# navigation keys follow, and the ruling permits a subtle marker; what it
+	# forbids is the label coming back.
 	if state.view == VIEW_SENT:
-		# Which view you are in has to be on screen. The lists look similar at
-		# a glance, and acting on the wrong one is the whole class of mistake
-		# this console exists to prevent -- even though SENT cannot act on
-		# anything, believing you are in it while in MESSAGES very much can.
-		return _cell(f"{state.participant}  {mark}SENT  "
-		             f"[{len(state.sent_rows)} sent, newest first — read only, "
-		             f"i for messages]{warning}", columns)
-	return _cell(f"{state.participant}  {mark}MESSAGES  "
-	             f"[{len(state.rows)} retained, {owed} awaiting your "
-	             f"reply/close]{warning}", columns)
+		return _cell(f"{mark}Sent: {len(state.sent_rows)} sent, newest first "
+		             f"— read only, i for messages{warning}", columns)
+	return _cell(f"{mark}Messages: {len(state.rows)} retained, {owed} awaiting "
+	             f"your reply/close{warning}", columns)
 
 
 def _compact_date(created_ts) -> str:
@@ -1508,11 +1593,24 @@ def _body_summary(body: str, width: int) -> list[str]:
 # really dispatches in that mode.
 
 
+# One line, ruled. No second prompt row and no mid-screen instructions: the
+# question is small, and the draft it is about is what the human should still
+# be able to see.
+CONFIRM_DISCARD_FOOTER = "Discard draft? y/N"
+
+
 def _footer(state, columns: int) -> list[str]:
 	from . import keys as K
 	if state.mode == MODE_CONFIRM_QUIT:
 		return [_cell("  QUIT WITH UNRESOLVED CLAIMS?", columns),
 		        _cell(f"  {state.status}", columns)]
+	if state.mode == MODE_CONFIRM_DISCARD:
+		# ONE row, on the status line, exactly as ruled. `y/N` with the
+		# capital on the default, which is the conventional spelling for a
+		# destructive question -- and the opposite of the send confirmation
+		# next door, which is `Y/n` because sending is what the human just
+		# asked for.
+		return [_cell(f"  {CONFIRM_DISCARD_FOOTER}", columns)]
 	if state.mode == MODE_CONFIRM_SEND:
 		# ONE row, and it IS the footer: no severity prefix, no separate
 		# status row, no context row. Slawomir's literal target. The draft

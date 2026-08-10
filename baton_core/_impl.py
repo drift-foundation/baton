@@ -39,7 +39,7 @@ EXIT_DAMAGE = 6
 EXIT_GATED = 7
 
 PROTOCOL_VERSION = 9
-TOOL_VERSION = "5.1.0"
+TOOL_VERSION = "5.2.0"
 SQLITE_MIN = (3, 37, 0)  # STRICT tables
 BUSY_TIMEOUT_MS = 10_000
 TRANSIENT_BODY_MAX_BYTES = 64 * 1024
@@ -5232,6 +5232,107 @@ def _print_result(obj) -> None:
 
 
 
+def _authored_parts(ns, *, roots=None, legacy_attach: bool = False):
+	"""The `parts` list for a verb, or None when the caller used the legacy
+	single-body surface.
+
+	`--attach` is collected with the parts so it can take its place in
+	occurrence order. When no `--part` and no `--references` were given, this
+	returns None and the caller falls back to the ORIGINAL `--body` plus
+	`attach=` path, byte for byte -- so every existing command keeps its
+	existing meaning and its existing leaf order.
+
+	`--body` IS NOT DISCARDED HERE. An earlier version entered part mode on
+	`--part` or `--references` and passed `body=None` from there on, so
+	`send --body notes.md --references refs.txt` exited zero having published
+	only the references leaf. It now becomes the first leaf and keeps its
+	legacy `--content-type`/`--disposition`/`--filename`, which is where that
+	metadata has always applied.
+
+	Beside `--part` it is REFUSED instead. A general part carries its own type,
+	disposition, name and position; `--body` carries a type and no position, so
+	the two describe the same leaf in two vocabularies and there is no reading
+	of the combination that is obviously right. Refusing beats picking one.
+	"""
+	from .authoring import build, parse_part
+	items = getattr(ns, "content", None) or []
+	kinds = {kind for kind, _ in items}
+	if not (kinds & {"part", "references"}):
+		# `--attach` ALONE is enough on a verb with no legacy attach path.
+		#
+		# `send` has always had a store-level `attach=` parameter, so a lone
+		# `--attach` there keeps taking the original route, byte for byte.
+		# `reply` never had one. Falling back to the legacy route there meant
+		# the attachment reached nothing at all: the command succeeded and
+		# published a response without it. Whether a verb HAS a legacy route
+		# is the whole distinction, so the caller states it rather than this
+		# function guessing from the option names.
+		if not ("attach" in kinds and not legacy_attach):
+			return None
+	body_spec = getattr(ns, "body", None)
+	legacy = (("--content-type", getattr(ns, "content_type", None)),
+	          ("--disposition", getattr(ns, "disposition", None)),
+	          ("--filename", getattr(ns, "filename", None)))
+	body = None
+	if body_spec is not None:
+		if any(kind == "part" for kind, _ in items):
+			raise BatonError(
+				"--body cannot be combined with --part: a general part already "
+				"carries its own type, disposition, name and position. Author "
+				"the body as another --part")
+		body = (body_spec, ns.content_type, ns.disposition, ns.filename)
+	else:
+		# Never silently ignored. Metadata describing a body that was not
+		# supplied is a request this command cannot honour, and dropping it
+		# tells the caller it worked.
+		orphaned = [name for name, value in legacy if value is not None]
+		if orphaned:
+			raise BatonError(
+				f"{', '.join(orphaned)} describes --body, which was not supplied; "
+				f"per-part metadata belongs on each --part")
+	return build(items, body=body, roots=roots, parse_part=parse_part,
+	             read_bytes=_read_body, read_text=_read_references)
+
+
+def _or_stdin(spec: str | None) -> str:
+	"""The legacy stdin default for the verbs that had one.
+
+	`send-notice` and `reply` used `default="-"` on `--body`. That default now
+	lives here instead, so the namespace can still say "no body was supplied"
+	-- which is what part mode needs in order to know whether to build a body
+	leaf, and what the argparse default was silently erasing.
+	"""
+	return "-" if spec is None else spec
+
+
+def _read_references(spec: str) -> str:
+	"""A references file as text, refusing invalid UTF-8 as a BatonError.
+
+	A bare `.decode("utf-8")` raises `UnicodeDecodeError`, which `main` does not
+	catch -- so a mis-encoded references file printed a traceback rather than a
+	diagnostic. The bytes are NOT echoed: they are by definition not valid
+	UTF-8, and putting them on a terminal is its own problem.
+	"""
+	try:
+		return (_read_body(spec) or b"").decode("utf-8")
+	except UnicodeDecodeError:
+		where = "standard input" if spec == "-" else repr(spec)
+		raise BatonError(
+			f"--references {where}: not valid UTF-8; a references list is text, "
+			f"one repository-relative path per line") from None
+
+
+def _legacy_attach(ns):
+	"""The single `--attach` value the old surface passed to the store.
+
+	Last one wins, which is what a non-repeatable argparse option did before
+	it joined the shared list. Only consulted on the legacy path.
+	"""
+	items = getattr(ns, "content", None) or []
+	values = [value for kind, value in items if kind == "attach"]
+	return values[-1] if values else None
+
+
 def _read_body(spec: str | None) -> bytes | None:
 	if spec is None:
 		return None
@@ -5269,6 +5370,46 @@ def _build_parser():
 	def ident(c):
 		c.add_argument("--participant", required=True)
 
+	def authoring_opts(c, *, attach=True):
+		"""The repeatable multipart surface, identical on every verb that
+		authors content.
+
+		One shared ordered destination, so `--part`, `--attach` and
+		`--references` interleave in the order the human typed them -- leaf
+		order is manifest identity, and argparse gives each option its own
+		list unless told otherwise.
+
+		`--attach` joins that list rather than keeping a private one, which is
+		what lets it take its place among the parts. Its LEGACY behaviour is
+		unchanged: with no `--part` and no `--references`, the single value is
+		handed to the store exactly as before.
+		"""
+		from .authoring import Collect
+		c.add_argument("--part", dest="content", action=Collect, kind="part",
+		               default=None, metavar="DESCRIPTOR",
+		               # `%%`, not `%`. argparse formats help through
+		               # `help % params`, so a literal percent -- which this
+		               # example needs, the descriptor being a URL query --
+		               # raises `TypeError: %c requires int or char` and takes
+		               # `--help` down on every verb that carries this option.
+		               help="repeatable inline part, e.g. "
+		                    "'source=notes.md&type=text/markdown;%%20charset=utf-8' "
+		                    "— fields: source, type, disposition, name")
+		c.add_argument("--references", dest="content", action=Collect,
+		               kind="references", default=None, metavar="FILE",
+		               # No literal `--attach` in this text: `close` does not
+		               # offer that option, and a test asserts its help does
+		               # not mention it. Naming the option here put it back on
+		               # the screen of the one verb that cannot use it.
+		               help="file of ROOT_ID:RELATIVE/POSIX/PATH references, "
+		                    "one per line, using the instance's configured "
+		                    "roots; - for stdin")
+		if attach:
+			c.add_argument("--attach", dest="content", action=Collect,
+			               kind="attach", default=None,
+			               help="ROOT_ID:REL/PATH — pinned external part; may "
+			                    "accompany --body rather than replace it")
+
 	def content_opts(c):
 		"""Type the one part this command publishes. The CLI writes a
 		single-leaf manifest; the storage layer and the delivery envelope are
@@ -5297,15 +5438,20 @@ def _build_parser():
 	c.add_argument("--retention", choices=sorted(RETENTIONS), default=RETENTION_DURABLE)
 	c.add_argument("--outcome")
 	c.add_argument("--body", help="body file or - for stdin (default: stdin)")
-	c.add_argument("--attach", help="ROOT_ID:REL/PATH — pinned external part; may "
-	                                "accompany --body rather than replace it")
+	authoring_opts(c)
 	content_opts(c)
 	c = cmd("send-notice", help="broadcast a notice (finite TTL)")
 	ident(c)
 	c.add_argument("--kind", required=True)
 	c.add_argument("--subject", help="one-line human summary shown in an inbox")
 	c.add_argument("--ttl-seconds", type=int)
-	c.add_argument("--body", default="-")
+	# Default None, NOT "-". This verb and `reply` defaulted to stdin, which
+	# made a body that was never supplied indistinguishable from one explicitly
+	# read from stdin -- and part mode has to tell them apart to know whether
+	# the caller asked for a body leaf at all. The stdin fallback moves to the
+	# legacy dispatch, where it applies exactly as before.
+	c.add_argument("--body")
+	authoring_opts(c, attach=False)
 	content_opts(c)
 	c = cmd("claim", help="claim one pending message")
 	ident(c)
@@ -5329,7 +5475,8 @@ def _build_parser():
 	c.add_argument("--thread")
 	c.add_argument("--retention", choices=sorted(RETENTIONS))
 	c.add_argument("--outcome")
-	c.add_argument("--body", default="-")
+	c.add_argument("--body")  # default None; see send-notice above
+	authoring_opts(c)
 	content_opts(c)
 	c = cmd("close", help="close a held claim (terminal disposition)")
 	ident(c)
@@ -5337,6 +5484,13 @@ def _build_parser():
 	c.add_argument("--outcome")
 	c.add_argument("--retention", choices=sorted(RETENTIONS))
 	c.add_argument("--body")
+	# No `--attach`. External storage is refused on a disposition anyway --
+	# `reject_external_parts` says so, because a close is a terminal audit
+	# record with no delivery and so no way to notice or resolve a stale pin --
+	# and offering an option whose every use is refused is a worse surface than
+	# not offering it. Inline `--part ...&disposition=attachment` still works;
+	# what is unavailable here is EXTERNAL storage.
+	authoring_opts(c, attach=False)
 	content_opts(c)
 	c = cmd("recover-claim", help="capability-authorized recovery of an abandoned claim")
 	ident(c)
@@ -5416,26 +5570,44 @@ def main(argv: list[str] | None = None) -> int:
 			# An explicit --body, or stdin when nothing external was named. With
 			# --attach alone, stdin is NOT consumed: the caller asked to send a
 			# file, not to be blocked on a terminal.
-			if ns.body is not None:
-				body = _read_body(ns.body)
-			elif ns.attach is None:
-				body = _read_body("-")
-			else:
-				body = None
+			# ONE instance, opened before the content is built: a reference
+			# names a ROOT, and which roots exist is the authority's answer
+			# rather than this process's.
 			with open_instance(ns.config) as store:
+				parts = _authored_parts(ns, roots=store.list_roots(),
+				                        legacy_attach=True)
+				attach = _legacy_attach(ns)
+				if parts is not None:
+					# Part mode: every leaf is in `parts`, including any
+					# `--attach`, in the order the options appeared.
+					body = None
+					attach = None
+				elif ns.body is not None:
+					body = _read_body(ns.body)
+				elif attach is None:
+					body = _read_body("-")
+				else:
+					body = None
 				message_id = store.send(
 					ns.participant, ns.to, kind=ns.kind, subject=ns.subject,
-					body=body, content_type=ns.content_type, disposition=ns.disposition,
-					filename=ns.filename, thread_id=ns.thread, retention=ns.retention,
-					outcome=ns.outcome, attach=ns.attach)
+					body=body, parts=parts,
+					content_type=ns.content_type if parts is None else None,
+					disposition=ns.disposition if parts is None else None,
+					filename=ns.filename if parts is None else None,
+					thread_id=ns.thread, retention=ns.retention,
+					outcome=ns.outcome, attach=attach)
 			_print_result({"message_id": message_id})
 		elif ns.command == "send-notice":
 			with open_instance(ns.config) as store:
+				parts = _authored_parts(ns, roots=store.list_roots())
 				notice_id = store.send_notice(
 					ns.participant, kind=ns.kind, subject=ns.subject,
-					body=_read_body(ns.body) or b"",
-					content_type=ns.content_type, disposition=ns.disposition,
-					filename=ns.filename, ttl_seconds=ns.ttl_seconds)
+					body=None if parts is not None else (_read_body(_or_stdin(ns.body)) or b""),
+					parts=parts,
+					content_type=ns.content_type if parts is None else None,
+					disposition=ns.disposition if parts is None else None,
+					filename=ns.filename if parts is None else None,
+					ttl_seconds=ns.ttl_seconds)
 			_print_result({"notice_id": notice_id})
 		elif ns.command == "claim":
 			with open_instance(ns.config) as store:
@@ -5460,19 +5632,28 @@ def main(argv: list[str] | None = None) -> int:
 			_print_result({"expired": removed})
 		elif ns.command == "reply":
 			with open_instance(ns.config) as store:
+				parts = _authored_parts(ns, roots=store.list_roots())
 				result = store.reply(ns.claim_id, participant=ns.participant,
 				                     kind=ns.kind, subject=ns.subject,
-				                     body=_read_body(ns.body),
-				                     content_type=ns.content_type, disposition=ns.disposition,
-				                     filename=ns.filename, outcome=ns.outcome, recipient=ns.to,
+				                     body=None if parts is not None else _read_body(_or_stdin(ns.body)),
+				                     parts=parts,
+				                     content_type=ns.content_type if parts is None else None,
+				                     disposition=ns.disposition if parts is None else None,
+				                     filename=ns.filename if parts is None else None,
+				                     outcome=ns.outcome, recipient=ns.to,
 				                     thread_id=ns.thread, retention=ns.retention)
 			_print_result(result)
 		elif ns.command == "close":
 			with open_instance(ns.config) as store:
+				parts = _authored_parts(ns, roots=store.list_roots())
 				result = store.close_claim(
-					ns.claim_id, participant=ns.participant, body=_read_body(ns.body),
-					content_type=ns.content_type, disposition=ns.disposition,
-					filename=ns.filename, outcome=ns.outcome, retention=ns.retention)
+					ns.claim_id, participant=ns.participant,
+					body=None if parts is not None else _read_body(ns.body),
+					parts=parts,
+					content_type=ns.content_type if parts is None else None,
+					disposition=ns.disposition if parts is None else None,
+					filename=ns.filename if parts is None else None,
+					outcome=ns.outcome, retention=ns.retention)
 			_print_result(result)
 		elif ns.command == "recover-claim":
 			with open_instance(ns.config) as store:

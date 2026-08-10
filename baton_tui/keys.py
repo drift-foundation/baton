@@ -9,7 +9,8 @@ assertable without a terminal.
 from __future__ import annotations
 
 from .state import (MODE_BROWSE, MODE_COMPOSE, MODE_CONFIRM_QUIT,
-                    MODE_CONFIRM_SEND, MODE_HELP, MODE_NOTICE,
+                    MODE_CONFIRM_DISCARD, MODE_CONFIRM_SEND, MODE_HELP,
+                    MODE_NOTICE,
                     MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_REPLY)
 
 # Events the driver may raise on the model. Names, not behaviour: the model
@@ -40,6 +41,9 @@ PART_DOWN = "part_down"
 CONFIRM = "confirm"
 CONFIRM_SEND = "confirm_send"
 DECLINE_SEND = "decline_send"
+DISCARD_DRAFT = "discard_draft"
+CONFIRM_DISCARD = "confirm_discard"
+DECLINE_DISCARD = "decline_discard"
 DECLINE = "decline"
 FIRST = "first"
 LAST = "last"
@@ -118,6 +122,11 @@ _BROWSE = {
 	# for an external part, because it is already a file -- so without `v`
 	# there was no key at all for the one thing a human wants to do with it.
 	ord("v"): READ_PART,
+	# `D` DISCARDS a retained draft, and asks first. Uppercase because it is
+	# destructive and because lowercase `d` is the draft's own ASCII status
+	# glyph -- a command key that matches the mark on the row it destroys is
+	# an invitation. On any row that is not a draft it does nothing.
+	ord("D"): DISCARD_DRAFT,
 	# `?` opens the modal shortcut list. Verified unbound; it is not a letter
 	# anyone types as a command, and it is what people already press.
 	ord("?"): OPEN_HELP,
@@ -178,6 +187,8 @@ HELP_SECTIONS = (
 		                  "to wrap", (HSCROLL_LEFT, HSCROLL_RIGHT)),
 		("v", "read an external part's file — only from a claim you hold", (READ_PART,)),
 		("m", "materialize the selected part — not an external one, it is already a file", (MATERIALIZE,)),
+		("D", "discard the selected draft — asks first, and does nothing on "
+		      "any other row", (DISCARD_DRAFT,)),
 	)),
 	("Reply and compose", (
 		("r", "reply, or follow up on an answered row — straight into your "
@@ -244,7 +255,7 @@ HELP_SECTIONS = (
 		("", "which of those it was is in the detail pane, exactly", ()),
 		("E / X", "expired / quarantined", ()),
 		("N", "a notice you authored", ()),
-		("x", "content withheld: its parts failed their pins", ()),
+		("~", "content withheld: its parts failed their pins", ()),
 		("?", "a state this console does not understand — report it", ()),
 	)),
 )
@@ -372,6 +383,20 @@ def map_key(key: int, mode: str) -> tuple[str, str | None]:
 		if key in (ord("n"), ord("N"), ESC):
 			return DECLINE_SEND, None
 		return IGNORE, None
+	if mode == MODE_CONFIRM_DISCARD:
+		# `Discard draft? y/N` -- default NO, unlike the send confirmation
+		# next door, and the difference is deliberate. Enter is the
+		# affirmative key everywhere else on this console, which is exactly
+		# why it must not be here: a destructive default reached by the key
+		# people press without reading is a slower way of not asking.
+		#
+		# Everything that is not an answer is swallowed, so no browse command
+		# fires from behind the question.
+		if key in (ord("y"), ord("Y")):
+			return CONFIRM_DISCARD, None
+		if key in (ord("n"), ord("N"), ESC, ENTER_LF, ENTER_CR):
+			return DECLINE_DISCARD, None
+		return IGNORE, None
 	if mode == MODE_CONFIRM_QUIT:
 		# Only an explicit Y confirms. Everything else -- including Enter,
 		# which a human hits reflexively -- means stay.
@@ -434,7 +459,46 @@ def map_key(key: int, mode: str) -> tuple[str, str | None]:
 # broadcast, publish, or write to the filesystem. MATERIALIZE belongs here --
 # it writes a file, and a key sweep that treated it as observation would be
 # asserting the wrong safety property.
-EFFECTFUL = (OPEN, SEND, CLOSE, MATERIALIZE)
+# DISCARD_DRAFT belongs here for the same reason MATERIALIZE does: it writes
+# to the filesystem. It DELETES rather than writes, which is more effectful
+# rather than less, and leaving it out meant the key sweep and the glyph
+# collision check were both asserting the wrong safety property about it.
+EFFECTFUL = (OPEN, SEND, CLOSE, MATERIALIZE, DISCARD_DRAFT)
+
+
+# Letters RESERVED by protocol 10 for the bulk vocabulary: `x` marks a row and
+# `#` moves the marked set to Trash. Neither is bound yet.
+#
+# They are written down HERE, before the feature exists, because the property
+# they participate in is about the SCREEN rather than about dispatch: a status
+# glyph that shares a letter with a key acting on that row is misleading
+# whether or not the key is bound today. Recording them lets the collision be
+# refused at the moment someone reintroduces the glyph, instead of at the
+# moment the binding lands and the glyph is already everywhere.
+RESERVED_ROW_KEYS = ("x", "#")
+
+
+def row_action_letters() -> set:
+	"""Printable letters of keys that ACT ON THE HIGHLIGHTED ROW.
+
+	Deliberately NOT `is_destructive`. Marking a row for a bulk action changes
+	nothing outside the model and must not be classified as an external effect
+	just to satisfy a test -- but it is still a command aimed at the row, and a
+	status glyph sharing its letter is still misleading. Destructiveness is
+	about consequences; this is about what the human reads in the column next
+	to the key they are about to press.
+
+	Includes the reserved bulk letters, which is the whole point: the
+	invariant has to hold across the binding landing, not only after it.
+	"""
+	letters = set(RESERVED_ROW_KEYS)
+	for key, event in _BROWSE.items():
+		if not is_destructive(event) or not 0 < key < 0x110000:
+			continue
+		character = chr(key)
+		if character.isprintable():
+			letters.add(character)
+	return letters
 
 
 def is_destructive(event: str) -> bool:

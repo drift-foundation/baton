@@ -678,14 +678,22 @@ def test_a_whitespace_only_body_is_content(env):
 	assert stored[0] == b"   \n\t\n", "the whitespace was altered on the way out"
 
 
-def test_a_padded_reply_subject_is_refused_by_the_authority_not_rewritten(env):
-	"""The console passes the line EXACTLY and surfaces the core's refusal.
+def test_a_padded_reply_subject_is_trimmed_by_the_console_at_send(env):
+	"""SUPERSEDED, twice, and the second reversal was ruled.
 
-	SUPERSEDED SHAPE: this test used to set a whitespace-only BODY and assert
-	it was accepted, which was right when the draft was a body. The draft is
-	the SUBJECT now, and the core rejects leading or trailing whitespace in a
-	subject on purpose -- silent sanitization misrepresents what the sender
-	wrote. What must not happen is the console quietly trimming it."""
+	This test first set a whitespace-only BODY and asserted it was accepted,
+	which was right when the draft was a body. It then asserted the console
+	passed a padded SUBJECT through untouched so the core's refusal surfaced.
+
+	Slawomir ruled the split: the shared core and the agent CLI keep refusing
+	edge whitespace -- an agent sending `"  S  "` has a bug worth hearing
+	about, and accepting it would change retry identity -- while the TUI trims
+	at send. A human typing into a field trails a space the way they do in
+	every other text box on their machine, and answering that with a refusal
+	is the console failing to be a console.
+
+	Interior whitespace is still untouched, and the core is still the only
+	validator. The console does not pre-empt any OTHER refusal."""
 	store, _ = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S",
 	           body=b"y\n")
@@ -695,11 +703,29 @@ def test_a_padded_reply_subject_is_refused_by_the_authority_not_rewritten(env):
 	state.open_selected(store)
 	state.begin_reply()
 	state.draft = "  padded  "
-	assert state.send_reply(store) is None
-	assert "whitespace" in state.status.lower()
-	# The draft SURVIVES the refusal, exactly as typed.
-	assert state.draft == "  padded  "
-	assert state.unresolved_count() == 1        # still owed, nothing committed
+	assert state.send_reply(store) is not None
+	assert state.unresolved_count() == 0        # the claim resolved
+	sent = store.list_messages("acme.reviewer")
+	assert [m["subject"] for m in sent if m["from_participant"]
+	        == "acme.implementer"] == ["padded"]
+
+
+def test_the_console_trims_only_the_edges_of_a_subject(env):
+	"""The narrow half of the ruling. Interior whitespace is unambiguous and
+	is part of what the human wrote."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S",
+	           body=b"y\n")
+	state = InboxState("acme.implementer")
+	state.refresh(store)
+	state.set_viewport(10, 10)
+	state.open_selected(store)
+	state.begin_reply()
+	state.draft = "  two   words  "
+	assert state.send_reply(store) is not None
+	sent = [m for m in store.list_messages("acme.reviewer")
+	        if m["from_participant"] == "acme.implementer"]
+	assert sent[0]["subject"] == "two   words"
 
 
 def test_compose_buffers_survive_every_failed_send(env):
@@ -844,7 +870,7 @@ def test_the_compose_prompt_says_enter_sends_from_any_field(env):
 	# STACKED: the detail pane is the rows BELOW the one-row rule and above the
 	# two-row footer, where it used to be the columns right of the divider.
 	rule = [index for index, line in enumerate(screen)
-	        if line.lstrip().startswith("DETAIL ") and DIVIDER in line][0]
+	        if DIVIDER * 8 in line][0]
 	detail = flat(screen[rule + 1:-1])
 	assert "any field" not in detail, "tutorial prose is back in the work area"
 	assert "subject alone" not in detail

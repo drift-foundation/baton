@@ -163,7 +163,7 @@ who acted — so the same mark is used whichever side answered:
 | `E` | expired |
 | `X` | quarantined |
 | `N` | a notice you authored |
-| `x` | content withheld — its parts failed their pins |
+| `~` | content withheld — its parts failed their pins |
 | `?` | a state this console does not understand — worth reporting |
 
 Whether a message was replied to or closed is in the detail pane, exactly. The
@@ -393,11 +393,53 @@ change. Undeclared content defaults to `text/markdown; charset=utf-8`; bytes
 that contradict a declared charset are refused at publication rather than
 delivered under a label that misdescribes them.
 
-The CLI publishes at most one inline part plus one external part per message
-(`--body`, `--attach`, typed by `--content-type`, `--disposition`,
-`--filename`); the storage layer and the delivery envelope carry arbitrary
-multipart trees, so richer CLI authoring is a capability extension rather than
-another protocol change. Readers must not assume any writer restriction.
+The CLI reaches the whole of this. `send`, `send-notice`, `reply` and `close`
+each take a repeatable `--part DESCRIPTOR`, and `send` and `reply` also take
+`--attach` for external storage:
+
+    baton send --participant team.impl --to team.reviewer --kind review \
+      --subject 'Q3 numbers' \
+      --part 'source=summary.md&type=text/markdown;%20charset=utf-8' \
+      --attach evidence:q3/ledger.csv \
+      --references refs.txt
+
+A descriptor is an RFC 3986 query. `source` and `type` are required; optional
+`disposition` is `inline` or `attachment`, and optional `name` is the advisory
+filename. Pairs split at their FIRST `=`, so a media type carrying its own `=`
+travels unencoded — but the descriptor as a whole must be query-legal, which
+means `%20` for a space and percent-encoded UTF-8 for anything non-ASCII.
+
+**Option order is leaf order**, across `--part`, `--attach` and `--references`
+alike. That is not presentation: leaf order is part of the manifest digest and
+the manifest is what retry compares. `--body` remains available as the
+single-leaf shorthand and becomes the first leaf when combined with
+`--attach` or `--references`, carrying its own `--content-type`,
+`--disposition` and `--filename`; it is refused beside `--part`, which already
+carries that metadata per leaf. At most one source may be `-`, and that
+collision is refused before anything is read.
+
+`--references FILE` publishes a `text/vnd.baton.references; charset=utf-8`
+leaf: one `ROOT_ID:RELATIVE/PATH` per line, the same logical address an
+external part uses.
+
+    evidence:q3/ledger.csv
+    source:baton_core/_impl.py
+
+The root is required because one authority may coordinate several
+repositories, and it is checked against the instance's configured roots. The
+relative half is checked for portability — no leading `/`, `..`, `~`, Windows
+separators, empty components, or edge whitespace — with the offending line
+named rather than rewritten.
+
+The shared address is not a shared promise. An external part READS the file,
+pins its bytes, and can later fail verification; a reference says where to
+look and touches nothing, so the path need not exist. The strictness is the
+convenience: `--part` will publish a references-typed leaf with no checking at
+all.
+
+Readers must not assume any writer restriction; the storage layer and delivery
+envelope carry arbitrary multipart trees, including nesting the CLI does not
+yet spell.
 
 Retry identity is the complete ordered part manifest, metadata included. Two
 retries that differ in part order, media type, disposition, or filename are

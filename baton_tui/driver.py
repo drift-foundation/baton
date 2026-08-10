@@ -191,6 +191,13 @@ def step(state, store, key: int, columns: int, lines: int,
 				apply_layout(state, columns, lines)
 				return True
 		state.arm_send()
+	elif event == K.DISCARD_DRAFT:
+		state.begin_discard_draft()
+	elif event == K.CONFIRM_DISCARD:
+		state.discard_draft(True)
+		state.refresh(store)
+	elif event == K.DECLINE_DISCARD:
+		state.discard_draft(False)
 	elif event == K.CANCEL:
 		if state.mode == MODE_PICK_ROOT:
 			state.cancel_root_picker()
@@ -198,8 +205,13 @@ def step(state, store, key: int, columns: int, lines: int,
 			state.cancel_picker()
 		elif state.mode in (MODE_COMPOSE, MODE_NOTICE):
 			state.cancel_compose()
+			# The retained draft is a ROW, and the list is rebuilt by
+			# `refresh`. Without this it does not appear until the poll comes
+			# round, so the console says "draft kept" while showing no draft.
+			state.refresh(store)
 		else:
 			state.cancel_reply()
+			state.refresh(store)
 	elif event == K.TYPE and payload:
 		# Insert AT THE CARET, whichever buffer is being edited.
 		state.type_char(payload)
@@ -396,6 +408,9 @@ def run(stdscr, config_path: str, participant: str, poll_seconds: float = 2.0,
 		# console.
 		spec = store.config.get("participants", {}).get(participant, {})
 		state.projection_dir = spec.get("projection_dir", "")
+		# AFTER the projection directory and BEFORE the first refresh: drafts
+		# live under it, and `refresh` builds the row list they appear in.
+		state.load_drafts()
 		state.refresh(store)
 		first_selection(store=store, state=state)
 		while True:

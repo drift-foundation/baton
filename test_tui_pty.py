@@ -72,6 +72,17 @@ _HPA = re.compile(r"\x1b\[(\d+)G")
 _EL = re.compile(r"\x1b\[(\d*)K")
 
 
+def _pty_is_rule(line: str) -> bool:
+	"""The pane rule on a replayed screen, matched by SHAPE.
+
+	These used to look for the `DETAIL ` label. The label is gone -- the lower
+	pane is self-evidently the selected message -- so the unbroken run of
+	divider cells is what identifies the row, which is also the stronger
+	check: a label locator could be satisfied while the rule itself broke."""
+	from baton_tui.render import DIVIDER, MIN_RULE_CELLS
+	return DIVIDER * MIN_RULE_CELLS in line
+
+
 def _replay(transcript: str, columns: int = 100, lines: int = 30) -> list[str]:
 	"""The final screen contents, one string per row."""
 	grid = [[" "] * columns for _ in range(lines)]
@@ -819,14 +830,18 @@ def test_lowercase_r_reaches_the_editor_path_on_a_real_terminal(tmp_path):
 	], columns=100, lines=24, editor=str(script))
 
 	assert "Traceback" not in text
-	# The screen RIGHT AFTER the editor returned, not the final one: `Esc`
-	# then abandons the draft, which is what the rest of the script is for.
-	screen = _replay("".join(steps[:2]), columns=100, lines=24)
+	# The screen RIGHT AFTER the editor returned, and ONLY that step.
+	#
+	# It used to replay the first two, which happened to work because `Esc`
+	# discarded silently and left the import message on the status line. `Esc`
+	# now RETAINS the draft and says so, replacing it -- so including that
+	# step asserts about a screen the editor is no longer the subject of.
+	screen = _replay(steps[0], columns=100, lines=24)
 	assert any("draft imported" in line for line in screen), (
 		f"the editor round trip did not complete: {screen}")
 	# ...and curses came back: the panes are drawn again, not left as the
 	# editor's own output.
-	assert any("DETAIL" in line for line in screen), screen
+	assert any(_pty_is_rule(line) for line in screen), screen
 	assert any("Visible in the PTY" in line for line in screen), screen
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -860,11 +875,11 @@ def test_the_packaged_sent_list_uses_the_final_vocabulary(tmp_path):
 	                        columns=110, lines=34, settle=2.5)
 	assert "Traceback" not in screen
 	drawn = _replay(screen, columns=110, lines=34)
-	rules = [index for index, line in enumerate(drawn) if "DETAIL" in line]
+	rules = [index for index, line in enumerate(drawn) if _pty_is_rule(line)]
 	assert rules, f"no detail rule was drawn: {drawn}"
 	listing = drawn[:rules[0]]
 	body = "\n".join(listing)
-	assert "SENT" in body, body
+	assert "Sent:" in body, body
 
 	# Matched on the leading word, not the whole subject: `_replay` leaves the
 	# tail of a longer earlier write when a shorter one overwrites it, so
@@ -879,3 +894,174 @@ def test_the_packaged_sent_list_uses_the_final_vocabulary(tmp_path):
 	for line in answered + waiting:
 		assert "?" not in line and " R " not in line and " C " not in line, line
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+
+
+def _packaged_console(tmp_path, config_path, script, columns=100, lines=24,
+                      settle=0.9):
+	"""Drive the PACKAGED zipapp, not the source tree.
+
+	Every other harness in this file runs `baton_tui.driver` off `PYTHONPATH`,
+	which is the right default -- it is fast and it is what most of these
+	tests are about. This one exists because a correction was reported against
+	`bin/baton-tui` specifically, and that is the artifact Slawomir runs. A
+	console can pass every in-process test it has and still fail to start when
+	packaged; that has happened here once already.
+	"""
+	import fcntl
+	import struct
+	import termios
+
+	here = os.path.dirname(os.path.abspath(__file__))
+	archive = os.path.join(here, "bin", "baton-tui")
+	assert os.path.isfile(archive), "bin/baton-tui must be built"
+	pid, fd = pty.fork()
+	if pid == 0:
+		os.environ["TERM"] = "xterm"
+		os.environ["LANG"] = "C.UTF-8"
+		# NO PYTHONPATH: the archive must carry its own console and core, or
+		# it is not the artifact being tested.
+		os.environ.pop("PYTHONPATH", None)
+		os.execv(sys.executable, [
+			sys.executable, archive, "--config", config_path,
+			"--participant", "acme.implementer"])
+	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", lines, columns, 0, 0))
+
+	out = bytearray()
+
+	def pump(seconds):
+		deadline = time.time() + seconds
+		while time.time() < deadline:
+			ready, _, _ = select.select([fd], [], [], 0.05)
+			if ready:
+				try:
+					out.extend(os.read(fd, 65536))
+				except OSError:
+					return
+
+	pump(settle)
+	prefixes = []
+	for keys, pause in script:
+		os.write(fd, keys)
+		pump(pause)
+		# CUMULATIVE, not the slice since the last key. A repaint is partial:
+		# pressing Tab rewrites the pane headers and little else, so the slice
+		# for one keystroke frequently does not contain the row an assertion
+		# is about. Replaying everything up to this point reconstructs the
+		# SCREEN as it stood after that keystroke, which is what is being
+		# asserted about.
+		prefixes.append(out.decode("utf-8", "replace"))
+	status = _reap(pid, fd)
+	return out.decode("utf-8", "replace"), status, prefixes
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_console_returns_focus_to_messages_after_a_close(tmp_path):
+	"""The reported defect, on the artifact it was reported against.
+
+	Open a message, move focus to the detail pane, close it. The focus marker
+	must be back on MESSAGES afterwards, so the next `j` walks the queue
+	instead of scrolling a detail pane for a message that is already answered.
+	"""
+	config_path, _proj = _instance(tmp_path)
+	transcript, status, steps = _packaged_console(tmp_path, config_path, [
+		(b"\r", 0.6),        # open: claims the message
+		(b"\t", 0.4),        # focus the detail pane
+		(b"c", 0.8),         # close
+		(b"q", 0.5),
+	])
+	assert status == 0, transcript[-2000:]
+	after_tab = _replay(steps[1])
+	after_close = _replay(steps[2])
+	assert any(line.startswith("> ") and _pty_is_rule(line) for line in after_tab), \
+		"the fixture never reached the detail pane; the close proves nothing"
+	assert any("closed" in line for line in after_close), \
+		"the packaged console did not report the close"
+	assert any(line.startswith("> Messages:") for line in after_close), \
+		"focus stayed in the detail pane after a packaged close"
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+@pytest.mark.parametrize("columns", [80, 44])
+def test_the_packaged_console_draws_the_simplified_headers(tmp_path, columns):
+	"""The header cleanup on the artifact Slawomir runs, wide and narrow.
+
+	Narrow is the case worth driving through a real terminal: the identity is
+	decoration and must vanish rather than truncate or crowd, and that is a
+	property of what the terminal actually received."""
+	config_path, _proj = _instance(tmp_path)
+	# A harmless keystroke first, so there is a screen to assert about while
+	# the console is still RUNNING. Replaying the whole transcript would
+	# include the exit repaint, which is a cleared screen and says nothing.
+	#
+	# Then `q` and `y`: highlighting the first row claims it, so quitting asks
+	# before abandoning the claim.
+	transcript, status, steps = _packaged_console(
+		tmp_path, config_path,
+		[(b"\t", 0.4), (b"q", 0.4), (b"y", 0.5)], columns=columns)
+	assert status == 0, transcript[-2000:]
+	screen = _replay(steps[0], columns=columns)
+	top = next(line for line in screen if "Messages:" in line)
+	assert "retained" in top
+	for gone in ("MESSAGES", "DETAIL", "["):
+		assert gone not in top, f"{gone!r} is back on the packaged top line"
+	assert not any("DETAIL" in line for line in screen), \
+		"the packaged console still labels the lower pane"
+	assert any(_pty_is_rule(line) for line in screen), "no rule was drawn"
+	identity_rows = [line for line in screen if "acme.implementer" in line]
+	if columns >= 80:
+		assert identity_rows, "the identity vanished at a comfortable width"
+		# The NAME ends the drawn row, and the rule cell the model puts after
+		# it does not appear. That is the shield working, not a defect: a real
+		# terminal declines to draw the rightmost cell of a full-width row,
+		# and the whole point of that trailing cell is to be the one it drops.
+		# What matters here is that the address is COMPLETE -- an earlier
+		# packaged run drew `acme.implemente`, naming a participant that does
+		# not exist.
+		assert identity_rows[0].rstrip().endswith("acme.implementer"), \
+			"the identity is not right-aligned, or lost its last character"
+	else:
+		# Narrow: dropping it is correct. What must NOT happen is a partial
+		# address, which would name a participant that does not exist.
+		for line in identity_rows:
+			assert "acme.implementer" in line
+
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+@pytest.mark.parametrize("columns", [80, 44])
+def test_the_packaged_console_keeps_a_draft_and_asks_before_discarding(tmp_path, columns):
+	"""Acceptance 8, on the artifact Slawomir runs, wide and narrow.
+
+	`Esc` used to discard a whole composition. Here it must keep one, the row
+	must carry the ruled `✎`, and `D` must ask on ONE status line -- narrow
+	especially, because that is where a two-line prompt would appear first."""
+	config_path, _proj = _instance(tmp_path)
+	transcript, status, steps = _packaged_console(tmp_path, config_path, [
+		(b"n", 0.5),                 # compose
+		(b"\r", 0.4),                # pick the first recipient
+		(b"kept draft", 0.5),        # a subject
+		(b"\x1b", 0.5),              # Esc: retains
+		# UP to the draft row. Drafts sit at the top; the cursor stays where
+		# it was, because a list that jumps under the human aims the next
+		# keystroke at something they did not choose.
+		(b"k", 0.4),
+		(b"D", 0.5),                 # ask before discarding
+		(b"\x1b", 0.4),              # decline
+		(b"q", 0.4), (b"y", 0.5),
+	], columns=columns)
+	assert status == 0, transcript[-2000:]
+	after_escape = _replay(steps[3], columns=columns)
+	assert any("kept" in line for line in after_escape), \
+		"the packaged console did not say the draft was kept"
+	assert any("✎" in line for line in after_escape), \
+		"no draft row carrying the ruled glyph"
+
+	asking = _replay(steps[5], columns=columns)
+	prompts = [line for line in asking if "Discard draft?" in line]
+	assert len(prompts) == 1, f"{columns}: {len(prompts)} prompt rows"
+	assert "y/N" in prompts[0], prompts[0]
+
+	# Declining KEEPS it, and the row is still there.
+	declined = _replay(steps[6], columns=columns)
+	assert any("✎" in line for line in declined), \
+		"declining the confirmation discarded the draft"

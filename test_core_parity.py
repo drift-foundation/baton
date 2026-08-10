@@ -212,8 +212,24 @@ def test_core_reports_its_own_contract(tmp_path):
 	end can state what it was built against."""
 	versions = core.core_versions()
 	assert versions["protocol_version"] == oracle.PROTOCOL_VERSION
-	assert versions["tool_version"] == oracle.TOOL_VERSION
 	assert isinstance(versions["core_api_version"], int)
+
+
+def test_the_tool_version_has_deliberately_left_the_oracle_behind():
+	"""The one version the core and the oracle are ALLOWED to disagree on, and
+	the disagreement is asserted rather than tolerated.
+
+	`tool_version` describes the CLI SURFACE. The core's four authoring verbs
+	gained `--part` and `--references`, so the core is 5.2.0; the oracle is
+	frozen and stays 5.1.0 because a frozen artifact does not grow a surface.
+
+	Protocol version and behavioural parity are NOT relaxed by this — they are
+	asserted next door and throughout this file. Recorded as an equality
+	against both literals rather than a `!=`, so that when either moves again
+	this test states what happened instead of silently continuing to pass."""
+	assert oracle.TOOL_VERSION == "5.1.0", "the frozen oracle must not be re-versioned"
+	assert core.core_versions()["tool_version"] == "5.2.0"
+	assert core.core_versions()["protocol_version"] == oracle.PROTOCOL_VERSION
 
 
 def test_oracle_stays_frozen():

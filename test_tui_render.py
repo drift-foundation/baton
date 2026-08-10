@@ -390,7 +390,11 @@ def test_the_selected_row_stays_visible_in_a_long_queue(env):
 	for _ in range(59):
 		state.move(1, store)
 		screen = _draw(state, 100, 24)
-		marked = [line for line in screen if line.startswith(">")]
+		# The HEADER also opens with the focus mark, and legitimately so --
+		# `> ` there means the list has keyboard focus. The row caret is the
+		# same character in the body, so the header is excluded by position
+		# rather than by trying to tell two identical marks apart.
+		marked = [line for line in screen[1:] if line.startswith(">")]
 		assert len(marked) == 1, "the selected row is not on screen"
 		assert state.selected["subject"][:10] in marked[0]
 	for _ in range(59):
@@ -805,15 +809,31 @@ def test_styled_and_plain_render_agree_on_text(env):
 
 # -- R7: the pane divider is ONE continuous horizontal rule ----------------
 
+def _is_rule(line: str, divider: str) -> bool:
+	"""A row is the rule if it is a long unbroken run of divider cells.
+
+	Matched by SHAPE rather than by a word on it. It used to be found by the
+	`DETAIL ` label, which meant a cosmetic change could satisfy the locator
+	while the rule itself broke; the label is gone and the identity that
+	replaced it sits at the far right, so the run is what identifies the row.
+	"""
+	from baton_tui.render import MIN_RULE_CELLS
+	return divider * MIN_RULE_CELLS in line
+
+
 def _rule_index(screen):
 	"""The one screen row that is the pane rule.
 
-	It carries the `DETAIL` focus label now, so it is no longer a row of
-	nothing but divider glyphs. R7 pinned it edge-to-edge; the focus ruling
-	supersedes that presentation detail, because a focus nobody can see is a
-	focus that does not exist."""
+	Matched by what the row IS rather than by a word printed on it: nothing but
+	divider glyphs, after the leading focus mark. That is R7's original
+	edge-to-edge property, and it is testable again now that the `DETAIL`
+	label is gone -- the label had forced this helper to look for text, which
+	a cosmetic change could have satisfied while the rule itself broke.
+
+	The focus mark stays and is stripped here: it is one leading cell, it is
+	what the navigation keys follow, and it is not part of the rule."""
 	rules = [index for index, line in enumerate(screen)
-	         if line.lstrip().startswith("DETAIL ") and DIVIDER in line]
+	         if _is_rule(line, DIVIDER)]
 	assert len(rules) == 1, f"expected exactly one rule row, found {rules}"
 	return rules[0]
 
@@ -830,12 +850,18 @@ def test_the_divider_is_one_full_width_box_drawing_rule(env):
 	for columns in (40, 60, 80, 100, 133):
 		screen = _draw(state, columns, 24)
 		rule = screen[_rule_index(screen)]
-		# CONTINUOUS and FULL WIDTH to the right of its label: no gap anywhere
-		# along it, measured in display cells so a fallback glyph cannot
-		# quietly shorten it. (It was edge-to-edge; the focus ruling gave it
-		# the `DETAIL` label so focus is visible.)
+		# CONTINUOUS and FULL WIDTH to the right of the focus mark: no gap
+		# anywhere along it, measured in display cells so a fallback glyph
+		# cannot quietly shorten it. The `DETAIL` label is gone -- the lower
+		# pane is self-evidently the selected message -- so the rule is once
+		# again nothing but rule, which is what R7 asked for.
 		label, _, tail = rule.partition(DIVIDER)
-		assert label.strip() == "DETAIL"
+		assert label.strip() == "", "the rule carries no label"
+		# The identity sits at the far right, with one rule cell after it.
+		# Everything between the mark and the identity is rule, and THAT run
+		# is what must be unbroken.
+		block = f" {state.participant}{DIVIDER}"
+		tail = tail.split(block, 1)[0] if block in tail else tail
 		assert set(tail) == {DIVIDER}, "the rule is broken up"
 		assert display_width(rule) == columns
 		assert "-" not in rule                   # the fallback is not mixed in
@@ -870,7 +896,7 @@ def test_the_divider_costs_exactly_one_row(env):
 	ascii_ = render(state, 100, 24, divider=DIVIDER_ASCII)
 	assert [display_width(l) for l in box] == [display_width(l) for l in ascii_]
 	assert _rule_index(box) == [index for index, line in enumerate(ascii_)
-	                            if line.lstrip().startswith("DETAIL ")][0]
+	                            if _is_rule(line, DIVIDER_ASCII)][0]
 
 
 @pytest.mark.parametrize("encoding,expected", [
@@ -1171,7 +1197,7 @@ def _detail(screen):
 		else len(screen) - 1 - ordinary_body_lines(len(screen))
 	body = screen[1:len(screen) - footer]
 	for index, line in enumerate(body):
-		if line.lstrip().startswith("DETAIL ") and DIVIDER in line:
+		if _is_rule(line, DIVIDER):
 			return body[index + 1:]
 	return body
 
@@ -2175,11 +2201,10 @@ _INSTRUCTIONS = (
 
 def _work_area(state, columns=100, lines=24):
 	"""Everything between the header rule and the footer: the LIST and the
-	DETAIL pane. What the footer and status bar say is a separate question."""
+	detail pane. What the footer and status bar say is a separate question."""
 	from baton_tui.render import DIVIDER
 	screen = _draw(state, columns, lines)
-	rule = [index for index, line in enumerate(screen)
-	        if "DETAIL " in line and DIVIDER in line][0]
+	rule = _rule_index(screen)
 	return " ".join(" ".join(screen[:rule] + screen[rule + 1:-1]).split())
 
 
@@ -2222,12 +2247,11 @@ def test_no_instruction_survives_in_the_work_area(env, phrase):
 
 
 def _detail_pane(state, columns=100, lines=24):
-	"""The DETAIL pane alone. The list is a separate question: it keeps its
+	"""The detail pane alone. The list is a separate question: it keeps its
 	rows while you compose, and should."""
 	from baton_tui.render import DIVIDER
 	screen = _draw(state, columns, lines)
-	rule = [index for index, line in enumerate(screen)
-	        if "DETAIL " in line and DIVIDER in line][0]
+	rule = _rule_index(screen)
 	return " ".join(" ".join(screen[rule + 1:-1]).split())
 
 
@@ -2277,17 +2301,29 @@ def test_a_follow_up_keeps_the_message_it_answers(env):
 
 
 def test_the_header_does_not_repeat_the_product_name(env):
-	"""The terminal running it already establishes which tool this is."""
+	"""The terminal running it already establishes which tool this is.
+
+	The identity used to lead this line and no longer does: it moved to the
+	pane rule so the queue counts get the position the human actually reads.
+	What this pins now is that the top line opens with the VIEW -- the two
+	lists look alike at a glance, and acting on the wrong one is the mistake
+	the console exists to prevent -- and that the identity is on screen
+	SOMEWHERE, which is the part of the old assertion still worth holding."""
 	store, _ = env
 	from baton_tui.state import VIEW_SENT
 	state = InboxState("acme.implementer")
 	state.refresh(store)
-	for view in (None, VIEW_SENT):
+	for view, expected in ((None, "Messages:"), (VIEW_SENT, "Sent:")):
 		if view:
 			state.select_view(view)
-		header = _draw(state, 100, 24)[0]
+		screen = _draw(state, 100, 24)
+		header = screen[0]
 		assert not header.lstrip().startswith("baton"), header
-		assert header.lstrip().startswith("acme.implementer"), header
+		# The leading focus mark is allowed and is not part of the name.
+		assert header.lstrip().lstrip("> ").startswith(expected), header
+		assert "acme.implementer" not in header, header
+		assert any("acme.implementer" in line for line in screen), \
+			"the identity left the header without arriving anywhere"
 
 
 def test_the_status_column_is_exactly_one_cell_everywhere(env):
@@ -2299,7 +2335,7 @@ def test_the_status_column_is_exactly_one_cell_everywhere(env):
 	assert GLYPH_WIDTH == 1
 	for glyph in (list(SENT_BADGES.values())
 	              + [NOTICE_BADGE, NOTICE_SEEN_MARK, NOTICE_SEEN_MARK_ASCII,
-	                 "!", "*", "x", "?", " "]):
+	                 "!", "*", "~", "?", " "]):
 		assert display_width(glyph) == 1, f"{glyph!r} is not one cell"
 		assert "[" not in glyph and "]" not in glyph, f"{glyph!r} kept its brackets"
 
@@ -2317,7 +2353,7 @@ def test_help_and_readme_own_the_notation_the_panes_gave_up(env):
 	for glyph, meaning in (("•", "not yet opened"), ("○", "still owed"),
 	                       ("▷", "picked it up"), ("▶", "picked it up"),
 	                       ("✓", "replied, closed"),
-	                       ("!", "have not seen"), ("x", "withheld"),
+	                       ("!", "have not seen"), ("~", "withheld"),
 	                       ("E", "expired"), ("X", "quarantined"),
 	                       ("N", "notice"), ("?", "does not understand")):
 		assert glyph in help_text, f"help does not list {glyph!r}"
@@ -2541,7 +2577,7 @@ def test_every_marker_the_driver_passes_reaches_both_renderers(env):
 	("pending", "▷"), ("claimed", "▶"), ("completed", "✓"), ("closed", "✓"),
 ])
 def test_the_sent_detail_heading_uses_the_same_vocabulary(env, state_name, expected):
-	"""The SENT list was unified and its DETAIL was not, so opening a normal
+	"""The SENT list was unified and its detail pane was not, so opening a normal
 	sent message rendered `?` — the fallback for a state the badge table no
 	longer had, because the same change that fixed the list removed it.
 
@@ -2560,3 +2596,165 @@ def test_the_sent_detail_heading_uses_the_same_vocabulary(env, state_name, expec
 	# owed", and someone who needs to know WHICH terminal act it was reads on.
 	body = "\n".join(_sent_row_lines(row, 80))
 	assert "State:" in body
+
+
+def test_the_top_line_leads_with_the_count_not_the_furniture(env):
+	"""Slawomir's header cleanup: the count is the information.
+
+	The product name, the participant, an all-caps pane label and a pair of
+	brackets used to share this line with it. None of them told the human
+	anything the screen did not already say, and all of them were read before
+	the number they surrounded."""
+	store, _ = env
+	for i in range(3):
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject=f"S{i}", body=b"x\n")
+	state = InboxState("acme.implementer")
+	state.refresh(store)
+	header = _draw(state, 100, 24)[0]
+	assert header.lstrip().lstrip("> ").startswith("Messages: 3 retained, ")
+	assert "awaiting your reply/close" in header
+	for gone in ("MESSAGES", "[", "]", "acme.implementer", "baton"):
+		assert gone not in header, f"{gone!r} is back on the top line"
+
+
+def test_the_rule_carries_the_identity_and_no_label(env):
+	"""The lower pane is self-evidently the selected message, so naming it
+	spent a word saying so. The identity is genuinely useful and genuinely
+	secondary, which is what the right-hand end of a rule is for."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+	state = _ready_state(store)
+	screen = _draw(state, 100, 24)
+	rule = screen[_rule_index(screen)]
+	assert "DETAIL" not in rule
+	assert rule.rstrip().endswith("acme.implementer" + DIVIDER)
+
+
+@pytest.mark.parametrize("columns", [40, 44, 52, 60, 80, 133])
+def test_the_identity_degrades_before_the_rule_does(columns, env):
+	"""The identity is DECORATION and goes first.
+
+	Narrow terminals must lose it entirely rather than truncate it into a
+	DIFFERENT participant address or crowd it against the rule. A half-printed
+	address is worse than an absent one: absence is missing information,
+	truncation is wrong information."""
+	from baton_tui.safe_text import display_width
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+	state = _ready_state(store)
+	screen = _draw(state, columns, 24)
+	rule = screen[_rule_index(screen)]
+	assert display_width(rule) == columns, "the rule stopped reaching the edge"
+	tail = rule.rstrip()
+	if "acme.implementer" in tail:
+		# One cell of rule follows it deliberately: a real terminal may not
+		# draw the rightmost cell of a full-width row, and that cell must not
+		# be the last letter of a participant address.
+		assert tail.endswith("acme.implementer" + DIVIDER), \
+			"the identity is not shielded from the last-cell truncation"
+	else:
+		# Dropped whole. Nothing but mark and rule is left.
+		assert set(tail.lstrip("> ")) == {DIVIDER}, tail
+
+
+def test_the_discard_confirmation_is_one_status_row_at_every_width(env):
+	"""Ruled: the confirmation occupies the single status line and must not
+	create a second prompt row or mid-screen instructions.
+
+	Checked at narrow widths too, because that is where a two-line prompt
+	would appear first and where the draft it is asking about would be pushed
+	off the screen by the question about it."""
+	from baton_tui.render import CONFIRM_DISCARD_FOOTER
+	from baton_tui.state import MODE_CONFIRM_DISCARD
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+	state = _ready_state(store)
+	state.mode = MODE_CONFIRM_DISCARD
+	for columns in (40, 60, 100, 133):
+		screen = _draw(state, columns, 24)
+		prompts = [line for line in screen if "Discard draft?" in line]
+		assert len(prompts) == 1, f"{columns}: {len(prompts)} prompt rows"
+		assert prompts[0] is screen[-1], "the prompt is not the status row"
+		assert CONFIRM_DISCARD_FOOTER in prompts[0]
+		# `y/N`: the capital is on the DEFAULT, and the default is keep.
+		assert "y/N" in prompts[0]
+
+
+def test_the_discard_confirmation_costs_no_extra_row(env):
+	"""It is one row like every other footer except the quit confirmation, so
+	the panes do not resize under the question."""
+	from baton_tui.state import MODE_CONFIRM_DISCARD
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+	state = _ready_state(store)
+	ordinary = _draw(state, 100, 24)
+	state.mode = MODE_CONFIRM_DISCARD
+	confirming = _draw(state, 100, 24)
+	assert len(confirming) == len(ordinary)
+
+
+def test_a_draft_row_carries_the_ruled_glyph(env):
+	"""`✎` — ruled, and proven to be one display cell before use, which the
+	ruling required rather than assumed."""
+	from baton_tui.render import DRAFT, ASCII_GLYPHS
+	from baton_tui.safe_text import display_width
+	assert display_width(DRAFT) == 1
+	assert ASCII_GLYPHS[DRAFT] == "d", "the fallback must not be the discard key"
+
+
+def test_the_draft_glyph_is_distinct_from_every_other_status_mark():
+	"""It has to say "being written" without reading as queued, claimed,
+	delivered or completed."""
+	from baton_tui.render import (COMPLETED, DRAFT, OPENED, PICKED_UP, QUEUED,
+	                              UNOPENED)
+	marks = [UNOPENED, OPENED, QUEUED, PICKED_UP, COMPLETED, DRAFT]
+	assert len(set(marks)) == len(marks)
+
+
+def test_the_ascii_completed_mark_is_neutral():
+	"""Ruled: `=` for completion on a non-UTF terminal.
+
+	It was `D`, chosen when no command owned that letter. `D` now discards a
+	draft, so every finished row was showing the letter of a destructive
+	command. `✓` is unchanged and is what almost every terminal shows."""
+	from baton_tui.render import ASCII_GLYPHS, COMPLETED
+	assert COMPLETED == "✓", "the UTF-8 mark was not meant to move"
+	assert ASCII_GLYPHS[COMPLETED] == "="
+
+
+def test_no_status_glyph_is_a_row_action_key():
+	"""THE PROPERTY WHOSE ABSENCE LET R6 HAPPEN.
+
+	A glyph and a key drifted into the same letter and nothing noticed,
+	because each was checked only against its own vocabulary. A status column
+	that prints the letter of a key that destroys the thing beside it is
+	misleading at best, and this catches the next one at the moment it is
+	introduced rather than in a packaged trial.
+
+	Row-action keys only. Reserving every BOUND letter would leave nothing
+	usable -- `Q` for a queued row is fine, because no command aimed at a row
+	is bound to it."""
+	from baton_tui import render as R
+	from baton_tui import keys as K
+	# TWO EARLIER VERSIONS WERE TOO NARROW, and the second one is the more
+	# instructive mistake. It covered only DESTRUCTIVE keys -- but protocol
+	# 10's `x` merely toggles a mark: it changes nothing outside the model and
+	# must not be reclassified as an external effect to satisfy a test.
+	# Restoring `DAMAGED = "x"` would have passed under it.
+	#
+	# The property is about the SCREEN, not about consequences: a status glyph
+	# must not share a letter with a key aimed at the row it sits beside. The
+	# key set therefore includes the RESERVED bulk letters, so the invariant
+	# holds across the binding landing rather than only after it.
+	vocabulary = (set(R.ASCII_GLYPHS)
+	              | set(R.ASCII_GLYPHS.values())
+	              | set(R.SENT_BADGES.values())
+	              | {R.DAMAGED, R.NOTICE_BADGE, R.NOTICE_SEEN_MARK,
+	                 R.NOTICE_SEEN_MARK_ASCII})
+	letters = K.row_action_letters()
+	assert {"x", "#"} <= letters, \
+		"the reserved protocol-10 bulk letters left the key set"
+	collisions = {glyph for glyph in vocabulary if glyph in letters}
+	assert collisions == set(), \
+		f"status glyphs collide with row-action keys: {collisions}"

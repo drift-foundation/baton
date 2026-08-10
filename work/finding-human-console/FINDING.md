@@ -789,12 +789,22 @@ Shift-Tab is the same toggle, not a third stop. Default is the LIST.
   and accepted only under DETAIL focus with actual overflow.
 - **Superseded, do not restore:** uppercase `J`/`K` as detail scroll. Removed
   from dispatch, footer and help, with no hidden alias; pinned unbound.
-- The focused pane is marked `> ` on its label — `> MESSAGES`/`> SENT` and
-  `> DETAIL` — with the inactive form the same label without it. Both labels
-  are always drawn and exactly one is marked. ASCII and width-stable, so
-  toggling moves nothing; styling may emphasize additionally but must never
-  be the only indication. **Superseded:** the R7 edge-to-edge rule, which now
-  carries the `DETAIL` label so focus is visible.
+- **Current focus/header presentation:** exactly one pane carries the leading
+  ASCII `> ` marker. List focus marks a count-leading top line —
+  `> Messages: N retained, M awaiting your reply/close`, or `> Sent: ...` in
+  the read-only filter. Detail focus marks the full-width pane rule. That rule
+  has no `DETAIL` label; it carries the participant identity at the right when
+  width permits, followed by one load-bearing rule cell. A real terminal may
+  decline to draw the rightmost cell of a full-width row, so the sacrificial
+  rule cell prevents a complete participant such as `acme.implementer` from
+  being rendered as the different, nonexistent address `acme.implemente`.
+  Narrow layouts omit the decorative identity whole rather than truncate it.
+  Styling may emphasize focus additionally but must never be the only signal.
+
+  **Superseded, do not restore:** the `> MESSAGES` / `> SENT` / `> DETAIL`
+  label presentation and the claim that both pane labels are always drawn.
+  The detail rule is edge-to-edge structural chrome again; the one leading
+  marker, not a shouted label, identifies focus.
 
 **The footer is an affordance list, not a catalogue.** It advertises only
 actions that are presently legal for the selected/opened object, view, focus

@@ -32,8 +32,11 @@ test:
 		test_baton_v6.py \
 		test_core_parity.py \
 		test_core_api.py \
+		test_core_authoring.py \
+		test_core_references.py \
 		test_tui_safe_text.py \
 		test_tui_editor.py \
+		test_tui_drafts.py \
 		test_tui_state.py \
 		test_tui_render.py \
 		test_tui_driver.py \

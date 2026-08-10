@@ -5715,6 +5715,523 @@ class TestPackaging:
 		assert proc.returncode == 0, proc.stderr
 		assert json.loads(proc.stdout)["ok"] is True
 
+	def test_packaged_cli_authors_a_multipart_message_in_option_order(self, tmp_path):
+		"""The four authoring verbs, driven through the PACKED executable.
+
+		In-process parser tests cannot see this: the options live in the core
+		package, and whether they reached the shipped archive is a packaging
+		question. A console that cannot start still passes every unit test it
+		has, which is a lesson this suite has already learned once.
+
+		Order is the property under test. `--part a --attach b --part c` must
+		arrive as three leaves in that order, because leaf order is part of the
+		manifest digest and the manifest is what retry compares."""
+		import shutil, subprocess, sys as _sys
+		root = tmp_path / "dist"
+		self._builder().build(str(root))
+		inst = tmp_path / "inst"
+		inst.mkdir()
+		files = tmp_path / "files"
+		files.mkdir()
+		(files / "one.md").write_text("first leaf\n")
+		(files / "two.txt").write_text("third leaf\n")
+		(files / "refs.txt").write_text("src:baton_core/_impl.py\nsrc:README.md\n")
+		config = json.loads(
+			open(os.path.join(os.path.dirname(__file__), "example-baton.json")).read())
+		config["roots"] = {"src": str(files)}
+		config_path = str(inst / "baton.json")
+		open(config_path, "w").write(json.dumps(config))
+		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
+
+		def run(*args, stdin=b""):
+			return subprocess.run(
+				[_sys.executable, str(root / "bin" / "baton"), "--config", config_path,
+				 *args], input=stdin, capture_output=True, cwd=str(tmp_path),
+				env=env, timeout=60)
+
+		assert run("init").returncode == 0
+		proc = run("send", "--participant", "team.reviewer",
+		           "--to", "team.implementer", "--kind", "q", "--subject", "S",
+		           "--part", f"source={files / 'one.md'}&type=text/markdown;%20charset=utf-8",
+		           "--attach", "src:two.txt",
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode == 0, proc.stderr
+		proc = run("claim", "--participant", "team.implementer")
+		assert proc.returncode == 0, proc.stderr
+		delivery = json.loads(proc.stdout)
+		leaves = delivery["message"]["content"]["parts"]
+		assert [leaf["content_type"] for leaf in leaves] == [
+			"text/markdown; charset=utf-8",
+			"application/octet-stream",
+			"text/vnd.baton.references; charset=utf-8"]
+		assert leaves[0]["text"] == "first leaf\n"
+		assert leaves[1]["storage"] == "external"
+		assert leaves[2]["text"] == "src:baton_core/_impl.py\nsrc:README.md\n"
+
+		# reply and close carry the same surface, or the four verbs are not
+		# symmetric and the human has to remember which is which.
+		claim_id = delivery["claim"]["claim_id"]
+		proc = run("reply", claim_id, "--participant", "team.implementer",
+		           "--kind", "a",
+		           "--part", f"source={files / 'one.md'}&type=text/plain;%20charset=utf-8"
+		                     "&disposition=attachment&name=Answer.txt")
+		assert proc.returncode == 0, proc.stderr
+		proc = run("claim", "--participant", "team.reviewer")
+		assert proc.returncode == 0, proc.stderr
+		answer = json.loads(proc.stdout)
+		leaf = answer["message"]["content"]["parts"][0]
+		assert leaf["content_type"] == "text/plain; charset=utf-8"
+		# The surface says `name`; protocol 9 stores `filename`. The
+		# translation happens inward, so the CLI never teaches a word it is
+		# about to retire.
+		assert leaf["filename"] == "Answer.txt"
+		close_claim_id = answer["claim"]["claim_id"]
+		proc = run("close", close_claim_id, "--participant",
+		           "team.reviewer", "--outcome", "done",
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode == 0, proc.stderr
+		# A close disposition is a terminal audit record and is never
+		# delivered, so exit status is ALL a caller sees -- and a close whose
+		# content was silently dropped exits zero just as happily as one that
+		# carried it. Asserting the status alone pins nothing, which an earlier
+		# version of this test did: removing `close`'s wiring left it green.
+		# `dump` is the observable route to what the close actually stored.
+		proc = run("dump")
+		assert proc.returncode == 0, proc.stderr
+		dumped = json.loads(proc.stdout)
+		closed = [d for d in dumped["dispositions"]
+		          if d["claim_id"] == close_claim_id]
+		assert len(closed) == 1, "the close disposition must be recorded"
+		assert closed[0]["manifest_sha256"] is not None, \
+			"a close carrying parts must have a manifest"
+		owned = [part for part in dumped["parts"]
+		         if part["owner_kind"] == "disposition"
+		         and part["owner_id"] == close_claim_id]
+		assert [part["content_type"] for part in owned] == \
+			["text/vnd.baton.references; charset=utf-8"]
+
+		proc = run("send-notice", "--participant", "team.reviewer", "--kind", "fyi",
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode == 0, proc.stderr
+		proc = run("see", "--participant", "team.implementer")
+		assert proc.returncode == 0, proc.stderr
+		notices = json.loads(proc.stdout)["notices"]
+		assert len(notices) == 1
+		assert notices[0]["content"]["parts"][0]["content_type"] == \
+			"text/vnd.baton.references; charset=utf-8"
+
+	def test_packaged_cli_names_which_part_was_wrong(self, tmp_path):
+		"""With a repeatable option, "unknown field" on a command carrying four
+		of them tells the human almost nothing.
+
+		The descriptor may hold a path or a media type from anywhere, so the
+		VALUE is never echoed back to the terminal — which leaves the
+		occurrence count as the only thing that can distinguish them, and makes
+		it load-bearing rather than decorative."""
+		import subprocess, sys as _sys
+		root = tmp_path / "dist"
+		self._builder().build(str(root))
+		inst = tmp_path / "inst"
+		inst.mkdir()
+		config_path = str(inst / "baton.json")
+		import shutil
+		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		            config_path)
+		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
+
+		def run(*args):
+			return subprocess.run(
+				[_sys.executable, str(root / "bin" / "baton"), "--config", config_path,
+				 *args], capture_output=True, text=True, cwd=str(tmp_path),
+				env=env, timeout=60)
+
+		assert run("init").returncode == 0
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q",
+		           "--part", "source=a.md&type=text/markdown",
+		           "--part", "source=b.md&type=text/plain",
+		           "--part", "source=c.md&type=text/plain&nope=1")
+		assert proc.returncode != 0
+		assert "--part #3" in proc.stderr, proc.stderr
+		assert "nope" in proc.stderr
+		assert "c.md" not in proc.stderr, "the descriptor value must not be echoed"
+
+	def _authoring_instance(self, tmp_path):
+		"""A built distribution, a config with one root, and a runner."""
+		import shutil, subprocess, sys as _sys
+		root = tmp_path / "dist"
+		self._builder().build(str(root))
+		inst = tmp_path / "inst"
+		inst.mkdir()
+		files = tmp_path / "files"
+		files.mkdir()
+		(files / "body.md").write_text("BODY MUST SURVIVE\n")
+		(files / "one.md").write_text("first leaf\n")
+		(files / "refs.txt").write_text("src:baton_core/_impl.py\n")
+		config = json.loads(
+			open(os.path.join(os.path.dirname(__file__), "example-baton.json")).read())
+		config["roots"] = {"src": str(files)}
+		config_path = str(inst / "baton.json")
+		open(config_path, "w").write(json.dumps(config))
+		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
+
+		def run(*args, stdin=b""):
+			return subprocess.run(
+				[_sys.executable, str(root / "bin" / "baton"), "--config", config_path,
+				 *args], input=stdin, capture_output=True, cwd=str(tmp_path),
+				env=env, timeout=60)
+
+		assert run("init").returncode == 0
+		return run, files
+
+	def test_packaged_cli_never_silently_drops_an_authored_body(self, tmp_path):
+		"""THE REGRESSION, pinned where it actually happened.
+
+		`send --body body.md --references refs.txt` returned success and
+		published only the references leaf. In-process tests did not see it and
+		would not have: the drop was in the verb dispatch, not the builder.
+
+		A command that succeeds while discarding content the caller named is
+		worse than one that fails, so this is pinned per verb rather than once.
+		"""
+		run, files = self._authoring_instance(tmp_path)
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q",
+		           "--body", str(files / "body.md"),
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode == 0, proc.stderr
+		proc = run("claim", "--participant", "team.implementer")
+		assert proc.returncode == 0, proc.stderr
+		delivery = json.loads(proc.stdout)
+		leaves = delivery["message"]["content"]["parts"]
+		assert leaves[0]["text"] == "BODY MUST SURVIVE\n", \
+			"the authored body must survive beside a references leaf"
+		assert leaves[1]["content_type"] == "text/vnd.baton.references; charset=utf-8"
+
+		# reply and close carry the same risk and the same fix.
+		claim_id = delivery["claim"]["claim_id"]
+		proc = run("reply", claim_id, "--participant", "team.implementer",
+		           "--kind", "a", "--body", str(files / "body.md"),
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode == 0, proc.stderr
+		proc = run("claim", "--participant", "team.reviewer")
+		answer = json.loads(proc.stdout)
+		assert answer["message"]["content"]["parts"][0]["text"] == "BODY MUST SURVIVE\n"
+		proc = run("close", answer["claim"]["claim_id"], "--participant",
+		           "team.reviewer", "--outcome", "done",
+		           "--body", str(files / "body.md"),
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode == 0, proc.stderr
+		dumped = json.loads(run("dump").stdout)
+		owned = [part for part in dumped["parts"]
+		         if part["owner_kind"] == "disposition"
+		         and part["owner_id"] == answer["claim"]["claim_id"]]
+		assert len(owned) == 2, "the close body must survive beside its references"
+
+		proc = run("send-notice", "--participant", "team.reviewer", "--kind", "fyi",
+		           "--body", str(files / "body.md"),
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode == 0, proc.stderr
+		notices = json.loads(run("see", "--participant", "team.implementer").stdout)
+		assert notices["notices"][0]["content"]["parts"][0]["text"] == \
+			"BODY MUST SURVIVE\n"
+
+	def test_packaged_cli_refuses_a_body_beside_a_general_part(self, tmp_path):
+		"""The combination has no obviously right reading -- a `--part` carries
+		its own type, name and position, `--body` carries a type and no
+		position -- so it is refused rather than resolved by guessing. Refused
+		BEFORE reading, so the diagnostic is about a message that still could
+		have existed."""
+		run, files = self._authoring_instance(tmp_path)
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q",
+		           "--body", str(files / "body.md"),
+		           "--part", f"source={files / 'one.md'}&type=text/plain;%20charset=utf-8")
+		assert proc.returncode != 0
+		assert "--body cannot be combined with --part" in proc.stderr.decode()
+
+	def test_packaged_cli_refuses_body_metadata_with_no_body(self, tmp_path):
+		"""`--content-type` describes `--body`. With parts and no body it
+		describes nothing, and silently ignoring it would tell the caller their
+		declaration was honoured."""
+		run, files = self._authoring_instance(tmp_path)
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q",
+		           "--content-type", "text/plain; charset=utf-8",
+		           "--references", str(files / "refs.txt"))
+		assert proc.returncode != 0
+		assert "--content-type" in proc.stderr.decode()
+
+	def test_packaged_close_does_not_offer_an_external_attachment(self, tmp_path):
+		"""External storage is refused on a disposition -- a close is a
+		terminal audit record with no delivery, so nothing could ever notice or
+		resolve a stale pin. An option whose every use is refused is a worse
+		surface than no option."""
+		run, _files = self._authoring_instance(tmp_path)
+		proc = run("close", "--help")
+		assert proc.returncode == 0
+		assert "--attach" not in proc.stdout.decode()
+		assert "--part" in proc.stdout.decode(), \
+			"inline attachment-disposition parts remain available"
+		proc = run("send-notice", "--help")
+		assert "--attach" not in proc.stdout.decode()
+		for verb in ("send", "reply"):
+			assert "--attach" in run(verb, "--help").stdout.decode()
+
+	def test_packaged_cli_diagnoses_an_unreadable_references_file(self, tmp_path):
+		"""A bare `.decode("utf-8")` raises `UnicodeDecodeError`, which `main`
+		does not catch -- so a mis-encoded references file printed a traceback
+		instead of a diagnostic. The bytes are not echoed back: they are by
+		definition not valid UTF-8."""
+		run, files = self._authoring_instance(tmp_path)
+		bad = files / "bad-refs.txt"
+		bad.write_bytes(b"src:caf\xe9/notes.md\n")
+
+		def refused(proc):
+			assert proc.returncode != 0, proc.stdout
+			stderr = proc.stderr.decode()
+			assert "Traceback" not in stderr, "an encoding error must not be a crash"
+			assert "not valid UTF-8" in stderr
+
+		for verb, extra in (("send", ["--to", "team.implementer", "--kind", "q"]),
+		                    ("send-notice", ["--kind", "fyi"])):
+			refused(run(verb, "--participant", "team.reviewer", *extra,
+			            "--references", str(bad)))
+
+		# ALL FOUR. `reply` and `close` need a real held claim to reach the
+		# authoring path at all, which is why they were missing -- and being
+		# harder to set up is not a reason for the two verbs that write a
+		# TERMINAL record to be the untested ones.
+		assert run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", stdin=b"?\n").returncode == 0
+		claim = json.loads(run("claim", "--participant", "team.implementer").stdout)
+		claim_id = claim["claim"]["claim_id"]
+		refused(run("reply", claim_id, "--participant", "team.implementer",
+		            "--kind", "a", "--references", str(bad)))
+		refused(run("close", claim_id, "--participant", "team.implementer",
+		            "--outcome", "done", "--references", str(bad)))
+
+		# And nothing was committed by either refusal: the claim is still
+		# active and no disposition exists. A refusal that had already written
+		# a terminal record would leave the human unable to retry.
+		dumped = json.loads(run("dump").stdout)
+		held = [c for c in dumped["claims"] if c["claim_id"] == claim_id]
+		assert held and held[0]["state"] == "active", \
+			"a refused disposition resolved the claim anyway"
+		assert not [d for d in dumped["dispositions"]
+		            if d["claim_id"] == claim_id], \
+			"a refused close committed a disposition"
+
+	def test_packaged_cli_requires_a_query_shaped_descriptor(self, tmp_path):
+		"""A descriptor is an RFC 3986 query. Raw spaces and raw non-ASCII are
+		refused, because the same command would otherwise mean different things
+		depending on the shell, locale and terminal encoding it passed
+		through."""
+		run, files = self._authoring_instance(tmp_path)
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q",
+		           "--part", f"source={files / 'one.md'}&type=text/plain; charset=utf-8")
+		assert proc.returncode != 0
+		assert "RFC 3986 query" in proc.stderr.decode()
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q",
+		           "--part", f"source={files / 'one.md'}&type=text/plain;%20charset=utf-8")
+		assert proc.returncode == 0, proc.stderr
+
+	def test_packaged_send_notice_and_reply_still_default_to_stdin(self, tmp_path):
+		"""`--body` on these two verbs used `default="-"`. That default moved
+		into the dispatch so the namespace could still distinguish "no body
+		supplied" from "body read from stdin" -- which part mode needs and the
+		argparse default was erasing.
+
+		Moving a default is exactly the kind of change that looks inert and is
+		not, so the behaviour it used to provide is pinned here rather than
+		assumed."""
+		run, _files = self._authoring_instance(tmp_path)
+		proc = run("send-notice", "--participant", "team.reviewer", "--kind", "fyi",
+		           stdin=b"NOTICE FROM STDIN\n")
+		assert proc.returncode == 0, proc.stderr
+		notices = json.loads(run("see", "--participant", "team.implementer").stdout)
+		assert notices["notices"][0]["content"]["parts"][0]["text"] == \
+			"NOTICE FROM STDIN\n"
+
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", stdin=b"Q\n")
+		assert proc.returncode == 0, proc.stderr
+		claim = json.loads(run("claim", "--participant", "team.implementer").stdout)
+		proc = run("reply", claim["claim"]["claim_id"], "--participant",
+		           "team.implementer", "--kind", "a", stdin=b"REPLY FROM STDIN\n")
+		assert proc.returncode == 0, proc.stderr
+		answer = json.loads(run("claim", "--participant", "team.reviewer").stdout)
+		assert answer["message"]["content"]["parts"][0]["text"] == \
+			"REPLY FROM STDIN\n"
+
+	def test_packaged_omitted_body_does_not_consume_stdin_in_part_mode(self, tmp_path):
+		"""Ruled clause: when an explicit content source is supplied, an
+		omitted `--body` does NOT implicitly consume standard input.
+
+		Two verbs used to default `--body` to `-`, so without this the mere
+		presence of `--references` would have silently swallowed whatever was
+		on stdin and published it as a leaf nobody asked for. Stdin here holds
+		bytes that must not appear anywhere in the message."""
+		run, files = self._authoring_instance(tmp_path)
+		intruder = b"THIS MUST NOT BE PUBLISHED\n"
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q",
+		           "--references", str(files / "refs.txt"), stdin=intruder)
+		assert proc.returncode == 0, proc.stderr
+		delivery = json.loads(run("claim", "--participant", "team.implementer").stdout)
+		leaves = delivery["message"]["content"]["parts"]
+		assert len(leaves) == 1, "only the references leaf was asked for"
+		assert leaves[0]["content_type"] == "text/vnd.baton.references; charset=utf-8"
+		assert b"MUST NOT BE PUBLISHED" not in json.dumps(delivery).encode()
+
+		for verb, extra in (("send-notice", ["--kind", "fyi"]),):
+			proc = run(verb, "--participant", "team.reviewer", *extra,
+			           "--references", str(files / "refs.txt"), stdin=intruder)
+			assert proc.returncode == 0, proc.stderr
+			seen = json.loads(run("see", "--participant", "team.implementer").stdout)
+			assert len(seen["notices"][0]["content"]["parts"]) == 1
+			assert b"MUST NOT BE PUBLISHED" not in json.dumps(seen).encode()
+
+	def test_packaged_reply_never_silently_drops_an_attachment(self, tmp_path):
+		"""R9, and the same class as R1: success while discarding a source the
+		caller named.
+
+		`--attach` was exposed on `reply`, but `reply` has no store-level
+		`attach=` parameter the way `send` does. A lone `--attach` therefore
+		fell back to a legacy route that did not exist on this verb, and the
+		response was published without it. Whether a verb HAS a legacy route is
+		the distinction, and it is now stated by the caller rather than guessed
+		at."""
+		run, files = self._authoring_instance(tmp_path)
+		(files / "evidence.txt").write_text("EVIDENCE\n")
+		assert run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", stdin=b"?\n").returncode == 0
+		claim = json.loads(run("claim", "--participant", "team.implementer").stdout)
+
+		# Attachment ONLY -- and stdin holds bytes that must not be published,
+		# because an omitted body must not be invented from it.
+		proc = run("reply", claim["claim"]["claim_id"], "--participant",
+		           "team.implementer", "--kind", "a", "--attach", "src:evidence.txt",
+		           stdin=b"STDIN MUST NOT APPEAR\n")
+		assert proc.returncode == 0, proc.stderr
+		answer = json.loads(run("claim", "--participant", "team.reviewer").stdout)
+		leaves = answer["message"]["content"]["parts"]
+		assert len(leaves) == 1, "an attachment-only reply invented a body leaf"
+		assert leaves[0]["storage"] == "external"
+		assert b"STDIN MUST NOT APPEAR" not in json.dumps(answer).encode()
+		run("close", answer["claim"]["claim_id"], "--participant", "team.reviewer",
+		    "--outcome", "done")
+
+		# Body FIRST, attachment second.
+		assert run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", stdin=b"?\n").returncode == 0
+		claim = json.loads(run("claim", "--participant", "team.implementer").stdout)
+		proc = run("reply", claim["claim"]["claim_id"], "--participant",
+		           "team.implementer", "--kind", "a",
+		           "--body", str(files / "body.md"), "--attach", "src:evidence.txt")
+		assert proc.returncode == 0, proc.stderr
+		answer = json.loads(run("claim", "--participant", "team.reviewer").stdout)
+		leaves = answer["message"]["content"]["parts"]
+		assert leaves[0]["text"] == "BODY MUST SURVIVE\n"
+		assert leaves[1]["storage"] == "external"
+
+	def test_packaged_reply_attachment_retry_keeps_the_manifest_contract(self, tmp_path):
+		"""An attachment that reaches the parts plan is an ordinary part, so it
+		is covered by retry identity like any other. Pinned because the fix
+		changed WHICH path builds it, and a part built by a different path
+		that no longer retried the same would be a quieter kind of wrong."""
+		run, files = self._authoring_instance(tmp_path)
+		(files / "evidence.txt").write_text("EVIDENCE\n")
+		assert run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", stdin=b"?\n").returncode == 0
+		claim = json.loads(run("claim", "--participant", "team.implementer").stdout)
+		claim_id = claim["claim"]["claim_id"]
+		first = run("reply", claim_id, "--participant", "team.implementer",
+		            "--kind", "a", "--attach", "src:evidence.txt")
+		assert first.returncode == 0, first.stderr
+		assert json.loads(first.stdout)["already_committed"] is False
+
+		# EXACT retry: effectively-once.
+		again = run("reply", claim_id, "--participant", "team.implementer",
+		            "--kind", "a", "--attach", "src:evidence.txt")
+		assert again.returncode == 0, again.stderr
+		assert json.loads(again.stdout)["already_committed"] is True
+
+		# Changed attachment identity: fails closed rather than committing a
+		# second, different response under the same claim.
+		(files / "evidence.txt").write_text("EVIDENCE CHANGED\n")
+		changed = run("reply", claim_id, "--participant", "team.implementer",
+		              "--kind", "a", "--attach", "src:evidence.txt")
+		assert changed.returncode != 0, changed.stdout
+
+	def test_packaged_references_are_checked_against_configured_roots(self, tmp_path):
+		"""The root is validated against THE AUTHORITY, not against a list this
+		process made up. That is the whole reason the root is required: one
+		instance may coordinate several repositories, and an address naming a
+		root the participants do not share resolves for nobody."""
+		run, files = self._authoring_instance(tmp_path)
+		unknown = files / "unknown-root.txt"
+		unknown.write_text("nosuchroot:a.md\n")
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", "--references", str(unknown))
+		assert proc.returncode != 0
+		stderr = proc.stderr.decode()
+		assert "no root 'nosuchroot' is configured" in stderr
+		assert "src" in stderr, "the diagnostic should name the roots that DO exist"
+
+		bare = files / "bare.txt"
+		bare.write_text("a.md\n")
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", "--references", str(bare))
+		assert proc.returncode != 0
+		assert "ROOT_ID:RELATIVE/PATH" in proc.stderr.decode()
+
+		# And the configured root travels. The path deliberately does NOT
+		# exist: a reference is navigational metadata, so nothing reads it.
+		ghost = files / "ghost.txt"
+		ghost.write_text("src:does/not/exist/anywhere.md\n")
+		proc = run("send", "--participant", "team.reviewer", "--to",
+		           "team.implementer", "--kind", "q", "--references", str(ghost))
+		assert proc.returncode == 0, proc.stderr
+		delivery = json.loads(run("claim", "--participant", "team.implementer").stdout)
+		assert delivery["message"]["content"]["parts"][0]["text"] == \
+			"src:does/not/exist/anywhere.md\n"
+
+	def test_packaged_help_teaches_the_ruled_reference_address(self, tmp_path):
+		"""All four verbs, on the PACKED executable.
+
+		The help said "repository-relative POSIX paths" after the ruling made
+		references root-qualified -- so `--help` was instructing a fresh user
+		to produce exactly the input the parser now refuses. Documentation
+		that contradicts the validator is worse than none: it costs the user
+		the time to follow it before failing.
+
+		Asserted on the RENDERED help of every verb rather than on the shared
+		source, because whether all four reach that source is the thing that
+		can regress."""
+		import subprocess, sys as _sys
+		root = tmp_path / "dist"
+		self._builder().build(str(root))
+		inst = tmp_path / "inst"
+		inst.mkdir()
+		import shutil
+		config_path = str(inst / "baton.json")
+		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		            config_path)
+		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
+		for verb in ("send", "send-notice", "reply", "close"):
+			proc = subprocess.run(
+				[_sys.executable, str(root / "bin" / "baton"), "--config",
+				 config_path, verb, "--help"], capture_output=True, text=True,
+				cwd=str(tmp_path), env=env, timeout=60)
+			assert proc.returncode == 0, proc.stderr
+			text = " ".join(proc.stdout.split())
+			assert "ROOT_ID:RELATIVE/POSIX/PATH" in text, f"{verb}: {text}"
+			assert "repository-relative POSIX paths" not in text, \
+				f"{verb} still teaches the superseded bare-path form"
+
 	def test_extraction_purity_grep_gate(self):
 		"""Project-specific needles across EVERY reusable asset, including
 		the packed archive bytes."""

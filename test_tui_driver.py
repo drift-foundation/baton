@@ -12,9 +12,22 @@ import json
 import pytest
 
 import baton_core as core
+from baton_core import BatonError
 from baton_tui import keys as K
 from baton_tui.driver import step
-from baton_tui.render import DIVIDER, layout_for, render
+from baton_tui.render import DIVIDER, MIN_RULE_CELLS, layout_for, render
+
+
+def _is_rule(line: str) -> bool:
+	"""The pane rule, matched by SHAPE: a long unbroken run of divider cells.
+
+	It used to be found by the `DETAIL ` label printed on it. The label is
+	gone -- the lower pane is self-evidently the selected message -- and the
+	identity that replaced it sits at the far right, so the run is what
+	identifies the row. Matching the shape is also the stronger test: a
+	cosmetic change could satisfy a label locator while the rule broke.
+	"""
+	return DIVIDER * MIN_RULE_CELLS in line
 from baton_tui.state import (EDITOR_UNCHANGED, MODE_BROWSE, MODE_COMPOSE,
                              MODE_CONFIRM_QUIT, MODE_CONFIRM_SEND,
                              MODE_PICK_RECIPIENT, MODE_REPLY, InboxState)
@@ -179,12 +192,19 @@ def test_navigation_never_consumes_a_broadcast_or_disposes_anything(env, key):
 	assert claims <= 5, f"navigation claimed {claims} times over 5 rows"
 
 
-def test_only_three_events_are_destructive():
+def test_the_effectful_events_are_exactly_these():
 	"""Keeps the mapping honest. If a new key is wired to something that takes
-	ownership, it has to be added here deliberately."""
+	ownership or writes, it has to be added here deliberately -- and this test
+	is the thing that forces the decision to be made rather than skipped.
+
+	`DISCARD_DRAFT` was added when drafts landed: it deletes a file, which is
+	more effectful than `MATERIALIZE` writing one, and leaving it out had the
+	key sweep and the glyph-collision check both asserting the wrong safety
+	property about `D`."""
 	destructive = {event for event in vars(K).values()
 	               if isinstance(event, str) and K.is_destructive(event)}
-	assert destructive == {K.OPEN, K.SEND, K.CLOSE, K.MATERIALIZE}
+	assert destructive == {K.OPEN, K.SEND, K.CLOSE, K.MATERIALIZE,
+	                       K.DISCARD_DRAFT}
 
 
 @pytest.mark.parametrize("key", sorted(set(range(0, 300)) - {ord("q")}))
@@ -1461,10 +1481,10 @@ def test_the_confirmation_footer_is_exactly_one_row_of_exact_text(env):
 			# a row of its own rather than a cell on every body row.
 			assert len(confirming[1:-1]) == len(ordinary[1:-2]) + 1
 			# And the rule is still exactly one row of the screen, in both.
-			# It carries the `DETAIL` focus label now.
+			# It carries the focus mark and the identity, not a label.
 			for screen in (ordinary, confirming):
 				assert sum(1 for line in screen
-				           if line.lstrip().startswith("DETAIL ")
+				           if _is_rule(line)
 				           and DIVIDER in line) == 1
 			_press(state, store, ord("n"))         # back to the draft
 
@@ -1677,7 +1697,11 @@ def test_switching_to_sent_shows_one_list_and_writes_nothing(env):
 	_press(state, store, ord("o"))
 	assert state.view == VIEW_SENT
 	screen = render(state, 100, 24)
-	assert "SENT" in screen[0]
+	# The view name, no longer shouted. Which list you are looking at still
+	# has to be the first thing on the line; the all-caps was the part the
+	# header cleanup removed, not the naming.
+	assert screen[0].lstrip().startswith("> Sent:") or \
+		screen[0].lstrip().startswith("Sent:"), screen[0]
 	# The SAME list pane, showing one list at a time: the outbound subject is
 	# drawn and no inbox row is.
 	body = "\n".join(screen)
@@ -2496,11 +2520,18 @@ def test_sent_history_is_not_silently_truncated(env):
 	assert len(fresh.sent_rows) == 215
 
 
-def test_the_console_never_rewrites_a_subject_on_the_way_past(env):
-	"""R3.3. The core rejects leading and trailing whitespace deliberately --
-	silent sanitization misrepresents what the sender wrote. The console was
-	stripping first, which hid the refusal AND sent something the human did
-	not type."""
+def test_the_console_trims_a_subject_at_send_and_the_core_still_would_not(env):
+	"""SUPERSEDED by ruling. R3.3 pinned the console passing a padded subject
+	through untouched so the core's refusal surfaced.
+
+	Slawomir ruled the split instead: the shared core and the agent CLI keep
+	refusing edge whitespace, and the TUI trims at send. A human trails a
+	space in a text field; an agent that does has a bug worth hearing about.
+
+	Both halves are asserted here, because the ruling is only meaningful as a
+	pair: the console sends `padded`, and the core would still have refused
+	the untrimmed spelling."""
+	from baton_core import BatonError
 	store = env
 	state = _ready(store)
 	_press(state, store, ord("n"))
@@ -2508,12 +2539,16 @@ def test_the_console_never_rewrites_a_subject_on_the_way_past(env):
 	for char in "  padded  ":
 		_press(state, store, ord(char))
 	assert _send(state, store) is True
-	# Refused by the AUTHORITY, surfaced, and the draft is intact.
-	assert state.mode == MODE_COMPOSE
-	assert "whitespace" in state.status.lower()
-	assert state.compose["subject"] == "  padded  "
-	assert store.conn.execute(
-		"SELECT COUNT(*) FROM messages").fetchone()[0] == 0
+	assert state.mode == MODE_BROWSE, state.status
+	sent = [m for m in store.list_messages("acme.reviewer")
+	        if m["from_participant"] == "acme.implementer"]
+	assert [m["subject"] for m in sent] == ["padded"]
+	# The other half of the ruling: the AUTHORITY is unchanged and still
+	# refuses what the console chose to tidy.
+	with pytest.raises(BatonError) as caught:
+		store.send("acme.implementer", "acme.reviewer", kind="q",
+		           subject="  padded  ", body=b"x\n")
+	assert "whitespace" in str(caught.value).lower()
 
 
 def test_an_empty_body_from_the_editor_refuses_rather_than_sending_the_subject(env):
@@ -3602,21 +3637,26 @@ def test_uppercase_J_and_K_are_unbound(env):
 	assert "J / K" not in help_text
 
 
-def test_both_pane_labels_are_always_drawn_with_exactly_one_marker(env):
+def test_exactly_one_pane_carries_the_focus_marker(env):
 	"""An indication that exists only as bold or colour is no indication on
-	half the terminals this runs on."""
+	half the terminals this runs on.
+
+	The all-caps `MESSAGES`/`DETAIL` labels are gone: the top line says which
+	VIEW it is and carries the counts, and the lower pane needs no name. What
+	survives is the property the labels were only a carrier for -- exactly one
+	pane wears the marker, and Tab moves it -- which is now asserted on the
+	two rows that can wear it rather than on the words that used to."""
 	store = env
 	_long_message(store)
 	state = _ready(store)
 	for columns, lines in ((40, 8), (80, 24), (133, 40)):
 		for _ in range(2):
 			screen = render(state, columns, lines)
-			body = "\n".join(screen)
-			assert "MESSAGES" in body and "DETAIL" in body
-			marked = [line for line in screen
-			          if "> MESSAGES" in line or "> DETAIL" in line
-			          or "> SENT" in line]
+			marked = [line for line in screen if line.startswith("> ")]
 			assert len(marked) == 1, f"{columns}x{lines}: {len(marked)} marked"
+			# And it is one of the two rows that MAY wear it: the top line or
+			# the pane rule. A marker anywhere else is a different bug.
+			assert marked[0] is screen[0] or _is_rule(marked[0]), marked[0]
 			_press(state, store, K.TAB)
 
 
@@ -4189,12 +4229,12 @@ def _focused_detail(store, columns=60, lines=20):
 def _content_rows(state, columns=60, lines=20):
 	"""Rows below the rule and above the footer.
 
-	Matched on `DETAIL ` plus the divider glyph rather than on the start of
-	the line: the FOCUSED form is `> DETAIL`, so a `lstrip().startswith` test
-	misses exactly the case these tests are about."""
+	Matched on the unbroken run of divider cells rather than on the start of
+	the line: the focused form leads with `> `, so a `startswith` test on the
+	divider misses exactly the case these tests are about."""
 	screen = render(state, columns, lines)
 	rule = next(i for i, l in enumerate(screen)
-	            if "DETAIL " in l and DIVIDER in l)
+	            if _is_rule(l))
 	return screen[rule + 1:-1]
 
 
@@ -5055,7 +5095,7 @@ def test_a_successful_reply_returns_focus_to_the_list(env):
 	assert state.selected is not None, "the selection was dropped"
 	assert state.selected["id"] == selected, \
 		"the selected row is not the one that was selected before the send"
-	assert "> MESSAGES" in render(state, 100, 24)[0]
+	assert render(state, 100, 24)[0].startswith("> Messages:")
 	_navigates_the_list(state, store)
 
 
@@ -5488,7 +5528,7 @@ def _row_for(state, subject, columns=100, lines=24):
 	from baton_tui.render import DIVIDER
 	screen = render(state, columns, lines)
 	rule = [i for i, line in enumerate(screen)
-	        if "DETAIL " in line and DIVIDER in line][0]
+	        if _is_rule(line)][0]
 	rows = [line for line in screen[1:rule] if subject in line]
 	assert rows, f"{subject!r} is not on the list: {screen[1:rule]}"
 	return rows[0]
@@ -5774,3 +5814,809 @@ def test_the_two_views_never_disagree_about_one_row(env):
 		row = _row_for(state, subject)
 		assert row[1] == expected, (
 			f"{subject}: MESSAGES draws {expected!r}, SENT draws {row[1]!r}")
+
+
+def test_a_successful_close_returns_focus_to_the_list(env):
+	"""Slawomir hit this in packaged testing: after `c` the console left focus
+	in the detail pane, so continuing through the queue cost a `Tab` on every
+	single message.
+
+	`reply` already returned focus and `close` did not — the two paths had
+	drifted apart, which is why this asserts the same functional property the
+	reply pin does rather than just the header marker."""
+	from baton_tui.state import FOCUS_LIST
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Other", body=b"x\n")
+	state = _ready(store)
+	state.select_row(store)
+	# OPEN first with the real Enter key: `c` acts on the claim the human
+	# opened, so without this the affordance gate refuses `c` and the
+	# assertion below would pass for the wrong reason.
+	#
+	# `K.OPEN` is an EVENT name, not a keycode. Pressing it is a silent no-op,
+	# which is how an earlier version of this test looked like it opened the
+	# row while the claim actually came from `select_row`.
+	_press(state, store, K.ENTER_LF)
+	_in_detail(state, store)
+	_press(state, store, ord("c"))
+	assert state.focus == FOCUS_LIST, "focus stayed in the detail pane after a close"
+	assert "closed" in state.status
+	assert state.selected is not None, "the selection was dropped"
+	assert render(state, 100, 24)[0].startswith("> Messages:")
+	_navigates_the_list(state, store)
+
+
+def test_a_refused_close_leaves_focus_where_it_was(env):
+	"""Focus moves because the authority COMMITTED, not because a key was
+	pressed. A console that returns focus on a failed disposition is telling
+	the human the message was dealt with when it was not."""
+	from baton_tui.state import FOCUS_DETAIL
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
+	state = _ready(store)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	_in_detail(state, store)
+
+	def refuse(*_args, **_kwargs):
+		raise BatonError("the authority said no")
+
+	store.close_claim = refuse
+	_press(state, store, ord("c"))
+	assert state.focus == FOCUS_DETAIL, \
+		"a refused close moved focus as though it had succeeded"
+
+
+# -- retained drafts: Esc keeps, D discards, and D asks ---------------------
+
+def _with_drafts(store, tmp_path, participant="acme.implementer"):
+	"""A console whose drafts persist, which needs a projection directory."""
+	state = _ready(store, participant)
+	state.projection_dir = str(tmp_path)
+	state.load_drafts()
+	state.refresh(store)
+	return state
+
+
+def _draft_rows(state):
+	from baton_tui.state import ROW_DRAFT
+	return [row for row in state.rows if row["row_type"] == ROW_DRAFT]
+
+
+def test_escape_keeps_a_new_message_draft_however_often_it_is_pressed(env, tmp_path):
+	"""Acceptance 1. `Esc` is the key people press to back out of anything, so
+	making it also the most destructive key on the console meant a reflex
+	could cost someone ten minutes of writing."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "half a thought":
+		_press(state, store, ord(char))
+	for _ in range(3):
+		_press(state, store, K.ESC)
+	state.refresh(store)
+	rows = _draft_rows(state)
+	assert len(rows) == 1, "the draft did not survive Esc"
+	assert rows[0]["draft"]["subject"] == "half a thought"
+	assert rows[0]["draft"]["to"] == "acme.reviewer", "the recipient was lost"
+
+
+def test_a_reply_draft_stays_tied_to_what_it_answers(env, tmp_path):
+	"""Acceptance 2. Without the link a retained reply is a subject line with
+	no context: reopening it would compose a NEW message rather than continue
+	the answer."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	answered = state.opened["id"]
+	_press(state, store, ord("R"))
+	for char in "partly written":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+	draft = _draft_rows(state)[0]["draft"]
+	assert draft["answering"] == answered
+	assert draft["kind"] == "reply"
+	# And navigating away does not detach it.
+	_press(state, store, ord("j"))
+	_press(state, store, ord("k"))
+	state.refresh(store)
+	assert _draft_rows(state)[0]["draft"]["answering"] == answered
+
+
+def test_an_empty_composition_leaves_no_draft_row(env, tmp_path):
+	"""Backing straight out of a compose opened by mistake should leave no
+	trace. A row for a message with no subject, no body and no recipient says
+	nothing and has to be discarded by hand."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+	assert _draft_rows(state) == []
+
+
+def test_a_draft_survives_a_restart_with_its_whole_authoring_state(env, tmp_path):
+	"""Acceptance 3. A draft that reopens missing its recipient is not the
+	message that was kept, and the human would have to notice what is missing
+	before sending it."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "survives":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+
+	# A SECOND console over the same projection directory: a restart.
+	restarted = _with_drafts(store, tmp_path)
+	rows = _draft_rows(restarted)
+	assert len(rows) == 1
+	assert rows[0]["draft"]["subject"] == "survives"
+	assert rows[0]["draft"]["to"] == "acme.reviewer"
+
+
+def test_reopening_a_draft_restores_the_composition(env, tmp_path):
+	from baton_tui.state import MODE_COMPOSE
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "reopen me":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+	state.cursor = state.rows.index(_draft_rows(state)[0])
+	_press(state, store, K.ENTER_LF)
+	assert state.mode == MODE_COMPOSE
+	assert state.compose["subject"] == "reopen me"
+	assert state.compose["to"] == "acme.reviewer"
+
+
+def test_a_successful_send_clears_only_the_committed_draft(env, tmp_path):
+	"""Acceptance 4, second half."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	# Two drafts: one to send, one to leave alone.
+	for subject in ("keep me", "send me"):
+		_press(state, store, ord("n"))
+		_press(state, store, _pick(state, "acme.reviewer"))
+		for char in subject:
+			_press(state, store, ord(char))
+		_press(state, store, K.ESC)
+	state.refresh(store)
+	assert len(_draft_rows(state)) == 2
+	target = [r for r in _draft_rows(state) if r["draft"]["subject"] == "send me"][0]
+	state.cursor = state.rows.index(target)
+	_press(state, store, K.ENTER_LF)
+	assert _send(state, store) is True
+	state.refresh(store)
+	remaining = [r["draft"]["subject"] for r in _draft_rows(state)]
+	assert remaining == ["keep me"]
+
+
+def test_a_refused_send_retains_the_draft_unchanged(env, tmp_path):
+	"""Acceptance 4, first half. The refusal is the case the retention exists
+	for: losing the words because the authority said no would be the same harm
+	as losing them to Esc."""
+	from baton_core import BatonError
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "refused":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+	state.cursor = state.rows.index(_draft_rows(state)[0])
+	_press(state, store, K.ENTER_LF)
+
+	def refuse(*_args, **_kwargs):
+		raise BatonError("the authority said no")
+
+	store.send = refuse
+	_send(state, store)
+	state.refresh(store)
+	rows = _draft_rows(state)
+	assert len(rows) == 1, "a refused send discarded the draft"
+	assert rows[0]["draft"]["subject"] == "refused"
+
+
+@pytest.mark.parametrize("answer", [ord("n"), ord("N"), K.ENTER_LF, K.ESC])
+def test_declining_the_discard_keeps_the_draft(env, tmp_path, answer):
+	"""Acceptance 5. Enter counts as NO, which is the opposite of everywhere
+	else on this console and is the point: a confirmation whose default is
+	destructive is a slower way of not asking."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "keep":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+	state.cursor = state.rows.index(_draft_rows(state)[0])
+	_press(state, store, ord("D"))
+	_press(state, store, answer)
+	state.refresh(store)
+	assert len(_draft_rows(state)) == 1
+
+
+def test_confirming_discards_only_the_selected_draft(env, tmp_path):
+	"""Acceptance 6."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	for subject in ("keep me", "discard me"):
+		_press(state, store, ord("n"))
+		_press(state, store, _pick(state, "acme.reviewer"))
+		for char in subject:
+			_press(state, store, ord(char))
+		_press(state, store, K.ESC)
+	state.refresh(store)
+	target = [r for r in _draft_rows(state) if r["draft"]["subject"] == "discard me"][0]
+	state.cursor = state.rows.index(target)
+	_press(state, store, ord("D"))
+	_press(state, store, ord("y"))
+	state.refresh(store)
+	assert [r["draft"]["subject"] for r in _draft_rows(state)] == ["keep me"]
+	# And it is gone from disk too, not only from this session.
+	restarted = _with_drafts(store, tmp_path)
+	assert [r["draft"]["subject"] for r in _draft_rows(restarted)] == ["keep me"]
+
+
+def test_uppercase_D_on_a_message_destroys_nothing(env, tmp_path):
+	"""Acceptance 7. A key that is destructive on one row type and harmless on
+	another is only safe if the harmless case is genuinely silent about
+	destruction -- no confirmation to decline, no state change."""
+	from baton_tui.state import MODE_BROWSE
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	before = len(state.rows)
+	_press(state, store, ord("D"))
+	assert state.mode == MODE_BROWSE, "D armed a confirmation on a message"
+	state.refresh(store)
+	assert len(state.rows) == before
+	assert store.conn.execute(
+		"SELECT COUNT(*) FROM dispositions").fetchone()[0] == 0
+
+
+def test_retaining_a_draft_touches_no_authority_state(env, tmp_path):
+	"""Ruled: retaining or previewing a draft publishes nothing, claims
+	nothing, closes nothing, marks no notice seen and creates no audit."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	before = {table: store.conn.execute(
+		f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+		for table in ("messages", "claims", "dispositions", "notice_seen",
+		              "transitions")}
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "local only":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+	state.cursor = state.rows.index(_draft_rows(state)[0])
+	_press(state, store, K.ENTER_LF)
+	_press(state, store, K.ESC)
+	after = {table: store.conn.execute(
+		f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+		for table in before}
+	assert after == before
+
+
+def test_highlighting_a_draft_does_not_reopen_it(env, tmp_path):
+	"""Found on the PACKAGED console, and it made `D` unusable.
+
+	Claim-on-highlight dropped the human straight into the editor when they
+	moved onto a draft row, so pressing `D` typed a capital D into the subject
+	instead of asking to discard. There was no way to select a draft in order
+	to discard it.
+
+	Claim-on-highlight exists to take ownership of someone else's work. A
+	draft is already yours; there is nothing to take. `Enter` reopens it."""
+	from baton_tui.state import MODE_BROWSE
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "not reopened":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+	state.cursor = state.rows.index(_draft_rows(state)[0])
+	state.select_row(store)
+	assert state.mode == MODE_BROWSE, "highlighting a draft reopened it"
+	# And `D` therefore reaches the discard confirmation rather than a field.
+	_press(state, store, ord("D"))
+	from baton_tui.state import MODE_CONFIRM_DISCARD
+	assert state.mode == MODE_CONFIRM_DISCARD
+
+
+def _compose(state, store, subject, recipient="acme.reviewer"):
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, recipient))
+	for char in subject:
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	state.refresh(store)
+
+
+def test_a_restart_never_overwrites_an_older_draft(env, tmp_path):
+	"""R1, and it was silent data loss.
+
+	`draft_serial` starts at zero in every state, so the first fresh
+	composition after a restart was handed `compose:new:1` again -- and the
+	updater treated it as the loaded draft of that name and replaced it. The
+	older draft vanished with no error and no confirmation."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_compose(state, store, "first")
+	_compose(state, store, "second")
+	assert sorted(r["draft"]["subject"] for r in _draft_rows(state)) == \
+		["first", "second"]
+
+	restarted = _with_drafts(store, tmp_path)
+	_compose(restarted, store, "third")
+	subjects = sorted(r["draft"]["subject"] for r in _draft_rows(restarted))
+	assert subjects == ["first", "second", "third"], \
+		"a restart overwrote an older draft"
+	ids = [r["draft"]["id"] for r in _draft_rows(restarted)]
+	assert len(set(ids)) == len(ids), "ids collided across the restart"
+
+	# And it holds across a SECOND restart, where the serial has to advance
+	# past two reserved values rather than one.
+	again = _with_drafts(store, tmp_path)
+	_compose(again, store, "fourth")
+	assert sorted(r["draft"]["subject"] for r in _draft_rows(again)) == \
+		["first", "fourth", "second", "third"]
+
+
+def test_the_whole_authoring_state_survives_the_restart_that_adds_a_draft(env, tmp_path):
+	"""The R1 fix must not merely keep the ROW -- it must keep the content."""
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_compose(state, store, "keep every field")
+	before = _draft_rows(state)[0]["draft"]
+	restarted = _with_drafts(store, tmp_path)
+	_compose(restarted, store, "newcomer")
+	after = [r["draft"] for r in _draft_rows(restarted)
+	         if r["draft"]["subject"] == "keep every field"][0]
+	assert after == before, "the surviving draft was altered"
+
+
+def test_a_reply_draft_can_be_sent_after_a_restart(env, tmp_path):
+	"""R2. The claim was still active in the authority and the console could
+	not see it: `send_reply` resolves its target through the OPENED row, and
+	a restart left that unset. The draft was recoverable and unsendable."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	_press(state, store, ord("R"))
+	for char in "answered later":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	assert state.unresolved_count() == 1, "the claim should still be held"
+
+	restarted = _with_drafts(store, tmp_path)
+	restarted.cursor = restarted.rows.index(_draft_rows(restarted)[0])
+	_press(restarted, store, K.ENTER_LF)
+	assert _send(restarted, store) is True
+	assert restarted.unresolved_count() == 0, \
+		"the restarted reply did not resolve its claim"
+	answers = [m for m in store.list_messages("acme.reviewer")
+	           if m["from_participant"] == "acme.implementer"]
+	# The quick reply SEEDS the inherited subject and the typing is appended
+	# to it, which is the existing reply behaviour and not what this pins.
+	assert len(answers) == 1
+	assert answers[0]["subject"].endswith("answered later")
+
+
+def test_a_restarted_reply_is_not_redirected_by_the_cursor(env, tmp_path):
+	"""It answers what it was written against, never what is highlighted. That
+	is the wrong-target bug this console has already had once."""
+	store = env
+	for subject in ("first", "second"):
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject=subject, body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	answered = state.selected["id"]
+	_press(state, store, K.ENTER_LF)
+	_press(state, store, ord("R"))
+	for char in "for the first":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+
+	restarted = _with_drafts(store, tmp_path)
+	restarted.cursor = restarted.rows.index(_draft_rows(restarted)[0])
+	_press(restarted, store, K.ENTER_LF)
+	assert restarted.opened["id"] == answered
+	# Moving the cursor afterwards must not move the target.
+	_press(restarted, store, ord("j"))
+	_press(restarted, store, ord("j"))
+	assert restarted.opened["id"] == answered
+
+
+def test_a_reply_whose_claim_went_terminal_refuses_visibly_and_keeps_the_draft(
+		env, tmp_path):
+	"""It must not silently become an unrelated new message."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	claim_id = state.opened["claim_id"]
+	_press(state, store, ord("R"))
+	for char in "too late":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	# The claim goes terminal behind the console's back.
+	store.close_claim(claim_id, participant="acme.implementer", outcome="closed")
+
+	restarted = _with_drafts(store, tmp_path)
+	restarted.cursor = restarted.rows.index(_draft_rows(restarted)[0])
+	_press(restarted, store, K.ENTER_LF)
+	assert restarted.opened is None, "it reattached to a resolved claim"
+	assert "no longer held" in restarted.status
+	restarted.refresh(store)
+	kept = [r["draft"]["subject"] for r in _draft_rows(restarted)]
+	assert len(kept) == 1 and kept[0].endswith("too late"), kept
+
+
+def test_a_send_whose_draft_cleanup_fails_says_so(env, tmp_path):
+	"""R5. The message WENT, so reporting a failed send would be false and
+	would invite a retry that publishes a second copy. But a clean success is
+	false too: the draft is still on disk and a restart would offer it for
+	resending."""
+	from baton_tui.drafts import DraftError
+	store = env
+	state = _with_drafts(store, tmp_path)
+	_compose(state, store, "cleanup fails")
+	state.cursor = state.rows.index(_draft_rows(state)[0])
+	_press(state, store, K.ENTER_LF)
+
+	def explode():
+		raise DraftError("No space left on device")
+
+	state._persist_drafts = explode
+	assert _send(state, store) is True
+	# The send SUCCEEDED.
+	sent = [m for m in store.list_messages("acme.reviewer")
+	        if m["from_participant"] == "acme.implementer"]
+	assert [m["subject"] for m in sent] == ["cleanup fails"]
+	# And the console said what did not happen.
+	assert "could not be cleared" in state.status
+	assert "D" in state.status, "the human is not told how to remove it"
+	# Nothing in THIS session can resend it.
+	assert _draft_rows(state) == []
+
+
+def test_a_terminal_reply_draft_refuses_the_SEND_and_says_why(env, tmp_path):
+	"""RR2, and the SEND is what is exercised — reopening alone proved
+	nothing.
+
+	The reopen said "this will go as a follow-up" and then left the state in
+	reply mode with no claim, where `send_reply` cannot follow up at all.
+	Pressing send returned nothing and reported an EMPTY reply for a draft
+	that was not empty: two false statements in a row about the same draft."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	claim_id = state.opened["claim_id"]
+	_press(state, store, ord("R"))
+	for char in "written anyway":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	store.close_claim(claim_id, participant="acme.implementer", outcome="closed")
+
+	restarted = _with_drafts(store, tmp_path)
+	restarted.cursor = restarted.rows.index(_draft_rows(restarted)[0])
+	_press(restarted, store, K.ENTER_LF)
+	# THE SEND, not the reopen.
+	_send(restarted, store)
+	assert "no longer held" in restarted.status, restarted.status
+	assert "empty" not in restarted.status.lower(), \
+		"a non-empty draft was called empty"
+	assert "D discards it" in restarted.status, \
+		"the human is not told the draft survived"
+	# Nothing was published, and the draft is still there.
+	assert [m for m in store.list_messages("acme.reviewer")
+	        if m["from_participant"] == "acme.implementer"] == []
+	restarted.refresh(store)
+	assert len(_draft_rows(restarted)) == 1
+
+
+def test_a_fresh_reply_is_not_blocked_by_an_earlier_terminal_one(env, tmp_path):
+	"""The block is per-draft state and must not leak into the next reply."""
+	store = env
+	for subject in ("first", "second"):
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject=subject, body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	claim_id = state.opened["claim_id"] if state.opened else None
+	_press(state, store, K.ENTER_LF)
+	claim_id = state.opened["claim_id"]
+	_press(state, store, ord("R"))
+	for char in "stale":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+	store.close_claim(claim_id, participant="acme.implementer", outcome="closed")
+	restarted = _with_drafts(store, tmp_path)
+	restarted.cursor = restarted.rows.index(_draft_rows(restarted)[0])
+	_press(restarted, store, K.ENTER_LF)
+	_send(restarted, store)
+	assert "no longer held" in restarted.status
+
+	# Back out of the blocked reply -- which retains it again, unchanged --
+	# and start a genuinely fresh one on the other message.
+	_press(restarted, store, K.ESC)
+	restarted.refresh(store)
+	restarted.cursor = [i for i, r in enumerate(restarted.rows)
+	                    if r["row_type"] == "message"
+	                    and r.get("state") == "pending"][0]
+	restarted.select_row(store)
+	_press(restarted, store, K.ENTER_LF)
+	_press(restarted, store, ord("R"))
+	for char in "fresh":
+		_press(restarted, store, ord(char))
+	assert _send(restarted, store) is True
+	assert "no longer held" not in restarted.status, restarted.status
+
+
+def test_a_reply_whose_message_is_gone_refuses_the_send_the_same_way(env, tmp_path):
+	"""The sibling of the terminal-claim branch, and it had the identical
+	fault: a status but no blocked state, so the send fell through and called
+	a non-empty draft empty.
+
+	Both branches of the reattachment now refuse the same way, which is the
+	point -- fixing one and not the other is how a class of bug survives its
+	own review."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _with_drafts(store, tmp_path)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	_press(state, store, ord("R"))
+	for char in "orphaned":
+		_press(state, store, ord(char))
+	_press(state, store, K.ESC)
+
+	# Reopen against a list that no longer contains the answered message: the
+	# draft file is the same, the mailbox this console sees is not.
+	restarted = _with_drafts(store, tmp_path)
+	restarted.rows = [row for row in restarted.rows
+	                  if row["row_type"] != "message"]
+	restarted.cursor = 0
+	_press(restarted, store, K.ENTER_LF)
+	_send(restarted, store)
+	assert "no longer listed" in restarted.status, restarted.status
+	assert "empty" not in restarted.status.lower(), \
+		"a non-empty draft was called empty"
+	assert "D discards it" in restarted.status
+	assert [m for m in store.list_messages("acme.reviewer")
+	        if m["from_participant"] == "acme.implementer"] == []
+
+
+def test_the_opened_detail_follows_the_poll_for_the_same_row(env, tmp_path):
+	"""Slawomir's packaged trial: the list glyph moved and the detail kept
+	saying the old `State:`, so the two panes contradicted each other about
+	the same message until the human navigated away and back.
+
+	Both panes must render ONE authority snapshot after a refresh."""
+	from baton_tui.state import VIEW_SENT
+	store = env
+	# The REPORTED case: my own outbound copy, whose state moves when the
+	# other participant acts. My own inbound claim going terminal is a
+	# different path -- `_revalidate_action_target` drops the opened delivery
+	# there, which is correct and leaves nothing to synchronise.
+	store.send("acme.implementer", "acme.reviewer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _ready(store)
+	state.select_view(VIEW_SENT)
+	state.select_row(store)
+	envelope = state.detail["sent"]
+	assert envelope["state"] == "pending"
+
+	# The recipient picks it up. Only the POLL sees it.
+	store.claim("acme.reviewer")
+	state.refresh(store)
+
+	assert state.detail["sent"]["state"] != "pending", \
+		"the detail pane is still showing the pre-refresh state"
+	row = [r for r in state.sent_rows if r["id"] == state.detail_row[1]][0]
+	assert state.detail["sent"]["state"] == row["state"], \
+		"the list and the detail disagree about the same message"
+
+
+def test_the_sync_reads_nothing_from_the_authority(env, tmp_path):
+	"""Polling stays observational. Metadata comes from rows `refresh`
+	already fetched -- a notice delivered at-most-once must not be requested
+	again, and an external or damaged part must not cross an authorization
+	boundary because a timer fired."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _ready(store)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+
+	def explode(*_args, **_kwargs):
+		raise AssertionError("the detail sync called the authority")
+
+	for name in ("open_received", "open_sent", "claim", "see", "materialize"):
+		if hasattr(store, name):
+			setattr(store, name, explode)
+	state._sync_detail_metadata()
+
+
+def test_the_sync_never_replaces_content(env, tmp_path):
+	"""Metadata only. Re-delivering bytes to update a state word would be a
+	second delivery of something the protocol promises once."""
+	from baton_tui.state import VIEW_SENT
+	store = env
+	store.send("acme.implementer", "acme.reviewer", kind="q", subject="Ask",
+	           body=b"the original bytes\n")
+	state = _ready(store)
+	state.select_view(VIEW_SENT)
+	state.select_row(store)
+	before = json.dumps(state.detail["sent"].get("content"), sort_keys=True)
+	store.claim("acme.reviewer")
+	state.refresh(store)
+	after = json.dumps(state.detail["sent"].get("content"), sort_keys=True)
+	assert after == before, "the sync touched the delivered content"
+
+
+def test_the_sync_preserves_what_the_human_was_looking_at(env, tmp_path):
+	"""Offsets, part selection and focus survive. A metadata update that
+	scrolled the pane would be its own defect."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"line\n" * 200)
+	state = _ready(store)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	state.detail_offset = 7
+	state.part_cursor = 0
+	focus_before = state.focus
+	store.close_claim(state.opened["claim_id"], participant="acme.implementer",
+	                  outcome="done")
+	state.refresh(store)
+	assert state.detail_offset == 7
+	assert state.part_cursor == 0
+	assert state.focus == focus_before
+
+
+def test_a_vanished_row_does_not_capture_the_open_detail(env, tmp_path):
+	"""BY IDENTITY, never by index. Attaching the detail to whatever now sits
+	at the old position is the wrong-target bug in its quietest form."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="First",
+	           body=b"?\n")
+	state = _ready(store)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	opened_id = state.detail_row[1]
+	before = dict(state.detail["delivery"]["message"])
+	# The opened row is no longer in the list, and a DIFFERENT row occupies it.
+	state.rows = [{"row_type": "message", "id": "a-different-message",
+	               "state": "completed", "outcome": "done", "depth": 0,
+	               "damaged": False, "to_participant": "acme.implementer",
+	               "from_participant": "acme.reviewer", "created_ts": None}]
+	state._sync_detail_metadata()
+	assert state.detail["delivery"]["message"] == before, \
+		"the detail took metadata from a different message"
+	assert state.detail_row[1] == opened_id
+
+
+def test_every_opened_detail_shape_can_be_synchronised(env, tmp_path):
+	"""The gap that got past the first fix: `sent_notice` was not in the list
+	of envelope keys, so an authored broadcast kept a stale `Seen by:` while
+	the Sent list counted correctly.
+
+	Enumerated against the RENDERER rather than against memory — the keys the
+	detail pane can draw are exactly the keys that can go stale, so the two
+	lists must not be maintained separately."""
+	import re
+	from pathlib import Path
+	from baton_tui.state import InboxState
+	source = Path(__file__).resolve().parent.joinpath(
+		"baton_tui", "render.py").read_text()
+	drawn = set(re.findall(r'"(\w+)" in detail', source))
+	state = InboxState("acme.implementer")
+	handled = set()
+	for key in drawn:
+		# `delivery` nests its envelope under "message"; the others are the
+		# envelope. Probing both shapes rather than assuming one, because
+		# assuming is what left `sent_notice` out in the first place.
+		for probe in ({key: {"state": "x"}},
+		              {key: {"message": {"state": "x"}}}):
+			state.detail = probe
+			if state._opened_envelope() is not None:
+				handled.add(key)
+				break
+	# Previews are legitimately unhandled: they are rebuilt from the row on
+	# every draw and cannot fall behind.
+	previews = {"preview", "sent_row", "history_row"}
+	missed = drawn - handled - previews
+	assert missed == set(), f"detail shapes that can go stale: {missed}"
+
+
+def test_an_authored_notice_seen_count_follows_the_poll(env, tmp_path):
+	"""`Seen by:` is the one lifecycle number an author watches, and it was
+	the one going stale."""
+	from baton_tui.state import VIEW_SENT
+	store = env
+	store.send_notice("acme.implementer", kind="fyi", subject="Broadcast",
+	                  body=b"news\n", ttl_seconds=3600)
+	state = _ready(store)
+	state.select_view(VIEW_SENT)
+	state.select_row(store)
+	_press(state, store, K.ENTER_LF)
+	envelope = state.detail.get("sent_notice") or state.detail.get("sent")
+	assert envelope is not None, list(state.detail)
+	before = envelope.get("seen_count", 0)
+
+	store.see("acme.reviewer")
+	state.refresh(store)
+
+	after = (state.detail.get("sent_notice") or state.detail.get("sent"))
+	assert after.get("seen_count", 0) != before, \
+		"the authored notice's seen count did not follow the poll"
+	row = [r for r in state.sent_rows if r["id"] == state.detail_row[1]][0]
+	assert after.get("seen_count") == row.get("seen_count")
+
+
+def test_a_failed_sent_refresh_cannot_overwrite_a_fresh_state(env, tmp_path):
+	"""The hazard introduced by applying sent rows LAST.
+
+	`_refresh_sent` keeps its previous rows when the authority call fails --
+	stale-but-labelled, which is the console's rule. But the sync applied
+	those retained rows after the primary list, so a partial failure turned a
+	correct fresh state into a WRONG one. Stale is acceptable; silently wrong
+	is not."""
+	from baton_tui.state import VIEW_SENT
+	store = env
+	store.send("acme.implementer", "acme.reviewer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _ready(store)
+	state.select_view(VIEW_SENT)
+	state.select_row(store)
+	assert state.detail["sent"]["state"] == "pending"
+
+	# The outbound listing starts failing FIRST, so the cache freezes at
+	# `pending`. Then the recipient acts. The primary list still refreshes and
+	# is correct; only the sent cache is behind.
+	def explode(*_args, **_kwargs):
+		raise BatonError("the authority is busy")
+
+	store.list_sent = explode
+	store.claim("acme.reviewer")
+	state.refresh(store)
+
+	assert state.sent_rows_fresh is False
+	cached = [r for r in state.sent_rows if r["id"] == state.detail_row[1]]
+	assert cached and cached[0]["state"] == "pending", \
+		"the cache is not actually stale; this test proves nothing"
+	primary = [r for r in state.rows if r["id"] == state.detail_row[1]]
+	assert primary and primary[0]["state"] != "pending", \
+		"the primary list did not refresh; this test proves nothing"
+	assert state.detail["sent"]["state"] == primary[0]["state"], \
+		"a stale sent cache overwrote a state the poll had already corrected"

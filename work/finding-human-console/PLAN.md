@@ -222,7 +222,8 @@ source tree that passes is not a candidate until it is built, and any artifact
 older than the latest correction must not be put in front of him as though it
 were.
 
-The screenshot is done; he captured it himself after the trial.
+The screenshot was captured after the earlier trial, but is stale again after
+the ruled header simplification. A fresh real-terminal capture is outstanding.
 
 #### Historical — the pre-trial approval
 
@@ -261,7 +262,7 @@ arrives, apply the correction — do not invent a remedy on top of it.
 | Tab toggles focus between LIST and DETAIL (ruled) | done/pinned |
 | Vim navigation routed through focus (ruled) | done/pinned |
 | Uppercase `J`/`K` detail scroll SUPERSEDED and removed (ruled) | done/pinned |
-| `> MESSAGES`/`> SENT` and `> DETAIL` ASCII focus labels (ruled) | done/pinned |
+| Count-leading `Messages:`/`Sent:` header, label-free detail rule, exactly one `> ` focus marker (supersedes pane labels) | done/pinned |
 | Context-sensitive action legend (ruled) | done/pinned |
 | ONE affordance source driving dispatch AND the legend (ruled) | done/pinned |
 | `h`/`l` scroll DETAIL sideways; `[`/`]` own parts (ruled) | done/pinned |
@@ -272,13 +273,16 @@ action target, both offsets, selected part, draft and status. `i`/`o` return
 focus to the list. `h`/`l` and `[`/`]` are explicitly NOT broadened in this
 slice.
 
-The focus value is LIST, not literally MESSAGES: the top marker follows the
-ACTIVE list label, so it reads `> MESSAGES` in the primary view and `> SENT`
-in the Sent filter. Only the named navigation keys route through focus —
-Enter, `r`, `R`, `c`, `h`, `l`, `v`, `m` keep their existing semantics, and
-focus is NOT a new action target: the selected/opened item remains the target
-model. The detail label interrupts the edge-to-edge rule, which this ruling
-supersedes so focus is visible.
+The focus value is LIST, not literally Messages: the top marker follows the
+active view's count-leading header, so it reads `> Messages: ...` in the
+primary view and `> Sent: ...` in the read-only filter. Detail focus puts the
+same one leading marker on an otherwise label-free, full-width rule. The
+participant identity sits at the rule's right edge only when it fits whole,
+with one trailing rule cell protecting its final character from terminals
+that decline to draw the last cell of a full-width row. Only the named
+navigation keys route through focus — Enter, `r`, `R`, `c`, `h`, `l`, `v`,
+`m` keep their existing semantics — and focus is NOT a new action target: the
+selected/opened item remains the target model.
 
 ### Reopened by the live trial — a second UX round
 
@@ -313,7 +317,7 @@ claim a different row.
 
 | Item | State |
 |---|---|
-| Fresh README screenshot (`assets/artwork/baton-tui.png`) | done — Slawomir captured it after the trial |
+| Fresh README screenshot (`assets/artwork/baton-tui.png`) | reopened — header simplification made the prior capture stale; new human capture outstanding |
 | Trial: a successful send returns focus to the LIST | done/pinned |
 | Trial: an empty body row advertises `Ctrl+e to edit` | done/pinned |
 | Trial: attachments choose a root, then a relative path | done/pinned |
@@ -322,15 +326,12 @@ claim a different row.
 | Trial: Ctrl chords lower-case, case implies Shift | done/pinned |
 | Staging and the commit | Slawomir's alone |
 
-The screenshot is CURRENT. Slawomir captured it from his own terminal after
-the trial, and it shows the stacked layout, the one-cell obligation glyphs,
-threaded replies and the single status row. The README no longer carries the
-stale-image warning, because there is nothing stale about it.
-
-(It was stale in three ways — side-by-side columns, oldest-first order, flat
-replies — and no agent could close it, because the capture had to come from a
-real terminal. That is the record of why it stayed open, not a current
-warning.)
+The checked-in screenshot is STALE. Slawomir captured it from his own terminal
+after the earlier trial, but the ruled header simplification subsequently
+removed the identity and bracketed all-caps label from the top line, removed
+the `DETAIL` label, and moved the identity to the lower rule. A new human
+terminal capture is required; no agent may mark this row done by approximating
+or generating one.
 
 The tree is prepared and verified; `git diff --check` is clean, the full suite
 passes, and the frozen CLI artifact, manifest, oracle and builder are

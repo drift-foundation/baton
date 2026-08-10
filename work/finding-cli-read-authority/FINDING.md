@@ -90,6 +90,43 @@ participant has already seen — not a protocol one.
 Filed rather than worked around: the temptation was to read the body out of
 `mailbox.sqlite3`, and that is the exact move this finding exists to forbid.
 
+## Live recurrence — truncation made the missing reread path operational
+
+On 2026-08-10 Slawomir published the status notice “I need status before we
+consider this round ready for commit.” The implementer's `wait` correctly
+recorded the at-most-once receipt, but her agent/terminal presentation
+truncated the delivered text. A second `see` could not return it because the
+receipt already existed. She recovered the body through `dump` plus an ad-hoc
+formatter.
+
+That recovery is exactly the privileged workaround this finding says must not
+become normal operation. Nothing was corrupt and the receipt rule worked as
+implemented; the product gap is that receipt-at-most-once is still conflated
+with party-authorized reread.
+
+This recurrence sharpens the required contract:
+
+- delivery/receipt remains at most once and retry-idempotent;
+- a participant in the immutable publication-time audience may read retained
+  notice content again without creating another receipt, claim, disposition,
+  or delivery event;
+- the author may read their own retained outbound notice;
+- a non-party learns nothing from the read surface;
+- the read is an ordinary supported CLI/core operation, not `dump`, raw SQL,
+  or a reconstruction script;
+- scan/history may say content is available for reread without embedding all
+  bytes in every listing.
+
+Merely offering to save the first delivery is not sufficient: process output
+can truncate before a human or agent has a chance to choose a destination, and
+a crash can erase an in-memory copy. The authority already retains the bytes;
+the missing piece is a correctly authorized reread.
+
+Authorization must be designed after protocol 10's scoped and multi-recipient
+audiences, because that immutable audience snapshot defines who is a party.
+Therefore this recurrence raises the priority and acceptance evidence but does
+not belong in the current protocol-9 commit.
+
 ## The convention, which does not need any of the above
 
 Verifying what you published is right; how it was verified was not. The

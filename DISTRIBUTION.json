@@ -1,12 +1,12 @@
 {
   "artifact": "bin/baton",
-  "artifact_sha256": "89932cefdaf3c135b85bcb0d7ea616169e66b8222fe2a5c7d1479340832055a7",
+  "artifact_sha256": "69a4c5d52065726fd9172b46db4018d67d659075630391acf3dd554f532d4082",
   "protocol_doc": "AGENTS-MAILBOX-PROTO.md",
-  "protocol_doc_sha256": "d1421d073793f034f15a7be160c3fa33e633df34621e0bb3f88f359246119d94",
+  "protocol_doc_sha256": "980c731fb76b584976002b2eddd733fe372a6b8c07f7dee174a6a46b51a29238",
   "protocol_version": 9,
   "python_min": "3.11",
-  "source_sha256": "613fa95442e83e9e607628ef9b56f2cd0924f6eb4fb81e2482754cdb34de3986",
+  "source_sha256": "145016d462f84629bdaadbd59e3e8799add0303fb2d159fd46027915f073f8a7",
   "sqlite_min": "3.37.0",
   "tool": "baton",
-  "tool_version": "5.1.0"
+  "tool_version": "5.2.0"
 }

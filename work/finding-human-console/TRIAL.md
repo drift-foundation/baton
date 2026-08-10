@@ -2388,22 +2388,24 @@ on the NOTICE row and takes no claim, because broadcasts stay explicit; moving
 down to the directed row claims it, and the badge changes to `*` on the same
 keystroke.
 
-Human-only item outstanding: `assets/artwork/baton-tui.png` still shows the
-superseded side-by-side layout. It needs a capture from a real terminal and
-cannot be produced here. The README says so in place.
-
-### The screenshot
+### The screenshot — stale again after header simplification
 
 Slawomir replaced `assets/artwork/baton-tui.png` from his own terminal after
-the trial. It shows the current console and nothing superseded: the stacked
-layout, `human.slawomir  MESSAGES  [53 retained, 1 awaiting your reply/close]`
-with no product label, one-cell status glyphs (`R`, `C`, `*`, `✓`) in a fixed
-column, threaded replies under their parents, the `> DETAIL` focus marker, a
-part header carrying the part name, and a single status row reading
-`[!] claimed — reply or close is now owed`.
+the earlier trial. That capture was authoritative for its candidate, but a
+later ruled change made it stale again: the top line now begins
+`Messages: N retained, M awaiting your reply/close` (with the one focus marker
+when focused), the lower rule has no `DETAIL` label, and the participant
+identity moved to the right side of that rule.
 
-The README's callout saying the image was stale has been removed, because it
-no longer is. Nothing about the image was generated or approximated here.
+The rule deliberately carries one divider cell after the identity. A packaged
+terminal may decline to draw the rightmost cell of a full-width row; without
+that shield it drew `acme.implemente`, a different and nonexistent participant
+address. At narrow widths the identity disappears whole rather than becoming
+a lie.
+
+A fresh capture from a real terminal is outstanding and cannot be produced by
+an agent. The existing image remains historical evidence of the earlier
+candidate, not a depiction of the current UI.
 
     sha256  38b99ab92c99e430ffc3b31cfc226e68ce83428327683e868460d8e12a47539f
     bytes   237235

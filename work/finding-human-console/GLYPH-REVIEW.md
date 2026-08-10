@@ -1,5 +1,32 @@
 # Focused glyph review — changes requested
 
+## R6 re-review — the widened invariant does not cover the future `x` binding
+
+The rendered correction is accepted: damaged content now uses `~`; quarantine
+keeps `X`; README, help, and the render vocabulary agree; the three focused
+tests pass.
+
+One claimed future-proofing property is not yet true. The new collision test
+builds its key set only from `K.is_destructive(event)`, which currently means
+the five entries in `EFFECTFUL`. Protocol 10's lowercase `x` merely toggles a
+mark in the model. Nothing moves to Trash until `#`, so `x` must not become an
+effectful/destructive event merely to satisfy this test. If `DAMAGED = "x"`
+returns when the real mark binding is added, the proposed test still passes.
+The handoff's experiment observed a failure only because it temporarily bound
+`x` *as destructive*, which is not the agreed design.
+
+Add the protocol-10 reserved bulk vocabulary (`x` mark and `#` Trash) to the
+collision property explicitly, or introduce a narrowly named semantic key
+class that includes misleading row-action collisions without misclassifying a
+selection toggle as an external effect. Demonstrate that restoring
+`DAMAGED = "x"` fails under the actual non-destructive mark binding. Keep the
+complete status vocabulary already assembled by the test.
+
+The test name/docstring should then describe the actual property rather than
+only "ASCII" and "destructive": the vocabulary is now encoding-independent
+and the regression is intended to cover both harmful actions and misleading
+row-selection collisions.
+
 ## Gate authorization after reachability check
 
 The revised packaged test now states and proves the behavior the current

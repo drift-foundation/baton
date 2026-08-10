@@ -116,6 +116,15 @@ section from turning into a wish list. Anything Baton actually enforces is not
 a convention; it belongs in the protocol sections above, where a reader can
 expect the authority to back it up.
 
+**A convenience that checks its input is not enforcement.** A convention here
+may have a CLI option that helps you follow it, and that option may be strict
+about what it accepts. What makes the practice a convention is that nothing
+requires you to reach for it: the message is conformant without it, and the
+general authoring surface will publish the same leaf unchecked. Reaching for
+the convenience is a request to be checked. That is the difference between a
+convenience and an alias, and it is why a strict option can sit under a
+heading that says "not enforced" without contradicting it.
+
 ### File references travel as their own part
 
 When a message refers to or discusses repository files or changes, carry a
@@ -123,8 +132,11 @@ REFERENCES leaf in its multipart content.
 
     content type   text/vnd.baton.references; charset=utf-8
     disposition    inline
-    content        one repository-relative POSIX path per line, ordered by
+    content        one ROOT_ID:RELATIVE/POSIX/PATH per line, ordered by
                    first material mention
+
+    source:baton_core/_impl.py
+    source:README.md
 
 Paths here are NAVIGATIONAL METADATA: they say where to look. They are not
 copied content and not hash pins. When the sender means "this exact evidence,
@@ -132,19 +144,47 @@ immutable", that is an EXTERNAL part, which carries a hash and fails closed
 when the bytes change. Those are different promises and should not be
 confused -- and that distinction IS enforced, by the manifest.
 
-Recommended: no absolute paths, `..`, home expansion, or host-specific roots.
-A reference that resolves on only one machine is not a reference. For
-references spanning repositories, identify the repository unambiguously and
-group paths under it, using the smallest stable representation available.
+THE ROOT IDENTIFIER IS PART OF THE ADDRESS. One authority may coordinate
+several repositories, so a bare `README.md` does not say which repository owns
+it, and a reference that resolves on only one machine is not a reference. Root
+IDs are the same ones an external part uses, and follow the same grammar.
+
+The alignment of the two addresses does not collapse their meanings. An
+external part resolves the root, reads the file, pins its bytes and may later
+fail verification; a reference reads nothing, pins nothing, and does not
+require the path to exist. One address vocabulary, two different promises.
+
+Recommended for the relative half: no leading `/`, `..`, home expansion,
+backslash separators, empty components, or edge whitespace.
 
 *If ignored:* the reader hunts for the file by hand, or asks. Nothing breaks.
 This is the weakest convention here and the most obviously optional.
 
-*Current authoring gap:* protocol 9 and `baton_core` store multiple inline
-leaves happily, but the released CLI exposes one inline `--body` plus external
-parts, so a CLI agent cannot author a references part today. The convention
-becomes routinely usable when the CLI gains a repeatable general-part
-authoring surface.
+*Authoring it:* `send`, `send-notice`, `reply` and `close` all take a
+repeatable `--references FILE`, which reads one `ROOT_ID:RELATIVE/PATH` per
+line. It validates the root against the authority's configured roots and
+refuses a relative half that cannot travel — a leading `/`, `..`, `~`, Windows
+separators — naming the offending line rather than quietly rewriting it. It
+reads nothing from the filesystem and does not require the paths to exist. The
+strictness is the convenience, not the convention: a sender who wants an
+unchecked references-typed leaf can author one through `--part` and get no
+checking at all.
+
+The same four verbs take a repeatable `--part DESCRIPTOR` for the general
+case:
+
+    --part 'source=notes.md&type=text/markdown;%20charset=utf-8'
+    --part 'source=q3.pdf&type=application/pdf&disposition=attachment&name=Q3.pdf'
+
+Fields are URL-query named, percent-decoded per RFC 3986, and split at the
+first `=` so a media type carrying its own `=` travels unencoded. `source` and
+`type` are required; `disposition` defaults to `inline`.
+
+Option order is leaf order, across all three content options — `--part`,
+`--references` and `--attach` interleave in the order they are written. That
+matters beyond presentation: leaf order is part of the manifest digest, and the
+manifest is what retry compares. At most one part may read standard input, and
+that collision is refused before anything is read.
 
 ### One live wait per active turn
 

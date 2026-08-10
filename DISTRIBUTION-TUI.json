@@ -1,12 +1,16 @@
 {
   "artifact": "bin/baton-tui",
-  "artifact_sha256": "3ef94453c3d7f64827f02b837413a33dce3960d447df3cdcf46aa94e8792b292",
+  "artifact_sha256": "4a17c213987205ec4d0d6dadc0830ccb56f2efc3ce47ce804d58d2fcbd2829c7",
   "core_api_version": 1,
   "members": [
     "__main__.py",
     "baton_core/__init__.py",
     "baton_core/_impl.py",
+    "baton_core/authoring.py",
+    "baton_core/cli.py",
+    "baton_core/references.py",
     "baton_tui/__init__.py",
+    "baton_tui/drafts.py",
     "baton_tui/driver.py",
     "baton_tui/editor.py",
     "baton_tui/keys.py",

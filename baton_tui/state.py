@@ -30,6 +30,9 @@ from __future__ import annotations
 
 from baton_core import BatonError, notice_delivery
 
+from .drafts import DraftError
+from . import drafts as draft_store
+
 MODE_BROWSE = "browse"
 MODE_REPLY = "reply"
 MODE_COMPOSE = "compose"          # new directed message
@@ -44,6 +47,10 @@ MODE_PICK_ROOT = "pick_root"
 # notice alike, and it remembers which one so declining returns to exactly the
 # draft and field the human left.
 MODE_CONFIRM_SEND = "confirm_send"
+# `Discard draft? y/N` -- one status line, default NO. Its own mode rather
+# than a flag, so every screen-splitting calculation sees it the way it sees
+# the other confirmations.
+MODE_CONFIRM_DISCARD = "confirm_discard"
 # The modal shortcut list. A VIEW, not status-bar prose: the whole map does not
 # fit on one row, and a console whose keys are only discoverable by reading its
 # source is a console with one user.
@@ -103,6 +110,11 @@ NOTICE_FIELDS = ("subject",)
 # then be whatever kind the sender happened to name.
 ROW_MESSAGE = "message"
 ROW_NOTICE = "notice"
+# A retained draft. NOT authority state: it has no message id, no claim, no
+# transitions, and it exists only in this participant's own local file. It
+# appears in the same list because that is where the human looks for work they
+# owe, and an unfinished message is work they owe themselves.
+ROW_DRAFT = "draft"
 
 # The one-line guidance for a row whose claim is resolved. An answered
 # conversation is NOT a dead end -- Slawomir's ruling -- so the console says
@@ -240,6 +252,28 @@ def list_top(row_count: int, pane_lines: int, top: int) -> int:
 	return max(0, min(top, max(0, row_count - list_capacity(row_count, pane_lines))))
 
 
+def _trimmed_subject(text: str | None) -> str | None:
+	"""The subject as the authority will accept it: edge whitespace removed.
+
+	Ruled, and ruled narrowly. The SHARED CORE and the agent CLI keep refusing
+	edge whitespace -- an agent sending `"  S  "` has a bug worth hearing
+	about, and silently accepting it would hide the bug and change retry
+	identity. The TUI is different: a human typing into a field trails a space
+	the way they trail a space in every other text box on their machine, and
+	answering that with a refusal at send time is the console failing to be a
+	console.
+
+	So this is a TUI-only courtesy applied at SEND, and it is the only place
+	that trims. Interior whitespace is untouched, because it is not ambiguous.
+	A subject that is nothing but whitespace becomes None -- the same as no
+	subject -- rather than an empty string the core would refuse.
+	"""
+	if text is None:
+		return None
+	trimmed = text.strip()
+	return trimmed or None
+
+
 class InboxState:
 	"""What the two panes show, and nothing about how they look."""
 
@@ -311,7 +345,23 @@ class InboxState:
 		# sending the subject line: they asked for a full reply and got an
 		# empty one, and quietly sending something else is not that message.
 		self.reply_body_requested = False
+		# Retained drafts, participant-local and never protocol state. Loaded
+		# by the driver at startup, because reading them needs the configured
+		# projection directory the driver supplies.
+		self.drafts: list[dict] = []
+		self.draft_id: str | None = None
+		self.discard_target: str | None = None
+		# Set when a committed draft could not be removed from disk. The send
+		# succeeded; the cleanup did not, and the human has to be told.
+		self.draft_cleanup_warning: str | None = None
+		# Set when a reopened reply has no claim left to answer. It is not an
+		# error state -- the draft is intact and reopened -- but sending is
+		# impossible and the console must say why rather than blame the draft.
+		self.reply_blocked: str | None = None
+		self.draft_serial = 0
 		self.sent_rows: list[dict] = []
+		# True only when the most recent poll actually listed outbound rows.
+		self.sent_rows_fresh = False
 		self.sent_cursor = 0
 		self.sent_top = 0
 		# Recipient picker state. Capacity comes from the renderer, which is
@@ -431,6 +481,19 @@ class InboxState:
 		# and a thread sorts by its newest member. `thread_rows` owns both
 		# orders and stamps each row's `depth`.
 		rows = thread_rows(rows)
+		# DRAFTS FIRST, above everything the authority knows about.
+		#
+		# They have no authority timestamp to sort by -- they were never
+		# published -- so any position among the dated rows would be invented.
+		# The top is also where they are useful: an unfinished message is the
+		# one row whose next action nobody else can take.
+		rows = [{"row_type": ROW_DRAFT, "id": draft["id"], "state": "draft",
+		         "subject": draft.get("subject") or "",
+		         "to_participant": draft.get("to") or "",
+		         "from_participant": self.participant,
+		         "created_ts": None, "depth": 0, "damaged": False,
+		         "draft": draft}
+		        for draft in self.drafts] + rows
 		# NOTHING is said about arrivals. The `N new: senders` line that used
 		# to be set here was mailbox state the header counts and the
 		# newest-first list already show -- a third copy, written by a timer,
@@ -457,7 +520,93 @@ class InboxState:
 		# an action target left pointing at a moved or vanished row is exactly
 		# how a reply reaches the wrong recipient.
 		self._revalidate_action_target()
+		self._sync_detail_metadata()
 		self._scroll_cursor_into_view()
+
+	# Lifecycle metadata the LIST already knows and the detail pane displays.
+	# Deliberately a short, explicit list rather than "everything in the row":
+	# copying wholesale would eventually drag a content-shaped field into an
+	# envelope the human is reading, which is the one thing this must not do.
+	_SYNCED_FIELDS = ("state", "outcome", "completed_ts", "responds_to",
+	                  "thread_id", "seen_count", "expires_ts", "damaged")
+
+	def _sync_detail_metadata(self) -> None:
+		"""Bring an OPENED detail's lifecycle metadata up to the poll.
+
+		The list and the detail were rendering two different authority
+		snapshots of the same row: `refresh` rebuilt the rows, the glyph moved,
+		and the envelope captured at open time kept saying `State: claimed`
+		until the human navigated away and back. Two panes contradicting each
+		other about the same message is worse than either being stale, because
+		neither one tells you which to believe.
+
+		METADATA ONLY. No content is re-read, re-requested or replaced: a
+		notice delivered at-most-once must not be asked for a second time, and
+		an external or damaged part must not cross an authorization boundary
+		because a poll ran. Nothing here calls the store at all -- it copies
+		from rows `refresh` has already fetched.
+
+		BY IDENTITY, never by index. If the opened row is gone from the list it
+		is LEFT ALONE: the existing unavailable behaviour is the honest answer,
+		and attaching the detail to whatever now occupies that position is the
+		wrong-target bug in its quietest form.
+		"""
+		if self.detail is None or self.detail_row is None:
+			return
+		envelope = self._opened_envelope()
+		if envelope is None:
+			return
+		kind, identity = self.detail_row
+		# BOTH LISTS. The reported case is an OUTBOUND row: the recipient
+		# claims it, the Sent list's glyph moves, and the opened copy keeps
+		# saying the old state. Sent rows live in `sent_rows`, which `refresh`
+		# rebuilds separately -- searching only `rows` would have fixed the
+		# case nobody reported and left the one Slawomir hit.
+		# EVERY matching row, not the first. A notice this participant
+		# AUTHORED appears twice: once in the inbox list, which carries no
+		# `seen_count`, and once in the Sent list, which does. Returning on
+		# the first match copied nothing useful and left `Seen by:` stale --
+		# the exact symptom, reached by a different route than the one that
+		# caused it.
+		#
+		# Sent rows are applied LAST so the author's own richer copy wins --
+		# and ONLY when this poll actually refreshed them. Applying a retained
+		# cache last would let a stale value overwrite a state the primary
+		# list just got right, which is worse than the staleness this fixes:
+		# stale-but-labelled is the console's rule, silently wrong is not.
+		outbound = list(self.sent_rows) if self.sent_rows_fresh else []
+		for row in list(self.rows) + outbound:
+			if row.get("id") != identity:
+				continue
+			if row.get("row_type") is not None and row["row_type"] != kind:
+				continue
+			for field in self._SYNCED_FIELDS:
+				if field in row:
+					envelope[field] = row[field]
+
+	def _opened_envelope(self) -> dict | None:
+		"""The dict whose fields the detail pane renders, or None for a
+		preview.
+
+		A PREVIEW is deliberately excluded: it is built from the row on every
+		draw, so it is never stale and has nothing to synchronize. Only an
+		opened envelope holds a snapshot that can fall behind.
+		"""
+		detail = self.detail or {}
+		delivery = detail.get("delivery")
+		if isinstance(delivery, dict):
+			message = delivery.get("message")
+			return message if isinstance(message, dict) else None
+		# EVERY opened envelope key, enumerated from the renderer rather than
+		# from memory. `sent_notice` was missing from the first version and
+		# nothing failed: an authored broadcast kept showing a stale
+		# `Seen by:` while the Sent list counted correctly, which is the same
+		# contradiction this exists to remove, one envelope shape along.
+		for key in ("sent", "sent_notice", "received", "notice"):
+			envelope = detail.get(key)
+			if isinstance(envelope, dict):
+				return envelope
+		return None
 
 	def _restore_cursor(self, previous: dict | None) -> None:
 		"""Put the cursor back on the SAME ROW after the list is rebuilt."""
@@ -479,9 +628,15 @@ class InboxState:
 		become claimed, and a list that only refreshes when you ask cannot
 		show you that. Failure keeps the previous rows and says so, like the
 		inbox does -- stale-but-labelled beats gone."""
+		# Whether THIS poll actually got outbound rows. `_sync_detail_metadata`
+		# applies sent rows last, so a retained-but-stale cache would overwrite
+		# a state the primary list just refreshed correctly -- turning a
+		# partial failure into a WRONG screen rather than a stale one.
+		self.sent_rows_fresh = False
 		sent = self._guard("list sent", lambda: store.list_sent(self.participant))
 		if sent is None:
 			return
+		self.sent_rows_fresh = True
 		# Newest-first here too, so a send you just made appears at the top and
 		# shifts every other row down. Same identity rule, same reason.
 		# Read directly rather than through `selected_sent`, which answers only
@@ -1106,8 +1261,16 @@ class InboxState:
 		- The claim is by the HIGHLIGHTED message id, never the oldest and
 		  never a neighbour."""
 		row = self.selected_in_view
-		if row is None or row.get("row_type") == ROW_NOTICE:
+		if row is None or row.get("row_type") in (ROW_NOTICE, ROW_DRAFT):
 			# A broadcast stays explicit; so does an empty list.
+			#
+			# A DRAFT stays explicit for a different reason. Highlighting one
+			# used to reopen it straight into the editor, which meant a human
+			# could not select a draft in order to DISCARD it: `D` landed in
+			# the subject field they had just been dropped into. Claim-on-
+			# highlight is about taking ownership of someone else's work, and
+			# a draft is already yours -- there is nothing to take. `Enter`
+			# reopens it.
 			self.preview(store)
 			return
 		self.open_selected(store)
@@ -1234,6 +1397,9 @@ class InboxState:
 		if row is None:
 			return
 		self.external_text = {}
+		if row["row_type"] == ROW_DRAFT:
+			self.reopen_draft(row)
+			return
 		if row["row_type"] == ROW_NOTICE and row.get("state") == "seen":
 			# Already seen. NOT a content path: no write, no second receipt,
 			# and no redelivery -- that is what at-most-once means, and the
@@ -1423,6 +1589,7 @@ class InboxState:
 		# part through the subject-only shorthand. `R` opens the editor for
 		# anything longer.
 		envelope = ((self.detail or {}).get("delivery") or {}).get("message") or {}
+		self.reply_blocked = None
 		self.draft = self.reply_subject(envelope.get("subject"))
 		# At the END of the seeded line: the human is continuing a subject,
 		# not inserting before it.
@@ -1521,6 +1688,13 @@ class InboxState:
 		self.reply_body_requested = False
 
 	def cancel_reply(self) -> None:
+		"""`Esc` RETAINS here too, and a reply draft keeps what it answers.
+
+		Without the link a retained reply is a subject line with no context:
+		reopening it would compose a NEW message rather than continue the
+		answer, and the claim it was owed against would be unrelated to it.
+		"""
+		self._retain_draft()          # capture first; see `cancel_compose`
 		self.mode = MODE_BROWSE
 		self.draft = ""
 
@@ -1543,11 +1717,19 @@ class InboxState:
 		Always a DISPOSITION through `store.reply`: this completes the claim.
 		A directed reply that became an ordinary send would leave the
 		obligation open while the screen said the reply had gone."""
+		if self.reply_blocked:
+			# BEFORE anything else, and before the emptiness checks. A
+			# reopened reply whose claim went terminal has no claim to
+			# resolve; falling through reported an EMPTY reply for a draft
+			# that was not empty, which blamed the draft for a condition it
+			# had nothing to do with and replaced the one useful warning.
+			self.set_status(self.reply_blocked, SEV_WARNING)
+			return None
 		claim_id = self._held_claim_id()
 		# EXACT. Empty means omitted; anything else goes to the core as typed,
 		# so its validation is what the human sees rather than a quiet rewrite
 		# on the way past.
-		subject = self.draft or None
+		subject = _trimmed_subject(self.draft)
 		# The externally edited body when there is one, otherwise the subject
 		# line itself -- the same shorthand directed compose uses. Never a
 		# zero-byte part.
@@ -1574,17 +1756,15 @@ class InboxState:
 		recipient = ((self.detail or {}).get("delivery", {})
 		             .get("message", {}).get("from_participant"))
 		self.mode = MODE_BROWSE
+		self._clear_committed_draft()
 		self.draft = ""
 		self.reply_body = ""
 		self.reply_body_requested = False
-		self.set_status(
+		self._report_send(
 			f"Sent: reply to {recipient} — claim resolved — o to view"
-			if recipient else "replied — claim resolved", SEV_SUCCESS)
+			if recipient else "replied — claim resolved")
 		# Same ruling: the claim is resolved, so focus returns to the list.
-		self.focus = FOCUS_LIST
-		self.opened = None
-		self.refresh(store)
-		self.preview(store)
+		self._after_disposition(store)
 		return result
 
 	def close_selected(self, store, outcome: str | None = None) -> dict | None:
@@ -1598,10 +1778,36 @@ class InboxState:
 			self.refresh(store)
 			return None
 		self.set_status("closed — claim resolved", SEV_SUCCESS)
+		self._after_disposition(store)
+		return result
+
+	def _after_disposition(self, store) -> None:
+		"""Shared tail of a SUCCESSFUL reply or close.
+
+		The claim is resolved, so nothing in the detail pane is owed anything
+		and keyboard focus belongs back on the queue -- otherwise the human
+		presses `Tab` before every single next message, which is what Slawomir
+		hit in packaged testing.
+
+		Only ever called after the authority has committed. A refused or
+		cancelled disposition must leave focus exactly where it was: moving it
+		as though the action succeeded is a console telling the human something
+		the store did not.
+
+		THE CURSOR IS NOT MOVED. A correction asked for the next actionable row
+		to be selected here; a standing trial ruling, pinned by
+		`test_a_successful_reply_returns_focus_to_the_list`, says the row that
+		was selected before the send is still selected after it. Both cannot
+		hold, so this does the part they agree on -- focus returns to the list,
+		and `refresh` restores the selection by identity onto the answered row,
+		which is retained and is a sensible place to be. Advancing to the next
+		obligation is deferred to whoever reconciles the two rulings, rather
+		than shipped unused behind a flag nothing sets.
+		"""
+		self.focus = FOCUS_LIST
 		self.opened = None
 		self.refresh(store)
 		self.preview(store)
-		return result
 
 	def _held_claim_id(self) -> str | None:
 		"""The claim a state-changing action applies to: the OPENED one.
@@ -2069,10 +2275,342 @@ class InboxState:
 		self.backspace()
 
 	def cancel_compose(self) -> None:
+		"""`Esc` RETAINS. It used to discard the whole composition.
+
+		Escape is the key people press to back out of anything, so making it
+		also the most destructive key on the console meant a reflex could cost
+		someone a message they had been writing for ten minutes. Discarding is
+		now `D`, and it asks.
+		"""
+		# CAPTURE FIRST. An earlier version set the mode to browse and then
+		# retained, so the snapshot looked at a state that was no longer
+		# composing anything and concluded there was nothing to keep -- the
+		# retention silently did nothing, which is the exact bug it exists to
+		# prevent, wearing a different hat.
+		self._retain_draft()
 		self.mode = MODE_BROWSE
 		self.compose = {}
 		self.compose_field = 0
-		self.set_status("composition discarded", SEV_INFO)
+
+	def _report_send(self, success: str) -> None:
+		"""Say what happened, INCLUDING a cleanup that did not.
+
+		A send whose draft could not be removed is still a send -- reporting
+		it as a failure would invite a retry that publishes a second copy --
+		but it is not an ordinary success either, and the human has to know
+		the draft may come back.
+		"""
+		warning = self.draft_cleanup_warning
+		self.draft_cleanup_warning = None
+		if warning:
+			self.set_status(warning, SEV_WARNING)
+			return
+		self.set_status(success, SEV_SUCCESS)
+
+	def _clear_committed_draft(self) -> None:
+		"""Remove the draft that was just published, and only that one.
+
+		Called ONLY after the authority has committed. A refused send leaves
+		every draft exactly as it was -- which is the whole point of retaining
+		them, and is why this is not in a `finally`.
+		"""
+		target = self.draft_id
+		self.draft_id = None
+		if not target:
+			return
+		remaining = [d for d in self.drafts if d.get("id") != target]
+		if len(remaining) == len(self.drafts):
+			return
+		self.drafts = remaining
+		try:
+			self._persist_drafts()
+		except DraftError as error:
+			# THE MESSAGE WENT. Reporting a failed send would be false and
+			# would invite a retry that publishes a second copy -- so the send
+			# is still a success and is still reported as one.
+			#
+			# But a clean success is also false: the draft is still on disk,
+			# and a restart would show it as unsent and let the human publish
+			# it again. So the outcome is recorded and the caller appends it
+			# to the status, and the in-memory list no longer contains it, so
+			# nothing in THIS session can resend it.
+			self.draft_cleanup_warning = (
+				f"sent, but the draft could not be cleared ({error}) — "
+				f"it may reappear on restart; discard it with D")
+
+	def _draft_from_state(self) -> dict | None:
+		"""The complete authoring state, as a plain dict.
+
+		Plain data, not a live reference into `self.compose`: a retained draft
+		must be a SNAPSHOT, or clearing the compose buffers afterwards would
+		empty the draft that was just kept.
+
+		Returns None when there is nothing worth keeping. "Worth keeping" is
+		any authored TEXT -- a recipient alone is a picker selection, not a
+		message, and retaining it would leave a row that says nothing.
+		"""
+		if self.mode == MODE_REPLY:
+			subject, body = self.draft, self.reply_body
+			answering = (self.opened or {}).get("id")
+			kind = "reply"
+			recipient = ""
+			attach = ""
+		elif self.mode in (MODE_COMPOSE, MODE_NOTICE):
+			subject = self.compose.get("subject", "")
+			body = self.compose.get("body", "")
+			recipient = self.compose.get("to", "")
+			attach = self.compose.get("attach_path", "")
+			answering = self.follow_up_to
+			kind = "notice" if self.mode == MODE_NOTICE else "compose"
+		else:
+			return None
+		if not (subject.strip() or body.strip() or attach.strip()):
+			return None
+		return {"id": self._draft_id(answering, kind),
+		        "kind": kind, "subject": subject, "body": body,
+		        "to": recipient, "attach_path": attach, "answering": answering,
+		        "is_reply": bool(self.compose_is_reply or kind == "reply")}
+
+	def _draft_id(self, answering, kind: str) -> str:
+		"""One draft per thing being answered; new messages get their own.
+
+		A reply draft is identified by WHAT IT ANSWERS, so re-opening the same
+		message and backing out again updates the one draft rather than
+		growing a pile of near-identical rows. A fresh composition answers
+		nothing, so it keeps whichever id it was already carrying and only
+		takes a new one when it is genuinely new.
+		"""
+		if answering:
+			return f"{kind}:{answering}"
+		existing = getattr(self, "draft_id", None)
+		if existing:
+			return existing
+		# SKIP ANYTHING ALREADY TAKEN. `draft_serial` starts at zero in every
+		# new state, so after a restart the first fresh composition would
+		# otherwise be handed `compose:new:1` again -- and `_replace_draft`
+		# would treat it as the loaded draft of that name and overwrite it.
+		# Silent data loss, and it is what this loop exists to prevent.
+		#
+		# Checked against the LIST rather than by reserving serials at load
+		# time. Both work for a file this console wrote; only this one works
+		# for a file whose serials are sparse or hand-edited, and having two
+		# mechanisms meant neither could be tested -- removing either left the
+		# regression passing.
+		taken = {draft.get("id") for draft in self.drafts}
+		while True:
+			self.draft_serial = getattr(self, "draft_serial", 0) + 1
+			candidate = f"{kind}:new:{self.draft_serial}"
+			if candidate not in taken:
+				return candidate
+
+	def _replace_draft(self, draft: dict) -> None:
+		"""Insert or update by id, preserving position.
+
+		Updating in place rather than moving the row to the end: a draft that
+		jumped down the list every time it was touched would be somewhere new
+		each time the human came back to it.
+		"""
+		for index, existing in enumerate(self.drafts):
+			if existing.get("id") == draft["id"]:
+				self.drafts[index] = draft
+				return
+		self.drafts.append(draft)
+
+	def _persist_drafts(self) -> None:
+		"""Write the list, or raise `DraftError`. No authority contact."""
+		draft_store.save(self.projection_dir, self.participant, self.drafts)
+
+	def reopen_draft(self, row: dict) -> None:
+		"""Continue a retained draft, in the mode it was written in.
+
+		The COMPLETE authoring state comes back -- subject, body, recipient,
+		attachment and what it answers -- because a draft that reopens missing
+		its recipient or its reply link is not the message that was kept, and
+		the human would have to notice what is missing before sending it.
+
+		Opening a draft takes no ownership of anything. It is local text; the
+		claim a reply draft was written against is not re-claimed, and if that
+		claim is gone the send will say so at send time rather than here.
+		"""
+		draft = row.get("draft") or {}
+		# FIRST, so a warning raised while reattaching survives. Set at the
+		# end it overwrote "that claim is no longer held", which is the one
+		# thing the human most needs to read here.
+		self.set_status("draft reopened", SEV_INFO)
+		self.draft_id = draft.get("id")
+		self.follow_up_to = draft.get("answering")
+		self.compose_is_reply = bool(draft.get("is_reply"))
+		if draft.get("kind") == "reply":
+			self.mode = MODE_REPLY
+			self.draft = draft.get("subject", "")
+			self.draft_caret = len(self.draft)
+			self.reply_body = draft.get("body", "")
+			self.reply_body_requested = bool(self.reply_body)
+			# RESTORE WHAT IT ANSWERS. `send_reply` resolves its target
+			# through `_held_claim_id`, which reads `opened` -- so after a
+			# restart a reopened reply had a subject, a body and no way to be
+			# sent: the claim was still active in the authority and the
+			# console could not see it.
+			#
+			# By the ANSWERED MESSAGE ID, never by the cursor. The human may
+			# be anywhere in the list; aiming a reply at the highlighted row
+			# is the wrong-target bug this console has already had once.
+			self._reattach_reply(draft.get("answering"))
+		else:
+			self.mode = MODE_NOTICE if draft.get("kind") == "notice" \
+				else MODE_COMPOSE
+			self.compose = {"subject": draft.get("subject", ""),
+			                "body": draft.get("body", ""),
+			                "to": draft.get("to", ""),
+			                "attach_path": draft.get("attach_path", "")}
+			self.compose_carets = {name: len(value)
+			                       for name, value in self.compose.items()}
+			self.compose_field = 0
+
+	def _reattach_reply(self, answering) -> None:
+		"""Point `opened` back at the message a reply draft answers.
+
+		Only when THIS participant still holds an active claim on it.
+
+		BOTH other outcomes REFUSE, identically and out loud: a claim that went
+		terminal while the console was away, and a message that is no longer
+		listed at all. The draft keeps its `answering` link and is retained and
+		reopened so the words can be copied out or the row discarded
+		deliberately -- what it cannot do is send, and the console says so
+		rather than promising a follow-up it will not perform.
+
+		(An earlier version of this sentence said a terminal draft stayed
+		available for the ruled follow-up path. It did not: the state had no
+		claim, `send_reply` could not follow up from there, and the send
+		reported an EMPTY reply for a draft that was not empty.)
+
+		What must never happen in any branch is the reply quietly becoming an
+		unrelated new message aimed at whatever is under the cursor.
+		"""
+		self.opened = None
+		self.reply_blocked = None
+		if not answering:
+			return
+		for row in self.rows:
+			if row.get("row_type") != ROW_MESSAGE or row.get("id") != answering:
+				continue
+			if row.get("state") == "claimed" and row.get("claim_id"):
+				self.opened = {"row_type": ROW_MESSAGE, "id": row["id"],
+				               "claim_id": row["claim_id"]}
+			else:
+				# A TRUTHFUL REFUSAL, not a promise. An earlier version said
+				# "this will go as a follow-up" and then left the state in
+				# reply mode with no claim, where `send_reply` cannot follow
+				# up at all: pressing send returned nothing and reported an
+				# EMPTY reply for a draft that was not empty. Two false
+				# statements in a row about the same draft.
+				#
+				# The draft is kept and reopened so the words can be copied
+				# out or the row discarded deliberately; what it cannot do is
+				# send, and it says so.
+				self.reply_blocked = (
+					"that claim is no longer held — this draft cannot be "
+					"sent as a reply; it is kept, and D discards it")
+				self.set_status(self.reply_blocked, SEV_WARNING)
+			return
+		# THE SAME TRUTHFUL REFUSAL. This branch was left setting only a
+		# status, so a send still fell through to the emptiness tests and
+		# called a non-empty draft empty -- the identical fault as the
+		# terminal-claim branch, one `return` away from it, and fixed there
+		# alone the first time.
+		self.reply_blocked = (
+			"the message this answers is no longer listed — this draft cannot "
+			"be sent as a reply; it is kept, and D discards it")
+		self.set_status(self.reply_blocked, SEV_WARNING)
+
+
+	def discard_draft(self, confirmed: bool) -> bool:
+		"""`D` then `y`. Returns True when a draft was discarded.
+
+		Default NO, and `Enter` counts as no. `Enter` is the affirmative key
+		everywhere else on this console, which is exactly why it must not be
+		here: a confirmation whose default is destructive is a slower way of
+		not asking.
+		"""
+		self.mode = MODE_BROWSE
+		target = getattr(self, "discard_target", None)
+		self.discard_target = None
+		if not confirmed or target is None:
+			self.set_status("kept", SEV_INFO)
+			return False
+		before = len(self.drafts)
+		self.drafts = [d for d in self.drafts if d.get("id") != target]
+		if len(self.drafts) == before:
+			self.set_status("that draft is already gone", SEV_WARNING)
+			return False
+		if self.draft_id == target:
+			self.draft_id = None
+		try:
+			self._persist_drafts()
+		except DraftError as error:
+			self.set_status(f"discarded here, not on disk: {error}", SEV_WARNING)
+			return True
+		self.set_status("draft discarded", SEV_SUCCESS)
+		return True
+
+	def begin_discard_draft(self) -> bool:
+		"""Arm the confirmation, but ONLY on a draft row.
+
+		`D` on a message, a notice or a sent row does nothing at all -- not a
+		different destructive act, and not a confirmation the human has to
+		decline. A key that is destructive on one row type and silently
+		harmless on another is only safe if the harmless case is genuinely
+		silent about destruction.
+		"""
+		row = self.selected
+		if row is None or row.get("row_type") != ROW_DRAFT:
+			self.set_status("no draft selected", SEV_INFO)
+			return False
+		self.discard_target = row["id"]
+		self.mode = MODE_CONFIRM_DISCARD
+		return True
+
+	def load_drafts(self) -> None:
+		"""Read retained drafts at startup.
+
+		Every failure is NON-FATAL and reported. A console that refused to
+		start because a draft file was unreadable would deny the human their
+		mailbox over their own unsent notes -- and an unconfigured
+		`projection_dir` is not an error at all until they try to keep
+		something.
+		"""
+		self.drafts = []
+		try:
+			self.drafts = draft_store.load(self.projection_dir, self.participant)
+		except DraftError as error:
+			if self.projection_dir:
+				self.set_status(f"drafts unavailable: {error}", SEV_WARNING)
+
+	def _retain_draft(self) -> None:
+		"""Keep what is being composed, and say where it went.
+
+		An EMPTY composition is not retained: a draft row for a message with
+		no subject, no body and no recipient is a row that says nothing and
+		has to be discarded by hand. Backing straight out of a compose the
+		human opened by mistake should leave no trace.
+
+		Persistence failure is REPORTED and the draft is still kept in memory
+		for this session. Losing the words because the disk was full would be
+		the same harm the retention exists to prevent, and a console that says
+		"discarded" when it meant "could not save" is lying about which.
+		"""
+		draft = self._draft_from_state()
+		if draft is None:
+			self.set_status("nothing to keep", SEV_INFO)
+			return
+		self._replace_draft(draft)
+		try:
+			self._persist_drafts()
+		except DraftError as error:
+			self.set_status(f"draft kept for this session only: {error}",
+			                SEV_WARNING)
+			return
+		self.set_status("draft kept — D discards it", SEV_INFO)
 
 	def send_compose(self, store, kind: str = "message"):
 		"""Publish what was composed. An `attach` of `ROOT:path` rides as an
@@ -2092,7 +2630,7 @@ class InboxState:
 		which is what this body is declared as."""
 		notice = self.mode == MODE_NOTICE
 		body = self.compose.get("body", "")
-		subject = self.compose.get("subject", "") or None
+		subject = _trimmed_subject(self.compose.get("subject", ""))
 		recipient = self.compose.get("to", "").strip()
 		self.compose_recipient = recipient
 		if notice:
@@ -2153,11 +2691,15 @@ class InboxState:
 				parts=parts, responds_to=self.follow_up_to,
 				thread_id=self.follow_up_thread))
 		if result is None:
-			return None                     # buffers kept so nothing is retyped
+			# Buffers kept so nothing is retyped -- and the retained draft is
+			# untouched. A refused send must leave every draft exactly as it
+			# was; that is the whole reason they are retained.
+			return None
 		followed = self.follow_up_to
 		self.follow_up_to = None
 		self.follow_up_thread = None
 		self.mode = MODE_BROWSE
+		self._clear_committed_draft()
 		self.compose = {}
 		self.compose_field = 0
 		# Stay in the INBOX -- the human's next action is almost never about
@@ -2182,7 +2724,7 @@ class InboxState:
 		# or written to say so. A FAILED send never reaches here, which is
 		# the point: it leaves the human where they were, with their draft.
 		self.focus = FOCUS_LIST
-		self.set_status(said, SEV_SUCCESS)
+		self._report_send(said)
 		self.refresh(store)
 		self.preview(store)
 		return result

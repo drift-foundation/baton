@@ -22,6 +22,34 @@ exists so the BUMP happens once, not so the review does.
 | Scoped/team and multi-recipient audiences | `work/finding-scoped-audiences/FINDING.md` |
 | Two-second dwell before TUI claim-on-highlight | this file, below |
 | Presence leases, targeted blocker events, participant-pane filtering | this file, below |
+| External parts default to `application/octet-stream` in a `parts` list | `work/finding-attach-part-default-type/FINDING.md` |
+| Durable decision obligations, LIKE/DISLIKE answers and multi-recipient voting | `work/finding-message-reactions-voting/FINDING.md`, `work/finding-decision-obligations/FINDING.md` |
+| Subject edge-whitespace courtesy — considered, then ruled TUI-only and resolved outside this bundle | `work/finding-subject-normalization/FINDING.md` |
+
+The subject row records an explicit exclusion, not protocol-10 work. Review
+proved that the shared core and frozen oracle already reject edge whitespace;
+they continue to do so. The TUI alone trims on human send, so there is no core,
+retry-identity, schema, or cutover change left for this bundle.
+
+**On the default-type correction.** It is in the bundle because it is a
+behaviour change to `_impl.py`, which `test_core_parity.py` measures against
+the frozen `baton_v6.py`. Landing it therefore requires the bump to decide one
+of two things, and it must be decided explicitly rather than discovered:
+either the oracle is RETIRED because protocol 10 supersedes what it pins, or
+the divergence is RECORDED as a named exception saying the core deliberately
+differs here, in this one respect, for this reason.
+
+What must NOT happen is the oracle being edited to make parity pass. Moving
+the reference alongside the behaviour it measures destroys the measurement,
+and every later divergence passes unnoticed. `test_oracle_stays_frozen` is
+there to make that difficult; this note is here so nobody works around it
+under bump pressure.
+
+A CLI-level stopgap is in place today so the two authoring surfaces agree.
+It is marked as a stopgap in the source and pinned by a test whose docstring
+says so, so removing it when the real correction lands is loud rather than
+silent. The stopgap covers ONE caller; every other user of the library's
+parts surface still reaches the defect, which is why it stays on this list.
 
 ## Sequencing — AGREED, and this is the order
 
@@ -53,19 +81,22 @@ Each item written against the shape the previous one leaves:
    touching parts is written in the new vocabulary rather than translated.
 2. Scoped/team and multi-recipient audiences. This changes what a RECIPIENT
    is, and the items below all reference recipients.
-3. Participant-authorized read/materialize, and reread authority. AFTER
+3. Durable decision obligations and LIKE/DISLIKE answers. AFTER audiences,
+   because authorization comes from the immutable publication-time audience
+   snapshot, not from an active claim or current group membership.
+4. Participant-authorized read/materialize, and reread authority. AFTER
    audiences, because audiences define who is a party — the reviewer's
    correction to my proposal, which had put this in stage 1. The audit answer
    belongs here too if it needs schema: an unrecorded privileged read must not
    be the final contract.
-4. Append-only claim progress AND targeted blockers — same implementation
+5. Append-only claim progress AND targeted blockers — same implementation
    stage, DISTINCT contracts. Progress is claim-bound. A blocker is a directed
    participant relationship, can exist without a claim, is viewer-relative,
    and is never a blocked claim phase. I had proposed folding them into one;
    the separation is the reviewer's and is the sharper reading.
-5. Priority, queue ordering, fairness.
-6. Durable per-participant dismissal.
-7. Presence leases last.
+6. Priority, queue ordering, fairness.
+7. Durable per-participant dismissal.
+8. Presence leases last.
 
 Presence going last is accepted. It is NOT the protocol's first expiry
 concept, and describing it that way was my error: notices already carry
@@ -74,7 +105,7 @@ TTL/expiry semantics.
 ### Stage 3 — TUI, after the bump, no wire change
 
 1. Re-reading, backed by the participant-authorized authority read from stage
-   2.3. The console must NOT keep a second source of truth for durable
+   2.4. The console must NOT keep a second source of truth for durable
    authority content — which is the reviewer's constraint on my "keep what it
    was delivered" sketch, and it is the right one.
 2. The two-second claim-on-highlight dwell.
@@ -91,6 +122,63 @@ succession cost two, and the second one arrives just as everyone has finished
 absorbing the first. The inventory above is the list of things we already know
 we want; discovering an eighth after cutover is the failure this exists to
 prevent, so the inventory is worth finishing before the bump rather than after.
+
+## Decision obligations and audience-authorized answers — ruled
+
+Slawomir approved the authorization rule on 2026-08-10. A message explicitly
+declaring a decision request creates one durable obligation for every
+participant in the immutable audience snapshot expanded at publication. That
+obligation is separate from the short-lived delivery claim and survives
+clarification, follow-up, reply, and transport completion. An ordinary reply
+or `close` is never a substitute for the requested LIKE/DISLIKE answer.
+
+The authority to answer comes from that publication-time audience snapshot,
+not from current config or group membership and not from holding an active
+claim. This distinction is required by the confirmed clarification flow: a
+reply may complete the claim while the decision remains owed. Therefore:
+
+- an addressed participant may answer while a matching claim is active or
+  after it has become terminal;
+- when the participant does hold the matching active claim, recording the
+  answer also completes that claim in the same transaction;
+- a former claim is neither required nor revived;
+- a participant added to a group after publication gains no authority to
+  answer or inspect the request, individual answers, or aggregate;
+- nonexistent and unauthorized decision identifiers produce
+  indistinguishable refusals so the API is not an enumeration oracle;
+- the author may answer only when included in the stored audience snapshot.
+
+The authoritative model has one durable request/obligation per
+`(message_id, participant)` and one current answer per the same key. A
+same-value retry reports already committed. Changing LIKE to DISLIKE or the
+reverse requires an explicit change operation and an immutable audit record;
+it must never be accepted as an ordinary retry. One participant cannot write
+another participant's answer. Only the author may withdraw a request, with an
+audited reason, and a recipient cannot simulate withdrawal by closing.
+
+For a multi-recipient request, each obligation is independent. The current
+aggregate and the individual auditable answers are visible only to members of
+the stored audience. Aggregate counts must not leak audience size to an
+outsider, and an aggregate never replaces the individual answer history.
+
+The protocol-10 schema design must prove the audit rather than assume the
+current `transitions` table already carries it. That table presently accepts
+only message and claim entities and has no answer-value payload. Protocol 10
+may extend the authoritative transition model for request/answer states or
+introduce an append-only answer-event record with a derived current answer.
+Either is acceptable only if schema-guarded mutation and `doctor` reconcile
+the current answer with one immutable history.
+
+Required regressions: one obligation per addressed participant; clarification
+and ordinary reply leaving it outstanding; `close` unable to dismiss it;
+LIKE/DISLIKE satisfying only the answering participant atomically; answer
+with no active claim; answer completing a matching active claim; former claim
+not revived; same-value retry; explicit audited value change;
+cross-participant overwrite refusal; publication-time audience authorization
+despite later config changes; author vote only when addressed; author-only
+audited withdrawal; deterministic audience-scoped aggregation with individual
+answer visibility; indistinguishable nonexistent/unauthorized refusal; and
+clean refusal of protocol-9 authorities rather than partial interpretation.
 
 ## Dismissal (`x`), ruled
 
