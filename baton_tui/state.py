@@ -28,6 +28,8 @@ be the only act that took ownership.
 
 from __future__ import annotations
 
+import time
+
 from baton_core import BatonError, notice_delivery
 
 from .drafts import DraftError
@@ -108,6 +110,11 @@ NOTICE_FIELDS = ("subject",)
 # own protocol `kind` ("question", "review", ...), and reusing that key meant
 # the spread overwrote the discriminator with the sender's value. A row would
 # then be whatever kind the sender happened to name.
+# HOW LONG A ROW MUST STAY SELECTED before highlighting it takes ownership.
+# Ruled at two seconds: long enough to scroll past work you mean to ignore,
+# short enough that settling on a message still opens it without a keystroke.
+DWELL_SECONDS = 2.0
+
 ROW_MESSAGE = "message"
 ROW_NOTICE = "notice"
 # A retained draft. NOT authority state: it has no message id, no claim, no
@@ -279,6 +286,15 @@ class InboxState:
 
 	def __init__(self, participant: str):
 		self.participant = participant
+		# THE CLAIM-ON-HIGHLIGHT DWELL. `None` when nothing is pending
+		# commitment; otherwise the message identity being dwelt on and its
+		# monotonic deadline.
+		self.dwell: dict | None = None
+		# Injectable so the dwell is testable without sleeping. Production
+		# passes nothing and gets `time.monotonic`; a test substitutes a
+		# counter and drives the deadline exactly, which is the difference
+		# between asserting the rule and asserting that two seconds elapsed.
+		self.clock = time.monotonic
 		self.rows: list[dict] = []
 		self.cursor = 0
 		self.mode = MODE_BROWSE
@@ -888,31 +904,42 @@ class InboxState:
 			return None
 		return self.sent_rows[min(self.sent_cursor, len(self.sent_rows) - 1)]
 
-	def open_sent_selected(self, store) -> None:
-		"""Read your own outbound message. Creates NOTHING.
+	def open_sent_selected(self, store) -> bool:
+		"""Read your own outbound message. Creates NOTHING. Returns whether it
+		opened.
 
 		Not a delivery: no claim, no receipt, no transition, no audit write.
 		Reading your own outbox must never consume the message the recipient
 		is waiting for -- which is exactly what would happen if this reused
-		the claim path because both end in "show me the content"."""
+		the claim path because both end in "show me the content".
+
+		THE RESULT IS REPORTED for the same reason `open_selected` reports
+		one: `Enter` focuses DETAIL only on a successful open, and a refused
+		read here leaves the lightweight sent-row preview behind. Without
+		this, `open_selected` returned True for the whole SENT branch
+		unconditionally and Enter focused a pane showing nothing it had been
+		asked for. I converted the other twelve return paths and classified
+		this delegation as success without checking whether the delegate could
+		fail; it can."""
 		row = self.selected_sent
 		if row is None:
 			self.set_status("nothing to open", SEV_INFO)
-			return
+			return False
 		if row.get("row_kind") == "notice":
 			result = self._guard("open sent notice",
 			                     lambda: store.open_sent_notice(row["id"], self.participant))
 			if result is None:
-				return
+				return False
 			self.detail = {"sent_notice": result["sent_notice"]}
 		else:
 			result = self._guard("open sent",
 			                     lambda: store.open_sent(row["id"], self.participant))
 			if result is None:
-				return                   # damaged pins fail closed, and say so
+				return False             # damaged pins fail closed, and say so
 			self.detail = {"sent": result["sent"]}
 		self.detail_offset = 0
 		self.set_status("read only — this is your own sent copy", SEV_INFO)
+		return True
 
 	def _revalidate_action_target(self) -> None:
 		"""Keep the opened item, the cursor and the actionable claim in
@@ -1233,8 +1260,75 @@ class InboxState:
 			self.set_status(f"wrote {path}", SEV_SUCCESS)
 		return path
 
+	def _would_claim(self, row) -> bool:
+		"""Whether opening THIS row would take ownership.
+
+		The single place that answers it, because the dwell and the commit
+		must agree exactly: a dwell armed on a row that would not claim would
+		delay an ordinary read for two seconds, and a commit that claims a row
+		the dwell did not cover would be the ungated claim this exists to
+		prevent."""
+		if row is None or self.view == VIEW_SENT:
+			return False
+		return (row.get("row_type") == ROW_MESSAGE
+		        and row.get("direction") != "out"
+		        and row.get("state") == "pending")
+
+	def _arm_dwell(self, message_id: str) -> None:
+		"""Start, or CONTINUE, the dwell on one message identity.
+
+		Keyed by message id rather than row index, which is what makes the
+		three cases fall out of one rule: an identity change resets the clock;
+		a keystroke that does not move the selection (holding a direction key
+		at the end of the list) does not restart it; and leaving a row and
+		returning to it later is an identity change in both directions, so it
+		gets a fresh two seconds rather than resuming the old ones.
+
+		A monotonic clock, never wall-clock: a NTP correction or a DST jump
+		must not make a message claim itself early or hang unclaimed."""
+		if self.dwell is not None and self.dwell["message_id"] == message_id:
+			return
+		self.dwell = {"message_id": message_id,
+		              "deadline": self.clock() + DWELL_SECONDS}
+
+	def tick(self, store) -> bool:
+		"""Commit a dwell that has come due. Returns whether anything changed.
+
+		Called from the driver loop rather than from a keystroke, because the
+		whole point is that the human stopped pressing keys.
+
+		Re-checks the identity every time, which is what makes a POLL safe:
+		an arrival or a reordering can move the selection under the cursor,
+		and the claim must never be redirected to whatever ended up there.
+		The dwell is cancelled rather than transferred."""
+		if self.dwell is None:
+			return False
+		row = self.selected_in_view
+		if row is None or row.get("id") != self.dwell["message_id"] \
+				or not self._would_claim(row):
+			# The row moved, went away, or was claimed by someone else while
+			# we waited. Cancel; do not claim a neighbour.
+			self.dwell = None
+			return False
+		if self.clock() < self.dwell["deadline"]:
+			return False
+		self.dwell = None
+		self.open_selected(store)
+		self.warning = self._fifo_warning()
+		return True
+
+	def dwell_remaining(self) -> float | None:
+		"""Seconds until the armed dwell commits, or None. The driver uses it
+		to shorten its input timeout so the claim lands near the deadline
+		instead of at the next poll."""
+		if self.dwell is None:
+			return None
+		return max(0.0, self.dwell["deadline"] - self.clock())
+
 	def select_row(self, store) -> None:
-		"""HIGHLIGHTING a row commits on it. Slawomir's ruling.
+		"""HIGHLIGHTING a row commits on it, AFTER A TWO-SECOND DWELL.
+
+		Slawomir's ruling, with the dwell added by a later one.
 
 		**This supersedes the OBSERVE/COMMIT split for LIST navigation.** The
 		old rule was that selection is always observational and `Enter` is the
@@ -1261,6 +1355,14 @@ class InboxState:
 		- The claim is by the HIGHLIGHTED message id, never the oldest and
 		  never a neighbour."""
 		row = self.selected_in_view
+		if self._would_claim(row):
+			# HIGHLIGHT AND PREVIEW IMMEDIATELY; ownership waits. Scrolling
+			# through a queue must not accumulate claims on every row passed
+			# over, and only the row the human settles on may commit.
+			self.preview(store)
+			self._arm_dwell(row["id"])
+			return
+		self.dwell = None
 		if row is None or row.get("row_type") in (ROW_NOTICE, ROW_DRAFT):
 			# A broadcast stays explicit; so does an empty list.
 			#
@@ -1373,7 +1475,39 @@ class InboxState:
 
 	# -- COMMIT -----------------------------------------------------------
 
-	def open_selected(self, store) -> None:
+	def enter_selected(self, store) -> None:
+		"""`Enter` from LIST: open the row and FOCUS the detail.
+
+		Ruled by Slawomir, recorded late -- see
+		`work/finding-human-console/FINDING.md` § "Enter from LIST enters
+		DETAIL". From LIST focus this is analogous to a forward `Tab`.
+
+		It also COMMITS a dwell that has not yet elapsed, on that exact
+		message. The dwell exists so PASSIVE highlighting does not take
+		ownership while someone scrolls past; a deliberate keystroke is not
+		passive, and making the human wait two more seconds after pressing
+		Enter would be ceremony for its own sake -- the thing this console's
+		rulings keep removing.
+
+		Focus moves only when the open SUCCEEDED. An empty list, a refused
+		read or a lost claim race leaves focus in LIST rather than moving into
+		a pane that cannot show what was asked for.
+		"""
+		if self.mode != MODE_BROWSE:
+			return
+		self.dwell = None
+		# THE OPEN REPORTS ITS OWN SUCCESS. Testing `self.detail is not None`
+		# was wrong in exactly one case, and it is the case that matters: on a
+		# LOST CLAIM RACE the open refreshes and PREVIEWS the row it could not
+		# take, so `detail` becomes non-None while `opened` stays None -- and
+		# Enter moved focus into a pane that cannot show the body the human
+		# asked to enter, contradicting this method's own rule.
+		#
+		# A preview is not an open. Only the open can say whether it opened.
+		if self.open_selected(store):
+			self.focus = FOCUS_DETAIL
+
+	def open_selected(self, store) -> bool:
 		"""Open the selected row, taking ownership where that is what opening
 		means.
 
@@ -1391,15 +1525,14 @@ class InboxState:
 		outbound copy, and consuming it would take the message the recipient
 		is waiting for."""
 		if self.view == VIEW_SENT:
-			self.open_sent_selected(store)
-			return
+			return self.open_sent_selected(store)
 		row = self.selected
 		if row is None:
-			return
+			return False
 		self.external_text = {}
 		if row["row_type"] == ROW_DRAFT:
 			self.reopen_draft(row)
-			return
+			return True
 		if row["row_type"] == ROW_NOTICE and row.get("state") == "seen":
 			# Already seen. NOT a content path: no write, no second receipt,
 			# and no redelivery -- that is what at-most-once means, and the
@@ -1416,13 +1549,13 @@ class InboxState:
 			self.detail_offset = 0
 			self.opened = {"row_type": ROW_NOTICE, "id": row["id"], "claim_id": None}
 			self.set_status(NOTICE_SEEN_STATUS, SEV_INFO)
-			return
+			return True
 		if row["row_type"] == ROW_NOTICE:
 			result = self._guard(
 				"open notice", lambda: store.mark_notice_seen(self.participant, row["id"]))
 			if result is None:
 				self.refresh(store)
-				return
+				return False
 			# Through the SAME envelope builder delivery uses. The raw rows
 			# carry `body` bytes; the renderer speaks the typed envelope's
 			# `text`/`encoding`, so handing it the raw shape drew every
@@ -1447,13 +1580,13 @@ class InboxState:
 			result = self._guard(
 				"open sent", lambda: store.open_sent(row["id"], self.participant))
 			if result is None:
-				return
+				return False
 			self.detail = {"sent": result["sent"]}
 			self.detail_row = (ROW_MESSAGE, row["id"])
 			self.detail_offset = 0
 			self.opened = self._follow_up_target(row, row.get("to_participant"))
 			self.set_status(FOLLOW_UP_SENT, SEV_INFO)
-			return
+			return True
 		elif row["state"] not in ("pending", "claimed"):
 			# Already dealt with. Reading it back must not claim, receipt or
 			# transition anything -- it is terminal, and the whole point of
@@ -1462,7 +1595,7 @@ class InboxState:
 			result = self._guard(
 				"open", lambda: store.open_received(row["id"], self.participant))
 			if result is None:
-				return
+				return False
 			self.detail = {"received": result["received"]}
 			self.detail_row = (ROW_MESSAGE, row["id"])
 			self.detail_offset = 0
@@ -1471,7 +1604,7 @@ class InboxState:
 			# conversation is still open, so `r`/`R` start a follow-up.
 			self.opened = self._follow_up_target(row, row.get("from_participant"))
 			self.set_status(FOLLOW_UP_ANSWERED, SEV_INFO)
-			return
+			return True
 		elif row["state"] == "pending":
 			# Losing this race is ordinary -- another consumer took the exact
 			# message between the refresh and the keystroke. Say so and
@@ -1481,7 +1614,7 @@ class InboxState:
 			if claim is None:
 				self.refresh(store)
 				self.preview(store)
-				return
+				return False
 			# The claim COMMITTED. Even if reading it back fails, the human now
 			# owes a reply or close, so the target is recorded first and the
 			# obligation stays visible -- a claim behind a blank pane is still
@@ -1497,7 +1630,7 @@ class InboxState:
 					f"claimed, but could not read it back: {self.last_error} — "
 					f"it is yours and still owes a reply or close", SEV_ERROR)
 				self.refresh(store)
-				return
+				return False
 			self.detail = {"delivery": delivery}
 			self.detail_row = (ROW_MESSAGE, row["id"])
 			self.set_status("claimed — reply or close is now owed", SEV_WARNING)
@@ -1510,7 +1643,7 @@ class InboxState:
 				self.detail = None
 				self.detail_row = None
 				self.refresh(store)
-				return
+				return False
 			self.detail = {"delivery": delivery}
 			self.detail_row = (ROW_MESSAGE, row["id"])
 			self.set_status("reopened — reply or close is still owed", SEV_WARNING)
@@ -1518,6 +1651,7 @@ class InboxState:
 		self.detail_offset = 0
 		self.refresh(store)     # preserves and re-centres the target itself
 		self.detail = detail
+		return True
 
 	def _follow_up_target(self, row: dict, other: str | None) -> dict | None:
 		"""What `r`/`R` act on for a row whose claim is resolved, or which was

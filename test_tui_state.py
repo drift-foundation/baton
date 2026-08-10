@@ -21,8 +21,34 @@ import pytest
 
 import baton_core as core
 from baton_tui import REQUIRES_CORE_API, check_core_compatibility
-from baton_tui.state import (MODE_BROWSE, MODE_COMPOSE, MODE_REPLY, MODE_NOTICE,
+from baton_tui.state import (DWELL_SECONDS, MODE_BROWSE, MODE_COMPOSE, MODE_REPLY, MODE_NOTICE,
                              InboxState)
+
+
+
+def _settle(state, store):
+	"""Let an armed claim-on-highlight dwell come due.
+
+	These tests were written when highlighting claimed immediately, and what
+	they assert is what happens once the human has SETTLED on a row -- which
+	the dwell did not change. Rather than installing a fake clock in each one,
+	this expires the deadline directly; the dwell's own timing rules are
+	pinned by tests that drive a clock, where the timing IS the subject."""
+	if getattr(state, "dwell", None) is not None:
+		state.dwell["deadline"] = -1.0
+		state.tick(store)
+
+
+def _select(state, store):
+	"""`select_row` and settle on the row."""
+	state.select_row(store)
+	_settle(state, store)
+
+
+def _move(state, delta, store):
+	"""`move` and settle on the row landed on."""
+	state.move(delta, store)
+	_settle(state, store)
 
 
 def _instance(tmp_path):
@@ -83,9 +109,9 @@ def test_browsing_claims_directed_rows_but_never_a_broadcast(env):
 	assert len(state.rows) == 5
 	for _ in range(6):
 		for _ in range(len(state.rows)):
-			state.move(1, store)
+			_move(state, 1, store)
 		for _ in range(len(state.rows)):
-			state.move(-1, store)
+			_move(state, -1, store)
 		state.refresh(store)
 	claims, receipts = _counts(store)
 	assert receipts == 0, "looking at a broadcast consumed it"
@@ -130,13 +156,13 @@ def test_selection_claims_exactly_the_row_landed_on_not_the_oldest(env):
 		           subject=f"Q{i}", body=b"b\n")
 	state = InboxState("acme.implementer")
 	state.refresh(store)
-	state.select_row(store)                       # the head, deliberately
+	_select(state, store)                       # the head, deliberately
 	head = state.selected["id"]
 	before = {r[0] for r in store.conn.execute(
 		"SELECT message_id FROM claims").fetchall()}
 	assert before == {head}
 
-	state.move(2, store)                          # the transition under test
+	_move(state, 2, store)                          # the transition under test
 	chosen = state.selected
 	assert chosen["id"] != head, "the fixture did not move"
 	after = {r[0] for r in store.conn.execute(
@@ -351,9 +377,9 @@ def test_skipping_a_senders_earlier_message_warns_but_allows(env):
 	state.preview(store)
 	later = state.selected                          # newest is at the top now
 	assert "earlier message" in state.warning
-	state.move(1, store)                            # down to the older one
+	_move(state, 1, store)                            # down to the older one
 	assert state.warning == "", "the oldest pending message skips nothing"
-	state.move(-1, store)
+	_move(state, -1, store)
 	state.open_selected(store)                      # allowed anyway
 	assert state.detail["delivery"]["message"]["subject"] == later["subject"]
 
@@ -364,7 +390,7 @@ def test_no_warning_across_different_senders(env):
 	store.send("hq.lead", "acme.implementer", kind="q", subject="mine", body=b"b\n")
 	state = InboxState("acme.implementer")
 	state.refresh(store)
-	state.move(1, store)
+	_move(state, 1, store)
 	assert state.warning == ""
 
 
@@ -457,7 +483,7 @@ def test_navigating_away_moves_the_action_target_to_the_new_row(env):
 	state.open_selected(store)
 	assert state.opened is not None
 	opened_id = state.opened["id"]
-	state.move(1, store)
+	_move(state, 1, store)
 	assert state.selected["id"] != opened_id
 	assert state.opened is not None, "the new row was not opened"
 	assert state.opened["id"] == state.selected["id"], (
@@ -477,7 +503,7 @@ def test_a_draft_does_not_follow_the_cursor(env):
 	state.open_selected(store)
 	state.begin_reply()
 	state.draft = "half-written"
-	state.move(1, store)
+	_move(state, 1, store)
 	assert state.mode == MODE_BROWSE and state.draft == ""
 
 
@@ -946,7 +972,7 @@ def test_new_mail_arrives_at_the_top_without_moving_the_selection(env):
 		           subject=f"old{index}", body=b"b\n")
 	state = InboxState("acme.implementer")
 	state.refresh(store)
-	state.move(2, store)
+	_move(state, 2, store)
 	chosen = state.selected["id"]
 	position = state.cursor
 	# A real second later, so the arrival is unambiguously newer rather than
@@ -982,7 +1008,7 @@ def test_the_sent_filter_keeps_its_row_when_something_is_sent(env):
 	state = InboxState("acme.implementer")
 	state.refresh(store)
 	state.select_view(VIEW_SENT)
-	state.move(1, store)
+	_move(state, 1, store)
 	chosen = state.selected_sent["id"]
 	# A real second later, so it certainly sorts ABOVE the selected row rather
 	# than tying and landing below it, where the pin would prove nothing.
@@ -1172,31 +1198,23 @@ def _opened_licensed(store, root):
 	return state
 
 
-def test_both_part_headers_are_reachable_and_the_mark_moves(env):
+def test_both_parts_are_reachable_and_the_footer_moves(env):
 	"""The required regression: an inline Markdown leaf plus an external
-	LICENSE leaf, both reachable with `[`/`]`, the selected header visibly
-	changing."""
+	LICENSE leaf, both reachable with `[`/`]`, the FOOTER visibly changing.
+
+	It used to assert a styled header row per part. Those rows are gone for
+	text parts -- ruled -- and the footer is what names the selection now."""
 	from baton_tui.driver import step
-	from baton_tui.render import STYLE_PART_HEADER, layout_for, render_styled
+	from baton_tui.render import layout_for, part_footer
 	store, root = env
 	state = _opened_licensed(store, root)
 	assert [part["address"] for part in state.visible_parts()] == ["0", "1"]
-
-	def marked():
-		layout = layout_for(100, 40)
-		state.set_viewport(**layout)
-		return [text for text, style in render_styled(state, 100, 40)
-		        if STYLE_PART_HEADER in style]
-
-	first = marked()
-	assert first and "[0]" in first[0]
+	state.set_viewport(**layout_for(100, 40))
+	assert "[0]" in part_footer(state, 100) and "(1/2 parts)" in part_footer(state, 100)
 	step(state, store, ord("]"), 100, 40)
-	assert state.selected_part["address"] == "1"
-	second = marked()
-	assert second and "[1]" in second[0], "the external header is not marked"
-	assert second != first, "the selected header did not visibly change"
+	assert "[1]" in part_footer(state, 100) and "(2/2 parts)" in part_footer(state, 100)
 	step(state, store, ord("["), 100, 40)
-	assert state.selected_part["address"] == "0"
+	assert "[0]" in part_footer(state, 100) and "(1/2 parts)" in part_footer(state, 100)
 
 
 def test_an_external_part_is_not_described_as_empty(env):
@@ -1296,7 +1314,7 @@ def test_bytes_read_for_one_message_are_never_drawn_under_another(env):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Other",
 	           body=b"unrelated\n")
 	state.refresh(store)
-	state.move(1, store)
+	_move(state, 1, store)
 	assert state.external_text == {}, "the cached file survived the move"
 
 
@@ -1774,3 +1792,308 @@ def test_an_incompatible_core_api_is_refused_at_startup_in_both_directions():
 		message = str(caught.value)
 		assert str(REQUIRES_CORE_API) in message and str(offered) in message, \
 			"the refusal does not say what was wanted and what was offered"
+
+
+# -- the two-second claim-on-highlight dwell -------------------------------
+#
+# Ruled: highlighting still commits, but only after the same message identity
+# has stayed selected for two continuous seconds. These drive an injected
+# clock rather than sleeping -- the timing IS the subject here, so it is
+# stated exactly instead of waited for.
+
+class _Clock:
+	"""A driven monotonic clock.
+
+	An object rather than a private attribute on the state: the guard above
+	forbids tests reaching into state internals, and it is right to -- a test
+	that pokes at privates can hide the very gap it claims to cover. `clock`
+	is part of the model's surface precisely so the dwell is testable without
+	sleeping."""
+
+	def __init__(self, start: float = 1000.0):
+		self.now = start
+
+	def __call__(self) -> float:
+		return self.now
+
+
+def _dwelling(store, participant="acme.implementer"):
+	state = InboxState(participant)
+	state.clock = _Clock()
+	state.refresh(store)
+	return state
+
+
+def _advance(state, seconds, store):
+	state.clock.now += seconds
+	return state.tick(store)
+
+
+def _claims(store):
+	return {r[0] for r in store.conn.execute("SELECT message_id FROM claims")}
+
+
+def test_highlighting_does_not_claim_before_the_deadline(env):
+	"""The whole point: a row you are scrolling past is not yours."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", body=b"b\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	_advance(state, 1.9, store)
+	assert _claims(store) == set(), "claimed before the dwell elapsed"
+	assert state.dwell is not None
+
+
+def test_the_exact_row_is_claimed_at_the_deadline(env):
+	store, _ = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q", body=b"b\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	assert _advance(state, DWELL_SECONDS, store) is True
+	assert _claims(store) == {mid}
+	assert state.dwell is None, "the dwell survived its own commit"
+
+
+def test_the_preview_is_immediate_even_though_the_claim_is_not(env):
+	"""Highlight and metadata update at once; only OWNERSHIP waits. A console
+	that showed nothing for two seconds would read as broken."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"b\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	assert state.detail is not None, "nothing was previewed while dwelling"
+	assert _claims(store) == set()
+
+
+def test_scrolling_across_rows_claims_only_the_one_settled_on(env):
+	"""Rapid scrolling passes over three pending rows and claims none of
+	them. This is the behaviour the dwell was ruled for."""
+	store, _ = env
+	ids = [store.send("acme.reviewer", "acme.implementer", kind="q",
+	                  subject=f"Q{i}", body=b"b\n") for i in range(4)]
+	state = _dwelling(store)
+	state.select_row(store)
+	for _ in range(3):
+		state.clock.now += 0.3                 # faster than the dwell, every time
+		state.move(1, store)
+		state.tick(store)
+	assert _claims(store) == set(), "scrolling accumulated claims"
+	settled = state.selected["id"]
+	_advance(state, DWELL_SECONDS, store)
+	assert _claims(store) == {settled}
+	assert settled in ids
+
+
+def test_leaving_and_returning_does_not_reuse_elapsed_time(env):
+	"""Ruled explicitly. Half a dwell on a row, away, back -- the second visit
+	starts from zero, so the total time spent on it is irrelevant."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="A", body=b"b\n")
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="B", body=b"b\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	first = state.selected["id"]
+	_advance(state, 1.5, store)           # most of a dwell on the head
+	state.move(1, store)                  # away
+	state.clock.now += 0.1
+	state.tick(store)
+	state.move(-1, store)                 # and back
+	assert state.selected["id"] == first
+	_advance(state, 1.5, store)           # 3.0s total on this row, split
+	assert _claims(store) == set(), "elapsed time was reused across a visit"
+	_advance(state, 0.5, store)           # 2.0s continuous, at last
+	assert _claims(store) == {first}
+
+
+def test_a_keystroke_that_does_not_move_the_selection_keeps_the_dwell(env):
+	"""Holding a direction key at the end of the list is not an identity
+	change, so it must not restart the clock -- otherwise the last row in a
+	list could never be claimed by a human leaning on `j`."""
+	store, _ = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q", body=b"b\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	deadline = state.dwell["deadline"]
+	_advance(state, 1.0, store)
+	state.move(1, store)                  # single row: cursor cannot move
+	assert state.dwell["deadline"] == deadline, "the dwell restarted in place"
+	_advance(state, 1.0, store)
+	assert _claims(store) == {mid}
+
+
+def test_an_arrival_does_not_move_the_dwell_off_its_message(env):
+	"""Identity, never row index. An arrival inserts at the top and shifts
+	every row down; the dwell must still commit on the message it was armed
+	on, and on nothing else."""
+	store, _ = env
+	first = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                   subject="first", body=b"b\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	assert state.dwell["message_id"] == first
+	arrived = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                     subject="arrived", body=b"b\n")
+	state.refresh(store)                  # newest-first: the new one is at 0
+	_advance(state, DWELL_SECONDS, store)
+	assert _claims(store) == {first}
+	assert arrived not in _claims(store), "the arrival was claimed by dwelling"
+
+
+def test_the_dwell_cancels_when_its_message_leaves_the_view(env):
+	"""The case the identity re-check exists for, and the one my first
+	attempt at this test failed to distinguish.
+
+	That attempt allowed "claimed nothing" to count as a pass, so deleting the
+	re-check changed nothing and the assertion was hollow. The distinguishing
+	scenario is a selection whose IDENTITY changes without any keystroke: the
+	armed message leaves the list, the cursor falls onto a different pending
+	message, and the deadline arrives. Without the re-check that neighbour is
+	claimed -- a claim the human never highlighted."""
+	store, _ = env
+	armed_first = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                         subject="going away", body=b"b\n", retention="transient")
+	survivor = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                      subject="still here", body=b"b\n")
+	state = _dwelling(store)
+	# Select the row that is about to vanish, wherever it sits.
+	while state.selected["id"] != armed_first:
+		state.move(1, store)
+	state.select_row(store)
+	assert state.dwell["message_id"] == armed_first
+	# It goes away under the cursor -- removed through the `gc` verb, the only
+	# route permitted to collect a delivery.
+	store.conn.execute(
+		"UPDATE op_context SET op_id='t', participant='acme.reviewer', "
+		"verb='gc', ts='2026-01-01T00:00:00Z' WHERE one_row=1")
+	store.conn.execute("DELETE FROM messages WHERE id=?", (armed_first,))
+	store.conn.execute(
+		"UPDATE op_context SET op_id=NULL, participant=NULL, verb=NULL, "
+		"ts=NULL WHERE one_row=1")
+	state.refresh(store)
+	assert state.selected["id"] == survivor, "the fixture did not move the cursor"
+	_advance(state, DWELL_SECONDS, store)
+	assert _claims(store) == set(), \
+		"the dwell claimed the row that fell under the cursor"
+
+
+def test_an_unseen_notice_is_never_claimed_or_seen_by_dwelling(env):
+	"""Broadcast stays explicit. The dwell is about ownership of directed
+	work; a notice has no claim, and looking at one must record nothing."""
+	store, _ = env
+	store.send_notice("acme.reviewer", kind="ann", subject="hear ye", body=b"n\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	assert state.dwell is None, "a notice armed a claim dwell"
+	_advance(state, DWELL_SECONDS * 2, store)
+	assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
+	assert _claims(store) == set()
+
+
+def test_an_already_claimed_row_opens_without_dwelling(env):
+	"""The dwell gates TAKING ownership. Re-opening something already yours
+	is an ordinary read and must not make the human wait for it."""
+	store, _ = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q", body=b"b\n")
+	store.claim("acme.implementer", message_id=mid)
+	state = _dwelling(store)
+	state.select_row(store)
+	assert state.dwell is None
+	assert state.opened is not None and state.opened["id"] == mid
+
+
+def test_losing_the_race_at_the_deadline_fails_closed(env):
+	"""Another consumer took the exact message while we dwelt. The console
+	must not claim a neighbour to compensate, and must not display content it
+	does not own."""
+	store, _ = env
+	sent = {store.send("acme.reviewer", "acme.implementer", kind="q", body=b"b\n")
+	        for _ in range(2)}
+	state = _dwelling(store)
+	state.select_row(store)
+	armed = state.dwell["message_id"]
+	# The NEIGHBOUR is whichever one the dwell is not armed on -- derived
+	# rather than assumed, because MESSAGES is newest-first and guessing which
+	# of the two the console selected is how this test contradicted itself.
+	neighbour = (sent - {armed}).pop()
+	# Somebody else takes the armed message out from under the dwell.
+	store.claim("acme.implementer", message_id=armed)
+	_advance(state, DWELL_SECONDS, store)
+	assert _claims(store) == {armed}, "the dwell claimed something after losing"
+	assert neighbour not in _claims(store), "the console claimed a neighbour"
+	assert state.opened is None or state.opened.get("id") != neighbour
+
+
+def test_the_dwell_uses_a_monotonic_clock_by_default(env):
+	"""Never wall-clock: an NTP correction or a DST jump must not make a
+	message claim itself early, or hang unclaimed for an hour."""
+	import time as _t
+	store, _ = env
+	state = InboxState("acme.implementer")
+	assert state.clock is _t.monotonic
+
+
+# -- a contentless (subject-only) message in the console -------------------
+
+def test_a_subject_only_message_is_readable_and_actionable(env):
+	"""The console half of the contentless contract.
+
+	A subject-only message stores an empty container and owns no part rows,
+	so every surface that reaches for `parts[0]` has to cope. It must read as
+	an ordinary message that happens to say everything in its subject -- not
+	as a broken one, and not as one pretending a part exists."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="ship it when the suite is green")
+	state = _dwelling(store)
+	state.select_row(store)
+	_advance(state, DWELL_SECONDS, store)
+	assert state.opened is not None and state.opened["claim_id"] is not None
+	assert state.selected_part is None, "a part was reported where none exists"
+	assert state.affordances()["close"] is True, "a subject-only message is not actionable"
+
+
+def test_a_subject_only_message_renders_without_inventing_a_part(env):
+	from baton_tui.render import render
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="ship it when the suite is green")
+	state = _dwelling(store)
+	state.select_row(store)
+	_advance(state, DWELL_SECONDS, store)
+	screen = "\n".join(render(state, 100, 24))
+	assert "ship it when the suite is green" in screen
+	assert "[0]" not in screen, "the detail drew a part address for a message with no parts"
+
+
+
+def test_materialize_refuses_a_subject_only_message_with_a_clear_reason(env, tmp_path):
+	"""There is nothing to project, and the diagnostic has to say THAT rather
+	than fail on an index."""
+	import baton_core as core
+	store, _ = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                 subject="nothing to project")
+	target = tmp_path / "projections"
+	target.mkdir()
+	with pytest.raises(core.BatonError) as excinfo:
+		store.materialize_part(mid, str(target))
+	assert "part" in str(excinfo.value).lower()
+	assert not list(target.iterdir())
+
+
+def test_the_part_marker_assertion_discriminates(env):
+	"""Guards the test above rather than the console.
+
+	`"[0]" not in screen` would also pass for a console that drew nothing at
+	all, which is exactly the hollow-assertion shape review just caught me in.
+	The same render, on a message that DOES have a part, must draw the marker
+	whose absence is asserted there."""
+	from baton_tui.render import render
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="has a body", body=b"contents\n")
+	state = _dwelling(store)
+	state.select_row(store)
+	_advance(state, DWELL_SECONDS, store)
+	assert "[0]" in "\n".join(render(state, 100, 24))

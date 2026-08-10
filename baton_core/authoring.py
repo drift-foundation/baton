@@ -312,17 +312,14 @@ def build(items, *, parse_part, read_bytes, read_text, body=None,
 		elif kind == "references":
 			out.append(references_module.part(read_text(source), roots=roots))
 		else:
-			# STOPGAP, not the fix. `normalize_parts` defaults an absent
-			# content type to `text/markdown; charset=utf-8` for EVERY node,
-			# including one carrying `attach` -- so the same file published
-			# through the parts surface is declared text while the same file
-			# through `send(attach=...)` is declared `application/octet-stream`.
-			# Declaring it here makes the two CLI surfaces agree today.
+			# NO content_type. `normalize_parts` now picks the default from
+			# the node itself, so an attach node with no declared type gets
+			# `application/octet-stream` from the general rule.
 			#
-			# It fixes nothing: every other caller of the library's parts
-			# surface still reaches the bug, and the real correction is for
-			# `normalize_parts` to pick its default from the node. That is
-			# recorded as a finding, which is where the correction lives.
-			out.append({"attach": extra, "disposition": "attachment",
-			            "content_type": DEFAULT_ATTACHMENT_TYPE})
+			# A stopgap lived here that declared the type explicitly, so the
+			# two CLI surfaces would agree while the library's parts surface
+			# still declared attachments to be markdown. Removing it is the
+			# point: if the general rule ever regresses, this caller stops
+			# hiding it.
+			out.append({"attach": extra, "disposition": "attachment"})
 	return out

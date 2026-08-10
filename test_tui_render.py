@@ -13,6 +13,7 @@ import pytest
 
 import baton_core as core
 from baton_tui.render import (DIVIDER, _headers, detail_line_count, layout_for,
+                              part_footer,
                               ordinary_body_lines, render)
 from baton_tui.safe_text import display_width
 from baton_tui.state import InboxState
@@ -1306,99 +1307,87 @@ def _styled(state, columns=100, lines=24):
 	return render_styled(state, columns, lines)
 
 
-def test_only_the_selected_part_header_is_styled(env):
-	"""The mark says which part `m` will write out. Spreading it over the
-	body would say the whole part is a control, and marking nothing leaves
-	`m` acting on something invisible."""
-	from baton_tui.render import STYLE_PART_HEADER
+def test_the_footer_names_exactly_one_selected_part(env):
+	"""REPLACES the part-header mark, which no longer exists for text parts.
+
+	The mark used to say which part `m` will write out, by styling that
+	part's header row. The header row is gone -- ruled: the body starts where
+	it used to, and the metadata moved to a fixed footer -- so the FOOTER is
+	now what says it, and it says exactly one part out of a stated total."""
+	from baton_tui.render import part_footer
 	store, _ = env
 	_multipart(store)
 	state = _opened(store)
-	rows = _styled(state)
-	marked = [text for text, style in rows if STYLE_PART_HEADER in style]
-	assert marked, "no part header is marked"
-	# EXACTLY ONE part, not every header. An earlier version marked them all,
-	# which looks like a highlight and says nothing about which part `m` acts
-	# on -- and passed a test that only checked "marked rows are headers".
-	addresses = {text.split("]")[0].split("[")[-1] for text in marked}
-	assert len(addresses) == 1, f"several parts are marked at once: {addresses}"
-	# Only HEADER rows: every marked row carries a manifest address.
-	for text in marked:
-		assert "[" in text and "]" in text
-	# ...and no body row is marked.
-	for text, style in rows:
-		if "first leaf" in text or "nested one" in text:
-			assert STYLE_PART_HEADER not in style, f"content row was marked: {text!r}"
+	line = part_footer(state, 100)
+	assert line.count("[") == 1, f"more than one part is named: {line!r}"
+	total = len(state.visible_parts())
+	assert f"(1/{total} parts)" in line
 
 
-def test_the_mark_moves_with_part_selection(env):
-	"""It must follow h/l, or it points at a part the human has left."""
-	from baton_tui.render import STYLE_PART_HEADER
-	store, _ = env
-	_multipart(store)
-	state = _opened(store)
-
-	def marked():
-		return [text.split("]")[0] for text, style in _styled(state)
-		        if STYLE_PART_HEADER in style]
-
-	first = marked()
-	assert first
-	state.move_part(1)
-	second = marked()
-	assert second and second != first, "the mark did not move with the selection"
-	state.move_part(-1)
-	assert marked() == first
-
-
-def test_the_part_mark_is_distinct_from_the_inbox_selection(env):
-	"""Two cursors that look the same are one cursor as far as the human is
-	concerned, and they mean different things."""
-	from baton_tui.render import STYLE_PART_HEADER, STYLE_SELECTED
-	store, _ = env
-	_multipart(store)
-	state = _opened(store)
-	rows = _styled(state)
-	inbox = {index for index, (_, style) in enumerate(rows) if STYLE_SELECTED in style}
-	part = {index for index, (_, style) in enumerate(rows) if STYLE_PART_HEADER in style}
-	assert part
-	assert not (inbox & part), "the same row carries both selections"
-
-
-def test_nested_leaves_are_markable(env):
-	"""A leaf inside a nested container is still a leaf `m` can act on.
-
-	Driven through the real keystroke, because R7 made the difference matter:
-	the stacked detail pane is 60% of the body, so a later part's header sits
-	below the fold and the mark is only visible once the pane has followed it.
-	Setting `part_cursor` directly would test the model and not the screen."""
-	from baton_tui.driver import step
-	from baton_tui.render import STYLE_PART_HEADER
+def test_the_footer_follows_part_selection(env):
+	"""It must follow `[`/`]`, or it names a part the human has left."""
+	from baton_tui.render import part_footer
 	store, _ = env
 	_multipart(store)
 	state = _opened(store)
 	addresses = [part.get("address") for part in state.visible_parts()]
-	assert any("." in str(address) for address in addresses), "no nested leaf in fixture"
-	for index in range(len(addresses)):
-		if index:
-			step(state, store, ord("]"), 100, 24)
-		assert state.part_cursor == index
-		marked = [text for text, style in _styled(state) if STYLE_PART_HEADER in style]
-		assert marked, f"part {addresses[index]} is selectable but never marked"
+	total = len(addresses)
+	assert f"[{addresses[0]}]" in part_footer(state, 100)
+	assert f"(1/{total} parts)" in part_footer(state, 100)
+	state.move_part(1)
+	assert f"[{addresses[1]}]" in part_footer(state, 100)
+	assert f"(2/{total} parts)" in part_footer(state, 100)
+	state.move_part(-1)
+	assert f"[{addresses[0]}]" in part_footer(state, 100)
 
 
-def test_the_mark_disappears_when_the_header_scrolls_away(env):
-	"""A mark on a row that is no longer the header points at whatever
-	content took its place."""
-	from baton_tui.render import STYLE_PART_HEADER
+def test_the_footer_is_not_a_list_row(env):
+	"""Two cursors that look the same are one cursor as far as the human is
+	concerned, and they mean different things. The footer is structurally
+	separate now rather than merely styled differently."""
+	from baton_tui.render import STYLE_SELECTED, part_footer, render_styled
+	store, _ = env
+	_multipart(store)
+	state = _opened(store)
+	footer = part_footer(state, 100).rstrip()
+	rows = render_styled(state, 100, 24)
+	selected = [text for text, style in rows if STYLE_SELECTED in style]
+	assert footer.strip()
+	assert all(footer.strip() not in text for text in selected), \
+		"the inbox selection and the part footer are the same row"
+
+
+def test_a_nested_leaf_appears_in_the_footer(env):
+	"""A leaf inside a nested container is still a leaf `m` can act on, and
+	the footer has to be able to name it."""
+	from baton_tui.render import part_footer
+	store, _ = env
+	_multipart(store)
+	state = _opened(store)
+	addresses = [part.get("address") for part in state.visible_parts()]
+	assert len(addresses) >= 2, "the fixture is not nested"
+	for index, address in enumerate(addresses):
+		state.part_cursor = index
+		assert f"[{address}]" in part_footer(state, 100)
+
+
+def test_the_footer_stays_while_the_body_scrolls_away(env):
+	"""THE INVERSION, and the reason the footer was ruled.
+
+	The old mark lived on a header row, so scrolling past that row took the
+	part identity off the screen -- exactly when a reader deep in a long body
+	most wants to know which part they are in. A fixed footer cannot scroll
+	away."""
+	from baton_tui.render import detail_line_count, part_footer
 	store, _ = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Long",
 	           parts=[{"content_type": "text/plain; charset=utf-8",
 	                   "body": ("line\n" * 400).encode()}])
 	state = _opened(store)
-	assert any(STYLE_PART_HEADER in style for _, style in _styled(state))
+	before = part_footer(state, 100)
 	state.scroll_detail(300, detail_line_count(state, 100, 24))
-	assert not any(STYLE_PART_HEADER in style for _, style in _styled(state))
+	assert part_footer(state, 100) == before
+	assert part_footer(state, 100).strip(), "the footer emptied while scrolling"
 
 
 def test_content_cannot_forge_a_part_mark(env):
@@ -2170,8 +2159,15 @@ def test_a_container_label_stays_fixed_while_a_nested_body_pans(env):
 		"both nested bodies should be content"
 	assert any("multipart/alternative" in line for line in chrome), \
 		"the container label was marked as content"
-	assert any("text/plain" in line for line in chrome), \
-		"a nested part header was marked as content"
+	# The nested LEAF header is gone -- ruled; a text part now leads with its
+	# body and its media type lives in the fixed footer. The container label
+	# stays because it is structure: it says where in the message you are,
+	# which is what panning would take away.
+	assert not any("text/plain" in line for line in chrome), \
+		"a text leaf still draws a header line above its body"
+	from baton_tui.render import part_footer
+	assert "text/plain" in part_footer(state, 100), \
+		"the media type did not move to the footer"
 	assert not any("ENDMARK" in line for line in chrome)
 
 
@@ -2382,7 +2378,8 @@ def test_the_reclaimed_row_is_navigable_not_merely_blank(env):
 	the MODEL's viewport stayed a row smaller than the screen. The extra row
 	drew, and nothing could scroll to it -- a reclaimed row nobody can reach
 	is not reclaimed."""
-	from baton_tui.render import layout_for, ordinary_body_lines, pane_heights
+	from baton_tui.render import (PART_FOOTER_ROWS, layout_for,
+	                              ordinary_body_lines, pane_heights)
 	store, _ = env
 	for index in range(80):
 		store.send("acme.reviewer", "acme.implementer", kind="q",
@@ -2393,7 +2390,13 @@ def test_the_reclaimed_row_is_navigable_not_merely_blank(env):
 		top, detail = pane_heights(ordinary_body_lines(lines))
 		# What the model was told, and what the screen actually has.
 		assert layout["inbox_height"] == max(1, top)
-		assert layout["detail_height"] == max(1, detail)
+		# The detail PANE has `detail` rows; the model's scrollable height is
+		# one less, because the selected-part footer occupies the last one.
+		# Ruled in `work/finding-human-console/findings/
+		# finding-selected-part-footer/FINDING.md`: "The footer consumes one
+		# DETAIL row. Layout, page size, overflow indicators, navigation, and
+		# resize calculations account for it."
+		assert layout["detail_height"] == max(1, detail - PART_FOOTER_ROWS)
 		state.set_viewport(**layout)
 		screen = _draw(state, 100, lines)
 		rule = _rule_index(screen)
@@ -2402,9 +2405,13 @@ def test_the_reclaimed_row_is_navigable_not_merely_blank(env):
 		assert drawn_list == layout["inbox_height"], (
 			f"{lines} lines: {drawn_list} list rows drawn, model believes "
 			f"{layout['inbox_height']}")
-		assert drawn_detail == layout["detail_height"], (
+		# The pane draws the model's scrollable rows PLUS the part footer.
+		# The point of this test is that the two agree, and they still do --
+		# with the footer named rather than absorbed, so a future change to
+		# either side has to change this line too.
+		assert drawn_detail == layout["detail_height"] + PART_FOOTER_ROWS, (
 			f"{lines} lines: {drawn_detail} detail rows drawn, model believes "
-			f"{layout['detail_height']}")
+			f"{layout['detail_height']} scrollable + {PART_FOOTER_ROWS} footer")
 
 
 def test_the_picker_is_measured_against_the_same_body(env):
@@ -2440,11 +2447,16 @@ def test_the_pane_helpers_reach_the_bottom_row_of_the_pane(env):
 	screen = _draw(state, 100, 24)
 	bottom = screen[-2]                      # the last PANE row, above status
 	assert bottom.strip(), "this fixture did not fill the pane to the bottom"
-	assert bottom.strip() in _detail_pane(state), \
+	# NORMALISED on both sides. The helpers collapse runs of spaces, and the
+	# bottom row is now the selected-part footer, whose fields are separated
+	# by two -- so the raw needle could not match text that had been
+	# collapsed. This compares what the row SAYS, which is the question.
+	needle = " ".join(bottom.split())
+	assert needle in _detail_pane(state), \
 		"the detail helper drops the bottom row of the pane"
-	assert bottom.strip() in _work_area(state), \
+	assert needle in _work_area(state), \
 		"the work-area helper drops the bottom row of the pane"
-	assert any(bottom.strip() in line for line in _detail(screen)), \
+	assert any(needle in " ".join(line.split()) for line in _detail(screen)), \
 		"the `_detail` helper drops the bottom row of the pane"
 
 
@@ -2831,3 +2843,188 @@ def test_the_duplicate_warning_is_attributed_to_the_sender():
 	text = " ".join(lines)
 	assert "the sender could not tell" in text, lines
 	assert "duplicate detected" not in text.lower()
+
+
+# -- the selected-part footer ----------------------------------------------
+#
+# Ruled in `work/finding-human-console/findings/finding-selected-part-footer/`.
+# The metadata line used to sit above the body: `[0]` is a manifest address,
+# not a name, and the single-part reader skipped it every time to reach their
+# message. It says the part count now, which is the question a multipart
+# reader actually has.
+
+def test_a_single_part_body_precedes_its_metadata(env):
+	"""Evidence 1. The text is what a reader reaches first."""
+	from baton_tui.render import part_footer
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="One",
+	           body=b"the first thing you should read\n")
+	state = _opened(store)
+	screen = _draw(state, 100, 24)
+	body = next(i for i, line in enumerate(screen)
+	            if "the first thing you should read" in line)
+	metadata = next(i for i, line in enumerate(screen) if "text/markdown" in line)
+	assert body < metadata, "transport metadata still precedes the message"
+	assert "(1/1 parts)" in part_footer(state, 100)
+
+
+def test_the_footer_is_the_last_row_of_the_detail_pane(env):
+	"""Evidence 6, the placement half: above the global status bar, never
+	replacing it."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="One",
+	           body=b"body\n")
+	state = _opened(store)
+	screen = _draw(state, 100, 24)
+	assert "parts)" in screen[-2], f"the footer is not the last pane row: {screen[-2]!r}"
+	assert "parts)" not in screen[-1], "the footer displaced the status bar"
+	assert screen[-1].strip(), "the status bar is empty"
+
+
+def test_a_contentless_message_shows_zero_parts_and_no_address(env):
+	"""Evidence 5. There is no part `0` to name, and inventing one would be
+	the console asserting content that does not exist."""
+	from baton_tui.render import part_footer
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="the subject is the message")
+	state = _opened(store)
+	line = part_footer(state, 100)
+	assert "0 parts" in line
+	assert "[" not in line, f"an address was fabricated: {line!r}"
+
+
+def test_the_footer_truncates_by_display_cells_on_a_narrow_terminal(env):
+	"""Evidence 6, the narrow half: it must fit the width exactly, with no
+	control or wide-cell overflow."""
+	from baton_tui.render import part_footer
+	from baton_tui.safe_text import display_width
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="One",
+	           parts=[{"content_type": "text/plain; charset=utf-8",
+	                   "part_name": "an unusually long part name " * 3,
+	                   "body": b"body\n"}])
+	state = _opened(store)
+	for width in (40, 60, 100):
+		line = part_footer(state, width)
+		# NEVER WIDER than the terminal. Not exact equality: `fit` truncates
+		# without padding, so a short footer is short -- an equality
+		# assertion here passed only because the long name always filled the
+		# row, which is the case that stopped being true once the count was
+		# reserved and the name became the field that gets dropped.
+		assert display_width(line) <= width, \
+			f"footer overflows: {display_width(line)} cells at {width}"
+		# THE INFORMATION, not merely the width. This asserted only the cell
+		# count before, so it passed while ordinary right-edge truncation
+		# removed the part count at every width the long name reached -- the
+		# one field the footer exists to show. The finding requires the count
+		# to be preserved when it fits, so the optional metadata is what gets
+		# dropped.
+		assert "[0]" in line, f"the address was truncated away at {width}: {line!r}"
+		assert "(1/1 parts)" in line, f"the count was truncated away at {width}: {line!r}"
+
+
+def test_the_footer_survives_a_focus_change(env):
+	"""Evidence 6, the focus half. It describes the message, not the pane
+	that happens to have the keys."""
+	from baton_tui.render import part_footer
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="One",
+	           body=b"body\n")
+	state = _opened(store)
+	before = part_footer(state, 100)
+	state.toggle_focus()
+	assert part_footer(state, 100) == before
+
+
+def test_two_text_parts_stay_visually_distinct(env):
+	"""Evidence 3, the boundary half: a quiet separator, not a repeated
+	media line before every body."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Two",
+	           parts=[{"content_type": "text/plain; charset=utf-8", "body": b"FIRSTBODY\n"},
+	                  {"content_type": "text/plain; charset=utf-8", "body": b"SECONDBODY\n"}])
+	state = _opened(store)
+	screen = _draw(state, 100, 40)
+	first = next(i for i, line in enumerate(screen) if "FIRSTBODY" in line)
+	second = next(i for i, line in enumerate(screen) if "SECONDBODY" in line)
+	assert second > first + 1, "the two bodies run together with no boundary"
+	between = screen[first + 1:second]
+	assert not any("text/plain" in line for line in between), \
+		"the media line is repeated between bodies"
+
+
+def test_a_fresh_compose_shows_no_footer_from_the_message_behind_it(env):
+	"""R1 of the footer review: the form was getting an unrelated message's
+	address, media type, disposition and NAME attached to it, which
+	attributes content to the draft the human is about to send."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Opened",
+	           parts=[{"content_type": "image/png", "disposition": "attachment",
+	                   "part_name": "unrelated-image", "body": b"\x89PNG\r\n"}])
+	state = _opened(store)
+	assert "unrelated-image" in part_footer(state, 100), "the fixture never opened a named part"
+	state.begin_compose()
+	screen = "\n".join(_draw(state, 100, 24))
+	for leak in ("unrelated-image", "image/png", "[0]", "parts)"):
+		assert leak not in screen, f"{leak!r} leaked into a fresh compose"
+
+
+def test_a_fresh_notice_shows_no_footer_either(env):
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Opened",
+	           parts=[{"content_type": "image/png", "disposition": "attachment",
+	                   "part_name": "unrelated-image", "body": b"\x89PNG\r\n"}])
+	state = _opened(store)
+	state.begin_compose(notice=True)
+	screen = "\n".join(_draw(state, 100, 24))
+	assert "unrelated-image" not in screen and "parts)" not in screen
+
+
+def test_a_reply_keeps_the_footer_of_the_message_it_answers(env):
+	"""The distinction the fresh-compose fix must not erase: a reply
+	deliberately keeps the message it is answering on screen."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Answer me",
+	           parts=[{"content_type": "text/plain; charset=utf-8",
+	                   "part_name": "the-original", "body": b"question\n"}])
+	state = _opened(store)
+	state.begin_reply()
+	assert "the-original" in part_footer(state, 100), \
+		"the reply lost the context it exists to answer"
+
+
+def test_an_unopened_preview_never_claims_zero_parts(env):
+	"""R2: `(0 parts)` on a two-part preview turned "not loaded here" into
+	the false statement "contentless"."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Two parts",
+	           parts=[{"content_type": "text/plain; charset=utf-8", "body": b"one\n"},
+	                  {"content_type": "text/plain; charset=utf-8", "body": b"two\n"}])
+	state = _ready_state(store)
+	state.preview(store)
+	line = part_footer(state, 100)
+	assert "0 parts" not in line, f"an unopened preview reported nothing: {line!r}"
+	assert "/2 parts" in line
+
+
+def test_a_lightweight_sent_row_shows_no_footer_at_all(env):
+	"""The other half of R2: a listing row carries no part metadata, so any
+	count would be invented."""
+	store, _ = env
+	store.send("acme.implementer", "acme.reviewer", kind="q", subject="Outbound",
+	           body=b"body\n")
+	state = _ready_state(store)
+	state.select_view("sent")
+	state.preview(store)
+	screen = "\n".join(_draw(state, 100, 24))
+	assert "parts)" not in screen, "a lightweight sent row invented a part count"
+
+
+def test_an_opened_contentless_message_still_says_zero_parts(env):
+	"""And the approved case survives all of the above."""
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="the subject is the message")
+	state = _opened(store)
+	assert "0 parts" in part_footer(state, 100)

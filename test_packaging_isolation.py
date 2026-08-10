@@ -296,3 +296,78 @@ def test_the_cli_entry_point_is_a_door_not_a_widened_surface():
 	assert "from baton_core.cli import main" in bootstrap
 	assert "from baton_core._impl" not in bootstrap, \
 		"the bootstrap reaches into a private module"
+
+
+def test_the_packaged_cli_publishes_a_tweet(tmp_path):
+	"""The ruling asked for the PACKAGED cases, not only the in-process ones.
+
+	The whole reason `--tweet` exists is that the Store contract was
+	unreachable from `bin/baton`, so proving it through `main()` alone would
+	repeat the mistake at one remove: the artifact is what people run."""
+	import json as _json
+	import subprocess as _sub
+	config = tmp_path / "baton.json"
+	config.write_text(_json.dumps({
+		"config_version": 1, "protocol_version": 10, "generation": 1,
+		"mailbox": {"name": "pkg"},
+		"participants": {"a.one": {}, "a.two": {}},
+		"roots": {}, "retention_days": 90}))
+	base = [str(ARTIFACT), "--config", str(config)]
+	assert _sub.run(base + ["init"], capture_output=True).returncode == 0
+
+	send = base + ["send", "--participant", "a.one", "--to", "a.two", "--kind", "ping"]
+	inline = _sub.run(send + ["--tweet", "ship it when green"], capture_output=True)
+	assert inline.returncode == 0, inline.stderr
+
+	piped = _sub.run(send + ["--tweet", "-"], input=b"from a pipe\n", capture_output=True)
+	assert piped.returncode == 0, piped.stderr
+
+	crlf = _sub.run(send + ["--tweet", "-"], input=b"crlf line\r\n", capture_output=True)
+	assert crlf.returncode == 0, crlf.stderr
+
+	empty = _sub.run(send + ["--tweet", "-"], input=b"", capture_output=True)
+	assert empty.returncode != 0 and b"requires text" in empty.stderr
+
+	clash = _sub.run(send + ["--tweet", "x", "--subject", "y"], capture_output=True)
+	assert clash.returncode != 0 and b"cannot be combined" in clash.stderr
+
+	notice = _sub.run(base + ["send-notice", "--participant", "a.one",
+	                          "--kind", "ann", "--tweet", "no"], capture_output=True)
+	assert notice.returncode != 0
+
+	# THE SHARED-LIST OPTION, at the public surface. `--attach` has no
+	# namespace attribute -- it collects into the ordered content list -- and
+	# the exclusivity check missed it entirely, so this combination exited
+	# zero and published a contentless message while discarding the
+	# attachment. The executable is where that mattered.
+	shared = _sub.run(send + ["--tweet", "x", "--attach", "missing:nowhere"],
+	                  capture_output=True)
+	assert shared.returncode != 0, shared.stdout
+	assert b"cannot be combined with" in shared.stderr
+	assert b"--attach" in shared.stderr
+
+	dumped = _sub.run(base + ["dump"], capture_output=True)
+	subjects = sorted(m["subject"] for m in _json.loads(dumped.stdout)["messages"])
+	assert subjects == ["crlf line", "from a pipe", "ship it when green"]
+
+
+def test_the_packaged_cli_still_reads_stdin_without_a_tweet(tmp_path):
+	"""The preserved behaviour, at the same boundary."""
+	import json as _json
+	import subprocess as _sub
+	config = tmp_path / "baton.json"
+	config.write_text(_json.dumps({
+		"config_version": 1, "protocol_version": 10, "generation": 1,
+		"mailbox": {"name": "pkg"},
+		"participants": {"a.one": {}, "a.two": {}},
+		"roots": {}, "retention_days": 90}))
+	base = [str(ARTIFACT), "--config", str(config)]
+	assert _sub.run(base + ["init"], capture_output=True).returncode == 0
+	sent = _sub.run(base + ["send", "--participant", "a.one", "--to", "a.two",
+	                        "--kind", "ping"], input=b"an ordinary body\n",
+	                capture_output=True)
+	assert sent.returncode == 0, sent.stderr
+	empty = _sub.run(base + ["send", "--participant", "a.one", "--to", "a.two",
+	                         "--kind", "ping", "--body", "-"], input=b"",
+	                 capture_output=True)
+	assert empty.returncode != 0 and b"at least one byte" in empty.stderr

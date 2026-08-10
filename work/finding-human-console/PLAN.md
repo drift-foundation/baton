@@ -280,9 +280,22 @@ same one leading marker on an otherwise label-free, full-width rule. The
 participant identity sits at the rule's right edge only when it fits whole,
 with one trailing rule cell protecting its final character from terminals
 that decline to draw the last cell of a full-width row. Only the named
-navigation keys route through focus — Enter, `r`, `R`, `c`, `h`, `l`, `v`,
+navigation keys route through focus — ~~Enter,~~ `r`, `R`, `c`, `h`, `l`, `v`,
 `m` keep their existing semantics — and focus is NOT a new action target: the
 selected/opened item remains the target model.
+
+**SUPERSEDED for `Enter`, 2026-08-10.** The sentence above says `Enter` keeps
+its existing semantics and does not route through focus. Slawomir had already
+agreed the opposite, and it was never written down here — which is the failure
+that produced `AGENTS.md` § "Confirmed decisions are pinned before
+implementation". The original text is struck rather than deleted so the
+contradiction is visible rather than tidied away. The authoritative bounded
+contract and its progress live in
+`findings/finding-enter-detail-focus/{FINDING,PLAN,PROGRESS}.md`.
+
+The selected-part metadata/footer change is independently tracked in
+`findings/finding-selected-part-footer/{FINDING,PLAN,PROGRESS}.md`; it must not be inferred from
+the broader focus plan.
 
 ### Reopened by the live trial — a second UX round
 

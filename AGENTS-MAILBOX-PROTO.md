@@ -52,8 +52,13 @@ them distinct participant addresses rather than sharing one identity.
   effectively-once: an exact retry reports `already_committed`, any
   mismatch fails closed.
 - Durable review/response documents: bodies live IN the store; use
-  `materialize --dir <finding folder> --prefix review|implementation-response`
-  to emit the byte-exact projection for humans. Add `--part N` to address a
+  `materialize --participant YOU --dir <finding folder>
+  --prefix review|implementation-response` to emit the byte-exact projection
+  for humans. The participant is required and the read is authorized against
+  the publication-time audience -- you may read back what you sent or were
+  addressed in. It also addresses a NOTICE you have already seen, which is the
+  way back to a broadcast whose text scrolled past; rereading writes no second
+  receipt. Add `--part N` to address a
   specific part of a multipart message (default `0`). Projections are
   caches; the store is the authority.
 - Content is TYPED. Every delivery carries `content` with a `content_type`
@@ -74,6 +79,13 @@ them distinct participant addresses rather than sharing one identity.
   by the retry manifest — so it may sit BESIDE an inline `--body` in the same
   message, and a message may carry several. Send the explanation and its
   evidence together rather than as two messages.
+- ONE-LINE messages: `--tweet TEXT` on `send` and `reply` makes the text the
+  message's subject and publishes no body; `--tweet -` reads the line from
+  stdin and drops exactly one trailing newline. It is exclusive with
+  `--subject` and every content option, and notices do not have it. An
+  explicitly supplied body must contain at least one byte -- a zero-byte part
+  claims content exists and is empty, which nobody means. `close` remains the
+  contentless disposition.
 - One piece of work for SEVERAL participants: repeat `--to`. Each recipient
   gets an independent delivery, claim and disposition sharing one immutable
   content — closing yours resolves nothing for anyone else, and a reply goes

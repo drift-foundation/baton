@@ -101,5 +101,41 @@ that is not written down becomes the specification by default.
 
 ## Status
 
-Open. Correction proposed above, unscheduled; belongs with protocol 10.
-Stopgap in place and marked in the source.
+**IMPLEMENTED, 2026-08-10.** This section previously read "Open ... stopgap in
+place", which was the opposite of the code by the time anyone read it. A
+finding that contradicts the source is worse than no finding: it is a
+confident statement that sends the next reader looking for a workaround that
+is not there.
+
+What landed:
+
+- `normalize_parts` chooses its default FROM THE NODE. A node carrying
+  `attach` with no declared type gets `DEFAULT_ATTACHMENT_TYPE`; an inline
+  node keeps `DEFAULT_CONTENT_TYPE`; an explicitly declared type wins in both
+  cases. The `send(attach=...)` convenience path's behaviour is now a
+  consequence of the general rule rather than a second rule.
+- **The stopgap in `baton_core/authoring.py` is REMOVED.** It declared
+  `application/octet-stream` itself so the two CLI surfaces would agree; with
+  the general rule fixed, leaving it would have masked a regression in that
+  rule from every test that goes through the CLI.
+
+The oracle route this finding described is moot: `baton_v6.py` was retired at
+the protocol-10 bump, so there is no parity measurement to move or to record a
+divergence against. The file remains byte-identical as protocol-9 evidence.
+
+Evidence:
+
+- `test_the_store_defaults_an_untyped_attachment_to_binary` — the correction
+  at the layer that owns it, through the general parts surface;
+- `test_an_explicit_type_still_wins_over_the_attachment_default`;
+- `test_an_inline_leaf_still_defaults_to_markdown` — the fix chooses per node,
+  so it must not have moved the inline default with it;
+- `test_the_authoring_layer_no_longer_declares_the_attachment_type` — replaces
+  the test that pinned the stopgap, whose own docstring said "If that lands
+  and this line is removed, this test is what says so out loud";
+- `test_the_two_cli_attachment_surfaces_agree_on_the_default_type` — the same
+  property, measured after normalization, which is where the type is now
+  decided.
+
+Break-checked: reverting the node-based default fails the first and the last
+of those by name.

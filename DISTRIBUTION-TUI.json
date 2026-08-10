@@ -1,6 +1,6 @@
 {
   "artifact": "bin/baton-tui",
-  "artifact_sha256": "cf182d9070ade66e90dc335f9c72bd0b53d64c9194e6ab44c04d798d6132aef8",
+  "artifact_sha256": "9189f1cd2ef62d46b23f29f5a1d9399b6d92ede2fc72b6d7ae9a090ff77430c6",
   "core_api_version": 2,
   "members": [
     "__main__.py",

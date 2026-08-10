@@ -81,6 +81,20 @@ DISPOSITION_ATTACHMENT = "attachment"
 # Deliberately the RFC 2046 "unknown bytes" type rather than a guess from the
 # file extension: sniffing a type is exactly the interpretation Baton does not do.
 DEFAULT_ATTACHMENT_TYPE = "application/octet-stream"
+
+# HOW A CONTENTLESS MESSAGE IS STORED, pinned rather than left implicit.
+#
+# `messages.content_type` and `manifest_sha256` are NOT NULL, so "no content"
+# still needs a representation. It is an EMPTY CONTAINER: a `multipart/mixed`
+# whose part list is empty, whose manifest is the digest of exactly that, and
+# which owns no part rows. Nothing is invented -- an empty ordered list of
+# parts is what a message with no parts has -- and the retry manifest stays
+# meaningful, because two contentless publications of the same subject hash
+# identically while any content at all hashes differently.
+#
+# The alternative was nullable columns, which is a schema change, and a schema
+# change is a protocol bump and another cutover for a quick-message shorthand.
+CONTENTLESS_CONTAINER = "multipart/mixed"
 DISPOSITIONS = frozenset((DISPOSITION_INLINE, DISPOSITION_ATTACHMENT))  # RFC 2183
 
 # Delivery representation names. Exactly one is ever present on a leaf part,
@@ -443,8 +457,23 @@ def normalize_parts(spec: Any, *, where: str = "content") -> list[dict]:
 		# asking for something meaningless got silence and a media type it
 		# never named.
 		declared_type = raw.get("content_type")
+		# THE DEFAULT COMES FROM THE NODE, not from the surface that built it.
+		# A node carrying `attach` is a pinned file of unknown type; an inline
+		# node is authored text. Defaulting both to markdown declared binaries
+		# to be text -- an assertion the store made on the sender's behalf that
+		# the sender never made, recorded in the manifest digest and therefore
+		# not correctable without republishing.
+		#
+		# The failure was silent in the direction that matters: calling binary
+		# content text invites a reader to decode it, while the reverse is
+		# merely unhelpful.
+		#
+		# This also makes `send(attach=...)`'s behaviour a CONSEQUENCE of the
+		# general rule rather than a second rule that only one caller reached.
+		default_type = (DEFAULT_ATTACHMENT_TYPE if raw.get("attach") is not None
+		                else DEFAULT_CONTENT_TYPE)
 		content_type = canonical_media_type(
-			DEFAULT_CONTENT_TYPE if declared_type is None else declared_type)
+			default_type if declared_type is None else declared_type)
 		disposition = raw.get("disposition")
 		if disposition is None:
 			disposition = DISPOSITION_INLINE
@@ -537,6 +566,37 @@ def _delivery_encoding(content_type: str) -> str:
 	if main == "text" and params.get("charset") == "utf-8":
 		return ENCODING_TEXT
 	return ENCODING_BASE64
+
+
+def refuse_empty_bodies(nodes, where: str) -> None:
+	"""Refuse a leaf that says "here is content" and carries none.
+
+	A zero-byte part is the store asserting, on the sender's behalf, that
+	content exists and happens to be empty. Nobody means that. What people
+	DO mean -- "the subject is the whole message" -- is a contentless
+	publication, which is a different shape and is permitted separately where
+	a subject carries it.
+
+	NOT called from `content_spec`, deliberately. `reply` and `close` build
+	their nodes before consulting the committed disposition, so refusing
+	during normalization would make an exact retry of a legacy zero-byte
+	disposition impossible to complete -- turning a defect fix into a
+	permanent inability to finish an operation that already committed. This
+	runs at FIRST publication instead, which is the only place new content is
+	created.
+	"""
+	for index, node in enumerate(nodes or []):
+		if node.get("parts"):
+			refuse_empty_bodies(node["parts"], f"{where}[{index}].parts")
+		elif node.get("attach") is None and node.get("body") == b"":
+			# The DEFAULT exit class, which is what every other validation
+			# refusal in this module uses. The finding named an
+			# `EXIT_VALIDATION` that does not exist here; inventing one for a
+			# single refusal would split the exit vocabulary rather than
+			# describe it.
+			raise BatonError(
+				f"{where}[{index}]: an explicitly supplied body must contain at least "
+				f"one byte (omit it entirely for a subject-only message)")
 
 
 def content_spec(body: bytes | None, parts: Any, *, content_type: str | None = None,
@@ -1918,8 +1978,21 @@ class Store:
 			body, parts, content_type=content_type, disposition=disposition,
 			part_name=part_name, container_type=container_type, where="send content")
 		if nodes is None:
-			raise BatonError("a message requires content")
-		self._pin_external_parts(nodes)
+			# THE SUBJECT IS THE MESSAGE. Ruled 2026-08-10 as a first-class
+			# affordance, after measurement showed every subject-only message
+			# on the live channel was reaching its recipient through the
+			# zero-byte body defect rather than through anything deliberate.
+			#
+			# A subject is required because otherwise nothing at all is
+			# published: a recipient would get a row with no content and no
+			# summary, which is not a quick message but an empty one.
+			if not subject:
+				raise BatonError(
+					"a message requires content, or a subject to carry it")
+			container, nodes = CONTENTLESS_CONTAINER, []
+		else:
+			refuse_empty_bodies(nodes, "send content")
+			self._pin_external_parts(nodes)
 		self._check_identity(sender)
 		recipients = [recipient] if isinstance(recipient, str) else list(recipient)
 		if not recipients:
@@ -2364,7 +2437,17 @@ class Store:
 			body, parts, content_type=content_type, disposition=disposition,
 			part_name=part_name, container_type=container_type, where="reply content")
 		if nodes is None:
-			raise BatonError("reply requires content (a close is the contentless disposition)")
+			# `close` remains the contentless DISPOSITION; this is the
+			# contentless MESSAGE, which still says something.
+			#
+			# A reply INHERITS the subject it answers, so the effective
+			# subject is what must be non-empty -- resolved below, against the
+			# claim, because it is not known here.
+			if subject is not None and not subject.strip():
+				raise BatonError(
+					"reply requires content, or a subject to carry it "
+					"(a close is the contentless disposition)")
+			container, nodes = CONTENTLESS_CONTAINER, []
 		if retention is not None and retention not in RETENTIONS:
 			raise BatonError(f"invalid retention {retention!r}")
 		# Pinning happens BEFORE the write transaction, as it always has:
@@ -2385,6 +2468,17 @@ class Store:
 			# A reply inherits the subject it is answering, so a thread reads
 			# as one conversation in an inbox rather than as unrelated lines.
 			effective_subject = subject if subject is not None else row["subject"]
+			# THE INHERITED SUBJECT IS THE ONE THAT MUST CARRY IT. A
+			# contentless reply is "the subject is the message", and a reply
+			# inherits the subject it answers -- so answering a SUBJECTLESS
+			# message with no body would publish a row with neither content
+			# nor summary. Checked here because the effective subject is not
+			# known until the claim is loaded, and before anything is written.
+			if not nodes and not (effective_subject or "").strip():
+				raise BatonError(
+					"reply requires content, or a subject to carry it; the message "
+					"being answered has no subject to inherit "
+					"(a close is the contentless disposition)")
 			existing = self._existing_disposition(claim_id)
 			if existing is not None:
 				result = self._verify_retry(existing, op='reply', message_kind=kind, outcome=outcome,
@@ -2395,6 +2489,9 @@ class Store:
 				return result
 			if row["claim_state"] != "active":
 				raise BatonError(f"claim {claim_id!r} is {row['claim_state']}, not active", EXIT_PROTOCOL)
+			# See `close`: after the retry short-circuit, so a committed
+			# legacy zero-byte reply stays retryable.
+			refuse_empty_bodies(nodes, "reply content")
 			to = effective_recipient
 			self._check_participant(to, "reply")
 			thread = effective_thread
@@ -2470,6 +2567,12 @@ class Store:
 				return result
 			if row["claim_state"] != "active":
 				raise BatonError(f"claim {claim_id!r} is {row['claim_state']}, not active", EXIT_PROTOCOL)
+			# AFTER the retry short-circuit, deliberately. A legacy zero-byte
+			# disposition that already committed must still be retryable to
+			# `already_committed`; refusing it here would make an operation
+			# that succeeded impossible to complete. This gate is for NEW
+			# content only.
+			refuse_empty_bodies(nodes, "close content")
 			now = _utc_now_iso()
 			manifest = None
 			if nodes is not None:
@@ -2558,7 +2661,12 @@ class Store:
 			body, parts, content_type=content_type, disposition=disposition,
 			part_name=part_name, container_type=container_type, where="notice content")
 		if nodes is None:
+			# NOT extended to broadcast, ruled. A notice has no recipient
+			# obligation to carry its meaning forward, and a TTL'd
+			# announcement whose whole content is a summary line is the case
+			# that most needs a body.
 			raise BatonError("a notice requires content")
+		refuse_empty_bodies(nodes, "notice content")
 		reject_external_parts(nodes, "a notice")
 		_check_transient_size(nodes)
 		self._txn_begin("send", participant=sender)
@@ -3519,6 +3627,62 @@ class Store:
 			                     else "out")
 			out.append(item)
 		return out
+
+	def authorize_read(self, kind: str, owner_id: str, participant: str) -> sqlite3.Row:
+		"""May this participant read this message or notice back? Returns the
+		row, or refuses INDISTINGUISHABLY from "it does not exist".
+
+		Authority is the immutable publication-time audience, plus the sender:
+
+		- a message: its `from_participant`, or a member of its publication
+		  audience;
+		- a notice: its author, or a member of its frozen audience WHO HAS
+		  ALREADY SEEN IT.
+
+		The receipt requirement on notices is what keeps at-most-once intact.
+		Reread is not redelivery -- the recipient already had these bytes --
+		but reading one they have NOT been delivered would be a first delivery
+		through a door that records nothing. `see` remains the only way to
+		receive a notice; this is only the way back to one.
+
+		Recovery does not appear here. It is a capability for repairing
+		claims, and the ruling keeps it separate: it does not grant universal
+		authority to read other participants' content.
+
+		REFUSALS ARE IDENTICAL for "no such thing" and "not yours", so the
+		read surface is not an enumeration oracle -- a non-party learns
+		nothing from it, including whether an id exists.
+		"""
+		self._check_identity(participant)
+		absent = BatonError(f"unknown {kind} {owner_id!r}", EXIT_NONE)
+		if kind == "message":
+			row = self.conn.execute(
+				"SELECT * FROM messages WHERE id=?", (owner_id,)).fetchone()
+			if row is None:
+				raise absent
+			if row["from_participant"] == participant:
+				return row
+			member = self.conn.execute(
+				"SELECT 1 FROM publication_audience WHERE publication_id=? AND participant=?",
+				(row["publication_id"], participant)).fetchone()
+			if member is None:
+				raise absent
+			return row
+		row = self.conn.execute(
+			"SELECT * FROM notices WHERE id=?", (owner_id,)).fetchone()
+		if row is None:
+			raise absent
+		if row["from_participant"] == participant:
+			return row
+		member = self.conn.execute(
+			"SELECT 1 FROM notice_audience WHERE notice_id=? AND participant=?",
+			(owner_id, participant)).fetchone()
+		seen = self.conn.execute(
+			"SELECT 1 FROM notice_seen WHERE notice_id=? AND participant=?",
+			(owner_id, participant)).fetchone()
+		if member is None or seen is None:
+			raise absent
+		return row
 
 	def open_received(self, message_id: str, participant: str) -> dict:
 		"""The retained content of something this participant RECEIVED and has
@@ -5533,6 +5697,17 @@ def doctor(config_path: str) -> dict:
 				try:
 					nodes = store._read_parts(owner_kind, r["id"])
 					if not nodes:
+						# A CONTENTLESS PUBLICATION IS NOT DAMAGE, and the
+						# manifest proves which one this is: the pinned
+						# representation hashes to the digest of an empty
+						# container, so a row that matches it stores no parts
+						# BY CONSTRUCTION. Anything else with a manifest and
+						# no parts had parts once, which is the case this
+						# check exists for.
+						if (r["content_type"] == CONTENTLESS_CONTAINER
+								and r["manifest_sha256"] == manifest_digest(
+									CONTENTLESS_CONTAINER, [])):
+							continue
 						report["problems"].append(
 							f"{owner_kind} {r['id']} records a content manifest but stores no parts")
 						continue
@@ -5806,7 +5981,13 @@ def _project_part(msg: dict, message_id: str, target_dir: str, prefix: str,
 	"""Shared by the module entry point and `Store.materialize_part`, so the
 	CLI and the console cannot drift on where a projection lands or what it is
 	called."""
-	if msg["retention"] != RETENTION_DURABLE:
+	# A NOTICE HAS NO RETENTION. It is retained until its TTL elapses or `gc`
+	# collects it, and while it exists its bytes are as durable as a durable
+	# message's -- so the transient guard below simply does not apply to one.
+	# `.get` rather than `[...]`: the absence of the column is the signal, and
+	# defaulting it to "durable" would quietly re-run a check that has no
+	# meaning here.
+	if msg.get("retention", RETENTION_DURABLE) != RETENTION_DURABLE:
 		raise BatonError(
 			f"message {message_id!r} is transient; materializing it would create a "
 			"durable copy that defeats the retention contract")
@@ -5842,19 +6023,53 @@ def _project_part(msg: dict, message_id: str, target_dir: str, prefix: str,
 		os.close(dirfd)
 
 
-def materialize(config_path: str, message_id: str, target_dir: str,
-                prefix: str = "message", part: str = "0") -> str:
-	"""Re-emit ONE durable message part as a byte-exact projection file in
-	target_dir (idempotent: an existing exact file is accepted). Projections
-	are caches, never protocol state.
+def materialize(config_path: str, owner_id: str, target_dir: str,
+                prefix: str = "message", part: str = "0", *,
+                participant: str) -> str:
+	"""Re-emit ONE durable part as a byte-exact projection file in target_dir
+	(idempotent: an existing exact file is accepted). Projections are caches,
+	never protocol state.
+
+	`participant` IS REQUIRED, ruled 2026-08-10. This verb used to take a bare
+	id and ask nobody who they were: in a mailbox holding ten teams' agents,
+	any of them could project any other's message content, and with no
+	participant on the command there was nothing to write anywhere that a
+	boundary had been crossed. Every other content-bearing verb is
+	participant-scoped; this one was not, and it was the one that wrote bytes
+	to disk.
+
+	Addresses a NOTICE as well as a message, which is the other half of the
+	same finding: a notice's bytes were reachable only at delivery, so a
+	participant whose terminal truncated the text had no way back to it and
+	the tempting alternative was reading the database by hand.
+
+	Reading back writes NOTHING: no claim, no receipt, no transition, and --
+	ruled explicitly -- no audit record either.
 
 	Part `0` keeps the historical unsuffixed filename, so the single-part case
 	that every existing projection directory holds does not churn; any other
 	part appends `-part<address>`. The suffix follows the part's declared media
 	type, so a Markdown part is still `.md`."""
 	with open_instance(config_path, readonly=True) as store:
-		msg = store.get_message(message_id)
-	return _project_part(msg, message_id, target_dir, prefix, part)
+		# ONE REFUSAL FOR EVERY FAILURE, and it must not depend on which table
+		# the id was found in. An earlier version picked the kind by looking
+		# the id up first, so an unauthorized MESSAGE said "unknown message"
+		# while a nonexistent id said "unknown notice" -- which tells a
+		# non-party that the id exists and is a message. That is the
+		# enumeration oracle this surface is supposed not to be, and a test
+		# comparing the two refusal strings is what caught it.
+		owner = kind = None
+		for candidate, table in (("message", "messages"), ("notice", "notices")):
+			try:
+				row = store.authorize_read(candidate, owner_id, participant)
+			except BatonError:
+				continue
+			owner, kind = dict(row), candidate
+			break
+		if owner is None:
+			raise BatonError(f"unknown id {owner_id!r}", EXIT_NONE)
+		owner["parts"] = store._read_parts(kind, owner_id)
+	return _project_part(owner, owner_id, target_dir, prefix, part)
 
 
 # ---------------------------------------------------------------------------
@@ -6005,6 +6220,89 @@ def _read_body(spec: str | None) -> bytes | None:
 		raise BatonError(f"body file unreadable: {exc}") from exc
 
 
+# Every option that supplies CONTENT or names how content is shaped, as its
+# NAMESPACE attribute. `--part`, `--references` and `--attach` are deliberately
+# absent: they do not have namespace attributes at all. `authoring_opts` sends
+# all three into one shared ordered `ns.content` list, so leaf order is the
+# order the human typed -- and `getattr(ns, "part", None)` was therefore
+# permanently None, which made three of the eight exclusivity checks dead code
+# that always passed.
+_TWEET_EXCLUSIVE = ("subject", "body", "content_type", "disposition", "part_name")
+
+
+def _tweet_conflicts(ns) -> list[str]:
+	"""Which content options were supplied beside `--tweet`, named as flags.
+
+	Reads BOTH shapes, because the surface has two: ordinary attributes, and
+	the shared ordered list that `--part`/`--references`/`--attach` collect
+	into. Checking only the first is how `--tweet x --attach root:file`
+	exited zero and published a contentless message, silently discarding an
+	attachment the sender explicitly asked for.
+	"""
+	found = {f"--{name.replace('_', '-')}" for name in _TWEET_EXCLUSIVE
+	         if getattr(ns, name, None) not in (None, [], ())}
+	for kind, _value in getattr(ns, "content", None) or []:
+		found.add(f"--{kind.replace('_', '-')}")
+	return sorted(found)
+
+
+def _tweet_subject(ns) -> str | None:
+	"""Resolve `--tweet`, or None when it was not used.
+
+	The value BECOMES THE SUBJECT and the message publishes with no content.
+	An explicit option rather than an inferred one: every alternative infers
+	"I meant to send nothing" from an ABSENCE -- no `--body`, or empty stdin
+	-- and an absence is also what a broken pipe, a truncated heredoc, or a
+	missing input file looks like. Every subject-only message on this
+	deployment was already being produced by accident, through the zero-byte
+	body defect, which is the failure this whole rule exists to end.
+
+	`--tweet -` reads stdin as UTF-8 and removes EXACTLY ONE terminal LF or
+	CRLF, because `printf 'ship it\n' | ...` is what a human writing one line
+	actually types. Only the line terminator is forgiven: a leading space or a
+	second trailing newline still reaches the subject validator and is
+	refused.
+
+	Nothing is silently ignored. `--tweet` beside any content option is a
+	refusal in both directions -- dropping the body would lose content, and
+	dropping the flag would make it decorative.
+	"""
+	tweet = getattr(ns, "tweet", None)
+	if tweet is None:
+		return None
+	conflicts = _tweet_conflicts(ns)
+	if conflicts:
+		raise BatonError(
+			f"--tweet is the whole message, so it cannot be combined with "
+			f"{', '.join(sorted(conflicts))}")
+	if tweet == "-":
+		raw = sys.stdin.buffer.read()
+		try:
+			text = raw.decode("utf-8")
+		except UnicodeDecodeError:
+			raise BatonError("--tweet - expects UTF-8 text") from None
+		# EXACTLY ONE terminator, and CRLF before LF so the CR is not left
+		# behind to fail validation as a control character.
+		for terminator in ("\r\n", "\n"):
+			if text.endswith(terminator):
+				text = text[:-len(terminator)]
+				break
+	else:
+		text = tweet
+	if not text:
+		raise BatonError("--tweet requires text; there is nothing to send")
+	# NOT validated here. A tweet IS a subject, and `send`/`reply` already run
+	# `validate_subject` on whatever they are given -- one line, no controls,
+	# no edge whitespace, at most 255 bytes as UTF-8.
+	#
+	# An earlier version called the validator here too. It was redundant, and
+	# the break check proved it: removing the call failed nothing, because
+	# every refusal still arrived from the store. A second gate checking the
+	# same property is not extra safety -- it is a second thing to keep in
+	# agreement, and the one that drifts is the one nobody tests.
+	return text
+
+
 def _parse_attach(spec: str | None):
 	if spec is None:
 		return None
@@ -6093,6 +6391,11 @@ def _build_parser():
 	ident(c)
 	c = cmd("send", help="send a directed message")
 	ident(c)
+	c.add_argument("--tweet", metavar="TEXT",
+	               help="the whole message is this one line, which becomes its "
+	                    "subject; no body is published. Use `-` to read the line "
+	                    "from stdin. Cannot be combined with --subject or any "
+	                    "content option.")
 	c.add_argument("--possible-duplicate", action="store_true",
 	               help="you could not tell whether an earlier attempt was "
 	                    "published; marks this one, immutably, for the "
@@ -6146,6 +6449,11 @@ def _build_parser():
 	c = cmd("reply", help="reply to a held claim (effectively-once)")
 	ident(c)
 	c.add_argument("claim_id")
+	c.add_argument("--tweet", metavar="TEXT",
+	               help="the whole message is this one line, which becomes its "
+	                    "subject; no body is published. Use `-` to read the line "
+	                    "from stdin. Cannot be combined with --subject or any "
+	                    "content option.")
 	c.add_argument("--kind", required=True)
 	c.add_argument("--subject",
 	               help="one-line human summary (default: inherit the message's subject)")
@@ -6189,8 +6497,12 @@ def _build_parser():
 	cmd("doctor", help="read-only diagnosis")
 	cmd("dump", help="read-only table snapshot")
 	cmd("inspect", help="move/maintenance state (read-only)")
-	c = cmd("materialize", help="re-emit one durable content part as a projection file")
-	c.add_argument("message_id")
+	c = cmd("materialize",
+	        help="re-emit one durable content part as a projection file "
+	             "(message or notice; requires --participant)")
+	ident(c)
+	c.add_argument("message_id", metavar="ID",
+	               help="a message id, or a notice id you have already seen")
 	c.add_argument("--dir", required=True)
 	c.add_argument("--prefix", default="message")
 	c.add_argument("--part", default="0",
@@ -6251,11 +6563,16 @@ def main(argv: list[str] | None = None) -> int:
 			# ONE instance, opened before the content is built: a reference
 			# names a ROOT, and which roots exist is the authority's answer
 			# rather than this process's.
+			tweet = _tweet_subject(ns)
 			with open_instance(ns.config) as store:
-				parts = _authored_parts(ns, roots=store.list_roots(),
-				                        legacy_attach=True)
-				attach = _legacy_attach(ns)
-				if parts is not None:
+				parts = None if tweet is not None else _authored_parts(
+					ns, roots=store.list_roots(), legacy_attach=True)
+				attach = None if tweet is not None else _legacy_attach(ns)
+				if tweet is not None:
+					# The subject IS the message: no body, no parts, no
+					# implicit stdin read.
+					body = None
+				elif parts is not None:
 					# Part mode: every leaf is in `parts`, including any
 					# `--attach`, in the order the options appeared.
 					body = None
@@ -6270,7 +6587,8 @@ def main(argv: list[str] | None = None) -> int:
 				# return shape is unchanged; several become a list.
 				addressees = ns.to if len(ns.to) > 1 else ns.to[0]
 				message_id = store.send(
-					ns.participant, addressees, kind=ns.kind, subject=ns.subject,
+					ns.participant, addressees, kind=ns.kind,
+					subject=tweet if tweet is not None else ns.subject,
 					possible_duplicate=ns.possible_duplicate,
 					body=body, parts=parts,
 					content_type=ns.content_type if parts is None else None,
@@ -6336,11 +6654,18 @@ def main(argv: list[str] | None = None) -> int:
 				                       notice_id=ns.notice_id)
 			_print_result({"expired": removed})
 		elif ns.command == "reply":
+			tweet = _tweet_subject(ns)
 			with open_instance(ns.config) as store:
-				parts = _authored_parts(ns, roots=store.list_roots())
+				parts = None if tweet is not None else _authored_parts(
+					ns, roots=store.list_roots())
 				result = store.reply(ns.claim_id, participant=ns.participant,
-				                     kind=ns.kind, subject=ns.subject,
-				                     body=None if parts is not None else _read_body(_or_stdin(ns.body)),
+				                     kind=ns.kind,
+				                     subject=tweet if tweet is not None else ns.subject,
+				                     # `--tweet` publishes no content and reads
+				                     # no stdin; without it the implicit-stdin
+				                     # behaviour is exactly as before.
+				                     body=None if (tweet is not None or parts is not None)
+				                     else _read_body(_or_stdin(ns.body)),
 				                     parts=parts,
 				                     content_type=ns.content_type if parts is None else None,
 				                     disposition=ns.disposition if parts is None else None,
@@ -6385,7 +6710,8 @@ def main(argv: list[str] | None = None) -> int:
 		elif ns.command == "inspect":
 			_print_result(move_status_inspect(ns.config))
 		elif ns.command == "materialize":
-			path = materialize(ns.config, ns.message_id, ns.dir, prefix=ns.prefix, part=ns.part)
+			path = materialize(ns.config, ns.message_id, ns.dir, prefix=ns.prefix,
+			                   part=ns.part, participant=ns.participant)
 			_print_result({"projection": path})
 		elif ns.command == "maintenance-enter":
 			_print_result(maintenance_enter(

@@ -1,6 +1,7 @@
 # Explicit message bodies may be empty
 
-Status: **confirmed; not started**.
+Status: **implementation ready for final review**. The CLI authoring surface
+is tracked in `findings/finding-tweet-authoring/{FINDING,PLAN,PROGRESS}.md`.
 
 ## Finding
 
@@ -78,3 +79,54 @@ or broadening this single-body rule.
 12. The standalone executable and distribution remain free of host-project
     assumptions.
 
+## Clarification — ruled 2026-08-10, and it changes the shape of the fix
+
+This finding was written as though rejecting a zero-byte body were purely a
+subtraction. Measuring the protocol before implementing showed it is not:
+
+    send        bodyless      REFUSED   "a message requires content"
+    send        body=b""      ACCEPTED  -> 0-byte part, sha e3b0c442...
+    send-notice bodyless      REFUSED   "a notice requires content"
+    send-notice body=b""      ACCEPTED
+    reply       bodyless      REFUSED   "reply requires content
+                                         (a close is the contentless disposition)"
+    close       bodyless      ACCEPTED  <- deliberate, unchanged
+    close       body=b""      ACCEPTED  -> 0-byte part
+
+So `close` is the ONLY contentless publication the protocol allows. Every
+subject-only message on the live channel — including several carrying review
+instructions — reached its recipient through the zero-byte loophole this
+finding exists to close, because the deliberate path refuses a contentless
+send. Rejecting empty bodies alone would therefore have removed a flow people
+depend on, without anyone deciding to remove it.
+
+The human-console decisions already require quick subject-only directed
+messages and replies. Ruled: specify that honestly as a first-class
+affordance rather than let it survive as a defect.
+
+### The contract
+
+- an explicitly supplied ZERO-BYTE body is refused on the body-bearing paths
+  above; attachment behaviour is unchanged and outside this finding;
+- a contentless directed `send` or `reply` is PERMITTED when, and only when,
+  it carries a non-empty subject — the subject is then the message;
+- `close` keeps its existing contentless disposition;
+- notices are NOT included: subject-only notice publication stays refused. A
+  broadcast has no recipient obligation to carry the meaning forward, and a
+  TTL'd announcement whose whole content is a summary line is the case that
+  most needs a body;
+- the empty manifest/parts representation is pinned rather than left implicit,
+  and `scan`, the console and `materialize` each state what a contentless
+  directed publication looks like.
+
+The distinction that makes this coherent: a zero-byte PART asserts that
+content exists and is empty; a contentless message asserts that the subject is
+the whole of it. The first is a lie the store told on the sender's behalf. The
+second is something a sender can mean.
+
+## Nested active finding
+
+The complete decision history, CLI contract, compatibility rule, and evidence
+for `--tweet` live in
+`findings/finding-tweet-authoring/{FINDING,PLAN,PROGRESS}.md`. The parent owns the Store-level
+empty-body/contentless distinction; the child owns how the CLI selects it.

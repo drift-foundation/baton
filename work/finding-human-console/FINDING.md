@@ -970,3 +970,10 @@ after any confusing state becomes which of the two is right.
 
 Nothing for `x` is implemented in this stage. The contract is carried in
 `work/finding-protocol-10-umbrella/FINDING.md`.
+
+## Nested active findings
+
+- `findings/finding-enter-detail-focus/FINDING.md` — the previously lost Enter ruling,
+  now authoritative and in progress.
+- `findings/finding-selected-part-footer/FINDING.md` — body-first rendering with a
+  persistent selected-part/count footer, ready for implementation.

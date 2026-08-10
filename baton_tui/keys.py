@@ -219,8 +219,13 @@ HELP_SECTIONS = (
 	# reference in the work area, so what they said has to be complete HERE --
 	# removing an explanation is only safe if its one owner carries it.
 	("Lifecycle", (
-		("selecting", "a pending directed message is CLAIMED and opened: "
-		              "ownership is taken and a reply or close is then owed", ()),
+		("selecting", "a pending directed message is CLAIMED and opened after "
+		              "two seconds on the same row: ownership is taken and a "
+		              "reply or close is then owed. Scrolling past claims "
+		              "nothing", ()),
+		("Enter", "opens the selected message and moves focus to the detail "
+		          "pane — the forward half of Tab. It does not wait out the "
+		          "two seconds; Tab is the way back", ()),
 		("Enter", "on an unseen notice: records the receipt and opens it, "
 		          "at-most-once — the content is not redelivered", ()),
 		("Enter", "on a message already yours: reopens it; the reply or "

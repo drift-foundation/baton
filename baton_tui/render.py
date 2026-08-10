@@ -277,8 +277,13 @@ def layout_for(columns: int, lines: int, recipients=(), participant=None) -> dic
 	# depends on whether the list overflows, and `list_capacity` is the one
 	# place that decides it -- subtracting the indicator row here as well gave
 	# the model a second, smaller height and hid a message at exact fit.
+	# The MODEL's detail height is the SCROLLABLE height, which is one row
+	# less than the pane: the selected-part footer occupies the last one.
+	# Paging, jump-to-end and the overflow indicator all read this, so the
+	# subtraction belongs here rather than in each of them -- a model that
+	# thought it had the footer's row could never scroll to the final line.
 	layout = {"inbox_height": max(1, top_lines),
-	          "detail_height": max(1, detail_lines)}
+	          "detail_height": max(1, detail_lines - PART_FOOTER_ROWS)}
 	if recipients:
 		# Only when there is something to measure. Returning a capacity
 		# computed from an EMPTY list would let any caller that omits the
@@ -1020,12 +1025,81 @@ def _inbox_pane(state, width: int, height: int, *,
 	return rows
 
 
+# The selected-part footer occupies the LAST row of the detail pane. Named so
+# the scroll window, the page arithmetic and the model's idea of the pane
+# height cannot disagree about it -- the same failure that hid a message when
+# the two-row footer became one and only the renderer was told.
+PART_FOOTER_ROWS = 1
+
+
+def part_footer(state, width: int) -> str:
+	"""The fixed bottom row of DETAIL: which part is selected, of how many.
+
+	Ruled after live reading showed transport metadata occupying the FIRST
+	line a reader reaches, before the message itself -- `[0]` is a manifest
+	address, not a name, and the single-part reader had to skip it to get to
+	their text. It also never said how many parts there were, which is the
+	one thing a multipart reader actually wants.
+
+	Counted through `state.visible_parts()`, the model's OWN traversal.
+	A second traversal lived here and recognised fewer detail shapes, so an
+	unopened two-part preview reported `(0 parts)` -- turning "not loaded
+	here" into the false statement "contentless". One traversal cannot
+	disagree with itself.
+
+	THE COUNT IS RESERVED. It is the field this footer exists for, so it is
+	placed first in the budget and the optional metadata is dropped from the
+	right until the address and the count fit. Ordinary right-edge truncation
+	removed the count at every width a long part name reached, which is
+	exactly backwards.
+	"""
+	parts = state.visible_parts()
+	total = len(parts)
+	chosen = state.selected_part if total else None
+	if chosen is None:
+		# No selection to name: an opened contentless message. Says the count
+		# and fabricates no address -- there is no part `0` when there are no
+		# parts, and inventing one would assert content that does not exist.
+		return _cell(f"  ({total} parts)" if total != 1 else "  (1 part)", width)
+	index = min(state.part_cursor, total - 1) + 1
+	head = f"{_part_glyph(state)} [{chosen.get('address', '')}]"
+	tail = f"({index}/{total} parts)"
+	# Optional, in the order they are given up: the advisory name first, then
+	# the disposition, then the media type.
+	optional = []
+	if chosen.get("content_type"):
+		optional.append(str(chosen["content_type"]))
+	if chosen.get("disposition"):
+		optional.append(str(chosen["disposition"]))
+	if chosen.get("part_name"):
+		# The NAME, said as a name. The address is not one, and labelling it
+		# as such is the confusion this finding is named after.
+		optional.append(f"name: {chosen['part_name']}")
+	while optional:
+		line = f"  {head} " + "  ".join(optional) + f"  {tail}"
+		if display_width(line) <= width:
+			return _cell(line, width)
+		optional.pop()
+	return _cell(f"  {head}  {tail}", width)
+
+
+def _part_glyph(state) -> str:
+	"""ASCII fallback for the same terminals `ascii_glyphs` serves."""
+	return PART_MARKER if not getattr(state, "ascii_only", False) else PART_MARKER_ASCII
+
+
 def _detail_pane(state, width: int, height: int, *,
                  marker: str = PART_MARKER) -> list[str]:
-	"""The scrolled window onto the detail lines, so long content is readable
-	rather than silently truncated at the pane boundary."""
+	"""The scrolled window onto the detail lines, plus the fixed part footer.
+
+	The footer takes the last row, so the SCROLLING window is one shorter.
+	Everything that pages, jumps to the end, or reports overflow reads the
+	same reduced height from here rather than computing its own."""
 	pannable: list[int] = []
 	produced = _detail_lines(state, width, marker=marker, pannable=pannable)
+	footer = part_footer(state, width) if _shows_part_footer(state) else None
+	if footer is not None:
+		height = max(1, height - PART_FOOTER_ROWS)
 	movable = set(pannable)
 	offset = max(0, min(state.detail_offset, max(0, len(produced) - height)))
 	# CONTENT pans; chrome does not. Metadata, part headers and container
@@ -1039,11 +1113,41 @@ def _detail_pane(state, width: int, height: int, *,
 		window[-1] = _cell(f"  ... {len(produced) - offset - height} more lines", width)
 	while len(window) < height:
 		window.append("")
-	return window[:height]
+	window = window[:height]
+	if footer is not None:
+		window.append(footer)
+	return window
+
+
+# Detail shapes whose part set is AUTHORITATIVE. A `sent_row` is a listing
+# row: it carries no part metadata, so counting it would report `0 parts` for
+# a message whose parts simply were not loaded here -- "not loaded" stated as
+# "contentless".
+_FOOTER_SHAPES = ("preview", "delivery", "notice", "sent", "sent_notice", "received")
+
+
+def _shows_part_footer(state) -> bool:
+	"""Only where a part selection means anything, and is known.
+
+	The pickers and help REPLACE the pane. A FRESH composition replaces it
+	too -- `_detail_lines` already hides the message behind a new compose or
+	notice, and the footer must follow the same rule or the form ends up with
+	an unrelated message's address, media type and part name attached to it,
+	attributing content to the draft the human is about to send.
+
+	A REPLY is deliberately not a fresh composition: it keeps the message it
+	answers on screen, so it keeps that message's footer.
+	"""
+	if state.mode in (MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_HELP):
+		return False
+	if _fresh_composition(state):
+		return False
+	detail = state.detail or {}
+	return any(key in detail for key in _FOOTER_SHAPES)
 
 
 def _detail_lines(state, width: int, *, marker: str = PART_MARKER,
-                  marks=None, pannable=None,
+                  marks=None, pannable=None, starts=None,
                   notice_seen: str = NOTICE_SEEN_MARK,
                   status: dict | None = None) -> list[str]:
 	"""The detail pane's lines. `marks`, when given, is filled with the
@@ -1080,7 +1184,7 @@ def _detail_lines(state, width: int, *, marker: str = PART_MARKER,
 		out.extend(_delivery_lines(detail["delivery"], width, selected=selected,
 		                           marker=marker, marks=marks,
 		                           external=getattr(state, "external_text", None),
-		                           pannable=pannable))
+		                           pannable=pannable, starts=starts))
 	elif "notice" in detail:
 		out.extend(_notice_lines(detail["notice"], width, selected=selected,
 		                         marker=marker, marks=marks,
@@ -1267,7 +1371,8 @@ def _preview_lines(preview: dict, width: int) -> list[str]:
 
 def _delivery_lines(delivery: dict, width: int, *, selected=None,
                     marker: str = PART_MARKER, marks=None,
-                    external: dict | None = None, pannable=None) -> list[str]:
+                    external: dict | None = None, pannable=None,
+                    starts=None) -> list[str]:
 	message = delivery.get("message", {})
 	out = _headers(message, width)
 	if delivery.get("damaged"):
@@ -1279,7 +1384,8 @@ def _delivery_lines(delivery: dict, width: int, *, selected=None,
 	out.append("")
 	out.extend(_rendered_parts(content.get("parts"), width, selected=selected,
 	                           marker=marker, marks=marks, base=len(out),
-	                           external=external, pannable=pannable))
+	                           external=external, pannable=pannable,
+	                           starts=starts))
 	return out
 
 
@@ -1441,7 +1547,8 @@ def _rendered_parts(parts, width: int, indent: str = "  ", *,
                     selected: str | None = None, marker: str = PART_MARKER,
                     marks: list | None = None, base: int = 0,
                     external: dict | None = None,
-                    pannable: list | None = None) -> list[str]:
+                    pannable: list | None = None,
+                    starts: list | None = None) -> list[str]:
 	"""Opened content. Text parts are shown; binary and integrity metadata are
 	summarized and hidden unless explicitly materialized.
 
@@ -1463,6 +1570,13 @@ def _rendered_parts(parts, width: int, indent: str = "  ", *,
 	for part in parts or []:
 		address = part.get("address", "")
 		chosen = selected is not None and address == selected
+		if chosen and starts is not None:
+			# WHERE THE SELECTED PART BEGINS, for scrolling only. Kept apart
+			# from `marks`, which is for STYLING: a text part has no header
+			# row to style any more, but it still has a first row to bring
+			# into view, and conflating the two would either style body text
+			# or stop `[`/`]` scrolling to it.
+			starts.append(base + len(out))
 		head_indent = (indent[:-2] + marker + " ") if chosen and len(indent) >= 2 \
 			else indent
 
@@ -1482,17 +1596,24 @@ def _rendered_parts(parts, width: int, indent: str = "  ", *,
 			out.extend(rows)
 			out.extend(_rendered_parts(part["parts"], width, indent + "  ",
 			                           selected=selected, marker=marker,
-			                           marks=marks, base=base + len(out),
+			                           marks=marks, starts=starts,
+			                           base=base + len(out),
 			                           external=external, pannable=pannable))
 			continue
 		header = _part_header(part)
 		if part.get("encoding") == "text":
-			rows = headed(header)
-			mark(rows, chosen)
-			out.extend(rows)
-			# Content is NEVER marked: the mark says which part `m` acts on,
-			# and spreading it over the body would say the whole part is a
-			# control.
+			# NO HEADER LINE. Ruled: the body starts where the transport
+			# metadata used to, and `[0] text/markdown; charset=utf-8 inline`
+			# is now the fixed footer at the bottom of the pane. A reader
+			# should reach the message first; the address is not a name and
+			# the single-part reader was skipping it every time.
+			#
+			# A QUIET BOUNDARY between bodies, and only between them: one
+			# blank row, not a repeated media line. `marks` stays empty for
+			# text parts because there is no header row left to style -- the
+			# footer says which part is selected now.
+			if out and out[-1].strip():
+				out.append("")
 			body = _wrapped_content(part.get("text", ""), width, indent)
 			_note_pannable(pannable, base, out, body)
 			out.extend(body)
@@ -1550,21 +1671,25 @@ def input_line_index(state, columns: int, lines: int) -> int:
 	return -1
 
 
-def part_header_line_index(state, columns: int, lines: int) -> int:
-	"""Index, within the detail pane's wrapped lines, of the SELECTED part's
-	header row. -1 when nothing is marked.
+def part_start_line_index(state, columns: int, lines: int) -> int:
+	"""Index, within the detail pane's wrapped lines, where the SELECTED part
+	BEGINS. -1 when nothing is selected.
+
+	RENAMED from `part_header_line_index`: text parts no longer have a header
+	row, so this returns the start of their CONTENT. Leaving the old name
+	would have future navigation work infer a header that does not exist.
 
 	The counterpart of `input_line_index`, and it exists for the same reason:
 	only the renderer knows how the content laid out, and the driver has to
 	tell the model where to scroll. Stacked, the detail pane is 60% of the
 	body rather than all of it, so the later parts of a multipart message
-	start below the fold -- and a mark the human cannot see is a cursor that
-	does not exist as far as they are concerned."""
+	start below the fold -- and a selection the human cannot see is a cursor
+	that does not exist as far as they are concerned."""
 	if columns < MIN_COLUMNS or lines < MIN_LINES:
 		return -1
-	marks: list[int] = []
-	_detail_lines(state, columns, marks=marks)
-	return marks[0] if marks else -1
+	starts: list[int] = []
+	_detail_lines(state, columns, starts=starts)
+	return starts[0] if starts else -1
 
 
 def input_caret(state, columns: int, lines: int) -> tuple[int, int]:

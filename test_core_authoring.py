@@ -387,33 +387,74 @@ def test_a_malformed_escape_in_a_KEY_is_refused_too():
 	assert "malformed percent escape" in str(caught.value)
 
 
-def test_an_attached_leaf_is_declared_binary_rather_than_markdown():
-	"""A STOPGAP, pinned so it is visible rather than ambient.
+def test_the_authoring_layer_no_longer_declares_the_attachment_type():
+	"""REPLACED the stopgap test, which said out loud that it should be.
 
-	`normalize_parts` defaults an absent content type to
-	`text/markdown; charset=utf-8` for every node, including one carrying
-	`attach` -- so the same file published through the parts surface would be
-	declared text while the same file through `send(attach=...)` is declared
-	`application/octet-stream`. Declaring it here makes the two CLI surfaces
-	agree.
+	The old test pinned `authoring` declaring `application/octet-stream`
+	itself, because `normalize_parts` defaulted EVERY untyped node to markdown
+	and only this one caller was patched around it. Its docstring said: "If
+	that lands and this line is removed, this test is what says so out loud."
+	It landed, and this is that.
 
-	This pins the stopgap, NOT the fix. The real correction is for the store to
-	pick its default from the node, and it is recorded separately. If that
-	lands and this line is removed, this test is what says so out loud."""
+	Now the authoring layer declares NOTHING, and the type arrives from the
+	store's general rule. Asserting the absence is the point: if a future edit
+	re-adds an explicit type here, it would mask a regression in that rule
+	from every test that goes through the CLI."""
 	nodes = _build(_parser().parse_args(
 		["--attach", "src:report.pdf", "--part", "text/plain; charset=utf-8|a.txt"]))
-	assert nodes[0]["content_type"] == "application/octet-stream"
+	assert "content_type" not in nodes[0], \
+		"the authoring layer is declaring a type the store should choose"
 	assert nodes[0]["disposition"] == "attachment"
 
 
-def test_the_two_cli_attachment_surfaces_agree_on_the_default_type():
-	"""The property the stopgap exists to hold: one file, two spellings, one
-	declared type. Reads the store's own convenience-path default rather than
-	repeating the string, so the two cannot drift apart silently."""
-	from baton_core._impl import DEFAULT_ATTACHMENT_TYPE
-	nodes = _build(_parser().parse_args(
-		["--attach", "src:report.pdf", "--references", "refs.txt"]))
+def test_the_store_defaults_an_untyped_attachment_to_binary():
+	"""The correction itself, at the layer that owns it.
+
+	Reached through the general parts surface -- the one every multipart
+	caller must use -- rather than the `send(attach=...)` convenience path
+	that always had the right default."""
+	from baton_core._impl import DEFAULT_ATTACHMENT_TYPE, content_spec
+	_container, nodes = content_spec(
+		None, [{"attach": "r:report.pdf", "disposition": "attachment"}])
 	assert nodes[0]["content_type"] == DEFAULT_ATTACHMENT_TYPE
+
+
+def test_an_explicit_type_still_wins_over_the_attachment_default():
+	"""The default is a default. A caller who names `application/pdf` gets it,
+	which is what makes the rule a fallback rather than a coercion."""
+	from baton_core._impl import content_spec
+	_container, nodes = content_spec(
+		None, [{"attach": "r:report.pdf", "disposition": "attachment",
+		        "content_type": "application/pdf"}])
+	assert nodes[0]["content_type"] == "application/pdf"
+
+
+def test_an_inline_leaf_still_defaults_to_markdown():
+	"""The other half: the fix chooses per node, so it must not have moved the
+	INLINE default with it."""
+	from baton_core._impl import DEFAULT_CONTENT_TYPE, content_spec
+	_container, nodes = content_spec(b"hello\n", None)
+	assert nodes[0]["content_type"] == DEFAULT_CONTENT_TYPE
+
+
+def test_the_two_cli_attachment_surfaces_agree_on_the_default_type():
+	"""One file, two spellings, one declared type -- measured AFTER
+	normalization, which is where the type is now decided.
+
+	This assertion used to read the authoring layer's output, because that
+	layer declared the type itself. It no longer does, so checking it there
+	would only confirm that the workaround is gone. Both spellings are now put
+	through `content_spec`, which is what the store actually stores, and the
+	expected value is read from the module rather than repeated."""
+	from baton_core._impl import DEFAULT_ATTACHMENT_TYPE, content_spec
+	authored = _build(_parser().parse_args(
+		["--attach", "src:report.pdf", "--references", "refs.txt"]))
+	_c, parts_path = content_spec(None, authored)
+	# The convenience spelling: one attachment, no parts list.
+	_c2, convenience_path = content_spec(
+		None, [{"attach": "src:report.pdf", "disposition": "attachment"}])
+	assert parts_path[0]["content_type"] == DEFAULT_ATTACHMENT_TYPE
+	assert convenience_path[0]["content_type"] == DEFAULT_ATTACHMENT_TYPE
 
 
 # -- `--body` in part mode: the data-loss regression -----------------------

@@ -544,11 +544,18 @@ def test_the_part_marker_is_drawn_and_differs_from_the_row_highlight(tmp_path):
 
 	# The marker reached the terminal as a character...
 	assert "\u25b8" in text, "the part marker was never drawn"
-	# ...and SOME attribute other than plain reverse video is in use, which is
-	# what makes the two selections tell apart. 1 = bold, 4 = underline.
-	params = [p for run in _SGR.findall(text) for p in run.split(";")]
-	assert "1" in params or "4" in params, (
-		"the part header carries no attribute distinct from the row highlight")
+	# ...on the FOOTER row, which is what tells the two selections apart now.
+	#
+	# This used to assert a distinct SGR attribute (bold or underline) on the
+	# selected part's header row. That row no longer exists: ruled, the body
+	# leads and the part metadata moved to a fixed footer. The distinction is
+	# structural rather than stylistic -- a different row entirely, which is
+	# stronger than a different attribute on the same kind of row.
+	assert "parts)" in text, "the part footer was never drawn"
+	marker_line = next((line for line in text.splitlines()
+	                    if "\u25b8" in line and "parts)" in line), None)
+	assert marker_line is not None, \
+		"the marker and the part count are not on the same row"
 
 
 def _console(tmp_path, config_path, script, columns=100, lines=24, settle=0.7,
@@ -823,8 +830,14 @@ def test_lowercase_r_reaches_the_editor_path_on_a_real_terminal(tmp_path):
 	script.write_text("#!/bin/sh\nprintf 'from the editor\\n' > \"$1\"\n")
 	os.chmod(script, 0o755)
 
+	# WAIT OUT THE DWELL FIRST. Claim-on-highlight no longer commits the
+	# instant the console lands on a row: the startup selection dwells for two
+	# seconds, so `r` sent before that has no claim to reply to. Pressing a
+	# harmless key and waiting is what a human does here, and it is the only
+	# place in the suite where the real two seconds actually elapse.
 	text, status, steps = _console(tmp_path, config_path, [
-		(b"r", 1.5),                # claim-on-highlight already opened row 1
+		(b"", 2.4),                 # let the startup dwell commit the claim
+		(b"r", 1.5),                # now there is a claim to reply to
 		(b"\x1b", 0.4),             # leave the draft the editor produced
 		(b"qY", 0.5),
 	], columns=100, lines=24, editor=str(script))
@@ -836,7 +849,7 @@ def test_lowercase_r_reaches_the_editor_path_on_a_real_terminal(tmp_path):
 	# discarded silently and left the import message on the status line. `Esc`
 	# now RETAINS the draft and says so, replacing it -- so including that
 	# step asserts about a screen the editor is no longer the subject of.
-	screen = _replay(steps[0], columns=100, lines=24)
+	screen = _replay(steps[1], columns=100, lines=24)
 	assert any("draft imported" in line for line in screen), (
 		f"the editor round trip did not complete: {screen}")
 	# ...and curses came back: the panes are drawn again, not left as the
@@ -964,15 +977,17 @@ def test_the_packaged_console_returns_focus_to_messages_after_a_close(tmp_path):
 	"""
 	config_path, _proj = _instance(tmp_path)
 	transcript, status, steps = _packaged_console(tmp_path, config_path, [
-		(b"\r", 0.6),        # open: claims the message
-		(b"\t", 0.4),        # focus the detail pane
+		# Enter opens AND focuses the detail pane now -- ruled; the Tab that
+		# used to follow it would toggle straight back to MESSAGES and the
+		# close below would prove nothing.
+		(b"\r", 0.6),        # open, claim, and focus the detail pane
 		(b"c", 0.8),         # close
 		(b"q", 0.5),
 	])
 	assert status == 0, transcript[-2000:]
-	after_tab = _replay(steps[1])
-	after_close = _replay(steps[2])
-	assert any(line.startswith("> ") and _pty_is_rule(line) for line in after_tab), \
+	after_open = _replay(steps[0])
+	after_close = _replay(steps[1])
+	assert any(line.startswith("> ") and _pty_is_rule(line) for line in after_open), \
 		"the fixture never reached the detail pane; the close proves nothing"
 	assert any("closed" in line for line in after_close), \
 		"the packaged console did not report the close"
@@ -1065,3 +1080,29 @@ def test_the_packaged_console_keeps_a_draft_and_asks_before_discarding(tmp_path,
 	declined = _replay(steps[6], columns=columns)
 	assert any("✎" in line for line in declined), \
 		"declining the confirmation discarded the draft"
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_console_draws_the_selected_part_footer(tmp_path):
+	"""Evidence 7: the footer on the artifact Slawomir actually runs.
+
+	A real terminal is where the row budget bites -- an off-by-one in the
+	reserved row shows up here as a lost line or a footer drawn over the
+	status bar, neither of which a pure renderer test can see."""
+	config_path, _proj = _instance(tmp_path)
+	transcript, status, steps = _packaged_console(tmp_path, config_path, [
+		(b"\r", 0.8),        # open, claim, focus the detail pane
+		# `qY`: Enter CLAIMED the message, so quitting asks for confirmation.
+		(b"qY", 0.5),
+	])
+	assert status == 0, transcript[-2000:]
+	screen = _replay(steps[0])
+	rows = [line for line in screen if line.strip()]
+	assert any("parts)" in line for line in rows), \
+		f"no part footer on the packaged console: {rows[-4:]}"
+	# It is the LAST pane row, directly above the status bar, and it has not
+	# replaced it.
+	footer_row = max(i for i, line in enumerate(screen) if "parts)" in line)
+	below = [line for line in screen[footer_row + 1:] if line.strip()]
+	assert below, "nothing below the footer; the status bar was displaced"
+	assert not any("parts)" in line for line in below)

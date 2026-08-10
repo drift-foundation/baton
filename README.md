@@ -24,6 +24,21 @@ scrolling through transcripts, watching terminals, relaying messages, and
 hand-editing plans just to discover what needs attention. That does not scale
 as the number of agents, teams, and concurrent projects grows.
 
+A second problem is continuity. An agent can lose session context after a
+restart, crash, context reset, or other interruption, and reconstructing that
+context costs time and risks changing decisions that were already settled.
+Context is also difficult to transfer when a team switches to a different
+model -- whether a better, faster, or less expensive model from the same
+vendor, or one from another vendor.
+
+Developers compensate with findings, plans, progress journals, and other
+files. Those records remain essential, but their usefulness depends on every
+participant following the same conventions consistently. Baton adds a durable,
+model-independent communication record: handoffs, replies, decisions,
+references, and outstanding obligations survive process failures and can be
+picked up by a replacement participant on a heterogeneous system. A restart
+should interrupt work, not erase the team's shared understanding of it.
+
 Baton keeps the short operational view and the full record together. A
 one-line subject makes an inbox scannable; typed multipart content,
 references, and durable findings preserve the context behind it; claims and
@@ -276,9 +291,16 @@ does not toggle back: `Tab` is the reversible one.
 
 `Enter` is also the explicit way to open a pending message without waiting out
 the two-second dwell. The dwell exists so that scrolling past work does not
-claim it; pressing a key is not scrolling past. For multipart messages, `[`/`]` select the
-previous/next part and `m` materializes the selected part into the
-participant's configured projection directory. The status bar keeps claim obligations and errors
+claim it; pressing a key is not scrolling past. The message body starts at the top of the detail pane; a fixed footer on the
+pane's last row says which part you are on and how many there are:
+
+    ▸ [0] text/markdown; charset=utf-8  inline  (1/1 parts)
+
+For multipart messages, `[`/`]` select the previous/next part — updating that
+footer and bringing the part's content into view — and `m` materializes the
+selected part into the participant's configured projection directory. `[0]` is
+the part's ADDRESS in the manifest, not a name; a part that has a name shows it
+separately. A subject-only message says `0 parts` and invents no address. The status bar keeps claim obligations and errors
 visible.
 
 Each row carries a one-cell status column before the date. Alignment, not

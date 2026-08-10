@@ -29,9 +29,12 @@ multi-workspace shop with participants under `acme.*` and `hq.*`.
 from __future__ import annotations
 
 import json
+import io
 import multiprocessing
 import os
+import pathlib
 import sqlite3
+import sys
 
 import pytest
 
@@ -2812,9 +2815,9 @@ class TestObservability:
 			mid = send_one(st, body=b"# durable record\\n")
 		out = tmp_path / "projections"
 		out.mkdir()
-		path1 = b6.materialize(instance, mid, str(out))
+		path1 = b6.materialize(instance, mid, str(out), participant="acme.implementer")
 		assert open(path1, "rb").read() == b"# durable record\\n"
-		path2 = b6.materialize(instance, mid, str(out))
+		path2 = b6.materialize(instance, mid, str(out), participant="acme.implementer")
 		assert path2 == path1  # idempotent re-emit
 
 	def test_materialize_refuses_scrubbed(self, instance, tmp_path):
@@ -2823,7 +2826,7 @@ class TestObservability:
 			claim = st.claim("acme.implementer")
 			st.close_claim(claim["claim_id"], participant=claim["participant"])
 		with pytest.raises(b6.BatonError, match="transient"):
-			b6.materialize(instance, mid, str(tmp_path))
+			b6.materialize(instance, mid, str(tmp_path), participant="acme.implementer")
 
 
 class TestCli:
@@ -2922,12 +2925,16 @@ class TestLosslessDelivery:
 		assert part["size"] == 256
 		# Exactly ONE representation, chosen by the declared type.
 		assert "text" not in part
-		mid2 = store.send("acme.reviewer", "acme.implementer",
-		                  kind="empty", body=b"")
-		claim2 = store.claim("acme.implementer", message_id=mid2)
-		part2 = only_part(b6._delivery(store, claim2)["message"]["content"])
-		assert part2["size"] == 0 and part2["encoding"] == b6.ENCODING_TEXT
-		assert part2["text"] == "" and "base64" not in part2
+		# The empty-body half of this test is now a REFUSAL, ruled 2026-08-10:
+		# a zero-byte part asserts that content exists and is empty, which no
+		# sender means. How a zero-byte part that ALREADY EXISTS delivers is
+		# still pinned -- by
+		# `test_a_legacy_zero_byte_message_stays_deliverable_and_healthy`,
+		# which builds one the way the old code did and asserts it stays
+		# readable. The property did not disappear; it moved to where it can
+		# still be constructed.
+		with pytest.raises(b6.BatonError):
+			store.send("acme.reviewer", "acme.implementer", kind="empty", body=b"")
 
 	def test_undeclared_binary_is_refused_not_mislabelled(self, store):
 		"""The default type declares charset=utf-8, so bytes that are not UTF-8
@@ -3242,6 +3249,14 @@ def notice_one(store, body=b"all hands", kind="announcement", ttl_seconds=None,
                **content):
 	return store.send_notice("hq.lead", kind=kind,
 	                         body=body, ttl_seconds=ttl_seconds, **content)
+
+
+def _body_file(instance_path, payload: bytes):
+	"""A real file to publish from, beside the instance the test made."""
+	import pathlib as _p
+	path = _p.Path(instance_path).parent / "body.md"
+	path.write_bytes(payload)
+	return path
 
 
 class TestWaitNoticeDelivery:
@@ -3635,11 +3650,13 @@ class TestWaitNoticeDelivery:
 
 		What replaces it is the mirror property: `wait` says a notice is
 		there, and `see` still finds it."""
+		# A REAL body: an explicitly supplied empty one is refused now, and a
+		# notice cannot be subject-only.
 		code, out, _ = self._run(
 			"--config", instance, "send-notice", "--participant", "hq.lead",
 			"--kind", "announcement",
-			"--body", "/dev/stdin")
-		assert code == 0
+			"--body", str(_body_file(instance, b"an announcement\n")))
+		assert code == 0, out
 		code, out, _ = self._run(
 			"--config", instance, "wait", "--participant", "acme.implementer",
 			"--timeout", "5")
@@ -4323,10 +4340,10 @@ class TestDoctorLogical:
 		with b6.open_instance(instance) as st:
 			mid = send_one(st, body=b"t", retention="transient")
 			with pytest.raises(b6.BatonError, match="transient"):
-				b6.materialize(instance, mid, str(tmp_path))
+				b6.materialize(instance, mid, str(tmp_path), participant="acme.implementer")
 			st.claim("acme.implementer", message_id=mid)
 			with pytest.raises(b6.BatonError, match="transient"):
-				b6.materialize(instance, mid, str(tmp_path))
+				b6.materialize(instance, mid, str(tmp_path), participant="acme.implementer")
 
 
 # ---------------------------------------------------------------------------
@@ -4482,7 +4499,7 @@ class TestAuditChainDoctor:
 		with b6.open_instance(config_path) as st:
 			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="q", body=b"# record\\n")
-		path = b6.materialize(config_path, mid, str(proj))
+		path = b6.materialize(config_path, mid, str(proj), participant="acme.implementer")
 		report = b6.doctor(config_path)
 		assert report["projections"]["checked"] == 1
 		assert report["projections"]["orphans"] == []
@@ -4526,16 +4543,16 @@ class TestRound4Additions:
 		with b6.open_instance(config_path) as st:
 			mid = st.send("acme.reviewer", "acme.implementer",
 			              kind="q", body=b"# record\n")
-		path = b6.materialize(config_path, mid, str(proj), prefix="review")
+		path = b6.materialize(config_path, mid, str(proj), prefix="review", participant="acme.implementer")
 		assert os.path.basename(path).startswith("review-")
 		report = b6.doctor(config_path)
 		assert report["projections"]["checked"] == 1  # configured prefix inventoried
 		assert report["projections"]["orphans"] == []
-		default_named = b6.materialize(config_path, mid, str(proj))  # default prefix ignored here
+		default_named = b6.materialize(config_path, mid, str(proj), participant="acme.implementer")  # default prefix ignored here
 		report = b6.doctor(config_path)
 		assert report["projections"]["checked"] == 1  # only the configured prefix counts
 		with pytest.raises(b6.BatonError, match="invalid projection prefix"):
-			b6.materialize(config_path, mid, str(proj), prefix="Bad Prefix!")
+			b6.materialize(config_path, mid, str(proj), prefix="Bad Prefix!", participant="acme.implementer")
 
 	def test_gate_between_claim_and_fetch_still_delivers(self, instance, monkeypatch):
 		"""The seam now fires BEFORE _delivery: content is fetched through the
@@ -4828,17 +4845,17 @@ class TestTypedContentEnvelope:
 			])
 		# Part 0 keeps the historical unsuffixed name so single-part projection
 		# directories do not churn; the suffix follows the declared type.
-		zero = b6.materialize(instance, mid, str(target), prefix="review")
+		zero = b6.materialize(instance, mid, str(target), prefix="review", participant="acme.implementer")
 		assert zero.endswith(f"{mid}.md")
 		assert open(zero, "rb").read() == b"# summary\n"
-		nested = b6.materialize(instance, mid, str(target), prefix="review", part="1.1")
+		nested = b6.materialize(instance, mid, str(target), prefix="review", part="1.1", participant="acme.implementer")
 		assert nested.endswith(f"{mid}-part1-1.html")
 		assert open(nested, "rb").read() == b"<p>rich</p>\n"
 		# A container has no bytes to project, and an absent part is EXIT_NONE.
 		with pytest.raises(b6.BatonError, match="container"):
-			b6.materialize(instance, mid, str(target), prefix="review", part="1")
+			b6.materialize(instance, mid, str(target), prefix="review", part="1", participant="acme.implementer")
 		with pytest.raises(b6.BatonError) as excinfo:
-			b6.materialize(instance, mid, str(target), prefix="review", part="7")
+			b6.materialize(instance, mid, str(target), prefix="review", part="7", participant="acme.implementer")
 		assert excinfo.value.exit_code == b6.EXIT_NONE
 		# doctor still reconciles the projection directory it owns, across the
 		# new per-part filenames as well as the historical unsuffixed one.
@@ -4963,7 +4980,7 @@ class TestTypedContentEnvelope:
 		with b6.open_instance(instance) as store:
 			mid = store.send("acme.reviewer", "acme.implementer", kind="doc",
 			                 body=b"# doc\n", part_name="attacker-chosen.md")
-		path = b6.materialize(instance, mid, str(target), prefix="review")
+		path = b6.materialize(instance, mid, str(target), prefix="review", participant="acme.implementer")
 		assert os.path.basename(path).startswith("review-")
 		assert "attacker-chosen" not in path
 
@@ -6485,7 +6502,7 @@ class TestPartNameIsNotAFilename:
 			store.claim("acme.implementer")
 		target = tmp_path / "out"
 		target.mkdir()
-		written = b6.materialize(instance, mid, str(target), prefix="review")
+		written = b6.materialize(instance, mid, str(target), prefix="review", participant="acme.implementer")
 		assert os.path.dirname(written) == str(target), "the label chose the directory"
 		assert "escaped" not in os.path.basename(written)
 		# Nothing anywhere is named after the label -- not in the output
@@ -7584,3 +7601,555 @@ class TestOrphanPublicationDoctor:
 				"verb='gc', ts='2026-01-01T00:00:00Z' WHERE one_row=1")
 			with pytest.raises(sqlite3.IntegrityError):
 				store.conn.execute("UPDATE messages SET publication_id=NULL WHERE id=?", (mid,))
+
+
+class TestEmptyBodiesAndContentlessMessages:
+	"""Two rules that look like one and are not.
+
+	A zero-byte PART asserts that content exists and is empty -- the store
+	saying something on the sender's behalf that no sender means. A
+	CONTENTLESS message asserts that the subject is the whole of it, which is
+	something a sender can mean and which people were already doing, through
+	the zero-byte defect, because the deliberate path refused it."""
+
+	def test_an_explicitly_empty_body_is_refused_on_send(self, instance):
+		with b6.open_instance(instance) as store:
+			with pytest.raises(b6.BatonError) as excinfo:
+				store.send("hq.lead", "acme.implementer", kind="k", body=b"")
+			assert store.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 0
+		assert "at least one byte" in str(excinfo.value)
+
+	def test_an_explicitly_empty_body_is_refused_on_a_notice(self, instance):
+		with b6.open_instance(instance) as store:
+			with pytest.raises(b6.BatonError):
+				store.send_notice("hq.lead", kind="ann", body=b"")
+			assert store.conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0] == 0
+			assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 0
+
+	def test_an_explicitly_empty_body_is_refused_on_reply_and_the_claim_survives(self, instance):
+		"""The claim must remain active and replyable: a refused reply is not
+		a spent one."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="k", subject="s", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			with pytest.raises(b6.BatonError):
+				store.reply(claim["claim_id"], participant="acme.implementer",
+				            kind="a", body=b"")
+			assert store.get_claim(claim["claim_id"])["state"] == "active"
+			# ...and it can still be answered properly.
+			store.reply(claim["claim_id"], participant="acme.implementer",
+			            kind="a", body=b"real\n")
+
+	def test_an_explicitly_empty_body_is_refused_on_close_but_bodyless_close_stands(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="k", subject="s", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			with pytest.raises(b6.BatonError):
+				store.close_claim(claim["claim_id"], participant="acme.implementer",
+				                  body=b"")
+			assert store.get_claim(claim["claim_id"])["state"] == "active"
+			# The deliberate contentless DISPOSITION is untouched.
+			store.close_claim(claim["claim_id"], participant="acme.implementer")
+			assert store.get_claim(claim["claim_id"])["state"] == "completed"
+
+	def test_a_subject_only_send_is_permitted(self, instance):
+		with b6.open_instance(instance) as store:
+			mid = store.send("hq.lead", "acme.implementer", kind="ping",
+			                 subject="the subject is the message")
+			message = store.get_message(mid)
+		assert message["subject"] == "the subject is the message"
+		assert message["parts"] == []
+
+	def test_a_send_with_neither_content_nor_subject_is_refused(self, instance):
+		"""Otherwise nothing at all is published: no content and no summary is
+		not a quick message, it is an empty one."""
+		with b6.open_instance(instance) as store:
+			with pytest.raises(b6.BatonError) as excinfo:
+				store.send("hq.lead", "acme.implementer", kind="ping")
+		assert "subject to carry it" in str(excinfo.value)
+
+	def test_a_subject_only_reply_is_permitted(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="k", subject="Q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			result = store.reply(claim["claim_id"], participant="acme.implementer",
+			                     kind="a", subject="Approved")
+			response = store.get_message(result["response_message_id"])
+		assert response["subject"] == "Approved" and response["parts"] == []
+
+	def test_a_contentless_reply_inheriting_no_subject_is_refused(self, instance):
+		"""The hole this rule is easy to leave open. A reply INHERITS the
+		subject it answers, so answering a subjectless message with no body
+		would publish a row carrying neither content nor summary."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="k", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			with pytest.raises(b6.BatonError) as excinfo:
+				store.reply(claim["claim_id"], participant="acme.implementer", kind="a")
+			assert store.get_claim(claim["claim_id"])["state"] == "active"
+		assert "no subject to inherit" in str(excinfo.value)
+
+	def test_a_subject_only_notice_stays_refused(self, instance):
+		"""NOT extended to broadcast. A notice has no recipient obligation to
+		carry its meaning forward, and a TTL'd announcement whose whole
+		content is a summary line is the case that most needs a body."""
+		with b6.open_instance(instance) as store:
+			with pytest.raises(b6.BatonError) as excinfo:
+				store.send_notice("hq.lead", kind="ann", subject="just a subject")
+		assert "a notice requires content" in str(excinfo.value)
+
+	def test_the_contentless_representation_is_an_empty_container(self, instance):
+		"""PINNED, because `messages.content_type` and `manifest_sha256` are
+		NOT NULL and "no content" still has to be stored as something.
+
+		An empty `multipart/mixed` owning no part rows, whose manifest is the
+		digest of exactly that. Nothing is invented: an empty ordered list of
+		parts is what a message with no parts has."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("hq.lead", "acme.implementer", kind="ping", subject="s")
+			row = store.conn.execute(
+				"SELECT content_type, manifest_sha256 FROM messages WHERE id=?",
+				(mid,)).fetchone()
+			parts = store.conn.execute(
+				"SELECT COUNT(*) FROM parts WHERE owner_kind='message' AND owner_id=?",
+				(mid,)).fetchone()[0]
+		assert row["content_type"] == b6.CONTENTLESS_CONTAINER
+		assert row["manifest_sha256"] == b6.manifest_digest(b6.CONTENTLESS_CONTAINER, [])
+		assert parts == 0
+
+	def test_a_contentless_message_is_not_reported_as_damaged(self, instance):
+		"""`doctor` flags a manifest with no parts, because parts that
+		vanished are damage. The contentless representation is distinguished
+		by its manifest rather than by a flag: it hashes to the digest of an
+		empty container, so it stores no parts BY CONSTRUCTION."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="ping", subject="s")
+		report = b6.doctor(instance)
+		assert report["ok"] is True, report["problems"]
+
+	def test_a_contentless_message_delivers_and_scans(self, instance):
+		"""What a recipient actually gets: the envelope, the subject, and an
+		empty part list -- not an error and not a missing key."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="ping", subject="look at me")
+			scanned = store.scan("acme.implementer")
+			assert [m["subject"] for m in scanned["pending"]] == ["look at me"]
+			assert scanned["damaged"] == []
+			delivered = b6._delivery(store, store.claim("acme.implementer"))
+		content = delivered["message"]["content"]
+		assert content["parts"] == []
+		assert content["content_type"] == b6.CONTENTLESS_CONTAINER
+
+	def test_two_contentless_publications_share_a_manifest(self, instance):
+		"""The retry manifest stays meaningful: contentless is one shape, so
+		two of them hash identically, while any content at all differs."""
+		with b6.open_instance(instance) as store:
+			a = store.send("hq.lead", "acme.implementer", kind="ping", subject="one")
+			b_id = store.send("hq.lead", "acme.implementer", kind="ping", subject="two")
+			withbody = store.send("hq.lead", "acme.implementer", kind="ping",
+			                      subject="three", body=b"x\n")
+			digests = {mid: store.get_message(mid)["manifest_sha256"]
+			           for mid in (a, b_id, withbody)}
+		assert digests[a] == digests[b_id]
+		assert digests[withbody] != digests[a]
+
+	def test_whitespace_and_one_byte_bodies_are_still_content(self, instance):
+		"""This rule is about LENGTH, not about text semantics."""
+		with b6.open_instance(instance) as store:
+			for body in (b" ", b"\n", b"\x00"):
+				mid = store.send("hq.lead", "acme.implementer", kind="k", body=body)
+				assert store.get_message(mid)["parts"][0]["size"] == 1
+
+	def test_an_empty_leaf_inside_a_parts_list_is_refused(self, instance):
+		"""The finding asked for part-level emptiness to be DECIDED rather
+		than inherited. Decided: the same rule, because a zero-byte leaf in a
+		multipart tree is the same assertion as a zero-byte body."""
+		with b6.open_instance(instance) as store:
+			with pytest.raises(b6.BatonError) as excinfo:
+				store.send("hq.lead", "acme.implementer", kind="k", parts=[
+					{"body": b"real\n"}, {"body": b""}])
+			assert store.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 0
+		assert "at least one byte" in str(excinfo.value)
+
+	def test_a_committed_legacy_zero_byte_reply_can_still_be_retried(self, instance):
+		"""WHY the refusal sits after the retry check and not in
+		normalization.
+
+		A zero-byte reply that committed before this rule existed must remain
+		effectively-once: retrying it has to return `already_committed`.
+		Refusing during content normalization would run BEFORE the disposition
+		lookup and make an operation that already succeeded impossible to
+		complete -- turning a defect fix into a permanent stuck claim.
+
+		The legacy disposition is created by calling the store the way the old
+		code did, with the gate temporarily lifted, so the retry is exercised
+		against a genuinely committed zero-byte record rather than a
+		hand-built row."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="k", subject="s", body=b"x\n")
+			claim = store.claim("acme.implementer")
+			original = b6.refuse_empty_bodies
+			b6.refuse_empty_bodies = lambda nodes, where: None
+			try:
+				first = store.reply(claim["claim_id"], participant="acme.implementer",
+				                    kind="a", body=b"")
+			finally:
+				b6.refuse_empty_bodies = original
+			assert first["already_committed"] is False
+			# The rule is live again, and the retry still completes.
+			again = store.reply(claim["claim_id"], participant="acme.implementer",
+			                    kind="a", body=b"")
+		assert again["already_committed"] is True
+		assert again["response_message_id"] == first["response_message_id"]
+
+	def test_a_legacy_zero_byte_message_stays_deliverable_and_healthy(self, instance):
+		"""Existing zero-byte records remain valid historical data: openable,
+		diagnosable, deliverable. The rule refuses new publication; it does
+		not retroactively invalidate what is already stored."""
+		with b6.open_instance(instance) as store:
+			original = b6.refuse_empty_bodies
+			b6.refuse_empty_bodies = lambda nodes, where: None
+			try:
+				mid = store.send("hq.lead", "acme.implementer", kind="k", body=b"")
+			finally:
+				b6.refuse_empty_bodies = original
+			delivered = b6._delivery(store, store.claim("acme.implementer"))
+			assert delivered["message"]["id"] == mid
+			assert delivered["message"]["content"]["parts"][0]["size"] == 0
+		assert b6.doctor(instance)["ok"] is True, b6.doctor(instance)["problems"]
+
+
+class TestParticipantScopedReread:
+	"""Reading content back is a PARTY's right, not an open door.
+
+	`materialize` used to take a bare id and ask nobody who they were. In a
+	mailbox holding ten teams' agents, any of them could project any other's
+	message content -- and with no participant on the command there was
+	nothing anywhere to say a boundary had been crossed. It was also the one
+	verb that wrote bytes to disk."""
+
+	def test_the_recipient_may_read_their_message_back(self, instance, tmp_path):
+		with b6.open_instance(instance) as store:
+			mid = store.send("hq.lead", "acme.implementer", kind="k", subject="s",
+			                 body=b"hello\n")
+		path = b6.materialize(instance, mid, str(tmp_path), participant="acme.implementer")
+		assert pathlib.Path(path).read_bytes() == b"hello\n"
+
+	def test_the_sender_may_read_back_what_they_published(self, instance, tmp_path):
+		"""Confirming what you sent is a reasonable thing to want, and it was
+		the reason the unscoped verb kept getting reached for."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("hq.lead", "acme.implementer", kind="k", subject="s",
+			                 body=b"hello\n")
+		path = b6.materialize(instance, mid, str(tmp_path), participant="hq.lead")
+		assert pathlib.Path(path).read_bytes() == b"hello\n"
+
+	def test_a_non_party_is_refused_indistinguishably_from_absent(self, instance, tmp_path):
+		"""The refusal must not be an enumeration oracle: a non-party learns
+		nothing, INCLUDING whether the id exists."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("hq.lead", "acme.implementer", kind="k", subject="s",
+			                 body=b"hello\n")
+		with pytest.raises(b6.BatonError) as real:
+			b6.materialize(instance, mid, str(tmp_path), participant="acme.reviewer")
+		with pytest.raises(b6.BatonError) as absent:
+			b6.materialize(instance, "0" * 32, str(tmp_path), participant="acme.reviewer")
+		assert str(real.value).replace(mid, "X") == str(absent.value).replace("0" * 32, "X")
+		assert real.value.exit_code == absent.value.exit_code
+
+	def test_an_audience_member_may_reread_a_notice_they_have_seen(self, instance, tmp_path):
+		"""The other half of the finding. A notice's bytes were reachable only
+		at delivery, so a participant whose terminal truncated the text had no
+		way back to them -- and the tempting alternative was reading the
+		database by hand, which is the move the finding exists to forbid."""
+		with b6.open_instance(instance) as store:
+			nid = store.send_notice("hq.lead", kind="ann", subject="n", body=b"broadcast\n")
+			store.see("acme.implementer")
+		path = b6.materialize(instance, nid, str(tmp_path), participant="acme.implementer")
+		assert pathlib.Path(path).read_bytes() == b"broadcast\n"
+
+	def test_rereading_a_notice_writes_no_second_receipt(self, instance, tmp_path):
+		"""At-most-once is a property of DELIVERY, and reread is not
+		redelivery. The recipient already had these bytes."""
+		with b6.open_instance(instance) as store:
+			nid = store.send_notice("hq.lead", kind="ann", subject="n", body=b"broadcast\n")
+			store.see("acme.implementer")
+			before = store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0]
+		b6.materialize(instance, nid, str(tmp_path), participant="acme.implementer")
+		b6.materialize(instance, nid, str(tmp_path), prefix="again",
+		               participant="acme.implementer")
+		with b6.open_instance(instance) as store:
+			after = store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0]
+			transitions = store.conn.execute("SELECT COUNT(*) FROM transitions").fetchone()[0]
+		assert after == before == 1
+		assert b6.doctor(instance)["ok"] is True
+
+	def test_a_notice_not_yet_seen_cannot_be_read_this_way(self, instance, tmp_path):
+		"""Reread is the way BACK to a delivery, not a second door into a
+		first one. `see` remains the only way to receive a notice; reading one
+		that was never delivered here would be a delivery that records
+		nothing."""
+		with b6.open_instance(instance) as store:
+			nid = store.send_notice("hq.lead", kind="ann", subject="n", body=b"broadcast\n")
+		with pytest.raises(b6.BatonError):
+			b6.materialize(instance, nid, str(tmp_path), participant="acme.implementer")
+
+	def test_the_author_may_read_back_their_own_notice(self, instance, tmp_path):
+		with b6.open_instance(instance) as store:
+			nid = store.send_notice("hq.lead", kind="ann", subject="n", body=b"broadcast\n")
+		path = b6.materialize(instance, nid, str(tmp_path), participant="hq.lead")
+		assert pathlib.Path(path).read_bytes() == b"broadcast\n"
+
+	def test_recovery_does_not_grant_universal_reading(self, instance, tmp_path):
+		"""Ruled explicitly. `recovery` repairs claims; it is not a key to
+		other participants' content, and a capability that quietly became one
+		would make the audience rule advisory.
+
+		The capability assertion was written `assert "recovery" in caps or
+		True`, which can never fail -- so the test read as proof about a
+		privileged actor while proving only that SOME participant is refused.
+		Review caught it. The capability is now asserted outright: if the
+		fixture stops granting it, this test fails loudly rather than
+		quietly testing nothing."""
+		with b6.open_instance(instance) as store:
+			caps = store.config["participants"]["hq.lead"].get("capabilities", [])
+			assert "recovery" in caps, \
+				"the fixture no longer grants recovery; this test proves nothing without it"
+			mid = store.send("acme.reviewer", "acme.implementer", kind="k",
+			                 subject="s", body=b"private\n")
+		# A DEDICATED target: `tmp_path` also holds the instance itself, so
+		# asserting emptiness there would be asserting about the fixture.
+		target = pathlib.Path(tmp_path) / "projections"
+		target.mkdir()
+		# hq.lead HOLDS recovery and is neither sender nor audience here.
+		with pytest.raises(b6.BatonError):
+			b6.materialize(instance, mid, str(target), participant="hq.lead")
+		assert not list(target.iterdir()), "a refused read still wrote a projection"
+
+	def test_an_unconfigured_participant_is_refused_and_writes_nothing(self, instance, tmp_path):
+		"""Slawomir's ruling: the participant must EXIST in the instance
+		config. An identity the deployment never declared is not a party to
+		anything, and a refusal that still left a file on disk would make the
+		check cosmetic."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="k",
+			                 subject="s", body=b"private\n")
+		target = pathlib.Path(tmp_path) / "projections"
+		target.mkdir()
+		with pytest.raises(b6.BatonError):
+			b6.materialize(instance, mid, str(target), participant="ghost.nobody")
+		assert not list(target.iterdir())
+
+	def test_materialize_requires_a_participant_at_the_cli(self, instance, tmp_path):
+		"""A required option, not a default. Defaulting it would reintroduce
+		the unscoped read under a different spelling."""
+		import io, contextlib
+		with b6.open_instance(instance) as store:
+			mid = store.send("hq.lead", "acme.implementer", kind="k", subject="s",
+			                 body=b"hello\n")
+		err = io.StringIO()
+		with contextlib.redirect_stderr(err):
+			# `main` turns argparse's exit into a return code rather than
+			# letting SystemExit escape, so the assertion is on the code and
+			# the diagnostic, not on the exception.
+			code = b6.main(["--config", instance, "materialize", mid, "--dir", str(tmp_path)])
+		assert code != 0
+		assert "--participant" in err.getvalue()
+
+
+class TestTweetAuthoring:
+	"""`--tweet TEXT`: the whole message is one line, which becomes its
+	subject.
+
+	An EXPLICIT option, ruled after the alternative was measured: every
+	inference-based surface reads "I meant to send nothing" out of an ABSENCE
+	-- no `--body`, or empty stdin -- and an absence is also what a broken
+	pipe, a truncated heredoc or a missing input file looks like. Every
+	subject-only message on this deployment was already being produced by
+	accident, through the zero-byte body defect."""
+
+	def _run(self, *argv, stdin=b""):
+		import io, contextlib
+		out, err = io.StringIO(), io.StringIO()
+		real = sys.stdin
+		sys.stdin = io.TextIOWrapper(io.BytesIO(stdin))
+		try:
+			with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+				code = b6.main(list(argv))
+		finally:
+			sys.stdin = real
+		return code, out.getvalue(), err.getvalue()
+
+	def _send(self, instance, *extra, stdin=b""):
+		return self._run("--config", instance, "send", "--participant", "hq.lead",
+		                 "--to", "acme.implementer", "--kind", "ping", *extra, stdin=stdin)
+
+	def _subjects(self, instance):
+		with b6.open_instance(instance) as store:
+			return [(r["subject"], r["content_type"]) for r in store.conn.execute(
+				"SELECT subject, content_type FROM messages ORDER BY created_ts, id")]
+
+	def test_an_inline_tweet_becomes_the_subject_and_publishes_no_content(self, instance):
+		code, _out, err = self._send(instance, "--tweet", "ship it when green")
+		assert code == 0, err
+		assert self._subjects(instance) == [("ship it when green", b6.CONTENTLESS_CONTAINER)]
+
+	def test_a_tweet_from_stdin_loses_exactly_one_trailing_newline(self, instance):
+		"""`printf 'ship it\\n' | ...` is what a human writing one line types,
+		and the subject validator refuses trailing whitespace -- so without
+		this the documented invocation would always fail."""
+		code, _out, err = self._send(instance, "--tweet", "-", stdin=b"from stdin\n")
+		assert code == 0, err
+		assert self._subjects(instance) == [("from stdin", b6.CONTENTLESS_CONTAINER)]
+
+	def test_a_crlf_terminator_is_also_removed_whole(self, instance):
+		"""CRLF before LF, or the CR survives and fails validation as a
+		control character -- a confusing refusal for a correct pipeline."""
+		code, _out, err = self._send(instance, "--tweet", "-", stdin=b"crlf line\r\n")
+		assert code == 0, err
+		assert self._subjects(instance) == [("crlf line", b6.CONTENTLESS_CONTAINER)]
+
+	def test_only_one_terminator_is_forgiven(self, instance):
+		"""Exactly one. A second newline is trailing whitespace the sender
+		did not mean, and is refused rather than quietly stripped."""
+		code, _out, err = self._send(instance, "--tweet", "-", stdin=b"two\n\n")
+		assert code != 0
+		assert "whitespace" in err
+		assert self._subjects(instance) == []
+
+	@pytest.mark.parametrize("stdin,fragment", [
+		(b"", "requires text"),
+		(b"\n", "requires text"),
+		(b"a\nb\n", "single line"),
+		(b"has\ttab\n", "single line"),
+		(b"\xff\xfe\n", "UTF-8"),
+		(b" leading\n", "whitespace"),
+	])
+	def test_every_refusal_class_publishes_nothing(self, instance, stdin, fragment):
+		code, _out, err = self._send(instance, "--tweet", "-", stdin=stdin)
+		assert code != 0
+		assert fragment in err, err
+		assert self._subjects(instance) == []
+
+	def test_a_tweet_longer_than_a_subject_is_refused(self, instance):
+		code, _out, err = self._send(instance, "--tweet", "a" * 256)
+		assert code != 0 and "255 bytes" in err
+		assert self._subjects(instance) == []
+
+	@pytest.mark.parametrize("option,value", [
+		("--subject", "s"), ("--body", "/dev/null"), ("--content-type", "text/plain"),
+		("--disposition", "inline"), ("--part-name", "n"),
+	])
+	def test_a_tweet_is_exclusive_with_every_content_option(self, instance, option, value):
+		"""Nothing is silently ignored, in either direction: dropping the body
+		would lose content, and dropping the flag would make it decorative.
+
+		BOTH ARGUMENT ORDERS, per the child contract's evidence 4. An
+		exclusivity check that only sees one order is one `if` away from
+		depending on which option argparse happened to store first."""
+		for argv in (("--tweet", "x", option, value),
+		             (option, value, "--tweet", "x")):
+			code, _out, err = self._send(instance, *argv)
+			assert code != 0, f"accepted in this order: {argv}"
+			assert "cannot be combined with" in err and option in err
+			assert self._subjects(instance) == []
+
+	@pytest.mark.parametrize("option,value", [
+		("--part", "source=a.md&type=text/plain"),
+		("--references", "refs.txt"),
+		("--attach", "missing:nowhere"),
+	])
+	def test_a_tweet_refuses_the_shared_list_options_too(self, instance, option, value):
+		"""THE DEFECT REVIEW CAUGHT. `--part`, `--references` and `--attach`
+		have no namespace attributes at all: `authoring_opts` collects all
+		three into one ordered `ns.content` list so leaf order is the order
+		the human typed. The exclusivity check read attributes only, so those
+		three checks were permanently false -- and `--tweet x --attach
+		root:file` exited ZERO while silently discarding the attachment.
+
+		`missing:nowhere` is deliberate: a nonexistent root proves the option
+		was refused BEFORE anything was read, resolved or pinned, rather than
+		attached successfully."""
+		for argv in (("--tweet", "x", option, value),
+		             (option, value, "--tweet", "x")):
+			code, _out, err = self._send(instance, *argv)
+			assert code != 0, f"accepted in this order: {argv}"
+			assert "cannot be combined with" in err and option in err, err
+			assert self._subjects(instance) == []
+
+	@pytest.mark.parametrize("option,value", [
+		("--part", "source=a.md&type=text/plain"),
+		("--attach", "missing:nowhere"),
+		("--body", "/dev/null"),
+	])
+	def test_reply_refuses_the_same_combinations(self, instance, option, value):
+		"""`reply` is not an assumed caller of the shared helper: it has its
+		own dispatch, and the review asked for it at a proportional
+		boundary."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", subject="Q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+		code, _out, err = self._run(
+			"--config", instance, "reply", claim["claim_id"],
+			"--participant", "acme.implementer", "--kind", "ack",
+			"--tweet", "Approved", option, value)
+		assert code != 0
+		assert "cannot be combined with" in err and option in err
+		with b6.open_instance(instance) as store:
+			assert store.get_claim(claim["claim_id"])["state"] == "active", \
+				"a refused reply spent the claim"
+
+	def test_a_tweet_does_not_read_stdin_when_given_inline(self, instance):
+		"""The implicit-stdin read must not happen behind a `--tweet`: a
+		process with a pipe attached would otherwise have its body silently
+		consumed and discarded."""
+		code, _out, err = self._send(instance, "--tweet", "inline", stdin=b"IGNORED\n")
+		assert code == 0, err
+		assert self._subjects(instance) == [("inline", b6.CONTENTLESS_CONTAINER)]
+
+	def test_send_without_a_tweet_keeps_implicit_stdin(self, instance):
+		"""The preserved behaviour. Omitting `--tweet` and `--body` still
+		reads stdin exactly as before."""
+		code, _out, err = self._send(instance, stdin=b"ordinary body\n")
+		assert code == 0, err
+		with b6.open_instance(instance) as store:
+			mid = store.conn.execute("SELECT id FROM messages").fetchone()["id"]
+			assert store.get_message(mid)["parts"][0]["body"] == b"ordinary body\n"
+
+	def test_an_explicitly_empty_body_is_still_refused_without_a_tweet(self, instance):
+		code, _out, err = self._send(instance, "--body", "-", stdin=b"")
+		assert code != 0 and "at least one byte" in err
+
+	def test_reply_accepts_a_tweet(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", subject="Q", body=b"x\n")
+			claim = store.claim("acme.implementer")
+		code, _out, err = self._run(
+			"--config", instance, "reply", claim["claim_id"],
+			"--participant", "acme.implementer", "--kind", "ack", "--tweet", "Approved")
+		assert code == 0, err
+		with b6.open_instance(instance) as store:
+			row = store.conn.execute(
+				"SELECT subject, content_type FROM messages WHERE kind='ack'").fetchone()
+		assert row["subject"] == "Approved"
+		assert row["content_type"] == b6.CONTENTLESS_CONTAINER
+
+	def test_a_notice_has_no_tweet_option(self, instance):
+		"""Ruled: broadcast does not gain it. A notice has no recipient
+		obligation to carry its meaning forward."""
+		code, _out, err = self._run(
+			"--config", instance, "send-notice", "--participant", "hq.lead",
+			"--kind", "ann", "--tweet", "just a line")
+		assert code != 0
+		assert "unrecognized arguments" in err or "--tweet" in err
+
+	def test_the_stored_message_keeps_its_caller_supplied_kind(self, instance):
+		"""An authoring option, not a `kind=tweet`. The lifecycle is an
+		ordinary directed message's."""
+		code, _out, err = self._send(instance, "--tweet", "still testing")
+		assert code == 0, err
+		with b6.open_instance(instance) as store:
+			row = store.conn.execute("SELECT kind, state FROM messages").fetchone()
+			claim = store.claim("acme.implementer")
+			store.close_claim(claim["claim_id"], participant="acme.implementer")
+		assert row["kind"] == "ping" and row["state"] == "pending"

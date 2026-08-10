@@ -56,12 +56,48 @@ def env(tmp_path):
 		yield store
 
 
+class _Clock:
+	"""A driven monotonic clock for the dwell; see `_settle`."""
+
+	def __init__(self, start: float = 0.0):
+		self.now = start
+
+	def __call__(self) -> float:
+		return self.now
+
+
 def _ready(store, participant="acme.implementer"):
 	state = InboxState(participant)
+	# A DRIVEN CLOCK, so the claim-on-highlight dwell is settled explicitly by
+	# `_settle` below rather than by sleeping. These tests were written when
+	# highlighting claimed immediately and they assert what happens AFTER the
+	# human has settled on a row -- which is still exactly what they mean.
+	# The dwell's own timing rules are pinned separately, by tests that drive
+	# this clock rather than skipping past it.
+	state.clock = _Clock()
 	state.refresh(store)
 	state.set_viewport(**layout_for(100, 24))
 	state.preview(store)
 	return state
+
+
+def _select(state, store):
+	"""Select the row AND settle on it.
+
+	Substituted for direct `state.select_row(store)` calls in tests written
+	when highlighting claimed immediately. Their subject is what happens once
+	the human has settled -- reply, close, detail contents -- so settling here
+	preserves exactly what each test meant. The dwell's own timing rules are
+	pinned by tests that drive the clock instead of skipping past it."""
+	state.select_row(store)
+	_settle(state, store)
+
+
+def _settle(state, store):
+	"""Let an armed dwell come due: the human stopped scrolling."""
+	if getattr(state, "dwell", None) is not None:
+		state.clock.now = state.dwell["deadline"]
+		state.tick(store)
 
 
 def _pick(state, address):
@@ -89,6 +125,7 @@ def _press(state, store, *keys):
 	alive = True
 	for key in keys:
 		alive = step(state, store, key, 100, 24)
+		_settle(state, store)
 	return alive
 
 
@@ -251,9 +288,9 @@ def test_detail_focus_scrolls_the_detail_and_never_the_list(env):
 	body = "\n".join(f"line {i}" for i in range(80)).encode()
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Long", body=body)
 	state = _ready(store)
+	# Enter both opens and focuses DETAIL now, so there is no Tab here.
 	_press(state, store, K.ENTER_LF)
 	cursor = state.cursor
-	_press(state, store, K.TAB)                       # focus DETAIL
 	for _ in range(10):
 		_press(state, store, ord("j"))
 	assert state.detail_offset > 0
@@ -916,7 +953,10 @@ def test_a_jump_claims_only_its_destination(env):
 		store.send("acme.reviewer", "acme.implementer", kind="q",
 		           subject=f"M{i}", body=b"x\n")
 	state = _ready(store)
-	_press(state, store, K.ENTER_LF)               # claim the first
+	# Claim the first by SELECTING it: this test is about a jump in the LIST,
+	# and Enter now moves focus to DETAIL, where `G` means "end of the
+	# detail" rather than "last row".
+	_select(state, store)
 	assert state.opened is not None
 	first = state.opened["id"]
 	_press(state, store, ord("G"))
@@ -2887,31 +2927,32 @@ def _many_parts(store, count=8):
 		 "body": f"leaf {index}\n".encode()} for index in range(count)])
 
 
-def test_selecting_a_later_part_brings_its_header_into_view(env):
-	"""Stacked, the detail pane is 60% of the body instead of all of it, so
-	the later parts of a multipart message start below the fold. `[`/`]` that
-	moved a mark nobody can see would be a cursor that does not exist -- the
-	same fault as a picker offering a letter it never drew."""
-	from baton_tui.render import STYLE_PART_HEADER, render_styled
+def test_selecting_a_later_part_brings_its_content_into_view(env):
+	"""Stacked, the detail pane is 60% of the body, so later parts of a
+	multipart message start below the fold. `[`/`]` that moved a selection
+	nobody can see would be a cursor that does not exist.
+
+	CONTENT, not a header: ruled -- a text part leads with its body now, and
+	the metadata is in the fixed footer. So the thing that must come into
+	view is the part's text."""
+	from baton_tui.render import part_footer, render
 	store = env
 	_many_parts(store)
 	state = _ready(store)
-	_press(state, store, K.ENTER_LF)                  # claim and open
-	seen = []
+	_press(state, store, K.ENTER_LF)                  # claim, open, focus
 	for index in range(8):
 		if index:
 			_press(state, store, ord("]"))
 		assert state.part_cursor == index
-		marked = [text for text, style in render_styled(state, 100, 24)
-		          if STYLE_PART_HEADER in style]
-		assert marked, f"part {index} is selected but its header is off screen"
-		seen.append(marked[0])
-	assert len(set(seen)) == 8, "the mark did not move with the selection"
+		footer = part_footer(state, 100)
+		assert f"({index + 1}/8 parts)" in footer, footer
+		assert f"leaf {index}" in "\n".join(render(state, 100, 24)), \
+			f"part {index}'s content is not in the viewport"
 
 
 def test_moving_back_up_the_parts_follows_too(env):
 	"""Both directions, or `[` walks off the top of the pane instead."""
-	from baton_tui.render import STYLE_PART_HEADER, render_styled
+	from baton_tui.render import part_footer, render
 	store = env
 	_many_parts(store)
 	state = _ready(store)
@@ -2920,13 +2961,12 @@ def test_moving_back_up_the_parts_follows_too(env):
 		_press(state, store, ord("]"))
 	bottom = state.detail_offset
 	assert bottom > 0, "the pane never scrolled; the fixture is too small"
-	for _ in range(7):
+	for step_back in range(7):
 		_press(state, store, ord("["))
-		assert any(STYLE_PART_HEADER in style
-		           for _, style in render_styled(state, 100, 24))
-	assert state.part_cursor == 0
-	# Back up the document, not merely marking a header nobody can see.
-	assert state.detail_offset < bottom
+		index = 6 - step_back
+		assert f"({index + 1}/8 parts)" in part_footer(state, 100)
+		assert f"leaf {index}" in "\n".join(render(state, 100, 24))
+	assert state.detail_offset < bottom, "the pane never scrolled back up"
 
 
 def test_reading_scroll_is_not_taken_over_by_part_following(env):
@@ -2937,8 +2977,9 @@ def test_reading_scroll_is_not_taken_over_by_part_following(env):
 	store = env
 	_many_parts(store)
 	state = _ready(store)
+	# Enter focuses DETAIL itself now; the Tab that used to follow
+	# would toggle back to LIST.
 	_press(state, store, K.ENTER_LF)
-	_press(state, store, K.TAB)                       # focus the detail pane
 	for _ in range(6):
 		_press(state, store, ord("j"))
 	scrolled = state.detail_offset
@@ -3520,8 +3561,9 @@ def test_list_focus_moves_the_row_and_never_the_detail(env):
 	# one-line body proves nothing.
 	state.cursor = next(i for i, r in enumerate(state.rows) if r["subject"] == "Long")
 	state.preview(store)
+	# Enter now focuses DETAIL itself; the Tab that used to follow it would
+	# toggle straight back to LIST.
 	_press(state, store, K.ENTER_LF)
-	_press(state, store, K.TAB)
 	for _ in range(4):
 		_press(state, store, ord("j"))
 	scrolled = state.detail_offset
@@ -3551,8 +3593,9 @@ def test_every_forward_navigation_key_follows_focus(env, key):
 	store = env
 	_long_message(store)
 	state = _ready(store)
+	# Enter now focuses DETAIL itself; the Tab that used to follow it would
+	# toggle straight back to LIST.
 	_press(state, store, K.ENTER_LF)
-	_press(state, store, K.TAB)
 	cursor = state.cursor
 	_press(state, store, key)
 	assert state.detail_offset > 0, "the key did not scroll the focused detail"
@@ -3569,8 +3612,9 @@ def test_gg_and_G_act_on_the_focused_pane(env):
 	state = _ready(store)
 	state.cursor = next(i for i, r in enumerate(state.rows) if r["subject"] == "Long")
 	state.preview(store)
+	# Enter focuses DETAIL itself now; the Tab that used to follow
+	# would toggle back to LIST.
 	_press(state, store, K.ENTER_LF)
-	_press(state, store, K.TAB)                       # DETAIL focus
 	row = state.cursor
 	_press(state, store, ord("G"))
 	assert state.detail_offset > 0, "G did not reach the bottom of the detail"
@@ -4220,9 +4264,16 @@ def _unwrappable(store, subject="Long token", tail="ENDMARKER"):
 
 
 def _focused_detail(store, columns=60, lines=20):
+	"""Open the row and end up focused on DETAIL.
+
+	This used to be Enter (open) followed by Tab (focus). Enter now DOES the
+	focusing -- ruled, see `work/finding-human-console/FINDING.md` § "Enter
+	from LIST enters DETAIL" -- so the Tab that used to complete this helper
+	would now toggle straight back to LIST."""
 	state = _ready(store)
 	step(state, store, K.ENTER_LF, columns, lines)
-	step(state, store, K.TAB, columns, lines)
+	_settle(state, store)
+	assert state.focus == "detail", "Enter did not focus the detail pane"
 	return state
 
 
@@ -4326,7 +4377,7 @@ def test_list_focus_leaves_everything_alone_on_h_and_l(env):
 	store = env
 	_unwrappable(store)
 	state = _ready(store)
-	step(state, store, K.ENTER_LF, 60, 20)
+	_select(state, store)
 	before = (_writes(store), state.cursor, state.detail_offset,
 	          state.detail_hscroll, dict(state.opened))
 	for key in (ord("h"), ord("l"), K.KEY_LEFT, K.KEY_RIGHT):
@@ -4356,7 +4407,7 @@ def test_the_offset_survives_what_it_should_and_resets_when_it_must(env):
 	state.cursor = next(i for i, r in enumerate(state.rows)
 	                    if r["subject"] == "Long token")
 	state.preview(store)
-	step(state, store, K.ENTER_LF, 60, 20)
+	_select(state, store)
 	step(state, store, K.TAB, 60, 20)
 	for _ in range(20):
 		step(state, store, ord("l"), 60, 20)
@@ -4478,18 +4529,33 @@ def test_the_poll_interval_is_preserved_not_busy_looped(env):
 
 # -- RULED (major supersession): highlighting a directed row claims it -----
 
-def test_startup_selection_claims_and_opens_the_highlighted_row(env):
-	"""Point 1: the initial selected row follows the ruling too, so launching
-	the console on a pending directed message claims it."""
+def test_startup_dwells_rather_than_claiming_synchronously(env):
+	"""REWRITTEN for the dwell ruling: "Startup uses the same dwell instead of
+	claiming synchronously, giving the human two seconds to move away."
+
+	It previously asserted the opposite -- that launching the console on a
+	pending message claimed it immediately -- which is precisely the escape
+	hatch the dwell exists to provide. Someone opening the console to look at
+	the queue should not own its first row before the screen has finished
+	drawing.
+
+	Both halves are asserted: nothing claimed on arrival, and the same row
+	claimed once it has been settled on."""
 	from baton_tui.driver import first_selection
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Waiting",
 	           body=b"the body\n")
 	state = InboxState("acme.implementer")
+	state.clock = _Clock()
 	state.refresh(store)
 	state.set_viewport(**layout_for(100, 24))
-	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
 	first_selection(state, store)
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0, \
+		"startup claimed the row it landed on"
+	assert state.dwell is not None, "startup armed no dwell"
+	# Settled: the same row, and only now.
+	state.clock.now = state.dwell["deadline"]
+	state.tick(store)
 	assert state.opened is not None
 	assert state.opened["claim_id"] is not None
 	assert "delivery" in state.detail
@@ -4555,7 +4621,7 @@ def test_highlighting_an_unseen_notice_records_no_receipt(env):
 	# ...and Enter is still advertised on it, because it has not been consumed.
 	state.cursor = next(i for i, r in enumerate(state.rows)
 	                    if r["row_type"] == "notice")
-	state.select_row(store)
+	_select(state, store)
 	assert "Enter open" in _legend(state)
 	_press(state, store, K.ENTER_LF)
 	assert store.conn.execute(
@@ -4568,7 +4634,7 @@ def test_enter_stops_being_advertised_once_the_row_is_open(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	legend = _legend(state)
 	assert "Enter open" not in legend, legend
 	assert "c close" in legend and "r reply" in legend
@@ -4582,7 +4648,7 @@ def test_detail_focus_navigation_still_claims_nothing(env):
 		store.send("acme.reviewer", "acme.implementer", kind="q",
 		           subject=f"Row {index}", body=("line\n" * 60).encode())
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	before = _writes(store)
 	chosen = state.selected["id"]
 	_press(state, store, K.TAB)
@@ -4600,7 +4666,7 @@ def test_moving_across_pending_rows_accumulates_claims_and_closes_none(env):
 		store.send("acme.reviewer", "acme.implementer", kind="q",
 		           subject=f"Row {index}", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	for _ in range(3):
 		_press(state, store, ord("j"))
 	assert state.unresolved_count() == 4
@@ -4617,7 +4683,7 @@ def test_handled_and_outbound_rows_stay_observational_on_highlight(env):
 	for build in (_handled_inbound, _handled_outbound):
 		state, mid = build(store)
 		before = _writes(store)
-		state.select_row(store)
+		_select(state, store)
 		assert _writes(store) == before, "highlighting a handled row wrote"
 		assert state.opened is not None
 		assert state.opened["claim_id"] is None
@@ -4781,7 +4847,7 @@ def test_a_fresh_editor_reply_that_gives_nothing_back_restores_the_original(env,
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Original",
 	           body=b"the original body\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	opened = dict(state.opened)
 	shown = "\n".join(render(state, 100, 24))
 	assert "the original body" in shown
@@ -4817,7 +4883,7 @@ def test_ctrl_e_from_an_existing_draft_still_preserves_it(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, ord("R"))                    # a quick reply, by hand
 	state.draft = "my own words"
 	step(state, store, K.CTRL_E, 100, 24,
@@ -4831,7 +4897,7 @@ def test_a_fresh_editor_reply_that_succeeds_is_unaffected(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	seeds = []
 	step(state, store, ord("r"), 100, 24,
 	     edit_fn=_editor("a full answer", record=seeds))
@@ -4853,7 +4919,7 @@ def test_a_fresh_editor_reply_over_a_handled_row_restores_that_view(env):
 	store.close_claim(claim["claim_id"], participant="acme.implementer",
 	                  outcome="done")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	opened = dict(state.opened)
 	assert "the answered body" in "\n".join(render(state, 100, 24))
 
@@ -4875,7 +4941,7 @@ def test_a_fresh_editor_reply_over_a_notice_restores_that_view(env):
 	store.send_notice("acme.reviewer", kind="announcement", subject="Broadcast",
 	                  body=b"the announced body\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)               # notices open explicitly
 	opened = dict(state.opened)
 	assert "the announced body" in "\n".join(render(state, 100, 24))
@@ -4895,7 +4961,7 @@ def test_ctrl_e_that_changes_nothing_keeps_the_draft_and_the_mode(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, ord("R"))
 	state.draft = "my own words"
 	state.reply_body = "a body I already wrote"
@@ -5084,7 +5150,7 @@ def test_a_successful_reply_returns_focus_to_the_list(env):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Other", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	selected = state.selected["id"]
 	_in_detail(state, store)
 	_press(state, store, ord("R"))
@@ -5105,7 +5171,7 @@ def test_a_successful_compose_returns_focus_to_the_list(env):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ctx", body=b"x\n")
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ctx2", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	selected = state.selected["id"]
 	_in_detail(state, store)
 	state.begin_compose(recipient="acme.reviewer")
@@ -5124,7 +5190,7 @@ def test_a_successful_notice_returns_focus_to_the_list(env):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ctx", body=b"x\n")
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ctx2", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	selected = state.selected["id"]
 	_in_detail(state, store)
 	state.begin_compose(notice=True)
@@ -5143,7 +5209,7 @@ def test_a_successful_follow_up_returns_focus_to_the_list(env):
 	state, _mid = _handled_inbound(store)
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Other", body=b"x\n")
 	state.refresh(store)
-	state.select_row(store)
+	_select(state, store)
 	selected = state.selected["id"]
 	_in_detail(state, store)
 	assert state.begin_reply(), "this fixture did not reach a follow-up"
@@ -5163,7 +5229,7 @@ def test_a_declined_confirmation_leaves_focus_where_it_was(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_in_detail(state, store)
 	_press(state, store, ord("R"))
 	state.draft = "an answer"
@@ -5179,7 +5245,7 @@ def test_a_cancelled_draft_leaves_focus_where_it_was(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_in_detail(state, store)
 	_press(state, store, ord("R"))
 	_press(state, store, K.ESC)
@@ -5192,7 +5258,7 @@ def test_a_failed_send_leaves_focus_and_draft_alone(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_in_detail(state, store)
 	_press(state, store, ord("R"))
 	state.draft = "an answer"
@@ -5558,7 +5624,7 @@ def test_opening_it_says_it_is_mine_and_still_owed(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Mine", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	assert _glyph_of(state, "Mine") == OPENED
 	assert state.unresolved_count() == 1, "the obligation is not counted"
 
@@ -5568,7 +5634,7 @@ def test_replying_says_i_answered_and_clears_the_obligation(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Asked", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	state.draft = "answered"
 	state.send_reply(store)
 	state.refresh(store)
@@ -5596,7 +5662,7 @@ def test_closing_reads_the_same_as_replying_and_the_detail_still_distinguishes(e
 	# otherwise be the one that got closed.
 	state.cursor = [i for i, r in enumerate(state.rows)
 	                if r.get("subject") == "Shut"][0]
-	state.select_row(store)
+	_select(state, store)
 	state.close_selected(store, outcome="noted")
 	state.refresh(store)
 	assert _glyph_of(state, "Shut") == COMPLETED, "a closed row is not marked done"
@@ -5605,7 +5671,7 @@ def test_closing_reads_the_same_as_replying_and_the_detail_still_distinguishes(e
 	# The distinction lives in the DETAIL, where someone who needs it looks.
 	state.cursor = [i for i, r in enumerate(state.rows)
 	                if r.get("subject") == "Shut"][0]
-	state.select_row(store)
+	_select(state, store)
 	detail = "\n".join(render(state, 100, 24))
 	assert "closed" in detail, detail
 
@@ -5669,7 +5735,7 @@ def test_the_exact_protocol_state_is_still_in_the_detail(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Diag", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	detail = "\n".join(render(state, 100, 24))
 	assert "State:" in detail and "claimed" in detail, detail
 
@@ -5716,7 +5782,7 @@ def test_lowercase_r_goes_straight_to_the_editor(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	seeds = []
 	step(state, store, ord("r"), 100, 24, edit_fn=_editor("a full answer", record=seeds))
 	assert seeds, "`r` did not open the editor"
@@ -5728,7 +5794,7 @@ def test_uppercase_R_is_the_quick_subject_line_and_opens_nothing(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	seeds = []
 	step(state, store, ord("R"), 100, 24, edit_fn=_editor("never", record=seeds))
 	assert not seeds, "`R` opened the editor"
@@ -5740,7 +5806,7 @@ def test_lowercase_r_on_a_handled_row_is_a_follow_up_in_the_editor(env):
 	"""It must not reopen or alter the original disposition."""
 	store = env
 	state, mid = _handled_inbound(store)
-	state.select_row(store)
+	_select(state, store)
 	before = store.get_message(mid)["state"]
 	seeds = []
 	step(state, store, ord("r"), 100, 24, edit_fn=_editor("a follow-up", record=seeds))
@@ -5753,7 +5819,7 @@ def test_ctrl_e_still_promotes_a_quick_draft_without_losing_the_subject(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, ord("R"))
 	for char in " more":
 		_press(state, store, ord(char))
@@ -5829,7 +5895,7 @@ def test_a_successful_close_returns_focus_to_the_list(env):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Other", body=b"x\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	# OPEN first with the real Enter key: `c` acts on the claim the human
 	# opened, so without this the affordance gate refuses `c` and the
 	# assertion below would pass for the wrong reason.
@@ -5855,7 +5921,7 @@ def test_a_refused_close_leaves_focus_where_it_was(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask", body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	_in_detail(state, store)
 
@@ -5911,7 +5977,7 @@ def test_a_reply_draft_stays_tied_to_what_it_answers(env, tmp_path):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	answered = state.opened["id"]
 	_press(state, store, ord("R"))
@@ -6079,7 +6145,7 @@ def test_uppercase_D_on_a_message_destroys_nothing(env, tmp_path):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	before = len(state.rows)
 	_press(state, store, ord("D"))
 	assert state.mode == MODE_BROWSE, "D armed a confirmation on a message"
@@ -6133,7 +6199,7 @@ def test_highlighting_a_draft_does_not_reopen_it(env, tmp_path):
 	_press(state, store, K.ESC)
 	state.refresh(store)
 	state.cursor = state.rows.index(_draft_rows(state)[0])
-	state.select_row(store)
+	_select(state, store)
 	assert state.mode == MODE_BROWSE, "highlighting a draft reopened it"
 	# And `D` therefore reaches the discard confirmation rather than a field.
 	_press(state, store, ord("D"))
@@ -6201,7 +6267,7 @@ def test_a_reply_draft_can_be_sent_after_a_restart(env, tmp_path):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	_press(state, store, ord("R"))
 	for char in "answered later":
@@ -6231,7 +6297,7 @@ def test_a_restarted_reply_is_not_redirected_by_the_cursor(env, tmp_path):
 		store.send("acme.reviewer", "acme.implementer", kind="q",
 		           subject=subject, body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	answered = state.selected["id"]
 	_press(state, store, K.ENTER_LF)
 	_press(state, store, ord("R"))
@@ -6256,7 +6322,7 @@ def test_a_reply_whose_claim_went_terminal_refuses_visibly_and_keeps_the_draft(
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	claim_id = state.opened["claim_id"]
 	_press(state, store, ord("R"))
@@ -6316,7 +6382,7 @@ def test_a_terminal_reply_draft_refuses_the_SEND_and_says_why(env, tmp_path):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	claim_id = state.opened["claim_id"]
 	_press(state, store, ord("R"))
@@ -6349,7 +6415,7 @@ def test_a_fresh_reply_is_not_blocked_by_an_earlier_terminal_one(env, tmp_path):
 		store.send("acme.reviewer", "acme.implementer", kind="q",
 		           subject=subject, body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	claim_id = state.opened["claim_id"] if state.opened else None
 	_press(state, store, K.ENTER_LF)
 	claim_id = state.opened["claim_id"]
@@ -6392,7 +6458,7 @@ def test_a_reply_whose_message_is_gone_refuses_the_send_the_same_way(env, tmp_pa
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"?\n")
 	state = _with_drafts(store, tmp_path)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	_press(state, store, ord("R"))
 	for char in "orphaned":
@@ -6431,7 +6497,7 @@ def test_the_opened_detail_follows_the_poll_for_the_same_row(env, tmp_path):
 	           body=b"?\n")
 	state = _ready(store)
 	state.select_view(VIEW_SENT)
-	state.select_row(store)
+	_select(state, store)
 	envelope = state.detail["sent"]
 	assert envelope["state"] == "pending"
 
@@ -6455,7 +6521,7 @@ def test_the_sync_reads_nothing_from_the_authority(env, tmp_path):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 
 	def explode(*_args, **_kwargs):
@@ -6476,7 +6542,7 @@ def test_the_sync_never_replaces_content(env, tmp_path):
 	           body=b"the original bytes\n")
 	state = _ready(store)
 	state.select_view(VIEW_SENT)
-	state.select_row(store)
+	_select(state, store)
 	before = json.dumps(state.detail["sent"].get("content"), sort_keys=True)
 	store.claim("acme.reviewer")
 	state.refresh(store)
@@ -6491,7 +6557,7 @@ def test_the_sync_preserves_what_the_human_was_looking_at(env, tmp_path):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
 	           body=b"line\n" * 200)
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	state.detail_offset = 7
 	state.part_cursor = 0
@@ -6511,7 +6577,7 @@ def test_a_vanished_row_does_not_capture_the_open_detail(env, tmp_path):
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="First",
 	           body=b"?\n")
 	state = _ready(store)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	opened_id = state.detail_row[1]
 	before = dict(state.detail["delivery"]["message"])
@@ -6568,7 +6634,7 @@ def test_an_authored_notice_seen_count_follows_the_poll(env, tmp_path):
 	                  body=b"news\n", ttl_seconds=3600)
 	state = _ready(store)
 	state.select_view(VIEW_SENT)
-	state.select_row(store)
+	_select(state, store)
 	_press(state, store, K.ENTER_LF)
 	envelope = state.detail.get("sent_notice") or state.detail.get("sent")
 	assert envelope is not None, list(state.detail)
@@ -6598,7 +6664,7 @@ def test_a_failed_sent_refresh_cannot_overwrite_a_fresh_state(env, tmp_path):
 	           body=b"?\n")
 	state = _ready(store)
 	state.select_view(VIEW_SENT)
-	state.select_row(store)
+	_select(state, store)
 	assert state.detail["sent"]["state"] == "pending"
 
 	# The outbound listing starts failing FIRST, so the cache freezes at
@@ -6620,3 +6686,253 @@ def test_a_failed_sent_refresh_cannot_overwrite_a_fresh_state(env, tmp_path):
 		"the primary list did not refresh; this test proves nothing"
 	assert state.detail["sent"]["state"] == primary[0]["state"], \
 		"a stale sent cache overwrote a state the poll had already corrected"
+
+
+# -- the driver's own half of the dwell ------------------------------------
+
+def test_the_input_timeout_shortens_to_the_dwell():
+	"""The rule the review caught as unpinned, and it was right: every dwell
+	test lived in the state model, so this could be deleted and the claim
+	would silently drift to the next ordinary poll.
+
+	A five-second poll with half a second of dwell left must wake in half a
+	second, not in five."""
+	from baton_tui.driver import wake_after
+	assert wake_after(5.0, 0.5) == 0.5
+
+
+def test_the_input_timeout_is_unchanged_when_nothing_is_dwelling():
+	from baton_tui.driver import wake_after
+	assert wake_after(2.0, None) == 2.0
+
+
+def test_a_long_dwell_never_extends_the_poll():
+	"""The dwell shortens the wait; it must never lengthen it, or an arrival
+	would sit unshown while a slow dwell ran."""
+	from baton_tui.driver import wake_after
+	assert wake_after(2.0, 30.0) == 2.0
+
+
+def test_an_overdue_dwell_does_not_spin():
+	"""A dwell already past its deadline still needs one more trip round the
+	loop; a zero timeout would busy-wait."""
+	from baton_tui.driver import wake_after, MIN_WAKE_SECONDS
+	assert wake_after(2.0, 0.0) == MIN_WAKE_SECONDS
+	assert wake_after(2.0, -5.0) == MIN_WAKE_SECONDS
+
+
+# -- Enter from LIST enters DETAIL (ruled, recorded late) -------------------
+
+def test_enter_on_a_pending_row_claims_it_and_focuses_the_detail(env):
+	"""Ruled by Slawomir and recorded only after the implementation had
+	already contradicted it -- see
+	`work/finding-human-console/FINDING.md` § "Enter from LIST enters DETAIL".
+
+	Enter is the EXPLICIT act, so it does not wait out the dwell: the dwell
+	protects against passive scrolling, and a deliberate keystroke is not
+	passive."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"the body\n")
+	state = _ready(store)
+	assert state.focus == "list"
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.opened is not None and state.opened["claim_id"] is not None
+	assert state.focus == "detail", "Enter did not focus the detail pane"
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 1
+
+
+def test_enter_before_the_dwell_does_not_wait_for_it(env):
+	"""The dwell is a guard against scrolling past, not a delay on every
+	open. Enter commits immediately and leaves nothing armed."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"the body\n")
+	state = _ready(store)
+	state.select_row(store)                    # arms the dwell, claims nothing
+	assert state.dwell is not None
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.dwell is None, "the dwell survived an explicit Enter"
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 1
+
+
+def test_enter_on_an_already_claimed_row_focuses_without_a_second_claim(env):
+	store = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                 subject="Ask", body=b"the body\n")
+	store.claim("acme.implementer", message_id=mid)
+	state = _ready(store)
+	before = store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0]
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail"
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == before
+
+
+def test_enter_on_an_unseen_notice_marks_it_seen_once_and_focuses(env):
+	store = env
+	store.send_notice("acme.reviewer", kind="announcement", subject="All hands",
+	                  body=b"meeting at 3\n")
+	state = _ready(store)
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail"
+	assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 1
+	# Again: focus is already there, and no second receipt is written.
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 1
+
+
+def test_enter_from_detail_does_not_return_to_the_list(env):
+	"""`Tab` is the reversible toggle; Enter is one-way. Otherwise Enter would
+	mean two opposite things depending on where you were."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"the body\n")
+	state = _ready(store)
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail"
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail", "Enter from DETAIL toggled back to LIST"
+	step(state, store, K.TAB, 100, 24)
+	assert state.focus == "list", "Tab is still the reversible toggle"
+
+
+def test_enter_on_an_empty_list_focuses_nothing(env):
+	"""An empty selection must fail visibly rather than move focus into a
+	pane with nothing in it, which would strand the keys that only work
+	there."""
+	store = env
+	state = _ready(store)
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "list"
+
+
+def test_enter_inside_a_modal_flow_is_unchanged(env):
+	"""Modal Enter behaviour is untouched -- ruled explicitly, and the ruling
+	names the picker among the flows that keep their Enter.
+
+	`n` opens the RECIPIENT PICKER rather than compose directly; the point
+	holds either way. Enter there is a picker action, not a focus change."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"x\n")
+	state = _ready(store)
+	_press(state, store, ord("n"))
+	assert state.mode != MODE_BROWSE, "the fixture did not enter a modal flow"
+	before = state.focus
+	_press(state, store, K.ENTER_LF)
+	assert state.mode != MODE_BROWSE, "Enter left the modal flow for browse"
+	assert state.focus == before, "Enter changed focus inside a modal flow"
+
+
+def test_a_lost_claim_race_at_enter_keeps_list_focus(env):
+	"""R1 of the Enter review, and it contradicted `enter_selected`'s own
+	stated rule.
+
+	Deciding success by "detail is not None" was wrong in exactly the case
+	that matters: a lost race REFRESHES and PREVIEWS the row it could not
+	take, so detail becomes non-null while `opened` stays None -- and Enter
+	moved focus into a pane that cannot show the body the human asked for."""
+	store = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                 subject="Contested", body=b"body\n")
+	state = _ready(store)
+	# Another consumer takes it between the refresh and the keystroke.
+	store.claim("acme.implementer", message_id=mid)
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "list", "focus entered DETAIL after a failed open"
+	assert state.opened is None, "a false action target survived the lost race"
+	assert state.status, "the failure is not visible"
+
+
+def test_a_seen_notice_opened_from_the_list_writes_no_second_receipt(env):
+	"""R2: the old version pressed Enter twice without returning to LIST, so
+	the second key was governed by the one-way rule and never exercised the
+	seen-notice LIST path at all."""
+	store = env
+	store.send_notice("acme.reviewer", kind="announcement", subject="All hands",
+	                  body=b"meeting at 3\n")
+	state = _ready(store)
+	step(state, store, K.ENTER_LF, 100, 24)          # unseen: marks seen, focuses
+	assert state.focus == "detail"
+	assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 1
+	# A FRESH SESSION, which is the honest way to reach the seen-notice LIST
+	# path: pressing Enter again in the same console is refused because the
+	# row is already open, so it would exercise nothing. The review allows
+	# "or construct a refreshed state", and this is that -- a second console
+	# opening a notice this participant has already seen.
+	fresh = _ready(store)
+	assert fresh.focus == "list"
+	step(fresh, store, K.ENTER_LF, 100, 24)
+	assert store.conn.execute("SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 1, \
+		"opening a seen notice from the list wrote a second receipt"
+	assert fresh.focus == "detail", "a seen notice did not focus its lawful detail"
+	assert (fresh.detail or {}).get("notice", {}).get("already_seen") is True, \
+		"the seen notice did not say it was already seen"
+
+
+def test_a_handled_row_opens_read_only_and_focuses(env):
+	"""The missing focus assertion on an existing authority-boundary test."""
+	store = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q", subject="Done",
+	                 body=b"body\n")
+	claim = store.claim("acme.implementer", message_id=mid)
+	store.close_claim(claim["claim_id"], participant="acme.implementer")
+	state = _ready(store)
+	before = store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0]
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail"
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == before
+
+
+def test_an_outbound_row_opens_read_only_and_focuses(env):
+	store = env
+	store.send("acme.implementer", "acme.reviewer", kind="q", subject="Mine",
+	           body=b"body\n")
+	state = _ready(store)
+	state.select_view("sent")
+	before = store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0]
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail"
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == before
+
+
+def test_a_failed_sent_read_at_enter_keeps_list_focus(env):
+	"""The branch my own conversion missed: `open_selected` delegated the
+	whole SENT view to `open_sent_selected` and returned True unconditionally,
+	so a REFUSED read still focused DETAIL over the lightweight preview.
+
+	I classified that delegation as success without checking whether the
+	delegate could fail. It can: a damaged pin or an authority failure returns
+	without content."""
+	store = env
+	store.send("acme.implementer", "acme.reviewer", kind="q", subject="Mine",
+	           body=b"body\n")
+	state = _ready(store)
+	state.select_view("sent")
+	state.preview(store)
+	assert state.focus == "list"
+
+	class Refusing:
+		def __getattr__(self, name):
+			return getattr(store, name)
+		def open_sent(self, *args, **kwargs):
+			raise core.BatonError("simulated authority failure")
+
+	step(state, Refusing(), K.ENTER_LF, 100, 24)
+	assert state.focus == "list", "focus entered DETAIL after a refused sent read"
+	assert "open sent failed" in state.status or state.status, "the failure is not visible"
+
+
+def test_a_successful_sent_read_at_enter_still_focuses(env):
+	"""The other half, so the fix cannot be "never focus from SENT"."""
+	store = env
+	store.send("acme.implementer", "acme.reviewer", kind="q", subject="Mine",
+	           body=b"body\n")
+	state = _ready(store)
+	state.select_view("sent")
+	before = store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0]
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail"
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == before, \
+		"reading your own outbound copy wrote something"

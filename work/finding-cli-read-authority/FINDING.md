@@ -135,3 +135,36 @@ against the source file — an assertion about bytes, made with the tool, not
 about a hash computed beside it. Reading `mailbox.sqlite3` is not a fallback
 when the CLI seems not to offer something. If the CLI cannot answer a
 question, that fact is the finding.
+
+## Status — IMPLEMENTED, 2026-08-10
+
+Ruled: every public command requires an explicit participant that exists in
+the config; an authorized reread needs NO persistent audit record; `recovery`
+stays separate and does not grant universal content-reading authority.
+
+Landed:
+
+- `materialize` takes a REQUIRED `--participant`. Authority is the immutable
+  publication-time audience plus the sender: you may read back a message you
+  sent or were addressed in.
+- It now addresses a NOTICE as well, which is the second gap this finding
+  recorded — but only one the participant has ALREADY SEEN, or authored.
+  That receipt requirement is what keeps at-most-once intact: reread is the
+  way back to a delivery, not a second door into a first one.
+- Rereading writes nothing: no claim, no receipt, no transition, no audit.
+- A non-party is refused IDENTICALLY to an unknown id, so the surface is not
+  an enumeration oracle.
+
+One defect found in my own implementation while testing it: the first version
+chose which table to look in before authorizing, so an unauthorized message
+answered "unknown message" while a nonexistent id answered "unknown notice" —
+telling a non-party that the id exists and what kind it is. Exactly the
+enumeration oracle this contract forbids. The refusal is now a single neutral
+"unknown id", and the test that compares the two refusal strings is what
+caught it.
+
+Not done, and not required: the audit half. Ruled out deliberately rather than
+deferred — an authorized reread is a low-security event and is not recorded.
+The prose above asking whether the unscoped projection should "record who ran
+it" is answered: there is no unscoped projection any more, and authorized
+reads are not recorded.

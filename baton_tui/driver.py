@@ -14,7 +14,7 @@ from . import keys as K
 from .safe_text import pad, split_cells
 from .render import (STYLE_PART_HEADER, STYLE_SELECTED, detail_line_count, divider_for, input_line_index,
                      detail_overflow, help_line_count,
-                     part_header_line_index, selection_span,
+                     part_start_line_index, selection_span,
                      markers_for,
                      layout_for, render, render_styled)
 from .state import (SEV_WARNING, FOCUS_DETAIL, MODE_BROWSE, MODE_COMPOSE,
@@ -164,7 +164,11 @@ def step(state, store, key: int, columns: int, lines: int,
 		name = _MODAL_AFFORDANCE.get(event) or _AFFORDANCE.get(event)
 		state.set_status(state.unavailable_reason(name), SEV_WARNING)
 	elif event == K.OPEN:
-		state.open_selected(store)
+		# Enter ENTERS the detail, ruled. Not `open_selected` directly: from
+		# LIST this is the forward half of the focus toggle, and it must
+		# commit a dwell that has not elapsed rather than making a deliberate
+		# keystroke wait for a timer meant to protect against scrolling.
+		state.enter_selected(store)
 	elif event == K.REPLY:
 		state.begin_reply()
 	elif event == K.CLOSE:
@@ -313,22 +317,22 @@ def step(state, store, key: int, columns: int, lines: int,
 	state.detail_overflow = detail_overflow(state, columns, lines)
 	state.scroll_detail_sideways(0, columns + state.detail_overflow, columns)
 	if event in (K.PART_UP, K.PART_DOWN):
-		# Bring the newly marked part header into view. Only on the keystroke
-		# that MOVED it: doing this on every redraw would take the reader's
-		# `J`/`K` scroll position away from them. The stacked detail pane is
+		# Bring the newly selected part's CONTENT into view. Only on the
+		# keystroke that MOVED it: doing this on every redraw would take the
+		# reader's scroll position away from them. The stacked detail pane is
 		# 60% of the body, so the later parts of a multipart message start
-		# below the fold -- and a mark nobody can see is not a cursor.
-		header = part_header_line_index(state, columns, lines)
-		if header >= 0:
+		# below the fold -- and a selection nobody can see is not a cursor.
+		start = part_start_line_index(state, columns, lines)
+		if start >= 0:
 			total = detail_line_count(state, columns, lines)
-			# The header itself, THEN the line after it. Two calls, because the
-			# two directions need different things: moving up, the header must
-			# become visible; moving down, it must not come to rest on the row
-			# the pane spends on its "... N more lines" indicator, which is not
-			# a header and so drops the mark. Following only the line after it
-			# fixed the second and broke the first.
-			state.follow_line(header, total)
-			state.follow_line(header + 1, total)
+			# The first row, THEN the one after it. Two calls, because the two
+			# directions need different things: moving up, the part's start
+			# must become visible; moving down, it must not come to rest on
+			# the row the pane spends on its "... N more lines" indicator.
+			# Following only the line after it fixed the second and broke the
+			# first.
+			state.follow_line(start, total)
+			state.follow_line(start + 1, total)
 	return True
 
 
@@ -463,12 +467,21 @@ def run(stdscr, config_path: str, participant: str, poll_seconds: float = 2.0,
 			stdscr.refresh()
 			# Re-armed before EVERY blocking read, so no earlier operation can
 			# leave the console waiting forever with mail pending.
-			arm_poll(stdscr, poll_seconds)
+			arm_poll(stdscr, wake_after(poll_seconds, state.dwell_remaining()))
 			key = _read_key(stdscr, poll_seconds)
-			if key == -1:                     # poll timeout: refresh the queue
+			if key == -1:                     # timeout: dwell first, then poll
+				if state.tick(store):
+					# The dwell committed. Do NOT also refresh into it: the
+					# claim just opened content, and re-previewing here would
+					# replace what the human waited two seconds to see.
+					continue
 				state.refresh(store)
 				if state.detail is None or "preview" in (state.detail or {}):
 					state.preview(store)
+				# A refresh can reorder the list under an armed dwell, so the
+				# identity check runs again on the new rows rather than
+				# waiting for the next timeout.
+				state.tick(store)
 				continue
 			if not step(state, store, key, columns, lines,
 			            edit_fn=curses_editor(stdscr, editor_argv or ["vim"],
@@ -483,6 +496,30 @@ def first_selection(state, store) -> None:
 	part excluded from coverage -- and "launching the console claims the
 	message it lands on" is far too consequential to live only there."""
 	state.select_row(store)
+
+
+# The shortest a wake can be scheduled for. A dwell that has already come due
+# still needs the loop to go round, and a zero timeout is a spin.
+MIN_WAKE_SECONDS = 0.05
+
+
+def wake_after(poll_seconds: float, dwell_remaining: float | None) -> float:
+	"""How long to block for input.
+
+	WAKE FOR THE DWELL, not just for the poll. The poll interval is fixed at
+	two seconds and the dwell is also two seconds, so a commit scheduled by
+	the ordinary poll could land a full cycle late -- and with a longer poll
+	interval, much later than that. The human would sit looking at a row they
+	settled on, waiting for it to open.
+
+	A separate function rather than three lines inside the event loop, because
+	the loop needs a live terminal and cannot be tested: inline, this rule
+	could be deleted and nothing would fail. It is the one piece of the dwell
+	that the state model does not own.
+	"""
+	if dwell_remaining is None:
+		return poll_seconds
+	return max(MIN_WAKE_SECONDS, min(poll_seconds, dwell_remaining))
 
 
 def arm_poll(stdscr, poll_seconds: float) -> None:
