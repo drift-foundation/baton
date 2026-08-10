@@ -36,7 +36,7 @@ def _instance(tmp_path):
 	path = str(home / "baton.json")
 	with open(path, "w") as handle:
 		json.dump({
-			"config_version": 1, "protocol_version": 9, "generation": 1,
+			"config_version": 1, "protocol_version": 10, "generation": 1,
 			"mailbox": {"name": "pty"},
 			"participants": {
 				"acme.reviewer": {},

@@ -6,6 +6,10 @@ of the current protocol-9 TUI+core commit.
 
 Raised by Slawomir during the `baton-tui` trial on 2026-08-08.
 
+Decision recorded 2026-08-10: global notices freeze the configured recipient
+set at publication, just like scoped notices. A participant added later does
+not receive an older global notice.
+
 ## Problem
 
 Baton currently has two audience shapes: one exact recipient for a directed
@@ -41,6 +45,9 @@ still claimable work for every recipient.
 
 - One logical publication may name two or more exact configured participants.
   Duplicate recipients are rejected rather than silently changing the request.
+- Every directed message belongs to an immutable publication record, including
+  a single-recipient send and a response message created by `reply`. There is
+  no private-message storage special case for later audience authorization.
 - Publication is atomic: either every recipient delivery is created against
   the same immutable content manifest and subject, or none is.
 - Each recipient gets a distinct pending delivery, claim, retry lifecycle, and
@@ -55,9 +62,16 @@ still claimable work for every recipient.
 ## Safety and retry identity
 
 - Stored audience membership, not a live glob re-evaluation, governs delivery.
-- Retry identity includes the audience kind, selector where applicable, and
-  the canonical explicit recipient set. A retry that would address a different
-  set fails closed rather than silently widening or narrowing delivery.
+- Publication is at-least-once. Baton does not correlate a repeated send with
+  an earlier publication whose success result may have been lost.
+- A sender repeating after an ambiguous result marks the new publication with
+  an immutable `possible_duplicate` warning. The warning is advisory and
+  sender-supplied; Baton must not imply that it proved a duplicate exists.
+- The warning is available on at-least-once `send` and `send-notice` paths.
+  Claim-bound `reply` and `close` retain their existing effectively-once
+  claim-ID semantics.
+- The warning is visible to every recipient and in inspection/history surfaces
+  so recipients can decide how to disposition the repeated request.
 - Participant existence and capabilities are validated before any publication
   row commits.
 - Content may be stored once and referenced by per-recipient delivery rows,
@@ -96,6 +110,8 @@ communications-first cutover rather than consecutive mailbox teardowns.
   independent delivery to reviewer and implementer.
 - A global notice retains current delivery and author-parity behavior.
 - Scope membership is frozen at publication across config changes and retry.
+- An ambiguous retry may create a second frozen publication; when the sender
+  marks it `possible_duplicate`, every recipient sees that warning.
 - A multi-recipient directed publication creates independent claim/disposition
   lifecycles; resolving one recipient leaves every other copy actionable.
 - Publication failure cannot leave a partial audience.

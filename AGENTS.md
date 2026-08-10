@@ -22,6 +22,14 @@
 - Read `AGENTS-MAILBOX-PROTO.md` in full before publishing or consuming Baton handoffs. The local deployment supplies the executable and explicit absolute config path; never infer or hard-code either in repository policy.
 - This project's coordination identities are `baton.reviewer` for the reviewer and `baton.implementer` for the implementer. Resolve role-only instructions to those identities; never substitute a participant from another domain.
 - Run exactly one active consumer path per participant — never two concurrent `wait`s for the same address. Two consumers need two participant addresses, not one shared identity. Process every claim immediately with `reply` or `close`.
+- With the current claiming `wait`, an active agent runs one indefinite
+  `baton wait` with no timeout shell loop, polls the terminal session while
+  the turn remains active, processes the returned claim immediately, then
+  invokes `wait` again. Do not yield the agent turn while a claiming waiter is
+  unattended: terminal completion may not schedule a new model turn, leaving
+  an active unanswered claim. When Baton provides a read-only readiness wait,
+  use that operation for unattended/background monitoring and claim only from
+  an active turn.
 - The SQLite instance is the only coordination authority. Never mutate it with raw SQL or manually reconstruct protocol state. Never read it directly either: if a question about the mailbox can only be answered by opening the store, that inability is the finding.
 
 ## Baton defects and workarounds

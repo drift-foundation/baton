@@ -1,7 +1,7 @@
 {
   "artifact": "bin/baton-tui",
-  "artifact_sha256": "4a17c213987205ec4d0d6dadc0830ccb56f2efc3ce47ce804d58d2fcbd2829c7",
-  "core_api_version": 1,
+  "artifact_sha256": "5ef6c92ab47df217447879a122a2be6de6b4870864ff4a1152efb0dbfbcd26df",
+  "core_api_version": 2,
   "members": [
     "__main__.py",
     "baton_core/__init__.py",
@@ -18,9 +18,9 @@
     "baton_tui/safe_text.py",
     "baton_tui/state.py"
   ],
-  "protocol_version": 9,
+  "protocol_version": 10,
   "python_min": "3.11",
-  "requires_core_api": 1,
+  "requires_core_api": 2,
   "tool": "baton-tui",
-  "tui_version": "0.1.0"
+  "tui_version": "0.2.0"
 }

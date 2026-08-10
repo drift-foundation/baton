@@ -29,9 +29,9 @@ test:
 	[[ -x "{{PY}}" ]] || { echo "error: venv missing; run 'just venv' first" >&2; exit 1; }
 	"{{PY}}" -c 'import pytest' >/dev/null 2>&1 || { echo "error: pytest missing; run 'just venv' first" >&2; exit 1; }
 	PYTHONPATH=. "{{PY}}" -m pytest -q \
-		test_baton_v6.py \
-		test_core_parity.py \
+		test_core_conformance.py \
 		test_core_api.py \
+		test_retired_oracle.py \
 		test_core_authoring.py \
 		test_core_references.py \
 		test_tui_safe_text.py \

@@ -122,14 +122,16 @@ def test_one_stdin_reader_is_fine():
 	assert len(nodes) == 2
 
 
-def test_the_surface_says_name_and_the_storage_still_says_filename():
-	"""Protocol 10 renames the stored field to `part_name`. The new CLI uses
-	the new word NOW and translates inward, so the rename lands as a storage
-	change rather than a user-visible one, and this surface never teaches a
-	vocabulary it is about to retire."""
+def test_the_surface_says_name_and_the_storage_says_part_name():
+	"""The rename has landed, and this surface did not move.
+
+	It said `name` while protocol 9 stored `filename`, precisely so the
+	protocol-10 rename would be a storage change rather than a user-visible
+	one. The assertion below is the proof that it worked: the descriptor is
+	unchanged and only the stored key moved."""
 	ns = _parser().parse_args(["--part", "application/pdf|r.pdf|Q3 report.pdf"])
 	node = _build(ns)[0]
-	assert node["filename"] == "Q3 report.pdf"
+	assert node["part_name"] == "Q3 report.pdf"
 	assert "name" not in node, "the surface word leaked into the stored node"
 
 
@@ -137,7 +139,7 @@ def test_a_part_without_a_name_carries_no_filename_key_at_all():
 	"""Absent is not the same as empty: the store defaults only when the key
 	is missing."""
 	ns = _parser().parse_args(["--part", "text/markdown; charset=utf-8|one.md"])
-	assert "filename" not in _build(ns)[0]
+	assert "part_name" not in _build(ns)[0]
 
 
 def test_a_references_option_produces_the_ruled_leaf():
@@ -174,7 +176,7 @@ def test_the_built_nodes_are_accepted_by_the_store_normalizer():
 	container, nodes = content_spec(None, _build(ns))
 	assert [n["content_type"] for n in nodes] == \
 		["text/markdown; charset=utf-8", "text/plain; charset=utf-8"]
-	assert nodes[1]["filename"] == "notes.txt"
+	assert nodes[1]["part_name"] == "notes.txt"
 	assert container is not None, "several leaves need a container type"
 
 
@@ -270,7 +272,7 @@ def test_the_ruled_parser_drops_into_the_builder_unchanged():
 	                        read_text=lambda s: "src:a.md\n")
 	assert [_label(n) for n in nodes] == [
 		"text/markdown; charset=utf-8", "src:E.md", "application/pdf"]
-	assert nodes[2]["filename"] == "Report.pdf"
+	assert nodes[2]["part_name"] == "Report.pdf"
 	assert nodes[2]["disposition"] == "attachment"
 
 
@@ -453,7 +455,7 @@ def test_the_body_leads_even_when_its_option_came_last():
 
 
 def test_the_legacy_body_keeps_its_legacy_metadata():
-	"""`--content-type`/`--disposition`/`--filename` have always described the
+	"""`--content-type`/`--disposition`/`--part-name` have always described the
 	body. They keep describing it, rather than being silently ignored because
 	another option happened to appear."""
 	ns = _parser().parse_args(["--references", "refs.txt"])
@@ -461,7 +463,7 @@ def test_the_legacy_body_keeps_its_legacy_metadata():
 		ns, ("notes.txt", "text/plain; charset=utf-8", "attachment", "notes.txt"))
 	assert nodes[0]["content_type"] == "text/plain; charset=utf-8"
 	assert nodes[0]["disposition"] == "attachment"
-	assert nodes[0]["filename"] == "notes.txt"
+	assert nodes[0]["part_name"] == "notes.txt"
 
 
 def test_an_undescribed_body_passes_none_so_the_store_still_defaults():
@@ -473,7 +475,7 @@ def test_an_undescribed_body_passes_none_so_the_store_still_defaults():
 	node = _build_with_body(ns, ("notes.md", None, None, None))[0]
 	assert node["content_type"] is None
 	assert node["disposition"] is None
-	assert node["filename"] is None
+	assert node["part_name"] is None
 
 
 def test_a_body_reading_stdin_collides_with_a_part_reading_stdin():

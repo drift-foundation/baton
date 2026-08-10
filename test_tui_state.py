@@ -34,7 +34,7 @@ def _instance(tmp_path):
 	path = str(home / "baton.json")
 	with open(path, "w") as handle:
 		json.dump({
-			"config_version": 1, "protocol_version": 9, "generation": 1,
+			"config_version": 1, "protocol_version": 10, "generation": 1,
 			"mailbox": {"name": "console"},
 			"participants": {"acme.reviewer": {}, "acme.implementer": {},
 			                 "hq.lead": {"capabilities": ["recovery", "config"]}},
@@ -388,7 +388,9 @@ def test_unresolved_claims_remain_visible_until_disposed(env):
 
 def test_console_declares_the_core_api_it_needs():
 	check_core_compatibility(core)
-	assert core.core_versions()["core_api_version"] >= REQUIRES_CORE_API
+	# EQUALITY: the bundled console and core are one release, and `>=` would
+	# accept a core that had REMOVED something this console uses.
+	assert core.core_versions()["core_api_version"] == REQUIRES_CORE_API
 
 
 # -- displayed item and action target must be incapable of diverging -------
@@ -1157,7 +1159,7 @@ def _licensed(store, tmp_root, body=b"MIT License\n\nPermission is granted.\n"):
 		{"content_type": "text/markdown; charset=utf-8",
 		 "body": b"# Note\n\nSee the licence beside this.\n"},
 		{"content_type": "text/plain; charset=utf-8", "disposition": "attachment",
-		 "attach": "src:LICENSE", "filename": "LICENSE"}])
+		 "attach": "src:LICENSE", "part_name": "LICENSE"}])
 
 
 def _opened_licensed(store, root):
@@ -1669,7 +1671,7 @@ def _external(store, root, content_type, name="EVIDENCE.md"):
 	                  subject=f"With {content_type}", parts=[
 		{"content_type": "text/markdown; charset=utf-8", "body": b"# Note\n"},
 		{"content_type": content_type, "disposition": "attachment",
-		 "attach": f"src:{name}", "filename": name}])
+		 "attach": f"src:{name}", "part_name": name}])
 
 
 def _opened_with_external(store, root, content_type):
@@ -1739,3 +1741,36 @@ def test_the_offer_and_the_action_use_one_rule(env):
 		state = _opened_with_external(store, root, content_type)
 		assert _is_displayable_text(state.selected_part) is expected
 		assert state.affordances()["read_part"] is expected
+
+
+def test_an_incompatible_core_api_is_refused_at_startup_in_both_directions():
+	"""The check is EQUALITY, and this is what stops it drifting back.
+
+	It was `>=`, which is only safe if the API never removes anything —
+	protocol 10 removed `filename` from every delivery and every Store
+	signature. A console built for API 1 would have started happily against
+	API 2 and failed on the first message carrying a part name: a startup
+	check that passes and then breaks mid-render is worse than none, because
+	it has already told the human everything is fine.
+
+	Both directions, deliberately. An OLDER core failing is the obvious case
+	and `>=` would catch it too; a NEWER core failing is the case that only
+	equality catches, and it is the one that matters here."""
+	import pytest
+	from baton_tui import REQUIRES_CORE_API, check_core_compatibility
+
+	class Fake:
+		def __init__(self, api):
+			self._api = api
+
+		def core_versions(self):
+			return {"core_api_version": self._api, "protocol_version": 10,
+			        "tool_version": "6.0.0"}
+
+	check_core_compatibility(Fake(REQUIRES_CORE_API))       # the one it wants
+	for offered in (REQUIRES_CORE_API - 1, REQUIRES_CORE_API + 1):
+		with pytest.raises(RuntimeError) as caught:
+			check_core_compatibility(Fake(offered))
+		message = str(caught.value)
+		assert str(REQUIRES_CORE_API) in message and str(offered) in message, \
+			"the refusal does not say what was wanted and what was offered"

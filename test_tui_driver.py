@@ -40,7 +40,7 @@ def _instance(tmp_path):
 	path = str(home / "baton.json")
 	with open(path, "w") as handle:
 		json.dump({
-			"config_version": 1, "protocol_version": 9, "generation": 1,
+			"config_version": 1, "protocol_version": 10, "generation": 1,
 			"mailbox": {"name": "console"},
 			"participants": {"acme.reviewer": {}, "acme.implementer": {},
 			                 "hq.lead": {"capabilities": ["recovery", "config"]}},
@@ -1044,7 +1044,7 @@ def test_the_picker_pages_when_there_are_more_than_twenty_six(tmp_path):
 	participants["acme.implementer"] = {}
 	with open(path, "w") as handle:
 		json.dump({
-			"config_version": 1, "protocol_version": 9, "generation": 1,
+			"config_version": 1, "protocol_version": 10, "generation": 1,
 			"mailbox": {"name": "many"}, "participants": participants,
 			"roots": {}, "retention_days": 90,
 		}, handle)
@@ -1103,7 +1103,7 @@ def test_every_participant_is_reachable_by_paging_at_any_size(tmp_path):
 	participants["acme.implementer"] = {}
 	with open(path, "w") as handle:
 		json.dump({
-			"config_version": 1, "protocol_version": 9, "generation": 1,
+			"config_version": 1, "protocol_version": 10, "generation": 1,
 			"mailbox": {"name": "many"}, "participants": participants,
 			"roots": {}, "retention_days": 90,
 		}, handle)
@@ -2027,7 +2027,7 @@ def test_a_binary_original_is_not_quoted_into_the_draft(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S",
 	           parts=[{"content_type": "image/png", "body": b"\x89PNG\r\n\x1a\n",
-	                   "disposition": "attachment", "filename": "d.png"}])
+	                   "disposition": "attachment", "part_name": "d.png"}])
 	state = _ready(store)
 	_press(state, store, K.ENTER_LF, ord("R"))
 	seeds = []
@@ -4183,7 +4183,7 @@ def test_a_multi_page_picker_advertises_paging_and_it_works(tmp_path):
 	participants = {f"team{index:02d}.member": {} for index in range(40)}
 	participants["acme.implementer"] = {}
 	with open(path, "w") as handle:
-		json.dump({"config_version": 1, "protocol_version": 9, "generation": 1,
+		json.dump({"config_version": 1, "protocol_version": 10, "generation": 1,
 		           "mailbox": {"name": "many"}, "participants": participants,
 		           "roots": {}, "retention_days": 90}, handle)
 	core.init_instance(path)
@@ -4739,7 +4739,7 @@ def test_no_chrome_line_is_ever_wider_than_the_pane(env):
 	from baton_tui.safe_text import display_width
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q",
-	           subject="S" * 250, body=b"short\n", filename="X" * 200)
+	           subject="S" * 250, body=b"short\n", part_name="X" * 200)
 	state = _focused_detail(store)
 	pannable: list[int] = []
 	produced = _detail_lines(state, 60, pannable=pannable)

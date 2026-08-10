@@ -28,8 +28,10 @@ review rather than by any test here. `--body` is now folded into the plan as
 the first leaf, carrying its own legacy metadata, and it is refused outright
 beside `--part`, whose leaves carry their own type, name and position.
 
-`name`, NOT `filename`. Protocol 9 stores the field as `filename` and protocol
-10 renames it to `part_name`. New surface uses the new word now and translates
+`name` ON THE SURFACE, `part_name` INSIDE. The descriptor field stayed `name`
+while protocol 9 storage said `filename`, precisely so the rename would land
+as a storage change rather than a user-visible one. Protocol 10 landed it and
+the CLI surface did not move at all. New surface uses the new word now and translates
 inward, so this CLI does not have to teach a vocabulary it is about to
 retire — and so the rename, when it lands, is a storage change rather than a
 user-visible one.
@@ -266,8 +268,8 @@ def build(items, *, parse_part, read_bytes, read_text, body=None,
 		# legacy body-plus-attachment shape. It joins the plan HERE, before the
 		# stdin check, so `--body -` collides with `--references -` exactly the
 		# way two parts do.
-		source, content_type, disposition, filename = body
-		plan.append(("body", source, (content_type, disposition, filename)))
+		source, content_type, disposition, part_name = body
+		plan.append(("body", source, (content_type, disposition, part_name)))
 	occurrence = 0
 	for kind, value in items:
 		if kind == "part":
@@ -291,21 +293,21 @@ def build(items, *, parse_part, read_bytes, read_text, body=None,
 	out: list[dict] = []
 	for kind, source, extra in plan:
 		if kind == "body":
-			content_type, disposition, filename = extra
+			content_type, disposition, part_name = extra
 			# All three keys are passed even when None: the store defaults on
 			# a None exactly as it does on an absent key, so this reproduces
 			# the legacy single-leaf node rather than approximating it.
 			out.append({"content_type": content_type, "disposition": disposition,
-			            "filename": filename, "body": read_bytes(source)})
+			            "part_name": part_name, "body": read_bytes(source)})
 		elif kind == "part":
 			content_type, disposition, name = extra
 			node = {"content_type": content_type,
 			        "disposition": disposition,
 			        "body": read_bytes(source)}
 			if name is not None:
-				# Translated INWARD: the surface says `name`, protocol 9
-				# stores `filename`, and protocol 10 renames the storage.
-				node["filename"] = name
+				# Translated INWARD, and the translation is why the
+				# protocol-10 rename cost this surface nothing.
+				node["part_name"] = name
 			out.append(node)
 		elif kind == "references":
 			out.append(references_module.part(read_text(source), roots=roots))

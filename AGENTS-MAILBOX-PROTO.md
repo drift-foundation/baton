@@ -1,6 +1,6 @@
-# Baton agent mailbox protocol — v9
+# Baton agent mailbox protocol — v10
 
-An agent coordination channel running **Baton protocol 9** has one SQLite
+An agent coordination channel running **Baton protocol 10** has one SQLite
 transactional authority per instance, no filename-state, and is defined
 entirely by an explicit config. Consult the Baton distribution's `README.md`
 for the command and storage contract.
@@ -54,7 +54,7 @@ distinct participant addresses rather than sharing one identity.
   caches; the store is the authority.
 - Content is TYPED. Every delivery carries `content` with a `content_type`
   and an ordered `parts` list, even for a single part. Each leaf states its
-  media type, `disposition`, optional advisory `filename`, size and hash, and
+  media type, `disposition`, optional advisory `part_name`, size and hash, and
   carries exactly one representation named by `encoding` — `text` for
   `text/...; charset=utf-8`, `base64` otherwise, never both. Declare
   `--content-type` when publishing anything that is not Markdown; the default
@@ -62,7 +62,7 @@ distinct participant addresses rather than sharing one identity.
   charset. Bytes that contradict the declared charset are refused at
   publication. Baton transports content and never renders it.
 - Retries must repeat the WHOLE manifest: the same parts, in the same order,
-  with the same media types, dispositions and filenames. Identical bytes under
+  with the same media types, dispositions and part names. Identical bytes under
   changed metadata are a different operation and fail closed.
 - Evidence files already in the tree travel as EXTERNAL PARTS:
   `--attach ROOT:relative/path` (hash-pinned at publication; mutation fails
@@ -70,7 +70,25 @@ distinct participant addresses rather than sharing one identity.
   by the retry manifest — so it may sit BESIDE an inline `--body` in the same
   message, and a message may carry several. Send the explanation and its
   evidence together rather than as two messages.
-- Broadcasts: `send-notice` (finite TTL); consume with `see`, or receive
+- One piece of work for SEVERAL participants: repeat `--to`. Each recipient
+  gets an independent delivery, claim and disposition sharing one immutable
+  content — closing yours resolves nothing for anyone else, and a reply goes
+  to the sender, not to the others. `--to` refuses a scope: work addressed to
+  `team.*` would have no per-recipient claim, which is what separates a
+  directed message from a notice. Your delivery names the whole audience, so
+  you can tell shared work from a private request before you start on it.
+- Publication is AT-LEAST-ONCE. If a `send` or `send-notice` was interrupted
+  after it may have committed, repeat it with `--possible-duplicate`: an
+  immutable, sender-supplied warning that YOU could not tell whether the first
+  attempt landed. Baton has no token to correlate the two and never claims to
+  have proved a duplicate — recipients see what you asserted and decide. Two
+  deliberate identical sends are two ordinary sends. `reply` and `close` are
+  addressed by `claim_id` and stay effectively-once: retry redelivers the
+  committed result or fails closed.
+- Broadcasts: `send-notice` (finite TTL), to everyone or to one team with
+  `--scope 'team.*'` — QUOTE it, or the shell may expand it. The audience is
+  expanded and FROZEN at publication in both cases, so a participant added
+  later never acquires an older notice. Consume with `see`, or receive
   them on the blocking `wait` path — a notice wakes a waiter and is
   delivered as `{"notice": ...}` rather than the directed
   `{"claim": ..., "message": ...}`. A directed message always wins when both

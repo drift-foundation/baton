@@ -369,3 +369,25 @@ def test_a_public_participant_file_is_refused_on_load_and_save(tmp_path):
 	assert path.read_bytes() == before, "the refusal modified the file"
 	assert stat.S_IMODE(os.stat(path).st_mode) == 0o644, \
 		"the refusal changed the permissions it was complaining about"
+
+
+def test_the_draft_filename_is_still_called_a_filename():
+	"""THE EXCLUSION from the protocol-10 rename, pinned so a later sweep
+	cannot fold it in.
+
+	Protocol 10 renamed the part label `filename` -> `part_name`, on the
+	argument that a part is not a file: the sender names a part and the
+	recipient decides whether it is ever written anywhere.
+
+	This function is the opposite case. It builds a real name for a real file
+	on a real filesystem, and renaming it would make that change commit the
+	exact error it exists to correct — giving something that IS a file the
+	vocabulary of something that is not.
+
+	Pinned here rather than in the core corpus because the core is independent
+	of the console, and the isolated-checkout test proves it by running that
+	corpus with `baton_tui` absent."""
+	assert drafts.filename("acme.implementer") == "acme.implementer.json"
+	assert hasattr(drafts, "filename"), "the console's filename() was renamed"
+	assert not hasattr(drafts, "part_name"), \
+		"the console grew a part_name(); the rename was applied to a real file"

@@ -92,6 +92,60 @@ and disposition the message:
       --participant team.reviewer \
       --kind review --outcome approved --retention durable --body -
 
+A notice can address one team instead of everyone. The scope is a dotted
+participant prefix ending in `.*`, and it must be QUOTED so the shell does not
+expand it against the working directory:
+
+    printf 'ready for review\n' | "$BATON" --config "$DEMO/baton.json" send-notice \
+      --participant team.implementer --kind status --scope 'team.*' --body -
+
+The audience is expanded against the configured participants and FROZEN when
+the notice is published — for a global broadcast too. A participant added
+later does not acquire an older notice: a broadcast is to the people who
+existed when it was sent. `dump` records exactly who was addressed, and the
+detail header shows the scope so a reader can tell a team notice from a
+global one.
+
+### Assigning one piece of work to several participants
+
+`--to` is repeatable. Each recipient gets their own pending delivery, claim
+and disposition, so one of them closing their copy leaves the others'
+untouched — this is N ordinary messages sharing one immutable content, not a
+group thread:
+
+    "$BATON" --config "$DEMO/baton.json" send \
+      --participant team.lead \
+      --to team.implementer --to team.reviewer \
+      --kind design_question --subject "Which retry window?" --body -
+
+A wildcard is REFUSED here. `--to 'team.*'` is an error rather than a
+convenience: work assigned to a scope would have no per-recipient claim, which
+is exactly what makes a directed message different from a notice. Naming the
+same participant twice is refused too, rather than quietly deduplicated.
+
+Every recipient's delivery names the whole audience, so a reader can tell work
+deliberately shared with three people from a private request. A reply still
+goes only to the original sender.
+
+### Repeating a send whose result you did not see
+
+Publication is at-least-once. If a `send` or `send-notice` was interrupted
+after it may have committed, you can repeat it and mark the repeat:
+
+    "$BATON" --config "$DEMO/baton.json" send \
+      --participant team.lead --to team.reviewer --kind ping \
+      --possible-duplicate --body -
+
+The mark is YOUR assertion that you could not tell whether the first attempt
+landed, and it is immutable once written. Baton does not correlate the two —
+it has no token to correlate them by — so it never claims to have proved a
+duplicate; it shows recipients what you said, and they decide how to handle
+the second copy. Two deliberate identical sends are just two sends, unmarked.
+
+This does not apply to `reply` and `close`, which are addressed by `claim_id`
+and are already effectively-once: retrying one either redelivers the committed
+result or fails closed.
+
 Substantive reviews and implementation responses should remain durable bodies
 and be materialized into whatever review folder the consuming project uses
 (`materialize --dir DIR --prefix P`). The file is a human-facing artifact;
@@ -332,15 +386,17 @@ exactly one. A delivery carries `content`, not a bare body:
       "manifest_sha256": "...",
       "parts": [
         {"content_type": "text/markdown; charset=utf-8",
-         "disposition": "inline", "filename": null,
+         "disposition": "inline", "part_name": null,
          "size": 17, "sha256": "...",
          "encoding": "text", "text": "# Handoff\nReady.\n"}
       ]
     }
 
-`content_type` is an IANA media type with parameters (RFC 2045);
-`disposition` is `inline` or `attachment` with an optional `filename`
-(RFC 2183). Markdown's `charset` parameter is required by RFC 7763, and Baton
+`content_type` is an IANA media type with parameters (RFC 2045). `disposition`
+is `inline` or `attachment`, which are RFC 2183's values. `part_name` is
+BATON'S OWN field, not RFC 2183's `filename` parameter: it is an uninterpreted
+label with no path meaning, and the recipient decides whether it ever becomes
+a file. Markdown's `charset` parameter is required by RFC 7763, and Baton
 requires it for every `text/*` type.
 
 An **inline** leaf carries EXACTLY ONE delivery representation, named by
@@ -355,7 +411,7 @@ payload. `storage` distinguishes them.
 
 Baton TRANSPORTS content and never renders it. No HTML, no Markdown, no
 transcoding: rendering is a consumer concern, and a transport that renders is a
-transport with an injection surface. `filename` is advisory metadata that
+transport with an injection surface. `part_name` is advisory metadata that
 Baton never uses to open, create, or name a file; it is validated at
 publication anyway, because a consumer downstream may be less careful.
 
@@ -363,7 +419,7 @@ publication anyway, because a consumer downstream may be less careful.
 
 A leaf's bytes are stored **inline** (copied into the store) or **externally**
 (`--attach ROOT:REL/PATH`, hash-pinned in a configured root and verified at
-claim time). Both are ordinary parts: same media type, disposition, filename,
+claim time). Both are ordinary parts: same media type, disposition, part name,
 ordering, size and hash contract, and both are covered by the manifest, so
 retry identity is one mechanism rather than two. A delivered leaf states which
 through `storage`; an external leaf carries an `attachment` pin and no bytes,
@@ -405,7 +461,7 @@ each take a repeatable `--part DESCRIPTOR`, and `send` and `reply` also take
 
 A descriptor is an RFC 3986 query. `source` and `type` are required; optional
 `disposition` is `inline` or `attachment`, and optional `name` is the advisory
-filename. Pairs split at their FIRST `=`, so a media type carrying its own `=`
+part name. Pairs split at their FIRST `=`, so a media type carrying its own `=`
 travels unencoded — but the descriptor as a whole must be query-legal, which
 means `%20` for a space and percent-encoded UTF-8 for anything non-ASCII.
 
@@ -414,7 +470,7 @@ alike. That is not presentation: leaf order is part of the manifest digest and
 the manifest is what retry compares. `--body` remains available as the
 single-leaf shorthand and becomes the first leaf when combined with
 `--attach` or `--references`, carrying its own `--content-type`,
-`--disposition` and `--filename`; it is refused beside `--part`, which already
+`--disposition` and `--part-name`; it is refused beside `--part`, which already
 carries that metadata per leaf. At most one source may be `-`, and that
 collision is refused before anything is read.
 
@@ -442,7 +498,7 @@ envelope carry arbitrary multipart trees, including nesting the CLI does not
 yet spell.
 
 Retry identity is the complete ordered part manifest, metadata included. Two
-retries that differ in part order, media type, disposition, or filename are
+retries that differ in part order, media type, disposition, or part name are
 different operations even when every byte matches, and fail closed as
 mismatches.
 

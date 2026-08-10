@@ -102,6 +102,49 @@ Presence going last is accepted. It is NOT the protocol's first expiry
 concept, and describing it that way was my error: notices already carry
 TTL/expiry semantics.
 
+## Protocol-9 oracle at the bump — ruled: retire, hard cutoff
+
+The first `_impl.py` change cannot land until this is ruled. The frozen
+`baton_v6.py` oracle only constructs protocol-9 authorities, while the shipping
+core is about to require protocol 10. The current differential harness runs one
+narrow session against both implementations and allows deliberate divergence
+at whole top-level observation keys. It already skips the complete `delivery`
+comparison for an additive field; the protocol-10 bundle would make that
+allowlist broader and progressively less able to say which unchanged property
+still matches.
+
+**Slawomir ruled a hard cutoff on 2026-08-10: retire it as an active parity
+oracle at the bump.**
+Preserve the byte-identical file and its known hash as historical protocol-9
+evidence; do not edit it into a protocol-10 oracle and do not delete it merely
+to make tests green. Replace active parity with protocol-10 conformance tests
+before the part-name rename lands.
+
+Retirement is not permission to drop behavior coverage. The replacement gate
+must explicitly pin every still-valid property the differential session
+measured: ordinary directed send/claim/reply/close behavior, retry identity and
+mismatch refusal, foreign-owner refusal, subject validation, notice delivery,
+scan states, doctor health, error text/exit class where public, and the rule
+that directed-message semantics remain unchanged by audiences. Port or rewrite
+the still-valid oracle tests against `baton_core`; remove a test only with a
+named protocol-10 superseding contract.
+
+The rejected alternative is an ever-growing divergence registry whose entries
+mute entire observations. A field/path-granular cross-protocol comparator could
+retain value, but building and maintaining that translation layer through the
+audience, decision, progress, priority, dismissal, and presence changes would
+be a second compatibility product. It is not justified when protocol 10 is a
+fresh-authority cutover and direct conformance can state the new contract
+without translation.
+
+There is no protocol-9 compatibility surface, in-place migration, or
+cross-version retry contract. Announce the eventual service cutover, stop the
+old consumers, and start a fresh protocol-10 authority. Slawomir accepts a
+quiet coordination interval during that hard cut and can relay directly if
+needed. Keep the protocol-9 channel live during implementation when practical;
+the ruling permits incompatibility and a brief cutover outage, not needless
+early downtime.
+
 ### Stage 3 — TUI, after the bump, no wire change
 
 1. Re-reading, backed by the participant-authorized authority read from stage

@@ -1217,6 +1217,21 @@ def _headers(item: dict, width: int) -> list[str]:
 			# Subjects run to 255 bytes; clipping one hides the end of the
 			# thing the human is deciding about.
 			out.extend(_wrapped(f"{label + ':':<9}{item[key]}", width))
+	# SHARED WORK, named as shared. Two or more recipients is a different
+	# situation from a private request -- someone else may already be acting on
+	# it -- and `From:`/`Subject:` read identically either way. One recipient
+	# gets no line: "Shared: just you" is noise on every ordinary message.
+	audience = item.get("audience") or []
+	if len(audience) > 1:
+		out.extend(_wrapped(
+			f"{'Shared:':<9}{', '.join(audience)} ({len(audience)} recipients)", width))
+	if item.get("possible_duplicate"):
+		# The SENDER's words, not a verdict. Baton does not correlate a repeat
+		# with an earlier publication and must not imply it detected one;
+		# saying "the sender could not tell" is the whole of what is known.
+		out.extend(_wrapped(
+			f"{'Warning:':<9}the sender could not tell whether an earlier "
+			f"attempt reached you; this may be a repeat", width))
 	return out
 
 
@@ -1225,7 +1240,7 @@ def _part_lines(parts, width: int, indent: str = "  ") -> list[str]:
 	out = []
 	for part in parts or []:
 		size = "" if part.get("size") is None else f"  {part['size']}B"
-		name = f"  {part['filename']}" if part.get("filename") else ""
+		name = f"  {part['part_name']}" if part.get("part_name") else ""
 		storage = "" if part.get("storage") in (None, "inline") else f"  [{part['storage']}]"
 		out.extend(_wrapped(
 			f"[{part['address']}] {part['content_type']}{storage}{size}{name}",
@@ -1268,10 +1283,31 @@ def _delivery_lines(delivery: dict, width: int, *, selected=None,
 	return out
 
 
+def audience_line(notice: dict) -> str:
+	"""How a notice was addressed, in one phrase.
+
+	The SELECTOR rather than the expanded list: `baton.*` is what the author
+	chose and what the reader recognises, while eleven addresses on a detail
+	header is a wall nobody reads. The membership itself is in `dump` for
+	anyone who needs to audit exactly who was reached.
+
+	An older notice carries neither field -- it predates the frozen audience --
+	and reads as the global broadcast it was.
+	"""
+	if notice.get("audience_kind") == "scope" and notice.get("selector"):
+		return f"{notice['selector']} (team notice)"
+	return "everyone (notice)"
+
+
 def _notice_lines(notice: dict, width: int, *, selected=None,
                   marker: str = PART_MARKER, marks=None,
                   pannable=None) -> list[str]:
 	out = _headers(notice, width)
+	# WHO IT WENT TO, on the row after the headers. A broadcast to everyone and
+	# one to a single team read identically without it, and they are different
+	# things to act on: "the deployment is down" to twenty people means
+	# something else than to two.
+	out.extend(_wrapped(f"To:      {audience_line(notice)}", width))
 	if notice.get("already_seen"):
 		out.append("")
 		out.extend(_wrapped("(already seen — not redelivered)", width))
@@ -1296,9 +1332,10 @@ def _part_header(part: dict) -> str:
 	"Part name", not "filename", by Slawomir's ruling: a part is not a file,
 	and the recipient decides what to do when materializing it. The name is a
 	human label that becomes an input to filesystem naming only if someone
-	saves the part -- so it is rendered directly, with no `filename:` label in
-	front of it. (The wire field is still `filename` at protocol 9; renaming
-	it is protocol-10 work.)
+	saves the part -- so it is rendered directly, with no label in front of it.
+	(Protocol 10 renamed the wire field to `part_name` to match, and dropped
+	the filesystem rules with it: `../diagram` is now a legal part name and
+	arrives exactly as the sender wrote it.)
 
 	It is a LABEL, never a path. `m` keeps writing to its own generated
 	destination, because a sender-supplied name is sender-controlled input and
@@ -1309,8 +1346,8 @@ def _part_header(part: dict) -> str:
 	bits = [f"[{part.get('address', '')}] {part.get('content_type', '')}"]
 	if part.get("disposition"):
 		bits.append(str(part["disposition"]))
-	if part.get("filename"):
-		bits.append(str(part["filename"]))
+	if part.get("part_name"):
+		bits.append(str(part["part_name"]))
 	return "  ".join(bits)
 
 
@@ -1339,7 +1376,7 @@ def _sent_row_lines(row, width: int, *,
 	out = _wrapped(f"{glyph} {row.get('subject') or '(no subject)'}", width)
 	out.append("")
 	if row.get("row_kind") == "notice":
-		out.extend(_wrapped("To:      everyone (notice)", width))
+		out.extend(_wrapped(f"To:      {audience_line(row)}", width))
 		out.extend(_wrapped(f"Seen by: {row.get('seen_count', 0)}", width))
 		out.extend(_wrapped(f"Expires: {row.get('expires_ts') or 'unknown'}", width))
 	else:
@@ -1376,6 +1413,11 @@ def _sent_content_lines(envelope, width: int, *, selected=None,
 	out = _wrapped(heading, width)
 	out.append("")
 	out.extend(_headers(envelope, width))
+	if notice:
+		# THE AUTHOR'S OWN COPY. The received path shows the audience and this
+		# one did not, so the one person who knows a notice was scoped was the
+		# one being told it went to everyone.
+		out.extend(_wrapped(f"To:      {audience_line(envelope)}", width))
 	out.append("")
 	content = envelope.get("content") or {}
 	out.extend(_rendered_parts(content.get("parts"), width, selected=selected,

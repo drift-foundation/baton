@@ -1,4 +1,26 @@
-"""Protocol-8 Baton storage-core tests (Handoff 1: T1-T6, T9, T10, T16-T18, T23-T25 core).
+"""Baton storage-core conformance.
+
+This corpus was written against the frozen `baton_v6.py` and exercised it for
+the whole scaffolding period, with `test_core_parity.py` bridging it to the
+shipping core. Protocol 10 retires that arrangement: active parity ends, and
+this corpus moves ONTO the core it was always describing.
+
+It moved WHOLE. Nobody selected which properties were "still valid", because a
+hand-picked port is how an inconvenient property quietly stops being checked --
+and the corpus passing against `baton_core._impl` unchanged is itself the
+evidence that the transfer was faithful.
+
+FOUR imports, not one. The first attempt reported "one line", which was the
+module-level import; three more sit inside multiprocessing entry points, where
+the child re-imports for the fault-injection tests. Those three passed while
+still exercising the RETIRED module in child processes, so the port looked
+complete and was not. `test_retired_oracle.py` is what caught it, and it now
+parses this tree rather than reading it, so a combined or nested import cannot
+hide the same way.
+
+It tests `_impl` DIRECTLY, private names included, and that is deliberate: a
+conformance corpus for a protocol implementation is entitled to see the
+implementation. The public surface has its own tests in `test_core_api.py`.
 
 Fixtures are deliberately neutral (no host-project names): a small
 multi-workspace shop with participants under `acme.*` and `hq.*`.
@@ -13,7 +35,7 @@ import sqlite3
 
 import pytest
 
-import baton_v6 as b6
+import baton_core._impl as b6
 
 
 
@@ -642,9 +664,23 @@ class TestBusy:
 
 class TestExtractionPurity:
 	def test_no_host_project_references(self):
-		source = open(os.path.join(os.path.dirname(__file__), "baton_v6.py")).read()
-		for banned in ("dri" + "ft", "wo" + "rk/", "fin" + "ding-", "AGE" + "NTS"):
-			assert banned not in source, f"host-project reference {banned!r} in reusable module"
+		"""The SHIPPING implementation, not the retired oracle.
+
+		This read `baton_v6.py` until protocol 10 retired it, at which point it
+		was checking the purity of a file nobody ships while the file everyone
+		ships went unchecked."""
+		source = open(os.path.join(os.path.dirname(__file__),
+		                           "baton_core", "_impl.py")).read()
+		# The SAME needles the packaging gate uses, and scoped for a reason:
+		# a bare "dri"+"ft" bans an ordinary English word, and the core uses
+		# it as a verb twice ("the exclusion cannot drift"). Pointing this at
+		# the shipping implementation exposed that immediately -- the oracle
+		# happened not to use the word, so the loose needle had never been
+		# tested against real prose.
+		for banned in ("dri" + "ft-lang", "dri" + "ft.", "/wo" + "rk/",
+		               "fin" + "ding-", "AGE" + "NTS.md"):
+			assert banned not in source, \
+				f"host-project reference {banned!r} in the core implementation"
 
 
 # ---------------------------------------------------------------------------
@@ -1341,7 +1377,7 @@ class TestStateCoupledTriggers:
 
 
 def _init_with_fault(config_path, point, queue):
-	import baton_v6 as mod
+	import baton_core._impl as mod
 	def hook(p):
 		if p == point:
 			os._exit(9)
@@ -1994,7 +2030,7 @@ class TestMoveCeremony:
 
 
 def _move_copy_with_fault(config_path, point, queue):
-	import baton_v6 as mod
+	import baton_core._impl as mod
 	def hook(p):
 		if p == point:
 			os._exit(9)
@@ -2168,7 +2204,7 @@ class TestRoutingHistory:
 
 
 def _ceremony_with_fault(func_name, args, kwargs, point, queue):
-	import baton_v6 as mod
+	import baton_core._impl as mod
 	def hook(p):
 		if p == point:
 			os._exit(9)
@@ -4556,12 +4592,12 @@ class TestTypedContentEnvelope:
 	def test_leaf_carries_full_metadata_and_one_representation(self, store):
 		mid = store.send("acme.reviewer", "acme.implementer", kind="doc",
 		                 body=b"%PDF-1.4\n", content_type="application/pdf",
-		                 disposition="attachment", filename="report.pdf")
+		                 disposition="attachment", part_name="report.pdf")
 		claim = store.claim("acme.implementer", message_id=mid)
 		part = only_part(b6._delivery(store, claim)["message"]["content"])
 		assert part["content_type"] == "application/pdf"
 		assert part["disposition"] == "attachment"
-		assert part["filename"] == "report.pdf"
+		assert part["part_name"] == "report.pdf"
 		assert part["size"] == 9
 		assert part["sha256"]
 		assert part["encoding"] == b6.ENCODING_BASE64
@@ -4685,7 +4721,7 @@ class TestTypedContentEnvelope:
 
 	# -- 4. retry identity covers the whole manifest, metadata included ----
 
-	@pytest.mark.parametrize("changed", ["content_type", "disposition", "filename"])
+	@pytest.mark.parametrize("changed", ["content_type", "disposition", "part_name"])
 	def test_retry_with_identical_bytes_but_changed_metadata_fails_closed(self, store, changed):
 		"""THE requirement of this finding. Every byte matches; only metadata
 		moved. Comparing a body hash would report `already_committed` for an
@@ -4693,11 +4729,11 @@ class TestTypedContentEnvelope:
 		send_one(store)
 		claim = store.claim("acme.implementer")
 		base = dict(kind="answer", body=b"identical", content_type="text/plain; charset=utf-8",
-		            disposition="inline", filename="a.txt")
+		            disposition="inline", part_name="a.txt")
 		store.reply(claim["claim_id"], participant=claim["participant"], **base)
 		retried = dict(base)
 		retried[changed] = {"content_type": "text/markdown; charset=utf-8",
-		                    "disposition": "attachment", "filename": "b.txt"}[changed]
+		                    "disposition": "attachment", "part_name": "b.txt"}[changed]
 		with pytest.raises(b6.BatonError, match="content manifest differs") as excinfo:
 			store.reply(claim["claim_id"], participant=claim["participant"], **retried)
 		assert excinfo.value.exit_code == b6.EXIT_PROTOCOL
@@ -4785,7 +4821,7 @@ class TestTypedContentEnvelope:
 				{"content_type": "text/html; charset=utf-8", "body": b"<p>rich</p>\n"},
 			]},
 			{"content_type": "image/png", "disposition": "attachment",
-			 "filename": "chart.png", "body": b"\x89PNG\r\n\x1a\n"},
+			 "part_name": "chart.png", "body": b"\x89PNG\r\n\x1a\n"},
 		])
 		after = {r[0] for r in store.conn.execute(
 			"SELECT name FROM sqlite_master WHERE type='table'")}
@@ -4798,7 +4834,7 @@ class TestTypedContentEnvelope:
 			"text/plain; charset=utf-8", "text/html; charset=utf-8"]
 		assert alternative["parts"][0]["text"] == "plain\n"
 		assert "size" not in alternative and "encoding" not in alternative
-		assert image["filename"] == "chart.png" and image["disposition"] == "attachment"
+		assert image["part_name"] == "chart.png" and image["disposition"] == "attachment"
 		assert part_bytes(image) == b"\x89PNG\r\n\x1a\n"
 
 	def test_multipart_survives_gc_and_expire(self, store):
@@ -4858,21 +4894,37 @@ class TestTypedContentEnvelope:
 			b6.canonical_media_type(raw)
 
 	@pytest.mark.parametrize("name", [
-		"../escape", "a/b", "a\\b", ".", "..", "-rf", "nul\x00byte", "ctrl\x01", "", "x" * 256])
-	def test_filename_is_validated_even_though_it_is_advisory(self, store, name):
-		"""Baton never opens or names a file from `filename`; it is validated
-		anyway, because the consumer downstream may be less careful and a
-		transport that forwards `../../authorized_keys` unchallenged has
-		helped."""
-		with pytest.raises(b6.BatonError):
-			send_one(store, body=b"x", filename=name)
+		"nul\x00byte", "ctrl\x01", "", "x" * 256])
+	def test_part_name_refuses_what_baton_cannot_carry(self, store, name):
+		"""SUPERSEDED by protocol 10 and its ruled part-name semantics.
 
-	def test_materialize_ignores_the_advisory_filename(self, instance, tmp_path):
+		(Named rather than cited: this file ships inside a reusable checkout,
+		and a path into one project's notes is not reusable by anyone else.
+		The purity gate caught the citation immediately, which is the fourth
+		time it has caught me and the reason it exists.)
+
+		This used to include `../escape`, `a/b`, `a\\b`, `.`, `..` and `-rf`,
+		refused on the theory that a careless consumer might use the label as a
+		path. Protocol 10 rejects the premise: a part name is an uninterpreted
+		label, the recipient decides whether it ever becomes a file, and
+		refusing those spellings was Baton deciding what a label means to
+		somebody else's software. They are accepted losslessly now and pinned
+		as such in `TestPartNameIsNotAFilename`.
+
+		What remains is about BATON: an empty label is not a name, a control
+		character is a display-injection hazard in every inbox that draws it,
+		NUL cannot cross the boundaries this string crosses, and the byte bound
+		exists because the label sits in every manifest and on one line of a
+		list."""
+		with pytest.raises(b6.BatonError):
+			send_one(store, body=b"x", part_name=name)
+
+	def test_materialize_ignores_the_advisory_part_name(self, instance, tmp_path):
 		target = tmp_path / "proj"
 		target.mkdir()
 		with b6.open_instance(instance) as store:
 			mid = store.send("acme.reviewer", "acme.implementer", kind="doc",
-			                 body=b"# doc\n", filename="attacker-chosen.md")
+			                 body=b"# doc\n", part_name="attacker-chosen.md")
 		path = b6.materialize(instance, mid, str(target), prefix="review")
 		assert os.path.basename(path).startswith("review-")
 		assert "attacker-chosen" not in path
@@ -5015,7 +5067,7 @@ class TestTypedContentEnvelope:
 	# -- R4: explicit metadata is validated, never silently defaulted -------
 
 	@pytest.mark.parametrize("field,value", [
-		("content_type", ""), ("disposition", ""), ("filename", ""),
+		("content_type", ""), ("disposition", ""), ("part_name", ""),
 		("content_type", "not-a-media-type"), ("disposition", "sideways"),
 	])
 	def test_explicit_invalid_metadata_is_rejected_not_defaulted(self, store, field, value):
@@ -5033,12 +5085,12 @@ class TestTypedContentEnvelope:
 		nodes = b6.normalize_parts([{"body": b"x"}])
 		assert nodes[0]["content_type"] == b6.DEFAULT_CONTENT_TYPE
 		assert nodes[0]["disposition"] == b6.DISPOSITION_INLINE
-		assert nodes[0]["filename"] is None
+		assert nodes[0]["part_name"] is None
 
 	@pytest.mark.parametrize("kwargs", [
 		{"content_type": "application/pdf"},
 		{"disposition": "attachment"},
-		{"filename": "evidence.pdf"},
+		{"part_name": "evidence.pdf"},
 		{"container_type": "multipart/alternative"},
 	])
 	def test_metadata_without_content_is_refused(self, store, kwargs):
@@ -5076,12 +5128,12 @@ class TestTypedContentEnvelope:
 			mid = store.send("acme.reviewer", "acme.implementer", kind="ev",
 			                 attach={"root_id": "evidence", "path": "e.md"},
 			                 content_type="text/plain; charset=utf-8",
-			                 filename="e.md")
+			                 part_name="e.md")
 			claim = store.claim("acme.implementer", message_id=mid)
 			part = external_part(b6._delivery(store, claim)["message"]["content"])
 			assert part["content_type"] == "text/plain; charset=utf-8"
 			assert part["disposition"] == "attachment"
-			assert part["filename"] == "e.md"
+			assert part["part_name"] == "e.md"
 		# An undeclared external part gets the RFC 2046 unknown-bytes type
 		# rather than a guess sniffed from the file extension.
 		with b6.open_instance(config_path) as store:
@@ -5097,24 +5149,24 @@ class TestTypedContentEnvelope:
 		parser = b6._build_parser()
 		ns = parser.parse_args(["--config", "/x", "send", "--participant", "a.b",
 		                        "--to", "c.d", "--kind", "k"])
-		assert ns.content_type is None and ns.disposition is None and ns.filename is None
+		assert ns.content_type is None and ns.disposition is None and ns.part_name is None
 		ns2 = parser.parse_args(["--config", "/x", "send", "--participant", "a.b",
 		                         "--to", "c.d", "--kind", "k",
 		                         "--content-type", "application/pdf"])
 		assert ns2.content_type == "application/pdf"
 
-	# -- R5: filename bound is bytes, as the contract claims ---------------
+	# -- R5: part_name bound is bytes, as the contract claims ---------------
 
-	def test_filename_cap_is_bytes_not_characters(self, store):
+	def test_part_name_cap_is_bytes_not_characters(self, store):
 		"""The documented cap was 255 bytes while the code counted Python
 		characters, so 255 multibyte characters -- 510 bytes -- passed. The
 		bound is bytes because that is what a filesystem enforces."""
-		assert b6.validate_filename("a" * 255) == "a" * 255
+		assert b6.validate_part_name("a" * 255) == "a" * 255
 		with pytest.raises(b6.BatonError, match="255 bytes"):
-			b6.validate_filename("a" * 256)
+			b6.validate_part_name("a" * 256)
 		with pytest.raises(b6.BatonError, match="255 bytes"):
-			b6.validate_filename("é" * 255)   # 510 bytes as UTF-8
-		assert b6.validate_filename("é" * 127)  # 254 bytes, fits
+			b6.validate_part_name("é" * 255)   # 510 bytes as UTF-8
+		assert b6.validate_part_name("é" * 127)  # 254 bytes, fits
 
 	# -- R5: gc must reach the actual deletion path, not only expire -------
 
@@ -5199,7 +5251,7 @@ class TestAttachmentPartConvergence:
 				{"content_type": "text/markdown; charset=utf-8",
 				 "body": b"# Findings\nSee attached.\n"},
 				{"content_type": "text/markdown; charset=utf-8", "disposition": "attachment",
-				 "filename": "EVIDENCE.md", "attach": "src:EVIDENCE.md"},
+				 "part_name": "EVIDENCE.md", "attach": "src:EVIDENCE.md"},
 			])
 			claim = store.claim("acme.implementer", message_id=mid)
 			content = b6._delivery(store, claim)["message"]["content"]
@@ -5515,7 +5567,7 @@ class TestSubject:
 			send_one(store, subject=bad)
 
 	def test_subject_bound_is_bytes_not_characters(self, store):
-		"""Same lesson as `filename`: a character count is not what any
+		"""Same lesson as `part_name`: a character count is not what any
 		downstream store enforces."""
 		assert b6.validate_subject("a" * 255) == "a" * 255
 		with pytest.raises(b6.BatonError, match="255 bytes"):
@@ -5635,20 +5687,29 @@ class TestPackaging:
 		builder.build(str(root))
 		poison = tmp_path / "poison"
 		poison.mkdir()
-		(poison / "baton_v6.py").write_text("raise RuntimeError('poisoned import')\n")
+		# POISON WHAT THE ARTIFACT ACTUALLY IMPORTS. Both of these wrote a
+		# hostile `baton_v6.py` until protocol 10 retired that name -- after
+		# which nothing imported it and the test passed however the zipapp
+		# behaved. A PACKAGE shape, because `baton_core` is a package and a
+		# bare module of that name would not shadow it the same way.
+		hostile = poison / "baton_core"
+		hostile.mkdir()
+		for name in ("__init__.py", "_impl.py", "cli.py"):
+			(hostile / name).write_text("raise RuntimeError('poisoned import')\n")
 		proc = subprocess.run([_sys.executable, str(root / "bin" / "baton"), "--version"],
 		                      capture_output=True, text=True, cwd=str(poison),
 		                      env={"PATH": os.environ["PATH"], "PYTHONPATH": str(poison)})
 		assert proc.returncode == 0, proc.stderr
 		assert "poisoned" not in proc.stderr
 
-	REUSABLE_ASSETS = ["baton_v6.py", "test_baton_v6.py", "build_zipapp.py",
+	REUSABLE_ASSETS = ["test_core_conformance.py", "build_zipapp.py",
 	                   "example-baton.json", "config-schema.json", "README.md",
 	                   "baton", "DISTRIBUTION.json", "AGENTS-MAILBOX-PROTO.md"]
 	# The CLI is built from the core, so the core is a reusable asset too: a
 	# bare checkout that cannot build the executable is not a reusable
-	# checkout. `baton_v6.py` stays in the list because the differential
-	# oracle travels with the tests that compare against it.
+	# checkout. `baton_v6.py` is NO LONGER in the list: protocol 10 retired
+	# it, nothing imports it, and shipping a retired implementation inside a
+	# reusable checkout invites someone to build against it.
 	REUSABLE_PACKAGES = ["baton_core"]
 
 	@pytest.mark.skipif(os.environ.get("BATON_ISOLATED") == "1",
@@ -5670,7 +5731,7 @@ class TestPackaging:
 		env = {"PATH": os.environ["PATH"], "PYTHONPATH": str(iso),
 		       "BATON_ISOLATED": "1", "HOME": str(tmp_path)}
 		proc = subprocess.run(
-			[_sys.executable, "-m", "pytest", "test_baton_v6.py", "-q", "-x",
+			[_sys.executable, "-m", "pytest", "test_core_conformance.py", "-q", "-x",
 			 "-p", "no:cacheprovider"],
 			capture_output=True, text=True, cwd=str(iso), env=env, timeout=420)
 		assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-2000:]
@@ -5687,7 +5748,15 @@ class TestPackaging:
 		builder.build(str(root))
 		poison = tmp_path / "poison"
 		poison.mkdir()
-		(poison / "baton_v6.py").write_text("raise RuntimeError('poisoned import')\n")
+		# POISON WHAT THE ARTIFACT ACTUALLY IMPORTS. Both of these wrote a
+		# hostile `baton_v6.py` until protocol 10 retired that name -- after
+		# which nothing imported it and the test passed however the zipapp
+		# behaved. A PACKAGE shape, because `baton_core` is a package and a
+		# bare module of that name would not shadow it the same way.
+		hostile = poison / "baton_core"
+		hostile.mkdir()
+		for name in ("__init__.py", "_impl.py", "cli.py"):
+			(hostile / name).write_text("raise RuntimeError('poisoned import')\n")
 		inst = tmp_path / "inst"
 		inst.mkdir()
 		config_path = str(inst / "baton.json")
@@ -5781,10 +5850,10 @@ class TestPackaging:
 		answer = json.loads(proc.stdout)
 		leaf = answer["message"]["content"]["parts"][0]
 		assert leaf["content_type"] == "text/plain; charset=utf-8"
-		# The surface says `name`; protocol 9 stores `filename`. The
+		# The surface says `name` and protocol 10 stores `part_name`. The
 		# translation happens inward, so the CLI never teaches a word it is
 		# about to retire.
-		assert leaf["filename"] == "Answer.txt"
+		assert leaf["part_name"] == "Answer.txt"
 		close_claim_id = answer["claim"]["claim_id"]
 		proc = run("close", close_claim_id, "--participant",
 		           "team.reviewer", "--outcome", "done",
@@ -6287,3 +6356,958 @@ class TestScanInboxMetadata:
 		# Same metadata keys on both sides, so one renderer serves both.
 		for key in ("kind", "subject", "thread_id"):
 			assert key in pending and key in claimed
+
+
+class TestPartNameIsNotAFilename:
+	"""Protocol 10 renamed the field, and the rename has to STAY renamed.
+
+	The finding's whole argument is that a part is not a file: the sender names
+	a part, and the recipient decides whether it is ever written anywhere. Two
+	things must therefore hold, and the second is the one a tidy-up would
+	break."""
+
+	def test_no_protocol_surface_says_filename(self, instance):
+		"""Swept across the live surface — schema, delivery, dump — rather
+		than read off the diff. Protocol 10 contains `part_name` only; there
+		is no compatibility alias to find."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+			                 parts=[{"content_type": "text/plain; charset=utf-8",
+			                         "body": b"x\n", "part_name": "notes.txt"}])
+			claim = store.claim("acme.implementer")
+			delivery = b6._delivery(store, claim)
+			schema = "\n".join(
+				row[0] or "" for row in store.conn.execute(
+					"SELECT sql FROM sqlite_master"))
+		dumped = json.dumps(b6.dump(instance))
+		assert "filename" not in schema, "the schema still has a filename column"
+		assert "filename" not in json.dumps(delivery), \
+			"a delivery still carries filename"
+		assert "filename" not in dumped, "dump still emits filename"
+
+		# SIGNATURES too. The name claimed "no protocol surface" while checking
+		# three; a Store keyword still spelled `filename` would be a public
+		# break that schema, delivery and dump all miss.
+		import inspect
+		for method in (b6.Store.send, b6.Store.send_notice, b6.Store.reply,
+		               b6.Store.close_claim, b6.content_spec,
+		               b6.normalize_parts, b6.validate_part_name):
+			text = str(inspect.signature(method))
+			assert "filename" not in text, f"{method.__name__}{text}"
+		leaf = delivery["message"]["content"]["parts"][0]
+		assert leaf["part_name"] == "notes.txt"
+
+	# The other half of this property -- that the CONSOLE still has a real
+	# `filename()` for real files -- is pinned in `test_tui_drafts.py`.
+	# It cannot live here: the core is independent of the console, and the
+	# isolated-checkout test proves that by running this corpus without
+	# `baton_tui` present at all.
+
+	def test_a_part_name_is_an_uninterpreted_label(self, instance):
+		"""Protocol 10 dropped the filesystem rules, not just the word.
+
+		`validate_filename` refused `/`, `\\`, `.`, `..` and a leading `-` on
+		the theory that a careless consumer might use the label as a path.
+		Keeping those rules under the new key would have been the old concept
+		wearing the new word -- which is the exact failure the finding exists
+		to prevent.
+
+		The label round-trips BYTE FOR BYTE. It is strange, it means nothing to
+		Baton, and it reaches the recipient as written."""
+		odd = ["../diagram", "a/b.png", ".", "..", "-flag", "C:\\x5cwin.bin"]
+		with b6.open_instance(instance) as store:
+			for name in odd:
+				assert b6.validate_part_name(name) == name
+			mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+			                 parts=[{"content_type": "text/plain; charset=utf-8",
+			                         "body": b"x\n", "part_name": name}
+			                        for name in odd])
+			delivery = b6._delivery(store, store.claim("acme.implementer"))
+		assert [leaf["part_name"] for leaf
+		        in delivery["message"]["content"]["parts"]] == odd
+
+	@pytest.mark.parametrize("bad", ["", "a\x1b[2Jb", "a\x00b", "x" * 256])
+	def test_a_part_name_still_refuses_what_baton_cannot_carry(self, bad):
+		"""Each refusal is about BATON, not about a filesystem: an empty label
+		is not a name, a control character is a display-injection hazard in
+		every inbox that draws it, NUL cannot cross the boundaries this string
+		crosses, and the byte bound exists because the label sits in every
+		manifest and on one line of a list."""
+		with pytest.raises(b6.BatonError):
+			b6.validate_part_name(bad)
+
+	def test_materialize_ignores_the_part_name_completely(self, instance, tmp_path):
+		"""The other half of "the recipient decides". Now that `../diagram` is
+		a legal label, the output path must demonstrably not come from it."""
+		with b6.open_instance(instance) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+			                 retention="durable",
+			                 parts=[{"content_type": "text/plain; charset=utf-8",
+			                         "body": b"x\n", "part_name": "../escaped"}])
+			store.claim("acme.implementer")
+		target = tmp_path / "out"
+		target.mkdir()
+		written = b6.materialize(instance, mid, str(target), prefix="review")
+		assert os.path.dirname(written) == str(target), "the label chose the directory"
+		assert "escaped" not in os.path.basename(written)
+		# Nothing anywhere is named after the label -- not in the output
+		# directory, not beside the authority, not above either. The instance
+		# fixture already owns files here, so this asks the sharper question:
+		# did the LABEL create anything?
+		escaped = [q for q in tmp_path.rglob("*") if "escaped" in q.name]
+		assert escaped == [], escaped
+
+
+	def test_the_packaged_cli_speaks_only_part_name(self, tmp_path):
+		"""The surface a human actually types at, on the BUILT executable.
+
+		Schema and delivery can be clean while `--filename` still works,
+		because argparse is a separate surface from the store."""
+		import subprocess, sys as _sys, shutil
+		root = tmp_path / "dist"
+		TestPackaging()._builder().build(str(root))
+		inst = tmp_path / "inst"
+		inst.mkdir()
+		config_path = str(inst / "baton.json")
+		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		            config_path)
+		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
+
+		def run(*args, stdin=b""):
+			return subprocess.run(
+				[_sys.executable, str(root / "bin" / "baton"), "--config",
+				 config_path, *args], input=stdin, capture_output=True,
+				cwd=str(tmp_path), env=env, timeout=60)
+
+		assert run("init").returncode == 0
+		for verb in ("send", "send-notice", "reply", "close"):
+			help_text = run(verb, "--help").stdout.decode()
+			assert "--part-name" in help_text, verb
+			assert "--filename" not in help_text, verb
+
+		# The removed option is REFUSED, not quietly ignored.
+		refused = run("send", "--participant", "team.reviewer", "--to",
+		              "team.implementer", "--kind", "q", "--filename", "x",
+		              stdin=b"body\n")
+		assert refused.returncode != 0
+		assert "--filename" in refused.stderr.decode()
+
+		# And the descriptor still says `name`, which never moved.
+		body = tmp_path / "b.md"
+		body.write_text("hello\n")
+		ok = run("send", "--participant", "team.reviewer", "--to",
+		         "team.implementer", "--kind", "q",
+		         "--part", f"source={body}&type=text/plain;%20charset=utf-8&name=Q3.txt")
+		assert ok.returncode == 0, ok.stderr
+		claimed = json.loads(run("claim", "--participant", "team.implementer").stdout)
+		leaf = claimed["message"]["content"]["parts"][0]
+		assert leaf["part_name"] == "Q3.txt"
+		assert "filename" not in json.dumps(claimed)
+
+
+class TestScopeSelectors:
+	"""The pure half of scoped audiences: what a selector means, before any
+	notice exists to carry one."""
+
+	def test_the_ruled_example(self):
+		assert b6.expand_scope("baton.*", [
+			"baton.reviewer", "baton.implementer", "lang.reviewer"]) == \
+			["baton.implementer", "baton.reviewer"]
+
+	def test_a_longer_first_segment_is_a_different_segment(self):
+		"""The case the ruling names, and the reason matching compares SEGMENTS
+		rather than string prefixes: `"baton."` is a prefix of
+		`"baton_extra.reviewer"`... no it is not, and that near-miss is exactly
+		why a string test would have looked correct while being correct by
+		luck. `baton` and `baton_extra` are different segments, full stop."""
+		with pytest.raises(b6.BatonError):
+			b6.expand_scope("baton.*", ["baton_extra.reviewer", "batonx.lead"])
+
+	def test_a_scope_does_not_match_its_own_prefix_as_an_address(self):
+		"""`baton.*` addresses the members of a group, not the group. There
+		must be something after the dot."""
+		segments = b6.validate_scope("baton.*")
+		assert not b6.scope_matches(segments, "baton")
+
+	def test_deeper_addresses_match_and_this_is_a_choice(self):
+		"""`baton.*` matches `baton.a.b` as well as `baton.reviewer`.
+
+		The ruling names two-segment examples and does not say what a deeper
+		address does, so this is my reading rather than a quoted rule: a scope
+		names a DOMAIN, and everything under that domain is in it. The
+		alternative — matching exactly one further segment — would make
+		`baton.*` silently skip a participant that every human reading it would
+		expect to be included, which is the worse failure for an announcement.
+
+		Flagged in the handoff rather than buried here."""
+		assert b6.expand_scope("baton.*", ["baton.a.b", "baton.reviewer"]) == \
+			["baton.a.b", "baton.reviewer"]
+
+	@pytest.mark.parametrize("selector", [
+		"baton", "baton.", "*", ".*", "baton.*.x", "Baton.*", "baton.reviewer",
+		"baton..*", "_baton.*", "1baton.*", "baton.*extra", "x" * 70 + ".*"])
+	def test_a_malformed_selector_is_refused(self, selector):
+		with pytest.raises(b6.BatonError):
+			b6.validate_scope(selector)
+
+	def test_a_selector_that_matches_nobody_is_refused(self):
+		"""A notice addressed to nobody is a publication that silently does
+		nothing, and the likeliest cause is a typo — which is exactly when the
+		author most wants to be told."""
+		with pytest.raises(b6.BatonError) as caught:
+			b6.expand_scope("nosuch.*", ["baton.reviewer"])
+		assert "matches no configured participant" in str(caught.value)
+
+	def test_the_expansion_is_sorted(self):
+		"""It is STORED and COMPARED. An audience that depended on how the
+		config happened to be written would make retry identity depend on it
+		too."""
+		scrambled = ["baton.zulu", "baton.alpha", "baton.mike"]
+		assert b6.expand_scope("baton.*", scrambled) == \
+			["baton.alpha", "baton.mike", "baton.zulu"]
+		assert b6.expand_scope("baton.*", list(reversed(scrambled))) == \
+			b6.expand_scope("baton.*", scrambled)
+
+	def test_expansion_reaches_no_authority(self):
+		"""Pure: it takes the participant list and returns a list. Nothing
+		here opens a store, which is what lets it be the first thing built and
+		the first thing tested."""
+		assert b6.expand_scope("t.*", ["t.a"]) == ["t.a"]
+
+
+class TestScopedNoticeAudience:
+	"""The audience is frozen at publication -- global and scoped alike.
+
+	Ruled: a broadcast is to the participants who existed when it was sent, so
+	a config addition cannot grant a new identity access to historic broadcast
+	content."""
+
+	def test_a_scope_reaches_its_team_and_nobody_else(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                  body=b"team only\n", ttl_seconds=3600)
+			reached = [p["address"] for p in store.list_participants()
+			           if store.see(p["address"])]
+		assert all(a.startswith("acme.") for a in reached), reached
+		assert len(reached) >= 2, "the scope reached fewer than the whole team"
+
+	def test_a_global_notice_still_reaches_everyone(self, instance):
+		"""Author parity unchanged: a matching author is in their own
+		audience."""
+		with b6.open_instance(instance) as store:
+			everyone = sorted(p["address"] for p in store.list_participants())
+			store.send_notice("hq.lead", kind="fyi", body=b"all\n", ttl_seconds=3600)
+			reached = sorted(p for p in everyone if store.see(p))
+		assert reached == everyone
+
+	def test_a_newcomer_added_by_regen_cannot_receive_an_older_notice(self, tmp_path):
+		"""THE RULED BEHAVIOUR CHANGE, through a REAL generation transition.
+
+		An earlier version of this test only asked an undeclared identity to
+		call `see` and watched it fail — which proves nothing, because an
+		unconfigured address fails for a different reason entirely. It never
+		edited the config and never ran `regen`, so it could not have caught a
+		newcomer inheriting old broadcasts.
+
+		This adds a participant by regen and asserts both halves: they do NOT
+		receive the notice published before they existed, and they DO receive
+		one published after."""
+		import shutil
+		home = tmp_path / "inst"
+		home.mkdir()
+		config_path = str(home / "baton.json")
+		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		            config_path)
+		b6.init_instance(config_path)
+		with b6.open_instance(config_path) as store:
+			store.send_notice("org.lead", kind="fyi", body=b"before\n",
+			                  ttl_seconds=3600)
+
+		config = json.loads(open(config_path).read())
+		config["participants"]["team.newcomer"] = {}
+		config["generation"] += 1
+		open(config_path, "w").write(json.dumps(config))
+		b6.regen_instance(config_path, participant="org.lead")
+
+		with b6.open_instance(config_path) as store:
+			assert store.see("team.newcomer") == [], \
+				"a newcomer inherited a broadcast published before they existed"
+			assert store.has_unseen_notice("team.newcomer") is False
+			# ...and is a full member of anything published from now on.
+			store.send_notice("org.lead", kind="fyi", body=b"after\n",
+			                  ttl_seconds=3600)
+			later = store.see("team.newcomer")
+		assert len(later) == 1
+
+	def test_how_it_was_addressed_is_recorded_beside_who_it_reached(self, instance):
+		"""The audience table alone cannot tell `--scope acme.*` from a global
+		notice that happened to match the same people, and both retry identity
+		and the detail header need to."""
+		with b6.open_instance(instance) as store:
+			scoped = store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                           body=b"x\n", ttl_seconds=3600)
+			glob = store.send_notice("hq.lead", kind="fyi", body=b"y\n",
+			                         ttl_seconds=3600)
+			rows = {r["id"]: (r["audience_kind"], r["selector"]) for r in
+			        store.conn.execute("SELECT id, audience_kind, selector FROM notices")}
+		assert rows[scoped] == ("scope", "acme.*")
+		assert rows[glob] == ("global", None)
+
+	@pytest.mark.parametrize("selector", ["nosuch.*", "acme", "*", "ACME.*"])
+	def test_a_bad_scope_writes_nothing_at_all(self, instance, selector):
+		"""Refused BEFORE the transaction opens, so a typo costs no authority
+		write -- not a rolled-back one, none."""
+		with b6.open_instance(instance) as store:
+			before = store.conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0]
+			with pytest.raises(b6.BatonError):
+				store.send_notice("hq.lead", kind="fyi", scope=selector,
+				                  body=b"x\n", ttl_seconds=3600)
+			after = store.conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0]
+		assert after == before
+
+	def test_the_audience_is_immutable(self, instance):
+		"""It is the record of who a broadcast was addressed to, and a record
+		that can be edited is not that record."""
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="fyi", body=b"x\n", ttl_seconds=3600)
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute("UPDATE notice_audience SET participant='x.y'")
+
+	def test_an_explicit_open_by_id_refuses_a_non_member(self, instance):
+		"""R1, and it was the critical one.
+
+		`see`, `list_notices` and `list_notice_activity` select BY membership,
+		so scope holds there by construction. `mark_notice_seen` selects by ID,
+		which is a different question — and any configured participant who
+		learned a scoped notice's id could read team-only content and record a
+		receipt for it.
+
+		The refusal is deliberately INDISTINGUISHABLE from "unknown notice": a
+		different message would confirm the id exists, which is itself
+		information a non-member is not entitled to."""
+		with b6.open_instance(instance) as store:
+			notice_id = store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                              body=b"team only\n", ttl_seconds=3600)
+			with pytest.raises(b6.BatonError) as caught:
+				store.mark_notice_seen("hq.lead", notice_id)
+			assert "unknown notice" in str(caught.value)
+			# NO receipt was recorded, so the non-member did not consume the
+			# notice on behalf of anyone.
+			seen = store.conn.execute(
+				"SELECT COUNT(*) FROM notice_seen WHERE notice_id=?",
+				(notice_id,)).fetchone()[0]
+			assert seen == 0
+			# And a member still gets it, once.
+			opened = store.mark_notice_seen("acme.implementer", notice_id)
+			assert opened.get("already_seen") is not True
+			again = store.mark_notice_seen("acme.implementer", notice_id)
+			assert again["already_seen"] is True
+
+	def test_the_schema_refuses_a_receipt_outside_the_audience(self, instance):
+		"""Authorization in the schema as well as the code path, so another
+		query cannot recreate the bypass."""
+		with b6.open_instance(instance) as store:
+			notice_id = store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                              body=b"x\n", ttl_seconds=3600)
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute(
+					"INSERT INTO notice_seen(notice_id, participant, seen_ts) "
+					"VALUES(?,?,?)", (notice_id, "hq.lead", "2026-01-01T00:00:00Z"))
+
+	def test_the_idle_probe_does_not_report_another_teams_notice(self, instance):
+		"""R2. The probe keeps an idle waiter out of a write transaction. With
+		no membership predicate a scoped notice woke every unrelated
+		participant, who then took the `see` write lock to be told there was
+		nothing for them — reintroducing the exact contention the probe exists
+		to avoid, across teams."""
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                  body=b"team only\n", ttl_seconds=3600)
+			assert store.has_unseen_notice("acme.implementer") is True
+			assert store.has_unseen_notice("hq.lead") is False, \
+				"an unrelated participant was woken by another team's notice"
+			# And the probe agrees with what `see` would actually hand over.
+			assert store.see("hq.lead") == []
+
+	def test_dump_carries_the_frozen_audience(self, instance):
+		"""`dump` promises every protocol table, and the immutable answer to
+		"who received this?" is exactly the sort of thing an inspection surface
+		exists for."""
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                  body=b"x\n", ttl_seconds=3600)
+		dumped = b6.dump(instance)
+		assert "notice_audience" in dumped
+		assert {row["participant"] for row in dumped["notice_audience"]} == \
+			{"acme.implementer", "acme.reviewer"}
+
+	def test_the_packaged_cli_publishes_and_shows_a_scoped_notice(self, tmp_path):
+		"""End to end on the built executable: a team notice reaches its team,
+		does not reach anyone else, and says which team it was for."""
+		import subprocess, sys as _sys, shutil
+		root = tmp_path / "dist"
+		TestPackaging()._builder().build(str(root))
+		inst = tmp_path / "inst"
+		inst.mkdir()
+		config_path = str(inst / "baton.json")
+		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		            config_path)
+		env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path)}
+
+		def run(*args, stdin=b""):
+			return subprocess.run(
+				[_sys.executable, str(root / "bin" / "baton"), "--config",
+				 config_path, *args], input=stdin, capture_output=True,
+				cwd=str(tmp_path), env=env, timeout=60)
+
+		assert run("init").returncode == 0
+		# The example config has team.* and org.lead.
+		proc = run("send-notice", "--participant", "org.lead", "--kind", "fyi",
+		           "--scope", "team.*", stdin=b"team only\n")
+		assert proc.returncode == 0, proc.stderr
+
+		seen = json.loads(run("see", "--participant", "team.reviewer").stdout)
+		assert len(seen["notices"]) == 1
+		assert seen["notices"][0]["selector"] == "team.*"
+		assert seen["notices"][0]["audience_kind"] == "scope"
+
+		# The author is outside the scope and gets nothing.
+		assert json.loads(run("see", "--participant", "org.lead").stdout)["notices"] == []
+
+		# A malformed scope is refused, and writes nothing.
+		bad = run("send-notice", "--participant", "org.lead", "--kind", "fyi",
+		          "--scope", "nosuch.*", stdin=b"x\n")
+		assert bad.returncode != 0
+		assert "matches no configured participant" in bad.stderr.decode()
+
+	def test_regen_will_not_strand_an_addressee(self, tmp_path):
+		"""R3. The gate protected notice AUTHORS and not addressees, so a
+		removal could freeze a participant into an immutable audience and
+		simultaneously make them undeclared and unable to consume it.
+
+		The refusal is not permanent: once they have seen it, or the notice
+		expires or is collected, the removal goes through — without ever
+		rewriting retained history."""
+		import shutil
+		home = tmp_path / "inst"
+		home.mkdir()
+		config_path = str(home / "baton.json")
+		shutil.copy(os.path.join(os.path.dirname(__file__), "example-baton.json"),
+		            config_path)
+		b6.init_instance(config_path)
+		with b6.open_instance(config_path) as store:
+			store.send_notice("org.lead", kind="fyi", scope="team.*",
+			                  body=b"x\n", ttl_seconds=3600)
+
+		original = open(config_path).read()
+
+		def drop(address):
+			config = json.loads(open(config_path).read())
+			config["participants"].pop(address)
+			config["generation"] += 1
+			open(config_path, "w").write(json.dumps(config))
+
+		drop("team.reviewer")
+		with pytest.raises(b6.BatonError) as caught:
+			b6.regen_instance(config_path, participant="org.lead")
+		assert "team.reviewer" in str(caught.value)
+
+		# Restore the config VERBATIM -- same generation, same digest -- so the
+		# instance accepts it again without a regen, and let the addressee take
+		# delivery.
+		open(config_path, "w").write(original)
+		with b6.open_instance(config_path) as store:
+			assert store.see("team.reviewer")
+
+		# Now nothing is stranded and the removal goes through.
+		drop("team.reviewer")
+		b6.regen_instance(config_path, participant="org.lead")
+
+
+class TestScopedNoticeWakeup:
+	"""A scoped notice must wake its team and nobody else — through the real
+	`wait` path, not only the probe.
+
+	The existing global-wait tests cannot catch a missing scope predicate,
+	because every participant belongs to a global audience. These are the
+	scoped equivalents."""
+
+	def test_a_scoped_notice_already_present_wakes_only_its_team(self, instance):
+		with b6.open_instance(instance) as st:
+			st.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			               body=b"team only\n", ttl_seconds=3600)
+		got = b6.wait_for_message(instance, "acme.implementer", timeout_s=5)
+		assert got["notice"]["selector"] == "acme.*"
+		# The unrelated participant times out rather than being woken.
+		with pytest.raises(b6.BatonError) as caught:
+			b6.wait_for_message(instance, "hq.lead", timeout_s=0.4,
+			                    rescan_interval_s=0.1)
+		assert caught.value.exit_code == b6.EXIT_NONE
+
+	def test_a_scoped_notice_published_while_blocked_wakes_the_member(self, instance):
+		def publisher():
+			_time.sleep(0.5)
+			with b6.open_instance(instance) as st:
+				st.send_notice("hq.lead", kind="fyi", scope="acme.*",
+				               body=b"late\n", ttl_seconds=3600)
+		thread = threading.Thread(target=publisher)
+		thread.start()
+		start = _time.monotonic()
+		got = b6.wait_for_message(instance, "acme.reviewer", timeout_s=30,
+		                          rescan_interval_s=20)
+		elapsed = _time.monotonic() - start
+		thread.join()
+		assert got["notice"]["audience_kind"] == "scope"
+		assert elapsed < 15, "woken by the 20s rescan rather than the watch"
+
+	def test_degraded_polling_still_scopes(self, instance, monkeypatch):
+		"""Without inotify this is pure interval polling, and the membership
+		predicate has to hold on that path too."""
+		class Broken:
+			def __init__(self, _dir):
+				raise OSError("inotify unavailable")
+
+		monkeypatch.setattr(b6, "_InotifyWatch", Broken)
+
+		def publisher():
+			_time.sleep(0.4)
+			with b6.open_instance(instance) as st:
+				st.send_notice("hq.lead", kind="fyi", scope="acme.*",
+				               body=b"late\n", ttl_seconds=3600)
+
+		thread = threading.Thread(target=publisher)
+		thread.start()
+		got = b6.wait_for_message(instance, "acme.implementer", timeout_s=30,
+		                          rescan_interval_s=0.2)
+		thread.join()
+		assert got["notice"]["selector"] == "acme.*"
+
+	def test_an_unrelated_participant_records_no_receipt_and_stays_read_only(
+			self, instance):
+		"""The contention half of the contract. An unrelated participant must
+		not be told there is work, and must therefore never enter `see`'s
+		write transaction to be told there is not."""
+		with b6.open_instance(instance) as st:
+			st.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			               body=b"team only\n", ttl_seconds=3600)
+			assert st.has_unseen_notice("hq.lead") is False
+			assert st.see("hq.lead") == []
+			receipts = st.conn.execute(
+				"SELECT COUNT(*) FROM notice_seen").fetchone()[0]
+		assert receipts == 0, "an unrelated participant recorded a receipt"
+
+
+def _publish_scoped_with_fault(config_path, point, queue):
+	"""Publish a scoped notice, failing at an injected point after the notice
+	and its audience rows are written."""
+	import baton_core._impl as mod
+	original = mod.Store._write_parts
+
+	def explode(self, owner_kind, owner_id, nodes, now):
+		if point == "after_audience":
+			raise RuntimeError("injected fault")
+		return original(self, owner_kind, owner_id, nodes, now)
+
+	mod.Store._write_parts = explode
+	try:
+		with mod.open_instance(config_path) as store:
+			store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                  body=b"x\n", ttl_seconds=3600)
+		queue.put("committed")
+	except BaseException as error:
+		queue.put(f"failed: {error}")
+
+
+class TestScopedNoticeAtomicity:
+	def test_a_fault_after_the_audience_rolls_everything_back(self, instance):
+		"""Notice, audience rows and parts commit together or not at all. A
+		surviving notice with no audience would be unreachable by anyone; a
+		surviving audience with no notice is the orphan doctor looks for."""
+		queue = multiprocessing.Queue()
+		process = multiprocessing.Process(
+			target=_publish_scoped_with_fault,
+			args=(instance, "after_audience", queue))
+		process.start()
+		process.join(30)
+		assert queue.get(timeout=5).startswith("failed:")
+		with b6.open_instance(instance) as store:
+			assert store.conn.execute(
+				"SELECT COUNT(*) FROM notices").fetchone()[0] == 0
+			assert store.conn.execute(
+				"SELECT COUNT(*) FROM notice_audience").fetchone()[0] == 0
+		assert b6.doctor(instance)["problems"] == []
+
+
+def _damage_is_caught(instance, fragment):
+	"""Either doctor names it, or an earlier integrity layer refuses to open
+	the instance at all.
+
+	Both are the system catching corruption; only one of them is doctor's job.
+	Asserting the disjunction is honest about which states are reachable — an
+	earlier version of these tests demanded the doctor branch specifically and
+	failed, because the store will not open a database whose foreign keys are
+	broken, which is a better outcome than a report."""
+	try:
+		problems = b6.doctor(instance)["problems"]
+	except b6.BatonError as refusal:
+		return "integrity" in str(refusal) or "foreign_key" in str(refusal)
+	return any(fragment in problem for problem in problems)
+
+
+class TestDoctorNoticeAudience:
+	"""Each of the five new doctor branches, driven by the damage it exists to
+	find. A check nobody has ever seen fail is a check nobody knows works.
+
+	The guards make this awkward on purpose — every one of these has to defeat
+	an immutability trigger to plant the damage, which is itself evidence that
+	the ordinary paths cannot produce it. `PRAGMA defer_foreign_keys` and a
+	direct connection are the test's tools, not the product's."""
+
+	def _corrupt(self, instance, statements):
+		"""Plant damage the ordinary paths cannot produce.
+
+		It needs the operation context the product itself sets, because the
+		insert guards refuse writes outside one -- which is itself worth
+		noticing: every state below required defeating a guard to create, so
+		none of them can arise from an ordinary publication. Doctor is the
+		net under corruption from elsewhere, not under this code.
+		"""
+		import sqlite3 as sql
+		path = os.path.join(os.path.dirname(instance), "mailbox.sqlite3")
+		conn = sql.connect(path)
+		try:
+			conn.execute("PRAGMA foreign_keys=OFF")
+			conn.execute(
+				"UPDATE op_context SET op_id='doctor-test', participant='hq.lead', "
+				"verb='gc', ts='2026-01-01T00:00:00Z' WHERE one_row=1")
+			for statement, args in statements:
+				conn.execute(statement, args)
+			conn.execute("UPDATE op_context SET op_id=NULL, participant=NULL, "
+			             "verb=NULL, ts=NULL WHERE one_row=1")
+			conn.commit()
+		finally:
+			conn.close()
+
+	def test_an_empty_audience_is_detected(self, instance):
+		"""Reported by doctor OR refused before doctor can run -- and which
+		one it is is worth knowing rather than papering over.
+
+		Deleting the audience leaves the receipt foreign key dangling, so the
+		instance fails its integrity check on OPEN and never reaches the
+		doctor branch. That is a stronger outcome than a report, and the
+		branch remains as the net for damage that does not break referential
+		integrity."""
+		with b6.open_instance(instance) as store:
+			notice_id = store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                              body=b"x\n", ttl_seconds=3600)
+			store.see("acme.implementer")
+		self._corrupt(instance, [
+			("DELETE FROM notice_audience WHERE notice_id=?", (notice_id,))])
+		assert _damage_is_caught(instance, "empty frozen audience")
+
+	def test_a_receipt_outside_the_audience_is_detected(self, instance):
+		with b6.open_instance(instance) as store:
+			notice_id = store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                              body=b"x\n", ttl_seconds=3600)
+		self._corrupt(instance, [
+			("INSERT INTO notice_seen(notice_id, participant, seen_ts) VALUES(?,?,?)",
+			 (notice_id, "hq.lead", "2026-01-01T00:00:00Z"))])
+		assert _damage_is_caught(instance, "not in its audience")
+
+	def test_a_non_address_in_the_audience_is_detected(self, instance):
+		with b6.open_instance(instance) as store:
+			notice_id = store.send_notice("hq.lead", kind="fyi", body=b"x\n",
+			                              ttl_seconds=3600)
+		self._corrupt(instance, [
+			("DELETE FROM notice_audience WHERE notice_id=?", (notice_id,)),
+			("INSERT INTO notice_audience(notice_id, participant) VALUES(?,?)",
+			 (notice_id, "a" * 70 + ".x"))])
+		assert _damage_is_caught(instance, "not a participant address")
+
+	def test_an_unparseable_selector_is_detected(self, instance):
+		"""Overlong rather than malformed, deliberately: it MATCHES the regex
+		and fails the bound, which is exactly what a bare `.match` missed."""
+		with b6.open_instance(instance) as store:
+			notice_id = store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                              body=b"x\n", ttl_seconds=3600)
+		# The trigger is dropped to plant the damage and RESTORED immediately,
+		# so what doctor sees is a bad selector rather than a missing trigger.
+		# Leaving it dropped would test schema validation instead, which is a
+		# different check and already covered.
+		self._corrupt(instance, [
+			("DROP TRIGGER trg_notice_frozen", ()),
+			("UPDATE notices SET selector=? WHERE id=?",
+			 ("a" * 70 + ".*", notice_id)),
+			("CREATE TRIGGER trg_notice_frozen BEFORE UPDATE ON notices "
+			 "BEGIN SELECT RAISE(ABORT, 'notices are immutable'); END", ())])
+		assert _damage_is_caught(instance, "is not a scope")
+
+	def test_an_orphaned_audience_row_is_detected(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="fyi", body=b"x\n", ttl_seconds=3600)
+		self._corrupt(instance, [
+			("INSERT INTO notice_audience(notice_id, participant) VALUES(?,?)",
+			 ("no-such-notice", "acme.implementer"))])
+		assert _damage_is_caught(instance, "outlived their notice")
+
+	def test_a_healthy_instance_reports_none_of_them(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="fyi", scope="acme.*",
+			                  body=b"x\n", ttl_seconds=3600)
+			store.see("acme.implementer")
+		assert b6.doctor(instance)["problems"] == []
+
+	def test_a_scoped_notice_published_during_the_arm_window(self, instance, monkeypatch):
+		"""The query-to-arm race, scoped.
+
+		The global version cannot catch a missing membership predicate,
+		because every participant is in a global audience. This publishes to
+		`acme.*` in the window between the first query and the armed watch,
+		and asserts the member is woken by the REQUERY rather than by the
+		rescan — and, in the same run, that the unrelated participant sees
+		nothing at all."""
+		published = {}
+
+		def publish_during_arm(point):
+			if point == "wait:armed" and not published:
+				published["done"] = True
+				with b6.open_instance(instance) as st:
+					st.send_notice("hq.lead", kind="fyi", scope="acme.*",
+					               body=b"raced\n", ttl_seconds=3600)
+
+		monkeypatch.setattr(b6, "_FAULT_HOOK", publish_during_arm)
+		start = _time.monotonic()
+		got = b6.wait_for_message(instance, "acme.implementer",
+		                          timeout_s=30, rescan_interval_s=25)
+		assert got["notice"]["selector"] == "acme.*"
+		assert _time.monotonic() - start < 10, "the rescan caught it, not the requery"
+		monkeypatch.setattr(b6, "_FAULT_HOOK", None)
+		with b6.open_instance(instance) as st:
+			assert st.has_unseen_notice("hq.lead") is False
+			assert st.see("hq.lead") == []
+
+
+class TestMultiRecipientPublication:
+	"""One publication, N ordinary messages.
+
+	The finding's requirement is that per-recipient lifecycles stay
+	independent and exact. Under this shape that is true BY CONSTRUCTION —
+	they are ordinary messages and were never joined — so these tests are
+	checking that nothing accidentally joined them, not that a separation
+	mechanism works."""
+
+	def test_each_recipient_gets_an_independent_lifecycle(self, instance):
+		with b6.open_instance(instance) as store:
+			publication = store.send("hq.lead", ["acme.implementer", "acme.reviewer"],
+			                         kind="q", subject="both", body=b"x\n")
+			first = store.claim("acme.implementer")
+			store.close_claim(first["claim_id"], participant="acme.implementer",
+			                  outcome="done")
+			# Resolving one leaves the other actionable, untouched.
+			second = store.claim("acme.reviewer")
+			assert second["state"] == "active"
+			states = dict(store.conn.execute(
+				"SELECT to_participant, state FROM messages WHERE publication_id=?",
+				(publication,)).fetchall())
+		assert states == {"acme.implementer": "closed", "acme.reviewer": "claimed"}
+
+	def test_a_single_recipient_still_returns_a_message_id(self, instance):
+		"""The historical shape is unchanged. A caller addressing one
+		participant sees exactly what it always saw."""
+		with b6.open_instance(instance) as store:
+			returned = store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			row = store.conn.execute(
+				"SELECT id, publication_id FROM messages WHERE id=?",
+				(returned,)).fetchone()
+		assert row is not None, "the return value is not a message id"
+		assert row["publication_id"] is not None, \
+			"a single-recipient send has no publication row"
+
+	def test_the_audience_survives_a_collected_delivery(self, instance):
+		"""WHY the publication record exists at all. Deriving the audience
+		from surviving message rows would shrink it as deliveries are removed,
+		and the detail header and later authorization both read it."""
+		with b6.open_instance(instance) as store:
+			publication = store.send("hq.lead", ["acme.implementer", "acme.reviewer"],
+			                         kind="q", body=b"x\n")
+			# Under the `gc` verb, because that is the only thing allowed to
+			# remove a delivery -- the guard refused a bare DELETE, which is
+			# itself the evidence that this state cannot arise casually.
+			store.conn.execute(
+				"UPDATE op_context SET op_id='t', participant='hq.lead', "
+				"verb='gc', ts='2026-01-01T00:00:00Z' WHERE one_row=1")
+			store.conn.execute("DELETE FROM messages WHERE to_participant=? "
+			                   "AND publication_id=?",
+			                   ("acme.implementer", publication))
+			store.conn.execute(
+				"UPDATE op_context SET op_id=NULL, participant=NULL, verb=NULL, "
+				"ts=NULL WHERE one_row=1")
+			audience = {r["participant"] for r in store.conn.execute(
+				"SELECT participant FROM publication_audience WHERE publication_id=?",
+				(publication,))}
+		assert audience == {"acme.implementer", "acme.reviewer"}
+
+	@pytest.mark.parametrize("recipients,fragment", [
+		(["acme.implementer", "acme.implementer"], "duplicate recipient"),
+		(["acme.*"], "is a scope"),
+		(["acme.implementer", "acme.*"], "is a scope"),
+		([], "at least one recipient"),
+		(["nobody.here"], "nobody.here"),
+	])
+	def test_a_bad_audience_writes_nothing(self, instance, recipients, fragment):
+		"""Refused before the transaction opens. A wildcard in `--to` is the
+		one worth naming: it would turn "assign this work to a team" into
+		something with no per-recipient claim."""
+		with b6.open_instance(instance) as store:
+			before = store.conn.execute(
+				"SELECT COUNT(*) FROM publications").fetchone()[0]
+			with pytest.raises(b6.BatonError) as caught:
+				store.send("hq.lead", recipients, kind="q", body=b"x\n")
+			assert fragment in str(caught.value)
+			after = store.conn.execute(
+				"SELECT COUNT(*) FROM publications").fetchone()[0]
+		assert after == before
+
+	def test_publication_is_atomic_across_recipients(self, instance):
+		"""Either every delivery exists or none. A partial audience would
+		leave some recipients holding work the others were never told about,
+		with nothing in the store able to say which."""
+		with b6.open_instance(instance) as store:
+			original = store._insert_message
+			calls = {"n": 0}
+
+			def explode(*args, **kwargs):
+				calls["n"] += 1
+				if calls["n"] == 2:
+					raise RuntimeError("injected fault on the second delivery")
+				return original(*args, **kwargs)
+
+			store._insert_message = explode
+			with pytest.raises(RuntimeError):
+				store.send("hq.lead", ["acme.implementer", "acme.reviewer"],
+				           kind="q", body=b"x\n")
+			store._insert_message = original
+			assert store.conn.execute(
+				"SELECT COUNT(*) FROM messages").fetchone()[0] == 0
+			assert store.conn.execute(
+				"SELECT COUNT(*) FROM publications").fetchone()[0] == 0
+			assert store.conn.execute(
+				"SELECT COUNT(*) FROM publication_audience").fetchone()[0] == 0
+
+	def test_possible_duplicate_is_the_senders_assertion_and_immutable(self, instance):
+		"""Publication is at-least-once by ruling. The flag says the SENDER
+		could not tell whether an earlier attempt committed — Baton does not
+		identify or correlate the original, and the recipient decides what to
+		do about it.
+
+		Immutable, because a warning that can be set or cleared afterwards is
+		a rumour rather than a record."""
+		with b6.open_instance(instance) as store:
+			plain = store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			warned = store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n",
+			                    possible_duplicate=True)
+			flags = dict(store.conn.execute(
+				"SELECT m.id, p.possible_duplicate FROM messages m "
+				"JOIN publications p ON p.publication_id = m.publication_id").fetchall())
+			assert flags[plain] == 0
+			assert flags[warned] == 1
+			# Two deliberate identical publications remain possible, and the
+			# second is a SEPARATE publication rather than a retry of the first.
+			assert plain != warned
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute("UPDATE publications SET possible_duplicate=0")
+
+
+class TestAudienceOnDelivery:
+	"""The audience reaches the RECIPIENT, not just the database.
+
+	The finding requires that delivery identify the original audience so a
+	human can tell a private message from work deliberately assigned to
+	several participants. `to_participant` says "me" in both cases, so
+	without this the distinction exists only in tables nobody reads while
+	deciding whether to start work.
+	"""
+
+	def test_every_recipient_sees_the_whole_audience(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", ["acme.implementer", "acme.reviewer"],
+			           kind="q", subject="both", body=b"x\n")
+			delivered = b6._delivery(store, store.claim("acme.implementer"))
+		assert delivered["message"]["audience"] == ["acme.implementer", "acme.reviewer"], \
+			"a recipient of shared work cannot see that it was shared"
+
+	def test_a_private_message_carries_only_its_one_recipient(self, instance):
+		"""The distinction has to cut both ways to be worth anything."""
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			delivered = b6._delivery(store, store.claim("acme.implementer"))
+		assert delivered["message"]["audience"] == ["acme.implementer"]
+
+	def test_the_delivered_audience_does_not_shrink_with_a_collected_delivery(self, instance):
+		"""Reading the audience off surviving `messages` rows would tell the
+		remaining recipient the work was more private than it was -- and it
+		would change as GC ran, so the same message would read differently on
+		Tuesday. The canonical audience is the publication's."""
+		with b6.open_instance(instance) as store:
+			publication = store.send("hq.lead", ["acme.implementer", "acme.reviewer"],
+			                         kind="q", subject="both", body=b"x\n")
+			# Removed under the `gc` verb, the only thing permitted to collect
+			# a delivery -- the same route the sibling audience test uses. A
+			# bare DELETE is refused by the guard, which is itself evidence
+			# that this state cannot arise casually.
+			store.conn.execute(
+				"UPDATE op_context SET op_id='t', participant='hq.lead', "
+				"verb='gc', ts='2026-01-01T00:00:00Z' WHERE one_row=1")
+			store.conn.execute("DELETE FROM messages WHERE publication_id=? "
+			                   "AND to_participant=?", (publication, "acme.reviewer"))
+			store.conn.execute(
+				"UPDATE op_context SET op_id=NULL, participant=NULL, verb=NULL, "
+				"ts=NULL WHERE one_row=1")
+			delivered = b6._delivery(store, store.claim("acme.implementer"))
+		assert delivered["message"]["audience"] == ["acme.implementer", "acme.reviewer"], \
+			"the audience shrank when another recipient's delivery was collected"
+
+	def test_the_duplicate_warning_reaches_a_directed_recipient(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n",
+			           possible_duplicate=True)
+			delivered = b6._delivery(store, store.claim("acme.implementer"))
+		assert delivered["message"]["possible_duplicate"] is True
+
+	def test_an_ordinary_message_carries_no_warning(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send("hq.lead", "acme.implementer", kind="q", body=b"x\n")
+			delivered = b6._delivery(store, store.claim("acme.implementer"))
+		assert delivered["message"]["possible_duplicate"] is False
+
+
+class TestNoticeDuplicateWarning:
+	"""The ruling covers `send-notice` as well as `send`.
+
+	A broadcast can be republished after an ambiguous result exactly as a
+	directed message can, and a recipient deciding what to do about the second
+	copy needs the same sender-supplied warning."""
+
+	def test_a_repeated_notice_can_carry_the_warning(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="ann", body=b"deploy\n",
+			                  possible_duplicate=True)
+			delivered = [b6._notice_delivery(n) for n in store.see("acme.implementer")]
+		assert delivered[0]["notice"]["possible_duplicate"] is True, \
+			"the warning does not reach a broadcast recipient"
+
+	def test_an_ordinary_notice_carries_no_warning(self, instance):
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="ann", body=b"deploy\n")
+			delivered = [b6._notice_delivery(n) for n in store.see("acme.implementer")]
+		assert delivered[0]["notice"]["possible_duplicate"] is False
+
+	def test_the_notice_warning_is_immutable(self, instance):
+		"""Same reason as the publication column: it is the sender's assertion
+		about what they could observe at one moment, and a later edit would
+		rewrite what they said."""
+		with b6.open_instance(instance) as store:
+			store.send_notice("hq.lead", kind="ann", body=b"deploy\n",
+			                  possible_duplicate=True)
+			with pytest.raises(sqlite3.IntegrityError):
+				store.conn.execute("UPDATE notices SET possible_duplicate=0")

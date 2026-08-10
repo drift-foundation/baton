@@ -1,6 +1,6 @@
 {
   "config_version": 1,
-  "protocol_version": 9,
+  "protocol_version": 10,
   "generation": 1,
   "mailbox": {
     "name": "example-local"

@@ -24,7 +24,7 @@ def make_config(tmp_path, name="inst"):
 	path = str(home / "baton.json")
 	with open(path, "w") as handle:
 		json.dump({
-			"config_version": 1, "protocol_version": 9, "generation": 1,
+			"config_version": 1, "protocol_version": 10, "generation": 1,
 			"mailbox": {"name": "console"},
 			"participants": {"acme.reviewer": {}, "acme.implementer": {},
 			                 "hq.lead": {"capabilities": ["recovery", "config"]}},
@@ -230,8 +230,11 @@ def test_reopen_refuses_a_finished_claim(inst):
 
 def test_core_declares_its_api_contract():
 	versions = core.core_versions()
-	assert versions["core_api_version"] >= 1
-	assert versions["protocol_version"] == 9
+	# EXACTLY 2. `>= 1` encoded the superseded compatibility rule: protocol 10
+	# removed `filename` from every delivery and every Store signature, so
+	# "at least" is the wrong shape for a contract that can break by removal.
+	assert versions["core_api_version"] == 2
+	assert versions["protocol_version"] == 10
 
 
 def test_message_preview_is_read_only_and_contentless(inst):
@@ -244,7 +247,7 @@ def test_message_preview_is_read_only_and_contentless(inst):
 		                 subject="Decide on rollout", parts=[
 			{"content_type": "text/markdown; charset=utf-8", "body": b"# Secret\n"},
 			{"content_type": "text/markdown; charset=utf-8", "disposition": "attachment",
-			 "filename": "EVIDENCE.md", "attach": "src:EVIDENCE.md"},
+			 "part_name": "EVIDENCE.md", "attach": "src:EVIDENCE.md"},
 		])
 		for _ in range(25):
 			preview = store.preview_message(mid, "acme.implementer")
@@ -253,7 +256,7 @@ def test_message_preview_is_read_only_and_contentless(inst):
 		# Shape is visible: two parts, one an external attachment.
 		assert [p["storage"] for p in preview["parts"]] == ["inline", "external"]
 		assert preview["parts"][1]["disposition"] == "attachment"
-		assert preview["parts"][1]["filename"] == "EVIDENCE.md"
+		assert preview["parts"][1]["part_name"] == "EVIDENCE.md"
 		# Content, hashes and the on-disk location of evidence are not.
 		assert_no_delivery_content(preview)
 		assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0

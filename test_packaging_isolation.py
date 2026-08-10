@@ -133,11 +133,29 @@ def test_the_tui_depends_only_on_the_stdlib_and_the_core():
 				assert name in allowed, f"{path.name} imports unexpected {name!r}"
 
 
-def test_the_cli_artifact_has_not_grown_for_the_tui():
-	"""A size ceiling is crude but catches the thing conventions miss: the
-	artifact quietly absorbing UI code over time."""
+def test_the_cli_artifact_contains_no_console_code():
+	"""The PROPERTY the size ceiling was a proxy for, asserted directly.
+
+	A bare ceiling cannot tell UI leakage from the core legitimately growing,
+	and protocol 10 grew it: publications, audiences and their doctor passes
+	took the artifact past 300KB with nothing UI-shaped in it. Raising the
+	number alone would have weakened the guard to keep it quiet; naming the
+	members says what was actually meant.
+
+	The ceiling stays as a second, cruder net -- for a dependency that is
+	neither `baton_tui` nor obviously UI -- but it is now the backstop rather
+	than the test."""
+	import zipfile
+	members = zipfile.ZipFile(ARTIFACT).namelist()
+	assert members, "the artifact is empty"
+	intruders = [name for name in members
+	             if not (name == "__main__.py" or name.startswith("baton_core/"))]
+	assert intruders == [], f"non-core members in the CLI artifact: {intruders}"
+
 	size = ARTIFACT.stat().st_size
-	assert size < 300 * 1024, f"CLI artifact is {size} bytes; TUI code may have leaked in"
+	assert size < 600 * 1024, (
+		f"CLI artifact is {size} bytes. Nothing UI-shaped is in it, so this is "
+		f"the core growing -- but check that before raising the bound again")
 
 
 # -- the trial artifact, and what building it must NOT touch --------------

@@ -38,8 +38,8 @@ EXIT_RACE = 5
 EXIT_DAMAGE = 6
 EXIT_GATED = 7
 
-PROTOCOL_VERSION = 9
-TOOL_VERSION = "5.2.0"
+PROTOCOL_VERSION = 10
+TOOL_VERSION = "6.0.0"
 SQLITE_MIN = (3, 37, 0)  # STRICT tables
 BUSY_TIMEOUT_MS = 10_000
 TRANSIENT_BODY_MAX_BYTES = 64 * 1024
@@ -272,7 +272,7 @@ def validate_subject(subject: str | None, *, where: str = "subject") -> str | No
 	Rejected rather than sanitized: a newline or a control character in a
 	subject is a display-injection hazard for every consumer that lists an
 	inbox, and quietly stripping it would leave the sender believing they sent
-	something they did not. Bounded in BYTES for the same reason `filename` is
+	something they did not. Bounded in BYTES for the same reason `part_name` is
 	-- a character count is not what any downstream store enforces."""
 	if subject is None:
 		return None
@@ -293,31 +293,129 @@ def validate_subject(subject: str | None, *, where: str = "subject") -> str | No
 	return subject
 
 
-def validate_filename(name: str | None) -> str | None:
-	"""RFC 2183 `filename` is ADVISORY METADATA. Baton never opens, creates, or
-	names a file from it -- `materialize` derives its own name from the caller's
-	explicit `--prefix` and `--dir`. It is still validated here, because the
-	obvious hazard is a consumer that is less careful, and a transport that
-	forwards `../../etc/authorized_keys` unchallenged has helped."""
+# A team scope: dotted segments, then a literal `.*`. The segment grammar is
+# `ADDRESS_RE`'s, because a scope selects ADDRESSES and a selector that could
+# not possibly match one is a typo rather than an empty audience.
+SCOPE_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*\.\*$")
+
+
+def _is_address(address) -> bool:
+	"""The participant-address grammar AND its bound, in one place.
+
+	The bound lives beside the pattern rather than inside it, so anything that
+	calls `ADDRESS_RE.match` alone is quietly laxer than publication. Doctor
+	was; that is why this exists.
+	"""
+	return (type(address) is str and bool(ADDRESS_RE.match(address))
+	        and len(address) <= 64)
+
+
+def validate_scope(selector: str) -> tuple:
+	"""A scope selector -> its literal segment prefix, or `BatonError`.
+
+	Returns the segments BEFORE the `*`, which is what matching compares.
+	Returning segments rather than a string is the point: matching on the
+	string `"baton."` would also match `baton.x` AND `baton_extra.reviewer` is
+	only excluded by luck of the dot. Comparing whole segments cannot make
+	that mistake.
+	"""
+	if type(selector) is not str:
+		raise BatonError("scope must be a string")
+	if not SCOPE_RE.match(selector) or len(selector) > 64:
+		raise BatonError(
+			f"scope {selector!r} must be dotted lowercase segments ending in "
+			f"'.*', for example 'baton.*'")
+	return tuple(selector.split(".")[:-1])
+
+
+def scope_matches(selector_segments: tuple, address: str) -> bool:
+	"""Whole-segment prefix match.
+
+	`baton.*` matches `baton.reviewer` and `baton.implementer`. It does NOT
+	match `baton_extra.reviewer` -- the selector's segment is `baton`, the
+	address's first segment is `baton_extra`, and those are different segments.
+	A string-prefix test would have got this right by accident and `baton.*`
+	against `baton.a.b` wrong.
+
+	A scope also never matches its own prefix as a whole address: `baton.*`
+	requires something AFTER `baton`, because a scope addresses members of a
+	group rather than the group itself.
+	"""
+	segments = address.split(".")
+	return (len(segments) > len(selector_segments)
+	        and tuple(segments[:len(selector_segments)]) == selector_segments)
+
+
+def expand_scope(selector: str, participants) -> list:
+	"""Every configured participant the selector matches, sorted.
+
+	SORTED because this expansion is stored and compared: an audience that
+	depends on dict ordering would make retry identity depend on how the
+	config happened to be written.
+
+	An EMPTY expansion is refused. A notice addressed to nobody is a
+	publication that silently does nothing, and the likeliest cause is a typo
+	in the selector -- which is exactly when the author most wants to be told.
+	"""
+	segments = validate_scope(selector)
+	matched = sorted(address for address in participants
+	                 if scope_matches(segments, address))
+	if not matched:
+		raise BatonError(
+			f"scope {selector!r} matches no configured participant")
+	return matched
+
+
+def validate_part_name(name: str | None) -> str | None:
+	"""A part name is an UNINTERPRETED LABEL. It is not a path, and protocol 10
+	stopped pretending otherwise.
+
+	Until the rename this was `validate_filename` and it enforced filesystem
+	rules -- no `/`, no `\\`, not `.` or `..`, no leading `-` -- on the theory
+	that a careless consumer might use the label as a path. Protocol 10 rejects
+	the premise: the SENDER names a part, the RECIPIENT decides whether it ever
+	becomes a file and under what name, and `materialize` derives its output
+	from the caller's own `--prefix` and `--dir` and never from this field.
+
+	Renaming the key while keeping those rules would have been the old concept
+	wearing the new word, which is exactly what the finding exists to prevent.
+	So `../diagram` is a legal part name now: it is a strange one, it means
+	nothing to Baton, and it arrives at the recipient exactly as the sender
+	wrote it. Refusing it would be Baton deciding what a label means to
+	somebody else's software.
+
+	WHAT IS STILL REFUSED, and why each one is about Baton rather than about a
+	filesystem:
+
+	  empty            a present-but-empty label is not a name, and absent
+	                   already means "no name"
+	  control chars    this string is displayed in an inbox by every consumer;
+	                   a `\x1b[2J` in it is a display-injection hazard, which is
+	                   the same reason `subject` refuses them
+	  NUL              cannot survive the boundaries this string crosses
+	  over 255 bytes   a BATON bound: it is stored in every manifest, compared
+	                   on every retry, and drawn in a one-line list. Unbounded
+	                   metadata is a denial-of-service surface and an unreadable
+	                   row. Measured in BYTES because that is what the store and
+	                   the digest count.
+	"""
 	if name is None:
 		return None
 	if type(name) is not str:
-		raise BatonError("filename must be a string")
+		raise BatonError("part_name must be a string")
 	encoded = name.encode("utf-8")
 	if not name or len(encoded) > 255:
 		raise BatonError(
-			f"filename must be 1..255 bytes as UTF-8 (got {len(encoded)}); the bound is "
-			f"bytes, not characters, because that is what a filesystem enforces")
-	if name in (".", ".."):
-		raise BatonError(f"filename {name!r} is a directory reference")
-	for bad, why in (("/", "path separator"), ("\\", "path separator"),
-	                 ("\x00", "NUL byte")):
-		if bad in name:
-			raise BatonError(f"filename {name!r} contains a {why}")
+			f"part_name must be 1..255 bytes as UTF-8 (got {len(encoded)}); the bound "
+			f"is Baton's -- the label is stored in every manifest, compared on every "
+			f"retry, and drawn on one line -- and it is bytes because that is what "
+			f"the store and the digest count")
+	if "\x00" in name:
+		raise BatonError(f"part_name contains a NUL byte")
 	if any(ord(ch) < 0x20 or ord(ch) == 0x7F for ch in name):
-		raise BatonError(f"filename {name!r} contains a control character")
-	if name.startswith("-"):
-		raise BatonError(f"filename {name!r} starts with '-' and could be read as an option")
+		# NOT echoed: the offending character is by definition a control
+		# character, and putting it on a terminal is the hazard being refused.
+		raise BatonError("part_name contains a control character")
 	return name
 
 
@@ -325,7 +423,7 @@ def normalize_parts(spec: Any, *, where: str = "content") -> list[dict]:
 	"""Normalize a caller's part specification into the canonical tree the
 	store writes and the manifest digest hashes.
 
-	A leaf carries `content_type`, `disposition`, optional `filename`, and
+	A leaf carries `content_type`, `disposition`, optional `part_name`, and
 	`body` bytes. A container carries a `multipart/*` `content_type` and a
 	non-empty `parts` list, and carries no bytes of its own. Nesting is
 	arbitrary depth, so `multipart/alternative` inside `multipart/mixed` is a
@@ -336,7 +434,7 @@ def normalize_parts(spec: Any, *, where: str = "content") -> list[dict]:
 	for index, raw in enumerate(spec):
 		if not isinstance(raw, dict):
 			raise BatonError(f"{where}[{index}]: each part must be an object")
-		unknown = set(raw) - {"content_type", "disposition", "filename", "body", "parts", "attach"}
+		unknown = set(raw) - {"content_type", "disposition", "part_name", "body", "parts", "attach"}
 		if unknown:
 			raise BatonError(f"{where}[{index}]: unknown part field(s) {sorted(unknown)}")
 		# Default only when a field is ABSENT. `raw.get(k) or DEFAULT` cannot
@@ -358,14 +456,14 @@ def normalize_parts(spec: Any, *, where: str = "content") -> list[dict]:
 		attach = raw.get("attach")
 		children = raw.get("parts")
 		node = {"content_type": content_type, "disposition": disposition,
-		        "filename": None, "storage": STORAGE_NONE, "body": None, "attach": None,
+		        "part_name": None, "storage": STORAGE_NONE, "body": None, "attach": None,
 		        "sha256": None, "size": None, "parts": None}
 		if is_container_type(content_type):
 			if body is not None or attach is not None:
 				raise BatonError(
 					f"{where}[{index}]: a {content_type} container holds parts, not bytes")
-			if raw.get("filename") is not None:
-				raise BatonError(f"{where}[{index}]: a container part has no filename")
+			if raw.get("part_name") is not None:
+				raise BatonError(f"{where}[{index}]: a container part has no part_name")
 			node["parts"] = normalize_parts(children, where=f"{where}[{index}].parts")
 		else:
 			if children is not None:
@@ -375,7 +473,7 @@ def normalize_parts(spec: Any, *, where: str = "content") -> list[dict]:
 				raise BatonError(
 					f"{where}[{index}]: a leaf part requires exactly one of body (inline) "
 					f"or attach (external)")
-			node["filename"] = validate_filename(raw.get("filename"))
+			node["part_name"] = validate_part_name(raw.get("part_name"))
 			if attach is not None:
 				# External bytes are pinned, not copied. Hash and size are
 				# filled in by the store, which is what can resolve the root.
@@ -442,7 +540,7 @@ def _delivery_encoding(content_type: str) -> str:
 
 
 def content_spec(body: bytes | None, parts: Any, *, content_type: str | None = None,
-                 disposition: str | None = None, filename: str | None = None,
+                 disposition: str | None = None, part_name: str | None = None,
                  container_type: str | None = None,
                  where: str = "content") -> tuple[str | None, list[dict] | None]:
 	"""Normalize the two authoring surfaces into ONE manifest.
@@ -455,14 +553,14 @@ def content_spec(body: bytes | None, parts: Any, *, content_type: str | None = N
 	if parts is not None:
 		if body is not None:
 			raise BatonError(f"{where}: pass either body or parts, never both")
-		if content_type is not None or disposition is not None or filename is not None:
+		if content_type is not None or disposition is not None or part_name is not None:
 			raise BatonError(
 				f"{where}: per-part metadata belongs on each part, not beside the parts list")
 		nodes = normalize_parts(parts, where=where)
 	elif body is not None:
 		nodes = normalize_parts(
 			[{"content_type": content_type, "disposition": disposition,
-			  "filename": filename, "body": body}], where=where)
+			  "part_name": part_name, "body": body}], where=where)
 	else:
 		# Metadata describing content that does not exist is refused rather
 		# than dropped: an attachment-only send or a bodyless close that names
@@ -470,7 +568,7 @@ def content_spec(body: bytes | None, parts: Any, *, content_type: str | None = N
 		# silently discarding it tells the caller it worked.
 		orphaned = [name for name, value in (
 			("content_type", content_type), ("disposition", disposition),
-			("filename", filename), ("container_type", container_type))
+			("part_name", part_name), ("container_type", container_type))
 			if value is not None]
 		if orphaned:
 			raise BatonError(
@@ -539,7 +637,7 @@ def manifest_digest(container_type: str, nodes: list[dict]) -> str:
 	included -- not merely of its bytes.
 
 	`_verify_retry` compares this. Two retries that differ in part order,
-	`content_type`, `disposition` or `filename` are different operations even
+	`content_type`, `disposition` or `part_name` are different operations even
 	when every byte matches, and hashing the manifest rather than the payload
 	is what makes them fail closed instead of silently reporting
 	`already_committed` for an operation that was never committed."""
@@ -547,7 +645,7 @@ def manifest_digest(container_type: str, nodes: list[dict]) -> str:
 		return [{
 			"content_type": node["content_type"],
 			"disposition": node["disposition"],
-			"filename": node["filename"],
+			"part_name": node["part_name"],
 			# Storage location is part of what a message IS: the same bytes
 			# carried inline versus pinned externally are different messages,
 			# because only one of them can go stale under your feet.
@@ -883,7 +981,7 @@ _TABLES: dict[str, str] = {
 		"ordinal INTEGER NOT NULL CHECK(ordinal >= 0), "
 		"content_type TEXT NOT NULL, "
 		"disposition TEXT NOT NULL CHECK(disposition IN ('inline','attachment')), "
-		"filename TEXT, "
+		"part_name TEXT, "
 		"storage TEXT NOT NULL CHECK(storage IN ('none','inline','external')), "
 		"content_id TEXT REFERENCES contents(content_id), "
 		"root_id TEXT, path TEXT, generation INTEGER, "
@@ -893,7 +991,7 @@ _TABLES: dict[str, str] = {
 		"CHECK((content_type LIKE 'multipart/%') = (sha256 IS NULL)), "
 		"CHECK((content_type LIKE 'multipart/%') = (storage = 'none')), "
 		"CHECK(NOT (content_type LIKE 'multipart/%' "
-		"AND (content_id IS NOT NULL OR filename IS NOT NULL))), "
+		"AND (content_id IS NOT NULL OR part_name IS NOT NULL))), "
 		"CHECK((storage = 'external') = (root_id IS NOT NULL)), "
 		"CHECK((root_id IS NULL) = (path IS NULL) "
 		"AND (root_id IS NULL) = (generation IS NULL)), "
@@ -908,6 +1006,7 @@ _TABLES: dict[str, str] = {
 		"outcome TEXT, created_ts TEXT NOT NULL, "
 		"state TEXT NOT NULL CHECK(state IN ('pending','claimed','completed','closed','expired','quarantined')), "
 		"responds_to TEXT REFERENCES messages(id), completed_ts TEXT, "
+		"publication_id TEXT REFERENCES publications(publication_id), "
 		"CHECK((state IN ('pending','claimed')) = (completed_ts IS NULL))) STRICT"
 	),
 	"claims": (
@@ -930,12 +1029,73 @@ _TABLES: dict[str, str] = {
 		"CREATE TABLE notices(id TEXT PRIMARY KEY, from_participant TEXT NOT NULL, "
 		"kind TEXT NOT NULL, subject TEXT, content_type TEXT NOT NULL, "
 		"manifest_sha256 TEXT NOT NULL, created_ts TEXT NOT NULL, "
-		"ttl_seconds INTEGER NOT NULL CHECK(ttl_seconds >= 1)) STRICT"
+		"ttl_seconds INTEGER NOT NULL CHECK(ttl_seconds >= 1), "
+		# HOW it was addressed, kept beside WHO it reached. The audience table
+		# alone cannot distinguish `--scope baton.*` from a global notice that
+		# happened to match the same people, and retry identity and the detail
+		# header both need to tell them apart.
+		"audience_kind TEXT NOT NULL CHECK(audience_kind IN ('global','scope')), "
+		"selector TEXT, "
+		# A broadcast can be republished after an ambiguous result just as a
+		# directed message can, and the sender's warning belongs on both.
+		"possible_duplicate INTEGER NOT NULL DEFAULT 0 "
+		"CHECK(possible_duplicate IN (0,1)), "
+		"CHECK((audience_kind = 'scope') = (selector IS NOT NULL))) STRICT"
+	),
+	"publications": (
+		# ONE directed publication, however many recipients it addresses --
+		# including one. There is no private special case: decision
+		# obligations and participant-authorized reread both need a single
+		# publication-time audience model, and a shape that exists only for
+		# multi-recipient traffic is a shape they would have to work around.
+		#
+		# IDENTITY AND AUDIENCE ONLY. No delivery state lives here: claims and
+		# dispositions stay on the ordinary messages, which is what keeps each
+		# recipient's lifecycle independent by construction rather than by
+		# care. Deriving the audience from surviving message rows would shrink
+		# it as GC removes terminal deliveries, so it is recorded once.
+		"CREATE TABLE publications(publication_id TEXT PRIMARY KEY, "
+		"from_participant TEXT NOT NULL, kind TEXT NOT NULL, subject TEXT, "
+		"thread_id TEXT, retention TEXT NOT NULL, outcome TEXT, "
+		"content_type TEXT NOT NULL, manifest_sha256 TEXT NOT NULL, "
+		"created_ts TEXT NOT NULL, "
+		# The SENDER's assertion that they could not tell whether an earlier
+		# attempt committed. Publication is at-least-once by ruling: Baton does
+		# NOT claim to have identified or correlated the original, and the
+		# recipient decides what to do about it.
+		"possible_duplicate INTEGER NOT NULL DEFAULT 0 "
+		"CHECK(possible_duplicate IN (0,1))) STRICT"
+	),
+	"publication_audience": (
+		"CREATE TABLE publication_audience(publication_id TEXT NOT NULL "
+		"REFERENCES publications(publication_id) ON DELETE CASCADE, "
+		"participant TEXT NOT NULL, "
+		"PRIMARY KEY (publication_id, participant)) STRICT, WITHOUT ROWID"
+	),
+	"notice_audience": (
+		# The audience FROZEN at publication. Ruled: a broadcast is to the
+		# participants who existed when it was sent, global and scoped alike,
+		# so a config addition cannot grant a new identity access to historic
+		# broadcast content.
+		#
+		# One immutable mechanism rather than a global special case that
+		# re-evaluates live config -- which is also the difference between an
+		# audience you can audit and one you have to reconstruct.
+		"CREATE TABLE notice_audience(notice_id TEXT NOT NULL "
+		"REFERENCES notices(id) ON DELETE CASCADE, "
+		"participant TEXT NOT NULL, "
+		"PRIMARY KEY (notice_id, participant)) STRICT, WITHOUT ROWID"
 	),
 	"notice_seen": (
+		# The composite reference is the point: a receipt may only exist for a
+		# participant who is IN that notice's frozen audience. Authorization
+		# lives in the schema as well as in the code path, so a future reader
+		# cannot recreate the bypass by adding another query.
 		"CREATE TABLE notice_seen(notice_id TEXT NOT NULL REFERENCES notices(id) ON DELETE CASCADE, "
 		"participant TEXT NOT NULL, seen_ts TEXT NOT NULL, "
-		"PRIMARY KEY(notice_id, participant)) STRICT"
+		"PRIMARY KEY(notice_id, participant), "
+		"FOREIGN KEY(notice_id, participant) "
+		"REFERENCES notice_audience(notice_id, participant) ON DELETE CASCADE) STRICT"
 	),
 	"quarantines": (
 		"CREATE TABLE quarantines(quarantine_id TEXT PRIMARY KEY, "
@@ -1090,7 +1250,7 @@ _TRIGGERS: dict[str, str] = {
 	),
 	# A reply's disposition and its response message describe the SAME content,
 	# so the manifest digests must agree. Under multipart this covers part
-	# order, media types, dispositions and filenames -- not only the bytes.
+	# order, media types, dispositions and part names -- not only the bytes.
 	"trg_disp_reply_hash": (
 		"CREATE TRIGGER trg_disp_reply_hash BEFORE INSERT ON dispositions "
 		"WHEN new.kind='reply' AND (new.response_message_id IS NULL "
@@ -1105,7 +1265,7 @@ _TRIGGERS: dict[str, str] = {
 	),
 	"trg_parts_frozen_cols": (
 		"CREATE TRIGGER trg_parts_frozen_cols BEFORE UPDATE OF part_id, owner_kind, owner_id, "
-		"parent_part_id, ordinal, content_type, disposition, filename, storage, "
+		"parent_part_id, ordinal, content_type, disposition, part_name, storage, "
 		"root_id, path, generation, sha256, size, created_ts ON parts "
 		"BEGIN SELECT RAISE(ABORT, 'immutable part column'); END"
 	),
@@ -1187,6 +1347,59 @@ _TRIGGERS: dict[str, str] = {
 		f"CREATE TRIGGER trg_notice_seen_delete BEFORE DELETE ON notice_seen "
 		f"WHEN {_CTX_VERB} IS NULL OR {_CTX_VERB} NOT IN ('expire','gc') "
 		f"BEGIN SELECT RAISE(ABORT, 'notice_seen receipts are removable only by expire or gc'); END"
+	),
+	"trg_publication_guard": (
+		f"CREATE TRIGGER trg_publication_guard BEFORE INSERT ON publications "
+		f"WHEN {_CTX} IS NULL "
+		f"BEGIN SELECT RAISE(ABORT, 'publication insert requires operation context'); END"
+	),
+	"trg_publication_frozen": (
+		# Immutable, including `possible_duplicate`: it is the sender's
+		# assertion at publication time, and one that can be set or cleared
+		# afterwards is a rumour rather than a record.
+		"CREATE TRIGGER trg_publication_frozen BEFORE UPDATE ON publications "
+		"BEGIN SELECT RAISE(ABORT, 'publications are immutable'); END"
+	),
+	"trg_publication_delete": (
+		f"CREATE TRIGGER trg_publication_delete BEFORE DELETE ON publications "
+		f"WHEN {_CTX_VERB} IS NULL OR {_CTX_VERB} NOT IN ('gc') "
+		f"BEGIN SELECT RAISE(ABORT, 'publications are removable only by gc'); END"
+	),
+	"trg_publication_audience_guard": (
+		f"CREATE TRIGGER trg_publication_audience_guard BEFORE INSERT ON publication_audience "
+		f"WHEN {_CTX} IS NULL "
+		f"BEGIN SELECT RAISE(ABORT, 'publication audience insert requires operation context'); END"
+	),
+	"trg_publication_audience_update": (
+		"CREATE TRIGGER trg_publication_audience_update BEFORE UPDATE ON publication_audience "
+		"BEGIN SELECT RAISE(ABORT, 'publication audiences are immutable'); END"
+	),
+	"trg_publication_audience_delete": (
+		f"CREATE TRIGGER trg_publication_audience_delete BEFORE DELETE ON publication_audience "
+		f"WHEN {_CTX_VERB} IS NULL OR {_CTX_VERB} NOT IN ('gc') "
+		f"BEGIN SELECT RAISE(ABORT, 'publication audiences are removable only by gc'); END"
+	),
+	"trg_notice_audience_guard": (
+		f"CREATE TRIGGER trg_notice_audience_guard BEFORE INSERT ON notice_audience "
+		f"WHEN {_CTX} IS NULL "
+		f"BEGIN SELECT RAISE(ABORT, 'notice_audience insert requires operation context'); END"
+	),
+	"trg_notice_audience_update": (
+		# IMMUTABLE. The audience is the record of who a broadcast was
+		# addressed to; a row that can be edited afterwards is not that
+		# record. Nothing legitimate ever needs to change one -- membership is
+		# decided once, inside the publishing transaction.
+		"CREATE TRIGGER trg_notice_audience_update BEFORE UPDATE ON notice_audience "
+		"BEGIN SELECT RAISE(ABORT, 'notice audiences are immutable'); END"
+	),
+	"trg_notice_audience_delete": (
+		# Removable only with the notice itself, by the two ceremonies that may
+		# remove notices. Deleting a membership row on its own would silently
+		# shrink history and make a delivered notice look like it had never
+		# been addressed to that participant.
+		f"CREATE TRIGGER trg_notice_audience_delete BEFORE DELETE ON notice_audience "
+		f"WHEN {_CTX_VERB} IS NULL OR {_CTX_VERB} NOT IN ('expire','gc') "
+		f"BEGIN SELECT RAISE(ABORT, 'notice audiences are removable only by expire or gc'); END"
 	),
 	"trg_quarantine_insert_guard": (
 		f"CREATE TRIGGER trg_quarantine_insert_guard BEFORE INSERT ON quarantines "
@@ -1642,13 +1855,38 @@ class Store:
 		for part in self._external_leaves(self._read_parts("message", message_id)):
 			self._verify_external_part(part)
 
-	def send(self, sender: str, recipient: str, *, kind: str, subject: str | None = None,
+	def send(self, sender: str, recipient, *, kind: str, subject: str | None = None,
 	         body: bytes | None = None, parts: Any = None,
 	         content_type: str | None = None, disposition: str | None = None,
-	         filename: str | None = None, container_type: str | None = None,
+	         part_name: str | None = None, container_type: str | None = None,
 	         thread_id: str | None = None,
 	         retention: str = RETENTION_DURABLE, outcome: str | None = None,
-	         responds_to: str | None = None, attach: Any = None) -> str:
+	         responds_to: str | None = None, attach: Any = None,
+	         possible_duplicate: bool = False) -> str:
+		"""Publish to ONE recipient or several.
+
+		`recipient` takes an address or a sequence of them. Several recipients
+		make ONE publication and N ORDINARY MESSAGES -- each with its own
+		claim, retry, disposition, damage and GC lifecycle, because they are
+		ordinary messages and were never joined. Resolving one recipient's copy
+		cannot touch another's, and that is true by construction rather than by
+		every future change remembering it.
+
+		The publication record exists for single recipients too. Deriving the
+		audience from surviving message rows would shrink it as GC removes
+		terminal deliveries, and a shape that exists only for multi-recipient
+		traffic is one that decision obligations and authorized reread would
+		have to work around.
+
+		`possible_duplicate` is the SENDER's assertion that they could not tell
+		whether an earlier attempt committed. Publication is at-least-once by
+		ruling: Baton does not identify or correlate the original, and the
+		recipient decides what to do with the warning. It is immutable.
+
+		Returns the message id for a single recipient -- unchanged -- and the
+		publication id when several are addressed, because there is no single
+		message to name.
+		"""
 		# `attach` is sugar for a single external part, so the historical
 		# attachment-only send still works -- but it is now ONE leaf in the
 		# ordinary manifest, and it may sit beside inline parts.
@@ -1658,25 +1896,43 @@ class Store:
 					"pass attach inside parts when composing a multipart message")
 			if body is not None:
 				parts = [{"content_type": content_type, "disposition": disposition,
-				          "filename": filename, "body": body},
+				          "part_name": part_name, "body": body},
 				         {"content_type": DEFAULT_ATTACHMENT_TYPE,
 				          "disposition": DISPOSITION_ATTACHMENT, "attach": attach}]
-				body = content_type = disposition = filename = None
+				body = content_type = disposition = part_name = None
 			else:
 				parts = [{"content_type": (DEFAULT_ATTACHMENT_TYPE
 				                           if content_type is None else content_type),
 				          "disposition": (DISPOSITION_ATTACHMENT
 				                          if disposition is None else disposition),
-				          "filename": filename, "attach": attach}]
-				content_type = disposition = filename = None
+				          "part_name": part_name, "attach": attach}]
+				content_type = disposition = part_name = None
 		container, nodes = content_spec(
 			body, parts, content_type=content_type, disposition=disposition,
-			filename=filename, container_type=container_type, where="send content")
+			part_name=part_name, container_type=container_type, where="send content")
 		if nodes is None:
 			raise BatonError("a message requires content")
 		self._pin_external_parts(nodes)
 		self._check_identity(sender)
-		self._check_participant(recipient, "send")
+		recipients = [recipient] if isinstance(recipient, str) else list(recipient)
+		if not recipients:
+			raise BatonError("a message requires at least one recipient")
+		# REFUSED, not deduplicated. `--to a --to a` means something the caller
+		# did not write, and silently collapsing it would publish a different
+		# request than the one they made.
+		duplicates = sorted({a for a in recipients if recipients.count(a) > 1})
+		if duplicates:
+			raise BatonError(f"duplicate recipient(s) {', '.join(duplicates)}")
+		for address in recipients:
+			# A wildcard is a SCOPE, and a scope addresses a broadcast. Letting
+			# one through here would turn "assign this work to a team" into
+			# something with no per-recipient claim, which is the opposite of
+			# what a directed message is for.
+			if address.endswith(".*"):
+				raise BatonError(
+					f"{address!r} is a scope; --to takes exact participants, and a "
+					f"scope addresses a notice rather than claimable work")
+			self._check_participant(address, "send")
 		if not KIND_RE.match(kind):
 			raise BatonError(f"invalid kind {kind!r}")
 		subject = validate_subject(subject)
@@ -1688,12 +1944,29 @@ class Store:
 			_check_transient_size(nodes)
 		self._txn_begin("send", participant=sender)
 		try:
-			message_id = self._insert_message(
-				sender, recipient, kind=kind, subject=subject, container_type=container,
+			now = _utc_now_iso()
+			publication_id = new_id()
+			self.conn.execute(
+				"INSERT INTO publications(publication_id, from_participant, kind, "
+				"subject, thread_id, retention, outcome, content_type, "
+				"manifest_sha256, created_ts, possible_duplicate) "
+				"VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+				(publication_id, sender, kind, subject, thread_id, retention,
+				 outcome, container, manifest_digest(container, nodes), now,
+				 1 if possible_duplicate else 0))
+			self.conn.executemany(
+				"INSERT INTO publication_audience(publication_id, participant) VALUES(?,?)",
+				[(publication_id, address) for address in sorted(recipients)])
+			# ATOMIC: every delivery or none. A partial audience would leave
+			# some recipients holding work the others were never told about,
+			# with nothing in the store able to say which.
+			ids = [self._insert_message(
+				sender, address, kind=kind, subject=subject, container_type=container,
 				nodes=nodes, thread_id=thread_id, retention=retention, outcome=outcome,
-				responds_to=responds_to)
+				responds_to=responds_to, publication_id=publication_id)
+				for address in recipients]
 			self._txn_commit()
-			return message_id
+			return ids[0] if isinstance(recipient, str) else publication_id
 		except BaseException:
 			self._txn_rollback()
 			raise
@@ -1701,16 +1974,18 @@ class Store:
 	def _insert_message(self, sender: str, recipient: str, *, kind: str,
 	                    subject: str | None, container_type: str, nodes: list[dict],
 	                    thread_id: str | None, retention: str, outcome: str | None,
-	                    responds_to: str | None) -> str:
+	                    responds_to: str | None,
+	                    publication_id: str | None = None) -> str:
 		now = _utc_now_iso()
 		message_id = new_id()
 		manifest = manifest_digest(container_type, nodes)
 		self.conn.execute(
 			"INSERT INTO messages(id, from_participant, to_participant, kind, subject, thread_id, "
-			"retention, content_type, manifest_sha256, outcome, created_ts, state, responds_to) "
-			"VALUES(?,?,?,?,?,?,?,?,?,?,?, 'pending', ?)",
+			"retention, content_type, manifest_sha256, outcome, created_ts, state, "
+			"responds_to, publication_id) "
+			"VALUES(?,?,?,?,?,?,?,?,?,?,?, 'pending', ?,?)",
 			(message_id, sender, recipient, kind, subject, thread_id, retention, container_type,
-			 manifest, outcome, now, responds_to))
+			 manifest, outcome, now, responds_to, publication_id))
 		self._write_parts("message", message_id, nodes, now)
 		return message_id
 
@@ -1738,10 +2013,10 @@ class Store:
 						(content_id, node["body"], node["sha256"], node["size"], now))
 				self.conn.execute(
 					"INSERT INTO parts(part_id, owner_kind, owner_id, parent_part_id, ordinal, "
-					"content_type, disposition, filename, storage, content_id, root_id, path, "
+					"content_type, disposition, part_name, storage, content_id, root_id, path, "
 					"generation, sha256, size, created_ts) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 					(part_id, owner_kind, owner_id, parent_id, ordinal, node["content_type"],
-					 node["disposition"], node["filename"], storage, content_id,
+					 node["disposition"], node["part_name"], storage, content_id,
 					 root_id, path, generation, node["sha256"], node["size"], now))
 				if node["parts"] is not None:
 					write(node["parts"], part_id)
@@ -1754,7 +2029,7 @@ class Store:
 		what is stored, and delivering it would be delivering a lie."""
 		rows = self.conn.execute(
 			"SELECT p.part_id, p.parent_part_id, p.ordinal, p.content_type, p.disposition, "
-			"p.filename, p.storage, p.root_id, p.path, p.generation, p.sha256, p.size, c.body "
+			"p.part_name, p.storage, p.root_id, p.path, p.generation, p.sha256, p.size, c.body "
 			"FROM parts p LEFT JOIN contents c ON c.content_id = p.content_id "
 			"WHERE p.owner_kind=? AND p.owner_id=? ORDER BY p.ordinal",
 			(owner_kind, owner_id)).fetchall()
@@ -1782,7 +2057,7 @@ class Store:
 					"address": address,
 					"content_type": row["content_type"],
 					"disposition": row["disposition"],
-					"filename": row["filename"],
+					"part_name": row["part_name"],
 					"storage": row["storage"],
 					"attach": ({"root_id": row["root_id"], "path": row["path"],
 					            "generation": row["generation"]}
@@ -1829,7 +2104,7 @@ class Store:
 
 	def _scrub_parts(self, owner_kind: str, owner_id: str) -> None:
 		"""Drop the BYTES of every retained leaf while leaving the manifest --
-		order, media types, dispositions, filenames, sizes and hashes -- intact.
+		order, media types, dispositions, part names, sizes and hashes -- intact.
 		A consumed transient message can still prove what it carried."""
 		for row in self.conn.execute(
 				"SELECT part_id, content_id FROM parts WHERE owner_kind=? AND owner_id=? "
@@ -1944,7 +2219,7 @@ class Store:
 
 		Identity is the COMPLETE ORDERED PART MANIFEST, metadata included --
 		not the body bytes. Two retries whose parts differ in order, media
-		type, disposition or filename are different operations even when every
+		type, disposition or part_name are different operations even when every
 		byte matches, and comparing manifest digests is what makes them fail
 		closed rather than report `already_committed` for something that was
 		never committed. Bytes may already be scrubbed; the manifest survives
@@ -1998,7 +2273,7 @@ class Store:
 	def reply(self, claim_id: str, *, participant: str, kind: str, subject: str | None = None,
 	          body: bytes | None = None, parts: Any = None,
 	          content_type: str | None = None, disposition: str | None = None,
-	          filename: str | None = None, container_type: str | None = None,
+	          part_name: str | None = None, container_type: str | None = None,
 	          outcome: str | None = None,
 	          recipient: str | None = None, thread_id: str | None = None,
 	          retention: str | None = None) -> dict:
@@ -2007,7 +2282,7 @@ class Store:
 		subject = validate_subject(subject)
 		container, nodes = content_spec(
 			body, parts, content_type=content_type, disposition=disposition,
-			filename=filename, container_type=container_type, where="reply content")
+			part_name=part_name, container_type=container_type, where="reply content")
 		if nodes is None:
 			raise BatonError("reply requires content (a close is the contentless disposition)")
 		if retention is not None and retention not in RETENTIONS:
@@ -2082,14 +2357,14 @@ class Store:
 	def close_claim(self, claim_id: str, *, participant: str,
 	                body: bytes | None = None, parts: Any = None,
 	                content_type: str | None = None, disposition: str | None = None,
-	                filename: str | None = None, container_type: str | None = None,
+	                part_name: str | None = None, container_type: str | None = None,
 	                outcome: str | None = None,
 	                retention: str | None = None) -> dict:
 		if retention is not None and retention not in RETENTIONS:
 			raise BatonError(f"invalid retention {retention!r}")
 		container, nodes = content_spec(
 			body, parts, content_type=content_type, disposition=disposition,
-			filename=filename, container_type=container_type, where="close content")
+			part_name=part_name, container_type=container_type, where="close content")
 		if nodes is not None:
 			reject_external_parts(nodes, "a close disposition")
 		self._txn_begin("close")
@@ -2148,8 +2423,9 @@ class Store:
 	def send_notice(self, sender: str, *, kind: str, subject: str | None = None,
 	                body: bytes | None = None, parts: Any = None,
 	                content_type: str | None = None, disposition: str | None = None,
-	                filename: str | None = None, container_type: str | None = None,
-	                ttl_seconds: int | None = None) -> str:
+	                part_name: str | None = None, container_type: str | None = None,
+	                ttl_seconds: int | None = None, scope: str | None = None,
+	                possible_duplicate: bool = False) -> str:
 		"""Broadcast a notice with a FINITE lifetime (default 86400s, the v5
 		protocol TTL). Immortal notices are not constructible. The exact
 		authoring participant is recorded immutably and
@@ -2158,7 +2434,20 @@ class Store:
 		Notices use the SAME content representation as directed messages --
 		same parts table, same manifest digest, same envelope. The two inbound
 		channels diverged once before, and a consumer had to special-case which
-		one it was reading; that is why there is one code path here."""
+		one it was reading; that is why there is one code path here.
+
+		THE AUDIENCE IS FROZEN HERE, global and scoped alike. `scope` selects a
+		team -- `baton.*` -- and its absence means every configured
+		participant; either way the expansion happens inside this transaction
+		and the resulting explicit list is stored.
+
+		Ruled, and it changes global behaviour: a participant added later can
+		no longer see an older broadcast. A broadcast is to the participants
+		who existed when it was sent, and a config addition should not grant a
+		new identity access to historic content. One immutable mechanism is
+		also auditable in a way that re-evaluating live config at read time is
+		not -- with the old shape, "who was this sent to" had no answer except
+		"whoever the config says today"."""
 		self._check_identity(sender)
 		if not KIND_RE.match(kind):
 			raise BatonError(f"invalid kind {kind!r}")
@@ -2167,9 +2456,18 @@ class Store:
 			ttl_seconds = DEFAULT_NOTICE_TTL_SECONDS
 		if type(ttl_seconds) is not int or ttl_seconds < 1:
 			raise BatonError("ttl_seconds must be a positive integer")
+		# EXPANDED BEFORE THE TRANSACTION OPENS, so a malformed selector or one
+		# that matches nobody costs no authority write at all.
+		configured = sorted(self.config.get("participants", {}))
+		if scope is None:
+			audience_kind, audience = "global", configured
+		else:
+			audience_kind, audience = "scope", expand_scope(scope, configured)
+		if not audience:
+			raise BatonError("a notice requires at least one addressee")
 		container, nodes = content_spec(
 			body, parts, content_type=content_type, disposition=disposition,
-			filename=filename, container_type=container_type, where="notice content")
+			part_name=part_name, container_type=container_type, where="notice content")
 		if nodes is None:
 			raise BatonError("a notice requires content")
 		reject_external_parts(nodes, "a notice")
@@ -2181,8 +2479,14 @@ class Store:
 			manifest = manifest_digest(container, nodes)
 			self.conn.execute(
 				"INSERT INTO notices(id, from_participant, kind, subject, "
-				"content_type, manifest_sha256, created_ts, ttl_seconds) VALUES(?,?,?,?,?,?,?,?)",
-				(notice_id, sender, kind, subject, container, manifest, now, ttl_seconds))
+				"content_type, manifest_sha256, created_ts, ttl_seconds, "
+				"audience_kind, selector, possible_duplicate) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+				(notice_id, sender, kind, subject, container, manifest, now,
+				 ttl_seconds, audience_kind, scope,
+				 1 if possible_duplicate else 0))
+			self.conn.executemany(
+				"INSERT INTO notice_audience(notice_id, participant) VALUES(?,?)",
+				[(notice_id, address) for address in audience])
 			self._write_parts("notice", notice_id, nodes, now)
 			self._txn_commit()
 			return notice_id
@@ -2212,11 +2516,15 @@ class Store:
 			now = _utc_now_iso()
 			rows = self.conn.execute(
 				"SELECT n.id, n.from_participant, n.kind, n.subject, n.content_type, n.manifest_sha256, "
-				"n.created_ts, n.ttl_seconds FROM notices n "
+				"n.created_ts, n.ttl_seconds, n.audience_kind, n.selector, n.possible_duplicate FROM notices n "
 				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
 				"WHERE s.notice_id=n.id AND s.participant=?) "
+				# MEMBERSHIP, not "every notice". A broadcast now reaches the
+				# audience frozen at publication and nobody else.
+				"AND EXISTS (SELECT 1 FROM notice_audience a "
+				"WHERE a.notice_id=n.id AND a.participant=?) "
 				"ORDER BY n.created_ts, n.id",
-				(participant,)).fetchall()
+				(participant, participant)).fetchall()
 			unseen = []
 			for row in rows:
 				if limit is not None and len(unseen) >= limit:
@@ -2257,7 +2565,7 @@ class Store:
 		the bytes, and only the second one is cheap."""
 		rows = self.conn.execute(
 			"SELECT part_id, parent_part_id, ordinal, content_type, disposition, "
-			"filename, storage, size FROM parts WHERE owner_kind=? AND owner_id=? "
+			"part_name, storage, size FROM parts WHERE owner_kind=? AND owner_id=? "
 			"ORDER BY ordinal", (owner_kind, owner_id)).fetchall()
 		by_parent: dict = {}
 		for row in rows:
@@ -2277,7 +2585,7 @@ class Store:
 					"address": address,
 					"content_type": row["content_type"],
 					"disposition": row["disposition"],
-					"filename": row["filename"],
+					"part_name": row["part_name"],
 					"size": row["size"],
 					"storage": row["storage"],
 					"is_container": container,
@@ -2343,10 +2651,12 @@ class Store:
 		out = []
 		for row in self.conn.execute(
 				"SELECT n.id, n.from_participant, n.kind, n.subject, n.content_type, "
-				"n.created_ts, n.ttl_seconds FROM notices n "
+				"n.created_ts, n.ttl_seconds, n.audience_kind, n.selector, n.possible_duplicate FROM notices n "
 				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
 				"WHERE s.notice_id=n.id AND s.participant=?) "
-				"ORDER BY n.created_ts, n.id", (participant,)):
+				"AND EXISTS (SELECT 1 FROM notice_audience a "
+				"WHERE a.notice_id=n.id AND a.participant=?) "
+				"ORDER BY n.created_ts, n.id", (participant, participant)):
 			if _notice_expired(row["created_ts"], row["ttl_seconds"], now):
 				continue
 			entry = dict(row)
@@ -2383,10 +2693,12 @@ class Store:
 		out = []
 		for row in self.conn.execute(
 				"SELECT n.id, n.from_participant, n.kind, n.subject, n.content_type, "
-				"n.created_ts, n.ttl_seconds, s.seen_ts AS seen_ts FROM notices n "
+				"n.created_ts, n.ttl_seconds, n.audience_kind, n.selector, n.possible_duplicate, s.seen_ts AS seen_ts FROM notices n "
 				"LEFT JOIN notice_seen s "
 				"ON s.notice_id = n.id AND s.participant = ? "
-				"ORDER BY n.created_ts, n.id", (participant,)):
+				"WHERE EXISTS (SELECT 1 FROM notice_audience a "
+				"WHERE a.notice_id=n.id AND a.participant=?) "
+				"ORDER BY n.created_ts, n.id", (participant, participant)):
 			if _notice_expired(row["created_ts"], row["ttl_seconds"], now):
 				# TTL and gc remain the ONLY reason a row leaves this list.
 				continue
@@ -2418,8 +2730,25 @@ class Store:
 			now = _utc_now_iso()
 			row = self.conn.execute(
 				"SELECT id, from_participant, kind, subject, content_type, manifest_sha256, "
-				"created_ts, ttl_seconds FROM notices WHERE id=?", (notice_id,)).fetchone()
+				"created_ts, ttl_seconds, audience_kind, selector "
+				"FROM notices WHERE id=?", (notice_id,)).fetchone()
 			if row is None:
+				raise BatonError(f"unknown notice {notice_id!r}", EXIT_NONE)
+			# AUTHORIZED AGAINST THE FROZEN AUDIENCE, in this transaction.
+			#
+			# `see`, `list_notices` and `list_notice_activity` all select BY
+			# membership, so scope holds there by construction. This path
+			# selects by ID, which is a different question -- and without this
+			# check any configured participant who learned a scoped notice's id
+			# could read team-only content and record a receipt for it.
+			#
+			# The refusal is deliberately identical to "unknown notice": a
+			# distinguishable one would confirm the id exists, which is itself
+			# information the non-member is not entitled to.
+			member = self.conn.execute(
+				"SELECT 1 FROM notice_audience WHERE notice_id=? AND participant=?",
+				(notice_id, participant)).fetchone()
+			if member is None:
 				raise BatonError(f"unknown notice {notice_id!r}", EXIT_NONE)
 			if _notice_expired(row["created_ts"], row["ttl_seconds"], now):
 				raise BatonError(f"notice {notice_id!r} has expired", EXIT_NONE)
@@ -2515,8 +2844,15 @@ class Store:
 		for row in self.conn.execute(
 				"SELECT n.created_ts, n.ttl_seconds FROM notices n "
 				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
-				"WHERE s.notice_id=n.id AND s.participant=?)",
-				(participant,)):
+				"WHERE s.notice_id=n.id AND s.participant=?) "
+				# THE SAME PREDICATE `see` USES. Without it the probe reports
+				# work for a scoped notice addressed to another team, and the
+				# waiter takes a write transaction to `see` that returns
+				# nothing -- reintroducing exactly the idle contention this
+				# probe exists to avoid, and doing it across teams.
+				"AND EXISTS (SELECT 1 FROM notice_audience a "
+				"WHERE a.notice_id=n.id AND a.participant=?)",
+				(participant, participant)):
 			if not _notice_expired(row["created_ts"], row["ttl_seconds"], now):
 				return True
 		return False
@@ -2909,7 +3245,7 @@ class Store:
 		gigabyte would take the terminal down, and the pane can show a few
 		hundred lines at most anyway.
 
-		The path is never taken from the advisory `filename`: it is the pinned
+		The path is never taken from the advisory `part_name`: it is the pinned
 		root id and relative path, resolved by the same component-wise
 		no-follow walk that pinned it."""
 		row = self._load_active_claim(claim_id, participant)
@@ -3187,7 +3523,12 @@ class Store:
 		notice = dict(row)
 		notice["parts"] = self._read_parts("notice", notice_id)
 		envelope = {k: notice[k] for k in (
-			"id", "from_participant", "kind", "subject", "created_ts", "ttl_seconds")}
+			"id", "from_participant", "kind", "subject", "created_ts", "ttl_seconds",
+			# The AUTHOR's copy needs these as much as the recipient's. Without
+			# them the renderer sees the legacy shape and draws "everyone", so
+			# the one person who knows the notice was scoped is told it was
+			# not.
+			"audience_kind", "selector")}
 		envelope["content"] = _content_repr(
 			notice["content_type"], notice.get("parts"), notice["manifest_sha256"])
 		return {"sent_notice": envelope}
@@ -3225,6 +3566,30 @@ class Store:
 		roots = self.config.get("roots", {})
 		return [{"root_id": root_id, "path": path}
 		        for root_id, path in sorted(roots.items())]
+
+	def publication_of(self, publication_id: str | None) -> tuple[list[str], bool]:
+		"""The frozen audience and duplicate warning behind one delivery.
+
+		Returns the canonical audience from `publication_audience`, NOT the
+		surviving `messages` rows. GC or transient retention can remove one
+		recipient's terminal delivery while another has not opened theirs, and
+		an audience derived from survivors would silently shrink -- telling the
+		remaining reader the work was more private than it was.
+
+		A NULL publication predates the record and reads as a private message
+		with no warning, which is what such a row always was.
+		"""
+		if publication_id is None:
+			return [], False
+		row = self.conn.execute(
+			"SELECT possible_duplicate FROM publications WHERE publication_id=?",
+			(publication_id,)).fetchone()
+		if row is None:
+			return [], False
+		members = [r["participant"] for r in self.conn.execute(
+			"SELECT participant FROM publication_audience WHERE publication_id=? "
+			"ORDER BY participant", (publication_id,))]
+		return members, bool(row["possible_duplicate"])
 
 	def get_claim(self, claim_id: str) -> dict:
 		row = self.conn.execute("SELECT * FROM claims WHERE claim_id=?", (claim_id,)).fetchone()
@@ -3489,7 +3854,22 @@ def regen_instance(config_path: str, *, participant: str) -> dict:
 			live = store.conn.execute(
 				"SELECT DISTINCT from_participant AS p FROM messages WHERE state IN ('pending','claimed') "
 				"UNION SELECT DISTINCT to_participant FROM messages WHERE state IN ('pending','claimed') "
-				"UNION SELECT DISTINCT from_participant FROM notices").fetchall()
+				"UNION SELECT DISTINCT from_participant FROM notices "
+				# THE FROZEN AUDIENCE TOO. Protecting only notice AUTHORS left
+				# a removal able to strand an addressee: the audience is
+				# immutable, so the participant stays in it forever while
+				# becoming undeclared and unable to consume what it names.
+				#
+				# Only where the notice is still deliverable to them -- a
+				# receipt already recorded means delivery happened, and a
+				# notice everyone has seen holds nobody hostage. Expiry and gc
+				# remove the audience with the notice, so a removal that is
+				# refused today becomes possible later without ever rewriting
+				# retained history.
+				"UNION SELECT DISTINCT a.participant FROM notice_audience a "
+				"WHERE NOT EXISTS (SELECT 1 FROM notice_seen s "
+				"WHERE s.notice_id=a.notice_id AND s.participant=a.participant)"
+				).fetchall()
 			missing = sorted({r["p"] for r in live} - new_participants)
 			if missing:
 				raise BatonError(
@@ -4562,7 +4942,7 @@ def _part_repr(node: dict, *, bytes_required: bool) -> dict:
 		"address": node.get("address"),
 		"content_type": node["content_type"],
 		"disposition": node["disposition"],
-		"filename": node["filename"],
+		"part_name": node["part_name"],
 	}
 	if node["parts"] is None:
 		out["attachment"] = None
@@ -4658,6 +5038,20 @@ def _delivery(store: Store, claim: dict) -> dict:
 	# pin. One model, one place to look.
 	envelope["content"] = _content_repr(
 		msg["content_type"], msg.get("parts"), msg["manifest_sha256"])
+	# WHO ELSE GOT THIS. Required by the finding: a recipient must be able to
+	# tell a private message from work deliberately assigned to several
+	# participants, and `to_participant` alone says only "me" either way.
+	#
+	# The EXPANDED LIST, not a selector -- unlike a notice, `--to` never
+	# accepts a wildcard, so there is no selector to show and the addresses are
+	# what the sender actually wrote.
+	#
+	# This discloses the audience; it does NOT make replies a group
+	# conversation. A reply still goes to the original sender and no other
+	# recipient's disposition is visible here.
+	audience, duplicate = store.publication_of(msg.get("publication_id"))
+	envelope["audience"] = audience
+	envelope["possible_duplicate"] = duplicate
 	return {"claim": claim, "message": envelope}
 
 
@@ -4675,6 +5069,12 @@ def _notice_delivery(notice: dict) -> dict:
 	to, nothing to close."""
 	envelope = {k: notice[k] for k in (
 		"id", "from_participant", "kind", "subject", "created_ts", "ttl_seconds", "seen_ts")}
+	# WHO IT WAS ADDRESSED TO. A recipient reading a broadcast cannot otherwise
+	# tell "everyone" from "my team", and those are different things to act on:
+	# an announcement to twenty people and one to two read the same without it.
+	envelope["audience_kind"] = notice.get("audience_kind")
+	envelope["selector"] = notice.get("selector")
+	envelope["possible_duplicate"] = bool(notice.get("possible_duplicate"))
 	# A notice is never scrubbed -- it is deleted whole by expire or gc -- so a
 	# notice part without bytes is always damage.
 	envelope["content"] = _content_repr(
@@ -4713,6 +5113,86 @@ def doctor(config_path: str) -> dict:
 		report["active_claims"] = [dict(r) for r in store.conn.execute(
 			"SELECT claim_id, message_id, participant, claimed_ts FROM claims WHERE state='active'")]
 		report["notices"] = store.conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0]
+		# THE FROZEN AUDIENCE. Every one of these is an invariant the schema
+		# cannot express on its own, and each has a distinct failure: a notice
+		# nobody can read, a receipt from outside the audience, an address or
+		# selector that no longer parses, and an audience row whose notice is
+		# gone.
+		# DIRECTED PUBLICATIONS. Same shape of question as the notice audience,
+		# and the same reason: the audience is the record of who work was
+		# assigned to, and it must not be derivable from whichever deliveries
+		# happen to survive.
+		for row in store.conn.execute(
+				"SELECT publication_id FROM publications p WHERE NOT EXISTS "
+				"(SELECT 1 FROM publication_audience a "
+				"WHERE a.publication_id=p.publication_id)"):
+			report["problems"].append(
+				f"publication {row['publication_id']} has an empty audience")
+		for row in store.conn.execute(
+				"SELECT m.id, m.to_participant, m.publication_id FROM messages m "
+				"WHERE m.publication_id IS NOT NULL AND NOT EXISTS "
+				"(SELECT 1 FROM publication_audience a "
+				"WHERE a.publication_id=m.publication_id "
+				"AND a.participant=m.to_participant)"):
+			report["problems"].append(
+				f"message {row['id']} is delivered to {row['to_participant']}, "
+				f"who is not in publication {row['publication_id']}'s audience")
+		for row in store.conn.execute(
+				"SELECT m.id, m.publication_id FROM messages m "
+				"JOIN publications p ON p.publication_id = m.publication_id "
+				"WHERE m.from_participant <> p.from_participant "
+				"OR m.kind <> p.kind OR m.retention <> p.retention "
+				"OR m.manifest_sha256 <> p.manifest_sha256 "
+				"OR m.content_type <> p.content_type "
+				"OR m.subject IS NOT p.subject OR m.thread_id IS NOT p.thread_id "
+				"OR m.outcome IS NOT p.outcome"):
+			report["problems"].append(
+				f"message {row['id']} disagrees with publication "
+				f"{row['publication_id']} about its envelope")
+		orphaned = store.conn.execute(
+			"SELECT COUNT(*) FROM publication_audience a WHERE NOT EXISTS "
+			"(SELECT 1 FROM publications p "
+			"WHERE p.publication_id=a.publication_id)").fetchone()[0]
+		if orphaned:
+			report["problems"].append(
+				f"{orphaned} publication audience row(s) outlived their publication")
+		for row in store.conn.execute(
+				"SELECT id FROM notices n WHERE NOT EXISTS "
+				"(SELECT 1 FROM notice_audience a WHERE a.notice_id=n.id)"):
+			report["problems"].append(
+				f"notice {row['id']} has an empty frozen audience and can reach nobody")
+		for row in store.conn.execute(
+				"SELECT s.notice_id, s.participant FROM notice_seen s WHERE NOT EXISTS "
+				"(SELECT 1 FROM notice_audience a "
+				"WHERE a.notice_id=s.notice_id AND a.participant=s.participant)"):
+			report["problems"].append(
+				f"notice {row['notice_id']} has a seen receipt from "
+				f"{row['participant']}, who is not in its audience")
+		# THE PROTOCOL'S OWN CHECKS, not a bare regex. Both grammars carry a
+		# 64-character bound that lives beside the pattern rather than in it,
+		# so calling `.match` alone accepts an overlong address or selector
+		# that publication would have refused -- a doctor that is laxer than
+		# the writer cannot detect what the writer prevents.
+		for row in store.conn.execute(
+				"SELECT DISTINCT participant FROM notice_audience"):
+			if not _is_address(row["participant"]):
+				report["problems"].append(
+					f"notice audience holds {row['participant']!r}, "
+					f"which is not a participant address")
+		for row in store.conn.execute(
+				"SELECT id, selector FROM notices WHERE selector IS NOT NULL"):
+			try:
+				validate_scope(row["selector"])
+			except BatonError:
+				report["problems"].append(
+					f"notice {row['id']} records selector {row['selector']!r}, "
+					f"which is not a scope")
+		orphans = store.conn.execute(
+			"SELECT COUNT(*) FROM notice_audience a WHERE NOT EXISTS "
+			"(SELECT 1 FROM notices n WHERE n.id=a.notice_id)").fetchone()[0]
+		if orphans:
+			report["problems"].append(
+				f"{orphans} notice audience row(s) outlived their notice")
 		ctx = store.conn.execute("SELECT op_id FROM op_context WHERE one_row=1").fetchone()
 		if ctx["op_id"] is not None:
 			report["problems"].append("op_context is non-NULL outside any transaction")
@@ -5086,7 +5566,9 @@ def dump(config_path: str) -> dict:
 	out: dict = {}
 	with open_instance(config_path, readonly=True, _for_ceremony=True) as store:
 		for table in ("instance_meta", "op_context", "messages", "parts", "claims",
-		              "dispositions", "contents", "notices", "notice_seen", "quarantines",
+		              "dispositions", "publications", "publication_audience",
+		              "contents", "notices", "notice_audience",
+		              "notice_seen", "quarantines",
 		              "recoveries", "ceremonies", "moves", "accepted_roots"):
 			rows = []
 			for r in store.conn.execute(f"SELECT * FROM {table}"):
@@ -5246,7 +5728,7 @@ def _authored_parts(ns, *, roots=None, legacy_attach: bool = False):
 	`--part` or `--references` and passed `body=None` from there on, so
 	`send --body notes.md --references refs.txt` exited zero having published
 	only the references leaf. It now becomes the first leaf and keeps its
-	legacy `--content-type`/`--disposition`/`--filename`, which is where that
+	legacy `--content-type`/`--disposition`/`--part-name`, which is where that
 	metadata has always applied.
 
 	Beside `--part` it is REFUSED instead. A general part carries its own type,
@@ -5272,7 +5754,7 @@ def _authored_parts(ns, *, roots=None, legacy_attach: bool = False):
 	body_spec = getattr(ns, "body", None)
 	legacy = (("--content-type", getattr(ns, "content_type", None)),
 	          ("--disposition", getattr(ns, "disposition", None)),
-	          ("--filename", getattr(ns, "filename", None)))
+	          ("--part-name", getattr(ns, "part_name", None)))
 	body = None
 	if body_spec is not None:
 		if any(kind == "part" for kind, _ in items):
@@ -5280,7 +5762,7 @@ def _authored_parts(ns, *, roots=None, legacy_attach: bool = False):
 				"--body cannot be combined with --part: a general part already "
 				"carries its own type, disposition, name and position. Author "
 				"the body as another --part")
-		body = (body_spec, ns.content_type, ns.disposition, ns.filename)
+		body = (body_spec, ns.content_type, ns.disposition, ns.part_name)
 	else:
 		# Never silently ignored. Metadata describing a body that was not
 		# supplied is a request this command cannot honour, and dropping it
@@ -5423,7 +5905,9 @@ def _build_parser():
 		               help=f"IANA media type of the body (default: {DEFAULT_CONTENT_TYPE})")
 		c.add_argument("--disposition", choices=sorted(DISPOSITIONS), default=None,
 		               help=f"RFC 2183 content disposition (default: {DISPOSITION_INLINE})")
-		c.add_argument("--filename", help="advisory filename for the part (RFC 2183)")
+		c.add_argument("--part-name",
+		               help="advisory name for the part; it is a LABEL, not a "
+		                    "path, and never selects where anything is written")
 
 
 	cmd("init", help="create a new instance beside --config")
@@ -5431,7 +5915,13 @@ def _build_parser():
 	ident(c)
 	c = cmd("send", help="send a directed message")
 	ident(c)
-	c.add_argument("--to", required=True)
+	c.add_argument("--possible-duplicate", action="store_true",
+	               help="you could not tell whether an earlier attempt was "
+	                    "published; marks this one, immutably, for the "
+	                    "recipient to judge")
+	c.add_argument("--to", required=True, action="append", metavar="PARTICIPANT",
+	               help="exact participant; repeat for several, each of whom "
+	                    "gets their own claim and disposition")
 	c.add_argument("--kind", required=True)
 	c.add_argument("--subject", help="one-line human summary shown in an inbox")
 	c.add_argument("--thread")
@@ -5445,6 +5935,15 @@ def _build_parser():
 	c.add_argument("--kind", required=True)
 	c.add_argument("--subject", help="one-line human summary shown in an inbox")
 	c.add_argument("--ttl-seconds", type=int)
+	# QUOTE IT in documentation: an unquoted `baton.*` is expanded by the
+	# shell against the current directory, which usually matches nothing and
+	# silently passes the literal through -- but not always.
+	c.add_argument("--possible-duplicate", action="store_true",
+	               help="you could not tell whether an earlier attempt was "
+	                    "published; marks this one, immutably")
+	c.add_argument("--scope", metavar="TEAM.*",
+	               help="address a team instead of everyone, e.g. 'baton.*'; "
+	                    "the audience is expanded and frozen at publication")
 	# Default None, NOT "-". This verb and `reply` defaulted to stdin, which
 	# made a body that was never supplied indistinguishable from one explicitly
 	# read from stdin -- and part mode has to tell them apart to know whether
@@ -5588,25 +6087,31 @@ def main(argv: list[str] | None = None) -> int:
 					body = _read_body("-")
 				else:
 					body = None
+				# ONE address stays a string so the historical single-recipient
+				# return shape is unchanged; several become a list.
+				addressees = ns.to if len(ns.to) > 1 else ns.to[0]
 				message_id = store.send(
-					ns.participant, ns.to, kind=ns.kind, subject=ns.subject,
+					ns.participant, addressees, kind=ns.kind, subject=ns.subject,
+					possible_duplicate=ns.possible_duplicate,
 					body=body, parts=parts,
 					content_type=ns.content_type if parts is None else None,
 					disposition=ns.disposition if parts is None else None,
-					filename=ns.filename if parts is None else None,
+					part_name=ns.part_name if parts is None else None,
 					thread_id=ns.thread, retention=ns.retention,
 					outcome=ns.outcome, attach=attach)
-			_print_result({"message_id": message_id})
+			_print_result({"publication_id" if isinstance(ns.to, list)
+			               and len(ns.to) > 1 else "message_id": message_id})
 		elif ns.command == "send-notice":
 			with open_instance(ns.config) as store:
 				parts = _authored_parts(ns, roots=store.list_roots())
 				notice_id = store.send_notice(
-					ns.participant, kind=ns.kind, subject=ns.subject,
+					ns.participant, kind=ns.kind, subject=ns.subject, scope=ns.scope,
+					possible_duplicate=ns.possible_duplicate,
 					body=None if parts is not None else (_read_body(_or_stdin(ns.body)) or b""),
 					parts=parts,
 					content_type=ns.content_type if parts is None else None,
 					disposition=ns.disposition if parts is None else None,
-					filename=ns.filename if parts is None else None,
+					part_name=ns.part_name if parts is None else None,
 					ttl_seconds=ns.ttl_seconds)
 			_print_result({"notice_id": notice_id})
 		elif ns.command == "claim":
@@ -5639,7 +6144,7 @@ def main(argv: list[str] | None = None) -> int:
 				                     parts=parts,
 				                     content_type=ns.content_type if parts is None else None,
 				                     disposition=ns.disposition if parts is None else None,
-				                     filename=ns.filename if parts is None else None,
+				                     part_name=ns.part_name if parts is None else None,
 				                     outcome=ns.outcome, recipient=ns.to,
 				                     thread_id=ns.thread, retention=ns.retention)
 			_print_result(result)
@@ -5652,7 +6157,7 @@ def main(argv: list[str] | None = None) -> int:
 					parts=parts,
 					content_type=ns.content_type if parts is None else None,
 					disposition=ns.disposition if parts is None else None,
-					filename=ns.filename if parts is None else None,
+					part_name=ns.part_name if parts is None else None,
 					outcome=ns.outcome, retention=ns.retention)
 			_print_result(result)
 		elif ns.command == "recover-claim":

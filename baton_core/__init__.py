@@ -11,53 +11,46 @@ no command line of its own. `baton_core.cli` is the one door the CLI comes in
 through, and it is a door rather than a widened surface — `import baton_core`
 gets a library with no `main` on it.
 
-WHAT IS TRUE TODAY, stated exactly because two earlier versions of this
-paragraph were not. Stage 1A landed: `bin/baton` is built from this package
-and no longer contains `baton_v6.py`. Protocol 9 and the CLI's behaviour are
-unchanged by that adoption; only the artifact bytes moved.
+WHAT IS TRUE TODAY, stated exactly because three earlier versions of this
+paragraph were not. `bin/baton` is built from this package. Protocol 10 has
+landed here: the part label is `part_name`, and this is the implementation,
+not a copy of one.
 
-`baton_v6.py` remains in the tree, frozen, and is NOT shipped. Its only job is
-to be the differential ORACLE:
+`baton_v6.py` is RETIRED. It was the differential oracle for the whole
+scaffolding period; protocol 10 ended that arrangement, because an oracle
+pinning protocol-9 behaviour cannot measure an implementation that no longer
+claims to implement it. `test_core_parity.py` is deleted.
 
-- it stays byte-identical, because it is the instrument parity is measured
-  with;
-- fixes land HERE only. A fix applied to both copies would make them agree
-  with each other about the wrong answer, and the oracle would have quietly
-  stopped being an oracle;
-- `test_core_parity.py` drives both through the same operations and records
-  every deliberate divergence rather than reconciling it silently.
+The file remains in the tree, frozen, unshipped and imported by nothing. Its
+job now is EVIDENCE: it is the record of what protocol 9 actually did, and a
+record that can be edited is not a record. `test_retired_oracle.py` keeps its
+hash pin — the same assertion it always carried, now guarding the evidence
+rather than the measurement — and proves, by parsing the tree rather than
+grepping it, that nothing imports it.
 
-Two records, and they are NOT the same record. Conflating them once produced
-the sentence "the divergences are additive ... and the removal of
-`list_received`", which contradicts itself.
+The coverage did not shrink. `test_core_conformance.py` is the corpus that
+used to drive the oracle, moved onto this package whole rather than
+hand-picked, so nobody chose which properties survived.
 
-OBSERVABLE PARITY -- what the differential harness sees when both
-implementations are driven through the same operations. Exactly two, and both
-are ADDITIONS:
+CLIENT API -- what this package offers a front end. `list_roots`,
+`list_notice_activity`, `read_claimed_external_part`, and two columns on
+`list_messages` are here for the console; `list_received` was removed with the
+view it served.
 
-- a manifest `address` on each delivered part, making the envelope
-  self-addressing;
-- `created_ts` on claimed scan rows.
-
-Anything else differing is an unrecorded divergence and fails the harness.
-
-CLIENT API -- what this package offers a front end, which the oracle never
-had a reason to. Additions: `list_roots`, `list_notice_activity`,
-`read_claimed_external_part`, and two columns on `list_messages`. One removal:
-`list_received`, which served a view that no longer exists.
-
-A removal here is not a parity divergence. It is a method the oracle's callers
-never had, because the oracle has no front end.
+(The "observable parity" list that stood here — a manifest `address` on each
+delivered part, and `created_ts` on claimed scan rows — described what the
+differential harness tolerated. There is no harness, so there is nothing to
+tolerate: those are simply part of this implementation.)
 """
 
-from ._impl import *          # noqa: F401,F403  -- surface parity with the oracle
+from ._impl import *          # noqa: F401,F403
 from . import _impl
 
-# `_impl` is a byte-copy of the single-artifact build, so it still carries the
-# CLI adapter (`main`, `_build_parser`). Those are NOT part of this package's
-# surface: a library that exports a command line invites being run as one, and
-# this core is imported, never executed. They stay reachable as `_impl.main`
-# for the differential harness, which needs to compare the oracle's behaviour.
+# `_impl` carries the CLI adapter (`main`, `_build_parser`). Those are NOT part
+# of this package's surface: a library that exports a command line invites
+# being run as one, and this core is imported, never executed. They stay
+# reachable as `_impl.main` for `baton_core.cli`, which is the one door the
+# executable comes in through.
 for _cli_only in ("main", "_build_parser"):
 	globals().pop(_cli_only, None)
 del _cli_only
@@ -67,7 +60,7 @@ del _cli_only
 # of any front end's own release version -- which is the whole point of
 # splitting them: a TUI can ship faster than the protocol moves, provided it
 # declares the core API it was built against.
-CORE_API_VERSION = 1
+CORE_API_VERSION = 2
 
 PROTOCOL_VERSION = _impl.PROTOCOL_VERSION
 TOOL_VERSION = _impl.TOOL_VERSION

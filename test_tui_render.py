@@ -12,7 +12,7 @@ import json
 import pytest
 
 import baton_core as core
-from baton_tui.render import (DIVIDER, detail_line_count, layout_for,
+from baton_tui.render import (DIVIDER, _headers, detail_line_count, layout_for,
                               ordinary_body_lines, render)
 from baton_tui.safe_text import display_width
 from baton_tui.state import InboxState
@@ -28,7 +28,7 @@ def _instance(tmp_path):
 	path = str(home / "baton.json")
 	with open(path, "w") as handle:
 		json.dump({
-			"config_version": 1, "protocol_version": 9, "generation": 1,
+			"config_version": 1, "protocol_version": 10, "generation": 1,
 			"mailbox": {"name": "console"},
 			"participants": {"acme.reviewer": {}, "acme.implementer": {},
 			                 "hq.lead": {"capabilities": ["recovery", "config"]}},
@@ -1416,24 +1416,25 @@ def test_content_cannot_forge_a_part_mark(env):
 			assert STYLE_PART_HEADER not in style
 
 
-# -- addendum: the header shows the advisory filename ----------------------
+# -- addendum: the header shows the advisory part name ---------------------
 
 def test_the_part_header_shows_address_type_disposition_and_name(env):
-	"""Rendered directly, with no `filename:` label: a part is not a file, and
+	"""Rendered directly, with no label: a part is not a file, and
 	the name is a human label until someone chooses to save it."""
 	store, _ = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Named",
 	           parts=[
 		{"content_type": "text/plain; charset=utf-8", "body": b"note\n"},
 		{"content_type": "image/png", "body": b"\x89PNG\r\n\x1a\n",
-		 "disposition": "attachment", "filename": "diagram.png"},
+		 "disposition": "attachment", "part_name": "diagram.png"},
 	])
 	state = _opened(store)
 	detail = "\n".join(_detail(_draw(state, 100, 24)))
 	assert "image/png" in detail
 	assert "attachment" in detail
 	assert "diagram.png" in detail
-	assert "filename" not in detail.lower(), "the name is labelled as a filename"
+	assert "part_name" not in detail.lower() and "filename" not in detail.lower(), \
+		"the name is labelled rather than shown"
 
 
 def test_the_authority_refuses_a_part_name_carrying_controls(env):
@@ -1447,7 +1448,7 @@ def test_the_authority_refuses_a_part_name_carrying_controls(env):
 		store.send("acme.reviewer", "acme.implementer", kind="q", subject="Hostile",
 		           parts=[{"content_type": "application/octet-stream",
 		                   "body": b"\x00\x01", "disposition": "attachment",
-		                   "filename": "ok\u001b[2Jname\u0007.bin"}])
+		                   "part_name": "ok\u001b[2Jname\u0007.bin"}])
 
 
 @pytest.mark.parametrize("hostile", [
@@ -1464,7 +1465,7 @@ def test_a_hostile_part_name_would_still_render_as_inert_text(hostile):
 	reaches the terminal as visible text, not as a control."""
 	from baton_tui.render import _rendered_parts
 	rows = _rendered_parts([{"address": "0", "content_type": "application/octet-stream",
-	                         "disposition": "attachment", "filename": hostile,
+	                         "disposition": "attachment", "part_name": hostile,
 	                         "encoding": "base64", "size": 2}], 60)
 	# Per ROW, not on a joined string: the "\n" used to join them is itself
 	# below 0x20, so the joined form flags every input and the test passes
@@ -2758,3 +2759,75 @@ def test_no_status_glyph_is_a_row_action_key():
 	collisions = {glyph for glyph in vocabulary if glyph in letters}
 	assert collisions == set(), \
 		f"status glyphs collide with row-action keys: {collisions}"
+
+
+def test_a_notice_says_which_audience_it_went_to():
+	"""A broadcast to everyone and one to a single team read identically
+	without this, and they are different things to act on."""
+	from baton_tui.render import audience_line
+	assert audience_line({"audience_kind": "scope", "selector": "acme.*"}) == \
+		"acme.* (team notice)"
+	assert audience_line({"audience_kind": "global", "selector": None}) == \
+		"everyone (notice)"
+	# A notice predating the frozen audience carries neither field and reads
+	# as the global broadcast it was.
+	assert audience_line({}) == "everyone (notice)"
+
+
+def test_the_notice_detail_draws_the_audience(env):
+	"""Through the renderer, not the helper: the line has to reach the pane."""
+	from baton_tui.render import _notice_lines
+	scoped = _notice_lines(
+		{"id": "n1", "from_participant": "hq.lead", "kind": "fyi",
+		 "subject": "team", "audience_kind": "scope", "selector": "acme.*",
+		 "content": {"parts": []}}, 80)
+	assert any("To:      acme.* (team notice)" in line for line in scoped), scoped
+	glob = _notice_lines(
+		{"id": "n2", "from_participant": "hq.lead", "kind": "fyi",
+		 "subject": "all", "audience_kind": "global", "selector": None,
+		 "content": {"parts": []}}, 80)
+	assert any("To:      everyone (notice)" in line for line in glob), glob
+
+
+def test_an_authored_notice_detail_also_says_its_audience(env):
+	"""The author's own copy. The received path showed the audience and the
+	sent path did not, so the one person who knew a notice was scoped was the
+	one being told it went to everyone."""
+	from baton_tui.render import _sent_content_lines
+	lines = _sent_content_lines(
+		{"id": "n1", "from_participant": "hq.lead", "kind": "fyi",
+		 "subject": "team", "audience_kind": "scope", "selector": "acme.*",
+		 "content": {"parts": []}}, 80, notice=True)
+	assert any("To:      acme.* (team notice)" in line for line in lines), lines
+
+
+def test_shared_work_says_who_else_has_it():
+	"""`From:` and `Subject:` read identically for a private request and for
+	one assigned to three people, and those are different situations: someone
+	else may already be acting on it."""
+	lines = _headers(
+		{"from_participant": "hq.lead", "subject": "migrate", "kind": "work",
+		 "audience": ["acme.implementer", "acme.reviewer", "hq.lead"]}, 80)
+	assert any("Shared:  acme.implementer, acme.reviewer, hq.lead (3 recipients)" in line
+	           for line in lines), lines
+
+
+def test_a_private_message_says_nothing_about_sharing():
+	""""Shared: just you" on every ordinary message would train the eye to
+	skip the line, which costs exactly the case it exists for."""
+	lines = _headers(
+		{"from_participant": "hq.lead", "subject": "migrate", "kind": "work",
+		 "audience": ["acme.implementer"]}, 80)
+	assert not any("Shared:" in line for line in lines), lines
+
+
+def test_the_duplicate_warning_is_attributed_to_the_sender():
+	"""Baton does not correlate a repeat with an earlier publication, so the
+	console must not phrase the warning as a detection. What is known is that
+	the SENDER could not tell."""
+	lines = _headers(
+		{"from_participant": "hq.lead", "subject": "deploy", "kind": "ann",
+		 "possible_duplicate": True}, 80)
+	text = " ".join(lines)
+	assert "the sender could not tell" in text, lines
+	assert "duplicate detected" not in text.lower()
