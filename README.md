@@ -48,6 +48,10 @@ it they need at that moment.
 
 ![Baton terminal inbox with message list and detail panes](assets/artwork/baton-tui.png)
 
+New teams can start with [Using Baton effectively](docs/EFFECTIVE-BATON.md).
+The [1.0.0 release announcement](docs/RELEASE-1.0.0.md) is a concise onboarding
+message; this README remains the complete command and storage reference.
+
 
 ## How a team uses Baton
 
