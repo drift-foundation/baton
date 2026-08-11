@@ -123,3 +123,69 @@ The reviewer clears onboarding only after verifying the committed state:
 Only an explicit reviewer approval after these checks opens cross-team
 onboarding. Any failure stays local to Baton and is corrected before peers are
 asked to depend on it.
+
+## Final execution order — approved 2026-08-10
+
+Slawomir approved the final public-release path after the repository-layout
+commit and the Enter live-trial correction:
+
+1. complete focused review of the browse-only Esc-to-LIST correction and hand
+   Slawomir a freshly rebuilt `bin/baton-tui`;
+2. wait for Slawomir's successful human zipapp test;
+3. only then run the one complete frozen-candidate suite, deterministic
+   sequential artifact/manifest checks, packaged workflow smoke, and live
+   authority health check;
+4. K drafts the commit message and routes it through `baton.reviewer` for
+   review;
+5. the reviewer sends the approved commit message to Slawomir, who alone
+   stages and commits;
+6. completed-finding cleanup and explicit release clearance follow as the
+   separately reviewed release-hygiene pass.
+
+No protocol-11 item is pulled into this sequence. `/` message search and
+Markdown rendering remain post-release product work unless a newly reproduced
+integrity, authorization, delivery, or queue-liveness defect changes the
+freeze rule above.
+
+### Gate reopened by the final human trial
+
+After the 2289-test full gate and packaged workflow smoke passed, Slawomir
+ruled that every application exit must ask exactly once with `Exit? y/N`.
+This is a TUI-only safety correction and does not reopen protocol 10, but it
+does invalidate the just-completed candidate bytes. The full frozen gate must
+run again only after the focused correction, fresh zipapp review, and human
+trial pass.
+
+### Gate reopened by the public 1.0.0 ruling
+
+Slawomir confirmed the corrected quit interaction in the packaged TUI. The
+replacement diagnostic suite then passed 2302 tests, but before its remaining
+artifact checks Slawomir ruled that both public executables must expose
+`--version` and ship as the shared `1.0.0` release. The contract is pinned in
+`work/finding-release-version/`.
+
+This does not reopen protocol 10, but it does change both distributed
+artifacts and their metadata. The 2302-test result is useful diagnostic
+evidence, not release certification. Run the complete suite, deterministic
+CLI/TUI rebuild, packaged workflow smoke, and live doctor again only on the
+review-approved versioned successor.
+
+After that final gate passes, K drafts the complete commit message and routes
+it through `baton.reviewer`. The reviewer sends the approved text to Slawomir,
+who alone commits it; that commit is RC 1.0.0.
+
+The RC trial then added one presentation-only requirement: incoming directed
+messages remain bold while reply/close is owed, and unseen notices remain bold
+until seen. `work/finding-human-console/findings/finding-incoming-bold/` pins
+the exact rule. It does not reopen protocol 10, but it changes the TUI artifact,
+so it must join the reviewed 1.0.0 successor before the one final release gate.
+
+The combined successor was independently approved on 2026-08-11. Slawomir
+confirmed the packaged bold-subject behavior. The one final complete suite,
+deterministic rebuild, packaged workflow smoke, and live doctor may now run on
+the reviewed artifact hashes recorded in the two review journals.
+
+That final gate passed: 2318/2318 tests, byte-identical sequential rebuilds,
+the complete packaged workflow smoke, and live doctor `ok: true` with no
+problems. `RC-1.0.0-GATE.md` records the exact evidence and hashes. Only the
+reviewed commit-message handoff and Slawomir's commit remain before RC 1.0.0.

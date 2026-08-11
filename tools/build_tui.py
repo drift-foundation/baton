@@ -100,7 +100,8 @@ def build(root: str) -> dict:
 	import baton_tui
 	manifest = {
 		"tool": "baton-tui",
-		"tui_version": baton_tui.TUI_VERSION,
+		# Same key, same value as the CLI manifest: one release, one number.
+		"release_version": baton_core.RELEASE_VERSION,
 		"requires_core_api": baton_tui.REQUIRES_CORE_API,
 		"core_api_version": baton_core.CORE_API_VERSION,
 		"protocol_version": baton_core.PROTOCOL_VERSION,

@@ -1193,9 +1193,12 @@ def _detail(screen):
 	The footer boundary comes from the shared authority, not from a literal.
 	This carried `else 2` from the two-row footer and so dropped the LAST real
 	detail row on every ordinary screen -- which is the same class of mistake
-	as the production geometry it was meant to be checking."""
-	footer = 2 if screen[-2].strip().startswith("QUIT WITH") \
-		else len(screen) - 1 - ordinary_body_lines(len(screen))
+	as the production geometry it was meant to be checking.
+
+	The `QUIT WITH...` branch that used to sit here is GONE with the two-row
+	quit footer. It had become unreachable, and an unreachable branch in a
+	geometry helper is a claim that a shape still exists."""
+	footer = len(screen) - 1 - ordinary_body_lines(len(screen))
 	body = screen[1:len(screen) - footer]
 	for index, line in enumerate(body):
 		if _is_rule(line, DIVIDER):
@@ -3028,3 +3031,172 @@ def test_an_opened_contentless_message_still_says_zero_parts(env):
 	           subject="the subject is the message")
 	state = _opened(store)
 	assert "0 parts" in part_footer(state, 100)
+
+
+# -- incoming work stays bold until handled -------------------------------
+#
+# Slawomir's RC ruling: the message list should use the familiar unread-email
+# convention, so work still owed by the local participant is emphasised and
+# stops being emphasised the moment it is answered. These pin the RULE
+# (`row_is_owed`) and its PRESENTATION (`STYLE_OWED`) separately, because a
+# correct rule wired to the wrong screen rows looks exactly like a bug.
+
+def _owed_texts(state, columns=100, lines=24):
+	from baton_tui.render import STYLE_OWED, render_styled
+	return [text for text, style in render_styled(state, columns, lines)
+	        if STYLE_OWED in style]
+
+
+def test_a_pending_incoming_row_is_owed(env):
+	store, _ = env
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="Still mine", body=b"x\n")
+	state = _ready_state(store)
+	assert any("Still mine" in text for text in _owed_texts(state))
+
+
+def test_a_claimed_incoming_row_stays_owed(env):
+	"""Opening a message is not answering it.
+
+	The obvious first cut of this rule clears the emphasis on claim, which
+	would tell the human their work was done the moment they looked at it."""
+	store, _ = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                 subject="Opened not answered", body=b"x\n")
+	store.claim("acme.implementer", message_id=mid)
+	state = _ready_state(store)
+	assert any("Opened not answered" in text for text in _owed_texts(state))
+
+
+def test_a_replied_or_closed_incoming_row_is_not_owed(env):
+	store, _ = env
+	replied = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                     subject="Answered by reply", body=b"x\n")
+	closed = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                    subject="Answered by close", body=b"x\n")
+	still = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                   subject="Untouched", body=b"x\n")
+	claim = store.claim("acme.implementer", message_id=replied)
+	store.reply(claim["claim_id"], participant="acme.implementer",
+	            kind="answer", body=b"ok\n")
+	claim = store.claim("acme.implementer", message_id=closed)
+	store.close_claim(claim["claim_id"], participant="acme.implementer",
+	                  outcome="done")
+	state = _ready_state(store)
+	owed = _owed_texts(state)
+	assert not any("Answered by reply" in text for text in owed)
+	assert not any("Answered by close" in text for text in owed)
+	# The control: the rule cleared these two because they were answered, not
+	# because it stopped emphasising anything at all.
+	assert any("Untouched" in text for text in owed), str(still)
+
+
+def test_an_unseen_notice_is_owed_and_a_seen_one_is_not(env):
+	store, _ = env
+	store.send_notice("acme.reviewer", kind="announcement",
+	                  subject="Unread broadcast", body=b"n\n")
+	state = _ready_state(store)
+	assert any("Unread broadcast" in text for text in _owed_texts(state))
+
+	store.see("acme.implementer")
+	state = _ready_state(store)
+	assert not any("Unread broadcast" in text for text in _owed_texts(state))
+
+
+def test_outbound_rows_are_never_owed(env):
+	"""Work waiting on someone else is their move.
+
+	Asserted in the SENT view, where every row is outbound: if direction were
+	ignored, this whole pane would be bold and the emphasis would mean
+	nothing."""
+	from baton_tui.state import VIEW_SENT
+	store, _ = env
+	store.send("acme.implementer", "acme.reviewer", kind="q",
+	           subject="Sent and pending", body=b"x\n")
+	store.send_notice("acme.implementer", kind="announcement",
+	                  subject="Sent broadcast", body=b"n\n")
+	state = InboxState("acme.implementer")
+	state.refresh(store)
+	state.select_view(VIEW_SENT)
+	state.preview(store)
+	state.set_viewport(**layout_for(100, 24))
+	assert [r["id"] for r in state.sent_rows], "this fixture drew no sent rows"
+	assert _owed_texts(state) == []
+
+
+def test_the_selected_row_keeps_its_owed_emphasis(env):
+	"""Evidence 6: the cursor must not erase the unread mark as it passes.
+
+	The two styles answer different questions -- which row am I on, which rows
+	still want me -- so they compose rather than compete."""
+	from baton_tui.render import STYLE_OWED, STYLE_SELECTED, render_styled
+	store, _ = env
+	for i in range(3):
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject=f"Owed {i}", body=b"x\n")
+	state = _ready_state(store)
+	for _ in range(3):
+		rows = render_styled(state, 100, 24)
+		selected = [(text, style) for text, style in rows
+		            if STYLE_SELECTED in style]
+		assert len(selected) == 1
+		text, style = selected[0]
+		assert STYLE_OWED in style, text
+		state.move(1, store)
+
+
+def test_owed_emphasis_writes_nothing_to_the_authority(tmp_path):
+	"""Evidence 7: rendering and refreshing are observation only.
+
+	Compared against a full dump rather than a spot check, so a receipt, a
+	claim, or a state transition introduced anywhere by drawing shows up."""
+	# Its own instance rather than the shared fixture, because the tripwire
+	# needs the CONFIG PATH: the snapshot is taken through the public
+	# read-only `dump`, the way every other reader reads the authority, and
+	# never by opening the database.
+	path, _ = _instance(tmp_path)
+	with core.open_instance(path) as store:
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject="Directed", body=b"x\n")
+		store.send_notice("acme.reviewer", kind="announcement",
+		                  subject="Broadcast", body=b"n\n")
+		state = _ready_state(store)
+		before = core.dump(path)
+		for _ in range(3):
+			_owed_texts(state)
+			state.refresh(store)
+		assert core.dump(path) == before
+
+
+def test_the_owed_rule_reads_the_row_the_glyph_reads(env):
+	"""The RULE itself, without a screen.
+
+	Every case in one table so a future author changing one branch has to see
+	the others: unknown store states get no emphasis, damage does not clear
+	it, and a draft is not incoming work."""
+	from baton_tui.render import row_is_owed
+	from baton_tui.state import ROW_DRAFT, ROW_MESSAGE, ROW_NOTICE
+
+	def row(**kw):
+		base = {"row_type": ROW_MESSAGE, "direction": "in", "state": "pending"}
+		base.update(kw)
+		return base
+
+	assert row_is_owed(row())
+	assert row_is_owed(row(state="claimed"))
+	assert not row_is_owed(row(state="completed"))
+	assert not row_is_owed(row(state="closed"))
+	# An unrecognised store state is exactly where a guess would be wrong.
+	assert not row_is_owed(row(state="quarantined"))
+	# Damage is orthogonal: a damaged row I still owe is still my move.
+	assert row_is_owed(row(damaged=True))
+	assert not row_is_owed(row(direction="out"))
+	assert not row_is_owed(row(direction="out", state="claimed"))
+	assert row_is_owed(row(row_type=ROW_NOTICE, state="unseen"))
+	assert not row_is_owed(row(row_type=ROW_NOTICE, state="seen"))
+	# A draft is mine to finish but it is not incoming work, and it carries
+	# its own glyph.
+	assert not row_is_owed(row(row_type=ROW_DRAFT, state="pending"))
+	# A SENT row carries neither field. This is the case that bolded the whole
+	# outbox before the rule became default-deny.
+	assert not row_is_owed({"state": "pending", "to_participant": "x"})

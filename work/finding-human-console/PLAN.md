@@ -502,6 +502,24 @@ exists.
 
 A removal there is not a parity divergence at all — it is a method the
 oracle's callers never had, because the oracle has no front end.
+
+## 2026-08-10 live-trial follow-up — Esc leaves DETAIL
+
+Owned by `findings/finding-escape-detail-focus/`.
+
+1. **Directional focus rule pinned** — completed.
+2. **Browse-only state/key/help implementation** — pending, implementer-owned.
+3. **Pure-state and packaged PTY regressions** — pending.
+4. **Focused review and fresh zipapp trial** — pending.
+
+## 2026-08-10 final live-trial safety correction — always confirm quit
+
+Owned by `findings/finding-always-confirm-quit/`.
+
+1. **One-confirmation rule pinned** — completed.
+2. **State/key/render/help correction** — pending, implementer-owned.
+3. **Model/render/PTY regressions and fresh zipapp** — pending.
+4. **Human trial and replacement full frozen gate** — pending.
     baton_v6.py              unchanged, not in the archive
     protocol                 9, unchanged
 

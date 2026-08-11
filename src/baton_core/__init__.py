@@ -63,7 +63,10 @@ del _cli_only
 CORE_API_VERSION = 2
 
 PROTOCOL_VERSION = _impl.PROTOCOL_VERSION
-TOOL_VERSION = _impl.TOOL_VERSION
+
+# Re-exported, never re-declared: a front end that prints a version must reach
+# the same string the CLI prints. See `_impl.RELEASE_VERSION`.
+RELEASE_VERSION = _impl.RELEASE_VERSION
 
 
 def delivery_for(store, claim: dict) -> dict:
@@ -86,5 +89,11 @@ def core_versions() -> dict:
 	return {
 		"core_api_version": CORE_API_VERSION,
 		"protocol_version": PROTOCOL_VERSION,
-		"tool_version": TOOL_VERSION,
+		# Key name predates the shared release version and is kept because
+		# CORE_API_VERSION 2 is a declared contract a front end compiles
+		# against; renaming it to `release_version` is a shape change that
+		# belongs with the next API bump, not with a version-string release.
+		# The VALUE is the one declaration -- there is no separate tool
+		# version any more.
+		"tool_version": RELEASE_VERSION,
 	}

@@ -33,8 +33,9 @@ enough.)
     n            new message     pick a recipient by letter, then subject/attach
     N            notice          subject / body
     Ctrl+r       refresh now     (it also polls every 2s)
+    Esc          leave detail    back to the list; Enter is the way in
     ?            help            the modal shortcut list
-    q            quit            asks for confirmation if a claim is unresolved
+    q            quit            always asks `Exit? y/N`; only y/Y exits
 
 Vim browse bindings throughout. `g` is the `gg` prefix and does nothing on its
 own, which is why manual refresh cannot live there; it is `Ctrl+r`, because
@@ -529,7 +530,13 @@ through the model and renderer:
 - The armed state paints `Send? Y/n` and does NOT paint `SEND THIS?` or
   `keep editing` anywhere.
 
-Restoring the two-row footer fails the second immediately.
+Restoring the two-row footer fails the second immediately. **SUPERSEDED
+2026-08-10:** the quit confirmation is ONE row now, like every other
+mode. It asks with nothing owed as well, where the second row would have
+said "0", and the outstanding count it recited is already on the header
+and in the list. The statements below about a two-row footer describe the
+shape this trial ran against and are kept as history, not as the current
+contract.
 
 The first PTY attempt drained output between keystrokes and returned empty
 strings for repaints that had plainly happened. The transcript is accumulated

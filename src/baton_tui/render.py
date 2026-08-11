@@ -210,6 +210,53 @@ ASCII_GLYPHS = {UNOPENED: "*", OPENED: "o", QUEUED: "Q", PICKED_UP: "P",
                 COMPLETED: "=", DRAFT: "d"}
 
 
+def row_is_owed(row: dict) -> bool:
+	"""Does the LOCAL participant still owe this row an action?
+
+	Public because it is the whole rule behind `STYLE_OWED`, and a rule that
+	decides what a human's eye is drawn to deserves to be asserted directly
+	rather than only through a screen full of styled rows.
+
+	Reads the same row fields `_status_glyph` reads, so the emphasis and the
+	glyph cannot disagree about what is still open.
+
+	Deliberate boundaries:
+
+	- OUTBOUND rows are never bold, whatever their state. A sent message
+	  waiting on someone else is their move, not mine, and bolding it would
+	  make my own outbox compete for attention with my inbox.
+	- A DRAFT is mine to finish, but it is not incoming work and it carries
+	  its own glyph; the ruling names incoming directed rows and unseen
+	  notices, and widening it here would be inventing a third case.
+	- DAMAGED is orthogonal. A damaged incoming row that is still pending is
+	  still owed -- arguably more so -- so damage does not clear the emphasis
+	  the way it overrides the glyph.
+	- Any state outside the four known ones gets NO emphasis. An unrecognised
+	  store state is exactly where a guess would be wrong, and `exceptional_
+	  badge` already says so in the glyph column.
+
+	DEFAULT-DENY on identity, which is not defensive dressing: SENT rows carry
+	neither `row_type` nor `direction`, so the first version of this -- "not
+	outbound and pending" -- called every row in the sent list incoming work
+	and bolded the entire outbox. A row is emphasised only if it says what it
+	is."""
+	kind = row.get("row_type")
+	if kind == ROW_NOTICE:
+		# Unseen until the local participant's receipt exists. The state word
+		# is `unseen`, but anything that is not `seen` is unanswered, and
+		# testing for the absence of the receipt is what the rule means.
+		return row.get("state") != "seen"
+	if kind != ROW_MESSAGE:
+		return False                     # drafts, sent rows, anything unnamed
+	if row.get("direction") != "in":
+		return False
+	# Incoming: owed until it is replied to or closed. `claimed` stays owed --
+	# opening a message is not answering it, and the first draft of this rule
+	# cleared the mark on claim, which would have told the human their work
+	# was done the moment they looked at it.
+	return row.get("state") in ("pending", "claimed")
+
+
 def _status_glyph(row: dict, notice_seen: str = NOTICE_SEEN_MARK) -> str:
 	"""One cell, from the reader's point of view.
 
@@ -356,6 +403,15 @@ def picker_capacity(recipients, participant, columns: int, lines: int) -> int:
 # data.
 STYLE_SELECTED = "selected"
 STYLE_PART_HEADER = "part-header"
+# "This row is still my move." The unread-email convention: emphasis marks
+# work the local participant owes, and drops the moment they answer. It is a
+# PRESENTATION of obligation state the row already carries -- there is no new
+# protocol state behind it, and computing it reads nothing and writes nothing.
+#
+# Composes with `selected` rather than competing with it: the two answer
+# different questions (which row am I on / which rows still want me), and a
+# cursor that erased the unread mark as it passed would be the worst of both.
+STYLE_OWED = "owed"
 
 # Marker for the selected part header. Deliberately NOT the inbox `>`: the two
 # selections mean different things -- which message Enter opens, and which part
@@ -465,6 +521,7 @@ def render_styled(state, columns: int = 100, lines: int = 24, *,
 	                   thread=thread, deep=deep, notice_seen=notice_seen, status=status)
 	selected_row = _selected_screen_row(state, columns, lines)
 	header_rows = _part_header_screen_rows(state, columns, lines, marker=marker)
+	owed_rows = _owed_screen_rows(state, columns, lines)
 	out = []
 	for index, text in enumerate(text_rows):
 		style = set()
@@ -472,6 +529,10 @@ def render_styled(state, columns: int = 100, lines: int = 24, *,
 			style.add(STYLE_SELECTED)
 		if index in header_rows:
 			style.add(STYLE_PART_HEADER)
+		if index in owed_rows:
+			# ADDED, never exclusive: a row can be both the one I am on and
+			# one that still wants me, and the driver composes the attributes.
+			style.add(STYLE_OWED)
 		out.append((text, frozenset(style)))
 	return out
 
@@ -531,15 +592,20 @@ def _footer_height(state) -> int:
 	and the README own shortcuts, and the bottom row is for what the console
 	DID. The reclaimed row goes to the panes.
 
-	The quit confirmation is the one shape that still needs two, because the
-	question and the reason it is being asked are different facts and the
-	human is about to abandon claims. It is transient, which is why the model
-	viewport and the picker measurement are sized for the ordinary one.
+	The quit confirmation used to be the one shape that needed two, because
+	the question and the outstanding-claim count were different facts. It asks
+	with nothing owed now, where that second row would have said "0", and the
+	count it recited is already on the header and in the list. Every mode is
+	one row.
 
 	Read by everything that divides the screen up, because a footer that
 	changes height while the body arithmetic does not is how a row goes
 	missing or gets drawn twice."""
-	return 2 if state.mode == MODE_CONFIRM_QUIT else ORDINARY_FOOTER_ROWS
+	# ONE ROW for the quit confirmation too. It had a second row restating the
+	# outstanding-claim count, which the header and the list already show --
+	# and the prompt is now asked with nothing owed as well, where a count row
+	# would say "0".
+	return ORDINARY_FOOTER_ROWS
 
 
 def _body_lines(state, lines: int) -> int:
@@ -609,6 +675,29 @@ def _detail_screen_top(state, lines: int) -> int:
 	top_lines, _ = _pane_geometry(state, lines)
 	modal = state.mode in (MODE_PICK_RECIPIENT, MODE_HELP)
 	return 1 + top_lines + (0 if modal else 1)
+
+
+def _owed_screen_rows(state, columns: int, lines: int) -> set:
+	"""Which SCREEN lines hold list rows the local participant still owes.
+
+	Same geometry as `_selected_screen_row` and read from the same
+	`view_rows`/`view_top`, so the emphasis and the selection stripe cannot
+	land on different rows -- which is exactly how the stripe itself once ended
+	up on the wrong row in SENT.
+
+	OBSERVATION ONLY, like everything else here: it reads the rows the model
+	already loaded and never asks the authority anything."""
+	rows = state.view_rows
+	if columns < MIN_COLUMNS or lines < MIN_LINES or not rows:
+		return set()
+	top_lines, _ = _pane_geometry(state, lines)
+	if top_lines <= 0:
+		return set()                     # modal chooser: no list on screen
+	usable = list_capacity(len(rows), top_lines)
+	top = list_top(len(rows), top_lines, state.view_top)
+	return {1 + offset                   # 1 = past the header
+	        for offset, row in enumerate(rows[top:top + usable])
+	        if row_is_owed(row)}
 
 
 def _selected_screen_row(state, columns: int, lines: int) -> int | None:
@@ -1769,8 +1858,11 @@ CONFIRM_DISCARD_FOOTER = "Discard draft? y/N"
 def _footer(state, columns: int) -> list[str]:
 	from . import keys as K
 	if state.mode == MODE_CONFIRM_QUIT:
-		return [_cell("  QUIT WITH UNRESOLVED CLAIMS?", columns),
-		        _cell(f"  {state.status}", columns)]
+		# The prompt IS the footer: one line, and the capital in `y/N` names
+		# the safe default, the same way the discard confirmation next door
+		# does. The send confirmation is `Y/n` because sending is what the
+		# human just asked for; quitting is not.
+		return [_cell(f"  {state.status}", columns)]
 	if state.mode == MODE_CONFIRM_DISCARD:
 		# ONE row, on the status line, exactly as ruled. `y/N` with the
 		# capital on the default, which is the conventional spelling for a

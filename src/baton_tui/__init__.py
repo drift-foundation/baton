@@ -1,19 +1,23 @@
 """Baton console: a human-oriented terminal front end over `baton_core`.
 
-Separate distribution, separate version, no protocol logic of its own. It
-calls the same public core API an agent CLI would; it does not read SQLite and
-does not shell out to the JSON CLI.
+Separate distribution, no protocol logic of its own. It calls the same public
+core API an agent CLI would; it does not read SQLite and does not shell out to
+the JSON CLI.
+
+It does NOT carry a release version of its own: `baton_core.RELEASE_VERSION`
+is the single declaration both executables report, so a human cannot be told
+two different numbers for one release. What this console does declare
+separately is the core API it was built against, below -- that is a
+compatibility contract, not a product version.
 
 `curses` is the only terminal dependency and it is stdlib, so the console
 stays as installable as the tool it fronts. No part of this package may enter
 the agent CLI artifact or its import graph.
 """
 
-TUI_VERSION = "0.2.0"
-
 # The `baton_core` API this console was built against. Declared rather than
-# assumed so the two can release on different cadences: a console shipped
-# faster than the protocol moves still states what it needs.
+# assumed: the console can be run against a core it did not ship beside, and
+# then the number it needs has to be checkable rather than presumed.
 REQUIRES_CORE_API = 2
 
 
@@ -35,5 +39,5 @@ def check_core_compatibility(core) -> None:
 	versions = core.core_versions()
 	if versions["core_api_version"] != REQUIRES_CORE_API:
 		raise RuntimeError(
-			f"baton-tui {TUI_VERSION} requires core API {REQUIRES_CORE_API}, "
+			f"baton-tui requires core API {REQUIRES_CORE_API}, "
 			f"but this baton_core offers {versions['core_api_version']}")

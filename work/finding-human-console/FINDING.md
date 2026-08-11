@@ -974,6 +974,10 @@ Nothing for `x` is implemented in this stage. The contract is carried in
 ## Nested active findings
 
 - `findings/finding-enter-detail-focus/FINDING.md` — the previously lost Enter ruling,
-  now authoritative and in progress.
+  now authoritative and corrected after the packaged live trial.
+- `findings/finding-escape-detail-focus/FINDING.md` — the directional counterpart:
+  in browse mode Enter enters DETAIL and Esc returns to LIST; ruled and queued.
+- `findings/finding-always-confirm-quit/FINDING.md` — every browse `q` asks
+  exactly once with the one-line `Exit? y/N` prompt; ruled and queued.
 - `findings/finding-selected-part-footer/FINDING.md` — body-first rendering with a
   persistent selected-part/count footer, ready for implementation.

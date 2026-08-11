@@ -896,7 +896,9 @@ def test_the_compose_prompt_says_enter_sends_from_any_field(env):
 		return " ".join(" ".join(lines).split())
 
 	# STACKED: the detail pane is the rows BELOW the one-row rule and above the
-	# two-row footer, where it used to be the columns right of the divider.
+	# ONE-row footer -- which is what the slice below has always taken. The
+	# comment said two while the code took one, and the quit confirmation is
+	# one row now as well, so nothing is two.
 	rule = [index for index, line in enumerate(screen)
 	        if DIVIDER * 8 in line][0]
 	detail = flat(screen[rule + 1:-1])

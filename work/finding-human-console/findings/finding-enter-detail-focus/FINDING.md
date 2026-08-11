@@ -57,3 +57,42 @@ may write authority state.
    their semantics.
 6. Context-sensitive help/README describe the one-way shortcut.
 7. Packaged PTY coverage proves the real key reaches the same behavior.
+
+## 2026-08-10 live-trial reopening — packaged Enter is gated out after dwell
+
+Status: **reopened; confirmed packaged-path defect**.
+
+Slawomir tested the committed `bin/baton-tui` and reported that Enter could
+not enter DETAIL. The artifact is current and contains `enter_selected()`;
+this is not a stale-build or launch-path problem.
+
+The row had already been opened by the two-second selection dwell. In that
+state `affordances()["open"]` is false because `_already_open` is true. The
+driver checks that shared affordance before dispatch and refuses `K.OPEN`, so
+`enter_selected()` never runs and cannot perform the required pure focus move.
+This directly contradicts the required contract above: "On an
+already-claimed/open row, reopen or retain its detail and focus it without
+another claim."
+
+The earlier progress note called swallowing Enter in this state "correct" and
+the final review accepted it. Both were wrong. The contextual legend may omit
+a redundant *open* action, but the Enter key is not redundant while LIST has
+focus: it still has the distinct, ruled action of moving focus to DETAIL.
+
+Required correction:
+
+- while browsing with LIST focus and a selected row whose authorized detail
+  is already open, Enter must move focus to DETAIL without a store call;
+- retain the current no-op/one-way behavior when DETAIL already has focus;
+- preserve the affordance refusal for states where neither opening nor a pure
+  focus transfer is lawful;
+- add state/driver and packaged PTY regressions for the exact sequence:
+  highlight a pending directed row, allow dwell to claim/open it, then press
+  Enter and observe DETAIL focus with no second claim or authority write.
+
+### Resolution
+
+Corrected and independently approved on 2026-08-10. Enter is offered when
+either content still needs opening or LIST can make the pure transfer into an
+already-open DETAIL. The already-open path changes focus without touching the
+store. The committed-artifact successor was rebuilt for the human trial.

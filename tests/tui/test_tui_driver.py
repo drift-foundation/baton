@@ -258,9 +258,14 @@ def test_q_quits_from_browse_only(env):
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
 	state = _ready(store)
-	assert step(state, store, ord("q"), 100, 24) is False
+	# `q` in browse ASKS now rather than exiting, so the loop keeps running
+	# and the confirmation is what says the key was heard.
+	assert step(state, store, ord("q"), 100, 24) is True
+	assert state.mode == MODE_CONFIRM_QUIT
+	_press(state, store, ord("n"))
 	_press(state, store, K.ENTER_LF, ord("R"))
 	assert step(state, store, ord("q"), 100, 24) is True     # typing, not quitting
+	assert state.mode != MODE_CONFIRM_QUIT
 
 
 # -- the loop's own contract ----------------------------------------------
@@ -465,7 +470,11 @@ def test_q_requires_confirmation_when_a_claim_is_unresolved(env):
 	_press(state, store, K.ENTER_LF)                  # claim it
 	assert step(state, store, ord("q"), 100, 24) is True     # did NOT quit
 	assert state.mode == MODE_CONFIRM_QUIT
-	assert "still owe" in state.status
+	# ONE prompt, and the same one either way. It used to recite the
+	# outstanding count; the header and the list already carry that, and the
+	# prompt is now asked with nothing owed too.
+	from baton_tui.state import CONFIRM_QUIT_PROMPT
+	assert state.status == CONFIRM_QUIT_PROMPT
 	# Anything other than Y stays -- including Enter, hit reflexively.
 	assert step(state, store, K.ENTER_LF, 100, 24) is True
 	assert state.mode == MODE_BROWSE
@@ -475,16 +484,37 @@ def test_q_requires_confirmation_when_a_claim_is_unresolved(env):
 	assert step(state, store, ord("Y"), 100, 24) is False
 
 
-def test_q_quits_immediately_when_nothing_is_owed(env):
+def test_q_asks_even_when_nothing_is_owed(env):
+	"""RENAMED AND REVERSED. As `test_q_quits_immediately_when_nothing_is_owed`
+	it asserted that `q` exits at once with nothing outstanding -- which is
+	precisely the behaviour the always-confirm ruling removed. Two behaviours
+	behind one key means the human cannot know what `q` will do until after it
+	has done it, and the cheap case is the one where they are reading rather
+	than finishing work.
+
+	It now proves the prompt appears in the ZERO-claim case, and that
+	declining there does not instruct the reader to finish a claim they do not
+	have."""
+	from baton_tui.state import CONFIRM_QUIT_PROMPT
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
 	state = _ready(store)
-	assert step(state, store, ord("q"), 100, 24) is False
-	# And after resolving a claim, it quits again without asking.
+	assert state.unresolved_count() == 0
+	assert step(state, store, ord("q"), 100, 24) is True, "q exited without asking"
+	assert state.mode == MODE_CONFIRM_QUIT
+	assert state.status == CONFIRM_QUIT_PROMPT
+	# DECLINING with nothing owed must not instruct the human to finish a
+	# claim they do not have. That wording was the reason this case was worth
+	# writing down.
+	_press(state, store, ord("n"))
+	assert state.mode == MODE_BROWSE
+	assert "claim" not in state.status.lower(), state.status
+	# And it still asks after a claim has been resolved.
 	state = _ready(store)
 	_press(state, store, K.ENTER_LF, ord("c"))
 	assert state.unresolved_count() == 0
-	assert step(state, store, ord("q"), 100, 24) is False
+	assert step(state, store, ord("q"), 100, 24) is True
+	assert state.mode == MODE_CONFIRM_QUIT
 
 
 # -- gap 4: failures are visible status, not a teardown -------------------
@@ -4097,7 +4127,13 @@ def test_the_confirmation_footers_keep_their_exact_one_line_form(env):
 	_press(state, store, K.ENTER_LF)                  # a claim is now owed
 	_press(state, store, ord("q"))                    # quit asks
 	screen = render(state, 100, 24)
-	assert "QUIT WITH UNRESOLVED CLAIMS?" in screen[-2]
+	# ONE line now, in the status bar, like the other two confirmations. The
+	# second row restated the outstanding-claim count that the header and the
+	# list already carry -- and the prompt is asked with nothing owed too,
+	# where that row would have said "0".
+	from baton_tui.state import CONFIRM_QUIT_PROMPT
+	assert screen[-1].strip() == CONFIRM_QUIT_PROMPT
+	assert "QUIT WITH UNRESOLVED CLAIMS?" not in "\n".join(screen)
 	assert len(screen) == 24
 
 
@@ -4628,16 +4664,58 @@ def test_highlighting_an_unseen_notice_records_no_receipt(env):
 		"SELECT COUNT(*) FROM notice_seen").fetchone()[0] == 1
 
 
-def test_enter_stops_being_advertised_once_the_row_is_open(env):
-	"""Point 8: it would be a no-op, so the footer moves straight to what
-	works now."""
+def test_enter_is_still_offered_once_the_row_is_open(env):
+	"""REVERSED by the live trial, and this test is why the defect shipped.
+
+	It asserted that Enter stops being offered once highlighting has opened
+	the row, on the reasoning that opening again would be a no-op. Opening
+	again IS redundant; Enter is not. While LIST has focus it still performs
+	the separately ruled move into DETAIL, and gating the key on the open
+	verb meant the most ordinary sequence there is -- pause on a row until it
+	opens, then press Enter to read it -- left focus in the list.
+
+    Slawomir hit it in the packaged console. The contract said so in writing
+	the whole time."""
 	store = env
 	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
 	state = _ready(store)
 	_select(state, store)
+	assert state.focus == "list"
 	legend = _legend(state)
-	assert "Enter open" not in legend, legend
+	assert "Enter open" in legend, legend
 	assert "c close" in legend and "r reply" in legend
+
+
+def test_enter_after_the_dwell_opens_enters_the_detail_without_a_second_claim(env):
+	"""The exact live sequence: highlight a pending row, let the two-second
+	dwell claim and open it, then press Enter."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+	state = _ready(store)
+	_select(state, store)                       # dwell claims and opens
+	assert state.focus == "list"
+	before = store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0]
+	step(state, store, K.ENTER_LF, 100, 24)
+	assert state.focus == "detail", "Enter did not enter the detail pane"
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == before, \
+		"entering an already-open row claimed it again"
+
+
+def test_entering_an_open_row_touches_the_store_not_at_all(env):
+	""""Without another claim" is the ruled wording, and a reopen would also
+	be a second read of content already on screen. A store that refuses every
+	call proves it makes none."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+	state = _ready(store)
+	_select(state, store)
+
+	class Refusing:
+		def __getattr__(self, name):
+			raise AssertionError(f"entering an open row called store.{name}")
+
+	step(state, Refusing(), K.ENTER_LF, 100, 24)
+	assert state.focus == "detail"
 
 
 def test_detail_focus_navigation_still_claims_nothing(env):
@@ -5119,9 +5197,16 @@ def test_a_directed_compose_still_moves_between_its_fields(env):
 # -- TRIAL: a successful send returns focus to the list --------------------
 
 def _in_detail(state, store):
-	"""Focus DETAIL first, or the assertion afterwards proves nothing."""
-	_press(state, store, K.TAB)
+	"""Ensure focus is on DETAIL, or the assertion afterwards proves nothing.
+
+	Presses `Tab` only if focus is still in LIST. It used to press
+	unconditionally, which was fine when Enter did not move focus; now that
+	Enter enters DETAIL, an unconditional Tab toggles straight back out. A
+	fixture that ASSERTS the state it needs survives that kind of change; one
+	that counts keystrokes does not."""
 	from baton_tui.state import FOCUS_DETAIL
+	if state.focus != FOCUS_DETAIL:
+		_press(state, store, K.TAB)
 	assert state.focus == FOCUS_DETAIL, "the fixture never left the list"
 
 
@@ -6936,3 +7021,168 @@ def test_a_successful_sent_read_at_enter_still_focuses(env):
 	assert state.focus == "detail"
 	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == before, \
 		"reading your own outbound copy wrote something"
+
+
+# -- Esc leaves DETAIL for LIST (ruled) ------------------------------------
+
+def test_escape_returns_focus_to_the_list(env):
+    """Evidence 1. Esc is the way out of the detail pane, mirroring Enter as
+    the way in."""
+    store = env
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+    state = _ready(store)
+    _select(state, store)
+    step(state, store, K.ENTER_LF, 100, 24)
+    assert state.focus == "detail"
+    step(state, store, K.ESC, 100, 24)
+    assert state.focus == "list", "Esc did not leave the detail pane"
+
+
+def test_escape_preserves_every_piece_of_ui_state(env):
+    """Evidence 1's second half: a focus move that quietly reset the offsets,
+    the selection or the opened claim would be a different operation wearing
+    the same key."""
+    store = env
+    body = ("\n".join(f"line {i}" for i in range(90))).encode()
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="Long", body=body)
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="Other", body=b"x\n")
+    state = _ready(store)
+    _select(state, store)
+    step(state, store, K.ENTER_LF, 100, 24)
+    for _ in range(5):
+        _press(state, store, ord("j"))          # scroll the detail
+    before = (state.cursor, state.detail_offset, state.detail_hscroll,
+              state.part_cursor, dict(state.opened or {}), state.status,
+              state.selected["id"])
+    step(state, store, K.ESC, 100, 24)
+    after = (state.cursor, state.detail_offset, state.detail_hscroll,
+             state.part_cursor, dict(state.opened or {}), state.status,
+             state.selected["id"])
+    assert state.focus == "list"
+    assert before == after, "Esc disturbed state it was only supposed to defocus"
+
+
+def test_escape_from_the_detail_touches_the_store_not_at_all(env):
+    """Evidence 2, with a store that raises on any attribute access rather
+    than a count that could miss a read."""
+    store = env
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+    state = _ready(store)
+    _select(state, store)
+    step(state, store, K.ENTER_LF, 100, 24)
+
+    class Refusing:
+        def __getattr__(self, name):
+            raise AssertionError(f"leaving the detail called store.{name}")
+
+    step(state, Refusing(), K.ESC, 100, 24)
+    assert state.focus == "list"
+
+
+def test_escape_in_the_list_does_nothing(env):
+    """Evidence 3. Esc is the most reflexive key on a keyboard; in browse it
+    must never be the one that undoes something."""
+    store = env
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+    state = _ready(store)
+    _select(state, store)
+    assert state.focus == "list"
+    before = (state.cursor, dict(state.opened or {}), state.detail_offset,
+              state.status, state.mode)
+    step(state, store, K.ESC, 100, 24)
+    assert state.focus == "list"
+    assert (state.cursor, dict(state.opened or {}), state.detail_offset,
+            state.status, state.mode) == before
+
+
+def test_tab_is_still_the_reversible_toggle(env):
+    """Evidence 4. Esc is one-way OUT and Enter one-way IN; Tab keeps doing
+    both, which is how a reader reaches an unseen notice's pane without
+    consuming it."""
+    store = env
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+    state = _ready(store)
+    _select(state, store)
+    step(state, store, K.TAB, 100, 24)
+    assert state.focus == "detail"
+    step(state, store, K.TAB, 100, 24)
+    assert state.focus == "list"
+
+
+def test_escape_still_cancels_a_compose(env):
+    """Evidence 5. The new browse meaning must not reach the modal ones."""
+    store = env
+    state = _ready(store)
+    _press(state, store, ord("n"))
+    assert state.mode != MODE_BROWSE
+    _press(state, store, K.ESC)
+    assert state.mode == MODE_BROWSE, "Esc no longer cancels out of a modal flow"
+
+
+# -- `q` always asks (ruled) -----------------------------------------------
+
+@pytest.mark.parametrize("key,stays", [
+    (ord("y"), False), (ord("Y"), False),
+    (ord("n"), True), (ord("N"), True), (K.ENTER_LF, True), (K.ESC, True),
+    (ord("j"), True), (ord("?"), True),
+])
+def test_only_y_confirms_the_exit(env, key, stays):
+    """Evidence 3. `q` sits next to nothing on a keyboard and gets pressed by
+    reflex; every answer except an explicit yes has to mean stay."""
+    store = env
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+    state = _ready(store)
+    assert step(state, store, ord("q"), 100, 24) is True
+    assert state.mode == MODE_CONFIRM_QUIT
+    alive = step(state, store, key, 100, 24)
+    assert alive is stays, f"{chr(key) if key < 256 else key!r} did the wrong thing"
+    if stays:
+        assert state.mode == MODE_BROWSE, "declining left the console in the prompt"
+
+
+def test_confirming_asks_only_once(env):
+    """Evidence 2's second half: one confirmation, however many claims are
+    outstanding. A second warning would train the human to answer without
+    reading."""
+    store = env
+    for index in range(3):
+        store.send("acme.reviewer", "acme.implementer", kind="q",
+                   subject=f"S{index}", body=b"x\n")
+    state = _ready(store)
+    _select(state, store)
+    _press(state, store, ord("j"))
+    _press(state, store, ord("j"))
+    assert state.unresolved_count() >= 2
+    assert step(state, store, ord("q"), 100, 24) is True
+    assert step(state, store, ord("y"), 100, 24) is False, "a second prompt appeared"
+
+
+def test_the_whole_quit_path_touches_the_store_not_at_all(env):
+    """Evidence 5. Quitting is a decision about this process, not about the
+    mailbox."""
+    store = env
+    store.send("acme.reviewer", "acme.implementer", kind="q", subject="S", body=b"x\n")
+    state = _ready(store)
+    _select(state, store)
+
+    class Refusing:
+        def __getattr__(self, name):
+            raise AssertionError(f"the quit path called store.{name}")
+
+    assert step(state, Refusing(), ord("q"), 100, 24) is True
+    assert step(state, Refusing(), ord("n"), 100, 24) is True
+    assert step(state, Refusing(), ord("q"), 100, 24) is True
+    assert step(state, Refusing(), ord("y"), 100, 24) is False
+
+
+def test_q_still_closes_help(env):
+    """Evidence 6. In HELP, `q` closes the screen rather than starting a
+    quit; the new browse meaning must not reach it."""
+    from baton_tui.state import MODE_HELP
+    store = env
+    state = _ready(store)
+    _press(state, store, ord("?"))
+    assert state.mode == MODE_HELP
+    alive = step(state, store, ord("q"), 100, 24)
+    assert alive is True
+    assert state.mode == MODE_BROWSE, "q in help started a quit instead of closing"

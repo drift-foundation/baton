@@ -121,7 +121,7 @@ def build(root: str) -> dict:
 	# saying the same thing is how they stop agreeing.
 	manifest = {
 		"tool": "baton",
-		"tool_version": baton_core.TOOL_VERSION,
+		"release_version": baton_core.RELEASE_VERSION,
 		"protocol_version": baton_core.PROTOCOL_VERSION,
 		"python_min": "3.11",
 		"sqlite_min": ".".join(map(str, baton_core._impl.SQLITE_MIN)),

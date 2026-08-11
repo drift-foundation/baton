@@ -60,6 +60,11 @@ CARET_END = "caret_end"
 DELETE_FORWARD = "delete_forward"
 KILL_TO_START = "kill_to_start"
 TOGGLE_FOCUS = "toggle_focus"
+# Esc in BROWSE: leave DETAIL for LIST. A separate event from `TOGGLE_FOCUS`
+# because it is one-way, and from `CANCEL` because it cancels nothing -- Esc
+# keeps its modal meaning everywhere else, and one name for two meanings is
+# how a key ends up doing the wrong one.
+LEAVE_DETAIL = "leave_detail"
 HSCROLL_LEFT = "hscroll_left"
 HSCROLL_RIGHT = "hscroll_right"
 OPEN_HELP = "open_help"
@@ -110,6 +115,11 @@ _BROWSE = {
 	# have. Removed rather than aliased: a hidden spelling is a key only its
 	# author can press.
 	TAB: TOGGLE_FOCUS, SHIFT_TAB: TOGGLE_FOCUS,
+	# Esc is the way OUT of the detail pane, mirroring Enter as the way in.
+	# Tab/Shift-Tab stay: they are the reversible toggle, and Tab can enter
+	# DETAIL without opening -- which is how a reader reaches an unseen
+	# notice's pane without consuming it.
+	ESC: LEAVE_DETAIL,
 	ENTER_LF: OPEN, ENTER_CR: OPEN,
 	# `r` OPENS THE EDITOR. Slawomir's trial finding, and it supersedes the
 	# earlier pairing: the reply people actually write is a body in their
@@ -164,6 +174,8 @@ HELP_SECTIONS = (
 	("Browse the list", (
 		("Tab", "focus the list or the detail pane; navigation follows it",
 		 (TOGGLE_FOCUS,)),
+		("Esc", "leave the detail pane for the list; Enter is the way in and "
+		        "Tab still goes both ways", (LEAVE_DETAIL,)),
 		("j / k, arrows", "LIST focus: select — a directed message is CLAIMED "
 		                  "and opened; DETAIL focus: scroll one line", (UP, DOWN)),
 		("gg / G", "LIST: first / last row; DETAIL: top / bottom",
@@ -173,7 +185,7 @@ HELP_SECTIONS = (
 		("i / o", "MESSAGES / Sent filter", (VIEW_INBOX_KEY, VIEW_SENT_KEY)),
 		("Ctrl+r", "refresh now (it also polls every 2s)", (REFRESH,)),
 		("?", "this screen; q or Esc closes it", (OPEN_HELP, CLOSE_HELP)),
-		("q", "quit (asks if a claim is unresolved)", (QUIT,)),
+		("q", "quit — always asks first", (QUIT,)),
 	)),
 	("Read a message", (
 		# What Enter is still FOR. A directed row was claimed and opened when
@@ -234,7 +246,8 @@ HELP_SECTIONS = (
 		("r / R", "on an answered or sent row: a follow-up, in reference to "
 		          "it — a new message, never a second disposition", ()),
 		("c", "close: a terminal disposition — only while you hold the claim", (CLOSE,)),
-		("Y", "confirm quitting with a claim still owed", (CONFIRM, DECLINE)),
+		("y", "confirm quitting. `q` ALWAYS asks `Exit? y/N` first, whether or "
+		      "not a claim is owed; anything else stays", (CONFIRM, DECLINE)),
 	)),
 	# The one-cell status column, spelled out. It used to sit under every Sent
 	# row as a permanent glossary; it is reference, so it lives here and in

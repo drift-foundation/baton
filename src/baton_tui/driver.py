@@ -12,7 +12,7 @@ import sys
 
 from . import keys as K
 from .safe_text import pad, split_cells
-from .render import (STYLE_PART_HEADER, STYLE_SELECTED, detail_line_count, divider_for, input_line_index,
+from .render import (STYLE_OWED, STYLE_PART_HEADER, STYLE_SELECTED, detail_line_count, divider_for, input_line_index,
                      detail_overflow, help_line_count,
                      part_start_line_index, selection_span,
                      markers_for,
@@ -163,6 +163,11 @@ def step(state, store, key: int, columns: int, lines: int,
 		# help calls meaningless. Two predicates would drift.
 		name = _MODAL_AFFORDANCE.get(event) or _AFFORDANCE.get(event)
 		state.set_status(state.unavailable_reason(name), SEV_WARNING)
+	elif event == K.LEAVE_DETAIL:
+		# Ungated: it is a no-op in LIST by contract, and routing it through
+		# the affordance query would make Esc report "unavailable" for doing
+		# exactly what it is supposed to do there -- nothing.
+		state.leave_detail()
 	elif event == K.OPEN:
 		# Enter ENTERS the detail, ruled. Not `open_selected` directly: from
 		# LIST this is the forward half of the focus toggle, and it must
@@ -426,6 +431,11 @@ def run(stdscr, config_path: str, participant: str, poll_seconds: float = 2.0,
 					              thread=marks["thread"], deep=marks["deep"],
 					              notice_seen=marks["notice_seen"],
 					              status=marks["status"])):
+				# UNREAD EMPHASIS, composed into whatever else the row is.
+				# Not a branch of its own: an owed row can be selected, and a
+				# style that had to win an either/or would erase one of the two
+				# facts as the cursor passed over it.
+				owed = curses.A_BOLD if STYLE_OWED in style else 0
 				try:
 					if STYLE_PART_HEADER in style and STYLE_SELECTED not in style:
 						# Distinct from the inbox selection ON PURPOSE: the
@@ -434,7 +444,7 @@ def run(stdscr, config_path: str, participant: str, poll_seconds: float = 2.0,
 						# human who cannot tell them apart has two cursors
 						# that look like one. Bold+underline, not reverse.
 						stdscr.addnstr(row, 0, text, max(0, columns - 1),
-						               curses.A_BOLD | curses.A_UNDERLINE)
+						               curses.A_BOLD | curses.A_UNDERLINE | owed)
 					elif STYLE_SELECTED in style:
 						# The WHOLE ROW reversed. Stacked, a list row IS the
 						# full width, so the stripe no longer has to stop at a
@@ -449,9 +459,9 @@ def run(stdscr, config_path: str, participant: str, poll_seconds: float = 2.0,
 						end = min(end, budget)
 						head, _ = split_cells(text, end)
 						stdscr.addnstr(row, 0, pad(head, end), end,
-						               curses.A_REVERSE)
+						               curses.A_REVERSE | owed)
 					else:
-						stdscr.addnstr(row, 0, text, max(0, columns - 1))
+						stdscr.addnstr(row, 0, text, max(0, columns - 1), owed)
 				except curses.error:
 					pass          # a terminal shrinking mid-draw is not an error
 			# Cursor visible only while typing, and placed AT the input so the
@@ -572,23 +582,42 @@ def _input_position(state, columns: int, lines: int) -> tuple[int, int]:
 	return input_caret(state, columns, lines)
 
 
-def main(argv=None) -> int:  # pragma: no cover
+def build_parser():
+	"""The console's argument surface, split out of `main` so it can be tested
+	without a terminal.
+
+	`--version` has to answer before `--config`/`--participant` are enforced
+	and before any curses or store work, so it lives on a parser that can be
+	built and exercised on its own."""
 	import argparse
-	import curses
 
 	import baton_core as core
-	from . import TUI_VERSION, check_core_compatibility
 
 	parser = argparse.ArgumentParser(prog="baton-tui",
 	                                 description="Human console for a Baton instance")
 	parser.add_argument("--config", required=True, help="absolute path to baton.json")
 	parser.add_argument("--participant", required=True)
-	parser.add_argument("--version", action="version", version=f"baton-tui {TUI_VERSION}")
+	parser.add_argument("--version", action="version",
+	                    version=f"baton-tui {core.RELEASE_VERSION} "
+	                            f"(protocol {core.PROTOCOL_VERSION})",
+	                    help="print the release version and exit")
 	parser.add_argument(
 		"--editor",
 		help="editor for Ctrl-E, as a command line (no shell). Precedence: "
 		     "--editor, BATON_EDITOR, VISUAL, EDITOR, then vim.")
-	args = parser.parse_args(argv)
+	return parser
+
+
+def main(argv=None) -> int:  # pragma: no cover
+	# Parsed FIRST: `--version` and `--help` exit here, before curses is
+	# imported and before the core compatibility check runs.
+	args = build_parser().parse_args(argv)
+
+	import curses
+
+	import baton_core as core
+	from . import check_core_compatibility
+
 	check_core_compatibility(core)
 	from .editor import resolve_editor
 	curses.wrapper(run, args.config, args.participant, 2.0,

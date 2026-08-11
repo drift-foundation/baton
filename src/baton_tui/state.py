@@ -40,6 +40,10 @@ MODE_REPLY = "reply"
 MODE_COMPOSE = "compose"          # new directed message
 MODE_NOTICE = "notice"            # publish a broadcast
 MODE_CONFIRM_QUIT = "confirm_quit"
+# ONE LINE, and the capital names the safe default. `q` is next to nothing on
+# a keyboard and is pressed by reflex; the answer that loses nothing is the
+# one a stray Enter should give.
+CONFIRM_QUIT_PROMPT = "Exit? y/N"
 MODE_PICK_RECIPIENT = "pick_recipient"
 # Choosing the TRUST ANCHOR an attachment is named against. Its own mode,
 # not a flag on the recipient picker: the two choose different things and
@@ -691,6 +695,25 @@ class InboxState:
 			return
 		self.focus = FOCUS_DETAIL if self.focus == FOCUS_LIST else FOCUS_LIST
 
+	def leave_detail(self) -> None:
+		"""Esc in BROWSE: leave DETAIL for LIST. The way out, mirroring Enter.
+
+		PURE UI STATE. No store call, no claim, no receipt, no refresh, no
+		disposition, nothing written anywhere -- the selection, the opened
+		item, both offsets, the selected part, any draft and the status bar
+		all stay exactly as they were. The only thing that moves is which pane
+		the keys go to.
+
+		A no-op with LIST already focused, deliberately: Esc is the most
+		reflexive key on a keyboard, and in browse mode it must never be the
+		one that undoes something. Its modal meanings -- cancel a draft,
+		decline a confirmation, close help, dismiss a picker -- are untouched
+		and live in their own modes.
+		"""
+		if self.mode != MODE_BROWSE:
+			return
+		self.focus = FOCUS_LIST
+
 	def affordances(self) -> dict:
 		"""What is legal RIGHT NOW -- THE one source, read by both the footer
 		and key dispatch.
@@ -721,12 +744,25 @@ class InboxState:
 			# reading it here hid Enter in SENT whenever MESSAGES happened to
 			# be empty -- a selectable row on screen that the console refused
 			# to open, because the gate was asking about a different list.
-			# Once highlighting has already opened the row, `Enter` would be a
-			# no-op, so it stops being advertised -- the footer moves straight
-			# to what works now. An UNSEEN NOTICE still advertises it, because
+			# THIS AFFORDANCE IS ABOUT THE KEY, NOT THE VERB, and getting that
+			# wrong shipped a defect to a human trial: once the two-second
+			# dwell had opened a row, `_already_open` made this false, dispatch
+			# refused `K.OPEN` before `enter_selected` could run, and the most
+			# ordinary sequence there is -- pause on a row until it opens, then
+			# press Enter to read it -- left focus in LIST.
+			#
+			# "Opening again is redundant" is true. "Enter has nothing to do"
+			# does not follow: while LIST has focus, Enter still performs the
+			# separately ruled focus move into DETAIL. I called that swallowing
+			# correct in a progress note; the finding's already-open clause
+			# said otherwise in writing, and it was right.
+			#
+			# So the key is offered when EITHER opening is available or a pure
+			# focus transfer is. An UNSEEN NOTICE still advertises it, because
 			# there it is the explicit mark-seen action and nothing has
 			# consumed it yet.
-			"open": self.selected_in_view is not None and not self._already_open,
+			"open": self.selected_in_view is not None and (
+				not self._already_open or self._can_enter_detail),
 			# Close consumes a claim, so it needs one. Never a notice, never
 			# an outbound row, never a handled row, never the Sent view.
 			"close": claim is not None,
@@ -867,6 +903,16 @@ class InboxState:
 	@view_top.setter
 	def view_top(self, value: int) -> None:
 		setattr(self, self._TOPS[self.view], value)
+
+	@property
+	def _can_enter_detail(self) -> bool:
+		"""Whether Enter still has its PURE FOCUS action here.
+
+		Nothing to open, but somewhere to go: browse mode, LIST focus, and a
+		detail pane already showing this row's content. No store call, no
+		claim, no receipt -- the transfer is UI state and nothing else."""
+		return (self.mode == MODE_BROWSE and self.focus == FOCUS_LIST
+		        and self.detail is not None)
 
 	@property
 	def _already_open(self) -> bool:
@@ -1496,6 +1542,12 @@ class InboxState:
 		if self.mode != MODE_BROWSE:
 			return
 		self.dwell = None
+		# ALREADY OPEN: move focus and touch the store not at all. Reopening
+		# would be a second read of content already on screen, and the ruled
+		# contract says this transfer happens "without another claim".
+		if self._already_open:
+			self.focus = FOCUS_DETAIL
+			return
 		# THE OPEN REPORTS ITS OWN SUCCESS. Testing `self.detail is not None`
 		# was wrong in exactly one case, and it is the case that matters: on a
 		# LOST CLAIM RACE the open refreshes and PREVIEWS the row it could not
@@ -3043,24 +3095,32 @@ class InboxState:
 		self.help_offset = max(0, min(limit, self.help_offset + delta))
 
 	def request_quit(self) -> bool:
-		"""True to quit now. Unresolved claims force an explicit confirmation.
+		"""ALWAYS ask, exactly once. Never True on the first press.
 
-		Policy is that a claim is disposed immediately; a stray `q` silently
-		abandoning one is exactly the failure this console exists to prevent,
-		and reopen making it recoverable is not a reason to let it happen
-		quietly."""
-		if self.unresolved_count() == 0:
-			return True
+		It used to quit immediately when nothing was owed, and confirm only
+		with claims outstanding. Two behaviours behind one key means the human
+		cannot know what `q` will do until after it has done it -- and the
+		cheap case is the one where they are reading, not the one where they
+		are finishing work.
+
+		One prompt regardless of how many claims are outstanding. Their count
+		is already on the header and in the list; a confirmation that
+		restates it is a second row saying what the first said.
+
+		No store call on request, decline or confirm: quitting is a decision
+		about this process, not about the mailbox."""
 		self.mode = MODE_CONFIRM_QUIT
-		self.set_status(f"{self.unresolved_count()} claim(s) still owe a reply or "
-		                f"close — press Y to quit anyway, any other key to stay",
-		                SEV_WARNING)
+		self.set_status(CONFIRM_QUIT_PROMPT, SEV_WARNING)
 		return False
 
 	def confirm_quit(self, confirmed: bool) -> bool:
 		self.mode = MODE_BROWSE
 		if not confirmed:
-			self.set_status("staying — finish or close the open claim", SEV_INFO)
+			# GENERIC on purpose. The old wording told the human to "finish or
+			# close the open claim", which is an instruction to do something
+			# that may not exist: with nothing owed it named a claim the
+			# reader did not have.
+			self.set_status("staying", SEV_INFO)
 		return confirmed
 
 	# -- what the renderer needs to know ----------------------------------

@@ -39,7 +39,16 @@ EXIT_DAMAGE = 6
 EXIT_GATED = 7
 
 PROTOCOL_VERSION = 10
-TOOL_VERSION = "6.0.0"
+
+# THE release version of the Baton project, `major.minor.patch`. One
+# declaration, reported unchanged by both executables: `baton --version` and
+# `baton-tui --version` name themselves and then this number, so a human is
+# never told two versions for one release. It is deliberately separate from
+# PROTOCOL_VERSION, which is the on-disk contract and moves on its own.
+#
+# The pre-release CLI counted its own tool revisions to 6.0.0 while the console
+# was still 0.2.0; the first public release retires both of those numbers.
+RELEASE_VERSION = "1.0.0"
 SQLITE_MIN = (3, 37, 0)  # STRICT tables
 BUSY_TIMEOUT_MS = 10_000
 TRANSIENT_BODY_MAX_BYTES = 64 * 1024
@@ -6318,7 +6327,8 @@ def _build_parser():
 		prog="baton", description="Portable coordination over one transactional authority")
 	parser.add_argument("--config", help="absolute path to the instance baton.json")
 	parser.add_argument("--version", action="version",
-	                    version=f"baton {TOOL_VERSION} (protocol {PROTOCOL_VERSION})")
+	                    version=f"baton {RELEASE_VERSION} (protocol {PROTOCOL_VERSION})",
+	                    help="print the release version and exit")
 	sub = parser.add_subparsers(dest="command", required=True)
 
 	def cmd(name, **kwargs):

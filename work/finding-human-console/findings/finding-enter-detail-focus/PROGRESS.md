@@ -93,3 +93,53 @@ property.
 
 Break-checked: restoring the unconditional `return True` fails the first by
 name.
+
+## 2026-08-10 — live-trial defect corrected
+
+State: **corrected, pending re-review.** 2282 passed. `bin/baton-tui` rebuilt.
+
+The defect and my part in it:
+
+`affordances()["open"]` was false once `_already_open` was true, and dispatch
+refuses a key whose affordance is false — so `enter_selected` never ran after
+the dwell had opened a row, and the most ordinary sequence in the console
+(pause on a message until it opens, press Enter to read it) left focus in the
+list.
+
+**I recorded that behaviour as correct.** When my seen-notice regression hit
+this gate, I wrote that pressing Enter again "cannot test it because the row
+is already open, so the key is correctly swallowed" and built the test around
+the obstacle. The finding's already-open clause said the opposite in writing —
+"reopen or retain its detail and focus it without another claim" — and I read
+past it because the gate's own comment offered a reason that sounded right.
+
+"Opening again is redundant" is true. "Enter has nothing to do" does not
+follow.
+
+The fix, in two parts:
+
+- the affordance now offers the key when EITHER opening is available or a pure
+  focus transfer is: browse mode, LIST focus, detail already showing this
+  row. One predicate still serves dispatch and the legend, so they cannot
+  drift;
+- `enter_selected` returns early on an already-open row: focus moves, and the
+  store is not called at all. "Without another claim" is the ruled wording,
+  and a reopen would also be a second read of what is already on screen.
+
+Evidence:
+
+- `test_enter_after_the_dwell_opens_enters_the_detail_without_a_second_claim`
+  — the exact live sequence, with a claim count either side;
+- `test_entering_an_open_row_touches_the_store_not_at_all` — driven with a
+  store that raises on any attribute access, so "makes no call" is proved
+  rather than asserted;
+- `test_enter_is_still_offered_once_the_row_is_open` — REPLACES the test that
+  pinned the wrong rule, and says so in its docstring;
+- a packaged PTY regression that waits out the real two seconds and then
+  presses Enter, because every in-process test passed while the packaged
+  console was broken.
+
+`_in_detail` in the driver suite pressed `Tab` unconditionally to reach the
+detail pane; with Enter now entering, that toggled straight back out. It
+asserts the state it needs and presses `Tab` only if required — a fixture
+that counts keystrokes does not survive a keystroke changing meaning.

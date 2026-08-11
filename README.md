@@ -339,6 +339,14 @@ spend a cell repeating an answer you can read in full one pane down.
 Where the terminal cannot draw them, `•○▷▶✓` fall back to `*`, `o`, `Q`, `P`
 and `D`. That is a fallback spelling, not the notation.
 
+Rows you still owe are **bold**, the way unread mail is bold: an incoming
+directed message stays bold until you reply to it or close it — opening it is
+not answering it — and a notice stays bold until you have seen it. Messages you
+sent are never bold; work waiting on someone else is their move. The emphasis
+is a reading of state the row already has, so drawing it claims nothing and
+writes nothing, and it survives the selection highlight rather than
+disappearing under your cursor.
+
 The panes themselves carry message content and nothing else. The bottom row is
 a single status line reporting what the console did; `?` opens the full
 shortcut and lifecycle reference, and this file carries the same notation.
@@ -350,6 +358,21 @@ The TUI and agent CLI are separate artifacts built from the same shared
 both. They ship independently: the console declares the core API version it
 was built against, which lets it move on its own cadence while the wire
 contract moves on the protocol's.
+
+## Version
+
+Both executables answer `--version` offline — no config, no terminal, no
+participant, no authority, no store:
+
+    $ baton --version
+    baton 1.0.0 (protocol 10)
+    $ baton-tui --version
+    baton-tui 1.0.0 (protocol 10)
+
+The release version is `major.minor.patch` and is SHARED: the tool and the
+console never report different numbers for the same release. The protocol
+version in parentheses is the separate on-disk contract and moves on its own,
+so compatibility stays distinguishable from the release number.
 
 ## Minimum requirements
 
@@ -700,7 +723,7 @@ not return one convenient file at a time.
 
 `just build` invokes `tools/build_zipapp.py` to build the canonical
 deterministic `bin/baton` zipapp and refresh `dist/DISTRIBUTION.json`
-(tool/protocol versions, minimum runtime versions, artifact hash).
+(release/protocol versions, minimum runtime versions, artifact hash).
 `python3 tools/build_zipapp.py [outdir]` remains available when building into
 another distribution root. Same inputs, same bytes. A distribution root is
 self-contained: building into one copies `docs/AGENTS-MAILBOX-PROTO.md` there

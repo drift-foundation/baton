@@ -1006,7 +1006,9 @@ def test_the_packaged_console_returns_focus_to_messages_after_a_close(tmp_path):
 		# close below would prove nothing.
 		(b"\r", 0.6),        # open, claim, and focus the detail pane
 		(b"c", 0.8),         # close
-		(b"q", 0.5),
+		# `qy`: `q` ALWAYS asks now, whether or not a claim is owed, so a bare
+		# `q` leaves the console running at the prompt.
+		(b"qy", 0.5),
 	])
 	assert status == 0, transcript[-2000:]
 	after_open = _replay(steps[0])
@@ -1130,3 +1132,171 @@ def test_the_packaged_console_draws_the_selected_part_footer(tmp_path):
 	below = [line for line in screen[footer_row + 1:] if line.strip()]
 	assert below, "nothing below the footer; the status bar was displaced"
 	assert not any("parts)" in line for line in below)
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_console_enters_the_detail_after_the_dwell_opens_a_row(tmp_path):
+    """THE LIVE DEFECT, on the artifact it was reported against.
+
+    Slawomir paused on a directed row until the two-second dwell claimed and
+    opened it, pressed Enter to read the body, and stayed in the list. Every
+    in-process test passed, because the gate that refused the key sat in
+    dispatch and the model-level tests called `enter_selected` directly or
+    pressed Enter before the dwell had opened anything.
+
+    So this waits out the real dwell first, which is the state that made the
+    key unreachable.
+    """
+    config_path, _proj = _instance(tmp_path)
+    transcript, status, steps = _packaged_console(tmp_path, config_path, [
+        (b"", 2.4),          # let the startup dwell claim and open the row
+        (b"\r", 0.8),        # Enter: must move focus into DETAIL
+        (b"qY", 0.5),
+    ])
+    assert status == 0, transcript[-2000:]
+    after_dwell = _replay(steps[0])
+    after_enter = _replay(steps[1])
+    # Before Enter the focus marker is on MESSAGES; after it, on the detail
+    # rule. `> Messages:` is the list-focused header.
+    assert any(line.startswith("> Messages:") for line in after_dwell), \
+        f"the dwell did not leave focus in the list: {after_dwell[:3]}"
+    assert not any(line.startswith("> Messages:") for line in after_enter), \
+        "Enter left focus in the list on the packaged console"
+    assert any(line.startswith("> ") and _pty_is_rule(line) for line in after_enter), \
+        f"Enter did not focus the detail pane: {after_enter[-6:]}"
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_console_leaves_the_detail_on_escape(tmp_path):
+    """Evidence 7, on the artifact Slawomir tests.
+
+    Esc is delivered as a bare `\\x1b`, which is also the prefix of every
+    arrow-key sequence — so this is a case a pure model test cannot reach:
+    only a real terminal proves the key arrives as Esc rather than being
+    swallowed while the reader waits for a sequence tail.
+    """
+    config_path, _proj = _instance(tmp_path)
+    transcript, status, steps = _packaged_console(tmp_path, config_path, [
+        (b"", 2.4),          # the dwell claims and opens the row
+        (b"\r", 0.6),        # Enter: into DETAIL
+        (b"\x1b", 0.6),      # Esc: back to LIST
+        (b"qY", 0.5),
+    ])
+    assert status == 0, transcript[-2000:]
+    after_enter = _replay(steps[1])
+    after_escape = _replay(steps[2])
+    assert not any(line.startswith("> Messages:") for line in after_enter), \
+        "the fixture never reached the detail pane; the Esc proves nothing"
+    assert any(line.startswith("> Messages:") for line in after_escape), \
+        "Esc did not return focus to the list on the packaged console"
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_console_asks_before_exiting_with_nothing_owed(tmp_path):
+    """Evidence 9, the zero-claim half — the case that used to exit at once.
+
+    Driven on the artifact because that is where the old behaviour was
+    reported and where the new one has to be true.
+    """
+    config_path, _proj = _instance(tmp_path)
+    transcript, status, steps = _packaged_console(tmp_path, config_path, [
+        (b"q", 0.6),         # asks, even with nothing owed
+        (b"n", 0.4),         # decline: still running
+        (b"qy", 0.6),        # ask again, confirm
+    ])
+    assert status == 0, transcript[-2000:]
+    asked = _replay(steps[0])
+    assert any("Exit? y/N" in line for line in asked), \
+        f"the packaged console did not ask: {asked[-3:]}"
+    declined = _replay(steps[1])
+    assert not any("Exit? y/N" in line for line in declined), \
+        "declining left the prompt on screen"
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_console_asks_once_with_a_claim_owed(tmp_path):
+    """Evidence 9, the unresolved half: the SAME one-line prompt, and only
+    one of them."""
+    config_path, _proj = _instance(tmp_path)
+    transcript, status, steps = _packaged_console(tmp_path, config_path, [
+        (b"", 2.4),          # the dwell claims a row, so a claim is owed
+        (b"q", 0.6),
+        (b"y", 0.6),         # one confirmation is enough to exit
+    ])
+    assert status == 0, transcript[-2000:]
+    asked = _replay(steps[1])
+    assert any("Exit? y/N" in line for line in asked), asked[-3:]
+    assert not any("QUIT WITH UNRESOLVED CLAIMS?" in line for line in asked), \
+        "the superseded two-row prompt is still drawn"
+
+
+# -- incoming work stays bold, on the PACKAGED console ---------------------
+
+def _bold_text(text):
+	"""The visible text drawn while SGR 1 was in effect.
+
+	Same run-parsing as `_highlighted_text`, against bold rather than reverse.
+	ncurses emits combined parameters (`ESC[0;1m`), so the parameter is split
+	out rather than substring-matched -- a bare `ESC[1m` search reports "no
+	emphasis" on a console that is emphasising correctly.
+
+	`22` is bold-off; `0` and an empty parameter list reset everything. `7`
+	does NOT clear bold: a selected owed row is drawn bold AND reversed, and
+	treating reverse as a reset would lose exactly the composition this
+	rule exists to preserve."""
+	out = []
+	bold_on = False
+	position = 0
+	for match in _REVERSE_RUN.finditer(text):
+		if bold_on:
+			chunk = text[position:match.start()]
+			visible = "".join(c for c in chunk if c.isprintable()).strip()
+			if visible:
+				out.append(visible)
+		params = match.group(0)[2:-1].split(";")
+		if "1" in params:
+			bold_on = True
+		elif "" in params or "0" in params or "22" in params:
+			bold_on = False
+		position = match.end()
+	return out
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_owed_rows_are_bold_on_the_packaged_console(tmp_path):
+	"""Evidence 8: the attribute transition, observed on the rebuilt zipapp.
+
+	Two launches rather than a scripted close, because what has to be proven
+	is that the EMPHASIS follows the obligation -- and driving `c` through its
+	confirmation would put the console's close path in the middle of a test
+	about how a row is drawn."""
+	config_path, _ = _instance(tmp_path)
+	sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+	import baton_core as core
+
+	with core.open_instance(config_path) as store:
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject="OwedSubject", body=b"x\n")
+		mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+		                 subject="HandledSubject", body=b"x\n")
+		claim = store.claim("acme.implementer", message_id=mid)
+		store.close_claim(claim["claim_id"], participant="acme.implementer",
+		                  outcome="done")
+
+	first, _, _ = _packaged_console(tmp_path, config_path, [(b"qy", 0.6)])
+	bold = " ".join(_bold_text(first))
+	assert "OwedSubject" in bold, bold
+	# The control, in the SAME transcript: the rule distinguishes rows rather
+	# than emboldening the list.
+	assert "HandledSubject" not in bold, bold
+
+	# Answer it out of band, relaunch, and the emphasis is gone.
+	with core.open_instance(config_path) as store:
+		owed = next(m["id"] for m in store.list_messages("acme.implementer")
+		            if m.get("subject") == "OwedSubject")
+		claim = store.claim("acme.implementer", message_id=owed)
+		store.close_claim(claim["claim_id"], participant="acme.implementer",
+		                  outcome="done")
+
+	second, _, _ = _packaged_console(tmp_path, config_path, [(b"qy", 0.6)])
+	assert "OwedSubject" not in " ".join(_bold_text(second)), second[-400:]
