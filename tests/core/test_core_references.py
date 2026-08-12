@@ -6,10 +6,17 @@ publish a references-typed leaf with no checking at all. What is pinned here
 is the behaviour of the optional convenience — reaching for it is a request to
 be checked, which is the difference between a convenience and an alias.
 
-`work/finding-mailbox-conventions` §1 says a reference that resolves on only
-one machine is not a reference. These pin that sentence where the convenience
-applies it: what travels, what is refused, and — the part that is easy to get
-wrong — what is deliberately NOT checked.
+`docs/AGENTS-MAILBOX-PROTO.md`, section "File references travel as their own
+part", says a reference that resolves on only one machine is not a reference.
+These pin that sentence where the convenience applies it: what travels, what
+is refused, and — the part that is easy to get wrong — what is deliberately
+NOT checked.
+
+(That sentence used to be cited from the ephemeral finding folder where it was
+first written, which has since been removed. A permanent test citing a path
+designed to disappear is the same mistake as a permanent test READING one, one
+step less severe: the rule's durable owner is the protocol document, and that
+is what this now names.)
 
 (This header previously said the convention was "enforced rather than
 described", which contradicted the implemented split and the module it tests.

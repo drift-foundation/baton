@@ -66,6 +66,39 @@ Awaiting the reviewer's withdrawal and reconciliation clearance. After it:
 Slawomir's human `just deploy DEST 1.1.0`, then soak and testing, then the RC
 gate. No agent opens any of those.
 
+## Finding-folder cleanup — 2026-08-12
+
+Nine closed finding folders were removed from the filesystem after commit
+`f20d5b2`: `finding-agent-wakeup`, `finding-attach-part-default-type`,
+`finding-cli-read-authority`, `finding-effective-baton-guide`,
+`finding-mailbox-conventions`, `finding-subject-normalization`,
+`finding-project-layout`, `finding-release-version`, and
+`finding-scoped-audiences` with its notice-scope-picker child. Each had its
+resolution in `f20d5b2` or earlier, an approved or explicitly resolved
+outcome, no open child, and no runtime dependency. Git holds every one of
+them; nothing was staged, committed or otherwise touched in Git.
+
+Two blockers stopped a wider sweep, both reported to the reviewer rather than
+worked around:
+
+- `finding-human-console` and its whole child tree STAY. `tests/packaging/
+  test_docs_consistency.py` READS `work/finding-human-console/{FINDING,PLAN,
+  TRIAL}.md` at runtime, so deleting the folder breaks the suite. That is the
+  exact dependency `AGENTS.md` forbids — a permanent test resting on an
+  ephemeral finding path — and clearing it needs a source/test change that
+  this cleanup was not authorized to make.
+- `finding-protocol-10-umbrella` STAYS. Its `BULK-TRASH.md` carries
+  Slawomir's original bulk-selection rulings (`x`/`#`/`A`, the damaged glyph
+  moving to `~`, Trash restorable until an explicit Empty Trash) which the
+  retained protocol-11 bulk-archive owner does not restate, and its
+  `POST-CUTOVER-AUDIT.md` is a live index of what remained after cutover.
+
+One loose end I could not fix here: `tests/core/test_core_references.py` cites
+`work/finding-mailbox-conventions` in prose. The test does not read the path
+and passes, but the citation now dangles. The rule it quotes lives in
+`docs/AGENTS-MAILBOX-PROTO.md` § "File references travel as their own part",
+which is where the comment should point.
+
 ## Standing constraints
 
 Frozen 1.0 binaries, manifests and the live authority/config remain untouched;

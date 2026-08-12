@@ -4,9 +4,12 @@
    1.1.0, protocol 10, `examples/baton.json` included, editor-exit
    confirmation and whole-message save required; bulk archive deferred to
    protocol 11; polling reliability deferred.
-2. **Audit and authorize 1.0 finding cleanup** — cleanup/reconciliation is
-   authorized as needed, but deletion waits for a deliberate Git-owned pass
-   after current 1.1 work lands.
+2. **Audit and authorize 1.0 finding cleanup** — **partially complete
+   2026-08-12**. Nine audited folders are removed in the current filesystem
+   change. Correct the dangling durable-doc citation before sign-off. Retain
+   `finding-human-console` until its permanent test dependency is moved or
+   retired, and retain `finding-protocol-10-umbrella` until its still-live
+   decision provenance and cutover index have an explicit owner.
 3. **Establish isolation** — **ruled 2026-08-11**. No branch gate. Continue
    source work here; keep frozen 1.0 artifacts/manifests untouched and build
    candidates in scratch roots.

@@ -109,6 +109,30 @@ committed by Slawomir. Do not delete them merely because they appear in this
 list. Durable policy, product tests, and user documentation already stand
 outside the folders.
 
+## Cleanup audit correction — 2026-08-12
+
+The deliberate cleanup audit supersedes the eligibility claim above for two
+folders. `finding-human-console` is not removable while
+`tests/packaging/test_docs_consistency.py` reads its `FINDING.md`, `PLAN.md`,
+and `TRIAL.md` as normative test inputs. That permanent dependency on an
+ephemeral finding violates the repository policy and must be moved to a
+durable owner or deliberately retired before the finding can close.
+
+`finding-protocol-10-umbrella` is also not removable yet. Its `BULK-TRASH.md`
+still preserves Slawomir's chronological bulk-selection and recoverable-Trash
+rulings, and `POST-CUTOVER-AUDIT.md` remains the live cutover index. The
+applicable history must first be carried into its durable or currently open
+owner with later Archive/protocol-11 rulings explicitly marked as
+supersessions rather than silently replacing the earlier decisions.
+
+Nine other audited folders were removed after commit `f20d5b2`; the exact
+scope and verification are recorded in
+`review-2026-08-12T14-41-51Z.md`. One non-behavioral follow-up remains:
+`tests/core/test_core_references.py` must replace its prose citation to the
+removed `finding-mailbox-conventions` with the durable owner,
+`docs/AGENTS-MAILBOX-PROTO.md` section "File references travel as their own
+part".
+
 ## Recommended release scope
 
 ### Required 1.1 release mechanics
