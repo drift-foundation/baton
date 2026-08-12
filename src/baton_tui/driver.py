@@ -34,6 +34,7 @@ _AFFORDANCE = {
 	# `begin_reply` -- which is precisely the drift one query exists to stop.
 	K.EDIT_BODY: "reply",
 	K.MATERIALIZE: "materialize", K.READ_PART: "read_part",
+	K.SAVE_MESSAGE: "save_message",
 	K.PART_UP: "part_nav", K.PART_DOWN: "part_nav",
 	K.HSCROLL_LEFT: "hscroll", K.HSCROLL_RIGHT: "hscroll",
 }
@@ -236,6 +237,30 @@ def step(state, store, key: int, columns: int, lines: int,
 		state.delete_forward()
 	elif event == K.KILL_TO_START:
 		state.kill_to_start()
+	elif event == K.SCOPE_TYPE:
+		state.scope_type(payload)
+	elif event == K.SCOPE_BACKSPACE:
+		state.scope_backspace()
+	elif event == K.SCOPE_CLEAR:
+		state.scope_clear()
+	elif event == K.SCOPE_COMPLETE:
+		state.scope_complete()
+	elif event == K.SCOPE_ACCEPT:
+		state.submit_scope()
+	elif event == K.SCOPE_CANCEL:
+		state.cancel_scope()
+	elif event == K.SEARCH:
+		state.begin_search()
+	elif event == K.SEARCH_TYPE:
+		state.search_type(payload)
+	elif event == K.SEARCH_BACKSPACE:
+		state.search_backspace()
+	elif event == K.SEARCH_CLEAR:
+		state.search_clear()
+	elif event == K.SEARCH_ACCEPT:
+		state.accept_search()
+	elif event == K.SEARCH_CANCEL:
+		state.cancel_search()
 	elif event == K.OPEN_HELP:
 		state.open_help()
 	elif event == K.CLOSE_HELP:
@@ -244,6 +269,18 @@ def step(state, store, key: int, columns: int, lines: int,
 		state.backspace()
 	elif event == K.MATERIALIZE:
 		state.materialize_selected_part(store)
+	elif event == K.SAVE_MESSAGE:
+		state.begin_save_message()
+	elif event == K.SAVE_PATH_TYPE and payload:
+		state.save_path_type(payload)
+	elif event == K.SAVE_PATH_BACKSPACE:
+		state.save_path_backspace()
+	elif event == K.SAVE_PATH_CLEAR:
+		state.save_path_clear()
+	elif event == K.SAVE_PATH_ACCEPT:
+		state.accept_save_path(store)
+	elif event == K.SAVE_PATH_CANCEL:
+		state.cancel_save_path()
 	elif event == K.READ_PART:
 		state.read_selected_external_part(store)
 	elif event in (K.HSCROLL_LEFT, K.HSCROLL_RIGHT):
@@ -283,15 +320,28 @@ def step(state, store, key: int, columns: int, lines: int,
 				# hybrid model that was rejected.
 				if not state.begin_reply():
 					return True
-				if not state.edit_body_externally(edit_fn):
+				outcome = state.edit_body_externally(edit_fn)
+				if outcome == state.EDIT_IMPORTED:
+					# STRAIGHT TO THE QUESTION. The edit is finished when the
+					# editor exits; making the human press Enter to be asked
+					# whether to send is a keystroke that carries no decision.
+					state.arm_send_after_import()
+				elif outcome == state.EDIT_NONE:
 					# The one action did nothing, so put the human back where
 					# it started: reading the message they were reading. The
 					# editor's own explanation stays in the status bar.
 					state.abandon_fresh_reply()
+				# EDIT_EMPTY keeps the draft. Deleting the body is a DECISION,
+				# not a cancellation: throwing the reply away would discard the
+				# inherited subject and the context they chose, and it would
+				# make "I emptied it" indistinguishable from "I never opened
+				# the editor" -- which is how the subject-only shorthand got
+				# sent in place of a body the human deliberately removed.
 			else:
 				# Ctrl-E inside an existing composition: the draft is theirs
 				# and survives whatever the editor did.
-				state.edit_body_externally(edit_fn)
+				if state.edit_body_externally(edit_fn) == state.EDIT_IMPORTED:
+					state.arm_send_after_import()
 	elif event in (K.VIEW_INBOX_KEY, K.VIEW_SENT_KEY):
 		# A view switch ESTABLISHES the destination view's highlighted row,
 		# exactly as startup does -- so it goes through the same semantic
@@ -308,7 +358,11 @@ def step(state, store, key: int, columns: int, lines: int,
 		state.select_view(VIEW_INBOX if event == K.VIEW_INBOX_KEY else VIEW_SENT)
 		state.select_row(store)
 	elif event == K.COMPOSE_NOTICE:
-		state.begin_compose(notice=True)
+		# AUDIENCE FIRST. `N` used to enter the composer directly, which is
+		# why every console-authored notice went to everyone: there was no
+		# moment at which the human was asked, so the answer was always the
+		# default.
+		state.begin_pick_scope(store)
 	elif event == K.NEXT_FIELD:
 		state.compose_next_field(1)
 	elif event == K.PREV_FIELD:

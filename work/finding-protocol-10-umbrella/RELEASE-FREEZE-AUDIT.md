@@ -56,11 +56,21 @@ into one future boundary:
    as a first-class protocol event);
 7. presence leases.
 
-These improve workflow visibility and inbox ergonomics. None repairs a known
-protocol-10 data-integrity, authorization, delivery, or queue-liveness failure.
-They therefore do not block the cross-team release. Their older findings may
-still say “protocol 10”; `POST-CUTOVER-AUDIT.md` is the later authoritative
-sorting: protocol 10 is live, so these are protocol-11 candidates.
+**Extended 2026-08-11; the earlier seven-item completeness is superseded.**
+Slawomir added an eighth protocol-11 boundary item: remove protocol 10's
+external hash-pinned `--attach` contract and use references whose targets may
+float, change, or disappear without damaging a delivery or the authority.
+Git commit-addressed references are a design candidate, not yet a ruling.
+`work/finding-protocol-11-reference-semantics/` owns the decision and open
+design.
+
+Items 1–7 improve workflow visibility and inbox ergonomics; item 8 corrects
+the external-reference promise at the next clean compatibility boundary. None
+repairs a known protocol-10 data-integrity, authorization, delivery, or
+queue-liveness failure. They therefore do not block the cross-team release.
+Their older findings may still say “protocol 10”; `POST-CUTOVER-AUDIT.md` plus
+the dated item-8 extension above are the later authoritative sorting: protocol
+10 is live, so these are protocol-11 candidates.
 
 The one product limitation worth stating publicly is item 6: materialization
 and reread are audience-authorized now, but the read itself is not stored as a

@@ -640,6 +640,16 @@ carries and none can use.
   back must not have the subject line sent in its place: that is a different
   message from the one they set out to write.
 
+### External-editor send transition supersession — 2026-08-11
+
+The sentence above saying “The ordinary Enter and `Send now? [Y/n]` still
+stand” is **superseded only for the post-editor transition**. After a successful
+non-empty body import, the console enters the existing send confirmation
+immediately; it does not require another Enter merely to ask the question.
+Editor exit still never publishes: one explicit Enter/`y` at the confirmation
+is required. Cancel/error/empty editor outcomes do not arm send. The owning
+child is `findings/finding-editor-send-confirmation/`.
+
 ## 10. The console never rewrites what the human typed
 
 The core rejects a subject with leading or trailing whitespace deliberately,

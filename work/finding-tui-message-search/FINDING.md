@@ -1,7 +1,8 @@
 # `/` cannot search retained messages
 
-Status: **queued, lower priority**. Do not interrupt the active final
-pre-release protocol/schema triage.
+Status: **current MESSAGES/Sent source signed off in append-only review
+`review-2026-08-11T17-33-45Z`; Archived-view integration and Slawomir's human
+trial remain 1.1 release gates.**
 
 ## User request — 2026-08-10
 
@@ -78,3 +79,67 @@ When scheduled, cover at least:
 
 Do not implement from this first capture without resolving the open search
 scope and interaction decisions against the then-current TUI.
+
+## Confirmed resolution and implementation — 2026-08-11
+
+The “Open UX and product decisions” section above is resolved for v1 and is no
+longer actionable:
+
+- metadata only: author/other party and subject; no body search;
+- case-insensitive literal substring using `casefold`, never regex;
+- filter the active list in place, including Sent;
+- typing filters incrementally; Enter keeps the filter; `/` then Esc clears it;
+- filtering, navigation, refresh, and cancellation remain read-only and
+  preserve claims, unseen notices, obligations, and row identity.
+
+The implementation and focused/PTY coverage exist in the working tree. It has
+not changed the released 1.0.0 binaries. Before inclusion it still needs a
+durable append-only independent review record, human trial, and the isolated
+next-generation build/deployment gate.
+
+## Human-trial sequencing — 2026-08-11
+
+Slawomir wants to try search himself from the deployed 1.1 candidate before
+clearing the release. Independent source/focused/PTY review happens before the
+candidate build; the human trial is then recorded from the versioned deployed
+tree during the soak. Human trial is not a prerequisite to building the thing
+that must be tried, but remains a prerequisite to final release clearance.
+
+## Independent review state — 2026-08-11
+
+`review-2026-08-11T16-48-36Z.md` requests changes. Incremental filtering and
+Sent refresh currently restore `sent_cursor` through `_all_sent_rows`/the raw
+unfiltered result even though the cursor indexes the filtered `sent_rows`
+view. The focused tests pass but omit that index boundary. Correct by captured
+row identity in the filtered view, add narrowing/refresh/cancel regressions,
+and obtain a new append-only approval before candidate build.
+
+## Archived-view inclusion — 2026-08-11
+
+Slawomir confirmed that search includes archived entries. When the 1.1 Archive
+feature lands, `/` applies to Archived with the same metadata-only literal
+`casefold()` filter, identity preservation, refresh behavior, and no-read/no-
+claim/no-receipt boundary as MESSAGES. The active-view filter model remains:
+Archived search filters archived rows in place, while MESSAGES continues to
+hide them until restored. The Archive finding owns the view lifecycle and
+acceptance coverage; this finding continues to own the shared search
+semantics.
+
+## Independent re-review state — 2026-08-11
+
+`review-2026-08-11T17-24-04Z.md` accepts the filtered Sent capture and refresh
+correction but requests one test-fixture fix. The synthetic recipient
+`acme.reviewer` itself matches the first query character `m`, so the leading
+subject row is never filtered out and a restored `_all_sent_rows` capture does
+not fail the intended incremental regression. Use a nonmatching recipient (or
+equivalent query), assert the first narrowing removed the leading row, prove
+the deliberate break fails, and return for append-only sign-off.
+
+## Source sign-off — 2026-08-11
+
+`review-2026-08-11T17-33-45Z.md` signs off the current MESSAGES/Sent source.
+The fixture now uses a nonmatching other party, asserts the first narrowing
+actually removed the leading row, and fails under a restored full-list capture
+exactly at the wrong-row jump. Archived-view integration remains open under
+`work/finding-tui-bulk-select-trash/`, and the deployed-candidate human trial
+remains required before release clearance.

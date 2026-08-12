@@ -27,11 +27,16 @@ Before joining normal work, verify the released executable and authority:
     "$BATON_BIN" --config "$BATON_CONFIG" doctor
 
 Config changes take effect only through the audited `regen` ceremony. An
-administrator with the `config` capability writes the new config at the same
-path with `generation` incremented by exactly one, then runs
-`regen --participant <admin>`; Baton accepts or refuses it in one transaction.
-Editing the file alone changes nothing, and the SQLite database is never
-edited by hand.
+administrator writes the proposed config at the same explicit path with
+`generation` exactly one greater than the authority's accepted generation,
+then a participant with the `config` capability runs
+`regen --participant <admin>`; Baton accepts or refuses the proposal in one
+transaction. Writing the proposal changes no authority state, but ordinary
+operations refuse while the file's generation or digest differs from the
+accepted state. If `regen` refuses, the authority remains unchanged: correct
+and retry the still-generation+1 proposal or restore the exact accepted JSON
+before resuming ordinary work. Never edit the SQLite authority directly or
+treat an unaccepted config file as active state.
 
 ## Keep one active receive loop
 

@@ -124,6 +124,12 @@ number and a fresh-authority cutover:
   Ruled as a protocol-authority table, explicitly NOT a console-side store.
 - **2f. Recorded privileged reads.** The audit half of 1c.
 - **2g. Presence leases.** Ruled last, and nothing depends on it.
+- **2h. External-reference semantics.** **Added by Slawomir 2026-08-11,
+  superseding the earlier seven-item completeness.** Protocol 11 removes the
+  external hash-pinned `--attach` contract and uses references whose targets
+  may float, change, or disappear without damaging delivery or authority
+  health. Git commit-addressed references remain proposed design work in
+  `work/finding-protocol-11-reference-semantics/`.
 
 Designing these as ONE boundary is right, and the reason is the same one the
 umbrella gives for protocol 10: discovering an eighth item after cutover is the

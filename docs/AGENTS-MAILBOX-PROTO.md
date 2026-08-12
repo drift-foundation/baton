@@ -124,8 +124,17 @@ remain); durable messages are permanent. `gc` (any participant) collects
 aged transient metadata per `retention_days`; the transition ledger and
 audit tables are permanent.
 
-Config changes use Baton's audited `regen` ceremony and require a participant
-with the `config` capability; direct config/database edits are forbidden.
+To propose a config change, an administrator writes a valid JSON document at
+the same explicit config path with `generation` exactly one greater than the
+authority's accepted generation. A participant with the `config` capability
+then runs Baton's audited `regen` ceremony. The file is only a proposal until
+`regen` accepts it transactionally; while its generation or digest differs
+from the accepted state, ordinary operations refuse. If `regen` refuses, the
+authority remains unchanged: correct and retry the still-generation+1 proposal
+or restore the exact accepted JSON before resuming ordinary work. Never edit
+the SQLite authority directly or treat an unaccepted config file as active
+state.
+
 Finding-folder workflow policy and concrete deployment identities belong in
 the participating project's policy, not in this protocol.
 

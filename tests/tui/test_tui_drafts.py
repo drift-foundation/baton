@@ -10,22 +10,27 @@ from __future__ import annotations
 
 import json
 import os
+import pathlib
 import stat
 
 import pytest
 
 from baton_tui import drafts
-from baton_tui.drafts import DraftError
+from baton_tui.drafts import DIRECTORY, DraftError
 
 PARTICIPANT = "acme.implementer"
 def _draft(**overrides):
-	"""A complete version-1 draft. Every field, because the shape is validated
-	on the way in as well as on the way out -- a half-populated draft written
-	by a test would have proved the validator was not running."""
+	"""A complete CURRENT-version draft. Every field, because the shape is
+	validated on the way in as well as on the way out -- a half-populated
+	draft written by a test would have proved the validator was not running.
+
+	`body_requested` joined the format at version 3 and is required there:
+	the full-body intent has to survive a restart, and a draft that omits it
+	would have its meaning guessed on read."""
 	draft = {"id": "compose:new:1", "kind": "compose",
 	         "subject": "Half a thought", "body": "unfinished",
 	         "to": "acme.reviewer", "attach_path": "",
-	         "answering": None, "is_reply": False}
+	         "answering": None, "is_reply": False, "body_requested": True}
 	draft.update(overrides)
 	return draft
 
@@ -391,3 +396,111 @@ def test_the_draft_filename_is_still_called_a_filename():
 	assert hasattr(drafts, "filename"), "the console's filename() was renamed"
 	assert not hasattr(drafts, "part_name"), \
 		"the console grew a part_name(); the rename was applied to a real file"
+
+
+# -- the version-3 body-intent boundary ------------------------------------
+#
+# `body_requested` carries the human's full-body intent across a restart. It
+# arrived as an optional version-2 field, which meant every existing reader
+# accepted the file and silently dropped the protection — the same mistake the
+# notice-audience field made one version earlier. Version 3 exists so an older
+# reader REFUSES rather than misreads, and these pin the whole matrix.
+
+def _write_raw(tmp_path, document):
+	projection = tmp_path / "proj"
+	(projection / DIRECTORY).mkdir(parents=True, mode=0o700, exist_ok=True)
+	target = projection / DIRECTORY / "acme.implementer.json"
+	target.write_text(json.dumps(document))
+	target.chmod(0o600)
+	return str(projection)
+
+
+def _v1(**overrides):
+	"""A version-1 record: no audience, no body-intent marker."""
+	draft = {"id": "compose:old", "kind": "compose", "subject": "From before",
+	         "body": "", "to": "acme.reviewer", "attach_path": "",
+	         "answering": None, "is_reply": False}
+	draft.update(overrides)
+	return draft
+
+
+def test_a_version_one_draft_derives_the_intent_from_its_body(tmp_path):
+	"""Version 1 predates the marker, so it is derived the way the console
+	derived it then: a body present means one was wanted."""
+	empty = _write_raw(tmp_path, {"version": 1, "drafts": [_v1()]})
+	assert drafts.load(empty, "acme.implementer")[0]["body_requested"] is False
+
+	written = _write_raw(tmp_path, {"version": 1,
+	                                "drafts": [_v1(body="some words")]})
+	assert drafts.load(written, "acme.implementer")[0]["body_requested"] is True
+
+
+def test_a_version_two_draft_is_migrated_the_same_way(tmp_path):
+	projection = _write_raw(tmp_path, {"version": 2, "drafts": [
+		_v1(id="notice:two", kind="notice", body="words",
+		    notice_scope="web.*")]})
+	loaded = drafts.load(projection, "acme.implementer")[0]
+	assert loaded["body_requested"] is True
+	assert loaded["notice_scope"] == "web.*", "the audience was lost"
+
+
+def test_an_experimental_version_two_marker_is_preserved(tmp_path):
+	"""This console briefly wrote the field into version-2 files. A stored
+	value is kept, never recomputed — recomputing would overwrite a TRUE
+	intent on a draft whose body is empty, which is precisely the case the
+	marker exists for."""
+	projection = _write_raw(tmp_path, {"version": 2, "drafts": [
+		_v1(body="", body_requested=True)]})
+	loaded = drafts.load(projection, "acme.implementer")[0]
+	assert loaded["body_requested"] is True
+
+
+def test_a_version_three_draft_must_carry_the_marker(tmp_path):
+	missing = _write_raw(tmp_path, {"version": 3, "drafts": [_v1()]})
+	with pytest.raises(drafts.DraftError) as absent:
+		drafts.load(missing, "acme.implementer")
+	assert "body_requested" in str(absent.value)
+
+	wrong = _write_raw(tmp_path, {"version": 3,
+	                              "drafts": [_v1(body_requested="yes")]})
+	with pytest.raises(drafts.DraftError) as mistyped:
+		drafts.load(wrong, "acme.implementer")
+	assert "body_requested" in str(mistyped.value)
+
+
+def test_an_older_reader_refuses_the_version_this_console_writes(tmp_path,
+                                                                monkeypatch):
+	"""The whole point of the bump, measured by RUNNING a reader that only
+	knows the older versions.
+
+	Not the frozen 1.0 console: that stopped at version 1 and refuses version 2
+	as well, so it cannot show what this bump added. What it must show is that
+	a reader which ACCEPTED the optional-field file — and silently dropped the
+	protection — now refuses instead.
+
+	Patched on the module itself rather than reloaded: a reloaded module has a
+	different `DraftError` class, so the raise it makes is not the one this
+	test catches.
+	"""
+	projection = tmp_path / "proj"
+	projection.mkdir()
+	projection = str(projection)
+	drafts.save(projection, "acme.implementer", [_draft()])
+	path = pathlib.Path(projection) / DIRECTORY / "acme.implementer.json"
+	assert json.loads(path.read_text())["version"] == 3
+
+	monkeypatch.setattr(drafts, "READABLE", (1, 2))
+	with pytest.raises(DraftError) as refused:
+		drafts.load(projection, "acme.implementer")
+	assert "version" in str(refused.value)
+
+
+def test_reading_an_old_file_and_saving_rewrites_it_as_version_three(tmp_path):
+	projection = _write_raw(tmp_path, {"version": 1,
+	                                   "drafts": [_v1(body="words")]})
+	loaded = drafts.load(projection, "acme.implementer")
+	drafts.save(projection, "acme.implementer", loaded)
+	document = json.loads(
+		(pathlib.Path(projection) / DIRECTORY / "acme.implementer.json").read_text())
+	assert document["version"] == 3
+	assert document["drafts"][0]["body_requested"] is True

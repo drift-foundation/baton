@@ -75,7 +75,8 @@ from .state import (PICKER_LABELS, VIEW_SENT, MODE_COMPOSE, MODE_CONFIRM_QUIT,
                     MODE_CONFIRM_SEND, MODE_NOTICE,
                     FOCUS_DETAIL, FOCUS_LIST,
                     FOLLOW_UP_ANSWERED, FOLLOW_UP_SENT, IN_REFERENCE_TO,
-                    MODE_HELP, MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_REPLY,
+                    MODE_HELP, MODE_PICK_RECIPIENT, MODE_PICK_ROOT,
+                    MODE_PICK_SCOPE, MODE_SAVE_PATH, SCOPE_GLOBAL, MODE_REPLY,
                     MODE_CONFIRM_DISCARD, ROW_DRAFT, ROW_MESSAGE, ROW_NOTICE,
                     SEV_ERROR, SEV_INFO,
                     SEV_SUCCESS,
@@ -664,7 +665,7 @@ def _pane_geometry(state, lines: int) -> tuple[int, int]:
 	so a picker confined to it would offer a letter it could not draw, which
 	is precisely the fault the measured capacity exists to prevent."""
 	body = _body_lines(state, lines)
-	if state.mode in (MODE_PICK_RECIPIENT, MODE_HELP):
+	if state.mode in (MODE_PICK_RECIPIENT, MODE_PICK_SCOPE, MODE_HELP):
 		return 0, body
 	return pane_heights(body)
 
@@ -673,7 +674,7 @@ def _detail_screen_top(state, lines: int) -> int:
 	"""The first SCREEN row of the detail pane: past the header, the list and
 	the divider rule -- or past the header alone while the picker is modal."""
 	top_lines, _ = _pane_geometry(state, lines)
-	modal = state.mode in (MODE_PICK_RECIPIENT, MODE_HELP)
+	modal = state.mode in (MODE_PICK_RECIPIENT, MODE_PICK_SCOPE, MODE_HELP)
 	return 1 + top_lines + (0 if modal else 1)
 
 
@@ -752,7 +753,7 @@ def render(state, columns: int = 100, lines: int = 24, *,
 		# one-line status bar stays exactly as it was: help is a screen, not
 		# status-bar prose, and the bar is where async events land.
 		out.extend(_help_pane(state, columns, body_lines))
-	elif state.mode == MODE_PICK_RECIPIENT:
+	elif state.mode in (MODE_PICK_RECIPIENT, MODE_PICK_SCOPE):
 		# Modal: the chooser owns the body. There is no list behind it to
 		# separate from, so no rule is drawn.
 		out.extend(_detail_pane(state, columns, body_lines, marker=marker))
@@ -897,6 +898,19 @@ def _header(state, columns: int) -> str:
 	# The focus mark stays too. It is one leading cell, it is what the
 	# navigation keys follow, and the ruling permits a subtle marker; what it
 	# forbids is the label coming back.
+	# A FILTER IS ANNOUNCED HERE, on the line that is always read. "retained"
+	# is a claim about the mailbox, not about the view, so under a filter the
+	# count says how many of how many and what is filtering them -- otherwise
+	# a search is indistinguishable from a mailbox that lost messages.
+	if state.searching:
+		query = state.active_query
+		if state.view == VIEW_SENT:
+			return _cell(f"{mark}Sent: {len(state.sent_rows)} of "
+			             f"{state.sent_count} matching {query!r} "
+			             f"— read only, i for messages{warning}", columns)
+		return _cell(f"{mark}Messages: {len(state.rows)} of "
+		             f"{state.retained_count} matching {query!r}, {owed} "
+		             f"awaiting your reply/close{warning}", columns)
 	if state.view == VIEW_SENT:
 		return _cell(f"{mark}Sent: {len(state.sent_rows)} sent, newest first "
 		             f"— read only, i for messages{warning}", columns)
@@ -1227,7 +1241,8 @@ def _shows_part_footer(state) -> bool:
 	A REPLY is deliberately not a fresh composition: it keeps the message it
 	answers on screen, so it keeps that message's footer.
 	"""
-	if state.mode in (MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_HELP):
+	if state.mode in (MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_PICK_SCOPE,
+	                  MODE_HELP):
 		return False
 	if _fresh_composition(state):
 		return False
@@ -1247,6 +1262,10 @@ def _detail_lines(state, width: int, *, marker: str = PART_MARKER,
 		# the pane, so `marks` is never filled from content that is not on
 		# screen.
 		return _root_picker_lines(state, width)
+	if state.mode == MODE_PICK_SCOPE:
+		# Same rule as the recipient picker below: the chooser REPLACES the
+		# pane, so `marks` is never filled from content that is not on screen.
+		return _scope_picker_lines(state, width)
 	if state.mode == MODE_PICK_RECIPIENT:
 		# The picker REPLACES everything below the header: the human is
 		# choosing a recipient, and message content behind the choice is noise.
@@ -1316,6 +1335,15 @@ def _detail_lines(state, width: int, *, marker: str = PART_MARKER,
 			# Chosen from the registry, shown but not editable -- there is no
 			# keystroke path back to a typed address.
 			out.extend(_wrapped_lossless(state.compose.get("to", ""), width, "    to:      "))
+		else:
+			# THE AUDIENCE, always visible while composing a notice. Ruled: a
+			# broadcast whose reach is invisible until after it is published
+			# is how every console notice went to everyone without anyone
+			# choosing that. `*` is shown as itself and glossed, because the
+			# glyph alone does not say how far it reaches.
+			scope = getattr(state, "notice_scope", None) or SCOPE_GLOBAL
+			shown = f"{scope}  (everyone)" if scope == SCOPE_GLOBAL else scope
+			out.extend(_wrapped_lossless(shown, width, "    to:      "))
 		for index, field in enumerate(state.compose_fields):
 			marker = ">" if index == state.compose_field else " "
 			value = state.compose.get(field, "")
@@ -1378,6 +1406,30 @@ def _root_picker_lines(state, width: int) -> list[str]:
 	if state.root_pages > 1:
 		out.extend(_picker_footer_lines(state.picker_page + 1,
 		                                state.root_pages, width))
+	return out
+
+
+def _scope_picker_lines(state, width: int) -> list[str]:
+	"""The notice-audience combobox: what has been typed, then what matches.
+
+	The typed line is shown FIRST and always, because it is the value Enter
+	submits -- a suggestion list with no visible input would make a complete
+	manually typed scope look like it had not been entered."""
+	out = _wrapped("Who is this notice for?", width)
+	typed = state.scope_query or ""
+	out.extend(_wrapped(f"  > {typed}" if typed else "  > (everyone)", width))
+	matches = state.scope_entries()
+	if matches:
+		out.append("")
+		for option in matches:
+			label = "everyone" if option == SCOPE_GLOBAL else "team"
+			out.extend(_wrapped(f"    {option}   {label}", width))
+	elif typed:
+		# NOT an error, and worded so it cannot read as one: a scope the
+		# registry has never seen is exactly what the ruling keeps submittable.
+		out.append("")
+		out.extend(_wrapped("    (no matching team — Enter still submits a "
+		                    "complete scope like web.*)", width))
 	return out
 
 
@@ -1883,4 +1935,34 @@ def _footer(state, columns: int) -> list[str]:
 	# reworded hint.
 	mark = _SEVERITY_MARK.get(state.status_severity, "i")
 	bar = f"  [{mark}] {state.status}" if state.status else ""
+	if state.mode == MODE_SAVE_PATH:
+		# THE END OF THE LINE, not the start. This row is a text box while the
+		# path editor is open, and the caret is at the end of what was typed;
+		# ordinary head-anchored truncation would hide exactly the characters
+		# the human is producing, so a long destination would look frozen.
+		#
+		# `columns - 1`, matching the driver, which writes at most that many
+		# cells to avoid the curses bottom-right wrap. Filling the full width
+		# here would have the driver drop the LAST cell -- which on a
+		# tail-anchored row is the character just typed. Found on the packaged
+		# console: `.baton.json` drew as `.baton.jso`.
+		return [_cell(_tail(bar, max(0, columns - 1)), columns)]
 	return [_cell(bar, columns)]
+
+
+def _tail(text: str, columns: int) -> str:
+	"""The last `columns` cells of `text`, marked as clipped when it is.
+
+	Measured in DISPLAY CELLS by the same primitive everything else uses, so a
+	wide character cannot overflow the row it was allotted."""
+	if display_width(text) <= columns or columns <= 0:
+		return text
+	budget = columns - display_width("…")
+	if budget <= 0:
+		return "…"[:columns]
+	kept = ""
+	for char in reversed(text):
+		if display_width(kept + char) > budget:
+			break
+		kept = char + kept
+	return "…" + kept

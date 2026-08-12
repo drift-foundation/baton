@@ -234,3 +234,36 @@ notice audiences global and scoped, delivery by membership, multi-recipient
 publication with independent lifecycles, the `possible_duplicate` warning on
 both at-least-once paths, audience on directed delivery, console display, CLI
 and documentation.
+
+## Queued child — TUI scoped-notice audience picker (2026-08-11)
+
+`findings/finding-tui-notice-scope-picker/` records the confirmed authoring
+gap: core and CLI accept `--scope 'lang.*'`, but the console's `N` flow calls
+`send_notice` without a scope and can publish only globally. The child was
+initially implementation-ready under the closed-picker proposal; the UX
+supersession below makes the exact-participant meaning the one remaining
+product clarification. It does not reopen approved core scope semantics.
+
+### UX supersession — 2026-08-11
+
+The child's original closed, registry-derived picker is superseded by an
+editable filter/combobox. Typing narrows configured team-scope suggestions,
+but a complete typed scope such as `web.*` can be submitted directly and is
+validated/expanded only by the core. Slawomir resolved the exact-participant
+edge: the choices are `*` (global) and configured `team.*` values only. Exact
+participants remain ordinary directed messages and never appear in this
+notice control.
+
+## Current actionable state — 2026-08-11
+
+The earlier WIP checkpoint and its “not built” bullets are **superseded as
+current state** and retained only to show how the implementation reached the
+released protocol-10 result. Baton 1.0.0 contains the core/CLI Stage 2.2 work,
+including the later orphan-publication corrections and public result shapes.
+
+The TUI scoped-notice child is implemented and reviewer-approved for 1.1; see
+its FINDING, PLAN, PROGRESS, and newest append-only review at
+`findings/finding-tui-notice-scope-picker/review-2026-08-11T15-55-03Z.md`.
+No implementation step remains in this parent. After the 1.1 child is committed,
+the parent and child are eligible for Slawomir's deliberate ephemeral-finding
+cleanup pass.

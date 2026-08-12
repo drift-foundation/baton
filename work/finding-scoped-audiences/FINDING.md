@@ -1,8 +1,10 @@
 # Scoped audiences and multi-recipient delivery
 
 Folder: `work/finding-scoped-audiences/`
-Status: pinned for the next protocol stage after CLI-to-core adoption; not part
-of the current protocol-9 TUI+core commit.
+Status: protocol-10 core/CLI behavior released in 1.0.0; next-generation TUI
+scope-picker child implemented and reviewer-signed-off for 1.1. Parent record
+reconciled 2026-08-11; folder remains until the child lands and cleanup is
+performed deliberately.
 
 Raised by Slawomir during the `baton-tui` trial on 2026-08-08.
 
@@ -86,9 +88,11 @@ still claimable work for every recipient.
   and multi-recipient directed requests unambiguous. Exact flag spelling is a
   design task; a wildcard must never be accepted where an exact participant is
   required by accident.
-- The TUI audience picker must offer global, configured team scopes, and
-  explicit participants without free-form typo paths. Multi-selection must be
-  visible before send and cancellation must publish nothing.
+- **Superseded for scoped-notice authoring on 2026-08-11:** the TUI audience
+  picker was to offer global, configured team scopes, and explicit participants
+  without free-form typo paths. Multi-selection remains visible before send
+  and cancellation still publishes nothing, but scoped-notice entry is now an
+  editable, filtering combobox rather than a closed choice list.
 - Inbox rows and detail headers show enough audience information to distinguish
   global, team-scoped, private, and multi-recipient traffic without claiming
   or marking anything seen.
@@ -123,3 +127,48 @@ communications-first cutover rather than consecutive mailbox teardowns.
 - Dump, doctor, retention, GC, attachment damage, quarantine, and recovery
   preserve per-recipient and shared-publication invariants.
 - Standalone builds and documentation contain no Drift-specific team list.
+
+## TUI audience-entry supersession — 2026-08-11
+
+Slawomir ruled that the closed selector above would pollute the drop-box and
+prevent manually addressing a team not represented by a precomputed choice.
+For notice authoring, the control is text-first:
+
+- typing filters/searches registry-derived suggestions live (`web` narrows the
+  visible configured addresses/scopes);
+- a complete manually typed selector such as `web.*` means a scoped broadcast
+  and remains publishable without first choosing a drop-box row;
+- the core still validates and freezes expansion at publication; the TUI does
+  not expand a typed wildcard or fall back to global after refusal;
+- explicit global remains visible rather than being inferred from an empty
+  string.
+
+## Exact notice-audience ruling — 2026-08-11
+
+The semantic edge above is **resolved**. Notices are team-oriented; the only
+TUI audience values are `*` for every team and a dotted team wildcard such as
+`team-a.*`. Exact participants are not offered and no new one-person notice
+lifecycle is added. A normal directed send remains the exact-participant path.
+
+The drop-down/filter therefore presents only `*` plus valid configured team
+scopes (`team-a.*`, `team-b.*`, …), never individual participant addresses.
+Typing `team` narrows those scope options by prefix. In the TUI, `*` maps to the
+core's existing global notice call (`scope=None`); it does not widen the core
+scope grammar, where a bare `*` is not a selector.
+
+## Current-state reconciliation — 2026-08-11
+
+The opening sequencing status is historical and superseded: protocol 10 and
+the scoped/global plus multi-recipient core/CLI work shipped in Baton 1.0.0.
+The `PLAN.md` section titled “Not built at the WIP checkpoint” remains as
+chronological evidence, not current truth. Reply publication linkage,
+non-null fresh-schema enforcement, doctor coverage, public return shapes, and
+recipient mappings were subsequently implemented and tested; the released
+1.0.0 commit is `f64431d`.
+
+The remaining TUI authoring child is no longer open implementation work. Its
+editable `*`/team-scope combobox, retained-audience behavior, and safe local
+draft versioning are approved in
+`findings/finding-tui-notice-scope-picker/review-2026-08-11T15-55-03Z.md`.
+The parent cannot be removed until that 1.1 work lands and Slawomir performs
+the deliberate finding cleanup pass.

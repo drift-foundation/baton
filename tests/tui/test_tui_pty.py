@@ -859,6 +859,7 @@ def test_lowercase_r_reaches_the_editor_path_on_a_real_terminal(tmp_path):
 	text, status, steps = _console(tmp_path, config_path, [
 		(b"", 2.4),                 # let the startup dwell commit the claim
 		(b"r", 1.5),                # now there is a claim to reply to
+		(b"\x1b", 0.4),             # decline the send the editor armed
 		(b"\x1b", 0.4),             # leave the draft the editor produced
 		(b"qY", 0.5),
 	], columns=100, lines=24, editor=str(script))
@@ -871,8 +872,12 @@ def test_lowercase_r_reaches_the_editor_path_on_a_real_terminal(tmp_path):
 	# now RETAINS the draft and says so, replacing it -- so including that
 	# step asserts about a screen the editor is no longer the subject of.
 	screen = _replay(steps[1], columns=100, lines=24)
-	assert any("draft imported" in line for line in screen), (
-		f"the editor round trip did not complete: {screen}")
+	# THE SEND CONFIRMATION, ruled 2026-08-11: a successful body import arms it
+	# directly, so the first thing on screen after the editor exits is the
+	# question — not the "draft imported" status this asserted before, which
+	# the confirmation now replaces.
+	assert any("Send now? [Y/n]" in line for line in screen), (
+		f"the editor round trip did not reach the confirmation: {screen}")
 	# ...and curses came back: the panes are drawn again, not left as the
 	# editor's own output.
 	assert any(_pty_is_rule(line) for line in screen), screen
@@ -1300,3 +1305,160 @@ def test_owed_rows_are_bold_on_the_packaged_console(tmp_path):
 
 	second, _, _ = _packaged_console(tmp_path, config_path, [(b"qy", 0.6)])
 	assert "OwedSubject" not in " ".join(_bold_text(second)), second[-400:]
+
+
+# -- `/` search, on an ISOLATED candidate build ---------------------------
+
+def _candidate_tui(tmp_path):
+	"""Build the console into a throwaway distribution root and return it.
+
+	The released `bin/baton-tui` is 1.0.0 and is NOT rebuilt by next-generation
+	work: the ruling is that production paths stay untouched while features are
+	developed in a separate distribution. A tmp_path root is the smallest thing
+	that honours that and still tests a real zipapp rather than the source tree.
+	"""
+	repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+	root = tmp_path / "candidate"
+	root.mkdir()
+	built = subprocess.run(
+		[sys.executable, os.path.join(repo, "tools", "build_tui.py"), str(root)],
+		capture_output=True)
+	assert built.returncode == 0, built.stderr
+	# The SAME product name in every versioned tree, ruled 2026-08-11 —
+	# superseding an earlier direction that gave a candidate its own binary
+	# name. Identity is the versioned PATH plus the version the executable
+	# reports, not the filename.
+	artifact = root / "bin" / "baton-tui"
+	assert artifact.exists()
+	# And the released artifact is not what was tested, which is the whole
+	# point of building one.
+	released = os.path.join(repo, "bin", "baton-tui")
+	assert str(artifact) != released
+	return str(artifact)
+
+
+def _candidate_console(artifact, config_path, script, columns=100, lines=24,
+                       settle=0.9):
+	"""`_packaged_console`, against a named artifact instead of `bin/`."""
+	import fcntl
+	import struct
+	import termios
+
+	pid, fd = pty.fork()
+	if pid == 0:
+		os.environ["TERM"] = "xterm"
+		os.environ["LANG"] = "C.UTF-8"
+		os.environ.pop("PYTHONPATH", None)
+		os.execv(sys.executable, [
+			sys.executable, artifact, "--config", config_path,
+			"--participant", "acme.implementer"])
+	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", lines, columns, 0, 0))
+	out = bytearray()
+
+	def pump(seconds):
+		deadline = time.time() + seconds
+		while time.time() < deadline:
+			ready, _, _ = select.select([fd], [], [], 0.05)
+			if ready:
+				try:
+					out.extend(os.read(fd, 65536))
+				except OSError:
+					return
+
+	pump(settle)
+	prefixes = []
+	for keys, pause in script:
+		os.write(fd, keys)
+		pump(pause)
+		prefixes.append(out.decode("utf-8", "replace"))
+	status = _reap(pid, fd)
+	return out.decode("utf-8", "replace"), status, prefixes
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_search_filters_the_list_on_a_candidate_console(tmp_path):
+	"""Evidence 9's packaged half: `/` on a real terminal, real zipapp.
+
+	The pure tests prove the filter; this proves the keystroke reaches it
+	through curses and that the filtered screen is what a human would see.
+	`/` is an ordinary printable character, so unlike Esc there is no delivery
+	subtlety — what this adds is that the packaged console has the feature at
+	all, which is exactly what the bold-emphasis work found the source tests
+	cannot tell you.
+	"""
+	config_path, _proj = _instance(tmp_path)
+	sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+	import baton_core as core
+	with core.open_instance(config_path) as store:
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject="Retry logic", body=b"x\n")
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject="Deploy window", body=b"x\n")
+
+	artifact = _candidate_tui(tmp_path)
+	transcript, status, steps = _candidate_console(artifact, config_path, [
+		(b"/", 0.6),                 # open the filter box
+		(b"retry", 0.8),             # narrow to one row
+		(b"\r", 0.6),                # accept: the filter survives
+		(b"/", 0.4), (b"\x1b", 0.6),  # `/` then Esc: back to everything
+		(b"qY", 0.5),
+	])
+	assert status == 0, transcript[-2000:]
+
+	filtered = "\n".join(_replay(steps[1]))
+	assert "Retry logic" in filtered
+	assert "Deploy window" not in filtered, filtered
+	# THREE, not two: `_instance` seeds a message of its own, which the filter
+	# correctly hides as well. The count is of everything retained, which is
+	# the point of showing it.
+	assert "1 of 3 matching" in filtered, "the header must say a filter is active"
+
+	accepted = "\n".join(_replay(steps[2]))
+	assert "Deploy window" not in accepted, "Enter must keep the filter"
+
+	cleared = "\n".join(_replay(steps[4]))
+	assert "Deploy window" in cleared and "Retry logic" in cleared, \
+		"`/` then Esc must restore the whole list"
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_M_saves_a_whole_message_on_a_candidate_console(tmp_path):
+	"""The packaged half of whole-message save: `M` on a real terminal,
+	through a real zipapp, writing a real file.
+
+	The pure tests prove the model and the key table. What this adds is that
+	the console SHIPS the feature — the lesson the bold-emphasis work paid
+	for, and the one the source tests cannot tell you.
+	"""
+	config_path, proj = _instance(tmp_path)
+	artifact = _candidate_tui(tmp_path)
+	destination = tmp_path / "kept.baton.json"
+	transcript, status, steps = _candidate_console(artifact, config_path, [
+		(b"\r", 0.8),                                  # claim and open the row
+		(b"M", 0.6),                                   # open the path box
+		(b"\x15", 0.4),                                # Ctrl-U: clear the seed
+		(str(destination).encode("utf-8"), 0.8),       # type the destination
+		(b"\r", 0.9),                                  # write it
+		(b"qY", 0.5),
+	])
+	assert status == 0, transcript[-2000:]
+
+	# The box was open and seeded from the configured projection directory
+	# before it was cleared.
+	box = "\n".join(_replay(steps[1]))
+	# The TAIL of the seeded path: the destination is longer than the row, and
+	# the box keeps its end on screen because that is where the caret is.
+	assert "/proj/message-" in box, box
+	assert box.rstrip().endswith(".baton.json"), (
+		"the last character typed must survive the driver's column clamp", box)
+
+	assert destination.exists(), "the packaged console wrote no file"
+	with open(destination, "rb") as handle:
+		document = json.loads(handle.read().decode("utf-8"))
+	assert document["format"] == "baton.whole-message"
+	assert document["message"]["subject"] == "Visible in the PTY"
+	assert document["message"]["content"]["parts"][0]["text"] == \
+		"# hello\nfrom a terminal\n"
+
+	written = "\n".join(_replay(steps[4]))
+	assert "saved" in written, written

@@ -28,9 +28,10 @@ be the only act that took ownership.
 
 from __future__ import annotations
 
+import os.path
 import time
 
-from baton_core import BatonError, notice_delivery
+from baton_core import BatonError, notice_delivery, validate_scope
 
 from .drafts import DraftError
 from . import drafts as draft_store
@@ -49,6 +50,18 @@ MODE_PICK_RECIPIENT = "pick_recipient"
 # not a flag on the recipient picker: the two choose different things and
 # cancelling one must not look like cancelling the other.
 MODE_PICK_ROOT = "pick_root"
+
+# Choosing WHO a notice reaches. A separate mode from the recipient picker on
+# purpose: that one selects an exact address and must never yield a wildcard,
+# this one selects a team scope and must never yield an exact participant.
+# Sharing one mode with a flag would put both rules in one place where a
+# future edit only has to forget one of them.
+MODE_PICK_SCOPE = "pick_scope"
+
+# The TUI spelling of "everyone". It is a VALUE the human can see and type,
+# and it maps to the core's `scope=None` at the publication boundary and
+# nowhere else -- nothing downstream should have to know this spelling.
+SCOPE_GLOBAL = "*"
 # Enter ARMS a send; only `y` publishes. Reached from reply, compose and
 # notice alike, and it remembers which one so declining returns to exactly the
 # draft and field the human left.
@@ -61,6 +74,29 @@ MODE_CONFIRM_DISCARD = "confirm_discard"
 # fit on one row, and a console whose keys are only discoverable by reading its
 # source is a console with one user.
 MODE_HELP = "help"
+
+# The one-line filter box. A MODE because typing has to be typing: while it is
+# active `q` is the letter q, exactly as in the compose modes -- but it is not
+# one of them, since it composes nothing and sends nothing. Read-only for the
+# whole of its life: it filters rows the model already holds and never asks the
+# authority for anything.
+MODE_SEARCH = "search"
+
+# The one-line destination editor `M` opens. A MODE for the same reason SEARCH
+# is one: while a human is typing a filesystem path, `q` is the letter q and no
+# browse command may fire from behind the box.
+#
+# It is NOT the recipient/root picker in another costume. A path is typed, not
+# chosen from a list -- there is nothing to enumerate, and offering a list of
+# somewhere would either be wrong or be the projection directory, which is
+# already what the box is seeded with.
+MODE_SAVE_PATH = "save_path"
+
+# What a saved whole message is called by default: kind, creation time and id,
+# under the projection directory. The id is what makes it unique; the kind and
+# the timestamp are what make a directory of them browsable by a human, which
+# is the entire audience for this file.
+SAVE_SUFFIX = ".baton.json"
 
 # Which pane the navigation keys drive. PURE UI STATE: focusing writes nothing
 # and is not an action target -- the selected/opened item remains the target
@@ -232,6 +268,70 @@ def thread_rows(rows: list[dict]) -> list[dict]:
 	return out
 
 
+def team_scopes(addresses) -> list[str]:
+	"""Every team scope implied by the configured participants.
+
+	`a.b.c` yields `a.*` and `a.b.*` -- every PROPER prefix, so a nested team
+	is reachable, and never `a.b.c.*`, which would be an exact participant
+	wearing a wildcard. Notices are team-oriented by ruling; an address that
+	selects exactly one person is a directed message.
+
+	Deduplicated and sorted, so the same registry always offers the same list
+	in the same order and a suggestion means the same thing twice running."""
+	scopes = set()
+	for address in addresses:
+		if not isinstance(address, str):
+			continue
+		segments = address.split(".")
+		for depth in range(1, len(segments)):
+			scopes.add(".".join(segments[:depth]) + ".*")
+	return sorted(scopes)
+
+
+def row_author(row: dict) -> str:
+	"""The party a human would call this row's author, in EITHER list.
+
+	Inbound: who sent it. Outbound and Sent rows: who it went to. That is not
+	a pun on "author" -- it is the party the row's own column shows, and a
+	search that matched a field the human cannot see would look broken every
+	time it hit."""
+	direction = row.get("direction")
+	if direction == "in":
+		return row.get("from_participant") or ""
+	if direction == "out":
+		return row.get("to_participant") or ""
+	# NO DIRECTION at all: a Sent row, which names only its recipient. This
+	# branch is last on purpose -- the first version tested `to_participant`
+	# before direction, and every INBOUND row carries one too (it is the local
+	# participant), so the filter matched the human's own address on every row
+	# instead of the sender's.
+	return row.get("to_participant") or row.get("from_participant") or ""
+
+
+def row_matches(row: dict, query: str) -> bool:
+	"""Does this row match the filter? AUTHOR and SUBJECT only, ruled.
+
+	Case-insensitive literal substring. NOT a regex: every character a human
+	types into a mailbox filter is one they meant literally, addresses are
+	dotted so `payments.` as a pattern would also match `paymentsX`, and a
+	typo in a pattern language is either an error state or a silently wrong
+	result set.
+
+	`casefold` rather than `lower` because a mailbox will contain non-ASCII
+	names and casefold is the one that handles them. No further normalization
+	in v1, which is a real limitation and is documented as one rather than
+	quietly assumed away.
+
+	Body text is deliberately absent: it does not exist to a reader who has
+	not claimed the message, and claiming it to search it would answer mail on
+	the human's behalf."""
+	needle = query.casefold()
+	if not needle:
+		return True
+	subject = row.get("subject") or ""
+	return needle in subject.casefold() or needle in row_author(row).casefold()
+
+
 def list_capacity(row_count: int, pane_lines: int) -> int:
 	"""How many list rows a pane this tall actually DRAWS.
 
@@ -299,7 +399,32 @@ class InboxState:
 		# counter and drives the deadline exactly, which is the difference
 		# between asserting the rule and asserting that two seconds elapsed.
 		self.clock = time.monotonic
-		self.rows: list[dict] = []
+		# THE FULL SETS. `rows`/`sent_rows` are filtered VIEWS over these (see
+		# the properties below), so every display path filters without being
+		# told to, and the handful of paths that must see everything say so by
+		# reaching for the backing list.
+		self._all_rows: list[dict] = []
+		# The ACCEPTED filter, and the one being typed. Two, because Esc has
+		# to restore what was there before the box opened, and because the
+		# list filters incrementally while typing -- the human sees the result
+		# of the query they are still writing.
+		self.search_query = ""
+		self.search_draft = ""
+		# The notice audience, CHOSEN rather than typed into a field. It lives
+		# beside `compose` for the same reason the recipient does: compose
+		# fields are editable text, and an audience that could be edited as
+		# text is an audience that can be half-edited when the human sends.
+		self.notice_scope: str | None = None
+		# The live query in the audience combobox, and the suggestions it
+		# filters -- captured when the picker opens so the list cannot change
+		# underneath the human mid-selection.
+		self.scope_query = ""
+		# What the human actually TYPED, as opposed to what Tab has filled in.
+		# Completion cycles over the matches of the stem: without it, filling
+		# `lang` in as `lang.*` narrows the filter to that one row and the
+		# second candidate becomes unreachable by the key meant to reach it.
+		self.scope_stem = ""
+		self.scope_suggestions_all: list[str] = []
 		self.cursor = 0
 		self.mode = MODE_BROWSE
 		self.draft = ""
@@ -358,6 +483,10 @@ class InboxState:
 		# message would open the editor seeded with an unrelated message the
 		# human happened to be reading.
 		self.compose_is_reply = False
+		# Mirrors `reply_body_requested` for compose and notice. See
+		# `edit_body_externally`: a fresh follow-up is compose mode, so the
+		# reply-side flag alone left that path publishing subject-only.
+		self.compose_body_requested = False
 		# Body imported from the external editor. Never typed into.
 		self.reply_body = ""
 		# True once the human has explicitly opened the editor for a reply.
@@ -379,7 +508,7 @@ class InboxState:
 		# impossible and the console must say why rather than blame the draft.
 		self.reply_blocked: str | None = None
 		self.draft_serial = 0
-		self.sent_rows: list[dict] = []
+		self._all_sent_rows: list[dict] = []
 		# True only when the most recent poll actually listed outbound rows.
 		self.sent_rows_fresh = False
 		self.sent_cursor = 0
@@ -426,6 +555,13 @@ class InboxState:
 		# `projection_dir` at startup; absent that, materialize refuses rather
 		# than writing into whatever directory launched the console.
 		self.projection_dir = ""
+		# The whole-message save box. `save_target` is the (row_type, id) pair
+		# captured WHEN `M` WAS PRESSED, not read again when Enter is pressed:
+		# the two-second poll refreshes the list underneath a human who is
+		# typing a path, and re-resolving the selection at accept time is how
+		# a save lands on whatever row happened to move under the cursor.
+		self.save_target: tuple[str, str] | None = None
+		self.save_path_draft = ""
 
 	@property
 	def detail_row(self) -> tuple | None:
@@ -594,8 +730,10 @@ class InboxState:
 		# cache last would let a stale value overwrite a state the primary
 		# list just got right, which is worse than the staleness this fixes:
 		# stale-but-labelled is the console's rule, silently wrong is not.
-		outbound = list(self.sent_rows) if self.sent_rows_fresh else []
-		for row in list(self.rows) + outbound:
+		# THE FULL SETS, not the filtered views: a row the human has filtered
+		# out of sight is still the row their detail pane is describing.
+		outbound = list(self._all_sent_rows) if self.sent_rows_fresh else []
+		for row in list(self._all_rows) + outbound:
 			if row.get("id") != identity:
 				continue
 			if row.get("row_type") is not None and row["row_type"] != kind:
@@ -664,16 +802,22 @@ class InboxState:
 		previous = (self.sent_rows[min(self.sent_cursor, len(self.sent_rows) - 1)]
 		            if self.sent_rows else None)
 		self.sent_rows = sent
+		# THE FILTERED VIEW, which is what `sent_cursor` indexes. Enumerating
+		# the raw list wrote a full-list index into a cursor the renderer reads
+		# against the filtered one, so under a filter the selected row could
+		# lose its highlight -- or the cursor could sit past the end of the
+		# list actually drawn.
+		visible = self.sent_rows
 		if previous is not None:
-			for index, row in enumerate(sent):
+			for index, row in enumerate(visible):
 				if row["id"] == previous["id"]:
 					self.sent_cursor = index
 					break
 			else:
-				self.sent_cursor = min(self.sent_cursor, max(0, len(sent) - 1))
+				self.sent_cursor = min(self.sent_cursor, max(0, len(visible) - 1))
 		else:
-			self.sent_cursor = min(self.sent_cursor, max(0, len(sent) - 1))
-		self.sent_top = min(self.sent_top, max(0, len(sent) - 1))
+			self.sent_cursor = min(self.sent_cursor, max(0, len(visible) - 1))
+		self.sent_top = min(self.sent_top, max(0, len(visible) - 1))
 
 	# How far the rendered detail overflows the pane, in display cells. The
 	# driver sets it from the renderer each frame -- only the renderer knows
@@ -781,9 +925,27 @@ class InboxState:
 			# when its declared type is text this terminal can show.
 			"read_part": bool(claim and displayable),
 			# `m` refuses on an external part -- it is already a file -- and
-			# needs somewhere to write.
-			"materialize": bool(claim and part and not external
-			                    and self.projection_dir),
+			# needs somewhere to write. It does NOT need a claim: the ruling is
+			# that anything viewable in full is saveable, so an answered
+			# message, a sent one and a seen notice all qualify. The one
+			# refusal left is the preview boundary, which is the same predicate
+			# the model applies -- ONE rule, asked in two places, because a
+			# dispatch gate and a model check that disagree is how `m` stayed
+			# broken after the model was fixed.
+			"materialize": bool(part and not external and self.projection_dir
+			                    and not self._is_unreceived_content(
+				                    self._action_row())),
+			# `M` saves the WHOLE message, so unlike `m` it needs no selected
+			# part -- a subject-only message exports perfectly well, its
+			# subject being the message -- and no projection directory, since
+			# the human may type any absolute path they like. What it does
+			# need is a row and the same preview boundary, which is the same
+			# predicate asked in the same place, deliberately: the gate and
+			# the model disagreeing is how `m` stayed broken after the model
+			# was fixed.
+			"save_message": bool(self._action_row() is not None
+			                     and not self._is_unreceived_content(
+				                     self._action_row())),
 		}
 
 	def modal_affordances(self) -> dict:
@@ -839,9 +1001,13 @@ class InboxState:
 			        f"in the terminal; the file remains at "
 			        f"{pin.get('root_id', '?')}:{pin.get('path', '?')}")
 		if action == "materialize":
-			if claim is None:
-				return ("materialize needs a message you hold the claim for; "
-				        "this row has none")
+			unreceived = self._action_row()
+			if self._is_unreceived_content(unreceived):
+				if (unreceived or {}).get("row_type") == ROW_NOTICE:
+					return ("this notice has not been seen yet — Enter marks it "
+					        "seen, which is what delivers its content")
+				return ("this message is still unopened — Enter opens it, which "
+				        "is what makes its content available to save")
 			if part is None:
 				return "no part selected"
 			if part.get("storage") == "external":
@@ -851,6 +1017,15 @@ class InboxState:
 				        "not copied into a projection")
 			return ("no projection directory: set projection_dir for this "
 			        "participant in the config")
+		if action == "save_message":
+			row = self._action_row()
+			if row is None:
+				return "nothing selected to save"
+			if (row or {}).get("row_type") == ROW_NOTICE:
+				return ("this notice has not been seen yet — Enter marks it "
+				        "seen, which is what delivers its content")
+			return ("this message is still unopened — Enter opens it, which "
+			        "is what makes its content available to save")
 		return "not available here"
 
 	def select_view(self, view: str) -> None:
@@ -877,6 +1052,62 @@ class InboxState:
 		self.detail_offset = 0
 		self.set_status({VIEW_SENT: "sent — newest first, read only",
 		                 VIEW_INBOX: "messages"}[view], SEV_INFO)
+
+	# -- search: a filtered VIEW over the loaded rows ---------------------
+
+	@property
+	def active_query(self) -> str:
+		"""What the list is filtered by RIGHT NOW.
+
+		The draft while the box is open, so the list narrows as the human
+		types; the accepted query once it closes. One property so nothing
+		downstream has to know which of the two is live."""
+		return self.search_draft if self.mode == MODE_SEARCH else self.search_query
+
+	@property
+	def searching(self) -> bool:
+		"""Is a filter hiding rows? Not the same as "the box is open" -- an
+		accepted query keeps filtering after the box closes, which is what
+		lets the human act on a result."""
+		return bool(self.active_query)
+
+	@property
+	def rows(self) -> list[dict]:
+		"""The inbox rows TO DISPLAY. Filtered; see `_all_rows` for the truth.
+
+		A property rather than a filtered copy assigned at refresh time,
+		because the filter changes on every keystroke and a copy would have to
+		be rebuilt from five places that currently just assign rows."""
+		return self._matching(self._all_rows)
+
+	@rows.setter
+	def rows(self, value: list[dict]) -> None:
+		self._all_rows = value
+
+	@property
+	def sent_rows(self) -> list[dict]:
+		return self._matching(self._all_sent_rows)
+
+	@sent_rows.setter
+	def sent_rows(self, value: list[dict]) -> None:
+		self._all_sent_rows = value
+
+	@property
+	def retained_count(self) -> int:
+		"""How many inbox rows EXIST, whatever the filter shows. The header
+		says "retained", which is a claim about the mailbox and not about the
+		view."""
+		return len(self._all_rows)
+
+	@property
+	def sent_count(self) -> int:
+		return len(self._all_sent_rows)
+
+	def _matching(self, rows: list[dict]) -> list[dict]:
+		query = self.active_query
+		if not query:
+			return rows
+		return [row for row in rows if row_matches(row, query)]
 
 	@property
 	def view_rows(self) -> list[dict]:
@@ -996,7 +1227,10 @@ class InboxState:
 		somewhere unexpected."""
 		if self.opened is None:
 			return
-		for index, row in enumerate(self.rows):
+		# UNFILTERED. An open claim hidden behind a search filter has not gone
+		# anywhere, and treating it as vanished would drop the action target
+		# for work the human still owes.
+		for index, row in enumerate(self._all_rows):
 			if (row["row_type"] == self.opened["row_type"]
 					and row["id"] == self.opened["id"]):
 				if (self.opened["row_type"] == ROW_MESSAGE
@@ -1268,24 +1502,45 @@ class InboxState:
 
 	def materialize_selected_part(self, store, target_dir: str | None = None,
 	                              prefix: str = "message"):
-		"""Write the selected part to a file, through the core, from an
-		EXPLICITLY OPENED active claim.
+		"""Write the selected part to a file, through the core.
 
-		Not from a preview. Writing bytes to disk is reading them in the most
-		durable form there is, so allowing it from a pending row would have
-		let `m` bypass the whole preview boundary -- content on disk without
-		the human ever claiming the message. The core enforces the same rule,
-		because a boundary that exists only in the front end is one refactor
-		from not existing."""
+		Anything the human can view in full, they can save: an answered
+		message, one they sent, a seen notice, or work they hold a claim on.
+		Ruled after a human pressed `m` on a part he was reading and was told
+		he needed a claim he had already resolved.
+
+		The ONE refusal left is the preview boundary. Writing bytes to disk is
+		reading them in the most durable form there is, so a pending message
+		nobody has claimed must not become a file -- opening it is the act that
+		takes ownership. The core enforces its own half through
+		`authorize_read`, because a boundary that exists only in the front end
+		is one refactor from not existing."""
 		part = self.selected_part
-		if self.opened is None or self.opened.get("row_type") != ROW_MESSAGE:
-			self.set_status("materialize needs a message you hold the claim for; "
-			                "this row has none", SEV_WARNING)
+		# The ROW, from the active view. `detail_row` is an identity tuple, not a
+		# row -- reaching for it here produced an AttributeError on the first
+		# run, which is the cheapest possible way to learn the difference.
+		target = self.opened or self.selected_in_view
+		if target is None:
+			self.set_status("nothing open to save", SEV_WARNING)
 			return None
-		claim_id = self.opened.get("claim_id")
-		if claim_id is None:
-			self.set_status("materialize needs an active claim", SEV_WARNING)
+		# THE PREVIEW BOUNDARY, and only it. Writing bytes to disk is reading
+		# them in the most durable form there is, so a message that is still
+		# pending and unclaimed must not become a file -- opening it is the
+		# act that takes ownership, and `m` must not be a way around that.
+		#
+		# It bites HERE and nowhere else. The first version of this required an
+		# active claim for every row, which meant a human could not save their
+		# own answered mail, their own sent messages, or a notice they had
+		# already seen -- while the agent CLI could do all three, because the
+		# core authorizes by sender-or-audience and never asked for a claim.
+		# The console was strictly less capable than the tool it fronts, for
+		# the participant's own content.
+		if self._is_unreceived_content(self._action_row()):
+			self.set_status(
+				"this message is still unopened — Enter opens it, which is what "
+				"makes its content available to save", SEV_WARNING)
 			return None
+		claim_id = (self.opened or {}).get("claim_id")
 		if part is None:
 			self.set_status("no part selected", SEV_WARNING)
 			return None
@@ -1299,12 +1554,227 @@ class InboxState:
 				"no projection directory: set projection_dir for this participant "
 				"in the config, or pass a destination", SEV_WARNING)
 			return None
-		path = self._guard("materialize", lambda: store.materialize_claimed_part(
-			claim_id, self.participant, destination,
-			prefix=prefix, part=part["address"]))
+		address = part["address"]
+		if claim_id is not None:
+			# The claimed path revalidates external pins first, which the
+			# authorized one has no claim to hang that check on. Kept as the
+			# path for work in hand.
+			write = lambda: store.materialize_claimed_part(          # noqa: E731
+				claim_id, self.participant, destination,
+				prefix=prefix, part=address)
+		else:
+			# ALREADY READABLE: an answered message, one this participant sent,
+			# or a notice they have seen. Authorization is the CORE's, not the
+			# console's -- `authorize_read` applies the same sender-or-audience
+			# rule the CLI uses, and refuses indistinguishably from "no such
+			# thing". The console decides nothing here except which id to ask
+			# about, which is what keeps the boundary out of the front end.
+			# ONE call for messages and notices alike. It resolves which kind
+			# the id is, authorizes it as the CLI does, and refuses
+			# indistinguishably when the participant may not read it -- so the
+			# console decides which id to ask about and nothing else. Ruled:
+			# anything viewable in full must be saveable, seen notices
+			# included.
+			owner_id = target["id"]
+			write = lambda: store.materialize_authorized_part(     # noqa: E731
+				owner_id, self.participant, destination,
+				prefix=prefix, part=address)
+		path = self._guard("materialize", write)
 		if path is not None:
 			self.set_status(f"wrote {path}", SEV_SUCCESS)
 		return path
+
+	# -- whole-message save (`M`) -----------------------------------------
+
+	def begin_save_message(self) -> bool:
+		"""`M`: open the destination editor for the whole selected message.
+
+		The uppercase twin of `m`, and a DIFFERENT operation rather than a
+		mode of the same one: `m` writes one part's bytes for a tool to
+		consume, this writes the whole envelope for a person to keep. Making
+		it a flag on `m` would have given one key two output shapes and two
+		naming rules.
+
+		Only from BROWSE, for the reason SEARCH is: opening a text box from a
+		compose mode would swallow the keystrokes of a message being written,
+		and opening it from a confirmation would put an editor behind a
+		question.
+
+		The boundary is `m`'s, unchanged and asked through the same helper.
+		Writing a whole message to disk is reading it in the most durable form
+		there is, so a pending unclaimed message must not become a file --
+		opening it is the act that takes ownership."""
+		if self.mode != MODE_BROWSE:
+			return False
+		row = self._action_row()
+		if row is None:
+			self.set_status("nothing selected to save", SEV_WARNING)
+			return False
+		if self._is_unreceived_content(row):
+			# The SAME words dispatch uses, from the same place. Two spellings
+			# of one refusal is how a human is told to open a notice, which
+			# is not what `Enter` does to one.
+			self.set_status(self.unavailable_reason("save_message"), SEV_WARNING)
+			return False
+		# CAPTURED NOW. Everything after this point acts on this pair, however
+		# long the human spends editing the path and whatever the poll does to
+		# the list underneath them.
+		self.save_target = (row.get("row_type") or ROW_MESSAGE, row["id"])
+		self.save_path_draft = self._default_save_path(row)
+		self.mode = MODE_SAVE_PATH
+		self._show_save_path()
+		return True
+
+	def _show_save_path(self) -> None:
+		"""The status line IS the box, as it is for `/`.
+
+		A text box the human cannot read is not a box. The packaged console
+		found this: `M` opened, the prompt said "Enter writes it", and the
+		path being typed appeared nowhere on screen -- so the only way to know
+		where the file would land was to press Enter and see."""
+		if self.save_path_draft:
+			self.set_status(f"save to: {self.save_path_draft}", SEV_INFO)
+		else:
+			self.set_status(
+				"save to: type an absolute path — Enter writes it, Esc cancels",
+				SEV_INFO)
+
+	def _default_save_path(self, row) -> str:
+		"""The seeded destination, or an empty box.
+
+		Seeded ONLY when a projection directory is configured. Without one
+		there is nowhere this console may write by default -- never the
+		process working directory, which is the same rule `m` follows -- so
+		the human types an absolute path or cancels, and the box says so
+		rather than proposing something wrong."""
+		if not self.projection_dir:
+			return ""
+		# `<kind>-<created>-<id>.baton.json`, the ruled spelling, with both
+		# fields exactly as the authority holds them.
+		#
+		# Deliberately NOT transformed. An earlier version rewrote every
+		# non-alphanumeric character against a hypothetical future id scheme;
+		# that was a policy nobody ruled, it did not match the alphabet its own
+		# comment claimed, and it made the seeded name disagree with the id it
+		# names. Both fields are constrained by the protocol today -- a hex id
+		# and an ISO-8601 UTC stamp -- and the seed is a starting point the
+		# human can edit, not a sanitizer.
+		kind = row.get("row_type") or ROW_MESSAGE
+		created = row.get("created_ts")
+		name = (f"{kind}-{created}-{row['id']}{SAVE_SUFFIX}" if created
+		        else f"{kind}-{row['id']}{SAVE_SUFFIX}")
+		return os.path.join(self.projection_dir, name)
+
+	def save_path_type(self, char: str) -> None:
+		if self.mode == MODE_SAVE_PATH:
+			self.save_path_draft += char
+			self._show_save_path()
+
+	def save_path_backspace(self) -> None:
+		if self.mode == MODE_SAVE_PATH:
+			self.save_path_draft = self.save_path_draft[:-1]
+			self._show_save_path()
+
+	def save_path_clear(self) -> None:
+		"""Ctrl-U: empty the box without leaving it. The seeded name is long,
+		and a human who wants a different directory should not have to hold
+		backspace to get one."""
+		if self.mode == MODE_SAVE_PATH:
+			self.save_path_draft = ""
+			self._show_save_path()
+
+	def accept_save_path(self, store) -> str | None:
+		"""Enter: write the captured message to the typed path.
+
+		A REFUSAL KEEPS THE BOX AND THE TARGET. Every refusal here is about
+		the path -- it exists, its parent does not, it is not absolute -- and
+		every one of those is fixed by editing the text the human already
+		typed. Dropping back to the list on refusal would make them press `M`
+		on the right row again to get their own words back."""
+		if self.mode != MODE_SAVE_PATH:
+			return None
+		if self.save_target is None:
+			self.mode = MODE_BROWSE
+			return None
+		# THE EXACT CHARACTERS TYPED. No `strip()`: a filename may lawfully end
+		# in a space, and quietly writing a different name than the one on
+		# screen is the failure this box exists to prevent. Whatever is wrong
+		# with the path -- empty, relative, noncanonical -- the core says so.
+		destination = self.save_path_draft
+		if not destination:
+			self.set_status(
+				"nothing typed: this key writes where you say, and nowhere by "
+				"default — type an absolute path, or Esc to cancel", SEV_WARNING)
+			return None
+		owner_id = self.save_target[1]
+		path = self._guard(
+			"save",
+			lambda: store.save_whole_message(owner_id, self.participant, destination))
+		if path is None:
+			return None
+		self.mode = MODE_BROWSE
+		self.save_target = None
+		self.set_status(f"saved {path}", SEV_SUCCESS)
+		return path
+
+	def cancel_save_path(self) -> None:
+		"""Esc: leave the box, write nothing, and forget the target."""
+		if self.mode != MODE_SAVE_PATH:
+			return
+		self.mode = MODE_BROWSE
+		self.save_target = None
+		self.save_path_draft = ""
+		self.set_status("save cancelled", SEV_INFO)
+
+	def _action_row(self) -> dict | None:
+		"""The list ROW that `m` acts on.
+
+		`self.opened` is a target IDENTITY -- row type, id, claim -- and does
+		not carry `state`. Asking it whether a notice has been seen returns
+		"no" forever, which is exactly the bug this exists to prevent: the key
+		refused a notice the human had just opened. The row is where state
+		lives, so the row is what the rule reads."""
+		opened = self.opened
+		if opened is not None:
+			identity = (opened.get("row_type"), opened.get("id"))
+			for row in self._all_rows:
+				if (row.get("row_type"), row.get("id")) == identity:
+					return row
+			for row in self._all_sent_rows:
+				if row.get("id") == opened.get("id"):
+					return row
+		return self.selected_in_view
+
+	def _is_unreceived_content(self, row) -> bool:
+		"""Has this row's content NOT yet been received by this participant?
+
+		The one case `m` must refuse, and the rule both the affordance and the
+		model ask -- one rule in two places, because a gate that disagrees with
+		the model either promises what the key cannot do or refuses what it
+		can. Both have happened here.
+
+		Two shapes qualify: an inbound message still pending (claiming is what
+		receives it) and a notice not yet seen (`see` is what receives that).
+		A sent row, an answered row and a seen notice are all content the human
+		already has, and the console displays every one of them.
+
+		DEFAULT-DENY on identity. A SENT row carries neither `row_type` nor
+		`direction`, so an earlier "not outbound and pending" called every
+		message this participant had written unread work -- the same mistake I
+		made in the search filter hours before, in this file, for this reason.
+		"""
+		if row is None:
+			return False
+		kind = row.get("row_type")
+		if kind == ROW_NOTICE:
+			# Unseen: the bytes have never been delivered, and `see` is the
+			# only door. The core refuses it too; without this the key would
+			# be advertised and then fail with an id error.
+			return row.get("state") != "seen"
+		if kind != ROW_MESSAGE:
+			return False
+		return (row.get("direction") == "in"
+		        and row.get("state") == "pending")
 
 	def _would_claim(self, row) -> bool:
 		"""Whether opening THIS row would take ownership.
@@ -1503,7 +1973,10 @@ class InboxState:
 				or row.get("direction", "in") != "in"):
 			return ""
 		here = _row_order(row)
-		earlier = [r for r in self.rows
+		# UNFILTERED, for the same reason the owed count is: the warning
+		# exists to say work is being skipped, and a filter that hid the
+		# skipped work would silence the warning exactly when it is true.
+		earlier = [r for r in self._all_rows
 		           if r["row_type"] == ROW_MESSAGE and r["state"] == "pending"
 		           and r.get("direction", "in") == "in"
 		           and r.get("from_participant") == row.get("from_participant")
@@ -2006,10 +2479,143 @@ class InboxState:
 			return None
 		# Still held, and still by us -- the row list is the console's own view
 		# and may be stale.
-		for row in self.rows:
+		for row in self._all_rows:
 			if row.get("claim_id") == claim_id and row["state"] == "claimed":
 				return claim_id
 		return None
+
+	# -- choosing a notice audience ---------------------------------------
+
+	def begin_pick_scope(self, store) -> bool:
+		"""`N` asks WHO first, then composes.
+
+		Audience before content, because the alternative is writing a
+		broadcast and then discovering it can only go to everyone -- which is
+		how every console-authored notice has been global until now."""
+		everyone = self._guard("list participants", store.list_participants)
+		if everyone is None:
+			return False
+		# `address` is the key `list_participants` uses; the recipient picker
+		# reads the same one. I guessed `participant` first and got an empty
+		# suggestion list that looked exactly like "this registry has no
+		# teams".
+		self.scope_suggestions_all = team_scopes(
+			entry.get("address") if isinstance(entry, dict) else entry
+			for entry in everyone)
+		self.scope_query = ""
+		self.scope_stem = ""
+		self.picker_page = 0
+		self.mode = MODE_PICK_SCOPE
+
+		self.set_status("who is this notice for? type a team, Tab completes, "
+		                "Enter accepts", SEV_INFO)
+		return True
+
+	def scope_matches_query(self) -> list[str]:
+		"""The suggestions still consistent with what has been typed.
+
+		`*` is a suggestion like any other and disappears once the query rules
+		it out, so the list never offers a row that pressing Enter would
+		contradict."""
+		query = self.scope_query
+		options = [SCOPE_GLOBAL] + list(self.scope_suggestions_all)
+		if not query:
+			return options
+		return [option for option in options if option.startswith(query)]
+
+	def scope_entries(self) -> list[str]:
+		"""One page of matching suggestions, sized to what the pane can draw.
+
+		Paging by a fixed count would label rows the renderer never draws --
+		the same defect the recipient picker had, fixed there by asking the
+		viewport."""
+		matches = self.scope_matches_query()
+		size = max(1, self.picker_capacity or 1)
+		pages = max(1, -(-len(matches) // size))
+		page = min(self.picker_page, pages - 1)
+		return matches[page * size:page * size + size]
+
+	def scope_type(self, char: str) -> None:
+		self._set_scope_query(self.scope_query + char)
+
+	def scope_backspace(self) -> None:
+		self._set_scope_query(self.scope_query[:-1])
+
+	def scope_clear(self) -> None:
+		self._set_scope_query("")
+
+	def _set_scope_query(self, query: str) -> None:
+		if self.mode != MODE_PICK_SCOPE:
+			return
+		self.scope_query = query
+		self.scope_stem = query
+		# A narrowed list means the old page number may point past the end.
+		self.picker_page = 0
+		matches = self.scope_matches_query()
+		if not query:
+			self.set_status("who is this notice for? type a team, Tab "
+			                "completes, Enter accepts", SEV_INFO)
+		elif matches:
+			self.set_status(f"audience: {query}  ({len(matches)} matching)",
+			                SEV_INFO)
+		else:
+			# NOT an error. A complete scope the registry has never seen is
+			# exactly what the ruling says must remain submittable, so this
+			# says "no suggestion", never "no such thing".
+			self.set_status(f"audience: {query}  (no suggestion — Enter still "
+			                f"submits a complete scope)", SEV_INFO)
+
+	def scope_complete(self) -> None:
+		"""Tab: fill the query with the next matching suggestion.
+
+		The completion path, because letters cannot select here -- every
+		printable key belongs to the query. Cycling rather than replacing once
+		means a human who wanted the second match can reach it."""
+		if self.mode != MODE_PICK_SCOPE:
+			return
+		stem = self.scope_stem
+		options = [SCOPE_GLOBAL] + list(self.scope_suggestions_all)
+		matches = [option for option in options if option.startswith(stem)]
+		if not matches:
+			return
+		try:
+			index = matches.index(self.scope_query)
+		except ValueError:
+			index = -1
+		self.scope_query = matches[(index + 1) % len(matches)]
+		self.set_status(f"audience: {self.scope_query}", SEV_INFO)
+
+	def submit_scope(self) -> bool:
+		"""Enter: accept the typed audience and open the notice composer.
+
+		Shape only. Whether `web.*` has any members, and who they are, is the
+		core's to decide inside the publication transaction -- checking it here
+		would be a second authority that can disagree with the first."""
+		if self.mode != MODE_PICK_SCOPE:
+			return False
+		chosen = self.scope_query or SCOPE_GLOBAL
+		if chosen != SCOPE_GLOBAL:
+			# THE CORE'S OWN RULE, called rather than copied. A regex repeated
+			# here would be a second grammar that can disagree with the one
+			# that actually decides at publication -- including its length
+			# bound, which a hand-copied pattern always forgets.
+			try:
+				validate_scope(chosen)
+			except BatonError as refusal:
+				self.set_status(f"{refusal}", SEV_WARNING)
+				return False
+		self.begin_compose(notice=True)
+		self.notice_scope = chosen
+		self.set_status(f"composing a notice to {chosen}", SEV_INFO)
+		return True
+
+	def cancel_scope(self) -> None:
+		"""Esc: nothing chosen, nothing composed, nothing written."""
+		if self.mode != MODE_PICK_SCOPE:
+			return
+		self.scope_query = ""
+		self.mode = MODE_BROWSE
+		self.set_status("notice cancelled", SEV_INFO)
 
 	# -- choosing a recipient ---------------------------------------------
 
@@ -2341,6 +2947,11 @@ class InboxState:
 		# A new composition is NOT a reply until something says so, and it is
 		# in reference to nothing until `_begin_follow_up` says otherwise.
 		self.compose_is_reply = False
+		# A NEW composition wants nothing yet. The full-body intent is set
+		# when an editor visit produces or deliberately removes a body, and
+		# it cannot be inferred from `compose_is_reply`: a quick subject-only
+		# follow-up is still perfectly valid.
+		self.compose_body_requested = False
 		self.follow_up_to = None
 		self.follow_up_thread = None
 		if recipient is not None:
@@ -2477,6 +3088,12 @@ class InboxState:
 		self.mode = MODE_BROWSE
 		self.compose = {}
 		self.compose_field = 0
+		# AFTER the snapshot, which is what persists the audience, and before
+		# the next composition can inherit it. Escaping a `web.*` notice must
+		# not leave that audience armed for whatever is written next.
+		self.notice_scope = None
+		self.scope_query = ""
+		self.scope_stem = ""
 
 	def _report_send(self, success: str) -> None:
 		"""Say what happened, INCLUDING a cleanup that did not.
@@ -2552,10 +3169,29 @@ class InboxState:
 			return None
 		if not (subject.strip() or body.strip() or attach.strip()):
 			return None
-		return {"id": self._draft_id(answering, kind),
-		        "kind": kind, "subject": subject, "body": body,
-		        "to": recipient, "attach_path": attach, "answering": answering,
-		        "is_reply": bool(self.compose_is_reply or kind == "reply")}
+		snapshot = {"id": self._draft_id(answering, kind),
+		            "kind": kind, "subject": subject, "body": body,
+		            "to": recipient, "attach_path": attach,
+		            "answering": answering,
+		            "is_reply": bool(self.compose_is_reply or kind == "reply")}
+		if kind == "reply":
+			# THE REPLY MARKER TOO. It was derived on reopen from `bool(body)`,
+			# so an explicitly emptied reply came back looking like a quick
+			# one and became subject-sendable across a restart.
+			snapshot["body_requested"] = bool(self.reply_body_requested)
+		if kind in ("compose", "notice"):
+			# THE INTENT, not just the text. A retained follow-up whose body
+			# was deliberately emptied must not reopen looking like a quick
+			# subject-only draft -- that is the same wrong-message send,
+			# reached through a restart.
+			snapshot["body_requested"] = bool(self.compose_body_requested)
+		if kind == "notice":
+			# THE AUDIENCE IS PART OF THE DRAFT. Without it a retained team
+			# notice reopens with no scope, and `send_compose` reads no scope
+			# as global -- so continuing yesterday's `web.*` draft would
+			# broadcast it to everyone, silently, at the moment of sending.
+			snapshot["notice_scope"] = self.notice_scope or SCOPE_GLOBAL
+		return snapshot
 
 	def _draft_id(self, answering, kind: str) -> str:
 		"""One draft per thing being answered; new messages get their own.
@@ -2631,7 +3267,10 @@ class InboxState:
 			self.draft = draft.get("subject", "")
 			self.draft_caret = len(self.draft)
 			self.reply_body = draft.get("body", "")
-			self.reply_body_requested = bool(self.reply_body)
+			# THE STORED INTENT, not a guess from the text. Deriving it from
+			# `bool(body)` is what made an explicitly emptied reply come back
+			# as a quick one; the loader supplies the value for older files.
+			self.reply_body_requested = bool(draft.get("body_requested"))
 			# RESTORE WHAT IT ANSWERS. `send_reply` resolves its target
 			# through `_held_claim_id`, which reads `opened` -- so after a
 			# restart a reopened reply had a subject, a body and no way to be
@@ -2652,6 +3291,33 @@ class InboxState:
 			self.compose_carets = {name: len(value)
 			                       for name, value in self.compose.items()}
 			self.compose_field = 0
+			# ALWAYS PRESENT by the time it gets here: `load` supplies it for
+			# versions 1 and 2 and refuses its absence in version 3, so this
+			# reads a value rather than defaulting one. The earlier version of
+			# this line defaulted permissively and said so in a comment --
+			# which is how the protection was silently droppable by any reader
+			# that had not been updated.
+			self.compose_body_requested = bool(draft.get("body_requested"))
+			if self.mode == MODE_NOTICE:
+				# A draft written before scoped notices existed carries no
+				# audience. Those were global by construction, so they restore
+				# as an explicit `*` -- restored, not assumed: the value is
+				# put back on screen where the human can see and change it
+				# before sending.
+				restored = draft.get("notice_scope") or SCOPE_GLOBAL
+				if restored != SCOPE_GLOBAL:
+					try:
+						validate_scope(restored)
+					except BatonError as refusal:
+						# A stored audience that no longer parses is NOT
+						# silently downgraded to everyone. The draft reopens
+						# with the audience it claimed and the reason it is
+						# unusable, and the send will refuse until it is fixed.
+						self.set_status(f"draft reopened, but its audience is "
+						                f"unusable: {refusal}", SEV_WARNING)
+				self.notice_scope = restored
+			else:
+				self.notice_scope = None
 
 	def _reattach_reply(self, answering) -> None:
 		"""Point `opened` back at the message a reply draft answers.
@@ -2677,7 +3343,7 @@ class InboxState:
 		self.reply_blocked = None
 		if not answering:
 			return
-		for row in self.rows:
+		for row in self._all_rows:
 			if row.get("row_type") != ROW_MESSAGE or row.get("id") != answering:
 				continue
 			if row.get("state") == "claimed" and row.get("claim_id"):
@@ -2826,14 +3492,28 @@ class InboxState:
 			# subject alone becomes the content part as well as the subject.
 			# A zero-byte part is still never published.
 			if not body:
+				if self.compose_body_requested:
+					# They opened the full-body editor and emptied it. Sending
+					# the subject line instead would publish a different
+					# message than the one they set out to write.
+					self.set_status("the editor returned an empty body — "
+					                "nothing sent, and the draft is unchanged",
+					                SEV_WARNING)
+					return None
 				if not subject:
 					self.set_status("nothing to send: no subject or body",
 					                SEV_WARNING)
 					return None
 				body = subject
+			# THE ONE PLACE the TUI spelling becomes the protocol's. `*` is
+			# what the human sees and types; `scope=None` is what a global
+			# notice is on the wire. Nothing between here and the screen has
+			# to know both.
+			scope = (None if self.notice_scope in (None, SCOPE_GLOBAL)
+			         else self.notice_scope)
 			result = self._guard("publish notice", lambda: store.send_notice(
 				self.participant, kind="announcement", subject=subject,
-				body=body.encode("utf-8")))
+				body=body.encode("utf-8"), scope=scope))
 		else:
 			if not recipient:
 				self.set_status("nothing sent: no recipient", SEV_WARNING)
@@ -2846,6 +3526,14 @@ class InboxState:
 				self.set_status(refusal, SEV_WARNING)
 				return None
 			attach = self.attachment_locator()
+			if self.compose_body_requested and not body:
+				# BEFORE the attachment question. Checking this only when there
+				# was no attachment either let an attachment-only send stand in
+				# for the body the human deleted -- a different message again,
+				# and this time one that looks deliberate.
+				self.set_status("the editor returned an empty body — nothing "
+				                "sent, and the draft is unchanged", SEV_WARNING)
+				return None
 			if not body and not attach:
 				if not subject:
 					# Nothing at all. A message needs SOMETHING to say.
@@ -2882,18 +3570,36 @@ class InboxState:
 			# was; that is the whole reason they are retained.
 			return None
 		followed = self.follow_up_to
+		# READ BEFORE THE RESET, because the status below reports it and the
+		# cleanup two lines down is what used to make that impossible.
+		sent_scope = self.notice_scope
 		self.follow_up_to = None
 		self.follow_up_thread = None
 		self.mode = MODE_BROWSE
 		self._clear_committed_draft()
 		self.compose = {}
 		self.compose_field = 0
+		# EXPLICIT at the lifecycle boundary. An audience left armed after a
+		# send belongs to a message that is already gone, and the next `N`
+		# would inherit it -- a scope the human chose once quietly deciding
+		# who a later, unrelated broadcast reaches.
+		self.notice_scope = None
+		self.scope_query = ""
+		self.scope_stem = ""
 		# Stay in the INBOX -- the human's next action is almost never about
 		# the thing they just sent -- but say where it went and how to look.
 		# A confirmation that vanishes on the next repaint is a confirmation
 		# nobody sees.
 		if notice:
-			said = f"Sent: {subject or '(no subject)'} to everyone (notice) — o to view"
+			# WHERE IT ACTUALLY WENT. This said "to everyone" unconditionally,
+			# which was true of every notice until the audience became a
+			# choice — and a confirmation that reports the wrong audience is
+			# worse than none, because it tells the human their scoped notice
+			# reached the whole mailbox.
+			reach = ("everyone" if sent_scope in (None, SCOPE_GLOBAL)
+			         else sent_scope)
+			said = (f"Sent: {subject or '(no subject)'} to {reach} (notice) "
+			        f"— o to view")
 		elif followed:
 			# Says what did NOT happen as well as what did: a follow-up leaves
 			# the original's badge and disposition exactly where they were,
@@ -2973,18 +3679,28 @@ class InboxState:
 			return self.send_compose(store)
 		return self.send_reply(store)
 
-	def edit_body_externally(self, edit_fn) -> bool:
+	# What an editor visit DID. Three outcomes, not two: "explicitly emptied"
+	# is neither an import nor a cancellation, and collapsing it into the
+	# boolean is what let a human delete a full body and then be sent the
+	# subject-only shorthand by their next Enter.
+	EDIT_IMPORTED = "imported"
+	EDIT_NONE = "none"
+	EDIT_EMPTY = "empty"
+
+	def edit_body_externally(self, edit_fn) -> str:
 		"""Ctrl-E: hand the body to a real editor, import what comes back.
 
-		Importing is NOT publishing. The ordinary Enter and `Send now? [Y/n]`
-		still stand -- an editor that saves and exits must not be able to put
-		a message on the wire, because "save and quit" is muscle memory and
-		"send this to another person" is a decision.
+		Importing is NOT publishing. A successful import arms `Send now?
+		[Y/n]` (ruled 2026-08-11, superseding the extra Enter that used to sit
+		between them), and that confirmation is what an editor exit can never
+		get past: "save and quit" is muscle memory and "send this to another
+		person" is a decision.
 
-		Any failure leaves the draft exactly as it was: a half-imported body
-		is worse than no import."""
+		Any failure leaves the draft exactly as it was: a half-imported body is
+		worse than no import. An exact-empty result is one of those failures --
+		see the refusal below."""
 		if self.mode not in (MODE_REPLY, MODE_COMPOSE, MODE_NOTICE):
-			return False
+			return self.EDIT_NONE
 		if self.mode == MODE_REPLY:
 			# The BODY, not the subject line the human is editing inline.
 			# Reopening always gets exactly the last imported body: no
@@ -3003,7 +3719,7 @@ class InboxState:
 		result, message = edit_fn(seed)
 		if result is None:
 			self.set_status(message, SEV_WARNING)
-			return False
+			return self.EDIT_NONE
 		if result == seed:
 			# `:q!` in Vim EXITS SUCCESSFULLY and leaves the file untouched,
 			# so the editor hands back exactly what it was given. Reporting
@@ -3015,14 +3731,69 @@ class InboxState:
 			# It follows that saving a seeded quote verbatim is also no edit.
 			# That is intended: an unmodified quote is not an answer.
 			self.set_status(EDITOR_UNCHANGED, SEV_WARNING)
-			return False
+			return self.EDIT_NONE
+		if result == "":
+			# EXACT EMPTY IS A REFUSAL, at the moment the editor returns.
+			#
+			# It used to be an import: the body became `""`, the status said
+			# "draft imported", and a compose or notice then sat in its
+			# ordinary mode with a subject and no body -- where the next Enter
+			# publishes the subject-only shorthand. The human chose the
+			# full-body editor, deleted the body, and could be sent a DIFFERENT
+			# message without ever seeing a refusal.
+			#
+			# Exact zero length, not `strip()`: a whitespace-only body is
+			# lawful exact content and its bytes are the message. Refusing it
+			# here would decide, on the sender's behalf, that their content was
+			# not content.
+			self.set_status("the editor returned an empty body — nothing "
+			                "imported, and the draft is unchanged", SEV_WARNING)
+			# THE FULL-BODY INTENT SURVIVES, in whichever mode was editing.
+			# Without it an emptied editor looks exactly like one that never
+			# opened, and the next confirmation publishes the subject line as
+			# the whole message. A fresh browse FOLLOW-UP is compose mode, not
+			# reply mode, so protecting only replies left that path exposed.
+			if self.mode == MODE_REPLY:
+				self.reply_body_requested = True
+			else:
+				self.compose_body_requested = True
+			return self.EDIT_EMPTY
 		if self.mode == MODE_REPLY:
 			self.reply_body = result
 			self.reply_body_requested = True
 		else:
 			self.compose["body"] = result
+			self.compose_body_requested = True
 		self.set_status(message, SEV_SUCCESS)
-		return True
+		return self.EDIT_IMPORTED
+
+	def arm_send_after_import(self) -> bool:
+		"""Ruled: exiting the editor with a body goes straight to `Send? Y/n`.
+
+		"After the email body is edited, we want shortest path to send" —
+		Slawomir, 2026-08-11. The extra Enter between editor exit and the
+		confirmation is superseded; the confirmation itself is not, and editor
+		exit still publishes nothing on its own.
+
+		NON-EMPTY, which `edit_body_externally` alone does not guarantee:
+		emptying the file in the editor is a successful, changed import that
+		returns True, and arming a confirmation for a message with no body
+		would ask the human to approve something the send is about to refuse.
+
+		Preflight is NOT repeated here. `arm_send` owns it, so an attachment or
+		root problem still refuses and focuses the bad field with the imported
+		body intact — the alternative, a second copy of that check, is how two
+		answers to "can this be sent" end up in one console."""
+		body = (self.reply_body if self.mode == MODE_REPLY
+		        else self.compose.get("body", ""))
+		# EXACT length, never `strip()`. A whitespace-only body is lawful exact
+		# content -- the protocol refuses zero bytes, not spaces -- and
+		# stripping here would have refused to arm a message whose bytes are
+		# perfectly sendable. Exact-empty cannot reach this any more; the
+		# import refuses it at the editor boundary, where the human is looking.
+		if body == "":
+			return False
+		return self.arm_send()
 
 	def _reply_quote(self) -> str:
 		"""A conventional quote of the original, ONLY when the draft is empty.
@@ -3062,6 +3833,139 @@ class InboxState:
 					return node.get("text") or ""
 			return None
 		return walk(nodes)
+
+	# -- search: filter the list, touch nothing ---------------------------
+
+	def begin_search(self) -> bool:
+		"""`/`: open the filter box. Returns False when the mode refuses it.
+
+		Only from BROWSE. Opening it from a compose mode would swallow the
+		next keystrokes of a message the human is writing, and opening it from
+		a confirmation would put a text box behind a question."""
+		if self.mode != MODE_BROWSE:
+			return False
+		# Seeded with the ACCEPTED query so reopening the box edits the filter
+		# already in force rather than silently starting over.
+		self.search_draft = self.search_query
+		self.mode = MODE_SEARCH
+		self.set_status("search: author or subject — Enter filters, Esc clears",
+		                SEV_INFO)
+		return True
+
+	def search_type(self, char: str) -> None:
+		self._set_draft(self.search_draft + char)
+
+	def search_backspace(self) -> None:
+		self._set_draft(self.search_draft[:-1])
+
+	def search_clear(self) -> None:
+		"""Ctrl-U: empty the query without leaving the box."""
+		self._set_draft("")
+
+	def _set_draft(self, draft: str) -> None:
+		"""Edit the live query, keeping the human on the row they were on.
+
+		The list narrows on every keystroke, so the cursor has to be carried
+		by IDENTITY -- exactly as the poll carries it. Without this, typing a
+		second character moves the selection to whatever row happens to land
+		at that index, and the next Enter opens something nobody chose."""
+		if self.mode != MODE_SEARCH:
+			return
+		selected = self.selected
+		selected_sent = self._selected_sent_row()
+		self.search_draft = draft
+		self._restore_after_filter(selected, selected_sent)
+		# The query and its yield, live. Typing with no visible result is how a
+		# human concludes the filter is broken when it is merely empty.
+		shown = len(self.view_rows)
+		total = self.sent_count if self.view == VIEW_SENT else self.retained_count
+		if not draft:
+			self.set_status("search: author or subject — Enter filters, Esc clears",
+			                SEV_INFO)
+		elif shown:
+			self.set_status(f"search: {draft}  ({shown} of {total})", SEV_INFO)
+		else:
+			self.set_status(f"search: {draft}  (no match in {total})", SEV_WARNING)
+
+	def accept_search(self) -> None:
+		"""Enter: keep the filter and go back to browsing.
+
+		The filter SURVIVES, which is the point -- the human filtered in order
+		to act on a result. The status bar says so, because a filtered list
+		that does not announce itself is indistinguishable from a mailbox that
+		lost messages."""
+		if self.mode != MODE_SEARCH:
+			return
+		self.search_query = self.search_draft
+		self.mode = MODE_BROWSE
+		if self.search_query:
+			self.set_status(
+				f"filtered by {self.search_query!r} — / then Esc clears it",
+				SEV_INFO)
+		else:
+			self.set_status("messages", SEV_INFO)
+
+	def cancel_search(self) -> None:
+		"""Esc: leave the box AND drop the filter.
+
+		Deliberately not "restore the query that was in force": with the box
+		seeded from the accepted query, a restoring Esc would be a cancel that
+		changes nothing on screen, and there would be no key at all for
+		"show me everything again". `/` then Esc is that key."""
+		selected = self.selected
+		selected_sent = self._selected_sent_row()
+		self.search_draft = ""
+		self.search_query = ""
+		self.mode = MODE_BROWSE
+		self._restore_after_filter(selected, selected_sent)
+		self.set_status("messages", SEV_INFO)
+
+	def _selected_sent_row(self) -> dict | None:
+		"""The Sent row the cursor is on, read from the list it INDEXES.
+
+		`sent_cursor` indexes `sent_rows` -- the filtered view -- and reading
+		it out of `_all_sent_rows` mixes two index spaces. Under a filter that
+		captured a different row than the one on screen, so typing a second
+		character moved the selection onto a neighbour even though the
+		original still matched: a later open or materialize would then act on
+		a row the human never chose."""
+		rows = self.sent_rows
+		if not rows:
+			return None
+		return rows[min(self.sent_cursor, len(rows) - 1)]
+
+	def _restore_after_filter(self, previous: dict | None,
+	                          previous_sent: dict | None) -> None:
+		"""Put both cursors back on the same ROWS, or somewhere legal.
+
+		When the selected row no longer matches there is nothing to return to,
+		so the cursor is clamped into the shorter list rather than jumping to
+		the top: staying near where the human was reading beats a scroll to
+		row zero every time a character is typed."""
+		rows = self.rows
+		if previous is not None:
+			identity = (previous["row_type"], previous["id"])
+			for index, row in enumerate(rows):
+				if (row["row_type"], row["id"]) == identity:
+					self.cursor = index
+					break
+			else:
+				self.cursor = min(self.cursor, max(0, len(rows) - 1))
+		else:
+			self.cursor = min(self.cursor, max(0, len(rows) - 1))
+		sent = self.sent_rows
+		if previous_sent is not None:
+			for index, row in enumerate(sent):
+				if row["id"] == previous_sent["id"]:
+					self.sent_cursor = index
+					break
+			else:
+				self.sent_cursor = min(self.sent_cursor, max(0, len(sent) - 1))
+		else:
+			self.sent_cursor = min(self.sent_cursor, max(0, len(sent) - 1))
+		self.inbox_top = min(self.inbox_top, max(0, len(rows) - 1))
+		self.sent_top = min(self.sent_top, max(0, len(sent) - 1))
+		self._scroll_cursor_into_view()
 
 	# -- the modal shortcut list ------------------------------------------
 
@@ -3131,6 +4035,9 @@ class InboxState:
 		prevent is a human walking away from a claim nobody else can take."""
 		# INBOUND only. An outbound message someone else has claimed is their
 		# obligation, not a reply this participant owes.
-		return sum(1 for r in self.rows
+		# UNFILTERED, deliberately: what you owe is not a function of what you
+		# are looking at, and a filter that appeared to reduce your obligations
+		# would be the most dangerous thing search could do.
+		return sum(1 for r in self._all_rows
 		           if r["row_type"] == ROW_MESSAGE and r["state"] == "claimed"
 		           and r.get("claim_id") and r.get("direction", "in") == "in")

@@ -52,3 +52,27 @@ build-tui:
 	set -euo pipefail
 	[[ -x "{{PY}}" ]] || { echo "error: venv missing; run 'just venv' first" >&2; exit 1; }
 	"{{PY}}" tools/build_tui.py
+
+# Publish the certified release to a destination OUTSIDE the repository.
+# Copies bytes that are already certified and never builds; refuses a tree
+# whose artifacts disagree with their manifests, and refuses to rewrite a
+# version directory that already exists.
+deploy DESTINATION VERSION:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	python3 tools/deploy.py publish "{{DESTINATION}}" "{{VERSION}}"
+
+# Point DESTINATION/current at a deployed version. SEPARATE from `deploy` on
+# purpose: putting bytes on disk is safe and reversible, changing what every
+# team runs is neither, and one command doing both would make the safe half
+# impossible to do alone.
+deploy-activate DESTINATION VERSION:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	python3 tools/deploy.py activate "{{DESTINATION}}" "{{VERSION}}"
+
+# Re-hash a deployed version directory against its own record.
+verify-deployment VERSION_DIR:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	python3 tools/deploy.py verify "{{VERSION_DIR}}"

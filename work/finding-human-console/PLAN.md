@@ -520,6 +520,18 @@ Owned by `findings/finding-always-confirm-quit/`.
 2. **State/key/render/help correction** — pending, implementer-owned.
 3. **Model/render/PTY regressions and fresh zipapp** — pending.
 4. **Human trial and replacement full frozen gate** — pending.
+
+## 2026-08-11 UX correction — editor exit enters send confirmation
+
+Owned by `findings/finding-editor-send-confirmation/`.
+
+1. **Post-editor transition ruled and pinned** — completed.
+2. **Driver/model correction and focused regressions** — **done and signed off
+   2026-08-11** in
+   `findings/finding-editor-send-confirmation/review-2026-08-11T18-25-02Z.md`.
+3. **Candidate zipapp trial and append-only independent review** — **done for
+   source sign-off 2026-08-11**. Final release-candidate build and human soak
+   remain in `work/finding-next-release/PLAN.md`.
     baton_v6.py              unchanged, not in the archive
     protocol                 9, unchanged
 

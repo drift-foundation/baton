@@ -8,6 +8,7 @@ of it. These tests are what make that claim true.
 from __future__ import annotations
 
 import json
+import pathlib
 
 import pytest
 
@@ -115,7 +116,13 @@ def _send(state, store):
 	presses this instead. It asserts the confirmation was actually armed, so
 	a regression that publishes on the first Enter fails here rather than
 	being absorbed by a helper that just presses both keys."""
-	_press(state, store, K.ENTER_LF)
+	# ALREADY ARMED is now a legal starting point: a successful external body
+	# import arms the confirmation itself (ruled 2026-08-11), so the arming
+	# Enter these callers used to press would land on the question and answer
+	# it. Skipping it keeps this helper's promise -- the confirmation is
+	# asserted before `y` either way.
+	if state.mode != MODE_CONFIRM_SEND:
+		_press(state, store, K.ENTER_LF)
 	assert state.mode == MODE_CONFIRM_SEND, (
 		f"Enter did not arm a confirmation; mode is {state.mode}")
 	return _press(state, store, ord("y"))
@@ -241,7 +248,7 @@ def test_the_effectful_events_are_exactly_these():
 	destructive = {event for event in vars(K).values()
 	               if isinstance(event, str) and K.is_destructive(event)}
 	assert destructive == {K.OPEN, K.SEND, K.CLOSE, K.MATERIALIZE,
-	                       K.DISCARD_DRAFT}
+	                       K.SAVE_PATH_ACCEPT, K.DISCARD_DRAFT}
 
 
 @pytest.mark.parametrize("key", sorted(set(range(0, 300)) - {ord("q")}))
@@ -382,7 +389,7 @@ def test_a_new_directed_message_can_be_sent_from_the_console(env):
 def test_a_notice_can_be_published_from_the_console(env):
 	store = env
 	state = _ready(store)
-	_press(state, store, ord("N"))
+	_press(state, store, ord("N"), K.ENTER_LF)
 	for char in "Maintenance":
 		_press(state, store, ord(char))
 	_send(state, store)
@@ -589,10 +596,12 @@ def test_m_on_a_pending_preview_writes_nothing(env, tmp_path):
 	assert _press(state, store, ord("m")) is True       # still running
 	assert list(target.iterdir()) == []                  # no file
 	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
-	# The refusal names what is missing, not a keystroke: "press Enter to
-	# claim" stopped being the normal path when selection began claiming, and
-	# it cannot help on a row that is not claimable at all.
-	assert "hold the claim for" in state.status
+	# The refusal names the action that helps. It used to say "you hold the
+	# claim for", which stopped being true of every other row when saving was
+	# widened to anything viewable in full -- an answered message, a sent one,
+	# a seen notice. On THIS row, still unopened, opening it is exactly what
+	# makes its content available, so that is what it says.
+	assert "still unopened" in state.status and "Enter" in state.status
 	# And after an explicit claim it works.
 	_press(state, store, K.ENTER_LF, ord("m"))
 	written = list(target.iterdir())
@@ -1369,7 +1378,7 @@ def _drafted(store, mode="reply"):
 		for char in "a subject":
 			_press(state, store, ord(char))
 	else:
-		_press(state, store, ord("N"))
+		_press(state, store, ord("N"), K.ENTER_LF)
 		for char in "an announcement":
 			_press(state, store, ord(char))
 	return state
@@ -2044,10 +2053,12 @@ def test_ctrl_e_edits_the_reply_body_and_publishes_nothing(env):
 	assert state.draft == "S", "the editor overwrote the subject line"
 	assert store.conn.execute(
 		"SELECT COUNT(*) FROM dispositions").fetchone()[0] == before
-	assert state.mode == MODE_REPLY, "the editor left the typing mode"
-	# The ordinary confirmation still stands.
-	_press(state, store, K.ENTER_LF)
-	assert state.mode == MODE_CONFIRM_SEND
+	assert state.mode == MODE_CONFIRM_SEND, "the editor did not arm the send"
+	assert state.send_return_mode == MODE_REPLY, "it armed from the wrong mode"
+	# The confirmation still stands and still holds: the editor armed it, and
+	# nothing has been published until it is answered.
+	assert store.conn.execute(
+		"SELECT COUNT(*) FROM dispositions").fetchone()[0] == before
 
 
 def test_a_printable_key_is_never_the_editor_shortcut(env):
@@ -2083,6 +2094,9 @@ def test_an_existing_draft_is_opened_exactly_and_never_re_seeded(env):
 	state = _ready(store)
 	_press(state, store, K.ENTER_LF, ord("R"))
 	step(state, store, 5, 100, 24, edit_fn=_editor("already imported"))
+	# Declining returns to the draft, which is where a second edit starts now
+	# that a successful import arms the confirmation.
+	_press(state, store, ord("n"))
 	seeds = []
 	step(state, store, 5, 100, 24, edit_fn=_editor("kept", record=seeds))
 	# Reopening gets EXACTLY the last imported body. No re-seed, no merge,
@@ -2113,6 +2127,7 @@ def test_an_editor_failure_leaves_the_draft_untouched(env):
 	state = _ready(store)
 	_press(state, store, K.ENTER_LF, ord("R"))
 	step(state, store, 5, 100, 24, edit_fn=_editor("my words"))
+	_press(state, store, ord("n"))          # back to the draft to edit again
 	step(state, store, 5, 100, 24,
 	     edit_fn=_editor(None, message="editor exited 1; draft unchanged"))
 	assert state.reply_body == "my words"
@@ -2139,6 +2154,10 @@ def test_the_original_stays_visible_after_returning_from_the_editor(env):
 	# help is where the editor key is documented.
 	assert "Ctrl-E" not in screen
 	assert "^E" not in screen
+	# The DRAFT's legend, which is one decline away now that a successful
+	# import arms the confirmation.
+	if state.mode == MODE_CONFIRM_SEND:
+		_press(state, store, ord("n"))
 	assert "Ctrl+e" in _legend(state), "the affordance itself was lost"
 
 
@@ -2242,9 +2261,10 @@ def test_the_editor_key_opens_the_editor_from_browse(env):
 	_press(state, store, K.ENTER_LF)              # claim and open, still browsing
 	seeds = []
 	step(state, store, ord("r"), 100, 24, edit_fn=_editor("full body", record=seeds))
-	# One action: the reply started AND the editor opened, seeded with the
-	# quoted original.
-	assert state.mode == MODE_REPLY
+	# One action: the reply started, the editor opened seeded with the quoted
+	# original, and its exit armed the send.
+	assert state.mode == MODE_CONFIRM_SEND
+	assert state.send_return_mode == MODE_REPLY
 	assert state.draft == "S", "the subject was not inherited"
 	assert state.reply_body == "full body"
 	assert "> the original" in seeds[0]
@@ -2323,6 +2343,9 @@ def test_the_body_state_is_shown_rather_than_typed(env):
 	assert EMPTY_BODY not in screen, "the empty-state label outlived the body"
 	assert "Ctrl-E" not in screen, "the key hint is back in the work area"
 	assert "Ctrl+e" not in screen, "the removed footer is back"
+	# The DRAFT's legend, one decline away: a successful import now arms the
+	# confirmation, and that is the legend on screen until it is answered.
+	_press(state, store, ord("n"))
 	assert "Ctrl+e" in _legend(state), "the affordance itself was lost"
 	# The body TEXT is not drawn as an editable field.
 	assert "the considered answer" not in screen
@@ -2433,7 +2456,7 @@ def test_a_notice_has_no_inline_body_field_either(env):
 	why this survived."""
 	store = env
 	state = _ready(store)
-	_press(state, store, ord("N"))
+	_press(state, store, ord("N"), K.ENTER_LF)
 	assert "body" not in state.compose_fields
 	for _ in range(6):
 		_press(state, store, K.TAB)
@@ -2456,6 +2479,8 @@ def test_a_new_composition_never_quotes_whatever_was_open(env, key):
 	_press(state, store, key)                        # start a NEW composition
 	if key == ord("n"):
 		_press(state, store, _pick(state, "acme.reviewer"))
+	else:
+		_press(state, store, K.ENTER_LF)             # `N` asks WHO first; `*`
 	seeds = []
 	step(state, store, 5, 100, 24, edit_fn=_editor("mine", record=seeds))
 	assert seeds[0] == "", f"a new composition was seeded with: {seeds[0]!r}"
@@ -2629,14 +2654,18 @@ def test_an_empty_body_from_the_editor_refuses_rather_than_sending_the_subject(e
 	           body=b"q\n")
 	state = _ready(store)
 	_press(state, store, K.ENTER_LF)
-	step(state, store, ord("r"), 100, 24, edit_fn=_editor(""))   # editor emptied it
 	before = store.conn.execute("SELECT COUNT(*) FROM dispositions").fetchone()[0]
+	step(state, store, ord("r"), 100, 24, edit_fn=_editor(""))   # editor emptied it
+	# IMMEDIATELY, ruled 2026-08-11: the refusal is visible when the editor
+	# returns, not two keystrokes later at a send the human had to attempt.
+	# This used to press Enter twice to reach the same warning.
+	assert "empty body" in state.status
+	assert state.mode != MODE_CONFIRM_SEND, "an empty body armed the send"
 	_press(state, store, K.ENTER_LF, K.ENTER_LF)
 	assert store.conn.execute(
 		"SELECT COUNT(*) FROM dispositions").fetchone()[0] == before
-	assert "empty body" in state.status
-	assert state.draft == "Deploy", "the draft was lost"
-	assert state.unresolved_count() == 1
+	assert state.draft == "Deploy", "the inherited draft was lost"
+	assert state.unresolved_count() == 1, "the claim was resolved by a refusal"
 
 
 def test_the_quick_path_still_sends_when_no_editor_was_opened(env):
@@ -2844,7 +2873,8 @@ def test_editing_keys_do_not_disturb_the_other_bindings(env):
 	_press(state, store, K.KEY_LEFT, K.KEY_LEFT)
 	step(state, store, 5, 100, 24, edit_fn=_editor("full body"))
 	assert state.reply_body == "full body"
-	_press(state, store, K.ENTER_LF)
+	# The editor exit ARMS. Ruled 2026-08-11: the Enter that used to be
+	# pressed here carried no decision and is gone.
 	assert state.mode == MODE_CONFIRM_SEND
 	_press(state, store, ord("n"))
 	assert state.mode == MODE_REPLY
@@ -3771,6 +3801,7 @@ _LABELS = (
 	("hscroll", "h/l sideways"),
 	("read_part", "v read"),
 	("materialize", "m save"),
+	("save_message", "M save all"),
 )
 _ALWAYS = ("n new", "N notice", "i/o view", "Ctrl+r refresh", "? help", "q quit")
 
@@ -3905,6 +3936,7 @@ def test_nothing_advertised_refuses_for_want_of_state(env):
 					"open": "Enter open", "reply": "r reply", "close": "c close",
 					"part_nav": "[/] part", "read_part": "v read",
 					"materialize": "m save", "hscroll": "h/l sideways",
+					"save_message": "M save all",
 				}[name] in legend
 				assert offered == bool(available[name]), (
 					f"row {index} opened={opened}: {name} offered={offered} "
@@ -4070,7 +4102,7 @@ def _enter_mode(state, store, mode):
 	elif mode == MODE_PICK_RECIPIENT:
 		_press(state, store, ord("n"))
 	elif mode == MODE_NOTICE:
-		_press(state, store, ord("N"))
+		_press(state, store, ord("N"), K.ENTER_LF)
 	elif mode == MODE_COMPOSE:
 		_press(state, store, ord("n"))
 		_press(state, store, _pick(state, "acme.reviewer"))
@@ -4223,7 +4255,7 @@ def test_a_one_field_notice_does_not_advertise_tab(env):
 	cannot make."""
 	store = env
 	state = _ready(store)
-	_press(state, store, ord("N"))
+	_press(state, store, ord("N"), K.ENTER_LF)
 	assert len(state.compose_fields) == 1
 	legend = _legend(state)
 	assert "Tab" not in legend, legend
@@ -4980,7 +5012,8 @@ def test_a_fresh_editor_reply_that_succeeds_is_unaffected(env):
 	step(state, store, ord("r"), 100, 24,
 	     edit_fn=_editor("a full answer", record=seeds))
 	assert seeds, "the editor never opened"
-	assert state.mode == MODE_REPLY
+	assert state.mode == MODE_CONFIRM_SEND
+	assert state.send_return_mode == MODE_REPLY
 	assert state.reply_body == "a full answer"
 	assert state.draft == "Ask", "the subject was not inherited"
 
@@ -5174,7 +5207,7 @@ def test_a_multi_page_picker_still_pages(env):
 def test_a_one_field_notice_refuses_to_move_between_fields(env):
 	store = env
 	state = _ready(store)
-	_press(state, store, ord("N"))
+	_press(state, store, ord("N"), K.ENTER_LF)
 	assert len(state.compose_fields) == 1, "this fixture has more than one field"
 	assert state.modal_affordances()["more_fields"] is False
 	before = state.compose_field
@@ -5872,7 +5905,8 @@ def test_lowercase_r_goes_straight_to_the_editor(env):
 	step(state, store, ord("r"), 100, 24, edit_fn=_editor("a full answer", record=seeds))
 	assert seeds, "`r` did not open the editor"
 	assert state.reply_body == "a full answer"
-	assert state.mode == MODE_REPLY, "the editor did not return to a draft"
+	assert state.mode == MODE_CONFIRM_SEND, "the editor did not arm the send"
+	assert state.send_return_mode == MODE_REPLY, "it armed from the wrong mode"
 
 
 def test_uppercase_R_is_the_quick_subject_line_and_opens_nothing(env):
@@ -7186,3 +7220,671 @@ def test_q_still_closes_help(env):
     alive = step(state, store, ord("q"), 100, 24)
     assert alive is True
     assert state.mode == MODE_BROWSE, "q in help started a quit instead of closing"
+
+
+# -- `m` reaches the model for everything viewable -------------------------
+#
+# THROUGH THE KEY, not the method. The model was widened to save anything the
+# human can view in full, and `m` still refused — because dispatch gates it
+# behind an affordance that was left asking for an active claim. The model
+# tests all passed while the console was still broken, which is the same shape
+# as the packaged Enter defect: a correct model behind a gate that says no.
+
+def test_m_saves_an_answered_message_through_the_key(env, tmp_path):
+	store = env
+	target = tmp_path / "proj"
+	target.mkdir()
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="Answered", body=b"# the body he wanted\n")
+	state = _ready(store)
+	state.projection_dir = str(target)
+	_press(state, store, K.ENTER_LF)                     # claim and open
+	store.close_claim(state.opened["claim_id"], participant="acme.implementer",
+	                  outcome="done")
+	state.refresh(store)
+	assert state.opened is None, "this fixture did not reach the reported state"
+	_press(state, store, K.ENTER_LF)                     # reopen, read-only
+
+	assert state.affordances()["materialize"] is True, state.unavailable_reason("materialize")
+	assert _press(state, store, ord("m")) is True
+	written = list(target.iterdir())
+	assert len(written) == 1, state.status
+	assert written[0].read_bytes() == b"# the body he wanted\n"
+
+
+def test_m_saves_a_seen_notice_through_the_key(env, tmp_path):
+	store = env
+	target = tmp_path / "proj"
+	target.mkdir()
+	store.send_notice("acme.reviewer", kind="ann", subject="Broadcast",
+	                  body=b"the announcement\n")
+	state = _ready(store)
+	state.projection_dir = str(target)
+	_press(state, store, K.ENTER_LF)                     # Enter marks it seen
+	state.refresh(store)
+
+	assert state.affordances()["materialize"] is True, state.unavailable_reason("materialize")
+	assert _press(state, store, ord("m")) is True
+	written = list(target.iterdir())
+	assert len(written) == 1, state.status
+	assert written[0].read_bytes() == b"the announcement\n"
+
+
+def test_m_still_refuses_an_unclaimed_pending_row_through_the_key(env, tmp_path):
+	"""The preview boundary, at the dispatch layer where it is actually
+	enforced. The affordance and the model must agree: a gate that permits what
+	the model refuses is a promise the key cannot keep, and one that refuses
+	what the model permits is this defect."""
+	store = env
+	target = tmp_path / "proj"
+	target.mkdir()
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="Unopened", body=b"# SECRET\n")
+	state = _ready(store)
+	state.projection_dir = str(target)
+
+	assert state.affordances()["materialize"] is False
+	assert _press(state, store, ord("m")) is True
+	assert list(target.iterdir()) == []
+	assert store.conn.execute("SELECT COUNT(*) FROM claims").fetchone()[0] == 0
+	assert "still unopened" in state.status
+
+
+def test_the_affordance_and_the_model_agree(env, tmp_path):
+	"""ONE rule, asked in two places. Whenever the affordance says yes the
+	model must write, and whenever it says no the model must refuse — checked
+	across every row shape this console has."""
+	store = env
+	target = tmp_path / "proj"
+	target.mkdir()
+	store.send("acme.reviewer", "acme.implementer", kind="q",
+	           subject="Inbound", body=b"in\n")
+	store.send("acme.implementer", "acme.reviewer", kind="q",
+	           subject="Outbound", body=b"out\n")
+	store.send_notice("acme.reviewer", kind="ann", subject="Notice", body=b"n\n")
+	state = _ready(store)
+	state.projection_dir = str(target)
+
+	for index in range(len(state.rows)):
+		state.cursor = index
+		state.preview(store)
+		_settle(state, store)
+		offered = state.affordances()["materialize"]
+		before = set(p.name for p in target.iterdir())
+		_press(state, store, ord("m"))
+		wrote = set(p.name for p in target.iterdir()) != before
+		assert wrote == offered, (
+			f"row {index} ({state.selected.get('subject')!r}): affordance "
+			f"{offered}, wrote {wrote} — {state.status}")
+
+
+# -- editor exit goes straight to the confirmation -------------------------
+#
+# "When exiting body edit from editor, we should already enter Send Y/n, not
+# require another ENTER and then prompt to send. After email body is edited, we
+# want shortest path to send." — Slawomir, 2026-08-11.
+#
+# The Enter that used to sit between the editor and the question carried no
+# decision: the edit was finished when the editor exited. What is NOT removed is
+# the confirmation itself — save-and-quit muscle memory stays one deliberate
+# keystroke away from the network.
+
+def _dispositions(store):
+	return store.conn.execute("SELECT COUNT(*) FROM dispositions").fetchone()[0]
+
+
+def _messages(store):
+	return store.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+
+
+def test_a_full_reply_editor_exit_arms_the_send(env):
+	"""Acceptance 1: no intervening Enter, and nothing written yet."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _ready(store)
+	_select(state, store)
+	before = _dispositions(store), _messages(store)
+
+	step(state, store, ord("r"), 100, 24, edit_fn=_editor("the answer"))
+	assert state.mode == MODE_CONFIRM_SEND
+	assert state.send_return_mode == MODE_REPLY
+	assert (_dispositions(store), _messages(store)) == before, "the editor published"
+
+
+def test_compose_and_notice_ctrl_e_arm_the_send_too(env):
+	"""Acceptance 2: every lawful external-body entry path, not just reply."""
+	store = env
+	state = _ready(store)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	step(state, store, 5, 100, 24, edit_fn=_editor("a composed body"))
+	assert state.mode == MODE_CONFIRM_SEND
+	assert state.send_return_mode == MODE_COMPOSE
+
+	_press(state, store, ord("n"))               # decline back to the draft
+	_press(state, store, K.ESC)                  # and leave it
+	_press(state, store, ord("N"), K.ENTER_LF)   # notice, audience `*`
+	step(state, store, 5, 100, 24, edit_fn=_editor("a broadcast body"))
+	assert state.mode == MODE_CONFIRM_SEND
+	from baton_tui.state import MODE_NOTICE as _NOTICE
+	assert state.send_return_mode == _NOTICE
+
+
+def test_one_key_after_the_editor_publishes_exactly_once(env):
+	"""Acceptance 3: editor, then a single affirmative key. Two strokes total,
+	which is the shortest path the ruling asked for — and exactly one send."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"?\n")
+	state = _ready(store)
+	_select(state, store)
+	step(state, store, ord("r"), 100, 24, edit_fn=_editor("the answer"))
+	_press(state, store, ord("y"))
+
+	assert _dispositions(store) == 1
+	rows = store.conn.execute(
+		"SELECT COUNT(*) FROM messages WHERE from_participant='acme.implementer'"
+	).fetchone()[0]
+	assert rows == 1, "the reply published more than once"
+
+
+def test_declining_restores_the_whole_draft(env):
+	"""Acceptance 4: the same draft, mode, body, and the original still on
+	screen — and another edit or a later send both still work."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+	           body=b"the original words\n")
+	state = _ready(store)
+	_select(state, store)
+	step(state, store, ord("r"), 100, 24, edit_fn=_editor("first answer"))
+	_press(state, store, ord("n"))
+
+	assert state.mode == MODE_REPLY
+	assert state.reply_body == "first answer"
+	assert state.draft == "Ask", "the inherited subject was lost"
+	screen = "\n".join(render(state, 100, 24))
+	assert "the original words" in screen, "the message being answered vanished"
+
+	# Another edit works, and arms again.
+	step(state, store, 5, 100, 24, edit_fn=_editor("second answer"))
+	assert state.mode == MODE_CONFIRM_SEND
+	_press(state, store, ord("y"))
+	assert _dispositions(store) == 1
+
+
+@pytest.mark.parametrize("outcome,editor", [
+	("cancelled", lambda: _editor(None, message="editor cancelled")),
+	("unchanged", lambda: _editor("SEED_ECHO")),
+])
+def test_an_unsuccessful_edit_never_arms(env, outcome, editor):
+	"""Acceptance 5. An emptied body is the subtle one: the import SUCCEEDS
+	and returns True, so routing "it returned true" straight to the
+	confirmation would ask the human to approve a message the send is about to
+	refuse."""
+	store = env
+	state = _ready(store)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "a subject":
+		_press(state, store, ord(char))
+	if outcome == "unchanged":
+		# Return the seed verbatim, which is what `:q!` does.
+		step(state, store, 5, 100, 24, edit_fn=lambda seed: (seed, "no change"))
+	else:
+		step(state, store, 5, 100, 24, edit_fn=editor())
+
+	assert state.mode == MODE_COMPOSE, f"{outcome} armed a confirmation"
+	assert _messages(store) == 0, f"{outcome} published"
+
+
+def test_an_attachment_problem_refuses_before_the_question(env, tmp_path):
+	"""Acceptance 6: preflight is `arm_send`'s and stays authoritative. The
+	imported body survives the refusal."""
+	store = env
+	state = _ready(store)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	state.compose["attach_root"] = "src"
+	state.compose["attach_path"] = "no/such/file.txt"
+
+	step(state, store, 5, 100, 24, edit_fn=_editor("a body worth keeping"))
+	assert state.mode == MODE_COMPOSE, "a bad attachment reached the confirmation"
+	assert state.compose["body"] == "a body worth keeping", "the import was lost"
+	assert state.compose_field_name == "attach_path", "the bad field was not focused"
+	assert _messages(store) == 0
+
+
+def test_emptying_the_body_in_the_editor_never_arms(env):
+	"""The subtle half of acceptance 5, and the one my first parametrization
+	did NOT reach: emptying a body that EXISTS is a successful, changed import
+	— `edit_body_externally` returns True — so routing "it returned true"
+	straight to the confirmation would ask the human to approve a message the
+	send is about to refuse.
+
+	Starting from an empty body proves nothing here: the editor hands back the
+	seed unchanged and the import is refused one step earlier."""
+	store = env
+	state = _ready(store)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "a subject":
+		_press(state, store, ord(char))
+
+	step(state, store, 5, 100, 24, edit_fn=_editor("a real body"))
+	assert state.mode == MODE_CONFIRM_SEND, "this fixture never armed"
+	_press(state, store, ord("n"))               # back to the draft
+	assert state.compose["body"] == "a real body"
+
+	step(state, store, 5, 100, 24, edit_fn=_editor(""))
+	# THE BODY SURVIVES. Replacing it with `""` and reporting a successful
+	# import left a compose sitting in its ordinary mode with a subject and no
+	# body — where the next Enter publishes the SUBJECT-ONLY shorthand. The
+	# human chose the full-body editor, deleted the body, and could be sent a
+	# different message without ever seeing a refusal. My first version of this
+	# test asserted that empty buffer, which positively accepted the danger.
+	assert state.compose["body"] == "a real body", "the emptying import replaced it"
+	assert "empty body" in state.status, "the refusal was not visible"
+	assert state.mode == MODE_COMPOSE, "an emptied body armed the confirmation"
+	assert _messages(store) == 0
+
+	# And a LATER ordinary send cannot fall through to the subject alone: what
+	# publishes is the body that was there all along.
+	_press(state, store, K.ENTER_LF, ord("y"))
+	published = store.conn.execute(
+		"SELECT COUNT(*) FROM messages WHERE from_participant='acme.implementer'"
+	).fetchone()[0]
+	assert published == 1
+	dumped = store.conn.execute(
+		"SELECT subject FROM messages WHERE from_participant='acme.implementer'"
+	).fetchone()[0]
+	assert dumped == "a subject"
+
+
+@pytest.mark.parametrize("where", ["reply", "compose", "notice"])
+def test_a_whitespace_only_body_is_content_and_arms(env, where):
+	"""R1 from review: whitespace-only bodies are LAWFUL exact content.
+
+	The protocol refuses zero bytes, not spaces. My first guard used `strip()`,
+	which decided on the sender's behalf that their content was not content —
+	and would have refused to arm a message whose bytes are perfectly
+	sendable. Exact length is the only test that belongs here.
+	"""
+	store = env
+	body = "   \n\t\n"
+	if where == "reply":
+		store.send("acme.reviewer", "acme.implementer", kind="q", subject="Ask",
+		           body=b"?\n")
+		state = _ready(store)
+		_select(state, store)
+		step(state, store, ord("r"), 100, 24, edit_fn=_editor(body))
+		assert state.reply_body == body, "the exact bytes were altered"
+	else:
+		state = _ready(store)
+		if where == "compose":
+			_press(state, store, ord("n"))
+			_press(state, store, _pick(state, "acme.reviewer"))
+		else:
+			_press(state, store, ord("N"), K.ENTER_LF)
+		for char in "a subject":
+			_press(state, store, ord(char))
+		step(state, store, 5, 100, 24, edit_fn=_editor(body))
+		assert state.compose["body"] == body, "the exact bytes were altered"
+
+	assert state.mode == MODE_CONFIRM_SEND, "whitespace-only content was refused"
+
+	# THE EXACT BYTES, read back through the public API. Counting rows and
+	# checking a subject passes for a subject-only fallback, which is the very
+	# thing these paths must not produce.
+	_press(state, store, ord("y"))
+	assert _published_body(store, where) == body.encode("utf-8"), state.status
+
+
+def _published_body(store, where):
+	"""The bytes actually published, through the public read path.
+
+	Not a row count and not a subject: a subject-only fallback publishes a row
+	with the right subject too, so counting one would pass for exactly the
+	wrong-message defect these tests exist to catch."""
+	# Both public read paths wrap their envelope in a single key naming what
+	# was opened -- `sent` / `sent_notice` -- so the wrapper is unwrapped here
+	# rather than assumed away.
+	if where == "notice":
+		notice = store.list_notice_activity("acme.implementer")[0]
+		opened = store.open_sent_notice(notice["id"], "acme.implementer")
+	else:
+		sent = store.list_sent("acme.implementer")[0]
+		opened = store.open_sent(sent["id"], "acme.implementer")
+	envelope = next(iter(opened.values()))
+	return _first_leaf_bytes(envelope)
+
+
+def _first_leaf_bytes(envelope):
+	def walk(node):
+		if node.get("parts"):
+			for child in node["parts"]:
+				found = walk(child)
+				if found is not None:
+					return found
+			return None
+		text = node.get("text")
+		return text.encode("utf-8") if text is not None else None
+	content = (envelope.get("content") or envelope)
+	return walk(content)
+
+
+# -- an explicitly emptied editor is a DECISION, not a cancellation --------
+#
+# R1/R2 from the second review. Returning a boolean made "I deleted the body"
+# indistinguishable from "I cancelled", and the difference decides whether the
+# next Enter publishes the subject line as the whole message.
+
+def test_emptying_a_quick_reply_keeps_the_full_body_intent(env):
+	"""Ctrl-E from an existing quick reply. The editor returning empty must
+	not leave a draft that publishes its subject as the message."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Deploy",
+	           body=b"?\n")
+	state = _ready(store)
+	_select(state, store)
+	_press(state, store, ord("R"))               # the QUICK reply: subject only
+	assert state.mode == MODE_REPLY
+	assert not state.reply_body_requested, "this fixture already wanted a body"
+
+	step(state, store, 5, 100, 24, edit_fn=_editor(""))
+	assert "empty body" in state.status
+	assert state.mode == MODE_REPLY, "an emptied editor armed the send"
+	assert state.reply_body_requested, "the full-body intent was lost"
+
+	# The later ordinary confirmation must refuse, not publish the subject.
+	before = store.conn.execute("SELECT COUNT(*) FROM dispositions").fetchone()[0]
+	_press(state, store, K.ENTER_LF, K.ENTER_LF)
+	assert store.conn.execute(
+		"SELECT COUNT(*) FROM dispositions").fetchone()[0] == before
+	assert "empty body" in state.status
+
+
+def test_a_fresh_reply_emptied_in_the_editor_keeps_its_draft(env):
+	"""Browse `r`: an explicit empty is not a cancellation, so the reply is
+	NOT abandoned and the inherited subject survives."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Deploy",
+	           body=b"the original\n")
+	state = _ready(store)
+	_select(state, store)
+	step(state, store, ord("r"), 100, 24, edit_fn=_editor(""))
+
+	assert "empty body" in state.status
+	assert state.mode == MODE_REPLY, "the emptied reply was thrown away"
+	assert state.draft == "Deploy", "the inherited draft was lost"
+	assert state.reply_body_requested, "the full-body intent was lost"
+	assert state.unresolved_count() == 1
+
+
+def test_a_cancelled_fresh_reply_is_still_abandoned(env):
+	"""The other half of the three-way outcome: a CANCELLED editor still puts
+	the human back where they started. Merging these two outcomes in either
+	direction is the defect."""
+	store = env
+	store.send("acme.reviewer", "acme.implementer", kind="q", subject="Deploy",
+	           body=b"the original\n")
+	state = _ready(store)
+	_select(state, store)
+	step(state, store, ord("r"), 100, 24,
+	     edit_fn=_editor(None, message="editor cancelled"))
+	assert state.mode == MODE_BROWSE, "a cancelled reply was kept as a draft"
+
+
+@pytest.mark.parametrize("where", ["compose", "notice"])
+def test_emptying_a_compose_or_notice_preserves_the_prior_body(env, where):
+	store = env
+	state = _ready(store)
+	if where == "compose":
+		_press(state, store, ord("n"))
+		_press(state, store, _pick(state, "acme.reviewer"))
+	else:
+		_press(state, store, ord("N"), K.ENTER_LF)
+	for char in "a subject":
+		_press(state, store, ord(char))
+	step(state, store, 5, 100, 24, edit_fn=_editor("the real body"))
+	_press(state, store, ord("n"))               # decline back to the draft
+
+	step(state, store, 5, 100, 24, edit_fn=_editor(""))
+	assert "empty body" in state.status
+	assert state.compose["body"] == "the real body", "the emptying replaced it"
+	assert state.mode != MODE_CONFIRM_SEND
+
+	# And what publishes is that body, byte for byte — not the subject.
+	_press(state, store, K.ENTER_LF, ord("y"))
+	assert _published_body(store, where) == b"the real body"
+
+
+@pytest.mark.parametrize("kind", ["message", "notice"])
+def test_a_fresh_follow_up_emptied_in_the_editor_cannot_send_its_subject(env, kind):
+	"""R1 from the third review. A fresh browse FOLLOW-UP is MODE_COMPOSE with
+	`compose_is_reply=True` — not reply mode — so protecting only replies left
+	this path publishing the subject shorthand after the human deliberately
+	emptied the body.
+
+	The marker cannot be inferred from `compose_is_reply`, because a quick
+	subject-only follow-up is still valid; that is the last test below."""
+	store = env
+	if kind == "message":
+		mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+		                 subject="Deploy", body=b"the original\n")
+		claim = store.claim("acme.implementer", message_id=mid)
+		store.close_claim(claim["claim_id"], participant="acme.implementer",
+		                  outcome="done")
+	else:
+		store.send_notice("acme.reviewer", kind="ann", subject="Broadcast",
+		                  body=b"the announcement\n")
+	state = _ready(store)
+	_select(state, store)
+	if kind == "notice":
+		_press(state, store, K.ENTER_LF)         # Enter marks it seen
+		state.refresh(store)
+
+	before = _messages(store)
+	seeds = []
+	if kind == "notice":
+		# A seen notice QUOTES, so the follow-up opens with a non-empty seed
+		# and deleting it reaches the explicit-empty path with no prior
+		# import — which is the case the marker is actually for. My first
+		# version did a successful edit first, which set the marker by the
+		# import path and made the empty path untested: removing it left the
+		# test green.
+		step(state, store, ord("r"), 100, 24, edit_fn=_editor("", record=seeds))
+		assert seeds and seeds[0], "this fixture had no quote to delete"
+	else:
+		# A handled MESSAGE yields no quote, so an empty seed emptied is "no
+		# changes". A body first, then deleted, is the reachable case here.
+		step(state, store, ord("r"), 100, 24,
+		     edit_fn=_editor("a considered follow-up"))
+		assert state.mode == MODE_CONFIRM_SEND
+		_press(state, store, ord("n"))           # decline back to the draft
+		step(state, store, 5, 100, 24, edit_fn=_editor(""))
+	assert state.compose_is_reply, "this fixture is not a follow-up"
+	assert "empty body" in state.status
+	assert state.compose_body_requested, "the full-body intent was lost"
+
+	_press(state, store, K.ENTER_LF, ord("y"))
+	if kind == "notice":
+		# NOTHING published: there was never a body, and the subject shorthand
+		# must not stand in for the one the human deleted.
+		assert _messages(store) == before, "the subject shorthand was published"
+		assert "empty body" in state.status
+	else:
+		# The prior body survived, so a later send publishes THAT.
+		assert _messages(store) - before == 1
+		assert _published_body(store, "compose") == b"a considered follow-up"
+
+
+def test_a_quick_subject_only_follow_up_still_sends(env):
+	"""The other side: the marker must not make the valid quick path refuse."""
+	store = env
+	mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+	                 subject="Deploy", body=b"the original\n")
+	claim = store.claim("acme.implementer", message_id=mid)
+	store.close_claim(claim["claim_id"], participant="acme.implementer",
+	                  outcome="done")
+	state = _ready(store)
+	_select(state, store)
+	_press(state, store, ord("R"))               # quick follow-up: subject only
+	assert state.compose_is_reply
+	assert not state.compose_body_requested
+
+	before = _messages(store)
+	_send(state, store)
+	assert _messages(store) == before + 1, state.status
+
+
+def test_the_full_body_intent_survives_retention_and_reopen(env, tmp_path):
+	"""A restart must not turn an emptied follow-up into a quick one.
+
+	NOTE: this keeps a non-empty body, so it pins the marker's round trip but
+	NOT the consequence of losing it — with a body present there is no
+	subject-only fallback to fall into. The genuinely empty case is the test
+	below, which is the one that fails when serialization or restoration
+	breaks."""
+	store = env
+	state = _ready(store)
+	state.projection_dir = str(tmp_path)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "a subject":
+		_press(state, store, ord(char))
+	step(state, store, 5, 100, 24, edit_fn=_editor("a real body"))
+	_press(state, store, ord("n"))               # decline back to the draft
+	step(state, store, 5, 100, 24, edit_fn=_editor(""))
+	assert state.compose_body_requested
+	_press(state, store, K.ESC)                  # Esc retains
+
+	fresh = InboxState("acme.implementer")
+	fresh.projection_dir = str(tmp_path)
+	fresh.load_drafts()
+	fresh.refresh(store)
+	fresh.set_viewport(**layout_for(100, 24))
+	row = next(r for r in fresh.rows
+	           if (r.get("draft") or {}).get("subject") == "a subject")
+	fresh.reopen_draft(row)
+	assert fresh.compose_body_requested, "the intent did not survive the restart"
+
+
+@pytest.mark.parametrize("kind", ["reply", "notice_follow_up"])
+def test_an_emptied_draft_still_refuses_after_a_restart(env, tmp_path, kind):
+	"""R3 from the fourth review. A GENUINELY EMPTY draft: if the marker does
+	not survive, the reopened draft has a subject and no body, and the send
+	falls through to the subject-only shorthand — the wrong-message path,
+	reached through a restart."""
+	store = env
+	if kind == "reply":
+		store.send("acme.reviewer", "acme.implementer", kind="q",
+		           subject="Deploy", body=b"the original\n")
+	else:
+		store.send_notice("acme.reviewer", kind="ann", subject="Broadcast",
+		                  body=b"the announcement\n")
+	state = _ready(store)
+	state.projection_dir = str(tmp_path)
+	_select(state, store)
+	if kind == "notice_follow_up":
+		_press(state, store, K.ENTER_LF)         # mark it seen
+		state.refresh(store)
+
+	# Delete the quoted seed: an explicit empty, with no body left behind.
+	seeds = []
+	step(state, store, ord("r"), 100, 24, edit_fn=_editor("", record=seeds))
+	assert seeds and seeds[0], "this fixture had no quote to delete"
+	assert "empty body" in state.status
+	body_field = "reply_body" if kind == "reply" else None
+	if body_field:
+		assert getattr(state, body_field) == "", "a body was left behind"
+	else:
+		assert state.compose.get("body", "") == "", "a body was left behind"
+	_press(state, store, K.ESC)                  # Esc retains
+
+	fresh = InboxState("acme.implementer")
+	fresh.projection_dir = str(tmp_path)
+	fresh.load_drafts()
+	fresh.refresh(store)
+	fresh.set_viewport(**layout_for(100, 24))
+	row = next(r for r in fresh.rows if (r.get("draft") or {}).get("subject"))
+	fresh.reopen_draft(row)
+
+	before = _messages(store), store.conn.execute(
+		"SELECT COUNT(*) FROM dispositions").fetchone()[0]
+	_press(fresh, store, K.ENTER_LF, K.ENTER_LF, ord("y"))
+	after = _messages(store), store.conn.execute(
+		"SELECT COUNT(*) FROM dispositions").fetchone()[0]
+	assert after == before, "the reopened empty draft published its subject"
+
+
+def _evidence(state, store):
+	"""Put a real file in the configured root and make the root reachable.
+
+	Two things, because the preflight needs both: the file must exist, and the
+	console resolves a root id through the list the PICKER last supplied —
+	setting `attach_root` alone refuses with "not a configured attachment
+	root" before reaching the rule under test."""
+	base = pathlib.Path(store.config["roots"]["src"])
+	base.mkdir(parents=True, exist_ok=True)
+	(base / "EVIDENCE.md").write_bytes(b"the evidence\n")
+	state.known_roots = [{"root_id": "src", "path": str(base)}]
+	state.compose["attach_root"] = "src"
+	return "EVIDENCE.md"
+
+
+def test_an_attachment_cannot_stand_in_for_a_deleted_body(env):
+	"""R4 from the fourth review, reached the way a human reaches it.
+
+	The refusal was checked only under `not body and not attach`, so attaching
+	a file let an attachment-only message go out in place of the body someone
+	deleted — a different message again, and this one looks deliberate.
+
+	A seen-notice follow-up starts with an empty stored body and a non-empty
+	quote, so deleting that quote leaves the body genuinely empty with the
+	full-body intent set. My first version assigned `compose["body"] = ""`
+	directly, which asserts the postcondition under test instead of reaching
+	it."""
+	store = env
+	store.send_notice("acme.reviewer", kind="ann", subject="Broadcast",
+	                  body=b"the announcement\n")
+	state = _ready(store)
+	_select(state, store)
+	_press(state, store, K.ENTER_LF)             # mark it seen
+	state.refresh(store)
+
+	seeds = []
+	step(state, store, ord("r"), 100, 24, edit_fn=_editor("", record=seeds))
+	assert seeds and seeds[0], "this fixture had no quote to delete"
+	assert state.compose_body_requested, "the full-body intent was not set"
+	assert state.compose.get("body", "") == "", "a body was left behind"
+
+	state.compose["attach_path"] = _evidence(state, store)
+	assert state.attachment_error() is None, state.attachment_error()
+
+	def external_parts():
+		return store.conn.execute(
+			"SELECT COUNT(*) FROM parts WHERE storage='external'").fetchone()[0]
+
+	before = _messages(store), external_parts()
+	_press(state, store, K.ENTER_LF, ord("y"))
+	assert (_messages(store), external_parts()) == before, \
+		"an attachment stood in for the deleted body"
+	assert "empty body" in state.status
+
+
+def test_an_ordinary_attachment_only_compose_still_sends(env):
+	"""The other side: refusing must not reach a compose that never asked for
+	a body. Attachment-only is a valid message."""
+	store = env
+	state = _ready(store)
+	_press(state, store, ord("n"))
+	_press(state, store, _pick(state, "acme.reviewer"))
+	for char in "a subject":
+		_press(state, store, ord(char))
+	state.compose["attach_path"] = _evidence(state, store)
+	assert not state.compose_body_requested
+
+	before = _messages(store)
+	_send(state, store)
+	assert _messages(store) == before + 1, state.status

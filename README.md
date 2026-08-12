@@ -302,7 +302,10 @@ pane's last row says which part you are on and how many there are:
 
 For multipart messages, `[`/`]` select the previous/next part — updating that
 footer and bringing the part's content into view — and `m` materializes the
-selected part into the participant's configured projection directory. `[0]` is
+selected part into the participant's configured projection directory. `M` is
+its larger twin: it saves the WHOLE message to a file you name, opening a
+one-line path box seeded from that same projection directory (Enter writes,
+Esc cancels). `[0]` is
 the part's ADDRESS in the manifest, not a name; a part that has a name shows it
 separately. A subject-only message says `0 parts` and invents no address. The status bar keeps claim obligations and errors
 visible.
@@ -435,7 +438,8 @@ attachment no longer verifies; requires `recovery` and a reason — see below),
 `snapshot` (validated copy of a maintenance-gated instance; requires
 `config`), `gc`, `regen` (accept a generation+1 config; requires `config`),
 `scan`, `doctor`, `dump`, `inspect`, `materialize` (participant-scoped
-reread of a message or an already-seen notice).
+reread of a message or an already-seen notice), `save` (the whole message or
+notice, as one file, at a path you name).
 
 `migrate` is an audited gate, not a conversion capability. It requires the
 participant's `config` capability and the maintenance gate, durably audits the
@@ -530,6 +534,28 @@ for anything that must not be missed.
 
 Projections: `materialize --participant WHO --dir DIR --prefix P [--part N]`
 re-emits one durable content part as a byte-exact `P-<created>-<id>.md` file.
+
+Whole-message export: `save ID --participant WHO --output ABSOLUTE_PATH` writes
+the entire message or notice — envelope, every part, in order — as one
+deterministic JSON file. It is a separate verb rather than a flag on
+`materialize` because it answers a different question: `materialize` gives one
+leaf's bytes to a tool, `save` gives a person something to keep.
+
+The document is `{"format": "baton.whole-message", "version": 1, "message": …}`
+— or `"notice"`, never both. It carries the IMMUTABLE envelope only: no claim,
+no seen receipt, no message state, no saving participant, no save timestamp.
+The message's own immutable `created_ts` IS present and required; what is
+absent is everything that describes a reader or the act of saving. That is what
+makes it deterministic, and determinism is what lets a second save of the same
+message be accepted as a resume rather than reported as a conflict.
+
+`--output` names the FILE, exactly. It must be a canonical absolute path whose
+parent already exists; `save` never creates parents, appends a suffix, resolves
+a relative path, or overwrites a file whose bytes differ. External parts stay
+REFERENCES — their pins are revalidated before serialization and a damaged one
+fails closed, but their bytes are never copied into the export. Transient
+messages are refused: a durable copy would defeat the contract their sender
+chose.
 
 `--participant` is REQUIRED, and the read is authorized against the immutable
 publication-time audience: you may read back a message you sent or were

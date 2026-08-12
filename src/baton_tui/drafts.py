@@ -68,7 +68,28 @@ def _is_participant(address) -> bool:
 DIRECTORY = ".baton-tui"
 DIR_MODE = 0o700
 FILE_MODE = 0o600
-VERSION = 1
+# The version this console WRITES. It advanced to 2 when notice drafts gained
+# an audience, and the bump is the whole point rather than bookkeeping: a
+# version-1 file carrying an extra field is still a version-1 file to every
+# reader that already exists, and the frozen 1.0 console reads exactly those --
+# ignoring the audience it does not know about and publishing the notice to
+# everyone. A new version is what makes an older console REFUSE the file
+# instead of misreading it.
+VERSION = 3
+
+# What this console can READ.
+#
+# 1 predates scoped notices: its notice drafts were global by construction and
+#   migrate to an explicit `*`.
+# 2 predates the full-body intent marker: `body_requested` is derived on read
+#   from whether a body is present, which is the best available answer and the
+#   one the console used before the marker existed.
+#
+# The bump to 3 exists for the same reason the bump to 2 did, and I needed
+# telling twice: adding an OPTIONAL field leaves every existing reader
+# accepting the file and silently dropping the protection it carries. A version
+# an older reader refuses is the only way to stop that.
+READABLE = (1, 2, 3)
 
 
 class DraftError(Exception):
@@ -204,12 +225,17 @@ def load(projection_dir: str, participant: str) -> list[dict]:
 		# a parse error is not a reason to put it on a terminal.
 		raise DraftError(
 			f"the draft file is unreadable and was left untouched: {path}") from None
-	if not isinstance(document, dict) or document.get("version") != VERSION:
+	version = document.get("version") if isinstance(document, dict) else None
+	if version not in READABLE:
 		raise DraftError(
 			f"the draft file is a version this console does not read: {path}")
 	drafts = document.get("drafts")
 	if not isinstance(drafts, list):
 		raise DraftError(f"the draft file has no draft list: {path}")
+	if version == 1:
+		drafts = [_migrated_from_v1(draft) for draft in drafts]
+	if version in (1, 2):
+		drafts = [_migrated_to_v3(draft) for draft in drafts]
 	try:
 		_validate(drafts, where=path)
 	except DraftError:
@@ -221,15 +247,75 @@ def load(projection_dir: str, participant: str) -> list[dict]:
 	return drafts
 
 
-# Every field a version-1 draft carries, and what it must be. Text fields are
+# Every field a draft carries, and what it must be. Text fields are
 # checked as `str` rather than coerced: a draft body that came back as the
 # string "None" because something was None is a different draft.
 _TEXT_FIELDS = ("id", "kind", "subject", "body", "to", "attach_path")
 _KINDS = ("compose", "notice", "reply")
+# The notice AUDIENCE. Optional on read, because drafts written before scoped
+# notices existed do not carry it -- those are global by construction and are
+# restored as an explicit `*` rather than rejected. Required to be text when
+# present: a retained team notice that came back without its audience would be
+# published to everyone, which is the one outcome this whole feature exists to
+# prevent.
+_SCOPE_FIELD = "notice_scope"
+
+# The audience spelling for "everyone", duplicated from the state module on
+# purpose: this file is the storage format and must not import the screen
+# model to read a file. One constant, two names, and a test asserts they agree.
+GLOBAL_SCOPE = "*"
+
+
+def _migrated_from_v1(draft):
+	"""A version-1 draft's AUDIENCE, read as the current format means it.
+
+	Version 1 predates scoped notices, so a notice written then was global by
+	construction and becomes an explicit `*`. An EXPERIMENTAL v1 file that
+	already carries an audience -- this console wrote such files briefly --
+	keeps it: the value is preserved and validated like any other, never
+	downgraded to global, because downgrading is exactly the failure the
+	version bump exists to stop.
+
+	Migration happens on READ and is not written back here. The file is
+	rewritten as the CURRENT version the next time drafts are saved, which is
+	the only moment this console is entitled to touch the human's unsent
+	writing.
+	"""
+	if not isinstance(draft, dict) or draft.get("kind") != "notice":
+		return draft
+	if _SCOPE_FIELD in draft:
+		# PRESENT, whatever it says. Testing truthiness here migrated an EMPTY
+		# audience to `*` -- silently turning a damaged team notice into a
+		# mailbox-wide broadcast, which is the downgrade this whole version
+		# bump exists to prevent. Absence means "written before audiences
+		# existed"; an empty string means "this field lost its value", and
+		# only the first has a safe answer.
+		return draft
+	migrated = dict(draft)
+	migrated["notice_scope"] = GLOBAL_SCOPE
+	return migrated
+
+
+def _migrated_to_v3(draft):
+	"""A draft from before the full-body intent marker existed.
+
+	Derive it from whether a body is present -- which is exactly what the
+	console did before the marker, so nothing changes meaning -- and keep a
+	value that is already there. A file written by an experimental build with
+	the field is preserved, never recomputed.
+	"""
+	if not isinstance(draft, dict):
+		return draft
+	if isinstance(draft.get("body_requested"), bool):
+		return draft
+	migrated = dict(draft)
+	migrated["body_requested"] = bool(draft.get("body"))
+	return migrated
 
 
 def _validate(drafts, *, where: str) -> None:
-	"""Refuse anything that is not a complete, unique version-1 draft list.
+	"""Refuse anything that is not a complete, unique CURRENT-version draft
+	list.
 
 	The row builder dereferences these as mappings. Validating only the outer
 	shape meant a file containing `{"drafts": [1]}` loaded as healthy and took
@@ -258,6 +344,25 @@ def _validate(drafts, *, where: str) -> None:
 			raise DraftError(f"{place}: 'answering' is not a message id")
 		if not isinstance(draft.get("is_reply"), bool):
 			raise DraftError(f"{place}: 'is_reply' is not a boolean")
+		requested = draft.get("body_requested")
+		if not isinstance(requested, bool):
+			# REQUIRED in this format, for every kind. Absent, its meaning
+			# would have to be guessed, and the permissive guess is the one
+			# that sends a subject line in place of a body someone deleted.
+			raise DraftError(f"{place}: 'body_requested' is missing or not a boolean")
+		scope = draft.get(_SCOPE_FIELD)
+		if draft["kind"] == "notice" and scope is None:
+			# REQUIRED in this format. A notice draft with no audience is one
+			# whose reach would be decided at send time by whatever the reader
+			# defaults to, and that default is "everyone".
+			raise DraftError(f"{place}: notice draft has no {_SCOPE_FIELD!r}")
+		if scope is not None and not isinstance(scope, str):
+			raise DraftError(f"{place}: {_SCOPE_FIELD!r} is not text")
+		if scope is not None and not scope:
+			# An EMPTY string is not "global" -- it is a field that was written
+			# and lost its value, and guessing which audience it meant is
+			# exactly the guess that broadcasts a team message to everyone.
+			raise DraftError(f"{place}: {_SCOPE_FIELD!r} is empty")
 		if draft["id"] in seen:
 			raise DraftError(f"{place}: duplicate id {draft['id']!r}")
 		seen.add(draft["id"])

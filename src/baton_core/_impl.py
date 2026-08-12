@@ -945,8 +945,14 @@ def _statfs_ftype(fd: int) -> int:
 def _open_dir_no_follow(path: str, what: str) -> int:
 	"""Open a canonical absolute directory by walking EVERY component from an
 	opened "/" dirfd with O_DIRECTORY|O_NOFOLLOW — no ancestor may be a
-	symlink (final-component-only no-follow is not the approved boundary)."""
-	if not os.path.isabs(path) or path != os.path.normpath(path):
+	symlink (final-component-only no-follow is not the approved boundary).
+
+	`//x` is REFUSED. POSIX reserves exactly two leading slashes as
+	implementation-defined, so `normpath` preserves that spelling and a
+	normpath-only check called it canonical -- which gave one directory two
+	canonical names, and a no-clobber destination two places to be written."""
+	if (not os.path.isabs(path) or path != os.path.normpath(path)
+			or path.startswith("//")):
 		raise BatonError(f"{what} path {path!r} must be a canonical absolute path")
 	flags = os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
 	fd = os.open("/", flags)
@@ -3499,6 +3505,123 @@ class Store:
 		        "root_id": ref["root_id"], "path": ref["path"],
 		        "body": body[:max_bytes], "truncated": truncated}
 
+	def materialize_authorized_part(self, owner_id: str, participant: str,
+	                                target_dir: str, *, prefix: str = "message",
+	                                part: str = "0") -> str:
+		"""Project a part of a message OR a notice this participant may read
+		back, from an already-open instance.
+
+		The reread path, and now the ONE implementation of it: the module-level
+		`materialize` entry point calls this, so the agent CLI and the human
+		console resolve, authorize and name a projection identically. They were
+		diverging in practice -- the console could only reach messages it held
+		an active claim on, so a human could not save their own answered mail
+		while the CLI could.
+
+		Authorization is `authorize_read`'s and nothing here weakens it: a
+		message needs its sender or its frozen audience, a notice needs its
+		author or a participant who has ALREADY SEEN it, and both refuse
+		indistinguishably from "no such id". Retention is `_project_part`'s and
+		is likewise untouched -- a transient message still refuses, because a
+		durable copy of it would defeat the contract its sender chose.
+
+		ONE REFUSAL for every failure, whichever table the id was not found in:
+		saying "unknown message" for one and "unknown notice" for the other
+		would tell a non-party which kind an id is."""
+		owner = kind = None
+		for candidate in ("message", "notice"):
+			try:
+				row = self.authorize_read(candidate, owner_id, participant)
+			except BatonError:
+				continue
+			owner, kind = dict(row), candidate
+			break
+		if owner is None:
+			raise BatonError(f"unknown id {owner_id!r}", EXIT_NONE)
+		owner["parts"] = self._read_parts(kind, owner_id)
+		return _project_part(owner, owner_id, target_dir, prefix, part)
+
+	def save_whole_message(self, owner_id: str, participant: str,
+	                       output_path: str) -> str:
+		"""Write ONE message or notice, entire, to an exact chosen path.
+
+		`materialize` projects a single inline leaf under a generated name.
+		This is the other operation a human actually wants: the whole thing,
+		ordered parts and all, where they said to put it.
+
+		WHAT IT WRITES is the immutable envelope and nothing else -- no claim,
+		no seen receipt, no message state, no completion time, no saving
+		participant, no timestamp, no output path. Saving the same message
+		before and after a lifecycle change therefore produces identical
+		bytes, which is what makes the no-clobber publication able to treat a
+		second save as a resume rather than a conflict.
+
+		Everything it refuses is refused by machinery that already exists and
+		is already tested: `authorize_read` decides who may read (sender or
+		frozen audience; a notice needs its author or a seen receipt, and both
+		refuse indistinguishably from "no such id"), retention refuses a
+		transient owner, `verify_attachment` revalidates external pins, and
+		`_publish_bytes_at` publishes with no-clobber/exact-resume semantics
+		through a directory opened without following symlinks. Reproducing any
+		of those here would be a second answer to a question that already has
+		one."""
+		owner = kind = None
+		for candidate in ("message", "notice"):
+			try:
+				row = self.authorize_read(candidate, owner_id, participant)
+			except BatonError:
+				continue
+			owner, kind = dict(row), candidate
+			break
+		if owner is None:
+			raise BatonError(f"unknown id {owner_id!r}", EXIT_NONE)
+
+		# BEFORE the destination is touched. A refusal must leave no scratch
+		# file and no partial output, and the cheapest way to guarantee that
+		# is to decide everything decidable first.
+		if owner.get("retention", RETENTION_DURABLE) != RETENTION_DURABLE:
+			# Notices carry no retention column at all, so this only ever
+			# fires for a message -- the `.get` default is what makes that
+			# true rather than a second branch saying so.
+			raise BatonError(
+				f"message {owner_id!r} is transient; saving it would create a "
+				"durable copy that defeats the retention contract")
+		if kind == "message":
+			# Revalidates every external pin, and fails closed on a damaged
+			# one: publishing a reference while presenting the message as an
+			# intact export would be the export lying about itself.
+			self.verify_attachment(owner_id)
+
+		owner["parts"] = self._read_parts(kind, owner_id)
+		document = _whole_message_document(self, kind, owner)
+		data = _canonical_json(document)
+
+		# The path names the FILE, exactly, and this operation never invents
+		# any part of it: it does not create parents, append a suffix, resolve
+		# a relative path against a working directory nobody stated, or pick
+		# a name inside a directory. A caller who gets the path wrong gets a
+		# refusal, not a file somewhere they did not ask for.
+		# `//x` SURVIVES `normpath`: POSIX reserves exactly two leading slashes
+		# as implementation-defined, so the stdlib preserves that spelling and
+		# a normpath-only check calls it canonical. A canonical Baton absolute
+		# path has one root slash, and two spellings of one directory is how a
+		# no-clobber destination gets written twice.
+		if (not os.path.isabs(output_path)
+				or output_path != os.path.normpath(output_path)
+				or output_path.startswith("//")):
+			raise BatonError(
+				f"output path {output_path!r} must be a canonical absolute path")
+		directory, name = os.path.split(output_path)
+		if not name or name in (".", ".."):
+			raise BatonError(f"output path {output_path!r} must name a file")
+		dirfd = _open_dir_no_follow(directory, "output directory")
+		try:
+			_publish_bytes_at(dirfd, name, data, 0o644,
+			                  hashlib.sha256(data).hexdigest())
+		finally:
+			os.close(dirfd)
+		return output_path
+
 	def materialize_claimed_part(self, claim_id: str, participant: str,
 	                             target_dir: str, *, prefix: str = "message",
 	                             part: str = "0") -> str:
@@ -5386,6 +5509,78 @@ def _delivery(store: Store, claim: dict) -> dict:
 	return {"claim": claim, "message": envelope}
 
 
+WHOLE_MESSAGE_FORMAT = "baton.whole-message"
+WHOLE_MESSAGE_VERSION = 1
+
+# The immutable fields of each owner kind, in the order the delivery envelope
+# names them. MUTABLE READER STATE IS ABSENT ON PURPOSE -- no claim, no seen
+# receipt, no state, no completion time, no saver, no timestamp, no output path
+# -- so the same message saved before and after a lifecycle change is the same
+# bytes, and a second save resumes instead of conflicting.
+_WHOLE_MESSAGE_FIELDS = (
+	"id", "from_participant", "to_participant", "kind", "subject", "thread_id",
+	"retention", "outcome", "created_ts", "responds_to")
+_WHOLE_NOTICE_FIELDS = (
+	"id", "from_participant", "kind", "subject", "created_ts", "ttl_seconds",
+	"audience_kind", "selector")
+
+
+def _canonical_json(document: dict) -> bytes:
+	"""Deterministic UTF-8 bytes: sorted keys, two-space indent, one final
+	newline.
+
+	Determinism is not cosmetic here. The publication policy accepts an exact
+	existing file as a resume and refuses a mismatching one, so two saves of
+	one message must agree byte for byte or the second would look like
+	corruption."""
+	text = json.dumps(document, ensure_ascii=False, sort_keys=True, indent=2)
+	return (text + "\n").encode("utf-8")
+
+
+def _whole_message_document(store, kind: str, owner: dict) -> dict:
+	"""The version-1 whole-message envelope: exactly one of message/notice."""
+	if kind == "message":
+		envelope = {field: owner.get(field) for field in _WHOLE_MESSAGE_FIELDS}
+		audience, duplicate = store.publication_of(owner.get("publication_id"))
+		envelope["audience"] = audience
+		envelope["possible_duplicate"] = duplicate
+	else:
+		# A notice exports HOW it was addressed -- `audience_kind` plus its
+		# `selector` -- and not the expanded list. Ruled; the v1 envelope says
+		# so.
+		#
+		# NOT because the list is unstable: `notice_audience` is expanded and
+		# frozen transactionally at publication, exactly as a directed
+		# message's `publications` audience is, so a saved list would be
+		# accurate. The ruling is that the selector is what the sender wrote
+		# and what identifies the broadcast, and the v1 export carries what
+		# was authored.
+		envelope = {field: owner.get(field) for field in _WHOLE_NOTICE_FIELDS}
+		envelope["possible_duplicate"] = bool(owner.get("possible_duplicate"))
+	# `_content_repr` VERBATIM for anything with parts, and `null` for the
+	# subject-only case. Both halves are the ruling, and the second is the
+	# narrow exception to the first.
+	#
+	# A subject-only owner is not refused as "nothing to materialize": that is
+	# true of a LEAF projection and false of a whole-message export, whose
+	# subject IS the message. What it exports is `null` rather than the
+	# empty `multipart/mixed` container storage keeps, because that container
+	# is Baton's internal sentinel for "no content" -- `content_type` is NOT
+	# NULL on both owner tables, so there is nowhere else for the absence to
+	# live. The v1 export says the absence in JSON's own vocabulary.
+	#
+	# Narrow ON PURPOSE: only a top-level container with NO parts folds. An
+	# owner with parts is emitted exactly as the delivery path emits it, so a
+	# consumer can compare an export against a delivery field for field.
+	content = _content_repr(
+		owner.get("content_type"), owner.get("parts"),
+		owner.get("manifest_sha256"))
+	envelope["content"] = None if content and not content["parts"] else content
+	return {"format": WHOLE_MESSAGE_FORMAT,
+	        "version": WHOLE_MESSAGE_VERSION,
+	        kind: envelope}
+
+
 def _notice_delivery(notice: dict) -> dict:
 	"""The broadcast delivery shape `wait` returns for a notice, distinguished
 	from a directed delivery by key: `{'notice': ...}` versus
@@ -6067,18 +6262,24 @@ def materialize(config_path: str, owner_id: str, target_dir: str,
 		# non-party that the id exists and is a message. That is the
 		# enumeration oracle this surface is supposed not to be, and a test
 		# comparing the two refusal strings is what caught it.
-		owner = kind = None
-		for candidate, table in (("message", "messages"), ("notice", "notices")):
-			try:
-				row = store.authorize_read(candidate, owner_id, participant)
-			except BatonError:
-				continue
-			owner, kind = dict(row), candidate
-			break
-		if owner is None:
-			raise BatonError(f"unknown id {owner_id!r}", EXIT_NONE)
-		owner["parts"] = store._read_parts(kind, owner_id)
-	return _project_part(owner, owner_id, target_dir, prefix, part)
+		return store.materialize_authorized_part(
+			owner_id, participant, target_dir, prefix=prefix, part=part)
+
+
+def save_message(config_path: str, owner_id: str, output_path: str, *,
+                 participant: str) -> str:
+	"""Write ONE message or notice, entire, to an exact chosen path.
+
+	The companion to `materialize`, and deliberately a different verb rather
+	than a flag on it: `materialize` re-emits one CONTENT LEAF for a tool to
+	consume, and this writes the whole envelope for a person to keep. A
+	`--whole` switch would have made one command mean two things with two
+	output shapes and two naming rules.
+
+	Reading back writes NOTHING -- no claim, no receipt, no transition, no
+	audit record -- exactly as `materialize` does not."""
+	with open_instance(config_path, readonly=True) as store:
+		return store.save_whole_message(owner_id, participant, output_path)
 
 
 # ---------------------------------------------------------------------------
@@ -6517,6 +6718,15 @@ def _build_parser():
 	c.add_argument("--prefix", default="message")
 	c.add_argument("--part", default="0",
 	               help="part address in the ordered manifest, e.g. 0 or 1.2 (default: 0)")
+	c = cmd("save",
+	        help="write one whole message or notice to an exact path "
+	             "(requires --participant and --output)")
+	ident(c)
+	c.add_argument("message_id", metavar="ID",
+	               help="a message id, or a notice id you have already seen")
+	c.add_argument("--output", required=True, metavar="PATH",
+	               help="canonical ABSOLUTE path of the file to write; the "
+	                    "parent directory must already exist")
 	c = cmd("maintenance-enter", help="set the maintenance gate")
 	ident(c)
 	c.add_argument("--reason", required=True)
@@ -6723,6 +6933,10 @@ def main(argv: list[str] | None = None) -> int:
 			path = materialize(ns.config, ns.message_id, ns.dir, prefix=ns.prefix,
 			                   part=ns.part, participant=ns.participant)
 			_print_result({"projection": path})
+		elif ns.command == "save":
+			path = save_message(ns.config, ns.message_id, ns.output,
+			                    participant=ns.participant)
+			_print_result({"saved": path})
 		elif ns.command == "maintenance-enter":
 			_print_result(maintenance_enter(
 				ns.config, participant=ns.participant,

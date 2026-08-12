@@ -511,3 +511,88 @@ def test_notice_activity_omits_expired_notices(inst):
 		        store.list_notice_activity("acme.implementer")] == [notice_id]
 		store.expire("hq.lead", notice_id=notice_id)
 		assert store.list_notice_activity("acme.implementer") == []
+
+
+class TestAuthorizedMaterialize:
+	"""`Store.materialize_authorized_part` — the reread path, shared.
+
+	Extracted from the module-level entry point so the agent CLI and the human
+	console resolve, authorize and name a projection identically. They had
+	drifted: the console could only reach messages it held an ACTIVE claim on,
+	so a human could not save their own answered mail while the CLI could.
+	"""
+
+	def test_it_reaches_messages_and_seen_notices(self, inst, tmp_path):
+		path, _root = inst
+		with core.open_instance(path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+			                 subject="Answered", body=b"message bytes\n")
+			nid = store.send_notice("acme.reviewer", kind="ann",
+			                        subject="Broadcast", body=b"notice bytes\n")
+			# A notice is unreadable until SEEN: `see` remains the only way to
+			# receive one, and this is only the way back to one.
+			with pytest.raises(core.BatonError):
+				store.materialize_authorized_part(nid, "acme.implementer",
+				                                  str(tmp_path))
+			store.see("acme.implementer")
+
+			out = store.materialize_authorized_part(mid, "acme.implementer",
+			                                        str(tmp_path))
+			assert __import__('pathlib').Path(out).read_bytes() == b"message bytes\n"
+			out = store.materialize_authorized_part(nid, "acme.implementer",
+			                                        str(tmp_path))
+			assert __import__('pathlib').Path(out).read_bytes() == b"notice bytes\n"
+
+	def test_no_claim_is_required_and_none_is_created(self, inst, tmp_path):
+		"""The defect this closes: answering a message ended the claim and with
+		it the ability to save what had just been read."""
+		path, _root = inst
+		with core.open_instance(path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+			                 subject="Answered", body=b"body\n")
+			claim = store.claim("acme.implementer", message_id=mid)
+			store.close_claim(claim["claim_id"], participant="acme.implementer",
+			                  outcome="done")
+		before = core.dump(path)
+		path, _root = inst
+		with core.open_instance(path) as store:
+			assert store.materialize_authorized_part(
+				mid, "acme.implementer", str(tmp_path))
+		assert core.dump(path) == before, "reading back wrote to the authority"
+
+	def test_authorization_is_unchanged(self, inst, tmp_path):
+		"""Sender or frozen audience, and nobody else. The refusal must not
+		distinguish 'not yours' from 'no such id', or the surface becomes an
+		enumeration oracle."""
+		path, _root = inst
+		with core.open_instance(path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+			                 subject="Private", body=b"body\n")
+			assert store.materialize_authorized_part(mid, "acme.reviewer",
+			                                         str(tmp_path))       # sender
+			with pytest.raises(core.BatonError) as refused:
+				store.materialize_authorized_part(mid, "hq.lead", str(tmp_path))
+			with pytest.raises(core.BatonError) as absent:
+				store.materialize_authorized_part("0" * 32, "hq.lead", str(tmp_path))
+			# Identical APART FROM THE ID each one names, which is the property:
+			# a non-party learns nothing about whether the id exists or which
+			# kind it is.
+			assert str(refused.value).replace(mid, "ID") == \
+				str(absent.value).replace("0" * 32, "ID")
+
+	def test_retention_is_unchanged(self, inst, tmp_path):
+		"""The sender chose transient; a durable copy would defeat that choice,
+		and widening WHO may save must not widen WHAT may be saved."""
+		path, _root = inst
+		with core.open_instance(path) as store:
+			mid = store.send("acme.reviewer", "acme.implementer", kind="q",
+			                 subject="Fleeting", body=b"gone soon\n",
+			                 retention="transient")
+			# A dedicated directory: `tmp_path` already holds the instance the
+			# fixture built, so asserting IT is empty would assert nothing.
+			target = tmp_path / "projection"
+			target.mkdir()
+			with pytest.raises(core.BatonError) as excinfo:
+				store.materialize_authorized_part(mid, "acme.reviewer", str(target))
+			assert "transient" in str(excinfo.value)
+			assert list(target.iterdir()) == []

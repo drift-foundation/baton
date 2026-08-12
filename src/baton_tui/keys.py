@@ -11,7 +11,8 @@ from __future__ import annotations
 from .state import (MODE_BROWSE, MODE_COMPOSE, MODE_CONFIRM_QUIT,
                     MODE_CONFIRM_DISCARD, MODE_CONFIRM_SEND, MODE_HELP,
                     MODE_NOTICE,
-                    MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_REPLY)
+                    MODE_PICK_RECIPIENT, MODE_PICK_ROOT, MODE_PICK_SCOPE,
+                    MODE_REPLY, MODE_SAVE_PATH, MODE_SEARCH)
 
 # Events the driver may raise on the model. Names, not behaviour: the model
 # owns what each one does.
@@ -65,6 +66,37 @@ TOGGLE_FOCUS = "toggle_focus"
 # keeps its modal meaning everywhere else, and one name for two meanings is
 # how a key ends up doing the wrong one.
 LEAVE_DETAIL = "leave_detail"
+# SEARCH is its own small table rather than an entry in `_TEXT_MODES`. The text
+# modes are for composing a MESSAGE: they bind Ctrl-E to an external editor,
+# Tab to the next compose field and Enter to `send`. A one-line filter box that
+# inherited those would open vim on the query, and Enter would mean two
+# different things one keystroke apart.
+# The notice-audience combobox. Its own events, not the picker's: letters
+# TYPE here, where in the recipient picker they SELECT, and one table serving
+# both would have to know which meaning a letter has this time.
+SCOPE_TYPE = "scope_type"
+SCOPE_BACKSPACE = "scope_backspace"
+SCOPE_CLEAR = "scope_clear"
+SCOPE_COMPLETE = "scope_complete"
+SCOPE_ACCEPT = "scope_accept"
+SCOPE_CANCEL = "scope_cancel"
+
+# The whole-message save box. Its own events for the same reason SEARCH has
+# its own: a one-line path editor that inherited the compose table would bind
+# Ctrl-E to an external editor and Tab to a compose field that does not exist.
+SAVE_MESSAGE = "save_message"
+SAVE_PATH_TYPE = "save_path_type"
+SAVE_PATH_BACKSPACE = "save_path_backspace"
+SAVE_PATH_CLEAR = "save_path_clear"
+SAVE_PATH_ACCEPT = "save_path_accept"
+SAVE_PATH_CANCEL = "save_path_cancel"
+
+SEARCH = "search"
+SEARCH_TYPE = "search_type"
+SEARCH_BACKSPACE = "search_backspace"
+SEARCH_CLEAR = "search_clear"
+SEARCH_ACCEPT = "search_accept"
+SEARCH_CANCEL = "search_cancel"
 HSCROLL_LEFT = "hscroll_left"
 HSCROLL_RIGHT = "hscroll_right"
 OPEN_HELP = "open_help"
@@ -127,6 +159,11 @@ _BROWSE = {
 	# serves the common action, so lowercase `r` is the full reply and shifted
 	# `R` is the quick subject line -- the reverse of what shipped before.
 	ord("r"): EDIT_BODY, ord("c"): CLOSE, ord("m"): MATERIALIZE,
+	# `M` saves the WHOLE message -- envelope, every part, in order -- to a
+	# path the human types. Shifted `m` because it is the same idea one size
+	# larger, which is the only pairing anyone will remember; verified unbound
+	# before taking it, like `v`, `?` and `/` before it.
+	ord("M"): SAVE_MESSAGE,
 	# `v` READS an external part into the pane. Verified unbound before taking
 	# it. Distinct from `m`: `m` writes a projection and the core refuses to
 	# for an external part, because it is already a file -- so without `v`
@@ -140,6 +177,13 @@ _BROWSE = {
 	# `?` opens the modal shortcut list. Verified unbound; it is not a letter
 	# anyone types as a command, and it is what people already press.
 	ord("?"): OPEN_HELP,
+	# `/` filters the list, the convention every reader already knows.
+	# Verified unbound before taking it, like `v` and `?` before it. It filters
+	# METADATA only -- author and subject -- because the body of an unread
+	# message does not exist to a reader who has not claimed it, and a search
+	# that claimed mail in order to look inside it would be a search that
+	# answers messages on the human's behalf.
+	ord("/"): SEARCH,
 	# `R` is the QUICK reply: the subject line is the message, no editor. It
 	# took the browse `e` binding, which is REMOVED rather than kept as an
 	# undiscoverable alias: a second spelling nobody is told about is a key
@@ -183,6 +227,11 @@ HELP_SECTIONS = (
 		("Ctrl+u / Ctrl+d, PgUp/PgDn", "page the focused pane",
 		 (PAGE_UP, PAGE_DOWN)),
 		("i / o", "MESSAGES / Sent filter", (VIEW_INBOX_KEY, VIEW_SENT_KEY)),
+		("/", "filter by author or subject — Enter keeps the filter, Esc "
+		      "clears it. It reads nothing: an unread message stays unread, "
+		      "and its body is not searched because claiming it is the only "
+		      "way to read one", (SEARCH, SEARCH_ACCEPT, SEARCH_CANCEL,
+		                          SEARCH_TYPE, SEARCH_BACKSPACE, SEARCH_CLEAR)),
 		("Ctrl+r", "refresh now (it also polls every 2s)", (REFRESH,)),
 		("?", "this screen; q or Esc closes it", (OPEN_HELP, CLOSE_HELP)),
 		("q", "quit — always asks first", (QUIT,)),
@@ -199,6 +248,10 @@ HELP_SECTIONS = (
 		                  "to wrap", (HSCROLL_LEFT, HSCROLL_RIGHT)),
 		("v", "read an external part's file — only from a claim you hold", (READ_PART,)),
 		("m", "materialize the selected part — not an external one, it is already a file", (MATERIALIZE,)),
+		("M", "save the WHOLE message to a file you name — Enter writes it, "
+		      "Esc cancels", (SAVE_MESSAGE, SAVE_PATH_TYPE, SAVE_PATH_ACCEPT,
+		                      SAVE_PATH_CANCEL, SAVE_PATH_BACKSPACE,
+		                      SAVE_PATH_CLEAR)),
 		("D", "discard the selected draft — asks first, and does nothing on "
 		      "any other row", (DISCARD_DRAFT,)),
 	)),
@@ -210,7 +263,11 @@ HELP_SECTIONS = (
 		("n", "new message: pick a recipient, then subject/attach", (COMPOSE,)),
 		("Enter", "on an EMPTY attach field: choose a configured root, then "
 		          "type the path INSIDE it — never root:path", ()),
-		("N", "publish a notice", (COMPOSE_NOTICE,)),
+		("N", "publish a notice — asks WHO first: `*` for everyone, or a team "
+		      "scope like web.* (type to filter, Tab completes, Enter accepts "
+		      "what you typed)", (COMPOSE_NOTICE, SCOPE_TYPE, SCOPE_COMPLETE,
+		                          SCOPE_ACCEPT, SCOPE_CANCEL, SCOPE_BACKSPACE,
+		                          SCOPE_CLEAR)),
 		("Enter then y", "review, then send — from ANY field, and a subject "
 		                 "alone is enough", (SEND, CONFIRM_SEND)),
 		("Esc", "cancel a draft", (CANCEL, DECLINE_SEND)),
@@ -419,6 +476,71 @@ def map_key(key: int, mode: str) -> tuple[str, str | None]:
 		# Only an explicit Y confirms. Everything else -- including Enter,
 		# which a human hits reflexively -- means stay.
 		return (CONFIRM if key in (ord("y"), ord("Y")) else DECLINE), None
+	if mode == MODE_PICK_SCOPE:
+		# A combobox: every printable key is part of the audience being typed,
+		# Tab completes to the next matching suggestion, Enter accepts what is
+		# typed. No letter selects a row -- there is no spare letter left when
+		# the alphabet is the input.
+		if key == ESC:
+			return SCOPE_CANCEL, None
+		if key in (ENTER_LF, ENTER_CR):
+			return SCOPE_ACCEPT, None
+		if key == TAB:
+			return SCOPE_COMPLETE, None
+		if key in (BACKSPACE_KEY, DELETE_KEY, 8):
+			return SCOPE_BACKSPACE, None
+		if key == CTRL_U:
+			return SCOPE_CLEAR, None
+		if key == KEY_RESIZE:
+			return REFRESH, None
+		if 32 <= key < 127 or key > 159:
+			try:
+				return SCOPE_TYPE, chr(key)
+			except ValueError:
+				return IGNORE, None
+		return IGNORE, None
+	if mode == MODE_SAVE_PATH:
+		# A path editor: no compose fields, no send, no external editor.
+		# Everything that is not one of these five is a character of the path
+		# or is swallowed, so no browse command can fire from behind it.
+		if key == ESC:
+			return SAVE_PATH_CANCEL, None
+		if key in (ENTER_LF, ENTER_CR):
+			return SAVE_PATH_ACCEPT, None
+		if key in (BACKSPACE_KEY, DELETE_KEY, 8):
+			return SAVE_PATH_BACKSPACE, None
+		if key == CTRL_U:
+			return SAVE_PATH_CLEAR, None
+		if key == KEY_RESIZE:
+			return REFRESH, None
+		if 32 <= key < 127 or key > 159:
+			try:
+				return SAVE_PATH_TYPE, chr(key)
+			except ValueError:
+				return IGNORE, None
+		return IGNORE, None
+	if mode == MODE_SEARCH:
+		# A filter box: no editor, no fields, no send. Everything that is not
+		# one of these five is a character of the query or is swallowed, so no
+		# browse command can fire from behind it -- the same rule the pickers
+		# and the confirmations follow.
+		if key == ESC:
+			return SEARCH_CANCEL, None
+		if key in (ENTER_LF, ENTER_CR):
+			return SEARCH_ACCEPT, None
+		if key in (BACKSPACE_KEY, DELETE_KEY, 8):
+			return SEARCH_BACKSPACE, None
+		if key == CTRL_U:
+			# The readline spelling, same as the compose fields use.
+			return SEARCH_CLEAR, None
+		if key == KEY_RESIZE:
+			return REFRESH, None
+		if 32 <= key < 127 or key > 159:
+			try:
+				return SEARCH_TYPE, chr(key)
+			except ValueError:
+				return IGNORE, None
+		return IGNORE, None
 	if mode in _TEXT_MODES:
 		if key in (ESC,):
 			return CANCEL, None
@@ -481,7 +603,7 @@ def map_key(key: int, mode: str) -> tuple[str, str | None]:
 # to the filesystem. It DELETES rather than writes, which is more effectful
 # rather than less, and leaving it out meant the key sweep and the glyph
 # collision check were both asserting the wrong safety property about it.
-EFFECTFUL = (OPEN, SEND, CLOSE, MATERIALIZE, DISCARD_DRAFT)
+EFFECTFUL = (OPEN, SEND, CLOSE, MATERIALIZE, SAVE_PATH_ACCEPT, DISCARD_DRAFT)
 
 
 # Letters RESERVED by protocol 10 for the bulk vocabulary: `x` marks a row and

@@ -15,7 +15,10 @@
   Slawomir. It does not authorize an agent to mutate Git state.
 - Do not wrap long calls or expressions merely for readability; avoid
   indentation churn, especially in deeply nested code.
-- Do not edit existing tests without clear, case-specific confirmation.
+- Agents may always add tests without case-specific confirmation. This includes
+  new test files/functions and additive cases or members in existing exhaustive
+  test registries. Editing or weakening an existing test's assertions or
+  expected behavior still requires clear, case-specific confirmation.
 
 ## Coordination identities
 
