@@ -24,3 +24,19 @@ if str(SRC) not in sys.path:
     # shadow the tree under test, which is the failure that makes a green
     # suite meaningless.
     sys.path.insert(0, str(SRC))
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+
+# NOTHING HERE BUILDS THE RELEASE CANDIDATE. An earlier version of this file
+# called `candidate.ensure()` before collection, so a bare `pytest` would
+# manufacture the very artifact the packaged and currency gates claim to
+# inspect. The ruled sequence is `just build`, `just test`, `just deploy`, and
+# step two may not perform step one -- otherwise a green suite says nothing
+# about the bytes a human is about to publish.
+#
+# The gates that need a candidate call `candidate.require()`, which refuses
+# legibly when there is none. Everything else in this suite runs from source
+# and is unaffected, including the reusable checkout `TestPackaging` copies,
+# which have no builders at all.

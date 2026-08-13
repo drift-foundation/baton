@@ -1,7 +1,11 @@
 # Using Baton effectively
 
 This is the short operating guide for teams coordinating humans and AI agents
-with Baton 1.0.0. The [README](../README.md) is the complete command and
+with Baton over protocol 10. It is written against the protocol rather than
+against a product version: `baton` and `baton-tui` are independently versioned
+products, so "Baton 1.0.0" no longer names one thing, while the protocol is
+what actually decides whether two participants can work together.
+The [README](../README.md) is the complete command and
 storage contract. [AGENTS-MAILBOX-PROTO.md](AGENTS-MAILBOX-PROTO.md) is the
 protocol-10 agent-channel contract and convention reference. A participating
 repository's own `AGENTS.md` binds its roles and workflow to concrete
@@ -96,19 +100,96 @@ Assume a conversation can be compacted or restarted between checks. Decisions,
 evidence, rejected approaches, and current progress belong in Baton content
 and the finding folder, not only in the transcript.
 
-### Codex live-turn polling observed here
+### Codex app-server event pattern
 
-A terminal process can remain in the background, but its completion does not
-by itself schedule another Codex turn. If the model returns control while
-`wait` is still running, a later readiness result may sit unread until the user
-or runner starts a new turn.
+Codex uses its app-server integration rather than relying on completion of a
+background terminal command to schedule another model turn. Claude Code keeps
+the runner-specific monitor pattern above; do not substitute the Codex
+app-server mechanism for Claude's own event integration.
 
-While assigned to monitor Baton, keep the Codex turn alive and poll the actual
-terminal session at a bounded interval, such as 60 seconds. A process merely
-appearing in a process list is not enough: inspect its output, because a wait
-loop exits as soon as it reports readiness. Claim or `see` inside that same
-live turn, resolve any claim, and re-arm. A detached/background process may
-detect work, but it must never perform the claim.
+Create one machine-level bridge configuration that lists every Codex-backed
+participant, its target, and its persistent thread ID. It also records the
+deployment's explicit Baton executable and config paths. There is exactly one
+supervisor for that configuration: individual repositories and Codex sessions
+do not start their own bridge or Baton poller. Start the complete foreground
+stack once from the Baton repository:
+
+    just codex-baton /absolute/path/to/codex-event-bridge.json
+
+That single recipe starts every configured loopback app-server, waits for
+readiness, starts one shared multi-target bridge, requires successful initial
+resume of every configured thread, then starts one read-only Baton monitor for
+every configured participant and target. Duplicate participant assignments are
+refused. If any component exits, the supervisor stops the rest and exits
+visibly; Ctrl-C also stops the complete stack.
+
+For example, two independent reviewer sessions use two independent mappings:
+
+```text
+baton.reviewer -> target baton-reviewer -> thread T-baton
+lang.reviewer  -> target lang-reviewer  -> thread T-lang
+```
+
+The supervisor runs one `wait --participant baton.reviewer` child and one
+`wait --participant lang.reviewer` child. Readiness from the first starts a
+turn only on `T-baton`; readiness from the second starts a turn only on
+`T-lang`. The sessions share app-server infrastructure, but not identity,
+conversation context, queue, busy state, or mailbox head.
+
+The low-level `just codex-app-server` recipe starts only the backend and is for
+protocol development. It does not wire Baton. Do not expose the experimental
+app-server WebSocket on `0.0.0.0` or a public interface.
+
+Connect each normal Codex TUI to that backend:
+
+    codex resume --remote ws://127.0.0.1:4500 THREAD_ID
+
+Before the first shared launch, close any Codex TUI still running the configured
+thread through its old per-session backend. Codex permits only one active
+writer for a persistent thread. If a target still has an active writer, the
+supervisor names that unavailable target, starts no Baton monitors, and stops
+the partial stack. Start the shared stack first, then resume each TUI through
+the displayed remote endpoint.
+
+The normal startup order is therefore:
+
+1. Close old isolated Codex sessions that own configured threads.
+2. Start the one machine-level `just codex-baton SHARED_CONFIG` supervisor and
+   wait for its `ready` line.
+3. For each desired reviewer TUI, run `codex resume --remote ENDPOINT THREAD_ID`.
+4. Leave the supervisor running. TUIs may disconnect and reconnect without
+   stopping their participant's Baton monitor.
+
+Do not fall back to `codex resume THREAD_ID` after migration. Without
+`--remote`, Codex starts an isolated backend, takes the thread's writer lock,
+and prevents the shared bridge from resuming that target.
+
+Each logical agent owns one established persistent Codex thread. Its TUI and
+the event bridge are peer app-server clients operating on that thread ID. The
+bridge can manage many target/thread pairs concurrently; one busy agent does
+not block another. Configure those mappings as described in
+[CODEX-APP-SERVER-EVENT-CONNECTIVITY.md](CODEX-APP-SERVER-EVENT-CONNECTIVITY.md).
+
+Each supervised monitor is its participant's one active Baton readiness path.
+Do not run a second manual or background `wait` for the same participant. The monitor never
+claims a message, marks a notice seen, replies, or closes. It forwards only a
+readiness event through the local Unix socket:
+
+- a message event carries the exact `message_id` reported by `wait`;
+- a notice event reports that a batch is ready for `see`;
+- repeated readiness for the same unresolved head is suppressed;
+- if the bridge is unavailable, the monitor retains responsibility and retries.
+
+The app-server injects that event as a new turn in the configured agent thread.
+The event is external input, not a human instruction or approval. The awakened
+Codex agent follows the repository's standing policy: claim the exact message
+ID from the event, or call `see` for notices, process the content, resolve every
+claim with `reply` or `close`, and return. It does not invoke `wait`; the monitor
+already owns and re-arms that readiness path.
+
+This replaces the earlier Codex live-turn polling workaround, whose terminal
+completion could not itself schedule another turn. The old workaround remains
+useful only when Codex is not running through app-server.
 
 Other runners may offer stronger wakeup primitives. Record what the deployment
 actually observes rather than copying Claude- or Codex-specific ergonomics

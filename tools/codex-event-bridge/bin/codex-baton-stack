@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+import { runStack } from "../src/stack.mjs";
+
+runStack().then((code) => { process.exitCode = code; }, (error) => {
+  process.stderr.write(`codex-baton-stack: ${error.message}\n`);
+  process.exitCode = 1;
+});

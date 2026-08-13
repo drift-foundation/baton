@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+import { runMain } from "../src/main.mjs";
+
+runMain().then((code) => { process.exitCode = code; }, (error) => {
+  process.stderr.write(`codex-event-bridge: ${error.message}\n`);
+  process.exitCode = 2;
+});

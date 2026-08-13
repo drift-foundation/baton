@@ -54,19 +54,29 @@
     than deleting history; every included source finding has a current
     append-only approval. K reconciled the implementer-owned next-release,
     save-message, and search progress records to the final pre-RC state.
-14. **Build the RC candidate** — **cleared for Slawomir 2026-08-12** after the
-    scoped withdrawal approval and included-finding reconciliation.
-    `baton.reviewer` sends the ruled direct Baton ping; Slawomir runs
-    `just deploy DEST 1.1.0` to build
-    and publish the 1.1.0 `baton` and `baton-tui` RC binaries into the chosen
-    non-production, versioned candidate root. An agent does not choose `DEST`
-    or run the deployment.
+14. **Build the RC candidate — built; post-build gate reopened:** the
+    independently versioned product catalog and set-digest deployment redesign
+    are approved in
+    `finding-product-version-manifest/review-2026-08-12T18-40-02Z.md`.
+    The one release-facing `just build` that prepares the complete CLI/TUI set
+    is approved in
+    `finding-product-version-manifest/review-2026-08-12T20-36-21Z.md`.
+    Slawomir ran the single build and currency failures cleared. The first
+    harness correction passed a synthetic reviewer environment, but the bare
+    human rerun still failed 12 PTY cases. See
+    `finding-product-version-manifest/findings/finding-post-build-test-gate/review-2026-08-12T21-33-09Z.md`.
+    Deploy is not authorized. An agent does not choose `DEST`, rebuild release
+    artifacts, or deploy them.
 15. **Soak the RC candidate** — Slawomir uses those RC binaries against the
     existing protocol-10 mailbox. Do not replace frozen 1.0 repository
     artifacts or activate a stable production pointer.
 16. **Independent release gate and human trial** — full suite, deterministic
     rebuild, artifact/manifest verification, CLI workflow, TUI trial including
-    search, docs, and clean scoped diff; incorporate soak findings.
+    search, docs, and clean scoped diff; incorporate soak findings. After the
+    product-manifest handoff and approval, human artifact build, and clean
+    currency/full-suite gates, `baton.reviewer` explicitly notifies
+    `human.slawomir` through Baton that deployment/activation/soak testing may
+    begin.
 17. **Release decision** — Slawomir alone rebuilds/replaces release artifacts,
     commits, and tags. Production activation/permanent external deployment
     remains a separate next-major decision.

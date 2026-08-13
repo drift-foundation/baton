@@ -15,8 +15,10 @@ the terminal integration around them.
 
 from __future__ import annotations
 
+import inspect
 import json
 import os
+import pathlib
 import pty
 import re
 import select
@@ -24,8 +26,11 @@ import shutil
 import subprocess
 import sys
 import time
+import types
 
 import pytest
+
+import candidate
 
 
 def _instance(tmp_path):
@@ -65,7 +70,71 @@ def _instance(tmp_path):
 # cells. No scrolling regions, no wrapping, no attributes -- the questions
 # these tests ask are "what is on row N" and "which row did this text land
 # on", and a fuller emulator would be a second curses to maintain.
-_ESCAPE = re.compile(r"\x1b(?:\[[0-9;?]*[a-zA-Z@-~]|[()][B0]|[=>ME78])")
+# ONE TOKENIZER, used by the replay AND by the highlight measurement.
+#
+# There used to be a regular expression listing the escape shapes we had
+# happened to see. It missed families -- `ESC [ > c`, `ESC [ ! p`, OSC, DCS,
+# SS2/SS3 -- and the misses only surfaced when the terminal geometry changed
+# and ncurses chose different optimizations. A measurement that depends on
+# which sequences the optimizer felt like emitting is not a measurement.
+#
+# So this parses the ECMA-48 SHAPES rather than an enumeration of sightings:
+#
+#     CSI    ESC [  params [0-?]*  intermediates [ -/]*  final [@-~]
+#     OSC    ESC ]  ... terminated by BEL or ST
+#     string ESC P/X/^/_  ... terminated by ST
+#     two    ESC  intermediates [ -/]*  final [0-~]   (`ESC ( B`, RI, DECSC)
+#
+# Anything the parser does not recognise is still consumed as ONE character
+# rather than leaking its printable tail into the visible text, which is
+# exactly how `[3d` came to be counted as three cells of a highlighted row.
+_CSI = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+_OSC = re.compile(r"\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)")
+_STRING = re.compile(r"\x1b[PX^_][^\x1b]*(?:\x1b\\)?")
+_TWO = re.compile(r"\x1b[ -/]*[0-~]")
+
+
+def _tokens(transcript: str):
+	"""`(kind, text)` for every control sequence and printable run.
+
+	`kind` is `"csi"`, `"other"` (any non-CSI control sequence, which no caller
+	needs to interpret) or `"text"`.
+	"""
+	index = 0
+	length = len(transcript)
+	while index < length:
+		if transcript[index] == "\x1b":
+			for kind, pattern in (("csi", _CSI), ("other", _OSC),
+			                      ("other", _STRING), ("other", _TWO)):
+				match = pattern.match(transcript, index)
+				if match:
+					yield kind, match.group()
+					index = match.end()
+					break
+			else:
+				# A bare or truncated ESC. Consumed, never printed.
+				yield "other", transcript[index]
+				index += 1
+			continue
+		start = index
+		while index < length and transcript[index] != "\x1b":
+			index += 1
+		yield "text", transcript[start:index]
+
+
+def _visible(chunk: str) -> str:
+	"""The printable cells of a transcript fragment, controls removed."""
+	return "".join(text for kind, text in _tokens(chunk) if kind == "text"
+	               for text in [text]).translate(_UNPRINTABLE)
+
+
+class _Unprintable(dict):
+	def __missing__(self, code):
+		character = chr(code)
+		return character if character.isprintable() else None
+
+
+_UNPRINTABLE = _Unprintable()
 _CUP = re.compile(r"\x1b\[(\d*)(?:;(\d*))?H")
 _VPA = re.compile(r"\x1b\[(\d+)d")
 _HPA = re.compile(r"\x1b\[(\d+)G")
@@ -87,14 +156,12 @@ def _replay(transcript: str, columns: int = 100, lines: int = 30) -> list[str]:
 	"""The final screen contents, one string per row."""
 	grid = [[" "] * columns for _ in range(lines)]
 	row = col = 0
-	index = 0
-	while index < len(transcript):
-		escape = _ESCAPE.match(transcript, index)
-		if escape:
-			seq = escape.group()
-			index = escape.end()
-			cup, vpa, hpa, erase = (_CUP.fullmatch(seq), _VPA.fullmatch(seq),
-			                        _HPA.fullmatch(seq), _EL.fullmatch(seq))
+	for kind, token in _tokens(transcript):
+		if kind == "other":
+			continue
+		if kind == "csi":
+			cup, vpa, hpa, erase = (_CUP.fullmatch(token), _VPA.fullmatch(token),
+			                        _HPA.fullmatch(token), _EL.fullmatch(token))
 			if cup:
 				row = int(cup.group(1) or 1) - 1
 				col = int(cup.group(2) or 1) - 1
@@ -107,18 +174,99 @@ def _replay(transcript: str, columns: int = 100, lines: int = 30) -> list[str]:
 					for cell in range(col, columns):
 						grid[row][cell] = " "
 			continue
-		char = transcript[index]
-		index += 1
-		if char == "\r":
-			col = 0
-		elif char == "\n":
-			row, col = row + 1, 0
-		elif char == "\b":
-			col = max(0, col - 1)
-		elif char.isprintable() and 0 <= row < lines and 0 <= col < columns:
-			grid[row][col] = char
-			col += 1
+		for char in token:
+			if char == "\r":
+				col = 0
+			elif char == "\n":
+				row, col = row + 1, 0
+			elif char == "\b":
+				col = max(0, col - 1)
+			elif char.isprintable() and 0 <= row < lines and 0 <= col < columns:
+				grid[row][col] = char
+				col += 1
 	return ["".join(cells).rstrip() for cells in grid]
+
+
+def _spawn(argv, rows: int, columns: int, env: dict | None = None):
+	"""Start `argv` on a pty that ALREADY has the requested geometry.
+
+	Returns `(pid, master_fd)`.
+
+	`pty.fork()` plus a `TIOCSWINSZ` afterwards -- in the parent, in the child,
+	or in both -- is a repair, and a repair is timing-dependent by
+	construction. It passed here and kept failing on Slawomir's ordinary
+	interactive run, which is the only evidence that matters: a harness whose
+	result depends on how it was invoked is measuring the invocation.
+
+	So the size is established BEFORE a child exists:
+
+	    openpty            create the pair
+	    TIOCSWINSZ slave   size it while nobody is looking at it
+	    fork               now there is a child, and it inherits a sized tty
+	    setsid + TIOCSCTTY make that tty the child's controlling terminal
+	    dup2 0/1/2         and its standard streams
+	    scrub LINES/COLUMNS  ncurses prefers them to the ioctl
+	    exec               the application's first instruction sees 24 rows
+
+	One primitive, used by every harness here -- source, packaged, candidate
+	and resize alike. Nine copies of timing-sensitive plumbing is nine chances
+	for one of them to be the odd one out.
+	"""
+	import fcntl
+	import struct
+	import termios
+
+	master, slave = os.openpty()
+	# BEFORE THE FORK. Nothing has opened this terminal yet, so there is no
+	# race to lose.
+	fcntl.ioctl(slave, termios.TIOCSWINSZ,
+	            struct.pack("HHHH", rows, columns, 0, 0))
+	pid = os.fork()
+	if pid == 0:                                     # child
+		try:
+			os.close(master)
+			os.setsid()
+			try:
+				fcntl.ioctl(slave, termios.TIOCSCTTY, 0)
+			except OSError:
+				pass                # already the controlling terminal
+			for target in (0, 1, 2):
+				os.dup2(slave, target)
+			if slave > 2:
+				os.close(slave)
+			os.execve(argv[0], argv, _child_environment(env))
+		except BaseException:       # pragma: no cover - the child cannot report
+			os._exit(127)
+	os.close(slave)
+	return pid, master
+
+
+def _child_environment(overrides: dict | None) -> dict:
+	"""The child's environment, BUILT rather than mutated.
+
+	`os.environ.pop("LINES")` was not enough, and finding out why is the
+	reason this function exists: a variable set by C code -- `setupterm` and
+	`initscr` both write `LINES` and `COLUMNS` -- is in the process's real
+	environment without `os.environ` ever hearing about it, so popping it from
+	Python's mapping removes nothing. The child then inherited a pair that
+	ncurses prefers to the ioctl, and the terminal's actual size stopped
+	mattering.
+
+	So the child gets an explicit dict through `execve`: whatever is in here is
+	its whole world. `None` in `overrides` REMOVES a variable -- the packaged
+	cases must run with no `PYTHONPATH` at all, because the archive carries its
+	own console and core or it is not the artifact being tested."""
+	environment = dict(os.environ)
+	# NEVER inherited. The tty is the authority on its own size.
+	environment.pop("LINES", None)
+	environment.pop("COLUMNS", None)
+	for name, value in (overrides or {}).items():
+		if value is None:
+			environment.pop(name, None)
+		else:
+			environment[name] = value
+	return environment
+
 
 
 def _drive(config_path, keys, columns=100, lines=30, settle=1.2):
@@ -127,19 +275,14 @@ def _drive(config_path, keys, columns=100, lines=30, settle=1.2):
 	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
 	# path it needs has to travel in the environment.
 	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	pid, fd = pty.fork()
-	if pid == 0:                                    # child: becomes the console
-		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = os.path.join(here, "src")
-		os.execv(sys.executable, [
-			sys.executable, "-c",
-			"import sys; from baton_tui.driver import main; "
-			"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
-			% config_path])
+	pid, fd = _spawn([sys.executable, "-c",
+		"import sys; from baton_tui.driver import main; "
+		"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
+		% config_path],
+	                 lines, columns, {"TERM": "xterm", "PYTHONPATH": os.path.join(here, "src")})
 	import fcntl
 	import struct
 	import termios
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", lines, columns, 0, 0))
 	output = b""
 	deadline = time.time() + settle
 	while time.time() < deadline:
@@ -223,17 +366,17 @@ def test_resize_does_not_crash_the_console(tmp_path):
 	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
 	# path it needs has to travel in the environment.
 	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = os.path.join(here, "src")
-		os.execv(sys.executable, [
-			sys.executable, "-c",
-			"import sys; from baton_tui.driver import main; "
-			"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
-			% config_path])
+	pid, fd = _spawn([sys.executable, "-c",
+		"import sys; from baton_tui.driver import main; "
+		"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
+		% config_path],
+	                 30, 100, {"TERM": "xterm", "PYTHONPATH": os.path.join(here, "src")})
 	output = b""
 	for rows, cols in ((30, 100), (8, 40), (5, 20), (60, 200), (24, 80)):
+		# RESIZING A RUNNING CONSOLE is what this test is for, so here the
+		# parent-side ioctl is the subject rather than the repair the rest of
+		# this file no longer needs: the child started at the first size and
+		# these arrive underneath it.
 		fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
 		# Wake the loop: it blocks in getch with a poll timeout, so without a
 		# keystroke it would not redraw before the next resize and the test
@@ -330,16 +473,11 @@ def test_the_selection_attribute_moves_between_rows_on_a_real_terminal(tmp_path)
 	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
 	# path it needs has to travel in the environment.
 	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = os.path.join(here, "src")
-		os.execv(sys.executable, [
-			sys.executable, "-c",
-			"import sys; from baton_tui.driver import main; "
-			"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
-			% config_path])
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 100, 0, 0))
+	pid, fd = _spawn([sys.executable, "-c",
+		"import sys; from baton_tui.driver import main; "
+		"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
+		% config_path],
+	                 24, 100, {"TERM": "xterm", "PYTHONPATH": os.path.join(here, "src")})
 
 	def pump(seconds):
 		chunk = b""
@@ -405,7 +543,13 @@ def _highlighted_text(text):
 	for match in _REVERSE_RUN.finditer(text):
 		if reverse_on:
 			chunk = text[position:match.start()]
-			visible = "".join(c for c in chunk if c.isprintable()).strip()
+			# THE SHARED TOKENIZER, like every other visible-text path here.
+			# This one kept the old printable-character filter after its
+			# sibling was corrected, so the printable tails of cursor and
+			# charset controls were still read as display text: `ROW[3d(B`
+			# where the human saw `ROW`. Two extractors of "what was on the
+			# screen" is one too many.
+			visible = _visible(chunk).strip()
 			if visible:
 				out.append(visible)
 		params = match.group(0)[2:-1].split(";")
@@ -429,7 +573,14 @@ def _highlighted_runs(text):
 	for match in _REVERSE_RUN.finditer(text):
 		if reverse_on:
 			chunk = text[position:match.start()]
-			visible = "".join(c for c in chunk if c.isprintable())
+			# THE SHARED TOKENIZER, the same one the replay uses. A regular
+			# expression listing the escape shapes we had happened to see
+			# missed families -- `ESC [ > c`, `ESC [ ! p`, OSC, SS2 -- and
+			# their printable tails were counted as visible cells: the
+			# selected 100-cell row measured 113, then 108 after one narrow
+			# repair. Adding another alternative per sighting is how a
+			# measurement becomes a list of the bugs someone noticed.
+			visible = _visible(chunk)
 			if visible:
 				out.append(visible)
 		params = match.group(0)[2:-1].split(";")
@@ -469,17 +620,11 @@ def test_the_highlight_covers_one_list_row_on_a_real_terminal(tmp_path):
 	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
 	# path it needs has to travel in the environment.
 	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = os.path.join(here, "src")
-		os.environ["LANG"] = "C.UTF-8"
-		os.execv(sys.executable, [
-			sys.executable, "-c",
-			"import sys; from baton_tui.driver import main; "
-			"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
-			% config_path])
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 100, 0, 0))
+	pid, fd = _spawn([sys.executable, "-c",
+		"import sys; from baton_tui.driver import main; "
+		"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
+		% config_path],
+	                 24, 100, {"TERM": "xterm", "PYTHONPATH": os.path.join(here, "src"), "LANG": "C.UTF-8"})
 	output = b""
 	deadline = time.time() + 1.8
 	while time.time() < deadline:
@@ -530,17 +675,11 @@ def test_the_part_marker_is_drawn_and_differs_from_the_row_highlight(tmp_path):
 	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
 	# path it needs has to travel in the environment.
 	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = os.path.join(here, "src")
-		os.environ["LANG"] = "C.UTF-8"
-		os.execv(sys.executable, [
-			sys.executable, "-c",
-			"import sys; from baton_tui.driver import main; "
-			"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
-			% config_path])
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 100, 0, 0))
+	pid, fd = _spawn([sys.executable, "-c",
+		"import sys; from baton_tui.driver import main; "
+		"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
+		% config_path],
+	                 24, 100, {"TERM": "xterm", "PYTHONPATH": os.path.join(here, "src"), "LANG": "C.UTF-8"})
 	time.sleep(0.6)
 	os.write(fd, b"\n")                  # open, so the parts are rendered
 	output = b""
@@ -594,19 +733,13 @@ def _console(tmp_path, config_path, script, columns=100, lines=24, settle=0.7,
 	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
 	# path it needs has to travel in the environment.
 	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = os.path.join(here, "src")
-		os.environ["LANG"] = "C.UTF-8"
-		argv = ["--config", config_path, "--participant", "acme.implementer"]
-		if editor:
-			argv += ["--editor", editor]
-		os.execv(sys.executable, [
-			sys.executable, "-c",
-			"import sys; from baton_tui.driver import main; "
-			"sys.exit(main(%r))" % (argv,)])
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", lines, columns, 0, 0))
+	argv = ["--config", config_path, "--participant", "acme.implementer"]
+	if editor:
+		argv += ["--editor", editor]
+	pid, fd = _spawn([sys.executable, "-c",
+		"import sys; from baton_tui.driver import main; "
+		"sys.exit(main(%r))" % (argv,)],
+	                 lines, columns, {"TERM": "xterm", "PYTHONPATH": os.path.join(here, "src"), "LANG": "C.UTF-8"})
 
 	out = bytearray()
 
@@ -801,17 +934,11 @@ def test_the_divider_draws_as_a_continuous_rule_on_a_real_terminal(tmp_path):
 	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
 	# path it needs has to travel in the environment.
 	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["PYTHONPATH"] = os.path.join(here, "src")
-		os.environ["LANG"] = "C.UTF-8"
-		os.execv(sys.executable, [
-			sys.executable, "-c",
-			"import sys; from baton_tui.driver import main; "
-			"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
-			% config_path])
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 100, 0, 0))
+	pid, fd = _spawn([sys.executable, "-c",
+		"import sys; from baton_tui.driver import main; "
+		"sys.exit(main(['--config', %r, '--participant', 'acme.implementer']))"
+		% config_path],
+	                 24, 100, {"TERM": "xterm", "PYTHONPATH": os.path.join(here, "src"), "LANG": "C.UTF-8"})
 	output = b""
 	deadline = time.time() + 1.8
 	while time.time() < deadline:
@@ -937,36 +1064,29 @@ def test_the_packaged_sent_list_uses_the_final_vocabulary(tmp_path):
 
 def _packaged_console(tmp_path, config_path, script, columns=100, lines=24,
                       settle=0.9):
-	"""Drive the PACKAGED zipapp, not the source tree.
+	"""Drive the PACKAGED zipapp -- the CANDIDATE one -- not the source tree.
 
 	Every other harness in this file runs `baton_tui.driver` off `PYTHONPATH`,
 	which is the right default -- it is fast and it is what most of these
-	tests are about. This one exists because a correction was reported against
-	`bin/baton-tui` specifically, and that is the artifact Slawomir runs. A
-	console can pass every in-process test it has and still fail to start when
-	packaged; that has happened here once already.
-	"""
-	import fcntl
-	import struct
-	import termios
+	tests are about. This one exists because a console can pass every
+	in-process test it has and still fail to start when packaged; that has
+	happened here once already.
 
-	# The REPOSITORY ROOT, and `src/` for the child's import path. A spawned
-	# console does not inherit `tests/conftest.py`'s `sys.path` edit, so the
-	# path it needs has to travel in the environment.
-	here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	archive = os.path.join(here, "bin", "baton-tui")
-	assert os.path.isfile(archive), "bin/baton-tui must be built"
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["LANG"] = "C.UTF-8"
-		# NO PYTHONPATH: the archive must carry its own console and core, or
-		# it is not the artifact being tested.
-		os.environ.pop("PYTHONPATH", None)
-		os.execv(sys.executable, [
-			sys.executable, archive, "--config", config_path,
-			"--participant", "acme.implementer"])
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", lines, columns, 0, 0))
+	SUPERSEDED: this used to run the checkout's `bin/baton-tui`, described as
+	"the artifact Slawomir runs". That was the production collision this work
+	removes. The checkout artifact is a historical input now -- a build no
+	longer writes to it -- so these ten paths would have gone on passing
+	against last release's bytes while the candidate being deployed was broken.
+	They happened to agree only because the old workflow rebuilt the checkout.
+
+	The candidate is not built here. It is step one of `just build`, `just
+	test`, `just deploy`, and a gate that manufactures the artifact it claims
+	to inspect is not a gate.
+	"""
+	archive = str(candidate.require().tui)
+	pid, fd = _spawn([sys.executable, archive, "--config", config_path,
+		"--participant", "acme.implementer"],
+	                 lines, columns, {"TERM": "xterm", "LANG": "C.UTF-8", "PYTHONPATH": None})
 
 	out = bytearray()
 
@@ -994,6 +1114,61 @@ def _packaged_console(tmp_path, config_path, script, columns=100, lines=24,
 		prefixes.append(out.decode("utf-8", "replace"))
 	status = _reap(pid, fd)
 	return out.decode("utf-8", "replace"), status, prefixes
+
+
+def test_the_packaged_harness_names_the_candidate_artifact():
+	"""R2. Ten PTY paths run through `_packaged_console`, and it used to name
+	the CHECKOUT's `bin/baton-tui`. The two agreed only because the old
+	workflow rebuilt the checkout on every release build; once a build stopped
+	writing there, that helper would have kept passing against last release's
+	bytes while the candidate being deployed was broken."""
+	archive = candidate.require().tui
+	repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+	assert str(archive) != os.path.join(repo, "bin", "baton-tui")
+	assert str(archive) == os.path.join(repo, "build", "bin", "baton-tui")
+	source = inspect.getsource(_packaged_console)
+	assert "candidate.require()" in source
+	assert '"bin", "baton-tui"' not in source, \
+		"the harness computes an artifact path of its own again"
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_harness_executes_the_candidate_when_they_differ(tmp_path,
+                                                                      monkeypatch):
+	"""The same claim, proved by EXECUTION rather than by reading a path.
+
+	This makes the harness's artifact observably different from the real one
+	-- the candidate it is pointed at announces itself and exits -- and reads
+	the transcript to see which the child actually was.
+
+	SUPERSEDED 2026-08-13: the contrast used to be against the CHECKOUT's
+	`bin/baton-tui`, which the Checkpoint A ruling removed from the
+	repository. The contrast that matters was never with that file anyway: it
+	is with the artifact `candidate.require()` names, which is what this
+	harness runs when nobody redirects it."""
+	marker = "CANDIDATE-ARTIFACT-SPEAKING"
+	elsewhere = tmp_path / "another-candidate"
+	(elsewhere / "bin").mkdir(parents=True)
+	stub = elsewhere / "bin" / "baton-tui"
+	stub.write_text("import sys\n"
+	                f"sys.stdout.write({marker!r} + chr(10))\n"
+	                "sys.stdout.flush()\n")
+	stub.chmod(0o755)
+
+	real = pathlib.Path(candidate.require().tui)
+	assert real.read_bytes() != stub.read_bytes(), \
+		"the two artifacts must differ or this proves nothing"
+
+	monkeypatch.setattr(candidate, "require",
+	                    lambda: types.SimpleNamespace(root=elsewhere,
+	                                                  tui=stub,
+	                                                  cli=elsewhere / "bin" / "baton",
+	                                                  dist=elsewhere / "dist"))
+	config_path, _proj = _instance(tmp_path)
+	transcript, status, _steps = _packaged_console(tmp_path, config_path, [],
+	                                               settle=0.6)
+	assert marker in transcript, transcript[-2000:]
+	assert os.WIFEXITED(status)
 
 
 @pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
@@ -1312,13 +1487,13 @@ def test_owed_rows_are_bold_on_the_packaged_console(tmp_path):
 def _candidate_tui(tmp_path):
 	"""Build the console into a throwaway distribution root and return it.
 
-	The released `bin/baton-tui` is 1.0.0 and is NOT rebuilt by next-generation
-	work: the ruling is that production paths stay untouched while features are
-	developed in a separate distribution. A tmp_path root is the smallest thing
-	that honours that and still tests a real zipapp rather than the source tree.
+	DELIBERATELY a one-off, kept separate from the shared `build/` candidate:
+	these tests want an artifact built HERE, from this source, with nothing
+	else in the tree able to explain a pass. The shared candidate is what the
+	other packaged paths read.
 	"""
 	repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-	root = tmp_path / "candidate"
+	root = tmp_path / "scratch-candidate"
 	root.mkdir()
 	built = subprocess.run(
 		[sys.executable, os.path.join(repo, "tools", "build_tui.py"), str(root)],
@@ -1330,10 +1505,10 @@ def _candidate_tui(tmp_path):
 	# reports, not the filename.
 	artifact = root / "bin" / "baton-tui"
 	assert artifact.exists()
-	# And the released artifact is not what was tested, which is the whole
-	# point of building one.
-	released = os.path.join(repo, "bin", "baton-tui")
-	assert str(artifact) != released
+	# And neither the checkout's artifact nor the shared candidate is what was
+	# tested, which is the whole point of building one.
+	assert str(artifact) != os.path.join(repo, "bin", "baton-tui")
+	assert str(artifact) != str(candidate.TUI)
 	return str(artifact)
 
 
@@ -1344,15 +1519,9 @@ def _candidate_console(artifact, config_path, script, columns=100, lines=24,
 	import struct
 	import termios
 
-	pid, fd = pty.fork()
-	if pid == 0:
-		os.environ["TERM"] = "xterm"
-		os.environ["LANG"] = "C.UTF-8"
-		os.environ.pop("PYTHONPATH", None)
-		os.execv(sys.executable, [
-			sys.executable, artifact, "--config", config_path,
-			"--participant", "acme.implementer"])
-	fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", lines, columns, 0, 0))
+	pid, fd = _spawn([sys.executable, artifact, "--config", config_path,
+		"--participant", "acme.implementer"],
+	                 lines, columns, {"TERM": "xterm", "LANG": "C.UTF-8", "PYTHONPATH": None})
 	out = bytearray()
 
 	def pump(seconds):
@@ -1462,3 +1631,241 @@ def test_M_saves_a_whole_message_on_a_candidate_console(tmp_path):
 
 	written = "\n".join(_replay(steps[4]))
 	assert "saved" in written, written
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+@pytest.mark.parametrize("rows,columns", [(24, 100), (30, 100), (8, 40)])
+def test_the_child_sees_the_requested_geometry_at_its_first_instruction(
+		tmp_path, rows, columns):
+	"""The proof that the harness is not repairing anything.
+
+	A trivial child — no curses, no Baton, nothing imported that could resize
+	anything — asks the kernel what its terminal is before doing anything else.
+	If `_spawn` were still sizing the terminal after the fork, this is the
+	assertion that would catch it, because there is no application here to
+	race with."""
+	probe = tmp_path / "probe.py"
+	probe.write_text(
+		"import fcntl, struct, sys, termios\n"
+		"packed = fcntl.ioctl(0, termios.TIOCGWINSZ, b'\\0' * 8)\n"
+		"rows, columns, _, _ = struct.unpack('HHHH', packed)\n"
+		"sys.stdout.write('GEOMETRY %d %d\\n' % (rows, columns))\n"
+		"sys.stdout.flush()\n")
+	pid, fd = _spawn([sys.executable, str(probe)], rows, columns,
+	                 {"TERM": "xterm"})
+	output = b""
+	deadline = time.time() + 5
+	while time.time() < deadline and b"GEOMETRY" not in output:
+		ready, _, _ = select.select([fd], [], [], 0.1)
+		if ready:
+			try:
+				output += os.read(fd, 65536)
+			except OSError:
+				break
+	_reap(pid, fd)
+	assert f"GEOMETRY {rows} {columns}".encode() in output, output
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+@pytest.mark.parametrize("context", [
+	{},                                            # whatever invoked pytest
+	{"LINES": "64", "COLUMNS": "203"},             # an exported pair
+	{"LINES": "5", "COLUMNS": "20", "TERM": "vt220"},
+])
+def test_the_geometry_does_not_depend_on_how_the_suite_was_invoked(tmp_path,
+                                                                   context):
+	"""Two differing real invocation contexts, not one synthetic match.
+
+	The previous correction passed under an exported `LINES=64 COLUMNS=100`
+	and still failed Slawomir's ordinary interactive run. A harness whose
+	result depends on how it was invoked is measuring the invocation, so this
+	varies the invocation and asserts the answer does not move."""
+	probe = tmp_path / "probe.py"
+	probe.write_text(
+		"import fcntl, os, struct, sys, termios\n"
+		"packed = fcntl.ioctl(0, termios.TIOCGWINSZ, b'\\0' * 8)\n"
+		"rows, columns, _, _ = struct.unpack('HHHH', packed)\n"
+		"sys.stdout.write('GEOMETRY %d %d %s %s\\n' % (\n"
+		"    rows, columns, os.environ.get('LINES'), os.environ.get('COLUMNS')))\n"
+		"sys.stdout.flush()\n")
+	previous = {name: os.environ.get(name) for name in ("LINES", "COLUMNS", "TERM")}
+	try:
+		for name, value in context.items():
+			os.environ[name] = value
+		pid, fd = _spawn([sys.executable, str(probe)], 24, 100, {"TERM": "xterm"})
+		output = b""
+		deadline = time.time() + 5
+		while time.time() < deadline and b"GEOMETRY" not in output:
+			ready, _, _ = select.select([fd], [], [], 0.1)
+			if ready:
+				try:
+					output += os.read(fd, 65536)
+				except OSError:
+					break
+		_reap(pid, fd)
+	finally:
+		for name, value in previous.items():
+			if value is None:
+				os.environ.pop(name, None)
+			else:
+				os.environ[name] = value
+	# The tty says 24x100 whatever the invoker said, and the child carries no
+	# inherited pair to contradict it.
+	assert b"GEOMETRY 24 100 None None" in output, output
+
+
+def test_both_highlight_extractors_read_only_displayed_characters():
+	"""R14. `_highlighted_runs` was corrected and `_highlighted_text` was not,
+	so one of them still counted `[3d` and `(B` — the printable tails of a
+	cursor move and a charset selection — as things a human saw.
+
+	Both take the same fragment here, and neither is allowed to invent a
+	character. No terminal is involved: this is about the measuring
+	instrument, and a synthetic transcript is the only way to state exactly
+	which controls are present."""
+	transcript = ("\x1b[7m ROW \x1b[3d\x1b(B\x1b[0m"
+	              "\x1b[7m NEXT \x1b[>c\x1b]0;title\x07\x1b[!p\x1b[0m")
+
+	assert _highlighted_text(transcript) == ["ROW", "NEXT"]
+	assert _highlighted_runs(transcript) == [" ROW ", " NEXT "]
+	assert _visible("\x1b[3d\x1b(Bplain\x1b[>c") == "plain"
+
+	# And the semantic width measurement the selection assertion depends on:
+	# exactly the cells the human sees, with no control tail inflating it.
+	from baton_tui.safe_text import display_width
+	assert [display_width(run) for run in _highlighted_runs(transcript)] == [5, 6]
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_a_published_broadcast_appears_in_sent_on_a_real_terminal(tmp_path):
+	"""The reported scenario, driven through a real tty and never restarted.
+
+	`human.slawomir` published a scoped notice from the legacy console and
+	reported it missing from the sender's own folder. The ruling is that the
+	SUCCESSOR must be shown doing this correctly before its cutover. The model
+	and renderer are checked in `test_tui_sent_broadcast.py`; this is the same
+	scenario in front of curses, in ONE session: publish, then press `o` and
+	read the Sent list off the reconstructed screen.
+
+	This runs the SOURCE console, not the packaged candidate. The shared
+	candidate is stale against this checkout and rebuilding it is not mine to
+	do, so a packaged run here would have reported on last build's bytes while
+	claiming to report on these. Said plainly rather than left for a reader to
+	discover."""
+	config_path, _ = _instance(tmp_path)
+	sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+	import baton_core as core
+
+	text, status, steps = _console(tmp_path, config_path, [
+		(b"N", 0.6),                    # who is this notice for?
+		(b"acme.*", 0.4),               # the only team this mailbox implies
+		(b"\r", 0.5),                   # audience chosen, composer opens
+		(b"testing broadcast reply each", 0.5),
+		(b"\r", 0.5),                   # arm
+		(b"y", 0.9),                    # publish
+		(b"o", 1.2),                    # the Sent view
+		(b"q", 0.4),
+		(b"Y", 0.4),
+	], columns=110, lines=30)
+	assert "Traceback" not in text
+
+	with core.open_instance(config_path) as store:
+		published = [row for row in store.list_sent("acme.implementer")
+		             if row["row_kind"] == "notice"]
+	assert len(published) == 1, f"nothing was published: {text[-800:]}"
+
+	# The SCREEN as it stood after `o`, not the whole transcript: the subject
+	# was typed into the composer earlier in the session, so searching the
+	# transcript would find the keystrokes rather than the Sent row.
+	after_view = "".join(steps[:7])
+	drawn = _replay(after_view, columns=110, lines=30)
+	rules = [index for index, line in enumerate(drawn) if _pty_is_rule(line)]
+	listing = drawn[:rules[0]] if rules else drawn
+	body = "\n".join(listing)
+	assert "Sent:" in body, body
+	row = [line for line in listing if "broadcast reply" in line]
+	assert row, f"the published broadcast is not in the Sent list: {body}"
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+
+
+def _fresh_mailbox(tmp_path):
+	"""A mailbox built by the CUTOVER SEQUENCE and driven by the PACKAGED
+	console: config placed, `init` run by the candidate CLI, identity stamped
+	by `deploy mailbox-identity`.
+
+	Plan step 23 requires fresh-mailbox smoke coverage. `_instance` above
+	builds a mailbox with the core in-process, which is right for the console
+	tests but says nothing about the sequence a human will actually run on
+	cutover morning.
+	"""
+	sys.path.insert(0, os.path.join(
+		os.path.dirname(os.path.dirname(os.path.dirname(
+			os.path.abspath(__file__)))), "tools"))
+	import deploy
+
+	home = tmp_path / "mailbox" / "v10"
+	home.mkdir(parents=True)
+	config = home / "baton.json"
+	config.write_text(json.dumps({
+		"config_version": 1, "protocol_version": 10, "generation": 1,
+		"mailbox": {"name": "fresh-console-smoke"},
+		"participants": {"acme.implementer": {}, "acme.reviewer": {}},
+		"roots": {}, "retention_days": 90,
+	}, indent=2) + "\n")
+	proc = subprocess.run([sys.executable, str(candidate.require().cli),
+	                       "--config", str(config), "init"],
+	                      capture_output=True, text=True, timeout=120)
+	assert proc.returncode == 0, proc.stdout + proc.stderr
+	deploy.mailbox_identity(str(home), protocol=10)
+	return str(config), home
+
+
+@pytest.mark.skipif(not hasattr(pty, "fork"), reason="no pty support")
+def test_the_packaged_console_publishes_and_sees_it_on_a_fresh_mailbox(tmp_path):
+	"""The cutover's last unknown, closed: the DEPLOYED console, against a
+	mailbox created by the DOCUMENTED sequence, publishing a scoped broadcast
+	and finding it in its own Sent view without restarting.
+
+	Every other version of this scenario runs the source console
+	(`test_a_published_broadcast_appears_in_sent_on_a_real_terminal`) or the
+	model (`test_tui_sent_broadcast.py`). This one runs the artifact a
+	deployment installs against a mailbox carrying a stamped identity, which
+	is the pair that will exist after cutover and nowhere before it."""
+	config_path, home = _fresh_mailbox(tmp_path)
+	assert (home / "MAILBOX.json").is_file(), "the identity stamp is the point"
+
+	text, status, prefixes = _packaged_console(tmp_path, config_path, [
+		(b"N", 0.7),
+		(b"acme.*", 0.5),
+		(b"\r", 0.6),
+		(b"cutover smoke broadcast", 0.5),
+		(b"\r", 0.5),
+		(b"y", 1.0),
+		(b"o", 1.4),
+		(b"q", 0.5),
+		(b"Y", 0.5),
+	], columns=110, lines=30)
+	assert "Traceback" not in text
+
+	sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+	import baton_core as core
+	with core.open_instance(config_path, readonly=True) as store:
+		notices = [row for row in store.list_sent("acme.implementer")
+		           if row["row_kind"] == "notice"]
+	# Phrased as what it measures: this is the sender's OUTBOUND list, so a
+	# failure here means either nothing was published or the publication is
+	# not in the sender's view — and the reported symptom was the second.
+	assert len(notices) == 1, \
+		f"the sender's outbound list holds {len(notices)} notices: {text[-600:]}"
+	assert notices[0]["subject"] == "cutover smoke broadcast"
+
+	# ON THE SCREEN, after `o`, not anywhere in the transcript: the subject was
+	# typed into the composer earlier in this same session.
+	drawn = _replay(prefixes[6], columns=110, lines=30)
+	rules = [index for index, line in enumerate(drawn) if _pty_is_rule(line)]
+	listing = drawn[:rules[0]] if rules else drawn
+	assert "Sent:" in "\n".join(listing), "\n".join(listing)
+	assert [line for line in listing if "cutover smoke" in line], \
+		"the broadcast is not in the deployed console's Sent view:\n" + \
+		"\n".join(listing)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

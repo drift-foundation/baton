@@ -230,11 +230,26 @@ def test_reopen_refuses_a_finished_claim(inst):
 
 def test_core_declares_its_api_contract():
 	versions = core.core_versions()
-	# EXACTLY 2. `>= 1` encoded the superseded compatibility rule: protocol 10
+	# EXACTLY 3. `>= 1` encoded the superseded compatibility rule: protocol 10
 	# removed `filename` from every delivery and every Store signature, so
 	# "at least" is the wrong shape for a contract that can break by removal.
-	assert versions["core_api_version"] == 2
+	#
+	# 3 as of 1.1: `save_message` is new public surface, and the ruled rule is
+	# that ADDITIVE growth bumps it too -- `check_core_compatibility` demands
+	# equality, so a console asking for 2 must not silently accept a core that
+	# is no longer the one it was tested against.
+	#
+	# 4 as of 1.2, by the same rule and for a sharper reason: `mailbox_identity`
+	# and `check_mailbox_identity` are surface the applications CALL at
+	# startup, so a 1.2 console against an API-3 core would not fail a version
+	# check -- it would raise `AttributeError` before drawing anything.
+	assert versions["core_api_version"] == 4
 	assert versions["protocol_version"] == 10
+	# The core's own package version travels with the contract now. There is no
+	# `tool_version`: it answered for a shared release version that no longer
+	# exists, and "which of the three did you mean" is worse than its absence.
+	assert versions["core_version"] == core.CORE_VERSION
+	assert "tool_version" not in versions
 
 
 def test_message_preview_is_read_only_and_contentless(inst):
@@ -426,6 +441,40 @@ def test_list_sent_is_newest_first_by_a_total_order(inst):
 		keys = [(row["created_ts"], row["id"]) for row in rows]
 		assert keys == sorted(keys, reverse=True)
 		assert {row["id"] for row in rows} == set(ids)
+
+
+def test_naming_the_message_defeats_the_same_second_ordering_limit(inst):
+	"""Why the same-second ordering limit is not a delivery defect, pinned.
+
+	`(created_ts, id)` is deterministic but not chronological inside one
+	second, and protocol 10 keeps that rule (protocol 11 replaces it with a
+	persisted publication sequence). The reason it is safe to keep is the
+	standing pattern: `wait` then `claim --message-id`. So the property that
+	must hold is that NAMING a message always yields that message, whatever
+	the tie-break did to the listing -- and that every item is claimable
+	exactly once, so nothing is lost or duplicated by the ambiguity.
+	"""
+	path, _ = inst
+	with core.open_instance(path) as store:
+		ids = [store.send("acme.reviewer", "acme.implementer", kind="q",
+		                  subject=f"same-second {index}", body=b"x\n")
+		       for index in range(5)]
+		stamps = {row["created_ts"] for row in store.list_sent("acme.reviewer")
+		          if row["row_kind"] == "message"}
+		assert len(stamps) == 1, \
+			f"this test needs one timestamp second to be meaningful: {stamps}"
+
+		# Named, in an order deliberately unrelated to any listing.
+		for wanted in reversed(ids):
+			claimed = store.claim("acme.implementer", message_id=wanted)
+			assert claimed["message_id"] == wanted, claimed
+			store.close_claim(claimed["claim_id"],
+			                  participant="acme.implementer",
+			                  outcome="acknowledged")
+
+		# Exactly once each, and nothing left behind.
+		assert store.scan("acme.implementer") == {"claimed": [], "damaged": [],
+		                                          "pending": []}
 
 
 # -- notice ACTIVITY: history, with the same content discipline ------------

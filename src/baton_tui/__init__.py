@@ -4,21 +4,30 @@ Separate distribution, no protocol logic of its own. It calls the same public
 core API an agent CLI would; it does not read SQLite and does not shell out to
 the JSON CLI.
 
-It does NOT carry a release version of its own: `baton_core.RELEASE_VERSION`
-is the single declaration both executables report, so a human cannot be told
-two different numbers for one release. What this console does declare
-separately is the core API it was built against, below -- that is a
-compatibility contract, not a product version.
+It IS its own versioned product. `baton-tui` and `baton` move on separate
+cadences and report separate numbers, both derived from the catalog in
+`baton_core/products.json` -- see `baton_core.products` for why one maintained
+document owns them.
+
+(Superseded 2026-08-12. This package used to carry no version at all, because
+`baton_core.RELEASE_VERSION` was the single number both executables reported
+and being told two numbers for one release was the failure being prevented.
+Slawomir ruled independent products instead; the drift that rule feared is now
+prevented by having one OWNER per version rather than one version.)
 
 `curses` is the only terminal dependency and it is stdlib, so the console
 stays as installable as the tool it fronts. No part of this package may enter
 the agent CLI artifact or its import graph.
 """
 
-# The `baton_core` API this console was built against. Declared rather than
-# assumed: the console can be run against a core it did not ship beside, and
-# then the number it needs has to be checkable rather than presumed.
-REQUIRES_CORE_API = 2
+from baton_core import products as _products
+
+# This console's own product version, and the `baton_core` API it was built
+# against. Both come from the catalog: declared rather than assumed, because
+# the console can be run against a core it did not ship beside, and then the
+# number it needs has to be checkable rather than presumed.
+TUI_VERSION = _products.TUI_VERSION
+REQUIRES_CORE_API = _products.product("baton-tui")["requires_core_api"]
 
 
 def check_core_compatibility(core) -> None:

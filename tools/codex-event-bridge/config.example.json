@@ -1,0 +1,34 @@
+{
+  "baton": {
+    "binary": "/absolute/path/to/bin/baton",
+    "config": "/absolute/path/to/mailbox/baton.json",
+    "waitTimeoutSeconds": 60,
+    "retryMs": 1000
+  },
+  "servers": {
+    "local": {
+      "endpoint": "ws://127.0.0.1:4500"
+    }
+  },
+  "targets": {
+    "driftquery": {
+      "server": "local",
+      "threadId": "019c0000-0000-7000-8000-000000000001",
+      "participant": "dq.reviewer"
+    },
+    "pushcoin": {
+      "server": "local",
+      "threadId": "019c0000-0000-7000-8000-000000000002",
+      "participant": "pushcoin.reviewer"
+    }
+  },
+  "eventSocket": "/run/user/1000/codex-events.sock",
+  "dedupWindowMs": 5000,
+  "maxEventBytes": 65536,
+  "maxDetailsBytes": 49152,
+  "maxQueuePerTarget": 100,
+  "maxQueueTotal": 1000,
+  "reconnectMinMs": 500,
+  "reconnectMaxMs": 15000,
+  "startupTimeoutMs": 15000
+}

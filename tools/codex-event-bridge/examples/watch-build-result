@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+    echo "usage: watch-build-result FILE TARGET [CODEX_EVENT_COMMAND]" >&2
+    exit 2
+fi
+
+result_file=$1
+target=$2
+event_command=${3:-codex-event}
+result_dir=$(dirname -- "$result_file")
+result_name=$(basename -- "$result_file")
+
+command -v inotifywait >/dev/null || {
+    echo "watch-build-result: inotifywait is required" >&2
+    exit 2
+}
+
+inotifywait -m -q -e close_write,create,moved_to --format '%f' -- "$result_dir" |
+while IFS= read -r changed_name; do
+    [[ $changed_name == "$result_name" ]] || continue
+    [[ -f $result_file ]] || continue
+    IFS= read -r result < "$result_file" || true
+    [[ $result == FAILED* ]] || continue
+    "$event_command" send --target "$target" --source build-result-watcher --type build-failed --message "$result"
+done

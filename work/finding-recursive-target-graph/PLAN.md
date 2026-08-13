@@ -27,17 +27,26 @@
 8. **Specify discussion/event semantics** — resolve mandatory target binding,
    reply inheritance, atomic target-plus-first-message, cross-target references,
    immutable artifact/review revisions, notices, and retention.
-9. **Specify Git binding** — stable finding identity, root/path/revision digest,
-   promotion without target replacement, idempotent handoffs, and explicit
-   no-Git-mutation boundary.
-10. **Prototype the bounded TUI information architecture** — preserve the full
+9. **Specify pinned finding binding and parallel evidence** — keep the target
+   as live workflow authority and the `work/finding-*` folder as rich Git
+   dossier; define configured-root/path binding while open, optional origin or
+   summary-message navigation pins that never affect delivery/FIFO state,
+   target-scoped discussion evidence, final revision binding at closure, and
+   healthy normal folder removal. Preserve promotion without target
+   replacement, idempotent handoffs, and the explicit no-Git-mutation boundary.
+10. **Specify restart/replacement reconstruction** — define the minimum target
+    status projection and folder records from which a successor reconstructs
+    objective, rulings, evidence/assets, reviewed state, open dependencies,
+    next actor/action, blockers, and acceptance gates; surface stale or
+    contradictory sources explicitly rather than guessing.
+11. **Prototype the bounded TUI information architecture** — preserve the full
    ancestry path while showing root plus the deepest/current levels, local
    children, dependency neighbors, target discussion, and acceptance inspector
    on ordinary and narrow terminals.
-11. **Define replacement/migration boundary** — decide whether and how 1.x
+12. **Define replacement/migration boundary** — decide whether and how 1.x
    traffic is imported, what clean authority 2.0 requires, and how old/new
    readers fail closed. Do not assume in-place schema evolution.
-12. **Revalidate and seek explicit authorization** before any implementation.
+13. **Revalidate and seek explicit authorization** before any implementation.
     Append supersessions chronologically; do not infer decisions from the
     mailbox discussion alone.
 

@@ -158,6 +158,74 @@ changing target identity or losing prior discussion. Git remains authoritative
 for the dossier; Baton remains authoritative for live target state. Baton never
 stages, commits, or otherwise mutates Git.
 
+### 2026-08-12 — proposed pinned finding binding and parallel evidence
+
+**Proposed by Slawomir; design direction, not yet an implementation ruling.**
+The choice must not be “track the finding in Baton” versus “track it under
+`work/finding-*`.” They hold different, complementary material:
+
+- the filesystem finding folder is the rich dossier: `FINDING.md`, `PLAN.md`,
+  implementer progress, append-only reviews, reproductions, scripts, fixtures,
+  data, screenshots, and other assets that belong together and are reviewed in
+  Git;
+- the Baton target is the live coordination object: lifecycle, owner,
+  `next_actor`, readiness, dependency/containment edges, discussion, handoffs,
+  decisions, and chronological evidence about that work.
+
+A finding-bound target therefore carries an explicit configured-root/path
+binding to the folder. Messages and other events are scoped to the target and
+become the second evidence stream around the dossier; Baton does not ingest,
+index, or compete with the folder's files. A substantial finding may have
+several required descendant targets executing in parallel, while the folder
+continues to hold their shared plans and assets. A child target needs its own
+folder binding only when a real child finding folder exists; target hierarchy
+must not manufacture duplicate filesystem dossiers.
+
+“Pinned” means the OPEN TARGET remains visible in the responsible actors'
+level-triggered work projections until an audited lifecycle transition closes
+it. It must not mean leaving one message unclaimed or at the FIFO delivery
+head: message pinning through delivery state would block unrelated traffic and
+again make consuming a message erase or stall the underlying goal. One message
+may be designated as the target's origin/summary anchor for navigation, but
+the stable target—not that message—is the workflow identity and closure gate.
+
+Finding folders remain mandatory-ephemeral branch work. On closure, Baton
+records the resolution and, when available, the final Git repository/revision
+locator that preserves historical access. Normal removal of the live
+`work/finding-*` folder must not damage the target history, change authority
+health, reopen delivery, or require quarantine. An open target may use a
+floating configured-root/path binding while work is uncommitted; closure must
+make explicit whether a durable Git locator exists rather than falsely
+claiming Baton stored the folder.
+
+This is consistent with protocol-11 reference semantics—references may move or
+disappear without damaging a message—but its lifecycle and graph behavior
+belongs to the 2.0 target model rather than the narrower protocol-11 external-
+reference correction.
+
+### 2026-08-12 — confirmed restart/replacement reconstruction goal
+
+**Confirmed by Slawomir.** Agent memory and process lifetime are never part of
+the workflow authority. When an agent is restarted, replaced, or reassigned,
+the successor must be able to inspect the finding folder plus its bound Baton
+target/discussion and reconstruct, without predecessor memory:
+
+- what outcome is being pursued and why;
+- which decisions are confirmed, superseded, proposed, or still open;
+- what evidence and working assets exist and where they live;
+- what has been implemented and independently reviewed;
+- which required descendants or dependency neighbors remain open;
+- who owns the next action and what that action is;
+- what blocks closure and what acceptance checks remain.
+
+Neither source alone is expected to duplicate the other. The folder supplies
+the rich durable dossier; Baton supplies current live workflow and discussion.
+Together they must be sufficient, and disagreement must be visible rather than
+silently resolved by preferring whichever source an agent happened to read
+first. Target views should therefore expose the binding and a compact current-
+state/next-action summary, while repository policy keeps finding plans and
+review status current at handoff boundaries.
+
 ## Examples
 
 ```text
@@ -182,6 +250,12 @@ These are not authorized implementation choices yet:
 - whether reparenting is ever allowed after events exist, and how its audit
   preserves historical ancestry;
 - stable portable target identifiers and Git binding/digest schema;
+- exact open-folder versus closed-revision binding schema, including whether a
+  target may close without a durable Git revision and how that exception is
+  audited;
+- whether an origin/summary message is required, how evidence messages are
+  pinned for navigation without affecting delivery state, and who may change
+  those pins;
 - exact typed dependency-edge vocabulary and cycle rules beyond containment;
 - transactional target creation plus first-message and handoff commands;
 - target-scoped notice audience rules;
@@ -189,6 +263,8 @@ These are not authorized implementation choices yet:
 - retention and garbage collection for resolved target discussions;
 - precise TUI graph, breadcrumb compression, keyboard navigation, and
   accessibility behavior;
+- exact restart-oriented status projection and how stale/disagreeing Git
+  dossier versus Baton workflow state is detected and presented;
 - protocol/schema/version boundary and coexistence with protocol 10.
 
 ## Release boundary

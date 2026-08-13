@@ -304,3 +304,36 @@ K withdraws the JSON/UI implementation, the reviewer verifies the scoped
 withdrawal and included-finding reconciliation, then directly tells Slawomir
 to proceed with the human `just deploy DEST 1.1.0` candidate, testing, and RC
 phase. Agents still do not deploy or choose `DEST`.
+
+## RC deployment reopening — 2026-08-12
+
+**Supersedes the executable handoff above:** Slawomir's attempted
+`just deploy DEST 1.1.0` correctly refused because the tree still carries
+frozen 1.0 artifact manifests. The attempt also disproved the finding's claim
+that `deploy` produces or builds RC binaries: deployment intentionally copies
+only already-certified bytes and never builds.
+
+Slawomir subsequently ruled that CLI, TUI, and core have independent versions,
+with protocol remaining a separate compatibility contract and a JSON product
+manifest owning the deployment composition. A single shared VERSION argument
+is therefore not an adequate long-term deployment identity. The exact ruling,
+open design decisions, and implementation gate now live in
+`work/finding-product-version-manifest/`. RC clearance is withdrawn until that
+item produces an approved design and coherent certified artifacts. The human
+still owns the eventual release build, destination, deploy, activation, Git,
+and release decision.
+
+## Post-build deployment-test notification — 2026-08-12
+
+Slawomir directed `baton.reviewer` to notify `human.slawomir` through Baton
+when all four prerequisites have completed:
+
+1. `baton.implementer` completes and hands off the product-manifest work;
+2. `baton.reviewer` independently reviews and approves it;
+3. Slawomir performs the deliberate 1.1 artifact build; and
+4. the currency gates and full reusable suite pass against those artifacts.
+
+Only then does the reviewer send the explicit Baton notification that step 5,
+human deployment followed by separate activation and soak testing, is ready to
+be exercised. This notification does not authorize an agent to build, deploy,
+activate, commit, tag, or choose a destination.

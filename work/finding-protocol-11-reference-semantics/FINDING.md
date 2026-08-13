@@ -124,6 +124,28 @@ ambiguous syntax:
 Neither promises that Baton stored or delivered the target bytes. If a sender
 needs that promise, the sender publishes the bytes as stored content.
 
+## Interaction with finding-bound work — proposed 2026-08-12
+
+Slawomir identified finding folders as the concrete reference case that must
+remain useful without turning Baton into a competing document store. An open
+workflow target may refer to a rich `work/finding-*` folder containing plans,
+reviews, scripts, reproductions, data, and other assets, while its Baton
+discussion remains a separate chronological evidence stream. Normal finding
+closure then removes that ephemeral folder from the live tree.
+
+Protocol-11 reference semantics must support that lifecycle: a floating
+configured-root/path reference can navigate to the live folder while it
+exists, and a Git repository/revision/path locator can preserve historical
+navigation after commit and cleanup when one is available. Neither locator
+makes the folder Baton's stored content. Moving or removing the folder must not
+damage messages, block readiness, or require quarantine.
+
+The “pinned until the finding closes” behavior itself is NOT delivery state and
+does not belong to this narrower reference contract. The 2.0 target model in
+`work/finding-recursive-target-graph/` owns the open lifecycle, dependency
+graph, next actor, and optional origin/summary-message pin. Protocol 11 owns
+only the non-damaging locator promise that such a binding can reuse.
+
 ## Open decisions
 
 1. Are protocol-11 references Git-only, or does the content model support
@@ -139,6 +161,9 @@ needs that promise, the sender publishes the bytes as stored content.
    cutover?
 6. Which CLI term authors stored attachment-disposition content without
    reviving the false promise attached to today's `--attach` spelling?
+7. For a finding binding, when does an open floating root/path acquire a
+   commit-addressed historical locator, and how is “closed without a durable
+   revision” represented without pretending the folder was stored?
 
 ## Acceptance boundary
 

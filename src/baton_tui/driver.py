@@ -646,15 +646,18 @@ def build_parser():
 	import argparse
 
 	import baton_core as core
+	import baton_tui
 
 	parser = argparse.ArgumentParser(prog="baton-tui",
 	                                 description="Human console for a Baton instance")
 	parser.add_argument("--config", required=True, help="absolute path to baton.json")
 	parser.add_argument("--participant", required=True)
+	# THIS console's version, not the core's and not the CLI's. They are
+	# separate products now and may legitimately differ.
 	parser.add_argument("--version", action="version",
-	                    version=f"baton-tui {core.RELEASE_VERSION} "
+	                    version=f"baton-tui {baton_tui.TUI_VERSION} "
 	                            f"(protocol {core.PROTOCOL_VERSION})",
-	                    help="print the release version and exit")
+	                    help="print this product's version and exit")
 	parser.add_argument(
 		"--editor",
 		help="editor for Ctrl-E, as a command line (no shell). Precedence: "
@@ -673,6 +676,15 @@ def main(argv=None) -> int:  # pragma: no cover
 	from . import check_core_compatibility
 
 	check_core_compatibility(core)
+	# THE MAILBOX HANDSHAKE, before curses takes the screen and before the
+	# authority is opened. A console that discovered it was the wrong
+	# generation mid-render would have to say so through a drawing surface it
+	# had already taken over.
+	try:
+		core.check_mailbox_identity(args.config, "baton-tui")
+	except core.BatonError as refusal:
+		sys.stderr.write(f"baton-tui: {refusal}\n")
+		return refusal.exit_code
 	from .editor import resolve_editor
 	curses.wrapper(run, args.config, args.participant, 2.0,
 	               resolve_editor(args.editor))

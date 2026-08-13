@@ -32,9 +32,9 @@ BOOTSTRAP = '''\
 # SyntaxError. Exit code 2 is the documented environment-floor result.
 import sys
 
-if sys.version_info < (3, 11):
+if sys.version_info < ({floor_tuple}):
     sys.stderr.write(
-        "baton: Python %d.%d is below the required 3.11 floor\\n"
+        "baton: Python %d.%d is below the required {floor_text} floor\\n"
         % (sys.version_info[0], sys.version_info[1]))
     sys.exit(2)
 
@@ -48,6 +48,73 @@ from baton_core.cli import main
 
 sys.exit(main())
 '''
+
+
+# What a packaged `baton_core` consists of. The catalog is DATA and ships with
+# the package, which is how an executable answers `--version` with no
+# repository anywhere near it; every other member is source.
+CORE_DATA = ("products.json",)
+
+
+def core_members() -> list[tuple[str, bytes]]:
+	"""The `baton_core/` members, identically for every product that embeds it.
+
+	Shared by both builders through `attest_core`, so the two artifacts cannot
+	come to disagree about what "the core" means while both claim to carry it.
+	"""
+	members = []
+	core_dir = os.path.join(SRC, "baton_core")
+	for name in sorted(os.listdir(core_dir)):
+		if not (name.endswith(".py") or name in CORE_DATA):
+			continue
+		with open(os.path.join(core_dir, name), "rb") as handle:
+			members.append((f"baton_core/{name}", handle.read()))
+	return members
+
+
+def attest_core(members) -> dict:
+	"""WHICH CORE these bytes are, as a digest over the packaged members.
+
+	NAME THEN BYTES, in sorted name order: hashing the content alone would let
+	a renamed member pass as the same core, and hashing in archive order would
+	make the digest depend on how the zip was written rather than on what is
+	in it.
+
+	This is the attestation the TUI manifest never had. Under one shared
+	release version it did not matter -- both artifacts were built from one
+	tree in one act -- but independently versioned products can be built hours
+	apart, and then "which core is inside this console" is a question someone
+	has to be able to answer from the manifest.
+	"""
+	digest = hashlib.sha256()
+	for name, data in sorted(m for m in members if m[0].startswith("baton_core/")):
+		digest.update(name.encode("utf-8"))
+		digest.update(data)
+	return {"version": _catalog().CORE_VERSION,
+	        "api_version": _catalog().CORE_API_VERSION,
+	        "package_sha256": digest.hexdigest()}
+
+
+def bootstrap(template: str) -> str:
+	"""The zipapp bootstrap, with the runtime floor FILLED IN from the catalog.
+
+	The floor used to be typed into both builders' bootstrap strings and again
+	into both manifests. The catalog owns it now, so the executable's own
+	refusal and the manifest that advertises it cannot drift apart -- which was
+	the whole failure mode, one size smaller than the version drift this design
+	exists to remove."""
+	catalog = _catalog()
+	floor = tuple(int(part) for part in catalog.PYTHON_MIN.split("."))
+	return template.format(floor_tuple=", ".join(str(part) for part in floor),
+	                       floor_text=catalog.PYTHON_MIN)
+
+
+def _catalog():
+	"""The product catalog, imported from the SOURCE being packaged."""
+	if SRC not in sys.path:
+		sys.path.insert(0, SRC)
+	from baton_core import products
+	return products
 
 
 def build(root: str) -> dict:
@@ -64,13 +131,8 @@ def build(root: str) -> dict:
 	source_path = os.path.join(SRC, "baton_core", "_impl.py")
 	with open(source_path, "rb") as handle:
 		source = handle.read()
-	members = [("__main__.py", BOOTSTRAP.encode("utf-8"))]
-	core_dir = os.path.join(SRC, "baton_core")
-	for name in sorted(os.listdir(core_dir)):
-		if not name.endswith(".py"):
-			continue
-		with open(os.path.join(core_dir, name), "rb") as handle:
-			members.append((f"baton_core/{name}", handle.read()))
+	members = [("__main__.py", bootstrap(BOOTSTRAP).encode("utf-8"))]
+	members.extend(core_members())
 	buffer = io.BytesIO()
 	buffer.write(b"#!/usr/bin/env python3\n")
 	with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_STORED) as archive:
@@ -112,20 +174,28 @@ def build(root: str) -> dict:
 		with open(proto_target, "wb") as handle:
 			handle.write(proto)
 
-	sys.path.insert(0, SRC)
-	import baton_core
+	catalog = _catalog()
+	product = catalog.product("baton")
+	# EVERY FIELD DERIVED. The catalog owns the versions and the dependency
+	# declarations; this manifest attests to them for bytes that now exist.
+	# Nothing here is typed twice -- `python_min` used to be a literal in this
+	# file and in the console's builder, which is the same drift in miniature.
+	#
 	# `source_sha256` keeps its meaning -- the hash of the implementation
-	# source -- and that source is now `baton_core/_impl.py` rather than
-	# `baton_v6.py`. The field is not redefined to cover the whole archive:
-	# `artifact_sha256` already pins every packaged byte, and two fields
-	# saying the same thing is how they stop agreeing.
+	# source, `baton_core/_impl.py`. It is not redefined to cover the archive:
+	# `artifact_sha256` already pins every packaged byte, and two fields saying
+	# the same thing is how they stop agreeing. What it no longer covers alone
+	# is core IDENTITY, because the catalog can change without `_impl.py`
+	# changing -- that is what `embeds_core.package_sha256` is for.
 	manifest = {
 		"tool": "baton",
-		"release_version": baton_core.RELEASE_VERSION,
-		"protocol_version": baton_core.PROTOCOL_VERSION,
-		"python_min": "3.11",
-		"sqlite_min": ".".join(map(str, baton_core._impl.SQLITE_MIN)),
-		"artifact": "bin/baton",
+		"product_version": product["version"],
+		"requires_core_api": product["requires_core_api"],
+		"embeds_core": attest_core(members),
+		"protocol_version": catalog.PROTOCOL_VERSION,
+		"python_min": catalog.PYTHON_MIN,
+		"sqlite_min": catalog.SQLITE_MIN_TEXT,
+		"artifact": product["artifact"],
 		"artifact_sha256": hashlib.sha256(payload).hexdigest(),
 		"source_sha256": hashlib.sha256(source).hexdigest(),
 		"protocol_doc": proto_name,

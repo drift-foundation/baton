@@ -1,0 +1,15 @@
+{
+  "name": "codex-event-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:app-server": "node smoke/app_server.mjs",
+    "test:dispatcher": "node smoke/dispatcher.mjs",
+    "test:unix-socket": "node smoke/unix_socket.mjs"
+  }
+}

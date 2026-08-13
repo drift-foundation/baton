@@ -372,14 +372,36 @@ Both executables answer `--version` offline — no config, no terminal, no
 participant, no authority, no store:
 
     $ baton --version
-    baton 1.0.0 (protocol 10)
+    baton 10.2.0 (protocol 10)
     $ baton-tui --version
-    baton-tui 1.0.0 (protocol 10)
+    baton-tui 10.2.0 (protocol 10)
 
-The release version is `major.minor.patch` and is SHARED: the tool and the
-console never report different numbers for the same release. The protocol
-version in parentheses is the separate on-disk contract and moves on its own,
-so compatibility stays distinguishable from the release number.
+Each executable reports ITS OWN version. `baton`, `baton-tui` and the
+`baton_core` package they both embed are independently versioned products:
+they may carry different numbers at the same time, and a console release does
+not oblige the tool to move. Every version is `major.minor.patch`.
+
+The protocol version in parentheses is the separate on-disk contract.
+SUPERSEDED 2026-08-13: it used to "move on its own", independent of every
+product number. An application's MAJOR is that number — a release's major, the
+generation directory it installs into and the mailbox generation it can open
+are one number by definition, which is why the first release under the rule is
+`baton 10.2.0` rather than 1.2.0. What stays independent is each product's
+minor and patch cadence: `baton 11.2.0` and `baton-tui 11.5.1` serve the same
+generation 11 mailbox. THERE IS NO EXCEPTION. The 1.x pair that predates the
+rule is not a release this deployer installs or describes; it is a frozen
+directory of binaries, and calling it a generation would have been a rule with
+a permanent asterisk.
+The core's own version and the core API contract are attestations for the
+distribution manifests rather than answers to "what did I just run", so they
+are not on this line.
+
+(Superseded. Until 1.1 there was one SHARED release version and both
+executables reported it, so a human could never be told two numbers for one
+release. That rule prevented drift by making difference impossible; the
+current model permits deliberate difference and prevents accidental drift by
+giving every version exactly one owner — the catalog inside the core package,
+from which the executables, both manifests and this section all derive.)
 
 ## Minimum requirements
 
@@ -396,16 +418,31 @@ stdlib-only zipapp.
 
 - `just venv` creates `.venv` when needed and installs the pinned packages in
   `tools/requirements-dev.txt`.
+- `just build` prepares the WHOLE release candidate under `build/` — both
+  deterministic zipapps, both manifests, and a snapshot of every payload file
+  — from the one product catalog. The complete tree is prepared and certified
+  BESIDE `build/` and published by renaming a directory, so a failure leaves
+  the previous candidate whole or leaves nothing, and never a tree holding
+  bytes from two builds. It does NOT touch the checkout's `bin/` or `dist/`: a
+  build must never replace the executables people are running. `build/` is
+  disposable and ignored by Git.
 - `just test` runs the complete protocol, core, TUI, PTY, parity, and
-  packaging-isolation suite.
-- `just build` rebuilds the deterministic `bin/baton` zipapp and refreshes
-  `dist/DISTRIBUTION.json`.
-- `just build-tui` independently rebuilds `bin/baton-tui` and refreshes
-  `dist/DISTRIBUTION-TUI.json` without invoking the CLI builder.
+  packaging-isolation suite AGAINST that candidate. It does not build one: a
+  gate that manufactures the artifact it inspects reports on bytes nobody
+  chose to release, so a missing candidate is a refusal naming `just build`.
+  The source-only suites — everything that runs from `src/` — need no
+  candidate and are unaffected.
 
-After a fresh clone, run `just venv` once, then use `just test` for normal
-verification. Test and build recipes fail with a direct instruction if the
-local venv has not been bootstrapped.
+The release sequence is therefore three steps, in order:
+
+    just build                     # prepare the candidate
+    just test                      # examine it
+    just deploy DESTINATION        # publish exactly what was examined
+
+After a fresh clone, run `just venv` once, then `just build`, then `just test`.
+Test and build recipes fail with a direct instruction if the local venv has not
+been bootstrapped, and the test recipe fails the same way if no candidate has
+been built.
 
 ## Instance
 
@@ -751,11 +788,78 @@ not return one convenient file at a time.
 
 ## Distribution
 
-`just build` invokes `tools/build_zipapp.py` to build the canonical
-deterministic `bin/baton` zipapp and refresh `dist/DISTRIBUTION.json`
-(release/protocol versions, minimum runtime versions, artifact hash).
-`python3 tools/build_zipapp.py [outdir]` remains available when building into
-another distribution root. Same inputs, same bytes. A distribution root is
+`just build` invokes `tools/build_release.py`, which builds both canonical
+deterministic zipapps and both manifests (product/protocol versions, minimum
+runtime versions, artifact hashes, and the identity of the core each product
+embeds) into `build/`. One command, because the two products are built from
+one catalog and embed one core, and a deployment refuses a set whose products
+disagree about either.
+
+Four things are deliberately distinct, and conflating any two of them is how a
+release surprises somebody:
+
+| what | where | mutable? |
+| --- | --- | --- |
+| source | the checkout | yes, constantly |
+| candidate | `build/` | replaced wholesale by every build; safe to delete |
+| exact release | `DEST/app/<product>/<generation>/vX.Y.Z/` | immutable once installed |
+| discovery alias | `DEST/app/<product>/<generation>/latest` | moves only at an explicit alias change |
+| what teams run | the exact path they resolved | changes only when they relaunch |
+
+SUPERSEDED: deployment used to publish one `DEST/set-<digest>/` tree and point
+one global `DEST/current` at it. Two products that version independently
+cannot share one activation pointer, and a 64-hex directory is a name nobody
+can carry between two terminals. Each product now installs as an immutable
+exact release inside its compatibility GENERATION, and each generation carries
+its own `latest`.
+
+A generation is the protocol version the release serves, and a release's
+SemVer major IS that number — `baton-tui 11.5.1` serves protocol 11 and lives
+in `app/baton-tui/v11/v11.5.1/`; `baton 10.2.0` serves protocol 10 and lives in
+`app/baton-cli/v10/v10.2.0/`. There is no exception and no grant table: a
+release whose major is not its protocol has nowhere to live, and installation
+refuses it rather than inventing a home.
+
+**`latest` is for discovery, never for execution.** These executables are
+Python zipapps, and CPython reopens the archive by path on every lazy import:
+a process that kept an alias open could seek offsets from the archive it
+started with into the archive that replaced it. Resolve the alias once, record
+the exact path, and run that:
+
+    just deploy-resolve DEST/app/baton-cli/v11
+    → DEST/app/baton-cli/v11/v11.2.0/bin/baton
+
+Deployment resolves inside the destination without following links, publishes
+through held descriptors, and re-walks from the destination root before each
+commit. That refuses links and detects relocation. It does NOT prevent a
+concurrent process running as the same user from moving a validated directory
+out from under a descriptor between the check and the write — no POSIX
+primitive pins a directory to a path — and that case is deliberately out of
+scope under the cooperative single-operator model Slawomir approved on
+2026-08-13. An actor who can do it can equally well delete the destination.
+
+The shared production root is `~/baton/`: globally installed applications and
+versioned mailboxes live beneath it, and consumers name the config they mean.
+
+A mailbox carries `MAILBOX.json` beside its config, stating the protocol
+generation it is. A client validates it before normal operation and refuses
+before any mutation if it cannot speak that generation. The field is
+`protocol_version`: `generation` was already taken by the config's own
+regeneration counter, and two meanings for one word in one directory is a
+defect waiting for a hurried reader.
+
+`build/` is a COMPLETE distribution root: it snapshots the Git-owned payload —
+the protocol and effective-use documents, the example config, README, LICENSE
+and the per-product release notes — beside the artifacts it generates. That is
+what lets `just test` and `just deploy` examine the same bytes; if deployment
+read templates from the checkout instead, a file edited between the two would
+ship without ever having passed the gate. The source tree remains the
+maintained owner of those templates.
+
+The per-product builders remain available as internal mechanisms:
+`python3 tools/build_zipapp.py [outdir]` and `python3 tools/build_tui.py
+[outdir]` each build one product into another distribution root. Same inputs,
+same bytes. A distribution root is
 self-contained: building into one copies `docs/AGENTS-MAILBOX-PROTO.md` there
 and the manifest pins its hash, so every path the manifest records resolves
 from the root it sits in. Building in place targets the canonical file and

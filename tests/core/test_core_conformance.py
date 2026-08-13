@@ -33,6 +33,7 @@ import io
 import multiprocessing
 import os
 import pathlib
+import re
 import sqlite3
 import sys
 
@@ -5702,19 +5703,40 @@ class TestPackaging:
 		artifact = root / manifest["artifact"]
 		assert artifact.is_file(), "manifest artifact must resolve from the distribution root"
 		assert _h.sha256(artifact.read_bytes()).hexdigest() == manifest["artifact_sha256"]
+		# THE COMMITTED MANIFEST IS A HISTORICAL RECORD, and by ruling of
+		# 2026-08-13 the artifact it describes is NOT in this checkout: the
+		# Checkpoint A relocation moved `bin/baton` and `bin/baton-tui` into
+		# the deployment and they stay out. This used to assert the committed
+		# artifact existed and hashed to the committed value; that pair no
+		# longer exists to compare, and asserting it made the whole suite
+		# depend on a file the deployment owns.
+		#
+		# What remains checkable here is that the record is still a
+		# well-formed description of a release -- a relative artifact path
+		# and a digest -- so a reader of `dist/` is not handed a shape.
 		committed = json.loads(open(os.path.join(REPO, "dist",
 		                                          "DISTRIBUTION.json")).read())
-		committed_artifact = os.path.join(REPO, committed["artifact"])
-		assert os.path.isfile(committed_artifact), "checked-in bin/baton must exist"
-		assert _h.sha256(open(committed_artifact, "rb").read()).hexdigest() == \
-			committed["artifact_sha256"]
+		assert not os.path.isabs(committed["artifact"])
+		assert re.fullmatch(r"[0-9a-f]{64}", committed["artifact_sha256"])
+		assert not os.path.exists(os.path.join(REPO, committed["artifact"])), \
+			("a built artifact is back in the checkout; the ruling is that "
+			 "`bin/` stays absent and the deployment owns those bytes")
 		# SUPERSEDED SOURCE: the CLI is built from `baton_core` now, so
 		# `source_sha256` pins the core's implementation rather than the
 		# frozen oracle. `baton_v6.py` stays in the tree as the differential
 		# oracle and is deliberately NOT what the manifest describes.
+		#
+		# SUPERSEDED SUBJECT, 2026-08-13: this used to compare the CHECKED-IN
+		# manifest with the CURRENT `_impl.py` and demand equality. A build no
+		# longer writes to the checkout, so those bytes are a historical input
+		# and that comparison asks whether history has changed -- it fails
+		# whenever source moves ahead, which is most of the time and says
+		# nothing about the release. What is still true, and checked above, is
+		# that the committed manifest describes the committed ARTIFACT. The
+		# built root just produced is where source currency is meaningful:
 		here_src = open(os.path.join(REPO, "src", "baton_core", "_impl.py"), "rb").read()
-		assert committed["source_sha256"] == _h.sha256(here_src).hexdigest(), \
-			"committed manifest is stale against baton_core/_impl.py — rerun build_zipapp.py"
+		assert manifest["source_sha256"] == _h.sha256(here_src).hexdigest(), \
+			"a freshly built manifest does not describe the source it was built from"
 		# The generic protocol doc ships in the distribution root and is
 		# hash-pinned by the manifest.
 		# RESOLVED FROM THE BUILT ROOT, which is the whole contract. I had
@@ -5728,19 +5750,27 @@ class TestPackaging:
 			"the manifest names a protocol document the built root does not contain"
 		assert _h.sha256(proto_built.read_bytes()).hexdigest() == \
 			manifest["protocol_doc_sha256"]
-		proto_committed = os.path.join(REPO, committed["protocol_doc"])
-		assert os.path.isfile(proto_committed)
-		assert _h.sha256(open(proto_committed, "rb").read()).hexdigest() == \
-			committed["protocol_doc_sha256"], "committed manifest stale against the protocol doc"
+		# RETIRED, not weakened: the committed manifest's protocol-doc pin used
+		# to be compared with the REPOSITORY's copy of that document. Source
+		# moves ahead of a frozen release between releases, so that comparison
+		# reported a defect for the normal state of the tree. The pin is
+		# enforced where it decides something -- `deploy.certified` refuses a
+		# candidate whose protocol document does not match what its manifests
+		# pin -- and a dead `if` here would be a check pretending to be one.
 
 	def test_bootstrap_floor_syntax_and_logic(self, tmp_path):
 		builder = self._builder()
 		import ast
-		tree = ast.parse(builder.BOOTSTRAP)
+		# THE RENDERED bootstrap, which is what ships. `BOOTSTRAP` is a template
+		# now -- the floor is filled in from the product catalog rather than
+		# typed here and again in the manifest -- so parsing the template would
+		# be parsing something no interpreter ever runs.
+		shipped = builder.bootstrap(builder.BOOTSTRAP)
+		tree = ast.parse(shipped)
 		for node in ast.walk(tree):
 			assert not isinstance(node, ast.NamedExpr)
 			assert type(node).__name__ != "Match"
-		lines = builder.BOOTSTRAP.splitlines()
+		lines = shipped.splitlines()
 		floor_idx = next(i for i, l in enumerate(lines) if "version_info < (3, 11)" in l)
 		# The bootstrap imports the CORE now. What this test is about is
 		# unchanged and is the whole reason it exists: the floor check must
@@ -5809,8 +5839,11 @@ class TestPackaging:
 			shutil.copy(os.path.join(REPO, src_rel), dst)
 		for src_rel, dst_rel in self.REUSABLE_PACKAGES:
 			shutil.copytree(os.path.join(REPO, src_rel), iso / dst_rel)
-		(iso / "bin").mkdir()
-		shutil.copy(os.path.join(REPO, "bin", "baton"), iso / "bin" / "baton")
+		# NO `bin/baton` IS COPIED IN. It used to be, so that the purity
+		# gate below could scan the packed archive; that gate builds its own
+		# artifact now, and by the 2026-08-13 ruling there is no checkout
+		# artifact to copy anyway. What this proves is unchanged and slightly
+		# stronger: a bare tree with the sources and the builder passes.
 		# PYTHONPATH points at the isolated `src/`, which is where the
 		# packages are. `tests/conftest.py` would do it too; both are copied,
 		# and the env var is what proves the checkout needs no help from this
@@ -6388,7 +6421,7 @@ class TestPackaging:
 			assert "repository-relative POSIX paths" not in text, \
 				f"{verb} still teaches the superseded bare-path form"
 
-	def test_extraction_purity_grep_gate(self):
+	def test_extraction_purity_grep_gate(self, tmp_path):
 		"""Project-specific needles across EVERY reusable asset, including
 		the packed archive bytes."""
 		# Needles are split-constructed so this tuple (and this comment) can
@@ -6400,7 +6433,20 @@ class TestPackaging:
 		# REUSABLE_ASSETS is (source, destination) pairs now; the source path
 		# is what exists in this repository.
 		assets = [src for src, _dst in self.REUSABLE_ASSETS]
-		assets.append(os.path.join("bin", "baton"))
+		# THE PACKED ARCHIVE, BUILT HERE. This used to scan the checkout's
+		# `bin/baton`, which the 2026-08-13 ruling removed -- and which was
+		# the weaker question anyway: it asked whether a historical artifact
+		# was clean, while a needle introduced into the source today ships in
+		# the archive a build produces today.
+		built = self._builder().build(str(tmp_path / "purity"))
+		archives = [os.path.join(str(tmp_path / "purity"), built["artifact"])]
+		# The scan below reads these as opaque bytes, so this states what they
+		# are: a real archive carrying the packed core. Without it, a builder
+		# that produced an empty file would make the archive half of this gate
+		# vacuously clean.
+		import zipfile
+		with zipfile.ZipFile(archives[0]) as packed:
+			assert "baton_core/_impl.py" in packed.namelist()
 		# Every packaged core module too. It ships inside the executable now,
 		# so a host needle in it travels exactly as far as one in the old
 		# single source file did.
@@ -6408,12 +6454,30 @@ class TestPackaging:
 			for name in sorted(os.listdir(os.path.join(REPO, package))):
 				if name.endswith(".py"):
 					assets.append(os.path.join(package, name))
-		for asset in assets:
-			path = os.path.join(REPO, asset)
+		for asset in assets + archives:
+			path = asset if os.path.isabs(asset) else os.path.join(REPO, asset)
 			data = open(path, "rb").read()
 			for needle in banned:
 				assert needle.encode() not in data, \
 					f"{needle!r} found in reusable asset {asset}"
+
+	def test_the_protocol_document_states_the_ordering_limit(self):
+		"""Ruled 2026-08-13: protocol 10 KEEPS `(created_ts, id)` and DOCUMENTS
+		what it does not promise, rather than implying a chronology it cannot
+		deliver inside one timestamp second.
+
+		Asserted here because the document is hash-pinned by every distribution
+		manifest: a release that quietly dropped this paragraph would ship a
+		protocol document that promises more than the code does."""
+		text = open(os.path.join(REPO, "docs",
+		                         "AGENTS-MAILBOX-PROTO.md")).read()
+		assert "(created_ts, id)" in text, \
+			"the ordering rule itself is not stated"
+		assert "ONE-SECOND" in text or "one-second" in text, \
+			"the resolution that causes the ties is not stated"
+		# ...and the mitigation, so a reader learns what to do about it rather
+		# than only that it exists.
+		assert "claim --message-id" in text
 
 	def test_schema_asset_matches_validator_and_example(self):
 		schema = json.loads(open(os.path.join(REPO, "schema",

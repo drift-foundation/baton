@@ -31,6 +31,8 @@ import stat
 import sys
 from typing import Any
 
+from . import products as _products
+
 EXIT_FLOOR = 2
 EXIT_NONE = 3
 EXIT_PROTOCOL = 4
@@ -38,18 +40,22 @@ EXIT_RACE = 5
 EXIT_DAMAGE = 6
 EXIT_GATED = 7
 
-PROTOCOL_VERSION = 10
-
-# THE release version of the Baton project, `major.minor.patch`. One
-# declaration, reported unchanged by both executables: `baton --version` and
-# `baton-tui --version` name themselves and then this number, so a human is
-# never told two versions for one release. It is deliberately separate from
-# PROTOCOL_VERSION, which is the on-disk contract and moves on its own.
+# EVERY VERSION COMES FROM THE CATALOG. `products.json` is the one maintained
+# declaration of what each product is and what it requires; this module derives
+# and does not restate. See `products.py` for why it is a data file.
 #
-# The pre-release CLI counted its own tool revisions to 6.0.0 while the console
-# was still 0.2.0; the first public release retires both of those numbers.
-RELEASE_VERSION = "1.0.0"
-SQLITE_MIN = (3, 37, 0)  # STRICT tables
+# SUPERSEDED, 2026-08-12: there used to be a single `RELEASE_VERSION = "1.0.0"`
+# here, and both executables reported it so a human could never be told two
+# numbers for one release. Slawomir ruled that `baton`, `baton-tui` and
+# `baton_core` are independently versioned products instead, so there is no
+# shared release version left to declare -- the constant is gone rather than
+# renamed, because a name that still resolves is a name something will keep
+# using. The reasoning it replaced is worth keeping: the concern was silent
+# DRIFT between hand-maintained numbers, and the catalog answers it by having
+# exactly one owner per version.
+PROTOCOL_VERSION = _products.PROTOCOL_VERSION
+CLI_VERSION = _products.CLI_VERSION
+SQLITE_MIN = _products.SQLITE_MIN         # STRICT tables
 BUSY_TIMEOUT_MS = 10_000
 TRANSIENT_BODY_MAX_BYTES = 64 * 1024
 DEFAULT_RETENTION_DAYS = 90
@@ -140,6 +146,139 @@ _KNOWN_PROJECTION_SUFFIXES = frozenset(_PROJECTION_SUFFIXES.values()) | {_PROJEC
 SUBJECT_MAX_BYTES = 255
 
 DB_NAME = "mailbox.sqlite3"
+
+# THE COMPATIBILITY HANDSHAKE, read before normal operation.
+#
+# A deployed mailbox carries a small identity document beside its config. It
+# states the protocol generation the mailbox is, so a client that cannot speak
+# it refuses BEFORE touching anything rather than discovering the mismatch
+# somewhere inside a write.
+#
+# `protocol_version`, never a bare `generation`: this config already has a
+# `generation` field and it is the accepted-config counter that makes `regen`
+# transactional. Two meanings for one word in one directory is a defect
+# waiting for a hurried reader.
+#
+# ABSENCE IS ACCEPTED. Every mailbox in existence predates this document, and
+# a client that refused to open one would be refusing every authority there
+# is. What absence cannot do is claim compatibility -- there is nothing to
+# claim it with, and the protocol version in the config still governs.
+MAILBOX_RECORD = "MAILBOX.json"
+MAILBOX_FORMAT = "baton.mailbox"
+MAILBOX_FORMAT_VERSIONS = (1,)
+
+# NAMESPACES ARE NUMERIC, and that is the whole rule.
+#
+# SUPERSEDED 2026-08-13: `legacy` was accepted here as a second, named
+# namespace, because the 1.x pair's major predated the rule that a release's
+# major IS the generation it serves. The correction removed the legacy release
+# family entirely: the frozen pair now sits in a plain directory that no
+# deployment and no handshake describes, and every namespace a client may meet
+# is `v<protocol>`. A rule with one exception is a rule every reader has to
+# remember an exception to.
+
+
+def mailbox_identity(config_path: str) -> dict | None:
+	"""Read and shape-check the identity document beside a config.
+
+	WHAT THIS DOCUMENT SAYS, and deliberately nothing else: the format, the
+	namespace, and the protocol generation this mailbox is.
+
+	SUPERSEDED 2026-08-13: it also carried a `legacy_mapping` naming exact
+	applications and versions, and startup checked membership in it. Slawomir
+	withdrew that: Baton has no per-application mailbox grant. Which exact
+	releases may be installed is a DEPLOYMENT CERTIFICATION question, and the
+	core API is a product/core embedding contract -- neither belongs in a
+	document about a mailbox. What a client asks a mailbox is one question:
+	do we speak the same protocol?
+
+	Returns None when there is none. Raises when there is one and it is not a
+	document this code can trust: a broken handshake is not the same as no
+	handshake, and quietly treating it as absence would turn a corrupted
+	compatibility claim into an accepted one.
+	"""
+	path = os.path.join(os.path.dirname(config_path) or ".", MAILBOX_RECORD)
+	try:
+		descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+	except FileNotFoundError:
+		return None
+	except OSError as exc:
+		if exc.errno == errno.ELOOP:
+			# `O_NOFOLLOW` refusing a link, said in the words of what
+			# happened: a link at this pathname is not a document this mailbox
+			# wrote, and following it would let a handshake elsewhere vouch
+			# for this authority.
+			raise BatonError(f"{path} is a symlink; a mailbox identity is a "
+			                 f"regular file beside its config", EXIT_DAMAGE) from None
+		raise BatonError(f"{MAILBOX_RECORD} is not readable: {exc}",
+		                 EXIT_PROTOCOL) from None
+	try:
+		if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+			raise BatonError(f"{path} is not a regular file", EXIT_DAMAGE)
+		with os.fdopen(descriptor, "r", encoding="utf-8") as reader:
+			raw = reader.read()
+	except UnicodeDecodeError:
+		raise BatonError(f"{path} is not valid UTF-8", EXIT_DAMAGE) from None
+	try:
+		# STRICT, like every other trust document this code reads: duplicate
+		# keys and JSON's non-finite constants are refused rather than
+		# silently resolved to whichever value happened to be last.
+		document = loads_strict(raw)
+	except BatonError as broken:
+		raise BatonError(f"{path}: {broken}", EXIT_DAMAGE) from None
+	if not isinstance(document, dict):
+		raise BatonError(f"{path} is not a JSON object", EXIT_DAMAGE)
+	unknown = set(document) - {"format", "format_version", "protocol_version",
+	                           "namespace"}
+	if unknown:
+		raise BatonError(
+			f"{path} carries fields this build does not know: "
+			f"{sorted(unknown)}. A compatibility document is not a place to "
+			f"put things nothing checks -- and per-application grants were "
+			f"withdrawn from it deliberately.", EXIT_DAMAGE)
+	if document.get("format") != MAILBOX_FORMAT:
+		raise BatonError(
+			f"{path} says format {document.get('format')!r}, not "
+			f"{MAILBOX_FORMAT!r}", EXIT_DAMAGE)
+	if document.get("format_version") not in MAILBOX_FORMAT_VERSIONS:
+		raise BatonError(
+			f"{path} is format version {document.get('format_version')!r}; "
+			f"this build reads {list(MAILBOX_FORMAT_VERSIONS)}", EXIT_PROTOCOL)
+	protocol = document.get("protocol_version")
+	if not isinstance(protocol, int) or isinstance(protocol, bool) or protocol < 1:
+		raise BatonError(f"{path} states no usable protocol_version",
+		                 EXIT_DAMAGE)
+	namespace = document.get("namespace")
+	if not isinstance(namespace, str) or not namespace:
+		raise BatonError(f"{path} states no namespace", EXIT_DAMAGE)
+	if namespace != f"v{protocol}":
+		raise BatonError(
+			f"{path} is namespace {namespace!r} but protocol {protocol}; a "
+			f"generation directory and its protocol are the same number, and "
+			f"there is no other kind of namespace", EXIT_DAMAGE)
+	return document
+
+
+def check_mailbox_identity(config_path: str, application: str) -> dict | None:
+	"""Refuse, before anything else happens, if this build cannot speak this
+	mailbox's protocol.
+
+	ONE QUESTION. Which exact releases may be installed is decided by
+	deployment certification, and which core an application embeds is decided
+	by the product/core contract; a mailbox is asked about the protocol and
+	nothing else.
+	"""
+	document = mailbox_identity(config_path)
+	if document is None:
+		return None
+	protocol = document["protocol_version"]
+	if protocol != PROTOCOL_VERSION:
+		raise BatonError(
+			f"this mailbox is protocol {protocol}; {application} speaks "
+			f"protocol {PROTOCOL_VERSION}. Run the {application} release for "
+			f"generation {protocol}.", EXIT_PROTOCOL)
+	return document
+
 
 # Deleting verbs authorized to remove content rows (retention deletion is
 # not mutation): the consuming reply/close transaction scrubs the incoming
@@ -6527,9 +6666,14 @@ def _build_parser():
 	parser = argparse.ArgumentParser(
 		prog="baton", description="Portable coordination over one transactional authority")
 	parser.add_argument("--config", help="absolute path to the instance baton.json")
+	# THIS PRODUCT'S version, and the protocol it speaks. Ruled: the normal
+	# identity line names the invoked application and its own version -- the
+	# console may be at a different number and that is no longer a
+	# contradiction. Core package and core-API versions are attestations for
+	# the distribution manifest, not for a human asking what they just ran.
 	parser.add_argument("--version", action="version",
-	                    version=f"baton {RELEASE_VERSION} (protocol {PROTOCOL_VERSION})",
-	                    help="print the release version and exit")
+	                    version=f"baton {CLI_VERSION} (protocol {PROTOCOL_VERSION})",
+	                    help="print this product's version and exit")
 	sub = parser.add_subparsers(dest="command", required=True)
 
 	def cmd(name, **kwargs):
@@ -6769,6 +6913,12 @@ def main(argv: list[str] | None = None) -> int:
 	try:
 		if ns.command != "init" and ns.config is None:
 			raise BatonError("--config is required")
+		if ns.command != "init":
+			# BEFORE THE COMMAND, not inside it. The handshake decides whether
+			# this build may touch this mailbox at all, so it is answered
+			# before any command opens the authority -- a refusal that arrives
+			# after a write is not a refusal.
+			check_mailbox_identity(ns.config, "baton")
 		if ns.command == "init":
 			if ns.config is None:
 				raise BatonError("--config is required")

@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+import { runAndNotify } from "../src/run_and_notify.mjs";
+
+runAndNotify().then((code) => { process.exitCode = code; }, (error) => {
+  process.stderr.write(`run-and-notify: ${error.message}\n`);
+  process.exitCode = 2;
+});

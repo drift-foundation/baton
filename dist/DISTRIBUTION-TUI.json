@@ -1,13 +1,19 @@
 {
   "artifact": "bin/baton-tui",
-  "artifact_sha256": "24f08cb1c73ac0ecbe4108e24c4926dc7c2690e35bbc1626652440543361e04a",
-  "core_api_version": 2,
+  "artifact_sha256": "3e0f2f91142284929f40469432547f8cb9abc332c19bd4b67c30842b6d427be4",
+  "embeds_core": {
+    "api_version": 3,
+    "package_sha256": "65e82413c81e0c6316c67fefa504b827277522013f8f44d76f6ad5994391488f",
+    "version": "1.1.0"
+  },
   "members": [
     "__main__.py",
     "baton_core/__init__.py",
     "baton_core/_impl.py",
     "baton_core/authoring.py",
     "baton_core/cli.py",
+    "baton_core/products.json",
+    "baton_core/products.py",
     "baton_core/references.py",
     "baton_tui/__init__.py",
     "baton_tui/drafts.py",
@@ -18,9 +24,12 @@
     "baton_tui/safe_text.py",
     "baton_tui/state.py"
   ],
+  "product_version": "1.1.0",
+  "protocol_doc": "docs/AGENTS-MAILBOX-PROTO.md",
+  "protocol_doc_sha256": "d07acf4c1ced45c82480f71fb634a9b12474d4531a0abd5c90b574fbbd7b6011",
   "protocol_version": 10,
   "python_min": "3.11",
-  "release_version": "1.0.0",
-  "requires_core_api": 2,
+  "requires_core_api": 3,
+  "sqlite_min": "3.37.0",
   "tool": "baton-tui"
 }

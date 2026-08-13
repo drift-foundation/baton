@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+import { runSend } from "../src/send.mjs";
+
+runSend().then((code) => { process.exitCode = code; }, (error) => {
+  process.stderr.write(`codex-event: ${error.message}\n`);
+  process.exitCode = 2;
+});

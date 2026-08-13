@@ -1,0 +1,11 @@
+{
+  "artifact_sha256": "24f08cb1c73ac0ecbe4108e24c4926dc7c2690e35bbc1626652440543361e04a",
+  "draft_format_version": 1,
+  "edit": "never. This is evidence, not source.",
+  "file": "baton_tui_drafts_1_0_0.py",
+  "member": "baton_tui/drafts.py",
+  "member_sha256": "60830b7da335b39cddfc49ebf48761e4693dbbce294949863fde6480cfa97406",
+  "source_artifact": "bin/baton-tui at commit f64431d (Baton 1.0.0)",
+  "what": "baton_tui/drafts.py exactly as it shipped inside the released 1.0.0 console",
+  "why": "The cross-version compatibility test needs the OLD READER: it must refuse a file the current console writes rather than misread it and publish a team notice to everyone. That evidence cannot live in the artifact being released -- the test used to read it out of the checked-in bin/baton-tui, which was the 1.0.0 console until the 1.1 build replaced it, after which the test loaded the NEW console and asserted that draft format 3 equals 1. It is not fetched from Git at test time either: a suite must run in an exported tree, a shallow clone, or a distribution with no history at all."
+}

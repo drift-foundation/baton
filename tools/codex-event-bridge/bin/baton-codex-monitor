@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+import { runBatonMonitor } from "../src/baton_source.mjs";
+
+runBatonMonitor().then((code) => { process.exitCode = code; }, (error) => {
+  process.stderr.write(`baton-codex-monitor: ${error.message}\n`);
+  process.exitCode = 2;
+});

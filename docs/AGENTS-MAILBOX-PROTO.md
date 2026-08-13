@@ -113,6 +113,22 @@ them distinct participant addresses rather than sharing one identity.
   or `close`; the seen receipt commits with the read, which makes broadcast
   at-most-once per participant. Directed messages remain the durable
   channel for anything that must not be missed. Authors may `expire` early.
+- ORDERING IS BY `(created_ts, id)`, and `created_ts` has ONE-SECOND
+  resolution. Across a second boundary that is chronological: older first for
+  readiness and unqualified `claim`, newest first for the console's history
+  views. INSIDE one second it is not. Ties break on the message or notice id,
+  which is a random 128-bit value, so two things published in the same second
+  may be listed -- and offered to an unqualified `claim` -- in an order that is
+  deterministic but not the order they were published in.
+  Nothing is lost or duplicated by this; every item is present exactly once.
+  Coordinated use is unaffected because the standing pattern is `wait` and then
+  `claim --message-id`, which names the message rather than taking whatever is
+  first, and the console acts on the row a human selected. What the rule does
+  NOT support is treating an unqualified `claim`, or the top of a list, as
+  "the next one I published". Protocol 11 replaces this with a persisted
+  publication sequence shared by messages and notices; protocol 10 keeps the
+  deterministic rule and states its limit here rather than implying a promise
+  it does not make.
 - Never mutate the database with raw SQL; every table is guarded and
   doctor treats bypasses as corruption. `doctor`/`scan`/`dump`/`inspect`
   are the read-only views.

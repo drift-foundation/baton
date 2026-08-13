@@ -12,7 +12,8 @@
    filesystem addressing.
 3. **Research locator models** — compare Git-only commit/path addresses with
    typed locator schemes; cover repository identity, object availability,
-   authorization, submodules, generated evidence, and floating references.
+   authorization, submodules, generated evidence, floating references, and
+   the lifecycle of an open then normally removed `work/finding-*` folder.
 4. **Rule the address and promise types** — decide immutable versus floating
    forms, who resolves them, and whether Git is exclusive. Record the ruling
    here before protocol/schema implementation.
@@ -24,7 +25,10 @@
    cross-machine repository mappings as concrete trials before freezing the
    protocol-11 contract. Include normal deletion of mandatory-ephemeral
    finding folders after a message is resolved; it must require no recovery
-   and leave authority health and root evolution unaffected.
+   and leave authority health and root evolution unaffected. Include a live
+   finding-folder reference used alongside target-scoped Baton discussion,
+   without duplicating the folder into the authority or pinning a delivery at
+   the FIFO head.
 7. **Implement only after authorization** — add focused positive, negative,
    compatibility, health, claimability, and cutover regressions; independently
    review before any protocol-11 authority is activated.

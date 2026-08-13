@@ -547,24 +547,40 @@ def test_a_sent_audience_is_not_inherited_by_the_next_notice(env):
 # wrong-audience outcome as the first defect, reached from the other side.
 
 def _frozen_drafts_module():
-	"""`baton_tui.drafts` as it exists inside the released 1.0.0 console.
+	"""`baton_tui.drafts` exactly as it shipped in the released 1.0.0 console.
 
-	Imported FROM THE ARTIFACT, not from source: what matters is what the
-	console people are running actually does with a file this console writes.
-	"""
+	FROM FROZEN EVIDENCE, not from the checked-in artifact. It used to be read
+	out of `bin/baton-tui`, whose comment called that "the released 1.0.0
+	console" -- true until the 1.1 release build replaced it, after which this
+	test loaded the NEW console, found draft format 3 and asserted that 3 == 1.
+	Compatibility evidence cannot live in the thing being released.
+
+	Nor is it fetched from Git at test time: the suite has to run in an
+	exported tree, a shallow clone, or a distribution with no history at all.
+
+	`tests/tui/frozen/PROVENANCE.json` records where these bytes came from and
+	their digest, and the digest is CHECKED here -- evidence nobody verifies is
+	just a file somebody once copied."""
+	import hashlib
 	import importlib.util
+	import json as _json
 	import pathlib as _pathlib
-	import sys as _sys
-	import zipfile
 
-	artifact = _pathlib.Path(__file__).resolve().parents[2] / "bin" / "baton-tui"
-	assert artifact.exists(), "the frozen console is missing"
-	with zipfile.ZipFile(artifact) as archive:
-		source = archive.read("baton_tui/drafts.py")
+	frozen = _pathlib.Path(__file__).resolve().parent / "frozen"
+	record = _json.loads((frozen / "PROVENANCE.json").read_text())
+	evidence = frozen / record["file"]
+	source = evidence.read_bytes()
+	actual = hashlib.sha256(source).hexdigest()
+	assert actual == record["member_sha256"], (
+		f"{evidence.name} is not the evidence PROVENANCE.json describes: "
+		f"{actual} != {record['member_sha256']}")
+
 	spec = importlib.util.spec_from_loader("frozen_drafts", loader=None)
 	module = importlib.util.module_from_spec(spec)
 	module.__dict__["__file__"] = "frozen:baton_tui/drafts.py"
 	exec(compile(source, "frozen:baton_tui/drafts.py", "exec"), module.__dict__)
+	assert module.VERSION == record["draft_format_version"], (
+		"the frozen evidence does not carry the draft format it claims")
 	return module
 
 
@@ -581,6 +597,7 @@ def test_the_frozen_console_refuses_a_file_this_one_writes(tmp_path):
 		 "is_reply": False, "notice_scope": "web.*", "body_requested": False}])
 
 	frozen = _frozen_drafts_module()
+	# The 1.0 reader, still 1 however far the current console has moved.
 	assert frozen.VERSION == 1, "this test is measuring the wrong console"
 	with pytest.raises(frozen.DraftError) as refused:
 		frozen.load(projection, "acme.implementer")

@@ -22,18 +22,34 @@ import pytest
 # layout that coincidence is gone, and a test that reaches for repository
 # files has to say which repository directory it means.
 HERE = pathlib.Path(__file__).resolve().parents[2]
+import candidate
+
 SRC = HERE / "src"
 TOOLS = HERE / "tools"
-DIST = HERE / "dist"
 COMPAT = HERE / "compat"
-ARTIFACT = HERE / "bin" / "baton"
+# THE CANDIDATE. A build no longer writes to the checkout, so the artifact
+# these tests inspect is the one under `build/`.
+DIST = candidate.DIST
+ARTIFACT = candidate.CLI
 
 TUI_MARKERS = ("baton_tui", "curses", "safe_text", "InboxState", "render(")
 
 
-def test_the_built_cli_contains_no_tui_module():
+@pytest.fixture
+def built():
+	"""The CANDIDATE artifacts this file inspects, or a refusal naming the step
+	that was skipped.
+
+	Requested BY NAME rather than forced on every test here: the layout and
+	policy tests in this file read the source tree only, and they stay runnable
+	on a checkout that has never been built. This file builds nothing itself --
+	`just build` does, and a gate that manufactures what it inspects reports on
+	bytes nobody chose to release."""
+	return candidate.require()
+
+
+def test_the_built_cli_contains_no_tui_module(built):
 	"""Inspect the actual shipped zipapp, not the source tree."""
-	assert ARTIFACT.exists(), "build the artifact first (just build)"
 	with zipfile.ZipFile(ARTIFACT) as archive:
 		names = archive.namelist()
 	assert names, "artifact is empty"
@@ -42,7 +58,7 @@ def test_the_built_cli_contains_no_tui_module():
 		assert "curses" not in name, f"curses module {name} is inside the CLI artifact"
 
 
-def test_the_built_cli_never_imports_curses_or_the_tui():
+def test_the_built_cli_never_imports_curses_or_the_tui(built):
 	"""Absence of a file is not absence of a dependency: a single `import
 	curses` would make the agent CLI need a terminal library at startup."""
 	with zipfile.ZipFile(ARTIFACT) as archive:
@@ -143,7 +159,7 @@ def test_the_tui_depends_only_on_the_stdlib_and_the_core():
 				assert name in allowed, f"{path.name} imports unexpected {name!r}"
 
 
-def test_the_cli_artifact_contains_no_console_code():
+def test_the_cli_artifact_contains_no_console_code(built):
 	"""The PROPERTY the size ceiling was a proxy for, asserted directly.
 
 	A bare ceiling cannot tell UI leakage from the core legitimately growing,
@@ -170,11 +186,10 @@ def test_the_cli_artifact_contains_no_console_code():
 
 # -- the trial artifact, and what building it must NOT touch --------------
 
-TUI_ARTIFACT = HERE / "bin" / "baton-tui"
+TUI_ARTIFACT = candidate.TUI
 
 
-def test_the_tui_artifact_carries_the_core_and_the_console():
-	assert TUI_ARTIFACT.exists(), "build it with build_tui.py"
+def test_the_tui_artifact_carries_the_core_and_the_console(built):
 	with zipfile.ZipFile(TUI_ARTIFACT) as archive:
 		names = set(archive.namelist())
 	assert "__main__.py" in names
@@ -185,7 +200,7 @@ def test_the_tui_artifact_carries_the_core_and_the_console():
 	assert not any("baton_v6" in n for n in names)
 
 
-def test_building_the_trial_artifact_leaves_the_cli_untouched(tmp_path):
+def test_building_the_trial_artifact_leaves_the_cli_untouched(built, tmp_path):
 	"""Slawomir's trial must not perturb the agent channel. The CLI, its
 	manifest and its builder stay byte-identical, which is why the trial has
 	its own builder and its own manifest rather than an option on the
@@ -198,7 +213,7 @@ def test_building_the_trial_artifact_leaves_the_cli_untouched(tmp_path):
 	def digest(path):
 		return hashlib.sha256(path.read_bytes()).hexdigest()
 
-	cli_before = digest(HERE / "bin" / "baton")
+	cli_before = digest(ARTIFACT)
 	manifest_before = digest(DIST / "DISTRIBUTION.json")
 	oracle_before = digest(COMPAT / "baton_v6.py")
 
@@ -206,7 +221,7 @@ def test_building_the_trial_artifact_leaves_the_cli_untouched(tmp_path):
 	                        capture_output=True, text=True, cwd=str(HERE))
 	assert result.returncode == 0, result.stderr
 
-	assert digest(HERE / "bin" / "baton") == cli_before
+	assert digest(ARTIFACT) == cli_before
 	assert digest(DIST / "DISTRIBUTION.json") == manifest_before
 	assert digest(COMPAT / "baton_v6.py") == oracle_before
 	# It wrote its own artifact and its own manifest, elsewhere.
@@ -232,7 +247,7 @@ def test_the_trial_build_is_deterministic(tmp_path):
 	assert digests[0] == digests[1]
 
 
-def test_the_cli_artifact_still_has_no_console_in_it():
+def test_the_cli_artifact_still_has_no_console_in_it(built):
 	"""Re-asserted alongside the trial build, because that is exactly when a
 	TUI module would most plausibly leak into the wrong archive."""
 	with zipfile.ZipFile(ARTIFACT) as archive:
@@ -261,7 +276,7 @@ def test_the_core_is_a_library_not_a_runnable_artifact():
 	assert not hasattr(baton_core, "main")
 
 
-def test_the_cli_is_built_from_the_core_and_the_oracle_is_not_shipped():
+def test_the_cli_is_built_from_the_core_and_the_oracle_is_not_shipped(built):
 	"""The explicit decision arrived: stage 1A adopts the core.
 
 	SUPERSEDED, and in exactly one direction. This asserted that `bin/baton`
@@ -313,7 +328,7 @@ def test_the_cli_entry_point_is_a_door_not_a_widened_surface():
 		"the bootstrap reaches into a private module"
 
 
-def test_the_packaged_cli_publishes_a_tweet(tmp_path):
+def test_the_packaged_cli_publishes_a_tweet(built, tmp_path):
 	"""The ruling asked for the PACKAGED cases, not only the in-process ones.
 
 	The whole reason `--tweet` exists is that the Store contract was
@@ -366,7 +381,7 @@ def test_the_packaged_cli_publishes_a_tweet(tmp_path):
 	assert subjects == ["crlf line", "from a pipe", "ship it when green"]
 
 
-def test_the_packaged_cli_still_reads_stdin_without_a_tweet(tmp_path):
+def test_the_packaged_cli_still_reads_stdin_without_a_tweet(built, tmp_path):
 	"""The preserved behaviour, at the same boundary."""
 	import json as _json
 	import subprocess as _sub

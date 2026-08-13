@@ -4,4 +4,12 @@ __pycache__/
 .venv/
 .coverage
 htmlcov/
+build/
+# Transient siblings of the candidate: a build prepares the complete tree in
+# `.build-staging-*` and moves the previous candidate into `.build-retiring-*`
+# while it publishes. Both are removed on the way out; they are listed so an
+# interrupted build leaves a legible tree rather than a surprise in `git
+# status`.
+.build-staging-*/
+.build-retiring-*/
 .claude/settings.local.json
