@@ -532,6 +532,23 @@ Owned by `findings/finding-editor-send-confirmation/`.
 3. **Candidate zipapp trial and append-only independent review** — **done for
    source sign-off 2026-08-11**. Final release-candidate build and human soak
    remain in `work/finding-next-release/PLAN.md`.
+
+## 2026-08-13 UX correction — one unified MESSAGES view
+
+1. **Supersede the separate INBOX/SENT model and pin participant-relative
+   inclusion rules** — completed in `FINDING.md`.
+2. **Remove the SENT/outbox view and `i`/`o` view switching; project inbound
+   and authored activity into one deduplicated MESSAGES list** — queued.
+3. **Preserve honest authority semantics in the unified rows** — queued:
+   authored notices outside their scope create no receipt; inbound messages
+   remain claimable; inbound notices remain explicitly unseen/seen; private
+   traffic unrelated to the participant remains inaccessible.
+4. **Add core/state/render/key/help regressions** — queued: directed sender and
+   recipient, notice author inside/outside audience, author-plus-audience
+   deduplication, claim/receipt non-mutation during refresh, total ordering,
+   selection stability, and absence of the obsolete outbox controls.
+5. **Verify through a freshly built TUI against a throwaway protocol-10
+   mailbox, then append independent review evidence** — queued.
     baton_v6.py              unchanged, not in the archive
     protocol                 9, unchanged
 

@@ -991,3 +991,32 @@ Nothing for `x` is implemented in this stage. The contract is carried in
   exactly once with the one-line `Exit? y/N` prompt; ruled and queued.
 - `findings/finding-selected-part-footer/FINDING.md` — body-first rendering with a
   persistent selected-part/count footer, ready for implementation.
+
+## 2026-08-13 — One unified MESSAGES view; SENT/outbox is superseded — RULED
+
+The separate INBOX/SENT model in **section 3, "INBOX and SENT"**, including
+the `i`/`o` view toggle, is explicitly **superseded**. Do not restore or extend
+it. The console has one MESSAGES list containing every live authority item in
+which the current participant is involved:
+
+- a directed message is included when the participant is its sender or its
+  recipient;
+- a notice is included when the participant is its author or belongs to its
+  frozen audience;
+- an authored notice outside the author's own selected scope appears once as
+  authored activity; it is not falsely delivered to the author and creates no
+  receipt;
+- when notice author and audience membership both apply, the list contains one
+  row, not duplicate inbound/outbound rows;
+- inbound directed rows retain claim and disposition semantics, inbound unseen
+  notices retain receipt semantics, and authored rows remain read-only while
+  reporting the real recipient/audience lifecycle.
+
+This ruling follows the live v10.2.0 trial: an authored directed message was
+visible in MESSAGES even though its author was not the recipient, while an
+authored `baton.*` notice from `human.slawomir` was hidden from MESSAGES because
+the author was correctly outside that frozen audience. The authority behavior
+was correct, but the presentation treated equivalent authored activity
+inconsistently. A separate outbox makes that inconsistency structural; the
+unified list removes it without widening access to traffic in which the
+participant is neither author nor recipient/audience member.
