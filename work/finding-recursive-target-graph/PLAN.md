@@ -178,3 +178,94 @@ requires its own post-soak review and authorization.
   xdist.
 - [ ] Preserve `just build` followed by `just test` as the separate full
   candidate/release gate.
+
+### 2026-08-14 Gate B authorization
+
+**Slawomir authorized the next phase after Gate A commit `bed522d`; this
+supersedes the earlier text that Gate B awaits separate authorization.**
+
+- [ ] B1: render the canonical projection in the v11 TUI with real-PTY tests
+  and no direct authority access.
+- [ ] B2: run the shared fixture through JSON and TUI surfaces and require
+  semantic parity for rows, counts, drill links, and actionable state.
+- [ ] B3: run the ruled scenario through packaged artifacts rather than the
+  source tree.
+- [ ] Stop and return any missing semantic state or product contradiction for
+  ruling before altering Gate A's shared projection contract.
+- [ ] **BLOCKED ON SLAWOMIR:** rule whether viewer-relative reads validate a
+  known member (recommended), require a separate `whoami` preflight, or accept
+  an unknown viewer as an empty world. B2 may proceed; do not change the shared
+  projection or resolve the strict xfail until ruled.
+
+### 2026-08-14 configuration correction; Gate B paused
+
+**Slawomir ruled that v11 requires a `baton.json` instance configuration,
+superseding the narrow viewer-validation choice above. Gate B authorization is
+paused until this foundational correction is planned, reviewed, and accepted.**
+
+- [ ] Revise the implementation plan before more source edits: define the v11
+  `baton.json` schema for protocol metadata, authority location, teams, roles,
+  routes, participants/members, display names, and assignments.
+- [ ] Use `mailbox/v11/baton.json` as the canonical deployed path; retain an
+  explicit protocol declaration inside the document and refuse any mismatch.
+- [ ] Remove `WORK.json` from the v11 design. Put the authority UUID/database
+  identity in `baton.json`, persist the matching UUID and accepted config facts
+  in SQLite, and define crash-safe generation-1 bootstrap.
+- [ ] Specify which configuration facts are authoritative, what the SQLite
+  authority persists/audits, how generation changes are accepted, and how a
+  disagreement refuses without guessing.
+- [ ] Restore the public protocol-10 vocabulary and launch boundary:
+  `--config` plus `--participant`; remove `--viewer` as a separate identity and
+  validate the configured participant before any output or curses startup.
+- [ ] Model route resolution explicitly: public `team.kind` resolves through
+  the receiving team's route configuration to a role and current handler;
+  member authorship remains distinct from endpoint responsibility.
+- [ ] Reassess Gate A tests and packaged JSON CLI against the corrected config
+  boundary, then seek review before resuming Gate B.
+
+### 2026-08-14 C1 authorization
+
+- [ ] **AUTHORIZED:** implement and test the pure strict `baton.json` loader
+  and schema using the approved first-class participant/route model.
+- [ ] Validate roles on participant records and route handlers against those
+  assignments; validate every kind's named route.
+- [ ] Resolve only the fixed sibling `work.sqlite3`; put its authority UUID in
+  `baton.json`; create/read no `WORK.json`.
+- [ ] Stop after C1 evidence. C2 authority acceptance and generation lifecycle
+  are not authorized by this C1 gate.
+
+### 2026-08-14 C2 authorization — accepted
+
+- [x] **AUTHORIZED:** implement crash-safe generation-1 initialization that
+  binds `baton.json` UUID/digest/generation to sibling `work.sqlite3` and
+  creates no `WORK.json`.
+- [x] Implement the bounded generation+1 proposal path and atomic audited
+  acceptance; ordinary open must continue to refuse unaccepted drift.
+- [x] Project accepted teams, participants, roles, routes and kinds into the
+  authority while preserving retired historical identities.
+- [x] Authorize acceptance from the currently accepted generation only;
+  proposals cannot grant their own acceptor.
+- [x] Require generation bumps for handler reassignment and refuse proposals
+  that strand open Work or pending obligations, naming affected records.
+- [x] Remove superseded `WORK.json` creation/read code and tests.
+- [x] Stop after C2 evidence. C3 and later correction steps remain held.
+
+### 2026-08-14 C2 review — changes requested
+
+- [x] Make generation-1 publication atomic create-if-absent so concurrent
+  initializers produce one winner and cannot replace its authority.
+- [x] Revalidate open Work and pending obligations inside the acceptance write
+  transaction; the pre-lock query is not an authoritative stranding gate.
+- [x] Preserve removed route handles as non-reusable historical identities.
+- [x] Include route-role changes, not only handler-list changes, in the
+  structural acceptance audit.
+- [x] Re-run the focused lifecycle suite and `just test-v11`, then stop for C2
+  re-review. C3 and later steps remain held.
+
+**Accepted by `baton.reviewer` at 2026-08-14T14:47:06Z.** The focused suite
+reports 19 passed; `just test-v11` reports 162 passed plus the one previously
+held strict xfail. The C2 multiprocessing regressions and preserved Gate B PTY
+tests still emit Python 3.13 fork-from-multithreaded warnings under xdist; C5
+must include them in the already-ruled serial scheduling pass. This does not
+change C2 authority semantics. C3 and later steps remain held pending the next
+authorization.

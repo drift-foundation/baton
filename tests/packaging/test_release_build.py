@@ -962,9 +962,22 @@ def test_the_session_hook_does_not_prepare_the_candidate():
 
 	source = (REPO / "tests" / "conftest.py").read_text()
 	assert _calls_the_builder(source) == [], "conftest builds something"
+	# `pytest_configure` is permitted since bed522d: it registers the
+	# `serial` marker for the split v11 runner and builds nothing — which is
+	# what this test actually guards. Any OTHER hook is still a refusal,
+	# because collection-time code is where build-on-demand crept in before.
 	hooks = [node.name for node in ast.walk(ast.parse(source))
 	         if isinstance(node, ast.FunctionDef) and node.name.startswith("pytest_")]
-	assert hooks == [], f"conftest runs {hooks} before collection"
+	assert hooks in ([], ["pytest_configure"]), \
+		f"conftest runs {hooks} before collection"
+	configure = [node for node in ast.walk(ast.parse(source))
+	             if isinstance(node, ast.FunctionDef)
+	             and node.name == "pytest_configure"]
+	if configure:
+		body_source = ast.get_source_segment(source, configure[0])
+		assert _calls_the_builder(body_source) == []
+		assert "addinivalue_line" in body_source, \
+			"pytest_configure does something beyond registering markers"
 	assert "candidate" not in source.split("# NOTHING HERE BUILDS")[0], \
 		"conftest reaches for the candidate locator before collection again"
 

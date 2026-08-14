@@ -99,9 +99,16 @@ def main(argv=None) -> int:
 	cmd.add_argument("--after", type=int, default=0)
 	cmd.add_argument("--limit", type=int, default=1000)
 
+	sub.add_parser("tui")
+
 	args = parser.parse_args(argv)
 	try:
 		jsonapi.require_version(args.expect_projection)
+		if args.command == "tui":
+			from baton_work.tui import main as tui_main
+			if not args.viewer:
+				raise WorkError("tui needs --viewer team.member")
+			return tui_main(args.authority, args.viewer)
 		if args.command == "init":
 			store = Authority.init(args.authority)
 		else:

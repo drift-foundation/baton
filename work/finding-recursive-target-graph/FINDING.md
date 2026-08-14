@@ -1006,3 +1006,124 @@ and run once, without xdist. The remaining v11 tests run through xdist with
 one worker per available CPU. The explicit spawn context remains as a harness
 safety property, while the split prevents nested worker multiplication and
 makes the two forms of concurrency visible in the recipe output.
+
+## 2026-08-14 — Gate B authorized
+
+**Confirmed by Slawomir after committing Gate A as `bed522d`.** Proceed with
+Gate B exactly as scoped in `IMPLEMENTATION-PLAN.md` rev 4: render the stable
+canonical projection in a v11 TUI, prove TUI/JSON semantic parity from the same
+fixture, and exercise the scenario through packaged artifacts. Gate A's data
+model and JSON semantics are the frozen foundation. A missing semantic value
+or contradiction discovered during rendering is reported and ruled before the
+shared projection is changed; it is not patched around in the TUI.
+
+Presentation decisions deliberately left prototype-grade by the plan—column
+priorities, sorting, keys, dependency navigation and narrow layouts—may be
+implemented mechanically so long as they preserve the pinned borderless,
+fixed-column, breadcrumb/drill model and do not create independent workflow
+semantics. Protocol 10 remains the live coordination channel throughout Gate B.
+
+## 2026-08-14 — open Gate B viewer-validation gap
+
+**Observed by `baton.implementer` during B1 and held for ruling.** Every
+viewer-relative projection read currently accepts an unknown `team.member` and
+returns ordinary empty state. Consequently a misspelled `--viewer` opens an
+apparently valid empty JSON/TUI world instead of refusing before curses starts.
+Mutations already validate their actor, so reads and writes disagree about
+whether the named identity exists.
+
+The recommended correction is to validate the member on every viewer-relative
+read (`home`, `children`, `new_count`, `obligations`, `detail`, and equivalent
+surfaces) and return the existing structured `WorkError`/JSON error for an
+unknown viewer. Viewer-less graph reads such as `links` and `breadcrumb` remain
+unchanged, and validation is identity checking rather than a read ACL: the
+open cross-team graph ruling still holds. Alternatives are a fallible client-
+remembered `whoami` preflight or accepting the ambiguous empty console. B2 may
+continue independently; the projection change and its strict xfail remain
+blocked on Slawomir's choice.
+
+## 2026-08-14 — v11 requires an instance configuration boundary
+
+**Confirmed by Slawomir; supersedes the narrow per-read viewer-validation
+proposal immediately above and pauses the Gate B authorization.** Protocol 10
+has a `baton.json` that defines the instance rather than accepting an arbitrary
+identity and discovering topology piecemeal. Protocol 11 requires the same
+architectural boundary. Its configuration must define the instance's protocol
+metadata and authority location together with the configured teams, roles,
+routes, participants/members, display names, and assignments needed to resolve
+a public `team.kind` endpoint to accountable responsibility.
+
+The public identity term remains **participant**, as in protocol 10.
+`--viewer` is not a second identity: the current implementation uses it both
+for personal projections and as the author/actor of mutations. The eventual
+CLI and TUI therefore open with `--config ... --participant team.member` (or an
+equivalent participant selected by client configuration), validate the entire
+configuration and that participant before returning JSON or entering curses,
+and carry one validated participant context through reads and transitions.
+Open graph visibility is unchanged; validating the actor is not an ACL.
+
+The existing Gate A implementation is useful authority/transition evidence,
+but it is not a complete operational slice: its dynamic registration commands,
+`--authority`/`--viewer` surface, and direct treatment of endpoint kinds do not
+implement the confirmed team/role/route/member model. Gate B must not cement
+those omissions in presentation. Before more source implementation, the plan
+must specify the v11 configuration schema, configuration-versus-authority
+source of truth, generation/change lifecycle, route resolution and handler
+assignment, participant validation, initialization/open failure modes, and
+the migration of the existing Gate A tests and CLI surface.
+
+**Configuration-path clarification confirmed by Slawomir.** Configuration may
+carry the protocol-derived generation in its filename or in a containing
+directory. The canonical deployment form is the existing nested layout,
+`mailbox/v11/baton.json`: it keeps the stable `baton.json` filename and aligns
+with versioned mailbox/application discovery. The document itself still
+declares protocol 11 and is validated against the client and authority; a path
+component is organizational evidence, never a substitute for the handshake.
+
+**Authority-handshake supersession confirmed by Slawomir.** V11 has no
+separate `WORK.json`. The proposed read-only handshake file is removed from the
+design. `baton.json` carries the stable authority UUID and database identity in
+its instance/mailbox tree; `work.sqlite3` stores the same UUID plus its accepted
+configuration digest and generation. Open validates those facts directly.
+
+Copying `baton.json` therefore preserves the identity of that mailbox. Creating
+a genuinely new mailbox generates a new UUID before generation 1 is accepted.
+The correction plan must define a crash-safe bootstrap for that initial write,
+but must not introduce a third identity/configuration document.
+
+## 2026-08-14 — configuration correction C1 authorized
+
+**Confirmed by Slawomir.** C1 may implement the pure strict v11 `baton.json`
+schema and loader. The approved boundary has first-class participant and route
+configuration; participant records carry display names, roles and capabilities;
+routes name their role and handlers and kinds resolve through named routes.
+The authority UUID/database identity lives in `baton.json`, `work.sqlite3` is
+its fixed sibling, and no `WORK.json` is created or read.
+
+C1 performs no authority mutation. It validates strict JSON, protocol and
+generation fields, handle grammar, displays, participant/team membership,
+role assignments, route/role/handler coherence, kinds and their route mapping,
+and the fixed database identity/path. C2 acceptance, generation transitions,
+and responsibility-stranding policy remain outside this authorization.
+
+## 2026-08-14 — configuration correction C2 authorized
+
+**Confirmed by Slawomir after C1 acceptance.** C2 may implement the authority
+side of the configuration contract. Generation-1 initialization binds the
+`baton.json` authority UUID and accepted digest/generation directly to the
+sibling `work.sqlite3` with crash-safe refusal/retry behavior; it creates no
+`WORK.json`. Later acceptance reads a generation+1 proposal through the
+special bounded acceptance path while ordinary open continues to refuse any
+unaccepted digest.
+
+Acceptance is one audited transaction. Authority topology tables are the
+projection of the accepted configuration; the event records old/new
+generation, digest and structural changes. Only a participant holding the
+configuration capability in the currently accepted generation may accept a
+proposal, so a proposal cannot authorize its own acceptor. Handler reassignment
+occurs only through a generation bump. A proposal that would strand open Work
+or pending obligations refuses and names the affected records. Retired or
+removed identities preserve historical meaning and cannot be silently reused.
+
+C2 does not authorize the public CLI migration, route-resolution transition
+changes, projection 2.0, or resumed Gate B work; those remain C3 and later.

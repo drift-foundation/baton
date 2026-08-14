@@ -53,13 +53,15 @@ def test_open_refuses_a_missing_or_foreign_schema(tmp_path):
 		bw.Authority(str(foreign))
 
 
-def test_init_writes_the_v11_handshake_record(tmp_path):
-	import json
+def test_init_writes_no_handshake_file(tmp_path):
+	"""SUPERSEDED BY RULING (C2, 2026-08-14): WORK.json is gone. The identity
+	lives in `baton.json` and the database stores the same uuid plus the
+	accepted digest — a third document would be a second place for the truth
+	to disagree with itself. This test pins the ABSENCE so nobody restores
+	the file out of habit."""
 	bw.Authority.init(str(tmp_path / "work.sqlite3")).close()
-	record = json.loads((tmp_path / "WORK.json").read_text())
-	assert record == {"format": "baton.work-authority", "format_version": 1,
-	                  "namespace": "v11", "protocol_version": 11}
-	assert not os.access(tmp_path / "WORK.json", os.W_OK)
+	assert sorted(os.listdir(tmp_path)) == ["work.sqlite3"], \
+		"init created something beside the database"
 
 
 def test_meta_pins_protocol_and_uuid(authority):

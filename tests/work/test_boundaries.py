@@ -21,7 +21,7 @@ def test_nothing_imports_baton_core():
 	"""By AST, not by grep: the first version of this test failed on its own
 	package docstring SAYING it does not import baton_core. Read the imports
 	rather than the prose."""
-	for source in SRC.glob("*.py"):
+	for source in SRC.rglob("*.py"):
 		tree = ast.parse(source.read_text())
 		for node in ast.walk(tree):
 			if isinstance(node, ast.Import):
@@ -36,8 +36,37 @@ def test_nothing_imports_baton_core():
 					f"after revalidation, and nothing has been revalidated"
 
 
+def test_the_tui_imports_only_the_shared_surfaces():
+	"""B1's boundary: the renderer reaches the authority only through
+	projection and transitions — no SQL, no _write, no baton_core."""
+	import ast
+	allowed = ("authority", "projection", "transitions", "tui")
+	for source in (SRC / "tui").rglob("*.py"):
+		tree = ast.parse(source.read_text())
+		for node in ast.walk(tree):
+			touched = []
+			if isinstance(node, ast.Import):
+				touched = [alias.name for alias in node.names
+				           if alias.name.startswith("baton_work")]
+			elif isinstance(node, ast.ImportFrom):
+				module = node.module or ""
+				if module == "baton_work":
+					# `from baton_work import X`: X is the surface named.
+					touched = [f"baton_work.{alias.name}"
+					           for alias in node.names]
+				elif module.startswith("baton_work"):
+					touched = [module]
+			for module in touched:
+				parts = module.split(".")
+				assert len(parts) >= 2 and parts[1] in allowed, \
+					f"{source.name} imports {module}"
+		text = source.read_text()
+		for needle in ("SELECT", "INSERT", "UPDATE", "conn.execute", "_write"):
+			assert needle not in text, f"{source.name} contains {needle!r}"
+
+
 def test_the_read_side_opens_no_transaction():
-	for name in ("projection.py", "jsonapi.py"):
+	for name in ("projection.py", "jsonapi.py", "config.py"):
 		text = (SRC / name).read_text()
 		for needle in ("BEGIN", "INSERT", "UPDATE", "DELETE", "_write",
 		               "commit("):

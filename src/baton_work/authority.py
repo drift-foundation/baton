@@ -36,11 +36,6 @@ import unicodedata
 SCHEMA_VERSION = 1
 PROTOCOL_VERSION = 11
 
-# The registry record beside the database, mirroring the mailbox handshake
-# discipline: a numeric namespace and the protocol, nothing else.
-AUTHORITY_RECORD = "WORK.json"
-AUTHORITY_FORMAT = "baton.work-authority"
-
 HANDLE_MAX_CELLS = 6
 
 # Characters a handle may never contain, whatever their width: the tag
@@ -118,13 +113,47 @@ CREATE TABLE sequence (
 ) STRICT;
 CREATE TABLE teams (
 	handle  TEXT PRIMARY KEY,
-	display TEXT NOT NULL
+	display TEXT NOT NULL,
+	removed INTEGER NOT NULL DEFAULT 0
 ) STRICT;
 CREATE TABLE members (
 	team    TEXT NOT NULL REFERENCES teams(handle),
 	handle  TEXT NOT NULL,
 	display TEXT NOT NULL,
+	removed INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY (team, handle)
+) STRICT;
+CREATE TABLE roles (
+	team    TEXT NOT NULL,
+	handle  TEXT NOT NULL,
+	display TEXT NOT NULL,
+	removed INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY (team, handle)
+) STRICT;
+CREATE TABLE routes (
+	team    TEXT NOT NULL,
+	handle  TEXT NOT NULL,
+	role    TEXT NOT NULL,
+	removed INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY (team, handle)
+) STRICT;
+CREATE TABLE route_handlers (
+	team    TEXT NOT NULL,
+	route   TEXT NOT NULL,
+	member  TEXT NOT NULL,
+	PRIMARY KEY (team, route, member)
+) STRICT;
+CREATE TABLE member_roles (
+	team    TEXT NOT NULL,
+	member  TEXT NOT NULL,
+	role    TEXT NOT NULL,
+	PRIMARY KEY (team, member, role)
+) STRICT;
+CREATE TABLE member_capabilities (
+	team       TEXT NOT NULL,
+	member     TEXT NOT NULL,
+	capability TEXT NOT NULL,
+	PRIMARY KEY (team, member, capability)
 ) STRICT;
 CREATE TABLE kinds (
 	team    TEXT NOT NULL REFERENCES teams(handle),
@@ -239,18 +268,11 @@ class Authority:
 			conn.commit()
 		finally:
 			conn.close()
-		# The handshake record beside the database, wearing the same shape a
-		# v11 client checks: format, namespace, protocol. Written read-only.
-		record = os.path.join(directory, AUTHORITY_RECORD)
-		if not os.path.lexists(record):
-			with open(record, "w", encoding="utf-8") as handle:
-				json.dump({"format": AUTHORITY_FORMAT,
-				           "format_version": 1,
-				           "namespace": f"v{PROTOCOL_VERSION}",
-				           "protocol_version": PROTOCOL_VERSION},
-				          handle, indent=2, sort_keys=True)
-				handle.write("\n")
-			os.chmod(record, 0o444)
+		# NO handshake file. WORK.json is superseded by ruling: the identity
+		# lives in `baton.json` (instance.authority_uuid) and this database
+		# stores the same uuid plus the accepted digest/generation. Open
+		# validates those facts directly; a third document would be a second
+		# place for the truth to disagree with itself.
 		return cls(path)
 
 	def close(self) -> None:

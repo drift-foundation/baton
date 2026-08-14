@@ -197,3 +197,146 @@ lookalike R38 forbade.
 
 **Gate A: A1–A8 all complete with acceptance evidence and break-sweeps.**
 Gate B (TUI + parity) is NOT authorized and nothing of it exists.
+
+### Gate B — B1, B2, B3 (2026-08-14)
+
+`src/baton_work/tui/` (renderer of the canonical projection; imports held to
+projection+transitions by AST test, no SQL); `tests/work/ptyharness.py`
+(compact grid replay); `test_tui.py`, `test_parity.py`, `test_packaged.py`.
+Suite: tests/work 101 passed + 1 xfailed; `just test-v11` split runner green;
+full gate 2998 passed + 1 xfailed.
+
+**B1** — real-pty: home table with the pinned borderless fixed columns,
+Enter drill + breadcrumb, escape climbs back, discussion shows the planned
+Next, explicit `s` commits the seen cursor, and VIEWING ALONE changes
+nothing. Refuse-before-curses is held as a strict xfail because it exposed a
+GATE A SEMANTIC GAP, reported for ruling (message 726165a5…): the projection
+read surface never validates the viewer, so an unknown member gets an empty
+console instead of a refusal. Not patched — the gate forbids changing the
+shared projection unilaterally, and no TUI-side workaround exists through
+the permitted surfaces.
+
+**B2** — same-fixture parity: home rows value-by-value (title, status,
+ready, current, next, New) for four viewers; drill children order; the
+obligation count on the console header vs the JSON actionable list; and one
+mark_seen through the CONSOLE re-read by both surfaces — the decomposition
+moves by exactly `own`. The parser decodes rows with the app's own column
+budget, so a layout change moves both or fails.
+
+**B3** — the scenario through a zipapp built by stdlib `zipapp` from the
+same sources, with PYTHONPATH stripped, plus a poisoned-lookalike test
+proving the archive answers alone. Stated plainly: v11 has no catalog entry
+yet, so the artifact is built in the test rather than by `just build` — the
+release integration is later work outside this gate.
+
+Harness findings, fixed in the harness not the renderer (verified by
+driving the renderer with a fake screen first): the v10 tokenizer never met
+ECH, relative cursor moves, or erase-below; and the child's winsize ioctl
+races curses init under pytest, fixed by stating LINES/COLUMNS.
+
+One v10-suite adjustment: `test_the_session_hook_does_not_prepare_the_
+candidate` forbade ALL pytest hooks in conftest; bed522d's `pytest_configure`
+registers the serial marker and builds nothing, so the assertion now permits
+exactly that hook and still refuses anything that builds or does more than
+register markers.
+
+### C1 — v11 configuration schema and loader (2026-08-14)
+
+`src/baton_work/config.py`, pure per the authorization: strict parse with
+duplicate keys refused at every level, unknown fields refused at every
+level, 6/6 grammar at every identity position, protocol/generation/identity
+fields validated (uuid 32-hex in `instance`, `database` fixed to
+work.sqlite3, no WORK.json anywhere), participants first-class with
+display/roles/capabilities, named routes (role + handlers, handlers must
+HOLD the role), kinds resolving through named routes.
+`tests/work/test_config.py`, 27 tests; work suite 128 passed + 1 xfailed.
+
+Refusals are exercised by MUTATING the one valid document, never strawmen;
+the grammar vectors run at all five identity positions. Break-sweeps:
+dropping the duplicate-key hook fails the parse test; disabling the
+handler-holds-role check fails its reference test. Purity held bluntly:
+loading twice creates nothing and touches no mtime. The read-side
+no-transaction boundary test now covers config.py.
+
+STOPPED after C1 evidence as authorized. C2 (acceptance, generation
+transitions, stranding policy) remains held.
+
+### C1 rev 2 — reviewer-reproduced strictness gaps closed (2026-08-14)
+
+All four reproduced gaps fixed in `config.py` and pinned by 15 adversarial
+vectors plus a hostile-shape sweep (42 config tests total, 143 work suite):
+- `_exact_int`: bool is an int subclass and 1.0 == 1, so plain equality
+  admitted `true` and floats for config/protocol/generation — now
+  type-exact with the offending type named;
+- `_string_list`: role/handler/capability lists refuse non-string members
+  (previously a raw TypeError path via iteration/membership), refuse
+  duplicates ("a repeated entry is a claim nothing distinguishes");
+- empty `teams` refused ("an instance with nobody in it is a mistake, not
+  a bootstrap");
+- non-string route/kind references refuse legibly.
+The blanket test drives ~66 hostile shapes at every field and accepts
+nothing but WorkError.
+
+### C2 — config↔authority binding (2026-08-14)
+
+`src/baton_work/lifecycle.py` (`init_from_config`, `open_bound`,
+`accept_config`); schema gains roles/routes/route_handlers/member_roles/
+member_capabilities projection tables plus removed flags; WORK.json creation
+REMOVED from the authority and its test replaced by one pinning the ABSENCE.
+`tests/work/test_lifecycle.py`, 15 tests (work suite 158 + 1 xfailed).
+
+Evidence per the authorization:
+- crash-safe init: built complete in a temp sibling, published by one atomic
+  rename + dir fsync; a simulated crash at the commit point leaves NOTHING
+  at work.sqlite3 and the retry succeeds;
+- bound open validates the triangle directly (uuid pair, digest
+  "edited but not accepted", generation agreement);
+- acceptance: generation+1 declared in the proposal, audited event with
+  old/new generation, digest and structural diff (added/removed/rerouted);
+  topology tables are the projection (mark-removed, never delete);
+- capability gate: grace granting herself `config` IN the proposal cannot
+  accept it — the capability is read from the accepted generation;
+- stranding refusal names the records (open work + pending obligations) and
+  the same proposal passes after the work is closed;
+- no silent reuse: a kind retired by generation 2 refuses reintroduction in
+  generation 3;
+- 16-process acceptance race: exactly one winner, losers legible, sequence
+  dense.
+
+Two defects found and fixed on the way, both by tests:
+- the generation check ran BEFORE the write transaction, so every racer
+  "won" and each wrote its own acceptance event — the same
+  validate-inside-the-lock lesson as the A3 cycle walk, now re-learned at
+  the acceptance boundary and break-swept (removing the in-lock recheck
+  fails the race test);
+- my first edit attempt left `old` as a tuple via a trailing comma and
+  silently changed nothing — caught because the race test still failed, and
+  a reminder that an edit is proven by the test that needed it, not by the
+  script reporting success.
+
+STOPPED after C2 evidence. C3 (CLI migration, route-resolution transitions,
+projection 2.0) and later remain held. Noted for C5: the preserved Gate B
+PTY tests need `serial` marks for the split runner.
+
+### C2 rev 2 — the review's four correctness gaps (2026-08-14)
+
+All four confirmed and fixed, each with its regression
+(`tests/work/test_lifecycle.py`, 19 tests; work suite 162 + 1 xfailed;
+`just test-v11` green):
+
+- R1: publication is now atomic CREATE-IF-ABSENT via link(2) — rename
+  replaces an existing destination, so of two concurrent initializers the
+  second silently overwrote the winner. Regression: 8 racing initializers,
+  exactly one "won", every loser refused with "already exists", the winner
+  still opens and binds.
+- R2: the stranding/no-reuse checks now run INSIDE the write transaction as
+  the authoritative gate (pre-lock pass kept as fast diagnostics only) —
+  the third occurrence of the validate-inside-the-lock lesson (A3 cycle
+  walk, C2 generation recheck, now the gate). Deterministic regression:
+  the pre-check is blinded for one call to model the racing writer; the
+  in-lock gate refuses and nothing is projected.
+- R3: routes joined the no-reuse sweep — a removed route name refusing
+  reintroduction with a different role.
+- R4: the reroute audit compares the COMPLETE responsibility mapping
+  (role + handlers); a role-only change with the same handler now reports
+  `rerouted`.
