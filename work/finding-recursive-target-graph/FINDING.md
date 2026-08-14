@@ -925,3 +925,84 @@ must explicitly create and report separate single-destination `@` obligations;
 it is not one multi-destination request hidden behind `@*.*`. Likewise one Work
 never gains several owners through a broad `=>`. The ordinary forced shutdown
 that needs attention but no acknowledgements remains `#BATON-OPS +*.*`.
+
+## 2026-08-14 — implementation-plan blockers resolved
+
+**Confirmed by Slawomir after review of `IMPLEMENTATION-PLAN.md`.** The first
+v11 implementation slice uses these foundational rulings:
+
+1. Protocol 11 products are application version `11.0.0`; historical “Baton
+   2.0.0” wording is superseded and creates no second marketing or deployment
+   version.
+2. Team, member, and endpoint-kind protocol identities use canonical handles
+   limited to six terminal display cells by wcwidth semantics, validated when
+   registered and never abbreviated at render time. Each may carry an
+   unrestricted descriptive display name. The fresh v11 authority receives
+   new handles; protocol-10 identities and history are not migrated or
+   rewritten.
+3. V11 deliberately drops protocol 10's at-most-once delivery model. Messages
+   are re-readable; personal `New` is attention derived from a member's seen
+   cursor, not a delivery receipt. Reading never consumes or hides content.
+4. List, search, count, detail projection, and other ordinary reads are pure.
+   An intentional discussion open performs a separate idempotent seen-cursor
+   transition that advances only the acting member through a committed message
+   sequence. The transition is explicit in JSON and invoked deliberately by
+   the TUI; another member's cursor and `New` are unchanged.
+
+## 2026-08-14 — JSON/CLI-first implementation and adversarial soak
+
+**Confirmed by Slawomir.** Implementation stabilizes the authority, data
+model, transitions, canonical projection, and versioned JSON CLI before adding
+the TUI. Agents must be able to use the packaged JSON surface alone to create
+and navigate Work, communicate with `+`/`@`/`=>`, inspect obligations and
+discussions, advance their own seen cursor, follow dependencies, and close or
+unblock Work. This phase is exercised heavily by `baton.reviewer` and
+`baton.implementer` against a fresh experimental v11 authority, including
+concurrency, retry, crash-boundary, pagination, and cross-team scenarios.
+
+Protocol 10 remains the coordination authority while that battle test is in
+progress; an incomplete v11 tool never replaces the channel needed to report
+its failures. Agents use only the packaged JSON/CLI contract during the soak,
+not raw SQLite, source-private entry points, TUI scraping, or hand-reconstructed
+state.
+
+The TUI follows after the engine and JSON contract are stable. It consumes the
+same canonical projection and transitions and may not invent separate workflow
+semantics. Any missing state discovered while designing the screen is first
+added to the shared projection and JSON contract with tests, then rendered.
+Same-fixture TUI/JSON parity remains a release gate; it is deferred in sequence,
+not removed from scope.
+
+## 2026-08-14 — focused Gate A test entry point
+
+**Confirmed by Slawomir after Gate A completion.** The repository exposes the
+completed JSON/CLI vertical slice as one focused, repeatable Just recipe:
+`just test-gate-a`. It runs the complete `tests/work/` suite, including the
+adversarial soak, directly against the checkout. It does not build or require a
+release candidate and does not replace the full `just build` then `just test`
+release gate.
+
+**Immediate naming supersession confirmed by Slawomir.** The recipe above is
+named `just test-v11`, not `just test-gate-a`. The protocol-generation name is
+the stable user-facing distinction: `just test-v11` runs only the v11 Work
+suite, while `just test` continues to cover both v10 and v11.
+
+**Focused-run presentation and concurrency confirmed by Slawomir.**
+`just test-v11` reports each pytest node as it executes instead of rendering
+quiet dots and percentages. It uses pytest-xdist with one worker per CPU made
+available by `nproc`; xdist is a pinned development dependency so a fresh
+`just venv` reproduces the command. This changes only the focused runner, not
+the v11 semantics or the full release gate.
+
+**Parallel-run harness correction.** The first 32-worker run passed all 89
+tests but Python 3.13 emitted 48 warnings because three concurrency tests used
+the platform's default `fork` start method from multithreaded xdist workers.
+Those tests now explicitly use the safe `spawn` context. The warnings are
+corrected at their source rather than filtered from the test output.
+
+**Focused-run scheduling clarification confirmed by Slawomir.** Tests that
+create their own 16-process contention or soak workloads are marked `serial`
+and run once, without xdist. The remaining v11 tests run through xdist with
+one worker per available CPU. The explicit spawn context remains as a harness
+safety property, while the split prevents nested worker multiplication and
+makes the two forms of concurrency visible in the recipe output.

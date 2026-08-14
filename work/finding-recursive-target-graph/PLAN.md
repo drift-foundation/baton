@@ -93,7 +93,10 @@
     unseen and actionable state, readiness, and transitions. JSON retains full
     structured values, deterministic ordering, bounded pagination, viewer and
     snapshot identity, and never requires screen scraping. Add semantic parity
-    tests between both presentations.
+    tests between both presentations. **Sequencing ruled 2026-08-14:** first
+    stabilize the authority, transitions, projection, and packaged JSON CLI
+    through adversarial agent use; only then add the TUI and parity half over
+    the frozen shared semantics.
 13. **Define replacement/migration boundary** — decide whether and how 1.x
    traffic is imported, what clean authority 2.0 requires, and how old/new
    readers fail closed. Do not assume in-place schema evolution.
@@ -103,3 +106,75 @@
 
 `baton.implementer` creates and exclusively owns `PROGRESS.md` only when this
 finding is explicitly selected after the immediate release.
+
+## 2026-08-14 implementation-planning gate
+
+**Confirmed by Slawomir.** The next step is an implementation plan, not source
+implementation. `baton.implementer` owns a new
+`IMPLEMENTATION-PLAN.md` draft in this finding and must first reread the whole
+finding folder, revalidate its current rulings against the repository, and
+distinguish chronological superseded material from the current plan.
+
+The draft must turn the architecture into the smallest working vertical slice:
+v11 authority/schema and stable ordering; Work/discussion/message/route
+transitions; the shared canonical projection and versioned JSON interface; a
+minimal TUI rendering of that projection; same-fixture semantic parity tests;
+and an end-to-end create, include, request-response, pass, return, close, and
+dependency-unblock scenario. It must identify module boundaries, serial steps,
+acceptance evidence, failure/retry cases, migration or clean-start boundary,
+and which later refinements are deliberately deferred.
+
+K must not resolve gaps or contradictions by assumption. She reports each
+blocking ambiguity through Baton with the conflicting text, concrete impact,
+options, and recommendation so `baton.reviewer` and Slawomir can clarify it.
+No implementation, `PROGRESS.md`, schema migration, or source/test edit begins
+until the draft is reviewed, all blocking rulings are pinned, and Slawomir
+explicitly authorizes implementation.
+
+### 2026-08-14 rulings for the plan revision
+
+Slawomir approved all four blocking review outcomes: version `11.0.0`;
+six-cell wcwidth-validated canonical team/member/kind handles with unrestricted
+display names and no v10 identity migration; re-readable messages with no
+at-most-once delivery receipts; and an explicit idempotent seen-cursor
+transition while ordinary reads stay pure.
+
+K now revises `IMPLEMENTATION-PLAN.md` accordingly and reorders the slice into
+two gates. Gate A delivers authority through packaged JSON CLI and passes an
+agent-driven adversarial soak while v10 remains the coordination authority.
+Gate B adds the TUI strictly over the stable shared projection and completes
+same-fixture parity. This revision is still planning only; implementation
+requires Slawomir's separate explicit authorization after focused review.
+
+### 2026-08-14 delegated Gate A authorization
+
+**Confirmed by Slawomir; supersedes the separate post-review authorization
+sentence immediately above for Gate A only.** This message supplies conditional
+implementation authorization and delegates its final gate check to
+`baton.reviewer`. When K
+returns the revised implementation plan, the reviewer performs one focused
+check that all pinned rulings are represented, Gate A and Gate B remain
+separate, acceptance evidence is executable, and no blocking contradiction or
+unresolved product choice remains. If that check passes, the reviewer tells K
+to proceed with Gate A without another Slawomir review.
+
+The delegation does not authorize guessing through a newly discovered gap or
+starting Gate B. Any material contradiction, new product tradeoff, scope
+expansion, or decision not already pinned returns to Slawomir. Gate B still
+requires its own post-soak review and authorization.
+
+### 2026-08-14 Gate A verification entry point
+
+- [x] `just test-gate-a` naming was proposed and immediately superseded; do not
+  expose that recipe.
+- [x] Provide `just test-v11` as the focused source-tree verification for all
+  Gate A tests under `tests/work/`, including the adversarial soak.
+- [x] Make `just test-v11` show individual pytest node IDs and use one xdist
+  worker per CPU available to `nproc`; pin xdist in the dev environment.
+- [x] Use the explicit `spawn` process context in Gate A concurrency tests so
+  all-core xdist runs do not fork multithreaded workers or hide warnings.
+- [x] Mark the three self-parallel Gate A tests `serial`; run all other v11
+  tests with all-core xdist, then run the marked process workloads without
+  xdist.
+- [ ] Preserve `just build` followed by `just test` as the separate full
+  candidate/release gate.

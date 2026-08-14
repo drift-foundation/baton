@@ -29,7 +29,7 @@ venv:
 		echo "[venv] creating ./{{VENV}} ..."
 		python3 -m venv "{{VENV}}"
 	fi
-	if "{{PY}}" -c 'import pytest; assert pytest.__version__ == "9.0.1"' >/dev/null 2>&1; then
+	if "{{PY}}" -c 'import pytest, xdist; assert pytest.__version__ == "9.0.1"; assert xdist.__version__ == "3.8.0"' >/dev/null 2>&1; then
 		echo "[venv] ./{{VENV}} is ready."
 		exit 0
 	fi
@@ -62,6 +62,20 @@ test:
 	# recursively, and `tests/conftest.py` puts `src/` on the path so this
 	# works the same way under bare `pytest` or an IDE runner.
 	"{{PY}}" -m pytest -q tests
+
+# Run the complete focused Gate A authority/JSON/CLI suite directly against
+# the checkout. Verbose output names every test. Ordinary tests run through
+# xdist with one worker per available CPU; tests that manage their own process
+# pools then run serially without xdist. This includes the adversarial soak,
+# but deliberately does not build or certify release artifacts; `just build`
+# then `just test` remains the full candidate gate.
+test-v11:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	[[ -x "{{PY}}" ]] || { echo "error: venv missing; run 'just venv' first" >&2; exit 1; }
+	"{{PY}}" -c 'import pytest, xdist' >/dev/null 2>&1 || { echo "error: pytest/xdist missing; run 'just venv' first" >&2; exit 1; }
+	"{{PY}}" -m pytest -v -n "$(nproc)" -m "not serial" tests/work
+	"{{PY}}" -m pytest -v -m serial tests/work
 
 # Prepare the WHOLE release candidate under `build/`: both products, both
 # manifests, and a snapshot of every Git-owned payload file, from one catalog,

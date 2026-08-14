@@ -1,0 +1,153 @@
+"""A7: the gate scenario, end to end, through `baton-work` AS A SUBPROCESS.
+
+Every step is a real process invocation of the CLI module — the same entry
+the installed artifact will expose — not an in-process call. The final
+assertion is the ordered audit trail by sequence number, which is what makes
+this a scenario rather than eight independent tests.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+
+import pytest
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+SRC = os.path.join(
+	os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+	"src")
+
+
+def _run(path, *argv, viewer=None, expect_ok=True):
+	command = [sys.executable, "-m", "baton_work.cli",
+	           "--authority", path]
+	if viewer:
+		command += ["--viewer", viewer]
+	command += list(argv)
+	proc = subprocess.run(command, capture_output=True, text=True,
+	                      timeout=120,
+	                      env={**os.environ, "PYTHONPATH": SRC})
+	if expect_ok:
+		assert proc.returncode == 0, proc.stderr or proc.stdout
+		return json.loads(proc.stdout)
+	assert proc.returncode == 1, proc.stdout
+	return json.loads(proc.stderr)
+
+
+def test_the_gate_scenario_end_to_end(tmp_path):
+	path = str(tmp_path / "work.sqlite3")
+	_run(path, "init")
+	for team, member in (("lang", "ada"), ("web", "wren")):
+		_run(path, "register-team", "--team", team, "--display", team.title())
+		_run(path, "register-member", "--team", team, "--member", member,
+		     "--display", member.title())
+	_run(path, "register-kind", "--team", "web", "--kind", "bug",
+	     "--display", "Bug intake")
+	for kind in ("rsrch", "impl", "rev"):
+		_run(path, "register-kind", "--team", "lang", "--kind", kind,
+		     "--display", kind)
+
+	# 1. web creates WEB-1 with its first message, atomically.
+	web1 = _run(path, "create", "--team", "web", "--kind", "bug",
+	            "--title", "render crash", "--origin", "external-report",
+	            "--body", "tab dies on load",
+	            viewer="web.wren")["result"]["work_id"]
+
+	# 2. include +lang.rsrch — attention, no obligation.
+	_run(path, "post", web1, "--body", "lang may want to see this",
+	     "--include", "lang.rsrch", viewer="web.wren")
+	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
+
+	# 3. request @lang.rsrch — one obligation; WEB-1's Current unchanged.
+	requested = _run(path, "post", web1, "--body", "is this your parser bug?",
+	                 "--request", "lang.rsrch", viewer="web.wren")["result"]
+	pending = _run(path, "obligations", viewer="lang.ada")["result"]
+	assert [entry["seq"] for entry in pending] == [requested["seq"]]
+	assert _run(path, "detail", web1,
+	            viewer="web.wren")["result"]["current"] == "web.bug"
+
+	# 4. lang creates LANG-42, relates WEB-1 blocked_by LANG-42, responds.
+	lang42 = _run(path, "create", "--team", "lang", "--kind", "rsrch",
+	              "--title", "parser recovery", "--origin", "external-report",
+	              "--body", "deduplicating consumer reports",
+	              viewer="lang.ada")["result"]["work_id"]
+	_run(path, "block", web1, "--on", lang42, viewer="web.wren")
+	assert _run(path, "detail", web1,
+	            viewer="web.wren")["result"]["ready"] is False
+	_run(path, "respond", str(requested["seq"]),
+	     "--body", "yes - tracked as our parser recovery work",
+	     viewer="lang.ada")
+	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
+
+	# 5. pass with planned Next, then the consuming return.
+	passed = _run(path, "post", lang42, "--body", "confirmed, implement",
+	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
+	              viewer="lang.ada")["result"]
+	assert passed["kind"] == "pass"
+	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
+	assert detail["current"] == "lang.impl" and detail["next"] == "lang.rev"
+	returned = _run(path, "post", lang42, "--body", "implementation complete",
+	                "--pass-to", "lang.rev", viewer="lang.ada")["result"]
+	assert returned["kind"] == "return"
+	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
+	assert detail["current"] == "lang.rev" and detail["next"] is None
+
+	# 6. terminal close unblocks WEB-1, level-triggered.
+	_run(path, "close", lang42, "--disposition", "fixed and verified",
+	     viewer="lang.ada")
+	after = _run(path, "detail", web1, viewer="web.wren")["result"]
+	assert after["ready"] is True, "the dependent did not unblock"
+	assert after["open_blockers"] == 0
+
+	# The ordered audit trail: every step, one event, dense sequence.
+	events = _run(path, "events")["result"]
+	kinds = [event["kind"] for event in events]
+	assert kinds[-6:] == ["create_work", "add_dependency", "respond",
+	                      "pass", "return", "close_work"]
+	seqs = [event["seq"] for event in events]
+	assert seqs == list(range(1, len(seqs) + 1)), "the trail has a hole"
+	# ...and the return step is the one that consumed the planned Next.
+	consuming = [event for event in events if event["kind"] == "return"]
+	assert len(consuming) == 1
+	assert consuming[0]["payload"]["consumed_next"] is True
+
+
+def test_the_scenario_refuses_out_of_order_acts(tmp_path):
+	"""The same commands out of order refuse rather than half-apply: a close
+	over an open CHILD (the ruled refusal), and a respond by the wrong team.
+
+	Deliberately NOT tested as a refusal: closing over an open BLOCKER. The
+	rulings refuse closure only over open required descendants; a consumer
+	may honestly close (reject, duplicate, defer) while its provider
+	dependency is open — the disposition is where that honesty lives. The
+	first version of this test invented the stricter rule and the code
+	correctly refused to have it."""
+	path = str(tmp_path / "work.sqlite3")
+	_run(path, "init")
+	for team, member in (("lang", "ada"), ("web", "wren")):
+		_run(path, "register-team", "--team", team, "--display", team.title())
+		_run(path, "register-member", "--team", team, "--member", member,
+		     "--display", member.title())
+		_run(path, "register-kind", "--team", team, "--kind", "bug",
+		     "--display", "Bugs")
+	web1 = _run(path, "create", "--team", "web", "--kind", "bug",
+	            "--title", "crash", "--origin", "external-report",
+	            "--body", "b", viewer="web.wren")["result"]["work_id"]
+	child = _run(path, "create", "--team", "web", "--kind", "bug",
+	             "--title", "narrow the repro", "--origin", "decomposition",
+	             "--body", "b", "--parent", web1,
+	             viewer="web.wren")["result"]["work_id"]
+
+	error = _run(path, "close", web1, "--disposition", "premature",
+	             viewer="web.wren", expect_ok=False)
+	assert child in error["error"], "the refusal does not name the open child"
+
+	requested = _run(path, "post", web1, "--body", "your bug?",
+	                 "--request", "lang.bug", viewer="web.wren")["result"]
+	error = _run(path, "respond", str(requested["seq"]), "--body", "not mine",
+	             viewer="web.wren", expect_ok=False)
+	assert "cannot discharge" in error["error"]

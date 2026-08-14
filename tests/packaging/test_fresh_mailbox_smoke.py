@@ -225,90 +225,15 @@ def test_a_malformed_identity_is_refused_rather_than_ignored(fresh):
 		"a mailbox with no identity must still open"
 
 
-# -- the REVIEWED proposal, not a fixture that resembles it -------------------
-
-PROPOSAL = pathlib.Path(__file__).resolve().parents[2] / "work" \
-	/ "finding-product-version-manifest" / "findings" \
-	/ "finding-generation-layout-rollout" / "proposed-baton.json"
-
-
-def test_the_reviewed_config_proposal_is_internally_coherent():
-	"""R38. The file a human will copy into place, checked as the artifact it
-	is rather than as prose in a runbook.
-
-	The defect this exists for was real: the proposal carried a
-	`projection_dir` under `mailbox/legacy/`, the retired authority's path,
-	while the successor mailbox is `mailbox/v10/`. A config is not reviewed by
-	being read — every absolute path in it has to agree with the cutover it
-	belongs to."""
-	document = json.loads(PROPOSAL.read_text())
-	assert document["protocol_version"] == PROTOCOL
-	# A FRESH authority: generation 1, because a fresh mailbox has accepted
-	# exactly one config.
-	assert document["generation"] == 1
-	home = f"/home/sl/baton/mailbox/v{PROTOCOL}"
-	for address, entry in document["participants"].items():
-		projection = entry.get("projection_dir")
-		if projection is None:
-			continue
-		assert projection.startswith(home + "/"), \
-			f"{address} projects into {projection}, not the successor mailbox"
-		assert "legacy" not in projection, \
-			f"{address} still projects into the retired authority: {projection}"
-	# A distinguishing name, so a stray process pointed at the retired file
-	# cannot be confused about which authority it is on.
-	assert document["mailbox"]["name"] != "drift-suite-local"
-
-
-def test_the_reviewed_proposal_initializes_and_carries_traffic(tmp_path):
-	"""R38, the half that reading cannot establish: the EXACT proposal is
-	initialized by the candidate CLI, stamped, and then used.
-
-	Only the absolute paths that must move with the mailbox are rewritten —
-	`projection_dir`, which is per-machine — and the test asserts it rewrote
-	exactly one thing, so a proposal that silently depended on some other
-	absolute path could not pass here by being quietly patched."""
-	cli = candidate.require().cli
-	document = json.loads(PROPOSAL.read_text())
-	home = tmp_path / "mailbox" / f"v{PROTOCOL}"
-	(home / "projections" / "human.slawomir").mkdir(parents=True)
-
-	rewritten = 0
-	for entry in document["participants"].values():
-		if "projection_dir" in entry:
-			entry["projection_dir"] = str(home / "projections" / "human.slawomir")
-			rewritten += 1
-	assert rewritten == 1, f"{rewritten} projection dirs, not one"
-	# Roots are repository paths this machine may not have; the proposal keeps
-	# them for production and they are not what this test is about.
-	document["roots"] = {}
-	config = home / "baton.json"
-	config.write_text(json.dumps(document, indent=2) + "\n")
-
-	assert _json(_run(cli, config, "init"))["initialized"] is True
-	deploy.mailbox_identity(str(home), protocol=PROTOCOL)
-	assert json.loads((home / "MAILBOX.json").read_text())["namespace"] == \
-		f"v{PROTOCOL}"
-
-	report = _json(_run(cli, config, "doctor"))
-	assert report["problems"] == [], report
-
-	# The two participants this coordination actually runs on, end to end.
-	sent = _json(_run(cli, config, "send", "--participant", "baton.reviewer",
-	                  "--to", "baton.implementer", "--kind", "review",
-	                  "--tweet", "proposal smoke"))
-	pending = _json(_run(cli, config, "scan",
-	                     "--participant", "baton.implementer"))["pending"]
-	assert [row["id"] for row in pending] == [sent["message_id"]]
-
-	# ...and a scoped broadcast over the real participant list.
-	notice = _json(_run(cli, config, "send-notice",
-	                    "--participant", "human.slawomir",
-	                    "--kind", "announcement", "--scope", "baton.*",
-	                    "--subject", "proposal broadcast",
-	                    "--part", "source=" + str(config)
-	                              + "&type=application/json"))
-	audience = {row["participant"] for row
-	            in json.loads(_run(cli, config, "dump").stdout)["notice_audience"]
-	            if row["notice_id"] == notice["notice_id"]}
-	assert audience == {"baton.reviewer", "baton.implementer"}, audience
+# -- the reviewed proposal (R38) — RETIRED 2026-08-14 -------------------------
+#
+# Two tests here exercised the exact `proposed-baton.json` awaiting the v10
+# cutover: internal coherence, and an end-to-end init/traffic run of the very
+# file a human would copy into place. The cutover happened on 2026-08-14 —
+# that file WAS copied to /home/sl/baton/mailbox/v10/baton.json, initialized
+# by the 10.2.0 binary, and proven with directed and broadcast round trips on
+# the live authority — and commit fb9420a then dropped the work folder that
+# held the proposal. The tests' subject no longer exists because it was
+# consumed by the act they guarded. Retired rather than repointed: a test
+# suite must not read live production configuration, and a copied fixture
+# would be exactly the "resembles it" lookalike R38 forbade.

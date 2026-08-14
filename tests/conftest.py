@@ -18,6 +18,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 SRC = Path(__file__).resolve().parent.parent / "src"
 if str(SRC) not in sys.path:
     # FRONT of the path: an installed copy of a same-named package must not
@@ -27,6 +29,13 @@ if str(SRC) not in sys.path:
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "serial: run without xdist because the test manages its own process pool",
+    )
 
 
 # NOTHING HERE BUILDS THE RELEASE CANDIDATE. An earlier version of this file
