@@ -269,3 +269,208 @@ tests still emit Python 3.13 fork-from-multithreaded warnings under xdist; C5
 must include them in the already-ruled serial scheduling pass. This does not
 change C2 authority semantics. C3 and later steps remain held pending the next
 authorization.
+
+### 2026-08-14 C3 authorization — accepted
+
+- [x] **AUTHORIZED:** replace `--authority`/`--viewer` with
+  `--config`/`--participant`, with no compatibility aliases.
+- [x] Open ordinary CLI/JSON/TUI operations through `open_bound` and refuse an
+  unknown configured participant before output or curses startup.
+- [x] Wire generation-1 `init` to the config lifecycle and expose audited
+  generation acceptance as `regen`, requiring the acting participant and its
+  currently accepted `config` capability.
+- [x] Remove `register-team`, `register-member`, `register-kind`, and
+  `retire-kind`; configuration acceptance is the sole topology writer.
+- [x] Keep transition and projection shapes otherwise unchanged. C4 route
+  resolution, projection 2.0, C5 migration, and Gate B remain held.
+- [x] Add focused CLI failure/success evidence for the changed boundary, run
+  the relevant suite, and stop for C3 review.
+
+### 2026-08-14 C3 review — changes requested
+
+- [x] Require and validate `--participant` for every ordinary read as well as
+  every mutation and TUI launch; `links`, `breadcrumb`, `discussion`, and
+  `events` currently permit anonymous operation.
+- [x] Remove the remaining public refusal wording that calls the acting
+  participant a `viewer`.
+- [x] Remove the always-true `assert database == path or True` from the shared
+  fixture; assert the fixed-sibling invariant honestly.
+- [x] Add the missing-participant read regression, re-run the focused boundary
+  tests and `just test-v11`, then stop for C3 re-review. C4 remains held.
+
+**C3 accepted by `baton.reviewer` at 2026-08-14T15:09:07Z.** Focused
+boundary/TUI verification reports 13 passed; `just test-v11` reports 170
+passed. The mechanical config-fixture migration required by removal of the old
+CLI remains in this accepted step. The previously recorded C5 serial scheduling
+cleanup is still outstanding.
+
+### 2026-08-14 C4 authorization — released
+
+**AUTHORIZED: C3 re-review is clean; no additional Slawomir gate.**
+
+- [x] Resolve every endpoint use at commit time through the accepted route,
+  recording endpoint, route, role, handlers, and config generation for Work
+  creation, `+`, `@`, `=>`, and planned Next.
+- [x] Preserve historical resolution snapshots across later config changes;
+  obligations remain owed by the stable endpoint rather than a named handler.
+- [x] Advance the JSON projection to 2.0, rename envelope `viewer` to
+  `participant`, and expose structured endpoint values consistently in home,
+  detail, links, Current/Next, and obligations.
+- [x] Keep the compact TUI columns rendering `team.kind`; routing detail may be
+  exposed in drill-in without changing responsibility semantics.
+- [x] Preserve team-wide visibility/contribution. A route is accountable
+  lookup, not exclusive authorization or a dispatch pipeline.
+- [x] Add reassignment/history regressions and JSON/TUI parity evidence, run
+  `just test-v11`, and stop for C4 review. C5/C6 remain separate.
+
+### 2026-08-14 C4 review — changes requested
+
+- [x] Move `+` wildcard/comma expansion and deduplication inside the authority
+  write transaction so its membership and every recorded endpoint snapshot
+  come from one accepted configuration generation.
+- [x] Keep
+  `test_include_expansion_uses_the_generation_at_commit` as the deterministic
+  regression; moving expansion back before `_write` must fail it.
+- [x] Re-run the focused C4 suites and `just test-v11`, then stop for C4
+  re-review. The workflow-story phase remains queued until clean acceptance.
+
+**C4 accepted by `baton.reviewer` at 2026-08-14T15:32:15Z.** Focused C4
+verification reports 33 passed; `just test-v11` reports 174 passed (171
+parallel plus 3 serial). The workflow-story phase below is now released as the
+next serial item without another human gate.
+
+### 2026-08-14 workflow acceptance suite
+
+**PRE-AUTHORIZED ON CLEAN C4 REVIEW; BLOCKS HEAVY TUI WORK.** Once C4 is
+accepted, the reviewer releases this phase without another Slawomir gate. Until
+then C4 remains the serial item and this is preparation only. This supersedes
+moving directly from C4 into C5/C6 or further Gate B implementation.
+
+- [x] Review and implement the executable CLI/JSON spines of the graded
+  end-to-end workflows in
+  `WORKFLOW-TESTS.md`, from one-team report-to-close through cross-team
+  convergence, recursive release gating, announcements, rerouting, restart,
+  and races.
+- [ ] Reuse one packaged-CLI process driver and the canonical projection;
+  selected TUI checkpoints prove parity without making the screen an API.
+- [x] Treat the coverage gaps named in that document as explicit scheduling or
+  ruling inputs. Do not weaken a workflow to fit the currently implemented
+  surface.
+- [x] When a workflow discovers a defect, retain the workflow and extract a
+  minimal regression for the first incorrect phase/transition. Link both ways;
+  require both tests to pass before the defect is closed.
+- [x] First produce a coverage/implementation pass over every workflow: mark
+  what is already executable, what needs an engine/CLI/JSON operation, and what
+  still needs a ruling. Sequence the missing semantic slices before adding new
+  TUI behavior.
+- [x] Stop for reviewer acceptance of the CLI/JSON workflow gate. Only then
+  resume substantial TUI work, C6 Gate B completion, or new GUI interaction.
+
+### 2026-08-14 workflow-gate review — changes requested
+
+- [x] Revalidate the live parent inside `reopen_work`'s write transaction and
+  refuse reopening a child whose parent raced closed; recompute the in-lock
+  parent rather than the optimistic row.
+- [x] Select the latest applicable close event inside the same write
+  transaction and derive the restored Current from it; a complete competing
+  reopen/pass/close cycle must not make reopen restore an obsolete endpoint.
+- [x] Keep the two additive `test_wf09_reopen_*` regressions, rerun focused
+  transition/workflow coverage and `just test-v11`, then stop for re-review.
+  The workflow gate and heavy TUI remain held until clean acceptance.
+
+**CLI/JSON workflow gate accepted by `baton.reviewer` at
+2026-08-14T15:56:21Z.** Focused transitions and workflows report 42 passed;
+`just test-v11` reports 199 passed (196 parallel plus 3 serial). The remaining
+TUI-parity bullet above stays pending for the later TUI phase. K is stopped
+pending rulings and release of the next semantic slice.
+
+### 2026-08-14 WS-1 classification ruling — partially settled
+
+- [x] Canonical classification is never null; new Work starts as `unknown`.
+- [x] JSON and audit surfaces use full canonical `unknown`; the TUI renders
+  `unkwn` in a classification column capped at five display cells.
+- [x] Keep SQLite integer/string encoding private to the authority.
+- [x] Reserve `parked` / compact `park` for deliberate suspension with no
+  dependency or automatic wake; explicitly preserve its risk of indefinite
+  suspension and do not add synonymous `delayed` or `postponed` phases.
+- [x] Render canonical `review` as `rview`, never ambiguous `rev`, if `review`
+  is retained in the final phase enum.
+- [x] Fix the non-null phase enum and compact renderings as `queued`/`queue`,
+  `research`/`rsrch`, `waiting`/`wait`, `active`/`actve`, `review`/`rview`, and
+  `parked`/`park`; default new Work to `queued`.
+- [x] Keep lifecycle status, dependency-derived readiness/blocking, phase, and
+  Current/Next orthogonal; no pass silently rewrites phase and there is no
+  redundant `done` phase. Narrow exception: satisfying the condition recorded
+  by `waiting` atomically moves it to `queued` and audits `wake`; dependencies
+  do not otherwise rewrite phase.
+- [x] Require a reason to park, retain Current, resume explicitly to `queued`,
+  and expose an always-visible parked count in equivalent JSON and TUI summary
+  projections.
+- [x] Authorize currently resolved Current-route handlers to make explicit,
+  audited phase changes; permit ordinary open-phase/rework transitions, while
+  enforcing the special waiting wake, parked-to-queued, and closed rules.
+- [x] Treat delegation as ordinary `=>` ownership transfer with optional Next;
+  add no scoped decision-grant primitive. `@` requests input without granting
+  mutation authority or changing Current.
+- [x] Define typed waiting conditions: either aggregate required Work gates
+  (all open children and `blocked_by` dependencies must close) or one exact
+  pending `@` obligation. The last satisfying transition atomically queues and
+  audits one `wake`; an already-satisfied condition is refused.
+- [x] **AUTHORIZED:** extend WF-01/WF-04 and focused transition/race tests with
+  the approved
+  default, authorization, waiting, parking, projection, reconfiguration, and
+  closed-state cases before WS-1 review.
+- [x] **AUTHORIZED:** implement the combined classification and phase slice
+  through authority, CLI, canonical JSON/audit, workflows, and bounded compact
+  TUI vocabulary/summary parity. Heavy TUI navigation remains held.
+
+### 2026-08-14 WS-1 review — changes requested
+
+- [x] R1: enforce the confirmed ownership-transfer rule beyond
+  classification/phase; the additive regression proves an `@` respondent can
+  currently pass and close Work whose Current never moved.
+- [x] Pin the complete owner-versus-participant operation matrix before the R1
+  correction; keep plain contribution/`+`/personal seen and exact obligation
+  response distinct from Current-owned workflow decisions.
+- [x] R2: expose `classify` and `set_phase` in JSON
+  `available_transitions` only for the live Current route's resolved handlers,
+  following `=>` and accepted handler reassignment.
+- [x] R3: include the always-visible parked count in the canonical top-level
+  JSON projection consumed by both JSON and TUI, not only a separate summary
+  call; add same-snapshot parity coverage.
+- [x] R4: make WF-04 actually execute/assert its claimed
+  `research -> review -> active -> review` phases around the independent route
+  passes.
+- [x] R5 ruling: pin explicit <=5-cell compact labels for every canonical
+  classification; remove mechanical truncation fallback.
+- [x] R5 implementation: use `unkwn`, `suspt`, `cnfrm`, `limit`, `dupe`,
+  `desgn`, and `rejct`; reject unmapped values rather than truncating them.
+- [x] Accept creation refusal for `waiting`/`parked`, same-Work obligation
+  waits, and closed-Work classification refusal as faithful interpretations.
+- [x] Run focused phase/workflow/projection/parity evidence and
+  `just test-v11`, then stop for re-review. Heavy TUI, C5/C6, Gate B, and WS-2
+  remain held.
+
+### 2026-08-14 WS-1 second re-review — changes requested
+
+- [x] R1: let any configured participant who drills into open Work contribute
+  an ordinary message or `+` attention without prior Work participation;
+  atomically record the contributing team while retaining every owner gate.
+- [x] R1 projection: expose ordinary contribution and own seen state without
+  prior Work participation; participation must never expose owner mutations.
+- [x] R2: make `available_transitions` match writer preconditions: an open
+  blocker does not suppress honest close, while a closed parent does suppress
+  child reopen until the ancestry is open. Retire the contradictory old
+  projection expectation rather than changing the ruled writer behavior.
+- [x] R3: execute the complete top-level home projection and its advertised
+  `snapshot_seq` against one SQLite read snapshot; keep reads pure.
+- [x] Keep the four additive regressions from
+  `review-2026-08-14T20-33-18Z.md`, run focused/break-sweep evidence and
+  `just test-v11`, then stop for re-review. Heavy TUI, C5/C6, Gate B, and WS-2
+  remain held.
+
+**WS-1 accepted by `baton.reviewer` at 2026-08-14T20:42:37Z.** The four
+reviewer regressions pass and independent `just test-v11` reports 225 passed
+(222 parallel plus 3 serial). WS-2 is next, but remains a human semantic ruling
+before implementation: distinguish satisfying from non-satisfying
+dispositions and decide their effect on consumer dependency edges.

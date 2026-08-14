@@ -47,14 +47,26 @@ _PROCESS_CONTEXT = multiprocessing.get_context("spawn")
 
 
 def _seed_world(path: str) -> None:
-	store = bw.Authority.init(path)
-	for team, member in TEAMS:
-		store.register_team(team, team.title())
-		store.register_member(team, member, member.title())
-		store.register_kind(team, "bug", "Bug intake")
-		store.register_kind(team, "rev", "Review")
-	store.register_kind("lang", "dead", "Retired")
-	store.retire_kind("lang", "dead")
+	import json as _json
+	import sys as _sys
+	import os as _os
+	_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+	import fixtures as fx
+	from baton_work import lifecycle as lc
+	directory = _os.path.dirname(_os.path.abspath(path))
+	spec = {team: {"members": {member: ["dev"]},
+	               "kinds": ["bug", "rev", "dead"] if team == "lang"
+	                        else ["bug", "rev"]}
+	        for team, member in TEAMS}
+	config_path, database = fx.build_instance(directory, spec)
+	# Retire lang.dead by generation-2 acceptance (the only retirement path).
+	document = _json.loads(open(config_path).read())
+	document["generation"] = 2
+	del document["teams"]["lang"]["kinds"]["dead"]
+	with open(config_path, "w") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	lc.accept_config(config_path, actor="lang.ada")
+	store = bw.Authority(database)
 	for team, member in TEAMS:
 		tr.create_work(store, team=team, kind="bug", title=f"{team} seed",
 		               origin="self-initiated", author=member, body="seed")
@@ -184,7 +196,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 
 @pytest.mark.serial
 def test_the_adversarial_soak(tmp_path):
-	path = str(tmp_path / "soak.sqlite3")
+	path = str(tmp_path / "work.sqlite3")
 	_seed_world(path)
 	reports = [str(tmp_path / f"worker-{index}.json")
 	           for index in range(WORKERS)]

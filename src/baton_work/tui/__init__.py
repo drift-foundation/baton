@@ -8,4 +8,4 @@ missing semantic value, which is REPORTED AND RULED, never patched around
 here (Gate B authorization, 2026-08-14).
 """
 
-from baton_work.tui.app import main                            # noqa: F401
+from baton_work.tui.app import run                             # noqa: F401

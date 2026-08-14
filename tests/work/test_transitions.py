@@ -21,15 +21,27 @@ import baton_work as bw                                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
 
 
+import copy
+import json as _json
+
+import fixtures as fx
+from baton_work import lifecycle as lc
+
+
 @pytest.fixture
 def store(tmp_path):
-	with bw.Authority.init(str(tmp_path / "work.sqlite3")) as authority:
-		authority.register_team("lang", "Language")
-		authority.register_member("lang", "slaw", "Slawomir")
-		authority.register_kind("lang", "bug", "Bug intake")
-		authority.register_kind("lang", "rsrch", "Research")
-		authority.register_kind("lang", "old", "Retired road")
-		authority.retire_kind("lang", "old")
+	spec = {"lang": {"members": {"slaw": ["dev"]},
+	                 "kinds": ["bug", "rsrch", "old"]}}
+	config_path, database = fx.build_instance(str(tmp_path), spec)
+	# Retire "old" the only way the boundary allows: a generation-2
+	# acceptance that drops it.
+	document = _json.loads(open(config_path).read())
+	document["generation"] = 2
+	del document["teams"]["lang"]["kinds"]["old"]
+	with open(config_path, "w") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	lc.accept_config(config_path, actor="lang.slaw")
+	with bw.Authority(database) as authority:
 		yield authority
 
 
@@ -59,7 +71,9 @@ def test_create_is_work_plus_first_message_in_one_event(store):
 	row = store.conn.execute("SELECT * FROM work WHERE id=?",
 	                         (work_id,)).fetchone()
 	assert (row["origin"], row["classification"], row["status"]) == \
-		("external-report", None, "open")
+		("external-report", "unknown", "open"), \
+		"classification is canonical `unknown`, never null (WS-1)"
+	assert row["phase"] == "queued", "new work defaults to queued (WS-1)"
 	assert (row["current_team"], row["current_kind"]) == ("lang", "bug")
 	assert _ready(store, work_id) == 1, "a fresh leaf is ready"
 
@@ -209,8 +223,7 @@ def test_every_transition_is_one_audited_event(store):
 	tr.reopen_work(store, child, actor_team="lang", actor="slaw",
 	               reason="regressed")
 	kinds = [event["kind"] for event in store.events()]
-	assert kinds == ["register_team", "register_member", "register_kind",
-	                 "register_kind", "register_kind", "retire_kind",
+	assert kinds == ["accept_config", "accept_config",
 	                 "create_work", "create_work", "close_work",
 	                 "reopen_work"]
 	seqs = [event["seq"] for event in store.events()]
@@ -231,3 +244,175 @@ def test_reopen_restores_the_endpoint_the_close_cleared(store):
 	assert row["status"] == "open"
 	assert (row["current_team"], row["current_kind"]) == ("lang", "rsrch"), \
 		f"reopened work has no responsible endpoint: {dict(row)}"
+
+
+# -- WF-09 extracted regressions: terminal competitors validate in the lock --
+#
+# Workflow-to-regression rule (WORKFLOW-TESTS.md): WF-09's race checkpoints
+# found respond AND dispose both committing against one obligation — every
+# terminal-competition check ran only BEFORE the write lock. These model the
+# exact interleaving deterministically: the competing commit lands between
+# the optimistic pre-read and the write transaction, through the `_write`
+# seam (the same modeling the C4 review used for include expansion).
+
+def _race_pair(tmp_path):
+	spec = {"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
+	                 "kinds": ["bug", "rev"]},
+	        "push": {"members": {"sl": ["dev"]}, "kinds": ["bug"]}}
+	_config, database = fx.build_instance(str(tmp_path), spec)
+	return bw.Authority(database), bw.Authority(database)
+
+
+def _interleave(store, competing):
+	"""Run `competing` between store's next optimistic pre-read and its
+	write transaction."""
+	original = store._write
+
+	def wrapped(kind, actor, payload, mutate):
+		store._write = original
+		competing()
+		return original(kind, actor, payload, mutate)
+
+	store._write = wrapped
+
+
+def test_wf09_race1_obligation_terminal_actions_exclude_in_the_lock(tmp_path):
+	"""WF-09 race 1: two members race respond/dispose on one obligation;
+	exactly one commits and the loser refuses INSIDE the lock."""
+	racer, other = _race_pair(tmp_path)
+	work = tr.create_work(racer, team="push", kind="bug", title="w",
+	                      origin="external-report", author="sl",
+	                      body="b")["work_id"]
+	asked = tr.post_message(racer, work, author_team="push", author="sl",
+	                        body="yours?", request="lang.bug")["seq"]
+	_interleave(racer, lambda: tr.dispose_obligation(
+		other, asked, team="lang", member="ada",
+		disposition="not ours after all"))
+	messages_before = racer.conn.execute(
+		"SELECT COUNT(*) AS n FROM messages").fetchone()["n"]
+	with pytest.raises(bw.WorkError, match="already disposed"):
+		tr.respond_obligation(racer, asked, team="lang", member="ada",
+		                      body="ours; tracked")
+	row = racer.conn.execute("SELECT status FROM obligations WHERE seq=?",
+	                         (asked,)).fetchone()
+	assert row["status"] == "disposed"
+	assert racer.conn.execute(
+		"SELECT COUNT(*) AS n FROM messages").fetchone()["n"] == \
+		messages_before, "the losing respond still published its message"
+	kinds = [event["kind"] for event in racer.events()]
+	assert kinds.count("dispose") == 1 and kinds.count("respond") == 0
+
+
+def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
+	"""WF-09 race 2: pass and close race; if the close serializes first the
+	pass must refuse in the lock, never resurrect Current on closed work."""
+	racer, other = _race_pair(tmp_path)
+	work = tr.create_work(racer, team="lang", kind="bug", title="w",
+	                      origin="external-report", author="ada",
+	                      body="b")["work_id"]
+	_interleave(racer, lambda: tr.close_work(
+		other, work, actor_team="lang", actor="ada",
+		disposition="fixed and verified"))
+	with pytest.raises(bw.WorkError, match="closed"):
+		tr.post_message(racer, work, author_team="lang", author="ada",
+		                body="handing over", pass_to="lang.rev")
+	row = racer.conn.execute(
+		"SELECT status, current_team, current_kind FROM work WHERE id=?",
+		(work,)).fetchone()
+	assert row["status"] == "closed"
+	assert row["current_team"] is None and row["current_kind"] is None, \
+		"the losing pass resurrected Current on a terminal work"
+
+
+def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
+	"""WF-09 race 2, other serialization: a pass lands between close's
+	pre-read and its lock. The close event must record the endpoint that
+	was REALLY live at commit, or reopen restores a stale one."""
+	racer, other = _race_pair(tmp_path)
+	work = tr.create_work(racer, team="lang", kind="bug", title="w",
+	                      origin="external-report", author="ada",
+	                      body="b")["work_id"]
+	_interleave(racer, lambda: tr.post_message(
+		other, work, author_team="lang", author="ada",
+		body="quick handoff", pass_to="lang.rev"))
+	tr.close_work(racer, work, actor_team="lang", actor="ada",
+	              disposition="done")
+	closing = next(event for event in racer.events()
+	               if event["kind"] == "close_work")
+	assert closing["payload"]["was_current_kind"] == "rev", \
+		"the close recorded the pre-race Current"
+	tr.reopen_work(racer, work, actor_team="lang", actor="ada",
+	               reason="verify again")
+	row = racer.conn.execute(
+		"SELECT current_kind FROM work WHERE id=?", (work,)).fetchone()
+	assert row["current_kind"] == "rev", "reopen restored a stale endpoint"
+
+
+def test_wf09_double_close_refuses_in_the_lock(tmp_path):
+	racer, other = _race_pair(tmp_path)
+	work = tr.create_work(racer, team="lang", kind="bug", title="w",
+	                      origin="external-report", author="ada",
+	                      body="b")["work_id"]
+	_interleave(racer, lambda: tr.close_work(
+		other, work, actor_team="lang", actor="ada",
+		disposition="done first"))
+	with pytest.raises(bw.WorkError, match="already closed"):
+		tr.close_work(racer, work, actor_team="lang", actor="ada",
+		              disposition="done second")
+	kinds = [event["kind"] for event in racer.events()]
+	assert kinds.count("close_work") == 1
+
+
+def test_wf09_reopen_rechecks_that_its_parent_is_open_in_the_lock(tmp_path):
+	"""WF-09 terminal-competition class: a parent may close after the
+	optimistic ancestry check. The child reopen must then refuse in the lock,
+	not leave an open child beneath a terminal parent."""
+	racer, other = _race_pair(tmp_path)
+	parent = tr.create_work(racer, team="lang", kind="bug", title="parent",
+	                        origin="self-initiated", author="ada",
+	                        body="p")["work_id"]
+	child = tr.create_work(racer, team="lang", kind="bug", title="child",
+	                       origin="decomposition", author="ada", body="c",
+	                       parent=parent)["work_id"]
+	tr.close_work(racer, child, actor_team="lang", actor="ada",
+	              disposition="child done")
+	_interleave(racer, lambda: tr.close_work(
+		other, parent, actor_team="lang", actor="ada",
+		disposition="parent done"))
+	with pytest.raises(bw.WorkError, match="parent .* is closed"):
+		tr.reopen_work(racer, child, actor_team="lang", actor="ada",
+		               reason="child regressed")
+	rows = racer.conn.execute(
+		"SELECT id, status FROM work WHERE id IN (?, ?) ORDER BY id",
+		(parent, child)).fetchall()
+	assert {row["id"]: row["status"] for row in rows} == {
+		parent: "closed", child: "closed"}
+
+
+def test_wf09_reopen_restores_from_the_close_current_at_commit(tmp_path):
+	"""WF-09 terminal-competition class: while reopen is prepared, another
+	reopen/pass/close cycle may create a newer close event. The later reopen
+	must restore from that close, not the stale event read before its lock."""
+	racer, other = _race_pair(tmp_path)
+	work = tr.create_work(racer, team="lang", kind="bug", title="w",
+	                      origin="external-report", author="ada",
+	                      body="b")["work_id"]
+	tr.close_work(racer, work, actor_team="lang", actor="ada",
+	              disposition="first close")
+
+	def newer_close():
+		tr.reopen_work(other, work, actor_team="lang", actor="ada",
+		               reason="first regression")
+		tr.post_message(other, work, author_team="lang", author="ada",
+		                body="handoff", pass_to="lang.rev")
+		tr.close_work(other, work, actor_team="lang", actor="ada",
+		              disposition="second close")
+
+	_interleave(racer, newer_close)
+	tr.reopen_work(racer, work, actor_team="lang", actor="ada",
+	               reason="second regression")
+	row = racer.conn.execute(
+		"SELECT status, current_kind FROM work WHERE id=?", (work,)).fetchone()
+	assert row["status"] == "open"
+	assert row["current_kind"] == "rev", \
+		"reopen restored from a stale close event rather than the latest close"

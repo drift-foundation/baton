@@ -65,10 +65,18 @@ def test_the_tui_imports_only_the_shared_surfaces():
 			assert needle not in text, f"{source.name} contains {needle!r}"
 
 
-def test_the_read_side_opens_no_transaction():
+def test_the_read_side_never_commits():
+	"""The read side is PURE — it inserts, updates, deletes and commits
+	nothing. A read-only snapshot transaction (BEGIN … ROLLBACK, WS-1 R3:
+	home's rows/summary/seq describe one database snapshot) is a read,
+	so BEGIN alone is permitted — but every BEGIN must be matched by a
+	ROLLBACK path and nothing on this side may ever COMMIT."""
 	for name in ("projection.py", "jsonapi.py", "config.py"):
 		text = (SRC / name).read_text()
-		for needle in ("BEGIN", "INSERT", "UPDATE", "DELETE", "_write",
-		               "commit("):
+		for needle in ("INSERT", "UPDATE", "DELETE", "_write", "commit(",
+		               "COMMIT"):
 			assert needle not in text, \
 				f"{name} contains {needle!r}; the read side is pure"
+		assert text.count('execute("BEGIN")') == text.count(
+			'execute("ROLLBACK")'), \
+			f"{name} opens a snapshot it does not roll back"

@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.join(
 
 import baton_work as bw                                       # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
+from baton_work import transitions as tr                      # noqa: E402
 import fixtures                                               # noqa: E402
 
 MEMBERS = [("lang", "ada"), ("lang", "grace"), ("push", "sl"),
@@ -38,12 +39,49 @@ def world(tmp_path_factory):
 def test_home_is_the_viewers_own_top_level_and_nothing_else(world):
 	store, cast, _ = world
 	lang_home = pj.home(store, viewer_team="lang", viewer_member="ada")
-	assert [row["id"] for row in lang_home] == [cast["lang42"]]
+	assert [row["id"] for row in lang_home["rows"]] == [cast["lang42"]]
+	# WS-1 R3: the top-level view CARRIES its summary — one projection,
+	# one snapshot, the parked count beside the rows it describes.
+	assert lang_home["summary"] == pj.team_summary(store, viewer_team="lang")
+	assert set(lang_home["summary"]) == {"team", "open", "parked", "waiting"}
 	push_home = pj.home(store, viewer_team="push", viewer_member="sl")
-	assert [row["id"] for row in push_home] == [cast["pushcoin"]], \
+	assert [row["id"] for row in push_home["rows"]] == [cast["pushcoin"]], \
 		"a linked external record entered another team's default table"
-	row = push_home[0]
+	row = push_home["rows"][0]
 	assert row["ready"] is False and row["status"] == "open"
+
+
+def test_home_rows_and_summary_share_one_database_snapshot(tmp_path,
+		monkeypatch):
+	"""R3 said ONE SNAPSHOT, not merely one Python return value. In WAL mode
+	a writer may commit after the row query while a real read transaction keeps
+	the summary on the same earlier snapshot. Without that transaction the
+	result combines an old row with a new parked count."""
+	spec = {"push": {"members": {"sl": ["dev"]}, "kinds": ["bug"]}}
+	_config, database = fixtures.build_instance(str(tmp_path), spec)
+	with bw.Authority(database) as reader:
+		reader.conn.execute("PRAGMA journal_mode=WAL")
+		work = tr.create_work(
+			reader, team="push", kind="bug", title="snapshot",
+			origin="self-initiated", author="sl", body="b")["work_id"]
+		original_summary = pj.team_summary
+		interleaved = False
+
+		def commit_between_queries(store, *, viewer_team):
+			nonlocal interleaved
+			if not interleaved:
+				interleaved = True
+				with bw.Authority(database) as writer:
+					tr.set_phase(writer, work, actor_team="push", actor="sl",
+					             phase="parked", reason="interleaving proof")
+			return original_summary(store, viewer_team=viewer_team)
+
+		monkeypatch.setattr(pj, "team_summary", commit_between_queries)
+		home = pj.home(reader, viewer_team="push", viewer_member="sl")
+		assert home["rows"][0]["phase"] == "queued", \
+			"the interleaving happened before the row snapshot"
+		assert home["summary"]["parked"] == 0, \
+			"home combined pre-commit rows with a post-commit summary"
 
 
 def test_breadcrumb_and_children_drill_deterministically(world):
@@ -106,11 +144,13 @@ def test_detail_declares_available_transitions_per_viewer(world):
 	mine = pj.detail(store, cast["step_fix"],
 	                 viewer_team="lang", viewer_member="ada")
 	assert "close" in mine["available_transitions"]
-	assert mine["next"] == "lang.rev", "the planned Next is not visible"
+	assert mine["next"]["endpoint"] == "lang.rev", \
+		"the planned Next is not visible"
+	assert mine["next"]["handlers"], "the Next resolution has no handlers"
 	blocked = pj.detail(store, cast["pushcoin"],
 	                    viewer_team="push", viewer_member="sl")
-	assert "close" not in blocked["available_transitions"], \
-		"a blocked work offers close"
+	assert "close" in blocked["available_transitions"], \
+		"an open blocker hid the honest terminal close the writer permits"
 	assert blocked["open_blockers"] == 1
 	outsider = pj.detail(store, cast["lang42"],
 	                     viewer_team="mdb", viewer_member="mo")

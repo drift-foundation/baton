@@ -115,10 +115,11 @@ def _project(conn, document: dict) -> None:
 					"VALUES (?, ?, ?)", (team_handle, route_handle, handler))
 		for kind_handle, kind in team["kinds"].items():
 			conn.execute(
-				"INSERT INTO kinds (team, handle, display, retired) "
-				"VALUES (?, ?, ?, 0) ON CONFLICT (team, handle) DO UPDATE "
-				"SET display=excluded.display, retired=0",
-				(team_handle, kind_handle, kind["display"]))
+				"INSERT INTO kinds (team, handle, display, route, retired) "
+				"VALUES (?, ?, ?, ?, 0) ON CONFLICT (team, handle) DO UPDATE "
+				"SET display=excluded.display, route=excluded.route, "
+				"retired=0",
+				(team_handle, kind_handle, kind["display"], kind["route"]))
 
 
 def init_from_config(config_path: str) -> dict:

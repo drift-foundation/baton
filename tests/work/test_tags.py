@@ -20,17 +20,16 @@ import baton_work as bw                                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
 
 
+import fixtures as fx
+
+
 @pytest.fixture
 def store(tmp_path):
-	with bw.Authority.init(str(tmp_path / "work.sqlite3")) as authority:
-		for team, member in (("lang", "ada"), ("push", "sl"), ("web", "wren")):
-			authority.register_team(team, team.title())
-			authority.register_member(team, member, member.title())
-		for team in ("lang", "push", "web"):
-			authority.register_kind(team, "bug", "Bug intake")
-		authority.register_kind("lang", "rsrch", "Research")
-		authority.register_kind("lang", "impl", "Implementation")
-		authority.register_kind("lang", "rev", "Review")
+	spec = {"lang": {"members": {"ada": ["dev"]},
+	                 "kinds": ["bug", "rsrch", "impl", "rev"]},
+	        "push": {"members": {"sl": ["dev"]}, "kinds": ["bug"]},
+	        "web": {"members": {"wren": ["dev"]}, "kinds": ["bug"]}}
+	with fx.open_instance(str(tmp_path), spec) as authority:
 		yield authority
 
 
@@ -53,8 +52,15 @@ def test_include_expands_wildcards_and_records_the_expansion(store, work):
 	                         body="fyi", include="*.bug")
 	assert result["included"] == ["lang.bug", "push.bug", "web.bug"]
 	event = store.events(after=result["seq"] - 1, limit=1)[0]
-	assert event["payload"]["include"] == ["lang.bug", "push.bug", "web.bug"], \
+	recorded = event["payload"]["include"]
+	assert [entry["endpoint"] for entry in recorded] == \
+		["lang.bug", "push.bug", "web.bug"], \
 		"the exact expansion is not recorded with the publication"
+	# C4: each expansion entry is a FULL resolution snapshot.
+	for entry in recorded:
+		assert set(entry) == {"endpoint", "route", "role", "handlers",
+		                      "generation"}, entry
+		assert entry["generation"] == 1 and entry["handlers"]
 	teams = {row["team"] for row in store.conn.execute(
 		"SELECT team FROM work_participants WHERE work=?", (work,))}
 	assert teams == {"lang", "push", "web"}
@@ -192,15 +198,18 @@ def test_next_requires_a_pass_and_pass_refuses_fan_out(store, work):
 
 # -- participation and visibility -------------------------------------------
 
-def test_a_non_participating_team_may_not_post(store, work):
-	with pytest.raises(bw.WorkError, match="does not participate"):
-		tr.post_message(store, work, author_team="push", author="sl",
-		                body="drive-by")
-	tr.post_message(store, work, author_team="lang", author="ada",
-	                body="invite", include="push.bug")
+def test_any_configured_member_may_contribute_and_becomes_participant(
+		store, work):
+	"""R1 matrix (superseding the old barrier): open browsing carries the
+	right to chip in — a configured member posts without invitation, and
+	their team becomes a durable participant in the SAME transaction."""
 	result = tr.post_message(store, work, author_team="push", author="sl",
-	                         body="thanks, contributing")
+	                         body="drive-by evidence, gladly given")
 	assert result["kind"] == "post_message"
+	assert store.conn.execute(
+		"SELECT 1 FROM work_participants WHERE work=? AND team='push'",
+		(work,)).fetchone(), \
+		"the contribution did not record durable participation"
 
 
 # -- mark_seen ---------------------------------------------------------------

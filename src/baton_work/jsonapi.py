@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from baton_work.authority import Authority, WorkError
 
-PROJECTION_VERSION = "1.0"
+PROJECTION_VERSION = "2.0"
 
 
 def require_version(requested: str | None) -> None:
@@ -30,13 +30,18 @@ def require_version(requested: str | None) -> None:
 			f"client will misread")
 
 
-def envelope(store: Authority, *, viewer: str | None, result) -> dict:
+def envelope(store: Authority, *, participant: str | None, result,
+             snapshot_seq: int | None = None) -> dict:
+	"""`snapshot_seq` may be supplied by a projection that read everything
+	inside ONE database snapshot (home does); the envelope then describes
+	that snapshot, never a later commit (WS-1 R3)."""
 	meta = store.meta()
 	return {
 		"projection_version": PROJECTION_VERSION,
 		"protocol_version": int(meta["protocol_version"]),
 		"authority_uuid": meta["authority_uuid"],
-		"snapshot_seq": store.last_seq(),
-		"viewer": viewer,
+		"snapshot_seq": store.last_seq() if snapshot_seq is None
+		else snapshot_seq,
+		"participant": participant,
 		"result": result,
 	}

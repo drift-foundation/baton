@@ -17,18 +17,19 @@ sys.path.insert(0, os.path.join(
 	os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
 	"src"))
 
-import baton_work as bw                                       # noqa: E402
+import baton_work as bw                                       # noqa: E402,F401
 from baton_work import transitions as tr                      # noqa: E402
+
+
+import fixtures as fx
 
 
 @pytest.fixture
 def store(tmp_path):
-	with bw.Authority.init(str(tmp_path / "work.sqlite3")) as authority:
-		for team, member in (("lang", "ada"), ("push", "sl"),
-		                     ("web", "wren"), ("mdb", "mo")):
-			authority.register_team(team, team.title())
-			authority.register_member(team, member, member.title())
-			authority.register_kind(team, "bug", "Bug intake")
+	spec = {team: {"members": {member: ["dev"]}, "kinds": ["bug"]}
+	        for team, member in (("lang", "ada"), ("push", "sl"),
+	                             ("web", "wren"), ("mdb", "mo"))}
+	with fx.open_instance(str(tmp_path), spec) as authority:
 		yield authority
 
 

@@ -33,8 +33,33 @@ def _work(store: Authority, work_id: str) -> dict:
 	return dict(row)
 
 
-def _endpoint_str(team, kind) -> str | None:
-	return f"{team}.{kind}" if team and kind else None
+def _endpoint_struct(store: Authority, team, kind) -> dict | None:
+	"""Structured endpoint data, resolved against the CURRENTLY accepted
+	configuration at read time (projection 2.0). History keeps the snapshot
+	recorded at event time; this is the live view. An endpoint the current
+	generation no longer resolves is shown explicitly unresolved — route,
+	role and handlers None/empty — never silently dropped and never a bare
+	string."""
+	if not team or not kind:
+		return None
+	row = store.conn.execute(
+		"SELECT route, retired FROM kinds WHERE team=? AND handle=?",
+		(team, kind)).fetchone()
+	structured = {"endpoint": f"{team}.{kind}", "route": None,
+	              "role": None, "handlers": []}
+	if row is None or row["retired"] or row["route"] is None:
+		return structured
+	route = store.conn.execute(
+		"SELECT role FROM routes WHERE team=? AND handle=? AND removed=0",
+		(team, row["route"])).fetchone()
+	if route is None:
+		return structured
+	structured["route"] = row["route"]
+	structured["role"] = route["role"]
+	structured["handlers"] = [entry["member"] for entry in store.conn.execute(
+		"SELECT member FROM route_handlers WHERE team=? AND route=? "
+		"ORDER BY member", (team, row["route"]))]
+	return structured
 
 
 def _row_view(store: Authority, row: dict, viewer_team: str,
@@ -51,10 +76,15 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		"team": row["team"],
 		"origin": row["origin"],
 		"classification": row["classification"],
+		"phase": row["phase"],
+		"waiting_on": None if row["wait_type"] is None else
+			{"type": row["wait_type"],
+			 "obligation": row["wait_obligation"]},
 		"status": row["status"],
 		"ready": bool(row["ready"]),
-		"current": _endpoint_str(row["current_team"], row["current_kind"]),
-		"next": _endpoint_str(row["next_team"], row["next_kind"]),
+		"current": _endpoint_struct(store, row["current_team"],
+		                            row["current_kind"]),
+		"next": _endpoint_struct(store, row["next_team"], row["next_kind"]),
 		"progress": {"children": counts["total"] or 0,
 		             "closed": counts["closed"] or 0},
 		"new": new_count(store, row["id"], viewer_team=viewer_team,
@@ -62,16 +92,28 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 	}
 
 
-def home(store: Authority, *, viewer_team: str, viewer_member: str) -> list[dict]:
-	"""The viewer's default top-level table: root Work owned by their team.
-
-	Linked external records deliberately do NOT appear here (noise boundary);
-	they are one `links` call away (open graph)."""
-	rows = store.conn.execute(
-		"SELECT * FROM work WHERE parent IS NULL AND team=? "
-		"ORDER BY created_seq", (viewer_team,)).fetchall()
-	return [_row_view(store, dict(row), viewer_team, viewer_member)
-	        for row in rows]
+def home(store: Authority, *, viewer_team: str, viewer_member: str) -> dict:
+	"""The viewer's default top-level view: the team SUMMARY and the table
+	of root Work owned by their team — ONE projection, one snapshot, so the
+	always-visible parked count can never disagree with the rows beside it
+	(WS-1 review R3). Linked external records deliberately do NOT appear in
+	the rows (noise boundary); they are one `links` call away (open graph)."""
+	store.conn.execute("BEGIN")
+	try:
+		rows = store.conn.execute(
+			"SELECT * FROM work WHERE parent IS NULL AND team=? "
+			"ORDER BY created_seq", (viewer_team,)).fetchall()
+		views = [_row_view(store, dict(row), viewer_team, viewer_member)
+		         for row in rows]
+		summary = team_summary(store, viewer_team=viewer_team)
+		snapshot_seq = store.last_seq()
+	finally:
+		# A read transaction, rolled back: purity intact, and rows,
+		# summary and snapshot_seq all describe ONE database snapshot —
+		# a writer committing mid-read changes none of them (R3).
+		store.conn.execute("ROLLBACK")
+	return {"summary": summary, "rows": views,
+	        "snapshot_seq": snapshot_seq}
 
 
 def breadcrumb(store: Authority, work_id: str) -> list[dict]:
@@ -105,8 +147,8 @@ def links(store: Authority, work_id: str) -> dict:
 		other = _work(store, other_id)
 		return {"id": other["id"], "title": other["title"],
 		        "team": other["team"], "status": other["status"],
-		        "current": _endpoint_str(other["current_team"],
-		                                 other["current_kind"])}
+		        "current": _endpoint_struct(store, other["current_team"],
+		                                    other["current_kind"])}
 
 	return {
 		"id": work_id,
@@ -177,9 +219,29 @@ def new_count(store: Authority, work_id: str, *, viewer_team: str,
 def obligations(store: Authority, *, viewer_team: str) -> list[dict]:
 	"""The team's ACTIONABLE set — separate from unseen counts by ruling:
 	`@` enters this projection, `+` never does."""
-	return [dict(row) for row in store.conn.execute(
-		"SELECT seq, work, message_seq, team, kind, status FROM obligations "
-		"WHERE team=? AND status='pending' ORDER BY seq", (viewer_team,))]
+	out = []
+	for row in store.conn.execute(
+			"SELECT seq, work, message_seq, team, kind, status "
+			"FROM obligations WHERE team=? AND status='pending' "
+			"ORDER BY seq", (viewer_team,)):
+		entry = dict(row)
+		entry["owed_by"] = _endpoint_struct(store, row["team"], row["kind"])
+		out.append(entry)
+	return out
+
+
+def team_summary(store: Authority, *, viewer_team: str) -> dict:
+	"""WS-1 ruling: parked work stays in the operators' faces. The team's
+	always-visible counts — the TUI renders the same numbers in its summary
+	line, and parity holds the two surfaces equal."""
+	def count(clause: str, *params) -> int:
+		return store.conn.execute(
+			"SELECT COUNT(*) AS n FROM work WHERE team=? AND status='open' "
+			+ clause, (viewer_team, *params)).fetchone()["n"]
+	return {"team": viewer_team,
+	        "open": count(""),
+	        "parked": count("AND phase='parked'"),
+	        "waiting": count("AND phase='waiting'")}
 
 
 def detail(store: Authority, work_id: str, *, viewer_team: str,
@@ -194,22 +256,64 @@ def detail(store: Authority, work_id: str, *, viewer_team: str,
 	view["new_breakdown"] = new_count(store, work_id,
 	                                  viewer_team=viewer_team,
 	                                  viewer_member=viewer_member)
-	participates = store.conn.execute(
-		"SELECT 1 FROM work_participants WHERE work=? AND team=?",
-		(work_id, viewer_team)).fetchone() is not None
 	open_children = view["progress"]["children"] - view["progress"]["closed"]
 	open_blockers = store.conn.execute(
 		"SELECT COUNT(*) AS n FROM edges JOIN work ON work.id=edges.blocker "
 		"WHERE edges.work=? AND work.status='open'", (work_id,)).fetchone()["n"]
+	# The R1 authority matrix, mirrored: availability is computed from the
+	# SAME live route/handler rule the authority enforces — an agent reads
+	# what it may do; it never discovers by attempting. Ownership-gated
+	# operations (request, pass, dependency changes, child attachment,
+	# classify, set_phase, close — and reopen against the Current it would
+	# restore) belong to the viewer only when they currently resolve as a
+	# handler; participation keeps contribution, + attention, and their
+	# own seen state.
+	handler = False
+	if row["current_team"] is not None and viewer_team == row["current_team"]:
+		resolved = _endpoint_struct(store, row["current_team"],
+		                            row["current_kind"])
+		handler = resolved is not None and \
+			viewer_member in resolved["handlers"]
 	available = []
 	if row["status"] == "open":
-		if participates:
-			available += ["post_message", "request", "pass", "add_dependency",
-			              "mark_seen"]
-		if open_children == 0 and open_blockers == 0 and participates:
+		# Contribution and own seen state belong to EVERY configured
+		# member (the open-graph ruling): no participation barrier.
+		available += ["post_message", "mark_seen"]
+		if handler:
+			available += ["request", "pass", "add_dependency",
+			              "create_child", "classify"]
+			if row["phase"] != "waiting":
+				# waiting leaves only through its condition-bound wake.
+				available.append("set_phase")
+		# Only open CHILDREN prevent closure — an open blocker gates
+		# readiness, never an honest terminal close (same rule as the
+		# writer; agents read this instead of discovering it).
+		if handler and open_children == 0:
 			available.append("close")
-	elif participates:
-		available.append("reopen")
+	else:
+		# Reopen restores the close event's Current; it belongs to whoever
+		# currently resolves as THAT endpoint's handler.
+		closing = store.conn.execute(
+			"SELECT payload FROM events WHERE kind='close_work' "
+			"AND json_extract(payload, '$.work') = ? "
+			"ORDER BY seq DESC LIMIT 1", (work_id,)).fetchone()
+		if closing is not None:
+			import json as _json
+			committed = _json.loads(closing["payload"])
+			restore_team = committed.get("was_current_team") or row["team"]
+			restore_kind = committed.get("was_current_kind")
+			# The writer refuses reopen under a closed parent — the
+			# projection declares the same live precondition.
+			parent_open = row["parent"] is None or store.conn.execute(
+				"SELECT status FROM work WHERE id=?",
+				(row["parent"],)).fetchone()["status"] == "open"
+			if parent_open and restore_kind is not None and \
+					viewer_team == restore_team:
+				resolved = _endpoint_struct(store, restore_team,
+				                            restore_kind)
+				if resolved is not None and \
+						viewer_member in resolved["handlers"]:
+					available.append("reopen")
 	view["available_transitions"] = sorted(available)
 	view["open_blockers"] = open_blockers
 	return view

@@ -26,15 +26,15 @@ import fixtures                                               # noqa: E402
 
 @pytest.fixture(scope="module")
 def world(tmp_path_factory):
-	path = str(tmp_path_factory.mktemp("fixture") / "work.sqlite3")
-	cast = fixtures.build(path)
-	return path, cast
+	directory = tmp_path_factory.mktemp("fixture")
+	cast = fixtures.build(str(directory / "work.sqlite3"))
+	return cast["config_path"], cast
 
 
 def _run(capsys, path, *argv, viewer=None, expect_ok=True):
-	args = ["--authority", path]
+	args = ["--config", path]
 	if viewer:
-		args += ["--viewer", viewer]
+		args += ["--participant", viewer]
 	code = cli.main(args + list(argv))
 	captured = capsys.readouterr()
 	if expect_ok:
@@ -50,20 +50,23 @@ def test_every_response_carries_the_full_envelope(world, capsys):
 	path, cast = world
 	out = _run(capsys, path, "home", viewer="lang.ada")
 	assert set(out) == {"projection_version", "protocol_version",
-	                    "authority_uuid", "snapshot_seq", "viewer", "result"}
+	                    "authority_uuid", "snapshot_seq", "participant",
+	                    "result"}
 	assert out["projection_version"] == jsonapi.PROJECTION_VERSION
 	assert out["protocol_version"] == 11
-	assert out["viewer"] == "lang.ada"
+	assert out["participant"] == "lang.ada"
 	assert out["snapshot_seq"] == cast["last_seq"]
-	assert [row["id"] for row in out["result"]] == [cast["lang42"]]
+	assert [row["id"] for row in out["result"]["rows"]] == [cast["lang42"]]
+	assert out["result"]["summary"]["team"] == "lang", \
+		"the top-level view no longer carries its one-snapshot summary"
 
 
 def test_an_incompatible_projection_version_fails_clearly(world, capsys):
 	path, _ = world
-	error = _run(capsys, path, "--expect-projection", "2.0", "home",
+	error = _run(capsys, path, "--expect-projection", "1.0", "home",
 	             viewer="lang.ada", expect_ok=False)
 	assert "not compatible" in error["error"]
-	ok = _run(capsys, path, "--expect-projection", "1.7", "home",
+	ok = _run(capsys, path, "--expect-projection", "2.7", "home",
 	          viewer="lang.ada")
 	assert ok["result"], "a compatible minor was refused"
 
@@ -81,10 +84,12 @@ def test_the_fan_in_is_reachable_by_relation_alone(world, capsys):
 	"""From a consumer's own Work to every co-consumer, following typed
 	edges only — never search: pushcoin -> blocked_by -> LANG-42 -> blocks."""
 	path, cast = world
-	mine = _run(capsys, path, "links", cast["pushcoin"])["result"]
+	mine = _run(capsys, path, "links", cast["pushcoin"],
+	            viewer="push.sl")["result"]
 	assert [edge["id"] for edge in mine["blocked_by"]] == [cast["lang42"]]
 	provider = _run(capsys, path, "links",
-	                mine["blocked_by"][0]["id"])["result"]
+	                mine["blocked_by"][0]["id"],
+	                viewer="push.sl")["result"]
 	co_consumers = [edge["id"] for edge in provider["blocks"]]
 	assert co_consumers == [cast["pushcoin"], cast["web"], cast["mdb"]]
 
@@ -96,13 +101,8 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 	inside one second, page with a small limit, and the pages join with no
 	skip and no repeat — because the cursor is the sequence, not a
 	timestamp."""
-	path = str(tmp_path / "burst.sqlite3")
-	_run(capsys, path, "init")
-	_run(capsys, path, "register-team", "--team", "lang", "--display", "L")
-	_run(capsys, path, "register-member", "--team", "lang", "--member",
-	     "ada", "--display", "Ada")
-	_run(capsys, path, "register-kind", "--team", "lang", "--kind", "bug",
-	     "--display", "Bugs")
+	import fixtures as fx
+	path, _db = fx.build_instance(str(tmp_path))
 	work = _run(capsys, path, "create", "--team", "lang", "--kind", "bug",
 	            "--title", "burst", "--origin", "self-initiated",
 	            "--body", "first", viewer="lang.ada")["result"]["work_id"]
@@ -110,12 +110,13 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 		_run(capsys, path, "post", work, "--body", f"burst {index}",
 		     viewer="lang.ada")
 
-	full = _run(capsys, path, "discussion", work)["result"]
+	full = _run(capsys, path, "discussion", work,
+	            viewer="lang.ada")["result"]
 	assert len(full) == 41
 	paged, after = [], 0
 	for _page in range(50):
 		page = _run(capsys, path, "discussion", work, "--after", str(after),
-		            "--limit", "7")["result"]
+		            "--limit", "7", viewer="lang.ada")["result"]
 		if not page:
 			break
 		paged.extend(page)
@@ -127,14 +128,8 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 # -- mutations return the committed record -----------------------------------
 
 def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
-	path = str(tmp_path / "mut.sqlite3")
-	_run(capsys, path, "init")
-	_run(capsys, path, "register-team", "--team", "lang", "--display", "L")
-	_run(capsys, path, "register-member", "--team", "lang", "--member",
-	     "ada", "--display", "Ada")
-	for kind in ("rsrch", "impl", "rev"):
-		_run(capsys, path, "register-kind", "--team", "lang", "--kind", kind,
-		     "--display", kind)
+	import fixtures as fx
+	path, _db = fx.build_instance(str(tmp_path))
 	created = _run(capsys, path, "create", "--team", "lang", "--kind",
 	               "rsrch", "--title", "t", "--origin", "external-report",
 	               "--body", "b", viewer="lang.ada")["result"]
@@ -163,4 +158,4 @@ def test_a_mutation_without_a_viewer_is_refused(world, capsys):
 	path, cast = world
 	error = _run(capsys, path, "post", cast["lang42"], "--body", "anon",
 	             expect_ok=False)
-	assert "needs --viewer" in error["error"]
+	assert "needs --participant" in error["error"]

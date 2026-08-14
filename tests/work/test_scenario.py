@@ -24,9 +24,9 @@ SRC = os.path.join(
 
 def _run(path, *argv, viewer=None, expect_ok=True):
 	command = [sys.executable, "-m", "baton_work.cli",
-	           "--authority", path]
+	           "--config", path]
 	if viewer:
-		command += ["--viewer", viewer]
+		command += ["--participant", viewer]
 	command += list(argv)
 	proc = subprocess.run(command, capture_output=True, text=True,
 	                      timeout=120,
@@ -39,17 +39,8 @@ def _run(path, *argv, viewer=None, expect_ok=True):
 
 
 def test_the_gate_scenario_end_to_end(tmp_path):
-	path = str(tmp_path / "work.sqlite3")
-	_run(path, "init")
-	for team, member in (("lang", "ada"), ("web", "wren")):
-		_run(path, "register-team", "--team", team, "--display", team.title())
-		_run(path, "register-member", "--team", team, "--member", member,
-		     "--display", member.title())
-	_run(path, "register-kind", "--team", "web", "--kind", "bug",
-	     "--display", "Bug intake")
-	for kind in ("rsrch", "impl", "rev"):
-		_run(path, "register-kind", "--team", "lang", "--kind", kind,
-		     "--display", kind)
+	import fixtures as fx
+	path, _db = fx.build_instance(str(tmp_path))
 
 	# 1. web creates WEB-1 with its first message, atomically.
 	web1 = _run(path, "create", "--team", "web", "--kind", "bug",
@@ -68,7 +59,8 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	pending = _run(path, "obligations", viewer="lang.ada")["result"]
 	assert [entry["seq"] for entry in pending] == [requested["seq"]]
 	assert _run(path, "detail", web1,
-	            viewer="web.wren")["result"]["current"] == "web.bug"
+	            viewer="web.wren")["result"]["current"]["endpoint"] == \
+		"web.bug"
 
 	# 4. lang creates LANG-42, relates WEB-1 blocked_by LANG-42, responds.
 	lang42 = _run(path, "create", "--team", "lang", "--kind", "rsrch",
@@ -89,12 +81,14 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
-	assert detail["current"] == "lang.impl" and detail["next"] == "lang.rev"
+	assert detail["current"]["endpoint"] == "lang.impl"
+	assert detail["next"]["endpoint"] == "lang.rev"
 	returned = _run(path, "post", lang42, "--body", "implementation complete",
 	                "--pass-to", "lang.rev", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
-	assert detail["current"] == "lang.rev" and detail["next"] is None
+	assert detail["current"]["endpoint"] == "lang.rev"
+	assert detail["next"] is None
 
 	# 6. terminal close unblocks WEB-1, level-triggered.
 	_run(path, "close", lang42, "--disposition", "fixed and verified",
@@ -104,7 +98,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	assert after["open_blockers"] == 0
 
 	# The ordered audit trail: every step, one event, dense sequence.
-	events = _run(path, "events")["result"]
+	events = _run(path, "events", viewer="lang.ada")["result"]
 	kinds = [event["kind"] for event in events]
 	assert kinds[-6:] == ["create_work", "add_dependency", "respond",
 	                      "pass", "return", "close_work"]
@@ -126,14 +120,8 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	dependency is open — the disposition is where that honesty lives. The
 	first version of this test invented the stricter rule and the code
 	correctly refused to have it."""
-	path = str(tmp_path / "work.sqlite3")
-	_run(path, "init")
-	for team, member in (("lang", "ada"), ("web", "wren")):
-		_run(path, "register-team", "--team", team, "--display", team.title())
-		_run(path, "register-member", "--team", team, "--member", member,
-		     "--display", member.title())
-		_run(path, "register-kind", "--team", team, "--kind", "bug",
-		     "--display", "Bugs")
+	import fixtures as fx
+	path, _db = fx.build_instance(str(tmp_path))
 	web1 = _run(path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "crash", "--origin", "external-report",
 	            "--body", "b", viewer="web.wren")["result"]["work_id"]

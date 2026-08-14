@@ -1127,3 +1127,271 @@ removed identities preserve historical meaning and cannot be silently reused.
 
 C2 does not authorize the public CLI migration, route-resolution transition
 changes, projection 2.0, or resumed Gate B work; those remain C3 and later.
+
+## 2026-08-14 — configuration correction C3 authorized
+
+**Confirmed by Slawomir after committing accepted C1/C2 as `fad96b1`.** C3
+may migrate the public CLI boundary to the accepted instance configuration.
+The global authority locator becomes `--config PATH`; the acting identity is
+`--participant team.member`; `--authority` and `--viewer` are removed rather
+than retained as aliases. Every ordinary read, mutation, and TUI launch opens
+through the bound-config lifecycle and validates the configured participant
+before producing JSON or entering curses. This validation establishes who is
+asking and does not narrow the approved open-graph visibility model.
+
+`init` consumes generation 1 from `--config` and creates its fixed sibling
+authority. The explicit acceptance command (`regen`, backed by
+`accept_config`) requires `--participant` and applies the current-generation
+configuration-capability gate already accepted in C2. The mutable registry
+commands (`register-team`, `register-member`, `register-kind`, and
+`retire-kind`) are removed: accepted configuration generations are the only
+topology writer.
+
+C3 changes the launch/identity/configuration surface only. It does not yet
+authorize C4 endpoint-resolution recording or handler projection, projection
+2.0 shape changes, the full C5 fixture/test migration, or resumed Gate B work.
+Stop after focused C3 evidence and review.
+
+## 2026-08-14 — configuration correction C4 conditionally authorized
+
+**Pre-approved by Slawomir, effective immediately when C3 passes reviewer
+re-review.** No additional human approval round is required between clean C3
+acceptance and C4 implementation.
+
+C4 makes the accepted route configuration operational. Every use of a public
+`team.kind` endpoint that establishes attention, an obligation, Current, or
+Next resolves through the then-accepted route to its role and handlers and
+records `(endpoint, route, role, handlers, configuration generation)` in the
+committed event/obligation state. This includes initial Work creation and all
+`+`, `@`, `=>`, and planned-Next operations; endpoint history must not be
+partly resolved and partly bare. Later handler or route reassignment does not
+rewrite that historical resolution.
+
+Responsibility remains owed by the stable public endpoint, not personally by
+the handler. Routes are accountability lookup, not an exclusive-access rule or
+a dispatch pipeline: other members retain the approved team-wide visibility
+and contribution model.
+
+The current projection resolves Current/Next and other endpoint-bearing values
+against the currently accepted configuration and exposes structured
+`endpoint`, `route`, `role`, and `handlers` data. The JSON projection advances
+to 2.0 and the envelope uses `participant`; obligations and links use the same
+endpoint structure. The compact TUI continues to render the endpoint string in
+its table columns and may expose routing detail on drill-in.
+
+C5 scheduling/remaining fixture migration and C6 Gate B resubmission remain
+separate. Stop after C4 evidence for reviewer sign-off.
+
+## 2026-08-14 — workflow stories precede further TUI implementation
+
+**Confirmed by Slawomir.** After C4, the next priority is the end-to-end
+workflow suite in `WORKFLOW-TESTS.md`, driven through the public CLI and
+versioned JSON projection. Heavy TUI implementation is blocked until the
+approved operational stories can be expressed and pass through that machine
+surface. If a workflow cannot be represented honestly in CLI/JSON, Baton does
+not yet have stable semantics for a GUI to render.
+
+The workflow phase may expose missing authority state, transitions, projection
+fields, or unresolved rulings. Each discovery retains its failing workflow and
+extracts a focused regression for the first broken phase/transition; both must
+pass. The phase must not patch presentation around a missing engine operation,
+weaken a workflow to match current code, or use TUI state as the only evidence
+that a workflow works.
+
+Existing small TUI checks may continue to guard already-built rendering and
+refuse-before-curses behavior. No substantial new TUI navigation or interaction
+surface is built until the CLI/JSON workflow gate is reviewed and accepted.
+This supersedes any earlier sequencing that would move directly from the
+configuration correction into Gate B/C6 TUI completion.
+
+**Authorization clarification confirmed by Slawomir.** The CLI/JSON workflow
+phase is pre-approved, conditional on a clean C4 reviewer sign-off. Once C4 is
+accepted, `baton.reviewer` may release `WORKFLOW-TESTS.md` to the implementer
+without another human review. Until that condition is met, C4 remains the
+serial implementation item and the workflow document is preparation only.
+
+## 2026-08-14 — classification default and compact presentation
+
+**Confirmed by Slawomir after acceptance of the CLI/JSON workflow gate.** A
+Work's classification is never represented as `null`. The canonical default
+is the explicit value `unknown`; clients and agents must not infer absence or
+special meaning from a missing/null value.
+
+The protocol/JSON surface uses the full canonical word `unknown`. The TUI has
+a separate presentation vocabulary capped at five display cells for this
+column; the confirmed rendering for `unknown` is `unkwn`. Compact labels do
+not become protocol identities and are not accepted as mutation values.
+
+SQLite may encode the enum as integers or strings. That choice is an internal
+storage detail: reads and audit records expose the canonical protocol value,
+and storage encoding must not leak into JSON or TUI semantics.
+
+This ruling settles classification's initial value and display budget. It does
+not yet settle the separate operational-phase field, its enum, or its initial
+and terminal transition rules.
+
+## 2026-08-14 — operational-phase vocabulary, partially settled
+
+**Confirmed by Slawomir during WS-1 vocabulary review.** `parked` is a
+first-class operational phase for Work that has been deliberately suspended
+and will not wake automatically. Its compact TUI rendering is `park`.
+`parked` is distinct from ordinary queued Work and from Work waiting on a
+recorded condition. `delayed` and `postponed` do not become additional
+synonymous protocol phases.
+
+The canonical phase `review`, if present in the final enum, renders as `rview`,
+not `rev`; `rev` is readily read as “revision.” This correction supersedes the
+earlier compact-label proposal made during discussion. The complete phase
+enum, default phase, waiting/wake rules, and allowed transitions remain open.
+
+**Risk clarification confirmed by Slawomir.** `parked` is retained for now,
+but is intentionally dangerous: it names no dependency or other specific wake
+condition, so Work may remain there indefinitely. Nothing may treat parking as
+dependency-backed waiting or promise an automatic wake-up. The final
+transition/UI design must keep that risk visible rather than making `parked` a
+quiet substitute for classification, rejection, or an honest blocker.
+
+**Enum and presentation approved by Slawomir.** Operational phase is a
+non-null canonical value with this compact TUI vocabulary:
+
+| Canonical JSON/audit value | Compact TUI value |
+| --- | --- |
+| `queued` | `queue` |
+| `research` | `rsrch` |
+| `waiting` | `wait` |
+| `active` | `actve` |
+| `review` | `rview` |
+| `parked` | `park` |
+
+New Work defaults to `queued`; creation may explicitly select another valid
+phase. `open`/`closed` remains the independent lifecycle status, so there is
+no redundant terminal `done` phase. Dependencies determine readiness and
+blocking but do not rewrite operational phase. Passing Current likewise does
+not silently change phase: any combined client action must commit and audit
+both state changes explicitly.
+
+Parking requires a non-empty reason, retains the one accountable Current, and
+can resume only through an explicit `parked` to `queued` transition. The main
+team/top-level projection exposes an always-visible parked count, and the TUI
+renders that count in its summary so parked Work remains in the operators'
+faces rather than disappearing into a filter. JSON exposes the same count for
+agent parity. The complete authorization and allowed-transition rules remain
+to be settled before WS-1 implementation begins.
+
+**Waiting/wake clarification confirmed by Slawomir; supersedes the blanket
+“dependencies ... do not rewrite operational phase” sentence above.** Entering
+`waiting` requires a recorded specific wake condition. When that condition is
+satisfied, the authority atomically transitions `waiting` to `queued` and
+records an explicit `wake` audit event. This condition-bound wake is the only
+dependency-driven phase change; dependencies do not otherwise rewrite phase.
+It prevents loose ends from remaining falsely marked `waiting` after their
+reason to wait has ended. `parked` remains the deliberate opposite: it has no
+wake condition and returns to `queued` only by an explicit manual transition.
+
+**Direct transition authority approved by Slawomir, with delegation held for
+the clarification below.** A currently resolved handler of the Work's Current
+route may explicitly change phase while the Work is open. Every phase change
+is audited. The authority does not impose a false linear pipeline: ordinary
+open phases may move between one another, including review/rework cycles.
+`parked` may leave only through explicit `parked` to `queued`; `waiting` leaves
+through its condition-bound audited wake; and closed Work refuses phase
+changes. Creation may explicitly choose a valid phase and otherwise defaults
+to `queued`.
+
+These rules define direct handler authority, not exclusive personal control.
+Slawomir additionally requires a handler to be able to delegate a decision to
+another entity without necessarily transferring Current. That is distinct
+from `@` consultation/required response and `=>` ownership transfer. The
+delegation's scope, exercise, revocation, lifetime across pass/close, and audit
+shape must be ruled before WS-1 implementation is released; delegation must
+not create a second Current or silently broaden into general workflow control.
+
+**Delegation simplification confirmed by Slawomir; supersedes the additional
+scoped-delegation requirement immediately above.** Delegation is ownership
+transfer: `=>team.kind` atomically passes Current and therefore transfers the
+authority and responsibility to decide. Optional Next expresses the planned
+return. Baton adds no second, micro-scoped decision-grant primitive. `@` remains
+a required request for input while Current stays with the requester; the
+responding endpoint supplies input but does not thereby acquire workflow
+mutation authority. After `=>`, the former handler cannot keep acting as
+Current, and the new Current route's resolved handlers hold direct transition
+authority under the rules above.
+
+**Wake-condition model confirmed by Slawomir; WS-1 semantics are now
+settled.** `waiting` records one of two typed conditions:
+
+1. aggregate Work readiness: at least one required gate is presently open,
+   and wake occurs only when every required child and every explicit
+   `blocked_by` Work is closed; or
+2. one exact pending `@` response obligation, which wakes when that obligation
+   is completed without granting its respondent mutation authority.
+
+Entering dependency-backed `waiting` while no required gate is open, or
+obligation-backed `waiting` with an obligation that is not pending, is refused
+rather than creating a loose end. Satisfying only some of several Work gates
+does not wake anything. The transaction that satisfies the last gate or named
+obligation atomically changes `waiting` to `queued` and records `wake`; retry
+and racing completion must not duplicate that event. An `@` obligation remains
+semantically distinct from a dependency edge and does not join the Work
+readiness predicate merely because it may be selected as a phase wake
+condition.
+
+The approved workflow expansion must now turn these rulings into executable
+WF-01/WF-04 checkpoints plus focused authorization, transition, wake/race,
+parking, projection, and reconfiguration regressions. Heavy TUI work remains
+held; compact vocabulary and summary parity may be proved through the bounded
+existing renderer/projection surface.
+
+**Implementation-interpretation disposition by `baton.reviewer`.** Three
+reported interpretations follow from the rulings and are accepted: creation
+refuses `waiting` and `parked` because neither can omit its required condition
+or reason; an obligation-backed wait names a pending obligation of that same
+Work; and terminally closed Work refuses reclassification until explicitly
+reopened. Mechanical truncation of the remaining canonical classifications is
+not accepted as compact vocabulary and remains a human UX ruling before WS-1
+can pass review.
+
+## 2026-08-14 — complete Work authority matrix and classification labels
+
+**Confirmed by Slawomir after the first WS-1 review; supersedes the unresolved
+authority-matrix and compact-classification questions immediately above.**
+Participation, visibility, and responsibility are separate. Open graph
+visibility remains available to every configured participant, but neither
+visibility, contribution, inclusion with `+`, nor an `@` obligation grants
+workflow mutation authority.
+
+The operation matrix is:
+
+- a currently resolved handler of Current may classify, change phase, create
+  `@` obligations, pass Current with `=>` and optionally set Next, change
+  dependencies, create or attach child Work, and terminally close Work;
+- after reopen restores Current, a currently resolved handler of that Current
+  may perform the reopen;
+- a resolved handler of the route named by one exact pending `@` obligation may
+  respond to or otherwise dispose that obligation, but gains no other mutation
+  authority;
+- every configured participant may contribute ordinary messages, add `+`
+  attention, and change only their own seen state; and
+- every configured participant may read and drill through the open graph.
+
+All workflow decisions above are checked against the live route-to-handler
+resolution inside the committing authority transaction. `=>` changes who owns
+those decisions; participation never substitutes for ownership. Machine
+projections expose only the transitions actually available to the viewing
+participant under this same live rule.
+
+The complete canonical-to-TUI classification vocabulary is:
+
+| Canonical JSON/audit value | Compact TUI value |
+| --- | --- |
+| `unknown` | `unkwn` |
+| `suspected-defect` | `suspt` |
+| `confirmed-defect` | `cnfrm` |
+| `limitation` | `limit` |
+| `duplicate` | `dupe` |
+| `design-choice` | `desgn` |
+| `rejection` | `rejct` |
+
+These compact values are presentation only, never accepted protocol mutation
+values. Unknown or unmapped canonical values fail visibly; clients must not
+invent a label by truncation.

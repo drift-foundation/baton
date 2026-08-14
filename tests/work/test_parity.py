@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.join(
 	"src"))
 
 from baton_work import cli                                    # noqa: E402
+from baton_work.tui import app                                # noqa: E402
 from baton_work.tui.app import COLUMNS                        # noqa: E402
 import fixtures                                               # noqa: E402
 import ptyharness                                             # noqa: E402
@@ -38,13 +39,13 @@ WIDTH, HEIGHT = 110, 32
 
 @pytest.fixture(scope="module")
 def world(tmp_path_factory):
-	path = str(tmp_path_factory.mktemp("fixture") / "work.sqlite3")
-	cast = fixtures.build(path)
-	return path, cast
+	directory = tmp_path_factory.mktemp("fixture")
+	cast = fixtures.build(str(directory / "work.sqlite3"))
+	return cast["config_path"], cast
 
 
 def _json(capsys, path, *argv, viewer):
-	code = cli.main(["--authority", path, "--viewer", viewer] + list(argv))
+	code = cli.main(["--config", path, "--participant", viewer] + list(argv))
 	captured = capsys.readouterr()
 	assert code == 0, captured.err
 	return json.loads(captured.out)["result"]
@@ -66,10 +67,11 @@ def _parse_rows(screen: list[str]) -> list[dict]:
 		for _name, width in COLUMNS:
 			values.append(rest[offset + 1:offset + 1 + width].strip())
 			offset += 1 + width
-		status, ready, current, next_endpoint, new = values
+		status, phase, cls, ready, current, next_endpoint, new = values
 		assert new.strip().isdigit(), \
 			f"unparseable row (NEW={new!r}): {line!r}"
 		rows.append({"title": title, "status": status,
+		             "phase": phase, "classification": cls,
 		             "ready": ready == "yes",
 		             "current": None if current == "-" else current,
 		             "next": None if next_endpoint == "-" else next_endpoint,
@@ -89,7 +91,7 @@ def _screen_rows(path, viewer, script=()):
 def test_home_rows_agree_value_by_value(world, capsys):
 	path, _cast = world
 	for viewer in ("lang.ada", "lang.grace", "push.sl", "web.wren"):
-		expected = _json(capsys, path, "home", viewer=viewer)
+		expected = _json(capsys, path, "home", viewer=viewer)["rows"]
 		screen = _screen_rows(path, viewer)
 		drawn = _parse_rows(screen)
 		assert len(drawn) == len(expected), \
@@ -97,9 +99,16 @@ def test_home_rows_agree_value_by_value(world, capsys):
 		for drawn_row, json_row in zip(drawn, expected):
 			assert drawn_row["title"] == json_row["title"][:len(drawn_row["title"])]
 			assert drawn_row["status"] == json_row["status"][:6]
+			# WS-1 parity: the TUI draws the approved COMPACT vocabulary
+			# for the canonical JSON values, presentation-only.
+			assert drawn_row["phase"] == app.compact_phase(json_row["phase"])
+			assert drawn_row["classification"] == \
+				app.compact_classification(json_row["classification"])
 			assert drawn_row["ready"] == json_row["ready"]
-			assert drawn_row["current"] == json_row["current"]
-			assert drawn_row["next"] == json_row["next"]
+			expected_current = (json_row["current"] or {}).get("endpoint")
+			expected_next = (json_row["next"] or {}).get("endpoint")
+			assert drawn_row["current"] == expected_current
+			assert drawn_row["next"] == expected_next
 			assert drawn_row["new"] == json_row["new"], \
 				f"{viewer} New disagrees on {json_row['title']!r}: " \
 				f"TUI {drawn_row['new']} vs JSON {json_row['new']}"
@@ -117,7 +126,7 @@ def test_drill_relationships_agree(world, capsys):
 		[row["title"] for row in expected]
 	for drawn_row, json_row in zip(drawn, expected):
 		assert drawn_row["new"] == json_row["new"]
-		assert drawn_row["next"] == json_row["next"]
+		assert drawn_row["next"] == (json_row["next"] or {}).get("endpoint")
 
 
 def test_actionable_state_agrees(world, capsys):
@@ -157,3 +166,25 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 	screen = _screen_rows(path, "lang.grace")
 	drawn = _parse_rows(screen)
 	assert drawn[0]["new"] == after["total"]
+
+
+def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
+	"""WS-1 R3: the parked count the TUI paints and the JSON home summary
+	are the SAME projection — park one work, both surfaces move together."""
+	path, cast = world
+	import baton_work as bw
+	from baton_work import transitions as tr
+	database = os.path.join(os.path.dirname(path), "work.sqlite3")
+	with bw.Authority(database) as store:
+		tr.set_phase(store, cast["pushcoin"], actor_team="push", actor="sl",
+		             phase="parked", reason="parity checkpoint")
+	try:
+		home = _json(capsys, path, "home", viewer="push.sl")
+		assert home["summary"]["parked"] == 1
+		screen = _screen_rows(path, "push.sl")
+		assert "[park:1]" in screen[0], \
+			f"TUI header {screen[0]!r} disagrees with the JSON summary"
+	finally:
+		with bw.Authority(database) as store:
+			tr.set_phase(store, cast["pushcoin"], actor_team="push",
+			             actor="sl", phase="queued")

@@ -118,7 +118,8 @@ def drive(authority_path: str, viewer: str, script,
 		os.environ["LANG"] = "C.UTF-8"
 		os.execv(sys.executable,
 		         [sys.executable, "-m", "baton_work.cli",
-		          "--authority", authority_path, "--viewer", viewer, "tui"])
+		          "--config", authority_path, "--participant", viewer,
+		          "tui"])
 	fcntl.ioctl(fd, termios.TIOCSWINSZ,
 	            struct.pack("HHHH", lines, columns, 0, 0))
 	out = bytearray()

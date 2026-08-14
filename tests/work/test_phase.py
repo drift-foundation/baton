@@ -1,0 +1,578 @@
+"""WS-1: public classification and operational phase — the authorized matrix.
+
+Every assertion here traces to the confirmed rulings: never-null canonical
+classification, the six-phase enum with compact values kept presentation-
+only, Current-route-handler transition authority, free open-phase movement
+with the three special rules (parked, waiting/wake, closed), typed wake
+conditions with the atomic single `wake`, and the always-visible parked
+count.
+"""
+
+from __future__ import annotations
+
+import json as _json
+import os
+import sys
+
+import pytest
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(
+	os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+	"src"))
+
+import baton_work as bw                                       # noqa: E402
+from baton_work import lifecycle as lc                        # noqa: E402
+from baton_work import projection as pj                       # noqa: E402
+from baton_work import transitions as tr                      # noqa: E402
+import fixtures as fx                                         # noqa: E402
+
+
+@pytest.fixture
+def world(tmp_path):
+	spec = {"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
+	                 "kinds": ["bug", "rev"]},
+	        "push": {"members": {"sl": ["dev"]}, "kinds": ["bug"]}}
+	config_path, database = fx.build_instance(str(tmp_path), spec)
+	store = bw.Authority(database)
+	yield store, config_path
+	store.close()
+
+
+def _create(store, team="lang", member="ada", **kw):
+	return tr.create_work(store, team=team, kind="bug", title="w",
+	                      origin="external-report", author=member,
+	                      body="b", **kw)["work_id"]
+
+
+def _row(store, work):
+	return store.conn.execute("SELECT * FROM work WHERE id=?",
+	                          (work,)).fetchone()
+
+
+# -- defaults and creation ---------------------------------------------------
+
+def test_creation_defaults_and_explicit_initial_phase(world):
+	store, _config = world
+	work = _create(store)
+	row = _row(store, work)
+	assert row["classification"] == "unknown", "classification is never null"
+	assert row["phase"] == "queued"
+	chosen = _create(store, phase="research",
+	                 classification="suspected-defect")
+	row = _row(store, chosen)
+	assert (row["phase"], row["classification"]) == \
+		("research", "suspected-defect"), \
+		"an explicit valid initial choice was not preserved"
+
+
+def test_creation_refuses_waiting_parked_and_compact_values(world):
+	store, _config = world
+	for phase, message in (("waiting", "wake condition"),
+	                       ("parked", "reason")):
+		with pytest.raises(bw.WorkError, match=message):
+			_create(store, phase=phase)
+	# Compact display vocabulary is NOT a protocol identity.
+	with pytest.raises(bw.WorkError, match="presentation"):
+		_create(store, phase="queue")
+	with pytest.raises(bw.WorkError, match="not one of"):
+		_create(store, classification="unkwn")
+
+
+# -- authorization -----------------------------------------------------------
+
+def test_only_a_resolved_current_handler_may_transition(world):
+	"""ada is the route's handler; grace and push.sl hold membership,
+	visibility, even @ input — none of which is mutation authority."""
+	store, _config = world
+	work = _create(store)
+	for team, member in (("lang", "grace"), ("push", "sl")):
+		with pytest.raises(bw.WorkError, match="never grant"):
+			tr.set_phase(store, work, actor_team=team, actor=member,
+			             phase="active")
+		with pytest.raises(bw.WorkError, match="never grant"):
+			tr.classify(store, work, actor_team=team, actor=member,
+			            classification="confirmed-defect")
+	assert _row(store, work)["phase"] == "queued", "a refusal mutated"
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="active")
+	tr.classify(store, work, actor_team="lang", actor="ada",
+	            classification="confirmed-defect")
+	row = _row(store, work)
+	assert (row["phase"], row["classification"]) == \
+		("active", "confirmed-defect")
+	assert row["origin"] == "external-report", "classify touched origin"
+
+
+def test_reassignment_moves_transition_authority(world):
+	"""Accepted handler reassignment changes WHO may perform the next
+	transition — the authority follows the live resolution."""
+	store, config_path = world
+	work = _create(store)
+	document = _json.loads(open(config_path).read())
+	document["generation"] = 2
+	document["teams"]["lang"]["routes"]["main"]["handlers"] = ["grace"]
+	with open(config_path, "w") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	lc.accept_config(config_path, actor="lang.ada")
+	with pytest.raises(bw.WorkError, match="never grant"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="active")
+	tr.set_phase(store, work, actor_team="lang", actor="grace",
+	             phase="active")
+	assert _row(store, work)["phase"] == "active"
+
+
+# -- round-trips and transitions ---------------------------------------------
+
+def test_every_canonical_value_round_trips_and_rework_cycles(world):
+	store, _config = world
+	work = _create(store)
+	trail = ["research", "active", "review", "active", "review", "queued"]
+	for phase in trail:
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase=phase)
+	events = [event for event in store.events()
+	          if event["kind"] == "set_phase"]
+	assert [event["payload"]["to"] for event in events] == trail
+	assert [event["payload"]["from"] for event in events] == \
+		["queued"] + trail[:-1]
+	for event in events:
+		assert event["payload"]["resolution"]["handlers"] == ["ada"], \
+			"a phase change audited without its authorization snapshot"
+	for value in ("suspected-defect", "confirmed-defect", "limitation",
+	              "duplicate", "design-choice", "rejection", "unknown"):
+		tr.classify(store, work, actor_team="lang", actor="ada",
+		            classification=value)
+	audited = [event["payload"]["to"] for event in store.events()
+	           if event["kind"] == "classify"]
+	assert audited[-1] == "unknown", "unknown is an ordinary value"
+
+
+def test_a_pass_never_changes_phase_and_closed_refuses(world):
+	store, _config = world
+	work = _create(store)
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="active")
+	tr.post_message(store, work, author_team="lang", author="ada",
+	                body="over to review", pass_to="lang.rev")
+	assert _row(store, work)["phase"] == "active", \
+		"a pass silently rewrote phase"
+	tr.close_work(store, work, actor_team="lang", actor="ada",
+	              disposition="done")
+	with pytest.raises(bw.WorkError, match="refuses phase"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="queued")
+	with pytest.raises(bw.WorkError, match="refuses classification"):
+		tr.classify(store, work, actor_team="lang", actor="ada",
+		            classification="duplicate")
+
+
+# -- waiting: typed conditions and the atomic wake ---------------------------
+
+def test_gates_waiting_wakes_only_at_the_last_gate(world):
+	store, _config = world
+	work = _create(store)
+	blocker = _create(store, team="push", member="sl")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	inner = tr.create_work(store, team="lang", kind="bug", title="c",
+	                       origin="decomposition", author="ada", body="b",
+	                       parent=work)["work_id"]
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="waiting", wait="gates")
+	assert _row(store, work)["wait_type"] == "gates"
+
+	tr.close_work(store, inner, actor_team="lang", actor="ada",
+	              disposition="done")
+	assert _row(store, work)["phase"] == "waiting", \
+		"satisfying only SOME gates woke the work"
+	assert not [e for e in store.events() if e["kind"] == "wake"]
+
+	closing = tr.close_work(store, blocker, actor_team="push", actor="sl",
+	                        disposition="done")
+	row = _row(store, work)
+	assert row["phase"] == "queued" and row["wait_type"] is None
+	wakes = [e for e in store.events() if e["kind"] == "wake"]
+	assert len(wakes) == 1, "the wake was lost or duplicated"
+	assert wakes[0]["seq"] == closing["seq"] + 1, \
+		"the wake is not atomic with the satisfying close"
+	assert wakes[0]["payload"] == {
+		"work": work, "from": "waiting", "to": "queued",
+		"condition": {"type": "gates", "obligation": None}}
+
+
+def test_waiting_with_no_open_gate_is_refused(world):
+	store, _config = world
+	work = _create(store)
+	with pytest.raises(bw.WorkError, match="already-satisfied"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="waiting", wait="gates")
+
+
+def test_obligation_waiting_wakes_once_and_grants_nothing(world):
+	store, _config = world
+	work = _create(store)
+	asked = tr.post_message(store, work, author_team="lang", author="ada",
+	                        body="push: confirm?", request="push.bug")["seq"]
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="waiting", wait=asked)
+	# The respondent's input does NOT grant mutation authority...
+	with pytest.raises(bw.WorkError, match="waiting on its recorded"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="active")
+	responded = tr.respond_obligation(store, asked, team="push",
+	                                  member="sl", body="confirmed")
+	row = _row(store, work)
+	assert row["phase"] == "queued" and row["wait_obligation"] is None
+	wakes = [e for e in store.events() if e["kind"] == "wake"]
+	assert len(wakes) == 1 and wakes[0]["seq"] == responded["seq"] + 1
+	assert wakes[0]["payload"]["condition"] == \
+		{"type": "obligation", "obligation": asked}
+	# ...and having supplied it, push STILL cannot mutate the work.
+	with pytest.raises(bw.WorkError, match="never grant"):
+		tr.set_phase(store, work, actor_team="push", actor="sl",
+		             phase="active")
+
+
+def test_obligation_waiting_refuses_wrong_or_completed_obligations(world):
+	store, _config = world
+	work = _create(store)
+	other = _create(store)
+	answered = tr.post_message(store, work, author_team="lang",
+	                           author="ada", body="?",
+	                           request="push.bug")["seq"]
+	tr.respond_obligation(store, answered, team="push", member="sl",
+	                      body="done already")
+	with pytest.raises(bw.WorkError, match="already-satisfied|already"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="waiting", wait=answered)
+	elsewhere = tr.post_message(store, other, author_team="lang",
+	                            author="ada", body="?",
+	                            request="push.bug")["seq"]
+	with pytest.raises(bw.WorkError, match="its OWN"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="waiting", wait=elsewhere)
+	with pytest.raises(bw.WorkError, match="no obligation"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="waiting", wait=99999)
+
+
+def test_the_wake_race_neither_loses_nor_duplicates(world):
+	"""The last two gates close in two racing transactions: the one that
+	commits second satisfies the condition and carries the ONE wake."""
+	store, _config = world
+	work = _create(store)
+	first = _create(store, team="push", member="sl")
+	second = _create(store, team="push", member="sl")
+	tr.add_dependency(store, work, first, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, second, actor_team="lang", actor="ada")
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="waiting", wait="gates")
+
+	other = bw.Authority(store.path)
+	original = store._write
+
+	def close_second_first(kind, actor, payload, mutate):
+		store._write = original
+		tr.close_work(other, second, actor_team="push", actor="sl",
+		              disposition="raced in first")
+		return original(kind, actor, payload, mutate)
+
+	store._write = close_second_first
+	tr.close_work(store, first, actor_team="push", actor="sl",
+	              disposition="the last gate")
+	wakes = [e for e in store.events() if e["kind"] == "wake"]
+	assert len(wakes) == 1, "the racing closes lost or duplicated the wake"
+	assert _row(store, work)["phase"] == "queued"
+	other.close()
+
+
+def test_entering_waiting_races_the_satisfying_close(world):
+	"""In-lock refusal: the last gate closes between set_phase's optimistic
+	check and its lock — committing `waiting` then would be the loose end
+	the ruling forbids."""
+	store, _config = world
+	work = _create(store)
+	blocker = _create(store, team="push", member="sl")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+
+	other = bw.Authority(store.path)
+	original = store._write
+
+	def satisfy_between(kind, actor, payload, mutate):
+		store._write = original
+		tr.close_work(other, blocker, actor_team="push", actor="sl",
+		              disposition="gate shut mid-flight")
+		return original(kind, actor, payload, mutate)
+
+	store._write = satisfy_between
+	with pytest.raises(bw.WorkError, match="already-satisfied"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="waiting", wait="gates")
+	assert _row(store, work)["phase"] == "queued"
+	other.close()
+
+
+# -- parking -----------------------------------------------------------------
+
+def test_parking_needs_a_reason_keeps_current_and_never_wakes(world):
+	store, _config = world
+	work = _create(store)
+	blocker = _create(store, team="push", member="sl")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	with pytest.raises(bw.WorkError, match="reason"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="parked")
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="parked", reason="strategy review pending")
+	row = _row(store, work)
+	assert row["phase"] == "parked"
+	assert (row["current_team"], row["current_kind"]) == ("lang", "bug"), \
+		"parking dropped the one accountable Current"
+	# Closing every gate wakes NOTHING parked — no condition, no promise.
+	tr.close_work(store, blocker, actor_team="push", actor="sl",
+	              disposition="done")
+	assert _row(store, work)["phase"] == "parked"
+	assert not [e for e in store.events() if e["kind"] == "wake"]
+	# parked leaves ONLY to queued, explicitly.
+	with pytest.raises(bw.WorkError, match="parked"):
+		tr.set_phase(store, work, actor_team="lang", actor="ada",
+		             phase="active")
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="queued")
+	assert _row(store, work)["phase"] == "queued"
+
+
+def test_the_parked_count_is_always_visible_in_the_summary(world):
+	store, _config = world
+	work = _create(store)
+	assert pj.team_summary(store, viewer_team="lang")["parked"] == 0
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="parked", reason="waiting on budget")
+	summary = pj.team_summary(store, viewer_team="lang")
+	assert summary["parked"] == 1 and summary["open"] == 1
+	assert pj.team_summary(store, viewer_team="push")["parked"] == 0
+	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
+	assert detail["phase"] == "parked" and detail["waiting_on"] is None
+
+
+def test_waiting_condition_is_visible_in_the_projection(world):
+	store, _config = world
+	work = _create(store)
+	blocker = _create(store, team="push", member="sl")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="waiting", wait="gates")
+	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
+	assert detail["phase"] == "waiting"
+	assert detail["waiting_on"] == {"type": "gates", "obligation": None}
+
+
+def test_at_input_never_grants_pass_or_close_authority(world):
+	"""The delegation ruling is one ownership rule, not a phase-only gate.
+
+	An @ destination participates so it can read and contribute, but Current
+	stays with the requester. Participation therefore cannot authorize that
+	respondent to pass or terminally close the requester's Work.
+	"""
+	store, _config = world
+	for operation in ("pass", "close"):
+		work = _create(store)
+		tr.post_message(store, work, author_team="lang", author="ada",
+		                body="input requested", request="push.bug")
+		before = store.events()
+		with pytest.raises(bw.WorkError, match="never grant|Current"):
+			if operation == "pass":
+				tr.post_message(store, work, author_team="push", author="sl",
+				                body="taking it", pass_to="push.bug")
+			else:
+				tr.close_work(store, work, actor_team="push", actor="sl",
+				              disposition="not mine to close")
+		assert store.events() == before, \
+			f"an @ respondent committed an unauthorized {operation}"
+
+
+def test_detail_declares_handler_phase_and_classification_authority(world):
+	"""The JSON projection tells agents what they can do; trying commands is
+	not discovery. Authority follows => and is absent for mere participants."""
+	store, _config = world
+	work = _create(store)
+	owned = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
+	assert {"classify", "set_phase"} <= set(owned["available_transitions"])
+	not_owned = pj.detail(store, work, viewer_team="push", viewer_member="sl")
+	assert not {"classify", "set_phase"} & \
+		set(not_owned["available_transitions"])
+	tr.post_message(store, work, author_team="lang", author="ada",
+	                body="delegated", pass_to="push.bug")
+	former = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
+	delegated = pj.detail(store, work, viewer_team="push", viewer_member="sl")
+	assert not {"classify", "set_phase"} & \
+		set(former["available_transitions"])
+	assert {"classify", "set_phase"} <= \
+		set(delegated["available_transitions"])
+
+
+# -- the complete R1 authority matrix and R5 vocabulary (ruled 2026-08-14) ----
+
+def test_the_full_authority_matrix_gates_every_workflow_decision(world):
+	"""Every workflow decision — @ creation, dependency changes, child
+	attachment, reopen — belongs to the live Current handler; participation,
+	+ attention, and @ input never substitute for ownership."""
+	store, _config = world
+	work = _create(store)
+	tr.post_message(store, work, author_team="lang", author="ada",
+	                body="fyi", include="push.bug")
+	for team, member in (("lang", "grace"), ("push", "sl")):
+		with pytest.raises(bw.WorkError, match="never grant"):
+			tr.post_message(store, work, author_team=team, author=member,
+			                body="asking", request="push.bug")
+		with pytest.raises(bw.WorkError, match="never grant"):
+			tr.add_dependency(store, work, _create(store, team="push",
+			                                       member="sl"),
+			                  actor_team=team, actor=member)
+	# Attaching a child needs the PARENT's handler — a teammate who merely
+	# participates is refused (cross-team authors never even reach the
+	# gate: authoring for another team refuses first).
+	with pytest.raises(bw.WorkError, match="never grant"):
+		tr.create_work(store, team="lang", kind="bug", title="child",
+		               origin="decomposition", author="grace", body="b",
+		               parent=work)
+	# The handler does all of it.
+	tr.post_message(store, work, author_team="lang", author="ada",
+	                body="asking", request="push.bug")
+	tr.add_dependency(store, work, _create(store, team="push", member="sl"),
+	                  actor_team="lang", actor="ada")
+	child = tr.create_work(store, team="lang", kind="bug", title="child",
+	                       origin="decomposition", author="ada", body="b",
+	                       parent=work)["work_id"]
+	tr.close_work(store, child, actor_team="lang", actor="ada",
+	              disposition="done")
+	# Reopen belongs to the handler of the Current it RESTORES.
+	with pytest.raises(bw.WorkError, match="never|ownership"):
+		tr.reopen_work(store, child, actor_team="lang", actor="grace",
+		               reason="not mine to reopen")
+	tr.reopen_work(store, child, actor_team="lang", actor="ada",
+	               reason="verify again")
+	assert _row(store, child)["status"] == "open"
+
+
+def test_any_configured_participant_may_chip_in_without_work_ownership(world):
+	"""Open browsing has no contribution barrier: a configured member who
+	drills into another team's Work may post an ordinary message or add `+`
+	attention. Neither operation grants workflow ownership."""
+	store, _config = world
+	work = _create(store)
+	assert store.conn.execute(
+		"SELECT 1 FROM work_participants WHERE work=? AND team='push'",
+		(work,)).fetchone() is None, "the outsider was already participating"
+	available = pj.detail(store, work, viewer_team="push",
+	                      viewer_member="sl")["available_transitions"]
+	assert {"post_message", "mark_seen"} <= set(available), \
+		"open-graph drill hid the configured participant's contribution surface"
+	tr.post_message(store, work, author_team="push", author="sl",
+	                body="I found related evidence", include="push.bug")
+	assert store.conn.execute(
+		"SELECT 1 FROM messages WHERE work=? AND author_team='push' "
+		"AND author='sl'", (work,)).fetchone(), \
+		"a configured participant's contribution was not recorded"
+	# Chipping in is not an ownership transfer.
+	with pytest.raises(bw.WorkError, match="never grant"):
+		tr.close_work(store, work, actor_team="push", actor="sl",
+		              disposition="not mine")
+
+
+def test_obligation_answering_belongs_to_the_named_routes_handler(world):
+	"""A resolved handler of the route the @ names may respond or dispose —
+	and nobody else, teammate or not."""
+	store, _config = world
+	push_work = _create(store, team="push", member="sl")
+	asked = tr.post_message(store, push_work, author_team="push",
+	                        author="sl", body="lang: yours?",
+	                        request="lang.bug")["seq"]
+	with pytest.raises(bw.WorkError, match="ownership"):
+		tr.respond_obligation(store, asked, team="lang", member="grace",
+		                      body="grace is not the intake handler")
+	with pytest.raises(bw.WorkError, match="ownership"):
+		tr.dispose_obligation(store, asked, team="lang", member="grace",
+		                      disposition="not hers to dispose")
+	still = store.conn.execute(
+		"SELECT status FROM obligations WHERE seq=?", (asked,)).fetchone()
+	assert still["status"] == "pending", "an unauthorized answer committed"
+	tr.respond_obligation(store, asked, team="lang", member="ada",
+	                      body="ours; tracked")
+
+
+def test_available_transitions_mirror_the_full_matrix(world):
+	store, _config = world
+	work = _create(store)
+	owner = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
+	assert {"request", "pass", "add_dependency", "create_child",
+	        "classify", "set_phase", "close"} <= \
+		set(owner["available_transitions"])
+	teammate = pj.detail(store, work, viewer_team="lang",
+	                     viewer_member="grace")
+	assert set(teammate["available_transitions"]) <= \
+		{"post_message", "mark_seen"}, \
+		"participation leaked an ownership operation into the projection"
+	tr.close_work(store, work, actor_team="lang", actor="ada",
+	              disposition="done")
+	assert pj.detail(store, work, viewer_team="lang",
+	                 viewer_member="ada")["available_transitions"] == \
+		["reopen"]
+	assert pj.detail(store, work, viewer_team="lang",
+	                 viewer_member="grace")["available_transitions"] == [], \
+		"reopen offered to someone who cannot perform it"
+
+
+def test_available_transitions_offer_close_over_an_open_blocker(world):
+	"""An open dependency affects readiness but does not prevent an honest
+	close; the machine surface must not make agents discover that by trying."""
+	store, _config = world
+	work = _create(store)
+	blocker = _create(store, team="push", member="sl")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	assert "close" in pj.detail(
+		store, work, viewer_team="lang",
+		viewer_member="ada")["available_transitions"], \
+		"projection hid a close the authority permits over an open blocker"
+
+
+def test_available_transitions_hide_reopen_under_a_closed_parent(world):
+	"""A closed parent prevents reopening its child until ancestry is open;
+	the machine surface declares the same live precondition as the writer."""
+	store, _config = world
+	parent = _create(store)
+	child = _create(store, parent=parent)
+	tr.close_work(store, child, actor_team="lang", actor="ada",
+	              disposition="done")
+	tr.close_work(store, parent, actor_team="lang", actor="ada",
+	              disposition="done")
+	assert "reopen" not in pj.detail(
+		store, child, viewer_team="lang",
+		viewer_member="ada")["available_transitions"], \
+		"projection offered reopen while the closed parent makes it refuse"
+	tr.reopen_work(store, parent, actor_team="lang", actor="ada",
+	               reason="open ancestry")
+	assert "reopen" in pj.detail(
+		store, child, viewer_team="lang",
+		viewer_member="ada")["available_transitions"]
+
+
+def test_the_compact_vocabulary_is_closed_and_complete(world):
+	"""R5: every canonical value has its RULED five-cell label; anything
+	unmapped fails visibly — a label is never invented by truncation."""
+	del world
+	from baton_work.tui import app
+	assert {value: app.compact_phase(value) for value in tr.PHASES} == {
+		"queued": "queue", "research": "rsrch", "waiting": "wait",
+		"active": "actve", "review": "rview", "parked": "park"}
+	assert {value: app.compact_classification(value)
+	        for value in tr.CLASSIFICATIONS} == {
+		"unknown": "unkwn", "suspected-defect": "suspt",
+		"confirmed-defect": "cnfrm", "limitation": "limit",
+		"duplicate": "dupe", "design-choice": "desgn",
+		"rejection": "rejct"}
+	with pytest.raises(ValueError, match="no ruled compact"):
+		app.compact_classification("postponement")
+	with pytest.raises(ValueError, match="no ruled compact"):
+		app.compact_phase("dormant")

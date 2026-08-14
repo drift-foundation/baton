@@ -340,3 +340,350 @@ All four confirmed and fixed, each with its regression
 - R4: the reroute audit compares the COMPLETE responsibility mapping
   (role + handlers); a role-only change with the same handler now reports
   `rerouted`.
+
+### C3 — the CLI configuration boundary (2026-08-14)
+
+Surface migrated exactly as authorized: `--config PATH` +
+`--participant team.member`, with `--authority`/`--viewer` REMOVED (argparse
+refuses them, tested); every ordinary read, mutation and TUI launch opens
+through `lifecycle.open_bound` and validates the participant against the
+accepted generation BEFORE any output or curses; `init` consumes the
+generation-1 config; `regen` is `accept_config` under the C2 capability
+gate; the four registry verbs are gone — accepted generations are the only
+topology writer. The TUI's raw-path module entry is retired; `tui/` exports
+`run` and only the CLI launches it.
+
+Migrated with it, because the old surface cannot open config-bound
+authorities: THE fixture now writes a generation-1 `baton.json` and
+initializes through the lifecycle (`fixtures.config_document` /
+`build_instance`); the jsonapi/scenario/parity/tui/packaged suites drive
+the new flags; the pty harness execs `--config/--participant`.
+
+THE HELD XFAIL FLIPPED: `ghost.gone` at the console is now refused before
+curses claims the screen — the Gate A viewer gap, closed by the boundary
+the rulings chose rather than the narrow patch first proposed.
+
+New focused suite `test_cli_boundary.py` (6 tests): removed verbs refuse,
+unknown participant refuses pre-output for reads and mutations, an edited
+config refuses every ordinary command, `regen` applies gen+1 under the
+capability (grace refused, ada accepted), `init` reports the binding.
+
+Suite: tests/work 169 passed, 0 xfailed. STOPPED for review; C4+ held.
+
+### C3 rev 2 — the review's three corrections (2026-08-14)
+
+- R1: EVERY non-init command now requires and validates the participant —
+  links/breadcrumb/discussion/events had stayed anonymous ("identity by
+  assertion wearing a read-only disguise"). Regression added covering all
+  previously anonymous reads; the four suites that exercised them supply
+  their participants.
+- R2: the last public refusal saying "viewer" now says "participant".
+- R3: the fixture's `assert database == path or True` escape hatch replaced
+  with the real equality against the fixed sibling.
+
+Suite: tests/work 170 passed; test-v11 green. Still stopped; C4+ held.
+
+### C4 — operational route resolution and projection 2.0 (2026-08-14)
+
+Resolution snapshots: `transitions.resolve_endpoint` runs INSIDE the write
+transaction (the fourth validate-inside-the-lock site — a regen committing
+between a pre-read and the write would stamp a stale resolution) and records
+`(endpoint, route, role, handlers, generation)` for create, every `+`
+expansion entry, `@` (also into the obligation row's new snapshot columns),
+`=>`, and planned Next. The kinds projection gained the kind→route mapping
+it had silently dropped. History is never partly resolved and never bare.
+
+Projection 2.0: envelope field `participant`; every endpoint-bearing value
+(home/detail/links rows, obligations' `owed_by`) is a structured
+`{endpoint, route, role, handlers}` resolved at read time against the
+CURRENT generation, with an unresolvable endpoint shown explicitly
+unresolved rather than dropped or stringly; version bumped to 2.0 (1.x now
+refuses, 2.x minors accepted). The TUI keeps rendering the endpoint string
+in its columns.
+
+Mechanical fallout ridden with the step (per the C3-review precedent): the
+remaining internal-registration fixtures (transitions/tags/edges/soak) moved
+to config-based init — retirement now happens the only way the boundary
+allows, by generation-2 acceptance dropping the kind.
+
+Evidence: `tests/work/test_resolution.py` — a full-trail sweep proving every
+endpoint-establishing event carries complete snapshots; a reassignment test
+proving one handler swap changes the LIVE projection while history and the
+obligation row keep generation-1 handlers byte-for-byte; read-time honesty
+for historical endpoints. Break-sweep: degrading include snapshots fails
+both the sweep and the tags expansion test. Suite: 173 passed; test-v11
+green. STOPPED for C4 review; C5/C6 held.
+
+## C4 re-review fix — R1: + expansion moved inside the write transaction (2026-08-14)
+
+The C4 review (`60d1f5cecee78e6061e4108b1e194090`,
+`review-2026-08-14T15-23-16Z.md`) confirmed one defect, R1: `post_message`
+expanded `+` selectors from `store.conn` BEFORE `Authority._write`'s
+BEGIN IMMEDIATE, so a `regen` committing between expansion and the message
+write produced generation-1 membership stamped with generation-2 snapshots —
+complete snapshots over a stale set. The reviewer's deterministic regression
+(`test_include_expansion_uses_the_generation_at_commit`) reproduced it:
+gen 2 adds `web.perf` mid-flight; the committed event held only
+`("web.bug", 2)` instead of both endpoints under generation 2.
+
+Fix: wildcard membership is itself endpoint resolution, so it now resolves
+at the same validate-inside-the-lock site as the snapshots. The expansion
+body moved to `_expand_selectors(conn, selectors)`; `_expand_include(store,
+...)` remains as the optimistic pre-lock parse (same refusals, advisory
+membership — and the seam the regression's monkeypatch models the race
+through), while `mutate` re-expands from the transaction connection and
+derives the recorded expansion, its snapshots, and `touched_teams` from
+that in-lock set only.
+
+Break-sweep per the review: membership reverted to the pre-lock result —
+the regression fails exactly as reproduced (`[('web.bug', 2)]`, missing
+`web.perf`); restored, everything green. Focused C4 suites
+(resolution/tags/jsonapi/parity): 33 passed. Full gate: 171 parallel +
+3 serial = 174 passed, `just test-v11` green. STOPPED for C4 re-review;
+the workflow-story phase stays queued behind it; C5/C6 held.
+
+## Workflow-story phase — coverage pass + CLI/JSON workflow gate (2026-08-14)
+
+Authorized by `37c339edbafea3c6a1f06aefc3659314` (C4 accepted; phase released
+without another gate).
+
+Deliverable 1 — the coverage/implementation pass:
+`WORKFLOW-COVERAGE.md` marks every WF-01…WF-09 step EXECUTABLE /
+NEEDS-OPERATION / NEEDS-RULING and sequences six missing slices (WS-1
+public classification … WS-6 dossier binding). No contradictions found; the
+one candidate — WF-08's history-vs-live `owed_by` split — matches the C4
+implementation exactly. The known ruling gaps (WF-03 disposition semantics,
+WF-09 retry ids) are confirmed from the implementation side and stay with
+the reviewer. TUI parity column deferred per the authorization.
+
+Deliverable 2 — the workflow gate: `tests/work/workflows/` — shared
+subprocess driver + config builders (`wfdriver.py`, `conftest.py`), nine
+workflow files, every workflow driven twice: from source (`-m
+baton_work.cli`) and through the zipapp artifact with PYTHONPATH stripped.
+Checkpoints assert the canonical JSON projection only; refusal checkpoints
+assert byte-identical audit around the refusal; every workflow ends on the
+dense-audit + one-Current/terminal-bare invariant sweep.
+
+The workflows did their job — two defects exposed, both kept with their
+stories per the workflow-to-regression rule:
+
+1. WF-06 cycle-refusal checkpoint: the PACKAGED CLI exited 0 on every
+   refusal (zipapp __main__ discards the target's return value; only the
+   stderr JSON survived). Fix: `cli.entry` owns the exit status; archives
+   target `cli:entry`. Regression:
+   `test_packaged.test_a_refusal_exits_nonzero_through_the_archive`.
+   Break-sweep: retargeting `cli:main` fails it as reproduced.
+2. WF-09 race 1: respond AND dispose both committed against one obligation
+   — terminal-competition checks ran only pre-lock. Fixed as a CLASS (the
+   validate-inside-the-lock discipline extended to every terminal
+   competitor): in-lock rechecks in create (parent open), post_message
+   (status + pass already-at/consumes-Next re-derivation), close_work
+   (status + open children + `was_current_*` recorded from the row AT
+   COMMIT so reopen restores the truth), reopen, add_dependency (status +
+   duplicate), respond, dispose. Regressions: four deterministic
+   interleavings in `test_transitions.py` (`test_wf09_*`) through the
+   `_write` seam — the same modeling the C4 review used. Break-sweeps:
+   removing respond's recheck fails race 1; reverting the payload
+   enrichment fails the was-current regression.
+
+Design note for review: `post_message` cannot recompute the EVENT KIND
+inside the lock (the kind is fixed at the `_write` call), so a pass whose
+already-at/consumes-Next decision no longer matches the live row REFUSES
+with a retry refusal instead of committing a mislabeled pass/return. History
+therefore always equals one of the legal serials; the alternative (kind
+chosen in-lock) is an `Authority._write` API change left for a ruling if
+preferred.
+
+Suite: 197 passed (194 parallel + 3 serial), `just test-v11` green — the
+prior 174 plus 18 workflow runs and 5 extracted regressions. STOPPED for
+workflow-gate review; heavy TUI, C5, C6 untouched.
+
+## Workflow-gate re-review fix — reopen validates completely in the lock (2026-08-14)
+
+The workflow-gate review (`c0361a4a9aaf2cbe4a2c338f210daf1d`,
+`review-2026-08-14T15-53-09Z.md`) added two deterministic WF-09-class
+regressions exposing the reopen legs my class fix left pre-lock: the
+ancestry check (a parent closing after the optimistic check let a child
+reopen beneath a terminal parent) and the close-event selection (a full
+reopen/pass/close cycle committing before the lock made the original reopen
+restore from the obsolete close event).
+
+Fix: reopen's mutate now re-reads EVERYTHING from the transaction
+connection — status, the live parent's status, and the LATEST close event —
+and uses those in-lock facts for the restoration and the ancestor
+recomputation. The pre-lock reads remain as optimistic early refusals only,
+the same shape as every other site in the class.
+
+Break-sweep: reverting mutate to the pre-lock facts fails both reviewer
+regressions exactly as described (child reopened under a terminal parent;
+stale endpoint restored). Restored: transitions 24 passed, workflows 18
+passed, full gate 199 passed (196 parallel + 3 serial), `just test-v11`
+green. STOPPED for re-review; heavy TUI/C5/C6 held.
+
+## WS-1 — public classification and operational phase (2026-08-14)
+
+Authorized by `85b35cecf67e97762bfa8538c7498ecf` against the settled rulings
+in FINDING.md and the acceptance matrix in WORKFLOW-TESTS.md.
+
+Authority/engine: `work` gains NOT NULL `classification` (canonical default
+`unknown` — never null) and `phase` (default `queued`), plus
+`wait_type`/`wait_obligation`; schema version 2. New transitions `classify`
+and `set_phase`, both authorized by `_handler_gate` — the actor must be a
+currently resolved handler of the Work's Current route, checked IN THE LOCK
+with the C4 resolution snapshot recorded in the audit payload, so @ input
+and mere membership never grant mutation and authority follows the baton
+after `=>`. Ordinary open phases move freely (rework cycles included); a
+pass never touches phase; closed work refuses both mutations; `parked`
+requires a reason, keeps Current, and leaves only through explicit
+parked→queued; `waiting` records exactly one typed condition (aggregate
+gates — refused when no gate is open — or one exact pending @ obligation on
+the SAME work) and leaves only through the wake.
+
+The wake: `_sweep_wakes` runs at the end of every transaction that can
+satisfy a condition (close, respond, dispose, and reopen for staleness),
+flipping satisfied open waiters to `queued` and emitting one `wake` event
+via `_emit`, which allocates the NEXT sequence number inside the same
+transaction — the wake exists iff the satisfying commit does, density holds,
+and a racing retry finds `queued` and wakes nothing twice.
+
+Surfaces: CLI `--classification`/`--phase` on create, `classify`, `phase`
+(--reason/--wait-on-gates/--wait-on-obligation), `summary`
+(open/parked/waiting counts). Projection rows expose `phase` and
+`waiting_on`; `team_summary` carries the always-visible parked count.
+Bounded TUI: PHASE/CLS columns with the APPROVED compact vocabulary
+(queue/rsrch/wait/actve/rview/park; unkwn), `[park:N]` on the summary line;
+parity asserts TUI-compact == compact(JSON-canonical) row by row.
+
+Evidence: `test_phase.py` (15 focused tests: defaults, authorization incl.
+reassignment, round-trips, orthogonality, typed waiting, wake-at-last-gate
+atomicity, wake races via the `_write` seam, in-lock already-satisfied
+refusal, parking, projections). WF-01 extended (classify + research/active/
+review with rework; authority follows the baton), WF-04 extended (provider
+classification/phase; consumer gates-waiting whose wake rides the provider
+close, seq == close+1). Break-sweeps: removing close's wake sweep, the
+in-lock satisfied-gate check, and the handler gate each fail their tests as
+reproduced. Gate: 214 passed (211 parallel + 3 serial), test-v11 green.
+
+Interpretations reported for review (not decided silently): creation refuses
+initial `waiting`/`parked` (they need condition/reason, so they enter only
+via their explicit transitions); obligation wake conditions must name an
+obligation of the SAME work; classification of closed work refuses
+(symmetric with phase); compact TUI labels for the six non-`unknown`
+classifications are unruled — rendered as mechanical 5-cell truncation
+pending vocabulary confirmation. STOPPED for WS-1 review; heavy TUI/C5/C6
+held.
+
+## WS-1 re-review fixes — R1-minimum, R2, R3, R4 (2026-08-14)
+
+Per review `e316f26a22c2c17fe0aa4a7e7a2f1210`
+(`review-2026-08-14T17-59-02Z.md`). R1's complete operation matrix and R5's
+compact classification vocabulary stay HELD for Slawomir; nothing was
+implemented around them.
+
+R1 (pinned minimum): `_handler_gate` now guards the `=>` pass leg of
+post_message and terminal close_work, in the lock, recording the
+authorization snapshot as `payload["authorization"]`. An @ respondent can no
+longer pass or close the requester's Work; both reviewer regressions pass.
+Consequence made visible by WF-09's race: after a pass wins, the racing
+close by the FORMER handler now loses on ownership — exactly one racing
+terminal action commits in either serialization, and the workflow asserts
+that stronger property (the new handler then closes deliberately).
+Mechanical fallout: the deterministic race regressions' interleaved actors
+switched from grace to the authorized ada over a second connection.
+
+R2: `projection.detail` computes availability from the SAME live
+route/handler resolution the authority enforces: pass/classify/set_phase/
+close are handler-only (set_phase absent while `waiting` — it leaves only
+through the wake; close still needs clear gates); post/request/dependency/
+mark_seen stay participation-based pending the R1 matrix ruling; the
+reviewer regression proves authority follows `=>` in the projection too.
+
+R3: `home` is now ONE projection carrying `{summary, rows}` — the parked/
+waiting counts and the table are the same snapshot; the TUI's top level
+consumes exactly that projection (no second call to skew), and a new parity
+regression parks a work and holds `[park:1]` equal to the JSON summary.
+
+R4: WF-04 executes the phases its prose claimed: research → review →
+active → review beside the passes, asserting after every pass that the pass
+itself changed nothing, with the full audited phase trail checked.
+
+Break-sweeps: stripping the pass/close gate fails the reviewer's @-authority
+regression; reverting home to a bare list fails the projection/envelope
+regressions. Gate: 217 passed (214 parallel + 3 serial), test-v11 green.
+STOPPED for re-review; R1-matrix + R5 vocabulary await Slawomir; heavy
+TUI/C5/C6/WS-2 held.
+
+## R1 complete authority matrix + R5 classification vocabulary (2026-08-14)
+
+Authorized by `c20a3690e9f7fbb4c98665331fd2829c` against the pinned rulings
+in FINDING.md ("complete Work authority matrix and classification labels").
+
+R1, the matrix in full — every workflow decision now runs through the live
+route-to-handler resolution inside the committing transaction, with the
+authorization snapshot recorded in the payload:
+- `@` obligation creation (post_message request leg), dependency changes
+  (add_dependency), and child attachment (create_work with a parent) join
+  pass/close/classify/set_phase under `_handler_gate`;
+- reopen resolves the Current it RESTORES (from the in-lock latest close
+  event) and requires the actor to be that endpoint's live handler;
+- respond/dispose require a resolved handler of the route the obligation
+  names (`_obligation_gate`) — answering grants nothing else;
+- contribution, `+` attention, own seen state, and open-graph reads remain
+  participation operations, untouched.
+Projection: `available_transitions` mirrors the whole matrix — request/
+pass/add_dependency/create_child/classify/set_phase(+close) are
+handler-only; a closed work offers `reopen` exactly to the live handlers of
+the endpoint reopen would restore; participants keep post_message/mark_seen.
+
+R5: `CLASSIFICATION_COMPACT` is the ruled closed map (unkwn/suspt/cnfrm/
+limit/dupe/desgn/rejct); both compact lookups now FAIL VISIBLY on unmapped
+canonical values — no label is ever invented by truncation.
+
+Fallout: the WF-09 obligation race (workflow + deterministic regression)
+now races respond vs dispose as the SAME authorized handler over two
+sessions — grace's dispose would lose on ownership before the race could
+happen, which is the matrix working as ruled.
+
+Evidence: four new focused regressions (full-matrix gating, obligation-
+route answering, matrix-mirroring available_transitions incl. reopen
+visibility, closed-and-complete vocabulary). Break-sweeps: stripping the
+new gates fails the matrix regressions; reintroducing truncation fails the
+vocabulary regression. Gate: 221 passed (218 parallel + 3 serial),
+test-v11 green. STOPPED for review; heavy TUI/C5/C6/Gate B/WS-2 held.
+
+## WS-1 re-review 2 fixes — contribution ACL, availability mirror, one snapshot (2026-08-14)
+
+Per review `bb99cacc83a94dff4771ae623629c7f9`
+(`review-2026-08-14T20-33-18Z.md`); all four reviewer regressions kept
+additive and passing.
+
+R1 (contribution): post_message's participation barrier is GONE — any
+configured member may post ordinary/`+` discussion on open Work, and the
+committing transaction records their team as a durable participant
+(touched_teams includes the author's team). Owner gates untouched — the
+regression proves chipping in still cannot close. The old
+barrier-pinning test in test_tags was rewritten to the ruled contract;
+availability now offers post_message/mark_seen to every configured viewer
+of open Work.
+
+R2 (availability mirrors the writer): `close` is hidden only by open
+CHILDREN — an open blocker gates readiness, never an honest terminal
+close (the stale projection assertion replaced per instruction); `reopen`
+is offered only when the closed parent rule also passes (ancestry open),
+matching the writer's refusal exactly.
+
+R3 (one snapshot): `home` reads rows, summary, and its sequence inside one
+BEGIN…ROLLBACK read transaction — a writer committing mid-read changes
+none of them — and the envelope's `snapshot_seq` for home is the seq
+observed INSIDE that snapshot (envelope accepts the projection-supplied
+value). Read purity preserved: nothing inserts, updates, or commits; the
+boundary guard was updated from "no BEGIN" to "never
+INSERT/UPDATE/DELETE/COMMIT, and every BEGIN has its ROLLBACK" — the old
+formulation forbade the very snapshot the ruling now requires.
+
+Break-sweeps: restoring the participation barrier fails the contribution
+regression while the owner-gate regression stays green; re-gating close on
+blockers / dropping the parent-open check fails the two availability
+regressions; removing the read transaction fails the torn-snapshot
+regression. Gate: 225 passed (222 parallel + 3 serial), test-v11 green.
+STOPPED for re-review; heavy TUI/C5/C6/Gate B/WS-2 held.

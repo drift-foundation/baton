@@ -25,9 +25,9 @@ pytestmark = pytest.mark.skipif(not hasattr(_pty, "fork"),
 
 @pytest.fixture(scope="module")
 def world(tmp_path_factory):
-	path = str(tmp_path_factory.mktemp("fixture") / "work.sqlite3")
-	cast = fixtures.build(path)
-	return path, cast
+	directory = tmp_path_factory.mktemp("fixture")
+	cast = fixtures.build(str(directory / "work.sqlite3"))
+	return cast["config_path"], cast
 
 
 def test_the_console_opens_on_the_top_level_table_and_exits(world):
@@ -96,8 +96,9 @@ def test_marking_seen_is_explicit_and_reflected_in_new(world, tmp_path):
 	path, cast = world
 	# Viewing without pressing s: New must be unchanged afterwards.
 	import baton_work as bw
+	from baton_work import lifecycle as lc
 	from baton_work import projection as pj
-	store = bw.Authority(path)
+	store = lc.open_bound(path)
 	before = pj.new_count(store, cast["lang42"], viewer_team="lang",
 	                      viewer_member="grace")["total"]
 	assert before > 0
@@ -111,17 +112,14 @@ def test_marking_seen_is_explicit_and_reflected_in_new(world, tmp_path):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-@pytest.mark.xfail(
-	reason="GATE A SEMANTIC GAP, reported for ruling 2026-08-14: the "
-	       "projection read surface never validates the viewer, so an "
-	       "unknown member opens an empty console instead of being refused. "
-	       "Fixing it changes the shared projection contract, which Gate B "
-	       "is forbidden to do unilaterally. This xfail is the intended "
-	       "behaviour, waiting.", strict=True)
-def test_a_viewer_the_authority_does_not_know_refuses_before_curses(world):
+def test_a_participant_the_config_does_not_know_refuses_before_curses(world):
+	"""The Gate A gap, CLOSED BY THE CORRECTION (C3): the bound open
+	validates the participant against the accepted configuration before
+	curses claims the screen. This was the held xfail; the architecture the
+	rulings chose flips it."""
 	path, _cast = world
 	text, status, _steps = ptyharness.drive(path, "ghost.gone", [(b"", 0.3)])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 1
-	assert "not a registered member" in text or "error" in text, text[-300:]
+	assert "not a participant" in text, text[-300:]
 	assert "\x1b[?1049h" not in text, \
 		"curses claimed the screen before the refusal"

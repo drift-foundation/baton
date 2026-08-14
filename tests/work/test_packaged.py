@@ -31,15 +31,17 @@ def archive(tmp_path_factory):
 	shutil.copytree(os.path.join(SRC, "baton_work"),
 	                str(staging / "app" / "baton_work"))
 	target = str(staging / "baton-work.pyz")
+	# cli:entry, NOT cli:main — zipapp's generated __main__ discards the
+	# target's return value, so targeting main exits 0 on every refusal.
 	zipapp.create_archive(str(staging / "app"), target,
-	                      interpreter=None, main="baton_work.cli:main")
+	                      interpreter=None, main="baton_work.cli:entry")
 	return target
 
 
 def _run(archive_path, authority, *argv, viewer=None, expect_ok=True):
-	command = [sys.executable, archive_path, "--authority", authority]
+	command = [sys.executable, archive_path, "--config", authority]
 	if viewer:
-		command += ["--viewer", viewer]
+		command += ["--participant", viewer]
 	command += list(argv)
 	# NO PYTHONPATH: the archive answers alone or the test fails.
 	env = {key: value for key, value in os.environ.items()
@@ -54,18 +56,13 @@ def _run(archive_path, authority, *argv, viewer=None, expect_ok=True):
 
 
 def test_the_gate_scenario_through_the_archive(archive, tmp_path):
-	path = str(tmp_path / "work.sqlite3")
+	sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+	import json as _json
+	import fixtures as fx
+	path = str(tmp_path / "baton.json")
+	with open(path, "w") as handle:
+		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
 	_run(archive, path, "init")
-	for team, member in (("lang", "ada"), ("web", "wren")):
-		_run(archive, path, "register-team", "--team", team,
-		     "--display", team.title())
-		_run(archive, path, "register-member", "--team", team,
-		     "--member", member, "--display", member.title())
-	_run(archive, path, "register-kind", "--team", "web", "--kind", "bug",
-	     "--display", "Bug intake")
-	for kind in ("rsrch", "impl", "rev"):
-		_run(archive, path, "register-kind", "--team", "lang",
-		     "--kind", kind, "--display", kind)
 
 	web1 = _run(archive, path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "render crash", "--origin", "external-report",
@@ -91,7 +88,8 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	after = _run(archive, path, "detail", web1, viewer="web.wren")["result"]
 	assert after["ready"] is True
 
-	events = _run(archive, path, "events")["result"]
+	events = _run(archive, path, "events",
+	              viewer="lang.ada")["result"]
 	seqs = [event["seq"] for event in events]
 	assert seqs == list(range(1, len(seqs) + 1))
 	assert [event["kind"] for event in events][-6:] == \
@@ -99,10 +97,36 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 		 "close_work"]
 
 
+def test_a_refusal_exits_nonzero_through_the_archive(archive, tmp_path):
+	"""From WF-06's cycle-refusal checkpoint (workflow-to-regression rule):
+	the refusal printed its structured error but the ARCHIVE exited 0,
+	because zipapp's __main__ calls the target and discards its return
+	value. The exit status is part of the refusal: a scripted caller that
+	cannot see it will treat every refused operation as having happened."""
+	sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+	import json as _json
+	import fixtures as fx
+	path = str(tmp_path / "baton.json")
+	with open(path, "w") as handle:
+		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
+	_run(archive, path, "init")
+	refusal = _run(archive, path, "create", "--team", "lang",
+	               "--kind", "nope", "--title", "x", "--origin",
+	               "external-report", "--body", "x", viewer="lang.ada",
+	               expect_ok=False)
+	assert "not a registered endpoint" in refusal["error"] or \
+		"not a configured endpoint" in refusal["error"]
+
+
 def test_the_archive_answers_without_the_source_tree(archive, tmp_path):
 	"""The property, stated directly: a poisoned lookalike package on the
 	path must not be what the archive runs."""
-	path = str(tmp_path / "work.sqlite3")
+	sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+	import json as _json
+	import fixtures as fx
+	path = str(tmp_path / "baton.json")
+	with open(path, "w") as handle:
+		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
 	poison = tmp_path / "poison" / "baton_work"
 	poison.mkdir(parents=True)
 	(poison / "__init__.py").write_text("raise RuntimeError('poisoned')\n")
@@ -110,8 +134,8 @@ def test_the_archive_answers_without_the_source_tree(archive, tmp_path):
 	       if key != "PYTHONPATH"}
 	env["PYTHONPATH"] = str(tmp_path / "poison")
 	proc = subprocess.run(
-		[sys.executable, archive, "--authority", path, "init"],
+		[sys.executable, archive, "--config", path, "init"],
 		capture_output=True, text=True, timeout=120, env=env)
 	assert proc.returncode == 0, \
 		"the archive deferred to a poisoned path package: " + proc.stderr
-	assert json.loads(proc.stdout)["result"] == {"initialized": True}
+	assert json.loads(proc.stdout)["result"]["generation"] == 1

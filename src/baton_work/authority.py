@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -159,6 +159,7 @@ CREATE TABLE kinds (
 	team    TEXT NOT NULL REFERENCES teams(handle),
 	handle  TEXT NOT NULL,
 	display TEXT NOT NULL,
+	route   TEXT,
 	retired INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY (team, handle)
 ) STRICT;
@@ -174,7 +175,10 @@ CREATE TABLE work (
 	team           TEXT NOT NULL REFERENCES teams(handle),
 	title          TEXT NOT NULL,
 	origin         TEXT NOT NULL,
-	classification TEXT,
+	classification TEXT NOT NULL DEFAULT 'unknown',
+	phase          TEXT NOT NULL DEFAULT 'queued',
+	wait_type       TEXT,
+	wait_obligation INTEGER,
 	status         TEXT NOT NULL DEFAULT 'open',
 	parent         TEXT REFERENCES work(id),
 	current_team   TEXT,
@@ -203,6 +207,10 @@ CREATE TABLE obligations (
 	message_seq  INTEGER NOT NULL,
 	team         TEXT NOT NULL,
 	kind         TEXT NOT NULL,
+	route        TEXT,
+	role         TEXT,
+	handlers     TEXT,
+	generation   INTEGER,
 	status       TEXT NOT NULL DEFAULT 'pending',
 	resolved_seq INTEGER
 ) STRICT;
