@@ -51,31 +51,35 @@ def _json(capsys, path, *argv, viewer):
 	return json.loads(captured.out)["result"]
 
 
-def _parse_rows(screen: list[str]) -> list[dict]:
-	"""TUI table rows, decoded by the APP'S OWN column budget."""
-	fixed = sum(width for _n, width in COLUMNS) + len(COLUMNS)
-	title_width = max(10, WIDTH - fixed - 1)
+def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
+	"""TUI table rows, decoded by the APP'S OWN responsive column budget."""
+	columns = app.visible_columns(width)
+	fixed = sum(col_width for _n, col_width in columns) + len(columns)
+	title_width = max(app.MIN_TITLE, width - fixed - 1)
 	rows = []
 	for line in screen[2:]:
 		if not line.strip() or line.startswith("("):
 			continue
-		line = line.ljust(WIDTH)          # replay rstrips; offsets are fixed
-		title = line[:title_width].rstrip()
+		line = line.ljust(width)          # replay rstrips; offsets are fixed
+		cells = {"title": line[:title_width].rstrip()}
 		rest = line[title_width:]
-		values = []
 		offset = 0
-		for _name, width in COLUMNS:
-			values.append(rest[offset + 1:offset + 1 + width].strip())
-			offset += 1 + width
-		status, phase, cls, ready, current, next_endpoint, new = values
-		assert new.strip().isdigit(), \
-			f"unparseable row (NEW={new!r}): {line!r}"
-		rows.append({"title": title, "status": status,
-		             "phase": phase, "classification": cls,
-		             "ready": ready == "yes",
-		             "current": None if current == "-" else current,
-		             "next": None if next_endpoint == "-" else next_endpoint,
-		             "new": int(new)})
+		for name, col_width in columns:
+			cells[name] = rest[offset + 1:offset + 1 + col_width].strip()
+			offset += 1 + col_width
+		assert cells["NEW"].isdigit(), \
+			f"unparseable row (NEW={cells.get('NEW')!r}): {line!r}"
+		parsed = {"title": cells["title"], "status": cells["ST"],
+		          "ready": cells["READY"] == "yes",
+		          "current": None if cells["CURRENT"] == "-"
+		          else cells["CURRENT"],
+		          "next": None if cells["NEXT"] == "-" else cells["NEXT"],
+		          "new": int(cells["NEW"])}
+		for key, name in (("phase", "PHASE"), ("classification", "CLS"),
+		                  ("progress", "PROG"), ("dep", "DEP")):
+			if name in cells:
+				parsed[key] = cells[name]
+		rows.append(parsed)
 	return rows
 
 
@@ -98,12 +102,18 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			f"{viewer}: {len(drawn)} drawn vs {len(expected)} projected"
 		for drawn_row, json_row in zip(drawn, expected):
 			assert drawn_row["title"] == json_row["title"][:len(drawn_row["title"])]
-			assert drawn_row["status"] == json_row["status"][:6]
+			# Gate B: ST formats the canonical status and, when closed,
+			# the canonical outcome — the same closed compact map.
+			assert drawn_row["status"] == app.status_cell(json_row)
 			# WS-1 parity: the TUI draws the approved COMPACT vocabulary
 			# for the canonical JSON values, presentation-only.
 			assert drawn_row["phase"] == app.compact_phase(json_row["phase"])
 			assert drawn_row["classification"] == \
 				app.compact_classification(json_row["classification"])
+			# Gate B: direct progress and the ruled DEP count, verbatim
+			# from the projection row.
+			assert drawn_row["progress"] == app.progress_cell(json_row)
+			assert drawn_row["dep"] == str(json_row["dep"])
 			assert drawn_row["ready"] == json_row["ready"]
 			expected_current = (json_row["current"] or {}).get("endpoint")
 			expected_next = (json_row["next"] or {}).get("endpoint")
@@ -152,7 +162,8 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 	# grace drills into the epic and marks the epic's own discussion seen.
 	text, status, _steps = ptyharness.drive(path, "lang.grace", [
 		(b"\r", 0.5),        # drill: path = [lang42]
-		(b"o", 0.5),         # discussion of lang42
+		(b"o", 0.5),         # the focused view + discussion set
+		(b"\r", 0.5),        # open the epic's own discussion
 		(b"s", 0.5),         # THE explicit seen transition
 		(b"q", 0.4),
 	], columns=WIDTH, lines=HEIGHT)
@@ -244,3 +255,64 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 		"raw observation and assessment are not shown as separate axes"
 	assert "web.verify pending/-" in joined, \
 		"a pending assignment is not distinguished"
+
+
+def test_links_on_demand_agree_with_the_json_edges(world, capsys):
+	"""Gate B: the `b` links view draws exactly the JSON `links` far-row
+	summaries — same edges, same far status/endpoint/title, same order."""
+	path, cast = world
+	expected = _json(capsys, path, "links", cast["lang42"],
+	                 viewer="lang.ada")
+	screen = _screen_rows(path, "lang.ada", [(b"b", 0.5)])
+	drawn = [line for line in screen[2:] if line.strip()
+	         and not line.startswith("(")]
+	blocks = expected["blocks"]
+	assert len(drawn) == len(expected["blocked_by"]) + len(blocks)
+	for line, entry in zip(drawn[len(expected["blocked_by"]):], blocks):
+		endpoint = (entry["current"] or {}).get("endpoint") or "-"
+		assert line == (f"blocks {entry['id']} {entry['team']} "
+		                f"{entry['status']} {endpoint} "
+		                f"{entry['title']}"), \
+			f"links line disagrees: {line!r} vs {entry}"
+
+
+def test_collapsed_resolved_rows_agree_on_both_surfaces(tmp_path, capsys):
+	"""Gate B: closed rows leave the DEFAULT table with an explicit hidden
+	count, and `z` reveals exactly the JSON row set — the filter is
+	presentation over the projection's own status."""
+	import fixtures as fx
+	from baton_work import transitions as tr
+	import baton_work as bw
+	spec = {"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}}
+	config_path, database = fx.build_instance(str(tmp_path), spec)
+	with bw.Authority(database) as store:
+		tr.create_work(store, team="lang", kind="bug", title="stays open",
+		               origin="external-report", author="ada", body="live")
+		done = tr.create_work(store, team="lang", kind="bug",
+		                      title="already done",
+		                      origin="external-report", author="ada",
+		                      body="old")["work_id"]
+		tr.close_work(store, done, actor_team="lang", actor="ada",
+		              rationale="delivered before the checkpoint",
+		              outcome="satisfying")
+	expected = _json(capsys, config_path, "home", viewer="lang.ada")["rows"]
+	open_rows = [row for row in expected if row["status"] == "open"]
+	assert len(open_rows) < len(expected)
+
+	screen = _screen_rows(config_path, "lang.ada")
+	drawn = _parse_rows(screen)
+	assert [row["title"] for row in drawn] == \
+		[row["title"] for row in open_rows]
+	hidden = len(expected) - len(open_rows)
+	assert any(f"({hidden} closed hidden" in line for line in screen), \
+		"the collapse is silent about what it hides"
+
+	revealed = _parse_rows(_screen_rows(config_path, "lang.ada",
+	                                    [(b"z", 0.5)]))
+	assert [row["title"] for row in revealed] == \
+		[row["title"] for row in expected]
+	closed_drawn = next(row for row in revealed
+	                    if row["title"] == "already done")
+	closed_json = next(row for row in expected
+	                   if row["title"] == "already done")
+	assert closed_drawn["status"] == app.status_cell(closed_json) == "c/sat"

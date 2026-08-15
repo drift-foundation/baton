@@ -27,41 +27,48 @@ from baton_work.config import _no_duplicates, validate_root_id
 MANAGED_HOME = ("baton.json", "roots.json", "BATON-SETUP.md",
                 "work.sqlite3")
 
-SETUP_INSTRUCTIONS = """\
-# Setting up this Baton coordination home
-
-`baton init` wrote two strict-JSON files for you to edit:
-
-1. `baton.json` — the generation-one authority configuration. It is
-   deliberately INCOMPLETE: add your teams (participants, roles,
-   routes, kinds) and, if you use repository dossiers, the portable
-   `roots` catalog. Do not add comments; the file must stay strict
-   JSON.
-2. `roots.json` — the machine-local resolver mapping root ids to THIS
-   machine's absolute checkout paths. It never becomes authority
-   state; other machines keep their own copy.
-
-When the configuration is complete, activate the authority:
-
-    baton activate . --participant team.member
-
-Activation runs the one authoritative validation and creates the
-unique SQLite database only if the document passes; a refusal leaves
-nothing behind, so edit and retry freely. After activation, members
-open the instance with `--config baton.json --participant team.member`.
-"""
+# The scaffold's CONTENT comes from exact-release assets (R107):
+# `doc/BATON-SETUP.md`, `conf/baton.scaffold.json`, and
+# `conf/roots.scaffold.json` ride every distribution byte-for-byte
+# (source tree: docs/ and conf/). init consumes them and refuses when
+# one is absent — it never substitutes embedded text.
 
 
-def _home_template(authority_uuid: str) -> dict:
-	return {
-		"config_version": 1,
-		"protocol_version": 11,
-		"generation": 1,
-		"instance": {"name": "edit-me", "authority_uuid": authority_uuid,
-		             "database": "work.sqlite3"},
-		"teams": {},
-		"roots": {},
-	}
+def _release_dir(release_name: str, source_name: str,
+                 label: str | None = None) -> str:
+	"""Locate one exact-release asset family. Release layout first —
+	the directory beside the `bin/` the executable runs from (M6:
+	separate assets, never zipapp-embedded) — then the source tree."""
+	candidates = []
+	argv0 = os.path.abspath(sys_argv0())
+	candidates.append(os.path.join(
+		os.path.dirname(os.path.dirname(argv0)), release_name))
+	here = os.path.dirname(os.path.abspath(__file__))
+	candidates.append(os.path.join(
+		os.path.dirname(os.path.dirname(here)), source_name))
+	for candidate in candidates:
+		if os.path.isdir(candidate):
+			return candidate
+	raise WorkError(
+		f"no {label or release_name} assets found: "
+		f"expected {release_name}/ "
+		f"beside this release's bin/ or {source_name}/ in the source "
+		f"tree; the distribution may be incomplete")
+
+
+def _release_asset(release_name: str, source_name: str,
+                   filename: str) -> str:
+	directory = _release_dir(release_name, source_name)
+	path = os.path.join(directory, filename)
+	try:
+		with open(path, "r", encoding="utf-8") as handle:
+			return handle.read()
+	except OSError as failure:
+		raise WorkError(
+			f"required release asset {release_name}/{filename} is "
+			f"missing or unreadable ({failure}); the distribution is "
+			f"incomplete — init refuses rather than substituting "
+			f"embedded text") from None
 
 
 def scaffold_home(directory: str) -> dict:
@@ -81,14 +88,37 @@ def scaffold_home(directory: str) -> dict:
 			f"{blockers}; init may already have run here, or an "
 			f"interrupted attempt needs inspection and manual cleanup. "
 			f"init never adopts, resumes, overwrites, or deletes.")
+	# R107: the scaffold documents are the RELEASE'S assets — the setup
+	# instructions and the roots seed byte-for-byte, and the strict
+	# configuration EXAMPLE as the seed: its skeleton (versions,
+	# instance shape) is kept, its demonstration teams/roots are reset
+	# to the editable empty sections, and only name and authority uuid
+	# are substituted. Never embedded constants.
+	setup_text = _release_asset("doc", "docs", "BATON-SETUP.md")
+	roots_seed = _release_asset("conf", "conf", "roots.scaffold.json")
+	example_seed = _release_asset("conf", "conf", "baton.example.json")
+	try:
+		document = json.loads(example_seed,
+		                      object_pairs_hook=_no_duplicates)
+	except WorkError:
+		raise
+	except ValueError as broken:
+		raise WorkError(f"the release asset conf/baton.example.json "
+		                f"is not valid JSON: {broken}") from None
+	if not isinstance(document, dict) or \
+			not isinstance(document.get("instance"), dict):
+		raise WorkError("the release asset conf/baton.example.json "
+		                "must be an object with an 'instance' section")
 	authority_uuid = secrets.token_hex(16)
+	document["teams"] = {}
+	document["roots"] = {}
+	document["instance"]["name"] = "edit-me"
+	document["instance"]["authority_uuid"] = authority_uuid
 	files = (
-		("roots.json",
-		 json.dumps({"roots": {}}, indent=2, sort_keys=True) + "\n"),
-		("BATON-SETUP.md", SETUP_INSTRUCTIONS),
+		("roots.json", roots_seed),
+		("BATON-SETUP.md", setup_text),
 		("baton.json",
-		 json.dumps(_home_template(authority_uuid), indent=2,
-		            sort_keys=True) + "\n"),
+		 json.dumps(document, indent=2, sort_keys=True) + "\n"),
 	)
 	created = []
 	for name, content in files:
@@ -194,23 +224,9 @@ def resolve_base(mapping: dict, root_id: str) -> str:
 
 
 def template_dir() -> str:
-	"""Locate this product's template assets. Release layout first —
-	`tmpl/` beside the `bin/` the executable runs from (M6: a separate
-	exact-release asset, never zipapp-embedded) — then the source tree."""
-	candidates = []
-	argv0 = os.path.abspath(sys_argv0())
-	candidates.append(os.path.join(os.path.dirname(os.path.dirname(argv0)),
-	                               "tmpl"))
-	here = os.path.dirname(os.path.abspath(__file__))
-	candidates.append(os.path.join(os.path.dirname(os.path.dirname(here)),
-	                               "tmpl"))
-	for candidate in candidates:
-		if os.path.isdir(candidate):
-			return candidate
-	raise WorkError(
-		"no template assets found: expected tmpl/ beside this "
-		"release's bin/ or in the source tree; the distribution may "
-		"be incomplete")
+	"""Locate this product's template assets — the same exact-release
+	resolution as every other asset family (M6)."""
+	return _release_dir("tmpl", "tmpl", label="template")
 
 
 def sys_argv0() -> str:

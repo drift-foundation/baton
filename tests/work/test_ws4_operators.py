@@ -614,6 +614,8 @@ def test_the_console_discussion_view_is_pure(world):
 	console.path = [mine["work_id"]]
 	console.mode = "discussion"
 	console._render_discussion(Screen(), 24, 100)
+	console.handle(10)                    # Enter: open the discussion
+	console._render_thread(Screen(), 24, 100)
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	assert _hashlib.sha256(
 		open(store.path, "rb").read()).hexdigest() == digest, \

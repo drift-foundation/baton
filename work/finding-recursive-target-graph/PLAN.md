@@ -1489,3 +1489,130 @@ and diff checking is clean. No WS-6 Slice B finding remains; the planned WS-6
 implementation is accepted. Production deployment, mailbox creation or
 migration, participant shutdown, and cutover remain held as Slawomir-owned
 manual operations.
+
+**V11-only development gate; Gate B TUI is next.** Slawomir ruled that the
+working deployed v10 generation is frozen and no longer rebuilt or retested as
+part of routine v11 work. This supersedes the earlier combined `just build` /
+`just test` prerequisite for v11 phases. Use focused v11 evidence plus
+`just test-v11`; any candidate packaging exercise is scoped to the v11 product
+and isolated targets. Resume Gate B with a bounded TUI-completion plan,
+same-fixture TUI/JSON parity and a packaged parallel v11 trial. Production
+cutover remains held and v10 remains the live coordination channel meanwhile.
+
+**Gate B next-phase proposal requires correction.** See
+`review-2026-08-15T19-33-14Z.md`. The revised proposal correctly withdraws
+cutover work, but its preliminary full-product/full-suite baseline still
+retests v10, and its TUI scope revives superseded `Unans.`/objective
+vocabulary. Remove the combined baseline; use Work and personal recursive
+`New`; revalidate every displayed field against the current canonical
+projection. Presentation layout, responsive widths, sorting and keys may be
+prototyped inside the bounded Gate B slice and returned with real-PTY evidence.
+Phase 3 trial paths and roster are selected only after Phase 2 acceptance.
+Implementation remains held pending the corrected plan.
+
+**Corrected Gate B released.** Slawomir approved the corrected scope after the
+review above. K may implement B1–B3 as one v11-only phase: render only current
+canonical Work/`New` semantics, complete bounded Work navigation and focused
+detail with real-PTY evidence, expand the shared TUI/JSON parity fixture, and
+drive the ruled packaged-v11 TUI scenario. Presentation-only layout, width,
+sorting, key and detail choices may be prototyped and returned at Stop 1; a
+missing semantic value or contradiction stops for ruling before changing the
+projection. Run focused v11 suites plus `just test-v11`, then stop for review.
+Do not build or test v10. The packaged parallel trial is released only after
+Gate B acceptance, when Slawomir will select paths, participants and workflows.
+Production migration, deployment, shutdown and cutover remain held.
+
+**Corrected Gate B plan accepted.** See
+`review-2026-08-15T19-35-16Z.md`. R100/R101 are satisfied: the gate is v11-only
+and the proposed columns match the canonical `_row_view`, using Work and
+personal recursive `New` without invented last-update or blocker-summary
+semantics. The existing implementation release remains in force. K proceeds
+through B1–B3 and stops with focused, real-PTY, packaged and `just test-v11`
+evidence. The parallel trial and every production operation remain held.
+
+**Human trial handoff is part of Gate B acceptance.** The Stop 1 response must
+give Slawomir exact commands to launch the packaged v11 TUI against a separate
+explicit v11 config/database and demonstrate that none of those commands open,
+lock, migrate, stop or rewrite the live v10 deployment. The packaged evidence
+uses an isolated instance. After acceptance Slawomir selects the lasting trial
+paths, roster, roots and workflows and can test/provide feedback without a new
+source change; observations become ordinary v11 Work. This is parallel trial
+readiness, not production cutover authorization.
+
+**Operator boundary clarified.** Gate B must leave a v11-only deployment entry
+point that Slawomir runs against an explicit distribution destination. Deploy
+installs immutable v11 executables/docs/config examples/templates only; it
+does not create or activate the real coordination home. The handoff supplies
+the exact deploy command and installed executable path. Slawomir then runs
+`init`, edits the generated config, and runs `activate` himself in a separate
+coordination-home directory. Automated acceptance exercises that sequence only
+under isolated temporary roots and never touches v10.
+
+**Parallel trial participants confirmed.** After Slawomir deploys and manually
+initializes/activates the isolated v11 coordination home, he brings the human,
+`baton.reviewer` and `baton.implementer` into that configured instance for a
+joint TUI/CLI test drive. The participant/role/route/root topology is declared
+during the edit-before-activate step. V10 remains live in parallel as the
+coordination and recovery channel; v11 trial defects become reviewed v11 Work
+and do not trigger v10 migration, shutdown or repair.
+
+**Gate B Stop 1 review: R102–R106 changes requested.** See
+`review-2026-08-15T19-54-12Z.md`. The row/focused rendering is directionally
+sound, but the handoff still hand-builds a source-copy zipapp instead of a
+complete v11-only deployed distribution; its v10 “byte identity” command
+hashes pathnames rather than bytes; the TUI hides declared transitions and B3
+does not execute the ruled scenario; linked Work and multiple discussions are
+not navigable; and narrow/long tables truncate columns, lose the collapse
+footer and allow an invisible cursor. Four additive reviewer cases report five
+failures and 20 passes. Correct only Gate B, run focused plus
+`just test-v11`, and stop for re-review. The parallel human trial and every
+production operation remain held.
+
+**Gate B Stop 1 correction review: R106 satisfied; R102/R104/R105 remain and
+R107–R111 requested.** See `review-2026-08-15T20-00-39Z.md`. The responsive
+table regressions are green and the exact-directory deploy boundary is useful,
+but the candidate still omits the ruled `doc/` and `conf/` payloads, the TUI
+only names rather than performs canonical workflow transitions, and linked
+Work plus multiple discussions remain non-navigable. B3 still hand-builds a
+second archive and exercises only read/seen while CLI commands perform the
+onboarding acts; candidate assembly also admits checkout bytecode. Correct the
+complete distribution and installed-TUI scenario, run focused plus
+`just test-v11`, and stop again. The parallel trial and production operations
+remain held.
+
+**Gate B crossed correction review: substantial progress; R112–R116 remain.**
+See `review-2026-08-15T20-19-16Z.md`. The four-part payload, isolated canary,
+stable-id link drill, selectable discussions, bounded thread read and single
+deployed B3 artifact are accepted directions. Installed `init` still ignores
+the exact release's `conf/`, the zipapp contains checkout bytecode, and the
+command bar permits a second `--participant` to replace the console's validated
+identity; three additive regressions reproduce those failures. B3 still omits
+the planned return and does not prove include fan-out, while the discussion set
+silently truncates after 50. Correct R112–R116 and stop after focused plus full
+v11 gates. Parallel trial and production operations remain held.
+
+**Gate B R107–R111 crossed correction: R112/R113 accepted; R117–R119 remain.**
+See `review-2026-08-15T20-32-06Z.md`. Exact-release scaffold consumption,
+missing-asset refusal, four-family payload ownership, bytecode exclusion and
+the unified packaged build path are accepted. Argparse abbreviation still
+bypasses the command-bar identity guard, B3 sets but never consumes planned
+`Next`, and the Work discussion set discards continuation after 50 rows. Two
+additive regressions fail. Correct only those bounded gaps and stop after
+focused plus full v11 gates; parallel trial and production operations remain
+held.
+
+**Gate B accepted; isolated parallel trial released.** See
+`review-2026-08-15T20-41-44Z.md`. R117–R119 are satisfied and the complete
+Gate B product passes the targeted scenario, focused suites, 540 parallel plus
+3 serial v11 tests, and diff checking. Slawomir may commit the WIP, deploy v11
+into a new explicit immutable distribution directory, then personally run the
+installed executable's `init`, edit and `activate` flow in a separate new v11
+coordination home. The human, `baton.reviewer` and `baton.implementer` may then
+join that isolated instance for the ruled test drive beside live v10.
+Production deployment, v10 migration, shutdown and cutover remain held.
+
+**Post-acceptance parser delta accepted.** See
+`review-2026-08-15T20-44-00Z.md`. Public long-option abbreviation is disabled
+at the parser, and both CLI/TUI identity-prefix regressions pass. Gate B remains
+accepted and the isolated trial remains released. Await K's reviewed WIP
+commit message; production operations remain held.

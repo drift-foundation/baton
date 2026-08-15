@@ -96,9 +96,15 @@ def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
 
 
 def drive(authority_path: str, viewer: str, script,
-          columns: int = 110, lines: int = 32, settle: float = 0.6):
+          columns: int = 110, lines: int = 32, settle: float = 0.6,
+          command=None):
 	"""Spawn the console on a real pty, feed `script` [(bytes, pause)...],
-	return (whole_transcript, exit_status, per_step_prefixes)."""
+	return (whole_transcript, exit_status, per_step_prefixes).
+
+	`command` selects the ENTRY: None drives the source tree via
+	`-m baton_work.cli`; a list (e.g. [sys.executable, archive]) drives a
+	packaged artifact — with PYTHONPATH deliberately absent, so the
+	archive stands alone (B3)."""
 	import fcntl
 	import termios
 
@@ -114,12 +120,15 @@ def drive(authority_path: str, viewer: str, script,
 		# LINES/COLUMNS over the ioctl, so state them.
 		os.environ["LINES"] = str(lines)
 		os.environ["COLUMNS"] = str(columns)
-		os.environ["PYTHONPATH"] = src
 		os.environ["LANG"] = "C.UTF-8"
-		os.execv(sys.executable,
-		         [sys.executable, "-m", "baton_work.cli",
-		          "--config", authority_path, "--participant", viewer,
-		          "tui"])
+		if command is None:
+			os.environ["PYTHONPATH"] = src
+			argv = [sys.executable, "-m", "baton_work.cli"]
+		else:
+			os.environ.pop("PYTHONPATH", None)
+			argv = list(command)
+		os.execv(argv[0], argv + ["--config", authority_path,
+		                          "--participant", viewer, "tui"])
 	fcntl.ioctl(fd, termios.TIOCSWINSZ,
 	            struct.pack("HHHH", lines, columns, 0, 0))
 	out = bytearray()

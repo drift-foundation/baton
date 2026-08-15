@@ -16,7 +16,6 @@ import os
 import shutil
 import subprocess
 import sys
-import zipapp
 
 SRC = os.path.join(
 	os.path.dirname(os.path.dirname(os.path.dirname(
@@ -27,18 +26,18 @@ UUID = "ab" * 16
 
 
 def build_archive(directory: str) -> str:
-	"""The built artifact the packaged mode drives — same sources, entered
-	only through the archive."""
-	staging = os.path.join(directory, "app")
-	shutil.copytree(os.path.join(SRC, "baton_work"),
-	                os.path.join(staging, "baton_work"))
-	target = os.path.join(directory, "baton-work.pyz")
-	# cli:entry, NOT cli:main — zipapp discards the target's return value,
-	# so main-as-target exits 0 on refusals (WF-06 found this; the focused
-	# regression lives in test_packaged.py).
-	zipapp.create_archive(staging, target, interpreter=None,
-	                      main="baton_work.cli:entry")
-	return target
+	"""The artifact the packaged mode drives is the DEPLOYED product —
+	one build path (tools/deploy_work.py) for every packaged test, so a
+	second builder can never drift from the real distribution (R110).
+	Returns the installed executable; running it via `sys.executable`
+	works because the zipapp payload follows the shebang."""
+	deployer = os.path.join(os.path.dirname(SRC), "tools",
+	                        "deploy_work.py")
+	target = os.path.join(directory, "dist")
+	proc = subprocess.run([sys.executable, deployer, target],
+	                      capture_output=True, text=True, timeout=300)
+	assert proc.returncode == 0, proc.stderr
+	return os.path.join(target, "bin", "baton-work")
 
 
 class Flow:

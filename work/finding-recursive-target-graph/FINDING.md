@@ -2555,3 +2555,100 @@ but do not deploy to a live production root, create or migrate a production
 mailbox, stop production participants, or perform cutover. Production
 deployment is expected to be a manual operator step unless Slawomir later
 explicitly authorizes a particular operation.
+
+## 2026-08-15 — protocol 10 is no longer part of the v11 development gate
+
+**Confirmed by Slawomir after WS-6 acceptance.** Protocol 10 is already the
+working, deployed coordination system. V11 development does not repeatedly
+rebuild or retest v10 merely because both generations share this repository.
+The v10 runtime remains available as the live channel while v11 is developed,
+but it is frozen and outside the ordinary v11 verification scope.
+
+This supersedes the earlier plan item that preserved `just build` followed by
+the combined `just test` as a prerequisite for each v11 candidate phase. V11
+changes use focused v11 tests plus `just test-v11`; packaging checks exercise
+the v11 product and its own distribution assets against isolated targets.
+Work on v10 resumes only for a separately identified production-blocking v10
+defect, not as routine regression coverage for v11.
+
+The immediate next product phase is therefore Gate B TUI completion and
+TUI/JSON parity over the accepted v11 engine, followed by a packaged parallel
+v11 trial. It is not v10 retesting and it is not production cutover.
+
+## 2026-08-15 — corrected Gate B TUI phase authorized
+
+**Approved by Slawomir after the next-phase review.** Gate B now proceeds as a
+v11-only phase over the accepted canonical engine and projection. Its product
+vocabulary is Work, not objective, and its participant-relative recursive
+message counter is `New`, not the superseded `Unans.` counter. The TUI renders
+canonical values; it does not invent progress, blocker, last-update, or other
+workflow semantics absent from the shared projection.
+
+B1 completes the bounded borderless Work navigation and focused Work view
+through the shared projection with real-PTY evidence. B2 expands one shared
+fixture into semantic TUI/JSON parity for rows, personal counts, drill links,
+and actionable state. B3 drives the ruled scenario through the packaged v11
+TUI rather than source-private entry points. Focused v11 evidence and
+`just test-v11` are the gate; no v10 build or test is part of it.
+
+Pane arrangement, responsive widths, sorting, keys, and detail presentation
+may be implemented as bounded prototypes because they carry no separate
+workflow semantics. They return at the Gate B review stop for human trial and
+refinement. Any missing canonical state or product contradiction returns for
+ruling before the projection is changed.
+
+Only after Gate B acceptance may the packaged v11-only parallel trial begin.
+Its paths, roster, and real workflows are selected then. V10 remains live and
+untouched; migration, production deployment, shutdown, and cutover remain
+held.
+
+## 2026-08-15 — Gate B must hand the human a safe parallel TUI trial
+
+**Confirmed by Slawomir as Gate B acceptance behavior.** When Gate B is done,
+Slawomir must be able to launch the packaged v11 TUI himself and perform
+feedback/testing without affecting the production v10 system. The handoff
+therefore includes exact commands for the packaged v11 executable and an
+explicit, separately initialized v11 coordination-home config and database.
+No command may infer, open, lock, migrate, stop, or rewrite a v10 path.
+
+The Gate B evidence proves the packaged TUI against an isolated instance and
+the review response supplies the trial launch sequence. Selection of the real
+trial path, participants, project roots, and workflows remains a deliberate
+post-acceptance choice; the product must already make that choice sufficient,
+without another source change. Human trial observations become ordinary v11
+Work and may drive further iterations before any production cutover is
+considered.
+
+## 2026-08-15 — human deploys the v11 distribution, then initializes coordination
+
+**Clarified by Slawomir.** At the end of Gate B, the repository must provide a
+v11-only deployment command that Slawomir can run against an explicit
+distribution destination directory. That operation installs the immutable v11
+product layout—executables, documentation, configuration examples and
+templates—into the chosen distribution root. It does not create or activate a
+real coordination home and does not touch v10.
+
+After deployment, Slawomir personally runs the installed v11 product's public
+`init`, edits the generated coordination configuration, and runs `activate`.
+The Gate B handoff gives the exact commands and resolved installed executable
+path but does not perform those real operator steps. Tests may exercise the
+same sequence only against isolated temporary roots.
+
+The distribution destination and coordination home are distinct location
+domains. Calling the former a `dist` directory never makes it an authority,
+mailbox, project root, or mutable template workspace.
+
+## 2026-08-15 — Slawomir starts the parallel three-participant trial
+
+**Confirmed by Slawomir.** After manually deploying v11 and completing the
+real `init` / edit / `activate` sequence, Slawomir brings the human,
+`baton.reviewer`, and `baton.implementer` into that isolated v11 coordination
+instance for a joint test drive. The generated configuration is edited to
+declare the trial participants, teams, roles, routes and roots before
+activation; joining does not mutate or infer topology after the fact.
+
+The trial runs beside v10. V10 remains live as the proven coordination and
+recovery channel while all experimental Work, discussions, transitions and
+TUI feedback occur in the separate v11 authority. A v11 defect never requires
+shutting down, migrating, or repairing v10. Findings from the trial are
+reported and reviewed before any later cutover decision.

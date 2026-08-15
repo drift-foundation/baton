@@ -1917,3 +1917,256 @@ serial green. No WS-6 Slice B finding remains — Slice B and the
 planned WS-6 implementation are ACCEPTED. Production deployment,
 mailbox creation/migration, participant shutdown, and cutover remain
 held as Slawomir-owned manual operations.
+
+## Step 50 — Gate B B1–B3 implemented; stopped for review (2026-08-15)
+
+Per the released corrected plan (message e5edf007565a8d54458437467f63d909):
+
+- **B1** — the console now formats the COMPLETE canonical row: ST
+  gains the closed-outcome compact map (c/sat, c/nsat, c/rej,
+  c/canc — a closed map like phase/classification), PROG renders the
+  projection's direct closed/children, DEP the ruled open-dependent
+  count. Resolved rows are COLLAPSED by default with an explicit
+  "(N closed hidden — z shows)" footer and a `z` reveal. `b` opens
+  blocking/dependent neighbors on demand — every line the `links`
+  projection's far-row summary. The focused view states the typed
+  waiting condition, closed outcome + rationale, effective binding,
+  effective contract revision (message seq), duplicate/follow-up
+  identity, and the discussion-set size — all canonical values; the
+  renderer formats, never derives. Responsive narrow-width behavior
+  drops whole low-priority columns (CLS→DEP→PROG→PHASE) keeping a
+  minimum title width — identities are never squeezed; shared
+  `visible_columns` keeps the parity parser locked to the layout.
+- **B2** — parity extended: home rows now assert status/outcome,
+  progress, and dep value-by-value across four viewers; new
+  links-on-demand parity (TUI lines vs JSON `links` edges) and
+  collapse parity (default = JSON open rows + named hidden count;
+  `z` = the full JSON set with the canonical outcome).
+- **B3** — `test_tui_packaged.py`: the ruled scenario (open → drill →
+  discussion → explicit seen → JSON agreement) through the zipapp on
+  a real PTY with PYTHONPATH absent, JSON side through the SAME
+  archive; refuse-before-curses through the archive.
+- Presentation prototypes (for disposition): key map q/j,k/Enter/
+  Esc/o/s/b/z; responsive omission order; footer collapse notice.
+- Break-sweeps (defect in → red → restore → green, no residue): DEP
+  dropped client-side (parity red), closed outcome hidden (2 red),
+  silent collapse (red), links far-status dropped (2 red),
+  responsive omission disabled (red). A tenth guard bit on its own:
+  the tui-boundary test caught the word SELECT in a comment.
+
+Gate: 20 focused (9 TUI + 9 parity + 2 packaged) green;
+`just test-v11` 518 parallel + 3 serial green. STOPPED for review.
+Parallel trial and production operations remain held.
+
+## Step 51 — v11-only deployer; reviewer TUI regressions green (2026-08-15)
+
+Per follow-up 21fb9695d63413f0fd06b31bea5178aa (handoff = a real v11
+deploy command to an explicit dist dir; joint trial after; automated
+acceptance temp-only):
+
+- **tools/deploy_work.py** (NEW, v11-only, shares nothing with the
+  frozen v10 deploy): builds the baton-work zipapp (cli:entry,
+  /usr/bin/env python3 interpreter, executable) and publishes the
+  ruled release layout `<target>/bin/baton-work` + `<target>/tmpl/*`
+  by ONE atomic rename of a sibling scratch dir — complete or
+  nothing. The explicit target must not exist (exact release dirs
+  are immutable; never adopt/overwrite/delete); a missing parent
+  refuses; templates are sibling assets, never embedded.
+- **tests/work/test_deploy_v11.py** (3, temp-only): ruled layout with
+  byte-equal assets and no zipapp embedding; immutability + missing
+  parent refusals; the INSTALLED executable runs the whole
+  onboarding story (init → edit → activate → create → home →
+  bootstrap vendoring the DEPLOYED sibling tmpl) plus the deployed
+  TUI on a real PTY.
+- The reviewer's five new TUI regressions (appended mid-round) made
+  green: responsive budget now always fits (DROP_ORDER extended
+  CLS→DEP→PROG→PHASE→READY→NEXT under the 44/56-cell checks); a full
+  page of open rows RESERVES the hidden-closed footer line; long
+  tables SCROLL so the selected row Enter acts on is always painted;
+  the focused view lists the projection-declared
+  available_transitions ("can: ...").
+- Break-sweeps (defect in → red → restore → green, no residue):
+  deployer overwrites in place; templates embedded in the zipapp;
+  sibling assets dropped; scrolling dropped; footer reserve dropped;
+  transitions line dropped; drop-order truncated.
+- Handoff proof rerun with the DEPLOY command: deploy → init → edit →
+  activate → create → home through the installed executable, the v10
+  mailbox tree hash-identical before and after.
+
+Gate: 28 focused (10 TUI + 11 parity + 2 packaged + 3 deploy + the 2
+narrow-budget params) green; `just test-v11` 526 parallel + 3 serial
+green. Awaiting Stop-1 disposition and the joint-trial arrangements;
+production operations remain held.
+
+## Step 52 — R102–R106 corrections (2026-08-15)
+
+Per review-2026-08-15T19-54-12Z.md (which crossed the deployer round;
+R106 and the transitions line were already green from Step 51):
+
+- **R102** — the distribution is COMPLETE: tools/deploy_work.py now
+  ships doc/BATON-WORK.md (new operator quickstart, docs/) and
+  conf/baton.example.json (new complete valid strict example, conf/ —
+  proven valid by the product's own loader) beside bin/ and tmpl/.
+  B3 and its harness exercise the DEPLOYED artifact produced by the
+  real deploy command — the ad-hoc source-copy/zipapp construction
+  and the rm -rf handoff steps are gone.
+- **R103** — the false byte-identity prose is withdrawn; containment
+  is proven against an isolated CANARY tree (bytes+inode+mtime
+  snapshot survives the whole deploy+onboarding story) and by the
+  explicit config/path boundary. Production v10 is not probed at all.
+- **R104** — the console now has ACTIONS: the `:` command bar routes
+  the typed line through the ONE public CLI entry (same config,
+  participant, grammar, refusals; boundary test amended to allow the
+  cli import — SQL/_write/baton_core stay banned). B3 is the ruled
+  scenario through the DEPLOYED console: create (both teams),
+  include fan-out, request obligation, response, pass with planned
+  return, dependency edge, terminal satisfying close unblocking the
+  consumer, collapsed/revealed closed outcome, and a public refusal
+  surfacing in the console.
+- **R105** — links are NAVIGABLE (selectable rows with stable Work
+  ids; Enter performs the cross-team drill-through with real
+  breadcrumb ancestry) and the focused view lists the discussion SET
+  selectably (ids + personal New); Enter opens exactly the chosen
+  discussion; threads read in BOUNDED pages (n/p) with seen bounded
+  by the painted page. Three real-PTY regressions added.
+- **R106** — already green (fit at 44/56, footer reserve, scroll);
+  completed with the explicit too-narrow refusal ("terminal too
+  narrow: need N cells") below the minimum, plus its PTY test.
+- The three WS-4-era console seen-tests were adapted to the new
+  navigation (Enter-then-thread) with their page-bounded assertions
+  UNCHANGED; the tui boundary guard bit twice more (uppercase needle)
+  and its allowlist gained exactly `cli`.
+
+Break-sweeps (defect in → red → restore → green, no residue):
+command bar severed (B3 red), drill-through dropped (red), selection
+ignored (red), paging dropped (red), too-narrow refusal dropped
+(red), doc/conf assets dropped (red).
+
+Gate: 33 focused (19 TUI + 9 parity + 2 packaged-scenario + 4
+deploy, incl. all reviewer regressions) green; `just test-v11` 531
+parallel + 3 serial green. STOPPED for re-review. Parallel trial and
+production operations remain held.
+
+## Step 53 — R107–R111 corrections (2026-08-15)
+
+Per review-2026-08-15T20-00-39Z.md (which crossed the R102–R106
+round; R108/R109 and the deployed-scenario B3 were already delivered
+there):
+
+- **R107** — the distribution is the full four-part release AND init
+  consumes it: new exact-release assets doc/BATON-SETUP.md (source
+  docs/) and conf/roots.scaffold.json join doc/BATON-WORK.md and
+  conf/baton.example.json. `scaffold_home` now reads the setup
+  document and roots seed BYTE-FOR-BYTE from the release and seeds
+  baton.json from the configuration EXAMPLE's skeleton (teams/roots
+  reset to the editable empty sections, fresh authority uuid) — the
+  embedded SETUP_INSTRUCTIONS/_home_template constants are deleted;
+  a missing sibling asset refuses, naming it (the reviewer's
+  installed-init regression green). template_dir generalizes into the
+  shared `_release_dir` asset resolution.
+- **R110** — ONE packaged build path: wfdriver.build_archive and
+  test_packaged's fixture now invoke tools/deploy_work.py and drive
+  the installed `bin/baton-work`; the independent source-copy zipapp
+  builders are gone; the whole 56-run workflow battery passes on the
+  deployed product.
+- **R111** — candidate assembly excludes __pycache__/.pyc/.pyo, and
+  acceptance lists the deployed archive's members to pin the absence
+  of interpreter residue (the checkout DID contain stale bytecode —
+  the sweep proved the leak was real before the fix).
+- The reviewer's newest regression — the command bar re-entering
+  `--participant`/`--config` — is guarded: the console's validated
+  session identity is fixed; a typed global refuses with the reason
+  (identity-by-assertion never returns through the command bar).
+
+Break-sweeps (defect in → red → restore → green, no residue):
+bytecode shipped (member listing red); a VALID embedded substitute on
+missing assets (installed-init regression red — the naive invalid-
+JSON fallback was masked and the sweep was sharpened until it bit);
+scaffold byte-drift (byte-for-byte red); identity guard dropped
+(red).
+
+Gate: 57 focused green (project 16, deploy 8, packaged 3, TUI 21,
+parity 11 incl. every reviewer regression, deployed-scenario 2 —
+counts per file); all 56 workflows green on the deployed product;
+`just test-v11` 536 parallel + 3 serial green. STOPPED for
+re-review. Parallel trial and production operations remain held.
+
+## Step 54 — R112–R116 corrections (2026-08-15)
+
+Per review-2026-08-15T20-19-16Z.md (which crossed the R107–R111
+round; R112/R113/R114 were already delivered there and the reviewer's
+three added regressions — installed-init asset refusal, deployed-
+archive bytecode listing, command-bar participant replacement — pass
+on that tree):
+
+- **R112 residue** — docs/BATON-WORK.md corrected: conf/ is "the
+  configuration example and scaffold seeds (init consumes them; a
+  partial release refuses)", not "never read by the product".
+- **R114 hardening** — the reviewer's newest abbreviation regression
+  bit the exact-spelling guard: argparse accepts unambiguous long-
+  option prefixes, so `:--part push.sl ...` impersonated. The guard
+  now refuses EVERY abbreviation the parser would accept for
+  --participant/--config (prefix match, len > 2). Both identity
+  regressions green.
+- **R115** — B3 completes the ruled story: after the outbound pass
+  (pass + planted next, consumed_next=false in the audit), sl
+  performs the CONSUMING return through the deployed console —
+  Current returns to lang.bug, the planned Next is consumed
+  (next=None, consumed_next=true), the audit distinguishes the two
+  acts, and the include act's fan-out is asserted against the
+  audit's resolved audience ({lang.bug, push.bug} from "*.bug").
+  ada, Current again, closes satisfying; the consumer unblocks.
+- **R116** — the discussion SET itself is paged: DISC_PAGE-bounded
+  pages through the canonical continuation cursor (`n` forward with
+  an explicit "(n: more)" hint, `p` return-to-start), reset on entry;
+  a regression drives a set one-past-a-full-page and proves every
+  discussion reachable. The quickstart now documents n/p honestly
+  ("p return to its start (not a previous-page step)").
+
+Break-sweeps: set paging dropped (regression red → restored);
+abbreviation guard covered by the reviewer's own red-then-green.
+
+Gate: 60 focused green across project/deploy/packaged/TUI/parity/
+scenario (every reviewer regression incl. the two identity overrides
+and the bytecode listing); `just test-v11` 539 parallel + 3 serial
+green. STOPPED for re-review. Parallel trial and production
+operations remain held.
+
+## Step 55 — R117–R119 closed (2026-08-15)
+
+Per review-2026-08-15T20-32-06Z.md (which crossed the R112–R116
+round; R118 — the consuming return with audited distinction and
+audience proof — and R119 — cursor-carried discussion-set paging —
+were already delivered there, and the reviewer's two added
+regressions pass on this tree):
+
+- **R117** — the ruled grammar fix: the public CLI parser now sets
+  `allow_abbrev=False`, pinning the full-spelling contract — no
+  abbreviation of any global can be accepted anywhere on the public
+  surface, so the parser grammar and the console's guard agree by
+  construction (the guard remains as the human-readable explanation
+  for the two fixed session globals, no longer a compensating
+  denylist). New public-grammar regression: `--part` refuses as
+  unrecognized through the CLI itself; sweep (re-enabling
+  abbreviation) bites it.
+
+Gate: 68 focused green (project/deploy/packaged/cli-boundary/TUI/
+parity/scenario, every reviewer regression incl. both identity
+overrides, the >50-discussion paging, and the grammar pin);
+`just test-v11` 540 parallel + 3 serial green. STOPPED for
+re-review. Parallel trial and production operations remain held.
+
+## Step 56 — Gate B ACCEPTED; parallel trial released (2026-08-15)
+
+Reviewer accepted Gate B (message 6e1ffd34f3329df7d19a3603bd24f9df,
+review-2026-08-15T20-41-44Z.md): R117–R119 satisfied and every
+earlier correction present; reviewer verification 68-focused +
+540 parallel + 3 serial green, diff check clean. The isolated v11
+parallel human/reviewer/implementer TRIAL is RELEASED: Slawomir may
+commit the WIP, deploy with tools/deploy_work.py into a new explicit
+immutable directory, and run init/edit/activate/TUI in a separate
+v11 coordination home — both paths new/explicit, never naming v10.
+The acceptance does NOT authorize production deployment, migration,
+shutdown, or cutover; v10 stays the live coordination and recovery
+channel during the trial. Commit message drafted and replied
+(commit-message-gateb.txt, response 3705b2437fc34b913a0c66bb93aea7a3).

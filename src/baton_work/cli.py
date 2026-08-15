@@ -32,7 +32,13 @@ def _participant(value: str) -> tuple[str, str]:
 
 
 def main(argv=None) -> int:
-	parser = argparse.ArgumentParser(prog="baton-work")
+	# R117: long-option abbreviation is DISABLED — the public grammar
+	# accepts full spellings only, so no abbreviation of a global
+	# (--participant, --config, ...) can slip past a boundary that
+	# checks the full names. The console's command-bar guard and this
+	# parser therefore agree by construction.
+	parser = argparse.ArgumentParser(prog="baton-work",
+	                                 allow_abbrev=False)
 	parser.add_argument("--config",
 	                    help="the instance configuration (baton.json); "
 	                         "every command except init/activate/"
@@ -379,7 +385,8 @@ def main(argv=None) -> int:
 				from baton_work.tui import run as tui_run
 				import curses
 				curses.wrapper(tui_run, store,
-				               *_participant(args.participant))
+				               *_participant(args.participant),
+				               config_path=args.config)
 				return 0
 			result = _dispatch(store, args)
 			snapshot_seq = (result.pop("snapshot_seq", None)

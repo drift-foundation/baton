@@ -1,0 +1,84 @@
+{
+  "config_version": 1,
+  "generation": 1,
+  "instance": {
+    "authority_uuid": "00000000000000000000000000000000",
+    "database": "work.sqlite3",
+    "name": "example"
+  },
+  "protocol_version": 11,
+  "roots": {
+    "pushcoin": {
+      "display": "PushCoin monorepo"
+    }
+  },
+  "teams": {
+    "lang": {
+      "display": "Language",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "main"
+        }
+      },
+      "participants": {
+        "ada": {
+          "display": "Ada",
+          "roles": [
+            "dev"
+          ]
+        }
+      },
+      "roles": {
+        "dev": {
+          "display": "Developer"
+        }
+      },
+      "routes": {
+        "main": {
+          "handlers": [
+            "ada"
+          ],
+          "role": "dev"
+        }
+      }
+    },
+    "push": {
+      "display": "Pushcoin",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "main"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "main"
+        }
+      },
+      "participants": {
+        "sl": {
+          "capabilities": [
+            "config"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "dev"
+          ]
+        }
+      },
+      "roles": {
+        "dev": {
+          "display": "Developer"
+        }
+      },
+      "routes": {
+        "main": {
+          "handlers": [
+            "sl"
+          ],
+          "role": "dev"
+        }
+      }
+    }
+  }
+}

@@ -124,3 +124,25 @@ def test_every_ordinary_read_requires_a_participant(instance, capsys):
 	             ("events",), ("home",), ("obligations",)):
 		error = _run(capsys, instance, *argv, expect_ok=False)
 		assert "needs --participant" in error["error"], argv
+
+
+def test_the_public_grammar_accepts_full_spellings_only(tmp_path):
+	"""R117: long-option abbreviation is disabled — `--part` is not
+	`--participant` anywhere on the public surface, so no identity or
+	configuration global can be smuggled through a prefix."""
+	import subprocess
+	import sys as _sys
+	import fixtures as fx
+	config_path, _database = fx.build_instance(
+		str(tmp_path), {"lang": {"members": {"ada": ["dev"]},
+		                         "kinds": ["bug"]}})
+	src = os.path.join(os.path.dirname(os.path.dirname(
+		os.path.dirname(os.path.abspath(__file__)))), "src")
+	env = dict(os.environ, PYTHONPATH=src)
+	proc = subprocess.run(
+		[_sys.executable, "-m", "baton_work.cli", "--config",
+		 config_path, "--part", "lang.ada", "home"],
+		capture_output=True, text=True, timeout=120, env=env)
+	assert proc.returncode != 0, \
+		"an abbreviated global was accepted by the public grammar"
+	assert "--part" in proc.stderr

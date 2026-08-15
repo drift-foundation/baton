@@ -152,6 +152,8 @@ def test_console_marks_only_the_discussion_snapshot_it_rendered(discussion):
 	console.path = [work_id]
 	console.mode = "discussion"
 	console._render_discussion(Screen(), 24, 100)
+	console.handle(10)                    # Enter: open the discussion
+	console._render_thread(Screen(), 24, 100)
 	tr.post_discussion(store, discussion_id, author_team="lang", author="ada",
 	                   body="committed after the displayed snapshot")
 	console.handle(ord("s"))
@@ -185,6 +187,8 @@ def test_console_does_not_mark_past_the_returned_thread_page(
 	console.path = [work_id]
 	console.mode = "discussion"
 	console._render_discussion(Screen(), 24, 100)
+	console.handle(10)                    # Enter: open the discussion
+	console._render_thread(Screen(), 24, 100)
 	console.handle(ord("s"))
 	monkeypatch.setattr(pj, "thread", original)
 	assert original(store, discussion_id, viewer_team="lang",

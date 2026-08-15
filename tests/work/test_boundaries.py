@@ -40,7 +40,11 @@ def test_the_tui_imports_only_the_shared_surfaces():
 	"""B1's boundary: the renderer reaches the authority only through
 	projection and transitions — no SQL, no _write, no baton_core."""
 	import ast
-	allowed = ("authority", "projection", "transitions", "tui")
+	# `cli` joined the allowlist with the Gate B command bar: the console
+	# routes typed ACTIONS through the ONE public CLI entry (same grammar,
+	# same refusals) — going through the boundary, not around it. SQL,
+	# _write, and baton_core stay banned below.
+	allowed = ("authority", "projection", "transitions", "cli", "tui")
 	for source in (SRC / "tui").rglob("*.py"):
 		tree = ast.parse(source.read_text())
 		for node in ast.walk(tree):

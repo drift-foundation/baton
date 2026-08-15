@@ -13,10 +13,8 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import sys
-import zipapp
 
 import pytest
 
@@ -27,15 +25,18 @@ SRC = os.path.join(
 
 @pytest.fixture(scope="module")
 def archive(tmp_path_factory):
+	# R110: ONE packaged build path — the artifact under test is the
+	# deployed product, never a second hand-built archive that can
+	# drift. (The cli:entry-vs-main lesson from WF-06 is covered by
+	# driving the deployed executable's refusal below.)
 	staging = tmp_path_factory.mktemp("pack")
-	shutil.copytree(os.path.join(SRC, "baton_work"),
-	                str(staging / "app" / "baton_work"))
-	target = str(staging / "baton-work.pyz")
-	# cli:entry, NOT cli:main — zipapp's generated __main__ discards the
-	# target's return value, so targeting main exits 0 on every refusal.
-	zipapp.create_archive(str(staging / "app"), target,
-	                      interpreter=None, main="baton_work.cli:entry")
-	return target
+	deployer = os.path.join(os.path.dirname(SRC), "tools",
+	                        "deploy_work.py")
+	target = str(staging / "dist")
+	proc = subprocess.run([sys.executable, deployer, target],
+	                      capture_output=True, text=True, timeout=300)
+	assert proc.returncode == 0, proc.stderr
+	return os.path.join(target, "bin", "baton-work")
 
 
 def _run(archive_path, authority, *argv, viewer=None, expect_ok=True):
