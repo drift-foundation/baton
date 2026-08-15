@@ -109,6 +109,8 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		"status": row["status"],
 		"ready": bool(row["ready"]),
 		"outcome": row["outcome"],
+		"rationale": row["rationale"],
+		"duplicate_of": row["duplicate_of"],
 		"follow_up_of": row["follow_up_of"],
 		"current": _endpoint_struct(store, row["current_team"],
 		                            row["current_kind"]),
@@ -212,6 +214,14 @@ def links(store: Authority, work_id: str) -> dict:
 				"ORDER BY edges.created_seq", (work_id,))],
 		# WS-2: follow-up context is NAVIGABLE from both sides and gates
 		# nothing — the relationship preserves closed history.
+		# Terminal-outcome slice: the non-gating duplicate relation is
+		# NAVIGABLE both ways — the duplicate names its canonical
+		# survivor; the survivor lists what was folded into it.
+		"duplicate_of": far(row["duplicate_of"])
+		if row["duplicate_of"] else None,
+		"duplicates": [far(entry["id"]) for entry in store.conn.execute(
+			"SELECT id FROM work WHERE duplicate_of=? ORDER BY "
+			"created_seq", (work_id,))],
 		"follow_up_of": far(row["follow_up_of"])
 		if row["follow_up_of"] else None,
 		"follow_ups": [far(entry["id"]) for entry in store.conn.execute(

@@ -263,7 +263,7 @@ def test_into_requires_the_obligations_own_team_and_open_work(world):
 	                        origin="external-report", author="ada",
 	                        body="b")["work_id"]
 	tr.close_work(store, closed, actor_team="drift", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="gates nothing"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="closed target", into=closed)
@@ -403,7 +403,7 @@ def test_the_accept_versus_consumer_close_race_serializes(world):
 	other = bw.Authority(store.path)
 	_interleave(store, lambda: tr.close_work(
 		other, push1, actor_team="push", actor="sl",
-		disposition="withdrawn locally", outcome="non-satisfying"))
+		rationale="withdrawn locally", outcome="non-satisfying"))
 	with pytest.raises(bw.WorkError, match="already withdrawn"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="racing", create={"kind": "rsrch",
@@ -423,7 +423,7 @@ def test_the_accept_versus_provider_close_race_serializes(world):
 	other = bw.Authority(store.path)
 	_interleave(store, lambda: tr.close_work(
 		other, provider, actor_team="drift", actor="ada",
-		disposition="closed mid-accept", outcome="satisfying"))
+		rationale="closed mid-accept", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="gates nothing"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="racing", into=provider)
@@ -581,7 +581,7 @@ def test_accept_first_then_consumer_close_both_commit(world):
 	                              actor="ada", body="ours",
 	                              create={"kind": "rsrch", "title": "t"})
 	tr.close_work(store, push1, actor_team="push", actor="sl",
-	              disposition="resolved locally anyway",
+	              rationale="resolved locally anyway",
 	              outcome="non-satisfying")
 	obligation = pj.detail(store, push1, viewer_team="push",
 	                       viewer_member="sl")["obligations"][0]
@@ -600,7 +600,7 @@ def test_accept_first_then_provider_close_fans_out(world):
 	                              actor="ada", body="ours",
 	                              create={"kind": "rsrch", "title": "t"})
 	tr.close_work(store, result["provider"], actor_team="drift",
-	              actor="ada", disposition="fixed", outcome="satisfying")
+	              actor="ada", rationale="fixed", outcome="satisfying")
 	row = store.conn.execute("SELECT ready FROM work WHERE id=?",
 	                         (push1,)).fetchone()
 	assert row["ready"] == 1, "the provider close did not end the gate"

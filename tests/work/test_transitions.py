@@ -123,7 +123,7 @@ def test_creation_refuses_bad_inputs_before_writing(store, kwargs, fragment):
 def test_a_child_of_a_closed_parent_is_refused(store):
 	parent = _create(store)["work_id"]
 	tr.close_work(store, parent, actor_team="lang", actor="slaw",
-	              disposition="fixed", outcome="satisfying")
+	              rationale="fixed", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="does not grow new children"):
 		_create(store, title="late child", parent=parent)
 
@@ -137,10 +137,10 @@ def test_children_gate_the_parent_level_triggered(store):
 	assert _ready(store, parent) == 0, "open children left the parent ready"
 
 	tr.close_work(store, child_a, actor_team="lang", actor="slaw",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	assert _ready(store, parent) == 0, "one open child still gates"
 	tr.close_work(store, child_b, actor_team="lang", actor="slaw",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	assert _ready(store, parent) == 1, "all children closed; parent not ready"
 
 
@@ -149,7 +149,7 @@ def test_closing_over_open_children_is_refused_by_name(store):
 	child = _create(store, "step", parent=parent)["work_id"]
 	with pytest.raises(bw.WorkError, match=child):
 		tr.close_work(store, parent, actor_team="lang", actor="slaw",
-		              disposition="premature", outcome="satisfying")
+		              rationale="premature", outcome="satisfying")
 	assert store.conn.execute("SELECT status FROM work WHERE id=?",
 	                          (parent,)).fetchone()["status"] == "open"
 
@@ -157,7 +157,7 @@ def test_closing_over_open_children_is_refused_by_name(store):
 def test_close_clears_current_and_next_terminally(store):
 	work = _create(store)["work_id"]
 	tr.close_work(store, work, actor_team="lang", actor="slaw",
-	              disposition="fixed and verified", outcome="satisfying")
+	              rationale="fixed and verified", outcome="satisfying")
 	row = store.conn.execute("SELECT * FROM work WHERE id=?", (work,)).fetchone()
 	assert row["status"] == "closed"
 	assert row["current_team"] is None and row["current_kind"] is None
@@ -166,11 +166,11 @@ def test_close_clears_current_and_next_terminally(store):
 	assert row["closed_seq"] is not None
 
 
-def test_close_requires_a_disposition(store):
+def test_close_requires_a_rationale(store):
 	work = _create(store)["work_id"]
-	with pytest.raises(bw.WorkError, match="disposition"):
+	with pytest.raises(bw.WorkError, match="rationale"):
 		tr.close_work(store, work, actor_team="lang", actor="slaw",
-		              disposition="  ", outcome="satisfying")
+		              rationale="  ", outcome="satisfying")
 
 
 # -- audit -------------------------------------------------------------------
@@ -179,7 +179,7 @@ def test_every_transition_is_one_audited_event(store):
 	parent = _create(store, "epic")["work_id"]
 	child = _create(store, "step", parent=parent)["work_id"]
 	tr.close_work(store, child, actor_team="lang", actor="slaw",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	follow = tr.create_work(store, team="lang", kind="bug",
 	                        title="follow-up", origin="external-report",
 	                        author="slaw", body="late evidence",
@@ -204,7 +204,7 @@ def test_closed_work_is_terminal_and_follow_up_is_the_only_new_reference(
 		               origin="external-report", author="slaw", body="b",
 		               follow_up_of=work)
 	tr.close_work(store, work, actor_team="lang", actor="slaw",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	row = store.conn.execute("SELECT * FROM work WHERE id=?",
 	                         (work,)).fetchone()
 	assert row["outcome"] == "satisfying"
@@ -290,7 +290,7 @@ def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
-		disposition="fixed and verified", outcome="satisfying"))
+		rationale="fixed and verified", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="closed"):
 		fx.post(racer, work, author_team="lang", author="ada",
 		                body="handing over", pass_to="lang.rev")
@@ -315,7 +315,7 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 		other, work, author_team="lang", author="ada",
 		body="quick handoff", pass_to="lang.rev"))
 	tr.close_work(racer, work, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	closing = next(event for event in racer.events()
 	               if event["kind"] == "close_work")
 	assert closing["payload"]["was_current_kind"] == "rev", \
@@ -329,9 +329,9 @@ def test_wf09_double_close_refuses_in_the_lock(tmp_path):
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
-		disposition="done first", outcome="satisfying"))
+		rationale="done first", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="already closed"):
 		tr.close_work(racer, work, actor_team="lang", actor="ada",
-		              disposition="done second", outcome="satisfying")
+		              rationale="done second", outcome="satisfying")
 	kinds = [event["kind"] for event in racer.events()]
 	assert kinds.count("close_work") == 1

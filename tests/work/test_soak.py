@@ -179,7 +179,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 					if mine:
 						tr.close_work(store, rng.choice(mine),
 						              actor_team=team, actor=member,
-						              disposition="soak close", outcome="satisfying")
+						              rationale="soak close", outcome="satisfying")
 				else:
 					closed = [row["id"] for row in store.conn.execute(
 						"SELECT id FROM work WHERE status='closed'")]

@@ -58,16 +58,18 @@ def test_wf03_provider_rejects_honestly(flow):
 
 	# The consumer decides independently — and its terminal state never
 	# claims a fix that did not happen.
-	flow.ok("close", web1, "--disposition",
+	flow.ok("close", web1, "--rationale",
 	        "workaround shipped: sanitize the DOM before render", "--outcome", "satisfying",
 	        viewer="web.wren")
 	closed = flow.ok("detail", web1, viewer="web.wren")
 	assert closed["status"] == "closed"
 
 	events = assert_final_invariants(flow, "web.wren", [web1])
-	dispositions = [event["payload"].get("disposition")
-	                for event in events
-	                if event["kind"] in ("dispose", "close_work")]
-	assert len(dispositions) == 2, "the dispose or close left no audit"
-	assert all("fixed" not in text for text in dispositions), \
+	prose = [event["payload"]["disposition"]
+	         if event["kind"] == "dispose"
+	         else event["payload"]["rationale"]
+	         for event in events
+	         if event["kind"] in ("dispose", "close_work")]
+	assert len(prose) == 2, "the dispose or close left no audit"
+	assert all("fixed" not in text for text in prose), \
 		"a rejection path recorded a fix claim"

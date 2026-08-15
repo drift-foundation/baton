@@ -99,7 +99,7 @@ def test_ws2_wf03_due_extension_withdrawal(flow):
 	# 5-6. The reviewer closes satisfying BEFORE T2 on the received report
 	# plus elapsed exposure: final progress 1/3, both pending assignments
 	# withdrawn and their routes notified, neither presented as feedback.
-	flow.ok("close", lang42, "--disposition",
+	flow.ok("close", lang42, "--rationale",
 	        "one clean report and broad exposure since T0",
 	        "--outcome", "satisfying", viewer="lang.ada")
 	final = flow.ok("detail", lang42, viewer="lang.ada")["rounds"][0]
@@ -135,7 +135,7 @@ def test_ws2_wf03_the_zero_report_close_branch(flow):
 	        "--assign", "mdb.verify", "--review-at", T1,
 	        viewer="lang.ada")
 	flow.now = T2
-	flow.ok("close", lang42, "--disposition",
+	flow.ok("close", lang42, "--rationale",
 	        "long exposure, zero negative reports anywhere",
 	        "--outcome", "satisfying", viewer="lang.ada")
 	summary = next(event for event in

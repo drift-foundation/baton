@@ -98,7 +98,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	assert detail["next"] is None
 
 	# 6. terminal close unblocks WEB-1, level-triggered.
-	_run(path, "close", lang42, "--disposition", "fixed and verified", "--outcome", "satisfying",
+	_run(path, "close", lang42, "--rationale", "fixed and verified", "--outcome", "satisfying",
 	     viewer="lang.ada")
 	after = _run(path, "detail", web1, viewer="web.wren")["result"]
 	assert after["ready"] is True, "the dependent did not unblock"
@@ -138,7 +138,7 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	             "--body", "b", "--parent", web1,
 	             viewer="web.wren")["result"]["work_id"]
 
-	error = _run(path, "close", web1, "--disposition", "premature", "--outcome", "satisfying",
+	error = _run(path, "close", web1, "--rationale", "premature", "--outcome", "satisfying",
 	             viewer="web.wren", expect_ok=False)
 	assert child in error["error"], "the refusal does not name the open child"
 

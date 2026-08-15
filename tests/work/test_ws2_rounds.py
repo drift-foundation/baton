@@ -98,7 +98,7 @@ def test_round_creation_refusals(world):
 		tr.create_round(store, work, actor_team="lang", actor="grace",
 		                candidate="driftc-A", assign=["push.verify"])
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="closed"):
 		tr.create_round(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A", assign=["push.verify"])
@@ -297,7 +297,7 @@ def test_work_close_ends_open_rounds_and_every_assignment(world):
 	tr.report(store, created["assignments"][0], team="push", member="sl",
 	          observation="passed", evidence="ok")
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="verified in the field",
+	              rationale="verified in the field",
 	              outcome="satisfying")
 	view = _round_view(store, work, 1)
 	assert view["status"] == "closed"

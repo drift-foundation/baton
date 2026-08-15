@@ -44,7 +44,7 @@ def test_ws2_wf05_non_satisfying_close(flow):
 		        "--wait-on-gates", viewer=f"{team}.{member}")
 
 	# 2. Lang closes LANG-42 with explicit non-satisfying and rationale.
-	flow.ok("close", lang42, "--disposition",
+	flow.ok("close", lang42, "--rationale",
 	        "cannot reproduce against current parser; insufficient evidence",
 	        "--outcome", "non-satisfying", viewer="lang.ada")
 
@@ -74,20 +74,20 @@ def test_ws2_wf05_non_satisfying_close(flow):
 	               flow.ok("events", viewer="lang.ada")
 	               if event["kind"] == "close_work")
 	assert closing["payload"]["outcome"] == "non-satisfying"
-	assert "fixed" not in closing["payload"]["disposition"]
+	assert "fixed" not in closing["payload"]["rationale"]
 	assert "recipient" not in closing["payload"], \
 		"the provider close addressed a single return recipient"
 
 	# 5. Each consumer independently chooses its ending.
 	flow.post(consumers["push"], "--body",
 	        "workaround: pin the previous parser", viewer="push.sl")
-	flow.ok("close", consumers["push"], "--disposition",
+	flow.ok("close", consumers["push"], "--rationale",
 	        "workaround shipped; upstream declined", "--outcome",
 	        "non-satisfying", viewer="push.sl")
 	flow.post(consumers["web"], "--body",
 	        "gathering the minimized repro lang asked for",
 	        viewer="web.wren")
-	flow.ok("close", build7, "--disposition", "image rebuilt",
+	flow.ok("close", build7, "--rationale", "image rebuilt",
 	        "--outcome", "satisfying", viewer="mdb.mo")
 	assert flow.ok("detail", consumers["mdb"],
 	               viewer="mdb.mo")["phase"] == "queued", \

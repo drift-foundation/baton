@@ -151,7 +151,7 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 		"the CLI lost the audited return distinction"
 
 	closed = _run(capsys, path, "close", created["work_id"],
-	              "--disposition", "verified", "--outcome", "satisfying",
+	              "--rationale", "verified", "--outcome", "satisfying",
 	              viewer="lang.ada")["result"]
 	assert closed["kind"] == "close_work"
 	detail = _run(capsys, path, "detail", created["work_id"],

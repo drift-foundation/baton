@@ -83,7 +83,7 @@ def test_create_discussion_requires_authorized_live_labels(world):
 	open_work = _create(store)["work_id"]
 	closed = _create(store)["work_id"]
 	tr.close_work(store, closed, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	foreign = _create(store, team="push", member="sl")["work_id"]
 	with pytest.raises(bw.WorkError, match="at least one authorized"):
 		tr.create_discussion(store, actor_team="lang", actor="ada",
@@ -164,7 +164,7 @@ def test_a_label_is_inert_everywhere(world):
 	                 viewer_member="sl")["dep"] == 0
 	# Terminal work may be labelled; still inert.
 	tr.close_work(store, provider["work_id"], actor_team="push",
-	              actor="sl", disposition="done", outcome="satisfying")
+	              actor="sl", rationale="done", outcome="satisfying")
 	other = tr.create_discussion(store, actor_team="push", actor="sl",
 	                             body="retro",
 	                             labels=[_create(store, team="push",
@@ -195,7 +195,7 @@ def test_posting_requires_a_labelled_open_work(world):
 	tr.post_discussion(store, result["discussion"], author_team="push",
 	                   author="sl", body="any configured member may speak")
 	tr.close_work(store, result["work_id"], actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="live-context|labelled open"):
 		tr.post_discussion(store, result["discussion"], author_team="lang",
 		                   author="ada", body="after the end")
@@ -221,7 +221,7 @@ def test_the_last_open_label_closing_mid_post_refuses_in_lock(world):
 	other.clock = store.clock
 	_interleave(store, lambda: tr.close_work(
 		other, result["work_id"], actor_team="lang", actor="ada",
-		disposition="closed mid-post", outcome="satisfying"))
+		rationale="closed mid-post", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="live-context|labelled open"):
 		tr.post_discussion(store, result["discussion"], author_team="lang",
 		                   author="ada", body="racing the close")
@@ -665,7 +665,7 @@ def test_label_audits_the_committing_work_status(world):
 	w2 = _create(store)["work_id"]
 	_interleave(store, lambda: tr.close_work(
 		store, w2, actor_team="lang", actor="ada",
-		disposition="done first", outcome="satisfying"))
+		rationale="done first", outcome="satisfying"))
 	result = tr.label_discussion(store, d1, w2, actor_team="lang",
 	                             actor="ada")
 	event = next(event for event in store.events()

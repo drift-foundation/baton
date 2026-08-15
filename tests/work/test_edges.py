@@ -69,7 +69,7 @@ def test_lang_42_three_consumers_one_close_fans_out(store):
 	assert [_ready(store, w) for w in (pushcoin, web, mariadb)] == [0, 0, 0]
 
 	tr.close_work(store, lang42, actor_team="lang", actor="ada",
-	              disposition="fixed and verified", outcome="satisfying")
+	              rationale="fixed and verified", outcome="satisfying")
 
 	assert _ready(store, pushcoin) == 1
 	assert _ready(store, web) == 1
@@ -94,7 +94,7 @@ def test_closure_is_immutable_and_late_evidence_becomes_follow_up(store):
 	_block(store, pushcoin, lang42)
 	_block(store, web, lang42, team="web", member="wren")
 	tr.close_work(store, lang42, actor_team="lang", actor="ada",
-	              disposition="fixed", outcome="satisfying")
+	              rationale="fixed", outcome="satisfying")
 	assert (_ready(store, pushcoin), _ready(store, web)) == (1, 1)
 
 	follow = tr.create_work(store, team="lang", kind="bug",
@@ -113,7 +113,7 @@ def test_a_new_blocker_may_target_only_open_work(store):
 	the live relationship belongs to follow-up work."""
 	lang42 = _create(store, "lang", "ada", "parser recovery")
 	tr.close_work(store, lang42, actor_team="lang", actor="ada",
-	              disposition="fixed", outcome="satisfying")
+	              rationale="fixed", outcome="satisfying")
 	pushcoin = _create(store, "push", "sl", "checkout fails")
 	with pytest.raises(bw.WorkError, match="only open Work"):
 		_block(store, pushcoin, lang42)
@@ -160,7 +160,7 @@ def test_a_closed_work_takes_no_new_blockers(store):
 	a = _create(store, "lang", "ada", "a")
 	b = _create(store, "push", "sl", "b")
 	tr.close_work(store, a, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="takes\\s+no new blockers|no new blockers"):
 		_block(store, a, b, team="lang", member="ada")
 
@@ -175,8 +175,8 @@ def test_readiness_is_the_conjunction_of_children_and_blockers(store):
 
 	assert _ready(store, parent) == 0
 	tr.close_work(store, child, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	assert _ready(store, parent) == 0, "an open blocker stopped gating"
 	tr.close_work(store, external, actor_team="push", actor="sl",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	assert _ready(store, parent) == 1

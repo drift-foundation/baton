@@ -1350,3 +1350,86 @@ remains. Independent verification: focused set 46/46; test-v11 384
 parallel + 3 serial; diff check clean. REMAIN STOPPED: Work revisions,
 terminal outcomes, WS-5/WS-6, deployment, and TUI expansion are
 separate later gates, not released.
+
+## Step 32 — terminal-outcome slice: four-outcome atomic close + WF-10 (2026-08-15)
+
+Schema v10: `work.rationale` and FK-bound `work.duplicate_of` join
+`outcome`; there is ONE prose concept — the close's `disposition` field
+is renamed `rationale` across storage, events, CLI (`close
+--rationale`), and JSON with no alias (obligation `dispose
+--disposition` is a separate unchanged concept).
+
+The one atomic close now accepts exactly `satisfying`,
+`non-satisfying`, `rejected`, or `cancelled`; every outcome requires a
+non-empty rationale (whitespace, omission, unknown, or compact values
+refuse before commit; the result is never inferred from classification
+or prose). Cancellation is ordinary accelerated close: same
+Current-only handler gate, same open-child refusal, no cascade or
+child bypass. A duplicate is a `rejected` close whose structured
+reason names the surviving Work through the explicit NON-GATING
+`duplicate_of`: refuses self, missing targets, and any non-rejected
+outcome carrying it; a Work CLASSIFIED `duplicate` refuses a linkless
+rejection ("free text alone is insufficient"), rechecked against the
+COMMITTING classification in-lock; ordinary rejection stays valid
+without it. The link is recorded in the close event, the Work row,
+`detail` (`rationale`, `duplicate_of`), and `links` in BOTH directions
+(`duplicate_of` far-summary + the survivor's `duplicates` list) —
+never touching readiness, Current, phase, or edges.
+
+All four outcomes share the unchanged close machinery: Current+Next
+clearing, pending response-obligation AND verification-assignment
+withdrawal, round conclusion with the audited summary (basis =
+rationale), level-triggered dependent recomputation waking only
+last-gate dependents, last-gate wake sweep, dense audit, immutability.
+
+Evidence: new `test_terminal_outcomes.py` (12): parametrized
+four-outcome dismantling of a full-featured rig, vocabulary/rationale
+hard gates, exact duplicate-link rules with both-direction navigation
+and non-gating proof, linkless-duplicate in-lock race, close races
+against respond/report/pass/close serializing one history,
+whole-or-nothing fault injection through the duplicate-fold close,
+restart + retry. New WF-10 story (source+packaged): the four sibling
+fixtures each dismantled identically, ordinary + duplicate rejection
+with the link refusal and both link directions, proposer-vs-Current
+cancellation, open-child cancellation refusal without cascade, the
+refusal matrix, and the four spawned races proven one-history from the
+audit order. All prior stories migrated to `close --rationale`.
+
+Break-sweeps (defect in, red, restored): O1 two-outcome vocabulary,
+O2 optional rationale, O3 dropped link rules, O4 both duplicate-
+classification guards, O5 in-lock recheck alone (race regression
+bites). Gate: 401 passed (398 parallel + 3 serial); every workflow
+green source+packaged; `just test-v11` green; diff check clean.
+STOPPED for review. Work revisions, WS-5/WS-6, deployment, migration,
+and TUI expansion held.
+
+## Step 33 — terminal-outcome corrections R73–R74 (2026-08-15)
+
+R73: omitting `--rationale` or `--outcome` on close now refuses through
+the promised JSON stderr/exit-one agent contract — argparse no longer
+owns those refusals; the transition does, with no mutation. WF-10's
+refusal matrix gains both omissions through source and packaged CLI.
+
+R74: `duplicate_of` must name a work that is itself CANONICAL — a
+target whose own `duplicate_of` is null — checked pre-lock and
+rechecked in-lock, so chains and mutual cycles (which would leave no
+surviving record) refuse while closed canonical targets stay valid.
+New regressions: the reviewer's chain refusal, a mutual-cycle race
+losing in-lock, the closed-canonical case, and WF-10's story-level
+chain refusal with the survivor's duplicates list.
+
+Evidence: reviewer regressions pass (17/17 focused incl. their two);
+break-sweeps — argparse-owned omission, both canonical-target guards,
+in-lock recheck alone — each red then restored. Gate: 406 passed (403
+parallel + 3 serial); all workflows green source+packaged; test-v11
+green; diff check clean. STOPPED for re-review. Later phases held.
+
+## Step 34 — terminal-outcome slice ACCEPTED (2026-08-15)
+
+Reviewer accepted the terminal-outcome slice (message
+bf14e82da505bac83317628d9518ad45, review-2026-08-15T14-45-25Z.md):
+R73–R74 satisfied, no review finding remains. Independent verification:
+focused terminal/WF-10/close/CLI/JSON set 46/46; test-v11 403 parallel
++ 3 serial; diff check clean. REMAIN STOPPED: Work revisions,
+WS-5/WS-6, deployment, migration, and TUI expansion are separate later
+gates.

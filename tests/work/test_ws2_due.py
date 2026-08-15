@@ -165,7 +165,7 @@ def test_actionable_projection_is_one_database_snapshot(world, monkeypatch):
 			with bw.Authority(store.path) as writer:
 				writer.clock = store.clock
 				tr.close_work(writer, work, actor_team="lang", actor="ada",
-				              disposition="interleaving proof",
+				              rationale="interleaving proof",
 				              outcome="satisfying")
 		return original(reader, team, kind)
 
@@ -279,7 +279,7 @@ def test_silence_may_inform_the_reviewer_but_never_impersonates_a_report(
 	                review_at=T1)
 	store.now = T2
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="wide exposure, zero negative reports",
+	              rationale="wide exposure, zero negative reports",
 	              outcome="satisfying")
 	closing = next(event for event in store.events()
 	               if event["kind"] == "close_work")
@@ -313,7 +313,7 @@ def test_the_close_evidence_counts_receipt_not_support(world):
 	          actor="ada", assessment="rejected",
 	          rationale="consumer config error")
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="one confirmation; the failure was invalid",
+	              rationale="one confirmation; the failure was invalid",
 	              outcome="satisfying")
 	summary = next(event for event in store.events()
 	               if event["kind"] == "close_work")["payload"][
@@ -348,7 +348,7 @@ def test_the_extension_versus_close_race_serializes(world):
 	other.clock = lambda: store.now
 	_interleave(store, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
-		disposition="closed first", outcome="non-satisfying"))
+		rationale="closed first", outcome="non-satisfying"))
 	with pytest.raises(bw.WorkError, match="only an open round"):
 		tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
 		                review_at=T2)
@@ -387,7 +387,7 @@ def test_the_assessment_versus_close_race_serializes(world):
 	other.clock = lambda: store.now
 	_interleave(store, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
-		disposition="closed first", outcome="non-satisfying"))
+		rationale="closed first", outcome="non-satisfying"))
 	with pytest.raises(bw.WorkError, match="closed"):
 		tr.assess(store, created["assignments"][0], actor_team="lang",
 		          actor="ada", assessment="accepted", rationale="racing")
@@ -457,7 +457,7 @@ def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 		store.conn = ExplodingConn()
 		try:
 			tr.close_work(store, work, actor_team="lang", actor="ada",
-			              disposition="atomic", outcome="satisfying")
+			              rationale="atomic", outcome="satisfying")
 			store.conn = real_conn
 			break  # committed whole with no fault reached
 		except Exception as failure:
@@ -615,7 +615,7 @@ def test_wait_reflects_extension_close_abandon_and_restart(world):
 	assert pj.wait_actionable(store, viewer_team="lang",
 	                          timeout_seconds=0.05)["timed_out"] is True
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	assert pj.wait_actionable(store, viewer_team="lang",
 	                          timeout_seconds=0.05)["timed_out"] is True
 
@@ -635,7 +635,7 @@ def test_the_extension_versus_close_race_extension_first(world):
 	# The close after a committed extension is LEGAL: both acts commit,
 	# and the concluded round records the extended window.
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="closing after the extension",
+	              rationale="closing after the extension",
 	              outcome="satisfying")
 	kinds = [event["kind"] for event in store.events()]
 	assert kinds.count("extend_round") == 1
@@ -684,7 +684,7 @@ def test_the_assessment_versus_close_race_assessment_first(world):
 		other, created["assignments"][0], actor_team="lang", actor="ada",
 		assessment="accepted", rationale="landed first"))
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="closing after the assessment",
+	              rationale="closing after the assessment",
 	              outcome="non-satisfying")
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM assessments").fetchone()["n"] == 1
@@ -762,10 +762,10 @@ def test_retry_without_operation_ids_refuses_and_never_duplicates(world):
 		tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
 		                review_at=T2)
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="already closed"):
 		tr.close_work(store, work, actor_team="lang", actor="ada",
-		              disposition="done", outcome="satisfying")
+		              rationale="done", outcome="satisfying")
 	kinds = [event["kind"] for event in store.events()]
 	assert kinds.count("report") == 1
 	assert kinds.count("extend_round") == 1
@@ -792,7 +792,7 @@ def test_obligations_envelope_token_names_its_snapshot(world, monkeypatch):
 			with bw.Authority(store.path) as writer:
 				writer.clock = store.clock
 				tr.close_work(writer, work, actor_team="lang",
-				              actor="ada", disposition="interleaved",
+				              actor="ada", rationale="interleaved",
 				              outcome="satisfying")
 		return original(reader, team, kind)
 

@@ -101,7 +101,7 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 	# 4. The reviewer closes on the selected evidence; the explicit outcome
 	# fans out through ALL FIVE edges, while the round keeps exactly the
 	# two selected teams' reports.
-	flow.ok("close", lang42, "--disposition",
+	flow.ok("close", lang42, "--rationale",
 	        "verified by the selected subset", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	for name, member in MEMBERS.items():
@@ -116,7 +116,7 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 		"the fan-out inflated the round beyond the selected subset"
 
 	for name, member in MEMBERS.items():
-		flow.ok("close", consumers[name], "--disposition", "verified",
+		flow.ok("close", consumers[name], "--rationale", "verified",
 		        "--outcome", "satisfying", viewer=f"{name}.{member}")
 	assert_final_invariants(flow, "lang.ada",
 	                        [lang42, *consumers.values()])

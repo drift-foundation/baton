@@ -151,7 +151,7 @@ def test_closed_context_refuses_carrying_but_welcomes_commentary(world):
 	tr.label_discussion(store, live["discussion"], done["work_id"],
 	                    actor_team="lang", actor="ada")
 	tr.close_work(store, done["work_id"], actor_team="lang", actor="ada",
-	              disposition="finished", outcome="satisfying")
+	              rationale="finished", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="closed work refuses carrying"):
 		tr.post_discussion(store, live["discussion"], author_team="lang",
 		                   author="ada", body="x", request="push.bug",
@@ -324,7 +324,7 @@ def test_the_gate_is_the_edge_never_the_label(world):
 	assert after["ready"] is False and after["open_blockers"] == 1, \
 		"removing the inert label changed the gate"
 	tr.close_work(store, provider["work_id"], actor_team="lang",
-	              actor="ada", disposition="done", outcome="satisfying")
+	              actor="ada", rationale="done", outcome="satisfying")
 	assert pj.detail(store, consumer["work_id"], viewer_team="push",
 	                 viewer_member="sl")["ready"] is True
 
@@ -379,7 +379,7 @@ def test_a_mid_flight_close_refuses_the_carrying_operation(world):
 	first = _create(store)
 	_interleave(store, lambda: tr.close_work(
 		store, first["work_id"], actor_team="lang", actor="ada",
-		disposition="closed underneath", outcome="satisfying"))
+		rationale="closed underneath", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
 		tr.post_discussion(store, first["discussion"], author_team="lang",
 		                   author="ada", body="x", pass_to="lang.rsrch")
@@ -443,7 +443,7 @@ def test_the_reverse_orders_commit_cleanly(world):
 	tr.unlabel_discussion(store, first["discussion"], second["work_id"],
 	                      actor_team="lang", actor="ada")
 	tr.close_work(store, second["work_id"], actor_team="lang",
-	              actor="ada", disposition="done", outcome="satisfying")
+	              actor="ada", rationale="done", outcome="satisfying")
 	assert store.conn.execute(
 		"SELECT status FROM obligations WHERE seq=?",
 		(asked,)).fetchone()["status"] == "withdrawn", \

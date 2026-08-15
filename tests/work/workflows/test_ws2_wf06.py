@@ -39,7 +39,7 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 		flow.ok("phase", work, "--to", "waiting", "--wait-on-gates",
 		        viewer=f"{team}.{member}")
 		consumers[team] = work
-	flow.ok("close", lang42, "--disposition", "fixed and verified",
+	flow.ok("close", lang42, "--rationale", "fixed and verified",
 	        "--outcome", "satisfying", viewer="lang.ada")
 	events = flow.ok("events", viewer="lang.ada")
 	wakes = [event for event in events if event["kind"] == "wake"]
@@ -58,7 +58,7 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	              "late evidence"),
 	             ("classify", lang42, "--as", "duplicate"),
 	             ("phase", lang42, "--to", "queued"),
-	             ("close", lang42, "--disposition", "again",
+	             ("close", lang42, "--rationale", "again",
 	              "--outcome", "satisfying"),
 	             ("block", lang42, "--on", consumers["push"])):
 		assert_refusal_changes_nothing(flow, "lang.ada", *argv)
@@ -103,7 +103,7 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	          if event["payload"].get("work") == lang42 or
 	          event["kind"] == "close_work" and
 	          event["payload"]["work"] == lang42]
-	flow.ok("close", lang57, "--disposition", "regression fixed",
+	flow.ok("close", lang57, "--rationale", "regression fixed",
 	        "--outcome", "satisfying", viewer="lang.ada")
 	assert flow.ok("detail", consumers["push"],
 	               viewer="push.sl")["ready"] is True
@@ -116,7 +116,7 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	assert after == before, "the follow-up's close rewrote LANG-42 history"
 
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
-		flow.ok("close", consumers[team], "--disposition", "verified",
+		flow.ok("close", consumers[team], "--rationale", "verified",
 		        "--outcome", "satisfying", viewer=f"{team}.{member}")
 	assert_final_invariants(flow, "lang.ada",
 	                        [lang42, lang57, *consumers.values()])

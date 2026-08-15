@@ -84,9 +84,19 @@ def main(argv=None) -> int:
 
 	cmd = sub.add_parser("close")
 	cmd.add_argument("work")
-	cmd.add_argument("--disposition", required=True)
-	cmd.add_argument("--outcome", required=True,
-	                 help="exactly satisfying or non-satisfying (WS-2)")
+	# R73: omitting --rationale or --outcome refuses through the JSON
+	# stderr/exit-one agent contract, never argparse prose — the checks
+	# live in the transition.
+	cmd.add_argument("--rationale",
+	                 help="the non-empty terminal rationale; durable "
+	                 "review evidence for every outcome")
+	cmd.add_argument("--outcome",
+	                 help="exactly satisfying, non-satisfying, rejected, "
+	                 "or cancelled")
+	cmd.add_argument("--duplicate-of", dest="duplicate_of",
+	                 help="the surviving canonical work id; a duplicate "
+	                 "is a rejected close carrying this explicit "
+	                 "non-gating link")
 	cmd = sub.add_parser("block")
 	cmd.add_argument("work")
 	cmd.add_argument("--on", required=True, help="the blocker work id")
@@ -314,8 +324,9 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.close_work(store, args.work, actor_team=team,
 		                              actor=member,
-		                              disposition=args.disposition,
-		                              outcome=args.outcome)
+		                              rationale=args.rationale,
+		                              outcome=args.outcome,
+		                              duplicate_of=args.duplicate_of)
 	if command == "block":
 		team, member = _need_participant(args)
 		return transitions.add_dependency(store, args.work, args.on,

@@ -92,14 +92,14 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 	assert "already accepted" in error
 
 	# The terminal close fans out through all three provenance edges.
-	flow.ok("close", drift1, "--disposition", "fixed and verified",
+	flow.ok("close", drift1, "--rationale", "fixed and verified",
 	        "--outcome", "satisfying", viewer="drift.ada")
 	for name, member in MEMBERS.items():
 		resumed = flow.ok("detail", consumers[name],
 		                  viewer=f"{name}.{member}")
 		assert resumed["ready"] is True
 		assert resumed["links"]["blocked_by"][0]["outcome"] == "satisfying"
-		flow.ok("close", consumers[name], "--disposition", "verified",
+		flow.ok("close", consumers[name], "--rationale", "verified",
 		        "--outcome", "satisfying", viewer=f"{name}.{member}")
 	assert flow.ok("detail", drift1, viewer="drift.ada")["dep"] == 0
 	assert_final_invariants(flow, "drift.ada",

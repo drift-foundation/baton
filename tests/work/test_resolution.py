@@ -176,7 +176,7 @@ def test_an_unresolvable_current_is_shown_unresolved_never_bare(world):
 	                      origin="external-report", author="wren",
 	                      body="b")["work_id"]
 	tr.close_work(store, work, actor_team="web", actor="wren",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	document = json.loads(open(config_path).read())
 	document["generation"] = 2
 	del document["teams"]["web"]["kinds"]["bug"]

@@ -89,7 +89,7 @@ def test_wf01_straight_through_report(flow):
 	flow.ok("phase", work, "--to", "review", viewer="lang.ada")
 
 	# Review records verification and closes terminally.
-	flow.ok("close", work, "--disposition", "fixed and verified", "--outcome", "satisfying",
+	flow.ok("close", work, "--rationale", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	checkpoint = flow.ok("detail", work, viewer="lang.ada")
 	assert checkpoint["status"] == "closed"
@@ -124,6 +124,6 @@ def test_wf01_straight_through_report(flow):
 		"handlers": ["ada"], "generation": 1}
 	assert consumed["payload"]["consumed_next"] is True
 	# The terminal close names a disposition and NO recipient of any kind.
-	assert closing["payload"]["disposition"] == "fixed and verified"
+	assert closing["payload"]["rationale"] == "fixed and verified"
 	assert "endpoint" not in closing["payload"]
 	assert "recipient" not in closing["payload"]

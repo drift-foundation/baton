@@ -37,7 +37,7 @@ PHASES = ("queued", "research", "waiting", "active", "review", "parked")
 # forbids.
 CREATION_PHASES = ("queued", "research", "active", "review")
 # WS-2 ruling: every terminal close records exactly one of these.
-OUTCOMES = ("satisfying", "non-satisfying")
+OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
 # WS-2 verification vocabulary (ruled): the verifier's raw observation and
 # the provider reviewer's separate assessment — two immutable axes.
 OBSERVATIONS = ("passed", "failed", "unable")
@@ -377,25 +377,51 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 
 
 def close_work(store: Authority, work_id: str, *, actor_team: str,
-               actor: str, disposition: str,
-               outcome: str | None = None) -> dict:
+               actor: str, rationale: str | None = None,
+               outcome: str | None = None,
+               duplicate_of: str | None = None) -> dict:
 	"""Terminal close: IMMUTABLE (WS-2 ruling — there is no reopen; later
 	evidence becomes follow-up Work). No current and no next endpoint
 	afterwards, and the ancestor gate recomputes: closure rolls UP through
 	recomputation, never down through force. Every terminal close names
-	exactly `satisfying` or `non-satisfying` — universal, independent of
-	graph shape; clients never infer the result from prose."""
+	exactly one of `satisfying`, `non-satisfying`, `rejected`, or
+	`cancelled` and records a non-empty rationale — terminal decisions
+	are durable review evidence, never reconstructed from discussion
+	prose. Cancellation is ordinary accelerated close under the same
+	Current-only authority: no cascade, no child bypass. A duplicate is a
+	`rejected` close whose structured reason names the surviving Work
+	through the explicit non-gating `duplicate_of` relation; free text
+	alone is insufficient."""
 	_member(store, actor_team, actor)
 	row = _work(store, work_id)
 	if row["status"] == CLOSED:
 		raise WorkError(f"{work_id} is already closed")
-	if not isinstance(disposition, str) or not disposition.strip():
-		raise WorkError("a terminal close records a disposition")
+	if not isinstance(rationale, str) or not rationale.strip():
+		raise WorkError("a terminal close records its rationale; every "
+		                "outcome requires one")
 	if outcome not in OUTCOMES:
 		raise WorkError(
 			f"a terminal close names exactly one outcome of {OUTCOMES}; "
 			f"got {outcome!r} — the result is never inferred from "
-			f"classification or disposition prose")
+			f"classification or rationale prose")
+	if duplicate_of is not None:
+		if outcome != "rejected":
+			raise WorkError(
+				f"duplicate_of marks a duplicate REJECTION; a "
+				f"{outcome!r} close cannot carry it")
+		if duplicate_of == work_id:
+			raise WorkError(f"{work_id} cannot be a duplicate of itself")
+		target = _work(store, duplicate_of)
+		if target["duplicate_of"] is not None:
+			raise WorkError(
+				f"{duplicate_of} is itself a duplicate of "
+				f"{target['duplicate_of']}; name the canonical survivor "
+				f"directly — chains have no surviving record")
+	if row["classification"] == "duplicate" and outcome == "rejected" \
+			and duplicate_of is None:
+		raise WorkError(
+			"a duplicate rejection names the surviving canonical work "
+			"through duplicate_of; free text alone is insufficient")
 	open_children = store.conn.execute(
 		"SELECT id FROM work WHERE parent=? AND status=?",
 		(work_id, OPEN)).fetchall()
@@ -409,8 +435,8 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 	# the live row forgets deliberately, and history is where cleared
 	# facts live. Its value is filled in by mutate, from the row AS
 	# COMMITTED — a pass can land between the pre-read and this lock.
-	payload = {"work": work_id, "disposition": disposition,
-	           "outcome": outcome,
+	payload = {"work": work_id, "rationale": rationale,
+	           "outcome": outcome, "duplicate_of": duplicate_of,
 	           "was_current_team": row["current_team"],
 	           "was_current_kind": row["current_kind"]}
 
@@ -419,10 +445,35 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		# competing close or late create can commit between the optimistic
 		# checks above and this transaction.
 		live = conn.execute(
-			"SELECT status, parent, current_team, current_kind "
-			"FROM work WHERE id=?", (work_id,)).fetchone()
+			"SELECT status, parent, classification, current_team, "
+			"current_kind FROM work WHERE id=?", (work_id,)).fetchone()
 		if live["status"] == CLOSED:
 			raise WorkError(f"{work_id} is already closed")
+		# The duplicate-link discipline is rechecked against the
+		# COMMITTING classification — a classify landing between the
+		# pre-read and this lock must not smuggle a linkless duplicate.
+		if live["classification"] == "duplicate" and \
+				outcome == "rejected" and duplicate_of is None:
+			raise WorkError(
+				"a duplicate rejection names the surviving canonical "
+				"work through duplicate_of; free text alone is "
+				"insufficient")
+		if duplicate_of is not None:
+			target = conn.execute(
+				"SELECT status, duplicate_of FROM work WHERE id=?",
+				(duplicate_of,)).fetchone()
+			if target is None:
+				raise WorkError(f"no work {duplicate_of!r}")
+			# R74 in-lock: a racing close may have just made the target
+			# a duplicate itself — a chain or mutual cycle would leave
+			# no canonical survivor. Closed canonical targets stay
+			# valid; duplicate targets never are.
+			if target["duplicate_of"] is not None:
+				raise WorkError(
+					f"{duplicate_of} is itself a duplicate of "
+					f"{target['duplicate_of']}; name the canonical "
+					f"survivor directly — chains have no surviving "
+					f"record")
 		still_open = conn.execute(
 			"SELECT id FROM work WHERE parent=? AND status=?",
 			(work_id, OPEN)).fetchall()
@@ -474,16 +525,17 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 				"created_ts": concluding["created_ts"],
 				"closed_ts": store.clock(),
 				"withdrawn_pending": still_pending,
-				"basis": disposition,
+				"basis": rationale,
 			}
 		conn.execute(
 			"UPDATE rounds SET status='closed', ended_seq=? "
 			"WHERE work=? AND status='open'", (seq, work_id))
 		conn.execute(
-			"UPDATE work SET status=?, ready=0, outcome=?, "
+			"UPDATE work SET status=?, ready=0, outcome=?, rationale=?, "
+			"duplicate_of=?, "
 			"current_team=NULL, current_kind=NULL, next_team=NULL, "
 			"next_kind=NULL, closed_seq=? WHERE id=?",
-			(CLOSED, outcome, seq, work_id))
+			(CLOSED, outcome, rationale, duplicate_of, seq, work_id))
 		# WS-2 group-1 correction (ruled): terminal close atomically
 		# WITHDRAWS every pending exact @ obligation this work carries —
 		# classic requests and verification assignments alike — so closed

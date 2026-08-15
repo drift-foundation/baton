@@ -102,11 +102,11 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 		"the provider record leaked into the consumer's default table"
 
 	# Terminal fanout: closing DRIFT-1 ends the gate and wakes push.
-	flow.ok("close", drift1, "--disposition", "fixed and verified",
+	flow.ok("close", drift1, "--rationale", "fixed and verified",
 	        "--outcome", "satisfying", viewer="drift.ada")
 	resumed = flow.ok("detail", push1, viewer="push.sl")
 	assert resumed["ready"] is True
 	assert resumed["links"]["blocked_by"][0]["outcome"] == "satisfying"
-	flow.ok("close", push1, "--disposition", "verified upstream",
+	flow.ok("close", push1, "--rationale", "verified upstream",
 	        "--outcome", "satisfying", viewer="push.sl")
 	assert_final_invariants(flow, "drift.ada", [push1, drift1])

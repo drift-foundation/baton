@@ -103,7 +103,7 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 		"review", "an assessment transitioned the provider's phase"
 	assert flow.ok("detail", push1, viewer="push.sl")["ready"] is False, \
 		"a report or assessment ended the provider gate"
-	flow.ok("close", lang42, "--disposition",
+	flow.ok("close", lang42, "--rationale",
 	        "driftc-B verified by the affected consumer",
 	        "--outcome", "satisfying", viewer="lang.ada")
 	assert flow.ok("detail", push1, viewer="push.sl")["ready"] is True
@@ -146,6 +146,6 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	assert summary["candidate"] == "driftc-B", \
 		"the close audited the superseded round instead of the concluded one"
 
-	flow.ok("close", push1, "--disposition", "verified upstream",
+	flow.ok("close", push1, "--rationale", "verified upstream",
 	        "--outcome", "satisfying", viewer="push.sl")
 	assert_final_invariants(flow, "lang.ada", [lang42, push1])

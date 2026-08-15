@@ -67,10 +67,10 @@ def test_every_close_names_exactly_one_canonical_outcome(world):
 	for bad in (None, "fixed", "satisfying-ish", ""):
 		with pytest.raises(bw.WorkError, match="exactly one outcome"):
 			tr.close_work(store, work, actor_team="lang", actor="ada",
-			              disposition="done", outcome=bad)
+			              rationale="done", outcome=bad)
 	assert _row(store, work)["status"] == "open", "a refusal closed"
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="did not pan out", outcome="non-satisfying")
+	              rationale="did not pan out", outcome="non-satisfying")
 	row = _row(store, work)
 	assert row["outcome"] == "non-satisfying"
 	closing = next(e for e in store.events() if e["kind"] == "close_work")
@@ -103,7 +103,7 @@ def test_either_outcome_ends_the_gate_and_mutates_no_consumer(world):
 		             phase="waiting", wait="gates")
 
 		closing = tr.close_work(store, provider, actor_team="lang",
-		                        actor="ada", disposition="terminal",
+		                        actor="ada", rationale="terminal",
 		                        outcome=outcome)
 		woken = _row(store, consumer)
 		assert woken["ready"] == 1 and woken["phase"] == "queued", \
@@ -122,11 +122,11 @@ def test_either_outcome_ends_the_gate_and_mutates_no_consumer(world):
 		links = pj.links(store, consumer)
 		assert links["blocked_by"][0]["outcome"] == outcome
 		tr.close_work(store, other_gate, actor_team="push", actor="sl",
-		              disposition="cleanup", outcome="satisfying")
+		              rationale="cleanup", outcome="satisfying")
 		tr.close_work(store, holder, actor_team="push", actor="sl",
-		              disposition="cleanup", outcome="satisfying")
+		              rationale="cleanup", outcome="satisfying")
 		tr.close_work(store, consumer, actor_team="push", actor="sl",
-		              disposition="cleanup", outcome="satisfying")
+		              rationale="cleanup", outcome="satisfying")
 
 
 # -- immutable closure -------------------------------------------------------
@@ -136,7 +136,7 @@ def test_closed_work_refuses_every_mutation_but_keeps_reads_and_seen(world):
 	work = _create(store)
 	blocker = _create(store)
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	baseline = store.events()
 	with pytest.raises(bw.WorkError):
 		fx.post(store, work, author_team="lang", author="ada",
@@ -149,7 +149,7 @@ def test_closed_work_refuses_every_mutation_but_keeps_reads_and_seen(world):
 		             phase="queued")
 	with pytest.raises(bw.WorkError):
 		tr.close_work(store, work, actor_team="lang", actor="ada",
-		              disposition="again", outcome="satisfying")
+		              rationale="again", outcome="satisfying")
 	with pytest.raises(bw.WorkError):
 		tr.create_work(store, team="lang", kind="bug", title="child",
 		               origin="decomposition", author="ada", body="b",
@@ -173,7 +173,7 @@ def test_no_reopen_surface_remains_anywhere(world):
 	assert not hasattr(tr, "reopen_work")
 	work = _create(store)
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	for team, member in (("lang", "ada"), ("lang", "grace"),
 	                     ("push", "sl")):
 		detail = pj.detail(store, work, viewer_team=team,
@@ -196,7 +196,7 @@ def test_terminal_close_never_leaves_a_classic_obligation_actionable(world):
 	before = store.events()
 	try:
 		tr.close_work(store, work, actor_team="lang", actor="ada",
-		              disposition="concluded", outcome="non-satisfying")
+		              rationale="concluded", outcome="non-satisfying")
 	except bw.WorkError:
 		assert _row(store, work)["status"] == "open"
 		assert store.events() == before, "a refused close partially committed"
@@ -220,7 +220,7 @@ def test_follow_up_targets_closed_work_only_and_gates_nothing(world):
 	with pytest.raises(bw.WorkError, match="still open"):
 		_create(store, follow_up_of=work)
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done", outcome="satisfying")
+	              rationale="done", outcome="satisfying")
 	follow = _create(store, follow_up_of=work)
 	row = _row(store, follow)
 	assert row["follow_up_of"] == work
@@ -258,7 +258,7 @@ def test_a_blocker_closing_mid_flight_refuses_in_the_lock(world):
 	other = bw.Authority(store.path)
 	_interleave(store, lambda: tr.close_work(
 		other, blocker, actor_team="push", actor="sl",
-		disposition="closed mid-flight", outcome="satisfying"))
+		rationale="closed mid-flight", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="only open Work"):
 		tr.add_dependency(store, dependent, blocker,
 		                  actor_team="lang", actor="ada")
@@ -282,7 +282,7 @@ def test_close_withdraws_every_pending_obligation_with_route_visibility(
 	                         body="rev: sanity?", request="lang.rev")
 	assert len(pj.obligations(store, viewer_team="push")) == 1
 	closing = tr.close_work(store, work, actor_team="lang", actor="ada",
-	                        disposition="concluded",
+	                        rationale="concluded",
 	                        outcome="non-satisfying")
 	assert pj.obligations(store, viewer_team="push") == []
 	assert pj.obligations(store, viewer_team="lang") == []
@@ -315,7 +315,7 @@ def test_withdrawn_obligation_resolves_to_its_withdraw_event(world):
 		store, work, author_team="lang", author="ada", body="please test",
 		request="push.bug")["seq"]
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="concluded", outcome="satisfying")
+	              rationale="concluded", outcome="satisfying")
 	obligation = store.conn.execute(
 		"SELECT resolved_seq FROM obligations WHERE seq=?", (asked,)).fetchone()
 	resolved = next(event for event in store.events()
@@ -337,7 +337,7 @@ def test_the_answer_versus_close_race_serializes_both_ways(world):
 	other = bw.Authority(store.path)
 	_interleave(store, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
-		disposition="closed first", outcome="non-satisfying"))
+		rationale="closed first", outcome="non-satisfying"))
 	with pytest.raises(bw.WorkError, match="already withdrawn"):
 		tr.respond_obligation(store, asked, team="push", member="sl",
 		                      body="racing answer")
@@ -356,7 +356,7 @@ def test_the_answer_versus_close_race_serializes_both_ways(world):
 	_interleave(store, lambda: tr.respond_obligation(
 		other, asked2, team="push", member="sl", body="answered first"))
 	tr.close_work(store, work2, actor_team="lang", actor="ada",
-	              disposition="closed second", outcome="satisfying")
+	              rationale="closed second", outcome="satisfying")
 	row = store.conn.execute(
 		"SELECT status FROM obligations WHERE seq=?", (asked2,)).fetchone()
 	assert row["status"] == "responded", \
@@ -384,7 +384,7 @@ def test_dep_counts_only_live_dependents_and_the_drill_matches(world):
 	assert [entry["id"] for entry in view["links"]["blocks"]] == dependents
 
 	tr.close_work(store, dependents[1], actor_team="push", actor="sl",
-	              disposition="fixed our side", outcome="satisfying")
+	              rationale="fixed our side", outcome="satisfying")
 	view = pj.detail(store, provider, viewer_team="lang",
 	                 viewer_member="ada")
 	assert view["dep"] == 2, "a closed consumer still counts as live load"
@@ -418,7 +418,7 @@ def test_dep_counter_and_drill_share_one_detail_snapshot(world, monkeypatch):
 		if not raced and view["id"] == provider:
 			raced = True
 			tr.close_work(other, consumer, actor_team="push", actor="sl",
-			              disposition="resolved locally",
+			              rationale="resolved locally",
 			              outcome="satisfying")
 		return view
 

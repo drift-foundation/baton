@@ -73,7 +73,7 @@ def test_wf06_recursive_release(flow):
 
 	# 3. Closing the root while children are open refuses AND NAMES them.
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "close", root, "--disposition", "shipped", "--outcome", "satisfying")
+		flow, "lang.ada", "close", root, "--rationale", "shipped", "--outcome", "satisfying")
 	assert local in error and blocked in error, \
 		"the refusal does not name the open children"
 
@@ -81,14 +81,14 @@ def test_wf06_recursive_release(flow):
 	returned = flow.post(local, "--body", "done", "--pass-to",
 	                   "lang.rev", viewer="lang.grace")
 	assert returned["kind"] == "return"
-	flow.ok("close", local, "--disposition", "fixed and verified", "--outcome", "satisfying",
+	flow.ok("close", local, "--rationale", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is False, \
 		"the root became ready with an externally blocked child open"
-	flow.ok("close", external, "--disposition", "image rebuilt", "--outcome", "satisfying",
+	flow.ok("close", external, "--rationale", "image rebuilt", "--outcome", "satisfying",
 	        viewer="mdb.mo")
 	assert flow.ok("detail", blocked, viewer="lang.ada")["ready"] is True
-	flow.ok("close", blocked, "--disposition", "unblocked and done", "--outcome", "satisfying",
+	flow.ok("close", blocked, "--rationale", "unblocked and done", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is True
 
@@ -115,7 +115,7 @@ def test_wf06_recursive_release(flow):
 	trail = flow.ok("breadcrumb", blocked, viewer="lang.ada")
 	assert [entry["id"] for entry in trail] == [root, blocked]
 
-	flow.ok("close", root, "--disposition", "1.2.0 shipped", "--outcome", "satisfying",
+	flow.ok("close", root, "--rationale", "1.2.0 shipped", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert_final_invariants(flow, "lang.ada",
 	                        [root, local, blocked, external])

@@ -76,7 +76,7 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	# 6. Lang closes LANG-42 satisfying, naming the round and rationale;
 	# PUSH-1 wakes because this was its LAST gate — Current,
 	# classification, and open status unchanged.
-	flow.ok("close", lang42, "--disposition",
+	flow.ok("close", lang42, "--rationale",
 	        "round 1 accepted evidence; shipping driftc-A",
 	        "--outcome", "satisfying", viewer="lang.ada")
 	resumed = flow.ok("detail", push1, viewer="push.sl")
@@ -94,6 +94,6 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	# 7. Push independently verifies its own Work and closes it.
 	flow.post(push1, "--body", "confirmed on production",
 	        viewer="push.sl")
-	flow.ok("close", push1, "--disposition", "verified fixed upstream",
+	flow.ok("close", push1, "--rationale", "verified fixed upstream",
 	        "--outcome", "satisfying", viewer="push.sl")
 	assert_final_invariants(flow, "lang.ada", [lang42, push1])

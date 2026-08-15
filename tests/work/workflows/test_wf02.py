@@ -74,7 +74,7 @@ def test_wf02_request_without_transfer(flow):
 	assert flow.ok("obligations", viewer="lang.ada") == []
 
 	# Push continues and closes its OWN work — ownership never moved.
-	flow.ok("close", push1, "--disposition", "audit complete", "--outcome", "satisfying",
+	flow.ok("close", push1, "--rationale", "audit complete", "--outcome", "satisfying",
 	        viewer="push.sl")
 	events = assert_final_invariants(flow, "push.sl", [push1])
 	assert [event["kind"] for event in events] == \

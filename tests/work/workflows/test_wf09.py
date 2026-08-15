@@ -81,7 +81,7 @@ def test_wf09_restart_and_races(flow):
 	procs = [flow.spawn("say", lang_thread, "--body", "handing to build",
 	                    "--on", lang42,
 	                    "--pass-to", "lang.impl", viewer="lang.ada"),
-	         flow.spawn("close", lang42, "--disposition",
+	         flow.spawn("close", lang42, "--rationale",
 	                    "fixed and verified", "--outcome", "satisfying", viewer="lang.ada")]
 	winners, losers = _outcomes(flow, procs)
 	events = assert_dense_audit(flow, "lang.ada")
@@ -95,7 +95,7 @@ def test_wf09_restart_and_races(flow):
 		# The pass serialized first: Current moved, the racing close lost
 		# on OWNERSHIP, and closure is now the new handler's deliberate
 		# act — authority followed the baton even mid-race.
-		flow.ok("close", lang42, "--disposition", "fixed and verified", "--outcome", "satisfying",
+		flow.ok("close", lang42, "--rationale", "fixed and verified", "--outcome", "satisfying",
 		        viewer="lang.grace")
 	else:
 		assert race_kinds == ["close_work"], \
@@ -106,7 +106,7 @@ def test_wf09_restart_and_races(flow):
 
 	# The consumer resumed either way — its blocker closed.
 	assert flow.ok("detail", push1, viewer="push.sl")["ready"] is True
-	flow.ok("close", push1, "--disposition", "verified upstream", "--outcome", "satisfying",
+	flow.ok("close", push1, "--rationale", "verified upstream", "--outcome", "satisfying",
 	        viewer="push.sl")
 
 	# RESTART RECONSTRUCTION: a fresh process rebuilds every projection

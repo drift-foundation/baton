@@ -1007,3 +1007,61 @@ the false clear. Correct R72 and stop for re-review; later slices remain held.
 satisfied; the focused set is 46/46 green and `just test-v11` is 384 parallel
 plus 3 serial passed. Work revisions, terminal outcomes, WS-5/WS-6,
 deployment, and TUI expansion remain separately gated.
+
+### 2026-08-15 terminal-outcome implementation slice released
+
+**Authorized by Slawomir after committing accepted WS-4 Slice B as
+`6e96503`.** Revalidate this scope against the chronological rulings in
+`FINDING.md`, especially “every terminal close has a structured outcome and
+rationale,” and the executable WF-10 contract in `WORKFLOW-TESTS.md`. This
+slice changes terminal closure only; Work revisions, WS-5/WS-6, TUI expansion,
+deployment, and migration remain held.
+
+- [ ] Extend the one existing atomic close mechanism to accept exactly
+  `satisfying`, `non-satisfying`, `rejected`, or `cancelled`. Every outcome
+  requires a non-empty rationale; omission, whitespace, an unknown outcome,
+  or inference from classification/discussion prose refuses before commit.
+- [ ] Preserve Current-only authority, open-child refusal, Current/Next
+  clearing, pending response-obligation and verification-assignment
+  withdrawal, dependency result propagation, last-gate wake, immutable close,
+  dense audit order, and independent dependent/provider lanes for all four
+  outcomes. Cancellation is ordinary accelerated close, never a cascade or
+  child bypass.
+- [ ] Add the non-gating `duplicate_of` relation for duplicate rejection. It
+  names an existing canonical Work explicitly, is recorded in the close event
+  and canonical JSON/link projections, refuses self/missing targets and
+  incompatible outcome use, and never changes readiness, Current, phase, or
+  dependency edges. Ordinary rejection remains valid without it.
+- [ ] Bump the fresh v11 schema coherently as required; there is no migration.
+  Keep one unambiguous rationale concept across storage, events, CLI, and JSON;
+  do not retain two writable prose fields or add a compatibility alias merely
+  for this unshipped schema.
+- [ ] Execute WF-10 literally from source and the packaged artifact: four
+  sibling outcome fixtures; duplicate rejection; proposer-versus-Current
+  cancellation authority; open-child cancellation refusal; exact dependent
+  fan-out and multi-gate preservation; all pending obligation/assignment
+  withdrawals; terminal projection and immutable history.
+- [ ] Cover missing/empty rationale, unknown outcome, outsider close,
+  duplicate-without-link and incompatible-link refusals; race close against
+  response, report, pass, and competing close; inject failure across every
+  close write boundary; prove retry/restart, pure deterministic JSON, and no
+  partial write or consumed sequence on refusal/failure. Break-sweep the new
+  outcome, rationale, duplicate-link, and cancellation guards.
+- [ ] Run the focused terminal/workflow suite and `just test-v11`, record exact
+  evidence, and stop for review. Do not begin Work revisions or any later
+  phase even if this gate is green.
+
+**Terminal-outcome first review: changes requested.** See
+`review-2026-08-15T14-39-43Z.md`. R73 requires omitted rationale/outcome to
+remain inside the public JSON exit-one error contract rather than escaping as
+argparse prose with exit 2. R74 requires `duplicate_of` to name the canonical
+survivor directly, refusing duplicate chains and mutual cycles with an in-lock
+recheck. Additive reviewer regressions reproduce both gaps. Correct only these
+findings and stop for re-review; Work revisions and every later phase remain
+held.
+
+**Terminal-outcome slice accepted.** See
+`review-2026-08-15T14-45-25Z.md`. R73–R74 are satisfied; the focused set is
+46/46 green and `just test-v11` is 403 parallel plus 3 serial passed. Work
+revisions, WS-5/WS-6, deployment, migration, and TUI expansion remain
+separately gated.

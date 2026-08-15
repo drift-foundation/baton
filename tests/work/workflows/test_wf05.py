@@ -99,7 +99,7 @@ def test_wf05_three_consumers_converge(flow):
 
 	# 5. Closing LANG-42 unblocks Push and Web INDEPENDENTLY; MariaDB stays
 	# blocked by BUILD-7 (multiple-blocker conjunction).
-	flow.ok("close", lang42, "--disposition", "fixed and verified", "--outcome", "satisfying",
+	flow.ok("close", lang42, "--rationale", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert flow.ok("detail", consumers["push"],
 	               viewer="push.sl")["ready"] is True
@@ -112,7 +112,7 @@ def test_wf05_three_consumers_converge(flow):
 	# 6. The second blocker clears independently — level-triggered, no
 	# inverse path. (The former reopen leg is superseded by WS-2 immutable
 	# closure; WS2-WF-06 owns the contradiction story.)
-	flow.ok("close", build7, "--disposition", "image rebuilt", "--outcome", "satisfying",
+	flow.ok("close", build7, "--rationale", "image rebuilt", "--outcome", "satisfying",
 	        viewer="mdb.mo")
 	assert flow.ok("detail", consumers["mdb"],
 	               viewer="mdb.mo")["ready"] is True
