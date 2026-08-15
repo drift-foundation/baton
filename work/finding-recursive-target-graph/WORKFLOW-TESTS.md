@@ -297,6 +297,41 @@ rejection without `duplicate_of`, and every fault-injected partial close must
 refuse without changing state or consuming a sequence. Race close against
 response/report/pass and prove exactly one compatible terminal history.
 
+## WF-11 — assigned Work revisions preserve accountable scope
+
+Run the same revision story from source and the packaged artifact.
+
+1. Create open Work with a Current handler and a labelled discussion. A
+   requester posts a complete proposed contract; Current promotes that durable
+   message as revision 1, naming expected revision 0 and a rationale.
+2. The requester then posts a complete replacement contract. Prove the
+   requester cannot revise the assigned Work directly; Current evaluates the
+   proposal and promotes it as revision 2 while preserving Work identity,
+   dependencies, phase, Current, and revision 1.
+3. Race two Current-authored promotions that both name expected revision 2.
+   Exactly one becomes revision 3; the stale writer refuses without mutation
+   or sequence consumption. Repeat across restart and the retry boundary.
+4. Transfer Current. Prove the prior handler can no longer revise and the new
+   handler can promote the next complete discussion message with the expected
+   revision.
+5. Add a newly requested independent test/proof as child Work rather than
+   hiding it in the parent's revision. Close the parent only after the child is
+   independently concluded.
+6. Close the revised Work and prove terminal history is immutable: no later
+   promotion, edit, deletion, or post-terminal revision is accepted.
+
+Assert that every committed revision records Work id, monotonically increasing
+revision number, expected prior revision, promoted discussion/message
+provenance, Current actor and resolution facts, rationale, audit sequence, and
+the complete promoted content. JSON exposes one unambiguous effective revision
+and the ordered immutable history without replaying discussion prose. Refuse a
+missing/unlabelled/terminal-discussion message, empty rationale, outsider or
+stale actor, wrong expected revision, terminal Work, and every fault-injected
+partial promotion without changing Work, history, audit, or sequence. External
+templates and dossier binding remain provenance/later-layer concerns: WF-11
+requires self-contained rendered content and does not add fixed contract
+fields or template machinery to the protocol.
+
 ## Cross-surface acceptance matrix
 
 | Workflow | JSON subprocess | Built artifact | TUI checkpoint parity | Race/failure |
@@ -311,6 +346,7 @@ response/report/pass and prove exactly one compatible terminal history.
 | WF-08 reroute live work | required | required | current handler detail | generation race |
 | WF-09 restart/race | required | required | final invariant only | primary subject |
 | WF-10 terminal outcomes | required | required | outcome/rationale detail | close/response/report/pass |
+| WF-11 Work revisions | required | required | effective/history detail | CAS/transfer/restart/fault |
 
 ## Coverage gaps exposed by the workflows
 

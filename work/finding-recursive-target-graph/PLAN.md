@@ -1065,3 +1065,61 @@ held.
 46/46 green and `just test-v11` is 403 parallel plus 3 serial passed. Work
 revisions, WS-5/WS-6, deployment, migration, and TUI expansion remain
 separately gated.
+
+### 2026-08-15 Work-revision implementation slice released
+
+**Authorized by Slawomir after committing the accepted terminal-outcome slice
+as `273fe4c`.** Revalidate this scope against the chronological rulings in
+`FINDING.md`, especially “assigned Work is revised only by its current
+handler” and “Work revisions store complete content; structure comes from
+external templates.” Execute WF-11 in `WORKFLOW-TESTS.md`. This slice changes
+append-only Work contract revision only; WS-5/WS-6, dossier/template binding,
+TUI expansion, deployment, and migration remain held.
+
+- [ ] Add an append-only Work revision record that promotes one complete,
+  durable discussion message. Record Work, monotonically increasing revision,
+  expected prior revision, promoted discussion/message provenance, Current
+  actor and resolution facts, non-empty rationale, audit sequence, and the
+  self-contained promoted content. Do not add fixed description,
+  requirements, or acceptance fields.
+- [ ] Authorize only the resolved Current handler of open Work. Require the
+  promoted discussion to carry that open Work label. Preserve Work identity,
+  containment/dependencies, phase, Current, Next, discussion content, and all
+  earlier revisions; transfer of Current transfers revision authority.
+- [ ] Make promotion compare-and-swap on the expected prior revision and
+  recheck actor, Current resolution, Work state, label/provenance, and expected
+  revision in-lock. Concurrent or stale writers refuse whole without consuming
+  an audit/publication sequence.
+- [ ] Expose exactly one effective revision plus deterministic ordered history
+  in canonical JSON, including complete content and provenance, so agents need
+  not replay a discussion to reconstruct the current contract. Terminal Work
+  and committed revision history are immutable.
+- [ ] Execute WF-11 from source and the packaged artifact. Cover outsider and
+  former-handler refusal, Current transfer, missing/wrong expected revision,
+  missing or ineligible provenance, empty rationale, concurrent promotion,
+  fault injection at every write boundary, restart/retry, child-Work scope,
+  pure projection, dense audit ordering, and terminal immutability. Break-sweep
+  the authority, CAS, provenance, append-only, and atomicity guards.
+- [ ] Keep external template validation/rendering and dossier/artifact binding
+  out of this slice. A future layer may add immutable template provenance, but
+  the stored promoted content must already be self-contained.
+- [ ] Run the focused revision/workflow suite and `just test-v11`, record exact
+  evidence, and stop for review. Do not begin WS-5/WS-6 or any later phase even
+  if this gate is green.
+
+**Work-revision first review: R75 changes requested.** See
+`review-2026-08-15T15-12-51Z.md`. The authority/CAS/provenance behavior and
+WF-11 otherwise match the ruling, and the focused implementation set is 28/28
+green. Canonical `detail` currently returns the entire revision history as an
+unbounded list, contrary to the pinned bounded-pagination contract. The
+additive reviewer regression reproduces the missing count/truncation/cursor
+and continuation surface. Correct only R75 and stop for re-review; WS-5/WS-6
+and every later phase remain held.
+
+**Work-revision slice accepted.** See
+`review-2026-08-15T15-17-42Z.md`. R75 is satisfied: direct effective revision,
+bounded preview with honest count/truncation/cursor, and pure paginated
+continuation agree in source and packaged JSON. The focused re-review is 29/29
+green and `just test-v11` is 418 parallel plus 3 serial passed. K remains
+stopped; WS-5/WS-6, external template/dossier binding, deployment, migration,
+and further TUI expansion remain separately gated.

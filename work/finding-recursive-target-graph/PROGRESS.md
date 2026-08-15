@@ -1433,3 +1433,78 @@ focused terminal/WF-10/close/CLI/JSON set 46/46; test-v11 403 parallel
 + 3 serial; diff check clean. REMAIN STOPPED: Work revisions,
 WS-5/WS-6, deployment, migration, and TUI expansion are separate later
 gates.
+
+## Step 35 — append-only Work revisions + WF-11 (2026-08-15)
+
+Schema v11: append-only `revisions` table (seq PK, work FK, monotonic
+revision UNIQUE per work, expected prior, promoted discussion FK +
+message_seq provenance, Current actor, rationale, complete
+self-contained content, created_ts). Projection 2.1: `detail` exposes
+exactly ONE effective revision plus the deterministic ordered immutable
+history — complete content and provenance, no discussion replay. No
+fixed contract fields, no template machinery, no dossier binding.
+
+`revise_work` / CLI `revise WORK --message --expect --rationale` (R73
+discipline: omissions refuse via the JSON exit-one contract): promotes
+one durable discussion message as the whole contract. Authority is the
+LIVE resolved Current handler of OPEN work, in-lock, snapshot recorded;
+transfer of Current transfers it. The promoted message must live in a
+discussion currently carrying the open work's label (rechecked in-lock
+against the unlabel race). The write is compare-and-swap on the
+explicit expected prior revision — pre-lock stale refusal plus in-lock
+recheck; a concurrent or stale writer refuses whole WITHOUT consuming
+a sequence (asserted); the UNIQUE(work, revision) constraint backstops
+the same invariant. Terminal work refuses revision (pre-lock and
+in-lock against the racing close); committed history survives closure
+byte-identical.
+
+Evidence: `test_revisions.py` (12): record completeness incl.
+resolution facts in the audit, ordered append-only history +
+effective-is-last, the authority matrix incl. generation reassignment,
+provenance rules + relabel eligibility + mid-flight unlabel race, CAS
+wrong/stale/unnamed expectations + concurrent-promotion race with
+no-sequence proof + rebase retry, terminal immutability + mid-flight
+close race, child-scope independence, read purity + whole-or-nothing
+fault injection, restart + replay refusal. WF-11 story (source +
+packaged): requester proposes / Current promotes, direct-revision
+refusal, the full refusal matrix, spawned CAS race with dense audit +
+verbatim-retry refusal, Current transfer moving the authority,
+independent child work gating the close, terminal immutability with
+history intact.
+
+Break-sweeps (defect in, red, restored): V1 dropped handler gate, V2
+CAS replaced by silent rebase-onto-live (the honest defect — a dropped
+in-lock compare alone is backstopped by UNIQUE and refused
+identically), V3 dropped in-lock provenance recheck, V4 dropped
+in-lock terminal recheck, V5 side-connection commit breaking
+atomicity. Gate: 420 passed (417 parallel + 3 serial); all workflows
+green source+packaged; test-v11 green; diff check clean. STOPPED for
+review. WS-5/WS-6, template/dossier binding, deployment, migration,
+and TUI expansion held.
+
+## Step 36 — Work-revision correction R75 (2026-08-15)
+
+R75: revision history is a bounded paginated canonical list. The
+effective revision stays DIRECT in `detail`; the history becomes a
+bounded 50-entry ordered preview with explicit `revision_count`,
+`revisions_truncated`, and a `revisions_next_after` continuation
+cursor; the new pure paged read `revisions WORK --after/--limit`
+(shared `_page_bounds` contract: non-negative cursor, limit 1..500
+refusing over-max, explicit next_after, one snapshot) joins the preview
+without a gap or repeat. WF-11 gains the source+packaged page walk and
+the bounds refusal matrix. Reviewer regression (53 revisions: direct
+effective, count 53, 50-entry truncated preview, cursor 50, tail pages
+[51,52,53] then None) passes. Break-sweeps: silent truncation and a
+bounds-free paged read each red then restored. Gate: 421 passed (418
+parallel + 3 serial); all workflows green source+packaged; test-v11
+green; diff check clean. STOPPED for re-review. Later phases held.
+
+## Step 37 — Work-revision slice ACCEPTED (2026-08-15)
+
+Reviewer accepted the Work-revision slice after R75 (message
+c0e6e328727fa858ed3be5b56f03e491, review-2026-08-15T15-17-42Z.md): no
+Work-revision finding remains. Independent verification: reviewer
+focused set 29/29; test-v11 421 total; diff check clean. REMAIN
+STOPPED: WS-5/WS-6, external template/dossier binding, deployment,
+migration, and further TUI expansion require their own explicit
+release.

@@ -462,6 +462,29 @@ def new_count(store: Authority, work_id: str, *, viewer_team: str,
 	        "total": len(total_set), "snapshot_seq": snapshot_seq}
 
 
+def revisions(store: Authority, work_id: str, *, after: int = 0,
+              limit: int = 100) -> dict:
+	"""The paged pure read over a Work's ordered immutable revision
+	history (R75): non-negative cursor on the monotonic revision number,
+	bounded positive limit, explicit continuation, one snapshot."""
+	after, limit = _page_bounds(after, limit)
+	store.conn.execute("BEGIN")
+	try:
+		_work(store, work_id)
+		rows = [dict(entry) for entry in store.conn.execute(
+			"SELECT seq, revision, prior, discussion, message_seq, "
+			"actor, rationale, content, created_ts FROM revisions "
+			"WHERE work=? AND revision > ? ORDER BY revision LIMIT ?",
+			(work_id, after, limit))]
+		snapshot_seq = store.last_seq()
+	finally:
+		store.conn.execute("ROLLBACK")
+	return {"work": work_id, "rows": rows,
+	        "next_after": rows[-1]["revision"]
+	        if len(rows) == limit else None,
+	        "snapshot_seq": snapshot_seq}
+
+
 def obligations(store: Authority, *, viewer_team: str,
                 now: str | None = None) -> list[dict]:
 	"""The team's ACTIONABLE set — separate from unseen counts by ruling:
@@ -693,6 +716,31 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	view["discussions_next_after"] = \
 		view["discussions"][-1]["added_seq"] \
 		if view["discussions_truncated"] else None
+	# Work-revision slice: exactly ONE effective revision, returned
+	# DIRECTLY, plus a BOUNDED ordered history preview (R75: every
+	# canonical list is bounded and paged) — count, truncation, and a
+	# continuation cursor that hands off to the pure `revisions` read
+	# without a gap or repeat.
+	view["revision_count"] = store.conn.execute(
+		"SELECT COUNT(*) AS n FROM revisions WHERE work=?",
+		(work_id,)).fetchone()["n"]
+	view["revision"] = None
+	effective = store.conn.execute(
+		"SELECT seq, revision, prior, discussion, message_seq, actor, "
+		"rationale, content, created_ts FROM revisions WHERE work=? "
+		"ORDER BY revision DESC LIMIT 1", (work_id,)).fetchone()
+	if effective is not None:
+		view["revision"] = dict(effective)
+	view["revisions"] = [dict(entry) for entry in store.conn.execute(
+		"SELECT seq, revision, prior, discussion, message_seq, actor, "
+		"rationale, content, created_ts FROM revisions WHERE work=? "
+		"ORDER BY revision LIMIT 50", (work_id,))]
+	view["revisions_truncated"] = \
+		view["revision_count"] > len(view["revisions"])
+	view["revisions_next_after"] = \
+		view["revisions"][-1]["revision"] \
+		if view["revisions_truncated"] else None
+
 	# WS-3 R49: the work's obligations as PUBLIC structured state — an
 	# agent reads "obligation N is accepted into W" here, in the same
 	# snapshot, without SQL or audit mining.

@@ -2030,3 +2030,110 @@ def post_discussion(store: Authority, discussion_id: str, *,
 	if carrying:
 		result["work"] = payload["work"]
 	return result
+
+
+def _current_revision(conn, work_id: str) -> int:
+	row = conn.execute(
+		"SELECT MAX(revision) AS top FROM revisions WHERE work=?",
+		(work_id,)).fetchone()
+	return row["top"] or 0
+
+
+def revise_work(store: Authority, work_id: str, *, actor_team: str,
+                actor: str, message_seq: int | None = None,
+                expected_revision: int | None = None,
+                rationale: str | None = None) -> dict:
+	"""Append-only Work contract revision: PROMOTES one complete durable
+	discussion message as the effective contract (pinned ruling). Only
+	the resolved Current handler of OPEN Work commits it; transfer of
+	Current transfers this authority. The promoted message must live in
+	a discussion currently carrying this open Work's label. The write is
+	compare-and-swap on the expected prior revision — a concurrent or
+	stale writer refuses whole without consuming a sequence — and every
+	decision is rechecked inside the committing transaction. The stored
+	content is the message's complete rendered bytes, self-contained:
+	no fixed contract fields, no template machinery."""
+	_member(store, actor_team, actor)
+	row = _work(store, work_id)
+	if row["status"] != OPEN:
+		raise WorkError(
+			f"{work_id} is {row['status']}; terminal work is immutable "
+			f"and continues through follow-up work, never a "
+			f"post-terminal revision")
+	if message_seq is None or not isinstance(message_seq, int):
+		raise WorkError("a revision promotes exactly one durable "
+		                "discussion message; name it with --message")
+	if expected_revision is None or not isinstance(expected_revision, int) \
+			or expected_revision < 0:
+		raise WorkError("a revision names the expected prior revision "
+		                "explicitly (--expect); concurrent and stale "
+		                "edits must fail, never overwrite")
+	if not isinstance(rationale, str) or not rationale.strip():
+		raise WorkError("a revision records its rationale")
+	message = store.conn.execute(
+		"SELECT seq, discussion, author_team, author, body FROM messages "
+		"WHERE seq=?", (message_seq,)).fetchone()
+	if message is None:
+		raise WorkError(f"no discussion message {message_seq}")
+	if store.conn.execute(
+			"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
+			"work=?", (message["discussion"], work_id)).fetchone() is None:
+		raise WorkError(
+			f"message {message_seq} lives in {message['discussion']}, "
+			f"which does not carry #" + work_id + "; a promoted "
+			f"contract keeps the work's own discussion provenance")
+	current = _current_revision(store.conn, work_id)
+	if expected_revision != current:
+		raise WorkError(
+			f"{work_id} is at revision {current}, not "
+			f"{expected_revision}; the edit is stale — re-read and "
+			f"retry against the current state")
+
+	payload = {"work": work_id, "revision": expected_revision + 1,
+	           "prior": expected_revision,
+	           "discussion": message["discussion"],
+	           "message_seq": message_seq, "rationale": rationale}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live = conn.execute("SELECT status FROM work WHERE id=?",
+		                    (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(
+				f"{work_id} is {live['status']}; terminal work is "
+				f"immutable and never revised")
+		# The one revision authority: the LIVE resolved Current handler,
+		# in the lock, snapshot recorded (resolution facts).
+		payload["authorization"] = _handler_gate(
+			conn, work_id, actor_team, actor, "revise")
+		if conn.execute(
+				"SELECT 1 FROM discussion_labels WHERE discussion=? "
+				"AND work=?",
+				(message["discussion"], work_id)).fetchone() is None:
+			raise WorkError(
+				f"message {message_seq} lost its #" + work_id +
+				" provenance while this revision was being prepared; "
+				f"it lost a concurrent race — retry against the "
+				f"current state")
+		# CAS, decided under the state that COMMITS: a concurrent
+		# promotion that landed first makes this writer stale.
+		live_revision = _current_revision(conn, work_id)
+		if expected_revision != live_revision:
+			raise WorkError(
+				f"{work_id} is at revision {live_revision}, not "
+				f"{expected_revision}; the edit lost a concurrent "
+				f"race — re-read and retry against the current state")
+		conn.execute(
+			"INSERT INTO revisions (seq, work, revision, prior, "
+			"discussion, message_seq, actor, rationale, content, "
+			"created_ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			(seq, work_id, expected_revision + 1, expected_revision,
+			 message["discussion"], message_seq,
+			 f"{actor_team}.{actor}", rationale, message["body"],
+			 store.clock()))
+
+	result = store._write("revise_work", f"{actor_team}.{actor}",
+	                      payload, mutate)
+	result["revision"] = expected_revision + 1
+	result["work"] = work_id
+	return result

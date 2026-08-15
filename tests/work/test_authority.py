@@ -67,7 +67,7 @@ def test_init_writes_no_handshake_file(tmp_path):
 def test_meta_pins_protocol_and_uuid(authority):
 	meta = authority.meta()
 	assert meta["protocol_version"] == "11"
-	assert meta["schema_version"] == "10"  # WS-4 A: discussions/labels
+	assert meta["schema_version"] == "11"  # WS-4 A: discussions/labels
 	assert len(meta["authority_uuid"]) == 32
 
 

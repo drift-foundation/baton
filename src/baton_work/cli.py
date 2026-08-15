@@ -158,6 +158,22 @@ def main(argv=None) -> int:
 	for name in ("detail", "children", "links", "breadcrumb", "new"):
 		cmd = sub.add_parser(name)
 		cmd.add_argument("work")
+	cmd = sub.add_parser("revisions")
+	cmd.add_argument("work")
+	cmd.add_argument("--after", type=int, default=0)
+	cmd.add_argument("--limit", type=int, default=100)
+	cmd = sub.add_parser("revise")
+	cmd.add_argument("work")
+	# R73 discipline: omission refuses through the JSON exit-one
+	# contract in the transition, never argparse prose.
+	cmd.add_argument("--message", dest="message_seq", type=int,
+	                 help="the ONE durable discussion message promoted "
+	                 "as the complete contract")
+	cmd.add_argument("--expect", dest="expected_revision", type=int,
+	                 help="the expected prior revision; stale or "
+	                 "concurrent edits refuse, never overwrite")
+	cmd.add_argument("--rationale",
+	                 help="why this promotion is the agreed contract")
 	cmd = sub.add_parser("discuss")
 	cmd.add_argument("--body", required=True)
 	cmd.add_argument("--label", action="append", required=True,
@@ -331,6 +347,17 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.add_dependency(store, args.work, args.on,
 		                                  actor_team=team, actor=member)
+	if command == "revisions":
+		_need_participant(args)
+		return projection.revisions(store, args.work, after=args.after,
+		                            limit=args.limit)
+	if command == "revise":
+		team, member = _need_participant(args)
+		return transitions.revise_work(
+			store, args.work, actor_team=team, actor=member,
+			message_seq=args.message_seq,
+			expected_revision=args.expected_revision,
+			rationale=args.rationale)
 	if command == "discuss":
 		team, member = _need_participant(args)
 		return transitions.create_discussion(

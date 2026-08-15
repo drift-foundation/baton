@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -254,6 +254,19 @@ CREATE TABLE discussion_participants (
 	team       TEXT NOT NULL REFERENCES teams(handle),
 	added_seq  INTEGER NOT NULL,
 	PRIMARY KEY (discussion, team)
+) STRICT;
+CREATE TABLE revisions (
+	seq         INTEGER PRIMARY KEY,
+	work        TEXT NOT NULL REFERENCES work(id),
+	revision    INTEGER NOT NULL,
+	prior       INTEGER NOT NULL,
+	discussion  TEXT NOT NULL REFERENCES discussions(id),
+	message_seq INTEGER NOT NULL,
+	actor       TEXT NOT NULL,
+	rationale   TEXT NOT NULL,
+	content     TEXT NOT NULL,
+	created_ts  TEXT NOT NULL,
+	UNIQUE (work, revision)
 ) STRICT;
 CREATE TABLE seen (
 	team       TEXT NOT NULL,
