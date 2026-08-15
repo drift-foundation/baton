@@ -1925,3 +1925,269 @@ message into the append-only revision history; there are no fixed contract
 fields. Structure comes from external versioned templates; the rendered
 content stays self-contained. Implementation remains HELD until after the
 Slice B review.
+
+## 2026-08-15 — WS-5 effectively-once retry selected for design next
+
+**Confirmed by Slawomir after the Work-revision slice was accepted.** Plan
+WS-5 next, before WS-6 dossier binding, deployment/migration, or further TUI
+expansion. This authorization is for a design and challenge pass only; it does
+not release implementation.
+
+WS-5 must replace the current documented “read before retry” limitation with a
+real client-supplied operation identity for mutations. If a mutation committed
+but its response was lost, retrying the same semantic request under the same
+operation identity must recover the one committed result without performing a
+second effect or consuming another sequence. Reusing the identity for a
+different request must fail closed. Reads remain pure and need no operation
+identity.
+
+The design must settle the identifier's grammar and scope, whether it is
+mandatory on every public mutation or how an optional convenience can still
+state its weaker guarantee honestly, semantic request fingerprinting, exact
+retry response shape, permanent versus bounded retention, and coverage of
+configuration/init operations. It must define the one-transaction storage and
+race algorithm, including simultaneous identical attempts, conflicting reuse,
+commit-then-response-loss, refusal-before-commit, crash/restart, configuration
+reassignment, and replay after later Work state has changed. Any unresolved
+product choice returns for ruling before source changes.
+
+## 2026-08-15 — WS-5 effectively-once retry design approved
+
+**Confirmed by Slawomir after the corrected design passed review; supersedes
+the design-only implementation hold immediately above.** The complete contract
+is `WS5-DESIGN.md`; R76–R81 and the accepted review are recorded in
+`review-2026-08-15T15-27-39Z.md`,
+`review-2026-08-15T15-31-29Z.md`, and
+`review-2026-08-15T15-35-09Z.md`. The approved product dispositions are:
+
+- operation identity is an optional caller-supplied opaque UTF-8 token,
+  unique per validated participant; agents and automation should normally
+  retain and supply one, while an id-less call remains explicitly in the
+  weaker read-before-retry tier;
+- identity reuse is checked against a canonical semantic fingerprint of actor,
+  operation, and validated typed input, excluding dynamic resolution output;
+- a successful protected mutation, its domain event when any, its replayable
+  result, and its operation record commit atomically. Exact retry is a pure
+  replay; conflicting reuse refuses. Refusals record nothing and do not poison
+  the identity; successful no-ops consume it without inventing a domain event;
+- current accepted configuration validates the participant before replay.
+  Removed identities receive no replay carve-out. Later Work state does not
+  invalidate a replay that passed the current identity gate;
+- every mutation result exposes exactly one `operation` shape: `null`,
+  `{id, state: "committed"}`, or `{id, state: "replayed"}`. The stored domain
+  result and original event sequence remain stable across replay;
+- operation records are retained permanently for this protocol. Their own
+  dense `recorded` cursor orders `operation-log`; nullable domain-event `seq`
+  is provenance only and remains untouched by successful no-ops or replays;
+- config regeneration participates in the same guarantee. Fresh `init` gains
+  a required participant validated against the proposed generation-1
+  document; protected re-init on an existing authority first applies the
+  current-generation identity gate and then performs exact/conflicting lookup;
+  and
+- the executable contract is a separate WF-12 source-and-packaged battery,
+  preserving accepted WF-09 unchanged.
+
+This approval releases only the bounded WS-5 implementation gate recorded in
+`PLAN.md`. WS-6, dossier/template binding, deployment, migration, and further
+TUI expansion remain held.
+
+## 2026-08-15 — WS-6 dossier binding shape: permanent records and a human open index
+
+**Confirmed by Slawomir while WS-5 implementation is active; this pins WS-6
+design point 1 only and does not release WS-6 implementation.** A dossier's
+canonical repository location exists from creation and remains indefinitely:
+
+```text
+work/
+  open/
+    finding-friendly-name -> ../records/YYYY/MM/finding-stable-name
+  records/
+    YYYY/
+      MM/
+        finding-stable-name/
+```
+
+The year/month is chosen at creation and the canonical record path does not
+move when Work changes phase or becomes terminal. The record holds the finding,
+plan, progress, append-only reviews, reproductions, scripts, fixtures, data,
+and other durable evidence. Repository growth and large-asset policy are later
+operational concerns; this ruling makes the dossier itself permanent.
+
+Baton Work bindings, messages, handoffs, reviews, and cross-references use
+only the configured repository identity plus the canonical repository-relative
+`work/records/...` path. They never use `work/open/...`, never require an
+absolute local checkout path, and do not require a Git commit merely to keep
+the evidence reachable. An immutable Git revision may later be recorded as
+additional provenance, but is not the primary locator.
+
+`work/open/` is a deliberately maintained human convenience view for sweeping
+dossier-backed work outside Baton. Its relative symlinks are not protocol
+state, not an agent communication address, and not an authority for Work
+lifecycle. Closing Baton Work and removing its open symlink need not be atomic;
+a terminal record left there is merely cleanup-pending. Cleanup unlinks only
+the verified symlink and never recursively deletes or traverses its permanent
+record. No Baton/filesystem reconciliation checker is required in WS-6.
+
+Not every lightweight Baton Work needs a dossier or an open symlink. Once a
+dossier exists, however, its canonical record path is the stable binding and
+must not be renamed as a lifecycle operation. Later corrections to terminal
+evidence are explicit history or follow-up evidence, never silent rewriting.
+
+## 2026-08-15 — WS-6 binding authority and open-record semantics
+
+**Confirmed by Slawomir; resolves WS-6 design points 2 and 3 without releasing
+implementation.** A Work creator may establish its initial canonical dossier
+binding atomically with Work creation, including when routing immediately
+makes another endpoint Current. After creation and while Work remains open,
+only the resolved Current handler may attach a previously absent binding or
+correct/supplement an existing one. Discussion participants, requesters,
+reviewers, parent handlers, and other outsiders may propose a change but cannot
+commit it. Transferring Current transfers this authority.
+
+Every post-creation binding change is append-only, names the expected prior
+binding revision, carries a non-empty rationale, and preserves the complete
+ordered history. Stale or concurrent changes refuse rather than overwrite.
+Normal lifecycle does not revise the canonical path; correction exists for an
+erroneous locator or additive provenance, not for moving a dossier at close.
+Terminal Work freezes its binding history. A later problem creates explicit
+follow-up Work and corrective evidence rather than a privileged locator
+rewrite or reopening the terminal record.
+
+An open binding identifies a deliberately mutable working-tree dossier. Its
+files may be added, revised, or removed as the investigation progresses; Baton
+does not hash-pin, ingest, or mirror those bytes. The canonical
+`work/records/...` path itself is stable under the preceding ruling and must
+not move. If the path is temporarily unavailable or mistakenly disappears,
+the Work binding remains valid protocol state and the Baton authority remains
+healthy: missing evidence is a visible repository/operational problem, not
+message damage, quarantine, or authority corruption. No filesystem observation
+may silently change Work state or binding history.
+
+## 2026-08-15 — WS-6 closure does not relocate or seal dossiers
+
+**Confirmed by Slawomir; supersedes the earlier proposed closure choice between
+a required Git locator and an explained absence.** The permanent-record shape
+removes that fork. Closing bound Work leaves its configured repository identity
+and canonical `work/records/...` path unchanged. There is no archive move,
+working-tree-to-Git conversion, required commit hash, sealing transaction, or
+second “no durable locator” rationale.
+
+An immutable Git commit may be appended by Current while Work is open as
+optional provenance, but it is not required for closure or later navigation.
+Every terminal close already carries its mandatory outcome rationale; WS-6
+does not add another rationale merely because no Git revision was recorded.
+Lightweight Work that never needed a dossier closes normally with no binding.
+Bound Work closes with its existing append-only binding history and that
+history then becomes terminally immutable under the preceding authority rule.
+Removing an optional `work/open/` human-index symlink is later repository
+housekeeping and has no Baton transition semantics.
+
+## 2026-08-15 — WS-6 artifact addressing and validation boundary
+
+**Confirmed by Slawomir; resolves WS-6 design points 5 and 6 without releasing
+implementation.** Evidence that belongs to a bound dossier is referenced by a
+normalized relative path beneath that dossier. The immutable message/reference
+record also names the binding revision against which the path was published,
+so a later append-only locator correction cannot silently reinterpret an old
+reference. Resolution expands to the configured repository identity plus the
+canonical `work/records/...` path; it never passes through `work/open/` and
+never stores an absolute checkout path.
+
+An independent configured-repository/root plus normalized relative path
+remains legal for a resource that genuinely does not belong inside the Work's
+dossier. This is an explicit independent reference, not an implicit second
+dossier binding. Neither reference form hash-pins, ingests, copies, or makes
+the referenced bytes part of Baton authority. Movement or disappearance is
+ordinary external-reference failure and does not damage the message, Work, or
+mailbox.
+
+The committing transaction validates only protocol facts: acting authority,
+expected binding revision, known configured repository/root identity, reference
+shape, normalized relative path, and containment syntax (no absolute path,
+empty component, `.`/`..`, or escape). It does not stat the path, traverse a
+symlink, open Git, require a mounted checkout, or persist an availability
+observation. Canonical reads therefore depend only on SQLite authority state.
+WS-6 adds no `available`/`missing`/`different revision`/`unchecked` vocabulary,
+background checker, or implicit repair. A client may encounter and display an
+ordinary navigation error when a human asks it to open external evidence, but
+that result is not authoritative state and performs no Baton mutation.
+
+## 2026-08-15 — dossier templates are external team-owned scaffolds
+
+**Confirmed by Slawomir; resolves WS-6 template provenance by excluding it
+from the protocol.** Baton does not define, store, validate, identify, version,
+or digest dossier templates. A Work revision remains complete and
+self-contained in Baton; a dossier binding identifies the permanent repository
+record, not the scaffold that may originally have created it.
+
+Repository tooling may ship an initial standard finding scaffold. Its minimum
+convention is a directory bundle containing `REPORT.md`, `PLAN.md`, and
+`PROGRESS.md`, and it may include or create additional structure such as
+reviews, tests, reproductions, scripts, fixtures, or `data/`. The template may
+itself contain a repository-side manifest, placeholders, rendering rules, or
+lint policy, but none of those become Baton authority or protocol schema.
+
+Teams own their copies of these scaffolds. They may extend, fork, replace, or
+specialize them as their work evolves; useful conventions may later flow back
+into the shipped standard without changing old Work, old dossiers, or Baton
+compatibility. Git records the actual rendered files and their evolution. Any
+scaffold command or repository lint is an external convenience and must not be
+required to reconstruct Baton Work history.
+
+This future-facing convention does not rename or rewrite the existing finding
+folders during the active v11 implementation. Repository migration and the
+exact scaffold/creation command remain separately planned operational work.
+
+## 2026-08-15 — clarification: the dossier template is an instructional Markdown file
+
+**Clarified by Slawomir; supersedes the “directory bundle” and automatic
+rendering implications in the immediately preceding template ruling.** A
+finding template is a versioned Markdown instruction/pattern describing how an
+implementer is expected to turn an accepted report or research result into a
+managed dossier. It is not a directory copied verbatim, a protocol object, a
+machine-required manifest, or a fixed renderer input.
+
+The implementer reads the template together with the actual report/research
+and creates the appropriate permanent record scaffold. The standard pattern
+expects at least `REPORT.md`, `PLAN.md`, and `PROGRESS.md`; the implementer adds
+context-appropriate files and directories—such as reviews, tests,
+reproductions, scripts, fixtures, or `data/`—when the work requires them. The
+template defines responsibilities, content expectations, and management
+conventions rather than pretending every finding has the same physical tree.
+
+Teams may evolve or specialize their Markdown instruction file and may feed
+successful conventions back into the standard. Baton neither knows which
+template was followed nor validates the resulting filesystem shape. Git and
+repository review own the resulting dossier; Baton retains only its canonical
+binding and self-contained Work/discussion history.
+
+## 2026-08-15 — standard templates ship with the CLI and are vendored at bootstrap
+
+**Confirmed by Slawomir; completes the WS-6 template distribution boundary
+without releasing implementation.** The Baton source repository owns the core
+numbered Markdown patterns under top-level `tmpl/`, for example
+`tmpl/work-basic-1.md`. Materially changed instructions receive a new numbered
+file rather than silently rewriting the earlier edition.
+
+The build includes the core template files in each exact versioned CLI product
+release beside `bin/`, `doc/`, and `conf/`:
+
+```text
+app/baton-cli/v<major>/v<full-version>/tmpl/
+```
+
+Project bootstrap copies the selected core templates into that repository's
+own top-level `tmpl/` and creates the initial `work/open/` and `work/records/`
+structure. It does not symlink the project to the installed release, does not
+make the project depend on `~/baton`, and refuses rather than overwriting a
+conflicting existing file. Installing a newer Baton release never silently
+updates a project's templates; adoption or import of a newer standard is an
+explicit repository change.
+
+After bootstrap, the project owns its vendored templates and repository policy
+selects the current default. Teams may add local numbered variants and later
+propose useful conventions back to the shipped standard. Template files are a
+versioned CLI-product asset and repository convention, not a protocol version,
+mailbox authority record, or requirement for reading historical Work. Source
+and packaged bootstrap behavior must use the same template bytes and produce
+the same initial filesystem shape.

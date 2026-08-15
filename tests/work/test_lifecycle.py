@@ -37,7 +37,7 @@ def _generation(document, generation) -> dict:
 @pytest.fixture
 def world(tmp_path):
 	config_path = _write_config(tmp_path, VALID)
-	lc.init_from_config(config_path)
+	lc.init_from_config(config_path, participant="lang.ada")
 	return tmp_path, config_path
 
 
@@ -69,11 +69,11 @@ def test_init_binds_uuid_digest_and_topology(world):
 def test_init_refuses_generation_beyond_one_and_existing_db(tmp_path):
 	path = _write_config(tmp_path, _generation(VALID, 3))
 	with pytest.raises(bw.WorkError, match="accepts generation 1"):
-		lc.init_from_config(path)
+		lc.init_from_config(path, participant="lang.ada")
 	path = _write_config(tmp_path, VALID)
-	lc.init_from_config(path)
+	lc.init_from_config(path, participant="lang.ada")
 	with pytest.raises(bw.WorkError, match="already exists"):
-		lc.init_from_config(path)
+		lc.init_from_config(path, participant="lang.ada")
 
 
 def test_init_is_crash_safe_at_the_publish(tmp_path, monkeypatch):
@@ -90,10 +90,10 @@ def test_init_is_crash_safe_at_the_publish(tmp_path, monkeypatch):
 
 	monkeypatch.setattr(os, "link", crash)
 	with pytest.raises(OSError, match="simulated crash"):
-		lc.init_from_config(config_path)
+		lc.init_from_config(config_path, participant="lang.ada")
 	monkeypatch.undo()
 	assert not os.path.lexists(tmp_path / "work.sqlite3")
-	result = lc.init_from_config(config_path)
+	result = lc.init_from_config(config_path, participant="lang.ada")
 	assert result["generation"] == 1
 	lc.open_bound(config_path).close()
 
@@ -101,7 +101,8 @@ def test_init_is_crash_safe_at_the_publish(tmp_path, monkeypatch):
 def _race_init(config_dir: str, report: str) -> None:
 	import json as _json
 	try:
-		lc.init_from_config(os.path.join(config_dir, "baton.json"))
+		lc.init_from_config(os.path.join(config_dir, "baton.json"),
+		                    participant="lang.ada")
 		outcome = "won"
 	except bw.WorkError as refusal:
 		outcome = f"refused: {refusal}"

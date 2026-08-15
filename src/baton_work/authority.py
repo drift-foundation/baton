@@ -30,10 +30,11 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+import unicodedata
 import time
 import unicodedata
 
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -42,6 +43,20 @@ HANDLE_MAX_CELLS = 6
 # operators and separators the grammar reserves (`#`, `+`, `@`, `=>`, `*`,
 # `.`, `,`), and anything that reads as structure.
 _RESERVED = set("#+@=>*.,:/\\\"'`|&;<>()[]{}!?~^$%")
+
+
+def validate_op_id(op_id) -> None:
+	"""WS-5 R82: the ONE operation-id grammar, shared by every entry —
+	1-128 bytes of UTF-8 with no whitespace and no control characters of
+	ANY kind (all Unicode category C: C0, DEL, C1, format, surrogate,
+	unassigned), exactly as advertised."""
+	if not isinstance(op_id, str) or not op_id or \
+			len(op_id.encode("utf-8")) > 128 or \
+			any(ch.isspace() or
+			    unicodedata.category(ch).startswith("C")
+			    for ch in op_id):
+		raise WorkError("an operation id is 1-128 bytes of UTF-8 with "
+		                "no whitespace or control characters")
 
 
 class WorkError(Exception):
@@ -255,6 +270,16 @@ CREATE TABLE discussion_participants (
 	added_seq  INTEGER NOT NULL,
 	PRIMARY KEY (discussion, team)
 ) STRICT;
+CREATE TABLE operations (
+	recorded    INTEGER NOT NULL UNIQUE,
+	participant TEXT    NOT NULL,
+	op_id       TEXT    NOT NULL,
+	fingerprint TEXT    NOT NULL,
+	seq         INTEGER,
+	result      TEXT    NOT NULL,
+	created_ts  TEXT    NOT NULL,
+	PRIMARY KEY (participant, op_id)
+) STRICT;
 CREATE TABLE revisions (
 	seq         INTEGER PRIMARY KEY,
 	work        TEXT NOT NULL REFERENCES work(id),
@@ -356,21 +381,127 @@ class Authority:
 
 	# -- the one write path -------------------------------------------------
 
+	def _op_identity(self, conn, participant: str) -> None:
+		"""WS-5 R84: the identity gate read on the SAME connection and
+		transaction as the replay lookup — gate and lookup are one
+		coherent observation, so an accepted removal can never slip
+		between them and disclose a stored result to a now-removed
+		identity."""
+		team, _dot, member = str(participant).partition(".")
+		if conn.execute(
+				"SELECT 1 FROM members WHERE team=? AND handle=? AND "
+				"removed=0", (team, member)).fetchone() is None:
+			raise WorkError(f"{participant} is not a registered member "
+			                f"of the currently accepted configuration")
+
+	def _op_replay(self, conn, participant: str, op_id: str,
+	               fingerprint: str):
+		"""WS-5 lookup: the stored result for an EXACT retry (state
+		rewritten to `replayed` on the way out), None when unrecorded,
+		and a closed refusal for conflicting reuse — an operation
+		identity names one semantic request forever."""
+		row = conn.execute(
+			"SELECT fingerprint, result FROM operations WHERE "
+			"participant=? AND op_id=?", (participant, op_id)).fetchone()
+		if row is None:
+			return None
+		if row["fingerprint"] != fingerprint:
+			raise WorkError(
+				f"op-id {op_id!r} was already used by {participant} "
+				f"for a different request; conflicting reuse refuses "
+				f"without mutation")
+		out = json.loads(row["result"])
+		out["operation"] = dict(out["operation"], state="replayed")
+		return out
+
+	def _op_record(self, conn, participant: str, op_id: str,
+	               fingerprint: str, seq, result: dict) -> None:
+		"""The operation record commits WITH its effect (or alone for a
+		successful protected no-op, seq NULL): identity, fingerprint,
+		provenance, and the complete replayable result, ordered by the
+		history's own dense `recorded` cursor."""
+		recorded = conn.execute(
+			"SELECT COALESCE(MAX(recorded), 0) + 1 AS next "
+			"FROM operations").fetchone()["next"]
+		conn.execute(
+			"INSERT INTO operations (recorded, participant, op_id, "
+			"fingerprint, seq, result, created_ts) "
+			"VALUES (?, ?, ?, ?, ?, ?, ?)",
+			(recorded, participant, op_id, fingerprint, seq,
+			 json.dumps(result, sort_keys=True), _utc_now()))
+
+	def record_noop(self, operation, result: dict) -> dict:
+		"""WS-5 R76: a SUCCESSFUL protected no-op consumes its identity —
+		one transaction holding ONLY the operation record (seq NULL, no
+		domain event, no sequence allocation); refusals never reach
+		here. Returns the result carrying its committed operation
+		shape."""
+		participant, op_id, fingerprint = operation
+		try:
+			self.conn.execute("BEGIN IMMEDIATE")
+			self._op_identity(self.conn, participant)
+			replay = self._op_replay(self.conn, participant, op_id,
+			                         fingerprint)
+			if replay is not None:
+				self.conn.execute("ROLLBACK")
+				return replay
+			result = dict(result)
+			result["operation"] = {"id": op_id, "state": "committed"}
+			self._op_record(self.conn, participant, op_id, fingerprint,
+			                None, result)
+			self.conn.execute("COMMIT")
+		except BaseException:
+			try:
+				self.conn.execute("ROLLBACK")
+			except sqlite3.Error:
+				pass
+			raise
+		return result
+
 	def _write(self, event_kind: str, actor: str, payload: dict,
-	           mutate) -> dict:
+	           mutate, operation=None, finish=None) -> dict:
 		"""One mutation: BEGIN IMMEDIATE, allocate seq, apply, commit.
 
 		`mutate(conn, seq)` performs the step's own writes. The sequence
 		allocation and the event row live in the SAME transaction, which is
 		the whole property: an event number exists if and only if its
 		mutation committed.
-		"""
+
+		WS-5: with `operation=(participant, op_id, fingerprint)` the
+		in-lock lookup replays a concurrently committed exact retry (or
+		refuses conflicting reuse), and on success the operation record —
+		identity, fingerprint, event provenance, and the COMPLETE
+		replayable result (decorations applied by `finish(result)` inside
+		the transaction) — commits atomically with the effect."""
 		try:
 			self.conn.execute("BEGIN IMMEDIATE")
+			if operation is not None:
+				# Fresh generation-1 bootstrap: the members rows commit
+				# in THIS transaction, so no accepted generation exists
+				# to gate against — the proposed-document validation
+				# governs (R81); every later operation gates here.
+				if self.conn.execute(
+						"SELECT 1 FROM members LIMIT 1").fetchone() \
+						is not None:
+					self._op_identity(self.conn, operation[0])
+				replay = self._op_replay(self.conn, *operation)
+				if replay is not None:
+					self.conn.execute("ROLLBACK")
+					return replay
 			seq = self.conn.execute(
 				"UPDATE sequence SET value = value + 1 WHERE id = 1 "
 				"RETURNING value").fetchone()["value"]
 			mutate(self.conn, seq)
+			result = {"seq": seq, "kind": event_kind}
+			if finish is not None:
+				finish(result)
+			if operation is not None:
+				participant, op_id, fingerprint = operation
+				result["operation"] = {"id": op_id, "state": "committed"}
+				self._op_record(self.conn, participant, op_id,
+				                fingerprint, seq, result)
+			else:
+				result["operation"] = None
 			self.conn.execute(
 				"INSERT INTO events (seq, kind, actor, payload, ts) "
 				"VALUES (?, ?, ?, ?, ?)",
@@ -393,7 +524,7 @@ class Authority:
 					f"{event_kind} lost a concurrent race: "
 					f"{failure}") from None
 			raise
-		return {"seq": seq, "kind": event_kind}
+		return result
 
 	# -- identity registration (A1) ----------------------------------------
 

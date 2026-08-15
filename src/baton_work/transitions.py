@@ -17,7 +17,11 @@ from __future__ import annotations
 
 import sqlite3
 
-from baton_work.authority import Authority, WorkError
+import hashlib as _op_hashlib
+import json as _op_json
+
+from baton_work.authority import (Authority, WorkError,
+                                  validate_op_id)
 
 # The confirmed intake example's vocabulary. Additive growth is expected;
 # renames are not.
@@ -264,12 +268,55 @@ def _recompute_ready(conn, work_id: str) -> None:
 	conn.execute("UPDATE work SET ready=? WHERE id=?", (ready, work_id))
 
 
+
+def _operation(store, actor_team, actor, name, op_id, typed_input):
+	"""WS-5 entry: the identity gate, the id grammar, the canonical
+	semantic fingerprint over the TYPED input (never shell spelling or
+	dynamic resolution output), and the optimistic peek for a committed
+	exact retry. Returns None (unprotected call), a REPLAY result dict
+	(exact retry — return it verbatim), or the (participant, op_id,
+	fingerprint) tuple carried into the committing transaction."""
+	if op_id is None:
+		return None
+	validate_op_id(op_id)
+	participant = f"{actor_team}.{actor}"
+	fingerprint = _op_hashlib.sha256(_op_json.dumps(
+		{"operation": name, "actor": participant, "input": typed_input},
+		sort_keys=True, separators=(",", ":"),
+		default=list).encode("utf-8")).hexdigest()
+	# R84: lookup and identity gate are ONE observation — a single read
+	# transaction whose snapshot starts at the lookup, with the gate
+	# read against that same state. An accepted removal committing
+	# before the lookup refuses; one committing after leaves a replay
+	# that was valid when observed.
+	store.conn.execute("BEGIN")
+	try:
+		# R84/R85: gate and lookup are ONE observation, and the identity
+		# gate is also the INFORMATION boundary — whatever the lookup
+		# concludes (replay or conflict), the current-identity check
+		# against the same transaction state speaks first, so a removed
+		# participant learns nothing about its old id.
+		try:
+			replay = store._op_replay(store.conn, participant, op_id,
+			                          fingerprint)
+		except WorkError:
+			store._op_identity(store.conn, participant)
+			raise
+		store._op_identity(store.conn, participant)
+	finally:
+		store.conn.execute("ROLLBACK")
+	if replay is not None:
+		return replay
+	return (participant, op_id, fingerprint)
+
+
 def create_work(store: Authority, *, team: str, kind: str, title: str,
                 origin: str, author: str, body: str,
                 parent: str | None = None,
                 classification: str | None = None,
                 phase: str | None = None,
-                follow_up_of: str | None = None) -> dict:
+                follow_up_of: str | None = None,
+                op_id: str | None = None) -> dict:
 	"""A Work and its first message, atomically — creation must be cheap or
 	mandatory Work scope becomes authoring ceremony (confirmed behavior).
 
@@ -299,6 +346,15 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	store._team(team)
 	_endpoint(store, team, kind, "create")
 	_member(store, team, author)
+	operation = _operation(store, team, author, "create_work", op_id,
+	                       {"team": team, "kind": kind, "title": title,
+	                        "origin": origin, "body": body,
+	                        "parent": parent,
+	                        "classification": classification,
+	                        "phase": phase,
+	                        "follow_up_of": follow_up_of})
+	if isinstance(operation, dict):
+		return operation
 	if follow_up_of is not None:
 		predecessor = _work(store, follow_up_of)
 		if predecessor["status"] != CLOSED:
@@ -369,17 +425,20 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 		mutate.work_id = work_id
 		mutate.discussion_id = discussion_id
 
-	result = store._write("create_work", f"{team}.{author}",
-	                      payload, mutate)
-	result["discussion"] = mutate.discussion_id
-	result["work_id"] = mutate.work_id
-	return result
+	def finish(result):
+		result["discussion"] = mutate.discussion_id
+		result["work_id"] = mutate.work_id
+
+	return store._write("create_work", f"{team}.{author}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish)
 
 
 def close_work(store: Authority, work_id: str, *, actor_team: str,
                actor: str, rationale: str | None = None,
                outcome: str | None = None,
-               duplicate_of: str | None = None) -> dict:
+               duplicate_of: str | None = None,
+               op_id: str | None = None) -> dict:
 	"""Terminal close: IMMUTABLE (WS-2 ruling — there is no reopen; later
 	evidence becomes follow-up Work). No current and no next endpoint
 	afterwards, and the ancestor gate recomputes: closure rolls UP through
@@ -393,6 +452,12 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 	through the explicit non-gating `duplicate_of` relation; free text
 	alone is insufficient."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "close_work", op_id,
+	                       {"work": work_id, "rationale": rationale,
+	                        "outcome": outcome,
+	                        "duplicate_of": duplicate_of})
+	if isinstance(operation, dict):
+		return operation
 	row = _work(store, work_id)
 	if row["status"] == CLOSED:
 		raise WorkError(f"{work_id} is already closed")
@@ -556,17 +621,22 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		_sweep_wakes(conn, f"{actor_team}.{actor}")
 
 	return store._write("close_work", f"{actor_team}.{actor}",
-	                    payload, mutate)
+	                    payload, mutate, operation=operation)
 
 
 # -- WS-1: public classification and operational phase -----------------------
 
 def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
-             classification: str) -> dict:
+             classification: str, op_id: str | None = None) -> dict:
 	"""An explicit, audited classification change by a currently resolved
 	handler of the Work's Current route. Canonical values only — compact
 	display vocabulary is never a mutation value. Origin is untouched."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "classify", op_id,
+	                       {"work": work_id,
+	                        "classification": classification})
+	if isinstance(operation, dict):
+		return operation
 	row = _work(store, work_id)
 	if classification not in CLASSIFICATIONS:
 		raise WorkError(f"classification {classification!r} is not one of "
@@ -595,12 +665,14 @@ def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		conn.execute("UPDATE work SET classification=? WHERE id=?",
 		             (classification, work_id))
 
-	return store._write("classify", f"{actor_team}.{actor}", payload, mutate)
+	return store._write("classify", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation)
 
 
 def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
               phase: str, reason: str | None = None,
-              wait: str | int | None = None) -> dict:
+              wait: str | int | None = None,
+              op_id: str | None = None) -> dict:
 	"""An explicit, audited operational-phase change by a currently
 	resolved handler of the Current route.
 
@@ -613,6 +685,11 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 	refuses. Everything else moves freely between ordinary open phases —
 	review/rework cycles included. A pass never changes phase."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "set_phase", op_id,
+	                       {"work": work_id, "phase": phase,
+	                        "reason": reason, "wait": wait})
+	if isinstance(operation, dict):
+		return operation
 	row = _work(store, work_id)
 	if phase not in PHASES:
 		raise WorkError(f"phase {phase!r} is not one of {PHASES}; compact "
@@ -701,7 +778,8 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 			"UPDATE work SET phase=?, wait_type=?, wait_obligation=? "
 			"WHERE id=?", (phase, wait_type, wait_obligation, work_id))
 
-	return store._write("set_phase", f"{actor_team}.{actor}", payload, mutate)
+	return store._write("set_phase", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation)
 
 
 # -- WS-2 group 2: candidate verification rounds ------------------------------
@@ -738,7 +816,8 @@ def _round(store: Authority, work_id: str, round_number: int):
 
 def create_round(store: Authority, work_id: str, *, actor_team: str,
                  actor: str, candidate: str, assign,
-                 review_at: str | None = None) -> dict:
+                 review_at: str | None = None,
+                 op_id: str | None = None) -> dict:
 	"""One verification round for one EXACT candidate, with an exact
 	selected set of verifier routes (each an @ verification obligation —
 	actionable for testing WITHOUT clearing anyone's dependency, granting
@@ -749,6 +828,16 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 	notification — replies stay pinned to the exact candidate they tested
 	and never carry forward silently."""
 	_member(store, actor_team, actor)
+	if isinstance(assign, str):
+		assign = [assign]
+	assign = list(assign or [])
+	operation = _operation(store, actor_team, actor, "create_round",
+	                       op_id, {"work": work_id,
+	                               "candidate": candidate,
+	                               "assign": assign,
+	                               "review_at": review_at})
+	if isinstance(operation, dict):
+		return operation
 	row = _work(store, work_id)
 	if row["status"] != OPEN:
 		raise WorkError(f"{work_id} is {row['status']}; a closed work "
@@ -839,12 +928,14 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 				{"obligation": assignment_seq, "resolution": resolution})
 		mutate.round_number = number
 
-	result = store._write("create_round", f"{actor_team}.{actor}",
-	                      payload, mutate)
-	result["round"] = mutate.round_number
-	result["assignments"] = [entry["obligation"]
-	                         for entry in payload["assignments"]]
-	return result
+	def finish(result):
+		result["round"] = mutate.round_number
+		result["assignments"] = [entry["obligation"]
+		                         for entry in payload["assignments"]]
+
+	return store._write("create_round", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish)
 
 
 def _withdraw_pending(conn, work_id: str, actor: str, reason: str,
@@ -875,11 +966,18 @@ def _withdraw_pending(conn, work_id: str, actor: str, reason: str,
 
 
 def report(store: Authority, obligation_seq: int, *, team: str, member: str,
-           observation: str, evidence: str) -> dict:
+           observation: str, evidence: str,
+           op_id: str | None = None) -> dict:
 	"""The verifier's IMMUTABLE raw observation: exactly passed, failed, or
 	unable, with evidence, pinned to its assignment/round/candidate. It
 	never votes, transitions, satisfies, wakes, or closes anything."""
 	_member(store, team, member)
+	operation = _operation(store, team, member, "report", op_id,
+	                       {"obligation": obligation_seq,
+	                        "observation": observation,
+	                        "evidence": evidence})
+	if isinstance(operation, dict):
+		return operation
 	obligation = store.conn.execute(
 		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
 	if obligation is None:
@@ -916,15 +1014,23 @@ def report(store: Authority, obligation_seq: int, *, team: str, member: str,
 			"evidence=?, resolved_seq=? WHERE seq=?",
 			(observation, evidence, seq, obligation_seq))
 
-	return store._write("report", f"{team}.{member}", payload, mutate)
+	return store._write("report", f"{team}.{member}", payload, mutate,
+	                    operation=operation)
 
 
 def assess(store: Authority, obligation_seq: int, *, actor_team: str,
-           actor: str, assessment: str, rationale: str) -> dict:
+           actor: str, assessment: str, rationale: str,
+           op_id: str | None = None) -> dict:
 	"""The provider reviewer's SEPARATE immutable judgment of a report:
 	accepted, rejected, or inconclusive, with rationale. It never rewrites
 	the raw observation; a changed mind is a new superseding act."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "assess", op_id,
+	                       {"obligation": obligation_seq,
+	                        "assessment": assessment,
+	                        "rationale": rationale})
+	if isinstance(operation, dict):
+		return operation
 	obligation = store.conn.execute(
 		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
 	if obligation is None:
@@ -973,15 +1079,22 @@ def assess(store: Authority, obligation_seq: int, *, actor_team: str,
 			(seq, obligation_seq, assessment, rationale,
 			 f"{actor_team}.{actor}"))
 
-	return store._write("assess", f"{actor_team}.{actor}", payload, mutate)
+	return store._write("assess", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation)
 
 
 def abandon_round(store: Authority, work_id: str, round_number: int, *,
-                  actor_team: str, actor: str, reason: str) -> dict:
+                  actor_team: str, actor: str, reason: str,
+                  op_id: str | None = None) -> dict:
 	"""End a round WITHOUT closing the work: pending assignments are
 	withdrawn with route notification, candidate and report history stay
 	immutable, and no provider or consumer lifecycle state changes."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "abandon_round",
+	                       op_id, {"work": work_id, "round": round_number,
+	                               "reason": reason})
+	if isinstance(operation, dict):
+		return operation
 	_work(store, work_id)
 	existing = _round(store, work_id, round_number)
 	if existing["status"] != "open":
@@ -1008,17 +1121,23 @@ def abandon_round(store: Authority, work_id: str, round_number: int, *,
 		                  reason, round_number=round_number)
 
 	return store._write("abandon_round", f"{actor_team}.{actor}",
-	                    payload, mutate)
+	                    payload, mutate, operation=operation)
 
 
 def extend_round(store: Authority, work_id: str, round_number: int, *,
-                 actor_team: str, actor: str, review_at: str) -> dict:
+                 actor_team: str, actor: str, review_at: str,
+                 op_id: str | None = None) -> dict:
 	"""Extend the SAME candidate's testing window: an explicit audited
 	reviewer decision — never a hidden timer reset. All reports and pending
 	assignments are retained; the deadline generation advances so due-ness
 	is per-generation; repeated extensions are visible history. May also
 	give a deadline to a round created without one."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "extend_round",
+	                       op_id, {"work": work_id, "round": round_number,
+	                               "review_at": review_at})
+	if isinstance(operation, dict):
+		return operation
 	_work(store, work_id)
 	existing = _round(store, work_id, round_number)
 	if existing["status"] != "open":
@@ -1073,7 +1192,7 @@ def extend_round(store: Authority, work_id: str, round_number: int, *,
 			 round_number))
 
 	return store._write("extend_round", f"{actor_team}.{actor}",
-	                    payload, mutate)
+	                    payload, mutate, operation=operation)
 
 
 def _would_cycle(conn, work_id: str, blocker_id: str) -> list[str] | None:
@@ -1103,11 +1222,16 @@ def _would_cycle(conn, work_id: str, blocker_id: str) -> list[str] | None:
 
 
 def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
-                   actor_team: str, actor: str) -> dict:
+                   actor_team: str, actor: str,
+                   op_id: str | None = None) -> dict:
 	"""`work_id` blocked_by `blocker_id` — the ONLY thing that gates
 	readiness across records (labels are inert, by clarification). Cross-team
 	on purpose; that is the convergence model."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "add_dependency",
+	                       op_id, {"work": work_id, "on": blocker_id})
+	if isinstance(operation, dict):
+		return operation
 	row = _work(store, work_id)
 	blocker = _work(store, blocker_id)
 	if work_id == blocker_id:
@@ -1163,7 +1287,7 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		_recompute_ready(conn, work_id)
 
 	return store._write("add_dependency", f"{actor_team}.{actor}",
-	                    payload, mutate)
+	                    payload, mutate, operation=operation)
 
 
 # -- A4: tags, obligations, seen, planned Next -------------------------------
@@ -1236,10 +1360,15 @@ def _one_endpoint(store: Authority, endpoint: str, what: str) -> tuple[str, str]
 
 
 def respond_obligation(store: Authority, obligation_seq: int, *,
-                       team: str, member: str, body: str) -> dict:
+                       team: str, member: str, body: str,
+                       op_id: str | None = None) -> dict:
 	"""The obligated endpoint's team answers; the obligation resolves with
 	the response message in one transaction."""
 	_member(store, team, member)
+	operation = _operation(store, team, member, "respond", op_id,
+	                       {"obligation": obligation_seq, "body": body})
+	if isinstance(operation, dict):
+		return operation
 	obligation = store.conn.execute(
 		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
 	if obligation is None:
@@ -1286,14 +1415,21 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 		# WS-1: completing an obligation may be the recorded wake condition.
 		_sweep_wakes(conn, f"{team}.{member}")
 
-	return store._write("respond", f"{team}.{member}", payload, mutate)
+	return store._write("respond", f"{team}.{member}", payload, mutate,
+	                    operation=operation)
 
 
 def dispose_obligation(store: Authority, obligation_seq: int, *,
-                       team: str, member: str, disposition: str) -> dict:
+                       team: str, member: str, disposition: str,
+                       op_id: str | None = None) -> dict:
 	"""No response is owed after all — said explicitly, with a reason, by the
 	obligated team. Route policy may classify status as no-action (ruled)."""
 	_member(store, team, member)
+	operation = _operation(store, team, member, "dispose", op_id,
+	                       {"obligation": obligation_seq,
+	                        "disposition": disposition})
+	if isinstance(operation, dict):
+		return operation
 	obligation = store.conn.execute(
 		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
 	if obligation is None:
@@ -1330,13 +1466,15 @@ def dispose_obligation(store: Authority, obligation_seq: int, *,
 		# WS-1: completion by disposal satisfies the condition the same way.
 		_sweep_wakes(conn, f"{team}.{member}")
 
-	return store._write("dispose", f"{team}.{member}", payload, mutate)
+	return store._write("dispose", f"{team}.{member}", payload, mutate,
+	                    operation=operation)
 
 
 def accept_obligation(store: Authority, obligation_seq: int, *,
                       actor_team: str, actor: str, body: str,
                       into: str | None = None,
-                      create: dict | None = None) -> dict:
+                      create: dict | None = None,
+                      op_id: str | None = None) -> dict:
 	"""WS-3: THE atomic provider acceptance. One transaction commits — or
 	refuses whole — the obligation's terminal `accepted` state naming the
 	provider Work, the rationale answered into the consumer's discussion,
@@ -1354,6 +1492,17 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 	adds the separate live parent-Current handler gate.
 	"""
 	_member(store, actor_team, actor)
+	if create is not None:
+		create = {"kind": create.get("kind"),
+		          "title": create.get("title"),
+		          "classification": create.get("classification"),
+		          "phase": create.get("phase"),
+		          "parent": create.get("parent")}
+	operation = _operation(store, actor_team, actor, "accept", op_id,
+	                       {"obligation": obligation_seq, "body": body,
+	                        "into": into, "create": create})
+	if isinstance(operation, dict):
+		return operation
 	obligation = store.conn.execute(
 		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
 	if obligation is None:
@@ -1574,15 +1723,17 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		_sweep_wakes(conn, f"{actor_team}.{actor}")
 		mutate.provider_id = provider_id
 
-	result = store._write("accept", f"{actor_team}.{actor}", payload, mutate)
-	result["provider"] = mutate.provider_id
-	result["obligation"] = obligation_seq
-	result["work"] = consumer_id
-	result["created"] = create is not None
-	result["edge"] = {"work": consumer_id,
-	                  "blocker": mutate.provider_id,
-	                  "via_obligation": obligation_seq}
-	return result
+	def finish(result):
+		result["provider"] = mutate.provider_id
+		result["obligation"] = obligation_seq
+		result["work"] = consumer_id
+		result["created"] = create is not None
+		result["edge"] = {"work": consumer_id,
+		                  "blocker": mutate.provider_id,
+		                  "via_obligation": obligation_seq}
+
+	return store._write("accept", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, finish=finish)
 
 
 def _discussion(store: Authority, discussion_id: str):
@@ -1601,13 +1752,23 @@ class _NoAdvance(Exception):
 
 
 def seen_discussion(store: Authority, discussion_id: str, *, team: str,
-                    member: str, up_to_seq: int) -> dict:
+                    member: str, up_to_seq: int,
+                    op_id: str | None = None) -> dict:
 	"""The canonical per-discussion cursor advance: monotonic,
 	idempotent, bounded by the OBSERVED authority sequence (a future
 	cursor would hide messages that do not exist yet), revalidated inside
 	the committing transaction, and truthful — a losing lower mark
-	returns the committed cursor with NO audit act (R62)."""
+	returns the committed cursor with NO audit act (R62). WS-5 R76: a
+	SUCCESSFUL protected no-op still CONSUMES its operation id — the
+	record commits alone (seq NULL, no domain event) so an exact retry
+	replays THIS invocation's result even after the cursor advances;
+	refusals alone leave the id unconsumed."""
 	_member(store, team, member)
+	operation = _operation(store, team, member, "mark_seen", op_id,
+	                       {"discussion": discussion_id,
+	                        "up_to_seq": up_to_seq})
+	if isinstance(operation, dict):
+		return operation
 	_discussion(store, discussion_id)
 	if not isinstance(up_to_seq, int) or up_to_seq < 0:
 		raise WorkError("seen takes a non-negative sequence number")
@@ -1631,16 +1792,22 @@ def seen_discussion(store: Authority, discussion_id: str, *, team: str,
 			"seq = excluded.seq",
 			(team, member, discussion_id, up_to_seq))
 
+	def finish(result):
+		result["advanced"] = True
+		result["cursor"] = up_to_seq
+
 	try:
-		result = store._write("mark_seen", f"{team}.{member}",
-		                      {"discussion": discussion_id,
-		                       "up_to": up_to_seq}, mutate)
+		return store._write("mark_seen", f"{team}.{member}",
+		                    {"discussion": discussion_id,
+		                     "up_to": up_to_seq}, mutate,
+		                    operation=operation, finish=finish)
 	except _NoAdvance as losing:
-		return {"seq": None, "kind": "mark_seen", "advanced": False,
+		noop = {"seq": None, "kind": "mark_seen", "advanced": False,
 		        "cursor": losing.cursor}
-	result["advanced"] = True
-	result["cursor"] = up_to_seq
-	return result
+		if operation is not None:
+			return store.record_noop(operation, noop)
+		noop["operation"] = None
+		return noop
 
 
 def _label_gate(store, work_row, actor_team: str, actor: str) -> None:
@@ -1656,17 +1823,23 @@ def _label_gate(store, work_row, actor_team: str, actor: str) -> None:
 
 
 def create_discussion(store: Authority, *, actor_team: str, actor: str,
-                      body: str, labels) -> dict:
+                      body: str, labels,
+                      op_id: str | None = None) -> dict:
 	"""A discussion is born labelled and speaking: at least one authorized
 	`#WORK` label (each to the actor's own team's Work, at least one of
 	them OPEN — the live-context ruling) and its first message, in one
 	transaction."""
 	_member(store, actor_team, actor)
-	if not isinstance(body, str) or not body:
-		raise WorkError("a discussion is born with its first message")
 	if isinstance(labels, str):
 		labels = [labels]
 	labels = list(labels or [])
+	operation = _operation(store, actor_team, actor,
+	                       "create_discussion", op_id,
+	                       {"body": body, "labels": labels})
+	if isinstance(operation, dict):
+		return operation
+	if not isinstance(body, str) or not body:
+		raise WorkError("a discussion is born with its first message")
 	if not labels:
 		raise WorkError("a discussion is born with at least one "
 		                "authorized #WORK label (live-context ruling)")
@@ -1720,17 +1893,24 @@ def create_discussion(store: Authority, *, actor_team: str, actor: str,
 		payload["discussion"] = discussion_id
 		mutate.discussion_id = discussion_id
 
-	result = store._write("create_discussion", f"{actor_team}.{actor}",
-	                      payload, mutate)
-	result["discussion"] = mutate.discussion_id
-	return result
+	def finish(result):
+		result["discussion"] = mutate.discussion_id
+
+	return store._write("create_discussion", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish)
 
 
 def label_discussion(store: Authority, discussion_id: str, work_id: str, *,
-                     actor_team: str, actor: str) -> dict:
+                     actor_team: str, actor: str, op_id: str | None = None) -> dict:
 	"""Apply an INERT `#WORK` label: reusable context, never a gate. May
 	name terminal Work. Authorized by the Work's owning team (D1)."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "label", op_id,
+	                       {"discussion": discussion_id,
+	                        "work": work_id})
+	if isinstance(operation, dict):
+		return operation
 	_discussion(store, discussion_id)
 	row = _work(store, work_id)
 	_label_gate(store, row, actor_team, actor)
@@ -1762,15 +1942,21 @@ def label_discussion(store: Authority, discussion_id: str, work_id: str, *,
 			"VALUES (?, ?, ?)", (discussion_id, work_id, seq))
 		_join_discussion(conn, discussion_id, actor_team, seq)
 
-	return store._write("label", f"{actor_team}.{actor}", payload, mutate)
+	return store._write("label", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation)
 
 
 def unlabel_discussion(store: Authority, discussion_id: str, work_id: str,
-                       *, actor_team: str, actor: str) -> dict:
+                       *, actor_team: str, actor: str, op_id: str | None = None) -> dict:
 	"""Remove a label under the same D1 authority. Removing the FINAL
 	label refuses — a discussion always keeps explicit Work scope (the
 	live-context ruling). The audit act is the history; the row goes."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "unlabel", op_id,
+	                       {"discussion": discussion_id,
+	                        "work": work_id})
+	if isinstance(operation, dict):
+		return operation
 	_discussion(store, discussion_id)
 	row = _work(store, work_id)
 	_label_gate(store, row, actor_team, actor)
@@ -1799,7 +1985,8 @@ def unlabel_discussion(store: Authority, discussion_id: str, work_id: str,
 			"DELETE FROM discussion_labels WHERE discussion=? AND work=?",
 			(discussion_id, work_id))
 
-	return store._write("unlabel", f"{actor_team}.{actor}", payload, mutate)
+	return store._write("unlabel", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation)
 
 
 def _select_target(conn, discussion_id: str, actor_team: str, actor: str,
@@ -1859,7 +2046,8 @@ def post_discussion(store: Authority, discussion_id: str, *,
                     include=(), request: str | None = None,
                     pass_to: str | None = None,
                     set_next: str | None = None,
-                    on: str | None = None) -> dict:
+                    on: str | None = None,
+                    op_id: str | None = None) -> dict:
 	"""THE public posting surface (Slice B): one message into one
 	discussion, optionally carrying this operation's tags.
 
@@ -1874,6 +2062,16 @@ def post_discussion(store: Authority, discussion_id: str, *,
 	requires live context — at least one labelled open Work — rechecked
 	inside the committing transaction."""
 	_member(store, author_team, author)
+	if isinstance(include, str):
+		include = [part for part in include.split(",") if part]
+	include = list(include or [])
+	protected = _operation(store, author_team, author, "post", op_id,
+	                       {"discussion": discussion_id, "body": body,
+	                        "include": include, "request": request,
+	                        "pass_to": pass_to, "set_next": set_next,
+	                        "on": on})
+	if isinstance(protected, dict):
+		return protected
 	_discussion(store, discussion_id)
 	if not isinstance(body, str) or not body:
 		raise WorkError("a message body must be non-empty")
@@ -2024,12 +2222,15 @@ def post_discussion(store: Authority, discussion_id: str, *,
 		for team in sorted(touched_teams):
 			_join_discussion(conn, discussion_id, team, seq)
 
-	result = store._write(event_kind, f"{author_team}.{author}",
-	                      payload, mutate)
-	result["included"] = [entry["endpoint"] for entry in payload["include"]]
-	if carrying:
-		result["work"] = payload["work"]
-	return result
+	def finish(result):
+		result["included"] = [entry["endpoint"]
+		                      for entry in payload["include"]]
+		if carrying:
+			result["work"] = payload["work"]
+
+	return store._write(event_kind, f"{author_team}.{author}",
+	                    payload, mutate, operation=protected,
+	                    finish=finish)
 
 
 def _current_revision(conn, work_id: str) -> int:
@@ -2042,7 +2243,8 @@ def _current_revision(conn, work_id: str) -> int:
 def revise_work(store: Authority, work_id: str, *, actor_team: str,
                 actor: str, message_seq: int | None = None,
                 expected_revision: int | None = None,
-                rationale: str | None = None) -> dict:
+                rationale: str | None = None,
+                op_id: str | None = None) -> dict:
 	"""Append-only Work contract revision: PROMOTES one complete durable
 	discussion message as the effective contract (pinned ruling). Only
 	the resolved Current handler of OPEN Work commits it; transfer of
@@ -2054,6 +2256,13 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 	content is the message's complete rendered bytes, self-contained:
 	no fixed contract fields, no template machinery."""
 	_member(store, actor_team, actor)
+	operation = _operation(store, actor_team, actor, "revise_work",
+	                       op_id, {"work": work_id,
+	                               "message_seq": message_seq,
+	                               "expected_revision": expected_revision,
+	                               "rationale": rationale})
+	if isinstance(operation, dict):
+		return operation
 	row = _work(store, work_id)
 	if row["status"] != OPEN:
 		raise WorkError(
@@ -2132,8 +2341,10 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 			 f"{actor_team}.{actor}", rationale, message["body"],
 			 store.clock()))
 
-	result = store._write("revise_work", f"{actor_team}.{actor}",
-	                      payload, mutate)
-	result["revision"] = expected_revision + 1
-	result["work"] = work_id
-	return result
+	def finish(result):
+		result["revision"] = expected_revision + 1
+		result["work"] = work_id
+
+	return store._write("revise_work", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish)

@@ -137,7 +137,15 @@ class Flow:
 
 	def init(self, document: dict) -> dict:
 		self.write_config(document)
-		return self.ok("init")
+		# WS-5 P9a: init is committed by a NAMED participant of the
+		# proposed generation-1 document.
+		chosen = None
+		for team, spec in document["teams"].items():
+			for member, entry in spec["participants"].items():
+				chosen = chosen or f"{team}.{member}"
+				if "config" in entry.get("capabilities", []):
+					return self.ok("init", viewer=f"{team}.{member}")
+		return self.ok("init", viewer=chosen)
 
 
 # -- configuration builders ----------------------------------------------

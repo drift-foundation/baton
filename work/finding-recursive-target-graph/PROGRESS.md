@@ -1508,3 +1508,120 @@ focused set 29/29; test-v11 421 total; diff check clean. REMAIN
 STOPPED: WS-5/WS-6, external template/dossier binding, deployment,
 migration, and further TUI expansion require their own explicit
 release.
+
+## Step 38 — WS-5 effectively-once mutation retry (2026-08-15)
+
+Schema v12: append-only `operations` (PK (participant, op_id),
+canonical semantic fingerprint, nullable domain-event `seq`, complete
+replayable result, its OWN dense `recorded` cursor, permanent
+retention). Projection 2.2.
+
+Every public mutation — all 19 transitions plus init and regen —
+accepts an optional client `--op-id` (global CLI flag before the verb;
+1–128 UTF-8 bytes, no whitespace/control; pure reads REFUSE one). The
+fingerprint is sha256 over canonical JSON of operation + actor + TYPED
+validated input, excluding dynamic resolution output. `_write` commits
+the operation record, effect, event, and the COMPLETE result
+(decorations moved into in-transaction `finish` closures) atomically:
+optimistic pre-write peek, in-lock recheck turning a lost identical
+race into a replay, PK backstop. Exact retry is a pure replay of the
+stored result with the ORIGINAL seq (no event, no byte, hash-proved);
+conflicting reuse refuses closed; refusals never consume the identity;
+successful protected no-ops (the losing seen mark) consume it via a
+record-only transaction (seq NULL, no invented event) and replay THAT
+invocation's result verbatim after later cursor advances (R76). Every
+result carries exactly one `operation` shape: null / committed /
+replayed (R78). Identity gate precedes replay: removed members get no
+carve-out; committed operations replay across later Work state and
+config generations. `operation-log` pages one's own records on
+`recorded` under the shared bounds contract (R79). Init gains the
+required generation-1-validated `--participant` (P9a): the fresh path
+records the operation in the initializing transaction; protected
+re-init on an existing authority applies the current-generation
+identity gate then the exact/conflicting lookup; regen participates
+identically (R77/R81).
+
+Evidence: `test_ws5_operations.py` (16): grammar, per-participant
+scope, the three envelope shapes, exact-retry purity (events + hash +
+single effect), conflicting reuse, refusal non-poisoning,
+later-state/config-generation replay, removed-identity boundary,
+both in-lock races, protected no-op consumption + verbatim replay +
+conflict, operation-log paging/bounds/purity/own-only, whole-or-
+nothing fault injection with restart replay, protected init/re-init/
+regen. WF-12 (source + packaged, 2 stories): lost response + exact
+retry with shape/seq/event assertions, the spawned identical race
+(one committed + one replayed, one effect, dense audit), conflicting
+reuse + cross-participant independence, refusal-then-correction,
+pure-read refusal, later-state replay across a regen with the
+protected regeneration itself replaying, protected no-op, the
+seven-family retry sweep, and init end to end. All init call sites
+migrated to the named participant (fixtures pick the first
+config-capable member; wfdriver likewise).
+
+Break-sweeps (defect in, red, restored): W1 dropped in-lock recheck
+(race loser refuses instead of replaying), W2 record outside the
+transaction (crash sweep bites), W3 fingerprint absorbing dynamic
+state (exact retry conflicts), W4 peek-time consumption (refusal
+poisons the id), W5 global scope (cross-participant independence
+bites). Gate: 441 passed (438 parallel + 3 serial); all workflows
+green source+packaged; test-v11 green; diff check clean. STOPPED for
+review. WS-6, template/dossier binding, deployment, migration, and
+TUI expansion held.
+
+## Step 39 — WS-5 corrections R82–R84 (2026-08-15)
+
+R82: ONE shared exact op-id grammar (`validate_op_id` in the
+authority, used by transitions AND the configuration family): no
+whitespace and no control character of ANY kind — all Unicode
+category C (C0, DEL, C1, format, surrogate, unassigned) refuse, as
+advertised.
+
+R83: flexible inputs normalize BEFORE fingerprinting, once, in the
+form the transition itself uses: create_discussion labels
+(string↔list), post include (comma string↔selector list),
+create_round assign, and accept's create dict (canonical key set) —
+one semantic request never conflicts with itself.
+
+R84: identity gate and replay lookup are ONE coherent observation on
+every path — the optimistic peek (one read transaction whose snapshot
+starts at the lookup, gate read against that same state), the in-lock
+path (`_op_identity` inside BEGIN IMMEDIATE, with the fresh-bootstrap
+exemption where the members rows commit in that very transaction and
+the proposed-document gate governs per R81), the no-op record-only
+transaction, regen, and existing-authority re-init. Both-order races:
+a removal committing before the observation refuses and consumes
+nothing; one committing after leaves the valid committed replay.
+
+Evidence: reviewer regressions 3/3 (DEL grammar, normalized
+fingerprint, removal-vs-replay race); new both-order races on the
+in-lock and no-op paths; break-sweeps — C0-only grammar,
+post-fingerprint normalization, split gate/lookup observations — each
+red then restored. Gate: 446 passed (443 parallel + 3 serial); all
+workflows green source+packaged; test-v11 green; diff check clean.
+STOPPED for re-review. WS-6 and later phases held.
+
+## Step 40 — WS-5 correction R85 (2026-08-15)
+
+R85: the current-identity gate is also the INFORMATION boundary. On
+every shared-observation read path (optimistic, regen,
+existing-authority re-init) the lookup's conclusion — replay OR
+conflicting-reuse refusal — is disclosed only after the identity gate
+speaks against the same transaction state: a conflict raised by the
+lookup is caught, the gate rechecked, and its refusal supersedes; both
+valid linearization orders preserved (a removal after the observation
+leaves the valid outcome). The write-locked paths (in-lock, no-op
+record) were already identity-first under BEGIN IMMEDIATE. Reviewer
+regression `test_removed_identity_gate_precedes_conflicting_replay_
+lookup` passes (4/4 in their file); break-sweep (conflict disclosed
+before the gate) red then restored. Gate: 447 passed (444 parallel +
+3 serial); all workflows green source+packaged; test-v11 green; diff
+check clean. STOPPED for re-review. WS-6 and later phases held.
+
+## Step 41 — WS-5 ACCEPTED (2026-08-15)
+
+Reviewer accepted WS-5 (message 232442a08dd58c3f89fb6ec2f11f70f6,
+review-2026-08-15T16-31-47Z.md): R82–R85 all satisfied, no WS-5 review
+finding remains. Independent verification: focused suite 26/26;
+test-v11 447 (444 parallel + 3 serial); diff check clean. WS-5 is
+COMPLETE. REMAIN STOPPED: WS-6 implementation is held until its
+remaining design boundary is pinned and explicitly released.

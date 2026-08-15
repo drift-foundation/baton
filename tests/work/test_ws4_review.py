@@ -55,11 +55,11 @@ def test_losing_seen_race_reports_the_committed_cursor_without_an_event(
 	other = bw.Authority(store.path)
 	original = store._write
 
-	def interleaved(kind, actor, payload, mutate):
+	def interleaved(kind, actor, payload, mutate, **kw):
 		store._write = original
 		tr.seen_discussion(other, discussion_id, team="lang", member="grace",
 		                   up_to_seq=3)
-		return original(kind, actor, payload, mutate)
+		return original(kind, actor, payload, mutate, **kw)
 
 	store._write = interleaved
 	before_marks = len([event for event in store.events()
@@ -69,7 +69,7 @@ def test_losing_seen_race_reports_the_committed_cursor_without_an_event(
 	after_marks = len([event for event in store.events()
 	                   if event["kind"] == "mark_seen"])
 	assert result == {"seq": None, "kind": "mark_seen", "advanced": False,
-	                  "cursor": 3}
+	                  "cursor": 3, "operation": None}
 	assert after_marks == before_marks + 1
 	other.close()
 

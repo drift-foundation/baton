@@ -1123,3 +1123,175 @@ continuation agree in source and packaged JSON. The focused re-review is 29/29
 green and `just test-v11` is 418 parallel plus 3 serial passed. K remains
 stopped; WS-5/WS-6, external template/dossier binding, deployment, migration,
 and further TUI expansion remain separately gated.
+
+### 2026-08-15 WS-5 effectively-once retry design challenge released
+
+**Design only, authorized by Slawomir while the accepted Work-revision commit
+is being prepared. Implementation remains held.** `baton.implementer` must
+revalidate the current mutation paths and produce `WS5-DESIGN.md`; no source,
+schema, public CLI, tests, migration, deployment, TUI, or `PROGRESS.md` change
+belongs to this pass.
+
+- [ ] Inventory every public mutating operation and its current retry behavior,
+  including Work/discussion/seen/revision/verification operations, config
+  acceptance, and generation-1 initialization. Separate pure reads and waits.
+- [ ] Specify the client operation-id grammar and collision scope; whether it
+  is mandatory per mutation; how TUI, agent CLI, and human CLI obtain and
+  retain it; and what guarantee is explicitly unavailable when a caller does
+  not supply one.
+- [ ] Define a canonical semantic request fingerprint over actor, operation,
+  and typed input—not shell spelling or dynamic resolution output. Exact retry
+  after a committed response loss must return the original committed result;
+  conflicting reuse must refuse without mutation.
+- [ ] Define the SQLite record and one-transaction algorithm. The operation
+  identity/fingerprint, mutation, event sequence, and replayable result commit
+  together. Concurrent identical attempts yield one effect and one result;
+  concurrent conflicting attempts yield one effect and one closed refusal;
+  an ordinary pre-commit refusal records no false success and does not poison a
+  corrected attempt unless the design explicitly justifies another rule.
+- [ ] Resolve retry lookup ordering against normal validation and later state:
+  a committed retry must still be recoverable after the original operation
+  changed Work state, while identity/config authorization and information
+  disclosure remain coherent. Cover handler reassignment/removal and authority
+  restart explicitly.
+- [ ] Specify result/envelope semantics (`already_committed` or equivalent),
+  operation-record retention/GC, audit projection, pagination, and protocol/
+  projection-version consequences. Preserve dense event sequencing and pure
+  reads.
+- [ ] Extend WF-09 on paper into an executable source+packaged battery: lost
+  response then exact retry, same-id same-request race, same-id conflicting
+  request/actor, refusal then corrected attempt, crash at every boundary,
+  restart, later-state replay, config-generation race, and every mutation
+  family. Name focused regressions and break-sweeps.
+- [ ] Identify all unresolved product choices or contradictions and recommend
+  one disposition for each. Stop for reviewer/Slawomir review. Do not implement
+  WS-5 or start WS-6/later phases even if the design appears complete.
+
+**WS-5 design first review: R76–R78 changes requested before product ruling.**
+See `review-2026-08-15T15-27-39Z.md`. A successful idempotent no-op currently
+leaves its op-id reusable; generation-1 init lacks both the participant needed
+by per-participant scope and the existing-authority lookup needed for lost-
+response replay; and `already_committed: false` does not reveal whether an
+optional-id call has the strong guarantee. Correct the design only and return
+the coherent choice list. Implementation and all later phases remain held.
+
+**WS-5 design correction review: R76–R78 satisfied; R79–R81 requested.** See
+`review-2026-08-15T15-31-29Z.md`. Give operation history a total cursor
+independent of nullable domain-event sequence, update the battery to the
+three-shape `operation` envelope, and make the current-authority identity gate
+explicit for existing-authority init replay. Correct the design only and stop
+again; product ruling and implementation remain held.
+
+**WS-5 design is internally coherent; product ruling required.** See
+`review-2026-08-15T15-35-09Z.md`. R79–R81 are satisfied. Slawomir must now
+approve or change the P1/P2/P5/P6a/P8/P9/P11/P12/P10 package before an
+implementation gate is written. K remains stopped; no WS-5 implementation or
+later phase is authorized.
+
+### 2026-08-15 WS-5 effectively-once retry implementation released
+
+**Authorized by Slawomir after approving the complete corrected package.**
+Revalidate and implement `WS5-DESIGN.md` exactly, including the R76–R81
+corrections and the chronological ruling in `FINDING.md`. This slice changes
+mutation retry identity only; WS-6, dossier/template binding, deployment,
+migration, and further TUI expansion remain held.
+
+- [ ] Add schema-v12 append-only operation records with per-participant
+  `(participant, op_id)` identity, canonical semantic fingerprints, permanent
+  retention, nullable domain-event provenance, and the independent dense
+  `recorded` cursor. Preserve fresh-schema/no-migration policy and dense domain
+  event sequencing.
+- [x] Add optional `--op-id` to every public mutation. Commit the operation
+  record, effect, event when any, and complete replayable result in one
+  transaction with both optimistic and in-lock lookup. Exact retries replay
+  without writes; conflicting reuse refuses; pre-commit refusals do not consume
+  identity; protected successful no-ops record their result without an event.
+- [x] Enforce the current participant identity gate before every replay and
+  preserve original committed results across later domain-state changes. Add
+  protected config regeneration and the approved participant-aware fresh-init
+  and existing-authority re-init behavior.
+- [x] Expose the exact `operation` result shapes (`null`, `committed`,
+  `replayed`) and pure participant-scoped `operation-log` pagination on
+  `recorded`. Bump the additive projection version coherently; remove every
+  stale `already_committed` form.
+- [x] Pin and execute WF-12 from source and the packaged artifact. Cover lost
+  responses, identical and conflicting races, cross-participant independence,
+  refusal then correction, every crash boundary, restart, later-state replay,
+  config-generation races, every mutation family, protected no-ops, and
+  participant-aware init/re-init. Include the focused regressions and
+  break-sweeps named in `WS5-DESIGN.md`.
+- [x] Run the focused WS-5/workflow suite and `just test-v11`, record exact
+  evidence, and stop for review. Do not begin WS-6 or any later phase even if
+  this gate is green.
+
+**WS-5 first implementation review: R82–R84 changes requested.** See
+`review-2026-08-15T16-15-14Z.md`. Reject the full operation-id control grammar,
+fingerprint only once inputs have reached their accepted normalized typed
+form, and make current-participant validation plus replay lookup one coherent
+observation across optimistic, in-lock, no-op, regen, and existing-init paths.
+The three additive reviewer regressions fail while 20 focused implementation
+and WF-12 tests pass. Correct WS-5 only and stop for re-review; WS-6 and every
+later implementation phase remain held.
+
+**WS-5 correction review: R82/R83 accepted; R85 changes requested.** See
+`review-2026-08-15T16-25-26Z.md`. The original regressions and all 446 existing
+v11 tests pass, but replay lookup currently precedes the identity query inside
+the shared snapshot. A conflicting reuse raises from the operation table before
+the removed-participant gate runs, disclosing old operation identity. Make the
+current identity query establish the coherent snapshot before exact/conflict
+lookup on every replay path, retain both linearization orders, and stop for
+re-review. WS-6 implementation remains held.
+
+**WS-5 accepted.** See `review-2026-08-15T16-31-47Z.md`. R82–R85 are
+satisfied; the focused review/implementation/WF-12 set passes 26/26 and
+`just test-v11` passes 447/447. No WS-5 review finding remains. WS-6 is still
+held until its remaining design boundary is pinned and explicitly released.
+
+### WS-6 design rulings queued while WS-5 remains active
+
+- [x] **Binding shape.** The canonical dossier lives permanently from creation
+  at a configured repository identity plus repository-relative
+  `work/records/YYYY/MM/<stable-record>/`. Baton and communications reference
+  only that path. `work/open/` contains optional relative symlinks solely as a
+  human sweep/index; it is non-authoritative, outside the protocol, and cleanup
+  unlinks only the symlink. No required commit hash, lifecycle move, recursive
+  deletion, or reconciliation checker belongs to this shape.
+- [x] **Binding authority.** The creator may attach the initial binding in the
+  Work-creation transaction. Thereafter only Current may append a correction or
+  provenance revision while Work is open, with expected-prior CAS, rationale,
+  and complete history. Current transfer transfers authority; terminal binding
+  history is immutable and later correction uses follow-up Work.
+- [x] **Open-record semantics.** The canonical path is stable but its
+  working-tree contents deliberately evolve while Work is open. Baton does not
+  hash-pin or ingest them. A missing/unavailable dossier is visible external
+  evidence trouble, never authority damage or an implicit lifecycle mutation.
+- [x] **Closure semantics.** Closing bound Work preserves the same permanent
+  repository/path binding; it does not move, convert, seal, or require a Git
+  revision. Optional Git provenance may be appended by Current while open.
+  Unbound lightweight Work closes normally, with only the already-required
+  close rationale. Removing an `open/` symlink is later non-protocol cleanup.
+- [x] **Artifact references.** Dossier evidence uses a normalized path relative
+  to an immutable binding revision; resolution never uses `work/open/`.
+  Independent configured-root/path references remain legal for genuinely
+  external resources. Neither form hash-pins or ingests bytes, and absence does
+  not damage authority.
+- [x] **Validation boundary.** Mutations validate authority, CAS, configured
+  root identity, shape, and safe relative-path syntax atomically. Baton never
+  probes the filesystem or Git for canonical reads and adds no persisted
+  availability/staleness vocabulary or reconciliation checker in WS-6.
+- [x] **Template boundary.** A finding template is an external, team-owned
+  Markdown instruction/pattern. The implementer applies it to the actual
+  report/research to create a context-appropriate permanent dossier, normally
+  with at least `REPORT.md`, `PLAN.md`, and `PROGRESS.md` plus whatever
+  test/data/evidence structure the work needs. It is not a copied directory,
+  manifest, or renderer contract. Teams may evolve it and contribute
+  conventions back. Baton stores no template identity/version/digest and
+  performs no template validation; Work revisions remain self-contained.
+- [x] **Template distribution.** Core numbered Markdown patterns live under
+  source `tmpl/`, ship under the exact versioned `baton-cli` release's `tmpl/`,
+  and project bootstrap copies them into the project's top-level `tmpl/` while
+  creating `work/open/` and `work/records/`. Bootstrap never symlinks to the
+  install or overwrites conflicts; upgrades never silently replace project
+  copies. Source and packaged bootstrap must be byte/shape equivalent.
+- [ ] Settle the remaining WS-6 workflow-test boundary before releasing a
+  design or implementation pass.

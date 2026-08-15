@@ -108,7 +108,8 @@ def test_init_reports_the_binding(tmp_path, capsys):
 	with open(config_path, "w") as handle:
 		json.dump(fixtures.config_document(), handle, indent=2,
 		          sort_keys=True)
-	result = _run(capsys, config_path, "init")["result"]
+	result = _run(capsys, config_path, "init",
+	              participant="lang.ada")["result"]
 	assert result["generation"] == 1
 	assert result["authority_uuid"] == fixtures.UUID
 	assert result["database"].endswith("work.sqlite3")

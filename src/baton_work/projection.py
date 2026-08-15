@@ -462,6 +462,29 @@ def new_count(store: Authority, work_id: str, *, viewer_team: str,
 	        "total": len(total_set), "snapshot_seq": snapshot_seq}
 
 
+def operation_log(store: Authority, participant: str, *,
+                  after: int = 0, limit: int = 100) -> dict:
+	"""WS-5: the pure paged listing of ONE'S OWN operation records —
+	bookkeeping (identity, fingerprint, event provenance when any,
+	timestamp), ordered by the history's own dense `recorded` cursor;
+	results replay through the mutation path, never through this
+	listing."""
+	after, limit = _page_bounds(after, limit)
+	store.conn.execute("BEGIN")
+	try:
+		rows = [dict(entry) for entry in store.conn.execute(
+			"SELECT recorded, op_id, fingerprint, seq, created_ts "
+			"FROM operations WHERE participant=? AND recorded > ? "
+			"ORDER BY recorded LIMIT ?", (participant, after, limit))]
+		snapshot_seq = store.last_seq()
+	finally:
+		store.conn.execute("ROLLBACK")
+	return {"participant": participant, "rows": rows,
+	        "next_after": rows[-1]["recorded"]
+	        if len(rows) == limit else None,
+	        "snapshot_seq": snapshot_seq}
+
+
 def revisions(store: Authority, work_id: str, *, after: int = 0,
               limit: int = 100) -> dict:
 	"""The paged pure read over a Work's ordered immutable revision

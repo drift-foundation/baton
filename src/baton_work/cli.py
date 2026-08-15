@@ -38,6 +38,13 @@ def main(argv=None) -> int:
 	                    help="team.member; the acting identity, validated "
 	                         "against the accepted configuration before any "
 	                         "output")
+	parser.add_argument("--op-id", dest="op_id",
+	                    help="optional client operation identity (WS-5): "
+	                         "with it a mutation is effectively-once — "
+	                         "an exact retry replays the one committed "
+	                         "result; without it the weaker "
+	                         "read-before-retry tier applies. Pure reads "
+	                         "take none.")
 	parser.add_argument("--expect-projection",
 	                    help="fail unless the projection version is "
 	                         "compatible with this")
@@ -158,6 +165,9 @@ def main(argv=None) -> int:
 	for name in ("detail", "children", "links", "breadcrumb", "new"):
 		cmd = sub.add_parser(name)
 		cmd.add_argument("work")
+	cmd = sub.add_parser("operation-log")
+	cmd.add_argument("--after", type=int, default=0)
+	cmd.add_argument("--limit", type=int, default=100)
 	cmd = sub.add_parser("revisions")
 	cmd.add_argument("work")
 	cmd.add_argument("--after", type=int, default=0)
@@ -221,10 +231,28 @@ def main(argv=None) -> int:
 	args = parser.parse_args(argv)
 	try:
 		jsonapi.require_version(args.expect_projection)
+		mutations = {"init", "regen", "create", "accept", "respond",
+		             "dispose", "close", "block", "mark-seen",
+		             "classify", "phase", "round", "extend", "report",
+		             "assess", "abandon", "revise", "discuss", "say",
+		             "label", "unlabel"}
+		if args.op_id is not None and args.command not in mutations:
+			raise WorkError(
+				f"{args.command} is a pure read and takes no operation "
+				f"identity; --op-id protects mutations only (WS-5)")
 		if args.command == "init":
-			# The one command with no authority to open: it creates one from
-			# the generation-1 configuration.
-			result = lifecycle.init_from_config(args.config)
+			# The one command with no authority to open: it creates one
+			# from the generation-1 configuration — committed by a NAMED
+			# participant of the proposed document (WS-5 P9a); on an
+			# existing authority the current-generation identity gate and
+			# the exact/conflicting operation lookup run first.
+			if not args.participant:
+				raise WorkError("init needs --participant naming a "
+				                "member of the proposed generation-1 "
+				                "document")
+			result = lifecycle.init_from_config(
+				args.config, participant=args.participant,
+				op_id=args.op_id)
 			print(json.dumps({"projection_version":
 			                  jsonapi.PROJECTION_VERSION,
 			                  "result": result}, indent=2, sort_keys=True))
@@ -232,7 +260,8 @@ def main(argv=None) -> int:
 		if args.command == "regen":
 			team, member = _need_participant(args)
 			result = lifecycle.accept_config(args.config,
-			                                 actor=f"{team}.{member}")
+			                                 actor=f"{team}.{member}",
+			                                 op_id=args.op_id)
 			print(json.dumps({"projection_version":
 			                  jsonapi.PROJECTION_VERSION,
 			                  "result": result}, indent=2, sort_keys=True))
@@ -301,7 +330,7 @@ def _dispatch(store: Authority, args):
 			store, team=args.team, kind=args.kind, title=args.title,
 			origin=args.origin, author=member, body=args.body,
 			parent=args.parent, classification=args.classification,
-			phase=args.phase, follow_up_of=args.follow_up_of)
+			phase=args.phase, follow_up_of=args.follow_up_of, op_id=args.op_id)
 	if command == "accept":
 		team, member = _need_participant(args)
 		create_only = {"--kind": args.kind, "--title": args.title,
@@ -326,27 +355,32 @@ def _dispatch(store: Authority, args):
 			          "phase": args.phase, "parent": args.parent}
 		return transitions.accept_obligation(
 			store, args.obligation, actor_team=team, actor=member,
-			body=args.body, into=args.into, create=create)
+			body=args.body, into=args.into, create=create, op_id=args.op_id)
 	if command == "respond":
 		team, member = _need_participant(args)
 		return transitions.respond_obligation(
-			store, args.obligation, team=team, member=member, body=args.body)
+			store, args.obligation, team=team, member=member, body=args.body, op_id=args.op_id)
 	if command == "dispose":
 		team, member = _need_participant(args)
 		return transitions.dispose_obligation(
 			store, args.obligation, team=team, member=member,
-			disposition=args.disposition)
+			disposition=args.disposition, op_id=args.op_id)
 	if command == "close":
 		team, member = _need_participant(args)
 		return transitions.close_work(store, args.work, actor_team=team,
 		                              actor=member,
 		                              rationale=args.rationale,
 		                              outcome=args.outcome,
-		                              duplicate_of=args.duplicate_of)
+		                              duplicate_of=args.duplicate_of, op_id=args.op_id)
 	if command == "block":
 		team, member = _need_participant(args)
 		return transitions.add_dependency(store, args.work, args.on,
-		                                  actor_team=team, actor=member)
+		                                  actor_team=team, actor=member, op_id=args.op_id)
+	if command == "operation-log":
+		team, member = _need_participant(args)
+		return projection.operation_log(store, f"{team}.{member}",
+		                                after=args.after,
+		                                limit=args.limit)
 	if command == "revisions":
 		_need_participant(args)
 		return projection.revisions(store, args.work, after=args.after,
@@ -357,29 +391,29 @@ def _dispatch(store: Authority, args):
 			store, args.work, actor_team=team, actor=member,
 			message_seq=args.message_seq,
 			expected_revision=args.expected_revision,
-			rationale=args.rationale)
+			rationale=args.rationale, op_id=args.op_id)
 	if command == "discuss":
 		team, member = _need_participant(args)
 		return transitions.create_discussion(
 			store, actor_team=team, actor=member, body=args.body,
-			labels=args.label)
+			labels=args.label, op_id=args.op_id)
 	if command == "say":
 		team, member = _need_participant(args)
 		return transitions.post_discussion(
 			store, args.discussion, author_team=team, author=member,
 			body=args.body, include=args.include or (),
 			request=args.request, pass_to=args.pass_to,
-			set_next=args.set_next, on=args.on)
+			set_next=args.set_next, on=args.on, op_id=args.op_id)
 	if command == "label":
 		team, member = _need_participant(args)
 		return transitions.label_discussion(
 			store, args.discussion, args.work, actor_team=team,
-			actor=member)
+			actor=member, op_id=args.op_id)
 	if command == "unlabel":
 		team, member = _need_participant(args)
 		return transitions.unlabel_discussion(
 			store, args.discussion, args.work, actor_team=team,
-			actor=member)
+			actor=member, op_id=args.op_id)
 	if command == "thread":
 		team, member = _need_participant(args)
 		return projection.thread(store, args.discussion,
@@ -405,38 +439,38 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.seen_discussion(
 			store, args.discussion, team=team, member=member,
-			up_to_seq=args.up_to)
+			up_to_seq=args.up_to, op_id=args.op_id)
 	if command == "round":
 		team, member = _need_participant(args)
 		return transitions.create_round(
 			store, args.work, actor_team=team, actor=member,
 			candidate=args.candidate, assign=args.assign,
-			review_at=args.review_at)
+			review_at=args.review_at, op_id=args.op_id)
 	if command == "extend":
 		team, member = _need_participant(args)
 		return transitions.extend_round(
 			store, args.work, args.round, actor_team=team, actor=member,
-			review_at=args.review_at)
+			review_at=args.review_at, op_id=args.op_id)
 	if command == "report":
 		team, member = _need_participant(args)
 		return transitions.report(
 			store, args.obligation, team=team, member=member,
-			observation=args.observation, evidence=args.evidence)
+			observation=args.observation, evidence=args.evidence, op_id=args.op_id)
 	if command == "assess":
 		team, member = _need_participant(args)
 		return transitions.assess(
 			store, args.obligation, actor_team=team, actor=member,
-			assessment=args.assessment, rationale=args.rationale)
+			assessment=args.assessment, rationale=args.rationale, op_id=args.op_id)
 	if command == "abandon":
 		team, member = _need_participant(args)
 		return transitions.abandon_round(
 			store, args.work, args.round, actor_team=team, actor=member,
-			reason=args.reason)
+			reason=args.reason, op_id=args.op_id)
 	if command == "classify":
 		team, member = _need_participant(args)
 		return transitions.classify(store, args.work, actor_team=team,
 		                            actor=member,
-		                            classification=args.classification)
+		                            classification=args.classification, op_id=args.op_id)
 	if command == "phase":
 		team, member = _need_participant(args)
 		if args.wait_gates and args.wait_obligation is not None:
@@ -445,7 +479,7 @@ def _dispatch(store: Authority, args):
 		wait = "gates" if args.wait_gates else args.wait_obligation
 		return transitions.set_phase(store, args.work, actor_team=team,
 		                             actor=member, phase=args.phase,
-		                             reason=args.reason, wait=wait)
+		                             reason=args.reason, wait=wait, op_id=args.op_id)
 
 	if command == "home":
 		team, member = _need_participant(args)

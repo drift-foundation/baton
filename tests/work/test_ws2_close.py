@@ -51,10 +51,10 @@ def _row(store, work):
 def _interleave(store, competing):
 	original = store._write
 
-	def wrapped(kind, actor, payload, mutate):
+	def wrapped(kind, actor, payload, mutate, **kw):
 		store._write = original
 		competing()
-		return original(kind, actor, payload, mutate)
+		return original(kind, actor, payload, mutate, **kw)
 
 	store._write = wrapped
 

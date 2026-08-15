@@ -62,7 +62,7 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	path = str(tmp_path / "baton.json")
 	with open(path, "w") as handle:
 		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
-	_run(archive, path, "init")
+	_run(archive, path, "init", viewer="lang.ada")
 
 	born = _run(archive, path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "render crash", "--origin", "external-report",
@@ -112,7 +112,7 @@ def test_a_refusal_exits_nonzero_through_the_archive(archive, tmp_path):
 	path = str(tmp_path / "baton.json")
 	with open(path, "w") as handle:
 		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
-	_run(archive, path, "init")
+	_run(archive, path, "init", viewer="lang.ada")
 	refusal = _run(archive, path, "create", "--team", "lang",
 	               "--kind", "nope", "--title", "x", "--origin",
 	               "external-report", "--body", "x", viewer="lang.ada",
@@ -137,7 +137,8 @@ def test_the_archive_answers_without_the_source_tree(archive, tmp_path):
 	       if key != "PYTHONPATH"}
 	env["PYTHONPATH"] = str(tmp_path / "poison")
 	proc = subprocess.run(
-		[sys.executable, archive, "--config", path, "init"],
+		[sys.executable, archive, "--config", path,
+		 "--participant", "lang.ada", "init"],
 		capture_output=True, text=True, timeout=120, env=env)
 	assert proc.returncode == 0, \
 		"the archive deferred to a poisoned path package: " + proc.stderr

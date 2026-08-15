@@ -86,16 +86,17 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 	saboteur = worker % 4 == 0
 	real_write = store._write
 
-	def wrapped(event_kind, actor, payload, mutate):
+	def wrapped(event_kind, actor, payload, mutate, **kw):
 		if saboteur and rng.random() < 0.15:
 			def exploding(conn, seq):
 				mutate(conn, seq)
 				raise RuntimeError("soak: injected post-mutate failure")
 			try:
-				return real_write(event_kind, actor, payload, exploding)
+				return real_write(event_kind, actor, payload, exploding,
+				                  **kw)
 			except RuntimeError:
 				raise bw.WorkError("soak-injected")
-		return real_write(event_kind, actor, payload, mutate)
+		return real_write(event_kind, actor, payload, mutate, **kw)
 
 	store._write = wrapped
 

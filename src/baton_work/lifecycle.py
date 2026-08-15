@@ -31,7 +31,8 @@ import json
 import os
 import tempfile
 
-from baton_work.authority import Authority, WorkError
+from baton_work.authority import (Authority, WorkError,
+                                  validate_op_id)
 from baton_work import config as cfg
 
 DATABASE = cfg.DATABASE_NAME
@@ -122,20 +123,78 @@ def _project(conn, document: dict) -> None:
 				(team_handle, kind_handle, kind["display"], kind["route"]))
 
 
-def init_from_config(config_path: str) -> dict:
-	"""Generation-1 bootstrap. Crash-safe by construction."""
+def _op_tuple(participant: str, name: str, op_id, typed_input):
+	"""WS-5 for the configuration family: grammar check and canonical
+	fingerprint; identity validation happens at each call site against
+	the generation that governs it."""
+	if op_id is None:
+		return None
+	validate_op_id(op_id)
+	fingerprint = hashlib.sha256(json.dumps(
+		{"operation": name, "actor": participant, "input": typed_input},
+		sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+	return (participant, op_id, fingerprint)
+
+
+def _participant_in_document(document: dict, participant: str) -> None:
+	team, dot, member = str(participant).partition(".")
+	if not dot or not team or not member or \
+			member not in document.get("teams", {}).get(
+				team, {}).get("participants", {}):
+		raise WorkError(
+			f"participant {participant!r} is not a member of the "
+			f"proposed generation-1 document; initialization is "
+			f"committed by a named configured identity")
+
+
+def init_from_config(config_path: str, *, participant: str,
+                     op_id: str | None = None) -> dict:
+	"""Generation-1 bootstrap. Crash-safe by construction. WS-5: the
+	required participant is validated against the PROPOSED generation-1
+	document on the fresh path; on an EXISTING authority a protected
+	re-init first applies that authority's current-generation identity
+	gate and then performs the exact/conflicting operation lookup, so a
+	lost successful response is recoverable."""
 	document, digest = _read_config(config_path)
 	if document["generation"] != 1:
 		raise WorkError(
 			f"initialization accepts generation 1; this document declares "
 			f"generation {document['generation']}. A later generation implies "
 			f"an authority that already accepted the earlier ones.")
+	operation = _op_tuple(participant, "init", op_id, {"digest": digest})
 	database = _database_path(config_path)
 	if os.path.lexists(database):
+		if operation is not None:
+			# R81: the CURRENT authority's identity gate comes first —
+			# an identity its accepted generation does not know refuses
+			# here, learning nothing.
+			existing = Authority(database)
+			try:
+				# R84: one read transaction — the lookup's snapshot and
+				# the identity gate observe the SAME accepted state.
+				existing.conn.execute("BEGIN")
+				try:
+					# R85: the identity gate speaks before any lookup
+					# conclusion — replay OR conflict — is disclosed.
+					try:
+						replay = existing._op_replay(existing.conn,
+						                             *operation)
+					except WorkError:
+						existing._op_identity(existing.conn,
+						                      participant)
+						raise
+					existing._op_identity(existing.conn, participant)
+				finally:
+					existing.conn.execute("ROLLBACK")
+				if replay is not None:
+					return replay
+			finally:
+				existing.close()
 		raise WorkError(f"{database} already exists; an authority is "
 		                f"initialized once. Retrying after a crash is safe "
 		                f"precisely because a crashed init leaves nothing "
 		                f"here.")
+	_participant_in_document(document, participant)
 
 	directory = os.path.dirname(database)
 	handle, staging = tempfile.mkstemp(prefix=".work-init-", dir=directory)
@@ -153,10 +212,19 @@ def init_from_config(config_path: str) -> dict:
 					 ("accepted_digest", digest),
 					 ("accepted_generation",
 					  str(document["generation"]))])
-			store._write("accept_config", "config.init",
-			             {"generation_from": None, "generation_to": 1,
-			              "digest": digest,
-			              "changes": _diff_summary({}, document)}, mutate)
+			def finish(result):
+				result["database"] = database
+				result["generation"] = 1
+				result["digest"] = digest
+				result["authority_uuid"] = \
+					document["instance"]["authority_uuid"]
+
+			outcome = store._write(
+				"accept_config", participant,
+				{"generation_from": None, "generation_to": 1,
+				 "digest": digest,
+				 "changes": _diff_summary({}, document)}, mutate,
+				operation=operation, finish=finish)
 			store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 		finally:
 			store.close()
@@ -184,8 +252,7 @@ def init_from_config(config_path: str) -> dict:
 			except OSError:
 				pass
 		raise
-	return {"database": database, "generation": 1, "digest": digest,
-	        "authority_uuid": document["instance"]["authority_uuid"]}
+	return outcome
 
 
 def open_bound(config_path: str) -> Authority:
@@ -347,13 +414,31 @@ def _gate_checks(conn, document: dict) -> None:
 			f"configuration cannot orphan it.")
 
 
-def accept_config(config_path: str, *, actor: str) -> dict:
+def accept_config(config_path: str, *, actor: str,
+                  op_id: str | None = None) -> dict:
 	"""One audited generation+1 acceptance. The bounded exception to the
 	digest refusal, and the ONLY path that changes topology or handlers."""
 	document, digest = _read_config(config_path)
 	database = _database_path(config_path)
+	operation = _op_tuple(actor, "accept_config", op_id,
+	                      {"digest": digest})
 	store = Authority(database)
 	try:
+		if operation is not None:
+			# R84: one read transaction for lookup plus identity gate.
+			store.conn.execute("BEGIN")
+			try:
+				# R85: identity refusal supersedes conflict disclosure.
+				try:
+					replay = store._op_replay(store.conn, *operation)
+				except WorkError:
+					store._op_identity(store.conn, str(actor))
+					raise
+				store._op_identity(store.conn, str(actor))
+			finally:
+				store.conn.execute("ROLLBACK")
+			if replay is not None:
+				return replay
 		meta = store.meta()
 		accepted_generation = int(meta.get("accepted_generation", 0))
 		if meta.get("authority_uuid") != \
@@ -421,13 +506,15 @@ def accept_config(config_path: str, *, actor: str) -> dict:
 				[("accepted_digest", digest),
 				 ("accepted_generation", str(document["generation"]))])
 
-		result = store._write(
+		def finish(result):
+			result.update({"generation": document["generation"],
+			               "digest": digest, "changes": changes})
+
+		return store._write(
 			"accept_config", actor,
 			{"generation_from": accepted_generation,
 			 "generation_to": document["generation"],
-			 "digest": digest, "changes": changes}, mutate)
-		result.update({"generation": document["generation"],
-		               "digest": digest, "changes": changes})
-		return result
+			 "digest": digest, "changes": changes}, mutate,
+			operation=operation, finish=finish)
 	finally:
 		store.close()

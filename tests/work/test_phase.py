@@ -272,11 +272,11 @@ def test_the_wake_race_neither_loses_nor_duplicates(world):
 	other = bw.Authority(store.path)
 	original = store._write
 
-	def close_second_first(kind, actor, payload, mutate):
+	def close_second_first(kind, actor, payload, mutate, **kw):
 		store._write = original
 		tr.close_work(other, second, actor_team="push", actor="sl",
 		              rationale="raced in first", outcome="satisfying")
-		return original(kind, actor, payload, mutate)
+		return original(kind, actor, payload, mutate, **kw)
 
 	store._write = close_second_first
 	tr.close_work(store, first, actor_team="push", actor="sl",
@@ -299,11 +299,11 @@ def test_entering_waiting_races_the_satisfying_close(world):
 	other = bw.Authority(store.path)
 	original = store._write
 
-	def satisfy_between(kind, actor, payload, mutate):
+	def satisfy_between(kind, actor, payload, mutate, **kw):
 		store._write = original
 		tr.close_work(other, blocker, actor_team="push", actor="sl",
 		              rationale="gate shut mid-flight", outcome="satisfying")
-		return original(kind, actor, payload, mutate)
+		return original(kind, actor, payload, mutate, **kw)
 
 	store._write = satisfy_between
 	with pytest.raises(bw.WorkError, match="already-satisfied"):

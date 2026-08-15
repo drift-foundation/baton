@@ -63,6 +63,20 @@ def config_document(spec_teams=None, uuid: str = UUID) -> dict:
 	        "teams": teams}
 
 
+def first_participant(config_path: str) -> str:
+	"""TEST-ONLY: the first config-capable member of the document (or the
+	first member at all) — init's required committing identity."""
+	document = json.loads(open(config_path).read())
+	fallback = None
+	for team, spec in document["teams"].items():
+		for member, entry in spec["participants"].items():
+			if fallback is None:
+				fallback = f"{team}.{member}"
+			if "config" in entry.get("capabilities", []):
+				return f"{team}.{member}"
+	return fallback
+
+
 def build_instance(directory: str, spec_teams=None) -> tuple[str, str]:
 	"""Write the config and initialize; returns (config_path, db_path)."""
 	config_path = os.path.join(directory, "baton.json")
@@ -70,7 +84,8 @@ def build_instance(directory: str, spec_teams=None) -> tuple[str, str]:
 		json.dump(config_document(spec_teams), handle, indent=2,
 		          sort_keys=True)
 		handle.write("\n")
-	result = lc.init_from_config(config_path)
+	result = lc.init_from_config(config_path,
+	                             participant=first_participant(config_path))
 	return config_path, result["database"]
 
 
