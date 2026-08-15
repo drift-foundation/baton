@@ -105,6 +105,27 @@ def main(argv=None) -> int:
 	                 type=int, help="waiting: wake when this one pending @ "
 	                 "obligation completes")
 
+	cmd = sub.add_parser("round")
+	cmd.add_argument("work")
+	cmd.add_argument("--candidate", required=True,
+	                 help="exact candidate/artifact identity; immutable")
+	cmd.add_argument("--assign", action="append", required=True,
+	                 help="one exact verifier endpoint; repeatable")
+	cmd = sub.add_parser("report")
+	cmd.add_argument("obligation", type=int)
+	cmd.add_argument("--observation", required=True,
+	                 help="exactly passed, failed, or unable")
+	cmd.add_argument("--evidence", required=True)
+	cmd = sub.add_parser("assess")
+	cmd.add_argument("obligation", type=int)
+	cmd.add_argument("--as", dest="assessment", required=True,
+	                 help="exactly accepted, rejected, or inconclusive")
+	cmd.add_argument("--rationale", required=True)
+	cmd = sub.add_parser("abandon")
+	cmd.add_argument("work")
+	cmd.add_argument("--round", type=int, required=True)
+	cmd.add_argument("--reason", required=True)
+
 	sub.add_parser("home")
 	sub.add_parser("obligations")
 	sub.add_parser("summary")
@@ -232,6 +253,26 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.mark_seen(store, args.work, team=team,
 		                             member=member, up_to_seq=args.up_to)
+	if command == "round":
+		team, member = _need_participant(args)
+		return transitions.create_round(
+			store, args.work, actor_team=team, actor=member,
+			candidate=args.candidate, assign=args.assign)
+	if command == "report":
+		team, member = _need_participant(args)
+		return transitions.report(
+			store, args.obligation, team=team, member=member,
+			observation=args.observation, evidence=args.evidence)
+	if command == "assess":
+		team, member = _need_participant(args)
+		return transitions.assess(
+			store, args.obligation, actor_team=team, actor=member,
+			assessment=args.assessment, rationale=args.rationale)
+	if command == "abandon":
+		team, member = _need_participant(args)
+		return transitions.abandon_round(
+			store, args.work, args.round, actor_team=team, actor=member,
+			reason=args.reason)
 	if command == "classify":
 		team, member = _need_participant(args)
 		return transitions.classify(store, args.work, actor_team=team,

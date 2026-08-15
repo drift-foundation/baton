@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -213,8 +213,28 @@ CREATE TABLE obligations (
 	role         TEXT,
 	handlers     TEXT,
 	generation   INTEGER,
+	flavor       TEXT NOT NULL DEFAULT 'response',
+	round        INTEGER,
+	observation  TEXT,
+	evidence     TEXT,
 	status       TEXT NOT NULL DEFAULT 'pending',
 	resolved_seq INTEGER
+) STRICT;
+CREATE TABLE rounds (
+	work        TEXT NOT NULL REFERENCES work(id),
+	round       INTEGER NOT NULL,
+	candidate   TEXT NOT NULL,
+	status      TEXT NOT NULL DEFAULT 'open',
+	created_seq INTEGER NOT NULL,
+	ended_seq   INTEGER,
+	PRIMARY KEY (work, round)
+) STRICT;
+CREATE TABLE assessments (
+	seq         INTEGER PRIMARY KEY,
+	obligation  INTEGER NOT NULL,
+	assessment  TEXT NOT NULL,
+	rationale   TEXT NOT NULL,
+	actor       TEXT NOT NULL
 ) STRICT;
 CREATE TABLE seen (
 	team   TEXT NOT NULL,

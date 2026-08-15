@@ -787,3 +787,74 @@ Both reviewer regressions pass; break-sweeps red (close-addressed
 resolved_seq fails the address regression; unwrapping detail fails the
 snapshot regression). Gate: 236 passed (233 parallel + 3 serial),
 test-v11 green. STOPPED for re-review; groups 2 and 3 not started.
+
+## WS-2 group 2 — candidate rounds and staged verification (2026-08-15)
+
+Authorized by `f38f8cf2a6fc88dba07c0cb9970903d5`; group 3 (due/review_at,
+fault/race/restart matrix, renderer parity) untouched.
+
+Authority (schema v4): obligations gain `flavor`
+(response|verification), `round`, `observation`, `evidence`; new `rounds`
+(work-scoped ordinal, immutable candidate, open|superseded|abandoned|
+closed) and append-only `assessments` tables. An assignment IS a flavored
+exact @ obligation (the accepted mapping): same identity, cardinality,
+snapshot columns, actionable projection, and named-route-handler gate —
+completed only by `report`, never by respond/dispose, never a wake
+condition, and it transitions nothing.
+
+Transitions, all Current-handler gated in-lock with recorded
+authorization: `create_round` (exact candidate required; exact selection —
+wildcards and duplicates refuse; an open round is superseded and its
+pending assignments withdrawn with route notification, one audited
+`assign` event per assignment carrying its resolution); `report`
+(immutable raw passed|failed|unable + evidence, pinned to
+assignment/round/candidate; second report and late report refuse in-lock);
+`assess` (accepted|rejected|inconclusive + rationale, append-only;
+reassessment is a superseding act; requires a returned report — assessment
+never invents feedback; reporters cannot assess); `abandon_round` (round
+ends, work untouched, pending withdrawn+notified). Work close now closes
+open rounds and the shared `_withdraw_pending` sweeps ALL pending
+obligations, both flavors.
+
+Projection: `detail` carries `rounds` inside its one read snapshot — per
+round: immutable candidate, status, assigned/reported/pending/withdrawn,
+`reported/assigned` progress (receipt, never support), and per-assignment
+route/state/raw observation/evidence/effective assessment/full assessment
+history — both axes side by side (`failed / rejected`). Obligations
+projection exposes flavor. CLI verbs: round, report, assess, abandon.
+
+Evidence: `test_ws2_rounds.py` (9 focused: pinning+cardinality, report
+immutability and nothing-transitions, route-handler-only reporting and
+wake ineligibility, append-only adjudication, supersession keeping pinned
+reports at 1/2 while round 2 starts 0/1, abandon at 1/3 + 2 withdrawals,
+close ending rounds and assignments, generation-2 authority following
+config without rewriting snapshots). Stories WS2-WF-07 (subset of five:
+round total 2, outsider contribution readable but counter untouched,
+outcome fans through all five edges) and WS2-WF-08 (abandon without
+closing; byte-identical refusals for late reports; new candidate = new
+round), both source+packaged.
+
+Break-sweeps: supersession without withdrawal, delete-then-insert
+assessments, and an ungated report each fail their regression. Gate: 249
+passed (246 parallel + 3 serial), test-v11 green. STOPPED for group-2
+review; group 3 not started.
+
+## Group-2 re-review fixes (2026-08-15)
+
+Per `9faea62ea0a8b75fcb5ef13e4a6b6589`
+(`review-2026-08-15T03-09-41Z.md`); all four within approved semantics.
+
+1. respond/dispose now refuse verification assignments outright — the
+   flavored subtype completes only by report or withdrawal, so no
+   unprojectable responded/disposed assignment state can exist.
+2. The report act records the exact candidate identity and the evidence
+   reference in its own immutable payload — the audit contract, not a
+   join over mutable tables.
+3. A reassessment names the assessment it supersedes
+   (payload["supersedes"], resolved in-lock from the append-only chain).
+4. `detail` declares `create_round` to the eligible Current handler on
+   open work, and `abandon_round` exactly while an open round exists.
+
+All four reviewer regressions pass; four break-sweeps red. Gate: 253
+passed (250 parallel + 3 serial), test-v11 green. STOPPED for re-review;
+group 3 held.

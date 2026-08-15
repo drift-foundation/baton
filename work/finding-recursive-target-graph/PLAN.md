@@ -611,3 +611,33 @@ held.
 closure and workflow regressions pass 17/17, and `just test-v11` passes 236/236
 (233 parallel plus 3 serial). Groups 2 and 3 remain held pending explicit
 release.
+
+### 2026-08-14 WS-2 group 2 released
+
+**Authorized by Slawomir after the Group 1 commit.** Implement candidate
+verification rounds, exact selected-route assignments, immutable raw reports,
+append-only reviewer assessments and supersessions, internally consistent
+assignment counters, round abandonment with pending-assignment withdrawal,
+and the canonical pure JSON projection described by WS2-WF-07, WS2-WF-08, and
+the focused regression matrix in `WORKFLOW-TESTS.md`.
+
+- [x] Add focused authority, authorization, cardinality, candidate-pinning,
+  assignment-state, assessment-history, counter, withdrawal, audit, and
+  one-snapshot JSON regressions before or with the implementation.
+- [x] Run WS2-WF-07 and WS2-WF-08 through the source interface plus all
+  affected existing stories and `just test-v11`.
+- [x] Stop after Group 2 passes and return evidence for reviewer inspection.
+- [ ] **GROUP 3 REMAINS HELD:** do not implement due/review-at notification,
+  extension, fault-injection expansion, the remaining race/restart/packaged
+  matrix, or bounded renderer parity in this group.
+
+**Group 2 review: changes requested.** See
+`review-2026-08-15T03-09-41Z.md`. Four additive regressions expose a flavored
+obligation boundary violation, two incomplete audit identities, and missing
+declaration of the new Work-level round actions in canonical JSON. Correct
+these within Group 2, rerun its focused stories and `just test-v11`, then stop
+for re-review. Group 3 remains held.
+
+**Group 2 accepted.** See `review-2026-08-15T03-15-38Z.md`. The corrected
+focused and workflow set passes 17/17, and `just test-v11` passes 253/253 (250
+parallel plus 3 serial). Group 3 remains held pending explicit release.

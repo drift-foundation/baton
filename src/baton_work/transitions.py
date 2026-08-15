@@ -38,6 +38,10 @@ PHASES = ("queued", "research", "waiting", "active", "review", "parked")
 CREATION_PHASES = ("queued", "research", "active", "review")
 # WS-2 ruling: every terminal close records exactly one of these.
 OUTCOMES = ("satisfying", "non-satisfying")
+# WS-2 verification vocabulary (ruled): the verifier's raw observation and
+# the provider reviewer's separate assessment — two immutable axes.
+OBSERVATIONS = ("passed", "failed", "unable")
+ASSESSMENTS = ("accepted", "rejected", "inconclusive")
 OPEN, CLOSED = "open", "closed"
 
 
@@ -396,6 +400,12 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 			conn, work_id, actor_team, actor, "close")
 		payload["was_current_team"] = live["current_team"]
 		payload["was_current_kind"] = live["current_kind"]
+		# WS-2 group 2: rounds end with their work — no assignment stays
+		# actionable (the pending-obligation withdrawal below covers the
+		# assignments; this records the rounds' own terminal state).
+		conn.execute(
+			"UPDATE rounds SET status='closed', ended_seq=? "
+			"WHERE work=? AND status='open'", (seq, work_id))
 		conn.execute(
 			"UPDATE work SET status=?, ready=0, outcome=?, "
 			"current_team=NULL, current_kind=NULL, next_team=NULL, "
@@ -403,32 +413,11 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 			(CLOSED, outcome, seq, work_id))
 		# WS-2 group-1 correction (ruled): terminal close atomically
 		# WITHDRAWS every pending exact @ obligation this work carries —
-		# closed history can never gain a late answer, and each withdrawal
-		# is audited with the route accountability recorded when the
-		# obligation was created. Answer-versus-close serializes to exactly
-		# one terminal result through the obligations' in-lock recheck.
-		import json as _json
-		for obligation in conn.execute(
-				"SELECT seq, team, kind, route, role, handlers, generation "
-				"FROM obligations WHERE work=? AND status='pending'",
-				(work_id,)).fetchall():
-			# resolved_seq is the DIRECT audit address of the terminal
-			# act: each withdrawal points at its own withdraw event, not
-			# at the enclosing close whose payload does not name it.
-			withdraw_seq = _emit(
-				conn, "withdraw", f"{actor_team}.{actor}",
-				{"work": work_id, "obligation": obligation["seq"],
-				 "endpoint":
-				 f"{obligation['team']}.{obligation['kind']}",
-				 "route": obligation["route"],
-				 "role": obligation["role"],
-				 "handlers": _json.loads(obligation["handlers"])
-				 if obligation["handlers"] else [],
-				 "generation": obligation["generation"],
-				 "reason": "the carrying work closed"})
-			conn.execute(
-				"UPDATE obligations SET status='withdrawn', resolved_seq=? "
-				"WHERE seq=?", (withdraw_seq, obligation["seq"]))
+		# classic requests and verification assignments alike — so closed
+		# history can never gain a late answer. Each withdrawal points at
+		# its own audited withdraw event.
+		_withdraw_pending(conn, work_id, f"{actor_team}.{actor}",
+		                  "the carrying work closed")
 		if live["parent"] is not None:
 			_recompute_ready(conn, live["parent"])
 		# THE FAN-OUT, level-triggered: every dependent recomputes from its
@@ -560,8 +549,8 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 				wait_type = "gates"
 			else:
 				obligation = conn.execute(
-					"SELECT work, status FROM obligations WHERE seq=?",
-					(wait,)).fetchone()
+					"SELECT work, status, flavor FROM obligations "
+					"WHERE seq=?", (wait,)).fetchone()
 				if obligation is None:
 					raise WorkError(f"no obligation {wait}")
 				if obligation["work"] != work_id:
@@ -575,6 +564,11 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 						f"{obligation['status']}; an already-satisfied "
 						f"wait condition is refused rather than creating "
 						f"a loose end")
+				if obligation["flavor"] != "response":
+					raise WorkError(
+						f"obligation {wait} is a verification "
+						f"assignment; feedback never transitions Work, so "
+						f"it cannot be a wake condition (WS-2 ruling)")
 				wait_type, wait_obligation = "obligation", wait
 		payload["wait"] = None if wait_type is None else \
 			{"type": wait_type, "obligation": wait_obligation}
@@ -583,6 +577,273 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 			"WHERE id=?", (phase, wait_type, wait_obligation, work_id))
 
 	return store._write("set_phase", f"{actor_team}.{actor}", payload, mutate)
+
+
+# -- WS-2 group 2: candidate verification rounds ------------------------------
+
+def _round(store: Authority, work_id: str, round_number: int):
+	row = store.conn.execute(
+		"SELECT * FROM rounds WHERE work=? AND round=?",
+		(work_id, round_number)).fetchone()
+	if row is None:
+		raise WorkError(f"{work_id} has no round {round_number}")
+	return row
+
+
+def create_round(store: Authority, work_id: str, *, actor_team: str,
+                 actor: str, candidate: str, assign) -> dict:
+	"""One verification round for one EXACT candidate, with an exact
+	selected set of verifier routes (each an @ verification obligation —
+	actionable for testing WITHOUT clearing anyone's dependency, granting
+	no mutation authority, and never a wake condition).
+
+	Publishing a different candidate is a NEW round: any open round is
+	superseded and its pending assignments are withdrawn with route
+	notification — replies stay pinned to the exact candidate they tested
+	and never carry forward silently."""
+	_member(store, actor_team, actor)
+	row = _work(store, work_id)
+	if row["status"] != OPEN:
+		raise WorkError(f"{work_id} is {row['status']}; a closed work "
+		                f"takes no verification rounds")
+	if not isinstance(candidate, str) or not candidate.strip():
+		raise WorkError("a round names its exact candidate/artifact; "
+		                "candidate identity is required and immutable")
+	if isinstance(assign, str):
+		assign = [assign]
+	if not assign:
+		raise WorkError("a round selects at least one exact verifier route")
+	selected = []
+	for endpoint in assign:
+		pair = _one_endpoint(store, endpoint, "verification assignment")
+		if pair in selected:
+			raise WorkError(
+				f"verification assignment {endpoint!r} is selected twice; "
+				f"one round creates at most one obligation per endpoint")
+		selected.append(pair)
+
+	payload = {"work": work_id, "candidate": candidate,
+	           "selected": [f"{team}.{kind}" for team, kind in selected]}
+
+	def mutate(conn, seq):
+		import json as _json
+		live = conn.execute("SELECT status FROM work WHERE id=?",
+		                    (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; a closed work "
+			                f"takes no verification rounds")
+		payload["authorization"] = _handler_gate(
+			conn, work_id, actor_team, actor, "create round")
+		previous = conn.execute(
+			"SELECT round FROM rounds WHERE work=? AND status='open'",
+			(work_id,)).fetchone()
+		if previous is not None:
+			conn.execute(
+				"UPDATE rounds SET status='superseded', ended_seq=? "
+				"WHERE work=? AND round=?",
+				(seq, work_id, previous["round"]))
+			_withdraw_pending(conn, work_id, f"{actor_team}.{actor}",
+			                  "superseded by a new candidate round",
+			                  round_number=previous["round"])
+			payload["supersedes"] = previous["round"]
+		number = (conn.execute(
+			"SELECT COALESCE(MAX(round), 0) AS n FROM rounds WHERE work=?",
+			(work_id,)).fetchone()["n"]) + 1
+		conn.execute(
+			"INSERT INTO rounds (work, round, candidate, status, "
+			"created_seq) VALUES (?, ?, ?, 'open', ?)",
+			(work_id, number, candidate, seq))
+		payload["round"] = number
+		payload["assignments"] = []
+		for team, kind in selected:
+			resolution = resolve_endpoint(conn, team, kind,
+			                              "verification assignment")
+			assignment_seq = _emit(
+				conn, "assign", f"{actor_team}.{actor}",
+				{"work": work_id, "round": number,
+				 "candidate": candidate, "resolution": resolution})
+			conn.execute(
+				"INSERT INTO obligations (seq, work, message_seq, team, "
+				"kind, route, role, handlers, generation, flavor, round) "
+				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'verification', ?)",
+				(assignment_seq, work_id, seq, team, kind,
+				 resolution["route"], resolution["role"],
+				 _json.dumps(resolution["handlers"]),
+				 resolution["generation"], number))
+			payload["assignments"].append(
+				{"obligation": assignment_seq, "resolution": resolution})
+		mutate.round_number = number
+
+	result = store._write("create_round", f"{actor_team}.{actor}",
+	                      payload, mutate)
+	result["round"] = mutate.round_number
+	result["assignments"] = [entry["obligation"]
+	                         for entry in payload["assignments"]]
+	return result
+
+
+def _withdraw_pending(conn, work_id: str, actor: str, reason: str,
+                      round_number=None) -> None:
+	"""Withdraw pending obligations (optionally one round's) with the
+	audited per-obligation notification — shared by close, supersession,
+	and abandon. Withdrawal never fabricates feedback."""
+	import json as _json
+	clause = "work=? AND status='pending'"
+	params = [work_id]
+	if round_number is not None:
+		clause += " AND round=?"
+		params.append(round_number)
+	for obligation in conn.execute(
+			f"SELECT seq, team, kind, route, role, handlers, generation "
+			f"FROM obligations WHERE {clause}", params).fetchall():
+		withdraw_seq = _emit(
+			conn, "withdraw", actor,
+			{"work": work_id, "obligation": obligation["seq"],
+			 "endpoint": f"{obligation['team']}.{obligation['kind']}",
+			 "route": obligation["route"], "role": obligation["role"],
+			 "handlers": _json.loads(obligation["handlers"])
+			 if obligation["handlers"] else [],
+			 "generation": obligation["generation"], "reason": reason})
+		conn.execute(
+			"UPDATE obligations SET status='withdrawn', resolved_seq=? "
+			"WHERE seq=?", (withdraw_seq, obligation["seq"]))
+
+
+def report(store: Authority, obligation_seq: int, *, team: str, member: str,
+           observation: str, evidence: str) -> dict:
+	"""The verifier's IMMUTABLE raw observation: exactly passed, failed, or
+	unable, with evidence, pinned to its assignment/round/candidate. It
+	never votes, transitions, satisfies, wakes, or closes anything."""
+	_member(store, team, member)
+	obligation = store.conn.execute(
+		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
+	if obligation is None:
+		raise WorkError(f"no obligation {obligation_seq}")
+	if obligation["flavor"] != "verification":
+		raise WorkError(f"obligation {obligation_seq} is a classic @ "
+		                f"request; it completes by respond or dispose")
+	if observation not in OBSERVATIONS:
+		raise WorkError(f"a report observes exactly one of {OBSERVATIONS}; "
+		                f"got {observation!r}")
+	if not isinstance(evidence, str) or not evidence.strip():
+		raise WorkError("a report attaches its evidence")
+	if obligation["status"] != "pending":
+		raise WorkError(f"assignment {obligation_seq} is already "
+		                f"{obligation['status']}")
+
+	pinned = _round(store, obligation["work"], obligation["round"])
+	payload = {"work": obligation["work"], "obligation": obligation_seq,
+	           "round": obligation["round"],
+	           "candidate": pinned["candidate"],
+	           "observation": observation, "evidence": evidence}
+
+	def mutate(conn, seq):
+		live = conn.execute(
+			"SELECT status FROM obligations WHERE seq=?",
+			(obligation_seq,)).fetchone()
+		if live["status"] != "pending":
+			raise WorkError(f"assignment {obligation_seq} is already "
+			                f"{live['status']}")
+		payload["authorization"] = _obligation_gate(
+			conn, obligation, team, member, "report")
+		conn.execute(
+			"UPDATE obligations SET status='reported', observation=?, "
+			"evidence=?, resolved_seq=? WHERE seq=?",
+			(observation, evidence, seq, obligation_seq))
+
+	return store._write("report", f"{team}.{member}", payload, mutate)
+
+
+def assess(store: Authority, obligation_seq: int, *, actor_team: str,
+           actor: str, assessment: str, rationale: str) -> dict:
+	"""The provider reviewer's SEPARATE immutable judgment of a report:
+	accepted, rejected, or inconclusive, with rationale. It never rewrites
+	the raw observation; a changed mind is a new superseding act."""
+	_member(store, actor_team, actor)
+	obligation = store.conn.execute(
+		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
+	if obligation is None:
+		raise WorkError(f"no obligation {obligation_seq}")
+	if obligation["flavor"] != "verification":
+		raise WorkError(f"obligation {obligation_seq} is a classic @ "
+		                f"request; there is no report to assess")
+	if assessment not in ASSESSMENTS:
+		raise WorkError(f"an assessment is exactly one of {ASSESSMENTS}; "
+		                f"got {assessment!r}")
+	if not isinstance(rationale, str) or not rationale.strip():
+		raise WorkError("an assessment records its rationale")
+	row = _work(store, obligation["work"])
+	if row["status"] != OPEN:
+		raise WorkError(f"{obligation['work']} is {row['status']}; a "
+		                f"closed work refuses assessment")
+
+	payload = {"work": obligation["work"], "obligation": obligation_seq,
+	           "assessment": assessment, "rationale": rationale}
+
+	def mutate(conn, seq):
+		prior = conn.execute(
+			"SELECT seq FROM assessments WHERE obligation=? "
+			"ORDER BY seq DESC LIMIT 1", (obligation_seq,)).fetchone()
+		payload["supersedes"] = prior["seq"] if prior else None
+		live_work = conn.execute(
+			"SELECT status FROM work WHERE id=?",
+			(obligation["work"],)).fetchone()
+		if live_work["status"] != OPEN:
+			raise WorkError(f"{obligation['work']} is "
+			                f"{live_work['status']}; a closed work refuses "
+			                f"assessment")
+		live = conn.execute(
+			"SELECT status FROM obligations WHERE seq=?",
+			(obligation_seq,)).fetchone()
+		if live["status"] != "reported":
+			raise WorkError(
+				f"assignment {obligation_seq} is {live['status']}; only a "
+				f"returned report is assessed — assessment never invents "
+				f"feedback")
+		payload["authorization"] = _handler_gate(
+			conn, obligation["work"], actor_team, actor, "assess")
+		conn.execute(
+			"INSERT INTO assessments (seq, obligation, assessment, "
+			"rationale, actor) VALUES (?, ?, ?, ?, ?)",
+			(seq, obligation_seq, assessment, rationale,
+			 f"{actor_team}.{actor}"))
+
+	return store._write("assess", f"{actor_team}.{actor}", payload, mutate)
+
+
+def abandon_round(store: Authority, work_id: str, round_number: int, *,
+                  actor_team: str, actor: str, reason: str) -> dict:
+	"""End a round WITHOUT closing the work: pending assignments are
+	withdrawn with route notification, candidate and report history stay
+	immutable, and no provider or consumer lifecycle state changes."""
+	_member(store, actor_team, actor)
+	_work(store, work_id)
+	existing = _round(store, work_id, round_number)
+	if existing["status"] != "open":
+		raise WorkError(f"round {round_number} of {work_id} is already "
+		                f"{existing['status']}")
+	if not isinstance(reason, str) or not reason.strip():
+		raise WorkError("abandoning a round records a reason")
+
+	payload = {"work": work_id, "round": round_number, "reason": reason}
+
+	def mutate(conn, seq):
+		live = conn.execute(
+			"SELECT status FROM rounds WHERE work=? AND round=?",
+			(work_id, round_number)).fetchone()
+		if live["status"] != "open":
+			raise WorkError(f"round {round_number} of {work_id} is "
+			                f"already {live['status']}")
+		payload["authorization"] = _handler_gate(
+			conn, work_id, actor_team, actor, "abandon round")
+		conn.execute(
+			"UPDATE rounds SET status='abandoned', ended_seq=? "
+			"WHERE work=? AND round=?", (seq, work_id, round_number))
+		_withdraw_pending(conn, work_id, f"{actor_team}.{actor}",
+		                  reason, round_number=round_number)
+
+	return store._write("abandon_round", f"{actor_team}.{actor}",
+	                    payload, mutate)
 
 
 def _would_cycle(conn, work_id: str, blocker_id: str) -> list[str] | None:
@@ -906,6 +1167,10 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
 	if obligation is None:
 		raise WorkError(f"no obligation {obligation_seq}")
+	if obligation["flavor"] != "response":
+		raise WorkError(f"obligation {obligation_seq} is a verification "
+		                f"assignment; it completes only by report or "
+		                f"withdrawal")
 	if obligation["status"] != "pending":
 		raise WorkError(f"obligation {obligation_seq} is already "
 		                f"{obligation['status']}")
@@ -951,6 +1216,10 @@ def dispose_obligation(store: Authority, obligation_seq: int, *,
 		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
 	if obligation is None:
 		raise WorkError(f"no obligation {obligation_seq}")
+	if obligation["flavor"] != "response":
+		raise WorkError(f"obligation {obligation_seq} is a verification "
+		                f"assignment; it completes only by report or "
+		                f"withdrawal")
 	if obligation["status"] != "pending":
 		raise WorkError(f"obligation {obligation_seq} is already "
 		                f"{obligation['status']}")

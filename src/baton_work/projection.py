@@ -243,13 +243,53 @@ def obligations(store: Authority, *, viewer_team: str) -> list[dict]:
 	`@` enters this projection, `+` never does."""
 	out = []
 	for row in store.conn.execute(
-			"SELECT seq, work, message_seq, team, kind, status "
-			"FROM obligations WHERE team=? AND status='pending' "
+			"SELECT seq, work, message_seq, team, kind, flavor, round, "
+			"status FROM obligations WHERE team=? AND status='pending' "
 			"ORDER BY seq", (viewer_team,)):
 		entry = dict(row)
 		entry["owed_by"] = _endpoint_struct(store, row["team"], row["kind"])
 		out.append(entry)
 	return out
+
+
+def _round_view(store: Authority, row) -> dict:
+	"""One verification round, both axes visible: the raw observation and
+	the reviewer's effective assessment are shown side by side so receipt
+	progress (`reported/assigned`) is never mistaken for support. The
+	counters are internally consistent by construction — one query, one
+	snapshot (the caller holds the read transaction)."""
+	assignments = []
+	assigned = reported = withdrawn = pending = 0
+	for entry in store.conn.execute(
+			"SELECT * FROM obligations WHERE work=? AND round=? "
+			"AND flavor='verification' ORDER BY seq",
+			(row["work"], row["round"])):
+		assigned += 1
+		if entry["status"] == "reported":
+			reported += 1
+		elif entry["status"] == "withdrawn":
+			withdrawn += 1
+		else:
+			pending += 1
+		acts = [dict(act) for act in store.conn.execute(
+			"SELECT seq, assessment, rationale, actor FROM assessments "
+			"WHERE obligation=? ORDER BY seq", (entry["seq"],))]
+		assignments.append({
+			"obligation": entry["seq"],
+			"endpoint": f"{entry['team']}.{entry['kind']}",
+			"route": entry["route"], "role": entry["role"],
+			"state": entry["status"],
+			"observation": entry["observation"],
+			"evidence": entry["evidence"],
+			"effective_assessment": acts[-1] if acts else None,
+			"assessments": acts,
+		})
+	return {"round": row["round"], "candidate": row["candidate"],
+	        "status": row["status"],
+	        "assigned": assigned, "reported": reported,
+	        "pending": pending, "withdrawn": withdrawn,
+	        "progress": f"{reported}/{assigned}",
+	        "assignments": assignments}
 
 
 def team_summary(store: Authority, *, viewer_team: str) -> dict:
@@ -289,6 +329,9 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	row = _work(store, work_id)
 	view = _row_view(store, row, viewer_team, viewer_member)
 	view["snapshot_seq"] = store.last_seq()
+	view["rounds"] = [_round_view(store, entry)
+	                  for entry in store.conn.execute(
+		"SELECT * FROM rounds WHERE work=? ORDER BY round", (work_id,))]
 	view["breadcrumb"] = breadcrumb(store, work_id)
 	view["links"] = links(store, work_id)
 	view["new_breakdown"] = new_count(store, work_id,
@@ -318,7 +361,11 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		available += ["post_message", "mark_seen"]
 		if handler:
 			available += ["request", "pass", "add_dependency",
-			              "create_child", "classify"]
+			              "create_child", "classify", "create_round"]
+			if store.conn.execute(
+					"SELECT 1 FROM rounds WHERE work=? AND status='open'",
+					(work_id,)).fetchone():
+				available.append("abandon_round")
 			if row["phase"] != "waiting":
 				# waiting leaves only through its condition-bound wake.
 				available.append("set_phase")
