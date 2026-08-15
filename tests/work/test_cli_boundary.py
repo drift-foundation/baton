@@ -115,7 +115,7 @@ def test_every_ordinary_read_requires_a_participant(instance, capsys):
 	"""C3 review R1: links/breadcrumb/discussion/events were anonymous —
 	an identity-by-assertion defect wearing a read-only disguise. Every
 	non-init command now refuses without --participant."""
-	for argv in (("links", "w"), ("breadcrumb", "w"), ("discussion", "w"),
+	for argv in (("links", "w"), ("breadcrumb", "w"), ("thread", "w"),
 	             ("events",), ("home",), ("obligations",)):
 		error = _run(capsys, instance, *argv, expect_ok=False)
 		assert "needs --participant" in error["error"], argv

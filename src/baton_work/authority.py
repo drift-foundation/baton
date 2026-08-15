@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -198,12 +198,6 @@ CREATE TABLE edges (
 	created_seq INTEGER NOT NULL,
 	PRIMARY KEY (work, blocker)
 ) STRICT;
-CREATE TABLE work_participants (
-	work      TEXT NOT NULL REFERENCES work(id),
-	team      TEXT NOT NULL REFERENCES teams(handle),
-	added_seq INTEGER NOT NULL,
-	PRIMARY KEY (work, team)
-) STRICT;
 CREATE TABLE obligations (
 	seq          INTEGER PRIMARY KEY,
 	work         TEXT NOT NULL REFERENCES work(id),
@@ -241,16 +235,33 @@ CREATE TABLE assessments (
 	rationale   TEXT NOT NULL,
 	actor       TEXT NOT NULL
 ) STRICT;
+CREATE TABLE discussions (
+	id          TEXT PRIMARY KEY,
+	created_seq INTEGER NOT NULL,
+	created_ts  TEXT NOT NULL
+) STRICT;
+CREATE TABLE discussion_labels (
+	discussion TEXT NOT NULL REFERENCES discussions(id),
+	work       TEXT NOT NULL REFERENCES work(id),
+	added_seq  INTEGER NOT NULL,
+	PRIMARY KEY (discussion, work)
+) STRICT;
+CREATE TABLE discussion_participants (
+	discussion TEXT NOT NULL REFERENCES discussions(id),
+	team       TEXT NOT NULL REFERENCES teams(handle),
+	added_seq  INTEGER NOT NULL,
+	PRIMARY KEY (discussion, team)
+) STRICT;
 CREATE TABLE seen (
-	team   TEXT NOT NULL,
-	member TEXT NOT NULL,
-	work   TEXT NOT NULL REFERENCES work(id),
-	seq    INTEGER NOT NULL,
-	PRIMARY KEY (team, member, work)
+	team       TEXT NOT NULL,
+	member     TEXT NOT NULL,
+	discussion TEXT NOT NULL REFERENCES discussions(id),
+	seq        INTEGER NOT NULL,
+	PRIMARY KEY (team, member, discussion)
 ) STRICT;
 CREATE TABLE messages (
 	seq         INTEGER PRIMARY KEY,
-	work        TEXT NOT NULL REFERENCES work(id),
+	discussion  TEXT NOT NULL REFERENCES discussions(id),
 	author_team TEXT NOT NULL,
 	author      TEXT NOT NULL,
 	body        TEXT NOT NULL,

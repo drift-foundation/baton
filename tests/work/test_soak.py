@@ -104,8 +104,11 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 
 	def my_open_participating() -> list[str]:
 		return [row["id"] for row in store.conn.execute(
-			"SELECT w.id FROM work w JOIN work_participants p "
-			"ON p.work = w.id WHERE w.status='open' AND p.team=? "
+			"SELECT DISTINCT w.id FROM work w "
+			"JOIN discussion_labels l ON l.work = w.id "
+			"JOIN discussion_participants p "
+			"ON p.discussion = l.discussion "
+			"WHERE w.status='open' AND p.team=? "
 			"ORDER BY w.created_seq", (team,))]
 
 	try:

@@ -102,10 +102,16 @@ def test_accept_create_commits_every_half_in_one_ordered_act(world):
 	# Both discussions carry the rationale: the provider's first message
 	# at the accept seq, the consumer's answer as the next ordered act.
 	provider_first = store.conn.execute(
-		"SELECT * FROM messages WHERE work=?", (provider,)).fetchone()
+		"SELECT messages.* FROM messages JOIN discussions "
+		"ON discussions.id = messages.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=?", (provider,)).fetchone()
 	assert provider_first["seq"] == result["seq"]
 	consumer_answer = store.conn.execute(
-		"SELECT * FROM messages WHERE work=? ORDER BY seq DESC LIMIT 1",
+		"SELECT messages.* FROM messages JOIN discussions "
+		"ON discussions.id = messages.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=? ORDER BY messages.seq DESC LIMIT 1",
 		(push1,)).fetchone()
 	assert consumer_answer["seq"] == result["seq"] + 1
 	assert consumer_answer["body"].startswith("ours; tracking")

@@ -342,8 +342,10 @@ def test_the_answer_versus_close_race_serializes_both_ways(world):
 		tr.respond_obligation(store, asked, team="push", member="sl",
 		                      body="racing answer")
 	messages = store.conn.execute(
-		"SELECT COUNT(*) AS n FROM messages WHERE work=?",
-		(work,)).fetchone()["n"]
+		"SELECT COUNT(*) AS n FROM messages JOIN discussions "
+		"ON discussions.id = messages.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=?", (work,)).fetchone()["n"]
 	assert messages == 2, "the losing answer appended to closed history"
 
 	# Serialization 2: the answer wins; the close keeps it and withdraws

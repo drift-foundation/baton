@@ -1650,3 +1650,172 @@ recording all creation fields and providing the new Work's creation sequence;
 a distinct consumer-visible response-message act may follow inside the same
 transaction when two messages need separate sequence ids. A nested event
 layout that sequences `accept` before a later `create_work` act is forbidden.
+
+## 2026-08-15 — WS-4 first-class discussion design authorized
+
+**Authorized by Slawomir after committing accepted WS-3.** WS-4 is the next
+serial phase. It begins with a design/ruling round only; source, schema, tests,
+and migration remain held until that design is reviewed and its unresolved
+product choices are confirmed.
+
+The design must replace today's Work-local message container with the already
+confirmed semantic model: one discussion carries ordered messages and may be
+related to many Work records through inert `#WORK` labels; one message belongs
+to exactly one discussion; labels provide reusable context and never gate,
+move Current, satisfy an obligation, or alter readiness. Required dependency
+edges remain the sole workflow gates.
+
+The pass must revalidate the older discussion rulings against the implemented
+WS-1 through WS-3 authority rather than transcribing them mechanically. In
+particular it must settle:
+
+- discussion identity, creation, first-message atomicity, label add/remove,
+  last-label/orphan behavior, ordering, audit payloads, and public JSON;
+- the authority to apply a local or cross-team `#WORK` label, including the
+  rule that a member cannot mutate another team's Work merely by knowing its
+  id;
+- `@`, `+`, and `=>` when a discussion has zero, one, or several labels:
+  explicit Work selection, responsibility/participation state, follower
+  promotion, and whether any operation may affect several Works;
+- per-member seen cursors and `New` across multiply labelled discussions and
+  containment descendants, with each message counted once at a common
+  ancestor;
+- visibility as open/noise-scoped rather than secret: default tables must not
+  become an all-team stream, while deliberate traversal of relevant links and
+  discussions remains possible;
+- how WS-3 acceptance relates the incoming discussion to provider Work while
+  preserving its separate explicit dependency edge and `via_obligation`
+  provenance;
+- discussion behavior when some labelled Work is terminal and other labelled
+  Work remains open, including whether posting, relabelling, or removing the
+  final live context is allowed;
+- announcement `+*.*` behavior without a notice object, endpoint expansion,
+  per-member deduplication, and zero responsibility/readiness effects; and
+- fresh-schema versus compatibility boundary, refusal/race/retry/crash
+  behavior, deterministic pagination/snapshots, and the smallest source plus
+  packaged CLI/JSON workflow battery.
+
+The design must explicitly identify contradictions, accidental coupling to
+the current `messages.work` / `seen.work` representation, and any ruling that
+cannot be implemented honestly without WS-5 operation ids or WS-6 dossier
+binding. It must not start either later slice or substantial TUI work.
+
+## 2026-08-15 — WS-4 dispositions confirmed except terminal/orphan boundary
+
+**Confirmed by Slawomir after `WS4-DESIGN.md` review.** Any configured member
+may add or remove a `#WORK` label for Work owned by their own team. Knowledge
+of another team's Work id grants no labelling authority.
+
+An operator that acts on Work affects exactly one currently labelled Work and
+must pass that operation's existing Work authority gate. An omitted `--on` is
+resolved only when the actor has exactly one **eligible** labelled Work for
+that operation; foreign or otherwise unauthorized labels do not create false
+ambiguity. Zero or several eligible Works refuse and require an exact `--on`;
+an explicit selection outside the discussion's current labels refuses.
+
+Discussion-team participation is distinct from responsibility. A team's own
+`#WORK`, an incoming `@`, an incoming `=>`, or `+` records that team once as a
+participant so the discussion remains discoverable after a particular
+obligation ends. Participation is monotonic in WS-4, affects attention and
+personal discovery only, and grants neither workflow authority nor access
+control. The Work-scoped obligation remains the complete `@` accountability
+lifecycle: pending to responded, disposed, accepted, or withdrawn.
+
+Seen state is one monotonic cursor per member per discussion. Work-level `New`
+counts the distinct unseen messages in discussions labelled to that Work or
+its containment descendants. The decomposable projection exposes `own`, each
+child's truthful count, `overlap`, and `total`, where `overlap` is the raw-sum
+duplicate excess and `total = own + sum(children.new) - overlap`. A separate
+participating-discussion surface uses the same cursor without adding those
+messages to unrelated Work tables.
+
+WS-3 acceptance atomically ensures the consumer's originating discussion is
+labelled to provider Work while preserving the separate explicit dependency
+edge and `via_obligation`. A pre-existing provider label is success, audited as
+`existing`; otherwise the transaction audits `added`. Ordinary responses also
+return to the originating discussion, and public obligation state names it.
+
+WS-4 uses a fresh schema with no migration. It lands in two separately
+reviewed slices. Slice A establishes the first-class model and explicit public
+discussion/label/plain-post/seen/New surfaces; any Work-addressed bridge is
+internal and temporary, never a certified public API. Slice B replaces the
+operator and acceptance surfaces and removes that bridge before WS-4
+acceptance. WS-5, WS-6, deployment, and substantial TUI work remain held.
+
+**Still open:** whether unlabelled/orphan discussions are legal and whether a
+discussion whose labels are all terminal remains postable. No implementation
+is authorized until that last boundary is confirmed and this hold is
+explicitly superseded.
+
+## 2026-08-15 — WS-4 live-context discussion boundary
+
+**Confirmed by Slawomir; supersedes the final hold immediately above.** A
+discussion always has explicit Work scope. Creation requires at least one
+authorized `#WORK` label, and removing its final label refuses. Labels may
+name terminal Work, but a new plain message requires at least one currently
+labelled open Work. Carrying operators additionally require their one exact
+eligible open Work under the already confirmed authority rule.
+
+When every labelled Work is terminal, the discussion remains durable,
+readable, searchable, and navigable but is not postable. Continuing or
+refining the subject requires new open Work—normally an immutable follow-up—
+to be created and labelled first. A discussion spanning terminal and open Work
+remains postable, so conversation may cross phases without reopening history.
+
+The reason is scope integrity: allowing messages to accumulate after all Work
+scope has ended would let the contract of the discussion drift outside the
+work graph. New Work makes the changed contract explicit, schedulable, and
+visible in readiness and ownership projections. Labelling does not itself
+reopen, gate, or otherwise mutate terminal Work.
+
+## 2026-08-15 — iteration is an invariant of open Work, not another state
+
+**Clarified by Slawomir during WS-4 planning.** No new `candidate` phase or
+linear lifecycle is requested. The existing open-phase set must remain
+comfortably iterative. Ordinary open Work may move repeatedly among `queued`,
+`research`, `active`, and `review` in any useful order, including review back
+to active implementation, further research, another review, and another
+candidate cycle. `waiting` and `parked` retain their explicit exit disciplines
+but return Work to `queued`, from which iteration continues.
+
+Candidate attempts and independent verification rounds are records within
+open Work, not terminal states and not a one-way phase pipeline. A report,
+assessment, due time, completed feedback set, or failed candidate never
+automatically changes phase, changes Current, or closes Work. The responsible
+handler explicitly decides whether to continue review, extend or abandon a
+round, resume research/implementation, publish another candidate, wait, park,
+or close with an honest terminal outcome.
+
+JSON and TUI clients must expose this as an ordinary cyclic workflow. They may
+show a common path for convenience, but must not imply or enforce
+`research -> implementation -> done` as the only progression. Workflow tests
+must preserve at least one multi-iteration candidate/review/rework cycle.
+
+## 2026-08-15 — assigned Work is revised only by its current handler
+
+**Confirmed by Slawomir while defining revision and cancellation behavior.**
+Assignment freezes outsiders out of the Work contract; it does not freeze the
+contract against responsible iteration. Once Work has a Current handler, no
+other member—including its requester, parent handler, reviewer, or a
+discussion participant—may edit that Work's plan, requirements, or acceptance
+contract directly.
+
+Participants may propose corrections and refinements in a labelled discussion.
+The Current handler evaluates that evidence and may incorporate the agreed
+change as an append-only Work revision. The revision preserves the Work
+identity, prior revisions, discussion provenance, dependencies, and Current;
+public JSON must make both the effective revision and ordered revision history
+unambiguous. The write must name the expected prior revision so concurrent or
+stale edits fail rather than overwriting one another. Transferring Current
+transfers this editing authority.
+
+A revision may correct or refine how the existing result is delivered. It
+must not hide a new independently accountable result, test, proof, or review
+contract: that is separate child Work, even when it shares the same handler and
+discussion. A message that changes no required action remains discussion
+evidence only. Terminal Work remains immutable and is continued through new
+follow-up Work, never reopen or post-terminal revision.
+
+This ruling does not yet settle cancellation authority or cancellation's
+structured terminal disposition. Those remain separate product decisions; no
+implementation may infer them from revision authority.

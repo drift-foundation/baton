@@ -64,7 +64,11 @@ def test_create_is_work_plus_first_message_in_one_event(store):
 	assert work_id.endswith(f"-W{result['seq']}")
 	assert work_id.startswith(store.meta()["authority_uuid"][:8]), \
 		"the id does not carry the authority qualifier"
-	message = store.conn.execute("SELECT * FROM messages WHERE work=?",
+	message = store.conn.execute(
+		"SELECT messages.* FROM messages JOIN discussions "
+		"ON discussions.id = messages.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=?",
 	                             (work_id,)).fetchone()
 	assert message["seq"] == result["seq"], \
 		"the first message is a separate event from its work"

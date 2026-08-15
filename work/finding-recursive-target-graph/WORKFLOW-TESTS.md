@@ -396,18 +396,24 @@ separately and never increments the numerator.
 
 ### WS2-WF-04 — failed candidate and a replacement round
 
-1. Publish candidate `driftc-A`; Push reports `failed`; Lang assesses it
-   `accepted` as relevant evidence.
-2. Assert LANG-42 is still open and its dependency is still unsatisfied.
-3. Lang explicitly returns phase/Current to implementation. Assert the report
-   itself caused no transition.
-4. Publish different candidate `driftc-B`. Assert this creates round 2;
+1. Create LANG-42 in `research`, explicitly move it to `active` while producing
+   candidate `driftc-A`, then explicitly move it to `review` for independent
+   evaluation. Push reports `failed`; Lang assesses it `accepted` as relevant
+   evidence.
+2. Assert LANG-42 remains open, remains in `review`, and its dependency remains
+   unsatisfied. Neither the report nor assessment changes phase or Current.
+3. Lang explicitly returns `review -> active` for rework. This is ordinary
+   iteration within the same Work, not reopen, follow-up, or a new state.
+4. Publish different candidate `driftc-B`, then explicitly return
+   `active -> review`. Assert this creates round 2;
    candidate identity is immutable inside round 1 and its report does not
    carry into round 2's `0/N`.
 5. Pending round-1 assignments are explicitly withdrawn and notified. Both
    rounds remain ordered audit evidence.
-6. Complete round 2 and close explicitly; only this close ends the provider
-   gate.
+6. Complete round 2 and close explicitly from `review`; only this close ends
+   the provider gate. Pin the ordered phase history
+   `research -> active -> review -> active -> review`, and run the complete
+   story through both source and packaged CLI/JSON.
 
 ### WS2-WF-05 — non-satisfying close returns the decision to consumers
 

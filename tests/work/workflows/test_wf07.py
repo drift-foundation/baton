@@ -26,11 +26,12 @@ def test_wf07_announcement(flow):
 	flow.init(document(standard_teams()))
 
 	# 1. Operations opens its Work and publishes one ordinary message +*.*.
-	ops1 = flow.ok("create", "--team", "ops", "--kind", "ops",
+	born = flow.ok("create", "--team", "ops", "--kind", "ops",
 	               "--title", "maintenance window saturday",
 	               "--origin", "self-initiated",
 	               "--body", "authority migration 02:00-03:00 UTC",
-	               viewer="ops.bat")["work_id"]
+	               viewer="ops.bat")
+	ops1, thread_id = born["work_id"], born["discussion"]
 	announced = flow.ok("post", ops1, "--body",
 	                    "all teams: expect a short outage",
 	                    "--include", "*.*", viewer="ops.bat")
@@ -50,9 +51,9 @@ def test_wf07_announcement(flow):
 	               viewer="ops.bat")["current"]["endpoint"] == "ops.ops"
 
 	# 4. One member marks seen; ONLY that member's New changes.
-	up_to = flow.envelope("discussion", ops1,
-	                      viewer="web.wren")["snapshot_seq"]
-	flow.ok("mark-seen", ops1, "--up-to", str(up_to), viewer="web.wren")
+	up_to = flow.ok("thread", thread_id, viewer="web.wren")["last_seq"]
+	flow.ok("mark-seen", thread_id, "--up-to", str(up_to),
+	        viewer="web.wren")
 	assert flow.ok("new", ops1, viewer="web.wren")["total"] == 0
 	for member in ("lang.ada", "push.sl", "mdb.mo"):
 		assert flow.ok("new", ops1, viewer=member)["total"] > 0, \

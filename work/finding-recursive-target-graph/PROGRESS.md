@@ -1070,3 +1070,153 @@ public-projection restart reconstruction.
 All three reviewer regressions pass. Gate: 326 passed (323 parallel + 3
 serial); all 40 workflow runs green; test-v11 green. STOPPED for
 re-review; later phases held.
+
+## WS-4 Slice A — first-class discussions (2026-08-15)
+
+Authorized by `acaebcdaf67ce31cac6cfba4f34c1f3f` after the required
+red-team pass (WS4-DESIGN.md notes RT1-RT9: one supersession — the WS-1
+team-participation gate in New — justified against the pinned
+member-relative ruling; no contradiction or missing decision found).
+
+Schema v8: `discussions` (born labelled and speaking, id {uuid8}-D{seq}),
+`messages.discussion` (one message, one discussion), FK-bound inert
+`discussion_labels`, monotonic `discussion_participants` (replacing
+work_participants), per-member per-discussion `seen`. All Work-local
+containers gone; fresh schema, no migration (nothing deployed exists).
+
+Engine: `create_discussion` (≥1 authorized own-team label, ≥1 OPEN —
+live-context in-lock; first message atomic), `label_discussion` /
+`unlabel_discussion` (D1 owning-team gate both ways, duplicate/absent
+refuse, FINAL label never leaves, terminal Work labelable, all in-lock),
+`post_discussion` (open to every configured member; live context
+rechecked in-lock; author team joins monotonically), `seen_discussion`
+(the canonical monotonic cursor). Internal Slice-A bridge, marked for
+Slice B removal: Work-addressed writers (post/respond/accept/create)
+route to the derivable BORN discussion (shared created_seq — no stored
+primary, R54); Work-addressed mark-seen advances every labelled
+discussion's cursor. Work creation and accept --create birth their
+discussions in the same transaction.
+
+Projections: `thread` (labels w/ team+status, participants, paginated
+messages, viewer New, one snapshot + token), `discussions_for` (the R56
+participating surface incl. @/=>-joined teams), Work `detail` gains its
+DISCUSSION SET summaries (id, last_seq, viewer New — never merged, R54),
+and `new_count` is the R57 decomposition: member-relative distinct
+counting with own/children/overlap/total and the exact identity
+total = own + Σchildren − overlap. `discussion(work)` remains as the
+born-only internal bridge read.
+
+CLI: discuss, say, label, unlabel, thread, discussions, read.
+
+Evidence: `test_ws4_discussions.py` (13 focused: birth atomicity,
+creation refusals, D1 both ways, full inertness sweep, final-label,
+live-context incl. the mid-post close race in-lock, overlap identity
+with clear-once-everywhere, per-member cursors + bridge coverage,
+monotonic participation surface, label/unlabel races, whole-or-nothing
+fault injection through creation, restart + purity hash). WF-06 extended:
+the shared discussion labelled to both children proves visible overlap
+and single-read clearing through the public CLI, source+packaged.
+~10 older tests migrated mechanically to the new schema; RT9's
+superseded assertion rewritten with justification.
+
+Break-sweeps: a label that touches readiness, a zeroed overlap, a
+dropped in-lock live-context recheck, and a dropped final-label refusal
+each fail their regression. Gate: 344 passed (341 parallel + 3 serial);
+all 40+2 workflow runs green; test-v11 green. STOPPED for Slice A
+review; Slice B (operators/--on/acceptance labelling), WS-5/6,
+migration, C5/C6, TUI held.
+
+## Step 25 — WS-4 Slice A correction round R61–R66 (2026-08-15)
+
+R61: the read-named mutation is gone — the ONE public seen mutation is
+`mark-seen DISCUSSION --up-to`; `read` and the Work-addressed
+`discussion WORK` verbs are removed from the packaged parser (the R60
+bridge stays library-internal, Slice-B-removal marked). All five
+workflow stories that certified the bridge surface (WF-02/06/07/09,
+WS3-WF-01) now speak thread/mark-seen/work-discussions.
+
+R62: `seen_discussion` is bounded by the OBSERVED authority sequence
+(a future cursor refuses), revalidates member + cursor inside the
+committing transaction, and a losing/idempotent mark returns the
+committed cursor via `_NoAdvance` with NO audit event. Both reviewer
+regressions in `test_ws4_review.py` pass.
+
+R63: pagination is a contract — `_page_bounds` (non-negative cursor,
+limit 1..500), explicit `next_after` continuation on `thread`,
+`discussions_for`, and the new paged `work-discussions` projection+verb;
+detail's discussion preview is bounded; total tie-break order is
+(added_seq, identity) for labels, participants, and both list
+directions. New: focused bounds/ties/multi-page tests and the
+WS4-WF-01 story (same-sequence label + participant ties, 3-direction
+page walks without skips or repeats, CLI refusals) in both modes.
+
+R64: `new_count` runs whole inside `_read_snapshot`, keeps `id`, and
+returns the snapshot's own token. New interleaved-writer regression: a
+message committing mid-decomposition is invisible to own/children/
+overlap/total AND the token, then fully visible to the next read.
+
+R65: `_member` requires removed=0; every new mutation revalidates
+`_member_active` in-lock; `label` records `work_status` from the
+committing transaction. New both-order config-generation races: the
+mid-flight removal refuses all five mutations whole (parametrized), the
+act-first order keeps history and refuses the next act at the door, and
+the close-then-label race audits status "closed".
+
+R66: WS2-WF-04 reordered exactly as pinned — research, active,
+candidate A, review, failed feedback, active rework, candidate B,
+review, successful feedback, explicit close — and now asserts the full
+audited interleaving (set_phase/create_round/report/assess/withdraw/
+close_work with per-event evidence), not merely the phase subsequence,
+in both modes.
+
+Break-sweeps (defect in, red, restored): future-cursor bound (both
+sites), in-lock losing-race recheck, `_member_active` in post,
+pre-lock work_status, unwrapped new_count snapshot, dropped
+`_page_bounds`, inverted label tie order. Note: merely DROPPING the
+tie-break is masked by the PK index's storage order, so the sweep
+proves the pinned contract with a wrong-total-order defect instead.
+
+Gate: 359 passed (356 parallel + 3 serial); all workflows green in
+source and packaged modes; test-v11 green. STOPPED for re-review.
+Slice B, WS-5/6, migration, deployment, C5/C6, TUI expansion held.
+
+## Step 26 — WS-4 Slice A correction round R67–R68 (2026-08-15)
+
+R67: relation pages cursor by RELATION addition, not discussion birth.
+`discussions_for` orders/filters/pages by
+`discussion_participants.added_seq` and `work_discussions` by
+`discussion_labels.added_seq` (identity tie-break kept); each row now
+carries `added_seq` and `next_after` returns that relation sequence, so
+a team joining old context — or old context gaining a new label — after
+a cursor has advanced is discovered by the very next incremental page,
+exactly once. Work detail's preview shares the label relation order and
+reports truncation EXPLICITLY: `discussion_count`,
+`discussions_truncated`, and `discussions_next_after` (a continuation
+cursor that hands off to `work-discussions` without gap or repeat).
+
+R68: no invalid request is a secret alias for 500 — `thread`'s function
+and CLI defaults are the legal 500 and every supplied limit reaches
+`_page_bounds` unchanged; an explicit 1000 refuses.
+
+Evidence: both new reviewer regressions pass; WS4-WF-01 extended with
+the pinned source+packaged scenario in both relation directions (page
+one read, old discussion gains the relation, next page discovers it
+exactly once, following page proves no repeat) and the exact
+`--limit 1000` case in the refusal matrix; new focused preview
+regression (53 labels: count 53, 50 shown, truncated flag, cursor
+handoff finds the remaining 3 once; the untruncated shape says so).
+
+Break-sweeps (defect in, red, restored): birth-cursored work page,
+reintroduced 1000→500 clamp, silent preview truncation.
+
+Gate: 362 passed (359 parallel + 3 serial); all workflows green in
+source and packaged modes; test-v11 green. STOPPED for re-review.
+Slice B and later phases held.
+
+## Step 27 — WS-4 Slice A ACCEPTED (2026-08-15)
+
+Reviewer accepted Slice A (message c191497497ffa1430d5a91dab8d21c16,
+review-2026-08-15T10-22-12Z.md): R61–R68 satisfied, no Slice A finding
+remains. Slice B (carrying operators/--on/acceptance labelling), WS-5,
+WS-6, deployment, and TUI expansion remain HELD pending explicit
+release.

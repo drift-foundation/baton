@@ -20,11 +20,12 @@ def test_wf02_request_without_transfer(flow):
 	flow.init(document(standard_teams()))
 
 	# 1. push.sl owns PUSH-1 at push.rev.
-	push1 = flow.ok("create", "--team", "push", "--kind", "rev",
-	                "--title", "audit the retry path",
-	                "--origin", "self-initiated",
-	                "--body", "sweeping the checkout retries",
-	                viewer="push.sl")["work_id"]
+	born = flow.ok("create", "--team", "push", "--kind", "rev",
+	               "--title", "audit the retry path",
+	               "--origin", "self-initiated",
+	               "--body", "sweeping the checkout retries",
+	               viewer="push.sl")
+	push1, thread_id = born["work_id"], born["discussion"]
 
 	# 2. `+lang.bug` raises Lang attention — and NOTHING else.
 	flow.ok("post", push1, "--body", "lang folks may find this relevant",
@@ -60,9 +61,9 @@ def test_wf02_request_without_transfer(flow):
 		"a mere contribution discharged the obligation"
 
 	# Seen cursors are PERSONAL: ada catches up, grace's New is untouched.
-	up_to = flow.envelope("discussion", push1,
-	                      viewer="lang.ada")["snapshot_seq"]
-	flow.ok("mark-seen", push1, "--up-to", str(up_to), viewer="lang.ada")
+	up_to = flow.ok("thread", thread_id, viewer="lang.ada")["last_seq"]
+	flow.ok("mark-seen", thread_id, "--up-to", str(up_to),
+	        viewer="lang.ada")
 	assert flow.ok("new", push1, viewer="lang.ada")["total"] == 0
 	assert flow.ok("new", push1, viewer="lang.grace")["total"] > 0, \
 		"one member's mark-seen moved another member's cursor"

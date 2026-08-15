@@ -124,13 +124,15 @@ def test_new_is_per_member_and_decomposable(world):
 	assert grace["total"] > 0
 	assert grace["total"] == grace["own"] + \
 		sum(entry["new"] for entry in grace["children"])
-	# push participates only where it was included: its member's count over
-	# the LANG epic includes lang42's messages (included via *.bug) but the
-	# children, where push never participated, contribute zero.
+	# WS-4 (RT9 supersession): New is MEMBER-relative over labelled
+	# discussions — no team gate; the noise boundary lives in home-table
+	# scoping. The counter's contract is the R57 identity, for any viewer.
 	sl = pj.new_count(store, cast["lang42"],
 	                  viewer_team="push", viewer_member="sl")
-	assert all(entry["new"] == 0 for entry in sl["children"]), \
-		"New aggregated across a team boundary"
+	assert sl["total"] == sl["own"] + \
+		sum(entry["new"] for entry in sl["children"]) - sl["overlap"]
+	assert grace["total"] == grace["own"] + \
+		sum(entry["new"] for entry in grace["children"]) - grace["overlap"]
 
 
 def test_obligations_are_the_actionable_set_not_attention(world):

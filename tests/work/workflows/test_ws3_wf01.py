@@ -42,10 +42,11 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	flow.init(document(_teams()))
 
 	# Push reports and asks Drift, then waits on exactly that question.
-	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
-	                "--title", "checkout fails", "--origin",
-	                "external-report", "--body", "500 at checkout",
-	                viewer="push.sl")["work_id"]
+	born = flow.ok("create", "--team", "push", "--kind", "bug",
+	               "--title", "checkout fails", "--origin",
+	               "external-report", "--body", "500 at checkout",
+	               viewer="push.sl")
+	push1, thread_id = born["work_id"], born["discussion"]
 	asked = flow.ok("post", push1, "--body", "drift: yours?",
 	                "--request", "drift.bug", viewer="push.sl")
 	flow.ok("phase", push1, "--to", "waiting", "--wait-on-obligation",
@@ -86,7 +87,8 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	                if entry["seq"] == asked["seq"])
 	assert accepted["status"] == "accepted"
 	assert accepted["accepted_into"] == drift1
-	tail = flow.ok("discussion", push1, viewer="push.sl")[-1]
+	tail = flow.ok("thread", thread_id,
+	               viewer="push.sl")["messages"][-1]
 	assert tail["body"].startswith("ours; tracking")
 	assert flow.ok("obligations", viewer="drift.ada") == []
 

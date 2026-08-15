@@ -62,7 +62,11 @@ def test_include_expands_wildcards_and_records_the_expansion(store, work):
 		                      "generation"}, entry
 		assert entry["generation"] == 1 and entry["handlers"]
 	teams = {row["team"] for row in store.conn.execute(
-		"SELECT team FROM work_participants WHERE work=?", (work,))}
+		"SELECT discussion_participants.team AS team "
+		"FROM discussion_participants JOIN discussions "
+		"ON discussions.id = discussion_participants.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=?", (work,))}
 	assert teams == {"lang", "push", "web"}
 
 
@@ -207,7 +211,10 @@ def test_any_configured_member_may_contribute_and_becomes_participant(
 	                         body="drive-by evidence, gladly given")
 	assert result["kind"] == "post_message"
 	assert store.conn.execute(
-		"SELECT 1 FROM work_participants WHERE work=? AND team='push'",
+		"SELECT 1 FROM discussion_participants JOIN discussions "
+		"ON discussions.id = discussion_participants.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=? AND discussion_participants.team='push'",
 		(work,)).fetchone(), \
 		"the contribution did not record durable participation"
 
@@ -228,7 +235,10 @@ def test_mark_seen_is_the_only_writer_and_is_monotonic(store, work):
 	                     up_to_seq=seq)
 	assert again["advanced"] is False, "an idempotent mark advanced"
 	cursors = store.conn.execute(
-		"SELECT seq FROM seen WHERE team='lang' AND member='ada' AND work=?",
+		"SELECT seen.seq AS seq FROM seen JOIN discussions "
+		"ON discussions.id = seen.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE seen.team='lang' AND seen.member='ada' AND work.id=?",
 		(work,)).fetchall()
 	assert [row["seq"] for row in cursors] == [seq]
 
@@ -239,6 +249,9 @@ def test_seen_state_is_per_member_never_shared(store, work):
 	seq = store.last_seq()
 	tr.mark_seen(store, work, team="lang", member="ada", up_to_seq=seq)
 	web_cursor = store.conn.execute(
-		"SELECT seq FROM seen WHERE team='web' AND member='wren' AND work=?",
+		"SELECT seen.seq AS seq FROM seen JOIN discussions "
+		"ON discussions.id = seen.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE seen.team='web' AND seen.member='wren' AND work.id=?",
 		(work,)).fetchone()
 	assert web_cursor is None, "one member's mark moved another's cursor"

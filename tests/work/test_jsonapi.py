@@ -103,24 +103,28 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 	timestamp."""
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
-	work = _run(capsys, path, "create", "--team", "lang", "--kind", "bug",
-	            "--title", "burst", "--origin", "self-initiated",
-	            "--body", "first", viewer="lang.ada")["result"]["work_id"]
+	created = _run(capsys, path, "create", "--team", "lang", "--kind",
+	               "bug", "--title", "burst", "--origin", "self-initiated",
+	               "--body", "first", viewer="lang.ada")["result"]
+	work, thread_id = created["work_id"], created["discussion"]
 	for index in range(40):
 		_run(capsys, path, "post", work, "--body", f"burst {index}",
 		     viewer="lang.ada")
 
-	full = _run(capsys, path, "discussion", work,
-	            viewer="lang.ada")["result"]
+	full = _run(capsys, path, "thread", thread_id,
+	            viewer="lang.ada")["result"]["messages"]
 	assert len(full) == 41
+	# R63: the continuation token is EXPLICIT — pages join on next_after
+	# with no skip and no repeat, because the cursor is the sequence.
 	paged, after = [], 0
 	for _page in range(50):
-		page = _run(capsys, path, "discussion", work, "--after", str(after),
-		            "--limit", "7", viewer="lang.ada")["result"]
-		if not page:
+		result = _run(capsys, path, "thread", thread_id, "--after",
+		              str(after), "--limit", "7",
+		              viewer="lang.ada")["result"]
+		paged.extend(result["messages"])
+		if result["next_after"] is None:
 			break
-		paged.extend(page)
-		after = page[-1]["seq"]
+		after = result["next_after"]
 	assert [m["seq"] for m in paged] == [m["seq"] for m in full], \
 		"pages skipped or repeated rows"
 

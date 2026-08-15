@@ -779,3 +779,137 @@ all-create-option and source+packaged public-contract pins. Focused review is
 32/32 and `just test-v11` is green at 326/326. Atomic provider acceptance is
 complete. The next sequenced item is WS-4's separate design/ruling round;
 implementation remains held pending authorization.
+
+### 2026-08-15 WS-4 design challenge released
+
+**Authorized by Slawomir after the accepted WS-3 commit.** This phase produces
+one reviewable `WS4-DESIGN.md`; it does not change source, schema, tests, or
+deployment.
+
+- [ ] Inventory the implemented Work-local message/seen/participant model and
+  every confirmed discussion/`#WORK`/`@`/`+`/`=>` ruling. Name supersessions,
+  contradictions, and representation assumptions explicitly.
+- [ ] Specify canonical discussion/message/label records, invariants,
+  creation and label mutations, authority, audit ordering, public JSON,
+  pagination, and one-snapshot reads.
+- [ ] Specify personal seen/New semantics over many-to-many labels and
+  containment, including deduplication and label-add/remove effects.
+- [ ] Specify multi-label operator scope, explicit Work selection,
+  participation/responsibility lifecycle, announcement fan-out, and terminal
+  Work interaction. No punctuation may require clients to infer structure.
+- [ ] Reconcile WS-3 atomic acceptance with provider-side discussion labelling
+  while preserving the distinct explicit gate and provenance.
+- [ ] Walk WF-05, WF-06, and WF-07 end to end; add refusal, race, crash,
+  restart, retry, default-noise, deliberate-traversal, and source/packaged
+  acceptance matrices. Identify the smallest implementation slices if WS-4
+  should not land monolithically.
+- [ ] List every product disposition required from Slawomir with K's
+  recommendation and consequences. Stop for review; do not implement WS-4,
+  start WS-5/WS-6, migrate/deploy, or expand the TUI.
+
+**WS-4 design returned; implementation held for corrected dispositions.** See
+`WS4-DESIGN.md` and `review-2026-08-15T09-03-22Z.md`. The independent
+discussion/message/label foundation is accepted in principle, but the review
+requires exact many-discussion Work navigation, eligible-label operator scope,
+separate lasting team participation, decomposable deduplicated New, a product
+ruling on orphan/terminal posting, collision-safe WS-3 labelling, and no
+temporary Work-addressed public API at a slice gate. Present the nine
+recommended dispositions to Slawomir; do not implement before confirmation.
+
+**Eight corrected WS-4 dispositions approved; one product boundary remains.**
+The approved rules are pinned in `FINDING.md`: owning-team member label
+authority; eligible-label `--on` resolution; one labelled authorized Work per
+operation; monotonic team participation separate from obligation lifecycle;
+per-discussion seen plus explicit overlap decomposition; collision-safe WS-3
+provider labelling and originating-discussion responses; fresh schema; and two
+review-gated slices with no certified temporary API. Implementation remains
+held only on the terminal/orphan-discussion ruling from review R58.
+
+### 2026-08-15 WS-4 Slice A implementation released
+
+**The final R58 ruling is confirmed and supersedes the hold above.** Implement
+Slice A only, under all WS-4 rulings now pinned in `FINDING.md` and corrections
+R54–R60 in `review-2026-08-15T09-03-22Z.md`.
+
+- [ ] Before coding, red-team the corrected model against current WS-1–WS-3
+  code and every confirmed ruling. Append the resolved corrections to
+  `WS4-DESIGN.md`; if a contradiction or missing product decision remains,
+  stop and return it rather than choosing silently.
+- [ ] Replace the Work-local storage model with foreign-key-bound discussions,
+  one-discussion messages, many-to-many inert Work labels, monotonic
+  discussion-team participation, and per-member discussion cursors in a fresh
+  schema. No migration or compatibility authority is built.
+- [ ] Preserve atomic Work creation as Work + born discussion + owning label +
+  first message. Add explicit public discussion creation with at least one
+  authorized label and first message; refuse unlabelled creation, duplicate or
+  unauthorized labels, absent unlabel, and removal of the final label.
+- [ ] Add public discussion list/detail, both-direction Work/label navigation,
+  deterministic pagination and one-snapshot tokens. Work detail lists distinct
+  discussion summaries; it never merges them into a false timeline.
+- [ ] Add plain discussion posting and mark-seen. Posting requires at least one
+  labelled open Work; all-terminal discussion remains readable but refuses new
+  messages until open Work is labelled. Carrying operators remain for Slice B.
+- [ ] Implement Work `New` over distinct discussion messages with `own`,
+  truthful per-child counts, `overlap`, and `total`; add the separate
+  participating-discussion attention surface using the same cursor.
+- [ ] Run the WF-06 multiply-labelled containment story plus focused authority,
+  label/post/close, dedup, race, crash-at-every-boundary, restart, retry,
+  snapshot, purity, source, and packaged regressions. Break-sweep every inert
+  label guarantee and overlap computation.
+- [ ] Any temporary Work-addressed operator bridge is internal, explicitly
+  marked for removal in Slice B, and absent from certified public docs and new
+  packaged acceptance. Do not implement `--on`, change obligations/accept, run
+  WF-05/WF-07 under the new grammar, begin Slice B/WS-5/WS-6, deploy, or expand
+  the TUI.
+- [ ] Stop with full evidence for reviewer inspection. Slice B remains held
+  even if Slice A is green.
+
+**Iteration preservation applies throughout WS-4.** This adds no phase and no
+Slice A scope. Preserve the existing cyclic ordinary-open transition graph and
+reviewer-controlled candidate rounds; discussion/projection changes must not
+turn research, implementation, review, or verification into a one-way
+pipeline. Later Slice B and TUI acceptance must include a multi-candidate
+review/rework story.
+
+**Executable iteration pin.** Expand WS2-WF-04 while adapting workflows to the
+discussion model: source and packaged CLI/JSON must execute and audit
+`research -> active -> review -> active -> review` across failed candidate A
+and replacement candidate B. Reports and assessments must leave phase and
+Current unchanged; only explicit handler transitions iterate and only explicit
+terminal close ends the provider gate.
+
+**Confirmed Work-revision boundary; implementation not silently added to
+Slice A.** Assigned Work may be revised only by its Current handler. Other
+members propose changes through a labelled discussion; the handler may append
+a provenance-bound, compare-and-swap revision without changing Work identity,
+dependencies, or Current. New independently accountable scope becomes child
+Work, and terminal Work remains immutable. Pin this rule in the eventual
+revision/contract implementation and workflow battery, but do not expand the
+currently released WS-4 Slice A schema or source boundary without an explicit
+sequencing decision. Cancellation semantics remain open.
+
+**WS-4 Slice A first review: changes requested.** See
+`review-2026-08-15T09-42-45Z.md`. R61 restores the explicit `mark_seen`/pure
+read contract and keeps the Work bridge out of the packaged public API. R62
+fixes future cursors and the lower-mark race. R63 completes bounded,
+total-ordered pagination in both relation directions. R64 makes the new
+overlap decomposition one-snapshot and preserves Work identity. R65 closes
+configured-member/config-generation and label-audit races. R66 executes the
+pinned candidate-A review/rework ordering rather than merely producing the
+same phase subsequence later. Slice B and all later phases remain held until
+correction and re-review.
+
+**WS-4 Slice A correction re-review: R61–R66 satisfied; R67/R68 requested.**
+See `review-2026-08-15T10-13-09Z.md`. Relation-list cursors must use the
+label/participation addition sequence so a newly attached old discussion does
+not fall permanently behind a creation-time cursor; bounded detail preview
+must expose truncation/continuation. An explicit page limit above the maximum
+must refuse rather than being silently clamped through the default-value
+special case. Two additive reviewer regressions reproduce these remaining
+gaps. Slice B remains held.
+
+**WS-4 Slice A accepted.** See
+`review-2026-08-15T10-22-12Z.md`. R61–R68 are satisfied; the focused set is
+33/33 green and `just test-v11` is 359 parallel plus 3 serial passed. Slice B,
+WS-5, WS-6, deployment, and TUI expansion remain held pending their explicit
+release.

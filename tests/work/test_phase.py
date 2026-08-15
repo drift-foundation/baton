@@ -462,7 +462,10 @@ def test_any_configured_participant_may_chip_in_without_work_ownership(world):
 	store, _config = world
 	work = _create(store)
 	assert store.conn.execute(
-		"SELECT 1 FROM work_participants WHERE work=? AND team='push'",
+		"SELECT 1 FROM discussion_participants JOIN discussions "
+		"ON discussions.id = discussion_participants.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=? AND discussion_participants.team='push'",
 		(work,)).fetchone() is None, "the outsider was already participating"
 	available = pj.detail(store, work, viewer_team="push",
 	                      viewer_member="sl")["available_transitions"]
@@ -471,8 +474,11 @@ def test_any_configured_participant_may_chip_in_without_work_ownership(world):
 	tr.post_message(store, work, author_team="push", author="sl",
 	                body="I found related evidence", include="push.bug")
 	assert store.conn.execute(
-		"SELECT 1 FROM messages WHERE work=? AND author_team='push' "
-		"AND author='sl'", (work,)).fetchone(), \
+		"SELECT 1 FROM messages JOIN discussions "
+		"ON discussions.id = messages.discussion "
+		"JOIN work ON work.created_seq = discussions.created_seq "
+		"WHERE work.id=? AND messages.author_team='push' "
+		"AND messages.author='sl'", (work,)).fetchone(), \
 		"a configured participant's contribution was not recorded"
 	# Chipping in is not an ownership transfer.
 	with pytest.raises(bw.WorkError, match="never grant"):

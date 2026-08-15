@@ -101,7 +101,7 @@ def main(argv=None) -> int:
 	cmd.add_argument("work")
 	cmd.add_argument("--on", required=True, help="the blocker work id")
 	cmd = sub.add_parser("mark-seen")
-	cmd.add_argument("work")
+	cmd.add_argument("discussion")
 	cmd.add_argument("--up-to", dest="up_to", type=int, required=True)
 	cmd = sub.add_parser("classify")
 	cmd.add_argument("work")
@@ -158,10 +158,33 @@ def main(argv=None) -> int:
 	for name in ("detail", "children", "links", "breadcrumb", "new"):
 		cmd = sub.add_parser(name)
 		cmd.add_argument("work")
-	cmd = sub.add_parser("discussion")
+	cmd = sub.add_parser("discuss")
+	cmd.add_argument("--body", required=True)
+	cmd.add_argument("--label", action="append", required=True,
+	                 help="a #WORK label; repeatable; at least one open "
+	                 "work of your own team")
+	cmd = sub.add_parser("say")
+	cmd.add_argument("discussion")
+	cmd.add_argument("--body", required=True)
+	cmd = sub.add_parser("label")
+	cmd.add_argument("discussion")
+	cmd.add_argument("--work", required=True)
+	cmd = sub.add_parser("unlabel")
+	cmd.add_argument("discussion")
+	cmd.add_argument("--work", required=True)
+	cmd = sub.add_parser("thread")
+	cmd.add_argument("discussion")
+	cmd.add_argument("--after", type=int, default=0)
+	# R68: the default is a LEGAL value; every supplied limit reaches the
+	# contract unchanged — an over-max request refuses, never clamps.
+	cmd.add_argument("--limit", type=int, default=500)
+	cmd = sub.add_parser("discussions")
+	cmd.add_argument("--after", type=int, default=0)
+	cmd.add_argument("--limit", type=int, default=100)
+	cmd = sub.add_parser("work-discussions")
 	cmd.add_argument("work")
 	cmd.add_argument("--after", type=int, default=0)
-	cmd.add_argument("--limit", type=int, default=1000)
+	cmd.add_argument("--limit", type=int, default=100)
 	cmd = sub.add_parser("events")
 	cmd.add_argument("--after", type=int, default=0)
 	cmd.add_argument("--limit", type=int, default=1000)
@@ -303,10 +326,52 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.add_dependency(store, args.work, args.on,
 		                                  actor_team=team, actor=member)
-	if command == "mark-seen":
+	if command == "discuss":
 		team, member = _need_participant(args)
-		return transitions.mark_seen(store, args.work, team=team,
-		                             member=member, up_to_seq=args.up_to)
+		return transitions.create_discussion(
+			store, actor_team=team, actor=member, body=args.body,
+			labels=args.label)
+	if command == "say":
+		team, member = _need_participant(args)
+		return transitions.post_discussion(
+			store, args.discussion, author_team=team, author=member,
+			body=args.body)
+	if command == "label":
+		team, member = _need_participant(args)
+		return transitions.label_discussion(
+			store, args.discussion, args.work, actor_team=team,
+			actor=member)
+	if command == "unlabel":
+		team, member = _need_participant(args)
+		return transitions.unlabel_discussion(
+			store, args.discussion, args.work, actor_team=team,
+			actor=member)
+	if command == "thread":
+		team, member = _need_participant(args)
+		return projection.thread(store, args.discussion,
+		                         viewer_team=team, viewer_member=member,
+		                         after=args.after, limit=args.limit)
+	if command == "discussions":
+		team, member = _need_participant(args)
+		return projection.discussions_for(store, viewer_team=team,
+		                                  viewer_member=member,
+		                                  after=args.after,
+		                                  limit=args.limit)
+	if command == "work-discussions":
+		team, member = _need_participant(args)
+		return projection.work_discussions(store, args.work,
+		                                   viewer_team=team,
+		                                   viewer_member=member,
+		                                   after=args.after,
+		                                   limit=args.limit)
+	if command == "mark-seen":
+		# R61: the ONE explicit public seen mutation, discussion-scoped.
+		# Reads (thread/detail/list) are byte-pure; nothing named like a
+		# read may write.
+		team, member = _need_participant(args)
+		return transitions.seen_discussion(
+			store, args.discussion, team=team, member=member,
+			up_to_seq=args.up_to)
 	if command == "round":
 		team, member = _need_participant(args)
 		return transitions.create_round(
@@ -377,9 +442,6 @@ def _dispatch(store: Authority, args):
 		return projection.links(store, args.work)
 	if command == "breadcrumb":
 		return projection.breadcrumb(store, args.work)
-	if command == "discussion":
-		return projection.discussion(store, args.work, after=args.after,
-		                             limit=args.limit)
 	if command == "events":
 		return store.events(after=args.after, limit=args.limit)
 	raise WorkError(f"unknown command {command!r}")
