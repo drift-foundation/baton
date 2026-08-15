@@ -65,8 +65,9 @@ story.
      accepted config.
 7. Every workflow ends by checking the ordered audit trail and that no open
    Work lacks exactly one Current endpoint. A terminal Work has neither Current
-   nor Next, and every terminal close records exactly `satisfying` or
-   `non-satisfying` regardless of graph shape.
+   nor Next, and every terminal close records exactly one of `satisfying`,
+   `non-satisfying`, `rejected`, or `cancelled` plus a non-empty rationale,
+   regardless of graph shape.
 8. Run the core workflows from source and from the built artifact. A packaged
    workflow runs with `PYTHONPATH` removed.
 
@@ -134,9 +135,9 @@ are visible dispositions; no silent transfer occurs; terminal state never
 claims a fix that did not happen.
 
 WS-2 extension: when Lang instead accepts and creates provider Work, its later
-close must carry an explicit satisfying or non-satisfying outcome. Both end
-that provider gate, but neither decides the consumer Work. The complete cases
-are specified in the WS-2 battery below.
+close must carry an explicit structured outcome and rationale. Every outcome
+ends that provider gate, but none decides the consumer Work. The complete
+cases are specified in the WS-2 battery and WF-10 below.
 
 ## WF-04 — one consumer, one provider fix
 
@@ -269,6 +270,33 @@ Open dependency: client-supplied operation-id/effectively-once retry is claimed
 by the implementation plan but is not exposed by the current CLI. Retry
 semantics need their own ruling or implementation before that part is added.
 
+## WF-10 — every terminal outcome is explicit and reviewable
+
+Run four sibling fixtures from source and the packaged artifact. Give each
+Work an open dependent, a planned Next, a pending carried `@` obligation, and
+a pending verification assignment before its Current handler closes it.
+
+1. Complete one accepted Work with `satisfying` and evidence explaining how
+   the contract was met.
+2. Attempt/evaluate one accepted Work, then close `non-satisfying` with a
+   rationale explaining what failed to meet the contract.
+3. Triage one report and close `rejected` with a rationale explaining why its
+   premise or intake was declined. Repeat the rejection as `duplicate` and
+   require an explicit `duplicate_of` link to the canonical Work.
+4. Propose cancellation in a labelled discussion. Prove the proposer cannot
+   close around Current; Current then closes `cancelled` with its rationale.
+   In a second fixture, show that an open child prevents cancellation until
+   that child is independently concluded by its own Current.
+
+For all four, assert the same close transaction clears Current and Next,
+withdraws pending obligations and assignments, ends the dependency gate,
+wakes only dependents whose last gate ended, records exact actor/outcome/reason
+and links in the audit and JSON projection, and leaves immutable terminal
+Work. Missing/empty rationale, unknown outcome, outsider close, duplicate
+rejection without `duplicate_of`, and every fault-injected partial close must
+refuse without changing state or consuming a sequence. Race close against
+response/report/pass and prove exactly one compatible terminal history.
+
 ## Cross-surface acceptance matrix
 
 | Workflow | JSON subprocess | Built artifact | TUI checkpoint parity | Race/failure |
@@ -282,6 +310,7 @@ semantics need their own ruling or implementation before that part is added.
 | WF-07 announcement | required | required | per-member New | selector refusal |
 | WF-08 reroute live work | required | required | current handler detail | generation race |
 | WF-09 restart/race | required | required | final invariant only | primary subject |
+| WF-10 terminal outcomes | required | required | outcome/rationale detail | close/response/report/pass |
 
 ## Coverage gaps exposed by the workflows
 
@@ -291,8 +320,8 @@ product behavior needed by these workflows:
 - Discussion is still represented as messages directly attached to Work;
   first-class reusable discussions and many-to-many `#WORK` labels are absent.
 - Public classification and operational-phase transitions are absent.
-- Satisfying versus non-satisfying provider outcomes and staged verification
-  are specified below but are not yet implemented.
+- The four terminal outcomes, required rationales, duplicate linkage, and
+  staged verification are specified below but are not yet fully implemented.
 - Atomic provider deduplication (discussion relation plus explicit dependency
   edge) has no public operation.
 - Dossier/path/artifact/revision binding and restart reconstruction from the
@@ -474,8 +503,8 @@ must cite that workflow and checkpoint.
 | Assessment history | `accepted`, `rejected`, and `inconclusive` never alter raw observation. Reassessment appends a superseding act with actor and rationale; history remains ordered and projections identify the effective assessment. |
 | Counters | Numerator counts reported assignments regardless of observation or assessment. Withdrawals never increment it. Projection separately exposes assigned, reported, pending, and withdrawn counts and remains internally consistent after every act. |
 | Due time | Before/at/after `review_at` boundaries are deterministic. Due is derived and actionable, not a workflow transition. One deadline generation produces at most one notification across reads and restart; extension records a new generation/deadline. Clock-zone rendering cannot alter stored ordering. |
-| Reviewer discretion | `0/N`, partial, and complete feedback all permit—but never cause—an authorized explicit extend, resume, abandon, satisfying-close, or non-satisfying-close decision with rationale. |
-| Terminal outcome | Every Work close names exactly `satisfying` or `non-satisfying`, independent of graph shape, classification, prose, or verification history; omission and unknown values refuse. Either outcome ends every gate served by that Work but never mutates a consumer's Current, classification, or terminal status. Last-gate wake and multiple-gate preservation match WS-1 rules. |
+| Reviewer discretion | `0/N`, partial, and complete feedback all permit—but never cause—an authorized explicit extend, resume, abandon, or close with one of the four outcomes and its rationale. |
+| Terminal outcome | Every Work close names exactly `satisfying`, `non-satisfying`, `rejected`, or `cancelled` and carries a non-empty rationale, independent of graph shape, classification, prose, or verification history; omission, empty rationale, and unknown values refuse. Duplicate rejection additionally names `duplicate_of`. Every outcome ends each gate served by that Work but never mutates a consumer's Current, classification, or terminal status. Last-gate wake and multiple-gate preservation match WS-1 rules. |
 | Immutable close | No reopen command, transition advertisement, authority method, or accepted schema value remains. Closed Work rejects new rounds, assignments, assessment, phase, pass, and dependency mutation except creation of a separate follow-up relationship from new Work. |
 | Follow-up | `follow_up_of` is non-gating and preserves closed history. A new `blocked_by` may target only open Work; an affected consumer gates on separately created open follow-up Work. Cycle and duplicate-edge rules apply to the new edge; unrelated old consumers remain unchanged. |
 | Atomic close | Every close outcome, all pending carried-`@` withdrawals and route visibility, pending verification-assignment withdrawals, dependency results, last-gate wakes, and audit sequence commit together. Answer/dispose/report versus close yields exactly one legal terminal assignment state. Fault injection at each write boundary proves all-or-nothing rollback and dense sequence. |
@@ -485,7 +514,7 @@ must cite that workflow and checkpoint.
 | Configuration generations | Open assignments retain committed endpoint/config snapshots while current accountability resolves through the accepted generation. Removing or reassigning a handler cannot make history ambiguous; authorization follows the live coherent config or refuses visibly. |
 | JSON/projection | Canonical JSON exposes round id/order, candidate, due state, `reported/assigned`, all four counts, per-assignment route/state/raw evidence/effective assessment, reviewer rationale, provider result, withdrawals, and links at one `snapshot_seq`. Reads are pure and deterministic. |
 | TUI parity boundary | The bounded renderer uses the same snapshot and may compact labels only through an explicit mapping. It must distinguish due, pending, reported, and withdrawn and show raw result separately from assessment. Full navigation remains a later TUI gate. |
-| Audit | Dense ordered acts preserve actor, endpoint resolution snapshot, config generation, exact candidate, selected verifier set, evidence references, timestamps, extensions, supersessions, rationale, explicit outcome, and withdrawals. No free text substitutes for a canonical state. |
+| Audit | Dense ordered acts preserve actor, endpoint resolution snapshot, config generation, exact candidate, selected verifier set, evidence references, timestamps, extensions, supersessions, required rationale, explicit outcome, structured duplicate link where applicable, and withdrawals. No free text substitutes for a canonical state. |
 
 ## WS-2 execution and stop gate
 

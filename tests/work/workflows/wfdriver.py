@@ -111,6 +111,18 @@ class Flow:
 		assert isinstance(error, str) and error
 		return error
 
+	def born(self, work_id: str, viewer: str) -> str:
+		"""The Work's first related discussion, via the public paged
+		verb — story shorthand, two real CLI calls underneath."""
+		return self.ok("work-discussions", work_id, "--limit", "1",
+		               viewer=viewer)["rows"][0]["id"]
+
+	def post(self, work_id: str, *argv, viewer: str) -> dict:
+		"""WS-1-era story shorthand: say into the Work's first related
+		discussion. Both calls go through the public CLI surface."""
+		return self.ok("say", self.born(work_id, viewer), *argv,
+		               viewer=viewer)
+
 	def envelope(self, *argv, viewer: str | None = None) -> dict:
 		proc = self.raw(*argv, viewer=viewer)
 		assert proc.returncode == 0, proc.stderr or proc.stdout

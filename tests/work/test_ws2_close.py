@@ -139,7 +139,7 @@ def test_closed_work_refuses_every_mutation_but_keeps_reads_and_seen(world):
 	              disposition="done", outcome="satisfying")
 	baseline = store.events()
 	with pytest.raises(bw.WorkError):
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="late words")
 	with pytest.raises(bw.WorkError):
 		tr.classify(store, work, actor_team="lang", actor="ada",
@@ -162,7 +162,7 @@ def test_closed_work_refuses_every_mutation_but_keeps_reads_and_seen(world):
 	assert pj.detail(store, work, viewer_team="lang",
 	                 viewer_member="ada")["available_transitions"] == []
 	pj.links(store, work)
-	marked = tr.mark_seen(store, work, team="lang", member="grace",
+	marked = fx.mark_all_seen(store, work, team="lang", member="grace",
 	                      up_to_seq=store.last_seq())
 	assert marked["kind"] == "mark_seen", \
 		"closed history cannot be marked read"
@@ -190,7 +190,7 @@ def test_terminal_close_never_leaves_a_classic_obligation_actionable(world):
 	that can append a later response to immutable history."""
 	store = world
 	work = _create(store)
-	request = tr.post_message(
+	request = fx.post(
 		store, work, author_team="lang", author="ada", body="please test",
 		request="push.bug")
 	before = store.events()
@@ -276,9 +276,9 @@ def test_close_withdraws_every_pending_obligation_with_route_visibility(
 	accountability, and every late answer refuses."""
 	store = world
 	work = _create(store)
-	first = tr.post_message(store, work, author_team="lang", author="ada",
+	first = fx.post(store, work, author_team="lang", author="ada",
 	                        body="push: confirm?", request="push.bug")
-	second = tr.post_message(store, work, author_team="lang", author="ada",
+	second = fx.post(store, work, author_team="lang", author="ada",
 	                         body="rev: sanity?", request="lang.rev")
 	assert len(pj.obligations(store, viewer_team="push")) == 1
 	closing = tr.close_work(store, work, actor_team="lang", actor="ada",
@@ -311,7 +311,7 @@ def test_withdrawn_obligation_resolves_to_its_withdraw_event(world):
 	identify this obligation."""
 	store = world
 	work = _create(store)
-	asked = tr.post_message(
+	asked = fx.post(
 		store, work, author_team="lang", author="ada", body="please test",
 		request="push.bug")["seq"]
 	tr.close_work(store, work, actor_team="lang", actor="ada",
@@ -332,7 +332,7 @@ def test_the_answer_versus_close_race_serializes_both_ways(world):
 	store = world
 	# Serialization 1: close wins; the late respond refuses.
 	work = _create(store)
-	asked = tr.post_message(store, work, author_team="lang", author="ada",
+	asked = fx.post(store, work, author_team="lang", author="ada",
 	                        body="push?", request="push.bug")["seq"]
 	other = bw.Authority(store.path)
 	_interleave(store, lambda: tr.close_work(
@@ -351,7 +351,7 @@ def test_the_answer_versus_close_race_serializes_both_ways(world):
 	# Serialization 2: the answer wins; the close keeps it and withdraws
 	# nothing.
 	work2 = _create(store)
-	asked2 = tr.post_message(store, work2, author_team="lang", author="ada",
+	asked2 = fx.post(store, work2, author_team="lang", author="ada",
 	                         body="push?", request="push.bug")["seq"]
 	_interleave(store, lambda: tr.respond_obligation(
 		other, asked2, team="push", member="sl", body="answered first"))

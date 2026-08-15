@@ -169,7 +169,28 @@ class Console:
 				               f"  {entry['endpoint']} {axis}",
 				               width - 1)
 			offset_row = 3 + len(latest["assignments"])
-		messages = projection.discussion(self.store, work_id)
+		# Slice B: the Work has a discussion SET (R54); the bounded view
+		# renders the FIRST related discussion's thread — one
+		# conversation, never several merged into a false timeline.
+		related = projection.work_discussions(
+			self.store, work_id, viewer_team=self.team,
+			viewer_member=self.member, limit=1)["rows"]
+		self.viewed_discussion = related[0]["id"] if related else None
+		messages = []
+		self.viewed_last_seq = None
+		if self.viewed_discussion is not None:
+			snapshot = projection.thread(
+				self.store, self.viewed_discussion,
+				viewer_team=self.team,
+				viewer_member=self.member)
+			messages = snapshot["messages"]
+			# R70/R72: the mark the user can make is bounded by what
+			# was PAINTED — the last message actually returned by this
+			# page, never the discussion-wide last_seq and never a
+			# later global sequence read at keypress time. An empty
+			# page leaves nothing markable.
+			self.viewed_last_seq = messages[-1]["seq"] \
+				if messages else None
 		start = max(0, len(messages) - (height - 2 - offset_row))
 		for offset, message in enumerate(messages[start:]):
 			text = (f"#{message['seq']} {message['author_team']}."
@@ -187,11 +208,17 @@ class Console:
 		if self.mode == "discussion":
 			if key in (27, curses.KEY_LEFT, ord("i")):
 				self.mode = "table"
-			elif key == ord("s"):
-				# The EXPLICIT seen transition — the one writer, by ruling.
-				result = transitions.mark_seen(
-					self.store, self.path[-1], team=self.team,
-					member=self.member, up_to_seq=self.store.last_seq())
+			elif key == ord("s") and \
+					getattr(self, "viewed_discussion", None) is not None \
+					and getattr(self, "viewed_last_seq", None) is not None:
+				# The EXPLICIT seen transition — the one writer, by
+				# ruling — scoped to the DISPLAYED discussion and
+				# bounded by the PAINTED snapshot (R70): a message
+				# committed after paint stays New.
+				result = transitions.seen_discussion(
+					self.store, self.viewed_discussion, team=self.team,
+					member=self.member,
+					up_to_seq=self.viewed_last_seq)
 				self.status = (f"seen up to #{result['cursor']}"
 				               if result["advanced"] else "already seen")
 			return True

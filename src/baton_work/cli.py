@@ -60,16 +60,6 @@ def main(argv=None) -> int:
 	cmd.add_argument("--follow-up-of", dest="follow_up_of",
 	                 help="id of the CLOSED work this follows up (WS-2)")
 
-	cmd = sub.add_parser("post")
-	cmd.add_argument("work")
-	cmd.add_argument("--body", required=True)
-	cmd.add_argument("--include", help="comma list / wildcards; the fan-out")
-	cmd.add_argument("--request", help="ONE endpoint owing a response")
-	cmd.add_argument("--pass-to", dest="pass_to", help="ONE endpoint; moves "
-	                 "the baton")
-	cmd.add_argument("--set-next", dest="set_next",
-	                 help="planned return endpoint; requires --pass-to")
-
 	cmd = sub.add_parser("accept")
 	cmd.add_argument("obligation", type=int)
 	cmd.add_argument("--body", required=True,
@@ -166,6 +156,17 @@ def main(argv=None) -> int:
 	cmd = sub.add_parser("say")
 	cmd.add_argument("discussion")
 	cmd.add_argument("--body", required=True)
+	cmd.add_argument("--include", help="comma list / wildcards; the ONLY "
+	                 "fan-out — attention wiring, changes nothing else")
+	cmd.add_argument("--request", help="ONE endpoint owing a response; "
+	                 "acts on the --on work")
+	cmd.add_argument("--pass-to", dest="pass_to", help="ONE endpoint; "
+	                 "moves the --on work's baton")
+	cmd.add_argument("--set-next", dest="set_next",
+	                 help="planned return endpoint; requires --pass-to")
+	cmd.add_argument("--on", help="the ONE labelled open work an @ or => "
+	                 "acts against; may be omitted only when exactly one "
+	                 "label is eligible")
 	cmd = sub.add_parser("label")
 	cmd.add_argument("discussion")
 	cmd.add_argument("--work", required=True)
@@ -275,13 +276,6 @@ def _dispatch(store: Authority, args):
 			origin=args.origin, author=member, body=args.body,
 			parent=args.parent, classification=args.classification,
 			phase=args.phase, follow_up_of=args.follow_up_of)
-	if command == "post":
-		team, member = _need_participant(args)
-		return transitions.post_message(
-			store, args.work, author_team=team, author=member,
-			body=args.body, include=args.include or (),
-			request=args.request, pass_to=args.pass_to,
-			set_next=args.set_next)
 	if command == "accept":
 		team, member = _need_participant(args)
 		create_only = {"--kind": args.kind, "--title": args.title,
@@ -335,7 +329,9 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.post_discussion(
 			store, args.discussion, author_team=team, author=member,
-			body=args.body)
+			body=args.body, include=args.include or (),
+			request=args.request, pass_to=args.pass_to,
+			set_next=args.set_next, on=args.on)
 	if command == "label":
 		team, member = _need_participant(args)
 		return transitions.label_discussion(

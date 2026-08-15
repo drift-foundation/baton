@@ -121,22 +121,57 @@ def build(path: str) -> dict:
 	tr.add_dependency(store, cast["mdb"], cast["lang42"],
 	                  actor_team="mdb", actor="mo")
 
-	tr.post_message(store, cast["lang42"], author_team="lang", author="ada",
-	                body="tracking the converged reports", include="*.bug")
-	pending = tr.post_message(store, cast["lang42"], author_team="lang",
-	                          author="ada", body="can push retest?",
-	                          request="push.bug")
+	post(store, cast["lang42"], author_team="lang", author="ada",
+	     body="tracking the converged reports", include="*.bug")
+	pending = post(store, cast["lang42"], author_team="lang",
+	               author="ada", body="can push retest?",
+	               request="push.bug")
 	cast["pending_obligation"] = pending["seq"]
-	answered = tr.post_message(store, cast["lang42"], author_team="lang",
-	                           author="ada", body="web: still crashing?",
-	                           request="web.bug")
+	answered = post(store, cast["lang42"], author_team="lang",
+	                author="ada", body="web: still crashing?",
+	                request="web.bug")
 	tr.respond_obligation(store, answered["seq"], team="web", member="wren",
 	                      body="yes, trace attached")
-	tr.post_message(store, cast["step_fix"], author_team="lang", author="ada",
-	                body="take it", pass_to="lang.impl", set_next="lang.rev")
+	post(store, cast["step_fix"], author_team="lang", author="ada",
+	     body="take it", pass_to="lang.impl", set_next="lang.rev")
 
-	tr.mark_seen(store, cast["lang42"], team="lang", member="ada",
-	             up_to_seq=store.last_seq())
+	mark_all_seen(store, cast["lang42"], team="lang", member="ada",
+	              up_to_seq=store.last_seq())
 	cast["last_seq"] = store.last_seq()
 	store.close()
 	return cast
+
+
+def born(store, work_id: str) -> str:
+	"""The discussion born with the Work (shares its created_seq) — a
+	TEST-ONLY derivation; the public surface addresses discussions
+	directly."""
+	return store.conn.execute(
+		"SELECT discussions.id AS id FROM discussions JOIN work "
+		"ON work.created_seq = discussions.created_seq WHERE work.id=?",
+		(work_id,)).fetchone()["id"]
+
+
+def post(store, work_id: str, **kw):
+	"""TEST-ONLY adapter for WS-1-era call sites: post into the Work's
+	born discussion, selecting the Work explicitly for carrying
+	operators. Public callers use `post_discussion` directly."""
+	from baton_work import transitions as _tr
+	if kw.get("request") or kw.get("pass_to"):
+		kw.setdefault("on", work_id)
+	return _tr.post_discussion(store, born(store, work_id), **kw)
+
+
+def mark_all_seen(store, work_id: str, *, team: str, member: str,
+                  up_to_seq: int):
+	"""TEST-ONLY: advance the member's cursor on every discussion
+	currently labelled to the Work (the old bridge reading), via the
+	public per-discussion transition."""
+	from baton_work import transitions as _tr
+	result = None
+	for row in store.conn.execute(
+			"SELECT DISTINCT discussion FROM discussion_labels "
+			"WHERE work=?", (work_id,)):
+		result = _tr.seen_discussion(store, row["discussion"], team=team,
+		                             member=member, up_to_seq=up_to_seq)
+	return result

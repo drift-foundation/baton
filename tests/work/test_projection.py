@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.join(
 import baton_work as bw                                       # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
+import fixtures as fx  # noqa: E402
 import fixtures                                               # noqa: E402
 
 MEMBERS = [("lang", "ada"), ("lang", "grace"), ("push", "sl"),
@@ -169,10 +170,15 @@ def test_detail_declares_available_transitions_per_viewer(world):
 
 def test_discussion_pages_on_the_sequence(world):
 	store, cast, _ = world
-	full = pj.discussion(store, cast["lang42"])
+	thread_id = fx.born(store, cast["lang42"])
+	view = pj.thread(store, thread_id, viewer_team="lang",
+	                 viewer_member="ada")
+	full = view["messages"]
 	assert [msg["seq"] for msg in full] == sorted(msg["seq"] for msg in full)
 	assert len(full) >= 3
-	tail = pj.discussion(store, cast["lang42"], after=full[0]["seq"])
+	tail = pj.thread(store, thread_id, viewer_team="lang",
+	                 viewer_member="ada",
+	                 after=full[0]["seq"])["messages"]
 	assert [msg["seq"] for msg in tail] == [msg["seq"] for msg in full[1:]]
 
 
@@ -189,7 +195,8 @@ def test_the_whole_projection_surface_writes_no_byte(world):
 			pj.breadcrumb(store, work)
 			pj.children(store, work, viewer_team=team, viewer_member=member)
 			pj.links(store, work)
-			pj.discussion(store, work)
+			pj.thread(store, fx.born(store, work), viewer_team=team,
+			          viewer_member=member)
 			pj.new_count(store, work, viewer_team=team, viewer_member=member)
 			pj.detail(store, work, viewer_team=team, viewer_member=member)
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")

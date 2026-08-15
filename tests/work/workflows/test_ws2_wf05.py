@@ -79,12 +79,12 @@ def test_ws2_wf05_non_satisfying_close(flow):
 		"the provider close addressed a single return recipient"
 
 	# 5. Each consumer independently chooses its ending.
-	flow.ok("post", consumers["push"], "--body",
+	flow.post(consumers["push"], "--body",
 	        "workaround: pin the previous parser", viewer="push.sl")
 	flow.ok("close", consumers["push"], "--disposition",
 	        "workaround shipped; upstream declined", "--outcome",
 	        "non-satisfying", viewer="push.sl")
-	flow.ok("post", consumers["web"], "--body",
+	flow.post(consumers["web"], "--body",
 	        "gathering the minimized repro lang asked for",
 	        viewer="web.wren")
 	flow.ok("close", build7, "--disposition", "image rebuilt",

@@ -51,7 +51,7 @@ def test_wf09_restart_and_races(flow):
 	                "--title", "checkout fails", "--origin",
 	                "external-report", "--body", "500 at checkout",
 	                viewer="push.sl")["work_id"]
-	asked = flow.ok("post", push1, "--body", "lang: yours?",
+	asked = flow.post(push1, "--body", "lang: yours?",
 	                "--request", "lang.bug", viewer="push.sl")
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
@@ -77,7 +77,9 @@ def test_wf09_restart_and_races(flow):
 	assert len(terminal) == 1, "the losing action still left rows"
 
 	# RACE 2: a pass and a terminal close compete for LANG-42.
-	procs = [flow.spawn("post", lang42, "--body", "handing to build",
+	lang_thread = flow.born(lang42, "lang.ada")
+	procs = [flow.spawn("say", lang_thread, "--body", "handing to build",
+	                    "--on", lang42,
 	                    "--pass-to", "lang.impl", viewer="lang.ada"),
 	         flow.spawn("close", lang42, "--disposition",
 	                    "fixed and verified", "--outcome", "satisfying", viewer="lang.ada")]

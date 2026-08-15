@@ -1819,3 +1819,109 @@ follow-up Work, never reopen or post-terminal revision.
 This ruling does not yet settle cancellation authority or cancellation's
 structured terminal disposition. Those remain separate product decisions; no
 implementation may infer them from revision authority.
+
+## 2026-08-15 — cancellation is Current-owned accelerated completion
+
+**Confirmed by Slawomir; supersedes the binary-only terminal-outcome rule for
+cancellation and resolves the open cancellation boundary immediately above.**
+Cancellation is not a separate lifecycle form or transition. It uses the same
+atomic terminal close mechanism as ordinary completion, with `cancelled` as a
+third machine-readable outcome alongside `satisfying` and
+`non-satisfying`. A cancelled close requires a non-empty rationale; clients
+never infer cancellation by parsing prose attached to another outcome.
+
+Discussion may propose, refine, or negotiate cancellation, just as it may
+propose a Work revision. Only the resolved Current handler may commit the
+close. Requesters, parent handlers, reviewers, and other participants cannot
+terminate assigned Work by editing it or acting around Current; an authority
+change must first transfer Current through the ordinary audited mechanism.
+
+All three outcomes share the existing close transaction: clear Current and
+Next, withdraw pending obligations and verification assignments, finish the
+Work's dependency gate, propagate readiness, and make the Work immutable.
+Cancellation does not cascade. Open children retain their own Current and must
+be concluded separately before their parent may close. Dependents observe the
+exact `cancelled` outcome, resume when their gate condition permits, and make
+their own independent decision. Renewed effort is separate follow-up Work,
+never reopening the cancelled record.
+
+## 2026-08-15 — cancellation pinned for a future slice (relayed during Slice B)
+
+**Pinned by Slawomir, relayed by the reviewer mid-Slice-B; the active slice is
+unchanged.** Cancellation is an atomic close with terminal outcome `cancelled`
+and a required rationale, committed only by the Work's Current handler. There
+is no cascade and no child bypass. Implementation remains HELD until after the
+Slice B review.
+
+## 2026-08-15 — every terminal close has a structured outcome and rationale
+
+**Confirmed by Slawomir; supersedes the three-outcome vocabulary and the
+exceptional rationale rule in both cancellation sections immediately above.**
+There remains one atomic close mechanism, but its terminal outcome is exactly
+one of `satisfying`, `non-satisfying`, `rejected`, or `cancelled`. Every close,
+including a satisfying one, requires a non-empty rationale. Terminal decisions
+are durable review evidence and may not rely on readers reconstructing the
+reason from discussion history.
+
+The outcomes answer different questions:
+
+- `satisfying`: accepted Work concluded and met its contract;
+- `non-satisfying`: accepted Work was attempted or evaluated but did not meet
+  its contract;
+- `rejected`: the Current handler declined the report or premise during
+  intake/triage—for example invalid, out of scope, not reproducible, or not
+  this team's responsibility; and
+- `cancelled`: valid Work was accepted or underway but deliberately stopped
+  because it was no longer wanted.
+
+Reasons may carry additional structured requirements without multiplying the
+top-level outcome vocabulary. In particular, a duplicate is initially a
+`rejected` close whose structured reason names the canonical Work through an
+explicit `duplicate_of` relation; free text alone is insufficient. All four
+outcomes otherwise share the authority, child, dependency, withdrawal,
+immutability, and follow-up semantics of the ordinary close transaction.
+
+## 2026-08-15 — Work revisions store complete content; structure comes from external templates
+
+**Confirmed by Slawomir; resolves the remaining Work-revision content
+boundary without authorizing its implementation during Slice B.** Baton v11
+does not bake separate description, requirements, or acceptance fields into
+the core Work schema. A revision promotes one durable discussion message as a
+complete replacement statement of the Work contract. It may not be an
+incremental prose patch such as “change B to D”: the effective revision must
+be understandable directly through JSON without replaying earlier messages.
+
+The append-only revision record names the Work, new revision number, expected
+prior revision, promoted message, Current actor, rationale, and audit metadata.
+Only Current may commit it under the previously confirmed compare-and-swap and
+authority rules. The promoted message's rendered bytes are the durable
+contract content; dossier files remain supporting plans, scripts, evidence,
+and proofs rather than a mutable substitute for the audited revision.
+
+Reusable structure belongs to an external template layer. A template is a
+versioned file or bundle with placeholders to fill in—for example a bug
+report, implementation plan, release gate, research question, or the finding
+folder conventions used by this repository today. Templates may standardize
+sections, validation, rendering, or machine-readable fields without changing
+the Baton protocol. Future revisions may record immutable template identity,
+version, and digest as provenance, but the fully rendered content remains
+self-contained in Baton so historical Work never depends on a template still
+being installed or unchanged.
+
+## 2026-08-15 — close-outcome vocabulary refined for a future slice
+
+**Refined by Slawomir, relayed by the reviewer mid-Slice-B; the active slice
+is unchanged.** The terminal close outcomes become `satisfying`,
+`non-satisfying`, `rejected`, and `cancelled`; all require a rationale. A
+duplicate rejection additionally requires `duplicate_of` naming the
+surviving Work. A future WF-10 covers all four outcomes. Implementation
+remains HELD until after the Slice B review.
+
+## 2026-08-15 — Work-revision mechanism pinned for a future slice
+
+**Pinned by Slawomir, relayed by the reviewer mid-Slice-B; the active slice
+is unchanged.** A Work revision PROMOTES one complete durable discussion
+message into the append-only revision history; there are no fixed contract
+fields. Structure comes from external versioned templates; the rendered
+content stays self-contained. Implementation remains HELD until after the
+Slice B review.

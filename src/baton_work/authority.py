@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -213,6 +213,7 @@ CREATE TABLE obligations (
 	observation  TEXT,
 	evidence     TEXT,
 	accepted_into TEXT REFERENCES work(id),
+	discussion   TEXT REFERENCES discussions(id),
 	status       TEXT NOT NULL DEFAULT 'pending',
 	resolved_seq INTEGER
 ) STRICT;

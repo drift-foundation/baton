@@ -165,7 +165,7 @@ def test_only_the_assignment_route_handler_reports(world):
 		             phase="waiting", wait=assignment)
 	# ...and classic verbs refuse it.
 	with pytest.raises(bw.WorkError, match="completes by respond"):
-		tr.report(store, tr.post_message(
+		tr.report(store, fx.post(
 			store, work, author_team="lang", author="ada", body="q",
 			request="web.verify")["seq"], team="web", member="wren",
 			observation="passed", evidence="e")

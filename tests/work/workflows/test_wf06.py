@@ -56,7 +56,7 @@ def test_wf06_recursive_release(flow):
 
 	# 2. One child runs WF-01 locally; the other waits on an external
 	# provider work (WF-04 pattern).
-	flow.ok("post", local, "--body", "build it", "--pass-to", "lang.impl",
+	flow.post(local, "--body", "build it", "--pass-to", "lang.impl",
 	        "--set-next", "lang.rev", viewer="lang.ada")
 	external = flow.ok("create", "--team", "mdb", "--kind", "build",
 	                   "--title", "CI image rebuild", "--origin",
@@ -78,7 +78,7 @@ def test_wf06_recursive_release(flow):
 		"the refusal does not name the open children"
 
 	# 4. Readiness is the CONJUNCTION: the local child alone is not enough.
-	returned = flow.ok("post", local, "--body", "done", "--pass-to",
+	returned = flow.post(local, "--body", "done", "--pass-to",
 	                   "lang.rev", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	flow.ok("close", local, "--disposition", "fixed and verified", "--outcome", "satisfying",

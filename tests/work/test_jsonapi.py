@@ -108,7 +108,7 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 	               "--body", "first", viewer="lang.ada")["result"]
 	work, thread_id = created["work_id"], created["discussion"]
 	for index in range(40):
-		_run(capsys, path, "post", work, "--body", f"burst {index}",
+		_run(capsys, path, "say", thread_id, "--body", f"burst {index}",
 		     viewer="lang.ada")
 
 	full = _run(capsys, path, "thread", thread_id,
@@ -139,11 +139,12 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 	               "--body", "b", viewer="lang.ada")["result"]
 	assert created["work_id"].endswith(f"-W{created['seq']}")
 
-	passed = _run(capsys, path, "post", created["work_id"], "--body", "go",
+	passed = _run(capsys, path, "say", created["discussion"], "--body",
+	              "go", "--on", created["work_id"],
 	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
-	returned = _run(capsys, path, "post", created["work_id"], "--body",
+	returned = _run(capsys, path, "say", created["discussion"], "--body",
 	                "done", "--pass-to", "lang.rev",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return", \
@@ -162,6 +163,6 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 
 def test_a_mutation_without_a_viewer_is_refused(world, capsys):
 	path, cast = world
-	error = _run(capsys, path, "post", cast["lang42"], "--body", "anon",
+	error = _run(capsys, path, "say", "some-discussion", "--body", "anon",
 	             expect_ok=False)
 	assert "needs --participant" in error["error"]

@@ -149,7 +149,7 @@ def test_actionable_projection_is_one_database_snapshot(world, monkeypatch):
 	store = world
 	store.conn.execute("PRAGMA journal_mode=WAL")
 	work = _provider(store)
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="review this", request="lang.rev")
 	tr.create_round(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
@@ -574,7 +574,7 @@ def test_wait_sees_a_competing_message_commit(world):
 		_time.sleep(0.15)
 		other = bw.Authority(store.path)
 		other.clock = lambda: T0
-		tr.post_message(other, work, author_team="lang", author="ada",
+		fx.post(other, work, author_team="lang", author="ada",
 		                body="lang: self-check?", request="lang.rev")
 		other.close()
 
@@ -779,7 +779,7 @@ def test_obligations_envelope_token_names_its_snapshot(world, monkeypatch):
 	store = world
 	store.conn.execute("PRAGMA journal_mode=WAL")
 	work = _provider(store)
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="review this", request="lang.rev")
 	seq_before = store.last_seq()
 	original = pj._endpoint_struct

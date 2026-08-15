@@ -29,7 +29,7 @@ def test_wf08_reassignment_of_live_work(flow):
 	                "--title", "checkout fails", "--origin",
 	                "external-report", "--body", "500 at checkout",
 	                viewer="push.sl")["work_id"]
-	asked = flow.ok("post", push1, "--body", "lang: yours?",
+	asked = flow.post(push1, "--body", "lang: yours?",
 	                "--request", "lang.bug", viewer="push.sl")
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
@@ -73,7 +73,7 @@ def test_wf08_reassignment_of_live_work(flow):
 	# and nothing rewrites the earlier operations.
 	flow.ok("respond", str(asked["seq"]), "--body",
 	        "taking over; tracked", viewer="lang.grace")
-	passed = flow.ok("post", lang42, "--body", "researching",
+	passed = flow.post(lang42, "--body", "researching",
 	                 "--pass-to", "lang.impl", viewer="lang.grace")
 	events = flow.ok("events", viewer="lang.grace")
 	pass_event = next(event for event in events

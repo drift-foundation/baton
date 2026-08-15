@@ -39,6 +39,7 @@ sys.path.insert(0, os.path.join(
 import baton_work as bw                                       # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
+import fixtures as fx                                         # noqa: E402
 
 WORKERS = 16
 OPS_PER_WORKER = 150
@@ -142,7 +143,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 				elif choice < 0.45:
 					mine = my_open_participating()
 					if mine:
-						tr.post_message(
+						fx.post(
 							store, rng.choice(mine), author_team=team,
 							author=member, body=f"soak {worker}/{op_index}",
 							include=rng.choice(["", "*.bug", "*.*"]) or ())
@@ -150,7 +151,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 					mine = my_open_participating()
 					if mine:
 						other = rng.choice(TEAMS)[0]
-						tr.post_message(
+						fx.post(
 							store, rng.choice(mine), author_team=team,
 							author=member, body="asking",
 							request=f"{other}.bug")
@@ -170,7 +171,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 				elif choice < 0.90:
 					mine = my_open_participating()
 					if mine:
-						tr.mark_seen(store, rng.choice(mine), team=team,
+						fx.mark_all_seen(store, rng.choice(mine), team=team,
 						             member=member,
 						             up_to_seq=store.last_seq())
 				elif choice < 0.97:

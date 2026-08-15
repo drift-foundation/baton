@@ -52,7 +52,7 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 		               "--title", f"{name} report", "--origin",
 		               "external-report", "--body", "local report",
 		               viewer=f"{name}.{member}")["work_id"]
-		asked = flow.ok("post", work, "--body", "drift: yours?",
+		asked = flow.post(work, "--body", "drift: yours?",
 		                "--request", "drift.bug",
 		                viewer=f"{name}.{member}")
 		flow.ok("phase", work, "--to", "waiting", "--wait-on-obligation",

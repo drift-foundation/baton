@@ -28,7 +28,7 @@ def test_wf02_request_without_transfer(flow):
 	push1, thread_id = born["work_id"], born["discussion"]
 
 	# 2. `+lang.bug` raises Lang attention — and NOTHING else.
-	flow.ok("post", push1, "--body", "lang folks may find this relevant",
+	flow.post(push1, "--body", "lang folks may find this relevant",
 	        "--include", "lang.bug", viewer="push.sl")
 	assert flow.ok("new", push1, viewer="lang.ada")["total"] > 0, \
 		"+ raised no attention for the included team"
@@ -40,7 +40,7 @@ def test_wf02_request_without_transfer(flow):
 		"+ moved Current"
 
 	# 3. `@lang.bug` creates EXACTLY ONE obligation; ownership still push.
-	requested = flow.ok("post", push1, "--body", "is this yours?",
+	requested = flow.post(push1, "--body", "is this yours?",
 	                    "--request", "lang.bug", viewer="push.sl")
 	assert requested["kind"] == "request"
 	actionable = flow.ok("obligations", viewer="lang.ada")
@@ -54,7 +54,7 @@ def test_wf02_request_without_transfer(flow):
 
 	# 4. A non-handler Lang member reads and contributes; the contribution
 	# does not silently discharge or take over the obligation.
-	flow.ok("post", push1, "--body", "seen similar in the parser",
+	flow.post(push1, "--body", "seen similar in the parser",
 	        viewer="lang.grace")
 	still = flow.ok("obligations", viewer="lang.grace")
 	assert len(still) == 1 and still[0]["status"] == "pending", \

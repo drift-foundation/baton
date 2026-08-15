@@ -30,18 +30,18 @@ def test_wf03_provider_rejects_honestly(flow):
 	               "--origin", "external-report",
 	               "--body", "crashes with the attached DOM",
 	               viewer="web.wren")["work_id"]
-	requested = flow.ok("post", web1, "--body", "looks like a lang defect?",
+	requested = flow.post(web1, "--body", "looks like a lang defect?",
 	                    "--request", "lang.bug", viewer="web.wren")
 	assert flow.ok("detail", web1,
 	               viewer="web.wren")["current"]["endpoint"] == "web.bug"
 
 	# 2. Lang requests more evidence — a contribution, not a resolution;
 	# the obligation stays actionable the whole time.
-	flow.ok("post", web1, "--body", "need the minimized repro, please",
+	flow.post(web1, "--body", "need the minimized repro, please",
 	        viewer="lang.ada")
 	pending = flow.ok("obligations", viewer="lang.ada")
 	assert len(pending) == 1 and pending[0]["status"] == "pending"
-	flow.ok("post", web1, "--body", "minimized repro attached",
+	flow.post(web1, "--body", "minimized repro attached",
 	        viewer="web.wren")
 
 	# 3. Lang explicitly REJECTS with an honest reason.

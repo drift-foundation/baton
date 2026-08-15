@@ -43,18 +43,21 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	path, _db = fx.build_instance(str(tmp_path))
 
 	# 1. web creates WEB-1 with its first message, atomically.
-	web1 = _run(path, "create", "--team", "web", "--kind", "bug",
+	born = _run(path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "render crash", "--origin", "external-report",
 	            "--body", "tab dies on load",
-	            viewer="web.wren")["result"]["work_id"]
+	            viewer="web.wren")["result"]
+	web1, thread = born["work_id"], born["discussion"]
 
 	# 2. include +lang.rsrch — attention, no obligation.
-	_run(path, "post", web1, "--body", "lang may want to see this",
+	_run(path, "say", thread, "--body", "lang may want to see this",
 	     "--include", "lang.rsrch", viewer="web.wren")
 	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
 
 	# 3. request @lang.rsrch — one obligation; WEB-1's Current unchanged.
-	requested = _run(path, "post", web1, "--body", "is this your parser bug?",
+	# The single labelled work is the eligible target; --on may be omitted.
+	requested = _run(path, "say", thread, "--body",
+	                 "is this your parser bug?",
 	                 "--request", "lang.rsrch", viewer="web.wren")["result"]
 	pending = _run(path, "obligations", viewer="lang.ada")["result"]
 	assert [entry["seq"] for entry in pending] == [requested["seq"]]
@@ -63,10 +66,12 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 		"web.bug"
 
 	# 4. lang creates LANG-42, relates WEB-1 blocked_by LANG-42, responds.
-	lang42 = _run(path, "create", "--team", "lang", "--kind", "rsrch",
-	              "--title", "parser recovery", "--origin", "external-report",
-	              "--body", "deduplicating consumer reports",
-	              viewer="lang.ada")["result"]["work_id"]
+	lang_born = _run(path, "create", "--team", "lang", "--kind", "rsrch",
+	                 "--title", "parser recovery", "--origin",
+	                 "external-report",
+	                 "--body", "deduplicating consumer reports",
+	                 viewer="lang.ada")["result"]
+	lang42, lang_thread = lang_born["work_id"], lang_born["discussion"]
 	_run(path, "block", web1, "--on", lang42, viewer="web.wren")
 	assert _run(path, "detail", web1,
 	            viewer="web.wren")["result"]["ready"] is False
@@ -76,14 +81,16 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
 
 	# 5. pass with planned Next, then the consuming return.
-	passed = _run(path, "post", lang42, "--body", "confirmed, implement",
+	passed = _run(path, "say", lang_thread, "--body",
+	              "confirmed, implement", "--on", lang42,
 	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
 	assert detail["current"]["endpoint"] == "lang.impl"
 	assert detail["next"]["endpoint"] == "lang.rev"
-	returned = _run(path, "post", lang42, "--body", "implementation complete",
+	returned = _run(path, "say", lang_thread, "--body",
+	                "implementation complete",
 	                "--pass-to", "lang.rev", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
@@ -122,9 +129,10 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	correctly refused to have it."""
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
-	web1 = _run(path, "create", "--team", "web", "--kind", "bug",
+	born = _run(path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "crash", "--origin", "external-report",
-	            "--body", "b", viewer="web.wren")["result"]["work_id"]
+	            "--body", "b", viewer="web.wren")["result"]
+	web1, thread = born["work_id"], born["discussion"]
 	child = _run(path, "create", "--team", "web", "--kind", "bug",
 	             "--title", "narrow the repro", "--origin", "decomposition",
 	             "--body", "b", "--parent", web1,
@@ -134,7 +142,7 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	             viewer="web.wren", expect_ok=False)
 	assert child in error["error"], "the refusal does not name the open child"
 
-	requested = _run(path, "post", web1, "--body", "your bug?",
+	requested = _run(path, "say", thread, "--body", "your bug?",
 	                 "--request", "lang.bug", viewer="web.wren")["result"]
 	error = _run(path, "respond", str(requested["seq"]), "--body", "not mine",
 	             viewer="web.wren", expect_ok=False)

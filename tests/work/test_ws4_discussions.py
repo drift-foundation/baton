@@ -286,7 +286,7 @@ def test_cursors_are_per_member_and_the_bridge_covers_all_labels(world):
 	assert pj.new_count(store, second["work_id"], viewer_team="lang",
 	                    viewer_member="grace")["total"] > 0
 	# The Work-addressed bridge advances every labelled discussion...
-	tr.mark_seen(store, second["work_id"], team="lang", member="grace",
+	fx.mark_all_seen(store, second["work_id"], team="lang", member="grace",
 	             up_to_seq=store.last_seq())
 	assert pj.new_count(store, second["work_id"], viewer_team="lang",
 	                    viewer_member="grace")["total"] == 0
@@ -460,7 +460,7 @@ def test_shared_sequence_ties_order_by_identity(tmp_path):
 			sorted([w1, w2]), "a same-sequence label tie has no total order"
 		# push and web join at the SAME expansion sequence.
 		born = _create(store)
-		tr.post_message(store, born["work_id"], author_team="lang",
+		fx.post(store, born["work_id"], author_team="lang",
 		                author="ada", body="both join at one seq",
 		                include="*.bug")
 		view = pj.thread(store, born["discussion"], viewer_team="lang",

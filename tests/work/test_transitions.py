@@ -210,7 +210,7 @@ def test_closed_work_is_terminal_and_follow_up_is_the_only_new_reference(
 	assert row["outcome"] == "satisfying"
 	assert (row["current_team"], row["current_kind"]) == (None, None)
 	# mark_seen mutates the VIEWER's cursor, not the record: allowed.
-	tr.mark_seen(store, work, team="lang", member="slaw",
+	fx.mark_all_seen(store, work, team="lang", member="slaw",
 	             up_to_seq=store.last_seq())
 	follow = tr.create_work(store, team="lang", kind="bug",
 	                        title="follow-up", origin="external-report",
@@ -261,7 +261,7 @@ def test_wf09_race1_obligation_terminal_actions_exclude_in_the_lock(tmp_path):
 	work = tr.create_work(racer, team="push", kind="bug", title="w",
 	                      origin="external-report", author="sl",
 	                      body="b")["work_id"]
-	asked = tr.post_message(racer, work, author_team="push", author="sl",
+	asked = fx.post(racer, work, author_team="push", author="sl",
 	                        body="yours?", request="lang.bug")["seq"]
 	_interleave(racer, lambda: tr.dispose_obligation(
 		other, asked, team="lang", member="ada",
@@ -292,7 +292,7 @@ def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
 		other, work, actor_team="lang", actor="ada",
 		disposition="fixed and verified", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="closed"):
-		tr.post_message(racer, work, author_team="lang", author="ada",
+		fx.post(racer, work, author_team="lang", author="ada",
 		                body="handing over", pass_to="lang.rev")
 	row = racer.conn.execute(
 		"SELECT status, current_team, current_kind FROM work WHERE id=?",
@@ -311,7 +311,7 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 	work = tr.create_work(racer, team="lang", kind="bug", title="w",
 	                      origin="external-report", author="ada",
 	                      body="b")["work_id"]
-	_interleave(racer, lambda: tr.post_message(
+	_interleave(racer, lambda: fx.post(
 		other, work, author_team="lang", author="ada",
 		body="quick handoff", pass_to="lang.rev"))
 	tr.close_work(racer, work, actor_team="lang", actor="ada",

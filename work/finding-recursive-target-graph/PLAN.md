@@ -886,7 +886,8 @@ dependencies, or Current. New independently accountable scope becomes child
 Work, and terminal Work remains immutable. Pin this rule in the eventual
 revision/contract implementation and workflow battery, but do not expand the
 currently released WS-4 Slice A schema or source boundary without an explicit
-sequencing decision. Cancellation semantics remain open.
+sequencing decision. Cancellation was held at this point and is resolved by
+the later accelerated-completion ruling below.
 
 **WS-4 Slice A first review: changes requested.** See
 `review-2026-08-15T09-42-45Z.md`. R61 restores the explicit `mark_seen`/pure
@@ -913,3 +914,96 @@ gaps. Slice B remains held.
 33/33 green and `just test-v11` is 359 parallel plus 3 serial passed. Slice B,
 WS-5, WS-6, deployment, and TUI expansion remain held pending their explicit
 release.
+
+### 2026-08-15 WS-4 Slice B implementation released
+
+**Authorized by Slawomir after the accepted Slice A commit.** No further
+product disposition blocks Slice B. Revalidate the scope below against the
+committed Slice A and the chronological rulings in `FINDING.md`; in
+particular, the confirmed live-context boundary supersedes
+`WS4-DESIGN.md`'s earlier recommendation that orphan/all-terminal discussions
+remain postable.
+
+- [ ] Replace the internal Work-addressed carrying bridge with public
+  discussion-addressed operators. `@`, `=>`, and planned Next affect exactly
+  one currently labelled, eligible open Work. Omitted `--on` resolves only
+  when exactly one label is eligible for that operation; zero or several
+  refuse, and explicit selection outside the discussion's labels refuses.
+- [ ] Keep `+` as the only fan-out operator. Expand it against live endpoints,
+  record the exact expansion, add each reached team to monotonic discussion
+  participation once, and change no obligation, Current, Next, readiness,
+  phase, edge, or Work authority.
+- [ ] Bind every `@` obligation to its originating discussion while preserving
+  the complete Work-scoped pending/responded/disposed/accepted/withdrawn
+  lifecycle. Responses return to that discussion; participation persists
+  independently after the obligation terminates.
+- [ ] Reconcile WS-3 acceptance atomically: preserve grant, accepted state,
+  explicit dependency edge and `via_obligation`, readiness/wake, rationale,
+  and audit order; also ensure the originating discussion carries the provider
+  Work label, recording collision-safely whether it was `added` or `existing`.
+- [ ] Enforce the final live-context rule in-lock. Plain posting and carrying
+  activity require at least one labelled open Work; a carrying operator's
+  selected Work must itself be eligible and open. All-terminal discussions
+  remain durable/readable/searchable but refuse new messages until new open
+  Work is labelled. The final label cannot be removed.
+- [ ] Execute WF-05 convergence and WF-07 announcement through source and
+  packaged CLI/JSON under the new grammar. Preserve WF-06 dedup and the exact
+  WS2-WF-04 candidate/review/rework cycle. Cover ambiguity/refusal,
+  label-versus-edge inertness, participation persistence, acceptance
+  collision, both-order races, crash at every write boundary, restart,
+  current retry boundary, pagination/snapshot purity, and audit order.
+- [ ] Remove every internal Work-addressed discussion/operator bridge before
+  presenting the slice. No compatibility alias or certified temporary API may
+  remain.
+- [ ] Stop with complete evidence for reviewer inspection. Do not implement
+  Work contract revisions or cancellation, begin WS-5/WS-6, deploy, or expand
+  the TUI. Append-only Work revisions and cancellation remain separate later
+  implementation slices.
+
+**Cancellation product ruling resolved; implementation still held outside
+Slice B.** Cancellation uses the ordinary atomic close operation with the
+structured outcome `cancelled`. The later terminal-vocabulary ruling expands
+the exact close outcomes to `satisfying`, `non-satisfying`, `rejected`, and
+`cancelled`, each with a required non-empty rationale; duplicate rejection
+also requires an explicit `duplicate_of` relation. Only Current commits a
+close after any discussion; it does not cascade, bypass open children, or
+reopen later. Dependents receive the exact terminal outcome and make their own
+decision. Sequence this implementation and workflow battery after the active
+WS-4 Slice B review gate. WF-10 in `WORKFLOW-TESTS.md` is mandatory and runs
+all four outcomes through source and packaged CLI/JSON, including authority,
+required rationale, duplicate linkage, atomic cleanup and fan-out, child
+refusal, races, faults, restart, projection, audit, and immutability.
+
+**Work-revision content ruling resolved; implementation still held outside
+Slice B.** Do not add fixed description/requirements/acceptance fields. A
+revision append promotes one durable discussion message containing the complete
+replacement contract statement and records Work, revision number, expected
+prior revision, message provenance, Current actor, rationale, and audit facts.
+The effective revision and ordered history must be unambiguous in JSON.
+Reusable structure is an external, versioned template file or bundle with
+placeholders; rendered content remains stored self-contained in Baton, while
+future template id/version/digest metadata is provenance only. Sequence the
+revision implementation and its source/packaged workflow battery after the
+active Slice B review gate.
+
+**WS-4 Slice B first review: changes requested.** See
+`review-2026-08-15T11-01-39Z.md`. R69 removes stale Work-detail advertisements
+for the eliminated Work-addressed post/seen bridges. R70 makes the TUI mark
+exactly the displayed discussion snapshot rather than a later global
+sequence. R71 refuses every wildcard or exact `+` selector that lands nowhere,
+including when the match disappears in a config-generation race. Three
+additive reviewer regressions reproduce the gaps. Correct only these findings
+and stop for re-review; later slices remain held.
+
+**WS-4 Slice B correction re-review: R69–R71 satisfied; R72 requested.** See
+`review-2026-08-15T11-12-51Z.md`. The bounded console renders only the returned
+thread page but currently marks the discussion-wide `last_seq`, so messages
+outside that page can be hidden without reaching the renderer. Mark only the
+last message actually returned by the painted page; keep TUI pagination and
+navigation out of this correction. One additive reviewer regression reproduces
+the false clear. Correct R72 and stop for re-review; later slices remain held.
+
+**WS-4 Slice B accepted.** See `review-2026-08-15T11-16-51Z.md`. R69–R72 are
+satisfied; the focused set is 46/46 green and `just test-v11` is 384 parallel
+plus 3 serial passed. Work revisions, terminal outcomes, WS-5/WS-6,
+deployment, and TUI expansion remain separately gated.

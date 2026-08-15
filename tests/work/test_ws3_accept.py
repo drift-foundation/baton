@@ -47,7 +47,7 @@ def _report(store, team="push", member="sl"):
 	work = tr.create_work(store, team=team, kind="bug", title=f"{team} report",
 	                      origin="external-report", author=member,
 	                      body="local report")["work_id"]
-	asked = tr.post_message(store, work, author_team=team, author=member,
+	asked = fx.post(store, work, author_team=team, author=member,
 	                        body="drift: yours?", request="drift.bug")["seq"]
 	return work, asked
 
@@ -280,7 +280,7 @@ def test_create_with_parent_needs_the_separate_parent_gate(world):
 	# Current handler — allowed; grace is neither — already covered. The
 	# separate-gate case: make ada the obligation handler but NOT the
 	# parent handler by passing the parent's Current away.
-	tr.post_message(store, epic, author_team="drift", author="ada",
+	fx.post(store, epic, author_team="drift", author="ada",
 	                body="park with grace's build", pass_to="drift.bug")
 	# drift.bug routes main -> handlers [ada]; both gates still ada, so
 	# acceptance under a parent succeeds and records BOTH authorities.

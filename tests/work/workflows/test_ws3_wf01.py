@@ -47,7 +47,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	               "external-report", "--body", "500 at checkout",
 	               viewer="push.sl")
 	push1, thread_id = born["work_id"], born["discussion"]
-	asked = flow.ok("post", push1, "--body", "drift: yours?",
+	asked = flow.post(push1, "--body", "drift: yours?",
 	                "--request", "drift.bug", viewer="push.sl")
 	flow.ok("phase", push1, "--to", "waiting", "--wait-on-obligation",
 	        str(asked["seq"]), viewer="push.sl")

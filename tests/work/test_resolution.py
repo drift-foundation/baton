@@ -65,13 +65,13 @@ def test_every_endpoint_establishing_event_carries_a_full_snapshot(world):
 	work = tr.create_work(store, team="lang", kind="rsrch", title="epic",
 	                      origin="external-report", author="ada",
 	                      body="report")["work_id"]
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="fyi", include="*.bug")
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="confirm?", request="web.bug")
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="go", pass_to="lang.impl", set_next="lang.rev")
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="done", pass_to="lang.rev")
 
 	establishing = [event for event in store.events()
@@ -106,7 +106,7 @@ def test_reassignment_changes_the_projection_not_the_history(world):
 	work = tr.create_work(store, team="lang", kind="rsrch", title="epic",
 	                      origin="external-report", author="ada",
 	                      body="report")["work_id"]
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="confirm?", request="web.bug")
 	before_events = store.events()
 
@@ -159,7 +159,7 @@ def test_include_expansion_uses_the_generation_at_commit(world, monkeypatch):
 		return expanded
 
 	monkeypatch.setattr(tr, "_expand_include", accept_between_expand_and_write)
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="all web endpoints", include="web.*")
 	event = store.events()[-1]
 	assert [(entry["endpoint"], entry["generation"])

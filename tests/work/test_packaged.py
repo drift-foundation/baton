@@ -64,23 +64,26 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
 	_run(archive, path, "init")
 
-	web1 = _run(archive, path, "create", "--team", "web", "--kind", "bug",
+	born = _run(archive, path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "render crash", "--origin", "external-report",
-	            "--body", "tab dies", viewer="web.wren")["result"]["work_id"]
-	requested = _run(archive, path, "post", web1, "--body", "yours?",
+	            "--body", "tab dies", viewer="web.wren")["result"]
+	web1, thread = born["work_id"], born["discussion"]
+	requested = _run(archive, path, "say", thread, "--body", "yours?",
 	                 "--request", "lang.rsrch", viewer="web.wren")["result"]
-	lang42 = _run(archive, path, "create", "--team", "lang",
-	              "--kind", "rsrch", "--title", "parser recovery",
-	              "--origin", "external-report", "--body", "dedup",
-	              viewer="lang.ada")["result"]["work_id"]
+	lang_born = _run(archive, path, "create", "--team", "lang",
+	                 "--kind", "rsrch", "--title", "parser recovery",
+	                 "--origin", "external-report", "--body", "dedup",
+	                 viewer="lang.ada")["result"]
+	lang42, lang_thread = lang_born["work_id"], lang_born["discussion"]
 	_run(archive, path, "block", web1, "--on", lang42, viewer="web.wren")
 	_run(archive, path, "respond", str(requested["seq"]),
 	     "--body", "ours, tracked", viewer="lang.ada")
-	passed = _run(archive, path, "post", lang42, "--body", "implement",
+	passed = _run(archive, path, "say", lang_thread, "--body", "implement",
+	              "--on", lang42,
 	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
-	returned = _run(archive, path, "post", lang42, "--body", "done",
+	returned = _run(archive, path, "say", lang_thread, "--body", "done",
 	                "--pass-to", "lang.rev", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	_run(archive, path, "close", lang42, "--disposition", "verified", "--outcome", "satisfying",

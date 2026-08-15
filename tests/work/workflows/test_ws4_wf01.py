@@ -55,7 +55,7 @@ def test_ws4_wf01_paging_and_ties(flow):
 
 	# 2. One `+*.*` joins every other team at ONE sequence; the
 	# participant list still reads back in (added_seq, team) order.
-	flow.ok("post", a, "--body", "all hands", "--include", "*.*",
+	flow.post(a, "--body", "all hands", "--include", "*.*",
 	        viewer="lang.ada")
 	participants = flow.ok("thread", d0, viewer="lang.ada")["participants"]
 	assert participants == ["lang", "mdb", "ops", "push", "web"], \
@@ -139,5 +139,13 @@ def test_ws4_wf01_paging_and_ties(flow):
 	assert [row["id"] for row in found["rows"]] == [tie], \
 		"new participation in old context fell behind the page cursor"
 	assert found["next_after"] is None
+
+	# 8. R69: Work detail advertises no removed Work-addressed operation;
+	# the surviving public posting/seen surface names a discussion.
+	advertised = flow.ok("detail", a,
+	                     viewer="lang.ada")["available_transitions"]
+	assert "post_message" not in advertised and \
+		"mark_seen" not in advertised, \
+		"detail advertises a removed Work-addressed bridge"
 
 	assert_dense_audit(flow, "lang.ada")

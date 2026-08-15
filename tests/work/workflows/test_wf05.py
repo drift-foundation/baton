@@ -1,12 +1,12 @@
 """WF-05 — three consumers converge on one provider Work (WORKFLOW-TESTS.md).
 
-The central cross-team dependency-web acceptance: N:1 convergence with exact
-fan-in, the second-blocker conjunction, level-triggered closure, and the
-noise boundary — default tables stay local while deliberate link traversal
-opens the graph.
-
-Omitted (WORKFLOW-COVERAGE.md, WS-4): the label-versus-edge proof — no label
-surface exists yet, so "labels never gate" cannot be stated positively.
+The central cross-team dependency-web acceptance under the Slice B grammar:
+each consumer asks `@lang.bug` IN its own discussion, Lang ACCEPTS each into
+ONE provider record — every originating discussion atomically gains the
+`#LANG-42` label and the rationale answer — N:1 convergence with exact
+fan-in, the second-blocker conjunction, level-triggered closure, the noise
+boundary, and the label-versus-edge proof FINALLY landed: removing a label
+changes no readiness, DEP, or closure fanout; the gate is the edge alone.
 """
 
 from __future__ import annotations
@@ -24,34 +24,54 @@ def test_wf05_three_consumers_converge(flow):
 
 	# 1. Three independent local reports, each with its own discussion and
 	# an exact request through @lang.bug.
-	consumers = {}
+	consumers, threads = {}, {}
 	for team, member, title in (
 			("push", "sl", "checkout fails"),
 			("web", "wren", "render crash"),
 			("mdb", "mo", "driver hang")):
-		work = flow.ok("create", "--team", team, "--kind", "bug",
+		born = flow.ok("create", "--team", team, "--kind", "bug",
 		               "--title", title, "--origin", "external-report",
 		               "--body", f"local report: {title}",
-		               viewer=f"{team}.{member}")["work_id"]
-		flow.ok("post", work, "--body", "suspect the lang parser",
+		               viewer=f"{team}.{member}")
+		work, thread = born["work_id"], born["discussion"]
+		flow.ok("say", thread, "--body", "suspect the lang parser",
 		        viewer=f"{team}.{member}")
-		flow.ok("post", work, "--body", "lang: is this yours?",
+		# The one labelled work is the eligible target — @ rides the
+		# discussion with the selection resolved and recorded.
+		flow.ok("say", thread, "--body", "lang: is this yours?",
 		        "--request", "lang.bug", viewer=f"{team}.{member}")
-		consumers[team] = work
+		consumers[team], threads[team] = work, thread
 
-	# 2. Lang relates all three to ONE provider record and each consumer
-	# records an explicit dependency edge.
+	# 2. Lang relates all three to ONE provider record: each acceptance
+	# atomically commits the edge with provenance, the rationale answered
+	# into the ORIGINATING discussion, and that discussion's #LANG-42
+	# label (audited added|existing).
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery drops state",
 	                 "--origin", "external-report",
 	                 "--body", "three converged reports",
 	                 viewer="lang.ada")["work_id"]
 	for obligation in flow.ok("obligations", viewer="lang.ada"):
-		flow.ok("respond", str(obligation["seq"]),
-		        "--body", f"ours; tracked as {lang42}", viewer="lang.ada")
-	flow.ok("block", consumers["push"], "--on", lang42, viewer="push.sl")
-	flow.ok("block", consumers["web"], "--on", lang42, viewer="web.wren")
-	flow.ok("block", consumers["mdb"], "--on", lang42, viewer="mdb.mo")
+		accepted = flow.ok("accept", str(obligation["seq"]),
+		                   "--body", f"ours; tracked as {lang42}",
+		                   "--into", lang42, viewer="lang.ada")
+		assert accepted["edge"]["via_obligation"] == obligation["seq"]
+	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
+		view = flow.ok("thread", threads[team],
+		               viewer=f"{team}.{member}")
+		assert {entry["work"] for entry in view["labels"]} == 			{consumers[team], lang42}, 			"the acceptance did not label the originating discussion"
+		assert view["messages"][-1]["body"].startswith("ours; tracked"), 			"the rationale did not return to the originating discussion"
+		assert "lang" in view["participants"], 			"the acceptance left no durable participation"
+	assert flow.ok("detail", lang42, viewer="lang.ada")["dep"] == 3
+
+	# The label-versus-edge proof (pinned since the finding): Lang
+	# removes its OWN label from Push's discussion — readiness, DEP, and
+	# the eventual closure fanout do not move; the gate is the edge.
+	flow.ok("unlabel", threads["push"], "--work", lang42,
+	        viewer="lang.ada")
+	assert flow.ok("detail", consumers["push"],
+	               viewer="push.sl")["ready"] is False, 		"removing an inert label changed readiness"
+	assert flow.ok("detail", lang42, viewer="lang.ada")["dep"] == 3, 		"removing an inert label changed DEP"
 
 	# 3. Provider view shows fan-in THREE; default tables stay noise-scoped;
 	# deliberate traversal opens the graph (not a security boundary).

@@ -92,7 +92,7 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	assert summary["observations"]["passed"] == 1
 
 	# 7. Push independently verifies its own Work and closes it.
-	flow.ok("post", push1, "--body", "confirmed on production",
+	flow.post(push1, "--body", "confirmed on production",
 	        viewer="push.sl")
 	flow.ok("close", push1, "--disposition", "verified fixed upstream",
 	        "--outcome", "satisfying", viewer="push.sl")

@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.join(
 import baton_work as bw                                       # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
+from baton_work.tui.app import Console                         # noqa: E402
 import fixtures as fx                                         # noqa: E402
 
 
@@ -122,3 +123,80 @@ def test_explicit_over_max_thread_limit_refuses_instead_of_clamping(discussion):
 	with pytest.raises(bw.WorkError, match="page limit"):
 		pj.thread(store, discussion_id, viewer_team="lang",
 		          viewer_member="ada", limit=pj.MAX_PAGE + 500)
+
+
+def test_work_detail_does_not_advertise_removed_work_bridges(discussion):
+	"""R60/R61: an agent must not be offered operations no public API accepts."""
+	store, discussion_id = discussion
+	work_id = pj.thread(store, discussion_id, viewer_team="lang",
+	                    viewer_member="ada")["labels"][0]["work"]
+	available = pj.detail(store, work_id, viewer_team="lang",
+	                      viewer_member="ada")["available_transitions"]
+	assert "post_message" not in available, \
+		"Work detail advertises the removed Work-addressed posting bridge"
+	assert "mark_seen" not in available, \
+		"Work detail advertises the removed Work-addressed seen bridge"
+
+
+def test_console_marks_only_the_discussion_snapshot_it_rendered(discussion):
+	"""A message committed after paint must remain New after the user's mark."""
+	store, discussion_id = discussion
+	work_id = pj.thread(store, discussion_id, viewer_team="lang",
+	                    viewer_member="grace")["labels"][0]["work"]
+
+	class Screen:
+		def addnstr(self, *_args):
+			pass
+
+	console = Console(store, "lang", "grace")
+	console.path = [work_id]
+	console.mode = "discussion"
+	console._render_discussion(Screen(), 24, 100)
+	tr.post_discussion(store, discussion_id, author_team="lang", author="ada",
+	                   body="committed after the displayed snapshot")
+	console.handle(ord("s"))
+	assert pj.thread(store, discussion_id, viewer_team="lang",
+	                 viewer_member="grace")["new"] == 1, \
+		"mark-seen hid a message the console never displayed"
+
+
+def test_console_does_not_mark_past_the_returned_thread_page(
+		discussion, monkeypatch):
+	"""A discussion-wide last_seq is not the end of the returned page."""
+	store, discussion_id = discussion
+	work_id = pj.thread(store, discussion_id, viewer_team="lang",
+	                    viewer_member="grace")["labels"][0]["work"]
+	tr.post_discussion(store, discussion_id, author_team="lang", author="ada",
+	                   body="outside the bounded page")
+	original = pj.thread
+
+	def first_message_page(*args, **kwargs):
+		page = original(*args, **kwargs)
+		page["messages"] = page["messages"][:1]
+		page["next_after"] = page["messages"][-1]["seq"]
+		return page
+
+	class Screen:
+		def addnstr(self, *_args):
+			pass
+
+	monkeypatch.setattr(pj, "thread", first_message_page)
+	console = Console(store, "lang", "grace")
+	console.path = [work_id]
+	console.mode = "discussion"
+	console._render_discussion(Screen(), 24, 100)
+	console.handle(ord("s"))
+	monkeypatch.setattr(pj, "thread", original)
+	assert original(store, discussion_id, viewer_team="lang",
+	                viewer_member="grace")["new"] == 1, \
+		"mark-seen hid a message outside the returned thread page"
+
+
+def test_every_include_selector_that_lands_nowhere_refuses(discussion):
+	"""The selector rule applies to wildcard-shaped selectors too."""
+	store, discussion_id = discussion
+	before = store.events()
+	with pytest.raises(bw.WorkError, match="matches no live endpoint"):
+		tr.post_discussion(store, discussion_id, author_team="lang",
+		                   author="ada", body="nobody", include="ghost.*")
+	assert store.events() == before

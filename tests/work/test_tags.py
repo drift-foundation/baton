@@ -48,7 +48,7 @@ def _row(store, work_id):
 # -- include (+) -------------------------------------------------------------
 
 def test_include_expands_wildcards_and_records_the_expansion(store, work):
-	result = tr.post_message(store, work, author_team="lang", author="ada",
+	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="fyi", include="*.bug")
 	assert result["included"] == ["lang.bug", "push.bug", "web.bug"]
 	event = store.events(after=result["seq"] - 1, limit=1)[0]
@@ -71,7 +71,7 @@ def test_include_expands_wildcards_and_records_the_expansion(store, work):
 
 
 def test_include_of_everything_reaches_every_live_endpoint_once(store, work):
-	result = tr.post_message(store, work, author_team="lang", author="ada",
+	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="shutdown notice", include="*.*")
 	assert sorted(result["included"]) == result["included"]
 	assert len(result["included"]) == len(set(result["included"]))
@@ -80,7 +80,7 @@ def test_include_of_everything_reaches_every_live_endpoint_once(store, work):
 
 def test_a_selector_that_lands_nowhere_is_refused_at_tag_time(store, work):
 	with pytest.raises(bw.WorkError, match="matches no live endpoint"):
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="void", include="ghost.bug")
 
 
@@ -88,7 +88,7 @@ def test_a_selector_that_lands_nowhere_is_refused_at_tag_time(store, work):
 
 def test_request_creates_one_obligation_and_current_stays(store, work):
 	before = _row(store, work)
-	result = tr.post_message(store, work, author_team="lang", author="ada",
+	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="please confirm the driver hang",
 	                         request="push.bug")
 	after = _row(store, work)
@@ -105,14 +105,14 @@ def test_request_creates_one_obligation_and_current_stays(store, work):
                                     "push.bug,web.bug"])
 def test_request_refuses_every_fan_out_shape(store, work, target):
 	with pytest.raises(bw.WorkError, match="exactly one endpoint"):
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="x", request=target)
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == 0
 
 
 def test_respond_discharges_the_obligation_with_the_answer(store, work):
-	seq = tr.post_message(store, work, author_team="lang", author="ada",
+	seq = fx.post(store, work, author_team="lang", author="ada",
 	                      body="confirm?", request="push.bug")["seq"]
 	with pytest.raises(bw.WorkError, match="cannot discharge"):
 		tr.respond_obligation(store, seq, team="web", member="wren",
@@ -128,7 +128,7 @@ def test_respond_discharges_the_obligation_with_the_answer(store, work):
 
 
 def test_dispose_is_the_no_action_answer_with_words(store, work):
-	seq = tr.post_message(store, work, author_team="lang", author="ada",
+	seq = fx.post(store, work, author_team="lang", author="ada",
 	                      body="fyi?", request="push.bug")["seq"]
 	tr.dispose_obligation(store, seq, team="push", member="sl",
 	                      disposition="no action: known limitation")
@@ -139,14 +139,14 @@ def test_dispose_is_the_no_action_answer_with_words(store, work):
 
 def test_request_and_pass_in_one_message_is_ambiguous_and_refused(store, work):
 	with pytest.raises(bw.WorkError, match="one operation"):
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="x", request="push.bug", pass_to="lang.impl")
 
 
 # -- pass (=>) and planned Next ----------------------------------------------
 
 def test_pass_moves_the_one_current(store, work):
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="confirmed defect", pass_to="lang.impl")
 	row = _row(store, work)
 	assert (row["current_team"], row["current_kind"]) == ("lang", "impl")
@@ -156,13 +156,13 @@ def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
 	"""The canonical flow with the planned return: impl gets the baton with
 	Next = lang.rev; the pass BACK to lang.rev is audited as `return` and
 	clears Next."""
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="implement this", pass_to="lang.impl",
 	                set_next="lang.rev")
 	row = _row(store, work)
 	assert (row["next_team"], row["next_kind"]) == ("lang", "rev")
 
-	result = tr.post_message(store, work, author_team="lang", author="ada",
+	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="implementation complete",
 	                         pass_to="lang.rev")
 	assert result["kind"] == "return", \
@@ -176,10 +176,10 @@ def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
 
 
 def test_a_pass_elsewhere_leaves_the_planned_next_visibly_set(store, work):
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="implement", pass_to="lang.impl",
 	                set_next="lang.rev")
-	result = tr.post_message(store, work, author_team="lang", author="ada",
+	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="actually needs research first",
 	                         pass_to="lang.rsrch")
 	assert result["kind"] == "pass", "a detour is not a return"
@@ -190,13 +190,13 @@ def test_a_pass_elsewhere_leaves_the_planned_next_visibly_set(store, work):
 
 def test_next_requires_a_pass_and_pass_refuses_fan_out(store, work):
 	with pytest.raises(bw.WorkError, match="set by a pass"):
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="x", set_next="lang.rev")
 	with pytest.raises(bw.WorkError, match="exactly one endpoint"):
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="x", pass_to="*.*")
 	with pytest.raises(bw.WorkError, match="already at"):
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="x", pass_to="lang.rsrch")
 
 
@@ -207,7 +207,7 @@ def test_any_configured_member_may_contribute_and_becomes_participant(
 	"""R1 matrix (superseding the old barrier): open browsing carries the
 	right to chip in — a configured member posts without invitation, and
 	their team becomes a durable participant in the SAME transaction."""
-	result = tr.post_message(store, work, author_team="push", author="sl",
+	result = fx.post(store, work, author_team="push", author="sl",
 	                         body="drive-by evidence, gladly given")
 	assert result["kind"] == "post_message"
 	assert store.conn.execute(
@@ -222,16 +222,16 @@ def test_any_configured_member_may_contribute_and_becomes_participant(
 # -- mark_seen ---------------------------------------------------------------
 
 def test_mark_seen_is_the_only_writer_and_is_monotonic(store, work):
-	seq = tr.post_message(store, work, author_team="lang", author="ada",
+	seq = fx.post(store, work, author_team="lang", author="ada",
 	                      body="one")["seq"]
-	result = tr.mark_seen(store, work, team="lang", member="ada",
+	result = fx.mark_all_seen(store, work, team="lang", member="ada",
 	                      up_to_seq=seq)
 	assert result["advanced"] is True and result["cursor"] == seq
-	backwards = tr.mark_seen(store, work, team="lang", member="ada",
+	backwards = fx.mark_all_seen(store, work, team="lang", member="ada",
 	                         up_to_seq=seq - 1)
 	assert backwards["advanced"] is False and backwards["cursor"] == seq, \
 		"the cursor moved backwards"
-	again = tr.mark_seen(store, work, team="lang", member="ada",
+	again = fx.mark_all_seen(store, work, team="lang", member="ada",
 	                     up_to_seq=seq)
 	assert again["advanced"] is False, "an idempotent mark advanced"
 	cursors = store.conn.execute(
@@ -244,10 +244,10 @@ def test_mark_seen_is_the_only_writer_and_is_monotonic(store, work):
 
 
 def test_seen_state_is_per_member_never_shared(store, work):
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="invite web", include="web.bug")
 	seq = store.last_seq()
-	tr.mark_seen(store, work, team="lang", member="ada", up_to_seq=seq)
+	fx.mark_all_seen(store, work, team="lang", member="ada", up_to_seq=seq)
 	web_cursor = store.conn.execute(
 		"SELECT seen.seq AS seq FROM seen JOIN discussions "
 		"ON discussions.id = seen.discussion "

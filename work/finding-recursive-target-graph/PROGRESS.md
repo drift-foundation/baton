@@ -1220,3 +1220,133 @@ review-2026-08-15T10-22-12Z.md): R61–R68 satisfied, no Slice A finding
 remains. Slice B (carrying operators/--on/acceptance labelling), WS-5,
 WS-6, deployment, and TUI expansion remain HELD pending explicit
 release.
+
+## Step 28 — WS-4 Slice B: public operators, binding, acceptance labelling (2026-08-15)
+
+Slice B implemented per the released plan section; schema v9.
+
+Public discussion-addressed operators: `say DISCUSSION` now carries
+`--include`, `--request`, `--pass-to`, `--set-next`, and `--on`. An
+`@`/`=>`/planned-Next acts on exactly ONE currently labelled, eligible
+open Work (D2/R55/D9): explicit `--on` must name a current label and
+that Work must be open and authorized; omitted `--on` resolves only at
+eligible-cardinality one (foreign/unauthorized labels create no false
+ambiguity — eligibility runs the operation's existing handler gate),
+recorded and echoed (`on_resolved`). The selection is RE-DERIVED inside
+the committing transaction: a mid-flight unlabel, close, or newly
+eligible second label refuses whole (WF-09-style race guard). Closed
+Work refuses carrying activity with its own message; plain commentary
+needs only live context (in-lock, unchanged).
+
+`+` stays the only fan-out: expanded in-lock against live endpoints,
+the exact expansion recorded, each reached team joining monotonic
+participation once — provably no obligation, Current, Next, readiness,
+phase, edge, or Work-row change.
+
+Obligation binding (R59): `obligations.discussion` (schema v9, FK)
+records where every `@` was raised; `respond` answers into that
+originating discussion; participation persists after the obligation
+terminates; label removal never cancels; `obligations` and `detail`
+projections name the discussion.
+
+WS-3 acceptance reconciled (D5): grant, terminal accepted state, edge +
+`via_obligation`, readiness, R47 wake, and audit order preserved; the
+rationale now returns to the ORIGINATING discussion, which atomically
+gains the `#PROVIDER-WORK` label — collision-safe, audited
+`provider_label: added|existing`, never a duplicate row. The gate stays
+the edge: dropping the label changes no readiness/DEP (regression).
+
+Bridge removal: `transitions.post_message`, Work-addressed `mark_seen`,
+`projection.discussion`, and the CLI `post` verb are GONE — no alias;
+the boundary test proves `post` no longer parses. The bounded TUI now
+reads `work_discussions` + `thread` and marks the displayed discussion
+seen via the public transition. Test-only adapters (born-discussion
+lookup, story shorthand over work-discussions+say) live in test
+fixtures/wfdriver and compose public calls only.
+
+Stories: WF-05 rewritten to the pinned convergence — each consumer asks
+`@lang.bug` IN its discussion, Lang accepts each into ONE record, every
+originating discussion gains `#LANG-42` with the rationale answered
+there, DEP=3, and the label-versus-edge proof lands (unlabel: ready/DEP
+unchanged). WF-07 announcement, WF-06 dedup, WS2-WF-04 cycle preserved
+under the new grammar; every workflow and CLI test migrated off the
+bridge surface (wf01–09, ws2, ws3, scenario, packaged, jsonapi,
+boundary, soak, TUI/parity).
+
+New focused suite `test_ws4_operators.py` (18): omitted-`--on`
+resolution + echo, two-eligible refusal + explicit selection, exact
+refusal matrix (outside-labels, operator-less `--on`, wildcard, double
+operation, next-without-pass, zero-eligible), closed-context carrying
+vs commentary, include inertness byte-compare + dedup, respond return
+path + persistence + projection naming, acceptance added/existing +
+create form + gate-is-the-edge, both-order races (mid-flight unlabel /
+close / second-eligible; accept-vs-consumer-unlabel; reverse orders
+incl. close-withdraws-pending), whole-or-nothing fault injection
+through carrying post and labelling acceptance, restart + retry
+boundary.
+
+Break-sweeps (defect in, red, restored): S1 pre-lock-trusted selection
+(all three mid-flight races bite), S2 gate-free eligibility (false
+ambiguity + unauthorized resolution bite), S3 unbound obligation, S4
+non-collision-safe label insert, S5 skipped acceptance label.
+
+Future rulings pinned mid-slice and journaled in FINDING.md (all HELD):
+cancellation as atomic close `cancelled` by Current; the four-outcome
+close vocabulary + `duplicate_of` + WF-10 spec (reviewer updated
+WORKFLOW-TESTS.md); revision as promotion of one durable discussion
+message via external versioned templates.
+
+Gate: 380 passed (377 parallel + 3 serial); every workflow green in
+source and packaged modes; `just test-v11` green; `git diff --check`
+clean. STOPPED at the review gate. Work revisions, cancellation,
+WS-5/WS-6, deployment, and TUI expansion held.
+
+## Step 29 — Slice B correction round R69–R71 (2026-08-15)
+
+R69: Work detail no longer advertises `post_message`/`mark_seen` — no
+Work-addressed alias survives the bridge removal; the open contribution
+right is proven by the act, not an advertisement. The one WS-1-era test
+pinning the old advertisement is rewritten with the supersession noted.
+Story coverage: WS4-WF-01 asserts the absence through source and
+packaged JSON.
+
+R70: the bounded console retains the PAINTED thread snapshot's
+last-message sequence and marks exactly that — never a later global
+`last_seq()` read at keypress time; a message committed after paint
+stays New. Companion regression proves painting stays byte-pure and
+the bounded mark clears exactly the painted snapshot.
+
+R71: the landing rule applies to EVERY individual `+` selector,
+wildcard shapes included, both optimistically and under the committing
+generation — `ghost.*`, `*.ghost`, and mixed lists refuse whole with
+message/event/sequence untouched; a config race that empties a
+previously matching wildcard refuses in-lock. Story coverage: WF-07's
+announcement refusal matrix gains all three shapes in both modes.
+
+Evidence: all three reviewer regressions pass (7/7 in
+test_ws4_review.py); focused operator suite grown to 21; break-sweeps
+for each guard (readvertised bridges, keypress-time global mark,
+exact-only landing rule) each fail red and were restored. Gate: 386
+passed (383 parallel + 3 serial); every workflow green in source and
+packaged modes; `just test-v11` green; diff check clean. STOPPED for
+re-review. Later slices held.
+
+## Step 30 — Slice B correction R72 (2026-08-15)
+
+R72: the console's markable bound is the last message ACTUALLY RETURNED
+by the painted thread page — `messages[-1].seq`, not the
+discussion-wide `last_seq` — and an empty page leaves nothing markable.
+No TUI paging/navigation added; the public projection unchanged.
+Reviewer regressions 8/8; break-sweep (reintroduce the page-wide bound)
+red then restored. Gate: 387 passed (384 parallel + 3 serial); all
+workflows green both modes; test-v11 green; diff check clean. STOPPED
+for re-review. Later slices held.
+
+## Step 31 — WS-4 Slice B ACCEPTED; WS-4 complete (2026-08-15)
+
+Reviewer accepted Slice B (message e8db33f06e0666854944ea281bc62381,
+review-2026-08-15T11-16-51Z.md): R69–R72 satisfied, no Slice B finding
+remains. Independent verification: focused set 46/46; test-v11 384
+parallel + 3 serial; diff check clean. REMAIN STOPPED: Work revisions,
+terminal outcomes, WS-5/WS-6, deployment, and TUI expansion are
+separate later gates, not released.

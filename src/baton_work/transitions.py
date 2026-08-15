@@ -223,21 +223,6 @@ def _handler_gate(conn, work_id: str, actor_team: str, actor: str,
 	return resolution
 
 
-def _born(conn, work_id: str) -> str:
-	"""The discussion born with a Work — found derivably (it shares the
-	Work's created_seq), NOT a stored primary relation (WS-4 R54). The
-	internal Slice-A bridge routes Work-addressed message writes here;
-	Slice B removes the bridge."""
-	row = conn.execute(
-		"SELECT discussions.id AS id FROM discussions JOIN work "
-		"ON work.created_seq = discussions.created_seq WHERE work.id=?",
-		(work_id,)).fetchone()
-	if row is None:
-		raise WorkError(f"{work_id} has no born discussion; the "
-		                f"authority is inconsistent")
-	return row["id"]
-
-
 def _live_context(conn, discussion_id: str) -> bool:
 	"""The pinned live-context boundary: at least one currently labelled
 	OPEN Work."""
@@ -1157,7 +1142,12 @@ def _expand_selectors(conn, selectors) -> list[tuple[str, str]]:
 		rows = conn.execute(
 			"SELECT team, handle FROM kinds WHERE " + " AND ".join(clauses) +
 			" ORDER BY team, handle", params).fetchall()
-		if not rows and team_part != "*" and kind_part != "*":
+		# R71: EVERY individual selector must land somewhere, wildcard
+		# shapes included — a `ghost.*` publishing to nobody would be a
+		# silent no-op include, especially misleading when a config race
+		# removes the last match between the optimistic expansion and
+		# the committing generation.
+		if not rows:
 			raise WorkError(f"include selector {selector!r} matches no live "
 			                f"endpoint; a tag that lands nowhere is refused "
 			                f"at tag time, not discovered later")
@@ -1193,162 +1183,6 @@ def _one_endpoint(store: Authority, endpoint: str, what: str) -> tuple[str, str]
 	return team, kind
 
 
-def post_message(store: Authority, work_id: str, *, author_team: str,
-                 author: str, body: str, include=(),
-                 request: str | None = None,
-                 pass_to: str | None = None,
-                 set_next: str | None = None) -> dict:
-	"""One discussion message, carrying this operation's tags.
-
-	`include` is the only fan-out; `request` (`@`) creates one obligation and
-	the Work stays with its Current; `pass_to` (`=>`) moves the one Current —
-	and when it names the stored planned Next, it CONSUMES it and audits as
-	`return`. Setting `set_next` requires `pass_to`: a planned return is a
-	property of a pass, not a free-floating edit."""
-	_member(store, author_team, author)
-	row = _work(store, work_id)
-	if row["status"] != OPEN:
-		raise WorkError(f"{work_id} is {row['status']}; closed work is "
-		                f"immutable history — new evidence belongs in "
-		                f"follow-up work")
-	if not isinstance(body, str) or not body:
-		raise WorkError("a message body must be non-empty")
-	if request is not None and pass_to is not None:
-		raise WorkError("one message carries one operation: @ requests a "
-		                "response, => passes the baton; asking both at once "
-		                "makes the obligation ambiguous")
-	if set_next is not None and pass_to is None:
-		raise WorkError("a planned Next is set by a pass; there is nothing "
-		                "to return from otherwise")
-
-	if include:
-		# Optimistic early refusal only; the recorded expansion is redone
-		# inside the write transaction (C4 review R1).
-		_expand_include(store, include)
-	requested = _one_endpoint(store, request, "@ request") if request else None
-	passed = _one_endpoint(store, pass_to, "=> pass") if pass_to else None
-	planned = _one_endpoint(store, set_next, "planned Next") if set_next else None
-
-	event_kind = "post_message"
-	consumes_next = False
-	if passed is not None:
-		if (row["current_team"], row["current_kind"]) == passed:
-			raise WorkError(f"{work_id} is already at "
-			                f"{passed[0]}.{passed[1]}; a pass moves the baton")
-		if (row["next_team"], row["next_kind"]) == passed:
-			event_kind, consumes_next = "return", True
-		else:
-			# The audit trail distinguishes all three: a message, a pass,
-			# and the consuming return. An agent reading events must never
-			# have to re-derive which was which from the payload.
-			event_kind = "pass"
-	elif requested is not None:
-		event_kind = "request"
-
-	def mutate(conn, seq):
-		# WF-09 race 2: everything decided from the pre-lock row is
-		# revalidated HERE. A message must not land on a work that closed
-		# underneath it, and a pass whose already-at / consumes-Next
-		# decision no longer matches the live row lost a race — it refuses
-		# rather than committing a mislabeled or resurrecting transition.
-		live = conn.execute(
-			"SELECT status, current_team, current_kind, next_team, "
-			"next_kind FROM work WHERE id=?", (work_id,)).fetchone()
-		if live["status"] != OPEN:
-			raise WorkError(f"{work_id} is {live['status']}; discussion on "
-			                f"closed work is immutable history; new evidence "
-			                f"belongs in follow-up work")
-		if passed is not None:
-			# WS-1 review R1: delegation is ownership transfer, and ONLY a
-			# currently resolved handler of the Current route may pass the
-			# baton on. Participation — including having answered an @ —
-			# never authorizes acting as Current. The snapshot is recorded.
-			payload["authorization"] = _handler_gate(
-				conn, work_id, author_team, author, "=> pass")
-			if (live["current_team"], live["current_kind"]) == passed:
-				raise WorkError(f"{work_id} is already at "
-				                f"{passed[0]}.{passed[1]}; a pass moves "
-				                f"the baton")
-			if (((live["next_team"], live["next_kind"]) == passed)
-					!= consumes_next):
-				raise WorkError(
-					f"{work_id}'s planned Next changed while this pass was "
-					f"being prepared; it lost a concurrent race — retry "
-					f"against the current state")
-		born = _born(conn, work_id)
-		conn.execute(
-			"INSERT INTO messages (seq, discussion, author_team, author, "
-			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-			(seq, born, author_team, author, body))
-		# C4: EVERY endpoint this operation touches is resolved here, inside
-		# the transaction, and the snapshots land in the committed payload —
-		# never partly resolved, never bare. That includes the WILDCARD
-		# MEMBERSHIP itself (review R1): the selectors are re-expanded from
-		# this connection, so the recorded set and its snapshots describe
-		# the same accepted generation — the one that commits.
-		included = _expand_selectors(conn, include) if include else []
-		payload["include"] = [
-			resolve_endpoint(conn, team, kind, "+ include")
-			for team, kind in included]
-		# R1 re-review: contribution has NO participation barrier — any
-		# configured member may chip in on open Work, and their team is
-		# recorded as a participant in THIS transaction so New and
-		# accounting have a durable basis. Ownership stays where it is.
-		touched_teams = {team for team, _kind in included}
-		touched_teams.add(author_team)
-		if requested is not None:
-			# R1 matrix: creating an @ obligation is a workflow decision of
-			# the Work's Current handler.
-			payload["authorization"] = _handler_gate(
-				conn, work_id, author_team, author, "@ request")
-			resolution = resolve_endpoint(conn, requested[0], requested[1],
-			                              "@ request")
-			payload["request_resolution"] = resolution
-			import json as _json
-			conn.execute(
-				"INSERT INTO obligations (seq, work, message_seq, team, "
-				"kind, route, role, handlers, generation) "
-				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-				(seq, work_id, seq, requested[0], requested[1],
-				 resolution["route"], resolution["role"],
-				 _json.dumps(resolution["handlers"]),
-				 resolution["generation"]))
-			touched_teams.add(requested[0])
-		if passed is not None:
-			payload["pass_resolution"] = resolve_endpoint(
-				conn, passed[0], passed[1], "=> pass")
-			if planned is not None:
-				payload["next_resolution"] = resolve_endpoint(
-					conn, planned[0], planned[1], "planned Next")
-			if consumes_next:
-				conn.execute(
-					"UPDATE work SET current_team=?, current_kind=?, "
-					"next_team=NULL, next_kind=NULL WHERE id=?",
-					(passed[0], passed[1], work_id))
-			else:
-				# An unconsumed planned Next stays VISIBLY set unless this
-				# pass plants a new one — it is never silently cleared.
-				conn.execute(
-					"UPDATE work SET current_team=?, current_kind=?, "
-					"next_team=COALESCE(?, next_team), "
-					"next_kind=COALESCE(?, next_kind) WHERE id=?",
-					(passed[0], passed[1],
-					 planned[0] if planned else None,
-					 planned[1] if planned else None, work_id))
-			touched_teams.add(passed[0])
-		for team in sorted(touched_teams):
-			_join_discussion(conn, born, team, seq)
-
-	payload = {"work": work_id, "body_bytes": len(body.encode("utf-8")),
-	           "include": [],
-	           "request": request, "pass": pass_to,
-	           "set_next": set_next, "consumed_next": consumes_next}
-	result = store._write(event_kind, f"{author_team}.{author}",
-	                      payload, mutate)
-	result["included"] = [entry["endpoint"] for entry in payload["include"]]
-	return result
-
-
 def respond_obligation(store: Authority, obligation_seq: int, *,
                        team: str, member: str, body: str) -> dict:
 	"""The obligated endpoint's team answers; the obligation resolves with
@@ -1372,7 +1206,8 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 	if not isinstance(body, str) or not body:
 		raise WorkError("a response body must be non-empty")
 
-	payload = {"obligation": obligation_seq, "work": obligation["work"]}
+	payload = {"obligation": obligation_seq, "work": obligation["work"],
+	           "discussion": obligation["discussion"]}
 
 	def mutate(conn, seq):
 		# WF-09 race 1: the pending check above is optimistic — a competing
@@ -1385,12 +1220,14 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 			                f"{live['status']}")
 		payload["authorization"] = _obligation_gate(
 			conn, obligation, team, member, "respond")
-		born = _born(conn, obligation["work"])
+		# R59: the answer returns to the discussion the @ was raised in —
+		# the obligation names it; participation persists independently
+		# after the obligation terminates.
 		conn.execute(
 			"INSERT INTO messages (seq, discussion, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-			(seq, born, team, member, body))
-		_join_discussion(conn, born, team, seq)
+			(seq, obligation["discussion"], team, member, body))
+		_join_discussion(conn, obligation["discussion"], team, seq)
 		conn.execute(
 			"UPDATE obligations SET status='responded', resolved_seq=? "
 			"WHERE seq=?", (seq, obligation_seq))
@@ -1423,6 +1260,7 @@ def dispose_obligation(store: Authority, obligation_seq: int, *,
 		raise WorkError("a disposition needs words")
 
 	payload = {"obligation": obligation_seq, "work": obligation["work"],
+	           "discussion": obligation["discussion"],
 	           "disposition": disposition}
 
 	def mutate(conn, seq):
@@ -1644,21 +1482,38 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			"accepted_into=? WHERE seq=?",
 			(seq, provider_id, obligation_seq))
 
-		# The rationale lands in the CONSUMER's discussion as its own
+		# D5/R59: the ORIGINATING discussion — where the @ was raised —
+		# atomically gains the provider Work's label, collision-safely: a
+		# pre-existing label is success audited as `existing`, otherwise
+		# this transaction audits `added`. The label is inert context;
+		# the GATE remains exclusively the explicit edge above.
+		originating = obligation["discussion"]
+		if conn.execute(
+				"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
+				"work=?", (originating, provider_id)).fetchone():
+			payload["provider_label"] = "existing"
+		else:
+			conn.execute(
+				"INSERT INTO discussion_labels (discussion, work, "
+				"added_seq) VALUES (?, ?, ?)",
+				(originating, provider_id, seq))
+			payload["provider_label"] = "added"
+		payload["discussion"] = originating
+
+		# The rationale returns to that originating discussion as its own
 		# ordered, audited act (R48: distinct and later in the same
 		# transaction).
 		message_seq = _emit(
 			conn, "post_message", f"{actor_team}.{actor}",
-			{"work": consumer_id,
+			{"discussion": originating, "work": consumer_id,
 			 "body_bytes": len(body.encode("utf-8")),
 			 "via_accept": seq, "include": [], "request": None,
 			 "pass": None, "set_next": None, "consumed_next": False})
-		consumer_born = _born(conn, consumer_id)
 		conn.execute(
 			"INSERT INTO messages (seq, discussion, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-			(message_seq, consumer_born, actor_team, actor, body))
-		_join_discussion(conn, consumer_born, actor_team, message_seq)
+			(message_seq, originating, actor_team, actor, body))
+		_join_discussion(conn, originating, actor_team, message_seq)
 
 		_recompute_ready(conn, consumer_id)
 		# R47: the exact-obligation waiter wakes (its named condition
@@ -1675,69 +1530,6 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 	result["edge"] = {"work": consumer_id,
 	                  "blocker": mutate.provider_id,
 	                  "via_obligation": obligation_seq}
-	return result
-
-
-def mark_seen(store: Authority, work_id: str, *, team: str, member: str,
-              up_to_seq: int) -> dict:
-	"""THE ONLY WRITER of seen cursors (pinned ruling 4) — Work-addressed
-	BRIDGE form (Slice A internal; Slice B removes it): advances the
-	member's cursor on EVERY discussion currently labelled to the Work,
-	monotonically, so "New drops to zero" stays true under per-discussion
-	cursors. The canonical public form is `seen_discussion`."""
-	_member(store, team, member)
-	_work(store, work_id)
-	if not isinstance(up_to_seq, int) or up_to_seq < 0:
-		raise WorkError("mark_seen takes a non-negative sequence number")
-	if up_to_seq > store.last_seq():
-		raise WorkError(
-			f"cursor {up_to_seq} is beyond the observed authority "
-			f"sequence ({store.last_seq()}); a mark names what was read, "
-			f"never the future")
-	labelled = [row["discussion"] for row in store.conn.execute(
-		"SELECT discussion FROM discussion_labels WHERE work=?",
-		(work_id,))]
-	advanced_any = False
-	floor = 0
-	for discussion in labelled:
-		current = store.conn.execute(
-			"SELECT seq FROM seen WHERE team=? AND member=? AND "
-			"discussion=?", (team, member, discussion)).fetchone()
-		if current is not None:
-			floor = max(floor, current["seq"])
-		if current is None or current["seq"] < up_to_seq:
-			advanced_any = True
-	if not advanced_any:
-		return {"seq": None, "kind": "mark_seen", "advanced": False,
-		        "cursor": floor}
-
-	def mutate(conn, seq):
-		_member_active(conn, team, member)
-		advanced = False
-		for discussion in labelled:
-			current = conn.execute(
-				"SELECT seq FROM seen WHERE team=? AND member=? AND "
-				"discussion=?", (team, member, discussion)).fetchone()
-			if current is None or current["seq"] < up_to_seq:
-				advanced = True
-			conn.execute(
-				"INSERT INTO seen (team, member, discussion, seq) "
-				"VALUES (?, ?, ?, ?) "
-				"ON CONFLICT(team, member, discussion) DO UPDATE SET "
-				"seq = MAX(seq, excluded.seq)",
-				(team, member, discussion, up_to_seq))
-		if not advanced:
-			raise _NoAdvance(up_to_seq)
-
-	try:
-		result = store._write("mark_seen", f"{team}.{member}",
-		                      {"work": work_id, "discussions": labelled,
-		                       "up_to": up_to_seq}, mutate)
-	except _NoAdvance:
-		return {"seq": None, "kind": "mark_seen", "advanced": False,
-		        "cursor": floor}
-	result["advanced"] = True
-	result["cursor"] = up_to_seq
 	return result
 
 
@@ -1958,36 +1750,231 @@ def unlabel_discussion(store: Authority, discussion_id: str, work_id: str,
 	return store._write("unlabel", f"{actor_team}.{actor}", payload, mutate)
 
 
+def _select_target(conn, discussion_id: str, actor_team: str, actor: str,
+                   operation: str, on: str | None):
+	"""D2/R55/D9: the ONE currently labelled, eligible, OPEN Work a
+	carrying operator acts against. An explicit `--on` must name a
+	current label (the discussion carries its operating context) and that
+	Work must itself be open and authorized. An omitted `--on` resolves
+	only when exactly ONE label is eligible for this operation — zero or
+	several refuse. Returns (work_id, authorization_snapshot)."""
+	labels = [row["work"] for row in conn.execute(
+		"SELECT work FROM discussion_labels WHERE discussion=? "
+		"ORDER BY added_seq, work", (discussion_id,))]
+	if on is not None:
+		if on not in labels:
+			raise WorkError(
+				f"--on {on} is not among {discussion_id}'s current "
+				f"labels; the discussion carries its operating context")
+		candidates = [on]
+	else:
+		candidates = labels
+	eligible = []
+	for work_id in candidates:
+		row = conn.execute("SELECT status FROM work WHERE id=?",
+		                   (work_id,)).fetchone()
+		if row["status"] != OPEN:
+			continue
+		try:
+			authorization = _handler_gate(conn, work_id, actor_team,
+			                              actor, operation)
+		except WorkError:
+			continue
+		eligible.append((work_id, authorization))
+	if on is not None:
+		if not eligible:
+			# The explicit selection failed one of its own gates — name
+			# the exact refusal, not a cardinality complaint.
+			row = conn.execute("SELECT status FROM work WHERE id=?",
+			                   (on,)).fetchone()
+			if row["status"] != OPEN:
+				raise WorkError(
+					f"{on} is {row['status']}; closed work refuses "
+					f"carrying activity — commentary stays welcome, but "
+					f"{operation} needs open work")
+			_handler_gate(conn, on, actor_team, actor, operation)
+		return eligible[0]
+	if len(eligible) != 1:
+		raise WorkError(
+			f"{operation} with no --on resolves only when exactly one "
+			f"labelled work is eligible; {discussion_id} has "
+			f"{len(eligible)} — select the target with --on")
+	return eligible[0]
+
+
 def post_discussion(store: Authority, discussion_id: str, *,
-                    author_team: str, author: str, body: str) -> dict:
-	"""A plain message into a discussion — open to every configured
-	member, requiring live context (at least one labelled OPEN Work,
-	rechecked in-lock). The author's team joins the participation set
-	monotonically. Carrying operators remain Slice B."""
+                    author_team: str, author: str, body: str,
+                    include=(), request: str | None = None,
+                    pass_to: str | None = None,
+                    set_next: str | None = None,
+                    on: str | None = None) -> dict:
+	"""THE public posting surface (Slice B): one message into one
+	discussion, optionally carrying this operation's tags.
+
+	`+` (include) stays the ONLY fan-out: expanded against live
+	endpoints, the exact expansion recorded with the publication, each
+	reached team joining monotonic participation once — and no
+	obligation, Current, Next, readiness, phase, edge, or Work authority
+	changes. `@` (request) and `=>` (pass, optionally planting a planned
+	Next) affect exactly one currently labelled, eligible open Work:
+	`--on` selects it; omitted, it resolves only at eligible-cardinality
+	one, and the resolution is recorded and echoed. A plain message
+	requires live context — at least one labelled open Work — rechecked
+	inside the committing transaction."""
 	_member(store, author_team, author)
 	_discussion(store, discussion_id)
 	if not isinstance(body, str) or not body:
 		raise WorkError("a message body must be non-empty")
-	if not _live_context(store.conn, discussion_id):
+	if request is not None and pass_to is not None:
+		raise WorkError("one message carries one operation: @ requests a "
+		                "response, => passes the baton; asking both at "
+		                "once makes the obligation ambiguous")
+	if set_next is not None and pass_to is None:
+		raise WorkError("a planned Next is set by a pass; there is "
+		                "nothing to return from otherwise")
+	carrying = request is not None or pass_to is not None
+	if on is not None and not carrying:
+		raise WorkError("--on selects the work a carrying operator acts "
+		                "against; this message carries none")
+	if include:
+		# Optimistic early refusal only; the recorded expansion is redone
+		# inside the write transaction (C4 review R1).
+		_expand_include(store, include)
+	requested = _one_endpoint(store, request, "@ request") \
+		if request else None
+	passed = _one_endpoint(store, pass_to, "=> pass") if pass_to else None
+	planned = _one_endpoint(store, set_next, "planned Next") \
+		if set_next else None
+	operation = "@ request" if request is not None else "=> pass"
+
+	event_kind = "post_message"
+	consumes_next = False
+	selected = None
+	if carrying:
+		# Optimistic selection — decides the event kind; the selection
+		# that COMMITS is re-derived in-lock and must agree.
+		selected, _authorization = _select_target(
+			store.conn, discussion_id, author_team, author, operation, on)
+		if passed is not None:
+			row = _work(store, selected)
+			if (row["current_team"], row["current_kind"]) == passed:
+				raise WorkError(f"{selected} is already at "
+				                f"{passed[0]}.{passed[1]}; a pass moves "
+				                f"the baton")
+			if (row["next_team"], row["next_kind"]) == passed:
+				event_kind, consumes_next = "return", True
+			else:
+				event_kind = "pass"
+		else:
+			event_kind = "request"
+	elif not _live_context(store.conn, discussion_id):
 		raise WorkError(
 			f"{discussion_id} has no labelled open work; closed context "
 			f"is readable history — create or label open follow-up work "
 			f"to continue (live-context ruling)")
 
 	payload = {"discussion": discussion_id,
-	           "body_bytes": len(body.encode("utf-8"))}
+	           "body_bytes": len(body.encode("utf-8")),
+	           "include": [], "request": request, "pass": pass_to,
+	           "set_next": set_next, "on": on,
+	           "consumed_next": consumes_next}
 
 	def mutate(conn, seq):
 		_member_active(conn, author_team, author)
-		if not _live_context(conn, discussion_id):
-			raise WorkError(
-				f"{discussion_id} has no labelled open work; closed "
-				f"context is readable history (live-context ruling)")
+		if carrying:
+			# The committing selection: still labelled, open, authorized —
+			# and when --on was omitted, STILL exactly one eligible work
+			# under the state that commits. A different resolution than
+			# the one that decided this act's kind lost a race — refuse,
+			# never commit a mislabeled transition.
+			work_id, authorization = _select_target(
+				conn, discussion_id, author_team, author, operation, on)
+			if work_id != selected:
+				raise WorkError(
+					f"{discussion_id}'s eligible context changed while "
+					f"this {operation} was being prepared; it lost a "
+					f"concurrent race — retry against the current state")
+			payload["work"] = work_id
+			payload["on_resolved"] = on is None
+			payload["authorization"] = authorization
+			if passed is not None:
+				live = conn.execute(
+					"SELECT current_team, current_kind, next_team, "
+					"next_kind FROM work WHERE id=?",
+					(work_id,)).fetchone()
+				if (live["current_team"], live["current_kind"]) == passed:
+					raise WorkError(f"{work_id} is already at "
+					                f"{passed[0]}.{passed[1]}; a pass "
+					                f"moves the baton")
+				if (((live["next_team"], live["next_kind"]) == passed)
+						!= consumes_next):
+					raise WorkError(
+						f"{work_id}'s planned Next changed while this "
+						f"pass was being prepared; it lost a concurrent "
+						f"race — retry against the current state")
+		else:
+			payload["work"] = None
+			if not _live_context(conn, discussion_id):
+				raise WorkError(
+					f"{discussion_id} has no labelled open work; closed "
+					f"context is readable history (live-context ruling)")
 		conn.execute(
 			"INSERT INTO messages (seq, discussion, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
 			(seq, discussion_id, author_team, author, body))
-		_join_discussion(conn, discussion_id, author_team, seq)
+		# C4: every endpoint this operation touches is resolved HERE,
+		# inside the transaction — including the wildcard membership
+		# itself (review R1), so the recorded set and its snapshots
+		# describe the accepted generation that commits.
+		included = _expand_selectors(conn, include) if include else []
+		payload["include"] = [
+			resolve_endpoint(conn, team, kind, "+ include")
+			for team, kind in included]
+		touched_teams = {team for team, _kind in included}
+		touched_teams.add(author_team)
+		if requested is not None:
+			resolution = resolve_endpoint(conn, requested[0],
+			                              requested[1], "@ request")
+			payload["request_resolution"] = resolution
+			import json as _json
+			conn.execute(
+				"INSERT INTO obligations (seq, work, message_seq, team, "
+				"kind, route, role, handlers, generation, discussion) "
+				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				(seq, payload["work"], seq, requested[0], requested[1],
+				 resolution["route"], resolution["role"],
+				 _json.dumps(resolution["handlers"]),
+				 resolution["generation"], discussion_id))
+			touched_teams.add(requested[0])
+		if passed is not None:
+			work_id = payload["work"]
+			payload["pass_resolution"] = resolve_endpoint(
+				conn, passed[0], passed[1], "=> pass")
+			if planned is not None:
+				payload["next_resolution"] = resolve_endpoint(
+					conn, planned[0], planned[1], "planned Next")
+			if consumes_next:
+				conn.execute(
+					"UPDATE work SET current_team=?, current_kind=?, "
+					"next_team=NULL, next_kind=NULL WHERE id=?",
+					(passed[0], passed[1], work_id))
+			else:
+				# An unconsumed planned Next stays VISIBLY set unless
+				# this pass plants a new one — never silently cleared.
+				conn.execute(
+					"UPDATE work SET current_team=?, current_kind=?, "
+					"next_team=COALESCE(?, next_team), "
+					"next_kind=COALESCE(?, next_kind) WHERE id=?",
+					(passed[0], passed[1],
+					 planned[0] if planned else None,
+					 planned[1] if planned else None, work_id))
+			touched_teams.add(passed[0])
+		for team in sorted(touched_teams):
+			_join_discussion(conn, discussion_id, team, seq)
 
-	return store._write("post_message", f"{author_team}.{author}",
-	                    payload, mutate)
+	result = store._write(event_kind, f"{author_team}.{author}",
+	                      payload, mutate)
+	result["included"] = [entry["endpoint"] for entry in payload["include"]]
+	if carrying:
+		result["work"] = payload["work"]
+	return result

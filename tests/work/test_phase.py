@@ -154,7 +154,7 @@ def test_a_pass_never_changes_phase_and_closed_refuses(world):
 	work = _create(store)
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="active")
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="over to review", pass_to="lang.rev")
 	assert _row(store, work)["phase"] == "active", \
 		"a pass silently rewrote phase"
@@ -212,7 +212,7 @@ def test_waiting_with_no_open_gate_is_refused(world):
 def test_obligation_waiting_wakes_once_and_grants_nothing(world):
 	store, _config = world
 	work = _create(store)
-	asked = tr.post_message(store, work, author_team="lang", author="ada",
+	asked = fx.post(store, work, author_team="lang", author="ada",
 	                        body="push: confirm?", request="push.bug")["seq"]
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="waiting", wait=asked)
@@ -238,7 +238,7 @@ def test_obligation_waiting_refuses_wrong_or_completed_obligations(world):
 	store, _config = world
 	work = _create(store)
 	other = _create(store)
-	answered = tr.post_message(store, work, author_team="lang",
+	answered = fx.post(store, work, author_team="lang",
 	                           author="ada", body="?",
 	                           request="push.bug")["seq"]
 	tr.respond_obligation(store, answered, team="push", member="sl",
@@ -246,7 +246,7 @@ def test_obligation_waiting_refuses_wrong_or_completed_obligations(world):
 	with pytest.raises(bw.WorkError, match="already-satisfied|already"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
 		             phase="waiting", wait=answered)
-	elsewhere = tr.post_message(store, other, author_team="lang",
+	elsewhere = fx.post(store, other, author_team="lang",
 	                            author="ada", body="?",
 	                            request="push.bug")["seq"]
 	with pytest.raises(bw.WorkError, match="its OWN"):
@@ -378,12 +378,12 @@ def test_at_input_never_grants_pass_or_close_authority(world):
 	store, _config = world
 	for operation in ("pass", "close"):
 		work = _create(store)
-		tr.post_message(store, work, author_team="lang", author="ada",
+		fx.post(store, work, author_team="lang", author="ada",
 		                body="input requested", request="push.bug")
 		before = store.events()
 		with pytest.raises(bw.WorkError, match="never grant|Current"):
 			if operation == "pass":
-				tr.post_message(store, work, author_team="push", author="sl",
+				fx.post(store, work, author_team="push", author="sl",
 				                body="taking it", pass_to="push.bug")
 			else:
 				tr.close_work(store, work, actor_team="push", actor="sl",
@@ -402,7 +402,7 @@ def test_detail_declares_handler_phase_and_classification_authority(world):
 	not_owned = pj.detail(store, work, viewer_team="push", viewer_member="sl")
 	assert not {"classify", "set_phase"} & \
 		set(not_owned["available_transitions"])
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="delegated", pass_to="push.bug")
 	former = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
 	delegated = pj.detail(store, work, viewer_team="push", viewer_member="sl")
@@ -420,11 +420,11 @@ def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 	+ attention, and @ input never substitute for ownership."""
 	store, _config = world
 	work = _create(store)
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="fyi", include="push.bug")
 	for team, member in (("lang", "grace"), ("push", "sl")):
 		with pytest.raises(bw.WorkError, match="never grant"):
-			tr.post_message(store, work, author_team=team, author=member,
+			fx.post(store, work, author_team=team, author=member,
 			                body="asking", request="push.bug")
 		with pytest.raises(bw.WorkError, match="never grant"):
 			tr.add_dependency(store, work, _create(store, team="push",
@@ -438,7 +438,7 @@ def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 		               origin="decomposition", author="grace", body="b",
 		               parent=work)
 	# The handler does all of it.
-	tr.post_message(store, work, author_team="lang", author="ada",
+	fx.post(store, work, author_team="lang", author="ada",
 	                body="asking", request="push.bug")
 	tr.add_dependency(store, work, _create(store, team="push", member="sl"),
 	                  actor_team="lang", actor="ada")
@@ -467,11 +467,15 @@ def test_any_configured_participant_may_chip_in_without_work_ownership(world):
 		"JOIN work ON work.created_seq = discussions.created_seq "
 		"WHERE work.id=? AND discussion_participants.team='push'",
 		(work,)).fetchone() is None, "the outsider was already participating"
+	# R69 supersession: contribution is DISCUSSION-addressed after the
+	# Slice B bridge removal — detail advertises no Work-addressed
+	# posting/seen alias; the open contribution right itself is proven by
+	# the successful post below, not by an advertisement.
 	available = pj.detail(store, work, viewer_team="push",
 	                      viewer_member="sl")["available_transitions"]
-	assert {"post_message", "mark_seen"} <= set(available), \
-		"open-graph drill hid the configured participant's contribution surface"
-	tr.post_message(store, work, author_team="push", author="sl",
+	assert not {"post_message", "mark_seen"} & set(available), \
+		"detail advertises a removed Work-addressed bridge"
+	fx.post(store, work, author_team="push", author="sl",
 	                body="I found related evidence", include="push.bug")
 	assert store.conn.execute(
 		"SELECT 1 FROM messages JOIN discussions "
@@ -491,7 +495,7 @@ def test_obligation_answering_belongs_to_the_named_routes_handler(world):
 	and nobody else, teammate or not."""
 	store, _config = world
 	push_work = _create(store, team="push", member="sl")
-	asked = tr.post_message(store, push_work, author_team="push",
+	asked = fx.post(store, push_work, author_team="push",
 	                        author="sl", body="lang: yours?",
 	                        request="lang.bug")["seq"]
 	with pytest.raises(bw.WorkError, match="ownership"):

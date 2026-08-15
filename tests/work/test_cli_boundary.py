@@ -44,8 +44,11 @@ def _run(capsys, config, *argv, participant=None, expect_ok=True):
 
 
 def test_the_removed_registry_verbs_are_gone_not_aliased(instance, capsys):
+	# Slice B: the whole Work-addressed discussion/operator bridge is
+	# gone from the packaged parser — `post WORK` included. No
+	# compatibility alias remains.
 	for verb in ("register-team", "register-member", "register-kind",
-	             "retire-kind"):
+	             "retire-kind", "post"):
 		with pytest.raises(SystemExit) as caught:
 			cli.main(["--config", instance, verb])
 		assert caught.value.code == 2, f"{verb} still parses"
@@ -59,7 +62,7 @@ def test_an_unknown_participant_refuses_before_any_output(instance, capsys):
 	error = _run(capsys, instance, "home", participant="ghost.gone",
 	             expect_ok=False)
 	assert "not a participant of the accepted configuration" in error["error"]
-	error = _run(capsys, instance, "post", "some-work", "--body", "x",
+	error = _run(capsys, instance, "say", "some-discussion", "--body", "x",
 	             participant="lang.nope", expect_ok=False)
 	assert "not a participant" in error["error"]
 

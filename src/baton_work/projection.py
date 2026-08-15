@@ -220,23 +220,6 @@ def links(store: Authority, work_id: str) -> dict:
 	}
 
 
-def discussion(store: Authority, work_id: str, *, after: int = 0,
-               limit: int = 1000) -> list[dict]:
-	"""INTERNAL Slice-A bridge (removed in Slice B): the BORN discussion's
-	messages only — one conversation, never several merged into a false
-	timeline (WS-4 R54). The public read is `thread`."""
-	row = _work(store, work_id)
-	born = store.conn.execute(
-		"SELECT id FROM discussions WHERE created_seq=?",
-		(row["created_seq"],)).fetchone()
-	if born is None:
-		return []
-	return [dict(entry) for entry in store.conn.execute(
-		"SELECT seq, author_team, author, body, ts FROM messages "
-		"WHERE discussion=? AND seq > ? ORDER BY seq LIMIT ?",
-		(born["id"], after, limit))]
-
-
 MAX_PAGE = 500
 
 
@@ -491,8 +474,8 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
                         out) -> None:
 	for row in store.conn.execute(
 			"SELECT seq, work, message_seq, team, kind, flavor, round, "
-			"status FROM obligations WHERE team=? AND status='pending' "
-			"ORDER BY seq", (viewer_team,)):
+			"discussion, status FROM obligations WHERE team=? AND "
+			"status='pending' ORDER BY seq", (viewer_team,)):
 		entry = dict(row)
 		# The declared completion verbs — the eligible handlers are
 		# exactly owed_by.handlers; agents read, they do not probe.
@@ -707,6 +690,7 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		{"seq": row["seq"], "endpoint": f"{row['team']}.{row['kind']}",
 		 "flavor": row["flavor"], "status": row["status"],
 		 "accepted_into": row["accepted_into"],
+		 "discussion": row["discussion"],
 		 "resolved_seq": row["resolved_seq"]}
 		for row in store.conn.execute(
 			"SELECT * FROM obligations WHERE work=? ORDER BY seq",
@@ -735,9 +719,11 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 			viewer_member in resolved["handlers"]
 	available = []
 	if row["status"] == "open":
-		# Contribution and own seen state belong to EVERY configured
-		# member (the open-graph ruling): no participation barrier.
-		available += ["post_message", "mark_seen"]
+		# R69: no Work-addressed posting/seen operation exists after the
+		# Slice B bridge removal — contribution and seen state are
+		# discussion-addressed (say/mark-seen against a discussion id),
+		# so no Work alias is advertised here. An agent reads what it
+		# may do; a stale advertisement is discovery-by-attempt.
 		if handler:
 			available += ["request", "pass", "add_dependency",
 			              "create_child", "classify", "create_round"]

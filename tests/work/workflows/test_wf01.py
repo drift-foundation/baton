@@ -51,7 +51,7 @@ def test_wf01_straight_through_report(flow):
 		"classification changed origin"
 
 	# 2. research passes to implementation with planned Next lang.rev.
-	passed = flow.ok("post", work, "--body", "confirmed; implement",
+	passed = flow.post(work, "--body", "confirmed; implement",
 	                 "--pass-to", "lang.impl", "--set-next", "lang.rev",
 	                 viewer="lang.ada")
 	assert passed["kind"] == "pass"
@@ -71,9 +71,9 @@ def test_wf01_straight_through_report(flow):
 
 	# 3. implementation posts evidence, then passes to the PLANNED review —
 	# which consumes Next and audits as `return`.
-	flow.ok("post", work, "--body", "fix at rev 4f2c; tests attached",
+	flow.post(work, "--body", "fix at rev 4f2c; tests attached",
 	        viewer="lang.grace")
-	returned = flow.ok("post", work, "--body", "done, please verify",
+	returned = flow.post(work, "--body", "done, please verify",
 	                   "--pass-to", "lang.rev", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	checkpoint = flow.ok("detail", work, viewer="lang.grace")

@@ -77,7 +77,7 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 
 	# 3. Contributions from other configured participants remain readable
 	# evidence but never complete an assignment or touch the counter.
-	flow.ok("post", lang42, "--body",
+	flow.post(lang42, "--body",
 	        "mdb here: our nightly run also looks clean on driftc-A",
 	        viewer="mdb.mo")
 	error = flow.refuse("report", str(created["assignments"][0]),

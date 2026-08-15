@@ -54,7 +54,8 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	proc = flow.raw("reopen", lang42, "--reason", "regressed",
 	                viewer="lang.ada")
 	assert proc.returncode != 0, "a reopen verb still exists"
-	for argv in (("post", lang42, "--body", "late evidence"),
+	for argv in (("say", flow.born(lang42, "lang.ada"), "--body",
+	              "late evidence"),
 	             ("classify", lang42, "--as", "duplicate"),
 	             ("phase", lang42, "--to", "queued"),
 	             ("close", lang42, "--disposition", "again",

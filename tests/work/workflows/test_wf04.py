@@ -31,7 +31,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	                "--origin", "external-report",
 	                "--body", "500 at checkout, trace attached",
 	                viewer="push.sl")["work_id"]
-	asked = flow.ok("post", push1, "--body", "parser recovery bug?",
+	asked = flow.post(push1, "--body", "parser recovery bug?",
 	                "--request", "lang.bug", viewer="push.sl")
 
 	# 2. Lang accepts intake: provider work, explicit edge, response with
@@ -78,14 +78,14 @@ def test_wf04_one_consumer_one_provider(flow):
 	        viewer="lang.ada")
 	flow.ok("phase", lang42, "--to", "research", viewer="lang.ada")
 
-	flow.ok("post", lang42, "--body", "analysis: recovery table clobbered",
+	flow.post(lang42, "--body", "analysis: recovery table clobbered",
 	        "--pass-to", "lang.rev", viewer="lang.ada")
 	assert flow.ok("detail", lang42,
 	               viewer="lang.ada")["phase"] == "research", \
 		"the pass to review changed phase by itself"
 	flow.ok("phase", lang42, "--to", "review", viewer="lang.ada")
 
-	flow.ok("post", lang42, "--body", "approach approved; build it",
+	flow.post(lang42, "--body", "approach approved; build it",
 	        "--pass-to", "lang.impl", "--set-next", "lang.rev",
 	        viewer="lang.ada")
 	midway = flow.ok("detail", lang42, viewer="lang.grace")
@@ -96,7 +96,7 @@ def test_wf04_one_consumer_one_provider(flow):
 		"the pass to implementation changed phase by itself"
 	flow.ok("phase", lang42, "--to", "active", viewer="lang.grace")
 
-	returned = flow.ok("post", lang42, "--body", "fixed; tests attached",
+	returned = flow.post(lang42, "--body", "fixed; tests attached",
 	                   "--pass-to", "lang.rev", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	assert flow.ok("detail", lang42,
@@ -133,7 +133,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	assert flow.ok("summary", viewer="push.sl")["waiting"] == 0
 	assert resumed["current"]["endpoint"] == "push.bug", \
 		"the provider close moved the consumer's Current"
-	flow.ok("post", push1, "--body", "verified on staging",
+	flow.post(push1, "--body", "verified on staging",
 	        viewer="push.sl")
 	flow.ok("close", push1, "--disposition", "verified fixed upstream", "--outcome", "satisfying",
 	        viewer="push.sl")

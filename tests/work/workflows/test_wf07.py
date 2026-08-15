@@ -32,7 +32,7 @@ def test_wf07_announcement(flow):
 	               "--body", "authority migration 02:00-03:00 UTC",
 	               viewer="ops.bat")
 	ops1, thread_id = born["work_id"], born["discussion"]
-	announced = flow.ok("post", ops1, "--body",
+	announced = flow.post(ops1, "--body",
 	                    "all teams: expect a short outage",
 	                    "--include", "*.*", viewer="ops.bat")
 
@@ -66,8 +66,17 @@ def test_wf07_announcement(flow):
 	                    ("--pass-to", "*.rev"),
 	                    ("--pass-to", "lang.rev,push.rev")):
 		error = assert_refusal_changes_nothing(
-			flow, "ops.bat", "post", ops1, "--body", "x", flag, value)
+			flow, "ops.bat", "say", thread_id, "--body", "x", flag,
+			value)
 		assert "exactly one" in error
+
+	# R71: a `+` selector that lands nowhere refuses — wildcard shapes
+	# included — and the refusal changes nothing.
+	for selector in ("ghost.*", "*.ghost", "ops.ops,ghost.*"):
+		error = assert_refusal_changes_nothing(
+			flow, "ops.bat", "say", thread_id, "--body", "void",
+			"--include", selector)
+		assert "matches no live endpoint" in error
 
 	# The EXACT expansion is audited with the publication: every live
 	# (team, kind) endpoint, deduplicated, fully resolved.
