@@ -690,3 +690,92 @@ JSON-token boundaries; all focused regressions pass, all 18 workflows pass
 from source and packaged artifacts, and `just test-v11` passes 297/297 (294
 parallel plus 3 serial). Migration, deployment, heavy TUI navigation, C5, and
 C6 remain held pending their own plan release.
+
+### 2026-08-15 WS-3 design challenge released
+
+**Authorized by Slawomir after the WS-2 commit. Design and ruling only; source
+implementation remains held.** `baton.implementer` must re-read the current
+finding, `WORKFLOW-TESTS.md`, `WORKFLOW-COVERAGE.md`, and the live authority,
+transition, CLI, and projection boundaries, then return a compact adversarial
+WS-3 design/options document for review.
+
+- [x] Specify the one atomic provider-dedup operation: exact inputs, actor and
+  route authorization, committed relation and dependency effects, canonical
+  JSON/CLI result, and dense audit identity.
+- [x] Reconcile WS-3 with the fact that WS-4 first-class discussions and
+  reusable `#WORK` labels do not exist yet. Demonstrate an honest narrow
+  association on today's model or recommend and justify a sequencing/scope
+  correction; do not smuggle a partial WS-4 model into WS-3.
+- [x] Walk the PushCoin/Drift scenario from first external report through one
+  provider Work, then N independent consumer reports converging on it. Show
+  default-view noise boundaries, drill-through, live `DEP`, and closure fanout.
+- [x] Define refusals and atomicity for duplicate attempts, self/duplicate/
+  cyclic edges, closed provider or consumer Work, wrong handler, route/config
+  generation changes, concurrent providers accepting the same report, crash at
+  every write boundary, and retry without operation ids.
+- [x] Propose the focused regression and source/packaged workflow matrix,
+  including break-sweeps proving neither half can commit alone.
+- [x] Identify every unresolved product choice or contradiction for Slawomir;
+  otherwise recommend the smallest implementation slice and stop for reviewer
+  approval.
+- [x] Do not edit source/tests or begin WS-4, WS-5, WS-6, migration,
+  deployment, C5/C6, or substantial TUI work during this design pass.
+
+**WS-3 design review complete; implementation held for product rulings.** See
+`WS3-DESIGN.md` and `review-2026-08-15T04-31-38Z.md`. The reviewer accepts the
+narrow obligation+edge-provenance association ahead of WS-4, recommends five
+specific D1/D6 dispositions, and identifies two required corrections: an
+accepted obligation may wake its exact obligation waiter, and compound audit
+ordering must not sequence acceptance before provider Work creation. Present
+the dispositions to Slawomir; do not implement until confirmed.
+
+### 2026-08-15 WS-3 implementation released
+
+**Authorized by Slawomir; supersedes the implementation hold immediately
+above.** Implement the smallest atomic-acceptance slice under the confirmed
+WS-3 rulings in `FINDING.md` and the corrections in
+`review-2026-08-15T04-31-38Z.md`.
+
+- [x] Add the narrow `accept` transition and CLI forms for existing provider
+  Work and atomic provider-Work creation. One transaction commits or refuses
+  the obligation terminalization, structured provider association, rationale
+  messages, dependency edge/provenance, readiness, wait wake if applicable,
+  audit events, and optional provider Work creation.
+- [x] Enforce the confirmed authority matrix in-lock: live handler of the
+  exact request route; open provider Work owned by that endpoint team for
+  `--into`; and the additional parent-Current handler gate only when
+  `--create --parent` is requested. Provider Current is recorded but is not a
+  second `--into` authorization gate.
+- [x] Add canonical `accepted` obligation state and nullable
+  `edges.via_obligation`; expose structured accepted-provider and provenance
+  fields in one-snapshot JSON projections and declare `accept` only for the
+  eligible handler. Do not introduce reusable discussions or `#WORK` labels.
+- [x] Make event/message sequence history truthful for both forms. In the
+  create form, provider Work must exist at or before the acceptance that names
+  it; pin exact ordered acts and both consumer/provider messages.
+- [x] Implement D5/D7's refusal, both-order race, config-generation, crash at
+  every write boundary, retry, restart, projection, and break-sweep matrix,
+  expanded with obligation-wait wake versus gates-wait non-wake and exact audit
+  ordering.
+- [x] Run the PushCoin/Drift first-report and N-consumer convergence stories
+  through source and packaged CLI/JSON, including default-view noise, drill,
+  provenance, live `DEP`, terminal fanout, and one-snapshot tokens; then run
+  all existing workflows and `just test-v11`.
+- [x] Stop and return complete evidence for reviewer inspection. Do not begin
+  WS-4/5/6, migration, deployment, C5/C6, or substantial TUI work.
+
+**WS-3 first implementation review: changes requested.** See
+`review-2026-08-15T04-49-51Z.md`. R49 requires the accepted-provider relation
+and canonical edge result to be visible through public structured JSON rather
+than reviewer-only SQL. R50/R51 require fail-closed CLI form separation and
+None-only defaults. R52 requires integrity binding for both new structural
+references. R53 completes the D7 race/fault/restart matrix that the release
+required. The three additive reviewer regressions are intentionally red;
+WS-4/5/6 and later work remain held until correction and re-review.
+
+**WS-3 accepted by `baton.reviewer` at 2026-08-15T04:56:49Z.** See
+`review-2026-08-15T04-56-49Z.md`. R49–R53 are satisfied; the reviewer added
+all-create-option and source+packaged public-contract pins. Focused review is
+32/32 and `just test-v11` is green at 326/326. Atomic provider acceptance is
+complete. The next sequenced item is WS-4's separate design/ruling round;
+implementation remains held pending authorization.

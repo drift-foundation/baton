@@ -988,3 +988,85 @@ Mechanical fallout: the home-summary equality assertion accounts for the
 top-level token. Gate: 297 passed (294 parallel + 3 serial), test-v11
 green; the 36-run workflow battery unchanged and green. STOPPED for
 re-review; later phases held.
+
+## WS-3 — atomic provider acceptance (2026-08-15)
+
+Authorized by `08f4922a26a7dc55a0f606a65cb640cd` against the five pinned
+dispositions and R47/R48.
+
+Engine (schema v6: `edges.via_obligation`, `obligations.accepted_into`):
+`accept_obligation` (CLI `accept OBLIGATION --body … [--into W | --create
+--kind K --title T [--classification] [--phase] [--parent]]`) — ONE
+transaction commits or refuses whole: the ruled narrow grant checked
+in-lock (the pending exact @'s live route handler; snapshots recorded);
+for --into, same-team + open provider checks with the provider Current
+recorded as tolerant EVIDENCE, never a gate (disposition 2); for
+--create, the provider Work born AT the accept's own sequence (R48 —
+the primary accept act doubles as the creation record, provider first
+message at the same seq), with the separate live parent-Current handler
+gate exactly when --parent is used (disposition 5); the obligation's
+ruled terminal `accepted` state addressed to the act and naming the
+provider; the provenance edge (self/duplicate/cycle/open-blocker checks
+in-lock; a refused cycle rolls back the created Work); the rationale
+answered into the consumer's discussion as its own ordered audited act;
+readiness recomputation; and the R47 wake — the exact-obligation waiter
+queues with readiness held false by the new gate, gates-waiters sleep on.
+
+Projections: links.blocked_by/blocks entries carry `via_obligation`;
+actionable entries declare `completes_by` (respond/dispose/accept for
+response flavor, report for verification); DEP and one-snapshot semantics
+inherited unchanged.
+
+Evidence: `test_ws3_accept.py` (14 focused: whole-effects + exact audit
+ordering for both forms; the grant incl. generation-2 movement; same-team/
+open/into refusals; the separate parent gate; R47 both ways; a refusal
+sweep committing nothing incl. verification-flavor; double-accept race
+minting no orphan; accept-vs-consumer-close and accept-vs-provider-close
+races; accept-then-dispose and the stated retry boundary; fault injection
+at every write boundary of the create form; restart). Stories WS3-WF-01
+(PushCoin→Drift first report: declared completes_by, non-handler refusal,
+atomic accept, wake-but-not-ready, noise scoping, terminal fanout) and
+WS3-WF-02 (three-consumer convergence: per-edge provenance, DEP 3→0,
+byte-identical duplicate refusal), both source+packaged.
+
+Break-sweeps: removing the edge half, the terminalization half, or the
+in-lock pending recheck each fails its regression (association without
+gate; gate without answer; orphan provider). Gate: 315 passed (312
+parallel + 3 serial); all 40 workflow runs green; test-v11 green.
+STOPPED for review; WS-4/5/6, migration, C5/C6, TUI held.
+
+## WS-3 re-review fixes — R49-R53 (2026-08-15)
+
+Per `e0f2f2f54d0245c820f3a5a34b9dc5e0`.
+
+R49: the accept result carries the ruled structured `edge` member, and
+the accepted association is PUBLIC structured state — `detail` now lists
+the work's obligations (seq, endpoint, flavor, status, accepted_into,
+resolved_seq) inside its one-snapshot read, so any agent determines
+"obligation N is accepted into W" without SQL or audit mining; the
+restart regression reads it back through the projection only.
+
+R50: the CLI forms fail closed — `--into` refuses every creation option
+by name before any state opens; `--create` requires --kind and --title.
+
+R51: `accept --create` uses None-only defaults exactly like ordinary
+creation; explicit empty classification/phase strings refuse instead of
+normalizing to `unknown`/`queued` (invalid phases outside the enum also
+refuse before the creation-phase restriction).
+
+R52 (schema v7): `edges.via_obligation REFERENCES obligations(seq)` and
+`obligations.accepted_into REFERENCES work(id)`; adversarial evidence:
+garbage references refuse at the database, ordinary block edges keep
+NULL, respond/dispose never set a provider.
+
+R53: the matrix completed — accept-first orders for consumer close
+(both commit, no false withdraw), provider close (fan-out), and config
+change (snapshot preserved); dispose-first refusing the accept without
+orphans; the regen-mid-accept race deciding in-lock under the new
+generation; concurrent accepts of two DIFFERENT obligations into one
+provider both committing (DEP 2); fault injection for the --into form;
+public-projection restart reconstruction.
+
+All three reviewer regressions pass. Gate: 326 passed (323 parallel + 3
+serial); all 40 workflow runs green; test-v11 green. STOPPED for
+re-review; later phases held.

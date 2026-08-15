@@ -194,16 +194,22 @@ def links(store: Authority, work_id: str) -> dict:
 		"contains": [far(child["id"]) for child in store.conn.execute(
 			"SELECT id FROM work WHERE parent=? ORDER BY created_seq",
 			(work_id,))],
-		"blocked_by": [far(edge["blocker"]) for edge in store.conn.execute(
-			"SELECT blocker FROM edges WHERE work=? ORDER BY created_seq",
-			(work_id,))],
+		"blocked_by": [
+			{**far(edge["blocker"]),
+			 "via_obligation": edge["via_obligation"]}
+			for edge in store.conn.execute(
+				"SELECT blocker, via_obligation FROM edges WHERE work=? "
+				"ORDER BY created_seq", (work_id,))],
 		# The DEP drill: only the LIVE dependent set (ruled) — closed
 		# consumers leave the drill; the audit retains their edges.
-		"blocks": [far(edge["work"]) for edge in store.conn.execute(
-			"SELECT edges.work FROM edges JOIN work "
-			"ON work.id = edges.work "
-			"WHERE edges.blocker=? AND work.status='open' "
-			"ORDER BY edges.created_seq", (work_id,))],
+		"blocks": [
+			{**far(edge["work"]),
+			 "via_obligation": edge["via_obligation"]}
+			for edge in store.conn.execute(
+				"SELECT edges.work, edges.via_obligation FROM edges "
+				"JOIN work ON work.id = edges.work "
+				"WHERE edges.blocker=? AND work.status='open' "
+				"ORDER BY edges.created_seq", (work_id,))],
 		# WS-2: follow-up context is NAVIGABLE from both sides and gates
 		# nothing — the relationship preserves closed history.
 		"follow_up_of": far(row["follow_up_of"])
@@ -290,6 +296,11 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
 			"status FROM obligations WHERE team=? AND status='pending' "
 			"ORDER BY seq", (viewer_team,)):
 		entry = dict(row)
+		# The declared completion verbs — the eligible handlers are
+		# exactly owed_by.handlers; agents read, they do not probe.
+		entry["completes_by"] = (["respond", "dispose", "accept"]
+		                         if row["flavor"] == "response"
+		                         else ["report"])
 		entry["owed_by"] = _endpoint_struct(store, row["team"], row["kind"])
 		out.append(entry)
 	for row in store.conn.execute(
@@ -452,6 +463,17 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	view["rounds"] = [_round_view(store, entry, now)
 	                  for entry in store.conn.execute(
 		"SELECT * FROM rounds WHERE work=? ORDER BY round", (work_id,))]
+	# WS-3 R49: the work's obligations as PUBLIC structured state — an
+	# agent reads "obligation N is accepted into W" here, in the same
+	# snapshot, without SQL or audit mining.
+	view["obligations"] = [
+		{"seq": row["seq"], "endpoint": f"{row['team']}.{row['kind']}",
+		 "flavor": row["flavor"], "status": row["status"],
+		 "accepted_into": row["accepted_into"],
+		 "resolved_seq": row["resolved_seq"]}
+		for row in store.conn.execute(
+			"SELECT * FROM obligations WHERE work=? ORDER BY seq",
+			(work_id,))]
 	view["breadcrumb"] = breadcrumb(store, work_id)
 	view["links"] = links(store, work_id)
 	view["new_breakdown"] = new_count(store, work_id,

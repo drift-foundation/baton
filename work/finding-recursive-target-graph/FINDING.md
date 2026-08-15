@@ -1583,3 +1583,70 @@ total or historical-dependent counter appears in the active table. Dependency
 creation, consumer closure, obligation withdrawal, and all former relationships
 remain in the journal/audit so a deliberate history review can explain why the
 live count changed. The historical edge is evidence, not live demand.
+
+## 2026-08-15 — WS-3 selected as the next serial phase
+
+**Confirmed by Slawomir after WS-2 acceptance.** The next semantic slice is
+WS-3, atomic provider deduplication, before first-class discussion labels,
+effectively-once operation ids, dossier binding, or substantial TUI work.
+
+The observed gap is that a provider accepting an external report currently
+performs separate acts to associate the report with provider-owned Work and to
+make that provider Work an explicit blocker of the consumer Work. A crash,
+refusal, or race between those acts can leave context without the required
+gate, or a gate without the association that explains it. WS-3 must define one
+authorized transaction whose committed result is whole and whose refusal
+leaves neither half.
+
+This selection does not yet settle the public operation's shape. The design
+pass must challenge whether an honest association can be represented before
+WS-4 first-class discussions and `#WORK` labels exist, or whether WS-3 needs a
+narrow Work-to-Work relation, a reordered dependency, or another explicit
+boundary. It must also resolve actor authority, exact inputs and output,
+idempotence/retry posture, N-consumer convergence, cycles, closed targets,
+configuration changes, concurrent deduplication, audit identity, and the
+consumer/provider projections. No implementation is authorized until that
+shape is reviewed and any product choice is confirmed.
+
+## 2026-08-15 — WS-3 atomic-acceptance rulings
+
+**Confirmed by Slawomir after review of `WS3-DESIGN.md`.** A pending exact `@`
+response obligation grants the live handler of its named route one narrow,
+one-use authority to accept that request by atomically gating exactly the
+requesting Work on provider Work. The grant comes from the consumer handler's
+explicit request, changes no Current, grants no general consumer ownership,
+and expires when that obligation is responded, disposed, withdrawn, or
+accepted.
+
+Accepting `--into` existing provider Work requires that request-route authority
+and an open provider Work owned by the obligation endpoint's team. It does not
+also require the actor to handle the provider Work's Current: new reports must
+still converge after the provider baton has moved from bug intake to research
+or implementation. The accept act records the provider's live Current
+resolution as evidence, not as a second authorization gate.
+
+An accepted request has the distinct terminal obligation state `accepted` and
+names the provider Work structurally. Its dependency edge records nullable
+`via_obligation` provenance; ordinary manual blockers keep NULL. This narrow
+provenance answers why the gate exists without creating WS-4's reusable
+discussion relation or `#WORK` labels.
+
+Atomic `--create` may optionally attach the new provider Work beneath a parent
+only when the accepting actor separately passes the existing live handler gate
+for that parent's Current. Root creation remains available without that
+additional authority.
+
+Acceptance follows the existing typed-wait rule. If the consumer is waiting on
+the accepted obligation itself, acceptance atomically wakes it to `queued`
+after installing the new dependency; that blocker keeps readiness false and
+the consumer explicitly decides whether to enter gates-waiting. A consumer
+already waiting on all gates does not wake merely because another gate was
+added. No automatic conversion between wait types occurs.
+
+Compound audit order must be truthful. For `--create`, total sequence order
+must establish provider Work no later than the acceptance that names it. The
+primary `accept` act may itself serve as the creation act when `created: true`,
+recording all creation fields and providing the new Work's creation sequence;
+a distinct consumer-visible response-message act may follow inside the same
+transaction when two messages need separate sequence ids. A nested event
+layout that sequences `accept` before a later `create_work` act is forbidden.

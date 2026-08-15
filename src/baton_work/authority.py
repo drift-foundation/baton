@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 7
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -194,6 +194,7 @@ CREATE TABLE work (
 CREATE TABLE edges (
 	work        TEXT NOT NULL REFERENCES work(id),
 	blocker     TEXT NOT NULL REFERENCES work(id),
+	via_obligation INTEGER REFERENCES obligations(seq),
 	created_seq INTEGER NOT NULL,
 	PRIMARY KEY (work, blocker)
 ) STRICT;
@@ -217,6 +218,7 @@ CREATE TABLE obligations (
 	round        INTEGER,
 	observation  TEXT,
 	evidence     TEXT,
+	accepted_into TEXT REFERENCES work(id),
 	status       TEXT NOT NULL DEFAULT 'pending',
 	resolved_seq INTEGER
 ) STRICT;

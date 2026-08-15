@@ -70,6 +70,21 @@ def main(argv=None) -> int:
 	cmd.add_argument("--set-next", dest="set_next",
 	                 help="planned return endpoint; requires --pass-to")
 
+	cmd = sub.add_parser("accept")
+	cmd.add_argument("obligation", type=int)
+	cmd.add_argument("--body", required=True,
+	                 help="the acceptance rationale, answered into the "
+	                 "consumer's discussion")
+	cmd.add_argument("--into", help="existing provider work id")
+	cmd.add_argument("--create", action="store_true",
+	                 help="create the provider work in the same "
+	                 "transaction")
+	cmd.add_argument("--kind")
+	cmd.add_argument("--title")
+	cmd.add_argument("--classification")
+	cmd.add_argument("--phase")
+	cmd.add_argument("--parent")
+
 	cmd = sub.add_parser("respond")
 	cmd.add_argument("obligation", type=int)
 	cmd.add_argument("--body", required=True)
@@ -244,6 +259,31 @@ def _dispatch(store: Authority, args):
 			body=args.body, include=args.include or (),
 			request=args.request, pass_to=args.pass_to,
 			set_next=args.set_next)
+	if command == "accept":
+		team, member = _need_participant(args)
+		create_only = {"--kind": args.kind, "--title": args.title,
+		               "--classification": args.classification,
+		               "--phase": args.phase, "--parent": args.parent}
+		if not args.create:
+			# R50: the forms fail CLOSED — an --into acceptance must not
+			# silently ignore creation options a typo supplied.
+			stray = [flag for flag, value in create_only.items()
+			         if value is not None]
+			if stray:
+				raise WorkError(
+					f"accept --into takes no creation option; remove "
+					f"{', '.join(stray)} or use --create")
+		create = None
+		if args.create:
+			if args.kind is None or args.title is None:
+				raise WorkError("accept --create requires --kind and "
+				                "--title")
+			create = {"kind": args.kind, "title": args.title,
+			          "classification": args.classification,
+			          "phase": args.phase, "parent": args.parent}
+		return transitions.accept_obligation(
+			store, args.obligation, actor_team=team, actor=member,
+			body=args.body, into=args.into, create=create)
 	if command == "respond":
 		team, member = _need_participant(args)
 		return transitions.respond_obligation(

@@ -1390,6 +1390,235 @@ def dispose_obligation(store: Authority, obligation_seq: int, *,
 	return store._write("dispose", f"{team}.{member}", payload, mutate)
 
 
+def accept_obligation(store: Authority, obligation_seq: int, *,
+                      actor_team: str, actor: str, body: str,
+                      into: str | None = None,
+                      create: dict | None = None) -> dict:
+	"""WS-3: THE atomic provider acceptance. One transaction commits — or
+	refuses whole — the obligation's terminal `accepted` state naming the
+	provider Work, the rationale answered into the consumer's discussion,
+	the provenance-carrying dependency edge, readiness recomputation, the
+	exact-obligation wake (R47: the waiter wakes because its named
+	condition completed; the new gate keeps it unready; gates-waiters do
+	not wake), and — in the create form — the provider Work itself, whose
+	creation IS the primary accept act (R48: history establishes the
+	provider no later than the acceptance that names it).
+
+	Authority (ruled): the pending exact @ grants its LIVE route handler
+	this one narrow atomic authority over the requesting Work. `--into`
+	adds same-team + open checks on the provider Work; its Current is
+	recorded as evidence, not a second gate. `--create --parent` alone
+	adds the separate live parent-Current handler gate.
+	"""
+	_member(store, actor_team, actor)
+	obligation = store.conn.execute(
+		"SELECT * FROM obligations WHERE seq=?", (obligation_seq,)).fetchone()
+	if obligation is None:
+		raise WorkError(f"no obligation {obligation_seq}")
+	if obligation["flavor"] != "response":
+		raise WorkError(f"obligation {obligation_seq} is a verification "
+		                f"assignment; acceptance answers @ requests only")
+	if obligation["status"] != "pending":
+		raise WorkError(f"obligation {obligation_seq} is already "
+		                f"{obligation['status']}")
+	if not isinstance(body, str) or not body:
+		raise WorkError("an acceptance records its rationale")
+	if (into is None) == (create is None):
+		raise WorkError("acceptance names exactly one provider: an "
+		                "existing work (--into) or a new one (--create)")
+	consumer_id = obligation["work"]
+	provider_team = obligation["team"]
+
+	if into is not None:
+		provider_row = _work(store, into)
+		if provider_row["team"] != provider_team:
+			raise WorkError(
+				f"{into} belongs to {provider_row['team']}; the "
+				f"obligation was addressed to {provider_team}, and "
+				f"acceptance may only gate on that team's work")
+		if provider_row["status"] != OPEN:
+			raise WorkError(f"{into} is {provider_row['status']}; a "
+			                f"dependency on finished work gates nothing")
+	else:
+		kind = create.get("kind")
+		title = create.get("title")
+		classification = create.get("classification")
+		classification = "unknown" if classification is None \
+			else classification
+		phase = create.get("phase")
+		phase = "queued" if phase is None else phase
+		parent = create.get("parent")
+		create = dict(create, classification=classification, phase=phase)
+		if not isinstance(title, str) or not title.strip():
+			raise WorkError("a work title must be non-empty")
+		_endpoint(store, provider_team, kind, "accept --create")
+		if classification not in CLASSIFICATIONS:
+			raise WorkError(f"classification {classification!r} is not "
+			                f"one of {CLASSIFICATIONS}")
+		if phase not in PHASES:
+			raise WorkError(f"phase {phase!r} is not one of {PHASES}; "
+			                f"compact display values are presentation "
+			                f"only")
+		if phase not in CREATION_PHASES:
+			raise WorkError(
+				f"a work is not created {phase!r}: waiting needs a "
+				f"recorded wake condition and parking needs a reason")
+		if parent is not None:
+			parent_row = _work(store, parent)
+			if parent_row["status"] != OPEN:
+				raise WorkError(
+					f"parent {parent} is {parent_row['status']}; a "
+					f"closed work does not grow new children")
+
+	prefix = store.meta()["authority_uuid"][:8]
+	payload = {"obligation": obligation_seq, "work": consumer_id,
+	           "provider": into, "created": create is not None,
+	           "body_bytes": len(body.encode("utf-8"))}
+
+	def mutate(conn, seq):
+		import json as _json
+		live = conn.execute("SELECT * FROM obligations WHERE seq=?",
+		                    (obligation_seq,)).fetchone()
+		if live["status"] != "pending":
+			raise WorkError(f"obligation {obligation_seq} is already "
+			                f"{live['status']}")
+		# The ruled narrow grant: the LIVE route handler of the exact
+		# pending request, in the lock, snapshot recorded.
+		payload["authorization"] = _obligation_gate(
+			conn, obligation, actor_team, actor, "accept")
+
+		if into is not None:
+			provider_id = into
+			live_provider = conn.execute(
+				"SELECT * FROM work WHERE id=?", (into,)).fetchone()
+			if live_provider["status"] != OPEN:
+				raise WorkError(f"{into} is {live_provider['status']}; a "
+				                f"dependency on finished work gates "
+				                f"nothing")
+			# Provider Current: recorded EVIDENCE, never a gate — shown
+			# explicitly unresolved rather than refusing (disposition 2).
+			try:
+				payload["provider_current"] = resolve_endpoint(
+					conn, live_provider["current_team"],
+					live_provider["current_kind"], "accept evidence")
+			except WorkError:
+				payload["provider_current"] = {
+					"endpoint":
+					f"{live_provider['current_team']}."
+					f"{live_provider['current_kind']}",
+					"route": None, "role": None, "handlers": [],
+					"generation": None}
+		else:
+			# R48: the provider Work's creation IS this primary act — it
+			# exists at the acceptance's own sequence, never after it.
+			provider_id = f"{prefix}-W{seq}"
+			kind = create["kind"]
+			resolution = resolve_endpoint(conn, provider_team, kind,
+			                              "accept --create")
+			payload["resolution"] = resolution
+			parent = create.get("parent")
+			if parent is not None:
+				live_parent = conn.execute(
+					"SELECT status FROM work WHERE id=?",
+					(parent,)).fetchone()
+				if live_parent["status"] != OPEN:
+					raise WorkError(
+						f"parent {parent} is {live_parent['status']}; a "
+						f"closed work does not grow new children")
+				# Disposition 5: the SEPARATE parent-Current handler gate.
+				payload["parent_authorization"] = _handler_gate(
+					conn, parent, actor_team, actor,
+					"accept --create --parent")
+			conn.execute(
+				"INSERT INTO work (id, team, title, origin, "
+				"classification, phase, status, parent, current_team, "
+				"current_kind, ready, created_seq) "
+				"VALUES (?, ?, ?, 'external-report', ?, ?, ?, ?, ?, ?, "
+				"0, ?)",
+				(provider_id, provider_team, create["title"],
+				 create["classification"], create["phase"], OPEN, parent,
+				 provider_team, kind, seq))
+			conn.execute(
+				"INSERT INTO messages (seq, work, author_team, author, "
+				"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
+				(seq, provider_id, actor_team, actor, body))
+			conn.execute(
+				"INSERT INTO work_participants (work, team, added_seq) "
+				"VALUES (?, ?, ?)", (provider_id, provider_team, seq))
+			_recompute_ready(conn, provider_id)
+			if parent is not None:
+				_recompute_ready(conn, parent)
+		payload["provider"] = provider_id
+
+		# The dependency edge, with the existing in-lock protections and
+		# the WS-3 provenance.
+		if consumer_id == provider_id:
+			raise WorkError(f"{consumer_id} cannot block itself")
+		if conn.execute(
+				"SELECT 1 FROM edges WHERE work=? AND blocker=?",
+				(consumer_id, provider_id)).fetchone():
+			raise WorkError(f"{consumer_id} is already blocked by "
+			                f"{provider_id}")
+		live_consumer = conn.execute(
+			"SELECT status FROM work WHERE id=?",
+			(consumer_id,)).fetchone()
+		if live_consumer["status"] != OPEN:
+			raise WorkError(f"{consumer_id} is {live_consumer['status']}; "
+			                f"a closed work takes no new blockers")
+		path = _would_cycle(conn, consumer_id, provider_id)
+		if path is not None:
+			raise WorkError(
+				f"blocking {consumer_id} on {provider_id} closes a loop "
+				f"through {' -> '.join(path)}; a required-edge cycle is "
+				f"everyone waiting forever")
+		conn.execute(
+			"INSERT INTO edges (work, blocker, via_obligation, "
+			"created_seq) VALUES (?, ?, ?, ?)",
+			(consumer_id, provider_id, obligation_seq, seq))
+
+		# The obligation reaches its ruled terminal state, addressed to
+		# THIS act and naming the provider it accepted into.
+		conn.execute(
+			"UPDATE obligations SET status='accepted', resolved_seq=?, "
+			"accepted_into=? WHERE seq=?",
+			(seq, provider_id, obligation_seq))
+
+		# The rationale lands in the CONSUMER's discussion as its own
+		# ordered, audited act (R48: distinct and later in the same
+		# transaction).
+		message_seq = _emit(
+			conn, "post_message", f"{actor_team}.{actor}",
+			{"work": consumer_id,
+			 "body_bytes": len(body.encode("utf-8")),
+			 "via_accept": seq, "include": [], "request": None,
+			 "pass": None, "set_next": None, "consumed_next": False})
+		conn.execute(
+			"INSERT INTO messages (seq, work, author_team, author, body, "
+			"ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
+			(message_seq, consumer_id, actor_team, actor, body))
+		conn.execute(
+			"INSERT OR IGNORE INTO work_participants (work, team, "
+			"added_seq) VALUES (?, ?, ?)",
+			(consumer_id, actor_team, message_seq))
+
+		_recompute_ready(conn, consumer_id)
+		# R47: the exact-obligation waiter wakes (its named condition
+		# completed) with readiness kept false by the new gate; a
+		# gates-waiter gained a gate and does not wake.
+		_sweep_wakes(conn, f"{actor_team}.{actor}")
+		mutate.provider_id = provider_id
+
+	result = store._write("accept", f"{actor_team}.{actor}", payload, mutate)
+	result["provider"] = mutate.provider_id
+	result["obligation"] = obligation_seq
+	result["work"] = consumer_id
+	result["created"] = create is not None
+	result["edge"] = {"work": consumer_id,
+	                  "blocker": mutate.provider_id,
+	                  "via_obligation": obligation_seq}
+	return result
+
+
 def mark_seen(store: Authority, work_id: str, *, team: str, member: str,
               up_to_seq: int) -> dict:
 	"""THE ONLY WRITER of the seen cursor (pinned ruling 4). Idempotent and
