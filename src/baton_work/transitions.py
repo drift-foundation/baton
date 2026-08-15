@@ -401,8 +401,43 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		payload["was_current_team"] = live["current_team"]
 		payload["was_current_kind"] = live["current_kind"]
 		# WS-2 group 2: rounds end with their work — no assignment stays
-		# actionable (the pending-obligation withdrawal below covers the
-		# assignments; this records the rounds' own terminal state).
+		# actionable. Group 3: the close AUDITS the concluded round's
+		# evidence basis — candidate, receipt fraction, raw observation
+		# summary, elapsed exposure, and the pending assignments about to
+		# be withdrawn — recording the basis of the judgment without
+		# fabricating feedback.
+		concluding = conn.execute(
+			"SELECT * FROM rounds WHERE work=? AND status='open'",
+			(work_id,)).fetchone()
+		if concluding is not None:
+			tally = {"passed": 0, "failed": 0, "unable": 0}
+			assigned = reported = 0
+			still_pending = []
+			for entry in conn.execute(
+					"SELECT team, kind, status, observation FROM "
+					"obligations WHERE work=? AND round=? "
+					"AND flavor='verification'",
+					(work_id, concluding["round"])):
+				assigned += 1
+				if entry["status"] == "reported":
+					reported += 1
+					tally[entry["observation"]] += 1
+				elif entry["status"] == "pending":
+					still_pending.append(
+						f"{entry['team']}.{entry['kind']}")
+			payload["round_summary"] = {
+				"round": concluding["round"],
+				"candidate": concluding["candidate"],
+				"progress": f"{reported}/{assigned}",
+				"observations": tally,
+				"review_at": concluding["review_at"],
+				"deadline_generation":
+					concluding["deadline_generation"],
+				"created_ts": concluding["created_ts"],
+				"closed_ts": store.clock(),
+				"withdrawn_pending": still_pending,
+				"basis": disposition,
+			}
 		conn.execute(
 			"UPDATE rounds SET status='closed', ended_seq=? "
 			"WHERE work=? AND status='open'", (seq, work_id))
@@ -581,6 +616,27 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 
 # -- WS-2 group 2: candidate verification rounds ------------------------------
 
+def _canonical_instant(value, what: str) -> str:
+	"""R41: a deadline is a REAL canonical UTC instant in exactly the
+	supported representation (YYYY-MM-DDTHH:MM:SSZ) — not merely a nonblank
+	string. Anything else refuses before any write path opens, so the
+	database's lexicographic ordering stays a true time ordering."""
+	import datetime as _datetime
+	if not isinstance(value, str):
+		raise WorkError(f"{what} must be a canonical UTC instant string")
+	try:
+		parsed = _datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+	except ValueError:
+		raise WorkError(
+			f"{what} {value!r} is not a canonical UTC instant "
+			f"(YYYY-MM-DDTHH:MM:SSZ)") from None
+	if parsed.strftime("%Y-%m-%dT%H:%M:%SZ") != value:
+		raise WorkError(
+			f"{what} {value!r} does not round-trip canonically; refusing "
+			f"an instant that would lie about its ordering")
+	return value
+
+
 def _round(store: Authority, work_id: str, round_number: int):
 	row = store.conn.execute(
 		"SELECT * FROM rounds WHERE work=? AND round=?",
@@ -591,7 +647,8 @@ def _round(store: Authority, work_id: str, round_number: int):
 
 
 def create_round(store: Authority, work_id: str, *, actor_team: str,
-                 actor: str, candidate: str, assign) -> dict:
+                 actor: str, candidate: str, assign,
+                 review_at: str | None = None) -> dict:
 	"""One verification round for one EXACT candidate, with an exact
 	selected set of verifier routes (each an @ verification obligation —
 	actionable for testing WITHOUT clearing anyone's dependency, granting
@@ -622,7 +679,15 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 				f"one round creates at most one obligation per endpoint")
 		selected.append(pair)
 
+	if review_at is not None:
+		_canonical_instant(review_at, "review_at")
+		if review_at <= store.clock():
+			raise WorkError(
+				f"review_at {review_at!r} is not later than now "
+				f"({store.clock()}); a deadline born expired is a loose "
+				f"end")
 	payload = {"work": work_id, "candidate": candidate,
+	           "review_at": review_at,
 	           "selected": [f"{team}.{kind}" for team, kind in selected]}
 
 	def mutate(conn, seq):
@@ -646,13 +711,23 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 			                  "superseded by a new candidate round",
 			                  round_number=previous["round"])
 			payload["supersedes"] = previous["round"]
+		# R42: ONE transaction-local instant — the deadline is rechecked
+		# against it inside the committing write (it may have passed since
+		# the optimistic check), and it becomes the round's created_ts.
+		now = store.clock()
+		if review_at is not None and review_at <= now:
+			raise WorkError(
+				f"review_at {review_at!r} is not later than now ({now}); "
+				f"a deadline born expired is a loose end")
 		number = (conn.execute(
 			"SELECT COALESCE(MAX(round), 0) AS n FROM rounds WHERE work=?",
 			(work_id,)).fetchone()["n"]) + 1
 		conn.execute(
 			"INSERT INTO rounds (work, round, candidate, status, "
-			"created_seq) VALUES (?, ?, ?, 'open', ?)",
-			(work_id, number, candidate, seq))
+			"review_at, deadline_generation, created_ts, created_seq) "
+			"VALUES (?, ?, ?, 'open', ?, ?, ?, ?)",
+			(work_id, number, candidate, review_at,
+			 1 if review_at else 0, now, seq))
 		payload["round"] = number
 		payload["assignments"] = []
 		for team, kind in selected:
@@ -843,6 +918,71 @@ def abandon_round(store: Authority, work_id: str, round_number: int, *,
 		                  reason, round_number=round_number)
 
 	return store._write("abandon_round", f"{actor_team}.{actor}",
+	                    payload, mutate)
+
+
+def extend_round(store: Authority, work_id: str, round_number: int, *,
+                 actor_team: str, actor: str, review_at: str) -> dict:
+	"""Extend the SAME candidate's testing window: an explicit audited
+	reviewer decision — never a hidden timer reset. All reports and pending
+	assignments are retained; the deadline generation advances so due-ness
+	is per-generation; repeated extensions are visible history. May also
+	give a deadline to a round created without one."""
+	_member(store, actor_team, actor)
+	_work(store, work_id)
+	existing = _round(store, work_id, round_number)
+	if existing["status"] != "open":
+		raise WorkError(f"round {round_number} of {work_id} is "
+		                f"{existing['status']}; only an open round's window "
+		                f"extends")
+	if not isinstance(review_at, str) or not review_at.strip():
+		raise WorkError("an extension names the new review_at instant")
+	_canonical_instant(review_at, "review_at")
+	if review_at <= store.clock():
+		raise WorkError(
+			f"review_at {review_at!r} is not later than now "
+			f"({store.clock()}); a deadline born expired is a loose end")
+	if existing["review_at"] is not None and \
+			review_at <= existing["review_at"]:
+		raise WorkError(
+			f"review_at {review_at!r} does not extend the current window "
+			f"({existing['review_at']}); an extension moves forward")
+
+	payload = {"work": work_id, "round": round_number,
+	           "candidate": existing["candidate"],
+	           "from_review_at": existing["review_at"],
+	           "to_review_at": review_at}
+
+	def mutate(conn, seq):
+		live = conn.execute(
+			"SELECT status, review_at, deadline_generation FROM rounds "
+			"WHERE work=? AND round=?", (work_id, round_number)).fetchone()
+		if live["status"] != "open":
+			raise WorkError(f"round {round_number} of {work_id} is "
+			                f"{live['status']}; only an open round's "
+			                f"window extends")
+		if live["review_at"] is not None and \
+				review_at <= live["review_at"]:
+			raise WorkError(
+				f"review_at {review_at!r} does not extend the current "
+				f"window ({live['review_at']}); an extension moves forward")
+		# R42: the deadline is rechecked against a transaction-local
+		# instant inside the committing write.
+		now = store.clock()
+		if review_at <= now:
+			raise WorkError(
+				f"review_at {review_at!r} is not later than now ({now}); "
+				f"a deadline born expired is a loose end")
+		payload["authorization"] = _handler_gate(
+			conn, work_id, actor_team, actor, "extend round")
+		payload["deadline_generation"] = live["deadline_generation"] + 1
+		conn.execute(
+			"UPDATE rounds SET review_at=?, deadline_generation=? "
+			"WHERE work=? AND round=?",
+			(review_at, live["deadline_generation"] + 1, work_id,
+			 round_number))
+
+	return store._write("extend_round", f"{actor_team}.{actor}",
 	                    payload, mutate)
 
 

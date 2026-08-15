@@ -111,6 +111,13 @@ def main(argv=None) -> int:
 	                 help="exact candidate/artifact identity; immutable")
 	cmd.add_argument("--assign", action="append", required=True,
 	                 help="one exact verifier endpoint; repeatable")
+	cmd.add_argument("--review-at", dest="review_at",
+	                 help="optional UTC ISO instant when the round becomes "
+	                 "due for review")
+	cmd = sub.add_parser("extend")
+	cmd.add_argument("work")
+	cmd.add_argument("--round", type=int, required=True)
+	cmd.add_argument("--review-at", dest="review_at", required=True)
 	cmd = sub.add_parser("report")
 	cmd.add_argument("obligation", type=int)
 	cmd.add_argument("--observation", required=True,
@@ -129,6 +136,10 @@ def main(argv=None) -> int:
 	sub.add_parser("home")
 	sub.add_parser("obligations")
 	sub.add_parser("summary")
+	cmd = sub.add_parser("wait")
+	cmd.add_argument("--timeout", type=float, required=True,
+	                 help="seconds to block for actionable work; the wait "
+	                 "is read-only and mutates nothing")
 	for name in ("detail", "children", "links", "breadcrumb", "new"):
 		cmd = sub.add_parser(name)
 		cmd.add_argument("work")
@@ -181,6 +192,9 @@ def main(argv=None) -> int:
 			result = _dispatch(store, args)
 			snapshot_seq = (result.pop("snapshot_seq", None)
 			                if isinstance(result, dict) else None)
+			if snapshot_seq is None and \
+					isinstance(result, projection.Snapshotted):
+				snapshot_seq = result.snapshot_seq
 			print(json.dumps(jsonapi.envelope(store,
 			                                  participant=args.participant,
 			                                  result=result,
@@ -257,7 +271,13 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.create_round(
 			store, args.work, actor_team=team, actor=member,
-			candidate=args.candidate, assign=args.assign)
+			candidate=args.candidate, assign=args.assign,
+			review_at=args.review_at)
+	if command == "extend":
+		team, member = _need_participant(args)
+		return transitions.extend_round(
+			store, args.work, args.round, actor_team=team, actor=member,
+			review_at=args.review_at)
 	if command == "report":
 		team, member = _need_participant(args)
 		return transitions.report(
@@ -297,6 +317,10 @@ def _dispatch(store: Authority, args):
 	if command == "summary":
 		team, _member = _need_participant(args)
 		return projection.team_summary(store, viewer_team=team)
+	if command == "wait":
+		team, _member = _need_participant(args)
+		return projection.wait_actionable(store, viewer_team=team,
+		                                  timeout_seconds=args.timeout)
 	if command == "detail":
 		team, member = _need_participant(args)
 		return projection.detail(store, args.work, viewer_team=team,

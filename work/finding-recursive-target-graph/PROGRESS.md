@@ -858,3 +858,133 @@ Per `9faea62ea0a8b75fcb5ef13e4a6b6589`
 All four reviewer regressions pass; four break-sweeps red. Gate: 253
 passed (250 parallel + 3 serial), test-v11 green. STOPPED for re-review;
 group 3 held.
+
+## WS-2 group 3 — due review, extension, close evidence, final battery (2026-08-15)
+
+Authorized by `cf27b75c5c5c6e7ec1c8b5acf2a4bae8`; completes WS-2.
+
+Derived due (schema v5): rounds carry optional `review_at` (UTC ISO,
+lexicographic order — no timezone can reorder it) and a
+`deadline_generation`. Due-ness is a PURE function of the stored instant,
+the deadline generation, and an injectable clock (production: UTC wall
+time; `BATON_WORK_NOW` is the documented deterministic seam for subprocess
+stories). No scheduler, no timer audit row, no read mutation — due is
+idempotent across reads and restarts and visible as an always-visible
+`due` count in the team summary (the parked treatment), the round view,
+and the `[due:N]` TUI header. A deadline born expired refuses. Reaching T
+transitions nothing.
+
+Audited extension: `extend_round` (CLI `extend`) moves the SAME
+candidate's window strictly forward (and may give a deadline to an
+undated round), advances the deadline generation, retains every report
+and pending assignment, and is refused to non-handlers — repeated
+extensions are visible history, never a hidden timer reset.
+
+Close evidence: a close concluding an open round audits, in the close
+event, the round, candidate, `reported/assigned`, the raw observation
+tally, review_at + generation, the created→closed exposure window, the
+pending assignments being withdrawn, and the reviewer's basis — recording
+the judgment's basis without fabricating feedback (the 0/N branch records
+zeros honestly).
+
+Stories WS2-WF-01..04 implemented (satisfying single-verifier close;
+three mixed reports with failed/rejected two-axis adjudication and
+supersession; due/silence/extension/withdrawal with the clock seam
+including the 0/3 branch; failed candidate → explicit resume →
+replacement round → close auditing the concluded round). Focused matrix
+completed in `test_ws2_due.py` (13): boundary determinism, no-transition
+due, extension semantics, discretion/close evidence, extension-vs-close /
+report-vs-abandon / assessment-vs-close / new-round-vs-abandon races,
+whole-or-nothing fault injection at every write boundary of the closing
+transaction (byte-hash + dense sequence at each fault), and full restart
+reconstruction. Bounded renderer parity: the TUI round line distinguishes
+due/pending/reported/withdrawn and shows observation/assessment as
+separate axes, value-equal to the canonical projection (PTY test).
+
+Break-sweeps: non-derived due, non-advancing generation, summary-less
+close, and merged TUI axes each fail their regression (the TUI sweep was
+re-run after a first no-op application — verified genuinely red).
+Final battery: all 18 workflows × 2 modes = 36 passed; full gate 277
+passed (274 parallel + 3 serial); test-v11 green. WS-2 COMPLETE —
+STOPPED for final review. Migration, deployment, heavy TUI navigation,
+C5/C6 untouched.
+
+## Group-3 re-review fixes — R41-R45 (2026-08-15)
+
+Per `5e04534a4d15c047a43b2ee5028c0662`
+(`review-2026-08-15T03-57-22Z.md`).
+
+R41: `_canonical_instant` — one shared boundary refusing anything that is
+not a real UTC instant in exactly YYYY-MM-DDTHH:MM:SSZ (strptime + exact
+round-trip; impossible dates and offsets refuse pre-write, consuming no
+round, act, or sequence).
+
+R42: create_round and extend_round recheck the deadline against ONE
+transaction-local sampled instant inside the committing write (also used
+as created_ts) — a deadline passing between optimistic check and lock can
+no longer commit born-due. Every canonical read response samples the
+clock once: detail passes one instant to all round views, home to its
+summary, obligations to its due predicate — a boundary crossing cannot
+make counts, details, and locators disagree within one response.
+
+R43: the due alarm has its LOCATOR — `obligations` now carries one
+derived `due_round` entry per live deadline generation (work, round,
+candidate, review_at, generation, live responsible endpoint), appearing
+exactly at/after the deadline, following accepted Current changes, and
+vanishing on extension/abandon/supersession/close. Purely derived.
+
+R44: `wait_actionable` + CLI `wait --timeout` — the smallest read-only
+wait: immediate on actionable work, otherwise polling the pure projection
+(≤50ms granularity) until the nearest deadline crosses or the timeout
+expires; zero mutation (event-identical before/after, tested). Covered:
+immediate, quiet timeout, deadline wake, competing-message commit from
+another session, extension/abandon/close quieting, restart. WF-03 gained
+CLI-level wait checkpoints (quiet before T, locator at T).
+
+R45: the race matrix completed BOTH orders — extension-vs-close
+(ext-first: both commit, the concluded round records the extended
+window), report-vs-abandon (report-first retained, zero withdrawals),
+assessment-vs-close (assessment retained), new-round-vs-abandon
+(abandoned round never relabeled, no duplicated withdrawal) — plus the
+two-report race (exactly one commits, evidence unoverwritten) and the
+STATED public retry limitation: without operation ids, retrying a
+completed mutation is refused structurally with zero duplicate effects;
+callers read before retrying.
+
+Break-sweeps red for all four new guards (canonical boundary, in-lock
+deadline recheck, due locator, blocking wait). One mechanical fallout:
+the home-snapshot regression's monkeypatch wrapper forwards the new
+sampled-now kwarg. Final battery: 36 workflow runs (18 × source+packaged);
+gate 294 passed (291 parallel + 3 serial); test-v11 green. STOPPED for
+re-review; later phases held.
+
+## Group-3 re-review 2 — R46 one-snapshot actionable/summary/wait (2026-08-15)
+
+Per `c8b8bafd46d26b06511cacca880b8589`
+(`review-2026-08-15T04-10-52Z.md`).
+
+A reentrant `_read_snapshot` (BEGIN…ROLLBACK, joining any snapshot the
+caller already holds) now pins every Group-3 canonical response to ONE
+database state alongside its one sampled instant:
+
+- `obligations` reads pending rows, endpoint resolutions, and the derived
+  due locators inside the snapshot and returns a `Snapshotted` list whose
+  `snapshot_seq` was read INSIDE it — the CLI envelope uses that token, so
+  the consistency token can never name a state later than the payload
+  (list result shape preserved for every existing caller).
+- `team_summary` derives all four counts, the due count, and (on
+  top-level calls) its token from one snapshot; embedded calls (home)
+  join the caller's snapshot and carry no separate token.
+- `wait_actionable` returns each response with the winning read's token.
+
+The reviewer's R46 regression now returns the wholly-before view; two new
+coherence regressions added as required: the envelope-token test (a commit
+interleaved during the read cannot relabel old rows with a newer
+sequence) and the summary-tear test (a parked-work commit between count
+statements cannot half-update the summary). Break-sweep: neutralizing the
+snapshot helper fails the tear and summary regressions as reproduced.
+
+Mechanical fallout: the home-summary equality assertion accounts for the
+top-level token. Gate: 297 passed (294 parallel + 3 serial), test-v11
+green; the 36-run workflow battery unchanged and green. STOPPED for
+re-review; later phases held.

@@ -22,7 +22,33 @@ noise control, not a wall.
 
 from __future__ import annotations
 
+import contextlib
+
 from baton_work.authority import Authority, WorkError
+
+
+class Snapshotted(list):
+	"""A list read inside ONE database snapshot, carrying the sequence
+	that snapshot observed — the envelope's consistency token can then
+	name exactly the state the rows came from, never a later commit."""
+
+	snapshot_seq: int = 0
+
+
+@contextlib.contextmanager
+def _read_snapshot(store: Authority):
+	"""One pure read transaction (BEGIN … ROLLBACK), reentrant: a caller
+	already holding a snapshot keeps it — nested reads join it instead of
+	failing, so every canonical response derives its rows, its derived
+	predicates, and its token from one database state (WS-2 R46)."""
+	if store.conn.in_transaction:
+		yield
+		return
+	store.conn.execute("BEGIN")
+	try:
+		yield
+	finally:
+		store.conn.execute("ROLLBACK")
 
 
 def _work(store: Authority, work_id: str) -> dict:
@@ -115,7 +141,8 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str) -> dict:
 			"ORDER BY created_seq", (viewer_team,)).fetchall()
 		views = [_row_view(store, dict(row), viewer_team, viewer_member)
 		         for row in rows]
-		summary = team_summary(store, viewer_team=viewer_team)
+		summary = team_summary(store, viewer_team=viewer_team,
+		                       now=store.clock())
 		snapshot_seq = store.last_seq()
 	finally:
 		# A read transaction, rolled back: purity intact, and rows,
@@ -238,10 +265,26 @@ def new_count(store: Authority, work_id: str, *, viewer_team: str,
 	        "total": own_new + sum(entry["new"] for entry in per_child)}
 
 
-def obligations(store: Authority, *, viewer_team: str) -> list[dict]:
+def obligations(store: Authority, *, viewer_team: str,
+                now: str | None = None) -> list[dict]:
 	"""The team's ACTIONABLE set — separate from unseen counts by ruling:
-	`@` enters this projection, `+` never does."""
-	out = []
+	`@` enters this projection, `+` never does. R43: every LIVE due round
+	the team currently answers for appears as one structured derived entry
+	per deadline generation — the alarm's LOCATOR: work, round, candidate,
+	deadline, generation, and the live responsible endpoint. Purely
+	derived; it follows accepted Current/route changes and disappears on
+	extension, abandonment, supersession, or close."""
+	if now is None:
+		now = store.clock()
+	out = Snapshotted()
+	with _read_snapshot(store):
+		out.snapshot_seq = store.last_seq()
+		_collect_actionable(store, viewer_team, now, out)
+	return out
+
+
+def _collect_actionable(store: Authority, viewer_team: str, now: str,
+                        out) -> None:
 	for row in store.conn.execute(
 			"SELECT seq, work, message_seq, team, kind, flavor, round, "
 			"status FROM obligations WHERE team=? AND status='pending' "
@@ -249,10 +292,27 @@ def obligations(store: Authority, *, viewer_team: str) -> list[dict]:
 		entry = dict(row)
 		entry["owed_by"] = _endpoint_struct(store, row["team"], row["kind"])
 		out.append(entry)
-	return out
+	for row in store.conn.execute(
+			"SELECT rounds.work, rounds.round, rounds.candidate, "
+			"rounds.review_at, rounds.deadline_generation, "
+			"work.current_team, work.current_kind "
+			"FROM rounds JOIN work ON work.id = rounds.work "
+			"WHERE rounds.status='open' AND rounds.review_at IS NOT NULL "
+			"AND rounds.review_at <= ? AND work.current_team=? "
+			"ORDER BY rounds.review_at, rounds.work",
+			(now, viewer_team)):
+		out.append({
+			"flavor": "due_round",
+			"work": row["work"], "round": row["round"],
+			"candidate": row["candidate"],
+			"review_at": row["review_at"],
+			"deadline_generation": row["deadline_generation"],
+			"owed_by": _endpoint_struct(store, row["current_team"],
+			                            row["current_kind"]),
+		})
 
 
-def _round_view(store: Authority, row) -> dict:
+def _round_view(store: Authority, row, now: str | None = None) -> dict:
 	"""One verification round, both axes visible: the raw observation and
 	the reviewer's effective assessment are shown side by side so receipt
 	progress (`reported/assigned`) is never mistaken for support. The
@@ -284,26 +344,83 @@ def _round_view(store: Authority, row) -> dict:
 			"effective_assessment": acts[-1] if acts else None,
 			"assessments": acts,
 		})
+	# Due-ness is DERIVED, level-triggered, and per deadline generation:
+	# a pure function of the stored instant and the clock — no scheduler,
+	# no timer audit row, idempotent across reads and restarts.
+	if now is None:
+		now = store.clock()
+	due = (row["status"] == "open" and row["review_at"] is not None
+	       and now >= row["review_at"])
 	return {"round": row["round"], "candidate": row["candidate"],
 	        "status": row["status"],
+	        "review_at": row["review_at"],
+	        "deadline_generation": row["deadline_generation"],
+	        "due": due,
 	        "assigned": assigned, "reported": reported,
 	        "pending": pending, "withdrawn": withdrawn,
 	        "progress": f"{reported}/{assigned}",
 	        "assignments": assignments}
 
 
-def team_summary(store: Authority, *, viewer_team: str) -> dict:
+def wait_actionable(store: Authority, *, viewer_team: str,
+                    timeout_seconds: float) -> dict:
+	"""R44: the smallest READ-ONLY wait surface. Returns immediately when
+	the team's actionable projection is non-empty; otherwise blocks no
+	later than the nearest live deadline (the poll re-derives the pure
+	projection, so extensions, closes, abandonments, and competing
+	messages are seen as they commit) or the caller's timeout. Creates no
+	claim, timer row, audit act, or any other authority mutation."""
+	import time as _time
+	wall_deadline = _time.monotonic() + max(0.0, float(timeout_seconds))
+	while True:
+		entries = obligations(store, viewer_team=viewer_team,
+		                      now=store.clock())
+		if entries:
+			return {"actionable": entries, "timed_out": False,
+			        "snapshot_seq": entries.snapshot_seq}
+		remaining = wall_deadline - _time.monotonic()
+		if remaining <= 0:
+			return {"actionable": [], "timed_out": True,
+			        "snapshot_seq": entries.snapshot_seq}
+		_time.sleep(min(0.05, remaining))
+
+
+def team_summary(store: Authority, *, viewer_team: str,
+                 now: str | None = None) -> dict:
 	"""WS-1 ruling: parked work stays in the operators' faces. The team's
 	always-visible counts — the TUI renders the same numbers in its summary
-	line, and parity holds the two surfaces equal."""
+	line, and parity holds the two surfaces equal. R46: rows, the due
+	predicate, and the token come from one read snapshot."""
+	# The due count is ALWAYS visible, like parked (WS-2 group 3): open
+	# rounds whose review_at has arrived, on work this team currently
+	# answers for — derived at read time from the same clock.
+	if now is None:
+		now = store.clock()
+	nested = store.conn.in_transaction
+	with _read_snapshot(store):
+		summary = _summary_in_snapshot(store, viewer_team, now)
+		if not nested:
+			summary["snapshot_seq"] = store.last_seq()
+	return summary
+
+
+def _summary_in_snapshot(store: Authority, viewer_team: str,
+                         now: str) -> dict:
 	def count(clause: str, *params) -> int:
 		return store.conn.execute(
 			"SELECT COUNT(*) AS n FROM work WHERE team=? AND status='open' "
 			+ clause, (viewer_team, *params)).fetchone()["n"]
+	due = store.conn.execute(
+		"SELECT COUNT(*) AS n FROM rounds JOIN work "
+		"ON work.id = rounds.work "
+		"WHERE rounds.status='open' AND rounds.review_at IS NOT NULL "
+		"AND rounds.review_at <= ? AND work.current_team=?",
+		(now, viewer_team)).fetchone()["n"]
 	return {"team": viewer_team,
 	        "open": count(""),
 	        "parked": count("AND phase='parked'"),
-	        "waiting": count("AND phase='waiting'")}
+	        "waiting": count("AND phase='waiting'"),
+	        "due": due}
 
 
 def detail(store: Authority, work_id: str, *, viewer_team: str,
@@ -329,7 +446,10 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	row = _work(store, work_id)
 	view = _row_view(store, row, viewer_team, viewer_member)
 	view["snapshot_seq"] = store.last_seq()
-	view["rounds"] = [_round_view(store, entry)
+	# One sampled instant for the WHOLE response (R42): due flags in
+	# every round agree with each other and with the snapshot.
+	now = store.clock()
+	view["rounds"] = [_round_view(store, entry, now)
 	                  for entry in store.conn.execute(
 		"SELECT * FROM rounds WHERE work=? ORDER BY round", (work_id,))]
 	view["breadcrumb"] = breadcrumb(store, work_id)
@@ -365,7 +485,7 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 			if store.conn.execute(
 					"SELECT 1 FROM rounds WHERE work=? AND status='open'",
 					(work_id,)).fetchone():
-				available.append("abandon_round")
+				available += ["abandon_round", "extend_round"]
 			if row["phase"] != "waiting":
 				# waiting leaves only through its condition-bound wake.
 				available.append("set_phase")

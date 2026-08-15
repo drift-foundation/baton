@@ -627,7 +627,7 @@ the focused regression matrix in `WORKFLOW-TESTS.md`.
 - [x] Run WS2-WF-07 and WS2-WF-08 through the source interface plus all
   affected existing stories and `just test-v11`.
 - [x] Stop after Group 2 passes and return evidence for reviewer inspection.
-- [ ] **GROUP 3 REMAINS HELD:** do not implement due/review-at notification,
+- [x] **GROUP 3 REMAINS HELD:** do not implement due/review-at notification,
   extension, fault-injection expansion, the remaining race/restart/packaged
   matrix, or bounded renderer parity in this group.
 
@@ -641,3 +641,52 @@ for re-review. Group 3 remains held.
 **Group 2 accepted.** See `review-2026-08-15T03-15-38Z.md`. The corrected
 focused and workflow set passes 17/17, and `just test-v11` passes 253/253 (250
 parallel plus 3 serial). Group 3 remains held pending explicit release.
+
+### 2026-08-14 WS-2 group 3 released
+
+**Authorized by Slawomir after the Group 2 commit; supersedes the hold above.**
+Complete WS-2 with the remaining pinned battery:
+
+- [x] Add optional `review_at`, derived level-triggered due actionability and
+  an always-visible due count, plus deadline-aware waiting. Due reads and
+  restarts remain pure: no scheduler, timer audit row, or one-shot notification
+  mutation is introduced.
+- [x] Add the audited extension of the same candidate's review window while
+  retaining reports and pending assignments. Explicit reviewer decisions may
+  extend, abandon/resume work, or close; elapsed time and feedback never choose
+  a branch automatically.
+- [x] Make a close based on a verification round audit the round, candidate,
+  reported/assigned and observation summary, decision rationale/basis, elapsed
+  exposure, and pending withdrawals without fabricating feedback.
+- [x] Implement WS2-WF-01 through WS2-WF-04 and complete the mandatory focused
+  due, discretion, atomic-close, race, restart/retry, configuration-generation,
+  audit, and one-snapshot JSON matrix in `WORKFLOW-TESTS.md`.
+- [x] Add bounded renderer parity for due/pending/reported/withdrawn and raw
+  observation versus reviewer assessment using the canonical projection. Full
+  TUI navigation remains outside WS-2.
+- [x] Run every WS-1 and WS-2 workflow from source and built artifacts plus
+  `just test-v11`, then stop and return the complete evidence for review.
+- [x] Do not start migration, deployment, heavy TUI navigation, or unrelated
+  C5/C6 work during this group.
+
+**Group 3 review: changes requested.** See
+`review-2026-08-15T03-57-22Z.md`. Six deterministic failures expose missing
+canonical deadline validation, create/extend commit-time expiry races, and a
+due alarm with no actionable locator. The required deadline-aware wait is
+absent, and the mandatory race/retry matrix is incomplete. Correct these
+within Group 3, rerun its complete focused/workflow/package gate and
+`just test-v11`, then stop for re-review. Later phases remain held.
+
+**Group 3 re-review: one change requested.** R41–R45 pass, but see
+`review-2026-08-15T04-10-52Z.md`: the actionable projection can tear across a
+concurrent close, and its JSON envelope may label the old payload with a later
+`snapshot_seq`. Pin actionable, summary, and wait results to one pure database
+snapshot plus one sampled instant, add envelope/summary regressions, rerun the
+complete gate, and stop for re-review. Later phases remain held.
+
+**Group 3 accepted; WS-2 complete.** See
+`review-2026-08-15T04-17-56Z.md`. R46 is corrected at both the database and
+JSON-token boundaries; all focused regressions pass, all 18 workflows pass
+from source and packaged artifacts, and `just test-v11` passes 297/297 (294
+parallel plus 3 serial). Migration, deployment, heavy TUI navigation, C5, and
+C6 remain held pending their own plan release.

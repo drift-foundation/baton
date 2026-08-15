@@ -42,8 +42,11 @@ def test_home_is_the_viewers_own_top_level_and_nothing_else(world):
 	assert [row["id"] for row in lang_home["rows"]] == [cast["lang42"]]
 	# WS-1 R3: the top-level view CARRIES its summary — one projection,
 	# one snapshot, the parked count beside the rows it describes.
-	assert lang_home["summary"] == pj.team_summary(store, viewer_team="lang")
-	assert set(lang_home["summary"]) == {"team", "open", "parked", "waiting"}
+	standalone = pj.team_summary(store, viewer_team="lang")
+	standalone.pop("snapshot_seq")  # a top-level call carries its token
+	assert lang_home["summary"] == standalone
+	assert set(lang_home["summary"]) == {"team", "open", "parked",
+	                                     "waiting", "due"}
 	push_home = pj.home(store, viewer_team="push", viewer_member="sl")
 	assert [row["id"] for row in push_home["rows"]] == [cast["pushcoin"]], \
 		"a linked external record entered another team's default table"
@@ -67,14 +70,15 @@ def test_home_rows_and_summary_share_one_database_snapshot(tmp_path,
 		original_summary = pj.team_summary
 		interleaved = False
 
-		def commit_between_queries(store, *, viewer_team):
+		def commit_between_queries(store, *, viewer_team, **kwargs):
 			nonlocal interleaved
 			if not interleaved:
 				interleaved = True
 				with bw.Authority(database) as writer:
 					tr.set_phase(writer, work, actor_team="push", actor="sl",
 					             phase="parked", reason="interleaving proof")
-			return original_summary(store, viewer_team=viewer_team)
+			return original_summary(store, viewer_team=viewer_team,
+			                        **kwargs)
 
 		monkeypatch.setattr(pj, "team_summary", commit_between_queries)
 		home = pj.home(reader, viewer_team="push", viewer_member="sl")

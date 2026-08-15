@@ -62,7 +62,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	assert waiting["phase"] == "waiting"
 	assert waiting["waiting_on"] == {"type": "gates", "obligation": None}
 	assert flow.ok("summary", viewer="push.sl") == \
-		{"team": "push", "open": 1, "parked": 0, "waiting": 1}
+		{"team": "push", "open": 1, "parked": 0, "waiting": 1, "due": 0}
 
 	# The link is traversable from EITHER side.
 	assert [entry["id"] for entry in

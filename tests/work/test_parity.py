@@ -188,3 +188,59 @@ def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
 		with bw.Authority(database) as store:
 			tr.set_phase(store, cast["pushcoin"], actor_team="push",
 			             actor="sl", phase="queued")
+
+
+def test_the_round_line_agrees_with_the_canonical_projection(
+		tmp_path, capsys, monkeypatch):
+	"""WS-2 group 3 bounded parity: the compact round line distinguishes
+	due/pending/reported/withdrawn and shows the raw observation SEPARATELY
+	from the reviewer's assessment — every value from the same canonical
+	projection the JSON agent reads."""
+	import fixtures as fx
+	from baton_work import transitions as tr
+	import baton_work as bw
+	spec = {"lang": {"members": {"ada": ["dev"]}, "kinds": ["rsrch"]},
+	        "push": {"members": {"sl": ["dev"]}, "kinds": ["verify"]},
+	        "web": {"members": {"wren": ["dev"]}, "kinds": ["verify"]}}
+	config_path, database = fx.build_instance(str(tmp_path), spec)
+	monkeypatch.setenv("BATON_WORK_NOW", "2026-08-15T10:00:00Z")
+	with bw.Authority(database) as store:
+		work = tr.create_work(store, team="lang", kind="rsrch",
+		                      title="parser recovery",
+		                      origin="external-report", author="ada",
+		                      body="provider")["work_id"]
+		created = tr.create_round(
+			store, work, actor_team="lang", actor="ada",
+			candidate="driftc-A", assign=["push.verify", "web.verify"],
+			review_at="2026-08-15T12:00:00Z")
+		tr.report(store, created["assignments"][0], team="push",
+		          member="sl", observation="failed", evidence="crash")
+		tr.assess(store, created["assignments"][0], actor_team="lang",
+		          actor="ada", assessment="rejected",
+		          rationale="consumer config error")
+	monkeypatch.setenv("BATON_WORK_NOW", "2026-08-15T13:00:00Z")
+
+	expected = _json(capsys, config_path, "detail", work,
+	                 viewer="lang.ada")["rounds"][0]
+	assert expected["due"] is True
+
+	text, status, steps = ptyharness.drive(
+		config_path, "lang.ada",
+		[(b"\r", 0.5), (b"o", 0.6), (b"q", 0.4)],
+		columns=WIDTH, lines=HEIGHT)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+	rendered = steps[-2] if len(steps) > 1 else text
+	screen = ptyharness.replay(rendered, columns=WIDTH, lines=HEIGHT)
+	joined = "\n".join(screen)
+	round_line = (f"R{expected['round']} {expected['candidate']} "
+	              f"{expected['progress']} due "
+	              f"wthdr:{expected['withdrawn']}")
+	assert round_line in joined, \
+		f"TUI round line missing or wrong: {joined!r}"
+	push_entry = next(entry for entry in expected["assignments"]
+	                  if entry["endpoint"] == "push.verify")
+	assert f"push.verify {push_entry['observation']}/" \
+		f"{push_entry['effective_assessment']['assessment']}" in joined, \
+		"raw observation and assessment are not shown as separate axes"
+	assert "web.verify pending/-" in joined, \
+		"a pending assignment is not distinguished"

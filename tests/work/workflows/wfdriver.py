@@ -51,6 +51,10 @@ class Flow:
 		self.mode = mode
 		self.archive = archive
 		self.config_path = os.path.join(self.directory, "baton.json")
+		# WS-2 group 3: the deterministic clock seam. When set, child
+		# processes see BATON_WORK_NOW and the authority derives due-ness
+		# from this exact instant instead of the wall clock.
+		self.now: str | None = None
 
 	# -- process plumbing --------------------------------------------------
 
@@ -61,9 +65,11 @@ class Flow:
 
 	def _env(self) -> dict:
 		env = {key: value for key, value in os.environ.items()
-		       if key != "PYTHONPATH"}
+		       if key not in ("PYTHONPATH", "BATON_WORK_NOW")}
 		if self.mode == "source":
 			env["PYTHONPATH"] = SRC
+		if self.now is not None:
+			env["BATON_WORK_NOW"] = self.now
 		return env
 
 	def raw(self, *argv, viewer: str | None = None):

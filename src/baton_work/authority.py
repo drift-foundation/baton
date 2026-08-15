@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -225,6 +225,9 @@ CREATE TABLE rounds (
 	round       INTEGER NOT NULL,
 	candidate   TEXT NOT NULL,
 	status      TEXT NOT NULL DEFAULT 'open',
+	review_at   TEXT,
+	deadline_generation INTEGER NOT NULL DEFAULT 0,
+	created_ts  TEXT NOT NULL,
 	created_seq INTEGER NOT NULL,
 	ended_seq   INTEGER,
 	PRIMARY KEY (work, round)
@@ -262,6 +265,14 @@ class Authority:
 			raise WorkError(f"{path} is not an initialized Work authority; "
 			                f"run init first")
 		self.path = path
+		# WS-2 group 3: due-ness is a PURE function of stored review_at and
+		# this clock. Production reads UTC wall time; tests may inject a
+		# fixed instant (directly, or via BATON_WORK_NOW for subprocess
+		# stories) so before/at/after boundaries are deterministic. UTC
+		# ISO-8601 strings compare lexicographically, so no display
+		# timezone can alter stored ordering.
+		self.clock = (lambda: os.environ["BATON_WORK_NOW"]) \
+			if os.environ.get("BATON_WORK_NOW") else _utc_now
 		self.conn = sqlite3.connect(path, timeout=60.0)
 		self.conn.row_factory = sqlite3.Row
 		self.conn.execute("PRAGMA foreign_keys = ON")
