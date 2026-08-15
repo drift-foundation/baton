@@ -159,7 +159,7 @@ def test_a_pass_never_changes_phase_and_closed_refuses(world):
 	assert _row(store, work)["phase"] == "active", \
 		"a pass silently rewrote phase"
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="refuses phase"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
 		             phase="queued")
@@ -183,13 +183,13 @@ def test_gates_waiting_wakes_only_at_the_last_gate(world):
 	assert _row(store, work)["wait_type"] == "gates"
 
 	tr.close_work(store, inner, actor_team="lang", actor="ada",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	assert _row(store, work)["phase"] == "waiting", \
 		"satisfying only SOME gates woke the work"
 	assert not [e for e in store.events() if e["kind"] == "wake"]
 
 	closing = tr.close_work(store, blocker, actor_team="push", actor="sl",
-	                        disposition="done")
+	                        disposition="done", outcome="satisfying")
 	row = _row(store, work)
 	assert row["phase"] == "queued" and row["wait_type"] is None
 	wakes = [e for e in store.events() if e["kind"] == "wake"]
@@ -275,12 +275,12 @@ def test_the_wake_race_neither_loses_nor_duplicates(world):
 	def close_second_first(kind, actor, payload, mutate):
 		store._write = original
 		tr.close_work(other, second, actor_team="push", actor="sl",
-		              disposition="raced in first")
+		              disposition="raced in first", outcome="satisfying")
 		return original(kind, actor, payload, mutate)
 
 	store._write = close_second_first
 	tr.close_work(store, first, actor_team="push", actor="sl",
-	              disposition="the last gate")
+	              disposition="the last gate", outcome="satisfying")
 	wakes = [e for e in store.events() if e["kind"] == "wake"]
 	assert len(wakes) == 1, "the racing closes lost or duplicated the wake"
 	assert _row(store, work)["phase"] == "queued"
@@ -302,7 +302,7 @@ def test_entering_waiting_races_the_satisfying_close(world):
 	def satisfy_between(kind, actor, payload, mutate):
 		store._write = original
 		tr.close_work(other, blocker, actor_team="push", actor="sl",
-		              disposition="gate shut mid-flight")
+		              disposition="gate shut mid-flight", outcome="satisfying")
 		return original(kind, actor, payload, mutate)
 
 	store._write = satisfy_between
@@ -331,7 +331,7 @@ def test_parking_needs_a_reason_keeps_current_and_never_wakes(world):
 		"parking dropped the one accountable Current"
 	# Closing every gate wakes NOTHING parked — no condition, no promise.
 	tr.close_work(store, blocker, actor_team="push", actor="sl",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	assert _row(store, work)["phase"] == "parked"
 	assert not [e for e in store.events() if e["kind"] == "wake"]
 	# parked leaves ONLY to queued, explicitly.
@@ -387,7 +387,7 @@ def test_at_input_never_grants_pass_or_close_authority(world):
 				                body="taking it", pass_to="push.bug")
 			else:
 				tr.close_work(store, work, actor_team="push", actor="sl",
-				              disposition="not mine to close")
+				              disposition="not mine to close", outcome="satisfying")
 		assert store.events() == before, \
 			f"an @ respondent committed an unauthorized {operation}"
 
@@ -446,14 +446,13 @@ def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 	                       origin="decomposition", author="ada", body="b",
 	                       parent=work)["work_id"]
 	tr.close_work(store, child, actor_team="lang", actor="ada",
-	              disposition="done")
-	# Reopen belongs to the handler of the Current it RESTORES.
-	with pytest.raises(bw.WorkError, match="never|ownership"):
-		tr.reopen_work(store, child, actor_team="lang", actor="grace",
-		               reason="not mine to reopen")
-	tr.reopen_work(store, child, actor_team="lang", actor="ada",
-	               reason="verify again")
-	assert _row(store, child)["status"] == "open"
+	              disposition="done", outcome="satisfying")
+	# WS-2: closure is immutable — nothing may mutate the closed child;
+	# the live continuation is follow-up work.
+	with pytest.raises(bw.WorkError, match="terminal|immutable"):
+		tr.classify(store, child, actor_team="lang", actor="ada",
+		            classification="duplicate")
+	assert _row(store, child)["status"] == "closed"
 
 
 def test_any_configured_participant_may_chip_in_without_work_ownership(world):
@@ -478,7 +477,7 @@ def test_any_configured_participant_may_chip_in_without_work_ownership(world):
 	# Chipping in is not an ownership transfer.
 	with pytest.raises(bw.WorkError, match="never grant"):
 		tr.close_work(store, work, actor_team="push", actor="sl",
-		              disposition="not mine")
+		              disposition="not mine", outcome="satisfying")
 
 
 def test_obligation_answering_belongs_to_the_named_routes_handler(world):
@@ -515,13 +514,11 @@ def test_available_transitions_mirror_the_full_matrix(world):
 		{"post_message", "mark_seen"}, \
 		"participation leaked an ownership operation into the projection"
 	tr.close_work(store, work, actor_team="lang", actor="ada",
-	              disposition="done")
-	assert pj.detail(store, work, viewer_team="lang",
-	                 viewer_member="ada")["available_transitions"] == \
-		["reopen"]
-	assert pj.detail(store, work, viewer_team="lang",
-	                 viewer_member="grace")["available_transitions"] == [], \
-		"reopen offered to someone who cannot perform it"
+	              disposition="done", outcome="satisfying")
+	for viewer in ("ada", "grace"):
+		assert pj.detail(store, work, viewer_team="lang",
+		                 viewer_member=viewer)["available_transitions"] \
+			== [], "closure is immutable (WS-2); nothing is offered"
 
 
 def test_available_transitions_offer_close_over_an_open_blocker(world):
@@ -535,27 +532,6 @@ def test_available_transitions_offer_close_over_an_open_blocker(world):
 		store, work, viewer_team="lang",
 		viewer_member="ada")["available_transitions"], \
 		"projection hid a close the authority permits over an open blocker"
-
-
-def test_available_transitions_hide_reopen_under_a_closed_parent(world):
-	"""A closed parent prevents reopening its child until ancestry is open;
-	the machine surface declares the same live precondition as the writer."""
-	store, _config = world
-	parent = _create(store)
-	child = _create(store, parent=parent)
-	tr.close_work(store, child, actor_team="lang", actor="ada",
-	              disposition="done")
-	tr.close_work(store, parent, actor_team="lang", actor="ada",
-	              disposition="done")
-	assert "reopen" not in pj.detail(
-		store, child, viewer_team="lang",
-		viewer_member="ada")["available_transitions"], \
-		"projection offered reopen while the closed parent makes it refuse"
-	tr.reopen_work(store, parent, actor_team="lang", actor="ada",
-	               reason="open ancestry")
-	assert "reopen" in pj.detail(
-		store, child, viewer_team="lang",
-		viewer_member="ada")["available_transitions"]
 
 
 def test_the_compact_vocabulary_is_closed_and_complete(world):

@@ -2,8 +2,8 @@
 
 The centerpiece is the finding's own LANG-42 scenario: three teams converge
 on one provider Work, and its terminal close satisfies every qualifying edge
-through level-triggered recomputation — with reopen as the same recomputation
-run backwards, which the break-sweep holds in place.
+through level-triggered recomputation. (WS-2: closure is immutable; the
+former reopen legs became follow-up-work rules, tested here.)
 """
 
 from __future__ import annotations
@@ -69,7 +69,7 @@ def test_lang_42_three_consumers_one_close_fans_out(store):
 	assert [_ready(store, w) for w in (pushcoin, web, mariadb)] == [0, 0, 0]
 
 	tr.close_work(store, lang42, actor_team="lang", actor="ada",
-	              disposition="fixed and verified")
+	              disposition="fixed and verified", outcome="satisfying")
 
 	assert _ready(store, pushcoin) == 1
 	assert _ready(store, web) == 1
@@ -84,30 +84,40 @@ def test_lang_42_three_consumers_one_close_fans_out(store):
 	assert incoming == 3
 
 
-def test_reopen_reblocks_every_dependent_with_no_inverse_path(store):
+def test_closure_is_immutable_and_late_evidence_becomes_follow_up(store):
+	"""WS-2: no reopen exists. A later contradiction creates follow-up
+	work; prior consumers are never silently re-blocked — each affected one
+	gains its own NEW explicit edge."""
 	lang42 = _create(store, "lang", "ada", "parser recovery")
 	pushcoin = _create(store, "push", "sl", "checkout fails")
 	web = _create(store, "web", "wren", "render crash")
 	_block(store, pushcoin, lang42)
 	_block(store, web, lang42, team="web", member="wren")
 	tr.close_work(store, lang42, actor_team="lang", actor="ada",
-	              disposition="fixed")
+	              disposition="fixed", outcome="satisfying")
 	assert (_ready(store, pushcoin), _ready(store, web)) == (1, 1)
 
-	tr.reopen_work(store, lang42, actor_team="lang", actor="ada",
-	               reason="fix regressed")
-	assert (_ready(store, pushcoin), _ready(store, web)) == (0, 0), \
-		"reopen did not re-block the dependents"
+	follow = tr.create_work(store, team="lang", kind="bug",
+	                        title="regression follow-up",
+	                        origin="external-report", author="ada",
+	                        body="push contradicts the fix",
+	                        follow_up_of=lang42)["work_id"]
+	_block(store, pushcoin, follow)
+	assert _ready(store, pushcoin) == 0, "the new explicit edge did not gate"
+	assert _ready(store, web) == 1, \
+		"a prior consumer was silently re-blocked"
 
 
-def test_blocking_on_an_already_closed_blocker_gates_nothing(store):
+def test_a_new_blocker_may_target_only_open_work(store):
+	"""WS-2: a dependency on finished work gates nothing and is refused;
+	the live relationship belongs to follow-up work."""
 	lang42 = _create(store, "lang", "ada", "parser recovery")
 	tr.close_work(store, lang42, actor_team="lang", actor="ada",
-	              disposition="fixed")
+	              disposition="fixed", outcome="satisfying")
 	pushcoin = _create(store, "push", "sl", "checkout fails")
-	_block(store, pushcoin, lang42)
-	assert _ready(store, pushcoin) == 1, \
-		"a closed blocker gated a fresh dependent"
+	with pytest.raises(bw.WorkError, match="only open Work"):
+		_block(store, pushcoin, lang42)
+	assert _ready(store, pushcoin) == 1
 
 
 # -- cycle refusal over the union --------------------------------------------
@@ -150,7 +160,7 @@ def test_a_closed_work_takes_no_new_blockers(store):
 	a = _create(store, "lang", "ada", "a")
 	b = _create(store, "push", "sl", "b")
 	tr.close_work(store, a, actor_team="lang", actor="ada",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="takes\\s+no new blockers|no new blockers"):
 		_block(store, a, b, team="lang", member="ada")
 
@@ -165,8 +175,8 @@ def test_readiness_is_the_conjunction_of_children_and_blockers(store):
 
 	assert _ready(store, parent) == 0
 	tr.close_work(store, child, actor_team="lang", actor="ada",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	assert _ready(store, parent) == 0, "an open blocker stopped gating"
 	tr.close_work(store, external, actor_team="push", actor="sl",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	assert _ready(store, parent) == 1

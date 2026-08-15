@@ -59,7 +59,7 @@ def test_wf03_provider_rejects_honestly(flow):
 	# The consumer decides independently — and its terminal state never
 	# claims a fix that did not happen.
 	flow.ok("close", web1, "--disposition",
-	        "workaround shipped: sanitize the DOM before render",
+	        "workaround shipped: sanitize the DOM before render", "--outcome", "satisfying",
 	        viewer="web.wren")
 	closed = flow.ok("detail", web1, viewer="web.wren")
 	assert closed["status"] == "closed"

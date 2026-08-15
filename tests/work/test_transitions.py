@@ -1,9 +1,9 @@
-"""A2: Work + containment — atomic creation, closure roll-up, reopen.
+"""A2: Work + containment — atomic creation, closure roll-up, immutability.
 
 The property under test throughout is LEVEL-TRIGGERED readiness: every
 assertion about `ready` is an assertion about recomputation from current
-state, and the reopen tests exist precisely because an event-forwarding
-implementation passes the close tests and fails these.
+state. (WS-2: closure is immutable — the former reopen tests became the
+follow-up rules tested here.)
 """
 
 from __future__ import annotations
@@ -119,7 +119,7 @@ def test_creation_refuses_bad_inputs_before_writing(store, kwargs, fragment):
 def test_a_child_of_a_closed_parent_is_refused(store):
 	parent = _create(store)["work_id"]
 	tr.close_work(store, parent, actor_team="lang", actor="slaw",
-	              disposition="fixed")
+	              disposition="fixed", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="does not grow new children"):
 		_create(store, title="late child", parent=parent)
 
@@ -133,10 +133,10 @@ def test_children_gate_the_parent_level_triggered(store):
 	assert _ready(store, parent) == 0, "open children left the parent ready"
 
 	tr.close_work(store, child_a, actor_team="lang", actor="slaw",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	assert _ready(store, parent) == 0, "one open child still gates"
 	tr.close_work(store, child_b, actor_team="lang", actor="slaw",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	assert _ready(store, parent) == 1, "all children closed; parent not ready"
 
 
@@ -145,7 +145,7 @@ def test_closing_over_open_children_is_refused_by_name(store):
 	child = _create(store, "step", parent=parent)["work_id"]
 	with pytest.raises(bw.WorkError, match=child):
 		tr.close_work(store, parent, actor_team="lang", actor="slaw",
-		              disposition="premature")
+		              disposition="premature", outcome="satisfying")
 	assert store.conn.execute("SELECT status FROM work WHERE id=?",
 	                          (parent,)).fetchone()["status"] == "open"
 
@@ -153,7 +153,7 @@ def test_closing_over_open_children_is_refused_by_name(store):
 def test_close_clears_current_and_next_terminally(store):
 	work = _create(store)["work_id"]
 	tr.close_work(store, work, actor_team="lang", actor="slaw",
-	              disposition="fixed and verified")
+	              disposition="fixed and verified", outcome="satisfying")
 	row = store.conn.execute("SELECT * FROM work WHERE id=?", (work,)).fetchone()
 	assert row["status"] == "closed"
 	assert row["current_team"] is None and row["current_kind"] is None
@@ -166,51 +166,7 @@ def test_close_requires_a_disposition(store):
 	work = _create(store)["work_id"]
 	with pytest.raises(bw.WorkError, match="disposition"):
 		tr.close_work(store, work, actor_team="lang", actor="slaw",
-		              disposition="  ")
-
-
-# -- reopen ------------------------------------------------------------------
-
-def test_reopen_visibly_reopens_the_ancestor_gate(store):
-	"""The confirmed behavior verbatim: adding or reopening a required
-	descendant visibly reopens the ancestor gate — and it must happen through
-	recomputation, which the A3 break-sweep will hold in place."""
-	parent = _create(store, "epic")["work_id"]
-	child = _create(store, "step", parent=parent)["work_id"]
-	tr.close_work(store, child, actor_team="lang", actor="slaw",
-	              disposition="done")
-	assert _ready(store, parent) == 1
-
-	tr.reopen_work(store, child, actor_team="lang", actor="slaw",
-	               reason="the fix regressed")
-	assert _ready(store, parent) == 0, "the ancestor gate did not reopen"
-	assert store.conn.execute("SELECT status FROM work WHERE id=?",
-	                          (child,)).fetchone()["status"] == "open"
-	assert _ready(store, child) == 1
-
-
-def test_reopen_under_a_closed_parent_is_refused_top_down(store):
-	parent = _create(store, "epic")["work_id"]
-	child = _create(store, "step", parent=parent)["work_id"]
-	tr.close_work(store, child, actor_team="lang", actor="slaw",
-	              disposition="done")
-	tr.close_work(store, parent, actor_team="lang", actor="slaw",
-	              disposition="shipped")
-	with pytest.raises(bw.WorkError, match="reopen the ancestry first"):
-		tr.reopen_work(store, child, actor_team="lang", actor="slaw",
-		               reason="regressed")
-
-
-def test_reopen_requires_a_reason_and_a_closed_work(store):
-	work = _create(store)["work_id"]
-	with pytest.raises(bw.WorkError, match="not closed"):
-		tr.reopen_work(store, work, actor_team="lang", actor="slaw",
-		               reason="r")
-	tr.close_work(store, work, actor_team="lang", actor="slaw",
-	              disposition="done")
-	with pytest.raises(bw.WorkError, match="reason"):
-		tr.reopen_work(store, work, actor_team="lang", actor="slaw",
-		               reason=" ")
+		              disposition="  ", outcome="satisfying")
 
 
 # -- audit -------------------------------------------------------------------
@@ -219,31 +175,49 @@ def test_every_transition_is_one_audited_event(store):
 	parent = _create(store, "epic")["work_id"]
 	child = _create(store, "step", parent=parent)["work_id"]
 	tr.close_work(store, child, actor_team="lang", actor="slaw",
-	              disposition="done")
-	tr.reopen_work(store, child, actor_team="lang", actor="slaw",
-	               reason="regressed")
+	              disposition="done", outcome="satisfying")
+	follow = tr.create_work(store, team="lang", kind="bug",
+	                        title="follow-up", origin="external-report",
+	                        author="slaw", body="late evidence",
+	                        follow_up_of=child)
 	kinds = [event["kind"] for event in store.events()]
 	assert kinds == ["accept_config", "accept_config",
 	                 "create_work", "create_work", "close_work",
-	                 "reopen_work"]
+	                 "create_work"]
 	seqs = [event["seq"] for event in store.events()]
 	assert seqs == list(range(1, len(kinds) + 1))
+	assert follow["seq"] == seqs[-1]
 
 
-def test_reopen_restores_the_endpoint_the_close_cleared(store):
-	"""No open work without a responsible endpoint — RULED, and the easy
-	defect is exactly the one this pins: close nulls `Current`, so a reopen
-	that 'restores' from the live row restores NULL and quietly creates
-	ownerless open work."""
+def test_closed_work_is_terminal_and_follow_up_is_the_only_new_reference(
+		store):
+	"""WS-2 immutable closure: the closed record refuses every mutation;
+	reading it and marking it seen remain; new work may point at it via
+	follow_up_of — which must name a CLOSED work and gates nothing."""
 	work = _create(store, kind="rsrch")["work_id"]
+	with pytest.raises(bw.WorkError, match="still open"):
+		tr.create_work(store, team="lang", kind="bug", title="early",
+		               origin="external-report", author="slaw", body="b",
+		               follow_up_of=work)
 	tr.close_work(store, work, actor_team="lang", actor="slaw",
-	              disposition="done")
-	tr.reopen_work(store, work, actor_team="lang", actor="slaw",
-	               reason="regressed")
-	row = store.conn.execute("SELECT * FROM work WHERE id=?", (work,)).fetchone()
-	assert row["status"] == "open"
-	assert (row["current_team"], row["current_kind"]) == ("lang", "rsrch"), \
-		f"reopened work has no responsible endpoint: {dict(row)}"
+	              disposition="done", outcome="satisfying")
+	row = store.conn.execute("SELECT * FROM work WHERE id=?",
+	                         (work,)).fetchone()
+	assert row["outcome"] == "satisfying"
+	assert (row["current_team"], row["current_kind"]) == (None, None)
+	# mark_seen mutates the VIEWER's cursor, not the record: allowed.
+	tr.mark_seen(store, work, team="lang", member="slaw",
+	             up_to_seq=store.last_seq())
+	follow = tr.create_work(store, team="lang", kind="bug",
+	                        title="follow-up", origin="external-report",
+	                        author="slaw", body="late evidence",
+	                        follow_up_of=work)["work_id"]
+	assert store.conn.execute(
+		"SELECT follow_up_of FROM work WHERE id=?",
+		(follow,)).fetchone()["follow_up_of"] == work
+	assert store.conn.execute("SELECT ready FROM work WHERE id=?",
+	                          (follow,)).fetchone()["ready"] == 1, \
+		"follow_up_of gated the new work"
 
 
 # -- WF-09 extracted regressions: terminal competitors validate in the lock --
@@ -312,7 +286,7 @@ def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
-		disposition="fixed and verified"))
+		disposition="fixed and verified", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="closed"):
 		tr.post_message(racer, work, author_team="lang", author="ada",
 		                body="handing over", pass_to="lang.rev")
@@ -327,7 +301,8 @@ def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
 def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 	"""WF-09 race 2, other serialization: a pass lands between close's
 	pre-read and its lock. The close event must record the endpoint that
-	was REALLY live at commit, or reopen restores a stale one."""
+	was REALLY live at commit — history is where cleared facts live, and
+	a stale record would lie about who last held the baton."""
 	racer, other = _race_pair(tmp_path)
 	work = tr.create_work(racer, team="lang", kind="bug", title="w",
 	                      origin="external-report", author="ada",
@@ -336,16 +311,11 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 		other, work, author_team="lang", author="ada",
 		body="quick handoff", pass_to="lang.rev"))
 	tr.close_work(racer, work, actor_team="lang", actor="ada",
-	              disposition="done")
+	              disposition="done", outcome="satisfying")
 	closing = next(event for event in racer.events()
 	               if event["kind"] == "close_work")
 	assert closing["payload"]["was_current_kind"] == "rev", \
 		"the close recorded the pre-race Current"
-	tr.reopen_work(racer, work, actor_team="lang", actor="ada",
-	               reason="verify again")
-	row = racer.conn.execute(
-		"SELECT current_kind FROM work WHERE id=?", (work,)).fetchone()
-	assert row["current_kind"] == "rev", "reopen restored a stale endpoint"
 
 
 def test_wf09_double_close_refuses_in_the_lock(tmp_path):
@@ -355,64 +325,9 @@ def test_wf09_double_close_refuses_in_the_lock(tmp_path):
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
-		disposition="done first"))
+		disposition="done first", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="already closed"):
 		tr.close_work(racer, work, actor_team="lang", actor="ada",
-		              disposition="done second")
+		              disposition="done second", outcome="satisfying")
 	kinds = [event["kind"] for event in racer.events()]
 	assert kinds.count("close_work") == 1
-
-
-def test_wf09_reopen_rechecks_that_its_parent_is_open_in_the_lock(tmp_path):
-	"""WF-09 terminal-competition class: a parent may close after the
-	optimistic ancestry check. The child reopen must then refuse in the lock,
-	not leave an open child beneath a terminal parent."""
-	racer, other = _race_pair(tmp_path)
-	parent = tr.create_work(racer, team="lang", kind="bug", title="parent",
-	                        origin="self-initiated", author="ada",
-	                        body="p")["work_id"]
-	child = tr.create_work(racer, team="lang", kind="bug", title="child",
-	                       origin="decomposition", author="ada", body="c",
-	                       parent=parent)["work_id"]
-	tr.close_work(racer, child, actor_team="lang", actor="ada",
-	              disposition="child done")
-	_interleave(racer, lambda: tr.close_work(
-		other, parent, actor_team="lang", actor="ada",
-		disposition="parent done"))
-	with pytest.raises(bw.WorkError, match="parent .* is closed"):
-		tr.reopen_work(racer, child, actor_team="lang", actor="ada",
-		               reason="child regressed")
-	rows = racer.conn.execute(
-		"SELECT id, status FROM work WHERE id IN (?, ?) ORDER BY id",
-		(parent, child)).fetchall()
-	assert {row["id"]: row["status"] for row in rows} == {
-		parent: "closed", child: "closed"}
-
-
-def test_wf09_reopen_restores_from_the_close_current_at_commit(tmp_path):
-	"""WF-09 terminal-competition class: while reopen is prepared, another
-	reopen/pass/close cycle may create a newer close event. The later reopen
-	must restore from that close, not the stale event read before its lock."""
-	racer, other = _race_pair(tmp_path)
-	work = tr.create_work(racer, team="lang", kind="bug", title="w",
-	                      origin="external-report", author="ada",
-	                      body="b")["work_id"]
-	tr.close_work(racer, work, actor_team="lang", actor="ada",
-	              disposition="first close")
-
-	def newer_close():
-		tr.reopen_work(other, work, actor_team="lang", actor="ada",
-		               reason="first regression")
-		tr.post_message(other, work, author_team="lang", author="ada",
-		                body="handoff", pass_to="lang.rev")
-		tr.close_work(other, work, actor_team="lang", actor="ada",
-		              disposition="second close")
-
-	_interleave(racer, newer_close)
-	tr.reopen_work(racer, work, actor_team="lang", actor="ada",
-	               reason="second regression")
-	row = racer.conn.execute(
-		"SELECT status, current_kind FROM work WHERE id=?", (work,)).fetchone()
-	assert row["status"] == "open"
-	assert row["current_kind"] == "rev", \
-		"reopen restored from a stale close event rather than the latest close"

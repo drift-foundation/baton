@@ -146,12 +146,14 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 		"the CLI lost the audited return distinction"
 
 	closed = _run(capsys, path, "close", created["work_id"],
-	              "--disposition", "verified", viewer="lang.ada")["result"]
+	              "--disposition", "verified", "--outcome", "satisfying",
+	              viewer="lang.ada")["result"]
 	assert closed["kind"] == "close_work"
 	detail = _run(capsys, path, "detail", created["work_id"],
 	              viewer="lang.ada")["result"]
 	assert detail["status"] == "closed"
-	assert detail["available_transitions"] == ["reopen"]
+	assert detail["available_transitions"] == [], \
+		"closure is immutable (WS-2); closed work offers no transition"
 
 
 def test_a_mutation_without_a_viewer_is_refused(world, capsys):

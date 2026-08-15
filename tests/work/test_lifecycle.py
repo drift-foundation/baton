@@ -279,7 +279,7 @@ def test_a_stranding_proposal_is_refused_naming_the_records(world):
 	restored = _write_config(tmp_path, VALID)
 	with lc.open_bound(restored) as store:
 		tr.close_work(store, work, actor_team="web", actor="wren",
-		              disposition="done")
+		              disposition="done", outcome="satisfying")
 	path = _write_config(tmp_path, document)
 	lc.accept_config(path, actor="lang.ada")
 

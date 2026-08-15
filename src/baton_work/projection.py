@@ -82,11 +82,21 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 			 "obligation": row["wait_obligation"]},
 		"status": row["status"],
 		"ready": bool(row["ready"]),
+		"outcome": row["outcome"],
+		"follow_up_of": row["follow_up_of"],
 		"current": _endpoint_struct(store, row["current_team"],
 		                            row["current_kind"]),
 		"next": _endpoint_struct(store, row["next_team"], row["next_kind"]),
 		"progress": {"children": counts["total"] or 0,
 		             "closed": counts["closed"] or 0},
+		# WS-2 (ruled): DEP is the count of OPEN work currently depending
+		# on this one — the provider's live load, not a historical total;
+		# the journal retains every edge act.
+		"dep": store.conn.execute(
+			"SELECT COUNT(*) AS n FROM edges JOIN work "
+			"ON work.id = edges.work "
+			"WHERE edges.blocker=? AND work.status='open'",
+			(row["id"],)).fetchone()["n"],
 		"new": new_count(store, row["id"], viewer_team=viewer_team,
 		                 viewer_member=viewer_member)["total"],
 	}
@@ -147,6 +157,7 @@ def links(store: Authority, work_id: str) -> dict:
 		other = _work(store, other_id)
 		return {"id": other["id"], "title": other["title"],
 		        "team": other["team"], "status": other["status"],
+		        "outcome": other["outcome"],
 		        "current": _endpoint_struct(store, other["current_team"],
 		                                    other["current_kind"])}
 
@@ -159,8 +170,19 @@ def links(store: Authority, work_id: str) -> dict:
 		"blocked_by": [far(edge["blocker"]) for edge in store.conn.execute(
 			"SELECT blocker FROM edges WHERE work=? ORDER BY created_seq",
 			(work_id,))],
+		# The DEP drill: only the LIVE dependent set (ruled) — closed
+		# consumers leave the drill; the audit retains their edges.
 		"blocks": [far(edge["work"]) for edge in store.conn.execute(
-			"SELECT work FROM edges WHERE blocker=? ORDER BY created_seq",
+			"SELECT edges.work FROM edges JOIN work "
+			"ON work.id = edges.work "
+			"WHERE edges.blocker=? AND work.status='open' "
+			"ORDER BY edges.created_seq", (work_id,))],
+		# WS-2: follow-up context is NAVIGABLE from both sides and gates
+		# nothing — the relationship preserves closed history.
+		"follow_up_of": far(row["follow_up_of"])
+		if row["follow_up_of"] else None,
+		"follow_ups": [far(entry["id"]) for entry in store.conn.execute(
+			"SELECT id FROM work WHERE follow_up_of=? ORDER BY created_seq",
 			(work_id,))],
 	}
 
@@ -249,8 +271,24 @@ def detail(store: Authority, work_id: str, *, viewer_team: str,
 	"""Everything about one Work, plus the transitions available to this
 	viewer — DECLARED, so no client infers workflow effects from punctuation
 	or discovers by trying (parity ruling)."""
+	store.conn.execute("BEGIN")
+	try:
+		return _detail_in_snapshot(store, work_id,
+		                           viewer_team=viewer_team,
+		                           viewer_member=viewer_member)
+	finally:
+		# One pure read snapshot (WS-2 R2, following `home`): the DEP
+		# counter, the live drill, and snapshot_seq can never disagree
+		# about the same instant; nothing is written and the transaction
+		# is rolled back.
+		store.conn.execute("ROLLBACK")
+
+
+def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
+                        viewer_member: str) -> dict:
 	row = _work(store, work_id)
 	view = _row_view(store, row, viewer_team, viewer_member)
+	view["snapshot_seq"] = store.last_seq()
 	view["breadcrumb"] = breadcrumb(store, work_id)
 	view["links"] = links(store, work_id)
 	view["new_breakdown"] = new_count(store, work_id,
@@ -263,11 +301,10 @@ def detail(store: Authority, work_id: str, *, viewer_team: str,
 	# The R1 authority matrix, mirrored: availability is computed from the
 	# SAME live route/handler rule the authority enforces — an agent reads
 	# what it may do; it never discovers by attempting. Ownership-gated
-	# operations (request, pass, dependency changes, child attachment,
-	# classify, set_phase, close — and reopen against the Current it would
-	# restore) belong to the viewer only when they currently resolve as a
-	# handler; participation keeps contribution, + attention, and their
-	# own seen state.
+	# operations belong to the viewer only when they currently resolve as
+	# a handler; every configured member keeps contribution and their own
+	# seen state. CLOSED work offers nothing: closure is immutable (WS-2);
+	# follow-up creation is an operation on NEW work.
 	handler = False
 	if row["current_team"] is not None and viewer_team == row["current_team"]:
 		resolved = _endpoint_struct(store, row["current_team"],
@@ -290,30 +327,6 @@ def detail(store: Authority, work_id: str, *, viewer_team: str,
 		# writer; agents read this instead of discovering it).
 		if handler and open_children == 0:
 			available.append("close")
-	else:
-		# Reopen restores the close event's Current; it belongs to whoever
-		# currently resolves as THAT endpoint's handler.
-		closing = store.conn.execute(
-			"SELECT payload FROM events WHERE kind='close_work' "
-			"AND json_extract(payload, '$.work') = ? "
-			"ORDER BY seq DESC LIMIT 1", (work_id,)).fetchone()
-		if closing is not None:
-			import json as _json
-			committed = _json.loads(closing["payload"])
-			restore_team = committed.get("was_current_team") or row["team"]
-			restore_kind = committed.get("was_current_kind")
-			# The writer refuses reopen under a closed parent — the
-			# projection declares the same live precondition.
-			parent_open = row["parent"] is None or store.conn.execute(
-				"SELECT status FROM work WHERE id=?",
-				(row["parent"],)).fetchone()["status"] == "open"
-			if parent_open and restore_kind is not None and \
-					viewer_team == restore_team:
-				resolved = _endpoint_struct(store, restore_team,
-				                            restore_kind)
-				if resolved is not None and \
-						viewer_member in resolved["handlers"]:
-					available.append("reopen")
 	view["available_transitions"] = sorted(available)
 	view["open_blockers"] = open_blockers
 	return view

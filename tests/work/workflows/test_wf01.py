@@ -89,7 +89,7 @@ def test_wf01_straight_through_report(flow):
 	flow.ok("phase", work, "--to", "review", viewer="lang.ada")
 
 	# Review records verification and closes terminally.
-	flow.ok("close", work, "--disposition", "fixed and verified",
+	flow.ok("close", work, "--disposition", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	checkpoint = flow.ok("detail", work, viewer="lang.ada")
 	assert checkpoint["status"] == "closed"

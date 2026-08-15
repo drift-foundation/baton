@@ -1,12 +1,12 @@
-"""Work transitions: create, close, reopen — Gate A step A2.
+"""Work transitions: create, close, classify, phase — Gate A step A2.
 
 Every transition is one authority write transaction, and READINESS IS
 LEVEL-TRIGGERED: nothing here walks a graph forwarding an event. A transition
 recomputes the readiness of exactly the rows whose inputs it changed, from
-their CURRENT state — so replay is idempotent, a crash re-runs harmlessly, and
-reopen is the same code path as close rather than an inverse that must be kept
-in sync (ruling: level-triggered readiness; the plan's A3 break-sweep exists
-to keep it this way).
+their CURRENT state — so replay is idempotent and a crash re-runs harmlessly
+(ruling: level-triggered readiness; the plan's A3 break-sweep exists to keep
+it this way). Closure is IMMUTABLE (WS-2): there is no reopen; later
+evidence becomes follow-up Work.
 
 IDS ARE QUALIFIED. A Work id embeds the authority uuid's prefix, so a
 reference retained in protocol-10 history can never silently resolve to a
@@ -36,6 +36,8 @@ PHASES = ("queued", "research", "waiting", "active", "review", "parked")
 # explicit transitions, or a creation could mint the loose end the ruling
 # forbids.
 CREATION_PHASES = ("queued", "research", "active", "review")
+# WS-2 ruling: every terminal close records exactly one of these.
+OUTCOMES = ("satisfying", "non-satisfying")
 OPEN, CLOSED = "open", "closed"
 
 
@@ -141,8 +143,7 @@ def _sweep_wakes(conn, actor: str) -> None:
 	condition is now satisfied atomically becomes `queued`, with one `wake`
 	event in the SAME transaction that satisfied it. Runs at the end of
 	every transaction that can close a gate or complete an obligation
-	(close, respond, dispose — and reopen, which can only re-satisfy a
-	stale condition, never un-record one). A racing retry finds the phase
+	(close, respond, dispose). A racing retry finds the phase
 	already `queued` and wakes nothing twice."""
 	for row in conn.execute(
 			"SELECT id, wait_type, wait_obligation FROM work "
@@ -232,7 +233,8 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
                 origin: str, author: str, body: str,
                 parent: str | None = None,
                 classification: str | None = None,
-                phase: str | None = None) -> dict:
+                phase: str | None = None,
+                follow_up_of: str | None = None) -> dict:
 	"""A Work and its first message, atomically — creation must be cheap or
 	mandatory Work scope becomes authoring ceremony (confirmed behavior).
 
@@ -262,17 +264,25 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	store._team(team)
 	_endpoint(store, team, kind, "create")
 	_member(store, team, author)
+	if follow_up_of is not None:
+		predecessor = _work(store, follow_up_of)
+		if predecessor["status"] != CLOSED:
+			raise WorkError(
+				f"{follow_up_of} is still open; follow_up_of preserves "
+				f"the context of TERMINALLY CLOSED work — an open "
+				f"predecessor is ordinary relation, not a follow-up")
 	if parent is not None:
 		parent_row = _work(store, parent)
 		if parent_row["status"] != OPEN:
 			raise WorkError(f"parent {parent} is {parent_row['status']}; a "
-			                f"closed work does not grow new children — reopen "
-			                f"it first, visibly")
+			                f"closed work does not grow new children; create "
+			                f"follow-up work instead")
 
 	prefix = store.meta()["authority_uuid"][:8]
 	payload = {"team": team, "kind": kind, "title": title,
 	           "origin": origin, "parent": parent,
-	           "classification": classification, "phase": phase}
+	           "classification": classification, "phase": phase,
+	           "follow_up_of": follow_up_of}
 
 	def mutate(conn, seq):
 		work_id = f"{prefix}-W{seq}"
@@ -284,19 +294,28 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 			if live_parent["status"] != OPEN:
 				raise WorkError(
 					f"parent {parent} is {live_parent['status']}; a closed "
-					f"work does not grow new children — reopen it first, "
-					f"visibly")
+					f"work does not grow new children; create follow-up "
+					f"work instead")
 			# R1 matrix: attaching child Work is a workflow decision of the
 			# PARENT's Current handler; root creation stays with the team.
 			payload["authorization"] = _handler_gate(
 				conn, parent, team, author, "attach child")
 		payload["resolution"] = resolve_endpoint(conn, team, kind, "create")
+		if follow_up_of is not None:
+			live_predecessor = conn.execute(
+				"SELECT status FROM work WHERE id=?",
+				(follow_up_of,)).fetchone()
+			if live_predecessor["status"] != CLOSED:
+				raise WorkError(
+					f"{follow_up_of} is still open; follow_up_of "
+					f"preserves the context of TERMINALLY CLOSED work")
 		conn.execute(
 			"INSERT INTO work (id, team, title, origin, classification, "
 			"phase, status, parent, current_team, current_kind, ready, "
-			"created_seq) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)",
+			"follow_up_of, created_seq) "
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)",
 			(work_id, team, title, origin, classification, phase, OPEN,
-			 parent, team, kind, seq))
+			 parent, team, kind, follow_up_of, seq))
 		conn.execute(
 			"INSERT INTO messages (seq, work, author_team, author, body, ts) "
 			"VALUES (?, ?, ?, ?, ?, datetime('now'))",
@@ -316,16 +335,25 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 
 
 def close_work(store: Authority, work_id: str, *, actor_team: str,
-               actor: str, disposition: str) -> dict:
-	"""Terminal close: no current and no next endpoint afterwards, and the
-	ancestor gate recomputes. Refused while required descendants are open —
-	closure rolls UP through recomputation, never down through force."""
+               actor: str, disposition: str,
+               outcome: str | None = None) -> dict:
+	"""Terminal close: IMMUTABLE (WS-2 ruling — there is no reopen; later
+	evidence becomes follow-up Work). No current and no next endpoint
+	afterwards, and the ancestor gate recomputes: closure rolls UP through
+	recomputation, never down through force. Every terminal close names
+	exactly `satisfying` or `non-satisfying` — universal, independent of
+	graph shape; clients never infer the result from prose."""
 	_member(store, actor_team, actor)
 	row = _work(store, work_id)
 	if row["status"] == CLOSED:
 		raise WorkError(f"{work_id} is already closed")
 	if not isinstance(disposition, str) or not disposition.strip():
 		raise WorkError("a terminal close records a disposition")
+	if outcome not in OUTCOMES:
+		raise WorkError(
+			f"a terminal close names exactly one outcome of {OUTCOMES}; "
+			f"got {outcome!r} — the result is never inferred from "
+			f"classification or disposition prose")
 	open_children = store.conn.execute(
 		"SELECT id FROM work WHERE parent=? AND status=?",
 		(work_id, OPEN)).fetchall()
@@ -336,18 +364,18 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 			f"closure while required descendants remain open is refused")
 
 	# The endpoint being cleared is RECORDED in the close event, because it
-	# is what reopen restores: the live row forgets it deliberately, and
-	# history is where cleared facts live. Its value is filled in by mutate,
-	# from the row AS COMMITTED — a pass can land between the pre-read and
-	# this lock, and reopen must restore the endpoint that was really live.
+	# the live row forgets deliberately, and history is where cleared
+	# facts live. Its value is filled in by mutate, from the row AS
+	# COMMITTED — a pass can land between the pre-read and this lock.
 	payload = {"work": work_id, "disposition": disposition,
+	           "outcome": outcome,
 	           "was_current_team": row["current_team"],
 	           "was_current_kind": row["current_kind"]}
 
 	def mutate(conn, seq):
 		# WF-09 race 2: status and children rechecked inside the lock — a
-		# competing close, reopen-of-a-child, or late create can commit
-		# between the optimistic checks above and this transaction.
+		# competing close or late create can commit between the optimistic
+		# checks above and this transaction.
 		live = conn.execute(
 			"SELECT status, parent, current_team, current_kind "
 			"FROM work WHERE id=?", (work_id,)).fetchone()
@@ -369,9 +397,38 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		payload["was_current_team"] = live["current_team"]
 		payload["was_current_kind"] = live["current_kind"]
 		conn.execute(
-			"UPDATE work SET status=?, ready=0, current_team=NULL, "
-			"current_kind=NULL, next_team=NULL, next_kind=NULL, closed_seq=? "
-			"WHERE id=?", (CLOSED, seq, work_id))
+			"UPDATE work SET status=?, ready=0, outcome=?, "
+			"current_team=NULL, current_kind=NULL, next_team=NULL, "
+			"next_kind=NULL, closed_seq=? WHERE id=?",
+			(CLOSED, outcome, seq, work_id))
+		# WS-2 group-1 correction (ruled): terminal close atomically
+		# WITHDRAWS every pending exact @ obligation this work carries —
+		# closed history can never gain a late answer, and each withdrawal
+		# is audited with the route accountability recorded when the
+		# obligation was created. Answer-versus-close serializes to exactly
+		# one terminal result through the obligations' in-lock recheck.
+		import json as _json
+		for obligation in conn.execute(
+				"SELECT seq, team, kind, route, role, handlers, generation "
+				"FROM obligations WHERE work=? AND status='pending'",
+				(work_id,)).fetchall():
+			# resolved_seq is the DIRECT audit address of the terminal
+			# act: each withdrawal points at its own withdraw event, not
+			# at the enclosing close whose payload does not name it.
+			withdraw_seq = _emit(
+				conn, "withdraw", f"{actor_team}.{actor}",
+				{"work": work_id, "obligation": obligation["seq"],
+				 "endpoint":
+				 f"{obligation['team']}.{obligation['kind']}",
+				 "route": obligation["route"],
+				 "role": obligation["role"],
+				 "handlers": _json.loads(obligation["handlers"])
+				 if obligation["handlers"] else [],
+				 "generation": obligation["generation"],
+				 "reason": "the carrying work closed"})
+			conn.execute(
+				"UPDATE obligations SET status='withdrawn', resolved_seq=? "
+				"WHERE seq=?", (withdraw_seq, obligation["seq"]))
 		if live["parent"] is not None:
 			_recompute_ready(conn, live["parent"])
 		# THE FAN-OUT, level-triggered: every dependent recomputes from its
@@ -385,117 +442,6 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		_sweep_wakes(conn, f"{actor_team}.{actor}")
 
 	return store._write("close_work", f"{actor_team}.{actor}",
-	                    payload, mutate)
-
-
-def reopen_work(store: Authority, work_id: str, *, actor_team: str,
-                actor: str, reason: str) -> dict:
-	"""Reopen is close's mirror THROUGH THE SAME RECOMPUTATION: the ancestor
-	gate visibly reopens because its readiness inputs changed, not because a
-	special inverse path went looking for it."""
-	_member(store, actor_team, actor)
-	row = _work(store, work_id)
-	if row["status"] != CLOSED:
-		raise WorkError(f"{work_id} is not closed")
-	if not isinstance(reason, str) or not reason.strip():
-		raise WorkError("reopening records a reason")
-	if row["parent"] is not None:
-		parent_row = _work(store, row["parent"])
-		if parent_row["status"] == CLOSED:
-			raise WorkError(
-				f"parent {row['parent']} is closed; reopen the ancestry "
-				f"first so the gate reopens visibly top-down")
-
-	# The endpoint to restore comes from the CLOSE EVENT, not from the live
-	# row — close cleared the row on purpose, and restoring from it would
-	# restore NULL and reopen the work with nobody responsible, which is the
-	# one state the finding forbids ("no open work may be left without a
-	# responsible endpoint").
-	closing = store.conn.execute(
-		"SELECT payload FROM events WHERE kind='close_work' "
-		"AND json_extract(payload, '$.work') = ? "
-		"ORDER BY seq DESC LIMIT 1", (work_id,)).fetchone()
-	if closing is None:
-		raise WorkError(f"{work_id} is closed but has no close event; the "
-		                f"authority is inconsistent and reopening would guess")
-	import json as _json
-	was = _json.loads(closing["payload"])
-	restore_team = was.get("was_current_team") or row["team"]
-	restore_kind = was.get("was_current_kind")
-	if restore_kind is None:
-		raise WorkError(
-			f"{work_id}'s close event records no prior endpoint; reopening "
-			f"would leave open work with nobody responsible")
-
-	def mutate(conn, seq):
-		# In-lock recheck (WF-09 class), COMPLETE: everything the reopen
-		# depends on is re-read from the transaction connection — the
-		# status (a competing reopen), the parent's status (a parent may
-		# close after the optimistic ancestry check; an open child beneath
-		# a terminal parent is the state the gate exists to prevent), and
-		# the LATEST close event (a whole reopen/pass/close cycle can
-		# commit while this reopen waits for its lock, and restoring from
-		# the obsolete event resurrects a superseded endpoint).
-		live = conn.execute("SELECT status, parent FROM work WHERE id=?",
-		                    (work_id,)).fetchone()
-		if live["status"] != CLOSED:
-			raise WorkError(f"{work_id} is not closed")
-		if live["parent"] is not None:
-			live_parent = conn.execute(
-				"SELECT status FROM work WHERE id=?",
-				(live["parent"],)).fetchone()
-			if live_parent["status"] == CLOSED:
-				raise WorkError(
-					f"parent {live['parent']} is closed; reopen the "
-					f"ancestry first so the gate reopens visibly top-down")
-		latest = conn.execute(
-			"SELECT payload FROM events WHERE kind='close_work' "
-			"AND json_extract(payload, '$.work') = ? "
-			"ORDER BY seq DESC LIMIT 1", (work_id,)).fetchone()
-		if latest is None:
-			raise WorkError(
-				f"{work_id} is closed but has no close event; the "
-				f"authority is inconsistent and reopening would guess")
-		committed = _json.loads(latest["payload"])
-		restore_team = committed.get("was_current_team") or row["team"]
-		restore_kind = committed.get("was_current_kind")
-		if restore_kind is None:
-			raise WorkError(
-				f"{work_id}'s close event records no prior endpoint; "
-				f"reopening would leave open work with nobody responsible")
-		# R1 matrix: reopen restores Current, so it belongs to whoever
-		# currently resolves as that Current's handler.
-		resolution = resolve_endpoint(conn, restore_team, restore_kind,
-		                              "reopen")
-		if actor_team != restore_team or \
-				actor not in resolution["handlers"]:
-			raise WorkError(
-				f"reopen: {actor_team}.{actor} is not a resolved handler "
-				f"of {resolution['endpoint']} (handlers "
-				f"{resolution['handlers']}), the Current this reopen "
-				f"restores; participation never substitutes for ownership")
-		payload["authorization"] = resolution
-		conn.execute(
-			"UPDATE work SET status=?, closed_seq=NULL, current_team=?, "
-			"current_kind=? WHERE id=?",
-			(OPEN, restore_team, restore_kind, work_id))
-		_recompute_ready(conn, work_id)
-		if live["parent"] is not None:
-			_recompute_ready(conn, live["parent"])
-		# Reopen is the same recomputation in the other direction: every
-		# dependent that became ready when this closed becomes blocked again
-		# because its INPUTS changed — there is no retraction walk to get
-		# wrong, which is the entire argument for level-triggering.
-		for dependent in conn.execute(
-				"SELECT work FROM edges WHERE blocker=?", (work_id,)):
-			_recompute_ready(conn, dependent["work"])
-		# WS-1: reopening cannot un-record a wake condition, but the
-		# reopened work itself may have been waiting on gates that all
-		# closed while it was closed — the sweep keeps no false waiting.
-		_sweep_wakes(conn, f"{actor_team}.{actor}")
-
-	payload = {"work": work_id, "reason": reason}
-	return store._write("reopen_work", f"{actor_team}.{actor}",
 	                    payload, mutate)
 
 
@@ -514,8 +460,7 @@ def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		                f"presentation only")
 	if row["status"] != OPEN:
 		raise WorkError(f"{work_id} is {row['status']}; a closed work "
-		                f"refuses classification changes — reopen it first, "
-		                f"visibly")
+		                f"refuses classification changes; closure is terminal")
 
 	payload = {"work": work_id, "from": row["classification"],
 	           "to": classification}
@@ -526,8 +471,7 @@ def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
 			(work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; a closed work "
-			                f"refuses classification changes — reopen it "
-			                f"first, visibly")
+			                f"refuses classification changes; closure is terminal")
 		if live["classification"] == classification:
 			raise WorkError(f"{work_id} is already classified "
 			                f"{classification!r}")
@@ -677,9 +621,14 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 	blocker = _work(store, blocker_id)
 	if work_id == blocker_id:
 		raise WorkError(f"{work_id} cannot block itself")
+	if blocker["status"] != OPEN:
+		raise WorkError(
+			f"{blocker_id} is {blocker['status']}; a dependency on finished "
+			f"work gates nothing — depend on follow-up Work instead "
+			f"(WS-2 ruling: new blockers target only open Work)")
 	if row["status"] != OPEN:
 		raise WorkError(f"{work_id} is {row['status']}; a closed work takes "
-		                f"no new blockers — reopen it first, visibly")
+		                f"no new blockers; closure is terminal")
 	if store.conn.execute("SELECT 1 FROM edges WHERE work=? AND blocker=?",
 	                      (work_id, blocker_id)).fetchone():
 		raise WorkError(f"{work_id} is already blocked by {blocker_id}")
@@ -695,8 +644,7 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		                    (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; a closed work "
-			                f"takes no new blockers — reopen it first, "
-			                f"visibly")
+			                f"takes no new blockers; closure is terminal")
 		# R1 matrix: changing a Work's dependencies belongs to its Current
 		# handler.
 		payload["authorization"] = _handler_gate(
@@ -704,6 +652,14 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		if conn.execute("SELECT 1 FROM edges WHERE work=? AND blocker=?",
 		                (work_id, blocker_id)).fetchone():
 			raise WorkError(f"{work_id} is already blocked by {blocker_id}")
+		live_blocker = conn.execute(
+			"SELECT status FROM work WHERE id=?", (blocker_id,)).fetchone()
+		if live_blocker["status"] != OPEN:
+			raise WorkError(
+				f"{blocker_id} is {live_blocker['status']}; a dependency "
+				f"on finished work gates nothing — depend on follow-up "
+				f"Work instead (WS-2 ruling: new blockers target only "
+				f"open Work)")
 		path = _would_cycle(conn, work_id, blocker_id)
 		if path is not None:
 			raise WorkError(
@@ -798,8 +754,9 @@ def post_message(store: Authority, work_id: str, *, author_team: str,
 	_member(store, author_team, author)
 	row = _work(store, work_id)
 	if row["status"] != OPEN:
-		raise WorkError(f"{work_id} is {row['status']}; discussion on closed "
-		                f"work reopens it first, visibly")
+		raise WorkError(f"{work_id} is {row['status']}; closed work is "
+		                f"immutable history — new evidence belongs in "
+		                f"follow-up work")
 	if not isinstance(body, str) or not body:
 		raise WorkError("a message body must be non-empty")
 	if request is not None and pass_to is not None:
@@ -845,7 +802,8 @@ def post_message(store: Authority, work_id: str, *, author_team: str,
 			"next_kind FROM work WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; discussion on "
-			                f"closed work reopens it first, visibly")
+			                f"closed work is immutable history; new evidence "
+			                f"belongs in follow-up work")
 		if passed is not None:
 			# WS-1 review R1: delegation is ownership transfer, and ONLY a
 			# currently resolved handler of the Current route may pass the

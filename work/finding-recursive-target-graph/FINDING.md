@@ -1395,3 +1395,191 @@ The complete canonical-to-TUI classification vocabulary is:
 These compact values are presentation only, never accepted protocol mutation
 values. Unknown or unmapped canonical values fail visibly; clients must not
 invent a label by truncation.
+
+## 2026-08-14 — WS-2 immutable closure and reviewer-controlled verification
+
+**Confirmed by Slawomir; supersedes every earlier rule and implementation
+that permits reopening terminally closed Work.** Closure is an externally
+observable terminal fact, not a status toggle. It may wake dependents, permit
+downstream verification or release, bind a final dossier revision, and permit
+dossier archival/removal. A later event cannot retract those consequences by
+reopening the same Work.
+
+Evidence that arrives after closure creates new Work with an audited
+`follow_up_of` relationship to the closed record. That relationship preserves
+history and context but does not gate workflow. Each affected consumer gains a
+new explicit `blocked_by` edge to the follow-up Work; prior consumers are never
+silently re-blocked. The closed Work, its disposition, and its old dependency
+edges remain historical evidence. The v11 `reopen` operation and its automatic
+re-block behavior are therefore removed rather than carried forward.
+
+**Provider-outcome policy confirmed by Slawomir.** Provider closure records an
+explicit satisfying or non-satisfying result; clients never infer that result
+from classification or free-text disposition. Either terminal result ends that
+provider gate and places the next decision in each affected consumer's court.
+If it was the consumer's last open gate, dependency-backed `waiting` becomes
+`queued`; with other gates open it remains waiting. The consumer's Current does
+not move, and no provider result automatically classifies or closes consumer
+Work. A satisfying result still requires consumer verification. A
+non-satisfying result is visibly actionable and requires the consumer handler
+to accept, work around, redirect, present more evidence, or close honestly;
+it never appears as a delivered fix.
+
+**Staged-verification policy confirmed by Slawomir.** A provider need not close
+merely because it has a candidate solution. It keeps its Work open, publishes
+the exact candidate/artifact, and creates separate exact `@` verification
+obligations for whichever dependent-team routes it chooses. The provider
+dependency remains open and unsatisfied: the obligation makes the selected
+team actionable for testing without falsely clearing its blocked Work.
+
+Verification responses carry feedback and evidence back to the provider.
+They never vote, change classification, transfer Current, satisfy dependency
+edges, or close Work automatically. The provider's responsible reviewer or
+verifier chooses the evidentiary threshold: one team's result, every selected
+team, or another explicitly judged threshold. As results arrive, that handler
+may close with a satisfying result, continue review, request more evidence, or
+resume research/implementation. A failed staged test therefore resumes work
+while the provider record is still open; it creates no reopening problem.
+
+**Verification-round clarification confirmed by Slawomir.** The provider
+reviewer creates a round for one exact candidate and selects its exact verifier
+routes. Three assignments display feedback progress as `0/3`, `1/3`, `2/3`,
+and `3/3`. This fraction counts terminal feedback received, not confirmations
+and not votes toward an automatic threshold. The projection also exposes each
+assignment's state and reported result so `2/3` can visibly mean, for example,
+one confirmation, one failure, and one pending assignment.
+
+The reviewer may decide with no replies, one knowledgeable reply, every reply,
+or any other evidence they judge sufficient. Changing the staged candidate
+starts a new round; replies remain pinned to the exact candidate/round they
+tested and never carry forward silently. Earlier rounds remain audit evidence.
+Closing or abandoning a round explicitly withdraws any remaining assignments
+and notifies their routes rather than leaving obsolete test work actionable.
+
+**Time-based decision clarification confirmed by Slawomir.** A verification
+round may carry an optional reviewer-selected `review_at` time. Reaching it
+only makes the round due and notifies its responsible reviewer; it never
+closes, satisfies, votes, fabricates feedback, or withdraws assignments. The
+reviewer may decide that a candidate has had sufficient exposure without
+negative reports—even at `0/N`—and close it as satisfying on that evidence.
+
+That close records the round, exact candidate, received-versus-assigned count,
+reported outcomes, elapsed exposure, pending assignments explicitly withdrawn,
+and the reviewer's disposition/rationale. Baton records the basis of the
+judgment rather than claiming certainty. A later contradictory result creates
+follow-up Work under the immutable-closure rule; it never rewrites the earlier
+evidence or reopens the record.
+
+**Feedback-adjudication clarification confirmed by Slawomir.** A verifier's
+report and the provider reviewer's assessment are separate immutable facts.
+The verifier reports what it observed and attaches evidence. The provider
+reviewer may accept that report as relevant evidence, reject it as invalid,
+stale, unrelated, or attributable to the consumer's own system, or leave it
+inconclusive. Rejecting a reported failure does not rewrite it into a pass and
+does not claim the reporter observed something else.
+
+`N/total` counts assignments that returned terminal feedback regardless of
+the reviewer's assessment. Projections show both axes—for example, `failed /`
+`rejected: consumer configuration error`—so receipt progress is never mistaken
+for supporting or opposing evidence. The reviewer decides what weight, if any,
+each response receives and records a rationale. A changed assessment is a new
+superseding audit act, never an edit of the original report. No combination of
+raw reports or assessments closes or resumes Work automatically.
+
+**Due-for-review behavior confirmed by Slawomir.** When `review_at` arrives,
+the round becomes visibly due and the responsible reviewer receives an
+actionable review event. Work, phase, Current, dependencies, assignments, and
+candidate state do not transition. The reviewer must make and audit the next
+decision:
+
+- extend the same candidate's testing period by setting a later `review_at`,
+  retaining all feedback and pending assignments;
+- accept the evidence as sufficient and terminally close the provider Work
+  with an explicit satisfying result, rationale, round summary, and explicit
+  withdrawal of feedback assignments no longer needed; or
+- when evidence shows the candidate is not ready, continue/resume provider
+  work through an explicit phase or Current transition.
+
+Repeated extensions are visible history, not a hidden timer reset. No elapsed
+duration, lack of feedback, response count, reported outcome, or assessment
+selects one of these branches automatically.
+
+**Verification vocabulary confirmed by Slawomir.** A verifier observation is
+exactly `passed`, `failed`, or `unable`. The provider reviewer's assessment is
+separately exactly `accepted`, `rejected`, or `inconclusive`. An assignment
+that ends without a verifier report because the reviewer no longer needs it is
+`withdrawn`. These are canonical JSON and audit values; compact TUI labels may
+be added later without changing them.
+
+The round progress fraction is `reported/assigned`: only assignments that
+returned one of the three verifier observations increment its numerator.
+Withdrawal never fabricates feedback and never increments that count. The
+projection exposes withdrawn assignments and a separate withdrawal count, so a
+round closed after one of three teams reports remains `1/3`, with two
+withdrawals visible. Closure must not leave an assignment actionable.
+
+## 2026-08-14 — WS-2 decision-challenge rulings
+
+**Confirmed by Slawomir after the implementer's adversarial review.** Due is a
+level-triggered actionable state derived from `review_at` and current time. It
+appears in the responsible route's actionable projection and in an
+always-visible due count; a blocking wait may return when the nearest deadline
+arrives without mutating authority. Reaching time creates no audit row and
+requires no scheduler. The later explicit extend, abandon, resume, or close is
+the audited decision. Pure reads and restarts therefore cannot duplicate or
+lose a one-shot due event because no such event exists.
+
+A staged-verification assignment is a specialized exact `@` obligation. It
+shares obligation identity, exact endpoint cardinality, route-resolution
+snapshot, live handler authorization, pending/actionable semantics, and common
+projection. Its structured verification detail records round, candidate,
+observation, evidence, assessment history, and withdrawal, and it completes by
+the specialized report or withdrawal operations rather than ordinary
+respond/dispose. This subtype is ineligible as a WS-1 obligation-backed waiting
+condition: feedback never automatically changes provider Work phase or wakes
+it. The responsible reviewer explicitly decides the next Work transition.
+
+New required `blocked_by` edges may target only open Work. A terminal record
+cannot become a new blocker; later unresolved evidence uses new open Work with
+non-gating `follow_up_of`, then an explicit required edge to that open record.
+Existing edges and their terminal outcomes remain historical evidence.
+
+**Every terminal close requires exactly one explicit outcome:
+`satisfying` or `non-satisfying`.** This rule is independent of graph shape,
+incoming-edge count, verification history, classification, and disposition
+prose. The outcome records whether the terminal conclusion met the Work's
+purpose. Either outcome ends every gate served by that Work; dependent and
+parent handlers decide what to do with the result. Omission, an unknown value,
+or attempting to infer the outcome from prose refuses.
+
+Closed Work refuses further workflow mutation and new carrying discussion or
+obligation activity. Reads, search, drill-through, breadcrumbs, historical
+messages/events/links, and follow-up traversal remain available. A participant
+may still advance only their own seen cursor over closed history, and creation
+of separate new Work may point back through `follow_up_of`; neither operation
+mutates the closed record.
+
+## 2026-08-14 — independent-lane closure and live dependents
+
+**Confirmed by Slawomir through the PushCoin/Lang scenario.** When Work closes,
+every pending exact `@` obligation carried by that Work is atomically
+`withdrawn`. Withdrawal removes the request from the owed route's actionable
+state and is recorded with its route-resolution and close context. It does not
+erase the request, its discussion, or any response that committed first.
+Response/disposition/report versus close is serialized so exactly one legal
+terminal state wins; no response may append to closed Work.
+
+Withdrawal affects only the closing Work's requests. If another team already
+accepted the discovery and created its own Work, that provider Work is an
+independent lane: consumer closure never classifies, phases, parks, passes,
+closes, rejects, or otherwise decides it. The provider may continue because a
+locally resolved consumer report still reveals an API, UX, documentation, or
+design defect that could trap other users.
+
+Active provider projections expose one `DEP` counter: the number of open Work
+records currently depending on this Work. Drilling the counter lists only
+those live dependents. When a consumer closes it disappears from `DEP`; no
+total or historical-dependent counter appears in the active table. Dependency
+creation, consumer closure, obligation withdrawal, and all former relationships
+remain in the journal/audit so a deliberate history review can explain why the
+live count changed. The historical edge is evidence, not live demand.

@@ -1,9 +1,9 @@
 """WF-05 — three consumers converge on one provider Work (WORKFLOW-TESTS.md).
 
 The central cross-team dependency-web acceptance: N:1 convergence with exact
-fan-in, the second-blocker conjunction, level-triggered close → reopen →
-re-close with no inverse-path bookkeeping, and the noise boundary — default
-tables stay local while deliberate link traversal opens the graph.
+fan-in, the second-blocker conjunction, level-triggered closure, and the
+noise boundary — default tables stay local while deliberate link traversal
+opens the graph.
 
 Omitted (WORKFLOW-COVERAGE.md, WS-4): the label-versus-edge proof — no label
 surface exists yet, so "labels never gate" cannot be stated positively.
@@ -79,7 +79,7 @@ def test_wf05_three_consumers_converge(flow):
 
 	# 5. Closing LANG-42 unblocks Push and Web INDEPENDENTLY; MariaDB stays
 	# blocked by BUILD-7 (multiple-blocker conjunction).
-	flow.ok("close", lang42, "--disposition", "fixed and verified",
+	flow.ok("close", lang42, "--disposition", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert flow.ok("detail", consumers["push"],
 	               viewer="push.sl")["ready"] is True
@@ -89,21 +89,10 @@ def test_wf05_three_consumers_converge(flow):
 	assert mdb_view["ready"] is False and mdb_view["open_blockers"] == 1, \
 		"a dependent with a second open blocker became ready"
 
-	# 6. Reopen re-blocks every still-open dependent; re-close recomputes
-	# again — level-triggered both ways, no inverse path.
-	flow.ok("reopen", lang42, "--reason", "fix regressed on fuzzing",
-	        viewer="lang.ada")
-	assert flow.ok("detail", consumers["push"],
-	               viewer="push.sl")["ready"] is False
-	assert flow.ok("detail", consumers["web"],
-	               viewer="web.wren")["ready"] is False
-	assert flow.ok("detail", consumers["mdb"],
-	               viewer="mdb.mo")["open_blockers"] == 2
-	flow.ok("close", lang42, "--disposition", "re-fixed, fuzz clean",
-	        viewer="lang.ada")
-	assert flow.ok("detail", consumers["push"],
-	               viewer="push.sl")["ready"] is True
-	flow.ok("close", build7, "--disposition", "image rebuilt",
+	# 6. The second blocker clears independently — level-triggered, no
+	# inverse path. (The former reopen leg is superseded by WS-2 immutable
+	# closure; WS2-WF-06 owns the contradiction story.)
+	flow.ok("close", build7, "--disposition", "image rebuilt", "--outcome", "satisfying",
 	        viewer="mdb.mo")
 	assert flow.ok("detail", consumers["mdb"],
 	               viewer="mdb.mo")["ready"] is True

@@ -83,7 +83,7 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	returned = _run(archive, path, "post", lang42, "--body", "done",
 	                "--pass-to", "lang.rev", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
-	_run(archive, path, "close", lang42, "--disposition", "verified",
+	_run(archive, path, "close", lang42, "--disposition", "verified", "--outcome", "satisfying",
 	     viewer="lang.ada")
 	after = _run(archive, path, "detail", web1, viewer="web.wren")["result"]
 	assert after["ready"] is True

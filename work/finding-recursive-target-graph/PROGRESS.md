@@ -687,3 +687,103 @@ blockers / dropping the parent-open check fails the two availability
 regressions; removing the read transaction fails the torn-snapshot
 regression. Gate: 225 passed (222 parallel + 3 serial), test-v11 green.
 STOPPED for re-review; heavy TUI/C5/C6/Gate B/WS-2 held.
+
+## WS-2 group 1 — immutable closure, universal outcomes, follow-up (2026-08-14)
+
+Preceded by the required adversarial pass (WS2-DISPOSITION.md) and the
+options round (WS2-OPTIONS.md); implemented only after the explicit release
+(`ddb963d4abe43c41d455466a19c3043e`) pinned the rulings: universal terminal
+outcomes; derived-only due; verification-as-@ but never a wake condition;
+new blockers target only open Work; the precise closed-Work rule.
+
+Authority (schema v3): `work.outcome`, `work.follow_up_of`. `reopen_work`
+is GONE — verb, engine, projection availability, wake-sweep hook, and every
+refusal message that advised it (closed work now points at follow-up work).
+`close_work` requires exactly `satisfying|non-satisfying`, recorded on the
+row and in the event; the row keeps `was_current_*` history in the close
+event only. `add_dependency` refuses closed blockers pre-lock AND in-lock.
+`create_work` takes `follow_up_of`, valid only against terminally closed
+predecessors (pre-lock + in-lock), non-gating, exposed in rows and
+navigable from both sides in `links` (with the predecessor's outcome).
+Closed availability is [] for everyone; links far-summaries carry outcome.
+
+CLI: `close --outcome` required; `create --follow-up-of`; `reopen` verb
+removed (unknown-verb refusal changes nothing, proven in-story).
+
+Superseded surfaces replaced per the PLAN authorization: the four reopen
+unit tests, the two reopen in-lock race regressions, WF-05/WF-06 reopen
+legs, the closed-blocker-gates-nothing test (now: refuses), the soak's
+reopen branch (now: follow-up creation), and the closed-detail
+`["reopen"]` assertions (now: `[]`). ~60 close sites across the suites
+gained explicit outcomes.
+
+New evidence: `test_ws2_close.py` (7 focused: canonical-outcome refusals
+and recording; either outcome ends the gate atomically — wake seq ==
+close seq + 1 — waking last-gate waiters, holding multi-gate waiters, and
+mutating no consumer; the closed-work refusal sweep with byte-identical
+audit and mark_seen retained; no reopen surface anywhere; follow-up
+closed-only/non-gating/navigable; two mid-flight races). Stories
+`test_ws2_wf05.py` (non-satisfying close returns the decision — visible,
+actionable, never "fixed") and `test_ws2_wf06.py` (immutable close, refused
+contradiction, selective follow-up with new explicit edges; old history
+byte-unchanged by the follow-up's own close), both source+packaged.
+
+Break-sweeps: outcome-optional fails the canonical-outcome test; allowing
+closed blockers fails both edge guards; removing BOTH follow-up target
+checks fails the closed-only test (one layer alone is covered by the
+in-lock recheck — defense in depth verified deliberately). Gate: 230
+passed (227 parallel + 3 serial), test-v11 green. STOPPED for group-1
+review; groups 2 (rounds) and 3 (due/races/parity) not started.
+
+## WS-2 group 1 correction — withdrawal at close, DEP, R2 fix (2026-08-14)
+
+Authorized by `00d315b9e45f638c221f1cc4d7303141` (Slawomir resolved the
+blocker).
+
+R1: terminal close now atomically WITHDRAWS every pending exact @
+obligation the closing work carries — status `withdrawn`, one audited
+`withdraw` event per obligation inside the closing transaction, each
+carrying the route accountability recorded at creation (endpoint, route,
+role, handlers, generation). Late answers refuse in-lock ("already
+withdrawn"); answer-versus-close serializes both ways (close-first: the
+answer refuses and closed history gains nothing; answer-first: the close
+keeps the committed response and withdraws nothing) — both serializations
+pinned by deterministic `_write`-seam races. The reviewer's additive
+regression passes.
+
+DEP (ruled): projection rows expose `dep` — the count of OPEN work
+currently depending on this one — and the `links.blocks` drill lists only
+that live set; a consumer's closure removes it from both without deciding
+anything on the provider, while the journal retains every edge act.
+(TUI rendering of DEP is left to group 3's bounded parity pass.)
+
+R2: the ineffective follow-up interleave test was corrected to its honest
+claim — the open-target refusal fires at the precheck, and under immutable
+closure the in-lock recheck is defense in depth (proven wired by the
+two-layer break-sweep), not a live reverse race.
+
+Break-sweeps: removing the withdrawal block fails the reviewer regression
+and the visibility regression; counting all dependents fails the DEP
+regression. Gate: 234 passed (231 parallel + 3 serial), test-v11 green.
+STOPPED for re-review; groups 2 and 3 not started.
+
+## Group-1 re-review fixes — withdrawal address, detail snapshot (2026-08-14)
+
+Per `b72692c7a4a77a272230349f109a7026`
+(`review-2026-08-14T22-09-07Z.md`); both mechanical, no ruling needed.
+
+R1: each withdrawal's `resolved_seq` now addresses its OWN `withdraw`
+event (allocated by `_emit` in the same closing transaction), never the
+enclosing close whose payload does not name the obligation; multiple
+withdrawals each carry their own address.
+
+R2: `detail` reads everything — DEP counter, live drill, links, New,
+availability, and its own `snapshot_seq` — inside one BEGIN…ROLLBACK read
+snapshot following `home`'s pattern; a consumer close racing the reads
+appears wholly before or wholly after, never torn. Purity preserved (the
+hash-sweep purity test covers detail).
+
+Both reviewer regressions pass; break-sweeps red (close-addressed
+resolved_seq fails the address regression; unwrapping detail fails the
+snapshot regression). Gate: 236 passed (233 parallel + 3 serial),
+test-v11 green. STOPPED for re-review; groups 2 and 3 not started.

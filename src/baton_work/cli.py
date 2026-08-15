@@ -57,6 +57,8 @@ def main(argv=None) -> int:
 	                 "'unknown'")
 	cmd.add_argument("--phase", help="initial operational phase; defaults "
 	                 "to 'queued'")
+	cmd.add_argument("--follow-up-of", dest="follow_up_of",
+	                 help="id of the CLOSED work this follows up (WS-2)")
 
 	cmd = sub.add_parser("post")
 	cmd.add_argument("work")
@@ -78,9 +80,8 @@ def main(argv=None) -> int:
 	cmd = sub.add_parser("close")
 	cmd.add_argument("work")
 	cmd.add_argument("--disposition", required=True)
-	cmd = sub.add_parser("reopen")
-	cmd.add_argument("work")
-	cmd.add_argument("--reason", required=True)
+	cmd.add_argument("--outcome", required=True,
+	                 help="exactly satisfying or non-satisfying (WS-2)")
 	cmd = sub.add_parser("block")
 	cmd.add_argument("work")
 	cmd.add_argument("--on", required=True, help="the blocker work id")
@@ -200,7 +201,7 @@ def _dispatch(store: Authority, args):
 			store, team=args.team, kind=args.kind, title=args.title,
 			origin=args.origin, author=member, body=args.body,
 			parent=args.parent, classification=args.classification,
-			phase=args.phase)
+			phase=args.phase, follow_up_of=args.follow_up_of)
 	if command == "post":
 		team, member = _need_participant(args)
 		return transitions.post_message(
@@ -221,11 +222,8 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.close_work(store, args.work, actor_team=team,
 		                              actor=member,
-		                              disposition=args.disposition)
-	if command == "reopen":
-		team, member = _need_participant(args)
-		return transitions.reopen_work(store, args.work, actor_team=team,
-		                               actor=member, reason=args.reason)
+		                              disposition=args.disposition,
+		                              outcome=args.outcome)
 	if command == "block":
 		team, member = _need_participant(args)
 		return transitions.add_dependency(store, args.work, args.on,

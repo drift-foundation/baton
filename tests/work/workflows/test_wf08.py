@@ -83,7 +83,7 @@ def test_wf08_reassignment_of_live_work(flow):
 	assert again["payload"]["request_resolution"]["handlers"] == ["ada"], \
 		"the generation-2 activity rewrote a generation-1 snapshot"
 
-	flow.ok("close", lang42, "--disposition", "handed through cleanly",
+	flow.ok("close", lang42, "--disposition", "handed through cleanly", "--outcome", "satisfying",
 	        viewer="lang.grace")
-	flow.ok("close", push1, "--disposition", "answered", viewer="push.sl")
+	flow.ok("close", push1, "--disposition", "answered", "--outcome", "satisfying", viewer="push.sl")
 	assert_final_invariants(flow, "lang.grace", [push1, lang42])

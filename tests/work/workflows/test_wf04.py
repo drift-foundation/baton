@@ -111,7 +111,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	                       ("review", "active"), ("active", "review")]
 
 	# 4. Reviewer closes fixed-and-verified — addressed to NOBODY.
-	flow.ok("close", lang42, "--disposition", "fixed and verified",
+	flow.ok("close", lang42, "--disposition", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")
 
 	# 5. PUSH-1 became ready because its BLOCKER changed state — and its
@@ -135,7 +135,7 @@ def test_wf04_one_consumer_one_provider(flow):
 		"the provider close moved the consumer's Current"
 	flow.ok("post", push1, "--body", "verified on staging",
 	        viewer="push.sl")
-	flow.ok("close", push1, "--disposition", "verified fixed upstream",
+	flow.ok("close", push1, "--disposition", "verified fixed upstream", "--outcome", "satisfying",
 	        viewer="push.sl")
 
 	events = assert_final_invariants(flow, "push.sl", [push1, lang42])

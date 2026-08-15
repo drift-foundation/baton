@@ -175,14 +175,18 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 					if mine:
 						tr.close_work(store, rng.choice(mine),
 						              actor_team=team, actor=member,
-						              disposition="soak close")
+						              disposition="soak close", outcome="satisfying")
 				else:
 					closed = [row["id"] for row in store.conn.execute(
 						"SELECT id FROM work WHERE status='closed'")]
 					if closed:
-						tr.reopen_work(store, rng.choice(closed),
-						               actor_team=team, actor=member,
-						               reason="soak reopen")
+						# WS-2: closure is immutable; late evidence
+						# becomes follow-up work.
+						tr.create_work(
+							store, team=team, kind="bug", title="follow-up",
+							origin="external-report", author=member,
+							body="soak follow-up",
+							follow_up_of=rng.choice(closed))
 				committed += 1
 			except bw.WorkError as refusal:
 				key = str(refusal).split(";")[0].split(":")[0][:60]

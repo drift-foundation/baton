@@ -474,3 +474,140 @@ reviewer regressions pass and independent `just test-v11` reports 225 passed
 (222 parallel plus 3 serial). WS-2 is next, but remains a human semantic ruling
 before implementation: distinguish satisfying from non-satisfying
 dispositions and decide their effect on consumer dependency edges.
+
+### 2026-08-14 WS-2 disposition and verification ruling — partially settled
+
+- [x] Make terminal closure immutable. Remove v11 reopen semantics and
+  supersede their automatic re-block behavior.
+- [x] Represent later evidence as new Work linked by non-gating
+  `follow_up_of`; require new explicit dependency edges for affected
+  consumers and never silently re-block prior consumers.
+- [x] Record provider closure as explicitly satisfying or non-satisfying,
+  never inferred from classification or disposition prose.
+- [x] End the provider gate on either terminal result and return the decision
+  to each consumer without moving its Current or automatically classifying or
+  closing it. Queue only when its last open gate clears; preserve other gates.
+- [x] Keep candidate provider Work open during staged verification. Publish a
+  pinned candidate and create separate exact `@` verification obligations;
+  the obligation makes a team actionable without clearing its dependency.
+- [x] Give the responsible provider reviewer/verifier sole judgment over the
+  evidence threshold. Responses provide evidence but never vote or trigger
+  closure automatically; feedback may drive closure or resumed work.
+- [x] Model candidate-specific verification rounds with an exact selected
+  assignment set. Show received feedback as `n/total` plus per-assignment
+  outcomes; the fraction is receipt progress, never an automatic threshold.
+- [x] Start a new round when the candidate changes, retain prior rounds as
+  evidence, and explicitly withdraw obsolete/pending assignments with route
+  notification when a round or Work ends.
+- [x] Allow an optional reviewer-selected `review_at` time. It makes the round
+  due and notifies Current but never decides automatically; the reviewer may
+  close on elapsed exposure even at `0/N`, with the evidence basis, count,
+  elapsed time, and withdrawals recorded.
+- [x] Keep verifier observation and provider adjudication separate. Count all
+  terminal reports in `N/total`, expose the raw result plus the reviewer's
+  accepted/rejected/inconclusive assessment and rationale, and make changed
+  assessments append-only supersessions. Neither axis decides automatically.
+- [x] On `review_at`, mark the round due and notify its reviewer without any
+  state transition. Require an audited reviewer decision to extend the same
+  candidate's window, close it as satisfying, or resume work; retain feedback
+  across extensions and expose repeated extensions as history.
+- [x] Rule verifier observations as `passed`, `failed`, or `unable`, and
+  provider assessments as `accepted`, `rejected`, or `inconclusive`.
+- [x] Name the terminal state for an assignment no longer required
+  `withdrawn`. Keep progress as reports received over assignments selected;
+  expose withdrawals separately and never count them as feedback.
+- [x] Define the complete WS-2 workflow and focused regression battery in
+  `WORKFLOW-TESTS.md`, including immutable close/follow-up, explicit provider
+  outcomes, staged verification, due review, adjudication, races, rollback,
+  restart, and projection parity.
+- [ ] Replace the accepted-but-superseded reopen
+  implementation/tests, extend WF-03/WF-04 with satisfying, non-satisfying,
+  staged-confirmation, failed-verification, and follow-up stories, then stop
+  for review. **Implementation remains held until the documented battery is
+  handed to and accepted by the implementer.**
+
+### 2026-08-14 WS-2 pre-implementation decision challenge
+
+**Confirmed by Slawomir.** K's first WS-2 task is to challenge the decisions,
+not implement them. Before any source or test edit, she must walk the workflow
+battery against the current authority and actively look for contradictory
+transitions, missing states, ambiguous authorization, non-atomic boundaries,
+unrepresentable JSON, and stories whose asserted result does not follow from
+the pinned model.
+
+She returns a written disposition that either lists each issue with its exact
+decision/test impact and recommended ruling, or states which workflow and
+focused-regression classes she challenged and why no blocker remains. Silence
+or a general acknowledgement is not acceptance. Implementation begins only
+after `baton.reviewer` reviews that disposition, resolves any product question
+with Slawomir, and explicitly releases the first implementation group.
+
+**First challenge returned; changes requested.** See
+`review-2026-08-14T21-27-46Z.md`. Implementation remains held pending concrete
+options and recommendations for due notification without read mutation,
+verification assignments versus exact `@` obligations, provider-outcome and
+closed-target edge applicability, and the precise closed-Work mutation rule.
+
+**Expanded disposition reviewed.** See
+`review-2026-08-14T21-29-55Z.md`. Slawomir must approve or correct four
+recommendations: level-triggered derived due actionability; verification as a
+specialized exact `@` obligation; required dependency edges targeting only
+open Work; and an explicit satisfying/non-satisfying outcome on every terminal
+close. No implementation group is released yet.
+
+### 2026-08-14 WS-2 decision challenge resolved; group 1 released
+
+- [x] Derive due as level-triggered actionable state with an always-visible
+  count and deadline-aware wait; create no timer audit row or scheduler.
+- [x] Model verification as a specialized exact `@` obligation with structured
+  reporting, but forbid it as an automatic Work waiting/wake condition.
+- [x] Refuse new required dependency edges targeting terminal Work; use new
+  open follow-up Work for later blockers.
+- [x] Require exactly `satisfying` or `non-satisfying` on every terminal close,
+  independent of current graph shape or verification history.
+- [x] Preserve closed-history reads, traversal, references, and personal seen
+  hygiene while refusing further workflow mutation or new carrying activity.
+- [x] **GROUP 1 AUTHORIZED:** remove every reopen surface; require explicit
+  terminal outcomes; add non-gating `follow_up_of`; refuse new blockers that
+  target closed Work; preserve dependency propagation, atomicity, audit, JSON,
+  authorization, race, rollback, and packaged workflow coverage. Stop after
+  group 1 focused tests and affected stories pass and return evidence for
+  review. Groups 2 and 3 remain held.
+
+**Group 1 review: changes requested.** See
+`review-2026-08-14T21-50-10Z.md`. Closing currently leaves classic `@`
+obligations pending and actionable on immutable Work; the additive reviewer
+regression fails. Slawomir must rule atomic withdrawal versus close refusal,
+then K corrects the loose end and the ineffective follow-up race claim. Groups
+2 and 3 remain held.
+
+### 2026-08-14 group 1 correction released
+
+- [x] Rule terminal close to atomically withdraw every pending exact `@`
+  obligation carried by that Work; serialize response/dispose/report versus
+  close so exactly one terminal result commits and no closed-history response
+  can land.
+- [x] Keep provider Work independent: a consumer closing or withdrawing its
+  request changes no provider classification, phase, Current, status, or
+  outcome.
+- [x] Expose only `DEP`, the live open-dependent count, in active projections;
+  drill lists live dependents, while historical edges and count changes remain
+  reconstructable through journal/audit without a total-dependents counter.
+- [x] **AUTHORIZED GROUP 1 CORRECTION:** make the additive reviewer regression
+  pass with atomic withdrawal, actionable/journal/route visibility, and honest
+  race coverage; add live `DEP` projection/count/drill coverage; correct the
+  ineffective follow-up race test and its evidence claim; run group-1 stories
+  plus `just test-v11`, then stop for re-review. Groups 2 and 3 remain held.
+
+**Group 1 correction re-review: changes requested.** See
+`review-2026-08-14T22-09-07Z.md`. Each withdrawn obligation must resolve to its
+own `withdraw` event, and one detail response must read `DEP`, live drill, and
+snapshot sequence coherently from one pure SQLite snapshot. Two additive
+reviewer regressions fail. These are implementation corrections under the
+approved rules; no human product ruling is required. Groups 2 and 3 remain
+held.
+
+**Group 1 accepted.** See `review-2026-08-14T22-14-53Z.md`. The focused WS-2
+closure and workflow regressions pass 17/17, and `just test-v11` passes 236/236
+(233 parallel plus 3 serial). Groups 2 and 3 remain held pending explicit
+release.

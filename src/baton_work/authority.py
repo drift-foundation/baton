@@ -33,7 +33,7 @@ import sqlite3
 import time
 import unicodedata
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -186,6 +186,8 @@ CREATE TABLE work (
 	next_team      TEXT,
 	next_kind      TEXT,
 	ready          INTEGER NOT NULL DEFAULT 0,
+	outcome        TEXT,
+	follow_up_of   TEXT REFERENCES work(id),
 	created_seq    INTEGER NOT NULL,
 	closed_seq     INTEGER
 ) STRICT;

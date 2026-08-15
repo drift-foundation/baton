@@ -3,8 +3,9 @@
 
 Containment and dependency COMPOSED: a release root with one locally-worked
 child and one externally-blocked child; the root's readiness is the
-conjunction of both, closure refuses by naming open children, reopen flips
-the gate back, and personal New decomposes exactly into own plus children.
+conjunction of both, closure refuses by naming open children, and personal
+New decomposes exactly into own plus children. (The former reopen leg is
+superseded by WS-2 immutable closure; WS2-WF-06 owns that story.)
 
 Omitted (WORKFLOW-COVERAGE.md, WS-4): multiply-related discussion
 deduplication — needs first-class discussions.
@@ -63,7 +64,7 @@ def test_wf06_recursive_release(flow):
 
 	# 3. Closing the root while children are open refuses AND NAMES them.
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "close", root, "--disposition", "shipped")
+		flow, "lang.ada", "close", root, "--disposition", "shipped", "--outcome", "satisfying")
 	assert local in error and blocked in error, \
 		"the refusal does not name the open children"
 
@@ -71,27 +72,18 @@ def test_wf06_recursive_release(flow):
 	returned = flow.ok("post", local, "--body", "done", "--pass-to",
 	                   "lang.rev", viewer="lang.grace")
 	assert returned["kind"] == "return"
-	flow.ok("close", local, "--disposition", "fixed and verified",
+	flow.ok("close", local, "--disposition", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is False, \
 		"the root became ready with an externally blocked child open"
-	flow.ok("close", external, "--disposition", "image rebuilt",
+	flow.ok("close", external, "--disposition", "image rebuilt", "--outcome", "satisfying",
 	        viewer="mdb.mo")
 	assert flow.ok("detail", blocked, viewer="lang.ada")["ready"] is True
-	flow.ok("close", blocked, "--disposition", "unblocked and done",
+	flow.ok("close", blocked, "--disposition", "unblocked and done", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is True
 
-	# 5. Reopening a child makes the root not ready again — the same
-	# recomputation, backwards.
-	flow.ok("reopen", blocked, "--reason", "image was incomplete",
-	        viewer="lang.ada")
-	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is False
-	flow.ok("close", blocked, "--disposition", "verified complete",
-	        viewer="lang.ada")
-	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is True
-
-	# 6. Personal New decomposes EXACTLY: root-local unseen plus the
+	# 5. Personal New decomposes EXACTLY: root-local unseen plus the
 	# aggregated child counts, per member.
 	breakdown = flow.ok("new", root, viewer="lang.grace")
 	assert breakdown["total"] == breakdown["own"] + \
@@ -101,7 +93,7 @@ def test_wf06_recursive_release(flow):
 	trail = flow.ok("breadcrumb", blocked, viewer="lang.ada")
 	assert [entry["id"] for entry in trail] == [root, blocked]
 
-	flow.ok("close", root, "--disposition", "1.2.0 shipped",
+	flow.ok("close", root, "--disposition", "1.2.0 shipped", "--outcome", "satisfying",
 	        viewer="lang.ada")
 	assert_final_invariants(flow, "lang.ada",
 	                        [root, local, blocked, external])
