@@ -274,6 +274,12 @@ def thread(store: Authority, discussion_id: str, *, viewer_team: str,
 			"SELECT seq, author_team, author, body, ts FROM messages "
 			"WHERE discussion=? AND seq > ? ORDER BY seq LIMIT ?",
 			(discussion_id, after, limit))]
+		for message in messages:
+			message["references"] = [dict(ref) for ref in
+			                         store.conn.execute(
+				"SELECT ordinal, kind, work, binding_revision, root, "
+				"path FROM act_references WHERE seq=? ORDER BY ordinal",
+				(message["seq"],))]
 		cursor = store.conn.execute(
 			"SELECT seq FROM seen WHERE team=? AND member=? AND "
 			"discussion=?",
@@ -460,6 +466,29 @@ def new_count(store: Authority, work_id: str, *, viewer_team: str,
 	return {"id": work_id, "own": len(own_set), "children": children,
 	        "overlap": len(own_set) + child_sum - len(total_set),
 	        "total": len(total_set), "snapshot_seq": snapshot_seq}
+
+
+def bindings(store: Authority, work_id: str, *, after: int = 0,
+             limit: int = 100) -> dict:
+	"""WS-6: the paged pure read over a Work's append-only binding
+	history — non-negative cursor on the monotonic revision, bounded
+	positive limit, explicit continuation, one snapshot."""
+	after, limit = _page_bounds(after, limit)
+	store.conn.execute("BEGIN")
+	try:
+		_work(store, work_id)
+		rows = [dict(entry) for entry in store.conn.execute(
+			"SELECT revision, prior, root, path, git_provenance, "
+			"actor, rationale, seq, created_ts FROM bindings "
+			"WHERE work=? AND revision > ? ORDER BY revision LIMIT ?",
+			(work_id, after, limit))]
+		snapshot_seq = store.last_seq()
+	finally:
+		store.conn.execute("ROLLBACK")
+	return {"work": work_id, "rows": rows,
+	        "next_after": rows[-1]["revision"]
+	        if len(rows) == limit else None,
+	        "snapshot_seq": snapshot_seq}
 
 
 def operation_log(store: Authority, participant: str, *,
@@ -739,6 +768,29 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	view["discussions_next_after"] = \
 		view["discussions"][-1]["added_seq"] \
 		if view["discussions_truncated"] else None
+	# WS-6: exactly ONE effective dossier binding, returned directly,
+	# plus a BOUNDED ordered history preview with count, truncation, and
+	# a continuation cursor handing off to the paged `bindings` read.
+	view["binding_count"] = store.conn.execute(
+		"SELECT COUNT(*) AS n FROM bindings WHERE work=?",
+		(work_id,)).fetchone()["n"]
+	view["binding"] = None
+	effective_binding = store.conn.execute(
+		"SELECT revision, prior, root, path, git_provenance, actor, "
+		"rationale, seq, created_ts FROM bindings WHERE work=? "
+		"ORDER BY revision DESC LIMIT 1", (work_id,)).fetchone()
+	if effective_binding is not None:
+		view["binding"] = dict(effective_binding)
+	view["bindings"] = [dict(entry) for entry in store.conn.execute(
+		"SELECT revision, prior, root, path, git_provenance, actor, "
+		"rationale, seq, created_ts FROM bindings WHERE work=? "
+		"ORDER BY revision LIMIT 50", (work_id,))]
+	view["bindings_truncated"] = \
+		view["binding_count"] > len(view["bindings"])
+	view["bindings_next_after"] = \
+		view["bindings"][-1]["revision"] \
+		if view["bindings_truncated"] else None
+
 	# Work-revision slice: exactly ONE effective revision, returned
 	# DIRECTLY, plus a BOUNDED ordered history preview (R75: every
 	# canonical list is bounded and paged) — count, truncation, and a

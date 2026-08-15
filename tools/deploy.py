@@ -860,6 +860,7 @@ def _installed_layout(tool: str, manifest: dict, version: str) -> dict:
 		release_document(tool, version): "doc/" + os.path.basename(
 			release_document(tool, version)),
 		"examples/baton.json": "conf/baton.json.example",
+		"tmpl/work-basic-1.md": "tmpl/work-basic-1.md",
 	}
 	return places
 

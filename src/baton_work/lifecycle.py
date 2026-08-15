@@ -75,6 +75,12 @@ def _project(conn, document: dict) -> None:
 	conn.execute("UPDATE roles SET removed=1")
 	conn.execute("UPDATE routes SET removed=1")
 	conn.execute("UPDATE kinds SET retired=1")
+	conn.execute("UPDATE roots SET removed=1")
+	for root_id, entry in document.get("roots", {}).items():
+		conn.execute(
+			"INSERT INTO roots (root, display, removed) VALUES (?, ?, 0) "
+			"ON CONFLICT (root) DO UPDATE SET display=excluded.display, "
+			"removed=0", (root_id, entry["display"]))
 	conn.execute("DELETE FROM route_handlers")
 	conn.execute("DELETE FROM member_roles")
 	conn.execute("DELETE FROM member_capabilities")
@@ -123,6 +129,31 @@ def _project(conn, document: dict) -> None:
 				(team_handle, kind_handle, kind["display"], kind["route"]))
 
 
+def _parse_config_refs(refs, catalog, *, allow_dossier: bool) -> list:
+	"""WS-6 R89: the configuration family uses the ONE typed reference
+	vocabulary — same grammar, same normalizer, same containment. Fresh
+	generation-one activation refuses the dossier form (no bound Work
+	can exist yet); regen accepts it, with the store-touching peek and
+	revision pinning deferred to the identity-gated committing path.
+	Independent references land on the catalog THIS acceptance
+	proposes."""
+	from baton_work.transitions import _parse_ref_tokens
+	parsed = _parse_ref_tokens(refs)
+	for ref in parsed:
+		if ref["kind"] == "dossier":
+			if not allow_dossier:
+				raise WorkError(
+					f"{ref['work']}: generation one has no bound work "
+					f"to cite; a fresh activation carries independent "
+					f"ROOT_ID:path references only")
+		elif ref["root"] not in catalog:
+			raise WorkError(
+				f"root {ref['root']!r} is not in the root catalog this "
+				f"acceptance proposes; an independent reference lands "
+				f"on the accepted catalog")
+	return parsed
+
+
 def _op_tuple(participant: str, name: str, op_id, typed_input):
 	"""WS-5 for the configuration family: grammar check and canonical
 	fingerprint; identity validation happens at each call site against
@@ -148,7 +179,7 @@ def _participant_in_document(document: dict, participant: str) -> None:
 
 
 def init_from_config(config_path: str, *, participant: str,
-                     op_id: str | None = None) -> dict:
+                     op_id: str | None = None, refs=()) -> dict:
 	"""Generation-1 bootstrap. Crash-safe by construction. WS-5: the
 	required participant is validated against the PROPOSED generation-1
 	document on the fresh path; on an EXISTING authority a protected
@@ -161,7 +192,10 @@ def init_from_config(config_path: str, *, participant: str,
 			f"initialization accepts generation 1; this document declares "
 			f"generation {document['generation']}. A later generation implies "
 			f"an authority that already accepted the earlier ones.")
-	operation = _op_tuple(participant, "init", op_id, {"digest": digest})
+	refs = _parse_config_refs(refs, document.get("roots", {}),
+	                          allow_dossier=False)
+	operation = _op_tuple(participant, "init", op_id,
+	                      {"digest": digest, "refs": refs})
 	database = _database_path(config_path)
 	if os.path.lexists(database):
 		if operation is not None:
@@ -224,7 +258,7 @@ def init_from_config(config_path: str, *, participant: str,
 				{"generation_from": None, "generation_to": 1,
 				 "digest": digest,
 				 "changes": _diff_summary({}, document)}, mutate,
-				operation=operation, finish=finish)
+				operation=operation, finish=finish, references=refs)
 			store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 		finally:
 			store.close()
@@ -286,7 +320,8 @@ def open_bound(config_path: str) -> Authority:
 	return store
 
 
-def _diff_summary(before_teams: dict, document: dict) -> dict:
+def _diff_summary(before_teams: dict, document: dict,
+                  before_roots=frozenset()) -> dict:
 	"""Structural changes, computed set-wise for the acceptance event."""
 	def flatten(teams):
 		identities = set()
@@ -309,6 +344,10 @@ def _diff_summary(before_teams: dict, document: dict) -> dict:
 
 	old_ids, old_routing = flatten(before_teams)
 	new_ids, new_routing = flatten(document["teams"])
+	for root_id in document.get("roots", {}):
+		new_ids.add(("root", root_id))
+	for root_id in before_roots:
+		old_ids.add(("root", root_id))
 	return {
 		"added": sorted(f"{kind}:{name}" for kind, name in new_ids - old_ids),
 		"removed": sorted(f"{kind}:{name}"
@@ -386,6 +425,9 @@ def _gate_checks(conn, document: dict) -> None:
 				reused.append(f"route:{team_key}.{name}")
 			elif kind == "kind" and name in proposal_team["kinds"]:
 				reused.append(f"kind:{team_key}.{name}")
+	for row in conn.execute("SELECT root FROM roots WHERE removed=1"):
+		if row["root"] in document.get("roots", {}):
+			reused.append(f"root:{row['root']}")
 	if reused:
 		raise WorkError(
 			f"the proposal reintroduces retired or removed identities "
@@ -415,13 +457,15 @@ def _gate_checks(conn, document: dict) -> None:
 
 
 def accept_config(config_path: str, *, actor: str,
-                  op_id: str | None = None) -> dict:
+                  op_id: str | None = None, refs=()) -> dict:
 	"""One audited generation+1 acceptance. The bounded exception to the
 	digest refusal, and the ONLY path that changes topology or handlers."""
 	document, digest = _read_config(config_path)
 	database = _database_path(config_path)
+	refs = _parse_config_refs(refs, document.get("roots", {}),
+	                          allow_dossier=True)
 	operation = _op_tuple(actor, "accept_config", op_id,
-	                      {"digest": digest})
+	                      {"digest": digest, "refs": refs})
 	store = Authority(database)
 	try:
 		if operation is not None:
@@ -473,8 +517,18 @@ def accept_config(config_path: str, *, actor: str,
 				f"currently accepted generation {accepted_generation}; a "
 				f"proposal cannot authorize its own acceptor")
 
+		# R89: the store-touching dossier peek runs only AFTER the
+		# identity and capability gates — a caller the accepted
+		# generation refuses learns nothing about bindings; the
+		# committing transaction pins the effective revision.
+		from baton_work.transitions import _peek_refs
+		_peek_refs(store, [ref for ref in refs
+		                   if ref["kind"] == "dossier"])
+
 		before = _accepted_teams(store)
-		changes = _diff_summary(before, document)
+		before_roots = {row["root"] for row in store.conn.execute(
+			"SELECT root FROM roots WHERE removed=0")}
+		changes = _diff_summary(before, document, before_roots)
 
 		# Diagnostic pre-check: a fast legible refusal outside the lock. It
 		# is NOT the gate — R2: a writer can commit a stranding Work between
@@ -515,6 +569,6 @@ def accept_config(config_path: str, *, actor: str,
 			{"generation_from": accepted_generation,
 			 "generation_to": document["generation"],
 			 "digest": digest, "changes": changes}, mutate,
-			operation=operation, finish=finish)
+			operation=operation, finish=finish, references=refs)
 	finally:
 		store.close()

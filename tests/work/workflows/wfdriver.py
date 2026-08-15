@@ -139,13 +139,15 @@ class Flow:
 		self.write_config(document)
 		# WS-5 P9a: init is committed by a NAMED participant of the
 		# proposed generation-1 document.
+		home = os.path.dirname(self.config_path)
 		chosen = None
 		for team, spec in document["teams"].items():
 			for member, entry in spec["participants"].items():
 				chosen = chosen or f"{team}.{member}"
 				if "config" in entry.get("capabilities", []):
-					return self.ok("init", viewer=f"{team}.{member}")
-		return self.ok("init", viewer=chosen)
+					return self.ok("activate", home,
+					               viewer=f"{team}.{member}")
+		return self.ok("activate", home, viewer=chosen)
 
 
 # -- configuration builders ----------------------------------------------
@@ -157,12 +159,15 @@ def team(display: str, participants: dict, roles: dict, routes: dict,
 
 
 def document(teams: dict, *, generation: int = 1, uuid: str = UUID,
-             name: str = "workflow") -> dict:
-	return {"config_version": 1, "protocol_version": 11,
-	        "generation": generation,
-	        "instance": {"name": name, "authority_uuid": uuid,
-	                     "database": "work.sqlite3"},
-	        "teams": teams}
+             name: str = "workflow", roots: dict | None = None) -> dict:
+	out = {"config_version": 1, "protocol_version": 11,
+	       "generation": generation,
+	       "instance": {"name": name, "authority_uuid": uuid,
+	                    "database": "work.sqlite3"},
+	       "teams": teams}
+	if roots is not None:
+		out["roots"] = roots
+	return out
 
 
 def standard_teams() -> dict:

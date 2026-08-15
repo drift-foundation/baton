@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 from baton_work.authority import WorkError
@@ -32,8 +33,10 @@ def _participant(value: str) -> tuple[str, str]:
 
 def main(argv=None) -> int:
 	parser = argparse.ArgumentParser(prog="baton-work")
-	parser.add_argument("--config", required=True,
-	                    help="the instance configuration (baton.json)")
+	parser.add_argument("--config",
+	                    help="the instance configuration (baton.json); "
+	                         "every command except init/activate/"
+	                         "bootstrap requires it")
 	parser.add_argument("--participant",
 	                    help="team.member; the acting identity, validated "
 	                         "against the accepted configuration before any "
@@ -45,13 +48,46 @@ def main(argv=None) -> int:
 	                         "result; without it the weaker "
 	                         "read-before-retry tier applies. Pure reads "
 	                         "take none.")
+	parser.add_argument("--ref", dest="refs", action="append",
+	                    help="ordered typed asset reference "
+	                         "(ROOT_ID:relative/path independent, or "
+	                         "WORK-ID:relative/path dossier-relative); "
+	                         "repeatable; commits with the act. Pure "
+	                         "reads take none.")
+	parser.add_argument("--answer-ref", dest="answer_refs",
+	                    action="append",
+	                    help="accept only: references riding the emitted "
+	                         "ANSWER message (explicit compound "
+	                         "placement)")
 	parser.add_argument("--expect-projection",
 	                    help="fail unless the projection version is "
 	                         "compatible with this")
 	sub = parser.add_subparsers(dest="command", required=True)
 
-	sub.add_parser("init")
+	cmd = sub.add_parser("init")
+	cmd.add_argument("directory",
+	                 help="the coordination home to scaffold; must "
+	                 "exist and hold no managed Baton files (one-shot)")
+	cmd = sub.add_parser("activate")
+	cmd.add_argument("directory",
+	                 help="the coordination home holding the edited "
+	                 "baton.json")
 	sub.add_parser("regen")
+	cmd = sub.add_parser("resolve")
+	cmd.add_argument("locator",
+	                 help="ROOT_ID:relative/path, or a WORK id whose "
+	                 "effective binding resolves")
+	cmd.add_argument("--roots-file", dest="roots_file", required=True,
+	                 help="the explicit machine-local resolver JSON")
+	cmd = sub.add_parser("bootstrap")
+	cmd.add_argument("--root", required=True,
+	                 help="the configured project root id to vendor "
+	                 "into")
+	cmd.add_argument("--roots-file", dest="roots_file", required=True,
+	                 help="the explicit machine-local resolver JSON")
+	cmd.add_argument("--template", action="append", dest="templates",
+	                 help="numbered template file to vendor; default: "
+	                 "every shipped template")
 
 	cmd = sub.add_parser("create")
 	cmd.add_argument("--team", required=True)
@@ -66,6 +102,9 @@ def main(argv=None) -> int:
 	                 "to 'queued'")
 	cmd.add_argument("--follow-up-of", dest="follow_up_of",
 	                 help="id of the CLOSED work this follows up (WS-2)")
+	cmd.add_argument("--binding",
+	                 help="atomic creation binding "
+	                 "ROOT_ID:work/records/YYYY/MM/<stable-record>")
 
 	cmd = sub.add_parser("accept")
 	cmd.add_argument("obligation", type=int)
@@ -172,6 +211,21 @@ def main(argv=None) -> int:
 	cmd.add_argument("work")
 	cmd.add_argument("--after", type=int, default=0)
 	cmd.add_argument("--limit", type=int, default=100)
+	cmd = sub.add_parser("bind")
+	cmd.add_argument("work")
+	cmd.add_argument("--root", help="a live configured root id")
+	cmd.add_argument("--path", help="the canonical permanent record "
+	                 "path: work/records/YYYY/MM/<stable-record>")
+	cmd.add_argument("--expect", dest="expected_revision", type=int,
+	                 help="the expected prior binding revision")
+	cmd.add_argument("--rationale",
+	                 help="why this correction/attachment is right")
+	cmd.add_argument("--git", dest="git_provenance",
+	                 help="optional immutable Git provenance")
+	cmd = sub.add_parser("bindings")
+	cmd.add_argument("work")
+	cmd.add_argument("--after", type=int, default=0)
+	cmd.add_argument("--limit", type=int, default=100)
 	cmd = sub.add_parser("revise")
 	cmd.add_argument("work")
 	# R73 discipline: omission refuses through the JSON exit-one
@@ -231,37 +285,81 @@ def main(argv=None) -> int:
 	args = parser.parse_args(argv)
 	try:
 		jsonapi.require_version(args.expect_projection)
-		mutations = {"init", "regen", "create", "accept", "respond",
-		             "dispose", "close", "block", "mark-seen",
-		             "classify", "phase", "round", "extend", "report",
-		             "assess", "abandon", "revise", "discuss", "say",
-		             "label", "unlabel"}
+		mutations = {"activate", "regen", "create", "accept",
+		             "respond", "dispose", "close", "block",
+		             "mark-seen", "classify", "phase", "round",
+		             "extend", "report", "assess", "abandon", "revise",
+		             "discuss", "say", "label", "unlabel"}
+		filesystem = {"init", "bootstrap", "resolve"}
+		if args.command not in {"init", "activate", "bootstrap"} and \
+				not args.config:
+			raise WorkError(f"{args.command} needs --config naming the "
+			                f"instance configuration")
+		if args.command in filesystem and (args.op_id or args.refs or
+		                                   args.answer_refs):
+			raise WorkError(
+				f"{args.command} is a filesystem operation outside the "
+				f"authority; it carries no operation identity and no "
+				f"asset references")
+		mutations.add("bind")
 		if args.op_id is not None and args.command not in mutations:
 			raise WorkError(
 				f"{args.command} is a pure read and takes no operation "
 				f"identity; --op-id protects mutations only (WS-5)")
+		if args.refs and args.command not in mutations:
+			raise WorkError(
+				f"{args.command} is a pure read and carries no asset "
+				f"references; --ref commits with a mutation (WS-6)")
+		if args.answer_refs and args.command != "accept":
+			raise WorkError(
+				"--answer-ref is accept's explicit compound placement; "
+				"no other act emits an answer message")
 		if args.command == "init":
-			# The one command with no authority to open: it creates one
-			# from the generation-1 configuration — committed by a NAMED
-			# participant of the proposed document (WS-5 P9a); on an
-			# existing authority the current-generation identity gate and
-			# the exact/conflicting operation lookup run first.
+			# The coordination-home SCAFFOLD (WS-6): editable strict
+			# JSON plus instructions, no database, deliberately
+			# one-shot.
+			from baton_work import project
+			result = project.scaffold_home(args.directory)
+			print(json.dumps({"projection_version":
+			                  jsonapi.PROJECTION_VERSION,
+			                  "result": result}, indent=2,
+			                 sort_keys=True))
+			return 0
+		if args.command == "activate":
+			# The ONE authoritative generation-one validation and
+			# creation — committed by a NAMED participant of the
+			# proposed document (WS-5 P9a); on an existing authority
+			# the current-generation identity gate and the
+			# exact/conflicting operation lookup run first. A refusal
+			# leaves no database and no accepted state.
 			if not args.participant:
-				raise WorkError("init needs --participant naming a "
-				                "member of the proposed generation-1 "
-				                "document")
+				raise WorkError("activate needs --participant naming "
+				                "a member of the proposed "
+				                "generation-1 document")
 			result = lifecycle.init_from_config(
-				args.config, participant=args.participant,
-				op_id=args.op_id)
+				os.path.join(args.directory, "baton.json"),
+				participant=args.participant,
+				op_id=args.op_id, refs=args.refs or ())
 			print(json.dumps({"projection_version":
 			                  jsonapi.PROJECTION_VERSION,
 			                  "result": result}, indent=2, sort_keys=True))
+			return 0
+		if args.command == "bootstrap":
+			from baton_work import project
+			result = project.bootstrap_project(
+				args.root, args.roots_file,
+				templates=args.templates)
+			print(json.dumps({"projection_version":
+			                  jsonapi.PROJECTION_VERSION,
+			                  "result": result}, indent=2,
+			                 sort_keys=True))
 			return 0
 		if args.command == "regen":
 			team, member = _need_participant(args)
 			result = lifecycle.accept_config(args.config,
 			                                 actor=f"{team}.{member}",
-			                                 op_id=args.op_id)
+			                                 op_id=args.op_id,
+			                                 refs=args.refs or ())
 			print(json.dumps({"projection_version":
 			                  jsonapi.PROJECTION_VERSION,
 			                  "result": result}, indent=2, sort_keys=True))
@@ -327,10 +425,12 @@ def _dispatch(store: Authority, args):
 			raise WorkError(f"participant {team}.{member} cannot author "
 			                f"for {args.team}")
 		return transitions.create_work(
-			store, team=args.team, kind=args.kind, title=args.title,
+			store, binding=args.binding,
+			team=args.team, kind=args.kind, title=args.title,
 			origin=args.origin, author=member, body=args.body,
 			parent=args.parent, classification=args.classification,
-			phase=args.phase, follow_up_of=args.follow_up_of, op_id=args.op_id)
+			phase=args.phase, follow_up_of=args.follow_up_of, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "accept":
 		team, member = _need_participant(args)
 		create_only = {"--kind": args.kind, "--title": args.title,
@@ -355,27 +455,33 @@ def _dispatch(store: Authority, args):
 			          "phase": args.phase, "parent": args.parent}
 		return transitions.accept_obligation(
 			store, args.obligation, actor_team=team, actor=member,
-			body=args.body, into=args.into, create=create, op_id=args.op_id)
+			answer_refs=args.answer_refs or (),
+			body=args.body, into=args.into, create=create, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "respond":
 		team, member = _need_participant(args)
 		return transitions.respond_obligation(
-			store, args.obligation, team=team, member=member, body=args.body, op_id=args.op_id)
+			store, args.obligation, team=team, member=member, body=args.body, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "dispose":
 		team, member = _need_participant(args)
 		return transitions.dispose_obligation(
 			store, args.obligation, team=team, member=member,
-			disposition=args.disposition, op_id=args.op_id)
+			disposition=args.disposition, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "close":
 		team, member = _need_participant(args)
 		return transitions.close_work(store, args.work, actor_team=team,
 		                              actor=member,
 		                              rationale=args.rationale,
 		                              outcome=args.outcome,
-		                              duplicate_of=args.duplicate_of, op_id=args.op_id)
+		                              duplicate_of=args.duplicate_of, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "block":
 		team, member = _need_participant(args)
 		return transitions.add_dependency(store, args.work, args.on,
-		                                  actor_team=team, actor=member, op_id=args.op_id)
+		                                  actor_team=team, actor=member, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "operation-log":
 		team, member = _need_participant(args)
 		return projection.operation_log(store, f"{team}.{member}",
@@ -385,35 +491,103 @@ def _dispatch(store: Authority, args):
 		_need_participant(args)
 		return projection.revisions(store, args.work, after=args.after,
 		                            limit=args.limit)
+	if command == "resolve":
+		team, member = _need_participant(args)
+		from baton_work import project
+		mapping = project.load_resolver(args.roots_file)
+		left, _colon, rest = args.locator.partition(":")
+		# R92: the ONE shared locator grammar — every suffix is a
+		# contained relative POSIX path, root and dossier forms alike;
+		# the machine-local resolver never authorizes locators the
+		# accepted grammar refuses.
+		if rest:
+			transitions._validate_ref_path(
+				rest, "resolve: the locator suffix must stay a "
+				"contained relative path")
+		import re as _re
+		if _re.match(r"^[0-9a-f]{8}-W[0-9]+$", left):
+			view = projection.detail(store, left, viewer_team=team,
+			                         viewer_member=member)
+			binding = view["binding"]
+			if binding is None:
+				raise WorkError(f"{left} has no dossier binding to "
+				                f"resolve")
+			base = project.resolve_base(mapping, binding["root"])
+			absolute = os.path.join(base, binding["path"])
+			if rest:
+				absolute = os.path.join(absolute, rest)
+			return {"root": binding["root"], "path": binding["path"],
+			        "relative": rest or None, "absolute": absolute}
+		# R95: the independent form IS `ROOT_ID:relative/path` — a bare
+		# root or an empty suffix is not a canonical locator; only a
+		# bare WORK id resolves a dossier root.
+		if not _colon or not rest:
+			raise WorkError(
+				f"{args.locator!r} is not a canonical independent "
+				f"locator: the form is ROOT_ID:<contained relative "
+				f"path> with a non-empty contained suffix; a bare "
+				f"WORK id resolves its dossier root")
+		# R92: an independent root must be live in the ACCEPTED
+		# authority — the resolver maps accepted root ids, it is never
+		# a second root catalog.
+		live = store.conn.execute(
+			"SELECT removed FROM roots WHERE root=?",
+			(left,)).fetchone()
+		if live is None or live["removed"]:
+			raise WorkError(
+				f"root {left!r} is not a live configured root; the "
+				f"machine-local resolver never authorizes roots "
+				f"outside the accepted catalog")
+		base = project.resolve_base(mapping, left)
+		return {"root": left, "path": rest,
+		        "absolute": os.path.join(base, rest)}
+	if command == "bind":
+		team, member = _need_participant(args)
+		return transitions.bind_work(
+			store, args.work, actor_team=team, actor=member,
+			root=args.root, path=args.path,
+			expected_revision=args.expected_revision,
+			rationale=args.rationale,
+			git_provenance=args.git_provenance, op_id=args.op_id,
+			refs=args.refs or ())
+	if command == "bindings":
+		_need_participant(args)
+		return projection.bindings(store, args.work, after=args.after,
+		                           limit=args.limit)
 	if command == "revise":
 		team, member = _need_participant(args)
 		return transitions.revise_work(
 			store, args.work, actor_team=team, actor=member,
 			message_seq=args.message_seq,
 			expected_revision=args.expected_revision,
-			rationale=args.rationale, op_id=args.op_id)
+			rationale=args.rationale, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "discuss":
 		team, member = _need_participant(args)
 		return transitions.create_discussion(
 			store, actor_team=team, actor=member, body=args.body,
-			labels=args.label, op_id=args.op_id)
+			labels=args.label, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "say":
 		team, member = _need_participant(args)
 		return transitions.post_discussion(
 			store, args.discussion, author_team=team, author=member,
 			body=args.body, include=args.include or (),
 			request=args.request, pass_to=args.pass_to,
-			set_next=args.set_next, on=args.on, op_id=args.op_id)
+			set_next=args.set_next, on=args.on, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "label":
 		team, member = _need_participant(args)
 		return transitions.label_discussion(
 			store, args.discussion, args.work, actor_team=team,
-			actor=member, op_id=args.op_id)
+			actor=member, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "unlabel":
 		team, member = _need_participant(args)
 		return transitions.unlabel_discussion(
 			store, args.discussion, args.work, actor_team=team,
-			actor=member, op_id=args.op_id)
+			actor=member, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "thread":
 		team, member = _need_participant(args)
 		return projection.thread(store, args.discussion,
@@ -439,38 +613,45 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.seen_discussion(
 			store, args.discussion, team=team, member=member,
-			up_to_seq=args.up_to, op_id=args.op_id)
+			up_to_seq=args.up_to, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "round":
 		team, member = _need_participant(args)
 		return transitions.create_round(
 			store, args.work, actor_team=team, actor=member,
 			candidate=args.candidate, assign=args.assign,
-			review_at=args.review_at, op_id=args.op_id)
+			review_at=args.review_at, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "extend":
 		team, member = _need_participant(args)
 		return transitions.extend_round(
 			store, args.work, args.round, actor_team=team, actor=member,
-			review_at=args.review_at, op_id=args.op_id)
+			review_at=args.review_at, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "report":
 		team, member = _need_participant(args)
 		return transitions.report(
 			store, args.obligation, team=team, member=member,
-			observation=args.observation, evidence=args.evidence, op_id=args.op_id)
+			observation=args.observation, evidence=args.evidence, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "assess":
 		team, member = _need_participant(args)
 		return transitions.assess(
 			store, args.obligation, actor_team=team, actor=member,
-			assessment=args.assessment, rationale=args.rationale, op_id=args.op_id)
+			assessment=args.assessment, rationale=args.rationale, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "abandon":
 		team, member = _need_participant(args)
 		return transitions.abandon_round(
 			store, args.work, args.round, actor_team=team, actor=member,
-			reason=args.reason, op_id=args.op_id)
+			reason=args.reason, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "classify":
 		team, member = _need_participant(args)
 		return transitions.classify(store, args.work, actor_team=team,
 		                            actor=member,
-		                            classification=args.classification, op_id=args.op_id)
+		                            classification=args.classification, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "phase":
 		team, member = _need_participant(args)
 		if args.wait_gates and args.wait_obligation is not None:
@@ -479,7 +660,8 @@ def _dispatch(store: Authority, args):
 		wait = "gates" if args.wait_gates else args.wait_obligation
 		return transitions.set_phase(store, args.work, actor_team=team,
 		                             actor=member, phase=args.phase,
-		                             reason=args.reason, wait=wait, op_id=args.op_id)
+		                             reason=args.reason, wait=wait, op_id=args.op_id,
+			refs=args.refs or ())
 
 	if command == "home":
 		team, member = _need_participant(args)

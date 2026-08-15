@@ -269,6 +269,108 @@ def _recompute_ready(conn, work_id: str) -> None:
 
 
 
+
+
+def _validate_ref_path(path: str, what: str) -> str:
+	"""WS-6 containment SYNTAX only (never a stat): a normalized
+	relative POSIX path — no absolute, backslash, empty/dot/dotdot
+	component, control character, or edge whitespace."""
+	if not isinstance(path, str) or not path:
+		raise WorkError(f"{what}: a reference path is a non-empty "
+		                f"relative POSIX path")
+	if path != path.strip():
+		raise WorkError(f"{what}: a reference path carries no edge "
+		                f"whitespace")
+	if path.startswith("/") or "\\" in path or \
+			any(ord(ch) < 32 or ord(ch) == 127 for ch in path):
+		raise WorkError(f"{what}: {path!r} is not a contained relative "
+		                f"POSIX path")
+	for component in path.split("/"):
+		if component in ("", ".", ".."):
+			raise WorkError(
+				f"{what}: {path!r} contains an empty, '.', or '..' "
+				f"component; escapes are refused at the syntax boundary")
+	return path
+
+
+import re as _ws6_re
+
+_BINDING_PATH = _ws6_re.compile(
+	r"^work/records/[0-9]{4}/(0[1-9]|1[0-2])/"
+	r"[A-Za-z0-9][A-Za-z0-9._-]*$")
+_WORK_ID = _ws6_re.compile(r"^[0-9a-f]{8}-W[0-9]+$")
+
+
+def _validate_binding_path(path: str) -> str:
+	"""M4: the canonical permanent-record locator is exactly
+	`work/records/YYYY/MM/<stable-record>` — literal prefix, four-digit
+	year, month 01-12, ONE safe record component. Validation is pure
+	syntax; nothing is probed."""
+	_validate_ref_path(path, "binding")
+	if not _BINDING_PATH.match(path):
+		raise WorkError(
+			f"binding path {path!r} is not the canonical permanent "
+			f"record shape work/records/YYYY/MM/<stable-record>")
+	return path
+
+
+def _parse_ref_tokens(refs, what: str = "reference"):
+	"""The ONE typed-reference grammar (R89): pure token parsing and
+	containment syntax shared by every mutation family, the
+	configuration family included — no store access, no disclosure.
+	Each token is either `ROOT_ID:relative/path` (independent; v10 root
+	grammar) or `WORK-ID:relative/path` (dossier-relative; the two
+	grammars cannot collide)."""
+	from baton_work.config import validate_root_id
+	parsed = []
+	for token in refs or ():
+		if not isinstance(token, str) or ":" not in token:
+			raise WorkError(
+				f"{what} {token!r} is not LEFT:relative/path shaped")
+		left, _colon, path = token.partition(":")
+		_validate_ref_path(path, what)
+		if _WORK_ID.match(left):
+			parsed.append({"kind": "dossier", "work": left,
+			               "path": path})
+		else:
+			validate_root_id(left, what)
+			parsed.append({"kind": "independent", "root": left,
+			               "path": path})
+	return parsed
+
+
+def _peek_refs(store, parsed, what: str = "reference"):
+	"""The optimistic semantic peek — early legible refusals; the
+	committing transaction revalidates everything. Callers that must
+	respect the identity information boundary run this only AFTER their
+	identity gate."""
+	for ref in parsed:
+		if ref["kind"] == "independent":
+			row = store.conn.execute(
+				"SELECT removed FROM roots WHERE root=?",
+				(ref["root"],)).fetchone()
+			if row is None or row["removed"]:
+				raise WorkError(
+					f"root {ref['root']!r} is not a live configured "
+					f"root; an independent reference lands on the "
+					f"accepted catalog")
+		else:
+			_work(store, ref["work"])
+			if store.conn.execute(
+					"SELECT 1 FROM bindings WHERE work=?",
+					(ref["work"],)).fetchone() is None:
+				raise WorkError(
+					f"{ref['work']} has no dossier binding to anchor; "
+					f"bind it first or use an independent ROOT:PATH "
+					f"reference")
+	return parsed
+
+
+def _parse_refs(store, refs, what: str = "reference"):
+	"""Grammar plus optimistic peek — the ordinary-mutation entry."""
+	return _peek_refs(store, _parse_ref_tokens(refs, what), what)
+
+
 def _operation(store, actor_team, actor, name, op_id, typed_input):
 	"""WS-5 entry: the identity gate, the id grammar, the canonical
 	semantic fingerprint over the TYPED input (never shell spelling or
@@ -316,7 +418,8 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
                 classification: str | None = None,
                 phase: str | None = None,
                 follow_up_of: str | None = None,
-                op_id: str | None = None) -> dict:
+                binding: str | None = None,
+                op_id: str | None = None, refs=()) -> dict:
 	"""A Work and its first message, atomically — creation must be cheap or
 	mandatory Work scope becomes authoring ceremony (confirmed behavior).
 
@@ -346,13 +449,31 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	store._team(team)
 	_endpoint(store, team, kind, "create")
 	_member(store, team, author)
+	binding_root = binding_path = None
+	if binding is not None:
+		if not isinstance(binding, str) or ":" not in binding:
+			raise WorkError("a creation binding is ROOT_ID:work/records/"
+			                "YYYY/MM/<stable-record>")
+		binding_root, _colon, binding_path = binding.partition(":")
+		from baton_work.config import validate_root_id
+		validate_root_id(binding_root, "binding root")
+		_validate_binding_path(binding_path)
+		live = store.conn.execute(
+			"SELECT removed FROM roots WHERE root=?",
+			(binding_root,)).fetchone()
+		if live is None or live["removed"]:
+			raise WorkError(f"root {binding_root!r} is not a live "
+			                f"configured root; a new binding lands on "
+			                f"the accepted catalog")
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, team, author, "create_work", op_id,
 	                       {"team": team, "kind": kind, "title": title,
 	                        "origin": origin, "body": body,
 	                        "parent": parent,
 	                        "classification": classification,
 	                        "phase": phase,
-	                        "follow_up_of": follow_up_of})
+	                        "follow_up_of": follow_up_of,
+	                        "binding": binding, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	if follow_up_of is not None:
@@ -419,6 +540,23 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 			"INSERT INTO messages (seq, discussion, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
 			(seq, discussion_id, team, author, body))
+		if binding_root is not None:
+			live_root = conn.execute(
+				"SELECT removed FROM roots WHERE root=?",
+				(binding_root,)).fetchone()
+			if live_root is None or live_root["removed"]:
+				raise WorkError(
+					f"root {binding_root!r} is not a live configured "
+					f"root; a new binding lands on the accepted catalog")
+			conn.execute(
+				"INSERT INTO bindings (work, revision, prior, root, "
+				"path, git_provenance, actor, rationale, seq, "
+				"created_ts) VALUES (?, 1, 0, ?, ?, NULL, ?, NULL, ?, "
+				"?)",
+				(work_id, binding_root, binding_path,
+				 f"{team}.{author}", seq, store.clock()))
+			payload["binding"] = {"root": binding_root,
+			                      "path": binding_path, "revision": 1}
 		_recompute_ready(conn, work_id)
 		if parent is not None:
 			_recompute_ready(conn, parent)
@@ -431,14 +569,14 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 
 	return store._write("create_work", f"{team}.{author}",
 	                    payload, mutate, operation=operation,
-	                    finish=finish)
+	                    finish=finish, references=refs)
 
 
 def close_work(store: Authority, work_id: str, *, actor_team: str,
                actor: str, rationale: str | None = None,
                outcome: str | None = None,
                duplicate_of: str | None = None,
-               op_id: str | None = None) -> dict:
+               op_id: str | None = None, refs=()) -> dict:
 	"""Terminal close: IMMUTABLE (WS-2 ruling — there is no reopen; later
 	evidence becomes follow-up Work). No current and no next endpoint
 	afterwards, and the ancestor gate recomputes: closure rolls UP through
@@ -452,10 +590,11 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 	through the explicit non-gating `duplicate_of` relation; free text
 	alone is insufficient."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "close_work", op_id,
 	                       {"work": work_id, "rationale": rationale,
 	                        "outcome": outcome,
-	                        "duplicate_of": duplicate_of})
+	                        "duplicate_of": duplicate_of, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	row = _work(store, work_id)
@@ -621,20 +760,22 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		_sweep_wakes(conn, f"{actor_team}.{actor}")
 
 	return store._write("close_work", f"{actor_team}.{actor}",
-	                    payload, mutate, operation=operation)
+	                    payload, mutate, operation=operation,
+	                    references=refs)
 
 
 # -- WS-1: public classification and operational phase -----------------------
 
 def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
-             classification: str, op_id: str | None = None) -> dict:
+             classification: str, op_id: str | None = None, refs=()) -> dict:
 	"""An explicit, audited classification change by a currently resolved
 	handler of the Work's Current route. Canonical values only — compact
 	display vocabulary is never a mutation value. Origin is untouched."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "classify", op_id,
 	                       {"work": work_id,
-	                        "classification": classification})
+	                        "classification": classification, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	row = _work(store, work_id)
@@ -666,13 +807,14 @@ def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		             (classification, work_id))
 
 	return store._write("classify", f"{actor_team}.{actor}", payload,
-	                    mutate, operation=operation)
+	                    mutate, operation=operation,
+	                    references=refs)
 
 
 def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
               phase: str, reason: str | None = None,
               wait: str | int | None = None,
-              op_id: str | None = None) -> dict:
+              op_id: str | None = None, refs=()) -> dict:
 	"""An explicit, audited operational-phase change by a currently
 	resolved handler of the Current route.
 
@@ -685,9 +827,10 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 	refuses. Everything else moves freely between ordinary open phases —
 	review/rework cycles included. A pass never changes phase."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "set_phase", op_id,
 	                       {"work": work_id, "phase": phase,
-	                        "reason": reason, "wait": wait})
+	                        "reason": reason, "wait": wait, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	row = _work(store, work_id)
@@ -779,7 +922,8 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 			"WHERE id=?", (phase, wait_type, wait_obligation, work_id))
 
 	return store._write("set_phase", f"{actor_team}.{actor}", payload,
-	                    mutate, operation=operation)
+	                    mutate, operation=operation,
+	                    references=refs)
 
 
 # -- WS-2 group 2: candidate verification rounds ------------------------------
@@ -817,7 +961,7 @@ def _round(store: Authority, work_id: str, round_number: int):
 def create_round(store: Authority, work_id: str, *, actor_team: str,
                  actor: str, candidate: str, assign,
                  review_at: str | None = None,
-                 op_id: str | None = None) -> dict:
+                 op_id: str | None = None, refs=()) -> dict:
 	"""One verification round for one EXACT candidate, with an exact
 	selected set of verifier routes (each an @ verification obligation —
 	actionable for testing WITHOUT clearing anyone's dependency, granting
@@ -831,11 +975,12 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 	if isinstance(assign, str):
 		assign = [assign]
 	assign = list(assign or [])
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "create_round",
 	                       op_id, {"work": work_id,
 	                               "candidate": candidate,
 	                               "assign": assign,
-	                               "review_at": review_at})
+	                               "review_at": review_at, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	row = _work(store, work_id)
@@ -935,7 +1080,7 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 
 	return store._write("create_round", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
-	                    finish=finish)
+	                    finish=finish, references=refs)
 
 
 def _withdraw_pending(conn, work_id: str, actor: str, reason: str,
@@ -967,15 +1112,16 @@ def _withdraw_pending(conn, work_id: str, actor: str, reason: str,
 
 def report(store: Authority, obligation_seq: int, *, team: str, member: str,
            observation: str, evidence: str,
-           op_id: str | None = None) -> dict:
+           op_id: str | None = None, refs=()) -> dict:
 	"""The verifier's IMMUTABLE raw observation: exactly passed, failed, or
 	unable, with evidence, pinned to its assignment/round/candidate. It
 	never votes, transitions, satisfies, wakes, or closes anything."""
 	_member(store, team, member)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, team, member, "report", op_id,
 	                       {"obligation": obligation_seq,
 	                        "observation": observation,
-	                        "evidence": evidence})
+	                        "evidence": evidence, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	obligation = store.conn.execute(
@@ -1015,20 +1161,22 @@ def report(store: Authority, obligation_seq: int, *, team: str, member: str,
 			(observation, evidence, seq, obligation_seq))
 
 	return store._write("report", f"{team}.{member}", payload, mutate,
-	                    operation=operation)
+	                    operation=operation,
+	                    references=refs)
 
 
 def assess(store: Authority, obligation_seq: int, *, actor_team: str,
            actor: str, assessment: str, rationale: str,
-           op_id: str | None = None) -> dict:
+           op_id: str | None = None, refs=()) -> dict:
 	"""The provider reviewer's SEPARATE immutable judgment of a report:
 	accepted, rejected, or inconclusive, with rationale. It never rewrites
 	the raw observation; a changed mind is a new superseding act."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "assess", op_id,
 	                       {"obligation": obligation_seq,
 	                        "assessment": assessment,
-	                        "rationale": rationale})
+	                        "rationale": rationale, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	obligation = store.conn.execute(
@@ -1080,19 +1228,21 @@ def assess(store: Authority, obligation_seq: int, *, actor_team: str,
 			 f"{actor_team}.{actor}"))
 
 	return store._write("assess", f"{actor_team}.{actor}", payload,
-	                    mutate, operation=operation)
+	                    mutate, operation=operation,
+	                    references=refs)
 
 
 def abandon_round(store: Authority, work_id: str, round_number: int, *,
                   actor_team: str, actor: str, reason: str,
-                  op_id: str | None = None) -> dict:
+                  op_id: str | None = None, refs=()) -> dict:
 	"""End a round WITHOUT closing the work: pending assignments are
 	withdrawn with route notification, candidate and report history stay
 	immutable, and no provider or consumer lifecycle state changes."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "abandon_round",
 	                       op_id, {"work": work_id, "round": round_number,
-	                               "reason": reason})
+	                               "reason": reason, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_work(store, work_id)
@@ -1121,21 +1271,23 @@ def abandon_round(store: Authority, work_id: str, round_number: int, *,
 		                  reason, round_number=round_number)
 
 	return store._write("abandon_round", f"{actor_team}.{actor}",
-	                    payload, mutate, operation=operation)
+	                    payload, mutate, operation=operation,
+	                    references=refs)
 
 
 def extend_round(store: Authority, work_id: str, round_number: int, *,
                  actor_team: str, actor: str, review_at: str,
-                 op_id: str | None = None) -> dict:
+                 op_id: str | None = None, refs=()) -> dict:
 	"""Extend the SAME candidate's testing window: an explicit audited
 	reviewer decision — never a hidden timer reset. All reports and pending
 	assignments are retained; the deadline generation advances so due-ness
 	is per-generation; repeated extensions are visible history. May also
 	give a deadline to a round created without one."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "extend_round",
 	                       op_id, {"work": work_id, "round": round_number,
-	                               "review_at": review_at})
+	                               "review_at": review_at, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_work(store, work_id)
@@ -1192,7 +1344,8 @@ def extend_round(store: Authority, work_id: str, round_number: int, *,
 			 round_number))
 
 	return store._write("extend_round", f"{actor_team}.{actor}",
-	                    payload, mutate, operation=operation)
+	                    payload, mutate, operation=operation,
+	                    references=refs)
 
 
 def _would_cycle(conn, work_id: str, blocker_id: str) -> list[str] | None:
@@ -1223,13 +1376,14 @@ def _would_cycle(conn, work_id: str, blocker_id: str) -> list[str] | None:
 
 def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
                    actor_team: str, actor: str,
-                   op_id: str | None = None) -> dict:
+                   op_id: str | None = None, refs=()) -> dict:
 	"""`work_id` blocked_by `blocker_id` — the ONLY thing that gates
 	readiness across records (labels are inert, by clarification). Cross-team
 	on purpose; that is the convergence model."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "add_dependency",
-	                       op_id, {"work": work_id, "on": blocker_id})
+	                       op_id, {"work": work_id, "on": blocker_id, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	row = _work(store, work_id)
@@ -1287,7 +1441,8 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		_recompute_ready(conn, work_id)
 
 	return store._write("add_dependency", f"{actor_team}.{actor}",
-	                    payload, mutate, operation=operation)
+	                    payload, mutate, operation=operation,
+	                    references=refs)
 
 
 # -- A4: tags, obligations, seen, planned Next -------------------------------
@@ -1361,12 +1516,13 @@ def _one_endpoint(store: Authority, endpoint: str, what: str) -> tuple[str, str]
 
 def respond_obligation(store: Authority, obligation_seq: int, *,
                        team: str, member: str, body: str,
-                       op_id: str | None = None) -> dict:
+                       op_id: str | None = None, refs=()) -> dict:
 	"""The obligated endpoint's team answers; the obligation resolves with
 	the response message in one transaction."""
 	_member(store, team, member)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, team, member, "respond", op_id,
-	                       {"obligation": obligation_seq, "body": body})
+	                       {"obligation": obligation_seq, "body": body, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	obligation = store.conn.execute(
@@ -1416,18 +1572,20 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 		_sweep_wakes(conn, f"{team}.{member}")
 
 	return store._write("respond", f"{team}.{member}", payload, mutate,
-	                    operation=operation)
+	                    operation=operation,
+	                    references=refs)
 
 
 def dispose_obligation(store: Authority, obligation_seq: int, *,
                        team: str, member: str, disposition: str,
-                       op_id: str | None = None) -> dict:
+                       op_id: str | None = None, refs=()) -> dict:
 	"""No response is owed after all — said explicitly, with a reason, by the
 	obligated team. Route policy may classify status as no-action (ruled)."""
 	_member(store, team, member)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, team, member, "dispose", op_id,
 	                       {"obligation": obligation_seq,
-	                        "disposition": disposition})
+	                        "disposition": disposition, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	obligation = store.conn.execute(
@@ -1467,14 +1625,16 @@ def dispose_obligation(store: Authority, obligation_seq: int, *,
 		_sweep_wakes(conn, f"{team}.{member}")
 
 	return store._write("dispose", f"{team}.{member}", payload, mutate,
-	                    operation=operation)
+	                    operation=operation,
+	                    references=refs)
 
 
 def accept_obligation(store: Authority, obligation_seq: int, *,
                       actor_team: str, actor: str, body: str,
                       into: str | None = None,
                       create: dict | None = None,
-                      op_id: str | None = None) -> dict:
+                      op_id: str | None = None, refs=(),
+                      answer_refs=()) -> dict:
 	"""WS-3: THE atomic provider acceptance. One transaction commits — or
 	refuses whole — the obligation's terminal `accepted` state naming the
 	provider Work, the rationale answered into the consumer's discussion,
@@ -1498,9 +1658,12 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		          "classification": create.get("classification"),
 		          "phase": create.get("phase"),
 		          "parent": create.get("parent")}
+	refs = _parse_refs(store, refs)
+	answer_refs = _parse_refs(store, answer_refs, "answer reference")
 	operation = _operation(store, actor_team, actor, "accept", op_id,
 	                       {"obligation": obligation_seq, "body": body,
-	                        "into": into, "create": create})
+	                        "into": into, "create": create, "refs": refs,
+	                        "answer_refs": answer_refs})
 	if isinstance(operation, dict):
 		return operation
 	obligation = store.conn.execute(
@@ -1714,6 +1877,10 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			"INSERT INTO messages (seq, discussion, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
 			(message_seq, originating, actor_team, actor, body))
+		if answer_refs:
+			# Explicit compound placement (M1): these ride the emitted
+			# ANSWER message's own act, never guessed onto the accept.
+			store._commit_references(conn, message_seq, answer_refs)
 		_join_discussion(conn, originating, actor_team, message_seq)
 
 		_recompute_ready(conn, consumer_id)
@@ -1733,7 +1900,8 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		                  "via_obligation": obligation_seq}
 
 	return store._write("accept", f"{actor_team}.{actor}", payload,
-	                    mutate, operation=operation, finish=finish)
+	                    mutate, operation=operation, finish=finish,
+	                    references=refs)
 
 
 def _discussion(store: Authority, discussion_id: str):
@@ -1753,7 +1921,7 @@ class _NoAdvance(Exception):
 
 def seen_discussion(store: Authority, discussion_id: str, *, team: str,
                     member: str, up_to_seq: int,
-                    op_id: str | None = None) -> dict:
+                    op_id: str | None = None, refs=()) -> dict:
 	"""The canonical per-discussion cursor advance: monotonic,
 	idempotent, bounded by the OBSERVED authority sequence (a future
 	cursor would hide messages that do not exist yet), revalidated inside
@@ -1764,9 +1932,10 @@ def seen_discussion(store: Authority, discussion_id: str, *, team: str,
 	replays THIS invocation's result even after the cursor advances;
 	refusals alone leave the id unconsumed."""
 	_member(store, team, member)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, team, member, "mark_seen", op_id,
 	                       {"discussion": discussion_id,
-	                        "up_to_seq": up_to_seq})
+	                        "up_to_seq": up_to_seq, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_discussion(store, discussion_id)
@@ -1800,8 +1969,13 @@ def seen_discussion(store: Authority, discussion_id: str, *, team: str,
 		return store._write("mark_seen", f"{team}.{member}",
 		                    {"discussion": discussion_id,
 		                     "up_to": up_to_seq}, mutate,
-		                    operation=operation, finish=finish)
+		                    operation=operation, finish=finish,
+	                    references=refs)
 	except _NoAdvance as losing:
+		if refs:
+			raise WorkError(
+				"a reference-bearing mark that commits no act refuses "
+				"whole; nothing was committed to carry the evidence")
 		noop = {"seq": None, "kind": "mark_seen", "advanced": False,
 		        "cursor": losing.cursor}
 		if operation is not None:
@@ -1824,7 +1998,7 @@ def _label_gate(store, work_row, actor_team: str, actor: str) -> None:
 
 def create_discussion(store: Authority, *, actor_team: str, actor: str,
                       body: str, labels,
-                      op_id: str | None = None) -> dict:
+                      op_id: str | None = None, refs=()) -> dict:
 	"""A discussion is born labelled and speaking: at least one authorized
 	`#WORK` label (each to the actor's own team's Work, at least one of
 	them OPEN — the live-context ruling) and its first message, in one
@@ -1833,9 +2007,10 @@ def create_discussion(store: Authority, *, actor_team: str, actor: str,
 	if isinstance(labels, str):
 		labels = [labels]
 	labels = list(labels or [])
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor,
 	                       "create_discussion", op_id,
-	                       {"body": body, "labels": labels})
+	                       {"body": body, "labels": labels, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	if not isinstance(body, str) or not body:
@@ -1898,17 +2073,18 @@ def create_discussion(store: Authority, *, actor_team: str, actor: str,
 
 	return store._write("create_discussion", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
-	                    finish=finish)
+	                    finish=finish, references=refs)
 
 
 def label_discussion(store: Authority, discussion_id: str, work_id: str, *,
-                     actor_team: str, actor: str, op_id: str | None = None) -> dict:
+                     actor_team: str, actor: str, op_id: str | None = None, refs=()) -> dict:
 	"""Apply an INERT `#WORK` label: reusable context, never a gate. May
 	name terminal Work. Authorized by the Work's owning team (D1)."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "label", op_id,
 	                       {"discussion": discussion_id,
-	                        "work": work_id})
+	                        "work": work_id, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_discussion(store, discussion_id)
@@ -1943,18 +2119,20 @@ def label_discussion(store: Authority, discussion_id: str, work_id: str, *,
 		_join_discussion(conn, discussion_id, actor_team, seq)
 
 	return store._write("label", f"{actor_team}.{actor}", payload,
-	                    mutate, operation=operation)
+	                    mutate, operation=operation,
+	                    references=refs)
 
 
 def unlabel_discussion(store: Authority, discussion_id: str, work_id: str,
-                       *, actor_team: str, actor: str, op_id: str | None = None) -> dict:
+                       *, actor_team: str, actor: str, op_id: str | None = None, refs=()) -> dict:
 	"""Remove a label under the same D1 authority. Removing the FINAL
 	label refuses — a discussion always keeps explicit Work scope (the
 	live-context ruling). The audit act is the history; the row goes."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "unlabel", op_id,
 	                       {"discussion": discussion_id,
-	                        "work": work_id})
+	                        "work": work_id, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_discussion(store, discussion_id)
@@ -1986,7 +2164,8 @@ def unlabel_discussion(store: Authority, discussion_id: str, work_id: str,
 			(discussion_id, work_id))
 
 	return store._write("unlabel", f"{actor_team}.{actor}", payload,
-	                    mutate, operation=operation)
+	                    mutate, operation=operation,
+	                    references=refs)
 
 
 def _select_target(conn, discussion_id: str, actor_team: str, actor: str,
@@ -2047,7 +2226,7 @@ def post_discussion(store: Authority, discussion_id: str, *,
                     pass_to: str | None = None,
                     set_next: str | None = None,
                     on: str | None = None,
-                    op_id: str | None = None) -> dict:
+                    op_id: str | None = None, refs=()) -> dict:
 	"""THE public posting surface (Slice B): one message into one
 	discussion, optionally carrying this operation's tags.
 
@@ -2065,11 +2244,12 @@ def post_discussion(store: Authority, discussion_id: str, *,
 	if isinstance(include, str):
 		include = [part for part in include.split(",") if part]
 	include = list(include or [])
+	refs = _parse_refs(store, refs)
 	protected = _operation(store, author_team, author, "post", op_id,
 	                       {"discussion": discussion_id, "body": body,
 	                        "include": include, "request": request,
 	                        "pass_to": pass_to, "set_next": set_next,
-	                        "on": on})
+	                        "on": on, "refs": refs})
 	if isinstance(protected, dict):
 		return protected
 	_discussion(store, discussion_id)
@@ -2230,7 +2410,7 @@ def post_discussion(store: Authority, discussion_id: str, *,
 
 	return store._write(event_kind, f"{author_team}.{author}",
 	                    payload, mutate, operation=protected,
-	                    finish=finish)
+	                    finish=finish, references=refs)
 
 
 def _current_revision(conn, work_id: str) -> int:
@@ -2244,7 +2424,7 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
                 actor: str, message_seq: int | None = None,
                 expected_revision: int | None = None,
                 rationale: str | None = None,
-                op_id: str | None = None) -> dict:
+                op_id: str | None = None, refs=()) -> dict:
 	"""Append-only Work contract revision: PROMOTES one complete durable
 	discussion message as the effective contract (pinned ruling). Only
 	the resolved Current handler of OPEN Work commits it; transfer of
@@ -2256,11 +2436,12 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 	content is the message's complete rendered bytes, self-contained:
 	no fixed contract fields, no template machinery."""
 	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "revise_work",
 	                       op_id, {"work": work_id,
 	                               "message_seq": message_seq,
 	                               "expected_revision": expected_revision,
-	                               "rationale": rationale})
+	                               "rationale": rationale, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	row = _work(store, work_id)
@@ -2347,4 +2528,110 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 
 	return store._write("revise_work", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
-	                    finish=finish)
+	                    finish=finish, references=refs)
+
+
+def bind_work(store: Authority, work_id: str, *, actor_team: str,
+              actor: str, root: str | None = None,
+              path: str | None = None,
+              expected_revision: int | None = None,
+              rationale: str | None = None,
+              git_provenance: str | None = None,
+              op_id: str | None = None, refs=()) -> dict:
+	"""WS-6: attach or correct a Work's canonical dossier binding —
+	append-only, compare-and-swap on the expected prior revision, by the
+	LIVE resolved Current handler of OPEN work only (transfer of Current
+	transfers this authority; creation-time binding belongs to
+	create_work). Every post-creation change records a non-empty
+	rationale. New revisions require a LIVE configured root and the M4
+	canonical locator shape; committed history survives root retirement
+	and freezes at terminal close. Ordinary lifecycle never calls this;
+	correction exists for an erroneous locator or additive provenance."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "bind_work", op_id,
+	                       {"work": work_id, "root": root, "path": path,
+	                        "expected_revision": expected_revision,
+	                        "rationale": rationale,
+	                        "git_provenance": git_provenance,
+	                        "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	row = _work(store, work_id)
+	if row["status"] != OPEN:
+		raise WorkError(
+			f"{work_id} is {row['status']}; terminal work freezes its "
+			f"binding history — a later problem is explicit follow-up "
+			f"work, never a locator rewrite")
+	if root is None or path is None:
+		raise WorkError("a binding names its root and canonical path "
+		                "(--root, --path)")
+	from baton_work.config import validate_root_id
+	validate_root_id(root, "binding root")
+	_validate_binding_path(path)
+	if expected_revision is None or \
+			not isinstance(expected_revision, int) or \
+			expected_revision < 0:
+		raise WorkError("a binding change names the expected prior "
+		                "revision explicitly (--expect); stale or "
+		                "concurrent edits refuse, never overwrite")
+	if not isinstance(rationale, str) or not rationale.strip():
+		raise WorkError("every post-creation binding change records its "
+		                "rationale")
+	live = store.conn.execute(
+		"SELECT removed FROM roots WHERE root=?", (root,)).fetchone()
+	if live is None or live["removed"]:
+		raise WorkError(f"root {root!r} is not a live configured root; "
+		                f"a new binding lands on the accepted catalog")
+	current = store.conn.execute(
+		"SELECT COALESCE(MAX(revision), 0) AS top FROM bindings "
+		"WHERE work=?", (work_id,)).fetchone()["top"]
+	if expected_revision != current:
+		raise WorkError(
+			f"{work_id}'s binding is at revision {current}, not "
+			f"{expected_revision}; the change is stale — re-read and "
+			f"retry against the current state")
+
+	payload = {"work": work_id, "revision": expected_revision + 1,
+	           "prior": expected_revision, "root": root, "path": path,
+	           "git_provenance": git_provenance, "rationale": rationale}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live_work = conn.execute("SELECT status FROM work WHERE id=?",
+		                         (work_id,)).fetchone()
+		if live_work["status"] != OPEN:
+			raise WorkError(
+				f"{work_id} is {live_work['status']}; terminal work "
+				f"freezes its binding history")
+		payload["authorization"] = _handler_gate(
+			conn, work_id, actor_team, actor, "bind")
+		live_root = conn.execute(
+			"SELECT removed FROM roots WHERE root=?", (root,)).fetchone()
+		if live_root is None or live_root["removed"]:
+			raise WorkError(
+				f"root {root!r} is not a live configured root; a new "
+				f"binding lands on the accepted catalog")
+		live_revision = conn.execute(
+			"SELECT COALESCE(MAX(revision), 0) AS top FROM bindings "
+			"WHERE work=?", (work_id,)).fetchone()["top"]
+		if expected_revision != live_revision:
+			raise WorkError(
+				f"{work_id}'s binding is at revision {live_revision}, "
+				f"not {expected_revision}; the change lost a concurrent "
+				f"race — re-read and retry against the current state")
+		conn.execute(
+			"INSERT INTO bindings (work, revision, prior, root, path, "
+			"git_provenance, actor, rationale, seq, created_ts) "
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			(work_id, expected_revision + 1, expected_revision, root,
+			 path, git_provenance, f"{actor_team}.{actor}", rationale,
+			 seq, store.clock()))
+
+	def finish(result):
+		result["work"] = work_id
+		result["revision"] = expected_revision + 1
+
+	return store._write("bind_work", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, finish=finish,
+	                    references=refs)

@@ -2191,3 +2191,367 @@ versioned CLI-product asset and repository convention, not a protocol version,
 mailbox authority record, or requirement for reading historical Work. Source
 and packaged bootstrap behavior must use the same template bytes and produce
 the same initial filesystem shape.
+
+## 2026-08-15 — WS-6 preserves configured roots as the portable address vocabulary
+
+**Confirmed by Slawomir; clarifies the approved repository-identity/local-
+resolver ruling.** A Baton authority spans many teams and repositories, so the
+durable address is not a bare repository-relative path and is not inferred
+from the Work's team. It is always a configured root id plus a normalized path
+relative to that root, retaining the useful protocol-10 address concept:
+
+```json
+{
+  "root": "pushcoin",
+  "path": "work/records/2026/08/finding-x"
+}
+```
+
+`baton.json` declares the portable root identifiers accepted by the authority.
+A root normally identifies a repository checkout for dossier use, but it is a
+general configured base and is independent of team routing: one team may use
+several roots and several teams may reference one root. Dossier bindings,
+dossier-relative artifact resolution, and independent repository/file
+references all use this one `ROOT_ID:relative/path` vocabulary.
+
+The approved portability split changes only where the absolute path lives.
+Unlike v10, the accepted authority configuration does not bind a logical root
+id permanently to `/home/...`; an explicitly supplied machine-local resolver
+maps each configured root id to its checkout/base path. Every participant sees
+and communicates the same durable root id and relative path even when local
+absolute paths differ. Missing local resolution affects only explicit
+navigation/bootstrap, never canonical authority reads, Work lifecycle,
+message health, or SQLite state.
+
+## 2026-08-15 — WS-6 asset references are available to every mutation
+
+**Confirmed by Slawomir; rejects the proposed Slice-A restriction to only
+`create` and `say`.** Baton must not decide that evidence may be cited by one
+kind of authoritative act but not another. Every public mutation may carry an
+ordered set of typed asset references. This includes ordinary discussion
+messages and compound or lifecycle acts such as response, acceptance,
+assessment, revision, and closure when their actor needs to identify supporting
+evidence.
+
+The references commit atomically with the act, event, effect, and optional
+WS-5 operation record. They are part of the mutation's normalized typed input
+and therefore its semantic fingerprint: an exact retry repeats them exactly,
+while changed reference identity/order is a different request. A mutation
+that produces more than one message or record must preserve explicit
+per-result reference placement; it may not silently discard, duplicate, or
+guess which result a reference supports.
+
+This is availability, not obligation. Any act may carry zero references, and
+templates or routes may recommend evidence without making filesystem content
+part of Baton authority. Pure reads carry no references because they author no
+act.
+
+## 2026-08-15 — WS-6 references do not require discussion labels
+
+**Confirmed by Slawomir; rejects the proposed rule that a dossier-relative
+reference may name only Work currently labelling the discussion.** Any
+existing bound Work may be cited by its explicit Work id, immutable binding
+revision, and artifact path. The system is open, and a reference is evidence
+metadata rather than an access-control or workflow edge.
+
+`#WORK` labels remain intentional reusable discussion context. Citing evidence
+does not implicitly add a label, alter discussion participation, create a
+dependency, or mutate workflow. Requiring a label merely to cite an artifact
+would clutter context and could be bypassed by a less precise independent
+`ROOT_ID:path` reference. The explicit bound-Work reference is therefore
+preferred when that provenance is known, regardless of current labels.
+
+## 2026-08-15 — v11 trials run beside the live v10 coordination authority
+
+**Confirmed by Slawomir; operational acceptance boundary.** Protocol-11
+CLI/TUI test drives must run in parallel with, not replace or mutate, the
+deployed protocol-10 mailbox and clients used to coordinate this work. The v11
+trial uses its own config, authority database, client processes, and runtime
+paths. Testing, restart, bootstrap, and failure injection against v11 must not
+stop, rewrite, migrate, lock, or otherwise disturb the v10 channel.
+
+The first v11 TUI trial is therefore not a cutover. v10 remains available for
+review handoffs and recovery throughout v11 development; an eventual adoption
+or clean-start cutover is a separately planned and explicitly coordinated
+operation.
+
+## 2026-08-15 — unbound Work refuses only the dossier-relative reference form
+
+**Confirmed by Slawomir; resolves WS-6 M3.** A dossier-relative reference must
+name an existing immutable binding revision. Work with no binding has no
+dossier locator to anchor, so that form refuses clearly without mutation
+rather than fabricating revision zero, guessing a root, or silently weakening
+the reference.
+
+This does not prevent citing the asset. The author may use the independent
+configured `ROOT_ID:relative/path` form immediately. After Current establishes
+a Work binding, later references may use the stronger Work plus binding-
+revision form. The refusal protects provenance; it is not an availability or
+access restriction.
+
+## 2026-08-15 — binding locators enforce the permanent year/month record shape
+
+**Confirmed by Slawomir; rejects the proposed prefix-only WS-6 M4 validation.**
+A canonical dossier binding has exactly this repository/root-relative shape:
+
+```text
+work/records/YYYY/MM/<stable-record>
+```
+
+Baton validates the literal `work/records/` prefix, an exactly four-digit year,
+a two-digit month from `01` through `12`, and one safe non-empty stable-record
+component, in addition to the general normalized POSIX containment grammar.
+The binding identifies the dossier root; files and subdirectories beneath it
+belong in artifact-relative paths, not extra binding components.
+
+This string-shape validation preserves the scaling reason for the year/month
+layout and prevents teams from quietly collapsing permanent records back into
+one opaque directory. It does not check that the year/month matches creation
+time, stat or create the directory, inspect its contents, traverse symlinks, or
+make filesystem availability authoritative.
+
+## 2026-08-15 — root retirement preserves citation through existing bindings
+
+**Confirmed by Slawomir; refines WS-6 M5.** A new Work binding, any appended
+binding correction/provenance revision, and a new independent
+`ROOT_ID:relative/path` reference require a root that is live in the accepted
+configuration. Root identifiers are never reused with another meaning.
+
+A dossier-relative reference to an existing immutable binding revision remains
+legal after that revision's root is retired. It cites already-accepted
+historical provenance rather than creating a new root binding. Existing
+bindings and references remain readable, and local navigation may still
+resolve them when the machine-local mapping remains available.
+
+An open Work whose effective binding uses a retired root may append a
+correction naming a live root under the ordinary Current/CAS/rationale rules.
+Root retirement requires no special stranding gate because immutable bound
+evidence remains citable; it neither invalidates Work nor rewrites history.
+
+## 2026-08-15 — templates are deployed assets, not zipapp resources
+
+**Corrected by Slawomir; resolves WS-6 M6 and rejects K's proposed
+`importlib.resources` embedding.** Core template files are independent product
+assets in the exact versioned CLI release:
+
+```text
+app/baton-cli/v<major>/v<full-version>/tmpl/
+```
+
+They are not built into the `baton-work`/Baton CLI zipapp. The release
+candidate and deployment manifest carry `tmpl/` beside `bin/`, `doc/`, and
+`conf/`, and deployment installs those bytes as separate files. The installed
+bootstrap command reads the exact release's sibling template directory. A
+standalone/copy-isolated application binary that lacks its release assets must
+refuse bootstrap clearly rather than hiding a second embedded copy or silently
+manufacturing a template.
+
+Slice B therefore may change candidate assembly, manifests, release-layout
+validation, generic installer logic, and temporary-target deployment tests so
+the separate template assets are preserved byte-for-byte. It does not deploy
+to `~/baton`, create a production mailbox, migrate a repository, or perform a
+cutover. Source execution reads the source `tmpl/`; installed execution reads
+the deployed sibling `tmpl/`; parity requires the bytes and bootstrap result to
+match.
+
+## 2026-08-15 — software distribution and project workspace are distinct
+
+**Clarified by Slawomir; part of the WS-6 template/bootstrap boundary.** The
+Baton distribution/install root and a participating project root are different
+ownership domains and may live anywhere. A future system distribution could be
+under `/usr/lib/baton`; the current user distribution may be under `~/baton`.
+That location contains versioned application binaries, documentation,
+configuration examples, and the shipped read-only default templates. Users and
+teams do not edit their project conventions or dossiers there.
+
+A configured project root is the repository/workspace selected through the
+portable root id and machine-local resolver. The project owns its copied
+`tmpl/`, `work/open/`, `work/records/`, and dossier contents, normally through
+Git. Project teams may edit and version those copies independently of the Baton
+software distribution.
+
+Use distinct verbs and documentation: distribution **deploy/install** places
+versioned product assets in the distribution root; project **bootstrap** copies
+selected defaults from one exact installed release into one explicitly
+resolved project root. Bootstrap never writes back into the distribution,
+links a project to it, or makes later distribution upgrades rewrite project
+files.
+
+## 2026-08-15 — distribution, coordination home, and project roots are three domains
+
+**Clarified by Slawomir; supersedes any two-root wording that conflates
+coordination state with a project workspace.** Baton has three independently
+located ownership domains:
+
+1. The **distribution root** contains immutable versioned software and product
+   assets. For example, `~/opt/baton` may contain exact CLI/TUI releases with
+   their `bin/`, `doc/`, `conf/`, and `tmpl/` payloads.
+2. The **coordination home/instance root** contains operational mailbox state:
+   accepted/proposed instance configuration, SQLite authority, machine-local
+   root resolver, operation records, and other instance-owned state. It may
+   live under `~/baton`, `~/.baton`, or another explicit location and does not
+   contain the installed application merely because both are named Baton.
+3. **Project roots** are the configured source/work repositories. They own
+   vendored editable templates, `work/open/`, `work/records/`, and permanent
+   dossiers.
+
+No domain's path is inferred from another. An installed executable receives an
+explicit coordination config (and explicit local resolver where needed); the
+resolver maps portable root ids to project roots. Distribution deployment does
+not create or move mailbox state. Mailbox initialization does not install
+software or bootstrap a project. Project bootstrap does not create an
+authority, install Baton, or write into the coordination home except through a
+separately requested Baton operation.
+
+## 2026-08-15 — current locations and optional Git management
+
+**Clarified by Slawomir; operational placement, not protocol identity.** Today
+the configured project roots normally live under `~/src/*`. A coordination
+home may live under `~/src/`, `~/baton`, or another explicit location and may
+itself be Git-managed for recovery/provenance. Neither choice changes durable
+root ids or makes a project path derivable from a team.
+
+Git around a coordination home is external management. Baton does not invoke
+Git, infer authority from a commit, merge SQLite, or claim that copying a live
+database plus WAL sidecars is a consistent recovery point. If SQLite authority
+snapshots are committed, producing a stopped/checkpointed or SQLite-backup-
+API-consistent snapshot is a separate explicit recovery procedure outside
+WS-6. Configuration, local resolver, runbooks, and other ordinary files may be
+versioned according to the coordination repository's policy.
+
+The software distribution has the opposite lifecycle: its location is stable
+and each exact version directory is immutable. New releases are installed as
+new exact product directories; project or coordination Git activity never
+modifies installed release bytes.
+
+## 2026-08-15 — WS-6 references cover configuration acts and refuse no-op loss
+
+**Clarifies the mutation-wide reference ruling after K's corrected-plan
+review.** `init`/generation-one activation and `regen` are public mutations and
+therefore may carry the same ordered typed references as every other public
+mutation. Configuration evidence is not a special reference-free island. A
+fresh authority may use independent references validated against the proposed
+root catalog; dossier-relative references naturally require an already
+existing bound Work and therefore cannot be invented during fresh activation.
+
+A protected mutation that discovers it has no domain act to commit must refuse
+when references were supplied. In particular, a losing/no-op `mark-seen`
+cannot silently discard its references or attach them to a nonexistent event.
+The whole attempt refuses with an explicit "nothing committed to carry the
+evidence" result. Exact replay of an earlier committed operation remains the
+ordinary WS-5 replay case rather than a new no-op.
+
+## 2026-08-15 — proposed coordination-home initialization UX
+
+**Proposed by Slawomir; exact activation spelling remains open before WS-6
+implementation.** Starting from an empty writable coordination home should
+begin from the installed CLI without hand-copying release files:
+
+```text
+mkdir ~/baton
+cd ~/baton
+<exact-install>/bin/baton init .
+```
+
+This first command scaffolds the coordination home from exact-release
+configuration examples: an editable instance-config template, an explicit
+machine-local root-resolver template, and required state directories. The
+operator then edits the templates to declare the real roots, teams, roles,
+routes, participants, and assignments. A pure `baton check .` validates the
+complete prospective instance and reports all schema/address/topology errors
+without creating or changing authority state.
+
+No canned SQLite authority may be copied from the distribution or bound to a
+placeholder config: its UUID, accepted digest, participants, and routes belong
+to this one configured instance. After `check` succeeds, a separate explicit
+generation-one activation creates the unique SQLite authority atomically under
+a named configured participant; only then do CLI/TUI members start against the
+accepted config. The current generation-one operation is named `init`, so the
+public spelling of scaffold versus activation must be resolved without two
+ambiguous meanings.
+
+Coordination-home scaffolding also does not vendor dossier templates into a
+project. Exact-release `tmpl/` assets remain distribution inputs to the
+separate project `bootstrap` operation, which copies them into a configured
+project root. This preserves the three-domain ownership boundary.
+
+## 2026-08-15 — coordination-home onboarding uses init then activate
+
+**Confirmed by Slawomir; supersedes the proposed separate `baton check .`
+step immediately above.** The public onboarding flow has two operations:
+
+```text
+baton init .
+# operator edits the generated coordination configuration
+baton activate . --participant team.member
+```
+
+`init DIR` is a filesystem scaffold only. It creates the editable
+coordination-home configuration templates and required directories without
+creating, copying, or binding SQLite authority state. It is safe against
+replacement, symlink traversal, partial failure, and repeated invocation under
+an explicitly defined existing-scaffold rule.
+
+`activate DIR --participant ...` performs the one authoritative strict
+validation of the completed generation-one `baton.json`, validates the named
+participant against that proposed topology, and only then atomically creates
+and binds the unique SQLite authority. Any lexical, schema, identity, route,
+root-catalog, generation, or topology error refuses with structured JSON and
+leaves no database or accepted state. A concurrent activation has exactly one
+winner under the existing create-if-absent boundary; retry follows WS-5.
+
+There is no separate `check` command in this slice. A failed `activate` is the
+validation result and remains safe to retry after editing because validation
+failure commits nothing. This avoids two validation paths that could drift or
+suggest that a check succeeded under rules different from activation. The
+machine-local resolver remains non-authoritative and is validated when an
+explicit resolver-consuming operation uses it; missing local mappings do not
+invalidate canonical authority activation.
+
+This does not prohibit a later optional pure `check` convenience. If exposed,
+it must call the same reusable validator as `activate`, write nothing, and
+remain outside the required onboarding path. The supported first-use UX stays
+the two-step `init` then `activate` flow; users do not have to preflight one
+command merely to run the command that performs the same validation again.
+
+## 2026-08-15 — init is deliberately one-shot and never cleans up
+
+**Confirmed by Slawomir; supersedes review R88's requested automatic
+partial-scaffold recovery.** `baton init DIR` requires every Baton-managed
+target in that coordination home to be absent. If any managed config,
+resolver, setup file, database, scratch marker, or other defined Baton state
+already exists, `init` refuses before writing anything and names what blocked
+it. It does not compare or adopt existing bytes, resume a partial scaffold,
+overwrite an edited config, infer that an earlier invocation completed, or
+remove anything.
+
+The refusal explains the two ordinary interpretations: initialization may
+already have run, or an interrupted/partial attempt left files for inspection.
+The operator decides which is true and, if cleanup is appropriate, removes the
+specific files manually before retrying. Baton never automates that destructive
+decision. A phase-two failure reports every file it created so the operator has
+an exact cleanup set; a later invocation still refuses until those files are
+explicitly handled.
+
+This is an intentional operational tradeoff, not an unhandled recovery gap.
+`activate` remains independently atomic and retry-safe under WS-5; project
+`bootstrap` may remain idempotent because its inputs are fixed release bytes,
+not newly generated instance identity.
+
+## 2026-08-15 — Slice B follows accepted Slice A; production execution stays human-owned
+
+**Confirmed by Slawomir; clarifies the WS-6 release and deployment gates.**
+When the Slice A correction passes reviewer inspection and its focused and
+full v11 gates are clean, Slice B is released immediately without another
+product-disposition stop. Slice B remains exactly the bounded resolver,
+template-distribution, coordination-home onboarding, project-bootstrap, and
+temporary-target acceptance work already specified; acceptance of Slice A
+does not broaden that scope.
+
+Installing or cutting over a production deployment is a separate operational
+act and remains Slawomir-owned. Agents may implement and test the generic
+distribution/install machinery against isolated temporary targets in Slice B,
+but do not deploy to a live production root, create or migrate a production
+mailbox, stop production participants, or perform cutover. Production
+deployment is expected to be a manual operator step unless Slawomir later
+explicitly authorizes a particular operation.

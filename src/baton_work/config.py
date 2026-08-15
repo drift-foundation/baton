@@ -78,6 +78,22 @@ def _no_duplicates(pairs):
 	return seen
 
 
+_ROOT_ID = re.compile(r"^[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)*$")
+
+
+def validate_root_id(root: str, what: str = "root") -> str:
+	"""WS-6: configured root ids keep the proven protocol-10 grammar —
+	up to 64 bytes of dotted lowercase/underscore segments — NOT the
+	v11 team/member handle grammar."""
+	if not isinstance(root, str) or not root or \
+			len(root.encode("utf-8")) > 64 or not _ROOT_ID.match(root):
+		raise WorkError(
+			f"{what} id {root!r} is not a valid root identifier: up to "
+			f"64 bytes of dotted lowercase/underscore segments "
+			f"(protocol-10 root grammar)")
+	return root
+
+
 def _strict_object(value, what: str, allowed: tuple[str, ...],
                    required: tuple[str, ...]) -> dict:
 	if not isinstance(value, dict):
@@ -110,7 +126,7 @@ def loads(raw: str) -> dict:
 
 	_strict_object(document, "the configuration",
 	               ("config_version", "protocol_version", "generation",
-	                "instance", "teams"),
+	                "instance", "teams", "roots"),
 	               ("config_version", "protocol_version", "generation",
 	                "instance", "teams"))
 	if _exact_int(document["config_version"], "config_version") != \
@@ -148,6 +164,16 @@ def loads(raw: str) -> dict:
 	if not teams:
 		raise WorkError("teams must not be empty; an instance with nobody "
 		                "in it is a mistake, not a bootstrap")
+
+	# WS-6: the portable root catalog — optional, strict, v10 grammar.
+	roots = document.get("roots", {})
+	if not isinstance(roots, dict):
+		raise WorkError("roots must be a JSON object of root id to entry")
+	for root_id, entry in roots.items():
+		validate_root_id(root_id)
+		named = f"root {root_id!r}"
+		_strict_object(entry, named, ("display",), ("display",))
+		_display(entry["display"], named)
 	for team_handle, team in teams.items():
 		validate_handle(team_handle, "team")
 		where = f"team {team_handle!r}"

@@ -105,6 +105,10 @@ SNAPSHOT = (
 	"examples/baton.json",
 	"README.md",
 	"LICENSE",
+	# WS-6 M6: the numbered dossier-template instruction files are
+	# exact-release ASSETS shipped beside bin/doc/conf — never embedded
+	# in a zipapp, never importlib resources.
+	"tmpl/work-basic-1.md",
 )
 
 

@@ -149,26 +149,36 @@ class Console:
 		        f"/{compact_classification(detail['classification'])}] "
 		        f"current {current}  next {planned}  new {detail['new']}")
 		screen.addnstr(1, 0, line, width - 1)
+		# WS-6 R90: the human sees the SAME portable facts the JSON
+		# client sees — the effective binding as root:path plus its
+		# revision, straight from the canonical projection; no resolver,
+		# no filesystem, no probe.
+		binding = detail.get("binding")
+		if binding is not None:
+			screen.addnstr(
+				2, 0,
+				f"binding {binding['root']}:{binding['path']} "
+				f"r{binding['revision']}", width - 1)
 		# Bounded WS-2 parity: the latest round, both axes from the same
 		# canonical projection — due/pending/reported/withdrawn are
 		# distinguished, and the raw observation is shown separately from
 		# the reviewer's assessment (e.g. "failed/rejected").
-		offset_row = 2
+		offset_row = 2 if detail.get("binding") is None else 3
 		if detail["rounds"]:
 			latest = detail["rounds"][-1]
 			flags = "due" if latest["due"] else latest["status"]
 			line = (f"R{latest['round']} {latest['candidate']} "
 			        f"{latest['progress']} {flags} "
 			        f"wthdr:{latest['withdrawn']}")
-			screen.addnstr(2, 0, line, width - 1)
+			screen.addnstr(offset_row, 0, line, width - 1)
 			for index, entry in enumerate(latest["assignments"]):
 				verdict = entry["effective_assessment"]
 				axis = ((entry["observation"] or entry["state"]) + "/" +
 				        (verdict["assessment"] if verdict else "-"))
-				screen.addnstr(3 + index, 0,
+				screen.addnstr(offset_row + 1 + index, 0,
 				               f"  {entry['endpoint']} {axis}",
 				               width - 1)
-			offset_row = 3 + len(latest["assignments"])
+			offset_row = offset_row + 1 + len(latest["assignments"])
 		# Slice B: the Work has a discussion SET (R54); the bounded view
 		# renders the FIRST related discussion's thread — one
 		# conversation, never several merged into a false timeline.
@@ -195,6 +205,10 @@ class Console:
 		for offset, message in enumerate(messages[start:]):
 			text = (f"#{message['seq']} {message['author_team']}."
 			        f"{message['author']}: {message['body']}")
+			# R90: ordered references render as the same portable
+			# root:path facts the projection carries.
+			for reference in message.get("references", []):
+				text += f" [{reference['root']}:{reference['path']}]"
 			screen.addnstr(offset_row + offset, 0, text, width - 1)
 
 	# -- interaction ----------------------------------------------------------

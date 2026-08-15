@@ -196,23 +196,29 @@ def test_wf12_protected_init_and_reinit(flow):
 	refusal."""
 	config = document(verification_teams())
 	flow.write_config(config)
-	first = flow.ok("--op-id", "init-1", "init", viewer="lang.ada")
+	import os as _os
+	home = _os.path.dirname(flow.config_path)
+	first = flow.ok("--op-id", "init-1", "activate", home,
+	                viewer="lang.ada")
 	assert first["operation"] == {"id": "init-1", "state": "committed"}
 	assert first["generation"] == 1
-	again = flow.ok("--op-id", "init-1", "init", viewer="lang.ada")
+	again = flow.ok("--op-id", "init-1", "activate", home,
+	                viewer="lang.ada")
 	assert again["operation"]["state"] == "replayed"
 	assert again["database"] == first["database"], \
 		"the protected re-init did not recover the committed binding"
 	# An identity the accepted generation does not know learns nothing.
-	error = flow.refuse("--op-id", "init-1", "init", viewer="ghost.gone")
+	error = flow.refuse("--op-id", "init-1", "activate", home,
+	                    viewer="ghost.gone")
 	assert "not a registered member" in error
 	# A different document under the same identity is a conflict.
 	edited = document(verification_teams())
 	edited["instance"]["name"] = "edited"
 	flow.write_config(edited)
-	error = flow.refuse("--op-id", "init-1", "init", viewer="lang.ada")
+	error = flow.refuse("--op-id", "init-1", "activate", home,
+	                    viewer="lang.ada")
 	assert "different request" in error
 	# Id-less re-init keeps today's honest refusal.
 	flow.write_config(config)
-	error = flow.refuse("init", viewer="lang.ada")
+	error = flow.refuse("activate", home, viewer="lang.ada")
 	assert "already exists" in error

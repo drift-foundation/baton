@@ -34,7 +34,7 @@ import unicodedata
 import time
 import unicodedata
 
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -270,6 +270,34 @@ CREATE TABLE discussion_participants (
 	added_seq  INTEGER NOT NULL,
 	PRIMARY KEY (discussion, team)
 ) STRICT;
+CREATE TABLE roots (
+	root       TEXT PRIMARY KEY,
+	display    TEXT NOT NULL,
+	removed    INTEGER NOT NULL DEFAULT 0
+) STRICT;
+CREATE TABLE bindings (
+	work            TEXT    NOT NULL REFERENCES work(id),
+	revision        INTEGER NOT NULL,
+	prior           INTEGER NOT NULL,
+	root            TEXT    NOT NULL REFERENCES roots(root),
+	path            TEXT    NOT NULL,
+	git_provenance  TEXT,
+	actor           TEXT    NOT NULL,
+	rationale       TEXT,
+	seq             INTEGER NOT NULL,
+	created_ts      TEXT    NOT NULL,
+	UNIQUE (work, revision)
+) STRICT;
+CREATE TABLE act_references (
+	seq              INTEGER NOT NULL,
+	ordinal          INTEGER NOT NULL,
+	kind             TEXT    NOT NULL,
+	work             TEXT    REFERENCES work(id),
+	binding_revision INTEGER,
+	root             TEXT    NOT NULL REFERENCES roots(root),
+	path             TEXT    NOT NULL,
+	PRIMARY KEY (seq, ordinal)
+) STRICT;
 CREATE TABLE operations (
 	recorded    INTEGER NOT NULL UNIQUE,
 	participant TEXT    NOT NULL,
@@ -381,6 +409,47 @@ class Authority:
 
 	# -- the one write path -------------------------------------------------
 
+	def _commit_references(self, conn, seq: int, references) -> None:
+		"""WS-6: ordered typed asset references commit WITH their act —
+		same transaction, keyed by the act's event sequence. Independent
+		references require a LIVE configured root; dossier references
+		require the named Work to be BOUND and pin the effective binding
+		revision under the committing state (a citation of an existing
+		immutable revision stays valid after its root retires). Only
+		protocol facts are validated — nothing is stat'ed, opened, or
+		probed."""
+		for ordinal, ref in enumerate(references, start=1):
+			if ref["kind"] == "independent":
+				live = conn.execute(
+					"SELECT removed FROM roots WHERE root=?",
+					(ref["root"],)).fetchone()
+				if live is None or live["removed"]:
+					raise WorkError(
+						f"root {ref['root']!r} is not a live configured "
+						f"root; an independent reference lands on the "
+						f"accepted catalog")
+				conn.execute(
+					"INSERT INTO act_references (seq, ordinal, kind, "
+					"work, binding_revision, root, path) "
+					"VALUES (?, ?, 'independent', NULL, NULL, ?, ?)",
+					(seq, ordinal, ref["root"], ref["path"]))
+			else:
+				binding = conn.execute(
+					"SELECT revision, root FROM bindings WHERE work=? "
+					"ORDER BY revision DESC LIMIT 1",
+					(ref["work"],)).fetchone()
+				if binding is None:
+					raise WorkError(
+						f"{ref['work']} has no dossier binding to "
+						f"anchor; bind it first or use an independent "
+						f"ROOT:PATH reference")
+				conn.execute(
+					"INSERT INTO act_references (seq, ordinal, kind, "
+					"work, binding_revision, root, path) "
+					"VALUES (?, ?, 'dossier', ?, ?, ?, ?)",
+					(seq, ordinal, ref["work"], binding["revision"],
+					 binding["root"], ref["path"]))
+
 	def _op_identity(self, conn, participant: str) -> None:
 		"""WS-5 R84: the identity gate read on the SAME connection and
 		transaction as the replay lookup — gate and lookup are one
@@ -459,7 +528,8 @@ class Authority:
 		return result
 
 	def _write(self, event_kind: str, actor: str, payload: dict,
-	           mutate, operation=None, finish=None) -> dict:
+	           mutate, operation=None, finish=None,
+	           references=None) -> dict:
 		"""One mutation: BEGIN IMMEDIATE, allocate seq, apply, commit.
 
 		`mutate(conn, seq)` performs the step's own writes. The sequence
@@ -492,6 +562,8 @@ class Authority:
 				"UPDATE sequence SET value = value + 1 WHERE id = 1 "
 				"RETURNING value").fetchone()["value"]
 			mutate(self.conn, seq)
+			if references:
+				self._commit_references(self.conn, seq, references)
 			result = {"seq": seq, "kind": event_kind}
 			if finish is not None:
 				finish(result)
@@ -625,5 +697,9 @@ class Authority:
 				"WHERE seq > ? ORDER BY seq LIMIT ?", (after, limit)):
 			entry = dict(row)
 			entry["payload"] = json.loads(entry["payload"])
+			entry["references"] = [dict(ref) for ref in self.conn.execute(
+				"SELECT ordinal, kind, work, binding_revision, root, "
+				"path FROM act_references WHERE seq=? ORDER BY ordinal",
+				(row["seq"],))]
 			out.append(entry)
 		return out

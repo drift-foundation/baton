@@ -1293,5 +1293,199 @@ held until its remaining design boundary is pinned and explicitly released.
   creating `work/open/` and `work/records/`. Bootstrap never symlinks to the
   install or overwrites conflicts; upgrades never silently replace project
   copies. Source and packaged bootstrap must be byte/shape equivalent.
-- [ ] Settle the remaining WS-6 workflow-test boundary before releasing a
-  design or implementation pass.
+- [x] **Root-address vocabulary.** Preserve configured
+  `ROOT_ID:relative/path` addressing across all teams and repositories.
+  Accepted `baton.json` declares portable root ids; an explicit machine-local
+  resolver supplies absolute base paths. Work team never implies its root.
+  Bindings, dossier artifacts, and independent references all name a root plus
+  normalized relative path; missing local mappings affect navigation only.
+- [x] **Reference availability.** Every public mutation may carry ordered typed
+  asset references. References commit atomically with the act and participate
+  in its normalized WS-5 fingerprint. Compound acts preserve explicit
+  per-result placement; no verb-specific ban, silent copy, omission, or guess
+  is allowed.
+- [x] **Reference scope.** Any existing bound Work may be cited without first
+  labelling the discussion. The explicit Work/binding revision anchors
+  provenance; citation adds no label, dependency, participation, or workflow
+  mutation.
+- [x] **Unbound reference.** Dossier-relative citation requires a real binding
+  revision and refuses clearly on unbound Work. Independent `ROOT_ID:path`
+  citation remains available; no placeholder binding or guessed locator.
+- [x] **Binding path shape.** Canonical bindings require exactly
+  `work/records/YYYY/MM/<stable-record>` with four-digit year, month `01`–`12`,
+  one safe record component, and full containment syntax. Baton checks no
+  calendar correspondence, existence, symlink, Git, or dossier contents.
+- [x] **Root retirement.** New bindings/revisions and independent references
+  require a live root; ids are never reused. Dossier-relative references may
+  continue citing existing immutable binding revisions on retired roots.
+  History remains readable, open Work may correct to a live root, and no
+  special retirement stranding gate is added.
+- [x] **Template release boundary.** Templates are separate deployed assets in
+  the exact CLI release's sibling `tmpl/`, never embedded in the zipapp. Slice
+  B covers candidate/manifests/release layout, generic installer support, and
+  temporary-target parity; production `~/baton` deployment, mailbox creation,
+  migration, and cutover remain held.
+- [x] **Distribution assets.** A Baton distribution install owns immutable
+  versioned binaries/docs/conf/default templates and may live at
+  `~/opt/baton`, `/usr/lib/baton`, or elsewhere. Distribution `deploy/install`
+  and project `bootstrap` are distinct; bootstrap copies from one exact release
+  and never links or writes back.
+- [x] **Three location domains.** The complete current model is:
+  distribution root (for example `~/opt/baton`) owns immutable products;
+  coordination home (`~/baton`, `~/.baton`, or explicit alternative) owns
+  instance config/SQLite/local resolver; configured project roots own editable
+  templates and dossiers. Deploy, mailbox init, and project bootstrap are
+  separate operations and no path is inferred from another.
+- [x] **Placement/Git boundary.** Current project roots normally live under
+  `~/src/*`; coordination home may live under `~/src/`, `~/baton`, or another
+  explicit path and may be Git-managed externally. WS-6 adds no Git/backup
+  authority semantics; consistent live-SQLite snapshotting is separate work.
+  Exact distribution release directories remain stable and immutable.
+- [x] **Parallel trial boundary.** v11 CLI/TUI trials use a separate config,
+  database, processes, and runtime paths while deployed v10 remains the live
+  coordination authority. No v11 test, bootstrap, restart, or fault injection
+  may touch or stop v10; cutover is a later explicit operation.
+- [x] **Workflow-test boundary.** `WS6-DESIGN.md` defines WF-13 for portable
+  root-scoped binding/reference authority, CAS/transfer/closure/races/restart
+  and missing-local-root purity, plus WF-14 for source/package template,
+  contained bootstrap, and root-relocation parity. Implementation is split
+  into authority/projection Slice A and filesystem/package Slice B with
+  separate review gates.
+
+**WS-6 design ready for implementer review; implementation remains held.** K
+must revalidate `WS6-DESIGN.md` against the current strict config, schema,
+CLI/projection, and packaging surfaces and return contradictions, omissions,
+or a concrete two-slice plan. Material product choices return to Slawomir. No
+WS-6 source/template/build change is authorized until that review is accepted
+and Slice A is explicitly released.
+
+**WS-6 contradiction review received; M1–M6 ruled.** The response is preserved
+as
+`implementation-response-2026-08-15T17-09-14Z-4aa5527c7a582d33bda2c644be5529f4.md`.
+The dated FINDING rulings and `WS6-DESIGN.md` disposition supersede its proposed
+limits: references are mutation-wide, bound-Work citation needs no label,
+unbound dossier refs refuse without blocking independent refs, binding paths
+enforce year/month shape, historical bound citations survive root retirement,
+and templates are separate deployed assets rather than zipapp resources. K
+must return a corrected two-slice plan. Implementation remains held.
+
+**WS-6 corrected plan reviewed; one new coordination-home UX decision is
+open.** K's corrected plan is preserved as
+`implementation-response-2026-08-15T17-30-08Z-ca120fff381353be52d8f2b68319ddfb.md`.
+It represents M1–M6 and the three-domain placement model correctly. Its two
+remaining edge questions are settled: configuration mutations participate in
+mutation-wide references, while a reference-bearing mutation that produces no
+domain act refuses rather than dropping evidence.
+
+Do not release Slice A yet. Slawomir has added a coordination-home onboarding
+requirement: an exact installed CLI scaffolds an empty target with `baton init
+.`, the operator edits the instance/root templates, and a pure `baton check .`
+validates them before any member starts. The implementation plan must separate
+that scaffold from unique SQLite authority activation and from project
+template bootstrap. Resolve the public command names for scaffold versus the
+existing generation-one `init`, then append the resulting workflow story and
+revised slice placement. No source/template/build change begins until this
+last boundary is confirmed and Slice A is explicitly released.
+
+**WS-6 onboarding amendment first review: R86/R87 changes requested.** See
+`review-2026-08-15T17-37-09Z.md`. The scaffold/check/activate separation and
+WF-15 are directionally sound, but strict `baton.json` cannot contain comments,
+and a newly generated authority UUID contradicts a byte-identical
+re-scaffolding claim unless bounded recognition is defined. Correct the plan
+only. Slawomir must still confirm the public command vocabulary; Slice A and
+all filesystem implementation remain held.
+
+**WS-6 onboarding vocabulary ruled.** Slawomir confirmed `init DIR` for the
+coordination-home scaffold and `activate DIR --participant ...` for strict
+generation-one validation plus atomic authority creation. The proposed
+separate `check` command is removed: failed activation is pure with respect to
+authority state and reports the validation errors for the operator to correct
+before retry. K must revise Amendment 3 and WF-15 accordingly while correcting
+R86/R87. Implementation remains held until that planning correction is
+accepted and Slice A is explicitly released.
+
+An optional pure `check` may be proposed later as a reusable convenience over
+the exact same validator, but it is deferred and must not become a third
+required onboarding step. The current WS-6 acceptance story remains
+`init` -> edit -> `activate`.
+
+**WS-6 Slice A released; Slice B R88 held.** See
+`review-2026-08-15T17-40-58Z.md`. R86 is satisfied and the later two-step
+ruling removes `check` from the required story. K may now implement the
+authority/projection Slice A exactly as bounded in the review, run focused
+tests plus `just test-v11`, and stop for review. Slice A may not touch any
+filesystem onboarding, resolver, template, build/deploy, WF-14, or WF-15
+surface. Before Slice B, correct the one-shot multi-file scaffold: a mid-write
+failure must be recoverable without overwriting an edited config or requiring
+blind manual cleanup. Slice B remains held.
+
+**R88 superseded by explicit one-shot-init ruling.** Slawomir chose refusal on
+any pre-existing Baton-managed target. `init` performs no recognition,
+adoption, continuation, overwrite, or cleanup; its structured refusal names
+the blockers and explains that initialization either already ran or requires
+operator-inspected manual cleanup. A partial write reports the exact files it
+created. This closes R88 as a ruled operational tradeoff. Slice A remains the
+active released phase; Slice B is not started before Slice A's review gate.
+
+**WS-6 Slice A first review: R89–R91 changes requested.** See
+`review-2026-08-15T18-02-37Z.md`. The core authority model and WF-13 are
+present, but configuration mutations use a weaker independent-only/path
+parser, the ruled TUI root/path parity checkpoint is absent, and the accepted
+per-family/compound-fault/both-order evidence matrix is incomplete. Two
+additive reviewer regressions currently report 2 failed and 19 passed. Correct
+Slice A only, run the focused set plus `just test-v11`, and stop for re-review.
+Slice B and every onboarding/filesystem/deployment surface remain held.
+
+**WS-6 post-review release and production-operation boundary.** Once the
+Slice A correction is accepted with clean focused and full v11 gates, proceed
+directly to the already bounded Slice B without another Slawomir disposition.
+Slice B may exercise generic candidate/install behavior only against isolated
+temporary targets. Production deployment, mailbox creation or migration,
+participant shutdown, and cutover remain separate manual operations owned by
+Slawomir and are not authorized by either slice.
+
+**WS-6 Slice A accepted; Slice B released.** See
+`review-2026-08-15T18-19-25Z.md`. R89–R91 are satisfied: the focused correction
+set is 27/27, `just test-v11` is 491 parallel plus 3 serial passed, and diff
+checking is clean. K may proceed directly with the bounded Slice B described
+in `WS6-DESIGN.md` and `WS6-REVIEW.md`, including WF-14/WF-15 and isolated
+temporary-target packaging/install tests. Production deployment, production
+mailbox creation or migration, participant shutdown, and cutover remain held
+for Slawomir's manual operation.
+
+**WS-6 Slice B first review: R92–R94 changes requested.** See
+`review-2026-08-15T18-48-00Z.md`. Resolve currently accepts traversal and a
+root supplied only by the local resolver; bootstrap's phase-two path opens can
+follow a parent symlink inserted after validation; and ordinary init/bootstrap
+write failures escape without the exact partial-created report. Four additive
+reviewer regressions reproduce the gaps. Correct Slice B only, extend the
+public workflow coverage, run the focused set plus `just test-v11`, and stop
+for re-review. Production operations remain held for Slawomir.
+
+**WS-6 Slice B correction re-review: R92–R94 partly satisfied; R95–R98
+requested.** See `review-2026-08-15T18-58-12Z.md`. The original four
+regressions pass, but bare/empty independent locators still succeed, nested
+directory creation remains path-based and follows a swapped parent symlink,
+resolver JSON accepts duplicate/unknown fields, and short writes are reported
+as complete files. Five additive regressions report 5 failed and 11 passed.
+Correct Slice B only and stop again after focused plus full v11 verification.
+Production operations remain held for Slawomir.
+
+**WS-6 Slice B second correction re-review: R95/R97/R98 satisfied; R99
+requested.** See `review-2026-08-15T19-07-47Z.md`. The directory correction
+still invokes path-based mkdir, detects the resulting escape afterward, then
+calls `rmdir` through the raced symlink to erase the out-of-root directory.
+Creation must itself be fd-relative and bootstrap must never delete or repair
+after failure. One extended reviewer regression fails on the observed rmdir.
+Correct R99 only, rerun focused plus full v11 gates, and stop for re-review.
+Production operations remain held.
+
+**WS-6 Slice B accepted.** See `review-2026-08-15T19-13-12Z.md`. R99 is
+satisfied by fd-relative creation through the held no-follow parent and the
+cleanup deletion is gone. The reviewer's three fault hooks were re-keyed to
+that required call boundary without changing their assertions. The focused
+project suite is 16/16, `just test-v11` is 511 parallel plus 3 serial passed,
+and diff checking is clean. No WS-6 Slice B finding remains; the planned WS-6
+implementation is accepted. Production deployment, mailbox creation or
+migration, participant shutdown, and cutover remain held as Slawomir-owned
+manual operations.
