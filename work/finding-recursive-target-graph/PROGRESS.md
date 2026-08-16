@@ -2418,3 +2418,139 @@ Per findings/finding-tui-message-format/review-2026-08-16T02-33-41Z.md
 
 Gate: 49 TUI-family focused green; `just test-v11` 564 parallel + 3
 serial green; schema 14. Returning W8 round 3 to baton.feat via v11.
+
+## Step 67 — W5: timer-based automatic refresh (2026-08-16)
+
+W8 closed satisfying (v11 #49); W5 assigned (#50). Revalidated
+findings/finding-tui-auto-refresh (+ the keystrokes-never-poll
+clarification) and implemented, schema untouched at 14:
+
+- The console holds a projection CACHE: every canonical read routes
+  through it; ordinary keystrokes operate on cached data and never
+  query the authority (navigation to a context the cache has never
+  held fetches on miss — displaying a new view is not a poll).
+- The configurable timer (default 2s, `tui --refresh SECONDS`,
+  positive-only with a pre-curses JSON refusal) is the ONE background
+  freshness trigger: getch times out, tick() drops the cache, the
+  screen repaints. An explicit workflow act (s, the command bar)
+  refreshes from its committed result — ruled as not-a-poll.
+- The selection anchors to the WORK ID: a background refresh that
+  inserts or removes rows never moves the cursor to a different
+  Work; navigation moves the anchor, render only re-locates it.
+- Quickstart documents the surface and semantics.
+- The PTY replay harness now models ncurses scroll optimization
+  (scroll regions, IL/DL, IND/RI, and the newline-at-region-bottom
+  scroll ncurses actually emits) — found when a refresh repaint
+  ghosted rows in the replay grid.
+
+Regressions: keystrokes-hit-cache (counted projection reads: zero
+across j/k/Tab/Esc; the tick performs exactly one home re-read and
+surfaces the external Work); the discriminating id-stability case
+([A,B,C], anchored on B, external close of A while idle — the
+collapsed view drops A, an index cursor would land on C, the anchor
+keeps B and Enter drills it; nothing marked seen); the positive-
+interval refusal. Four sweeps bite (tick no-op, cache bypassed,
+anchor dropped, validation dropped). Gate: 52 TUI-family green;
+`just test-v11` 567 parallel + 3 serial green. Returning W5 to
+baton.feat via v11.
+
+## Step 68 — W5 review round: R1–R3 corrected (2026-08-16)
+
+Per findings/finding-tui-auto-refresh/review-2026-08-16T03-10-53Z.md:
+
+- **R1** — the refresh is WALL-CLOCK driven: a monotonic deadline
+  that input can neither postpone nor accelerate; keys before the
+  deadline serve from the cache, reaching it refreshes even while
+  input keeps arriving (getch timeout = time remaining). Regression:
+  ~2.4s of 150ms-spaced keys over a 0.5s interval — the externally
+  created Work appears mid-typing, on schedule.
+- **R2** — only a SUCCESSFUL mutating act invalidates the cache: the
+  public MUTATIONS verb set is exported from the CLI and shared with
+  the command bar. Regression: a refused close and a successful pure
+  read leave the cache untouched (zero counted reads); a committed
+  create refreshes exactly once and shows its result.
+- **R3** — `--refresh` validates a FINITE usable interval
+  (0 < r ≤ 86400) before curses; inf/nan/1e9 all refuse with the
+  JSON contract pre-curses (parametrized regression).
+
+All three sweeps bite (idle-timer restored, every-attempt flush,
+positivity-only check). Gate: 57 TUI-family focused green;
+`just test-v11` 572 parallel + 3 serial green; schema 14. Returning
+W5 round 2 to baton.feat via v11.
+
+## Step 69 — W5 round 3: R4 verb classification (2026-08-16)
+
+Per findings/finding-tui-auto-refresh/review-2026-08-16T03-18-31Z.md:
+the command bar's mutation classifier read argv[0], so a mutation
+preceded by public globals (--op-id V, --ref V, ...) committed but
+left the immediate view stale. The VERB is now the first token after
+any leading global options — the same public grammar the JSON
+interface takes — while only-successful-mutations-invalidate stands.
+Regression extended: an --op-id-prefixed create is visible
+immediately with exactly one flush; a global-prefixed say likewise;
+a refused global-prefixed close flushes nothing; the sweep (raw
+argv[0] restored) bites. Gate: 40 focused green; `just test-v11`
+572 parallel + 3 serial green; schema 14. Returning W5 round 3.
+
+## Step 70 — W5: the one-scheduler clarification applied (2026-08-16)
+
+Slawomir pinned the refresh-scheduler contract (clarification in
+findings/finding-tui-auto-refresh/FINDING.md): timer expiry and
+successful local mutations are two PRODUCERS of one canonical
+refresh path; pending requests coalesce; pure reads, refusals, and
+navigation never schedule. Implemented as ruled: producers call
+`schedule_refresh()` (a due flag); the cache accessor is the one
+consumer, dropping the cache exactly once before the next canonical
+read; tick(), both seen mutations, and the command bar's successful-
+mutation branch all produce — no separate behaviors remain. New
+coalescing regression: three ticks before one consumption re-read
+exactly once. Gate: 55 TUI-family green; `just test-v11` 572
+parallel + 3 serial green; schema 14.
+
+## Step 71 — W5 round 4: R5 confirmed shared, R6 evidence corrected (2026-08-16)
+
+review-2026-08-16T03-24-53Z.md crossed the one-scheduler
+implementation (Step 70/T5 #58): R5's consolidation was already in —
+timer expiry, both seen mutations, and the command bar's successful-
+mutation branch all produce through the ONE coalescing
+schedule_refresh (due flag), consumed once by the cache accessor.
+The requested proof is added: a single sweep no-opping
+schedule_refresh reddens BOTH the timer regression and the mutation
+regression — the producers demonstrably share the hook. R6: the
+false "--ref-carrying" evidence is corrected with an ACTUAL
+--ref-prefixed say (independent reference on a configured root,
+same leading-global grammar), visible immediately with exactly one
+flush; the misleading comment is gone. Gate: 40 focused green;
+`just test-v11` 572 parallel + 3 serial; schema 14.
+
+## Step 72 — W5 round 5: R7 storage-change boundary; R6 verified fixed (2026-08-16)
+
+Per findings/finding-tui-auto-refresh/review-2026-08-16T03-27-22Z.md
+(which examined the pre-round-4 tree; the R6 --ref case was already
+real by then — an actual `--ref pushcoin:docs/evidence.md say ...`,
+comment corrected):
+
+- **R7** — only an ACTUAL storage change schedules: the public
+  command result decides — an effectively-once REPLAY
+  (operation.state == "replayed") and a successful no-op
+  (advanced == false) schedule nothing and leave the deadline and
+  cache alone; the direct s paths schedule only when the cursor
+  actually advanced. Regressions: the exact --op-id retry replays
+  with refresh_due False and zero flushes; mark-seen advances once
+  (schedules) then no-ops (does not); the already-seen direct s
+  reports "already seen" with refresh_due False. The verb-only sweep
+  bites.
+
+Gate: 8 focused W5 + 55 family green; `just test-v11` 572 parallel +
+3 serial; schema 14. Returning W5 round 5.
+
+## Step 73 — W5 SIGNED OFF; checkpoint prepared (2026-08-16)
+
+W5 signed off (review-2026-08-16T03-35-29Z.md: 8 focused, independent
+572+3 gate, diff-check clean, schema 14). The explicit consuming pass
+committed in v11 (T5 #63 — Current baton.feat, Next None). Edits
+stopped for Slawomir's checkpoint commit: staged = the W5 arc
+(app/cli/ptyharness/docs + dossier records); the commit message
+("Add wall-clock automatic refresh with a single coalescing
+scheduler") was delivered on the v10 request claim. W7/W8 are in
+7fe2489. No next Work begins before the commit.

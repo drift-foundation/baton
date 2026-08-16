@@ -29,6 +29,20 @@ def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
 	grid = [[" "] * columns for _ in range(lines)]
 	row = col = 0
 	index = 0
+	# Scroll-region state: ncurses optimizes refreshes with insert/
+	# delete-line and index scrolling — a replay that ignores them
+	# shows stale ghost rows.
+	scroll_top, scroll_bottom = 0, lines - 1
+
+	def scroll_up(count, top, bottom):
+		for _ in range(count):
+			del grid[top]
+			grid.insert(bottom, [" "] * columns)
+
+	def scroll_down(count, top, bottom):
+		for _ in range(count):
+			del grid[bottom]
+			grid.insert(top, [" "] * columns)
 	while index < len(transcript):
 		char = transcript[index]
 		if char == "\x1b":
@@ -36,6 +50,18 @@ def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
 				match = pattern.match(transcript, index)
 				if match:
 					seq = match.group(0)
+					if pattern is _TWO and seq in ("\x1bD", "\x1bM"):
+						if seq == "\x1bD":
+							if row >= scroll_bottom:
+								scroll_up(1, scroll_top, scroll_bottom)
+							else:
+								row += 1
+						else:
+							if row <= scroll_top:
+								scroll_down(1, scroll_top,
+								            scroll_bottom)
+							else:
+								row = max(0, row - 1)
 					if pattern is _CSI:
 						final = seq[-1]
 						params = seq[2:-1]
@@ -76,6 +102,27 @@ def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
 							line = grid[min(row, lines - 1)]
 							del line[col:col + count]
 							line.extend(" " * (columns - len(line)))
+						elif final == "r":
+							parts = (params.split(";") + ["", ""])[:2]
+							scroll_top = max(0, int(parts[0] or 1) - 1)
+							scroll_bottom = min(
+								lines - 1,
+								int(parts[1] or lines) - 1)
+							row = col = 0
+						elif final == "L":
+							scroll_down(int(params or 1),
+							            min(row, lines - 1),
+							            scroll_bottom)
+						elif final == "M":
+							scroll_up(int(params or 1),
+							          min(row, lines - 1),
+							          scroll_bottom)
+						elif final == "S":
+							scroll_up(int(params or 1), scroll_top,
+							          scroll_bottom)
+						elif final == "T":
+							scroll_down(int(params or 1), scroll_top,
+							            scroll_bottom)
 					index = match.end()
 					break
 			else:
@@ -84,7 +131,13 @@ def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
 		if char == "\r":
 			col = 0
 		elif char == "\n":
-			row += 1
+			# A line feed at the bottom of the active scroll region
+			# scrolls the region up — ncurses drives its hardware
+			# scroll optimization exactly this way.
+			if row == scroll_bottom:
+				scroll_up(1, scroll_top, scroll_bottom)
+			else:
+				row += 1
 		elif char == "\b":
 			col = max(0, col - 1)
 		elif char >= " ":

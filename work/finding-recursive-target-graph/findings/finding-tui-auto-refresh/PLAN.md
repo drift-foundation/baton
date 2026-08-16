@@ -5,9 +5,11 @@ interrupt the trial or patch the published immutable release for this item.
 
 1. Choose and document the explicit positive-seconds configuration surface;
    default to 2 seconds.
-2. Add a bounded curses timeout that alone performs background canonical
-   projection reads; ordinary keystrokes use cached state and do not poll the
-   authority.
+2. Add one refresh scheduler and canonical refresh path. A monotonic wall-clock
+   deadline schedules background refresh; a successful local storage mutation
+   schedules on-demand refresh; pending requests may coalesce. Ordinary
+   keystrokes, pure reads, and refused commands neither poll nor schedule,
+   postpone, or accelerate refresh.
 3. Preserve logical selection across inserted, removed, and reordered rows.
 4. Prove that refresh performs no seen receipt, obligation consumption, audit
    act, or other mutation.

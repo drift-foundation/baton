@@ -24,6 +24,17 @@ from baton_work.authority import WorkError
 from baton_work import jsonapi, lifecycle, projection, transitions
 
 
+# The public MUTATING verbs — shared with the console's command bar so
+# only a successful workflow act (never a refused command or pure read)
+# refreshes the cached projection (W5 R2). `bind` joins below as it
+# always has.
+MUTATIONS = frozenset({
+	"activate", "regen", "create", "accept", "respond", "dispose",
+	"close", "block", "mark-seen", "classify", "phase", "round",
+	"extend", "report", "assess", "abandon", "revise", "start-thread",
+	"say", "label", "unlabel", "bind"})
+
+
 def _participant(value: str) -> tuple[str, str]:
 	team, dot, member = value.partition(".")
 	if not dot or not team or not member:
@@ -289,16 +300,17 @@ def main(argv=None) -> int:
 	cmd.add_argument("--after", type=int, default=0)
 	cmd.add_argument("--limit", type=int, default=1000)
 
-	sub.add_parser("tui")
+	cmd = sub.add_parser("tui")
+	cmd.add_argument("--refresh", type=float, default=2.0,
+	                 help="automatic projection refresh interval in "
+	                 "seconds (positive; default 2). The timer is the "
+	                 "one background read trigger; keystrokes never "
+	                 "poll the authority.")
 
 	args = parser.parse_args(argv)
 	try:
 		jsonapi.require_version(args.expect_projection)
-		mutations = {"activate", "regen", "create", "accept",
-		             "respond", "dispose", "close", "block",
-		             "mark-seen", "classify", "phase", "round",
-		             "extend", "report", "assess", "abandon", "revise",
-		             "start-thread", "say", "label", "unlabel"}
+		mutations = set(MUTATIONS)
 		filesystem = {"init", "bootstrap", "resolve"}
 		if args.command not in {"init", "activate", "bootstrap"} and \
 				not args.config:
@@ -310,7 +322,6 @@ def main(argv=None) -> int:
 				f"{args.command} is a filesystem operation outside the "
 				f"authority; it carries no operation identity and no "
 				f"asset references")
-		mutations.add("bind")
 		if args.op_id is not None and args.command not in mutations:
 			raise WorkError(
 				f"{args.command} is a pure read and takes no operation "
@@ -385,11 +396,20 @@ def main(argv=None) -> int:
 			if args.command == "tui":
 				if not args.participant:
 					raise WorkError("tui needs --participant team.member")
+				import math
+				if not (math.isfinite(args.refresh) and
+				        0 < args.refresh <= 86400):
+					raise WorkError(
+						"tui --refresh takes a finite positive "
+						"number of seconds (at most 86400); "
+						"automatic refresh cannot be disabled, "
+						"negative, or unrepresentable")
 				from baton_work.tui import run as tui_run
 				import curses
 				curses.wrapper(tui_run, store,
 				               *_participant(args.participant),
-				               config_path=args.config)
+				               config_path=args.config,
+				               refresh=args.refresh)
 				return 0
 			result = _dispatch(store, args)
 			snapshot_seq = (result.pop("snapshot_seq", None)

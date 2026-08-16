@@ -46,7 +46,11 @@ the document passes. A refusal leaves nothing behind.
     $BW --config ~/your-home/baton.json --participant team.member tui
 
 The console renders the same canonical projection the JSON surface
-serves. Keys: j/k select, Enter drill (tables, links, threads),
+serves. It refreshes automatically on a timer — default every 2
+seconds, configurable with `tui --refresh SECONDS` (positive) — and
+that timer is the ONLY background read: ordinary keystrokes operate
+on the cached projection and never poll the authority. A background
+refresh is read-only and keeps the selection on the same Work. Keys: j/k select, Enter drill (tables, links, threads),
 Esc back, o focused Work view, b blocking/dependent neighbors,
 z reveal closed rows, n page forward through a thread's Msgs or the
 thread list, p return to its start (not a previous-page step),

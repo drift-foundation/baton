@@ -41,3 +41,29 @@ that is not a background poll.
 
 The complete clarified contract is also promoted as revision 1 of v11 Work
 `26de18dd-W7` from discussion message sequence 10.
+
+## Clarification: the interval is wall-clock based
+
+**Confirmed by Slawomir on 2026-08-15.** Keyboard activity neither postpones
+nor accelerates automatic refresh. Repeated keystrokes across a refresh
+deadline continue to operate on cached state until the wall-clock deadline,
+then the timer refresh occurs on schedule; the key itself is not the trigger.
+
+A dedicated explicit refresh key may be considered later, but W5 does not
+require one and ordinary keys never acquire refresh semantics implicitly.
+
+## Clarification: one refresh scheduler
+
+**Confirmed by Slawomir on 2026-08-15.** Timer expiry and a successful local
+storage mutation are two producers of the same refresh request. The console
+has one canonical refresh path: producers schedule refresh, the event loop
+consumes it, and concurrent/pending requests may coalesce because refreshing
+the same projection twice carries no additional meaning.
+
+A successful local mutation schedules an on-demand refresh so its committed
+result becomes visible without waiting for the timer. A refused command, a
+pure read, and ordinary navigation do not schedule one. Mutations made by
+other processes remain discoverable through the scheduled timer refresh.
+This is a scheduler contract; an implementation may use a due flag rather
+than a literal FIFO, but it must not grow separate refresh behaviors for the
+timer and local actions.

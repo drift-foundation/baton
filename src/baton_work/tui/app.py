@@ -270,6 +270,11 @@ class Console:
 		# miss — displaying a view the cache has never held is not a
 		# poll.
 		self._cache: dict = {}
+		# The ONE refresh scheduler (pinned): timer expiry and a
+		# successful local mutation are two PRODUCERS of the same
+		# refresh request; the cache accessor consumes it, and pending
+		# requests coalesce — a due flag, not two behaviors.
+		self.refresh_due = False
 		# W5: the id-stable selection anchor — a background refresh
 		# must never move the cursor to a different Work merely
 		# because rows changed.
@@ -277,16 +282,26 @@ class Console:
 
 	# -- data: cached canonical reads (W5) --------------------------------
 
+	def schedule_refresh(self) -> None:
+		"""Producer side of the ONE refresh path — timer expiry and
+		successful local mutations both land here; requests coalesce."""
+		self.refresh_due = True
+
 	def _cached(self, key, loader):
+		# Consumer side: a due refresh drops the whole cache exactly
+		# once before the next canonical read.
+		if self.refresh_due:
+			self._cache.clear()
+			self.refresh_due = False
 		if key not in self._cache:
 			self._cache[key] = loader()
 		return self._cache[key]
 
 	def tick(self) -> None:
-		"""The timer tick — the ONE background freshness trigger: drop
-		every cached projection so the next paint re-reads. Read-only;
-		no seen mark, no transition, no cursor decision lives here."""
-		self._cache.clear()
+		"""The timer tick — a PRODUCER on the one refresh path: the
+		next paint re-reads. Read-only; no seen mark, no transition,
+		no cursor decision lives here."""
+		self.schedule_refresh()
 
 
 	def view(self) -> tuple[list[dict], dict]:
@@ -432,6 +447,20 @@ class Console:
 			header += " " + name.capitalize().ljust(col_width)
 		screen.addnstr(1, 0, header, width - 1, curses.A_UNDERLINE)
 		visible, hidden = self.visible_rows(rows)
+		# W5: the selection anchors to the WORK ID, not the index — a
+		# background refresh that inserts or removes rows never moves
+		# the cursor to a different Work.
+		if self.selected_id is not None:
+			for index, row in enumerate(visible):
+				if row["id"] == self.selected_id:
+					self.cursor = index
+					break
+			else:
+				self.cursor = min(self.cursor,
+				                  max(0, len(visible) - 1))
+		if visible:
+			self.selected_id = \
+				visible[min(self.cursor, len(visible) - 1)]["id"]
 		# The hidden-count footer is part of the collapse CONTRACT: when
 		# closed rows are hidden, one line is RESERVED for naming them —
 		# a full page of open rows may never make the collapse silent.
@@ -808,12 +837,41 @@ class Console:
 				code = stop.code if isinstance(stop.code, int) else 1
 			except WorkError as refusal:
 				err.write(_json.dumps({"error": str(refusal)}))
+		# R2/R4: only a SUCCESSFUL mutating act refreshes from its
+		# committed result (ruled). The VERB is the first token after
+		# any leading global options (--op-id V, --ref V, ... — the
+		# same public grammar the JSON interface takes), never the
+		# first raw token.
+		from baton_work.cli import MUTATIONS as _mutations
+		verb = None
+		position = 0
+		while position < len(argv):
+			token = argv[position]
+			if token.startswith("--"):
+				position += 1 if "=" in token else 2
+				continue
+			verb = token
+			break
 		if code == 0:
 			brief = "ok"
 			try:
 				result = _json.loads(out.getvalue())["result"]
 			except (ValueError, KeyError):
 				result = None
+			# R7: only an ACTUAL storage change schedules — the public
+			# result says so: an effectively-once REPLAY and a
+			# successful no-op (advanced=false) change nothing and
+			# leave the deadline and cache alone.
+			committed = verb in _mutations
+			if committed and isinstance(result, dict):
+				operation = result.get("operation")
+				if isinstance(operation, dict) and \
+						operation.get("state") == "replayed":
+					committed = False
+				if result.get("advanced") is False:
+					committed = False
+			if committed:
+				self.schedule_refresh()
 			if isinstance(result, dict):
 				for key in ("work_id", "seq", "revision", "generation"):
 					if key in result:
@@ -912,6 +970,10 @@ class Console:
 					self.store, self.preview_thread, team=self.team,
 					member=self.member,
 					up_to_seq=self.preview_last_seq)
+				if result["advanced"]:
+					# R7: only the ACTUAL cursor advance changed
+					# storage; an already-seen no-op schedules nothing.
+					self.schedule_refresh()
 				self.status = (f"seen up to #{result['cursor']}"
 				               if result["advanced"]
 				               else "already seen")
@@ -929,6 +991,7 @@ class Console:
 				# reconstructs its real ancestry.
 				self.path = [entries[self.links_cursor][0]]
 				self.cursor = 0
+				self.selected_id = None
 				self.mode = "table"
 				self.links_work = None
 			elif key in (27, curses.KEY_LEFT, ord("i")):
@@ -959,6 +1022,9 @@ class Console:
 					self.store, self.viewed_thread, team=self.team,
 					member=self.member,
 					up_to_seq=self.viewed_last_seq)
+				if result["advanced"]:
+					# R7: an already-seen no-op schedules nothing.
+					self.schedule_refresh()
 				self.status = (f"seen up to #{result['cursor']}"
 				               if result["advanced"] else "already seen")
 			return True
@@ -991,11 +1057,14 @@ class Console:
 			return True
 		if key in (curses.KEY_DOWN, ord("j")):
 			self.cursor = min(self.cursor + 1, max(0, len(rows) - 1))
+			self.selected_id = rows[self.cursor]["id"] if rows else None
 		elif key in (curses.KEY_UP, ord("k")):
 			self.cursor = max(0, self.cursor - 1)
+			self.selected_id = rows[self.cursor]["id"] if rows else None
 		elif key in (curses.KEY_ENTER, 10, 13) and rows:
 			self.path.append(rows[self.cursor]["id"])
 			self.cursor = 0
+			self.selected_id = None
 		elif key == ord("o") and self.path:
 			self.mode = "thread"
 			self.disc_cursor = 0
@@ -1012,20 +1081,42 @@ class Console:
 			self.show_closed = not self.show_closed
 			shown, _hidden = self.visible_rows(self.rows())
 			self.cursor = min(self.cursor, max(0, len(shown) - 1))
+			self.selected_id = shown[self.cursor]["id"] if shown \
+				else None
 		elif key in (27, curses.KEY_LEFT) and self.path:
 			self.path.pop()
 			self.cursor = 0
+			self.selected_id = None
 		return True
 
 
 def run(screen, store: Authority, viewer_team: str, viewer_member: str,
-        config_path: str | None = None) -> None:
+        config_path: str | None = None, refresh: float = 2.0) -> None:
+	"""W5: `refresh` seconds (default 2, positive, configurable via
+	`tui --refresh`) is the ONE background trigger for fresh canonical
+	reads — getch times out, the cache drops, the screen repaints.
+	Ordinary keystrokes operate on the cached projection."""
+	import time
 	curses.curs_set(0)
 	console = Console(store, viewer_team, viewer_member,
 	                  config_path=config_path)
 	console.render(screen)
+	# R1: the refresh is WALL-CLOCK driven — a monotonic deadline that
+	# input can neither postpone nor accelerate. Keys before the
+	# deadline serve from the cache; reaching the deadline refreshes
+	# even while input keeps arriving.
+	deadline = time.monotonic() + refresh
 	while True:
+		remaining = deadline - time.monotonic()
+		if remaining <= 0:
+			console.tick()
+			console.render(screen)
+			deadline = time.monotonic() + refresh
+			continue
+		screen.timeout(max(1, int(remaining * 1000)))
 		key = screen.getch()
+		if key == -1:
+			continue
 		if not console.handle(key):
 			return
 		console.render(screen)
