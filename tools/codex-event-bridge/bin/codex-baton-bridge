@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+import { runCodexBatonBridge } from "../src/codex_baton_bridge.mjs";
+
+runCodexBatonBridge().then((code) => { process.exitCode = code; }, (error) => {
+  process.stderr.write(`codex-baton-bridge: ${error.message}\n`);
+  process.exitCode = 2;
+});

@@ -1,7 +1,0 @@
-#!/usr/bin/env node
-import { runBatonV11Monitor } from "../src/baton_v11_source.mjs";
-
-runBatonV11Monitor().then((code) => { process.exitCode = code; }, (error) => {
-  process.stderr.write(`baton-v11-monitor: ${error.message}\n`);
-  process.exitCode = 2;
-});

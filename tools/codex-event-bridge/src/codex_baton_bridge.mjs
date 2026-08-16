@@ -1,6 +1,9 @@
-// W148 (finding-v11-parallel-monitor): the STANDALONE v11 readiness
-// producer — the permanent protocol-11 adapter, launched independently
-// beside the unchanged v10 stack during the certification overlap. It
+// codex-baton-bridge (W148, finding-v11-parallel-monitor): the
+// STANDALONE v11 readiness producer — the permanent protocol-11
+// adapter, launched independently beside the unchanged v10 stack
+// during the certification overlap. Baton stays model-neutral and
+// exposes only the participant-relative read-only wait; this external
+// bridge decides how readiness schedules a Codex turn. It
 // feeds the SAME local event socket and Codex target; the bridge keeps
 // serializing that target's turns. One process owns v11 readiness for
 // its participant; the v10 monitor keeps owning v10's.
@@ -17,7 +20,7 @@ import { sendEvent } from "./send_event.mjs";
 const execFileAsync = promisify(execFile);
 
 function usage() {
-  return `usage: baton-v11-monitor --baton PATH --config PATH --participant TEAM.MEMBER --target NAME [options]
+  return `usage: codex-baton-bridge --baton PATH --config PATH --participant TEAM.MEMBER --target NAME [options]
 
 options:
   --socket PATH       event bridge Unix socket
@@ -29,7 +32,7 @@ Invokes \`BATON --config PATH --participant TEAM.MEMBER wait timeout=S\`
 (protocol 11, key=value grammar) and forwards one trusted compact event
 per previously unseen action key. Level-triggered: a key is suppressed
 while it stays present, forgotten when it disappears, and emitted again
-if it later returns. This monitor is read-only.`;
+if it later returns. codex-baton-bridge is read-only.`;
 }
 
 function parse(argv) {
@@ -216,7 +219,7 @@ function delay(ms, signal) {
   });
 }
 
-export async function monitorBatonV11(options, { signal = new AbortController().signal, runWait, execute, emitEvent = sendEvent, logger = console } = {}) {
+export async function codexBatonBridge(options, { signal = new AbortController().signal, runWait, execute, emitEvent = sendEvent, logger = console } = {}) {
   const waitTimeout = positiveInteger(options["wait-timeout"], 60, "--wait-timeout");
   const retryMs = positiveInteger(options["retry-ms"], 1000, "--retry-ms");
   const socket = options.socket ?? process.env.CODEX_EVENT_SOCKET ?? defaultEventSocketPath();
@@ -290,7 +293,7 @@ export async function monitorBatonV11(options, { signal = new AbortController().
   return 0;
 }
 
-export async function runBatonV11Monitor(argv = process.argv.slice(2)) {
+export async function runCodexBatonBridge(argv = process.argv.slice(2)) {
   const options = parse(argv);
   if (options.help || options.h) {
     process.stdout.write(`${usage()}\n`);
@@ -302,12 +305,12 @@ export async function runBatonV11Monitor(argv = process.argv.slice(2)) {
   const controller = new AbortController();
   process.once("SIGINT", () => controller.abort());
   process.once("SIGTERM", () => controller.abort());
-  return await monitorBatonV11(options, { signal: controller.signal });
+  return await codexBatonBridge(options, { signal: controller.signal });
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  runBatonV11Monitor().then((code) => { process.exitCode = code; }, (error) => {
-    process.stderr.write(`baton-v11-monitor: ${error.message}\n`);
+  runCodexBatonBridge().then((code) => { process.exitCode = code; }, (error) => {
+    process.stderr.write(`codex-baton-bridge: ${error.message}\n`);
     process.exitCode = 2;
   });
 }

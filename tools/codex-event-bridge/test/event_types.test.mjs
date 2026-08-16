@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { eventFingerprint, formatEventMessage, normalizeEvent, tailUtf8 } from "../src/event_types.mjs";
-import { actionEvent } from "../src/baton_v11_source.mjs";
+import { actionEvent } from "../src/codex_baton_bridge.mjs";
 
 test("normalizes a target-scoped event and labels untrusted input", () => {
   const event = normalizeEvent({ target: "driftquery", source: "build", type: "failed", message: "tests failed" });

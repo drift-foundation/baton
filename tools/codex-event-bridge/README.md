@@ -170,14 +170,19 @@ Do not omit `--remote` after migration. A plain `codex resume THREAD_ID`
 starts an isolated backend and prevents the shared bridge from acquiring that
 thread's active-writer lock.
 
-## v11 readiness producer (certification overlap)
+## codex-baton-bridge: the v11 readiness producer (certification overlap)
 
-`bin/baton-v11-monitor` is the standalone protocol-11 readiness producer for
-the v10-to-v11 certification overlap. Launch it beside the ALREADY RUNNING
-v10 stack — it starts no second app-server, dispatcher, or bridge, and the
+`bin/codex-baton-bridge` is the standalone protocol-11 readiness producer for
+the v10-to-v11 certification overlap. Baton itself stays model-neutral — its
+CLI and JSON authority expose only the participant-relative, read-only
+`wait`; this external bridge decides how that readiness schedules a turn in
+an existing Codex thread, and it is not part of the immutable Baton client
+distribution (other agents may consume the same Baton surface through ACP or
+their own adapters). Launch it beside the ALREADY RUNNING v10 stack — it
+starts no second app-server, dispatcher, or bridge process, and the
 supervisor configuration above is not touched.
 
-The monitor requires a v11 release whose `wait` speaks the projection-4.3
+codex-baton-bridge requires a v11 release whose `wait` speaks the projection-4.3
 participant-action contract (W136/W148). Older trial releases (for example
 the projection-4.1 `825e97d` build) are correctly refused by the envelope
 gate. So the operator first deploys a new immutable v11 candidate containing
@@ -186,7 +191,7 @@ stack's configured target name, and its configured event socket. For the
 current trial deployment those resolve to:
 
 ```bash
-tools/codex-event-bridge/bin/baton-v11-monitor \
+tools/codex-event-bridge/bin/codex-baton-bridge \
   --baton /home/sl/opt/baton/v11/<NEW_CANDIDATE>/bin/baton \
   --config /home/sl/baton-v11/baton.json \
   --participant baton.claude \
@@ -204,7 +209,7 @@ timeout=S` (the protocol-11 key=value grammar), validates the typed
 projection-4.3 envelope, and forwards one trusted compact event per unseen
 action key into the running stack's existing event socket, addressed to the
 existing target. The bridge then renders the same one-line `[BATON READY]`
-turn input it uses for v10 readiness. The monitor is read-only and
+turn input it uses for v10 readiness. codex-baton-bridge is read-only and
 level-triggered: it never claims, responds, or advances cursors, and a key
 is suppressed while present, forgotten when it disappears, and re-emitted if
 it returns.

@@ -4,7 +4,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { actionEvent, actionLocator, monitorBatonV11, validateEnvelope } from "../src/baton_v11_source.mjs";
+import { actionEvent, actionLocator, codexBatonBridge, validateEnvelope } from "../src/codex_baton_bridge.mjs";
 
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
 
@@ -42,7 +42,7 @@ function harness(script, options = {}) {
   const events = [];
   const controller = new AbortController();
   let calls = 0;
-  const run = monitorBatonV11({ participant: "baton.codex", target: "baton", "retry-ms": "1", ...options }, {
+  const run = codexBatonBridge({ participant: "baton.codex", target: "baton", "retry-ms": "1", ...options }, {
     signal: controller.signal,
     runWait: async () => {
       if (calls >= script.length) {
@@ -151,7 +151,7 @@ test("malformed and wrong-protocol output refuse instead of guessing", async () 
   const warnings = [];
   const controller = new AbortController();
   let calls = 0;
-  await monitorBatonV11({ participant: "baton.codex", target: "baton", "retry-ms": "1" }, {
+  await codexBatonBridge({ participant: "baton.codex", target: "baton", "retry-ms": "1" }, {
     signal: controller.signal,
     runWait: async () => {
       if (calls >= bad.length) {
@@ -308,7 +308,7 @@ test("the real invocation is the documented argv through the executor boundary",
   const invocations = [];
   const controller = new AbortController();
   const events = [];
-  await monitorBatonV11(
+  await codexBatonBridge(
     {
       baton: "/opt/baton/v11/bin/baton",
       config: "/home/user/baton-v11/baton.json",

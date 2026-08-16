@@ -2,9 +2,9 @@
 
 **Status — 2026-08-16:** waiting on child Work `W148`, queued to `baton.impl`,
 after independent sign-off and satisfying closure of participant-readiness
-Work `W136`. The deliberately minimal one-bridge/standalone-v11-producer
-topology is pinned; do not revive the superseded generalized multi-protocol
-bridge design.
+Work `W136`. The deliberately minimal Codex topology is pinned. A separate
+ACP-generic sibling is queued for Claude and other ACP-capable agents; do not
+revive the superseded generalized Baton multi-protocol bridge design.
 
 1. Finish and independently review the currently queued same-schema usability
    corrections; keep v10 as the reliable channel throughout.
@@ -31,9 +31,12 @@ bridge design.
    in `finding-v11-parallel-monitor`. Feed the existing bridge/target while
    leaving the v10 adapter and stack unchanged; prove one consumer per identity
    and no cross-authority effects.
-4. Deploy a new immutable v11 candidate and initialize a fresh trial authority.
-5. Have Slawomir, Codex and Claude operate through its TUI/CLI and v11 wake
+4. Plan, implement and independently review the external ACP readiness client
+   in `finding-v11-acp-agent-bridge`. Claude uses JSON-RPC over stdio; prove the
+   same client can drive Gemini by configuration rather than a Baton change.
+5. Deploy a new immutable v11 candidate and initialize a fresh trial authority.
+6. Have Slawomir, Codex and Claude operate through its TUI/CLI and v11 wake
    path, recording every readability, discovery, routing or recovery fallback
    as child Work.
-6. Close this gate only after the agreed fallback-free interval and Slawomir's
+7. Close this gate only after the agreed fallback-free interval and Slawomir's
    explicit retirement ruling.

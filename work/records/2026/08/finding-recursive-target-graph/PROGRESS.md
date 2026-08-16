@@ -4082,3 +4082,27 @@ actionEvent source comment claiming no duplication "across restarts"
 is fixed: restart rediscovery deliberately re-emits the still-current
 set. Gates: Node 41/41; just test-v11 790 passed (+3 serial);
 diff-check clean. No live process touched.
+
+## Step 151 — W148: the codex-baton-bridge rename (seq-161 ruling)
+
+Slawomir committed the WIP boundary as 1db42fe; the pinned naming
+decision (FINDING.md "Decision — 2026-08-16: the product is
+codex-baton-bridge, outside Baton") then landed with the resumed
+round-three work. Baton stays model-neutral — CLI/JSON expose only the
+participant-relative read-only wait; the external bridge decides how
+readiness schedules a Codex turn. Renamed throughout with NO
+compatibility alias: bin/baton-v11-monitor -> bin/codex-baton-bridge
+(mode 0755 preserved), src/baton_v11_source.mjs ->
+src/codex_baton_bridge.mjs, test/baton_v11_source.test.mjs ->
+test/codex_baton_bridge.test.mjs; runBatonV11Monitor ->
+runCodexBatonBridge, monitorBatonV11 -> codexBatonBridge; usage text,
+error prefix, module header, and the README section (now
+"codex-baton-bridge: the v11 readiness producer (certification
+overlap)" with the model-neutrality boundary stated) all speak the new
+name; descriptive "this monitor" phrases now name codex-baton-bridge.
+Zero old-name occurrences remain in src/test/bin/README/package.json;
+the Baton distribution manifests and baton core contain no Codex code
+(verified by grep — nothing to remove). Dossier history (PROGRESS
+steps 148-150, past reviews) intentionally keeps the old name as
+record. Gates: Node 41/41; just test-v11 790 passed (+3 serial);
+diff-check clean. No live process touched.
