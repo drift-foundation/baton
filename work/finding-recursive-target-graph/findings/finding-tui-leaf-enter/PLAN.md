@@ -2,6 +2,12 @@
 
 Queued as non-blocking feedback from the first human v11 trial.
 
+**Superseded — 2026-08-15:** the stacked main-screen split and Enter child
+drill below were implemented for the earlier trial but are no longer the
+actionable navigation contract. Follow
+`../finding-tui-message-browser/PLAN.md`; preserve these steps only as the
+chronological record of the design that was replaced.
+
 1. Implement the confirmed stacked split: Work table above and the highlighted
    Work's selected Thread messages below.
 2. Keep `Enter` in the Work pane as child drill-down; use `Tab` for pane focus

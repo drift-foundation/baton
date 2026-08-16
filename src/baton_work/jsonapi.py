@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from baton_work.authority import Authority, WorkError
 
-PROJECTION_VERSION = "3.1"
+PROJECTION_VERSION = "4.0"
 
 
 def require_version(requested: str | None) -> None:

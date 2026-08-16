@@ -83,21 +83,19 @@ def test_the_timer_is_the_one_background_trigger(world, tmp_path):
 			pass
 
 	console = Console(store, "lang", "grace")
-	console.split_active = True
 	console._render_table(Screen(), 20, 100, console.rows())
-	console._render_preview(Screen(), 14, 5, 100, console.rows())
 
 	calls = {"n": 0}
-	real_home = pj_mod.home
+	real_tree = pj_mod.tree
 
-	def counting_home(*args, **kw):
+	def counting_tree(*args, **kw):
 		calls["n"] += 1
-		return real_home(*args, **kw)
+		return real_tree(*args, **kw)
 
-	pj_mod.home = counting_home
+	pj_mod.tree = counting_tree
 	try:
 		# Ordinary keystrokes on the SAME view: no authority reads.
-		for key in (ord("j"), ord("k"), ord("j"), ord("k"), 9, 27):
+		for key in (ord("j"), ord("k"), ord("j"), ord("k"), 27):
 			console.handle(key)
 			console._render_table(Screen(), 20, 100, console.rows())
 		assert calls["n"] == 0, \
@@ -134,7 +132,7 @@ def test_the_timer_is_the_one_background_trigger(world, tmp_path):
 		assert calls["n"] == 2, \
 			"coalesced refresh requests re-read more than once"
 	finally:
-		pj_mod.home = real_home
+		pj_mod.tree = real_tree
 	store.close()
 
 
@@ -188,10 +186,10 @@ def test_a_refresh_is_read_only_and_selection_is_id_stable(world):
 		"the externally closed row did not leave the collapsed view"
 	assert "(1 closed hidden" in idle, \
 		"the collapse lost its explicit hidden count"
-	drilled = ptyharness.replay(steps[2])
-	assert "middle target" in drilled[0], \
+	detail = ptyharness.replay(steps[2])
+	assert "middle target" in detail[0], \
 		f"the refresh moved the selection off the anchored Work: " \
-		f"{drilled[0]!r}"
+		f"{detail[0]!r}"
 
 	store = bw.Authority(world["database"])
 	after_new = pj.new_count(store, middle["work_id"],
@@ -269,13 +267,13 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 	target = world["first"]["work_id"]
 
 	calls = {"n": 0}
-	real_home = pj_mod.home
+	real_tree = pj_mod.tree
 
-	def counting_home(*args, **kw):
+	def counting_tree(*args, **kw):
 		calls["n"] += 1
-		return real_home(*args, **kw)
+		return real_tree(*args, **kw)
 
-	pj_mod.home = counting_home
+	pj_mod.tree = counting_tree
 	try:
 		# A REFUSED command (close without rationale): cache intact.
 		console.execute(f"close {target}")
@@ -358,9 +356,12 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		console.rows()
 		assert calls["n"] == 4, "a no-op mark-seen flushed the cache"
 
-		# R7, the direct-s path: prime the msgs view on an already-seen
-		# page — s reports "already seen" and schedules nothing.
-		console.mode = "msgs"
+		# R7, the direct-s path: prime the detail view on an
+		# already-seen page — s reports "already seen" and schedules
+		# nothing.
+		console.mode = "detail"
+		console.detail_work = target
+		console.focus = "msgs"
 		console.viewed_thread = thread_id
 		console.viewed_last_seq = last
 		console.handle(ord("s"))
@@ -368,7 +369,7 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		assert console.refresh_due is False, \
 			"an already-seen direct s scheduled a refresh"
 	finally:
-		pj_mod.home = real_home
+		pj_mod.tree = real_tree
 	store.close()
 
 

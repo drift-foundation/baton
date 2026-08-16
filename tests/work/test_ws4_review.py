@@ -149,11 +149,11 @@ def test_console_marks_only_the_thread_snapshot_it_rendered(thread):
 			pass
 
 	console = Console(store, "lang", "grace")
-	console.path = [work_id]
-	console.mode = "thread"
-	console._render_thread(Screen(), 24, 100)
-	console.handle(10)                    # Enter: open the thread
-	console._render_msgs(Screen(), 24, 100)
+	console.detail_work = work_id
+	console.disc_cursor = None
+	console.mode = "detail"
+	console.focus = "msgs"
+	console._render_detail(Screen(), 24, 100)
 	tr.post_thread(store, thread_id, author_team="lang", author="ada",
 	                   body="committed after the displayed snapshot")
 	console.handle(ord("s"))
@@ -184,11 +184,11 @@ def test_console_does_not_mark_past_the_returned_thread_page(
 
 	monkeypatch.setattr(pj, "thread", first_message_page)
 	console = Console(store, "lang", "grace")
-	console.path = [work_id]
-	console.mode = "thread"
-	console._render_thread(Screen(), 24, 100)
-	console.handle(10)                    # Enter: open the thread
-	console._render_msgs(Screen(), 24, 100)
+	console.detail_work = work_id
+	console.disc_cursor = None
+	console.mode = "detail"
+	console.focus = "msgs"
+	console._render_detail(Screen(), 24, 100)
 	console.handle(ord("s"))
 	monkeypatch.setattr(pj, "thread", original)
 	assert original(store, thread_id, viewer_team="lang",

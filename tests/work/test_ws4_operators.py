@@ -611,11 +611,11 @@ def test_the_console_thread_view_is_pure(world):
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	digest = _hashlib.sha256(open(store.path, "rb").read()).hexdigest()
 	console = Console(store, "lang", "grace")
-	console.path = [mine["work_id"]]
-	console.mode = "thread"
-	console._render_thread(Screen(), 24, 100)
-	console.handle(10)                    # Enter: open the thread
-	console._render_msgs(Screen(), 24, 100)
+	console.detail_work = mine["work_id"]
+	console.disc_cursor = None
+	console.mode = "detail"
+	console.focus = "msgs"
+	console._render_detail(Screen(), 24, 100)
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	assert _hashlib.sha256(
 		open(store.path, "rb").read()).hexdigest() == digest, \

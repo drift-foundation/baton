@@ -70,17 +70,18 @@ def test_messages_render_as_blocks_with_metadata_and_references(world):
 	"""Header with seq/author/ts, indented wrapped body, reference on
 	its own line — in the focused Msgs view."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5), (b"\r", 0.5),
+		(b"\r", 0.6),
 		(b"q", 0.4),
 	])
-	screen = ptyharness.replay(steps[2])
+	screen = ptyharness.replay(steps[0])
 	flat = "\n".join(screen)
 	header = next((line for line in screen
 	               if re.match(r"^#3 lang\.ada \d{4}-\d{2}-\d{2}", line)),
 	              None)
 	assert header is not None, \
 		f"no metadata header with a timestamp: {screen[:8]}"
-	assert "  [pushcoin:docs/evidence.md]" in screen, \
+	assert "  Refs:" in screen, "the Refs section heading is missing"
+	assert "    [pushcoin:docs/evidence.md]" in screen, \
 		"the reference does not render on its own readable line"
 	# The wrapped body: indented continuation lines, nothing clipped.
 	body_lines = [line for line in screen
@@ -89,7 +90,7 @@ def test_messages_render_as_blocks_with_metadata_and_references(world):
 	assert len(body_lines) >= 2, "the long body did not wrap"
 	rebuilt = " ".join(line.strip() for line in screen
 	                   if line.startswith("  ")
-	                   and not line.startswith("  ["))
+	                   and not line.startswith(("    [", "  Refs:")))
 	assert LONG_BODY in rebuilt, "wrapping lost body text"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -109,10 +110,10 @@ def test_the_new_marker_is_personal_and_from_the_projection(world):
 	assert flags[opener_seq] is False and any(flags.values())
 
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
-		(b"\r", 0.5), (b"o", 0.5), (b"\r", 0.5),
+		(b"\r", 0.6),
 		(b"q", 0.4),
 	])
-	screen = ptyharness.replay(steps[2])
+	screen = ptyharness.replay(steps[0])
 	opener = next(line for line in screen
 	              if line.startswith(f"#{opener_seq} "))
 	later = next(line for line in screen if line.startswith("#3 "))
@@ -130,13 +131,14 @@ def test_a_clipped_block_never_counts_as_seen(world):
 	                   viewer_member="grace")["new"]
 	assert before == 2
 	store.close()
-	# lines=9: msgs budget = 6 lines; opener block (2) fits, the long
-	# wrapped block does not fit in the remainder at width 40.
+	# lines=14 at width 40: the detail spends rows on breadcrumb,
+	# header, thread list, and footers — the opener block (2 lines)
+	# fits the Msgs budget, the long wrapped block does not.
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
-		(b"\r", 0.5), (b"o", 0.5), (b"\r", 0.5),
+		(b"\r", 0.6),
 		(b"s", 0.5),
 		(b"q", 0.4),
-	], columns=40, lines=9)
+	], columns=40, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	store = bw.Authority(world["database"])
 	view = pj.thread(store, world["born"]["thread"], viewer_team="lang",
@@ -146,19 +148,40 @@ def test_a_clipped_block_never_counts_as_seen(world):
 		"a clipped block was counted as seen (or nothing was marked)"
 
 
-def test_the_split_preview_uses_the_same_blocks(world):
-	"""The bottom pane paints the SAME formatted blocks — metadata
-	header, indented body, reference line."""
+def test_a_later_clipped_message_is_reachable_with_next(world):
+	"""W71 continuation must account for a whole later block that did not
+	fit. The first short message can paint completely while the second is
+	clipped; `n` must still advance to that second message."""
+	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
+		(b"\r", 0.6),                 # first message fits; second does not
+		(b"\x17j", 0.4),              # focus Msgs
+		(b"n", 0.6),                  # reach the clipped later message
+		(b"q", 0.4),
+	], columns=40, lines=14)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+	first = "\n".join(ptyharness.replay(steps[0], columns=40, lines=14))
+	after_next = "\n".join(
+		ptyharness.replay(steps[2], columns=40, lines=14))
+	assert "short opener" in first
+	assert "nested escape" not in first, \
+		"the fixture no longer puts the second message below the viewport"
+	assert "nested escape" in after_next, \
+		"n could not reach the whole later message clipped from page one"
+
+
+def test_the_detail_msgs_pane_uses_the_same_blocks(world):
+	"""W71: the detail Msgs pane paints the SAME formatted blocks —
+	metadata header and indented body."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"", 0.5),
+		(b"\r", 0.6),
 		(b"q", 0.4),
 	])
 	screen = ptyharness.replay(steps[0])
 	flat = "\n".join(screen)
 	assert re.search(r"^#2 lang\.ada \d{4}-\d{2}-\d{2}", flat,
-	                 re.M), "the preview lost the metadata header"
+	                 re.M), "the msgs pane lost the metadata header"
 	assert "  short opener" in screen, \
-		"the preview body is not an indented block"
+		"the msgs body is not an indented block"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -181,19 +204,21 @@ def test_an_oversized_message_is_readable_via_continuation(tmp_path):
 	                      author="ada", body=sentence)
 	store.close()
 
-	# lines=9, width=40: the wrapped block is far taller than the page.
+	# width 40, lines 14: the wrapped block is far taller than the
+	# detail Msgs budget.
 	text, status, steps = ptyharness.drive(config_path, "lang.grace", [
-		(b"\r", 0.5), (b"o", 0.5), (b"\r", 0.5),   # page one of the body
+		(b"\r", 0.6),                              # detail: body page one
 		(b"s", 0.5),                               # must NOT count it
+		(b"\x17j", 0.4),                           # Ctrl-W j: Msgs pane
 		(b"n", 0.5),                               # continue the body
 		(b"q", 0.4),
-	], columns=40, lines=9)
+	], columns=40, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	first = "\n".join(ptyharness.replay(steps[2], columns=40, lines=9))
+	first = "\n".join(ptyharness.replay(steps[0], columns=40, lines=14))
 	assert "giant-line-00" in first
 	assert "giant-line-59" not in first, "the viewport fit everything"
-	continued = "\n".join(ptyharness.replay(steps[4], columns=40,
-	                                        lines=9))
+	continued = "\n".join(ptyharness.replay(steps[3], columns=40,
+	                                        lines=14))
 	assert "(cont.)" in continued, "the continuation lost its header"
 	assert "giant-line-00" not in continued, "n did not advance the body"
 	store = bw.Authority(result["database"])
@@ -203,16 +228,16 @@ def test_an_oversized_message_is_readable_via_continuation(tmp_path):
 	assert still_new == 1, \
 		"s counted a message whose final line never painted"
 
-	# Walk to the end: the 31-line block (whole-token wrapping: two
-	# words per 37-cell line) pages 6+5+5+5+5+5 — five continuations
-	# land the tail, where s may finally count the message.
-	script = [(b"\r", 0.5), (b"o", 0.5), (b"\r", 0.5)]
-	script += [(b"n", 0.4)] * 5
+	# Walk to the end with a generous n budget (the exact page count
+	# depends on the detail layout); the tail must paint and the final
+	# s clears the message.
+	script = [(b"\r", 0.6), (b"\x17j", 0.4)]
+	script += [(b"n", 0.4)] * 8
 	script += [(b"s", 0.5), (b"q", 0.4)]
 	text, status, steps = ptyharness.drive(config_path, "lang.grace",
-	                                       script, columns=40, lines=9)
+	                                       script, columns=40, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	tail = "\n".join(ptyharness.replay(steps[-2], columns=40, lines=9))
+	tail = "\n".join(ptyharness.replay(steps[-2], columns=40, lines=14))
 	assert "giant-line-59" in tail, "the body tail is unreachable"
 	store = bw.Authority(result["database"])
 	remaining = pj.thread(store, born["thread"], viewer_team="lang",
@@ -222,12 +247,11 @@ def test_an_oversized_message_is_readable_via_continuation(tmp_path):
 		"the fully displayed message could not be marked seen"
 
 
-def test_the_preview_seen_bound_excludes_the_status_row(tmp_path):
-	"""R2: the bottom terminal row belongs to the command/status line.
-	The preview budget stops above it — an oversized block fills the
-	pane to the LAST PREVIEW row and never paints the reserved row,
-	so s cannot count a line the final composition replaced."""
-	from baton_work.tui.app import MIN_SPLIT_HEIGHT
+def test_the_msgs_seen_bound_excludes_the_reserved_rows(tmp_path):
+	"""R2 under W71: the last two terminal rows belong to the footer
+	help and the command/status line. An oversized block fills the Msgs
+	budget, never paints the reserved rows, and s cannot count a line
+	the final composition replaced."""
 	config_path = str(tmp_path / "baton.json")
 	document = fixtures.config_document(
 		{"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
@@ -242,10 +266,9 @@ def test_the_preview_seen_bound_excludes_the_status_row(tmp_path):
 	                      author="ada", body=tall)
 	store.close()
 
-	lines = MIN_SPLIT_HEIGHT
+	lines = 14
 	text, status, steps = ptyharness.drive(config_path, "lang.grace", [
-		(b"", 0.6),
-		(b"\t", 0.4),
+		(b"\r", 0.6),
 		(b"s", 0.5),
 		(b"q", 0.4),
 	], columns=40, lines=lines)
@@ -253,15 +276,16 @@ def test_the_preview_seen_bound_excludes_the_status_row(tmp_path):
 	before = ptyharness.replay(steps[0], columns=40, lines=lines)
 	assert any("boundary-word" in line for line in before), \
 		"the oversized block did not paint at all"
-	assert before[lines - 1] == "", \
-		f"a preview line reached the reserved status row: " \
-		f"{before[lines - 1]!r}"
+	assert before[lines - 2].startswith("more below"), \
+		f"the reserved help row was overpainted: {before[lines - 2]!r}"
+	assert not before[lines - 1].strip(), \
+		f"the status row was overpainted: {before[lines - 1]!r}"
 	store = bw.Authority(result["database"])
 	still_new = pj.thread(store, born["thread"], viewer_team="lang",
 	                      viewer_member="grace")["new"]
 	store.close()
 	assert still_new == 1, \
-		"s counted a block the status row composition clipped"
+		"s counted a block the reserved rows clipped"
 
 
 def test_a_long_reference_wraps_and_loses_nothing(tmp_path):
@@ -288,16 +312,16 @@ def test_a_long_reference_wraps_and_loses_nothing(tmp_path):
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5), (b"\r", 0.5),
+		(b"\r", 0.6),
 		(b"q", 0.4),
-	], columns=40, lines=14)
+	], columns=40, lines=20)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	screen = ptyharness.replay(steps[2], columns=40, lines=14)
+	screen = ptyharness.replay(steps[0], columns=40, lines=20)
 	rebuilt = "".join(
 		line.strip() for line in screen
-		if line.strip().startswith("[pushcoin") or
-		(line.startswith("  ") and not line.strip().startswith("#") and
-		 ("/" in line or line.strip().endswith("]"))))
+		if line.startswith("    ") and
+		("[pushcoin" in line or "/" in line or
+		 line.strip().endswith("]")))
 	assert f"[pushcoin:{long_path}]" in rebuilt.replace("attached", ""), \
 		f"the wrapped reference lost its tail: {screen}"
 
@@ -326,41 +350,42 @@ def test_continuation_survives_a_terminal_resize(tmp_path):
 	# (must be inert: the re-wrapped block restarts and is not fully
 	# painted), then the tail and the real mark.
 	script = [
-		(b"\r", 0.7), (b"o", 0.7), (b"\r", 0.7),   # page one at 44 cols
+		(b"\r", 0.8),                              # detail at 44 cols
+		(b"\x17j", 0.5),                           # Ctrl-W j: Msgs pane
 		(b"n", 0.6),                               # continuation at 44
-		("resize", (60, 12), 0.9),                 # rewrap at 60 cols
+		("resize", (60, 16), 0.9),                 # rewrap at 60 cols
 		(b"s", 0.6),                               # premature: inert
-		(b"n", 0.6),                               # the tail at 60
+		(b"n", 0.6), (b"n", 0.6),                  # walk to the tail
 		(b"s", 0.6),                               # the real mark
 		(b"q", 0.5),
 	]
 	text, status, steps = ptyharness.drive(
-		config_path, "lang.grace", script, columns=44, lines=12,
+		config_path, "lang.grace", script, columns=44, lines=16,
 		dynamic_size=True, settle=1.2)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
-	first = "\n".join(ptyharness.replay(steps[2], columns=44, lines=12))
+	first = "\n".join(ptyharness.replay(steps[0], columns=44, lines=16))
 	assert "resize-word-00" in first, first[:400]
 	assert "resize-word-39" not in first, "the narrow viewport fit all"
 
 	# After the resize the pages at 60 columns must jointly cover the
 	# WHOLE body (reset-and-repeat, no omission)...
 	wide = "\n".join(
-		"\n".join(ptyharness.replay(step, columns=60, lines=12))
-		for step in steps[4:7])
+		"\n".join(ptyharness.replay(step, columns=60, lines=16))
+		for step in steps[3:8])
 	for index in range(40):
 		assert f"resize-word-{index:02d}" in wide, \
 			f"resize omitted word {index:02d}"
 
 	# ...the premature s marked nothing (no confirmation painted, and
 	# the block restarts unfinished at the new width)...
-	premature = "\n".join(ptyharness.replay(steps[5], columns=60,
-	                                        lines=12))
+	premature = "\n".join(ptyharness.replay(steps[4], columns=60,
+	                                        lines=16))
 	assert "seen up to" not in premature, \
 		"s counted a block the resize re-wrapped mid-continuation"
 	# ...and the final s cleared the message after the tail painted.
 	final = "\n".join(ptyharness.replay(steps[7], columns=60,
-	                                     lines=12))
+	                                     lines=16))
 	assert "seen up to" in final, final[:400]
 	store = bw.Authority(result["database"])
 	remaining = pj.thread(store, born["thread"], viewer_team="lang",
@@ -370,10 +395,10 @@ def test_continuation_survives_a_terminal_resize(tmp_path):
 		"the message could not be marked after the full walk"
 
 
-def test_the_preview_skip_resets_when_the_width_changes(tmp_path):
-	"""R4, the shared preview path: a stub-screen check that a skip
-	advanced at one width resets on the next paint at another — the
-	painter never sees a cursor from a different wrapping."""
+def test_the_detail_skip_resets_when_the_width_changes(tmp_path):
+	"""R4 under W71: a skip advanced at one width resets on the next
+	paint at another — the painter never sees a cursor from a
+	different wrapping."""
 	from baton_work.tui.app import Console
 	config_path = str(tmp_path / "baton.json")
 	document = fixtures.config_document(
@@ -391,17 +416,18 @@ def test_the_preview_skip_resets_when_the_width_changes(tmp_path):
 			pass
 
 	console = Console(store, "lang", "ada")
-	console.render_probe = None
-	console._render_table(Screen(), 8, 44, console.rows())
-	console._render_preview(Screen(), 8, 6, 44, console.rows())
-	assert console.preview_next_skip, "the narrow pane fit everything"
+	rows = console.rows()
+	console.detail_work = rows[0]["id"]
+	console.disc_cursor = None
+	console.mode = "detail"
 	console.focus = "msgs"
-	console.split_active = True
+	console._render_detail(Screen(), 12, 44)
+	assert console.viewed_next_skip, "the narrow pane fit everything"
 	console.handle(ord("n"))
-	assert console.preview_skip > 0
+	assert console.thread_skip > 0
 	# The next paint arrives at a DIFFERENT width: the skip must reset
 	# before the painter applies it.
-	console._render_preview(Screen(), 8, 6, 100, console.rows())
-	assert console.preview_skip == 0, \
+	console._render_detail(Screen(), 12, 100)
+	assert console.thread_skip == 0, \
 		"a width-bound skip survived into a different wrapping"
 	store.close()

@@ -2554,3 +2554,198 @@ stopped for Slawomir's checkpoint commit: staged = the W5 arc
 ("Add wall-clock automatic refresh with a single coalescing
 scheduler") was delivered on the v10 request claim. W7/W8 are in
 7fe2489. No next Work begins before the commit.
+
+## Step 74 — W36: canonical Msg/My (2026-08-16)
+
+The W5 checkpoint landed (8450a40); W36 assigned (v11 #66) per
+findings/finding-work-message-action-counts. Implemented, schema 14:
+
+- Projection 3.2: every Work row carries `message_count` (total
+  DISTINCT messages across every thread labelled to the work or its
+  descendants — the conversation-projection scope, overlap-safe: a
+  thread labelled to two children counts once for the parent;
+  seen-independent, answers only grow it) and
+  `my_pending_obligations` (unresolved directed @ response
+  obligations in the same scope where THIS viewer is an eligible
+  handler under the CURRENTLY accepted route resolution — never
+  inclusions, never another member's load; shared resolution and
+  terminal withdrawal clear it for every handler). Purely derived;
+  reading mutates nothing.
+- TUI: a compact `Msg/My` column (the canonical fields combined in
+  the console alone), correct label casing via HEADER_LABELS, placed
+  in the responsive drop order; parity asserts the pair equals the
+  two JSON fields verbatim.
+- Focused suite: recursive/distinct/seen-independent Msg; My
+  eligibility (handler yes, non-handler no, + inclusion nobody);
+  answer grows Msg while clearing My; terminal withdrawal clears;
+  LIVE eligibility follows a generation-2 reroute (the same pending
+  obligation moves from ada's My to grace's); purity + reopen
+  stability. Sweeps bit: DISTINCT dropped, handler check flattened
+  to team-only, pending-status filter dropped.
+
+Gate: 60 focused green; `just test-v11` 577 parallel + 3 serial
+green. Returning W36 to baton.feat via v11.
+
+## Step 75 — W36 review round: R1/R2 corrected (2026-08-16)
+
+Per findings/finding-work-message-action-counts/
+review-2026-08-16T03-59-30Z.md:
+
+- **R1** — `My` now counts EVERY pending directed obligation flavor
+  the participant can discharge: the response flavor
+  (respond/dispose/accept) AND verification assignments (report);
+  withdrawal clears either. Regression: a candidate round's assigned
+  verifier owes 1 (a non-handler 0), the report clears it, and a
+  second round's abandonment (withdrawal) clears likewise. The
+  response-only sweep bites.
+- **R2** — the ruled narrow coverage: Msg/My is kept or omitted as a
+  WHOLE unit across the responsive budget — the retained
+  ST/CURRENT/NEW columns hold their exact widths, and the narrow
+  layout provably fits its terminal.
+
+Gate: 39 focused green; `just test-v11` 579 parallel + 3 serial
+green; schema 14. Returning W36 round 2 to baton.feat via v11.
+
+## Step 76 — W36 SIGNED OFF and closed satisfying (2026-08-16)
+
+Reviewer closed W36 satisfying (v11 #76): the verification and
+narrow regressions pass, focused gate 15 green, diff-check clean.
+The full `just test-v11` (579 parallel + 3 serial) had already run
+green on this tree as the release gate. Holding for the next wake.
+
+## Step 77 — W77: terminal phase null (2026-08-16)
+
+W77 assigned (v11 T77 #81) per findings/finding-terminal-work-
+no-phase. Implemented, schema 14, projection/presentation only:
+
+- Canonical rows project `phase: null` for closed Work (the field is
+  PRESENT — "not applicable", never omitted); open Work keeps its
+  one required non-null phase. No `done` phase exists.
+- Nothing is rewritten: the stored last-phase value survives in the
+  work row (asserted directly against the DB) and the audit keeps
+  every set_phase transition; the null is projection-only.
+- The TUI's compact_phase renders `-` for null (never a fabricated
+  label); the revealed closed row's Phase cell and the focused
+  header both dash.
+- Regressions: all four terminal outcomes project null with stored
+  history preserved; open rows stay non-null; the JSON+PTY parity
+  case. Sweeps bit: terminal phase leaking, fabricated null label.
+
+Gate: 45 focused-family green; `just test-v11` 585 parallel + 3
+serial green. Returning W77 to baton.feat via v11. Next serial per
+the wake: W74 then W71 after clean review.
+
+## Step 78 — W77 round 2: lifecycle-aware phase rendering (2026-08-16)
+
+Per findings/finding-terminal-work-no-phase/
+review-2026-08-16T04-21-41Z.md R1: `compact_phase(None)` was
+unconditionally `-`, so a malformed OPEN row with null would have
+masqueraded as valid closed rendering. The formatter is now
+`phase_cell(status, phase)` — lifecycle-aware and fail-closed BOTH
+ways: closed+null → `-`; open+null refuses visibly; closed+non-null
+(a leaked phase) refuses; unruled open values keep failing through
+the exhaustive compact map. `compact_phase` itself is strict again.
+Both the row cells and the focused header route through it; parity
+asserts the lifecycle-aware value. Regression covers all four
+formatter branches plus the renderer boundary (a doctored open row
+refuses at _row_cells); the masquerade sweep bites. Gate: 39
+focused-family green; `just test-v11` 586 parallel + 3 serial green.
+Returning W77 round 2.
+
+## Step 79 — W77 SIGNED OFF and closed satisfying (2026-08-16)
+
+Reviewer closed W77 round 2 satisfying in v11: the lifecycle-aware
+null rendering passes, focused gate 15 green, diff-check clean.
+W74 is next in the serial plan. Holding for the assignment wake.
+
+## Step 80 — W74: root header noise removed (2026-08-16)
+
+W74 assigned (v11 T74 #91) per findings/finding-tui-top-level-
+header-noise. Presentation only: the root header drops the redundant
+"— top-level work" phrase — identity plus the live summary
+([oblig:/park:/due:]) remain; drilled views keep their real
+breadcrumbs; narrow behavior unchanged; schema 14 untouched. The two
+root-detection assertions in the existing suite were re-keyed to the
+identity-led no-trail header. Regressions: root header shape (no
+prose, no stray dash, summary intact), drilled breadcrumb intact,
+narrow root fit. The restore sweep bites. Gate: 51 focused-family
+green; `just test-v11` 589 parallel + 3 serial green. Returning W74;
+W71 follows clean review.
+
+## Step 81 — W74 SIGNED OFF and closed satisfying (2026-08-16)
+
+Reviewer closed W74 satisfying in v11: bounded root-prose removal
+with identity/summary/breadcrumb/narrow coverage intact, 21 focused
+PTY tests, diff-check clean. W71 is next. Holding for the wake.
+
+## Step 82 — W71: the superseding navigation contract (2026-08-16)
+
+W71 assigned (v11 T71 #100; W27 cancelled/absorbed) per
+findings/finding-tui-message-browser. Implemented, schema 14:
+
+- **Main screen**: a bounded two-level containment tree — roots plus
+  ↳ children, a ▸N disclosure for deeper children; Prog/Dep left the
+  table; Enter has ONE meaning (open the Work's DETAIL, never a
+  drill); `u` unfolds/re-roots with real breadcrumbs, Esc returns;
+  the footer advertises the controls.
+- **Detail view**: Threads (subjects, bounded pages, New-first
+  default) above the selected Thread's formatted Messages; Ctrl-W
+  h/j/k/l / arrows / w / Ctrl-W Ctrl-W move panes with visible
+  focus markers; the breadcrumb names the detailed Work; the seen
+  action stays explicit and page-bounded; `n` acts only while more
+  exists (the disclosed more-state and the control agree — the last
+  page never pages into an empty screen); the internal `after #N`
+  cursor is GONE from all operator-facing text.
+- **Refs**: an explicit per-message Refs section — visually separate,
+  one canonical wrapped reference per line, never body text.
+- **JSON (projection 4.0, breaking)**: the ambiguous `dep` is
+  REPLACED by explicit live `open_blockers`/`open_dependents`;
+  `progress` survives; the former detail-local open_blockers
+  recompute is deduplicated onto the one row field.
+- Suites: test_w71_navigation.py (6: two-level tree + disclosure,
+  unfold/back, Enter-opens-details, Ctrl-W + footer + no-after,
+  graph-field replacement incl. close withdrawal, the Refs section);
+  the W7 split-preview file is superseded and removed; W8/W5/parity/
+  tui/ws3/ws4/wf05/ws2-wf07 suites migrated to the new model (dep →
+  open_dependents; drives via Enter/Ctrl-W). Three sweeps bite
+  (disclosure dropped, Enter-drills restored, open_blockers
+  hardwired — the last exposed and fixed the masking recompute).
+
+Gate: `just test-v11` 589 parallel + 3 serial green. Returning W71
+to baton.feat via v11.
+
+## Step 83 — W71 round 2: R1–R3 corrected (2026-08-16)
+
+Review (review-2026-08-16T05-19-05Z.md) kept W71 open on three
+boundary defects; all corrected, interaction shape preserved:
+
+- R1 — a later clipped message was unreachable: `paint_messages` now
+  reports `more_below` whenever a later fetched whole block did not
+  fit; `viewed_has_more`, the disclosed more-state line, and the `n`
+  key all derive from that same fact, and the clipped block is never
+  counted seen. The reviewer's regression
+  (test_a_later_clipped_message_is_reachable_with_next) is green and
+  reddens when `more_below` is dropped.
+- R2 — repeated `u` corrupted the back stack: re-rooting at the
+  current root is now idempotent (no duplicate `path` entry); one
+  logical unfold takes exactly one Esc. The reviewer's regression
+  (test_unfolding_the_current_root_is_idempotent) is green and
+  reddens without the guard.
+- R3 — the painted tree was composed from multiple snapshots: new
+  canonical `projection.tree(root=None)` derives roots (or one
+  re-root) + immediate children with depth, the team summary, and
+  the snapshot token under ONE read transaction; the JSON verb
+  `tree [WORK]` and `Console.view()` both consume that same result
+  (one cache entry, no home/detail/summary/children composition);
+  `children()` now also holds one read snapshot. Parity's home-rows
+  and inline-children tests consume the tree verb directly, with a
+  projected-depth assertion. New deterministic regression
+  test_a_mid_read_commit_cannot_produce_a_mixed_tree commits a new
+  root + a phase change between internal row reads and proves rows,
+  summary, and token all name the pre-commit state; it reddens when
+  tree() drops its read transaction.
+- W5's read counters now probe projection.tree (the one background
+  read path); docs/BATON-WORK.md documents the tree verb.
+
+Gate: `just test-v11` 592 parallel + 3 serial green; schema 14.
+Returning W71 round 2 to baton.feat via v11.

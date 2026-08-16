@@ -94,7 +94,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 
 	# The provider: born at the acceptance, noise-scoped to drift's home.
 	provider = flow.ok("detail", drift1, viewer="drift.ada")
-	assert provider["dep"] == 1
+	assert provider["open_dependents"] == 1
 	assert provider["origin"] == "external-report"
 	assert [row["id"] for row in
 	        flow.ok("home", viewer="drift.ada")["rows"]] == [drift1]

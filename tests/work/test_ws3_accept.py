@@ -138,7 +138,7 @@ def test_accept_create_commits_every_half_in_one_ordered_act(world):
 	assert links["blocked_by"][0]["via_obligation"] == asked
 	assert pj.links(store, provider)["blocks"][0]["via_obligation"] == asked
 	assert pj.detail(store, provider, viewer_team="drift",
-	                 viewer_member="ada")["dep"] == 1
+	                 viewer_member="ada")["open_dependents"] == 1
 
 
 def test_accept_into_gates_an_existing_provider(world):
@@ -155,7 +155,7 @@ def test_accept_into_gates_an_existing_provider(world):
 	                     body="same parser regression", into=provider)
 	detail = pj.detail(store, provider, viewer_team="drift",
 	                   viewer_member="ada")
-	assert detail["dep"] == 2
+	assert detail["open_dependents"] == 2
 	assert {entry["via_obligation"] for entry in
 	        detail["links"]["blocks"]} == {asked, web_asked}
 	accept = next(event for event in store.events()
@@ -682,7 +682,7 @@ def test_concurrent_accepts_of_different_obligations_both_commit(world):
 	                     into=provider)
 	detail = pj.detail(store, provider, viewer_team="drift",
 	                   viewer_member="ada")
-	assert detail["dep"] == 2
+	assert detail["open_dependents"] == 2
 	assert {entry["via_obligation"] for entry in
 	        detail["links"]["blocks"]} == {push_asked, web_asked}
 	assert len([e for e in store.events()

@@ -60,7 +60,7 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 		               viewer=f"{name}.{member}")["work_id"]
 		flow.ok("block", work, "--on", lang42, viewer=f"{name}.{member}")
 		consumers[name] = work
-	assert flow.ok("detail", lang42, viewer="lang.ada")["dep"] == 5
+	assert flow.ok("detail", lang42, viewer="lang.ada")["open_dependents"] == 5
 
 	# 2. Lang selects ONLY Push and Web: the round total is two, not five,
 	# and only the exact selected route handlers hold assignments.

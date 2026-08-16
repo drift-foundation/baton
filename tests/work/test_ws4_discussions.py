@@ -161,7 +161,7 @@ def test_a_label_is_inert_everywhere(world):
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == \
 		before["obligations"]
 	assert pj.detail(store, provider["work_id"], viewer_team="push",
-	                 viewer_member="sl")["dep"] == 0
+	                 viewer_member="sl")["open_dependents"] == 0
 	# Terminal work may be labelled; still inert.
 	tr.close_work(store, provider["work_id"], actor_team="push",
 	              actor="sl", rationale="done", outcome="satisfying")

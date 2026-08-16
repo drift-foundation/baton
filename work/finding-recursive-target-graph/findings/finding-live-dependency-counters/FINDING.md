@@ -49,3 +49,16 @@ its direction is clear while remaining familiar and narrow:
 
 This supersedes only the compact `Dpts` spelling above. Canonical JSON remains
 the unambiguous `open_blockers` and `open_dependents` pair.
+
+## Superseded presentation and disposition — 2026-08-15
+
+**Confirmed by Slawomir after accepting W71's two-level Work tree.** Do not
+add `Blk`/`Dep` columns. Remove both the old `Dep` and `Prog` main-list columns;
+containment indentation/disclosure communicates ordinary sub-Work gating, and
+arbitrary graph counts belong in Work details/links.
+
+The canonical JSON correction remains required: preserve
+`progress.children/closed` and replace ambiguous `dep` with
+`open_blockers`/`open_dependents`. W71 owns that projection/detail work. This
+W27 is cancelled as a separate implementation item rather than leaving two
+overlapping owners.

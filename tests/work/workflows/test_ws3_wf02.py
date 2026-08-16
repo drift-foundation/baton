@@ -72,7 +72,7 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 
 	# Live DEP=3; every edge explains itself through its own obligation.
 	provider = flow.ok("detail", drift1, viewer="drift.ada")
-	assert provider["dep"] == 3
+	assert provider["open_dependents"] == 3
 	assert {entry["via_obligation"] for entry in
 	        provider["links"]["blocks"]} == set(questions.values())
 	for name, member in MEMBERS.items():
@@ -101,6 +101,6 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 		assert resumed["links"]["blocked_by"][0]["outcome"] == "satisfying"
 		flow.ok("close", consumers[name], "--rationale", "verified",
 		        "--outcome", "satisfying", viewer=f"{name}.{member}")
-	assert flow.ok("detail", drift1, viewer="drift.ada")["dep"] == 0
+	assert flow.ok("detail", drift1, viewer="drift.ada")["open_dependents"] == 0
 	assert_final_invariants(flow, "drift.ada",
 	                        [drift1, *consumers.values()])

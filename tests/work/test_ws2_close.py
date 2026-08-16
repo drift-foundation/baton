@@ -380,14 +380,14 @@ def test_dep_counts_only_live_dependents_and_the_drill_matches(world):
 		                  actor_team="push", actor="sl")
 	view = pj.detail(store, provider, viewer_team="lang",
 	                 viewer_member="ada")
-	assert view["dep"] == 3
+	assert view["open_dependents"] == 3
 	assert [entry["id"] for entry in view["links"]["blocks"]] == dependents
 
 	tr.close_work(store, dependents[1], actor_team="push", actor="sl",
 	              rationale="fixed our side", outcome="satisfying")
 	view = pj.detail(store, provider, viewer_team="lang",
 	                 viewer_member="ada")
-	assert view["dep"] == 2, "a closed consumer still counts as live load"
+	assert view["open_dependents"] == 2, "a closed consumer still counts as live load"
 	assert [entry["id"] for entry in view["links"]["blocks"]] == \
 		[dependents[0], dependents[2]], "the drill kept a closed consumer"
 	# The consumer's closure decided NOTHING on the provider...
@@ -424,6 +424,6 @@ def test_dep_counter_and_drill_share_one_detail_snapshot(world, monkeypatch):
 
 	monkeypatch.setattr(pj, "_row_view", close_between_counter_and_drill)
 	view = pj.detail(store, provider, viewer_team="lang", viewer_member="ada")
-	assert view["dep"] == len(view["links"]["blocks"]), \
+	assert view["open_dependents"] == len(view["links"]["blocks"]), \
 		"one detail snapshot disagrees about its live dependents"
 	other.close()

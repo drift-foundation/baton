@@ -1788,13 +1788,11 @@ and preserve per-command retry safety without claiming batch atomicity. This
 child depends on the key/value grammar and adds no scripting language or file
 execution.
 
-**Queued child: separate live `Blk` and `Dpts` counters.** See
+**Superseded child: separate live `Blk` and `Dpts` counters.** See
 `findings/finding-live-dependency-counters/FINDING.md` and its plan. Expose
-canonical open-blocker and open-dependent counts in JSON and render both in
-the TUI. Edge creation increments opposite sides; provider or consumer closure
-decrements the corresponding live count; historical edges remain in the
-ledger/links rather than active totals. Replace the ambiguous lone `Dep`
-surface and prove parity across outcomes, races, restart and rebuild.
+canonical open-blocker and open-dependent counts in JSON, but do not add main-
+table columns: W71's tree supersedes that presentation and absorbs the JSON
+plus detail/links correction. W27 closes cancelled as a separate item.
 
 **Queued child: authority-local Work selectors.** See
 `findings/finding-local-work-selectors/FINDING.md` and its plan. Expose stable
@@ -1809,6 +1807,70 @@ overlap-safe total Messages and viewer-eligible pending `@` obligations in the
 same Work scope, expose explicit JSON fields, and render compact `Msg/My`
 without replacing personal `New`. Prove response/withdrawal, multi-handler,
 shared-Thread, descendant, rebuild, narrow-screen and read-purity behavior.
+
+**Activated 2026-08-15 after W5:** Slawomir selected v11 W36 as the next
+serial item. It is assigned only after revalidating the child finding against
+the projection-3.1/schema-14 checkpoint at `8450a40`; the older queue order is
+superseded for this one handoff, not erased.
+
+**Closed satisfying 2026-08-16:** W36 passed round-two review and focused
+coverage; see `review-2026-08-16T04-05-27Z.md`. Its implementation preserves
+schema 14 and the full v11 suite remains part of the release gate.
+
+**Queued child: discoverable message browser and separate references.** See
+`findings/finding-tui-message-browser/FINDING.md` and its plan. Message paging
+must expose more-state and its controls; Thread ordinals must not masquerade as
+message counts; references render in a separate `Refs` section. A borderless
+message-index/body split is proposed pending final key and narrow-layout
+rulings. This remained separate from W36 and is queued independently as W71.
+
+**Navigation supersession confirmed 2026-08-15:** W71 now owns the final
+schema-14 navigation model. The main screen is a two-level Work containment
+tree; `Enter` opens Work details and `u` unfolds/re-roots deeper containment.
+Details show Threads above the selected Thread's Messages, use `Ctrl-W` pane
+navigation, separate `Refs`, and expose no internal `after #N` cursor. This
+supersedes the earlier Enter-child-drill and persistent main-screen Msgs pane.
+
+**Queued child: remove root-header noise.** See
+`findings/finding-tui-top-level-header-noise/FINDING.md` and its plan. Remove
+only the redundant `— top-level work` phrase from the root view while keeping
+the participant identity, actionable live summary and real drilled
+breadcrumbs. This is presentation-only and is queued independently as W74.
+
+**Queued child: terminal Work has no phase.** See
+`findings/finding-terminal-work-no-phase/FINDING.md` and its plan. Open Work
+retains a required canonical phase; closed Work projects `phase: null` and
+renders `-`, while audit history preserves the last open phase and close.
+This is a same-schema projection/presentation correction and introduces no
+synthetic `done` phase.
+
+**Deferred child: explicit project metadata and Work filters.** See
+`findings/finding-work-project-filters/FINDING.md` and its plan. Configure
+canonical projects in `baton.json`; never infer them from paths or bindings.
+Expose composable CLI/JSON/TUI filters, including
+`:filter project=baton`, and always show the active filter. Persisted project
+metadata requires a fresh authority and does not widen the schema-14 trial.
+
+**Parked child: transient recent-Work cue.** See
+`findings/finding-tui-recent-work-cue/FINDING.md` and its plan. A future schema
+provides per-Work millisecond `last_changed_at` plus stable change sequence;
+the TUI animates the most recent visible row only for the remainder of a
+configurable age window (default 2000 ms). This has no automatic wake and is
+parked until the next schema revision rather than approximated in schema 14.
+
+**Activated same-schema feedback batch — 2026-08-15.** Per Slawomir, proceed
+serially through W77 (terminal Work has no phase), W74 (root-header cleanup),
+then W71 (discoverable message browser and separate references). Each receives
+its own review gate. W78 remains deferred because canonical project metadata
+requires persisted schema state.
+
+**Queued post-batch cutover:** See
+`findings/finding-fresh-record-layout-cutover/FINDING.md` and its plan. Once
+W77/W74/W71 and the full schema-14 gate are checkpointed, stop extending the
+trial: adopt permanent `work/records/YYYY/MM/...` dossiers and the human
+`work/open/...` index, update `AGENTS.md`, deploy the next schema, and
+initialize a fresh authority without migrating trial state. Recreate only
+still-relevant Work with canonical record bindings.
 
 **Active next iteration: preserve schema 14.** Follow
 `SAME-SCHEMA-TRIAL-PLAN.md` serially, starting with W7. The next packaged

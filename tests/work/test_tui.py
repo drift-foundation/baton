@@ -34,41 +34,55 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	path, cast = world
 	text, status, _steps = ptyharness.drive(path, "lang.ada", [(b"q", 0.4)])
 	screen = ptyharness.replay(text)
-	assert any("top-level work" in line for line in screen)
+	# W74: the root header is identity + live summary only — the
+	# redundant "— top-level work" prose is gone.
+	assert screen[0].startswith("lang.ada"), screen[0]
+	assert "top-level work" not in screen[0]
+	assert "[oblig:" in screen[0], "the live summary left the header"
 	assert any("parser recovery" in line for line in screen), screen[:6]
 	header = next(line for line in screen if "Title" in line)
 	# Trial finding 26de18dd-W2: initial-capital header labels.
-	for column in ("St", "Prog", "Dep", "Ready", "Current", "Next", "New"):
+	# W71: Prog/Dep left the table — containment shows as indentation,
+	# graph counts live in details/links.
+	for column in ("St", "Ready", "Current", "Next", "New"):
 		assert column in header
+	assert "Prog" not in header and "Dep " not in header
 	assert "TITLE" not in header and "READY" not in header
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_enter_drills_and_the_breadcrumb_names_the_path(world):
+def test_the_tree_shows_children_inline_and_u_re_roots(world):
+	"""W71: the main screen is a two-level containment tree — children
+	appear as ↳ rows under their roots without any drill; `u` re-roots
+	the window at the selected Work with a real breadcrumb."""
 	path, cast = world
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"\r", 0.5),                 # drill into the epic
+		(b"", 0.5),                   # the root tree
+		(b"u", 0.5),                  # re-root at the epic
 		(b"q", 0.4),
 	])
-	screen = ptyharness.replay(steps[0])
-	assert any("parser recovery" in line and ">" not in line
-	           for line in screen[:1]) or "parser recovery" in screen[0], \
-		f"breadcrumb missing: {screen[0]!r}"
-	assert any("confirm the defect" in line for line in screen), \
-		"the child table is not drawn"
-	assert any("implement the fix" in line for line in screen)
+	tree = ptyharness.replay(steps[0])
+	assert any("↳ confirm the defect" in line for line in tree), \
+		"children are not inline ↳ rows"
+	assert any("↳ implement the fix" in line for line in tree)
+	rooted = ptyharness.replay(steps[1])
+	assert "parser recovery" in rooted[0], \
+		f"the re-rooted breadcrumb is missing: {rooted[0]!r}"
+	assert any("↳ confirm the defect" in line for line in rooted)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
 def test_escape_climbs_back_up_the_drilled_path(world):
 	path, cast = world
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"\r", 0.5),
+		(b"u", 0.5),
 		(b"\x1b", 0.5),
 		(b"q", 0.4),
 	])
 	screen = ptyharness.replay(steps[1])
-	assert any("top-level work" in line for line in screen[:1]), \
+	# W74: the root view is recognized by the identity-led header with
+	# no breadcrumb trail, not by the removed prose.
+	assert screen[0].startswith("lang.ada") and ">" not in screen[0], \
 		"escape did not return to the home table"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -76,19 +90,15 @@ def test_escape_climbs_back_up_the_drilled_path(world):
 def test_the_thread_view_shows_the_timeline_and_planned_next(world):
 	path, cast = world
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"\r", 0.5),                 # into the epic's children
-		(b"j", 0.3),                  # select step_fix
-		(b"\r", 0.5),                 # drill into it
-		(b"o", 0.5),                  # the focused view + thread set
-		(b"\r", 0.5),                 # open the selected thread
+		(b"j", 0.3), (b"j", 0.3),     # select ↳ step_fix in the tree
+		(b"\r", 0.6),                 # Enter opens its DETAIL (W71)
 		(b"q", 0.4),
 	])
-	focused = ptyharness.replay(steps[3])
-	assert any("next lang.rev" in line for line in focused), \
-		f"the planned Next is not shown: {[l for l in focused if l][:6]}"
-	screen = ptyharness.replay(steps[4])
-	assert any("take it" in line for line in screen), \
-		"the thread body is not drawn"
+	detail = ptyharness.replay(steps[2])
+	flat = "\n".join(detail)
+	assert "next lang.rev" in flat, \
+		f"the planned Next is not shown: {[l for l in detail if l][:6]}"
+	assert "take it" in flat, "the thread body is not drawn"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -167,15 +177,13 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5),                 # drill into the work
-		(b"o", 0.5),                  # the focused view + thread set
-		(b"\r", 0.5),                 # open the selected thread
+		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
 		(b"q", 0.4),
 	])
-	focused = "\n".join(ptyharness.replay(steps[1]))
-	assert f"binding {json_binding} r1" in focused, \
-		f"the console does not render the binding: {focused[:300]}"
-	flat = "\n".join(ptyharness.replay(steps[2]))
+	flat = "\n".join(ptyharness.replay(steps[0]))
+	assert f"binding {json_binding} r1" in flat, \
+		f"the console does not render the binding: {flat[:300]}"
+	assert "Refs:" in flat, "the Refs section is missing"
 	assert f"[{json_reference}]" in flat, \
 		"the console does not render the message references"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -200,7 +208,7 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	assert "Current" in header and "New" in header
 	# The title keeps its working width (truncated, never squeezed away)
 	# and the 6/6 identities are drawn whole.
-	assert any("parser recov" in line for line in screen)
+	assert any("parser rec" in line for line in screen)
 	assert any("lang.ada" in line for line in screen)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -485,19 +493,17 @@ def test_thread_selection_never_merges_timelines(tmp_path):
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5),                 # drill into the work
-		(b"o", 0.5),                  # focused view: the thread SET
-		(b"j", 0.4),                  # select the SECOND thread
-		(b"\r", 0.5),                 # open it
+		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
+		(b"j", 0.5),                  # Threads pane: select the SECOND
 		(b"q", 0.4),
 	])
-	listing = "\n".join(ptyharness.replay(steps[1]))
-	assert "threads (2):" in listing
+	listing = "\n".join(ptyharness.replay(steps[0]))
+	assert "Threads (2)" in listing
 	assert second in listing, "the second thread is not listed"
-	thread = "\n".join(ptyharness.replay(steps[3]))
-	assert "second-thread opener" in thread
-	assert "first-thread evidence" not in thread, \
-		"another thread's messages bled into the thread"
+	switched = "\n".join(ptyharness.replay(steps[1]))
+	assert "second-thread opener" in switched
+	assert "first-thread evidence" not in switched, \
+		"another thread's messages bled into the msgs pane"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -568,7 +574,8 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 		                   body=f"message number {index:02d}")
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5), (b"\r", 0.5),   # first page
+		(b"\r", 0.6),                             # detail: first page
+		(b"\x17j", 0.4),                           # Ctrl-W j: Msgs pane
 		(b"n", 0.5),                               # second page
 		(b"s", 0.5),                               # seen: PAGE-bounded
 		(b"p", 0.5),                               # back to the start
@@ -580,19 +587,21 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 		return {int(match) for match in
 		        _re.findall(r"message number (\d+)", text)}
 
-	first = "\n".join(ptyharness.replay(steps[2], lines=12))
+	first = "\n".join(ptyharness.replay(steps[0], lines=12))
 	assert "opener" in first
 	assert "message number 20" not in first, \
 		"the page is not bounded by the viewport"
-	second = "\n".join(ptyharness.replay(steps[3], lines=12))
-	assert "opener" not in second and "after #" in second
+	second = "\n".join(ptyharness.replay(steps[2], lines=12))
+	assert "opener" not in second
+	assert "after #" not in second, \
+		"the internal projection cursor leaked into the TUI (W71)"
 	# Page two holds only messages BEYOND everything page one painted —
 	# derived from the painted pages, not a hardcoded window, so the
 	# bound survives formatting changes to lines-per-message.
 	assert numbers(second), second[:400]
 	assert min(numbers(second)) > max(numbers(first) | {0}), \
 		"page two repeated a page-one message"
-	back = "\n".join(ptyharness.replay(steps[5], lines=12))
+	back = "\n".join(ptyharness.replay(steps[4], lines=12))
 	assert "opener" in back, "p did not return to the first page"
 
 	# The s pressed on page TWO marked only through that page's last
@@ -654,21 +663,22 @@ def test_the_thread_set_pages_beyond_one_full_page(tmp_path):
 	beyond = extras[app.DISC_PAGE:]
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.6),    # page one of the set
+		(b"\r", 0.6),                 # detail: page one of the set
 		(b"n", 0.5),                  # the continuation page
 		(b"p", 0.5),                  # back to the start
 		(b"q", 0.4),
 	])
-	first = "\n".join(ptyharness.replay(steps[1]))
-	assert f"threads ({app.DISC_PAGE + 3})" in first
-	assert "(n: more)" in first, "the full page does not announce more"
+	first = "\n".join(ptyharness.replay(steps[0]))
+	assert f"Threads ({app.DISC_PAGE + 3})" in first
+	assert "(n: more threads)" in first, \
+		"the full page does not announce more"
 	for extra in beyond:
 		assert extra not in first, "page one leaked later threads"
-	second = "\n".join(ptyharness.replay(steps[2]))
+	second = "\n".join(ptyharness.replay(steps[1]))
 	for extra in beyond:
 		assert extra in second, \
 			"a thread beyond the first page is unreachable"
-	back = "\n".join(ptyharness.replay(steps[3]))
+	back = "\n".join(ptyharness.replay(steps[2]))
 	assert born["thread"] in back, "p did not return to the start"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -700,14 +710,14 @@ def test_the_msgs_pane_names_the_selected_thread_and_subject(tmp_path):
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5),    # the thread list
-		(b"j", 0.4), (b"\r", 0.5),    # open the SECOND thread
+		(b"\r", 0.6),                 # the detail: Threads + Msgs
+		(b"j", 0.5),                  # select the SECOND thread
 		(b"q", 0.4),
 	])
-	listing = "\n".join(ptyharness.replay(steps[1]))
+	listing = "\n".join(ptyharness.replay(steps[0]))
 	assert "T1 two conversations" in listing, listing[:400]
 	assert "T2 the follow-up questions" in listing
-	msgs = "\n".join(ptyharness.replay(steps[3]))
-	assert "Msgs T2/2 — the follow-up questions" in msgs, msgs[:400]
+	msgs = "\n".join(ptyharness.replay(steps[1]))
+	assert "Msgs — the follow-up questions" in msgs, msgs[:400]
 	assert "second opener" in msgs
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

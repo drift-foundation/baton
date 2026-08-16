@@ -62,7 +62,7 @@ def test_wf05_three_consumers_converge(flow):
 		assert {entry["work"] for entry in view["labels"]} == 			{consumers[team], lang42}, 			"the acceptance did not label the originating thread"
 		assert view["messages"][-1]["body"].startswith("ours; tracked"), 			"the rationale did not return to the originating thread"
 		assert "lang" in view["participants"], 			"the acceptance left no durable participation"
-	assert flow.ok("detail", lang42, viewer="lang.ada")["dep"] == 3
+	assert flow.ok("detail", lang42, viewer="lang.ada")["open_dependents"] == 3
 
 	# The label-versus-edge proof (pinned since the finding): Lang
 	# removes its OWN label from Push's thread — readiness, DEP, and
@@ -71,7 +71,7 @@ def test_wf05_three_consumers_converge(flow):
 	        viewer="lang.ada")
 	assert flow.ok("detail", consumers["push"],
 	               viewer="push.sl")["ready"] is False, 		"removing an inert label changed readiness"
-	assert flow.ok("detail", lang42, viewer="lang.ada")["dep"] == 3, 		"removing an inert label changed DEP"
+	assert flow.ok("detail", lang42, viewer="lang.ada")["open_dependents"] == 3, 		"removing an inert label changed the dependent count"
 
 	# 3. Provider view shows fan-in THREE; default tables stay noise-scoped;
 	# deliberate traversal opens the graph (not a security boundary).

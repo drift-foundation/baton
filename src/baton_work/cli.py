@@ -212,6 +212,8 @@ def main(argv=None) -> int:
 	cmd.add_argument("--reason", required=True)
 
 	sub.add_parser("home")
+	cmd = sub.add_parser("tree")
+	cmd.add_argument("work", nargs="?", default=None)
 	sub.add_parser("obligations")
 	sub.add_parser("summary")
 	cmd = sub.add_parser("wait")
@@ -696,6 +698,10 @@ def _dispatch(store: Authority, args):
 	if command == "home":
 		team, member = _need_participant(args)
 		return projection.home(store, viewer_team=team, viewer_member=member)
+	if command == "tree":
+		team, member = _need_participant(args)
+		return projection.tree(store, args.work, viewer_team=team,
+		                       viewer_member=member)
 	if command == "obligations":
 		team, _member = _need_participant(args)
 		return projection.obligations(store, viewer_team=team)

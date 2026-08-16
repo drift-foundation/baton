@@ -30,6 +30,37 @@ a time. Each item revalidates its exact repository finding before code changes,
 reports evidence in its v11 Thread, and passes Current back to its original
 review endpoint.
 
+**Active reprioritization — 2026-08-15.** After W5 closed satisfying,
+Slawomir selected W36 (`Msg/My` Work-list counters) as the next serial item.
+This supersedes the ordering below for the next handoff only; W9, W6 and the
+other listed items remain queued and are neither closed nor discarded. W36
+continues to carry the same schema-14 and review gates stated here.
+
+**Completed — 2026-08-16.** W36 closed satisfying after its round-two review;
+the focused gate reports 15 passed and projection 3.2 remains on SQLite schema
+14. Serial selection returns to this plan rather than treating the one-item
+reprioritization as a new permanent order.
+
+**Next trial-feedback batch — 2026-08-15.** Slawomir directed the next
+schema-preserving findings to proceed before more accumulate. Work remains
+serial and independently reviewed:
+
+1. `W77` — terminal Work projects `phase: null` and renders `-`;
+2. `W74` — remove redundant root-header `— top-level work` text;
+3. `W71` — discoverable message navigation, borderless index/body panes and a
+   separate `Refs` section.
+
+None adds persisted authority state. `W78` project metadata/filtering remains
+deferred to a fresh authority. This batch supersedes the older queue order for
+these three handoffs only; all other queued Work remains open.
+
+**Final schema-14 batch ruling — 2026-08-15.** After W77, W74 and W71 close
+and the full gate/checkpoint passes, do not extend this trial again. Follow
+`findings/finding-fresh-record-layout-cutover/PLAN.md`: start a fresh next-
+schema authority with the canonical `work/records` plus `work/open` repository
+layout and an updated `AGENTS.md`. No trial-database migration is required;
+only still-relevant Work is recreated.
+
 1. TUI conversation and safety:
    - `W7` — split-pane Work and Thread navigation (start here);
    - `W8` — formatted Thread messages;

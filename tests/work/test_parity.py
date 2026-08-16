@@ -58,14 +58,19 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 	title_width = max(app.MIN_TITLE, width - fixed - 1)
 	rows = []
 	for line in screen[2:]:
-		# W7: the split-pane divider always starts with "Msgs" — table
-		# rows end there.
-		if line.startswith("Msgs"):
+		# W71: the table ends at the footer/help, a pane header, or a
+		# blank; tree rows may be ↳-indented children.
+		if line.startswith(("Msgs", "Enter details", "»Threads",
+		                    " Threads")):
 			break
 		if not line.strip() or line.startswith("("):
 			continue
 		line = line.ljust(width)          # replay rstrips; offsets are fixed
-		cells = {"title": line[:title_width].rstrip()}
+		raw_title = line[:title_width].rstrip()
+		depth = 1 if raw_title.startswith("↳ ") else 0
+		clean = raw_title[2:] if depth else raw_title
+		clean = clean.split(" ▸")[0]
+		cells = {"title": clean, "depth": depth}
 		rest = line[title_width:]
 		offset = 0
 		for name, col_width in columns:
@@ -73,14 +78,15 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 			offset += 1 + col_width
 		assert cells["NEW"].isdigit(), \
 			f"unparseable row (NEW={cells.get('NEW')!r}): {line!r}"
-		parsed = {"title": cells["title"], "status": cells["ST"],
+		parsed = {"title": cells["title"], "depth": cells["depth"],
+		          "status": cells["ST"],
 		          "ready": cells["READY"] == "yes",
 		          "current": None if cells["CURRENT"] == "-"
 		          else cells["CURRENT"],
 		          "next": None if cells["NEXT"] == "-" else cells["NEXT"],
 		          "new": int(cells["NEW"])}
 		for key, name in (("phase", "PHASE"), ("classification", "CLS"),
-		                  ("progress", "PROG"), ("dep", "DEP")):
+		                  ("msg_my", "MSG/MY")):
 			if name in cells:
 				parsed[key] = cells[name]
 		rows.append(parsed)
@@ -99,25 +105,44 @@ def _screen_rows(path, viewer, script=()):
 def test_home_rows_agree_value_by_value(world, capsys):
 	path, _cast = world
 	for viewer in ("lang.ada", "lang.grace", "push.sl", "web.wren"):
-		expected = _json(capsys, path, "home", viewer=viewer)["rows"]
+		# W71 R3: ONE canonical tree-window projection — the very result
+		# the TUI paints, not a composition the test repeats from
+		# separate reads.
+		window = _json(capsys, path, "tree", viewer=viewer)
+		expected = window["rows"]
+		# The projection's own token is hoisted into the envelope
+		# (established contract); the result keeps rows + summary.
+		assert "summary" in window
 		screen = _screen_rows(path, viewer)
 		drawn = _parse_rows(screen)
 		assert len(drawn) == len(expected), \
 			f"{viewer}: {len(drawn)} drawn vs {len(expected)} projected"
 		for drawn_row, json_row in zip(drawn, expected):
 			assert drawn_row["title"] == json_row["title"][:len(drawn_row["title"])]
+			# W71 R3: the indentation depth itself is projected, not
+			# reconstructed client-side.
+			assert drawn_row["depth"] == json_row["depth"]
 			# Gate B: ST formats the canonical status and, when closed,
 			# the canonical outcome — the same closed compact map.
 			assert drawn_row["status"] == app.status_cell(json_row)
 			# WS-1 parity: the TUI draws the approved COMPACT vocabulary
 			# for the canonical JSON values, presentation-only.
-			assert drawn_row["phase"] == app.compact_phase(json_row["phase"])
+			assert drawn_row["phase"] == app.phase_cell(
+				json_row["status"], json_row["phase"])
 			assert drawn_row["classification"] == \
 				app.compact_classification(json_row["classification"])
-			# Gate B: direct progress and the ruled DEP count, verbatim
-			# from the projection row.
-			assert drawn_row["progress"] == app.progress_cell(json_row)
-			assert drawn_row["dep"] == str(json_row["dep"])
+			# W71: Prog/Dep left the table; the canonical row still
+			# carries progress and the explicit live graph fields.
+			assert "progress" in json_row
+			assert "open_blockers" in json_row
+			assert "open_dependents" in json_row
+			assert "dep" not in json_row, \
+				"the ambiguous dep field survived"
+			# W36 parity: the compact pair is exactly the two canonical
+			# fields, combined in the TUI alone.
+			assert drawn_row["msg_my"] == (
+				f"{json_row['message_count']}"
+				f"/{json_row['my_pending_obligations']}")
 			assert drawn_row["ready"] == json_row["ready"]
 			expected_current = (json_row["current"] or {}).get("endpoint")
 			expected_next = (json_row["next"] or {}).get("endpoint")
@@ -128,15 +153,16 @@ def test_home_rows_agree_value_by_value(world, capsys):
 				f"TUI {drawn_row['new']} vs JSON {json_row['new']}"
 
 
-def test_drill_relationships_agree(world, capsys):
-	"""The children the TUI draws after Enter are exactly the JSON children,
-	in the same order."""
+def test_containment_children_agree_inline(world, capsys):
+	"""W71: the ↳ children under a root are exactly the JSON children,
+	in order, at depth 1 — no drill required."""
 	path, cast = world
-	expected = _json(capsys, path, "children", cast["lang42"],
-	                 viewer="lang.grace")
-	screen = _screen_rows(path, "lang.grace", [(b"\r", 0.5)])
-	drawn = _parse_rows(screen)
-	assert [row["title"] for row in drawn] == \
+	expected = [row for row in
+	            _json(capsys, path, "tree", cast["lang42"],
+	                  viewer="lang.grace")["rows"] if row["depth"] == 1]
+	screen = _screen_rows(path, "lang.grace")
+	drawn = [row for row in _parse_rows(screen) if row["depth"] == 1]
+	assert [row["title"] for row in drawn][:len(expected)] == \
 		[row["title"] for row in expected]
 	for drawn_row, json_row in zip(drawn, expected):
 		assert drawn_row["new"] == json_row["new"]

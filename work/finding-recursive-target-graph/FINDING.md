@@ -2788,6 +2788,18 @@ one dependent from each provider. Terminal outcomes and historical edges stay
 in links/events and never remain in these active counters. Restart and rebuild
 must reproduce the same values.
 
+**Presentation supersession confirmed later on 2026-08-15.** The W71
+two-level containment tree makes `Prog` and dependency counters too expensive
+and noisy in the main Work table. The TUI therefore removes `Prog` and the
+existing `Dep`; it does not add `Blk`/`Dep` columns. Indentation/disclosure
+shows ordinary parent-child gating, while arbitrary many-to-many graph counts
+appear in Work details/links.
+
+The canonical machine contract above is not superseded: JSON preserves
+`progress.children/closed` and replaces ambiguous `dep` with explicit
+`open_blockers` and `open_dependents`. W71 absorbs that remaining projection
+work; W27 is cancelled as a separate item.
+
 ## 2026-08-15 — Work has an authority-local short selector
 
 **Confirmed by Slawomir during the second v11 trial.** See
@@ -2846,3 +2858,20 @@ must also be recorded against the exact v11 Work. A v10 completion is not
 accepted until the reviewer verifies that repository evidence and v11 state
 agree. This dual recording is temporary trial discipline, not a claim that
 either authority automatically mirrors the other.
+
+## 2026-08-15 — terminal Work has no operational phase
+
+**Confirmed by Slawomir during the second v11 trial.** This narrowly
+supersedes the earlier statement that operational phase is globally non-null.
+Phase is a property of open Work only. While Work is open, `phase` remains one
+required canonical value and may never be null. Once Work closes, no
+operational phase remains: canonical JSON reports `phase: null` and the TUI
+renders `-`.
+
+There is still no synthetic terminal `done` phase. Status plus terminal
+outcome state the lifecycle result; displaying a stale last phase such as
+`queue` beside `c/sat` falsely implies that closed Work remains actionable.
+The append-only audit/event history preserves the last open phase and the
+close transition, so removing phase from terminal state loses no history.
+
+See `findings/finding-terminal-work-no-phase/FINDING.md` and its plan.

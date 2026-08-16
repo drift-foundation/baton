@@ -63,10 +63,10 @@ def test_every_response_carries_the_full_envelope(world, capsys):
 
 def test_an_incompatible_projection_version_fails_clearly(world, capsys):
 	path, _ = world
-	error = _run(capsys, path, "--expect-projection", "2.3", "home",
+	error = _run(capsys, path, "--expect-projection", "3.0", "home",
 	             viewer="lang.ada", expect_ok=False)
 	assert "not compatible" in error["error"]
-	ok = _run(capsys, path, "--expect-projection", "3.0", "home",
+	ok = _run(capsys, path, "--expect-projection", "4.0", "home",
 	          viewer="lang.ada")
 	assert ok["result"], "a compatible minor was refused"
 

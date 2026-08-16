@@ -88,6 +88,50 @@ def _endpoint_struct(store: Authority, team, kind) -> dict | None:
 	return structured
 
 
+def _message_count(store: Authority, work_id: str) -> int:
+	"""W36 `Msg`: total DISTINCT messages across every thread labelled
+	to this Work or its descendants — conversation volume, not unread;
+	seen and answers never decrease it."""
+	scope = _descendants(store, work_id)
+	marks = ",".join("?" * len(scope))
+	return store.conn.execute(
+		"SELECT COUNT(DISTINCT messages.seq) AS n FROM messages "
+		"JOIN thread_labels ON thread_labels.thread = messages.thread "
+		f"WHERE thread_labels.work IN ({marks})",
+		scope).fetchone()["n"]
+
+
+def _my_pending(store: Authority, work_id: str, viewer_team: str,
+                viewer_member: str) -> int:
+	"""W36 `My`: unresolved directed @ obligations in the same
+	recursive scope for which THIS participant is an eligible handler
+	under the CURRENTLY accepted route resolution — never inclusions,
+	never another member's load, never ownership. A shared route
+	obligation leaves every handler's count on any resolution;
+	terminal withdrawal removes it likewise."""
+	scope = _descendants(store, work_id)
+	marks = ",".join("?" * len(scope))
+	count = 0
+	eligible: dict = {}
+	# EVERY pending directed flavor the participant can discharge
+	# counts (R1): response (respond/dispose/accept) AND verification
+	# (report) — each keeps its own completion transition; withdrawal
+	# clears either.
+	for entry in store.conn.execute(
+			"SELECT team, kind FROM obligations "
+			f"WHERE work IN ({marks}) AND status='pending'", scope):
+		key = (entry["team"], entry["kind"])
+		if key not in eligible:
+			resolved = _endpoint_struct(store, entry["team"],
+			                            entry["kind"])
+			eligible[key] = (entry["team"] == viewer_team and
+			                 resolved is not None and
+			                 viewer_member in resolved["handlers"])
+		if eligible[key]:
+			count += 1
+	return count
+
+
 def _row_view(store: Authority, row: dict, viewer_team: str,
               viewer_member: str) -> dict:
 	"""One Work as a projection row: stable ids and structured values, no
@@ -102,7 +146,10 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		"team": row["team"],
 		"origin": row["origin"],
 		"classification": row["classification"],
-		"phase": row["phase"],
+		# W77: phase applies only while Work is OPEN — closed Work
+		# projects null ("not applicable", never omitted); the stored
+		# last-phase value and audit history stay untouched.
+		"phase": row["phase"] if row["status"] == "open" else None,
 		"waiting_on": None if row["wait_type"] is None else
 			{"type": row["wait_type"],
 			 "obligation": row["wait_obligation"]},
@@ -117,16 +164,29 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		"next": _endpoint_struct(store, row["next_team"], row["next_kind"]),
 		"progress": {"children": counts["total"] or 0,
 		             "closed": counts["closed"] or 0},
-		# WS-2 (ruled): DEP is the count of OPEN work currently depending
-		# on this one — the provider's live load, not a historical total;
-		# the journal retains every edge act.
-		"dep": store.conn.execute(
+		# W71 (ruled): the ambiguous `dep` is REPLACED by two explicit
+		# live graph fields — open work THIS row still waits on, and
+		# open work depending on it (the provider's live load). The
+		# journal retains every edge act.
+		"open_blockers": store.conn.execute(
+			"SELECT COUNT(*) AS n FROM edges JOIN work "
+			"ON work.id = edges.blocker "
+			"WHERE edges.work=? AND work.status='open'",
+			(row["id"],)).fetchone()["n"],
+		"open_dependents": store.conn.execute(
 			"SELECT COUNT(*) AS n FROM edges JOIN work "
 			"ON work.id = edges.work "
 			"WHERE edges.blocker=? AND work.status='open'",
 			(row["id"],)).fetchone()["n"],
 		"new": new_count(store, row["id"], viewer_team=viewer_team,
 		                 viewer_member=viewer_member)["total"],
+		# W36: conversation VOLUME and the viewer's directed load —
+		# same recursive scope as the conversation projection,
+		# overlap-safe (a message reachable through several labelled
+		# paths counts once), seen-independent, purely derived.
+		"message_count": _message_count(store, row["id"]),
+		"my_pending_obligations": _my_pending(
+			store, row["id"], viewer_team, viewer_member),
 	}
 
 
@@ -168,12 +228,44 @@ def breadcrumb(store: Authority, work_id: str) -> list[dict]:
 
 def children(store: Authority, work_id: str, *, viewer_team: str,
              viewer_member: str) -> list[dict]:
-	_work(store, work_id)
-	rows = store.conn.execute(
-		"SELECT * FROM work WHERE parent=? ORDER BY created_seq",
-		(work_id,)).fetchall()
-	return [_row_view(store, dict(row), viewer_team, viewer_member)
-	        for row in rows]
+	# W71 R3: every row's multiple internal reads happen inside ONE read
+	# snapshot — a writer committing between them cannot mix two states.
+	with _read_snapshot(store):
+		_work(store, work_id)
+		rows = store.conn.execute(
+			"SELECT * FROM work WHERE parent=? ORDER BY created_seq",
+			(work_id,)).fetchall()
+		return [_row_view(store, dict(row), viewer_team, viewer_member)
+		        for row in rows]
+
+
+def tree(store: Authority, root: str | None = None, *, viewer_team: str,
+         viewer_member: str) -> dict:
+	"""W71 R3: THE canonical bounded tree window the navigation contract
+	paints — the team's roots (or one supplied re-root) each followed by its
+	immediate children (depth 1), the team summary, and the snapshot token,
+	all derived under ONE read transaction. JSON and the TUI consume this
+	same result; neither composes it from separate reads, so a writer
+	committing mid-read can never produce a mixed tree."""
+	with _read_snapshot(store):
+		if root is None:
+			bases = [dict(row) for row in store.conn.execute(
+				"SELECT * FROM work WHERE parent IS NULL AND team=? "
+				"ORDER BY created_seq", (viewer_team,))]
+		else:
+			bases = [_work(store, root)]
+		rows = []
+		for base in bases:
+			rows.append(dict(_row_view(store, base, viewer_team,
+			                           viewer_member), depth=0))
+			for child in store.conn.execute(
+					"SELECT * FROM work WHERE parent=? "
+					"ORDER BY created_seq", (base["id"],)).fetchall():
+				rows.append(dict(_row_view(store, dict(child), viewer_team,
+				                           viewer_member), depth=1))
+		summary = _summary_in_snapshot(store, viewer_team, store.clock())
+		snapshot_seq = store.last_seq()
+	return {"rows": rows, "summary": summary, "snapshot_seq": snapshot_seq}
 
 
 def links(store: Authority, work_id: str) -> dict:
@@ -858,9 +950,6 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	                                  viewer_team=viewer_team,
 	                                  viewer_member=viewer_member)
 	open_children = view["progress"]["children"] - view["progress"]["closed"]
-	open_blockers = store.conn.execute(
-		"SELECT COUNT(*) AS n FROM edges JOIN work ON work.id=edges.blocker "
-		"WHERE edges.work=? AND work.status='open'", (work_id,)).fetchone()["n"]
 	# The R1 authority matrix, mirrored: availability is computed from the
 	# SAME live route/handler rule the authority enforces — an agent reads
 	# what it may do; it never discovers by attempting. Ownership-gated
@@ -897,5 +986,6 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		if handler and open_children == 0:
 			available.append("close")
 	view["available_transitions"] = sorted(available)
-	view["open_blockers"] = open_blockers
+	# W71: open_blockers is the ROW's own field (one computation, one
+	# meaning) — the former detail-local recompute is gone.
 	return view

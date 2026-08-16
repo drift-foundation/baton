@@ -54,3 +54,13 @@ advances the displayed discussion's seen cursor.
 `Work -> Threads -> Messages`; read `discussion` in the split-pane ruling above
 as `Thread`. The behavior is unchanged, and the compact bottom-pane label is
 `Msgs`. See `../finding-thread-subject-vocabulary/FINDING.md`.
+
+## Superseded navigation ruling — 2026-08-15
+
+**The “Enter drills into child Work” and persistent main-screen message split
+above are superseded by the later live-trial ruling.** See
+`../finding-tui-message-browser/FINDING.md`. The main screen now shows a
+bounded two-level Work tree; `Enter` always opens Work details, while a
+separate visible `u` action unfolds/re-roots deeper containment. Threads and
+Messages live in the Work detail view rather than occupying the main Work
+list. Explicit seen semantics remain unchanged.
