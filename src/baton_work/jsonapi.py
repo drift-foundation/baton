@@ -18,7 +18,17 @@ from baton_work.authority import Authority, WorkError
 # 4.1 (schema 15): rows additively gain canonical `priority`,
 # `last_changed_at`, and `last_change_seq`. Same major: nothing moved
 # or changed meaning.
-PROJECTION_VERSION = "4.1"
+# 4.2 (W47): rows and details additively gain `heartbeat_at` — the
+# latest qualifying claim/heartbeat timestamp of the CURRENT claim
+# epoch (null while unclaimed and on terminal rows) — the first
+# projection carrying claimant liveness evidence. Same major.
+# 4.3 (W136): `wait` becomes PARTICIPANT-relative — its actionable
+# entries are typed actions (kind: obligation | due_round | work) with
+# stable `action_key` identities, filtered to the exact requesting
+# member by live route resolution; routed Work enters the wake set for
+# the first time. Same major: envelope shape and every other
+# projection unchanged.
+PROJECTION_VERSION = "4.3"
 
 
 def require_version(requested: str | None) -> None:

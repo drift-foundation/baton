@@ -135,8 +135,9 @@ def test_ctrl_w_moves_panes_and_footer_advertises(world):
 	appears anywhere."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"\r", 0.6),
-		(b"\x17j", 0.5),              # Ctrl-W j → Msgs
-		(b"\x17\x17", 0.5),           # Ctrl-W Ctrl-W → cycle back
+		(b"\x17j", 0.5),              # Ctrl-W j → the Message index
+		(b"\x17j", 0.5),              # Ctrl-W j → the reader (W14)
+		(b"\x17\x17", 0.5),           # Ctrl-W Ctrl-W → cycle to Threads
 		(b"qy", 0.4),
 	])
 	opened = "\n".join(ptyharness.replay(steps[0]))
@@ -145,9 +146,12 @@ def test_ctrl_w_moves_panes_and_footer_advertises(world):
 	assert "after #" not in opened, \
 		"the internal projection cursor leaked (W71)"
 	msgs = "\n".join(ptyharness.replay(steps[1]))
-	assert "»Msgs" in msgs, "Ctrl-W j did not focus the Msgs pane"
-	cycled = "\n".join(ptyharness.replay(steps[2]))
-	assert "»Threads" in cycled, "Ctrl-W Ctrl-W did not cycle back"
+	assert "»Msgs" in msgs, "Ctrl-W j did not focus the Message index"
+	reader = "\n".join(ptyharness.replay(steps[2]))
+	assert "»M" in reader and "»Msgs" not in reader, \
+		"the second Ctrl-W j did not focus the reader"
+	cycled = "\n".join(ptyharness.replay(steps[3]))
+	assert "»Threads" in cycled, "Ctrl-W Ctrl-W did not cycle to Threads"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -195,11 +199,15 @@ def test_refs_render_under_a_separate_section(world):
 	               refs=["pushcoin:docs/trace.md"])
 	store.close()
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"\r", 0.6), (b"qy", 0.4)])
-	screen = ptyharness.replay(steps[0])
+		(b"\r", 0.6),
+		(b"\x17j", 0.4),              # W14: the Message index
+		(b"j" * 8, 0.8),              # walk to the LAST (posted) message
+		(b"qy", 0.4)])
+	screen = ptyharness.replay(steps[2])
 	flat = "\n".join(screen)
-	assert "  Refs:" in screen, f"the Refs heading is missing"
-	assert "    [pushcoin:docs/trace.md]" in screen, \
+	# W14: the selected message's block paints in the READER.
+	assert "  Refs:" in flat, f"the Refs heading is missing"
+	assert "[pushcoin:docs/trace.md]" in flat, \
 		"the reference is not its own indented line"
 	body_line = next(line for line in screen
 	                 if "see the trace" in line)
@@ -221,7 +229,7 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 		interleaved = False
 
 		def commit_between_row_reads(store, row, viewer_team,
-		                             viewer_member):
+		                             viewer_member, **kwargs):
 			nonlocal interleaved
 			if not interleaved:
 				interleaved = True
@@ -237,7 +245,7 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 						phase="parked",
 						reason="interleaving proof")
 			return original_row_view(store, row, viewer_team,
-			                         viewer_member)
+			                         viewer_member, **kwargs)
 
 		monkeypatch.setattr(pj, "_row_view", commit_between_row_reads)
 		window = pj.tree(reader, viewer_team="lang", viewer_member="ada")

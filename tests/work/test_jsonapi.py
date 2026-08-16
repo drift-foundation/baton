@@ -75,7 +75,9 @@ def test_errors_are_json_with_exit_one(world, capsys):
 	path, _ = world
 	error = _run(capsys, path, "detail", "work=nope-W1", viewer="lang.ada",
 	             expect_ok=False)
-	assert error == {"error": "no work 'nope-W1'"}
+	# W4: a malformed selector refuses BY NAME through the one strict
+	# resolver before any lookup runs.
+	assert "'nope-W1' is not a Work selector" in error["error"]
 
 
 # -- typed traversal ---------------------------------------------------------
@@ -139,13 +141,14 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 	               "body=b", viewer="lang.ada")["result"]
 	assert created["work_id"].endswith(f"-W{created['seq']}")
 
-	passed = _run(capsys, path, "say", f"thread={created["thread"]}",
-	              "body=go", f"on={created["work_id"]}",
-	              "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
+	passed = _run(capsys, path, "pass", f"work={created["work_id"]}",
+	              "to=lang.impl", "phase=active", "set-next=lang.rev",
+	              f"thread={created["thread"]}", "comment=go",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
-	returned = _run(capsys, path, "say", f"thread={created["thread"]}",
-	                "body=done", "pass-to=lang.rev", "phase=review",
+	returned = _run(capsys, path, "pass", f"work={created["work_id"]}",
+	                "to=lang.rev", "phase=review",
+	                f"thread={created["thread"]}", "comment=done",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return", \
 		"the CLI lost the audited return distinction"

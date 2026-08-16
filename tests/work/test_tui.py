@@ -44,7 +44,7 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	# Trial finding 26de18dd-W2: initial-capital header labels.
 	# W71: Prog/Dep left the table — containment shows as indentation,
 	# graph counts live in details/links.
-	for column in ("St", "Ready", "Current", "Next", "New"):
+	for column in ("St", "Current", "Next", "New"):
 		assert column in header
 	assert "Prog" not in header and "Dep " not in header
 	assert "TITLE" not in header and "READY" not in header
@@ -92,13 +92,15 @@ def test_the_thread_view_shows_the_timeline_and_planned_next(world):
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
 		(b"j", 0.3), (b"j", 0.3),     # select ↳ step_fix in the tree
 		(b"\r", 0.6),                 # Enter opens its DETAIL (W71)
+		(b"\x17j", 0.4),              # W14: the Message index
+		(b"j", 0.5),                  # select the pass message
 		(b"qy", 0.4),
 	])
-	detail = ptyharness.replay(steps[2])
-	flat = "\n".join(detail)
+	flat = "\n".join(ptyharness.replay(steps[2]))
 	assert "next lang.rev" in flat, \
-		f"the planned Next is not shown: {[l for l in detail if l][:6]}"
-	assert "take it" in flat, "the thread body is not drawn"
+		f"the planned Next is not shown: {flat[:300]}"
+	selected = "\n".join(ptyharness.replay(steps[4]))
+	assert "take it" in selected, "the selected body is not drawn"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -178,9 +180,11 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
+		(b"\x17j", 0.4),              # W14: the Message index
+		(b"j", 0.5),                  # the reference-carrying message
 		(b"qy", 0.4),
 	])
-	flat = "\n".join(ptyharness.replay(steps[0]))
+	flat = "\n".join(ptyharness.replay(steps[2]))
 	assert f"binding {json_binding} r1" in flat, \
 		f"the console does not render the binding: {flat[:300]}"
 	assert "Refs:" in flat, "the Refs section is missing"
@@ -195,7 +199,9 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	and identities are never squeezed into ambiguity."""
 	from baton_work.tui import app
 	path, _cast = world
-	narrow = 72
+	# W39 removed the Ready column, so the budget tightens later: 68
+	# is the first interesting narrow width now.
+	narrow = 68
 	columns = [name for name, _w in app.visible_columns(narrow)]
 	assert "CLS" not in columns, "the lowest-priority column survived"
 	assert {"ST", "CURRENT", "NEXT", "NEW"} <= set(columns)

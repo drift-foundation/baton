@@ -41,3 +41,24 @@ ruling.
 The old `AGENTS.md` policy remains active until the checkpoint is complete.
 Changing it early would leave agents following the new rule while active Work
 and references still use the old one.
+
+## Observed cutover defect — 2026-08-16 13:57Z
+
+The first production recreation run committed all five `create_work`
+operations, then failed while parking the fifth item. `recreate-work.sh` used
+`baton.claude` for every operation, but the accepted configuration routes
+`baton.feat` to `rview`, whose resolved handler is `baton.codex`. Creation by
+the initiating member was valid; the subsequent phase mutation was correctly
+refused because contribution does not grant workflow authority.
+
+The recreation script must perform the parked transition as the configured
+review handler. Its stable operation ids make the interrupted run resumable:
+rerunning must replay the five creates and commit only the outstanding phase
+operation, without duplicating Work.
+
+## Confirmed cutover result — 2026-08-16
+
+After correcting the phase actor, the resumed production run reported all
+five creates as `replayed` and committed `w92-park-wsearch` as `baton.codex`
+at authority sequence 7. The fresh authority therefore contains exactly the
+intended five Work items, including one parked item, without duplicated Work.

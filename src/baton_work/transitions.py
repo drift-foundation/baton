@@ -49,6 +49,9 @@ PHASES = ("queued", "research", "waiting", "active", "review", "parked")
 CREATION_PHASES = ("queued", "research", "active", "review")
 # WS-2 ruling: every terminal close records exactly one of these.
 OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
+# W3 (ruled): exactly three team-local priority tiers — deliberately no
+# urgent, numeric, or finer grading; extra levels destroy the signal.
+PRIORITIES = ("high", "normal", "low")
 # WS-2 verification vocabulary (ruled): the verifier's raw observation and
 # the provider reviewer's separate assessment — two immutable axes.
 OBSERVATIONS = ("passed", "failed", "unable")
@@ -62,6 +65,42 @@ def _work(store: Authority, work_id: str) -> sqlite3.Row:
 	if row is None:
 		raise WorkError(f"no work {work_id!r}")
 	return row
+
+
+# W4 (ruled): the two accepted Work spellings — the canonical qualified
+# id and the exact authority-local `W<positive-sequence>` selector. Like
+# a short Git object name, the selector is a CONVENIENCE over canonical
+# identity, never a second identity: generated from the permanent Work
+# sequence, unique and never reused within an authority.
+import re as _sel_re
+_LOCAL_SELECTOR = _sel_re.compile(r"^W[1-9][0-9]*$")
+_CANONICAL_WORK = _sel_re.compile(r"^[0-9a-f]{8}-W[1-9][0-9]*$")
+
+
+def resolve_work_selector(store: Authority, value) -> str:
+	"""THE one strict Work-selector resolver, scoped to the ONE
+	authority this client explicitly opened. `W<seq>` qualifies against
+	that authority; a canonical id must already belong to it (a foreign
+	id refuses by name). Anything else — malformed, empty, partial —
+	refuses without guessing: never from title, cursor position,
+	creation order, or a match that could name more than one object.
+	The resolver fixes IDENTITY only; existence is judged by the
+	lookup that follows, so a well-formed absent selector still gets
+	the honest `no work` refusal."""
+	prefix = store.meta()["authority_uuid"][:8]
+	if isinstance(value, str) and _LOCAL_SELECTOR.match(value):
+		return f"{prefix}-{value}"
+	if isinstance(value, str) and _CANONICAL_WORK.match(value):
+		if not value.startswith(prefix + "-"):
+			raise WorkError(
+				f"{value!r} names a different authority; this client "
+				f"is bound to {prefix} and never resolves across "
+				f"instances")
+		return value
+	raise WorkError(
+		f"{value!r} is not a Work selector; use the authority-local "
+		f"W<sequence> (for example W11) or the canonical "
+		f"<authority>-W<sequence> id")
 
 
 def _endpoint(store: Authority, team: str, kind: str, what: str) -> None:
@@ -463,7 +502,7 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
                 phase: str | None = None,
                 follow_up_of: str | None = None,
                 binding: str | None = None,
-                op_id: str | None = None, refs=()) -> dict:
+                op_id: str | None = None, refs=(), priority: str | None = None) -> dict:
 	"""A Work and its first message, atomically — creation must be cheap or
 	mandatory Work scope becomes authoring ceremony (confirmed behavior).
 
@@ -551,9 +590,17 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 			                f"follow-up work instead")
 
 	prefix = store.meta()["authority_uuid"][:8]
+	# W3: priority may be recorded atomically at birth; omission is the
+	# natural normal default, never a distinct state.
+	if priority is None:
+		priority = "normal"
+	if priority not in PRIORITIES:
+		raise WorkError(f"priority {priority!r} is not one of "
+		                f"{PRIORITIES}")
 	payload = {"team": team, "kind": kind, "title": title,
 	           "origin": origin, "parent": parent,
 	           "classification": classification, "phase": phase,
+	           "priority": priority,
 	           "follow_up_of": follow_up_of}
 
 	def mutate(conn, seq):
@@ -584,10 +631,12 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 		conn.execute(
 			"INSERT INTO work (id, team, title, origin, classification, "
 			"phase, status, parent, current_team, current_kind, ready, "
+			"priority, "
 			"follow_up_of, created_seq, last_change_seq, last_changed_at) "
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)",
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)",
 			(work_id, team, title, origin, classification, phase, OPEN,
-			 parent, team, kind, follow_up_of, seq, seq, clock_ms_now()))
+			 parent, team, kind, priority, follow_up_of, seq, seq,
+			 clock_ms_now()))
 		thread_id = f"{prefix}-T{seq}"
 		# The born Thread's subject is the Work's title — the one
 		# conversation a creation opens is ABOUT that Work.
@@ -952,6 +1001,112 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 
 
 # -- WS-1: public classification and operational phase -----------------------
+
+def heartbeat(store: Authority, work_id: str, *, actor_team: str,
+              actor: str, op_id: str | None = None, refs=()) -> dict:
+	"""W47: the deliberate claimant liveness beat — an audited generic
+	event, never an automatic assertion of client presence. Authorized
+	STRICTER than route membership: only the exact recorded active
+	claimant commits it, rechecked inside the committing transaction
+	(a release/pass/close winning the race refuses the beat without an
+	event). The beat deliberately avoids `_touch_work`: it is not a
+	semantic Work change — no reorder, no change identity, no phase,
+	no message, no claim-age reset. Exact op-id retries replay."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "heartbeat", op_id,
+	                       {"work": work_id, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	row = _work(store, work_id)
+	claimant = f"{actor_team}.{actor}"
+	if row["status"] != OPEN:
+		raise WorkError(f"{work_id} is {row['status']}; a closed work "
+		                f"has no claim to keep alive")
+	if row["active_team"] is None:
+		raise WorkError(f"{work_id} is unclaimed; a heartbeat asserts "
+		                f"the CURRENT claim and nothing else")
+	recorded = f"{row['active_team']}.{row['active_member']}"
+	if recorded != claimant:
+		raise WorkError(
+			f"{work_id} is claimed by {recorded}; only the exact "
+			f"current claimant heartbeats — route membership never "
+			f"suffices")
+
+	payload = {"work": work_id, "claimant": claimant}
+
+	def mutate(conn, seq):
+		live = conn.execute(
+			"SELECT status, active_team, active_member FROM work "
+			"WHERE id=?", (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; a closed "
+			                f"work has no claim to keep alive")
+		if live["active_team"] is None or \
+				f"{live['active_team']}.{live['active_member']}" \
+				!= claimant:
+			raise WorkError(
+				f"{work_id} is no longer claimed by {claimant}; the "
+				f"racing transition won and the beat records nothing")
+		# Deliberately NO _touch_work and no row update: the audited
+		# event is the whole record.
+
+	return store._write("heartbeat", claimant, payload, mutate,
+	                    operation=operation, references=refs)
+
+
+def prioritize(store: Authority, work_id: str, *, actor_team: str,
+               actor: str, priority: str, op_id: str | None = None,
+               refs=()) -> dict:
+	"""W3: the audited, effectively-once priority revision. Priority is
+	OWNING-team authority: any configured member of the Work's owning
+	team may revise it, independent of the Current route, claimant,
+	phase, and readiness — and members of other teams may discuss
+	urgency in a Thread but never reprioritize here. An ordering signal
+	only: readiness, dependencies, Current/Next, phase, status, and
+	closure are untouched. Closed Work refuses; a same-value change
+	refuses (an exact op-id retry replays)."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "prioritize", op_id,
+	                       {"work": work_id, "priority": priority,
+	                        "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	row = _work(store, work_id)
+	if priority not in PRIORITIES:
+		raise WorkError(f"priority {priority!r} is not one of "
+		                f"{PRIORITIES}")
+
+	if actor_team != row["team"]:
+		raise WorkError(
+			f"{work_id} belongs to team {row['team']!r}; priority is "
+			f"owning-team authority — other teams discuss urgency in "
+			f"a Thread, they do not reprioritize")
+	if row["status"] != OPEN:
+		raise WorkError(f"{work_id} is {row['status']}; a closed work "
+		                f"refuses priority changes; closure is terminal")
+
+	payload = {"work": work_id, "from": row["priority"], "to": priority}
+
+	def mutate(conn, seq):
+		live = conn.execute(
+			"SELECT status, priority FROM work WHERE id=?",
+			(work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; a closed "
+			                f"work refuses priority changes; closure "
+			                f"is terminal")
+		if live["priority"] == priority:
+			raise WorkError(f"{work_id} is already {priority} priority")
+		payload["from"] = live["priority"]
+		conn.execute("UPDATE work SET priority=? WHERE id=?",
+		             (priority, work_id))
+		_touch_work(conn, work_id)
+
+	return store._write("prioritize", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, references=refs)
+
 
 def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
              classification: str, op_id: str | None = None, refs=()) -> dict:

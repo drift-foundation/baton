@@ -1,5 +1,8 @@
 """W84: the hot-zone attention cue — a slow terminal blink on ONLY the
-phase/status cell of operationally hot Work.
+phase/status cell of operationally hot Work. (W33 later REMOVED the
+indefinite hot-state blink — the surviving pins here are the canonical
+hot predicate, presentation purity, and the no-blink guarantees; the
+final cue suite lives in test_w23_bold_title / test_w33_claim_age.)
 
 The ruled hot zone (finding-tui-recent-work-cue, superseding rule +
 presentation clarification): any open Work with a non-null active
@@ -156,42 +159,6 @@ def test_the_cue_reads_no_clock_and_writes_nothing(world):
 	           "ready": True}
 	assert hot_work(minimal), \
 		"the cue needed more than canonical row state"
-
-
-def test_blink_lands_on_the_phase_cell_only(tmp_path):
-	"""PTY: hot rows emit the blink SGR immediately before the
-	phase-cell text (`actve`/`rview`) and nowhere else; multiple hot
-	rows all animate; the authoritative textual state still renders."""
-	import pty as _pty
-	if not hasattr(_pty, "fork"):
-		pytest.skip("no pty")
-	import ptyharness
-	config, database = fx.build_instance(
-		str(tmp_path), {"lang": {"members": {"ada": ["dev"]},
-		                "kinds": ["bug"]}})
-	store = Authority(database)
-	claimed = make(store, title="executing")
-	tr.claim_work(store, claimed, actor_team="lang", actor="ada")
-	tr.set_phase(store, claimed, actor_team="lang", actor="ada",
-	             phase="active")
-	review = make(store, title="reviewable")
-	tr.set_phase(store, review, actor_team="lang", actor="ada",
-	             phase="review")
-	cold = make(store, title="idle")
-	store.close()
-	text, status, steps = ptyharness.drive(config, "lang.ada", [
-		(b"", 0.6), (b"qy", 0.4)])
-	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	screen = ptyharness.replay(steps[0])
-	table = [line for line in screen if "executing" in line
-	         or "reviewable" in line or "idle" in line]
-	assert len(table) == 3, screen[:8]
-	# the authoritative textual facts stay, blink or not
-	assert any("actve" in line for line in table)
-	assert any("rview" in line for line in table)
-	blinked = re.findall(BLINK_BEFORE + r"([a-z-]+)", steps[0])
-	assert sorted(set(blinked)) == ["actve", "rview"], \
-		f"blink landed on {sorted(set(blinked))!r}"
 
 
 def test_cold_tables_never_emit_blink(tmp_path):

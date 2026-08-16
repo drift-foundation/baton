@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import curses
 import shlex
+import time as _time
 import uuid
 
 from baton_work.authority import Authority, WorkError
@@ -35,8 +36,9 @@ from baton_work import transitions
 # identity is never abbreviated (6/6 rule makes them fit by construction).
 # Gate B: the set is exactly the canonical projection's row fields — the
 # renderer formats them and never aggregates or invents a value.
-COLUMNS = (("ST", 6), ("PHASE", 5), ("CLS", 5), ("MSG/MY", 7),
-           ("READY", 5), ("CURRENT", 13), ("NEXT", 13), ("NEW", 4))
+COLUMNS = (("ST", 6), ("PR", 2), ("PHASE", 5), ("CLS", 5),
+           ("MSG/MY", 7), ("CURRENT", 13), ("NEXT", 13), ("NEW", 4),
+           ("AGE", 6))
 
 # Header LABELS where plain capitalize() would miscase a compound name —
 # plus the ruled `Cat` display label for the classification column
@@ -49,7 +51,9 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat"}
 # ambiguity — identities and counters are drawn whole or not at all. The
 # title keeps a minimum working width; below the minimum the table REFUSES
 # with an explicit too-narrow line instead of truncating identities.
-DROP_ORDER = ("CLS", "PHASE", "MSG/MY", "READY", "NEXT")
+# W3 (ruled): Pr is the FIRST whole column omitted under width
+# pressure, preserving every previously existing narrow layout.
+DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "AGE", "NEXT")
 MIN_TITLE = 10
 
 # One bounded page of a Work's thread SET (prototype size): `n` pages
@@ -123,23 +127,137 @@ def hot_work(row: dict) -> bool:
 		or (row["phase"] == "review" and row["ready"]))
 
 
-def visible_columns(width: int):
+def actionable_work(row: dict, viewer_team: str,
+                    viewer_member: str) -> bool:
+	"""W81 (superseding the global hot-zone bold): bold Title is
+	PERSONAL actionability — "what am I supposed to handle?" — true
+	exactly when:
+	- this viewer holds the row's active claim; or
+	- the Work is open, ready, unclaimed, not waiting/parked, and its
+	  Current endpoint resolves to this viewer (every eligible handler
+	  of a multi-handler Current sees it until one claims; after the
+	  claim only the winner keeps the cue); or
+	- this viewer has an unresolved directed @ obligation on the Work
+	  (independently actionable even while blocked).
+	Everyone else's activity stays visible through Phase, Current, and
+	claim Age. Pure row facts in, presentation out — no authority
+	read, no authorization change."""
+	active = row.get("active")
+	if active and active.get("team") == viewer_team and \
+			active.get("member") == viewer_member:
+		return True
+	if row.get("my_pending_obligations"):
+		return True
+	current = row.get("current")
+	return (row.get("status") == "open"
+	        and bool(row.get("ready"))
+	        and active is None
+	        and row.get("phase") not in ("waiting", "parked")
+	        and current is not None
+	        and current["endpoint"].split(".", 1)[0] == viewer_team
+	        and viewer_member in (current.get("handlers") or ()))
+
+
+def visible_columns(width: int, id_width: int = 0):
 	"""The column set that fits `width`, dropping DROP_ORDER members until
 	the title keeps MIN_TITLE cells. Shared with the parity suite so the
-	two surfaces can never disagree about the layout."""
+	two surfaces can never disagree about the layout. `id_width` is the
+	W4 leading Id column (plus its separator) the budget must carry —
+	the Id itself is identity and is never dropped or truncated."""
+	lead = id_width + 1 if id_width else 0
 	columns = list(COLUMNS)
 	for name in DROP_ORDER:
 		fixed = sum(w for _n, w in columns) + len(columns)
-		if width - fixed - 1 >= MIN_TITLE:
+		if width - fixed - lead - 1 >= MIN_TITLE:
 			break
 		columns = [entry for entry in columns if entry[0] != name]
 	return tuple(columns)
 
 
-def layout_fits(width: int) -> bool:
-	columns = visible_columns(width)
+def age_cell(claimed_at, now) -> str:
+	"""W33: the final Age display — elapsed time since the CURRENT
+	claim committed, derived client-side from the canonical claimed_at
+	and the local clock. One fixed five-cell value: MM:SS below one
+	hour, HH:MM through 99 hours, `99h+` beyond, `-` with no current
+	claim. Clock corrections clamp to zero; never a second scheduler
+	and never an extra authority read."""
+	if claimed_at is None:
+		return "-"
+	import datetime as _dt
+	stamp = _dt.datetime.fromisoformat(
+		claimed_at.replace("Z", "+00:00")).timestamp()
+	elapsed = max(0, int(now - stamp))
+	if elapsed < 3600:
+		return f"{elapsed // 60:02d}:{elapsed % 60:02d}"
+	hours = elapsed // 3600
+	if hours <= 99:
+		return f"{hours:02d}:{(elapsed % 3600) // 60:02d}"
+	return "99h+"
+
+
+# W47 (protocol-fixed): two-minute cadence, three missed beats — six
+# minutes without a successful heartbeat shows the informational alert.
+STALL_AFTER_SECONDS = 360
+
+
+def age_field(claimed_at, heartbeat_at, now) -> str:
+	"""W47: the six-cell reserved Age field — the claim timer plus the
+	liveness suffix: a trailing space while healthy, `!` once six
+	minutes pass without a successful beat (the claim itself is the
+	first beat), cleared by the next beat. Informational ONLY: a stale
+	suffix never releases, transfers, rephases, or permits a second
+	claimant. Clock corrections clamp healthy."""
+	timer = age_cell(claimed_at, now)
+	if claimed_at is None:
+		return timer
+	import datetime as _dt
+	last_beat = heartbeat_at or claimed_at
+	stamp = _dt.datetime.fromisoformat(
+		last_beat.replace("Z", "+00:00")).timestamp()
+	silent = max(0, int(now - stamp))
+	return timer + ("!" if silent >= STALL_AFTER_SECONDS else " ")
+
+
+def blocker_cue(row: dict) -> str:
+	"""W39: the inline dependency cue — `← Wn` names the deterministic
+	first OPEN blocker (canonical projection data, the reviewed W4
+	selector identity), `+N` counts the remaining open blockers. Empty
+	when nothing open blocks the row: a boolean hid the gate's
+	identity; the arrow explains what must finish. A dependency is a
+	graph edge, never a containment child — the `↳` marker is a
+	different fact and stays untouched."""
+	first = row.get("first_open_blocker")
+	if not first:
+		return ""
+	more = row["open_blockers"] - 1
+	return f"← {first}" + (f" +{more}" if more > 0 else "")
+
+
+def cue_column_width(rows) -> int:
+	"""W39: the dependency-cue column width — the longest visible cue,
+	whole or absent (0): narrow layouts omit the field entirely, never
+	clip or relabel it."""
+	return max((len(blocker_cue(row)) for row in rows), default=0)
+
+
+def id_column_width(rows) -> int:
+	"""W4: the exact leading Id column width — grown to the longest
+	visible local selector (W100, W1000, ...), NEVER truncating
+	identity. Shared with the parity suite so the two surfaces cannot
+	disagree about the layout."""
+	longest = max((len(row.get("local_id") or "") for row in rows),
+	              default=0)
+	return max(2, longest)
+
+
+def layout_fits(width: int, id_width: int = 0) -> bool:
+	"""W4 R2: the fit judgment carries the VISIBLE Id column — identity
+	is never truncated, and its growth may never silently clip the
+	mandatory tail either; past the budget the table refuses whole."""
+	lead = id_width + 1 if id_width else 0
+	columns = visible_columns(width, id_width)
 	fixed = sum(w for _n, w in columns) + len(columns)
-	return width - fixed - 1 >= MIN_TITLE
+	return width - fixed - lead - 1 >= MIN_TITLE
 
 
 # WS-1 approved compact vocabulary — PRESENTATION ONLY, capped at five
@@ -150,6 +268,18 @@ PHASE_COMPACT = {"queued": "queue", "research": "rsrch", "waiting": "wait",
                  "active": "actve", "review": "rview", "parked": "park"}
 # W6 (ruled): confirmed-defect reads `defct` — cnfrm did not express
 # the classification. Presentation only; canonical values unchanged.
+# W3 (ruled): the two-cell compact priority — presentation only; the
+# canonical values and every mutation input stay the full strings.
+PRIORITY_COMPACT = {"high": "Hi", "normal": "No", "low": "Lo"}
+
+
+def compact_priority(value: str) -> str:
+	if value not in PRIORITY_COMPACT:
+		raise ValueError(f"priority {value!r} has no ruled compact "
+		                 f"rendering")
+	return PRIORITY_COMPACT[value]
+
+
 CLASSIFICATION_COMPACT = {"unknown": "unkwn", "suspected-defect": "suspt",
                           "confirmed-defect": "defct",
                           "limitation": "limit", "duplicate": "dupe",
@@ -237,63 +367,10 @@ def format_message(message: dict, width: int) -> list[str]:
 	return lines
 
 
-def paint_messages(screen, top: int, budget: int, width: int,
-                   messages, skip: int = 0) -> dict:
-	"""Paint formatted blocks into `budget` lines. Whole blocks only —
-	EXCEPT the first message, which may continue across pages via
-	`skip` (R1: a message taller than the viewport stays readable).
-	Returns the honest seen bound: `painted_last` names a message only
-	once its FINAL line has actually been painted — a clipped block or
-	an unfinished continuation never counts.
-
-	  painted_last  seq eligible for the explicit seen mark, or None
-	  next_skip     None, or the skip cursor for the next `n` page of
-	                the still-unfinished first message"""
-	row = top
-	painted_last = None
-	more_below = False
-	for index, message in enumerate(messages):
-		block = format_message(message, width)
-		attribute = curses.A_BOLD if message.get("new") else 0
-		if index == 0 and (skip or len(block) > budget):
-			# The continuation path: paint what fits from the skip
-			# cursor; a compact header that survives narrow panes tags
-			# the same message.
-			visible = block[skip:]
-			if skip:
-				visible = [f"#{message['seq']} (cont.)"] + visible
-			take = min(len(visible), top + budget - row)
-			if take <= 0:
-				return {"painted_last": None, "next_skip": skip}
-			for offset, text in enumerate(visible[:take]):
-				screen.addnstr(row + offset, 0, text, width - 1,
-				               attribute if offset == 0 else 0)
-			row += take
-			consumed = take - (1 if skip else 0)
-			if skip + consumed < len(block):
-				return {"painted_last": None,
-				        "next_skip": skip + consumed,
-				        "more_below": True}
-			painted_last = message["seq"]
-			continue
-		if row + len(block) > top + budget:
-			# R1 (W71 review): a LATER fetched block did not fit — the
-			# page is not "everything"; the more-state and `n` must
-			# both know, and the clipped block is never counted seen.
-			more_below = True
-			break
-		screen.addnstr(row, 0, block[0], width - 1, attribute)
-		for offset, text in enumerate(block[1:], start=1):
-			screen.addnstr(row + offset, 0, text, width - 1)
-		row += len(block)
-		painted_last = message["seq"]
-	return {"painted_last": painted_last, "next_skip": None,
-	        "more_below": more_below}
-
-
 class Console:
 	def __init__(self, store: Authority, viewer_team: str,
-	             viewer_member: str, config_path: str | None = None):
+	             viewer_member: str, config_path: str | None = None,
+	             work_filter: dict | None = None):
 		self.store = store
 		self.team = viewer_team
 		self.member = viewer_member
@@ -319,17 +396,53 @@ class Console:
 		self.focus = "threads"
 		self.detail_work: str | None = None
 		self.ctrl_w_pending = False
-		self.viewed_last_seq: int | None = None
 		self.thread_after = 0
-		# R1: intra-message continuation cursors — lines of the current
-		# first block already shown on earlier pages.
-		self.thread_skip = 0
-
-		# R4: a skip is a LINE index into the block wrapped at one
-		# specific width — each cursor remembers that width and resets
-		# to zero when the terminal changes, so a resize can repeat
-		# content but can never omit it or fake a full paint.
-		self.thread_skip_width: int | None = None
+		# W14: the Message-index cursor — the chosen message's
+		# existing stable seq (never an invented identifier), preserved
+		# across refresh, paging, and resize while the message remains
+		# on the page; None asks for the new-first autoselect.
+		self.msg_cursor: int | None = None
+		# W14: the reader's scroll cursor — a LINE index into the
+		# selected block wrapped at one specific width; it remembers
+		# that width and resets when the terminal changes, so a resize
+		# can repeat content but never omit it or fake a full paint.
+		self.reader_skip = 0
+		self.reader_skip_width: int | None = None
+		self.reader_clipped = False
+		self.viewed_seqs: list[int] = []
+		self.viewed_next_after: int | None = None
+		self.msg_seek = True
+		# W33: the ephemeral phase-CHANGE attention state — client-
+		# local only, never persisted; reconnect starts cold. The
+		# baseline is the first loaded snapshot (blinks nothing);
+		# a later genuine Phase change arms that row's cell for THREE
+		# scheduled refresh ticks. Only tick() consumes.
+		self.phase_baseline: dict | None = None
+		self.phase_blink: dict[str, int] = {}
+		# W5: the client-local view filter — normalized {field: value}
+		# in the canonical order, or None. Startup operands and the
+		# interactive :filter command share ONE grammar and land here;
+		# it never mutates authority state or another session's view,
+		# and it does not survive restart unless supplied on launch.
+		self.work_filter: dict | None = work_filter
+		# W6: the slash search — typing is PURE client state (no
+		# authority read per keystroke); Enter submits one canonical
+		# search; Esc restores the exact prior table state. The result
+		# mode reuses the ordinary refresh/cache path and anchors
+		# selection by Work id.
+		self.search_input: str | None = None
+		self.search_query: str | None = None
+		self.search_after = 0
+		self.search_next: int | None = None
+		self.search_page = 1
+		self.search_limit = 100
+		self.search_saved: tuple | None = None
+		self.detail_return = "table"
+		# W33 R1: a timer tick only OWES a consumption — the cycle is
+		# spent by the SUCCESSFUL scheduled canonical read that
+		# follows, never by the tick alone (a failed read spends
+		# nothing the operator never saw).
+		self.tick_owed = False
 
 		self.command: str | None = None  # the `:` command-bar buffer
 		# W9: the one-row exit confirmation — q asks, y answers.
@@ -379,7 +492,13 @@ class Console:
 	def tick(self) -> None:
 		"""The timer tick — a PRODUCER on the one refresh path: the
 		next paint re-reads. Read-only; no seen mark, no transition,
-		no cursor decision lives here."""
+		no cursor decision lives here. W33 R1: the tick only marks a
+		consumption as OWED — the phase-change countdown is spent by
+		the successful scheduled canonical read that follows, so a
+		failed read spends nothing, keystrokes/redraws/resize/mutation
+		refreshes spend nothing, and a coalesced timer+mutation
+		refresh spends exactly one."""
+		self.tick_owed = True
 		self.schedule_refresh()
 
 
@@ -396,19 +515,87 @@ class Console:
 		# can never mix two authority states, and JSON `tree` returns
 		# the identical result.
 		root_id = self.path[-1] if self.path else None
-		window = self._cached(("tree", root_id),
+		# W5: the filter is part of the canonical query — the cache key
+		# carries it, and the projection returns the filtered window
+		# plus its normalized disclosure.
+		filter_key = tuple(sorted((self.work_filter or {}).items()))
+		window = self._cached(("tree", root_id, filter_key),
 		                      lambda: projection.tree(
 			self.store, root_id, viewer_team=self.team,
-			viewer_member=self.member))
+			viewer_member=self.member,
+			work_filter=self.work_filter))
 		return list(window["rows"]), window["summary"]
 
+	def search_rows(self) -> list[dict]:
+		"""The accepted search through the SAME cache/refresh path the
+		table uses — the timer tick invalidates, keystrokes serve from
+		cache, and the id anchor keeps selection stable. W6 R1: paging
+		operates on the console's EFFECTIVE visible universe — while
+		closed Work is hidden and no explicit status filter overrides
+		it, the search itself constrains to status=open, so hidden
+		closed matches can never consume a page or distort its counts;
+		exposing closed rows (z) or filtering status=closed lifts the
+		constraint. JSON's canonical all-status result is untouched."""
+		effective = dict(self.work_filter or {})
+		if not self.show_closed and "status" not in effective:
+			effective["status"] = "open"
+		effective = effective or None
+		filter_key = tuple(sorted((effective or {}).items()))
+		window = self._cached(
+			("search", self.search_query, self.search_after,
+			 filter_key),
+			lambda: projection.search(
+				self.store, self.search_query,
+				viewer_team=self.team, viewer_member=self.member,
+				work_filter=effective,
+				after=self.search_after, limit=self.search_limit))
+		self.search_next = window["next_after"]
+		return list(window["rows"])
+
 	def rows(self) -> list[dict]:
-		return self.view()[0]
+		# W33 R1: consumption is bound to the SUCCESSFUL scheduled
+		# canonical read. A pending tick (tick_owed) plus a due
+		# refresh means THIS fetch is that read — if it raises,
+		# nothing below runs and no cycle is spent; a coalesced
+		# timer+mutation refresh spends exactly one; a mutation-only
+		# refresh (no owed tick) spends none.
+		owed = self.refresh_due and self.tick_owed
+		rows = self.view()[0]
+		if owed:
+			self.phase_blink = {work_id: remaining - 1
+			                    for work_id, remaining
+			                    in self.phase_blink.items()
+			                    if remaining > 1}
+			self.tick_owed = False
+		self._observe_phases(rows)
+		return rows
+
+	def _observe_phases(self, rows) -> None:
+		"""W33: compare the freshly painted window against the last
+		observed baseline. The FIRST snapshot only establishes the
+		baseline (initial load and reconnect are cold). A genuine
+		Phase change arms (or re-arms) that row's three-tick blink;
+		an unchanged window arms nothing, so cached repaints and
+		no-op refreshes are naturally inert."""
+		seen = {row["id"]: row["phase"] for row in rows}
+		if self.phase_baseline is None:
+			self.phase_baseline = seen
+			return
+		for work_id, phase in seen.items():
+			if work_id in self.phase_baseline and \
+					self.phase_baseline[work_id] != phase:
+				self.phase_blink[work_id] = 3
+		self.phase_baseline.update(seen)
 
 	def visible_rows(self, rows: list[dict]) -> tuple[list[dict], int]:
 		"""(rows to draw, hidden closed count) — the collapse is pure
-		presentation over the projection's own status values."""
-		if self.show_closed:
+		presentation over the projection's own status values. W5 R1: an
+		EXPLICIT status=closed filter reveals the rows it selected —
+		the default collapse would erase the filter's whole answer (and
+		its open context parents); the ordinary collapse applies
+		whenever no status filter requests closed Work."""
+		if self.show_closed or \
+				(self.work_filter or {}).get("status") == "closed":
 			return rows, 0
 		visible = [row for row in rows if row["status"] == "open"]
 		return visible, len(rows) - len(visible)
@@ -427,16 +614,23 @@ class Console:
 		return page["rows"]
 
 	def breadcrumb_text(self, summary: dict) -> str:
-		# Actionable state on the same line, FROM the projection: the count
-		# a member acts on is never derived here (parity holds it equal to
-		# the JSON obligations list).
-		pending = len(self._cached(
-			("obligations",), lambda: projection.obligations(
-				self.store, viewer_team=self.team)))
-		# The parked count is ALWAYS visible (WS-1 ruling): parked work has
-		# no wake condition, so it stays in the operators' faces.
+		# W136: the header's oblig/due are the VIEWER'S actionable
+		# counts — from the same participant projection wait consumes,
+		# never the whole team's load (parity holds them equal to the
+		# JSON facts). The parked count stays deliberately TEAM-wide
+		# and always visible (WS-1 ruling): parked work has no wake
+		# condition, so it stays in the operators' faces.
+		mine = self._cached(
+			("participant_actions",),
+			lambda: projection.participant_actions(
+				self.store, viewer_team=self.team,
+				viewer_member=self.member))["actions"]
+		pending = sum(1 for action in mine
+		              if action["kind"] == "obligation")
+		due = sum(1 for action in mine
+		          if action["kind"] == "due_round")
 		suffix = (f"  [oblig:{pending}] [park:{summary['parked']}]"
-		          f" [due:{summary['due']}]")
+		          f" [due:{due}]")
 		# W71: the DETAIL view identifies its Work with the real
 		# containment breadcrumb.
 		if self.mode == "detail" and self.detail_work is not None:
@@ -460,13 +654,28 @@ class Console:
 	def render(self, screen) -> None:
 		screen.erase()
 		height, width = screen.getmaxyx()
-		rows, summary = (self.view() if self.mode == "table"
-		                 else ([], self._cached(
-		                     ("summary",),
-		                     lambda: projection.team_summary(
-			self.store, viewer_team=self.team))))
+		if self.mode == "table":
+			rows, summary = self.view()
+		elif self.mode == "search":
+			rows = self.search_rows()
+			summary = self._cached(
+				("summary",),
+				lambda: projection.team_summary(
+					self.store, viewer_team=self.team))
+		else:
+			rows, summary = [], self._cached(
+				("summary",),
+				lambda: projection.team_summary(
+					self.store, viewer_team=self.team))
 		screen.addnstr(0, 0, self.breadcrumb_text(summary), width - 1,
 		               curses.A_BOLD)
+		if self.work_filter:
+			# W5 (ruled): active filtering is ALWAYS disclosed — the
+			# clause count overdraws RIGHT-aligned so no narrow width
+			# can clip it away.
+			tag = f"Filter:{len(self.work_filter)}"
+			screen.addnstr(0, max(0, width - 1 - len(tag)), tag,
+			               width - 1, curses.A_BOLD)
 		if self.mode == "detail":
 			# W71 (ruled, superseding the main-screen split): the Work
 			# detail view — Threads above, the selected Thread's
@@ -474,14 +683,59 @@ class Console:
 			self._render_detail(screen, height, width)
 		elif self.mode == "links":
 			self._render_links(screen, height, width)
+		elif self.mode == "search":
+			# W6: the flat result table — ordinary row facts, the
+			# closed-visibility rule, and a footer naming the result
+			# page and controls.
+			visible, _hidden = self.visible_rows(rows)
+			more = "  (n: more)" if self.search_next is not None \
+				else ""
+			# R3: the bounded truth — a page label and the SHOWN
+			# count, never a page count masquerading as a total.
+			screen.addnstr(1, 0,
+			               f"search: {self.search_query} — page "
+			               f"{self.search_page} · {len(visible)} "
+			               f"shown{more}",
+			               width - 1, curses.A_DIM)
+			if visible:
+				self._render_table(screen, height, width, rows,
+				                   top=2)
+			else:
+				screen.addnstr(3, 0,
+				               f"(no matches for "
+				               f"{self.search_query!r})", width - 1)
+			screen.addnstr(
+				height - 2, 0,
+				"j/k select · Enter details · / new query · "
+				"n/p page · Esc back", width - 1)
 		else:
-			self._render_table(screen, height, width, rows)
+			table_top = 1
+			if self.work_filter:
+				# The dedicated normalized-clause line; horizontally
+				# viewported at narrow widths, never silently dropped.
+				clauses = "filter: " + self._filter_clauses()
+				if len(clauses) > width - 1:
+					clauses = clauses[:max(0, width - 2)] + "…"
+				screen.addnstr(1, 0, clauses, width - 1, curses.A_DIM)
+				table_top = 2
+			self._render_table(screen, height, width, rows,
+			                   top=table_top)
 		caret = None
 		if self.confirm_exit:
 			# One row, drawn whole at any width the console accepts.
 			screen.addnstr(height - 1, 0, "Exit? y/N", width - 1)
 		elif self.batch is not None:
 			caret = self._render_batch(screen, height, width)
+		elif self.search_input is not None:
+			typed = "/" + self.search_input
+			avail = width - 1
+			if len(typed) < avail:
+				screen.addnstr(height - 1, 0, typed, avail)
+				caret = (height - 1, len(typed))
+			else:
+				tail = typed[len(typed) - (avail - 2):]
+				screen.addnstr(height - 1, 0, "<" + tail, avail)
+				caret = (height - 1, 1 + len(tail))
 		elif self.command is not None:
 			# W14: the input owns the row, with a VISIBLE caret at the
 			# insertion point. When it fits, the assistance renders DIM
@@ -497,7 +751,15 @@ class Console:
 				screen.addnstr(height - 1, 0, typed, avail)
 				room = avail - len(typed) - 2
 				if room >= 8:
-					hint = assist_text(self.command)
+					if self.command.strip() == "filter" and \
+							self.work_filter:
+						# W5 (ruled): command entry exposes the
+						# current clauses — SPACE seeds them into the
+						# buffer for editing; bare Enter clears.
+						hint = ("current: " + self._filter_clauses()
+						        + " · space edits · Enter clears")
+					else:
+						hint = assist_text(self.command)
 					screen.addnstr(height - 1, len(typed) + 2,
 					               hint[:room], room, curses.A_DIM)
 				caret = (height - 1, len(typed))
@@ -524,42 +786,67 @@ class Console:
 		through the closed compact maps, nothing computed here."""
 		return {
 			"ST": status_cell(row),
+			"PR": compact_priority(row["priority"]),
 			"PHASE": phase_cell(row["status"], row["phase"]),
 			"CLS": compact_classification(row["classification"]),
 			# W36: conversation volume and MY directed load, combined
 			# compactly here only — the canonical fields stay separate.
 			"MSG/MY": f"{row['message_count']}"
 			          f"/{row['my_pending_obligations']}",
-			"READY": "yes" if row["ready"] else "no",
+			# W33: presentation-derived from the canonical claimed_at
+			# and the local clock at paint time — advanced by the ONE
+			# existing refresh cadence, no second scheduler.
+			"AGE": age_field(row.get("claimed_at"),
+			                 row.get("heartbeat_at"), _time.time()),
 			"CURRENT": row["current"]["endpoint"] if row["current"]
 			else "-",
 			"NEXT": row["next"]["endpoint"] if row["next"] else "-",
 			"NEW": str(row["new"]),
 		}
 
-	def _render_table(self, screen, height, width, rows) -> None:
-		if not layout_fits(width):
-			columns = visible_columns(width)
+	def _render_table(self, screen, height, width, rows,
+	                  top: int = 1) -> None:
+		# W4 R1: the Id width comes from the rows ACTUALLY painted in
+		# this view — a collapsed closed row must not consume Title
+		# space or drop columns until `z` exposes it. The W39
+		# dependency cue is scoped the same way, and is ONE whole
+		# optional responsive field: when it alone breaks the fit it is
+		# omitted entirely (never clipped); `[b] deps` stays available.
+		visible, hidden = self.visible_rows(rows)
+		id_width = id_column_width(visible)
+		cue_width = cue_column_width(visible)
+		if cue_width and not layout_fits(
+				width, id_width + 1 + cue_width):
+			cue_width = 0
+		lead = id_width + ((1 + cue_width) if cue_width else 0)
+		if not layout_fits(width, lead):
+			columns = visible_columns(width, lead)
 			need = sum(w for _n, w in columns) + len(columns) + \
-				MIN_TITLE + 1
+				MIN_TITLE + id_width + 2
 			# The explicit too-narrow REFUSAL (ruled): identities are
-			# never truncated into ambiguity to fake a fit.
-			screen.addnstr(1, 0,
+			# never truncated into ambiguity to fake a fit — and (W4
+			# R2) an over-wide identity refuses the table rather than
+			# clipping the mandatory tail.
+			screen.addnstr(top, 0,
 			               f"(terminal too narrow: need {need} cells)",
 			               width - 1)
 			return
-		columns = visible_columns(width)
+		# W4: the exact Id column LEADS the table and never truncates —
+		# it grows to the longest visible selector; the responsive drop
+		# budget carries it, and the title absorbs the remainder.
+		columns = visible_columns(width, lead)
 		fixed = sum(w for _n, w in columns) + len(columns)
-		title_width = max(MIN_TITLE, width - fixed - 1)
+		title_width = max(MIN_TITLE, width - fixed - lead - 2)
 		# Trial finding 26de18dd-W2: headers draw initial-capital LABELS
 		# (Title, St, Phase, ...); the canonical projection fields and
 		# the internal responsive-column identifiers stay unchanged.
-		header = "Title".ljust(title_width)
+		header = "Id".ljust(id_width) + " " + "Title".ljust(title_width)
+		if cue_width:
+			header += " " + "Blk".ljust(cue_width)
 		for name, col_width in columns:
 			label = HEADER_LABELS.get(name, name.capitalize())
 			header += " " + label.ljust(col_width)
-		screen.addnstr(1, 0, header, width - 1, curses.A_UNDERLINE)
-		visible, hidden = self.visible_rows(rows)
+		screen.addnstr(top, 0, header, width - 1, curses.A_UNDERLINE)
 		# W5: the selection anchors to the WORK ID, not the index — a
 		# background refresh that inserts or removes rows never moves
 		# the cursor to a different Work.
@@ -577,7 +864,8 @@ class Console:
 		# The hidden-count footer is part of the collapse CONTRACT: when
 		# closed rows are hidden, one line is RESERVED for naming them —
 		# a full page of open rows may never make the collapse silent.
-		budget = max(1, (height - 4) if hidden else (height - 3))
+		budget = max(1, (height - 3 - top) if hidden
+		             else (height - 2 - top))
 		# The selected row must be PAINTED: Enter acts on it, and an
 		# off-screen aim would be an invisible destructive action. Long
 		# tables scroll so the cursor stays inside the drawn slice.
@@ -593,45 +881,62 @@ class Console:
 				title = "↳ " + title
 			if row.get("depth") and row["progress"]["children"]:
 				title += f" ▸{row['progress']['children']}"
-			line = title[:title_width].ljust(title_width)
+			line = (row["local_id"].ljust(id_width) + " "
+			        + title[:title_width].ljust(title_width))
+			if cue_width:
+				line += " " + blocker_cue(row).ljust(cue_width)
 			cells = self._row_cells(row)
 			for name, col_width in columns:
 				line += " " + cells[name][:col_width].ljust(col_width)
 			attribute = curses.A_REVERSE \
 				if start + offset == self.cursor else 0
-			screen.addnstr(2 + offset, 0, line, width - 1, attribute)
-			if hot_work(row):
-				# W84: the slow blink marks ONLY the phase/status cell
-				# of a hot row — title, identifiers, counters, routing
-				# and selection stay steady, and the ordinary textual
-				# state remains when a terminal ignores blink. At
-				# widths where the PHASE column is dropped there is
-				# simply no cell to animate.
-				x = title_width
+			screen.addnstr(top + 1 + offset, 0, line, width - 1,
+			               attribute)
+			if actionable_work(row, self.team, self.member):
+				# W81 (superseding the global hot bold): the Title
+				# cell renders BOLD exactly for the VIEWER'S
+				# actionable Work; the Age column carries the claim
+				# timer. Only the Title cell — Id, counters, routing,
+				# and the Blk cue stay steady — and the selection
+				# attribute COMPOSES with the bold rather than
+				# erasing it.
+				screen.addnstr(
+					top + 1 + offset, id_width + 1,
+					title[:title_width].ljust(title_width),
+					min(title_width, max(0, width - 1 - id_width - 1)),
+					attribute | curses.A_BOLD)
+			if self.phase_blink.get(row["id"], 0) > 0:
+				# W33: the ephemeral phase-CHANGE cue — the phase cell
+				# blinks for three scheduled refresh ticks after an
+				# OBSERVED genuine Phase change, then the steady bold
+				# Title + Age remain. At widths where the PHASE column
+				# is dropped there is simply no cell to animate.
+				x = id_width + 1 + title_width \
+					+ ((1 + cue_width) if cue_width else 0)
 				for name, col_width in columns:
 					x += 1
 					if name == "PHASE":
 						if x < width - 1:
 							screen.addnstr(
-								2 + offset, x,
+								top + 1 + offset, x,
 								cells["PHASE"][:col_width]
 								.ljust(col_width),
 								min(col_width, width - 1 - x),
 								attribute | curses.A_BLINK)
 						break
 					x += col_width
-		footer_row = 2 + min(len(visible) - start, budget)
+		footer_row = top + 1 + min(len(visible) - start, budget)
 		if hidden and footer_row <= height - 2:
 			screen.addnstr(footer_row, 0,
 			               f"({hidden} closed hidden — z shows)",
 			               width - 1)
 		if not visible and not hidden:
-			screen.addnstr(2, 0, "(no work here)", width - 1)
+			screen.addnstr(top + 1, 0, "(no work here)", width - 1)
 		if height - 2 > footer_row:
 			screen.addnstr(
 				height - 2, 0,
 				"Enter details · u unfold · Esc back · z closed · "
-				"b links · : command · q quit", width - 1)
+				"[b] deps · : command · q quit", width - 1)
 
 	def _thread_autoselect(self) -> None:
 		"""The ruled default across EVERY bounded page of the detail
@@ -744,7 +1049,8 @@ class Console:
 		# first on the line so no narrow width ever clips it, straight
 		# from the selected Work's canonical detail (never a title
 		# inference). Every command-bar operation can be typed from it.
-		line = (f"{detail['id']} [{detail['status']}"
+		line = (f"{detail['id']} ({detail['local_id']}) "
+		        f"[{detail['status']}"
 		        f"/{phase_cell(detail['status'], detail['phase'])}"
 		        f"/{compact_classification(detail['classification'])}] "
 		        f"current {current}  next {planned}  new {detail['new']}")
@@ -795,7 +1101,7 @@ class Console:
 		if not rows:
 			screen.addnstr(offset_row, 0, "(no threads)", width - 1)
 			self.viewed_thread = None
-			self.viewed_last_seq = None
+			self.msg_cursor = None
 			return
 		chosen = min(self.disc_cursor, len(rows) - 1)
 		selected = rows[chosen]
@@ -823,51 +1129,205 @@ class Console:
 			               width - 1, attribute)
 		msgs_top = offset_row + 1 + min(len(rows) - start, list_budget)
 
-		# The Messages pane for the selected thread only.
-		budget = max(1, height - 3 - msgs_top)
-		snapshot = self._cached(
-			("thread", selected["id"], self.thread_after,
-			 max(1, budget)),
-			lambda: projection.thread(
-				self.store, selected["id"], viewer_team=self.team,
-				viewer_member=self.member, after=self.thread_after,
-				limit=max(1, budget)))
-		messages = snapshot["messages"]
-		if self.thread_skip and self.thread_skip_width != width:
-			self.thread_skip = 0
-		self.thread_skip_width = width
-		marker = "»" if self.focus == "msgs" else " "
-		screen.addnstr(msgs_top, 0,
-		               f"{marker}Msgs — {snapshot['subject']}",
-		               width - 1,
-		               curses.A_BOLD if self.focus == "msgs" else 0)
-		page = paint_messages(screen, msgs_top + 1, budget - 1, width,
-		                      messages, skip=self.thread_skip)
-		self.viewed_last_seq = page["painted_last"]
-		self.viewed_next_skip = page["next_skip"]
-		# W71: n acts only while MORE exists — the disclosed more-state
-		# and the control agree; the last page never pages into an
-		# empty screen.
-		self.viewed_has_more = (page["next_skip"] is not None or
-		                        page["more_below"] or
-		                        snapshot["next_after"] is not None or
-		                        len(messages) == max(1, budget))
+		# W14: the lower region — Message index + selected reader.
+		self._render_message_region(screen, msgs_top, height, width,
+		                            selected)
+
+	# W14 layout: the index column at usable width; the reader must keep
+	# at least MIN_READER cells or the two regions stack instead.
+	INDEX_WIDTH = 34
+	MIN_READER = 40
+
+	def _autoselect_seq(self, messages):
+		"""The ruled default: the page's first personal-new Message
+		when one exists, else the first Message. Selection marks
+		nothing."""
+		for message in messages:
+			if message.get("new"):
+				return message["seq"]
+		return messages[0]["seq"] if messages else None
+
+	def _paint_index(self, screen, top, rows, x, cell_width, messages):
+		"""The compact Message index: `M<seq>` (the existing stable
+		sequence — nothing invented), author, time, and the personal
+		new/seen state. The selected row is reversed; personal-new rows
+		are bold; the window scrolls to keep the selection painted."""
 		if not messages:
-			screen.addnstr(msgs_top + 1, 0,
-			               "(no messages on this page)", width - 1)
+			screen.addnstr(top, x, "(no messages on this page)",
+			               cell_width)
+			return
+		seqs = [message["seq"] for message in messages]
+		chosen = seqs.index(self.msg_cursor) \
+			if self.msg_cursor in seqs else 0
+		start = max(0, min(chosen - rows + 1, len(messages) - rows))
+		for offset, message in enumerate(messages[start:start + rows]):
+			stamp = (message.get("ts") or "")[11:16]
+			state = "new" if message.get("new") else "seen"
+			text = (f"M{message['seq']} {message['author_team']}."
+			        f"{message['author']} {stamp} {state}")
+			attribute = 0
+			if message["seq"] == self.msg_cursor:
+				attribute = curses.A_REVERSE
+			elif message.get("new"):
+				attribute = curses.A_BOLD
+			screen.addnstr(top + offset, x,
+			               text[:cell_width].ljust(cell_width),
+			               cell_width, attribute)
+
+	def _paint_reader(self, screen, top, rows, x, cell_width, selected):
+		"""The reader: exactly ONE selected Message as its canonical
+		formatted block — metadata header, wrapped body, Refs visually
+		separate — scrolled by `reader_skip` with an honest `(cont.)`
+		tag; a clipped tail is disclosed, never silently dropped."""
+		if selected is None:
+			screen.addnstr(top, x, "(no message selected)", cell_width)
+			self.reader_clipped = False
+			return
+		block = format_message(selected, cell_width)
+		skip = min(self.reader_skip, max(0, len(block) - 1))
+		self.reader_skip = skip
+		visible = block[skip:]
+		if skip:
+			visible = [f"M{selected['seq']} (cont.)"] + visible
+		take = max(0, min(len(visible), rows))
+		for offset, text in enumerate(visible[:take]):
+			attribute = curses.A_BOLD if offset == 0 and \
+				(skip or selected.get("new")) else 0
+			screen.addnstr(top + offset, x, text, cell_width,
+			               attribute)
+		shown = take - (1 if skip else 0)
+		self.reader_clipped = skip + shown < len(block)
+
+	def _render_message_region(self, screen, top, height, width,
+	                           selected_thread) -> None:
+		"""W14 (superseding W71's flat stream inside Work details): the
+		lower region is a compact Message INDEX and a selected-message
+		READER. At usable width the index sits left of the reader; at
+		narrow width the same two regions stack, index above reader —
+		never merged back into a flat body stream. Viewing and
+		selection are read-only; only the explicit `s` writes, bounded
+		by the chosen Message and no later one."""
+		region = height - 2 - top
+		if region < 2:
+			return
+		page_limit = max(1, region - 2)
+		snapshot = self._cached(
+			("thread", selected_thread["id"], self.thread_after,
+			 page_limit),
+			lambda: projection.thread(
+				self.store, selected_thread["id"],
+				viewer_team=self.team, viewer_member=self.member,
+				after=self.thread_after, limit=page_limit))
+		messages = snapshot["messages"]
+		self.viewed_next_after = snapshot["next_after"]
+		seqs = [message["seq"] for message in messages]
+		self.viewed_seqs = seqs
+		if self.msg_cursor not in seqs:
+			chosen = None
+			if self.msg_cursor is None and messages and \
+					getattr(self, "msg_seek", True) and \
+					not any(m.get("new") for m in messages):
+				# W14 rounds 2+3 (ruled): the new-first promise is
+				# THREAD-wide, not first-page-only. When every message
+				# on this bounded page is seen, walk the canonical
+				# continuation to the page holding the first
+				# personal-new message and open THERE. When the walk
+				# reaches the end without finding one — the Thread is
+				# ALL seen — retain the FINAL page and select its
+				# newest message: an old opener is never the default
+				# entry into a finished conversation.
+				found = False
+				last_after, last_page = self.thread_after, snapshot
+				after = snapshot["next_after"]
+				while after is not None:
+					ahead = self._cached(
+						("thread", selected_thread["id"], after,
+						 page_limit),
+						lambda a=after: projection.thread(
+							self.store, selected_thread["id"],
+							viewer_team=self.team,
+							viewer_member=self.member, after=a,
+							limit=page_limit))
+					if any(m.get("new") for m in ahead["messages"]):
+						self.thread_after = after
+						snapshot = ahead
+						found = True
+						break
+					if ahead["messages"]:
+						last_after, last_page = after, ahead
+					after = ahead["next_after"]
+				if not found:
+					self.thread_after = last_after
+					snapshot = last_page
+					if snapshot["messages"]:
+						chosen = snapshot["messages"][-1]["seq"]
+				messages = snapshot["messages"]
+				seqs = [m["seq"] for m in messages]
+				self.viewed_next_after = snapshot["next_after"]
+				self.viewed_seqs = seqs
+			# The selection is keyed by the STABLE seq: refresh,
+			# paging, and resize keep it while the Message remains
+			# present; otherwise the new-first default (or the ruled
+			# all-seen newest fallback) reapplies.
+			self.msg_cursor = chosen if chosen is not None \
+				else self._autoselect_seq(messages)
+			self.reader_skip = 0
+			self.msg_seek = False
+		if self.reader_skip_width != width:
+			self.reader_skip = 0
+			self.reader_skip_width = width
+		selected = next((message for message in messages
+		                 if message["seq"] == self.msg_cursor), None)
+		index_bold = curses.A_BOLD if self.focus == "index" else 0
+		reader_bold = curses.A_BOLD if self.focus == "reader" else 0
+		imarker = "»" if self.focus == "index" else " "
+		rmarker = "»" if self.focus == "reader" else " "
+		more = "  (n: more)" if snapshot["next_after"] is not None \
+			else ""
+		index_label = f"{imarker}Msgs — {snapshot['subject']}{more}"
+		reader_label = f"{rmarker}M{selected['seq']}" if selected \
+			else f"{rmarker}Reader"
+		wide = width - 1 - self.INDEX_WIDTH - 2 >= self.MIN_READER
+		if wide:
+			reader_x = self.INDEX_WIDTH + 2
+			reader_width = width - 1 - reader_x
+			screen.addnstr(top, 0, index_label, self.INDEX_WIDTH,
+			               index_bold)
+			screen.addnstr(top, reader_x, reader_label, reader_width,
+			               reader_bold)
+			self._paint_index(screen, top + 1, region - 1, 0,
+			                  self.INDEX_WIDTH, messages)
+			self._paint_reader(screen, top + 1, region - 1, reader_x,
+			                   reader_width, selected)
+		else:
+			index_rows = max(1, min(len(messages) or 1,
+			                        max(2, region // 3),
+			                        region - 3))
+			screen.addnstr(top, 0, index_label, width - 1,
+			               index_bold)
+			self._paint_index(screen, top + 1, index_rows, 0,
+			                  width - 1, messages)
+			reader_top = top + 1 + index_rows
+			screen.addnstr(reader_top, 0, reader_label, width - 1,
+			               reader_bold)
+			self._paint_reader(screen, reader_top + 1,
+			                   top + region - reader_top - 1, 0,
+			                   width - 1, selected)
 		# Operator-facing more/page state + the advertised controls
 		# (ruled: paged surfaces disclose their controls; Ctrl-W is the
-		# pane convention; the seen action stays discoverable).
-		more_state = ""
-		if page["next_skip"] is not None or page["more_below"] or \
-				(messages and len(messages) == max(1, budget)):
-			more_state = "more below — n next · p first · "
+		# region convention; the seen action names its exact bound).
+		bits = []
+		if snapshot["next_after"] is not None:
+			bits.append("more msgs — n next · p first")
 		elif self.thread_after:
-			more_state = "earlier pages — p first · "
-		screen.addnstr(
-			height - 2, 0,
-			f"{more_state}Ctrl-W panes · j/k select · "
-			f"s mark shown seen · Esc back", width - 1)
+			bits.append("earlier msgs — p first")
+		if self.reader_clipped:
+			bits.append("reader: j scrolls")
+		seen_label = f"M{self.msg_cursor}" if self.msg_cursor \
+			else "selected"
+		bits.extend(["Ctrl-W panes", "j/k select",
+		             f"s seen through {seen_label}", "Esc back"])
+		screen.addnstr(height - 2, 0, " · ".join(bits), width - 1)
 
 	# -- the command bar: the ONE public surface, in place ---------------------
 
@@ -965,6 +1425,11 @@ class Console:
 			self.status = f"unparseable command: {broken}"
 			return
 		if not argv:
+			return
+		if argv[0] == "filter":
+			# W5: client-local view state — handled HERE, never sent
+			# to the authority surface.
+			self._set_filter(argv[1:])
 			return
 		if argv[0] == "tui":
 			self.status = "already here"
@@ -1214,7 +1679,124 @@ class Console:
 			               "Esc cancel", width - 1, curses.A_DIM)
 		return caret
 
+	def _search_entry_key(self, key: int) -> None:
+		"""The one-line query bar: typing is pure client state; Enter
+		submits ONE canonical search; Esc cancels without touching the
+		current view; an empty query refuses locally."""
+		if key in (10, 13, curses.KEY_ENTER):
+			query = self.search_input.strip()
+			if not query:
+				self.status = "search needs a non-empty query"
+				self.search_input = None
+				return
+			if self.mode != "search":
+				# entering search: remember the EXACT prior table
+				# state — including closed visibility (R2) — for the
+				# Esc restoration
+				self.search_saved = (list(self.path), self.cursor,
+				                     self.selected_id,
+				                     self.show_closed)
+			self.search_query = query
+			self.search_after = 0
+			self.search_page = 1
+			self.search_input = None
+			self.cursor = 0
+			self.selected_id = None
+			self.mode = "search"
+		elif key == 27:
+			self.search_input = None
+		elif key in (8, 127, curses.KEY_BACKSPACE):
+			self.search_input = self.search_input[:-1]
+		elif 32 <= key <= 126:
+			self.search_input += chr(key)
+
+	def _search_mode_key(self, key: int) -> bool:
+		"""The flat result mode: ordinary selection, ordinary detail
+		entry, replacement queries, bounded paging, and the exact Esc
+		restoration of the prior Work window."""
+		rows, _hidden = self.visible_rows(self.search_rows())
+		if key in (curses.KEY_DOWN, ord("j")):
+			self.cursor = min(self.cursor + 1, max(0, len(rows) - 1))
+			self.selected_id = rows[self.cursor]["id"] if rows else None
+		elif key in (curses.KEY_UP, ord("k")):
+			self.cursor = max(0, self.cursor - 1)
+			self.selected_id = rows[self.cursor]["id"] if rows else None
+		elif key in (curses.KEY_ENTER, 10, 13) and rows:
+			self.detail_work = rows[min(self.cursor,
+			                            len(rows) - 1)]["id"]
+			self.disc_cursor = None
+			self.disc_after = 0
+			self.focus = "threads"
+			self._reset_message_selection()
+			self.detail_return = "search"
+			self.mode = "detail"
+		elif key == ord("n") and self.search_next is not None:
+			self.search_after = self.search_next
+			self.search_page += 1
+			self.cursor = 0
+			self.selected_id = None
+		elif key == ord("p"):
+			self.search_after = 0
+			self.search_page = 1
+			self.cursor = 0
+			self.selected_id = None
+		elif key == ord("z"):
+			# toggling visibility changes the effective paging
+			# universe — restart at page one of the new universe
+			self.show_closed = not self.show_closed
+			self.search_after = 0
+			self.search_page = 1
+			self.cursor = 0
+			self.selected_id = None
+		elif key == 27:
+			# the exact prior table state returns — path, cursor,
+			# selection, AND closed visibility (R2); the filter was
+			# never search's to change
+			path, cursor, selected, shown = \
+				self.search_saved or ([], 0, None, self.show_closed)
+			self.path = path
+			self.cursor = cursor
+			self.selected_id = selected
+			self.show_closed = shown
+			self.search_query = None
+			self.search_saved = None
+			self.mode = "table"
+		return True
+
+	def _set_filter(self, tokens) -> None:
+		"""W5: replace the client-local filter atomically through the
+		SAME shared grammar and validation the launch operands use.
+		Bare `filter` clears. A refusal changes neither the filter nor
+		anything else — no plausible partial view."""
+		try:
+			args = _cli._parse_invocation(
+				["--config", self.config_path or "-",
+				 "--participant", f"{self.team}.{self.member}",
+				 "filter"] + list(tokens))
+			pairs = _cli._filter_operands(args)
+			normalized = projection.normalize_filter(
+				self.store, pairs, self.team)
+		except WorkError as refusal:
+			self.status = str(refusal)[:200]
+			return
+		self.work_filter = normalized
+		self.status = ("filter cleared" if normalized is None
+		               else "filter: " + self._filter_clauses())
+
+	def _filter_clauses(self) -> str:
+		return " ".join(f"{field}={value}" for field, value
+		                in (self.work_filter or {}).items())
+
 	def _command_key(self, key: int) -> None:
+		if key == ord(" ") and self.command == "filter" and \
+				self.work_filter:
+			# W5 R2: the first space after exact `filter` SEEDS the
+			# buffer with the normalized current clauses — the
+			# operator edits one clause without retyping the rest,
+			# and Enter replaces atomically through the same parser.
+			# Bare `filter` + Enter still clears.
+			self.command = "filter " + self._filter_clauses()
+			return
 		if key == ord(":") and self.command == "":
 			# W19: `::` — a second colon on the EMPTY bar converts it
 			# into the multiline batch buffer. The one-line `:`
@@ -1246,6 +1828,9 @@ class Console:
 			# W19: every key belongs to the batch buffer while it is
 			# open — q and : stay literal text, exactly like the bar.
 			return self._batch_key(key)
+		if self.search_input is not None:
+			self._search_entry_key(key)
+			return True
 		# W9 (ruled): in normal navigation q opens ONE bottom-row
 		# Exit? y/N prompt. y/Y exits; n/N/Esc cancels to the UNCHANGED
 		# view — including any visible status, so this whole branch
@@ -1266,6 +1851,12 @@ class Console:
 		if key == ord(":"):
 			self.command = ""
 			return True
+		if key == ord("/") and self.mode in ("table", "search"):
+			# W6: open (or replace) the search query bar.
+			self.search_input = ""
+			return True
+		if self.mode == "search":
+			return self._search_mode_key(key)
 		rows, _hidden = (self.visible_rows(self.rows())
 		                 if self.mode == "table" else ([], 0))
 
@@ -1304,9 +1895,9 @@ class Console:
 			self.detail_work = rows[self.cursor]["id"]
 			self.disc_cursor = None      # the New-first default
 			self.disc_after = 0
-			self.thread_after = 0
-			self.thread_skip = 0
 			self.focus = "threads"
+			self._reset_message_selection()
+			self.detail_return = "table"
 			self.mode = "detail"
 		elif key == ord("u") and rows:
 			# W71: the visible unfold — re-root the two-level window at
@@ -1335,26 +1926,32 @@ class Console:
 		return True
 
 	def _handle_detail(self, key: int) -> bool:
-		"""The detail view's keys. Ctrl-W (23) is the pane-navigation
-		prefix (ruled, the Vim split convention): h/k/up focus Threads,
-		j/l/down focus Msgs, w or a second Ctrl-W cycles."""
+		"""The detail view's keys. Ctrl-W (23) is the region-navigation
+		prefix (ruled, the Vim split convention) across the THREE
+		regions in order — Threads, Message index, reader: h/k/up move
+		back, j/l/down move forward, w or a second Ctrl-W cycles."""
+		regions = ("threads", "index", "reader")
 		if self.ctrl_w_pending:
 			self.ctrl_w_pending = False
+			here = regions.index(self.focus) \
+				if self.focus in regions else 1
 			if key in (ord("h"), ord("k"), curses.KEY_UP,
 			           curses.KEY_LEFT):
-				self.focus = "threads"
+				self.focus = regions[max(0, here - 1)]
 			elif key in (ord("j"), ord("l"), curses.KEY_DOWN,
 			             curses.KEY_RIGHT):
-				self.focus = "msgs"
+				self.focus = regions[min(len(regions) - 1, here + 1)]
 			elif key in (ord("w"), 23):
-				self.focus = "msgs" if self.focus == "threads" \
-					else "threads"
+				self.focus = regions[(here + 1) % len(regions)]
 			return True
 		if key == 23:
 			self.ctrl_w_pending = True
 			return True
 		if key in (27, curses.KEY_LEFT):
-			self.mode = "table"
+			# W6: leaving detail returns to the view that opened it —
+			# the search results when the result row was entered.
+			self.mode = self.detail_return
+			self.detail_return = "table"
 			return True
 		if self.focus == "threads":
 			rows = self.thread_rows()
@@ -1366,61 +1963,96 @@ class Console:
 				elif self.disc_next is not None:
 					self.disc_after = self.disc_next
 					self.disc_cursor = 0
-				self.thread_after = 0
-				self.thread_skip = 0
+				self._reset_message_selection()
 			elif key in (curses.KEY_UP, ord("k")):
 				if self.disc_cursor > 0:
 					self.disc_cursor -= 1
-				self.thread_after = 0
-				self.thread_skip = 0
+				self._reset_message_selection()
 			elif key == ord("n") and self.disc_next is not None:
 				self.disc_after = self.disc_next
 				self.disc_cursor = 0
-				self.thread_after = 0
-				self.thread_skip = 0
+				self._reset_message_selection()
 			elif key == ord("p"):
 				self.disc_after = 0
 				self.disc_cursor = 0
-				self.thread_after = 0
-				self.thread_skip = 0
+				self._reset_message_selection()
 			elif key == ord("s"):
-				self._mark_shown_seen()
+				self._mark_selected_seen()
 			return True
-		# -- the Msgs pane -------------------------------------------------
-		if key == ord("n"):
-			# R1: an unfinished oversized block continues first; only a
-			# finished page with MORE below advances the message cursor.
-			if getattr(self, "viewed_next_skip", None) is not None:
-				self.thread_skip = self.viewed_next_skip
-			elif self.viewed_last_seq is not None and \
-					getattr(self, "viewed_has_more", False):
-				self.thread_after = self.viewed_last_seq
-				self.thread_skip = 0
+		if self.focus == "reader":
+			# -- the reader: scroll the ONE selected block ---------------
+			if key in (curses.KEY_DOWN, ord("j")):
+				if self.reader_clipped:
+					self.reader_skip += 1
+			elif key in (curses.KEY_UP, ord("k")):
+				self.reader_skip = max(0, self.reader_skip - 1)
+			elif key == ord("p"):
+				self.reader_skip = 0
+			elif key == ord("s"):
+				self._mark_selected_seen()
+			return True
+		# -- the Message index (also any legacy focus spelling) ------------
+		if key in (curses.KEY_DOWN, ord("j")):
+			if self.msg_cursor in self.viewed_seqs:
+				here = self.viewed_seqs.index(self.msg_cursor)
+				if here + 1 < len(self.viewed_seqs):
+					self.msg_cursor = self.viewed_seqs[here + 1]
+					self.reader_skip = 0
+				elif self.viewed_next_after is not None:
+					self.thread_after = self.viewed_next_after
+					self._reset_message_selection(keep_thread=True,
+					                              seek=False)
+		elif key in (curses.KEY_UP, ord("k")):
+			if self.msg_cursor in self.viewed_seqs:
+				here = self.viewed_seqs.index(self.msg_cursor)
+				if here > 0:
+					self.msg_cursor = self.viewed_seqs[here - 1]
+					self.reader_skip = 0
+		elif key == ord("n"):
+			if self.viewed_next_after is not None:
+				self.thread_after = self.viewed_next_after
+				self._reset_message_selection(keep_thread=True,
+				                              seek=False)
 		elif key == ord("p"):
 			self.thread_after = 0
-			self.thread_skip = 0
+			self._reset_message_selection(keep_thread=True,
+			                              seek=False)
 		elif key == ord("s"):
-			self._mark_shown_seen()
+			self._mark_selected_seen()
 		return True
 
-	def _mark_shown_seen(self) -> None:
+	def _reset_message_selection(self, keep_thread: bool = False,
+	                             seek: bool = True) -> None:
+		"""Moving to another Thread (or another page) re-arms the
+		new-first message autoselect; the reader restarts at the top.
+		ENTERING a thread arms the THREAD-wide new-first seek; an
+		explicit n/p page command does not — the operator asked for
+		that page, and the seek must never override it."""
+		if not keep_thread:
+			self.thread_after = 0
+		self.msg_cursor = None
+		self.reader_skip = 0
+		self.msg_seek = seek
+
+	def _mark_selected_seen(self) -> None:
 		"""The EXPLICIT seen transition — the one writer, by ruling —
-		scoped to the DISPLAYED thread, bounded by the PAINTED page
-		(R70): a message committed after paint stays New; an
-		already-seen no-op schedules nothing (R7)."""
-		if self.viewed_thread is None or self.viewed_last_seq is None:
+		scoped to the DISPLAYED thread and bounded by the chosen
+		Message: the cursor advances through it and through NO later
+		Message (W14); an already-seen no-op schedules nothing (R7)."""
+		if self.viewed_thread is None or self.msg_cursor is None:
 			return
 		result = transitions.seen_thread(
 			self.store, self.viewed_thread, team=self.team,
-			member=self.member, up_to_seq=self.viewed_last_seq)
+			member=self.member, up_to_seq=self.msg_cursor)
 		if result["advanced"]:
 			self.schedule_refresh()
-		self.status = (f"seen up to #{result['cursor']}"
+		self.status = (f"seen through M{result['cursor']}"
 		               if result["advanced"] else "already seen")
 
 
 def run(screen, store: Authority, viewer_team: str, viewer_member: str,
-        config_path: str | None = None, refresh: float = 2.0) -> None:
+        config_path: str | None = None, refresh: float = 2.0,
+        work_filter: dict | None = None) -> None:
 	"""W5: `refresh` seconds (default 2, positive, configurable via
 	`tui refresh=`) is the ONE background trigger for fresh canonical
 	reads — getch times out, the cache drops, the screen repaints.
@@ -1428,7 +2060,7 @@ def run(screen, store: Authority, viewer_team: str, viewer_member: str,
 	import time
 	curses.curs_set(0)
 	console = Console(store, viewer_team, viewer_member,
-	                  config_path=config_path)
+	                  config_path=config_path, work_filter=work_filter)
 	console.render(screen)
 	# R1: the refresh is WALL-CLOCK driven — a monotonic deadline that
 	# input can neither postpone nor accelerate. Keys before the

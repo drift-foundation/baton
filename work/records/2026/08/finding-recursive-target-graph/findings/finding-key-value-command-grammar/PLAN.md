@@ -38,3 +38,24 @@ satisfying and remains excluded from fresh-authority recreation.
    next immutable distribution.
 7. Remove W13 from the fresh-authority recreation inventory and update its
    counts/proof after verification.
+
+## Follow-up plan — explicit transfer verb
+
+**Status — 2026-08-16:** approved and queued as separate same-schema Work;
+completed W13 remains closed.
+
+1. Add the canonical `pass work= to= phase= thread= comment=` form to the one
+   declarative grammar, including the existing optional planned-Next operand.
+2. Route it through the existing atomic post-and-transfer transition; do not
+   split evidence from workflow mutation or weaken retry fingerprints.
+3. Retire `pass-to=` from `say` in the next immutable client instead of
+   preserving two transfer dialects. Keep `say` discussion and directed
+   request semantics intact.
+4. Cover success, refusal atomicity, authorization, claim release,
+   destination Phase/Current/Next, retry, CLI/TUI command assist, and packaged
+   behavior.
+
+**Signed off — 2026-08-16 16:17Z:** W80 satisfies the follow-up contract. The
+39-test focused/public/package/workflow review target, complete 734-parallel
+plus 3-serial v11 gate, and diff-check are clean. See
+`review-2026-08-16T16-17-48Z.md`; W80 may close satisfying.

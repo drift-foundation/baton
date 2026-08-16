@@ -99,9 +99,9 @@ def test_wf12_effectively_once_retry(flow):
 	# 6. Later-state replay across config generations: pass the baton
 	# with an id, reassign handlers by regen, close; the committed pass
 	# STILL replays; a fresh identical request under a new id refuses.
-	passed = flow.ok("say", "op-id=pass-1", f"thread={thread}",
-	                 "body=onward", f"on={work}", "pass-to=lang.impl", "phase=active",
-	                 viewer="lang.ada")
+	passed = flow.ok("pass", "op-id=pass-1", f"work={work}",
+	                 "to=lang.impl", "phase=active", f"thread={thread}",
+	                 "comment=onward", viewer="lang.ada")
 	config = document(verification_teams())
 	config["generation"] = 2
 	config["teams"]["lang"]["routes"]["main"]["handlers"] = ["grace"]
@@ -116,15 +116,17 @@ def test_wf12_effectively_once_retry(flow):
 	                 "rationale=delivered", "outcome=satisfying",
 	                 viewer="lang.grace")
 	assert closed["operation"]["state"] == "committed"
-	replayed_pass = flow.ok("say", "op-id=pass-1", f"thread={thread}",
-	                        "body=onward", f"on={work}",
-	                        "pass-to=lang.impl", "phase=active", viewer="lang.ada")
+	replayed_pass = flow.ok("pass", "op-id=pass-1", f"work={work}",
+	                        "to=lang.impl", "phase=active",
+	                        f"thread={thread}", "comment=onward",
+	                        viewer="lang.ada")
 	assert replayed_pass["operation"]["state"] == "replayed"
 	assert replayed_pass["seq"] == passed["seq"], \
 		"the committed pass stopped replaying after regen and close"
 	error = assert_refusal_changes_nothing(
-		flow, "lang.grace", "say", "op-id=pass-2", f"thread={thread}",
-		"body=onward", f"on={work}", "pass-to=lang.impl", "phase=active")
+		flow, "lang.grace", "pass", "op-id=pass-2", f"work={work}",
+		"to=lang.impl", "phase=active", f"thread={thread}",
+		"comment=onward")
 	assert "closed work refuses carrying" in error or "has 0" in error
 
 	# 7. A protected successful no-op consumes its id without an event

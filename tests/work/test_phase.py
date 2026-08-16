@@ -526,9 +526,14 @@ def test_available_transitions_mirror_the_full_matrix(world):
 		set(owner["available_transitions"])
 	teammate = pj.detail(store, work, viewer_team="lang",
 	                     viewer_member="grace")
+	# W3: priority is OWNING-team authority — every configured member
+	# of the owning team is offered prioritize, handler or not; no
+	# OTHER ownership operation leaks into participation.
 	assert set(teammate["available_transitions"]) <= \
-		{"post_message", "mark_seen"}, \
+		{"post_message", "mark_seen", "prioritize"}, \
 		"participation leaked an ownership operation into the projection"
+	assert "prioritize" in teammate["available_transitions"], \
+		"the owning-team member lost the ruled priority authority"
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	for viewer in ("ada", "grace"):

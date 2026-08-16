@@ -81,17 +81,19 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
 
 	# 5. pass with planned Next, then the consuming return.
-	passed = _run(path, "say", f"thread={lang_thread}",
-	              "body=confirmed, implement", f"on={lang42}",
-	              "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
+	passed = _run(path, "pass", f"work={lang42}", "to=lang.impl",
+	              "phase=active", "set-next=lang.rev",
+	              f"thread={lang_thread}",
+	              "comment=confirmed, implement",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	detail = _run(path, "detail", f"work={lang42}", viewer="lang.ada")["result"]
 	assert detail["current"]["endpoint"] == "lang.impl"
 	assert detail["next"]["endpoint"] == "lang.rev"
-	returned = _run(path, "say", f"thread={lang_thread}",
-	                "body=implementation complete",
-	                "pass-to=lang.rev", "phase=review", viewer="lang.ada")["result"]
+	returned = _run(path, "pass", f"work={lang42}", "to=lang.rev",
+	                "phase=review", f"thread={lang_thread}",
+	                "comment=implementation complete",
+	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	detail = _run(path, "detail", f"work={lang42}", viewer="lang.ada")["result"]
 	assert detail["current"]["endpoint"] == "lang.rev"

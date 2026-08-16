@@ -30,6 +30,7 @@ from baton_work import jsonapi, lifecycle, projection, transitions
 MUTATIONS = frozenset({
 	"activate", "regen", "create", "accept", "respond", "dispose",
 	"close", "block", "mark-seen", "classify", "claim", "release",
+	"prioritize", "pass", "heartbeat",
 	"phase", "round",
 	"extend", "report", "assess", "abandon", "revise", "start-thread",
 	"say", "label", "unlabel", "bind"})
@@ -71,6 +72,39 @@ _PHASES = ("queued", "research", "waiting", "active", "review", "parked")
 _CREATION_PHASES = ("queued", "research", "active", "review")
 _PASS_PHASES = ("queued", "research", "active", "review")
 _OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
+_PRIORITIES = ("high", "normal", "low")
+
+
+def _filter_keys():
+	"""W5: the ONE shared filter vocabulary — identical operands on
+	home, tree, tui, and the console-local filter command."""
+	return (_key("team", help="owning team handle"),
+	        _key("status", values=("open", "closed"),
+	             help="work lifecycle status"),
+	        _key("phase", values=_PHASES,
+	             help="operational phase (closed selects through "
+	             "status=closed)"),
+	        _key("current", help="canonical TEAM.KIND endpoint, or "
+	             "me (the viewer resolves as a handler)"),
+	        _key("category", values=_CLASSIFICATIONS,
+	             help="canonical classification (compact display "
+	             "labels are refused)"),
+	        _key("ready", values=("true", "false"),
+	             help="dependency readiness"),
+	        _key("new", values=("true", "false"),
+	             help="the viewer's personal New count is nonzero"),
+	        _key("priority", values=_PRIORITIES,
+	             help="the owning team's priority"))
+
+
+def _filter_operands(args):
+	active = {}
+	for name in ("team", "status", "phase", "current", "category",
+	             "ready", "new", "priority"):
+		value = getattr(args, name, None)
+		if value is not None:
+			active[name] = value
+	return active or None
 _ASSESSMENTS = ("accepted", "rejected", "inconclusive")
 
 
@@ -139,6 +173,9 @@ GRAMMAR = {
 	                         "classification; 'unknown' refuses"),
 	                    _key("phase", values=_CREATION_PHASES,
 	                         help="initial phase; defaults to queued"),
+	                    _key("priority", values=_PRIORITIES,
+	                         help="the owning team's ordering signal; "
+	                         "defaults to normal"),
 	                    _key("follow-up-of",
 	                         help="CLOSED Work this follows up"),
 	                    _key("binding",
@@ -213,6 +250,17 @@ GRAMMAR = {
 	                            help="the thread id"),
 	                       _key("up-to", required=True, kind="int",
 	                            help="last seen message seq"))},
+	"heartbeat": {"help": "the current claimant's deliberate liveness "
+	              "beat (informational; never releases or transfers)",
+	              "keys": (_key("work", required=True,
+	                            help="the claimed Work"),)},
+	"prioritize": {"help": "revise the owning team's Work priority "
+	               "(ordering signal only)",
+	               "keys": (_key("work", required=True,
+	                             help="the Work id"),
+	                        _key("as", dest="priority", required=True,
+	                             values=_PRIORITIES,
+	                             help="the canonical priority"))},
 	"classify": {"help": "reclassify Work (current handler authority)",
 	             "keys": (_key("work", required=True,
 	                           help="the Work id"),
@@ -269,9 +317,25 @@ GRAMMAR = {
 	                          help="the round number"),
 	                     _key("reason", required=True,
 	                          help="why the round ends unresolved"))},
-	"home": {"help": "the team summary and root Work rows", "keys": ()},
+	"home": {"help": "the team summary and root Work rows",
+	         "keys": _filter_keys()},
+	"search": {"help": "read-only team-scoped Work search (title "
+	           "substring; id exact/prefix)",
+	           "keys": (_key("query", required=True,
+	                         help="case-folded title substring, or a "
+	                         "canonical/local Work id prefix"),
+	                    _key("after", kind="int", default=0,
+	                         help="page after this continuation "
+	                         "cursor"),
+	                    _key("limit", kind="int", default=100,
+	                         help="page size (1..500)"))
+	                   + _filter_keys()},
 	"tree": {"help": "the canonical bounded tree window (one snapshot)",
-	         "keys": (_key("work", help="optional re-root Work id"),)},
+	         "keys": (_key("work", help="optional re-root Work id"),)
+	                 + _filter_keys()},
+	"filter": {"help": "the console-local view filter (TUI command "
+	           "mode; bare filter clears)",
+	           "keys": _filter_keys()},
 	"obligations": {"help": "the team's pending @ obligations",
 	                "keys": ()},
 	"summary": {"help": "the always-visible team counters", "keys": ()},
@@ -350,13 +414,10 @@ GRAMMAR = {
 	                          _key("label", repeat=True, required=True,
 	                               help="Work id to label "
 	                               "(repeatable)"))},
-	"say": {"help": "post one message, optionally carrying operators",
+	"say": {"help": "post one discussion message, optionally with an "
+	        "@ request",
 	        "conditions": (
-	            {"exclusive": ("request", "pass-to")},
-	            {"if-key": "on",
-	             "requires-any": ("request", "pass-to")},
-	            {"if-key": "phase", "requires": ("pass-to",)},
-	            {"if-key": "set-next", "requires": ("pass-to",)}),
+	            {"if-key": "on", "requires": ("request",)},),
 	        "keys": (_key("thread", required=True,
 	                      help="the thread id"),
 	                 _key("body", required=True,
@@ -365,17 +426,27 @@ GRAMMAR = {
 	                      "wildcards"),
 	                 _key("request", help="ONE endpoint owing a "
 	                      "response (acts on on=)"),
-	                 _key("pass-to", help="ONE endpoint; moves the "
-	                      "baton of on="),
-	                 _key("phase", dest="pass_phase",
-	                      values=_PASS_PHASES,
-	                      help="the destination phase the pass records "
-	                      "atomically; derived from the destination "
-	                      "stage role when omitted"),
-	                 _key("set-next", help="planned return endpoint "
-	                      "(with pass-to)"),
-	                 _key("on", help="the labelled open Work an @ or "
-	                      "=> acts against"))},
+	                 _key("on", help="the labelled open Work an @ "
+	                      "acts against"))},
+	"pass": {"help": "transfer the Work baton: handoff evidence, "
+	         "Current, and destination phase in ONE atomic act",
+	         "keys": (_key("work", required=True,
+	                       help="the Work whose baton moves"),
+	                  _key("to", required=True,
+	                       help="ONE destination endpoint team.kind"),
+	                  _key("phase", dest="pass_phase",
+	                       values=_PASS_PHASES,
+	                       help="the destination phase recorded "
+	                       "atomically; derived from the destination "
+	                       "stage role when omitted"),
+	                  _key("thread", required=True,
+	                       help="the labelled thread carrying the "
+	                       "handoff evidence"),
+	                  _key("comment", required=True,
+	                       help="durable handoff evidence appended to "
+	                       "the thread — never a rewrite of the Work"),
+	                  _key("set-next", help="planned return "
+	                       "endpoint"))},
 	"label": {"help": "label a thread to a Work",
 	          "keys": (_key("thread", required=True,
 	                        help="the thread id"),
@@ -412,7 +483,8 @@ GRAMMAR = {
 	                         help="page size"))},
 	"tui": {"help": "the curses console on this instance",
 	        "keys": (_key("refresh", kind="float", default=2.0,
-	                      help="auto-refresh seconds (positive)"),)},
+	                      help="auto-refresh seconds (positive)"),)
+	                + _filter_keys()},
 }
 
 _GLOBALS = ("--config", "--participant", "--expect-projection")
@@ -940,6 +1012,30 @@ def analyze_partial(buffer: str) -> dict:
 	        "notes": notes, "key_matches": key_matches}
 
 
+# W4: every Work-valued operand, by KEY NAME across the one grammar —
+# each routes through THE strict selector resolver before dispatch, so
+# the short and canonical spellings are interchangeable everywhere and
+# a malformed or foreign value refuses before any transition runs.
+_WORK_VALUED = frozenset({"work", "on", "parent", "into",
+                          "duplicate-of", "follow-up-of", "label"})
+
+
+def _resolve_work_operands(store, args) -> None:
+	spec = _verb_spec(args.command)
+	for name, entry in spec.items():
+		if name not in _WORK_VALUED:
+			continue
+		value = getattr(args, entry["dest"], None)
+		if entry["repeat"]:
+			if value:
+				setattr(args, entry["dest"],
+				        [transitions.resolve_work_selector(store, one)
+				         for one in value])
+		elif value is not None:
+			setattr(args, entry["dest"],
+			        transitions.resolve_work_selector(store, value))
+
+
 def main(argv=None) -> int:
 	if argv is None:
 		import sys as _sys
@@ -1052,6 +1148,7 @@ def main(argv=None) -> int:
 		store = lifecycle.open_bound(args.config)
 		try:
 			_validate_participant(store, args.participant)
+			_resolve_work_operands(store, args)
 			if args.command == "tui":
 				if not args.participant:
 					raise WorkError("tui needs --participant team.member")
@@ -1063,12 +1160,20 @@ def main(argv=None) -> int:
 						"number of seconds (at most 86400); "
 						"automatic refresh cannot be disabled, "
 						"negative, or unrepresentable")
+				# W5: launch filters use the ONE shared grammar and
+				# validate BEFORE curses claims the screen — a bad
+				# filter refuses instead of opening a partial view.
+				launch_filter = _filter_operands(args)
+				launch_filter = projection.normalize_filter(
+					store, launch_filter,
+					_participant(args.participant)[0])
 				from baton_work.tui import run as tui_run
 				import curses
 				curses.wrapper(tui_run, store,
 				               *_participant(args.participant),
 				               config_path=args.config,
-				               refresh=args.refresh)
+				               refresh=args.refresh,
+				               work_filter=launch_filter)
 				return 0
 			result = _dispatch(store, args)
 			snapshot_seq = (result.pop("snapshot_seq", None)
@@ -1118,7 +1223,8 @@ def _dispatch(store: Authority, args):
 			team=args.team, kind=args.kind, title=args.title,
 			origin=args.origin, author=member, body=args.body,
 			parent=args.parent, classification=args.classification,
-			phase=args.phase, follow_up_of=args.follow_up_of, op_id=args.op_id,
+			phase=args.phase, follow_up_of=args.follow_up_of,
+			priority=args.priority, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "accept":
 		team, member = _need_participant(args)
@@ -1193,6 +1299,9 @@ def _dispatch(store: Authority, args):
 				rest, "resolve: the locator suffix must stay a "
 				"contained relative path")
 		import re as _re
+		if _re.match(r"^W[1-9][0-9]*$", left):
+			# W4: the locator's Work form takes the short selector too
+			left = transitions.resolve_work_selector(store, left)
 		if _re.match(r"^[0-9a-f]{8}-W[0-9]+$", left):
 			view = projection.detail(store, left, viewer_team=team,
 			                         viewer_member=member)
@@ -1248,13 +1357,30 @@ def _dispatch(store: Authority, args):
 			labels=args.label, subject=args.subject, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "say":
+		# W80: say is DISCUSSION (plus the @ request operator). The
+		# baton moves only through the explicit pass verb below.
 		team, member = _need_participant(args)
 		return transitions.post_thread(
 			store, args.thread, author_team=team, author=member,
 			body=args.body, include=args.include or (),
-			request=args.request, pass_to=args.pass_to,
+			request=args.request, pass_to=None, pass_phase=None,
+			set_next=None, on=args.on, op_id=args.op_id,
+			refs=args.refs or ())
+	if command == "pass":
+		# W80 (ruled): the canonical transfer surface — one
+		# indivisible transition through the SAME single writer the
+		# compound say form used: append the comment as durable
+		# handoff evidence, transfer Current and the destination
+		# phase, apply any planned Next, and release the sender's
+		# claim. A refusal leaves message and workflow state
+		# unchanged.
+		team, member = _need_participant(args)
+		return transitions.post_thread(
+			store, args.thread, author_team=team, author=member,
+			body=args.comment, include=(),
+			request=None, pass_to=args.to,
 			pass_phase=args.pass_phase,
-			set_next=args.set_next, on=args.on, op_id=args.op_id,
+			set_next=args.set_next, on=args.work, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "label":
 		team, member = _need_participant(args)
@@ -1337,6 +1463,17 @@ def _dispatch(store: Authority, args):
 			store, args.work, actor_team=team, actor=member,
 			expect=args.expect, reason=args.reason, op_id=args.op_id,
 			refs=args.refs or ())
+	if command == "heartbeat":
+		team, member = _need_participant(args)
+		return transitions.heartbeat(
+			store, args.work, actor_team=team, actor=member,
+			op_id=args.op_id, refs=args.refs or ())
+	if command == "prioritize":
+		team, member = _need_participant(args)
+		return transitions.prioritize(
+			store, args.work, actor_team=team, actor=member,
+			priority=args.priority, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "classify":
 		team, member = _need_participant(args)
 		return transitions.classify(store, args.work, actor_team=team,
@@ -1354,13 +1491,27 @@ def _dispatch(store: Authority, args):
 		                             reason=args.reason, wait=wait, op_id=args.op_id,
 			refs=args.refs or ())
 
+	if command == "search":
+		team, member = _need_participant(args)
+		return projection.search(
+			store, args.query, viewer_team=team, viewer_member=member,
+			work_filter=_filter_operands(args), after=args.after,
+			limit=args.limit)
 	if command == "home":
 		team, member = _need_participant(args)
-		return projection.home(store, viewer_team=team, viewer_member=member)
+		return projection.home(store, viewer_team=team,
+		                       viewer_member=member,
+		                       work_filter=_filter_operands(args))
 	if command == "tree":
 		team, member = _need_participant(args)
 		return projection.tree(store, args.work, viewer_team=team,
-		                       viewer_member=member)
+		                       viewer_member=member,
+		                       work_filter=_filter_operands(args))
+	if command == "filter":
+		raise WorkError(
+			"filter is client-local console view state — use it in "
+			"the TUI command mode (:filter ...), or pass the same "
+			"operands to home, tree, or tui")
 	if command == "obligations":
 		team, _member = _need_participant(args)
 		return projection.obligations(store, viewer_team=team)
@@ -1368,8 +1519,11 @@ def _dispatch(store: Authority, args):
 		team, _member = _need_participant(args)
 		return projection.team_summary(store, viewer_team=team)
 	if command == "wait":
-		team, _member = _need_participant(args)
+		# W136: the wake is PARTICIPANT-relative — both halves of the
+		# validated identity reach the projection.
+		team, member = _need_participant(args)
 		return projection.wait_actionable(store, viewer_team=team,
+		                                  viewer_member=member,
 		                                  timeout_seconds=args.timeout)
 	if command == "detail":
 		team, member = _need_participant(args)

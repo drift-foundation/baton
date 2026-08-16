@@ -45,9 +45,9 @@ def _rig(flow, tag):
 	                viewer="mdb.mo")["work_id"]
 	flow.ok("block", f"work={gated}", f"on={work}", viewer="web.wren")
 	flow.ok("block", f"work={gated}", f"on={extra}", viewer="web.wren")
-	flow.ok("say", f"thread={thread}", "body=onward", f"on={work}",
-	        "pass-to=lang.impl", "phase=active", "set-next=lang.rsrch",
-	        viewer="lang.ada")
+	flow.ok("pass", f"work={work}", "to=lang.impl", "phase=active",
+	        "set-next=lang.rsrch", f"thread={thread}",
+	        "comment=onward", viewer="lang.ada")
 	asked = flow.ok("say", f"thread={thread}", "body=push: confirm",
 	                "request=push.bug", f"on={work}",
 	                viewer="lang.ada")["seq"]
@@ -288,8 +288,9 @@ def test_wf10_terminal_outcomes(flow):
 	# close vs pass: the close that lost the serialization refused; a
 	# close that won recorded the Current AS COMMITTED.
 	rig = _rig(flow, "race-pass")
-	events = race(rig, ("say", f"thread={rig["thread"]}", "body=detour",
-	                    f"on={rig["work"]}", "pass-to=lang.rsrch", "phase=research"),
+	events = race(rig, ("pass", f"work={rig["work"]}",
+	                    "to=lang.rsrch", "phase=research",
+	                    f"thread={rig["thread"]}", "comment=detour"),
 	              "lang.ada")
 	closing = next(event for event in events
 	               if event["kind"] == "close_work" and

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { eventFingerprint, formatEventMessage, normalizeEvent, tailUtf8 } from "../src/event_types.mjs";
+import { actionEvent } from "../src/baton_v11_source.mjs";
 
 test("normalizes a target-scoped event and labels untrusted input", () => {
   const event = normalizeEvent({ target: "driftquery", source: "build", type: "failed", message: "tests failed" });
@@ -24,6 +25,29 @@ test("renders trusted local Baton readiness as one compact line", () => {
   assert.equal(formatEventMessage(event), "[BATON READY] Baton message 28145c1590de16d403be97091f30b31a is ready for baton.reviewer. Apply standing Baton policy.");
   assert.equal(formatEventMessage(event).includes("\n"), false);
   assert.equal(formatEventMessage(event).includes('"channel"'), false);
+});
+
+test("a v11 readiness event becomes one compact trusted line end to end", () => {
+  // W148 R1: the producer's REAL event through the REAL turn-input
+  // formatter — the exact wiring a live wake takes.
+  const envelope = {
+    protocol_version: 11,
+    projection_version: "4.3",
+    participant: "baton.codex",
+    authority_uuid: "7ba67cb8585dcfd250799fe0dc16e3fa",
+    snapshot_seq: 42,
+    result: { actionable: [], timed_out: false },
+  };
+  const action = { kind: "work", action_key: "work:7ba67cb8-W5", work: "7ba67cb8-W5", local_id: "W5", title: "t", phase: "queued", claimed: false };
+  const event = normalizeEvent(actionEvent(envelope, action, { target: "baton" }));
+  const message = formatEventMessage(event);
+  assert.equal(message, "[BATON READY] v11 Work W5 (t) is ready and unclaimed for baton.codex. Act through the canonical v11 CLI (detail work=W5). Apply standing v11 Baton policy.");
+  assert.equal(message.includes("\n"), false, "the turn input must be one line");
+  assert.equal(message.includes('"action_key"'), false, "the JSON details must not leak into the turn");
+  assert.doesNotMatch(message, /EXTERNAL EVENT|untrusted/, "a trusted wake must not carry external-event language");
+  // an arbitrary baton-v11 type does NOT ride the trusted path
+  const other = normalizeEvent({ ...event, id: "x", type: "something-else" });
+  assert.match(formatEventMessage(other), /\[EXTERNAL EVENT\]/);
 });
 
 test("deduplication fingerprint includes target but not event id or timestamp", () => {

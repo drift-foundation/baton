@@ -133,8 +133,9 @@ def test_wf11_work_revisions(flow):
 
 	# 4. Transfer Current: the prior handler loses the authority; the
 	# new handler promotes revision 4 with the expected revision.
-	flow.ok("say", f"thread={thread}", "body=handing the contract to push",
-	        f"on={work}", "pass-to=push.bug", "phase=queued", viewer="lang.ada")
+	flow.ok("pass", f"work={work}", "to=push.bug", "phase=queued",
+	        f"thread={thread}",
+	        "comment=handing the contract to push", viewer="lang.ada")
 	next_contract = flow.ok("say", f"thread={thread}",
 	                        "body=complete contract v4: push owns delivery",
 	                        viewer="push.sl")["seq"]

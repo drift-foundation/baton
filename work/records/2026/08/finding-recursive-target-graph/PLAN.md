@@ -1,5 +1,11 @@
 # Plan — recursive Work graph with tagged discussions
 
+**Protocol-11 documentation gate — 2026-08-16:** before declaring v11 landed,
+update `docs/EFFECTIVE-BATON.md` from its protocol-10 operating model to teach
+honest phase + active-claim transitions, sustained research as claimed work,
+queued as awaiting pickup, and safe independent pipeline multiplexing. The
+owning ruling is in `findings/finding-active-work-claim/FINDING.md`.
+
 1. **Preserve the confirmed direction** — **done 2026-08-11** in `FINDING.md`:
    one recursive objective type, arbitrary-depth strict containment, typed
    non-containment edges, objective-linked discussions, goal roll-up, and
@@ -1821,6 +1827,13 @@ details; accept the short or canonical id through one fail-closed resolver for
 every Work-valued CLI/TUI parameter. Never infer identity from title, cursor,
 order or an ambiguous match, and never truncate the visible selector.
 
+**Queued dependent child: inline dependency cue.** See
+`findings/finding-tui-inline-dependency-cue/FINDING.md` and its plan. The main
+Work table retains `↳` for the two-level containment tree, adds a distinct
+`← Wn` / `← Wn +N` cue for live blocker edges, and removes the opaque `Ready`
+column. Queue behind the authority-local selector child so every cue uses the
+same reviewed short identity contract.
+
 **Queued child: Work-list `Msg/My` counters.** See
 `findings/finding-work-message-action-counts/FINDING.md` and its plan. Project
 overlap-safe total Messages and viewer-eligible pending `@` obligations in the
@@ -1871,6 +1884,13 @@ Expose composable CLI/JSON/TUI filters, including
 `:filter project=baton`, and always show the active filter. Persisted project
 metadata requires a fresh authority and does not widen the schema-14 trial.
 
+**Superseded 2026-08-16:** team is the project boundary; do not add overlapping
+project metadata or a project catalog. The child is now a same-schema filter
+feature over existing Work facts. Team filtering is useful only on multi-team
+surfaces because a team's home view is already implicitly team-scoped. Startup,
+interactive TUI, and CLI/JSON filters still use one grammar and visibly expose
+the active filter.
+
 **Parked child: transient recent-Work cue.** See
 `findings/finding-tui-recent-work-cue/FINDING.md` and its plan. A future schema
 provides per-Work millisecond `last_changed_at` plus stable change sequence;
@@ -1896,6 +1916,41 @@ derives solely from canonical claimant/readiness state and blinks only the
 phase cell; cold, narrow, blocked, waiting, parked, and terminal cases remain
 steady. W84 is removed from recreation. This completes the ruled same-schema
 pre-cutover cleanup set.
+
+**Reliable-cue clarification 2026-08-16:** terminal blink is not sufficiently
+reliable as the sole hot-zone signal. Preserve the same predicate and
+phase-cell blink, and additionally bold only the Title cell of hot active and
+review rows. Cold rows remain unstyled. See
+`findings/finding-tui-hot-cue-live-visibility/`.
+
+**Queued live regression — 2026-08-16:** the fresh-authority TUI showed W2 as
+active and claimed but Slawomir's real terminal displayed no visible blink.
+See `findings/finding-tui-hot-cue-live-visibility/`. W84 remains closed; this
+new item distinguishes escape-attribute emission from visible UX acceptance
+and stays queued behind W2 pending a presentation ruling.
+
+**Resolved immediately — 2026-08-16:** the same phase cell began visibly
+blinking after the initial observation interval. No replacement cue or v11
+Work is needed; the queued-regression paragraph above is superseded and W84
+remains complete.
+
+**Queued fresh-authority UX correction — 2026-08-16:** live W2 details proved
+W71's flat formatted-message stream unusable. See
+`findings/finding-tui-message-index-body-layout/`. Preserve the Work-only main
+screen and Thread hierarchy, but use a compact Message index plus one selected
+body/Refs reader (wide split, narrow stack). This is new Work; W71 stays
+closed and no authority schema change is required.
+
+**Queued footer wording correction — 2026-08-16:** `b links` visually reads as
+“blinks” and was mistaken for the hot-zone cue. See
+`findings/finding-tui-dependency-key-label/`. Render `[b] deps`; retain the
+existing dependency-neighbor action and graph semantics. Queue behind W14.
+
+**Next after W14 — 2026-08-16:** Slawomir prioritized W4
+(`findings/finding-local-work-selectors/`) ahead of the other queued feature
+Work. Its visible `Id` column and authority-local `Wn` resolver make every
+subsequent Work discussion and command easier to identify. Do not start it
+until W14 closes.
 
 **Activated same-schema feedback batch — 2026-08-15.** Per Slawomir, proceed
 serially through W77 (terminal Work has no phase), W74 (root-header cleanup),
@@ -1938,3 +1993,49 @@ replacement database is allowed. W10 priority remains open for the later
 fresh-authority release and is not part of the replacement release gate. If
 another item proves to require new persisted schema, defer it and return for
 review rather than widening this iteration.
+
+**Next focused phase — 2026-08-16: v11 messaging retirement gate.** See
+`findings/finding-v11-messaging-cutover-gate/`. Once the current same-schema
+trial-defect batch is closed, prioritize v11 messaging until the human,
+reviewer, and implementer can coordinate entirely through v11. v10 remains the
+reliable wake-up and communication channel during this work and is not
+deprecated until a live end-to-end v11 trial passes and Slawomir explicitly
+approves retirement.
+
+**Queued claim-age cue — 2026-08-16:** see
+`findings/finding-tui-claim-age/`. Add a final fixed-width `Age` column derived
+from the current claim's committed timestamp: `MM:SS` below one hour, `HH:MM`
+thereafter, `99h+` beyond the range, and `-` while unclaimed. Reuse the existing
+refresh scheduler and authority journal; no database-schema change.
+
+**Parked next-schema child: claim heartbeat and stall alert.** See
+`findings/finding-work-claim-heartbeat/`. A claimant heartbeats every two
+minutes; after three missed beats/six minutes the Age field gains `!`. The
+signal is informational only: never release, transfer, rephase, or permit a
+second claimant automatically. Heartbeat state is separate from total claim
+Age and requires the next authority schema revision.
+
+**Same-schema supersession — 2026-08-16:** the existing append-only event
+journal is sufficient. Record claimant-only heartbeat events, use the claim as
+the initial beat, and project the latest qualifying beat for all active Work
+in one batched read. W47 moves from parked to queued; only a projection-version
+bump is anticipated. A future materialized field/index is an optimization,
+not a prerequisite.
+
+**Final cue refinement — 2026-08-16:** W33 depends on W23. W23 first adds bold
+Title without creating a visibility gap; W33 then adds claim `Age` and removes
+phase-cell blink atomically. The final hot-zone presentation is bold plus timer,
+with no terminal animation.
+
+**Phase-change cue supersession — 2026-08-16:** the sentence immediately above
+is superseded only in saying “no terminal animation.” W33 removes indefinite
+hot-state blink but retains a client-local Phase-cell blink for three scheduled
+refresh ticks after an observed Phase change. Initial load is cold; keystrokes,
+redraws, resize, and immediate mutation refreshes do not consume or restart the
+countdown. Bold Title plus claim Age remain the steady presentation.
+
+**Queued stage-label correction — 2026-08-16:** see
+`findings/finding-tui-current-next-stage/`. Work-table `Current` and `Next`
+answer what is happening now and what happens next, so render their resolved
+route handles (`impl`, `rview`) rather than endpoint kinds (`baton.impl`,
+`baton.feat`). JSON and commands retain the complete structured endpoint.

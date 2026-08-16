@@ -52,3 +52,15 @@ require no fresh authority. Continue auditing every open Work before fixing
 the final sequence. Do not deploy, initialize the fresh authority, or run
 recreation until all pre-cutover items review clean, leave the recreation set,
 and the corrected tree is committed.
+
+**Cutover correction — 2026-08-16 13:57Z:** the fresh authority is activated
+and all five creates are committed, but the parked transition was refused
+because the script attempted it as `baton.claude` instead of the configured
+`baton.feat` review handler `baton.codex`. Correct the script's phase actor,
+pin it with a regression, then rerun the effectively-once script to finish the
+outstanding transition. Verify exactly five rows, four open and one parked.
+
+**Recreation complete — 2026-08-16:** the corrected rerun replayed all five
+stable create operations and committed the one outstanding parked transition
+at authority sequence 7. Fresh-authority recreation is complete. Parallel
+participant/TUI acceptance remains before retiring the prior trial home.

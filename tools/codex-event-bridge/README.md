@@ -170,6 +170,55 @@ Do not omit `--remote` after migration. A plain `codex resume THREAD_ID`
 starts an isolated backend and prevents the shared bridge from acquiring that
 thread's active-writer lock.
 
+## v11 readiness producer (certification overlap)
+
+`bin/baton-v11-monitor` is the standalone protocol-11 readiness producer for
+the v10-to-v11 certification overlap. Launch it beside the ALREADY RUNNING
+v10 stack — it starts no second app-server, dispatcher, or bridge, and the
+supervisor configuration above is not touched.
+
+The monitor requires a v11 release whose `wait` speaks the projection-4.3
+participant-action contract (W136/W148). Older trial releases (for example
+the projection-4.1 `825e97d` build) are correctly refused by the envelope
+gate. So the operator first deploys a new immutable v11 candidate containing
+W136/W148, then launches with that exact release's `bin/baton`, the running
+stack's configured target name, and its configured event socket. For the
+current trial deployment those resolve to:
+
+```bash
+tools/codex-event-bridge/bin/baton-v11-monitor \
+  --baton /home/sl/opt/baton/v11/<NEW_CANDIDATE>/bin/baton \
+  --config /home/sl/baton-v11/baton.json \
+  --participant baton.claude \
+  --target baton-reviewer \
+  --socket /home/sl/.local/run/codex-events.sock
+```
+
+where `<NEW_CANDIDATE>` is the newly deployed release hash — never an older
+release that predates projection 4.3 — and `--target`/`--socket` must match
+the running stack's configuration (here `baton-reviewer` on
+`/home/sl/.local/run/codex-events.sock`), not fresh names.
+
+It repeatedly invokes `BATON --config PATH --participant TEAM.MEMBER wait
+timeout=S` (the protocol-11 key=value grammar), validates the typed
+projection-4.3 envelope, and forwards one trusted compact event per unseen
+action key into the running stack's existing event socket, addressed to the
+existing target. The bridge then renders the same one-line `[BATON READY]`
+turn input it uses for v10 readiness. The monitor is read-only and
+level-triggered: it never claims, responds, or advances cursors, and a key
+is suppressed while present, forgotten when it disappears, and re-emitted if
+it returns.
+
+Run exactly ONE readiness producer per participant. v11 `wait` is read-only
+and level-triggered, so a second waiter steals nothing and consumes nothing —
+instead both observe the same actionable set and each forwards it, which
+manufactures duplicate Codex turns for the same wake (beyond whatever a short
+bridge dedup window happens to absorb). One producer per participant keeps
+delivery single-sourced, exactly as the v10 stack runs one poller per
+participant. During the overlap the v10 stack keeps running unchanged in
+parallel; integrating this producer into the `just codex-baton` supervisor
+happens only at the v10 retirement gate, as a separately reviewed change.
+
 ## 6. Send events
 
 With a message flag:

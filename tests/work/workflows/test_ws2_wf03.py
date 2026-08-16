@@ -46,7 +46,9 @@ def test_ws2_wf03_due_extension_withdrawal(flow):
 		("0/3", 0, False)
 	assert flow.ok("summary", viewer="lang.ada")["due"] == 0
 	# The read-only wait times out quietly before the deadline...
-	early = flow.ok("wait", "timeout=0.15", viewer="lang.ada")
+	# (W136: the wait is participant-relative — grace resolves nothing,
+	# so ada's routed-Work wake does not mask the deadline mechanics.)
+	early = flow.ok("wait", "timeout=0.15", viewer="lang.grace")
 	assert early == {"actionable": [], "timed_out": True}
 
 	# 2. At T, the round is due for exactly the responsible provider

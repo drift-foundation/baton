@@ -132,16 +132,161 @@ def _my_pending(store: Authority, work_id: str, viewer_team: str,
 	return count
 
 
+# W5 (ruled): the ONE closed filter vocabulary over existing canonical
+# Work facts — deterministic field order, AND composition, at most one
+# value per field. No comma syntax, negation, comparison, or OR
+# language; compact TUI display spellings are refused as input.
+FILTER_FIELDS = ("team", "status", "phase", "current", "category",
+                 "ready", "new", "priority")
+
+
+def normalize_filter(store: Authority, active, viewer_team: str):
+	"""Validate and canonically order a filter mapping. Field
+	vocabulary is enforced by the shared grammar; this boundary adds
+	the store-dependent refusals — an unknown team handle and an
+	unresolvable current endpoint refuse BEFORE any plausible partial
+	view is produced. Returns the ordered {field: value} dict, or None
+	for an empty filter."""
+	if not active:
+		return None
+	unknown = set(active) - set(FILTER_FIELDS)
+	if unknown:
+		raise WorkError(f"unknown filter field "
+		                f"{sorted(unknown)[0]!r}; filters cover "
+		                f"{', '.join(FILTER_FIELDS)}")
+	if "team" in active:
+		if not store.conn.execute(
+				"SELECT 1 FROM teams WHERE handle=?",
+				(active["team"],)).fetchone():
+			raise WorkError(f"filter team={active['team']!r} is not a "
+			                f"configured team")
+	if "current" in active and active["current"] != "me":
+		team, dot, kind = active["current"].partition(".")
+		known = dot and store.conn.execute(
+			"SELECT 1 FROM kinds WHERE team=? AND handle=?",
+			(team, kind)).fetchone()
+		if not known:
+			raise WorkError(
+				f"filter current={active['current']!r} is neither a "
+				f"configured TEAM.KIND endpoint nor me")
+	return {field: active[field] for field in FILTER_FIELDS
+	        if field in active}
+
+
+def _filter_matches(row: dict, active: dict, viewer_team: str,
+                    viewer_member: str) -> bool:
+	"""One row against the normalized filter — canonical projected
+	values only (`current=me` = the viewer is one of the endpoint's
+	resolved handlers; `new=true` = the viewer's personal New count is
+	nonzero)."""
+	for field, value in active.items():
+		if field == "team" and row["team"] != value:
+			return False
+		if field == "status" and row["status"] != value:
+			return False
+		if field == "phase" and row["phase"] != value:
+			return False
+		if field == "current":
+			current = row["current"]
+			if value == "me":
+				if not (current
+				        and current["endpoint"].split(".", 1)[0]
+				        == viewer_team
+				        and viewer_member
+				        in (current.get("handlers") or ())):
+					return False
+			elif not current or current["endpoint"] != value:
+				return False
+		if field == "category" and row["classification"] != value:
+			return False
+		if field == "ready" and bool(row["ready"]) != (value == "true"):
+			return False
+		if field == "new" and (row["new"] > 0) != (value == "true"):
+			return False
+		if field == "priority" and row["priority"] != value:
+			return False
+	return True
+
+
+def _first_open_blockers(store: Authority, work_ids) -> dict:
+	"""W39 R1 (no-N+1): the deterministic first-open-blocker selectors
+	for a WHOLE window in one batch — growing the visible tree never
+	grows selector reads. Oldest open blocker per consumer, read in the
+	caller's snapshot; consumers with no open blocker are absent."""
+	work_ids = list(work_ids)
+	if not work_ids:
+		return {}
+	marks = ",".join("?" * len(work_ids))
+	first = {}
+	for hit in store.conn.execute(
+			f"SELECT edges.work AS consumer, work.id AS blocker "
+			f"FROM edges JOIN work ON work.id = edges.blocker "
+			f"WHERE work.status='open' AND edges.work IN ({marks}) "
+			f"ORDER BY edges.work, work.created_seq",
+			tuple(work_ids)):
+		if hit["consumer"] not in first:
+			first[hit["consumer"]] = hit["blocker"].rsplit("-", 1)[1]
+	return first
+
+
+def _claimed_ats(store: Authority, work_ids) -> dict:
+	"""W33+W47: the committed CURRENT-claim timestamp AND the latest
+	qualifying heartbeat for a whole window in ONE batched statement
+	(no per-row read, W39's boundary) — straight from the append-only
+	journal, never last_changed_at. The heartbeat is scoped to the
+	CURRENT claim epoch: the newest claim event per Work, then the
+	newest claim/heartbeat event at or after it whose payload names
+	that same exact claimant — a beat from an earlier claim can never
+	make a later re-claim look healthy. Returns
+	{work_id: (claimed_ts, heartbeat_ts)}; meaningful only for rows
+	whose active claimant exists (the caller guards)."""
+	work_ids = list(work_ids)
+	if not work_ids:
+		return {}
+	marks = ",".join("?" * len(work_ids))
+	return {hit["consumer"]: (hit["claimed"], hit["beat"])
+	        for hit in store.conn.execute(
+		f"WITH last_claim AS ("
+		f"  SELECT json_extract(payload, '$.work') AS w, "
+		f"         MAX(seq) AS s FROM events WHERE kind='claim' "
+		f"  AND json_extract(payload, '$.work') IN ({marks}) "
+		f"  GROUP BY 1) "
+		f"SELECT lc.w AS consumer, ce.ts AS claimed, "
+		f"  (SELECT hb.ts FROM events hb "
+		f"   WHERE hb.kind IN ('claim', 'heartbeat') "
+		f"   AND json_extract(hb.payload, '$.work') = lc.w "
+		f"   AND hb.seq >= lc.s "
+		f"   AND json_extract(hb.payload, '$.claimant') "
+		f"       = json_extract(ce.payload, '$.claimant') "
+		f"   ORDER BY hb.seq DESC LIMIT 1) AS beat "
+		f"FROM last_claim lc JOIN events ce ON ce.seq = lc.s",
+		tuple(work_ids))}
+
+
 def _row_view(store: Authority, row: dict, viewer_team: str,
-              viewer_member: str) -> dict:
+              viewer_member: str, first_blockers: dict | None = None,
+              claimed_ats: dict | None = None) -> dict:
 	"""One Work as a projection row: stable ids and structured values, no
 	preformatted display strings (parity ruling)."""
 	counts = store.conn.execute(
 		"SELECT COUNT(*) AS total, "
 		"SUM(CASE WHEN status='closed' THEN 1 ELSE 0 END) AS closed "
 		"FROM work WHERE parent=?", (row["id"],)).fetchone()
+	# W47 R2: the claim/heartbeat pair resolves EXACTLY once per row —
+	# window callers pass one batched map; a single-row caller batches
+	# its one id here, once, never per field.
+	if row["active_team"] is None:
+		claim_fact = (None, None)
+	else:
+		if claimed_ats is None:
+			claimed_ats = _claimed_ats(store, [row["id"]])
+		claim_fact = claimed_ats.get(row["id"], (None, None))
 	return {
 		"id": row["id"],
+		# W4: the generated authority-local short selector — derived
+		# from the canonical id's permanent sequence, never invented,
+		# never reused; a convenience spelling, not a second identity.
+		"local_id": row["id"].rsplit("-", 1)[1],
 		"title": row["title"],
 		"team": row["team"],
 		"origin": row["origin"],
@@ -173,6 +318,15 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 			"ON work.id = edges.blocker "
 			"WHERE edges.work=? AND work.status='open'",
 			(row["id"],)).fetchone()["n"],
+		# W39: the deterministic first OPEN blocker's local selector —
+		# oldest by permanent creation order, from the same snapshot.
+		# Window projections pass the ONE batched map (R1: no per-row
+		# selector read); a single-row view batches its one id. None
+		# when nothing open blocks this row; satisfied historical
+		# edges leave the live cue and stay in the audit ledger.
+		"first_open_blocker": (first_blockers if first_blockers
+		                       is not None else _first_open_blockers(
+		                           store, [row["id"]])).get(row["id"]),
 		"open_dependents": store.conn.execute(
 			"SELECT COUNT(*) AS n FROM edges JOIN work "
 			"ON work.id = edges.work "
@@ -191,6 +345,15 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		# until the gated claim operation exists and succeeds.
 		"active": None if row["active_team"] is None else
 			{"team": row["active_team"], "member": row["active_member"]},
+		# W33: when a current claimant exists, the timestamp its claim
+		# landed (the newest claim event) — canonical fact only; the
+		# changing age display is client-derived. Null while unclaimed,
+		# after release, and on terminal rows. W47 adds heartbeat_at:
+		# the latest qualifying beat of the CURRENT claim epoch (the
+		# claim itself is the initial beat); clients derive the fixed
+		# six-minute stall alert from this recorded fact alone.
+		"claimed_at": claim_fact[0],
+		"heartbeat_at": claim_fact[1],
 		# W36: conversation VOLUME and the viewer's directed load —
 		# same recursive scope as the conversation projection,
 		# overlap-safe (a message reachable through several labelled
@@ -201,7 +364,8 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 	}
 
 
-def home(store: Authority, *, viewer_team: str, viewer_member: str) -> dict:
+def home(store: Authority, *, viewer_team: str, viewer_member: str,
+         work_filter=None) -> dict:
 	"""The viewer's default top-level view: the team SUMMARY and the table
 	of root Work owned by their team — ONE projection, one snapshot, so the
 	always-visible parked count can never disagree with the rows beside it
@@ -211,9 +375,22 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str) -> dict:
 	try:
 		rows = store.conn.execute(
 			"SELECT * FROM work WHERE parent IS NULL AND team=? "
-			"ORDER BY created_seq", (viewer_team,)).fetchall()
-		views = [_row_view(store, dict(row), viewer_team, viewer_member)
+			"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq", (viewer_team,)).fetchall()
+		ids = [row["id"] for row in rows]
+		first = _first_open_blockers(store, ids)
+		claimed = _claimed_ats(store, ids)
+		views = [_row_view(store, dict(row), viewer_team, viewer_member,
+		                   first_blockers=first, claimed_ats=claimed)
 		         for row in rows]
+		# W5: filtering happens INSIDE the canonical snapshot, after
+		# the row facts are projected — JSON and the TUI consume the
+		# same selected rows and the same normalized disclosure. The
+		# team summary stays deliberately GLOBAL.
+		active = normalize_filter(store, work_filter, viewer_team)
+		if active:
+			views = [dict(view, filter_match=True) for view in views
+			         if _filter_matches(view, active, viewer_team,
+			                            viewer_member)]
 		summary = team_summary(store, viewer_team=viewer_team,
 		                       now=store.clock())
 		snapshot_seq = store.last_seq()
@@ -223,6 +400,65 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str) -> dict:
 		# a writer committing mid-read changes none of them (R3).
 		store.conn.execute("ROLLBACK")
 	return {"summary": summary, "rows": views,
+	        "filter": active,
+	        "snapshot_seq": snapshot_seq}
+
+
+def search(store: Authority, query, *, viewer_team: str,
+           viewer_member: str, work_filter=None, after: int = 0,
+           limit: int = 100) -> dict:
+	"""W6: the canonical read-only Work search — every Work OWNED by
+	the viewer's team (nested Work beyond any window included; the
+	team-noise boundary holds, cross-team navigation stays explicit
+	links). Matching is deliberately small and predictable: case-folded
+	substring on the title; case-insensitive exact/prefix on the
+	canonical and authority-local identifiers. No message bodies,
+	thread subjects, routes, categories, or dossier content. The
+	active Work filter narrows with the same normalized AND semantics
+	as home/tree; results ride stable creation order behind an
+	explicit `next_after` continuation cursor (never an identity);
+	everything reads from ONE snapshot and writes nothing."""
+	query = (query or "").strip()
+	if not query:
+		raise WorkError("search needs a non-empty query=")
+	if not isinstance(limit, int) or limit < 1 or limit > 500:
+		raise WorkError("search limit= takes 1..500")
+	folded = query.casefold()
+	store.conn.execute("BEGIN")
+	try:
+		active = normalize_filter(store, work_filter, viewer_team)
+		candidates = []
+		for row in store.conn.execute(
+				"SELECT * FROM work WHERE team=? ORDER BY created_seq",
+				(viewer_team,)):
+			title_hit = folded in row["title"].casefold()
+			canonical = row["id"].casefold()
+			local = canonical.rsplit("-", 1)[1]
+			id_hit = canonical.startswith(folded) or 				local.startswith(folded)
+			if title_hit or id_hit:
+				candidates.append(dict(row))
+		ids = [row["id"] for row in candidates]
+		first = _first_open_blockers(store, ids)
+		claimed = _claimed_ats(store, ids)
+		views = []
+		for row in candidates:
+			view = _row_view(store, row, viewer_team, viewer_member,
+			                 first_blockers=first, claimed_ats=claimed)
+			if active and not _filter_matches(view, active,
+			                                  viewer_team,
+			                                  viewer_member):
+				continue
+			if active:
+				view = dict(view, filter_match=True)
+			views.append((row["created_seq"], view))
+		window = [entry for entry in views if entry[0] > after]
+		page = window[:limit]
+		next_after = page[-1][0] if len(window) > limit else None
+		snapshot_seq = store.last_seq()
+	finally:
+		store.conn.execute("ROLLBACK")
+	return {"query": query, "rows": [view for _seq, view in page],
+	        "filter": active, "next_after": next_after,
 	        "snapshot_seq": snapshot_seq}
 
 
@@ -244,14 +480,19 @@ def children(store: Authority, work_id: str, *, viewer_team: str,
 	with _read_snapshot(store):
 		_work(store, work_id)
 		rows = store.conn.execute(
-			"SELECT * FROM work WHERE parent=? ORDER BY created_seq",
+			"SELECT * FROM work WHERE parent=? "
+			"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq",
 			(work_id,)).fetchall()
-		return [_row_view(store, dict(row), viewer_team, viewer_member)
+		ids = [row["id"] for row in rows]
+		first = _first_open_blockers(store, ids)
+		claimed = _claimed_ats(store, ids)
+		return [_row_view(store, dict(row), viewer_team, viewer_member,
+		                  first_blockers=first, claimed_ats=claimed)
 		        for row in rows]
 
 
 def tree(store: Authority, root: str | None = None, *, viewer_team: str,
-         viewer_member: str) -> dict:
+         viewer_member: str, work_filter=None) -> dict:
 	"""W71 R3: THE canonical bounded tree window the navigation contract
 	paints — the team's roots (or one supplied re-root) each followed by its
 	immediate children (depth 1), the team summary, and the snapshot token,
@@ -260,23 +501,68 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 	committing mid-read can never produce a mixed tree."""
 	with _read_snapshot(store):
 		if root is None:
+			# W3: root siblings rank high, normal, low, then the stable
+			# created_seq tie-break — and each child sibling group
+			# below orders identically WITHOUT leaving its parent.
 			bases = [dict(row) for row in store.conn.execute(
 				"SELECT * FROM work WHERE parent IS NULL AND team=? "
-				"ORDER BY created_seq", (viewer_team,))]
+				"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq", (viewer_team,))]
 		else:
 			bases = [_work(store, root)]
-		rows = []
+		# W39 R1: gather the WHOLE window first, then one batched
+		# blocker-selector read for all of it — row construction never
+		# issues a per-row selector query.
+		window = []
 		for base in bases:
-			rows.append(dict(_row_view(store, base, viewer_team,
-			                           viewer_member), depth=0))
+			window.append((base, 0))
 			for child in store.conn.execute(
 					"SELECT * FROM work WHERE parent=? "
-					"ORDER BY created_seq", (base["id"],)).fetchall():
-				rows.append(dict(_row_view(store, dict(child), viewer_team,
-				                           viewer_member), depth=1))
+					"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq", (base["id"],)).fetchall():
+				window.append((dict(child), 1))
+		ids = [entry["id"] for entry, _depth in window]
+		first = _first_open_blockers(store, ids)
+		claimed = _claimed_ats(store, ids)
+		rows = [dict(_row_view(store, entry, viewer_team,
+		                       viewer_member, first_blockers=first,
+		                       claimed_ats=claimed),
+		             depth=depth)
+		        for entry, depth in window]
+		# W5 (approved containment rule): within each bounded
+		# parent/child group — a matching parent keeps only its
+		# matching children; a NONmatching parent is retained as
+		# structural context (filter_match: false) when at least one
+		# child matches; a group with no match disappears whole.
+		# Filtering never promotes a child, changes depth, or reorders.
+		active = normalize_filter(store, work_filter, viewer_team)
+		if active:
+			def keep(parent, children):
+				parent_match = _filter_matches(parent, active,
+				                               viewer_team,
+				                               viewer_member)
+				matched = [child for child in children
+				           if _filter_matches(child, active,
+				                              viewer_team,
+				                              viewer_member)]
+				if parent_match or matched:
+					yield dict(parent, filter_match=parent_match)
+					for child in matched:
+						yield dict(child, filter_match=True)
+
+			filtered = []
+			index = 0
+			while index < len(rows):
+				parent = rows[index]
+				index += 1
+				children = []
+				while index < len(rows) and rows[index]["depth"]:
+					children.append(rows[index])
+					index += 1
+				filtered.extend(keep(parent, children))
+			rows = filtered
 		summary = _summary_in_snapshot(store, viewer_team, store.clock())
 		snapshot_seq = store.last_seq()
-	return {"rows": rows, "summary": summary, "snapshot_seq": snapshot_seq}
+	return {"rows": rows, "summary": summary, "filter": active,
+	        "snapshot_seq": snapshot_seq}
 
 
 def links(store: Authority, work_id: str) -> dict:
@@ -764,26 +1050,140 @@ def _round_view(store: Authority, row, now: str | None = None) -> dict:
 	        "assignments": assignments}
 
 
+def participant_actions(store: Authority, *, viewer_team: str,
+                        viewer_member: str, now: str | None = None) -> dict:
+	"""W136: THE one participant-relative action projection — the facts
+	that may WAKE this exact member, owned here and consumed unchanged
+	by JSON, `wait`, and the TUI's personal counters. No new message
+	operator exists: the existing rules decide everything.
+
+	- routed Work (`=>`/pass): an open, ready, unclaimed,
+	  non-waiting/parked Work is actionable for every member the
+	  live Current endpoint resolves; after the atomic claim it stays
+	  actionable for the exact claimant alone (rediscoverable after a
+	  restart, whatever its readiness drifts to). The stable action
+	  identity is the Work id — claiming never manufactures a second
+	  wake.
+	- `@` obligations: actionable exactly for members the obligation's
+	  owed endpoint currently resolves; identity = the obligation seq.
+	  Rerouting changes eligibility without rewriting history.
+	- due verification rounds: actionable exactly for members the
+	  Work's live Current endpoint resolves; identity includes work,
+	  round, and deadline generation, so an extension retires the old
+	  alarm and a later due generation is new.
+	- `+`, plain posts, and personal New are attention, never wakeups.
+
+	Deterministic order: obligations (seq), due rounds (review_at,
+	work), then Work actions (creation order). One read snapshot; no
+	write of any kind."""
+	if now is None:
+		now = store.clock()
+	actions = []
+	with _read_snapshot(store):
+		snapshot_seq = store.last_seq()
+		# W136 R4: the wait path re-derives this projection on a tight
+		# poll — each DISTINCT endpoint resolves exactly once per
+		# snapshot, so the read cost never grows with the number of
+		# actions sharing one endpoint.
+		memo: dict = {}
+
+		def resolve(team, kind):
+			key = (team, kind)
+			if key not in memo:
+				memo[key] = _endpoint_struct(store, team, kind)
+			return memo[key]
+
+		for row in store.conn.execute(
+				"SELECT seq, work, message_seq, team, kind, flavor, "
+				"round, thread, status FROM obligations "
+				"WHERE team=? AND status='pending' ORDER BY seq",
+				(viewer_team,)):
+			owed = resolve(row["team"], row["kind"])
+			if not owed or viewer_member not in (owed["handlers"]
+			                                     or ()):
+				continue
+			entry = dict(row)
+			entry["kind_name"] = row["kind"]
+			entry["kind"] = "obligation"
+			entry["action_key"] = f"obligation:{row['seq']}"
+			entry["completes_by"] = (["respond", "dispose", "accept"]
+			                         if row["flavor"] == "response"
+			                         else ["report"])
+			entry["owed_by"] = owed
+			actions.append(entry)
+		for row in store.conn.execute(
+				"SELECT rounds.work, rounds.round, rounds.candidate, "
+				"rounds.review_at, rounds.deadline_generation, "
+				"work.current_team, work.current_kind "
+				"FROM rounds JOIN work ON work.id = rounds.work "
+				"WHERE rounds.status='open' "
+				"AND rounds.review_at IS NOT NULL "
+				"AND rounds.review_at <= ? AND work.current_team=? "
+				"ORDER BY rounds.review_at, rounds.work",
+				(now, viewer_team)):
+			responsible = resolve(row["current_team"],
+			                      row["current_kind"])
+			if not responsible or viewer_member not in 					(responsible["handlers"] or ()):
+				continue
+			actions.append({
+				"kind": "due_round", "flavor": "due_round",
+				"action_key": (f"round:{row['work']}:{row['round']}"
+				               f":{row['deadline_generation']}"),
+				"work": row["work"], "round": row["round"],
+				"candidate": row["candidate"],
+				"review_at": row["review_at"],
+				"deadline_generation": row["deadline_generation"],
+				"responsible": responsible})
+		for row in store.conn.execute(
+				"SELECT * FROM work WHERE status='open' "
+				"ORDER BY created_seq"):
+			if row["active_team"] is not None:
+				if (row["active_team"], row["active_member"]) != 						(viewer_team, viewer_member):
+					continue
+			else:
+				if not row["ready"] or 						row["phase"] in ("waiting", "parked"):
+					continue
+				if row["current_team"] != viewer_team:
+					continue
+				current = resolve(row["current_team"],
+				                  row["current_kind"])
+				if not current or viewer_member not in 						(current["handlers"] or ()):
+					continue
+			actions.append({
+				"kind": "work",
+				"action_key": f"work:{row['id']}",
+				"work": row["id"],
+				"local_id": row["id"].rsplit("-", 1)[1],
+				"title": row["title"],
+				"phase": row["phase"],
+				"claimed": row["active_team"] is not None})
+	return {"actions": actions, "snapshot_seq": snapshot_seq}
+
+
 def wait_actionable(store: Authority, *, viewer_team: str,
+                    viewer_member: str,
                     timeout_seconds: float) -> dict:
-	"""R44: the smallest READ-ONLY wait surface. Returns immediately when
-	the team's actionable projection is non-empty; otherwise blocks no
-	later than the nearest live deadline (the poll re-derives the pure
-	projection, so extensions, closes, abandonments, and competing
-	messages are seen as they commit) or the caller's timeout. Creates no
-	claim, timer row, audit act, or any other authority mutation."""
+	"""R44 + W136: the smallest READ-ONLY wait surface, now
+	PARTICIPANT-relative. Returns immediately when this member's action
+	projection is non-empty; otherwise blocks no later than the nearest
+	live deadline (the poll re-derives the pure projection, so
+	extensions, closes, claims, passes, reroutes, and competing
+	messages are seen as they commit) or the caller's timeout. Creates
+	no claim, timer row, audit act, or any other authority mutation."""
 	import time as _time
 	wall_deadline = _time.monotonic() + max(0.0, float(timeout_seconds))
 	while True:
-		entries = obligations(store, viewer_team=viewer_team,
-		                      now=store.clock())
-		if entries:
-			return {"actionable": entries, "timed_out": False,
-			        "snapshot_seq": entries.snapshot_seq}
+		window = participant_actions(store, viewer_team=viewer_team,
+		                             viewer_member=viewer_member,
+		                             now=store.clock())
+		if window["actions"]:
+			return {"actionable": window["actions"],
+			        "timed_out": False,
+			        "snapshot_seq": window["snapshot_seq"]}
 		remaining = wall_deadline - _time.monotonic()
 		if remaining <= 0:
 			return {"actionable": [], "timed_out": True,
-			        "snapshot_seq": entries.snapshot_seq}
+			        "snapshot_seq": window["snapshot_seq"]}
 		_time.sleep(min(0.05, remaining))
 
 
@@ -976,6 +1376,11 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 			viewer_member in resolved["handlers"]
 	available = []
 	if row["status"] == "open":
+		# W3: priority is OWNING-team authority, independent of the
+		# Current route, claimant, phase, and readiness — advertised to
+		# every configured owning-team member while the Work is open.
+		if viewer_team == row["team"]:
+			available.append("prioritize")
 		# R69: no Work-addressed posting/seen operation exists after the
 		# Slice B bridge removal — contribution and seen state are
 		# thread-addressed (say/mark-seen against a thread id),
@@ -1009,6 +1414,13 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		# only while a claimant exists. Writer stays final.
 		if handler and row["active_team"] is not None:
 			available.append("release")
+		# W47 R1: the heartbeat is advertised EXACTLY for the recorded
+		# active claimant — stricter than the route-handler test; no
+		# teammate, other team, unclaimed, or closed row ever offers
+		# it (closure offers nothing at all above).
+		if row["active_team"] == viewer_team and \
+				row["active_member"] == viewer_member:
+			available.append("heartbeat")
 	view["available_transitions"] = sorted(available)
 	# W71: open_blockers is the ROW's own field (one computation, one
 	# meaning) — the former detail-local recompute is gone.

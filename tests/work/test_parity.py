@@ -52,10 +52,23 @@ def _json(capsys, path, *argv, viewer):
 
 
 def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
-	"""TUI table rows, decoded by the APP'S OWN responsive column budget."""
-	columns = app.visible_columns(width)
+	"""TUI table rows, decoded by the APP'S OWN responsive column budget.
+	W4: the leading Id column's width comes from the painted header —
+	the same source of truth the human reads."""
+	header = next(line for line in screen if "Title" in line)
+	id_width = header.index("Title") - 1
+	columns = app.visible_columns(width, id_width)
 	fixed = sum(col_width for _n, col_width in columns) + len(columns)
-	title_width = max(app.MIN_TITLE, width - fixed - 1)
+	# W39: the optional Blk (dependency-cue) field sits between Title
+	# and the fixed columns; its width falls out of the header the app
+	# itself painted.
+	blk_at = header.index("Blk") if "Blk" in header else None
+	if blk_at is not None:
+		cue_width = width - 1 - fixed - blk_at
+		title_width = blk_at - id_width - 2
+	else:
+		cue_width = 0
+		title_width = max(app.MIN_TITLE, width - fixed - id_width - 2)
 	rows = []
 	for line in screen[2:]:
 		# W71: the table ends at the footer/help, a pane header, or a
@@ -66,12 +79,19 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		if not line.strip() or line.startswith("("):
 			continue
 		line = line.ljust(width)          # replay rstrips; offsets are fixed
+		local_id = line[:id_width].strip()
+		cue = line[blk_at:blk_at + cue_width].strip() \
+			if blk_at is not None else ""
+		rest_at = (blk_at + cue_width) if blk_at is not None \
+			else id_width + 1 + title_width
+		rest = line[rest_at:]
+		line = line[id_width + 1:]
 		raw_title = line[:title_width].rstrip()
 		depth = 1 if raw_title.startswith("↳ ") else 0
 		clean = raw_title[2:] if depth else raw_title
 		clean = clean.split(" ▸")[0]
-		cells = {"title": clean, "depth": depth}
-		rest = line[title_width:]
+		cells = {"title": clean, "depth": depth,
+		         "local_id": local_id, "cue": cue}
 		offset = 0
 		for name, col_width in columns:
 			cells[name] = rest[offset + 1:offset + 1 + col_width].strip()
@@ -80,7 +100,6 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 			f"unparseable row (NEW={cells.get('NEW')!r}): {line!r}"
 		parsed = {"title": cells["title"], "depth": cells["depth"],
 		          "status": cells["ST"],
-		          "ready": cells["READY"] == "yes",
 		          "current": None if cells["CURRENT"] == "-"
 		          else cells["CURRENT"],
 		          "next": None if cells["NEXT"] == "-" else cells["NEXT"],
@@ -143,7 +162,8 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			assert drawn_row["msg_my"] == (
 				f"{json_row['message_count']}"
 				f"/{json_row['my_pending_obligations']}")
-			assert drawn_row["ready"] == json_row["ready"]
+			# W39: Ready is no longer painted — the dependency cue
+			# carries the gate's identity instead (own parity suite).
 			expected_current = (json_row["current"] or {}).get("endpoint")
 			expected_next = (json_row["next"] or {}).get("endpoint")
 			assert drawn_row["current"] == expected_current
@@ -194,7 +214,9 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 		(b"\r", 0.5),        # drill: path = [lang42]
 		(b"o", 0.5),         # the focused view + thread set
 		(b"\r", 0.5),        # open the epic's own thread
-		(b"s", 0.5),         # THE explicit seen transition
+		(b"\x17j", 0.4),     # W14: the Message index
+		(b"j" * 12, 0.8),    # walk the selection to the LAST message
+		(b"s", 0.5),         # seen through the selected (last) message
 		(b"qy", 0.4),
 	], columns=WIDTH, lines=HEIGHT)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

@@ -522,11 +522,13 @@ def test_wait_returns_immediately_when_actionable(world):
 	                review_at=T1)
 	store.now = T1
 	result = pj.wait_actionable(store, viewer_team="lang",
+	                            viewer_member="ada",
 	                            timeout_seconds=0.01)
 	assert result["timed_out"] is False
 	assert result["actionable"][0]["flavor"] == "due_round"
 	# The verifier's pending assignment is equally immediate.
 	result = pj.wait_actionable(store, viewer_team="push",
+	                            viewer_member="sl",
 	                            timeout_seconds=0.01)
 	assert result["timed_out"] is False
 	assert result["actionable"][0]["flavor"] == "verification"
@@ -539,7 +541,11 @@ def test_wait_times_out_quietly_before_the_deadline(world):
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	before = store.events()
+	# W136: the wait is participant-relative; grace resolves nothing,
+	# so the pure deadline mechanics stay observable without the
+	# provider Work itself waking its handler.
 	result = pj.wait_actionable(store, viewer_team="lang",
+	                            viewer_member="grace",
 	                            timeout_seconds=0.15)
 	assert result["actionable"] == [] and result["timed_out"] is True
 	assert result["snapshot_seq"] == store.last_seq(), \
@@ -551,12 +557,21 @@ def test_wait_wakes_when_the_deadline_arrives(world):
 	import time as _time
 	store = world
 	work = _provider(store)
+	# W136: neutralize the routed-Work wake (a push-owned gate blocks
+	# the provider) so the DEADLINE is the only thing that can wake ada.
+	gate = tr.create_work(store, team="push", kind="verify",
+	                      title="gate", origin="external-report",
+	                      classification="suspected-defect",
+	                      author="sl", body="g")["work_id"]
+	tr.add_dependency(store, work, gate, actor_team="lang",
+	                  actor="ada")
 	tr.create_round(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	start = _time.monotonic()
 	store.clock = lambda: T1 if _time.monotonic() - start > 0.15 else T0
 	result = pj.wait_actionable(store, viewer_team="lang",
+	                            viewer_member="ada",
 	                            timeout_seconds=5.0)
 	assert result["timed_out"] is False
 	assert result["actionable"][0]["work"] == work
@@ -568,6 +583,12 @@ def test_wait_sees_a_competing_message_commit(world):
 	import threading
 	store = world
 	work = _provider(store)
+	gate = tr.create_work(store, team="push", kind="verify",
+	                      title="gate", origin="external-report",
+	                      classification="suspected-defect",
+	                      author="sl", body="g")["work_id"]
+	tr.add_dependency(store, work, gate, actor_team="lang",
+	                  actor="ada")
 
 	def late_request():
 		import time as _time
@@ -582,6 +603,7 @@ def test_wait_sees_a_competing_message_commit(world):
 	thread.start()
 	try:
 		result = pj.wait_actionable(store, viewer_team="lang",
+		                            viewer_member="ada",
 		                            timeout_seconds=5.0)
 	finally:
 		thread.join()
@@ -592,6 +614,12 @@ def test_wait_sees_a_competing_message_commit(world):
 def test_wait_reflects_extension_close_abandon_and_restart(world):
 	store = world
 	work = _provider(store)
+	gate = tr.create_work(store, team="push", kind="verify",
+	                      title="gate", origin="external-report",
+	                      classification="suspected-defect",
+	                      author="sl", body="g")["work_id"]
+	tr.add_dependency(store, work, gate, actor_team="lang",
+	                  actor="ada")
 	tr.create_round(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
@@ -600,12 +628,14 @@ def test_wait_reflects_extension_close_abandon_and_restart(world):
 	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
 	                review_at=T2)
 	assert pj.wait_actionable(store, viewer_team="lang",
+	                          viewer_member="ada",
 	                          timeout_seconds=0.05)["timed_out"] is True
 	# Restart sees the same derived state.
 	fresh = bw.Authority(store.path)
 	fresh.clock = store.clock
 	store.now = T2
 	woken = pj.wait_actionable(fresh, viewer_team="lang",
+	                           viewer_member="ada",
 	                           timeout_seconds=0.05)
 	fresh.close()
 	assert woken["timed_out"] is False
@@ -613,10 +643,12 @@ def test_wait_reflects_extension_close_abandon_and_restart(world):
 	tr.abandon_round(store, work, 1, actor_team="lang", actor="ada",
 	                 reason="enough")
 	assert pj.wait_actionable(store, viewer_team="lang",
+	                          viewer_member="ada",
 	                          timeout_seconds=0.05)["timed_out"] is True
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	assert pj.wait_actionable(store, viewer_team="lang",
+	                          viewer_member="ada",
 	                          timeout_seconds=0.05)["timed_out"] is True
 
 

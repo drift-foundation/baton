@@ -87,3 +87,14 @@ explicit seen action, bounded continuation, and the separately ruled `Refs`
 section. No `after #N` cursor is displayed.
 
 This is the actionable W71 contract for the final schema-14 batch.
+
+## Message-pane presentation superseded — 2026-08-16
+
+The fresh-authority live trial proved the flat lower stream of formatted
+message blocks unusable. The Work-only main screen, `Enter` detail behavior,
+Thread list, explicit seen semantics, separate references, and `Ctrl-W`
+navigation above remain authoritative. Only the lower Messages presentation
+is superseded by
+`../finding-tui-message-index-body-layout/FINDING.md`: a compact Message index
+selects one body/Refs reader, side by side when wide and stacked when narrow.
+W71 remains historically closed; the correction is new Work.

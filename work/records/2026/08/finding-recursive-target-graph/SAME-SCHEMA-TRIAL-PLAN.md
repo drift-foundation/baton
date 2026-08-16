@@ -54,6 +54,11 @@ None adds persisted authority state. `W78` project metadata/filtering remains
 deferred to a fresh authority. This batch supersedes the older queue order for
 these three handoffs only; all other queued Work remains open.
 
+**Superseded 2026-08-16:** W78 no longer adds project metadata. Team is the
+project boundary, so the remaining composable-filter work uses existing Work
+facts and requires no fresh authority. The historical batch order above is
+otherwise unchanged.
+
 **Final schema-14 batch ruling — 2026-08-15.** After W77, W74 and W71 close
 and the full gate/checkpoint passes, do not extend this trial again. Follow
 `findings/finding-fresh-record-layout-cutover/PLAN.md`: start a fresh next-

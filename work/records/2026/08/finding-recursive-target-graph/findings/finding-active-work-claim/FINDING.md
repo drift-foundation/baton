@@ -126,6 +126,56 @@ reviewer while Work B independently shows Current implementer,
 implementation phase, claimant implementer. Current+phase communicate the
 stage; claimant identity prevents duplicate execution.
 
+## Research is active work — 2026-08-16
+
+**Confirmed by Slawomir while multiplexing W3 implementation with W5 design
+research.** Substantive research is work and may last long enough that the
+team needs to see who is doing it. Before research begins, the responsible
+member records phase `research` and acquires the Work's active claim. The
+claimant identity prevents duplicate investigation; claim Age and heartbeat
+apply exactly as they do to implementation and review.
+
+`queued` means no participant is currently executing the Work. Reading a
+title or doing a momentary prioritization pass does not require a claim, but
+repository investigation, contract design, reproductions, or other sustained
+research does. Finishing research either passes the Work with its honest next
+phase, releases it with a reason, parks/waits it through the ruled transition,
+or closes it; it does not leave a claimed Work labelled queued.
+
+## Effective-Baton release-documentation gate — 2026-08-16
+
+**Confirmed by Slawomir.** When protocol 11 lands,
+`docs/EFFECTIVE-BATON.md` must teach these phase/claim transitions as critical
+operating practice, not merely describe their fields. As long as open Work is
+neither parked nor condition-bound waiting, the team pipeline should expose
+something genuinely being done: sustained research, implementation, and
+review use their honest phase plus an active claimant; queued means awaiting
+pickup. Independent Work may be claimed concurrently to keep the pipeline
+saturated, while overlapping review/implementation surfaces remain serialized
+or explicitly partitioned so nobody reviews a moving target.
+
+The current document is explicitly a protocol-10 guide, so this requirement
+is pinned here until the v11 documentation cutover. V11 is not considered
+landed if the released Effective Baton guide omits it.
+
+## Approval is visible claimed Work — 2026-08-16
+
+**Confirmed by Slawomir.** When progress needs a human product ruling, the
+question must not live only in chat while Baton still claims somebody else is
+working. Pass the Work to the configured approval endpoint with phase
+`review`, record the return endpoint as Next, and release the researcher's
+claim atomically. The approver explicitly claims it before deciding, so
+Current names the approver, the claim timer measures the approver's actual
+decision time, and the Work is visibly parked in approval rather than hidden
+behind a stale research state.
+
+This is a transfer (`=>`), not merely an `@` obligation: the ruling is the
+Work's current blocking activity. It is not dependency-blocked or
+condition-bound `waiting`, because those states refuse claims and therefore
+cannot truthfully time active approval. On disposition, the approver passes
+the Work to its recorded Next with the honest destination phase, or closes it
+when the ruling itself terminates the Work.
+
 ## Explicit claimant recovery — 2026-08-16
 
 **Confirmed by Slawomir. This resolves the recovery authority left open in

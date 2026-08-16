@@ -61,6 +61,29 @@ def _rooted_config(tmp_path, roots):
 
 # -- init: the one-shot scaffold ----------------------------------------------
 
+def test_init_next_hint_is_a_valid_public_invocation(tmp_path):
+	"""W2 (fresh authority): the `next` hint init emits IS a valid
+	invocation of the current public grammar — launcher globals before
+	the verb, the directory operand in key=value form — proven by
+	feeding the hinted command to THE public parser, not by eye."""
+	import shlex as _shlex
+	from baton_work import cli as work_cli
+	home = str(tmp_path / "home")
+	os.mkdir(home)
+	result = pr.scaffold_home(home)
+	assert result["next"] == ("edit baton.json, then: baton "
+	                          "--participant team.member activate "
+	                          "directory=.")
+	command = result["next"].split("then: ", 1)[1]
+	argv = _shlex.split(command)
+	assert argv[0] == "baton"
+	parsed = work_cli._parse_invocation(argv[1:])
+	assert parsed.command == "activate"
+	assert parsed.directory == "."
+	assert parsed.participant == "team.member"
+
+
+
 def test_init_scaffolds_valid_strict_json_and_instructions(tmp_path):
 	home = str(tmp_path / "home")
 	os.mkdir(home)
@@ -70,8 +93,8 @@ def test_init_scaffolds_valid_strict_json_and_instructions(tmp_path):
 	assert document["generation"] == 1
 	assert document["teams"] == {} and document["roots"] == {}
 	assert len(document["instance"]["authority_uuid"]) == 32
-	assert "baton activate" in _text(
-		os.path.join(home, "BATON-SETUP.md"))
+	assert "baton --participant team.member activate directory=." \
+		in _text(os.path.join(home, "BATON-SETUP.md"))
 	assert not os.path.exists(os.path.join(home, "work.sqlite3")), \
 		"the scaffold created a database"
 	# Activation of the PRISTINE scaffold refuses with the real

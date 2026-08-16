@@ -78,15 +78,18 @@ def test_wf04_one_consumer_one_provider(flow):
 	        viewer="lang.ada")
 	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
 
-	flow.post(lang42, "body=analysis: recovery table clobbered",
-	        "pass-to=lang.rev", "phase=review", viewer="lang.ada")
+	flow.ok("pass", f"work={lang42}", "to=lang.rev", "phase=review",
+	        f"thread={flow.born(lang42, 'lang.ada')}",
+	        "comment=analysis: recovery table clobbered",
+	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["phase"] == "review", \
 		"the pass did not record its destination phase atomically"
 
-	flow.post(lang42, "body=approach approved; build it",
-	        "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
-	        viewer="lang.ada")
+	flow.ok("pass", f"work={lang42}", "to=lang.impl", "phase=active",
+	        "set-next=lang.rev",
+	        f"thread={flow.born(lang42, 'lang.ada')}",
+	        "comment=approach approved; build it", viewer="lang.ada")
 	midway = flow.ok("detail", f"work={lang42}", viewer="lang.grace")
 	assert midway["current"] == {"endpoint": "lang.impl", "route": "build",
 	                             "role": "impl", "handlers": ["grace"]}
@@ -95,8 +98,11 @@ def test_wf04_one_consumer_one_provider(flow):
 		"the pass did not record its destination phase atomically"
 	flow.ok("claim", f"work={lang42}", viewer="lang.grace")
 
-	returned = flow.post(lang42, "body=fixed; tests attached",
-	                   "pass-to=lang.rev", "phase=review", viewer="lang.grace")
+	returned = flow.ok("pass", f"work={lang42}", "to=lang.rev",
+	                   "phase=review",
+	                   f"thread={flow.born(lang42, 'lang.grace')}",
+	                   "comment=fixed; tests attached",
+	                   viewer="lang.grace")
 	assert returned["kind"] == "return"
 	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["phase"] == "review", \

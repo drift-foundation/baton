@@ -45,7 +45,8 @@ def test_wf15_onboarding_from_an_empty_directory(flow, tmp_path):
 		["BATON-SETUP.md", "baton.json"]
 	with open(os.path.join(home, "BATON-SETUP.md"),
 	          encoding="utf-8") as handle:
-		assert "baton activate" in handle.read()
+		assert "baton --participant team.member activate " \
+			"directory=." in handle.read()
 	proposed = _document(home)
 	assert proposed["generation"] == 1 and proposed["teams"] == {}
 	uuid = proposed["instance"]["authority_uuid"]

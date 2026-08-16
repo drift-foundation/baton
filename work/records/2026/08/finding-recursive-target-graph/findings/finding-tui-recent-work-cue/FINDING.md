@@ -57,6 +57,15 @@ claim. It requires W108's canonical claimant projection but no recency clock,
 age calculation, or timestamp-derived client inference. Persisted change
 identity may remain useful for other features; it no longer gates this cue.
 
+## Superseded steady animation — 2026-08-16
+
+**Confirmed by Slawomir during the fresh v11 trial. This supersedes indefinite
+hot-state blink above, but not the canonical hot predicate or Title emphasis.**
+Bold Title and claim Age become the steady hot-zone presentation. Blink is
+retained only as the client-local three-scheduled-tick Phase-change cue owned
+by `finding-tui-claim-age`; it is no longer continuously derived from active
+claim or ready-review state.
+
 ## Presentation clarification — 2026-08-16
 
 **Confirmed by Slawomir while auditing the pre-cutover Work.** The slow blink

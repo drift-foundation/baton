@@ -12,7 +12,7 @@ stay strict JSON.
 
 When the configuration is complete, activate the authority:
 
-    baton activate . --participant team.member
+    baton --participant team.member activate directory=.
 
 Activation runs the one authoritative validation and creates the
 unique SQLite database only if the document passes; a refusal leaves

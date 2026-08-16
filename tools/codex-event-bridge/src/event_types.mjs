@@ -69,6 +69,12 @@ export function formatEventMessage(event) {
   if (event.source === "baton" && ["message-ready", "damaged-message-ready", "notice-ready"].includes(event.type)) {
     return `[BATON READY] ${event.summary} Apply standing Baton policy.`;
   }
+  // W148 R1: the v11 readiness producer rides the SAME compact trusted
+  // path — exactly this one type; arbitrary baton-v11 types stay on
+  // the untrusted external-event path.
+  if (event.source === "baton-v11" && event.type === "v11-action-ready") {
+    return `[BATON READY] ${event.summary} Apply standing v11 Baton policy.`;
+  }
   const fields = [
     "[EXTERNAL EVENT]",
     "",

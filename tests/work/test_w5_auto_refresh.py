@@ -361,9 +361,9 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		# nothing.
 		console.mode = "detail"
 		console.detail_work = target
-		console.focus = "msgs"
+		console.focus = "index"
 		console.viewed_thread = thread_id
-		console.viewed_last_seq = last
+		console.msg_cursor = last
 		console.handle(ord("s"))
 		assert console.status == "already seen"
 		assert console.refresh_due is False, \

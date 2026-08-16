@@ -307,3 +307,18 @@ def test_the_recreation_script_instructs_the_renamed_executable():
 	assert "bin/baton-work" not in text, \
 		"the retired executable name survives in current instruction"
 	assert "bin/baton" in text
+
+
+def test_the_recreation_script_parks_as_the_feature_review_handler():
+	"""W92 cutover defect: creation may be self-initiated, but changing a
+	feature's phase belongs to its configured rview handler."""
+	script = os.path.join(
+		os.path.dirname(os.path.dirname(os.path.dirname(
+			os.path.abspath(__file__)))),
+		"work", "records", "2026", "08",
+		"finding-recursive-target-graph", "findings",
+		"finding-fresh-record-layout-cutover", "scripts",
+		"recreate-work.sh")
+	text = open(script, encoding="utf-8").read()
+	assert 'REVIEWER="--participant baton.codex"' in text
+	assert '$REVIEWER phase "op-id=w92-park-wsearch"' in text

@@ -152,15 +152,15 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# outbound pass (pass + planted next) from the consuming return
 	# (pass, no new next).
 	_console(executable, path, "lang.ada", [
-		f'say thread={born} body="handing over" on={epic} '
-		f'pass-to=push.bug phase=queued set-next=lang.bug'])
+		f'pass work={epic} to=push.bug phase=queued '
+		f'set-next=lang.bug thread={born} comment="handing over"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "push.bug"
 	assert detail["next"]["endpoint"] == "lang.bug"
 	_console(executable, path, "push.sl", [
-		f'say thread={born} body="returning with results" on={epic} '
-		f'pass-to=lang.bug phase=queued'])
+		f'pass work={epic} to=lang.bug phase=queued '
+		f'thread={born} comment="returning with results"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "lang.bug", \

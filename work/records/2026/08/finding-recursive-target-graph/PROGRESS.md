@@ -3495,3 +3495,590 @@ ready guard reds the matrix; whole-row blink reds the cell-only PTY
 proof. W84 removed from recreation — 5 items (4 open + 1 parked),
 scratch re-proof + idempotent rerun; BATON-WORK.md documents the cue.
 Gates: 685 passed (+3 serial), `git diff --check` clean.
+
+## Step 124 — Fresh-authority W2: the init activation hint speaks the grammar
+
+First item on the live fresh authority 7ba67cb8 (claimed atomically at
+seq 9 — the W108 claim verb in production use). Per
+finding-init-next-option-order's post-grammar clarification, init's
+`next` hint and the scaffolded/shipped BATON-SETUP.md now read
+`baton --participant team.member activate directory=.` — launcher
+globals before the verb, the directory operand in the one key=value
+grammar. The regression proves the hint by construction: the emitted
+command is fed to THE public parser (`_parse_invocation`) and must parse
+to activate/directory=./team.member; the wf15 onboarding workflow
+(source AND packaged) pins the corrected scaffold text. Break-sweep:
+regressing the hint to the retired positional order reds the proof.
+Gates: 687 passed (+3 serial), `git diff --check` clean.
+
+## Step 125 — Fresh-authority W14: the Message index + selected reader
+
+Implemented the approved live-UX correction superseding W71's flat
+detail message stream (claimed atomically at v11 seq 16). The Work
+detail keeps its summary and Thread list; the lower region is now a
+compact Message INDEX — `M<seq>` labels over the existing stable
+sequence (nothing invented), author, time, personal new/seen state,
+bounded pages with `(n: more)` — and a READER painting exactly ONE
+selected message as its canonical block (metadata header, wrapped body,
+Refs separated). Wide terminals split index|reader on the same rows;
+narrow terminals stack them, never merging bodies back into a stream.
+Selection is keyed by the STABLE seq (survives repaint and resize while
+present; new-first autoselect per thread); the reader scrolls long
+bodies line by line under an honest `M<seq> (cont.)` tag with a
+width-bound cursor that resets on resize (repeat, never omit). Ctrl-W
+navigates the THREE regions in order; `s` advances the per-participant
+cursor through the SELECTED message and no later one. paint_messages
+retired; format_message unchanged (the reader is its one consumer).
+Nine rewritten W8 regressions under the new contract plus revised
+W71/tui/parity/auto-refresh pins (three-region cycle, navigate-then-
+assert, selection-bound seen); two break-sweeps (autoselect new-first,
+selected-bound seen) red/green. BATON-WORK.md rewritten for the detail
+view. Gates: 686 passed (+3 serial), `git diff --check` clean.
+
+## Step 126 — W14 round 2: the thread-wide new-first seek
+
+Review round 2 landed: the new-first promise is THREAD-wide, not
+first-page-only. Entering a thread whose current bounded page is fully
+seen now walks the canonical continuation (`next_after`, page by cached
+page) to the page holding the first personal-new message and opens
+there — an old seen body is never the default over unread conversation.
+The seek arms only on thread ENTRY (enter detail, thread change): an
+explicit n/p page command never re-seeks, so `p` still returns to the
+first page after a mark (the R105 paging pin stays green). The
+reviewer's regression (first unseen on a later page at 44x14 — opening
+must show `M8`/`#8`) passes; break-sweep disabling the seek reds it.
+Gates: 687 passed (+3 serial), `git diff --check` clean. Also noted
+from review: W5 project metadata is superseded — team is the project
+boundary; filters stay same-schema.
+
+## Step 127 — W14 round 3: the all-seen newest fallback
+
+Round-3 correction (review-2026-08-16T14-40-03Z): when the thread-entry
+seek walks every bounded page without finding a personal-new message —
+the Thread is ALL seen — it now retains the FINAL page and selects its
+newest message, instead of reopening the oldest message on page one.
+The later-page personal-new seek and the explicit n/p behavior are
+untouched (the seek still arms only on thread entry). The reviewer's
+regression (ten messages fully seen at 44x14: opening must show
+M11/#11) passes; break-sweep dropping the fallback reds it. Gates: 688
+passed (+3 serial), `git diff --check` clean.
+
+## Step 128 — Fresh-authority W4: ultra-short local Work selectors
+
+Implemented per finding-local-work-selectors (claimed atomically at v11
+seq 32). ONE strict resolver (`transitions.resolve_work_selector`):
+`W<positive-sequence>` qualifies against the ONE opened authority; a
+canonical id must already belong to it (foreign refuses by authority);
+anything else refuses by shape — never a guess from title, cursor,
+order, or partial match; existence stays with the honest `no work`
+lookup. Every Work-valued operand (work/on/parent/into/duplicate-of/
+follow-up-of/label, singular and repeatable) routes through it at CLI
+dispatch — before any transition — so the TUI bar and batch inherit it;
+`resolve` takes the short Work form too. Dispatch resolves BEFORE WS-5
+fingerprints typed input, so short and canonical spellings are ONE
+operation (op-id retry across spellings replays). JSON rows and details
+expose `local_id` beside `id`; the table leads with an exact Id column
+grown to the longest visible selector (id-aware responsive drop budget;
+the parity parser now reads the painted header); the detail header
+shows `<canonical> (W<seq>)`. Eight regressions (resolver matrix,
+cross-spelling op-id replay, routing sweep incl. malformed-on-every-key,
+twin titles, JSON parity, refusal-without-residue byte proof, Id-column
+lead/no-truncation, bar + detail header); two break-sweeps (foreign
+leak, dropped key) red/green. jsonapi's malformed-id pin updated to the
+ruled resolver refusal. Gates: 696 passed (+3 serial), diff-check
+clean.
+
+## Step 129 — W4 round 2: visible-scoped Id width and the fit refusal
+
+Round-2 corrections (review-2026-08-16T14-59-06Z). R1: the Id column
+width now derives from the rows ACTUALLY painted — collapse runs before
+the width computation, so a hidden closed W100000 neither consumes
+Title space nor drops columns until `z` exposes it (exposed rows
+participate normally). R2: `layout_fits` carries the visible Id width;
+when Id + minimum Title + mandatory columns no longer fit, the table
+uses its explicit `terminal too narrow` refusal before painting any row
+— identity stays whole AND the mandatory tail is never silently
+clipped. Both reviewer regressions pass (suite 10/10); break-sweep
+reverting R1 reds the hidden-row proof. Gates: 698 passed (+3 serial),
+`git diff --check` clean.
+
+## Step 130 — Fresh-authority W39: inline dependency arrows; Ready removed
+
+Implemented per finding-tui-inline-dependency-cue (claimed atomically
+at v11 seq 45). Projection: `first_open_blocker` — the OLDEST open
+blocker's local selector, computed inside the one snapshot beside the
+existing open_blockers count (no client N+1, no title/order inference);
+satisfied edges leave the live value. TUI: a dynamic-width `Blk` field
+between Title and the fixed columns renders `← Wn` / `← Wn +N` from
+canonical data via the shared `blocker_cue`; the boolean Ready column
+(and its DROP_ORDER slot) is removed; `↳` containment stays a separate
+marker and both can appear on one row; `[b] deps` untouched. The cue is
+ONE whole responsive field scoped to the VISIBLE rows: when it alone
+breaks the fit it is omitted entirely — never clipped or relabeled —
+and the W4 refusal/blink offsets carry it. The parity parser reads the
+Blk field from the painted header. Seven regressions (deterministic
+first + promotion on close + all-clear, single-blocker form, Ready
+gone + painted cue, combined child-and-blocker row, narrow whole-field
+omission with [b] reachable, refresh clearing the cue through the
+public CLI, JSON/TUI cue parity); break-sweeps (newest-first
+determinism flip; omission guard removed) red/green. Legacy pins
+updated (header tuple, narrow width 72->68, parity ready comparison
+retired). Gates: 705 passed (+3 serial), `git diff --check` clean.
+
+## Step 131 — W39 round 2: the batched blocker-selector read
+
+Round-2 correction (review-2026-08-16T15-16-41Z): the first-open-
+blocker selectors now come from ONE batched query per projected window
+(`_first_open_blockers(store, work_ids)` — oldest open blocker per
+consumer via a single ordered scan, first-hit-wins in Python), gathered
+after the window's rows are collected and passed into `_row_view`;
+tree, home, and children all batch, and the single-row detail path
+batches its one id through the same helper. Growing the visible tree no
+longer grows selector reads (the filed trace-callback regression counts
+at most one). Snapshot consistency, blocker ordering, satisfied-edge
+removal, and JSON/TUI parity unchanged. Break-sweep restoring the
+per-row read reds the batch regression. The W71 mixed-tree wrapper
+learned the pass-through kwarg. Gates: 706 passed (+3 serial),
+`git diff --check` clean.
+
+## Step 132 — Fresh-authority W23: bold hot Titles, the reliable cue
+
+Implemented per the superseding ruling in
+finding-tui-hot-cue-live-visibility (claimed atomically at v11 seq 56).
+Every row the canonical `hot_work` predicate selects overdraws ONLY its
+Title cell with A_BOLD — Id, counters, routing, and the Blk cue stay
+steady — composed with the selection attribute rather than erased by
+it; the phase-cell blink is retained verbatim as the intermediate
+animated cue until W33 lands claim Age. Cold/blocked/waiting/parked/
+terminal behavior, narrow layouts, and presentation purity unchanged.
+Four regressions: the attr-level unit proof (exactly one bold title per
+hot row, title-region-only, reverse+bold composition on selection, no
+bold on cold), the byte-purity check, the PTY proof (bold SGR
+immediately before BOTH hot forms' titles, never before a cold title,
+blink still animating the phase cell), and the narrow proof (bold Title
+survives the width that drops the blink carrier). Break-sweep bolding
+the whole row reds the unit proof. Gates: 710 passed (+3 serial),
+`git diff --check` clean.
+
+## Step 133 — Fresh-authority W33: claim Age and the final cue composition
+
+Implemented per finding-tui-claim-age (claimed atomically at v11 seq
+60). Projection: `claimed_at` — the newest claim EVENT's journal
+timestamp (json_extract over the append-only events, never
+last_changed_at), exposed only while an active claimant exists, batched
+per window beside the W39 blocker map (trace-proven ≤1 claim query per
+tree; the single-row path batches its one id). TUI: the final five-cell
+`Age` column (MM:SS / HH:MM / 99h+ / dash via the pure `age_cell`
+formatter with negative-clock clamp), advanced by the ONE existing
+refresh cadence, responsive-omitted whole via DROP_ORDER. The
+indefinite hot-state blink is REMOVED in the same change: the steady
+cue is bold Title + Age (ready unclaimed review stays bold with dash).
+The phase cell retains only the ephemeral CHANGE cue — client-local
+baseline from the first snapshot (cold on load/reconnect), armed to 3
+on an observed genuine Phase change, consumed ONLY by scheduled
+tick()s, untouched by keystrokes/redraws/resize/mutation refreshes,
+re-armed in full by a later change. Eight regressions (formatter
+matrix, canonical claimed_at incl. release/re-claim/close and the
+not-last_changed_at pin, one-batch trace proof, final-column rendering
+with review-dash, the exact three-tick lifecycle, mutation-refresh
+non-consumption, reconnect-cold, PTY live-age advance + no-blink
+load); two break-sweeps (last_changed_at fallback; keystroke
+consumption) red/green. W23/W84 pins updated to the final composition.
+Gates: 717 passed (+3 serial), `git diff --check` clean.
+
+## Step 134 — W33 round 2: consumption bound to the successful read
+
+Round-2 correction (review-2026-08-16T15-37-56Z): a timer tick now only
+marks a consumption as OWED (`tick_owed`); the phase-change countdown
+is spent inside `rows()` immediately after the SUCCESSFUL scheduled
+canonical read returns — before the change observation, preserving the
+round-1 arming semantics. A failed read raises before consumption and
+spends nothing; a coalesced timer+mutation refresh spends exactly one
+(the owed flag clears once); mutation-only refreshes spend none;
+keystrokes/redraws/resize spend none; load/reconnect stay cold. The
+reviewer's reproducer passes; the three-tick lifecycle assert moved to
+the corrected order (the third cycle empties as the fresh paint lands).
+Break-sweep restoring tick-time consumption reds the reproducer. Gates:
+718 passed (+3 serial), `git diff --check` clean.
+
+## Step 135 — Fresh-authority W17: `[b] deps`
+
+Implemented per finding-tui-dependency-key-label (claimed atomically at
+v11 seq 67). The Work-table footer's `b links` — misread as "blinks"
+and mistaken for the hot-zone cue — now reads `[b] deps`; the docs
+follow. Wording only: the `b` binding, links projection, dependency
+graph, empty-state text, JSON, and protocol are untouched (both pinned
+by the regressions). Two PTY regressions (wide: footer label + working
+binding + label surviving the return; narrow: whole label at 60
+columns + unchanged empty state); break-sweep restoring the ambiguous
+label reds both. Gates: 720 passed (+3 serial), diff-check clean.
+
+## Step 136 — Fresh-authority W3: three-level team-local priority
+
+Implemented per finding-work-priority (claimed atomically at v11 seq
+71). Creation accepts optional `priority=` (closed high|normal|low,
+omission = the natural normal default, recorded atomically at birth).
+`prioritize work=... as=...` is the audited effectively-once revision:
+owning-team authority for ANY configured member (proven with a
+non-claimant teammate while claimed+active), cross-team/closed/
+same-value refused, exact op-id retry replayed, ordinary change
+identity advanced, one audited event with from/to. Priority never
+touches the workflow axes (field-for-field proof incl. readiness,
+claimant, dependency counts, claimed_at). Canonical list ordering
+ranks root siblings and each child sibling group high, normal, low
+then created_seq — containment preserved (a high child stays under
+its normal parent), reordering following a revision on the next read,
+restart-stable. Discovery advertises prioritize to owning-team
+members while open (the phase-matrix pin updated to the ruled
+authority). TUI: two-cell `Pr` (Hi/No/Lo via the closed
+PRIORITY_COMPACT map), FIRST whole column dropped under width
+pressure; JSON keeps full strings; the W13 grammar gains
+create.priority= and the prioritize verb (W4 selectors route work=).
+Eight regressions + two break-sweeps (cross-team gate, rank ordering)
+red/green. Gates: 728 passed (+3 serial), diff-check clean.
+
+## Step 137 — Fresh-authority W80: the explicit `pass` verb
+
+Implemented per the follow-up ruling in finding-key-value-command-
+grammar (claimed atomically at v11 seq 84). `pass work= to= phase=
+thread= comment= [set-next=]` is the ONE canonical transfer surface,
+dispatching through the same single writer the compound say form used:
+the comment lands as durable handoff evidence in the chosen labelled
+thread, Current + the destination phase (explicit or stage-role
+derived) + any planned Next record atomically, and the sender's claim
+releases; a refusal leaves message and workflow state unchanged
+(byte-proven). `say` is reduced to discussion + the @ request=
+operator: pass-to/phase/set-next are unknown keys there, and on= binds
+to request=. Every dialect consumer converted (test_packaged,
+test_scenario, test_jsonapi, test_tui_packaged console scripts, wf01/
+04/06/07/08/10/11/12/13 — incl. the wf07 wildcard refusals moving to
+pass to= and wf12's cross-generation op-id replay under the new verb);
+W13 grammar/help pins and the W14 assist pins updated (say's carrier
+condition now promotes request= to required; the assist teaches pass's
+form and never resurrects the retired keys). Six focused regressions
+(indivisible transfer incl. claim release, stage-role derivation both
+directions, refusal atomicity with byte hash, authorization + op-id
+replay without duplicated evidence, say-as-discussion incl. the
+preserved @, assist dialect); break-sweep dropping set-next from the
+dispatch reds the transfer proof. Gates: 734 passed (+3 serial),
+diff-check clean.
+
+## Step 138 — Fresh-authority W81: bold is personal actionability
+
+Implemented per the superseding ruling in
+finding-tui-hot-cue-live-visibility (claimed atomically at v11 seq 90).
+`actionable_work(row, viewer_team, viewer_member)` — a pure function of
+canonical row facts — reserves the bold Title for exactly the ruled
+branches: the viewer holds the active claim; OR the row is open, ready,
+unclaimed, not waiting/parked, and its Current endpoint resolves to the
+viewer (team + handler membership; every eligible handler until one
+claims, only the winner after); OR the viewer carries an unresolved
+directed @ obligation (my_pending_obligations — independently
+actionable even while dependency-blocked). The render swaps the bold
+driver from hot_work to the personal predicate; hot_work itself stays
+canonical and untouched (W84 pins green); Phase/Current/Age and the
+three-tick change blink keep shared activity visible. Five regressions
+(the full matrix over real projections incl. cross-team via detail,
+the independent-@ lifecycle with resolution, two-console divergent
+bold sets, painted-vs-predicate parity, wide+narrow PTY); the W23 pins
+revised to non-actionable contrast rows (dependency-blocked instead of
+globally-cold); break-sweep regressing the driver to hot_work reds the
+two-viewer proof. Gates: 739 passed (+3 serial), diff-check clean.
+
+## Step 139 — W81 round 2: the two-eligible-handler regression
+
+Round-2 addition (claim returned at v11 seq 93): a TRUE multi-handler
+Current — a crafted config resolving TWO route handlers (ada, bee) with
+a configured-but-unresolved third member (grace) as the preserved
+ineligible negative. Both eligible handlers' views bold the ready
+unclaimed row; after bee wins the claim only the winner keeps the cue,
+the losing handler reads the activity through the claimant + claimed_at
+facts, and grace stays cold throughout. Break-sweep widening the
+claimant branch to team-wide reds the winner-only assertion. Gates: 740
+passed (+3 serial), diff-check clean.
+
+## Step 140 — Fresh-authority W5: composable Work-list filters
+
+Implemented per the approved same-schema contract in
+finding-work-project-filters (claimed atomically at v11 seq 99). ONE
+closed vocabulary over existing canonical facts (team/status/phase/
+current/category/ready/new/priority; AND; one value per field; no
+comma/negation/OR), shared verbatim by `home`, `tree`, `tui` launch
+operands, and the console's `:filter` (all through the one grammar +
+`projection.normalize_filter`, which adds the store-dependent refusals:
+unknown team, unknown TEAM.KIND — checked against the kinds table since
+endpoint structs are never null). Filtering runs INSIDE the canonical
+snapshot after the row facts project; the approved containment rule
+holds (matching parent keeps only matching children; nonmatching parent
+retained as filter_match:false context when a child matches; whole
+group vanishes when none match; never a promotion or reorder); the
+result echoes its normalized filter; the team summary stays global.
+TUI: right-aligned `Filter:N` header tag that no narrow width can clip,
+a dedicated dim clause line with an explicit `…` viewport, the table
+shifted below it (`_render_table` gained `top=`), atomic client-local
+replacement, bare clear, restart-cold, refusals leaving the current
+filter untouched, and `:filter` command entry exposing the current
+clauses for editing. Eight regressions (field matrix + AND + echo +
+global summary, current=me/endpoint/new lifecycle, the refusal matrix,
+parent-context retention incl. re-rooted windows, startup/interactive
+parity + atomic replace/clear/restart-cold, purity + id-anchored
+selection, PTY disclosure + clear, PTY narrow viewport). Break-sweeps
+(dropping the context-parent rule; bypassing shared validation
+interactively) red/green. Gates: 748 passed (+3 serial), diff-check
+clean.
+
+## Step 141 — W5 round 2: closed-filter visibility and seeded editing
+
+Round-2 corrections (review-2026-08-16T16-45-54Z). R1: an explicit
+status=closed filter now reveals the rows it selected — visible_rows
+skips the default collapse exactly when the active filter requests
+closed Work (the ordinary collapse holds otherwise, and clearing
+restores it); PTY-proven wide AND narrow with a closed child painted
+under its nonmatching open context parent (the approved containment
+shape). R2: the first SPACE after exact `filter` seeds the command
+buffer with the normalized current clauses — one clause edited without
+retyping the rest, Enter replacing atomically through the same parser;
+bare `:filter` + Enter still clears; with no active filter the space
+stays literal; the bar hint now names the space-edit path. Three
+regressions; break-sweep removing the collapse override reds R1.
+Gates: 751 passed (+3 serial), diff-check clean.
+
+## Step 142 — Fresh-authority W47: the claimant heartbeat
+
+Implemented per the same-schema journal ruling in
+finding-work-claim-heartbeat (claimed atomically at v11 seq 116).
+`transitions.heartbeat`: the deliberate audited beat — authorized
+STRICTER than route membership (only the exact recorded claimant, a
+configured teammate refuses), open status + exact claimant rechecked
+inside the committing transaction (a racing release refuses the beat
+WITHOUT an event, count-proven), deliberately no `_touch_work` and no
+row update — the journal event is the whole record; WS-5 replay
+commits exactly one beat. Projection: `_claimed_ats` extended to ONE
+batched statement resolving claim AND latest-qualifying-beat per
+window, scoped to the current claim epoch (newest claim event, then
+newest claim/heartbeat at-or-after it naming the same exact claimant);
+`heartbeat_at` exposed beside `claimed_at`, null when unclaimed/
+terminal, reset by release+re-claim; the trace regression counts ≤1
+journal statement per tree. TUI: the Age field widens to six reserved
+cells via `age_field` — trailing space healthy, `!` at exactly six
+silent minutes (STALL_AFTER_SECONDS=360), cleared by the next beat,
+clock corrections clamp healthy, claim Age itself never resets; the
+beat provably has NO semantic side effects (change identity, order,
+phase, message, New, phase-change blink — all pinned) and staleness is
+informational only (the claim holds; a second claim fails closed).
+grammar + W4 selectors + MUTATIONS wired. Nine regressions; break-
+sweeps (touching change identity; alert ignoring the beat) red/green.
+Gates: 760 passed (+3 serial), diff-check clean.
+
+## Step 143 — W47 round 2: the five reviewed corrections
+
+Round-2 corrections (review-2026-08-16T17-10-55Z). R1: discovery
+advertises `heartbeat` exactly for the recorded active claimant —
+pinned positive plus teammate/other-viewer/unclaimed/closed negatives
+AND the sharp two-resolved-handler edge (the losing handler keeps
+release but never heartbeat; the widened-discovery sweep now reds this
+pin). R2: `_row_view` resolves the claim/heartbeat pair ONCE per row
+(the single-row path batches its one id once, never per field);
+detail's own trace regression counts ≤1 journal statement. R3:
+PROJECTION_VERSION advanced 4.1→4.2 with the inventory naming
+heartbeat_at as the first liveness-carrying shape; same-major demands
+still succeed (pinned). R4: the genuine interleaved race — a release
+committed inside the beat's own write window makes the beat refuse
+with NO event and NO burned op-id (the same id commits fresh after
+re-claim); a beat that wins stays journal history while release clears
+the live projection, and close proves the same clearing on a second
+automatic path. R5: the painted cell itself flips blank→`!` across the
+359/360 boundary under a patched paint clock and clears after the
+claimant's beat. Gates: 766 passed (+3 serial), diff-check clean.
+
+## Step 144 — Fresh-authority W6: canonical Work search + the slash mode
+
+Implemented per the revalidated boundary in finding-tui-work-search
+(claimed atomically at v11 seq 127). `projection.search`: read-only,
+viewer-team-scoped over EVERY owned Work (nested included; other teams
+excluded) — case-folded title substrings plus case-insensitive
+exact/prefix canonical/local ids; no message/thread/route/category
+content. The active filter narrows via the shared normalize/match
+semantics; results ride stable creation order behind an explicit
+next_after cursor (never an identity), all from one snapshot with the
+batched blocker/claim maps (no N+1); empty queries and bad limits
+refuse. CLI: `search query= [after= limit=]` + the filter operands
+(pure read; op-id refuses). TUI: `/` opens the one-line query bar
+(typing is pure client state — trace-proven zero statements per
+keystroke), Enter submits once, the flat result mode paints ordinary
+rows with count/controls footer and the closed-visibility rule,
+j/k/Enter opens normal details returning to the results
+(detail_return), `/` replaces the query, n/p page, and Esc restores
+the EXACT prior window (path/cursor/selection); the scheduled refresh
+re-runs the accepted search through the one cache path with
+id-anchored selection and honest empty results. Eight regressions
+(matching matrix incl. nested + cross-team exclusion, filter/closed
+canonical behavior, stable explicit paging, purity + empty refusal,
+CLI envelope surface, the full slash flow with restoration, refresh
+anchoring, PTY end-to-end); the two PLAN-pinned break-sweeps
+(per-keystroke reads; current-window-only matching) red/green. Gates:
+774 passed (+3 serial), diff-check clean.
+
+## Step 145 — W6 round 2: visible-universe paging, z restoration, page labels
+
+Round-2 corrections (review-2026-08-16T17-24-48Z). R1: TUI result
+paging now runs over the console's EFFECTIVE visible universe — while
+closed Work is hidden and no explicit status filter overrides it, the
+search constrains to status=open before pagination, so a wall of
+hidden closed matches can never bury a later open match behind an
+apparently empty page; z (which now restarts at page one of the new
+universe) and status=closed lift the constraint; JSON's canonical
+all-status result is untouched. R2: closed visibility joined the
+search entry snapshot — z toggled inside search never leaks into the
+window Esc restores. R3: the header reads `page N · M shown` (the
+bounded truth, never a page count masquerading as a total), resetting
+on new queries and p, advancing on n; the PTY pin follows. Three
+regressions; break-sweep removing the effective-universe constraint
+reds R1. Gates: 777 passed (+3 serial), diff-check clean.
+
+## Step 146 — Fresh-authority W136: participant-relative readiness
+
+The first child of the messaging cutover gate (claimed atomically at
+v11 seq 140). `projection.participant_actions` — the ONE canonical
+member-relative action projection: routed Work (open+ready+unclaimed+
+non-waiting/parked wakes every resolved Current handler; the claimant
+alone after a claim, under the SAME stable `work:<id>` key; claimed
+Work rediscoverable after restart regardless of readiness drift),
+pending `@` obligations filtered by live owed-endpoint resolution
+(`obligation:<seq>`), and due verification rounds filtered by live
+Current resolution (`round:<work>:<round>:<generation>` — extension
+retires the alarm, the next due generation is a new action). `+`,
+plain posts, and personal New never enter. Deterministic order
+(obligations, rounds, works), one read snapshot, zero writes
+(byte-proven). `wait` now passes both identity halves and polls this
+projection; the TUI header's oblig/due became the viewer's personal
+actionable counts (parked stays team-wide). The R44 ws2 pins adapted
+honestly (ineligible-member timeouts; push-owned gates neutralizing
+the new routed-Work wake where deadline mechanics are the subject;
+wf03's early wait moved to the unresolved member). Seven acceptance
+regressions incl. two-handler claim-narrowing with key continuity and
+restart rediscovery, reroute-followed obligations, generation-scoped
+alarms, deterministic wait ordering, purity, personal headers, and the
+public CLI wait; break-sweeps (team-wide eligibility; a claim
+manufacturing a second key) red/green. Gates: 784 passed (+3 serial),
+diff-check clean.
+
+## Step 147 — W136 round 2: the six reviewed corrections
+
+Round-2 corrections (review-2026-08-16T17-44-34Z). R1: PROJECTION_
+VERSION 4.3 with the inventory naming the participant-relative typed
+wait actions (same-major pinned; the W47 4.2 pin loosened to >=). R2:
+a REAL accepted generation-2 reroute (route handlers [ada,bee] ->
+[grace]) moves eligibility for the pending @, the routed Work, AND the
+due round to the new handler set — same stable action keys, history
+unwritten, generation unminted. R3: the interleaved-snapshot proof —
+a claim committed between the projection's subqueries (via a wrapped
+_endpoint_struct and a second connection) is entirely invisible: the
+returned set and snapshot_seq are wholly pre-commit, the next call
+wholly post-commit. R4: each distinct endpoint resolves exactly ONCE
+per snapshot (memoized inside the read; the trace regression pins
+kind-table reads ≤1 across six same-endpoint actions; break-sweep
+dropping the memo reds it). R5: real PTY at 110 and 60 columns —
+the eligible member's header carries [oblig:1], the ineligible one
+[oblig:0], both share the team-wide [park:1]. R6: an actual `+`
+include and an isolated personal-New message exist, remain visible
+through the thread's New, and never enter the action set (the wait
+stays quiet for attention-only members). Gates: 790 passed
+(+3 serial), diff-check clean.
+
+## Step 148 — Fresh-authority W148: the standalone v11 readiness producer
+
+Second child of the messaging cutover gate (claimed atomically at v11
+seq 153-era; claim seq 152). The binding blocker was ruled: WS-6 binds
+the stable umbrella record; the nested child dossier stays
+dossier-relative evidence — no grammar change, binding r1 stands. The
+implementation is exactly the one-bridge/standalone-producer decision:
+tools/codex-event-bridge/src/baton_v11_source.mjs (+ bin/
+baton-v11-monitor) — the permanent protocol-11 adapter, launched
+independently beside the UNCHANGED v10 stack; it feeds the same event
+socket/target and the bridge keeps serializing turns. Invokes
+`BATON --config P --participant T.M wait timeout=S` (key=value);
+refuses malformed/wrong-protocol/wrong-participant envelopes by name
+(a v10 shape is rejected, never guessed); emits ONE trusted compact
+event per previously unseen action_key, identity scoped
+`baton-v11:<authority>:<participant>:<key>`, carrying the kind + the
+Work/obligation/round locator and the v11 standing-policy cue — no
+bodies, no generic instruction block. WHOLE-set level-triggered memory:
+suppressed while present (a claim keeps the same work: key — no
+duplicate), forgotten on disappearance, re-emitted on reappearance,
+rediscovered from empty after restart; failed forwards keep the key
+undelivered and retry; the bridge's duplicate answer counts as
+delivered; unchanged immediate sets and errors back off. Read-only
+throughout. Eleven focused Node tests cover every acceptance case; the
+v10 adapter/bridge suites unchanged and green (36/36 total);
+break-sweep never-forgetting vanished keys reds the reappearance pin.
+No live process changed — launch is the reviewed next step per the
+plan. Gates: Node 36/36; just test-v11 790 passed (+3 serial);
+diff-check clean.
+
+## Step 149 — W148 round 2: the five corrections
+
+Round-1 review (review-2026-08-16T18-05-30Z.md) returned five
+corrections; all landed, no live process touched. R1: formatEventMessage
+gained the ONE additional trusted branch — source "baton-v11" +
+type "v11-action-ready" renders the compact
+`[BATON READY] <summary> Apply standing v11 Baton policy.` line;
+arbitrary baton-v11 types stay on the untrusted external path. The
+end-to-end regression drives the producer's REAL actionEvent through
+normalizeEvent + formatEventMessage and pins one line, locator +
+standing-policy cue retained, no JSON details, no external-event
+language — and that a different type still renders [EXTERNAL EVENT].
+R2: delivery memory now carries the same identity the event does —
+`<authority_uuid>:<participant>:<action_key>` — so an authority switch
+retires the old set atomically and the same-named action under the new
+authority is a genuinely new wake; the test proves emit → switch-emit →
+switch-back-re-emit. R3: validateEnvelope is the strict typed contract:
+projection_version must be 4.x with minor >= 3 (4.7 accepted; 4.2, 5.0,
+missing refused), integer snapshot_seq, boolean timed_out, timed_out
+with actions refused as contradictory, duplicate action_key refused,
+exactly three known kinds with per-kind locator fields AND
+key/field agreement (work:<work>, obligation:<seq>,
+round:<work>:<round>:<generation>); fourteen negative cases each refuse
+by name, and the refusal-matrix test still proves nothing is emitted.
+R4: the subprocess boundary takes an injectable executor placed exactly
+below the argv construction; the test pins the complete real argv
+["--config", PATH, "--participant", T.M, "wait", "timeout=45"] and the
+executable path; bin/baton-v11-monitor is mode 0755. R5: the bridge
+README gained "v11 readiness producer (certification overlap)" with the
+exact standalone launch command, feeding the RUNNING stack's existing
+socket/target, no second app-server/bridge, sole-v11-waiter-per-
+participant rule, and supervisor integration deferred to the v10
+retirement gate. Gates: Node 40/40 (13 producer + 6 formatter);
+just test-v11 790 passed (+3 serial); diff-check clean.
+
+## Step 150 — W148 round 3: trusted-summary field validation and true launch docs
+
+Round-2 review (review-2026-08-16T18-15-02Z.md) confirmed R1/R2/R4 and
+returned two narrow gaps. R3a: validateEnvelope now types every field
+the TRUSTED summary consumes — work.local_id must be a string agreeing
+with the full Work id (equal, or the id's `-<local_id>` tail; a correct
+work:<id> key with a lying local_id would instruct a command for the
+wrong Work), title a string, claimed an actual boolean (a string
+"false" is truthy and previously read as claimed), obligation.flavor
+and due_round.review_at strings when present; snapshot_seq must be
+non-negative and obligation seq / round / deadline_generation positive
+(structurally valid negative ids refuse). Ten focused refusal cases
+plus the optional-fields-stay-optional acceptance; break-sweep removed
+the local_id agreement (the exact named bug) — the disagreement pin
+redded, full suite green on restore. R5a: the README launch section no
+longer names the obsolete projection-4.1 825e97d binary (which this
+monitor correctly refuses), the wrong target, or the wrong socket. It
+now states the operator first deploys a new immutable v11 candidate
+containing W136/W148 and launches with THAT release's bin/baton, the
+running stack's configured target and socket — concretely
+--target baton-reviewer and --socket /home/sl/.local/run/
+codex-events.sock for this trial — with the release hash left as
+<NEW_CANDIDATE>, never a pre-4.3 build. The sole-waiter rationale is
+corrected: v11 wait is read-only and level-triggered; two waiters
+steal/consume nothing but both observe the same set and manufacture
+duplicate Codex turns — duplicate delivery, not destructive
+consumption, is why exactly one producer runs per participant. The
+actionEvent source comment claiming no duplication "across restarts"
+is fixed: restart rediscovery deliberately re-emits the still-current
+set. Gates: Node 41/41; just test-v11 790 passed (+3 serial);
+diff-check clean. No live process touched.

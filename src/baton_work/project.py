@@ -165,8 +165,11 @@ def scaffold_home(directory: str) -> dict:
 		created.append(name)
 	return {"directory": directory, "created": created,
 	        "authority_uuid": authority_uuid,
-	        "next": "edit baton.json, then: baton activate . "
-	                "--participant team.member"}
+	        # W2 (fresh authority): the hint IS a valid public
+	        # invocation — launcher globals precede the verb, and the
+	        # operand speaks the one key=value grammar.
+	        "next": "edit baton.json, then: baton --participant "
+	                "team.member activate directory=."}
 
 
 def store_root_base(store, root_id: str) -> str:

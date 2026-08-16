@@ -92,3 +92,33 @@ Every verb — lifecycle (`init directory=…`, `activate directory=…`,
 reads (`detail work=…`, `tree [work=…]`, `thread thread=…`, …) — uses
 the one dialect; no second permanent grammar survives. No boundary
 contradiction was found in the pinned text under this reading.
+
+## Follow-up ruling — 2026-08-16: transfer is an explicit `pass`
+
+**Confirmed by Slawomir during the fresh v11 trial.** The existing compound
+form
+
+```text
+say thread=T body="..." on=W pass-to=team.kind phase=PHASE
+```
+
+is authoritative and atomic, but its verb reads like informal discussion and
+hides the workflow act an operator is trying to perform. A baton transfer gets
+its own canonical operation surface:
+
+```text
+pass work=W to=team.kind phase=PHASE thread=T comment="..."
+```
+
+`comment=` is deliberate: the text is durable handoff evidence, not a rewrite
+of the Work description or contract. A pass still commits one indivisible
+transition: append the comment to the chosen labelled Thread, change Current
+and destination Phase, apply any explicit planned Next supported by the
+transition, and release the sender's active claim. Refusal leaves both message
+and workflow state unchanged.
+
+Plain `say` remains discussion and may retain the independent `request=` (`@`)
+operator. The new canonical `pass` replaces `say ... pass-to=...` for ownership
+transfer rather than creating two permanent transfer dialects. Existing
+immutable trial clients keep their shipped syntax; this is new Work and does
+not reopen completed W13.

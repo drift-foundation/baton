@@ -62,12 +62,17 @@ def test_wf07_announcement(flow):
 	# 5. Expanding or multi-destination @ and => REFUSE — and the refusal
 	# changes nothing.
 	for token in ("request=lang.*", "request=*.bug",
-	              "request=lang.bug,web.bug",
-	              "pass-to=*.rev",
-	              "pass-to=lang.rev,push.rev"):
+	              "request=lang.bug,web.bug"):
 		error = assert_refusal_changes_nothing(
 			flow, "ops.bat", "say", f"thread={thread_id}", "body=x",
 			token)
+		assert "exactly one" in error
+	# W80: the => operator lives on the explicit pass verb now — the
+	# same expanding/multi-destination refusals, changing nothing.
+	for destination in ("to=*.rev", "to=lang.rev,push.rev"):
+		error = assert_refusal_changes_nothing(
+			flow, "ops.bat", "pass", f"work={ops1}", destination,
+			f"thread={thread_id}", "comment=x")
 		assert "exactly one" in error
 
 	# R71: a `+` selector that lands nowhere refuses — wildcard shapes

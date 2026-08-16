@@ -116,9 +116,9 @@ def test_wf13_portable_dossier_authority(flow):
 	            "references"][0]["binding_revision"] == 2
 	assert answer_event["references"][0]["binding_revision"] == 1, \
 		"the old proof was reinterpreted by the correction"
-	flow.ok("say", f"thread={flow.born(lang42, 'lang.ada')}",
-	        "body=handing to push", f"on={lang42}", "pass-to=push.bug", "phase=queued",
-	        viewer="lang.ada")
+	flow.ok("pass", f"work={lang42}", "to=push.bug", "phase=queued",
+	        f"thread={flow.born(lang42, 'lang.ada')}",
+	        "comment=handing to push", viewer="lang.ada")
 	error = assert_refusal_changes_nothing(
 		flow, "lang.ada", "bind", f"work={lang42}", "root=drift",
 		"path=work/records/2026/08/finding-after-transfer", "expect=2",

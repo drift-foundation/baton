@@ -318,13 +318,15 @@ def test_static_conditions_refuse_before_authority(world, monkeypatch):
 		(("phase", "work=x", "to=waiting"), "requires wait="),
 		(("phase", "work=x", "to=queued", "wait=gates"),
 		 "applies only with to=waiting"),
-		(("say", "thread=t", "body=b", "request=a.b", "pass-to=c.d"),
-		 "at most one of"),
-		(("say", "thread=t", "body=b", "on=w"), "requires one of"),
+		# W80: transfer left say — pass-to/phase/set-next are unknown
+		# keys there now; the carrier condition binds on= to request=.
+		(("say", "thread=t", "body=b", "pass-to=c.d"),
+		 "unknown key 'pass-to'"),
+		(("say", "thread=t", "body=b", "on=w"), "requires request="),
 		(("say", "thread=t", "body=b", "phase=review"),
-		 "requires pass-to="),
-		(("say", "thread=t", "body=b", "set-next=a.b"),
-		 "requires pass-to="),
+		 "unknown key 'phase'"),
+		(("pass", "work=w", "to=a.b", "thread=t", "comment=c",
+		  "phase=nowhere"), "phase= takes one of"),
 		(("close", "work=x", "rationale=r", "outcome=satisfying",
 		  "duplicate-of=y"), "requires outcome=rejected"),
 	]
@@ -344,8 +346,10 @@ def test_help_parity_covers_universal_operands_and_conditions(world,
 		assert rendered.count(name) >= len(work_cli.GRAMMAR), \
 			f"{name} is not rendered for every verb"
 	say = work_cli.render_help("say")
-	assert "at most one of: request= | pass-to=" in say
-	assert "with on=: requires one of request=, pass-to=" in say
+	assert "with on=: requires request=" in say
+	assert "pass-to" not in say, "the retired transfer key survived"
+	passing = work_cli.render_help("pass")
+	assert "to=" in passing and "comment=" in passing
 	phase = work_cli.render_help("phase")
 	assert "with to=parked: requires reason=" in phase
 	assert "with to=waiting: requires wait=" in phase
@@ -484,14 +488,15 @@ def test_assist_applies_the_parsers_condition_model():
 	assert "wait=" in waiting.split("optional:")[0]
 	assert "wait=" not in assist_text("phase work=W1 "), \
 		"wait= offered outside to=waiting"
-	exclusive = assist_text("say thread=T1 body=b request=lang.dev ")
-	assert "pass-to=" not in exclusive
-	assert "phase=" not in exclusive and "set-next=" not in exclusive, \
-		"pass-only fields offered on the request form"
+	# W80: transfer left say entirely — the assist never offers the
+	# retired keys, and on= binds to request=.
+	discussion = assist_text("say thread=T1 body=b ")
+	assert "pass-to=" not in discussion and "phase=" not in discussion
 	carrier = assist_text("say thread=T1 body=b on=W1 ")
-	assert "on= needs request= or pass-to=" in carrier
-	passing = assist_text("say thread=T1 body=b phase=review ")
-	assert "pass-to=" in passing.split("optional:")[0]
+	assert "required: request=" in carrier, carrier
+	passing = assist_text("pass work=W1 to=lang.impl ")
+	assert "required:" in passing and "comment=" in passing \
+		and "thread=" in passing
 	dup = assist_text("close work=X rationale=r duplicate-of=W2 ")
 	assert "duplicate-of= needs outcome=rejected" in dup
 	settled = assist_text(
@@ -511,8 +516,8 @@ def test_assist_diagnoses_instead_of_guessing():
 	assert "duplicate work=" in assist_text("close work=X work=Y ")
 	assert "takes one of" in assist_text("close work=X outcome=bogus ")
 	assert "takes an integer" in assist_text("respond obligation=abc ")
-	assert "at most one of" in assist_text(
-		"say thread=T body=b request=a.b pass-to=c.d ")
+	assert "unknown key 'pass-to'" in assist_text(
+		"say thread=T body=b pass-to=c.d ")
 	repeat = assist_text(
 		"create team=t kind=k title=x origin=external-report "
 		"classification=suspected-defect body=b ref=a ref=b ")
