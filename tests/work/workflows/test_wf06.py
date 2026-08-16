@@ -34,70 +34,70 @@ def test_wf06_recursive_release(flow):
 	flow.init(document(standard_teams()))
 
 	# 1. The release root and its two children.
-	root = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	               "--title", "release 1.2.0", "--origin", "self-initiated", "--classification", "suspected-defect",
-	               "--body", "the milestone gate", viewer="lang.ada")["work_id"]
-	local = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                "--title", "fix recovery table", "--origin",
-	                "decomposition", "--classification", "suspected-defect", "--body", "local leg",
-	                "--parent", root, viewer="lang.ada")["work_id"]
-	blocked = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                  "--title", "needs the CI image", "--origin",
-	                  "decomposition", "--classification", "suspected-defect", "--body", "externally blocked leg",
-	                  "--parent", root, viewer="lang.ada")["work_id"]
+	root = flow.ok("create", "team=lang", "kind=rsrch",
+	               "title=release 1.2.0", "origin=self-initiated", "classification=suspected-defect",
+	               "body=the milestone gate", viewer="lang.ada")["work_id"]
+	local = flow.ok("create", "team=lang", "kind=rsrch",
+	                "title=fix recovery table",
+	                "origin=decomposition", "classification=suspected-defect", "body=local leg",
+	                f"parent={root}", viewer="lang.ada")["work_id"]
+	blocked = flow.ok("create", "team=lang", "kind=rsrch",
+	                  "title=needs the CI image",
+	                  "origin=decomposition", "classification=suspected-defect", "body=externally blocked leg",
+	                  f"parent={root}", viewer="lang.ada")["work_id"]
 
 	# WS-4 Slice A: one thread labelled to BOTH children (created
 	# while they are open — live context) exercises ancestor dedup later.
-	shared = flow.ok("start-thread", "--subject", "trial subject", "--body", "release readiness sweep",
-	                 "--label", local, "--label", blocked,
+	shared = flow.ok("start-thread", "subject=trial subject", "body=release readiness sweep",
+	                 f"label={local}", f"label={blocked}",
 	                 viewer="lang.ada")["thread"]
-	flow.ok("say", shared, "--body", "both legs affected",
+	flow.ok("say", f"thread={shared}", "body=both legs affected",
 	        viewer="lang.ada")
 
 	# 2. One child runs WF-01 locally; the other waits on an external
 	# provider work (WF-04 pattern).
-	flow.post(local, "--body", "build it", "--pass-to", "lang.impl", "--phase", "active",
-	        "--set-next", "lang.rev", viewer="lang.ada")
-	external = flow.ok("create", "--team", "mdb", "--kind", "build",
-	                   "--title", "CI image rebuild", "--origin",
-	                   "external-report", "--classification", "suspected-defect", "--body", "lang needs the image",
+	flow.post(local, "body=build it", "pass-to=lang.impl", "phase=active",
+	        "set-next=lang.rev", viewer="lang.ada")
+	external = flow.ok("create", "team=mdb", "kind=build",
+	                   "title=CI image rebuild",
+	                   "origin=external-report", "classification=suspected-defect", "body=lang needs the image",
 	                   viewer="mdb.mo")["work_id"]
-	flow.ok("block", blocked, "--on", external, viewer="lang.ada")
+	flow.ok("block", f"work={blocked}", f"on={external}", viewer="lang.ada")
 
 	# A union-graph cycle is refused through the public CLI — and the
 	# refusal changes not one authority byte.
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "block", external, "--on", root,
+		flow, "lang.ada", "block", f"work={external}", f"on={root}",
 		as_viewer="mdb.mo")
 	assert "closes a loop" in error
 
 	# 3. Closing the root while children are open refuses AND NAMES them.
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "close", root, "--rationale", "shipped", "--outcome", "satisfying")
+		flow, "lang.ada", "close", f"work={root}", "rationale=shipped", "outcome=satisfying")
 	assert local in error and blocked in error, \
 		"the refusal does not name the open children"
 
 	# 4. Readiness is the CONJUNCTION: the local child alone is not enough.
-	returned = flow.post(local, "--body", "done", "--pass-to",
-	                   "lang.rev", "--phase", "review", viewer="lang.grace")
+	returned = flow.post(local, "body=done",
+	                   "pass-to=lang.rev", "phase=review", viewer="lang.grace")
 	assert returned["kind"] == "return"
-	flow.ok("close", local, "--rationale", "fixed and verified", "--outcome", "satisfying",
+	flow.ok("close", f"work={local}", "rationale=fixed and verified", "outcome=satisfying",
 	        viewer="lang.ada")
-	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is False, \
+	assert flow.ok("detail", f"work={root}", viewer="lang.ada")["ready"] is False, \
 		"the root became ready with an externally blocked child open"
-	flow.ok("close", external, "--rationale", "image rebuilt", "--outcome", "satisfying",
+	flow.ok("close", f"work={external}", "rationale=image rebuilt", "outcome=satisfying",
 	        viewer="mdb.mo")
-	assert flow.ok("detail", blocked, viewer="lang.ada")["ready"] is True
-	flow.ok("close", blocked, "--rationale", "unblocked and done", "--outcome", "satisfying",
+	assert flow.ok("detail", f"work={blocked}", viewer="lang.ada")["ready"] is True
+	flow.ok("close", f"work={blocked}", "rationale=unblocked and done", "outcome=satisfying",
 	        viewer="lang.ada")
-	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is True
+	assert flow.ok("detail", f"work={root}", viewer="lang.ada")["ready"] is True
 
 	# 5. Ancestor deduplication, made VISIBLE: each child counts the
 	# shared thread truthfully, the root counts each message once,
 	# and the exact identity total = own + sum(children) - overlap holds.
-	view = flow.ok("thread", shared, viewer="lang.grace")
+	view = flow.ok("thread", f"thread={shared}", viewer="lang.grace")
 	assert {entry["work"] for entry in view["labels"]} == {local, blocked}
-	breakdown = flow.ok("new", root, viewer="lang.grace")
+	breakdown = flow.ok("new", f"work={root}", viewer="lang.grace")
 	assert breakdown["overlap"] >= 2, \
 		"the shared thread's dedup is invisible"
 	assert breakdown["total"] == breakdown["own"] + \
@@ -105,17 +105,17 @@ def test_wf06_recursive_release(flow):
 		breakdown["overlap"]
 	assert breakdown["total"] > 0
 	# Reading the shared thread ONCE clears it under both children.
-	flow.ok("mark-seen", shared, "--up-to", str(view["last_seq"]),
+	flow.ok("mark-seen", f"thread={shared}", f"up-to={view["last_seq"]}",
 	        viewer="lang.grace")
-	cleared = flow.ok("new", root, viewer="lang.grace")
+	cleared = flow.ok("new", f"work={root}", viewer="lang.grace")
 	assert cleared["overlap"] == 0
 	assert cleared["total"] == cleared["own"] + \
 		sum(entry["new"] for entry in cleared["children"])
 	# The breadcrumb drill is deterministic from any position.
-	trail = flow.ok("breadcrumb", blocked, viewer="lang.ada")
+	trail = flow.ok("breadcrumb", f"work={blocked}", viewer="lang.ada")
 	assert [entry["id"] for entry in trail] == [root, blocked]
 
-	flow.ok("close", root, "--rationale", "1.2.0 shipped", "--outcome", "satisfying",
+	flow.ok("close", f"work={root}", "rationale=1.2.0 shipped", "outcome=satisfying",
 	        viewer="lang.ada")
 	assert_final_invariants(flow, "lang.ada",
 	                        [root, local, blocked, external])

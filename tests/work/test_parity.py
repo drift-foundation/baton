@@ -95,7 +95,7 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 
 def _screen_rows(path, viewer, script=()):
 	text, status, steps = ptyharness.drive(
-		path, viewer, list(script) + [(b"q", 0.4)],
+		path, viewer, list(script) + [(b"qy", 0.4)],
 		columns=WIDTH, lines=HEIGHT)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	rendered = steps[-2] if len(steps) > 1 else text
@@ -158,7 +158,7 @@ def test_containment_children_agree_inline(world, capsys):
 	in order, at depth 1 — no drill required."""
 	path, cast = world
 	expected = [row for row in
-	            _json(capsys, path, "tree", cast["lang42"],
+	            _json(capsys, path, "tree", f"work={cast["lang42"]}",
 	                  viewer="lang.grace")["rows"] if row["depth"] == 1]
 	screen = _screen_rows(path, "lang.grace")
 	drawn = [row for row in _parse_rows(screen) if row["depth"] == 1]
@@ -187,7 +187,7 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 	same fixture keeps agreeing after a mutation, not only in its initial
 	state."""
 	path, cast = world
-	before = _json(capsys, path, "new", cast["lang42"], viewer="lang.grace")
+	before = _json(capsys, path, "new", f"work={cast["lang42"]}", viewer="lang.grace")
 	assert before["total"] > 0
 	# grace drills into the epic and marks the epic's own thread seen.
 	text, status, _steps = ptyharness.drive(path, "lang.grace", [
@@ -195,11 +195,11 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 		(b"o", 0.5),         # the focused view + thread set
 		(b"\r", 0.5),        # open the epic's own thread
 		(b"s", 0.5),         # THE explicit seen transition
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], columns=WIDTH, lines=HEIGHT)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
-	after = _json(capsys, path, "new", cast["lang42"], viewer="lang.grace")
+	after = _json(capsys, path, "new", f"work={cast["lang42"]}", viewer="lang.grace")
 	assert after["own"] == 0, "the console's s did not commit the cursor"
 	assert after["total"] == before["total"] - before["own"], \
 		"the decomposition moved by a different amount than own"
@@ -261,13 +261,13 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 		          rationale="consumer config error")
 	monkeypatch.setenv("BATON_WORK_NOW", "2026-08-15T13:00:00Z")
 
-	expected = _json(capsys, config_path, "detail", work,
+	expected = _json(capsys, config_path, "detail", f"work={work}",
 	                 viewer="lang.ada")["rounds"][0]
 	assert expected["due"] is True
 
 	text, status, steps = ptyharness.drive(
 		config_path, "lang.ada",
-		[(b"\r", 0.5), (b"o", 0.6), (b"q", 0.4)],
+		[(b"\r", 0.5), (b"o", 0.6), (b"qy", 0.4)],
 		columns=WIDTH, lines=HEIGHT)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	rendered = steps[-2] if len(steps) > 1 else text
@@ -291,7 +291,7 @@ def test_links_on_demand_agree_with_the_json_edges(world, capsys):
 	"""Gate B: the `b` links view draws exactly the JSON `links` far-row
 	summaries — same edges, same far status/endpoint/title, same order."""
 	path, cast = world
-	expected = _json(capsys, path, "links", cast["lang42"],
+	expected = _json(capsys, path, "links", f"work={cast["lang42"]}",
 	                 viewer="lang.ada")
 	screen = _screen_rows(path, "lang.ada", [(b"b", 0.5)])
 	drawn = [line for line in screen[2:] if line.strip()

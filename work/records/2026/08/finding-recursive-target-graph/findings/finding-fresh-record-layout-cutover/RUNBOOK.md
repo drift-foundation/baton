@@ -22,16 +22,21 @@ untouched until step 5.
 3. **Initialize the fresh authority** — a NEW home, never the trial's:
 
        mkdir -p /home/sl/baton-v11-2
-       <deployed>/bin/baton-work init /home/sl/baton-v11-2
-       # edit baton.json: teams/roles/routes/kinds, and a `roots` section
-       # declaring the `baton` repository root (see conf/roots.scaffold.json)
-       <deployed>/bin/baton-work activate /home/sl/baton-v11-2
+       <deployed>/bin/baton init directory=/home/sl/baton-v11-2
+       # edit baton.json: teams/roles/routes/kinds, and a `roots`
+       # section declaring the `baton` repository root WITH its explicit
+       # absolute base, e.g. "baton": {"display": "Baton repository",
+       # "base": "/home/sl/src/baton"} — baton.json is the single root
+       # config (W4); no roots.json exists
+       <deployed>/bin/baton activate directory=/home/sl/baton-v11-2
 
    No file from the schema-14 trial database is copied or migrated.
 
-4. **Recreate the surviving Work** (14 items, INVENTORY.md §F: 13 open + the parked TUI Work-search):
+4. **Recreate the surviving Work** (5 items, INVENTORY.md §F: 4 open
+   plus the parked TUI Work-search; W2, W4, W6, W9, W12, W13, W14,
+   W19 and W84 were fixed pre-cutover and are not recreated):
 
-       BW=<deployed>/bin/baton-work \
+       BW=<deployed>/bin/baton \
        CONFIG=/home/sl/baton-v11-2/baton.json \
        ROOT=baton sh work/records/2026/08/finding-recursive-target-graph/findings/finding-fresh-record-layout-cutover/scripts/recreate-work.sh
 
@@ -48,7 +53,8 @@ untouched until step 5.
    their old `work/finding-*` path references as written history — nothing
    is rewritten.
 
-Verified in preparation (2026-08-16): the deployer suite passes on the
-schema-15 tree; the recreation script ran end-to-end on a scratch schema-15
-authority (14 rows, one parked, `priority` normal, change identity stamped, canonical
-binding recorded) and replayed idempotently on rerun.
+Verified in preparation (2026-08-16, re-run after the W2, W4, W6, W9, W12, W13, W14, W19 and
+W84 removals): the deployer suite passes on the schema-15 tree; the
+recreation script ran end-to-end on a scratch schema-15 authority —
+5 rows (4 open + 1 parked), concrete classifications, canonical
+umbrella bindings — and replayed idempotently on rerun.

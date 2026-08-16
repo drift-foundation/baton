@@ -9,6 +9,7 @@
   "protocol_version": 11,
   "roots": {
     "pushcoin": {
+      "base": "/home/you/src/pushcoin",
       "display": "PushCoin monorepo"
     }
   },

@@ -153,8 +153,8 @@ def test_the_vocabulary_and_rationale_are_hard_gates(world):
 
 
 @pytest.mark.parametrize("terminal_args", [
-	("--outcome", "satisfying"),
-	("--rationale", "complete evidence"),
+	("outcome=satisfying"),
+	("rationale=complete evidence"),
 ])
 def test_missing_cli_terminal_input_is_a_json_refusal(
 		tmp_path, capsys, terminal_args):
@@ -164,7 +164,7 @@ def test_missing_cli_terminal_input_is_a_json_refusal(
 	work = _create(store)["work_id"]
 	store.close()
 	code = cli.main(["--config", config, "--participant", "lang.ada",
-	                 "close", work, *terminal_args])
+	                 "close", f"work={work}", *terminal_args])
 	captured = capsys.readouterr()
 	assert code == 1, "missing terminal input escaped through argparse exit 2"
 	assert __import__("json").loads(captured.err)["error"], \

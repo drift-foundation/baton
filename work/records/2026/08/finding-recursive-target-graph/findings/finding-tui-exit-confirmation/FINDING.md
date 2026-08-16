@@ -23,3 +23,12 @@ unchanged; include the correction in the next v11 distribution.
 
 The live trial tracks this as v11 Work `26de18dd-W40` with prototype Thread
 `26de18dd-D40`.
+
+## Pre-cutover audit — 2026-08-16
+
+**Confirmed by source inspection.** Normal navigation still returns from the
+TUI immediately when `q` is pressed (`src/baton_work/tui/app.py`), and packaged
+PTY helpers still use a bare `q` as the expected exit path. The correction is
+therefore not implemented. It is a client interaction/test change only,
+requires no authority/schema revision, and must be completed before the fresh
+cutover rather than recreated as open Work afterward.

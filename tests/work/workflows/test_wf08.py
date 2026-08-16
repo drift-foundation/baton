@@ -25,15 +25,15 @@ def test_wf08_reassignment_of_live_work(flow):
 
 	# 1. Generation 1: an obligation and a provider Current both resolving
 	# through intake → rsrch → ada.
-	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
-	                "--title", "checkout fails", "--origin",
-	                "external-report", "--classification", "suspected-defect", "--body", "500 at checkout",
+	push1 = flow.ok("create", "team=push", "kind=bug",
+	                "title=checkout fails",
+	                "origin=external-report", "classification=suspected-defect", "body=500 at checkout",
 	                viewer="push.sl")["work_id"]
-	asked = flow.post(push1, "--body", "lang: yours?",
-	                "--request", "lang.bug", viewer="push.sl")
-	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--classification", "suspected-defect", "--body", "accepted",
+	asked = flow.post(push1, "body=lang: yours?",
+	                "request=lang.bug", viewer="push.sl")
+	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery",
+	                 "origin=external-report", "classification=suspected-defect", "body=accepted",
 	                 viewer="lang.ada")["work_id"]
 	first = flow.ok("obligations", viewer="lang.ada")[0]
 	assert first["owed_by"]["handlers"] == ["ada"]
@@ -66,15 +66,15 @@ def test_wf08_reassignment_of_live_work(flow):
 	assert relisted["owed_by"] == {"endpoint": "lang.bug",
 	                               "route": "intake", "role": "rsrch",
 	                               "handlers": ["grace"]}
-	assert flow.ok("detail", lang42,
+	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.grace")["current"]["handlers"] == ["grace"]
 
 	# 5. Grace acts under generation 2; the NEW event records generation 2
 	# and nothing rewrites the earlier operations.
-	flow.ok("respond", str(asked["seq"]), "--body",
-	        "taking over; tracked", viewer="lang.grace")
-	passed = flow.post(lang42, "--body", "researching",
-	                 "--pass-to", "lang.impl", "--phase", "active", viewer="lang.grace")
+	flow.ok("respond", f"obligation={asked["seq"]}",
+	        "body=taking over; tracked", viewer="lang.grace")
+	passed = flow.post(lang42, "body=researching",
+	                 "pass-to=lang.impl", "phase=active", viewer="lang.grace")
 	events = flow.ok("events", viewer="lang.grace")
 	pass_event = next(event for event in events
 	                  if event["seq"] == passed["seq"])
@@ -83,7 +83,7 @@ def test_wf08_reassignment_of_live_work(flow):
 	assert again["payload"]["request_resolution"]["handlers"] == ["ada"], \
 		"the generation-2 activity rewrote a generation-1 snapshot"
 
-	flow.ok("close", lang42, "--rationale", "handed through cleanly", "--outcome", "satisfying",
+	flow.ok("close", f"work={lang42}", "rationale=handed through cleanly", "outcome=satisfying",
 	        viewer="lang.grace")
-	flow.ok("close", push1, "--rationale", "answered", "--outcome", "satisfying", viewer="push.sl")
+	flow.ok("close", f"work={push1}", "rationale=answered", "outcome=satisfying", viewer="push.sl")
 	assert_final_invariants(flow, "lang.grace", [push1, lang42])

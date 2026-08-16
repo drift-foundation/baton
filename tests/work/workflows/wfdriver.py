@@ -37,7 +37,7 @@ def build_archive(directory: str) -> str:
 	proc = subprocess.run([sys.executable, deployer, target],
 	                      capture_output=True, text=True, timeout=300)
 	assert proc.returncode == 0, proc.stderr
-	return os.path.join(target, "bin", "baton-work")
+	return os.path.join(target, "bin", "baton")
 
 
 class Flow:
@@ -113,13 +113,13 @@ class Flow:
 	def born(self, work_id: str, viewer: str) -> str:
 		"""The Work's first related thread, via the public paged
 		verb — story shorthand, two real CLI calls underneath."""
-		return self.ok("work-threads", work_id, "--limit", "1",
+		return self.ok("work-threads", f"work={work_id}", "limit=1",
 		               viewer=viewer)["rows"][0]["id"]
 
 	def post(self, work_id: str, *argv, viewer: str) -> dict:
 		"""WS-1-era story shorthand: say into the Work's first related
 		thread. Both calls go through the public CLI surface."""
-		return self.ok("say", self.born(work_id, viewer), *argv,
+		return self.ok("say", f"thread={self.born(work_id, viewer)}", *argv,
 		               viewer=viewer)
 
 	def envelope(self, *argv, viewer: str | None = None) -> dict:
@@ -144,9 +144,9 @@ class Flow:
 			for member, entry in spec["participants"].items():
 				chosen = chosen or f"{team}.{member}"
 				if "config" in entry.get("capabilities", []):
-					return self.ok("activate", home,
+					return self.ok("activate", f"directory={home}",
 					               viewer=f"{team}.{member}")
-		return self.ok("activate", home, viewer=chosen)
+		return self.ok("activate", f"directory={home}", viewer=chosen)
 
 
 # -- configuration builders ----------------------------------------------
@@ -234,7 +234,7 @@ def assert_final_invariants(flow: Flow, viewer: str, work_ids) -> list[dict]:
 	a terminal Work has neither Current nor Next."""
 	events = assert_dense_audit(flow, viewer)
 	for work_id in work_ids:
-		detail = flow.ok("detail", work_id, viewer=viewer)
+		detail = flow.ok("detail", f"work={work_id}", viewer=viewer)
 		if detail["status"] == "open":
 			assert detail["current"] is not None and \
 				detail["current"]["endpoint"], \

@@ -30,20 +30,20 @@ def test_wf11_work_revisions(flow):
 	# 1. Open Work with a Current handler and its labelled thread; a
 	# requester posts a COMPLETE proposed contract; Current promotes it
 	# as revision 1 naming expected revision 0 and a rationale.
-	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	               "--title", "parser recovery", "--origin",
-	               "external-report", "--classification", "suspected-defect", "--body", "initial statement",
+	born = flow.ok("create", "team=lang", "kind=rsrch",
+	               "title=parser recovery",
+	               "origin=external-report", "classification=suspected-defect", "body=initial statement",
 	               viewer="lang.ada")
 	work, thread = born["work_id"], born["thread"]
-	proposed = flow.ok("say", thread, "--body",
-	                   "complete contract v1: recover the parser "
+	proposed = flow.ok("say", f"thread={thread}",
+	                   "body=complete contract v1: recover the parser "
 	                   "without dropping state; acceptance: replay "
 	                   "suite green", viewer="push.sl")["seq"]
-	promoted = flow.ok("revise", work, "--message", str(proposed),
-	                   "--expect", "0", "--rationale",
-	                   "agreed at intake", viewer="lang.ada")
+	promoted = flow.ok("revise", f"work={work}", f"message={proposed}",
+	                   "expect=0",
+	                   "rationale=agreed at intake", viewer="lang.ada")
 	assert promoted["revision"] == 1
-	detail = flow.ok("detail", work, viewer="lang.ada")
+	detail = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	effective = detail["revision"]
 	assert effective["revision"] == 1 and effective["prior"] == 0
 	assert effective["thread"] == thread
@@ -56,18 +56,18 @@ def test_wf11_work_revisions(flow):
 	# 2. The requester posts a replacement but CANNOT revise directly;
 	# Current evaluates and promotes revision 2, preserving identity,
 	# dependencies, phase, Current, and revision 1.
-	replacement = flow.ok("say", thread, "--body",
-	                      "complete contract v2: also preserve the "
+	replacement = flow.ok("say", f"thread={thread}",
+	                      "body=complete contract v2: also preserve the "
 	                      "recovery trace", viewer="push.sl")["seq"]
 	error = assert_refusal_changes_nothing(
-		flow, "push.sl", "revise", work, "--message", str(replacement),
-		"--expect", "1", "--rationale", "requester's own edit")
+		flow, "push.sl", "revise", f"work={work}", f"message={replacement}",
+		"expect=1", "rationale=requester's own edit")
 	assert "never grant" in error, \
 		"the requester revised the assigned work directly"
-	flow.ok("revise", work, "--message", str(replacement), "--expect",
-	        "1", "--rationale", "handler accepts the refinement",
+	flow.ok("revise", f"work={work}", f"message={replacement}",
+	        "expect=1", "rationale=handler accepts the refinement",
 	        viewer="lang.ada")
-	detail = flow.ok("detail", work, viewer="lang.ada")
+	detail = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	assert detail["revision"]["revision"] == 2
 	assert [entry["revision"] for entry in detail["revisions"]] == [1, 2]
 	assert detail["revisions"][0]["content"].startswith(
@@ -78,39 +78,39 @@ def test_wf11_work_revisions(flow):
 	# The refusal matrix on the live fixture: missing message, foreign
 	# provenance, empty rationale, wrong expectation — JSON refusals,
 	# nothing changed.
-	foreign = flow.ok("create", "--team", "lang", "--kind", "impl",
-	                  "--title", "elsewhere", "--origin",
-	                  "self-initiated", "--classification", "suspected-defect", "--body", "other",
+	foreign = flow.ok("create", "team=lang", "kind=impl",
+	                  "title=elsewhere",
+	                  "origin=self-initiated", "classification=suspected-defect", "body=other",
 	                  viewer="lang.ada")
-	outside = flow.ok("say", foreign["thread"], "--body",
-	                  "written outside the work's context",
+	outside = flow.ok("say", f"thread={foreign["thread"]}",
+	                  "body=written outside the work's context",
 	                  viewer="lang.ada")["seq"]
 	for argv, needle in (
-			(("revise", work, "--expect", "2", "--rationale", "x"),
-			 "promotes exactly one durable"),
-			(("revise", work, "--message", str(outside), "--expect",
-			  "2", "--rationale", "x"), "does not carry"),
-			(("revise", work, "--message", str(replacement),
-			  "--expect", "2", "--rationale", "  "), "rationale"),
-			(("revise", work, "--message", str(replacement),
-			  "--rationale", "x"), "expected prior revision"),
-			(("revise", work, "--message", str(replacement),
-			  "--expect", "0", "--rationale", "x"), "is at revision")):
+			(("revise", f"work={work}", "expect=2", "rationale=x"),
+			 "missing required message="),
+			(("revise", f"work={work}", f"message={outside}",
+			  "expect=2", "rationale=x"), "does not carry"),
+			(("revise", f"work={work}", f"message={replacement}",
+			  "expect=2", "rationale=  "), "rationale"),
+			(("revise", f"work={work}", f"message={replacement}",
+			  "rationale=x"), "missing required expect="),
+			(("revise", f"work={work}", f"message={replacement}",
+			  "expect=0", "rationale=x"), "is at revision")):
 		error = assert_refusal_changes_nothing(flow, "lang.ada", *argv)
 		assert needle in error, f"{argv} refused with {error!r}"
 
 	# 3. Two Current-authored promotions both name expected revision 2:
 	# exactly one becomes revision 3; the stale writer refuses without
 	# mutation or sequence consumption, across restart and retry.
-	left = flow.ok("say", thread, "--body", "complete contract v3-A",
+	left = flow.ok("say", f"thread={thread}", "body=complete contract v3-A",
 	               viewer="lang.ada")["seq"]
-	right = flow.ok("say", thread, "--body", "complete contract v3-B",
+	right = flow.ok("say", f"thread={thread}", "body=complete contract v3-B",
 	                viewer="lang.ada")["seq"]
-	procs = [flow.spawn("revise", work, "--message", str(left),
-	                    "--expect", "2", "--rationale", "race left",
+	procs = [flow.spawn("revise", f"work={work}", f"message={left}",
+	                    "expect=2", "rationale=race left",
 	                    viewer="lang.ada"),
-	         flow.spawn("revise", work, "--message", str(right),
-	                    "--expect", "2", "--rationale", "race right",
+	         flow.spawn("revise", f"work={work}", f"message={right}",
+	                    "expect=2", "rationale=race right",
 	                    viewer="lang.ada")]
 	finished = [flow.finish(proc) for proc in procs]
 	winners = [out for code, out, _err in finished if code == 0]
@@ -118,7 +118,7 @@ def test_wf11_work_revisions(flow):
 	assert len(winners) == 1 and len(losers) == 1, \
 		"the CAS race admitted both writers"
 	assert json.loads(losers[0])["error"]
-	detail = flow.ok("detail", work, viewer="lang.ada")
+	detail = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	assert detail["revision"]["revision"] == 3
 	assert [entry["revision"] for entry in detail["revisions"]] == \
 		[1, 2, 3]
@@ -127,54 +127,54 @@ def test_wf11_work_revisions(flow):
 	# a restart by construction) refuses again without mutation.
 	stale = left if detail["revision"]["message_seq"] == right else right
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "revise", work, "--message", str(stale),
-		"--expect", "2", "--rationale", "verbatim retry")
+		flow, "lang.ada", "revise", f"work={work}", f"message={stale}",
+		"expect=2", "rationale=verbatim retry")
 	assert "is at revision" in error
 
 	# 4. Transfer Current: the prior handler loses the authority; the
 	# new handler promotes revision 4 with the expected revision.
-	flow.ok("say", thread, "--body", "handing the contract to push",
-	        "--on", work, "--pass-to", "push.bug", "--phase", "queued", viewer="lang.ada")
-	next_contract = flow.ok("say", thread, "--body",
-	                        "complete contract v4: push owns delivery",
+	flow.ok("say", f"thread={thread}", "body=handing the contract to push",
+	        f"on={work}", "pass-to=push.bug", "phase=queued", viewer="lang.ada")
+	next_contract = flow.ok("say", f"thread={thread}",
+	                        "body=complete contract v4: push owns delivery",
 	                        viewer="push.sl")["seq"]
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "revise", work, "--message",
-		str(next_contract), "--expect", "3", "--rationale",
-		"former handler")
+		flow, "lang.ada", "revise", f"work={work}",
+		f"message={next_contract}", "expect=3",
+		"rationale=former handler")
 	assert "never grant" in error, \
 		"the former handler kept revision authority after the transfer"
-	flow.ok("revise", work, "--message", str(next_contract), "--expect",
-	        "3", "--rationale", "the new handler commits",
+	flow.ok("revise", f"work={work}", f"message={next_contract}",
+	        "expect=3", "rationale=the new handler commits",
 	        viewer="push.sl")
-	assert flow.ok("detail", work,
+	assert flow.ok("detail", f"work={work}",
 	               viewer="push.sl")["revision"]["actor"] == "push.sl"
 
 	# 5. A newly requested independent proof is CHILD Work, not a hidden
 	# revision; the parent closes only after the child concludes.
-	child = flow.ok("create", "--team", "push", "--kind", "bug",
-	                "--title", "independent replay proof", "--origin",
-	                "decomposition", "--classification", "suspected-defect", "--body", "own accountable result",
-	                "--parent", work, viewer="push.sl")["work_id"]
+	child = flow.ok("create", "team=push", "kind=bug",
+	                "title=independent replay proof",
+	                "origin=decomposition", "classification=suspected-defect", "body=own accountable result",
+	                f"parent={work}", viewer="push.sl")["work_id"]
 	error = assert_refusal_changes_nothing(
-		flow, "push.sl", "close", work, "--rationale", "premature",
-		"--outcome", "satisfying")
+		flow, "push.sl", "close", f"work={work}", "rationale=premature",
+		"outcome=satisfying")
 	assert child in error
-	flow.ok("close", child, "--rationale",
-	        "proof delivered and reviewed on its own record",
-	        "--outcome", "satisfying", viewer="push.sl")
+	flow.ok("close", f"work={child}",
+	        "rationale=proof delivered and reviewed on its own record",
+	        "outcome=satisfying", viewer="push.sl")
 
 	# 6. Terminal history is immutable: no later promotion is accepted,
 	# and the committed revisions survive the close untouched.
-	flow.ok("close", work, "--rationale", "delivered under contract v4",
-	        "--outcome", "satisfying", viewer="push.sl")
-	late = flow.ok("say", foreign["thread"], "--body",
-	               "post-terminal wish", viewer="lang.ada")["seq"]
+	flow.ok("close", f"work={work}", "rationale=delivered under contract v4",
+	        "outcome=satisfying", viewer="push.sl")
+	late = flow.ok("say", f"thread={foreign["thread"]}",
+	               "body=post-terminal wish", viewer="lang.ada")["seq"]
 	error = assert_refusal_changes_nothing(
-		flow, "push.sl", "revise", work, "--message", str(late),
-		"--expect", "4", "--rationale", "too late")
+		flow, "push.sl", "revise", f"work={work}", f"message={late}",
+		"expect=4", "rationale=too late")
 	assert "terminal work is immutable" in error
-	closed = flow.ok("detail", work, viewer="push.sl")
+	closed = flow.ok("detail", f"work={work}", viewer="push.sl")
 	assert [entry["revision"] for entry in closed["revisions"]] == \
 		[1, 2, 3, 4]
 	assert closed["revision_count"] == 4
@@ -189,17 +189,17 @@ def test_wf11_work_revisions(flow):
 	# and the bounds refuse rather than clamp.
 	walked, after = [], 0
 	while True:
-		page = flow.ok("revisions", work, "--after", str(after),
-		               "--limit", "2", viewer="push.sl")
+		page = flow.ok("revisions", f"work={work}", f"after={after}",
+		               "limit=2", viewer="push.sl")
 		walked += [entry["revision"] for entry in page["rows"]]
 		if page["next_after"] is None:
 			break
 		after = page["next_after"]
 	assert walked == [1, 2, 3, 4], \
 		"the revision pages skipped or repeated"
-	for argv in (("revisions", work, "--after", "-1"),
-	             ("revisions", work, "--limit", "0"),
-	             ("revisions", work, "--limit", "501")):
+	for argv in (("revisions", f"work={work}", "after=-1"),
+	             ("revisions", f"work={work}", "limit=0"),
+	             ("revisions", f"work={work}", "limit=501")):
 		error = assert_refusal_changes_nothing(flow, "push.sl", *argv)
 		assert "pagination cursor" in error or "page limit" in error
 

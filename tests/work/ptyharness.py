@@ -24,8 +24,12 @@ _STRING = re.compile(r"\x1b[PX^_][^\x1b]*(?:\x1b\\)?")
 _TWO = re.compile(r"\x1b[ -/]*[0-~]")
 
 
-def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
-	"""The final screen, reconstructed from the raw byte stream."""
+def replay(transcript: str, columns: int = 110, lines: int = 32,
+           cursor: bool = False):
+	"""The final screen, reconstructed from the raw byte stream. With
+	`cursor=True` also the terminal caret a human would SEE: its final
+	(row, col) and whether the last visibility control (DECTCEM) left
+	it shown — W14's visible-caret evidence."""
 	grid = [[" "] * columns for _ in range(lines)]
 	row = col = 0
 	index = 0
@@ -145,7 +149,12 @@ def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
 				grid[row][col] = char
 			col += 1
 		index = index + 1
-	return ["".join(line).rstrip() for line in grid]
+	final = ["".join(line).rstrip() for line in grid]
+	if not cursor:
+		return final
+	visible = (transcript.rfind("\x1b[?25h")
+	           > transcript.rfind("\x1b[?25l"))
+	return final, (row, col, visible)
 
 
 def drive(authority_path: str, viewer: str, script,

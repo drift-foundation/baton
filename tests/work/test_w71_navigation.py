@@ -64,7 +64,7 @@ def test_the_tree_is_two_levels_with_disclosure(world):
 	"""Roots + ↳ children only; a child with its own children carries a
 	visible disclosure count; grandchildren never paint at the root."""
 	text, status, _steps = ptyharness.drive(world["config"], "lang.ada",
-	                                        [(b"q", 0.4)])
+	                                        [(b"qy", 0.4)])
 	screen = ptyharness.replay(text)
 	flat = "\n".join(screen)
 	assert "the root" in flat
@@ -82,7 +82,7 @@ def test_unfold_re_roots_and_esc_returns(world):
 		(b"j", 0.4),                  # select ↳ the child
 		(b"u", 0.5),                  # re-root
 		(b"\x1b", 0.5),               # back up
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	rooted = ptyharness.replay(steps[1])
 	assert "the root > the child" in rooted[0], \
@@ -101,7 +101,7 @@ def test_unfolding_the_current_root_is_idempotent(world):
 		(b"u", 0.5),                  # root at "the root"
 		(b"u", 0.5),                  # must not append it again
 		(b"\x1b", 0.5),               # one Back returns home
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	twice = ptyharness.replay(steps[1])
 	assert "the root > the root" not in twice[0], \
@@ -118,7 +118,7 @@ def test_enter_opens_details_never_drills(world):
 	detailed Work."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"\r", 0.6),                 # detail of "the root"
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	detail = ptyharness.replay(steps[0])
 	assert "the root" in detail[0], detail[0]
@@ -137,7 +137,7 @@ def test_ctrl_w_moves_panes_and_footer_advertises(world):
 		(b"\r", 0.6),
 		(b"\x17j", 0.5),              # Ctrl-W j → Msgs
 		(b"\x17\x17", 0.5),           # Ctrl-W Ctrl-W → cycle back
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	opened = "\n".join(ptyharness.replay(steps[0]))
 	assert "»Threads" in opened, "the Threads pane focus marker missing"
@@ -186,7 +186,7 @@ def test_refs_render_under_a_separate_section(world):
 	store = bw.Authority(world["database"])
 	config = _json.load(open(world["config"]))
 	config["generation"] = 2
-	config["roots"] = {"pushcoin": {"display": "PushCoin"}}
+	config["roots"] = {"pushcoin": {"display": "PushCoin", "base": "/srv/checkouts/pushcoin"}}
 	with open(world["config"], "w") as handle:
 		_json.dump(config, handle, indent=2, sort_keys=True)
 	lc.accept_config(world["config"], actor="lang.ada")
@@ -195,7 +195,7 @@ def test_refs_render_under_a_separate_section(world):
 	               refs=["pushcoin:docs/trace.md"])
 	store.close()
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"\r", 0.6), (b"q", 0.4)])
+		(b"\r", 0.6), (b"qy", 0.4)])
 	screen = ptyharness.replay(steps[0])
 	flat = "\n".join(screen)
 	assert "  Refs:" in screen, f"the Refs heading is missing"

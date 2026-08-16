@@ -188,22 +188,22 @@ def test_into_form_refuses_create_only_cli_options(world, capsys):
 	before = store.events()
 	code = work_cli.main([
 		"--config", config, "--participant", "drift.ada", "accept",
-		str(asked), "--body", "ours", "--into", provider,
-		"--parent", provider])
+		f"obligation={asked}", "body=ours", f"into={provider}",
+		f"parent={provider}"])
 	assert code == 1
-	assert "--parent" in _json.loads(capsys.readouterr().err)["error"]
+	assert "parent=" in _json.loads(capsys.readouterr().err)["error"]
 	assert store.events() == before
 
 
-@pytest.mark.parametrize("flag,value", [
-	("--kind", "rsrch"),
-	("--title", "parser recovery"),
-	("--classification", "bug"),
-	("--phase", "queued"),
-	("--parent", "ignored-W1"),
+@pytest.mark.parametrize("token", [
+	"kind=rsrch",
+	"title=parser recovery",
+	"classification=bug",
+	"phase=queued",
+	"parent=ignored-W1",
 ])
 def test_into_form_refuses_every_create_only_cli_option(
-		world, capsys, flag, value):
+		world, capsys, token):
 	store, config = world
 	provider = tr.create_work(store, team="drift", kind="rsrch",
 	                          title="parser recovery",
@@ -213,9 +213,10 @@ def test_into_form_refuses_every_create_only_cli_option(
 	before = store.events()
 	code = work_cli.main([
 		"--config", config, "--participant", "drift.ada", "accept",
-		str(asked), "--body", "ours", "--into", provider, flag, value])
+		f"obligation={asked}", "body=ours", f"into={provider}", token])
 	assert code == 1
-	assert flag in _json.loads(capsys.readouterr().err)["error"]
+	key = token.split("=")[0] + "="
+	assert key in _json.loads(capsys.readouterr().err)["error"]
 	assert store.events() == before
 
 

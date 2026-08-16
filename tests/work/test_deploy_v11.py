@@ -55,14 +55,14 @@ def test_the_operator_deploy_surface_is_the_just_recipe():
 	                                "BATON-WORK.md")).decode("utf-8")
 	assert "deploy-v11 DESTINATION:" in justfile
 	assert 'python3 tools/deploy_work.py "{{DESTINATION}}"' in justfile
-	assert "just deploy-v11 /your/dist/baton-work-rN" in quickstart
+	assert "just deploy-v11 /your/dist/baton-rN" in quickstart
 	assert "python3 tools/deploy_work.py" not in quickstart
 
 
 @pytest.fixture(scope="module")
 def dist(tmp_path_factory):
 	target = os.path.join(str(tmp_path_factory.mktemp("v11dist")),
-	                      "baton-work-r1")
+	                      "baton-r1")
 	proc = _deploy(target)
 	assert proc.returncode == 0, proc.stderr
 	return target, json.loads(proc.stdout)
@@ -70,7 +70,7 @@ def dist(tmp_path_factory):
 
 def test_the_deployed_layout_is_the_ruled_release_shape(dist):
 	target, summary = dist
-	executable = os.path.join(target, "bin", "baton-work")
+	executable = os.path.join(target, "bin", "baton")
 	assert summary["executable"] == executable
 	assert os.stat(executable).st_mode & stat.S_IXUSR, \
 		"the deployed product is not executable"
@@ -86,6 +86,11 @@ def test_the_deployed_layout_is_the_ruled_release_shape(dist):
 	# R102: the COMPLETE distribution — executable, documentation,
 	# configuration example, and template assets.
 	assert sorted(os.listdir(target)) == ["bin", "conf", "doc", "tmpl"]
+	# W2 (negative artifact pin): the release ships EXACTLY bin/baton —
+	# the retired baton-work name, or any second file smuggled into
+	# bin/, fails the gate rather than shipping two spellings.
+	assert os.listdir(os.path.join(target, "bin")) == ["baton"], \
+		"bin/ must contain exactly the renamed executable"
 	assert _read(os.path.join(target, "doc", "BATON-WORK.md")) == \
 		_read(os.path.join(REPO, "docs", "BATON-WORK.md"))
 	example = os.path.join(target, "conf", "baton.example.json")
@@ -100,12 +105,12 @@ def test_the_deployed_layout_is_the_ruled_release_shape(dist):
 
 def test_an_exact_release_directory_is_immutable(dist, tmp_path):
 	target, _summary = dist
-	before = _read(os.path.join(target, "bin", "baton-work"))
+	before = _read(os.path.join(target, "bin", "baton"))
 	proc = _deploy(target)
 	assert proc.returncode == 1
 	error = json.loads(proc.stderr)["error"]
 	assert "already exists" in error and "NEW explicit" in error
-	assert _read(os.path.join(target, "bin", "baton-work")) == before
+	assert _read(os.path.join(target, "bin", "baton")) == before
 	# A missing parent refuses rather than being invented.
 	proc = _deploy(str(tmp_path / "absent" / "release"))
 	assert proc.returncode == 1
@@ -118,38 +123,37 @@ def test_the_installed_product_runs_the_whole_onboarding_story(dist,
 	INSTALLED executable with no PYTHONPATH — and bootstrap vendors the
 	DEPLOYED sibling tmpl/, proving the release-layout asset resolution."""
 	target, _summary = dist
-	executable = os.path.join(target, "bin", "baton-work")
+	executable = os.path.join(target, "bin", "baton")
 	home = str(tmp_path / "home")
 	os.mkdir(home)
-	proc = _run(executable, "init", home)
+	proc = _run(executable, "init", f"directory={home}")
 	assert proc.returncode == 0, proc.stderr
 	config_path = os.path.join(home, "baton.json")
 	document = json.loads(_read(config_path))
 	document["teams"] = fixtures.config_document(
 		{"push": {"members": {"sl": ["dev"]}, "kinds": ["bug"]}})["teams"]
-	document["roots"] = {"pushcoin": {"display": "PushCoin"}}
+	project = str(tmp_path / "project")
+	os.mkdir(project)
+	document["roots"] = {"pushcoin": {"display": "PushCoin",
+	                                  "base": project}}
 	with open(config_path, "w", encoding="utf-8") as handle:
 		json.dump(document, handle, indent=2, sort_keys=True)
-	proc = _run(executable, "--participant", "push.sl", "activate", home)
+	proc = _run(executable, "--participant", "push.sl", "activate", f"directory={home}")
 	assert proc.returncode == 0, proc.stderr
-	proc = _run(executable, "--config", config_path, "--participant",
-	            "push.sl", "create", "--team", "push", "--kind", "bug",
-	            "--title", "first trial work", "--origin",
-	            "self-initiated", "--classification", "suspected-defect", "--body", "hello v11")
+	proc = _run(executable, "--config", config_path,
+	            "--participant", "push.sl", "create", "team=push", "kind=bug",
+	            "title=first trial work",
+	            "origin=self-initiated", "classification=suspected-defect", "body=hello v11")
 	assert proc.returncode == 0, proc.stderr
-	proc = _run(executable, "--config", config_path, "--participant",
-	            "push.sl", "home")
+	proc = _run(executable, "--config", config_path,
+	            "--participant", "push.sl", "home")
 	assert proc.returncode == 0, proc.stderr
 	rows = json.loads(proc.stdout)["result"]["rows"]
 	assert [row["title"] for row in rows] == ["first trial work"]
 
-	project = str(tmp_path / "project")
-	os.mkdir(project)
-	resolver = str(tmp_path / "roots.json")
-	with open(resolver, "w", encoding="utf-8") as handle:
-		json.dump({"roots": {"pushcoin": project}}, handle)
-	proc = _run(executable, "bootstrap", "--root", "pushcoin",
-	            "--roots-file", resolver)
+	# W4: bootstrap resolves its root through the accepted baton.json.
+	proc = _run(executable, "--config", config_path,
+	            "bootstrap", "root=pushcoin")
 	assert proc.returncode == 0, proc.stderr
 	assert _read(os.path.join(project, "tmpl", "work-basic-1.md")) == \
 		_read(os.path.join(target, "tmpl", "work-basic-1.md")), \
@@ -161,7 +165,7 @@ def test_the_installed_product_runs_the_whole_onboarding_story(dist,
 	if hasattr(_pty, "fork"):
 		import ptyharness
 		text, status, steps = ptyharness.drive(
-			config_path, "push.sl", [(b"", 0.5), (b"q", 0.4)],
+			config_path, "push.sl", [(b"", 0.5), (b"qy", 0.4)],
 			command=[executable])
 		screen = ptyharness.replay(steps[0])
 		assert any("first trial work" in line for line in screen), \
@@ -197,10 +201,10 @@ def test_deploy_and_onboarding_touch_nothing_outside_their_targets(
 	target = str(tmp_path / "second-release")
 	proc = _deploy(target)
 	assert proc.returncode == 0, proc.stderr
-	executable = os.path.join(target, "bin", "baton-work")
+	executable = os.path.join(target, "bin", "baton")
 	home = str(tmp_path / "home2")
 	os.mkdir(home)
-	assert _run(executable, "init", home).returncode == 0
+	assert _run(executable, "init", f"directory={home}").returncode == 0
 	config_path = os.path.join(home, "baton.json")
 	document = json.loads(_read(config_path))
 	document["teams"] = fixtures.config_document(
@@ -208,11 +212,11 @@ def test_deploy_and_onboarding_touch_nothing_outside_their_targets(
 	with open(config_path, "w", encoding="utf-8") as handle:
 		json.dump(document, handle, indent=2, sort_keys=True)
 	assert _run(executable, "--participant", "push.sl", "activate",
-	            home).returncode == 0
-	assert _run(executable, "--config", config_path, "--participant",
-	            "push.sl", "create", "--team", "push", "--kind", "bug",
-	            "--title", "contained", "--origin", "self-initiated", "--classification", "suspected-defect",
-	            "--body", "canary run").returncode == 0
+	            f"directory={home}").returncode == 0
+	assert _run(executable, "--config", config_path,
+	            "--participant", "push.sl", "create", "team=push", "kind=bug",
+	            "title=contained", "origin=self-initiated", "classification=suspected-defect",
+	            "body=canary run").returncode == 0
 
 	assert _snapshot(canary) == before, \
 		"the deploy/onboarding story reached outside its targets"
@@ -222,7 +226,7 @@ def test_the_deployed_archive_contains_no_checkout_bytecode(dist):
 	"""A release is assembled from intentional source, not whatever
 	interpreter residue happens to be present in the checkout."""
 	target, _summary = dist
-	executable = os.path.join(target, "bin", "baton-work")
+	executable = os.path.join(target, "bin", "baton")
 	with zipfile.ZipFile(executable) as archive:
 		members = archive.namelist()
 	residue = [name for name in members
@@ -240,7 +244,7 @@ def test_installed_init_requires_its_release_configuration_assets(tmp_path):
 	os.unlink(os.path.join(target, "conf", "baton.example.json"))
 	home = str(tmp_path / "home-without-conf")
 	os.mkdir(home)
-	proc = _run(os.path.join(target, "bin", "baton-work"), "init", home)
+	proc = _run(os.path.join(target, "bin", "baton"), "init", f"directory={home}")
 	assert proc.returncode == 1
 	assert "conf" in proc.stderr and "baton.example.json" in proc.stderr
 
@@ -250,7 +254,7 @@ def test_the_deployed_archive_carries_sources_only(dist):
 	host-generated bytecode, no interpreter residue."""
 	import zipfile
 	target, _summary = dist
-	executable = os.path.join(target, "bin", "baton-work")
+	executable = os.path.join(target, "bin", "baton")
 	# The zipapp may carry a shebang prefix; zipfile handles it.
 	with zipfile.ZipFile(executable) as archive:
 		members = archive.namelist()
@@ -265,20 +269,17 @@ def test_the_deployed_archive_carries_sources_only(dist):
 
 def test_installed_init_scaffolds_from_the_release_assets(dist, tmp_path):
 	"""R107: the scaffold CONTENT is the release's own assets — the
-	setup document and roots seed byte-for-byte, and the configuration
+	setup document byte-for-byte, and the configuration
 	example's skeleton with the demonstration teams/roots reset and a
 	fresh authority uuid substituted."""
 	target, _summary = dist
-	executable = os.path.join(target, "bin", "baton-work")
+	executable = os.path.join(target, "bin", "baton")
 	home = str(tmp_path / "home")
 	os.mkdir(home)
-	assert _run(executable, "init", home).returncode == 0
+	assert _run(executable, "init", f"directory={home}").returncode == 0
 	assert _read(os.path.join(home, "BATON-SETUP.md")) == \
 		_read(os.path.join(target, "doc", "BATON-SETUP.md")), \
 		"the setup document is not the release asset byte-for-byte"
-	assert _read(os.path.join(home, "roots.json")) == \
-		_read(os.path.join(target, "conf", "roots.scaffold.json")), \
-		"the roots seed is not the release asset byte-for-byte"
 	example = json.loads(_read(os.path.join(target, "conf",
 	                                        "baton.example.json")))
 	document = json.loads(_read(os.path.join(home, "baton.json")))
@@ -289,3 +290,20 @@ def test_installed_init_scaffolds_from_the_release_assets(dist, tmp_path):
 		example["instance"]["database"]
 	assert document["instance"]["authority_uuid"] != \
 		example["instance"]["authority_uuid"]
+
+
+def test_the_recreation_script_instructs_the_renamed_executable():
+	"""W2 R1: the W92 recreation script is CURRENT operator instruction,
+	not frozen history — it must name bin/baton and never the retired
+	spelling."""
+	script = os.path.join(
+		os.path.dirname(os.path.dirname(os.path.dirname(
+			os.path.abspath(__file__)))),
+		"work", "records", "2026", "08",
+		"finding-recursive-target-graph", "findings",
+		"finding-fresh-record-layout-cutover", "scripts",
+		"recreate-work.sh")
+	text = open(script, encoding="utf-8").read()
+	assert "bin/baton-work" not in text, \
+		"the retired executable name survives in current instruction"
+	assert "bin/baton" in text

@@ -48,36 +48,36 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 	# exactly its own question.
 	consumers, questions = {}, {}
 	for name, member in MEMBERS.items():
-		work = flow.ok("create", "--team", name, "--kind", "bug",
-		               "--title", f"{name} report", "--origin",
-		               "external-report", "--classification", "suspected-defect", "--body", "local report",
+		work = flow.ok("create", f"team={name}", "kind=bug",
+		               f"title={name} report",
+		               "origin=external-report", "classification=suspected-defect", "body=local report",
 		               viewer=f"{name}.{member}")["work_id"]
-		asked = flow.post(work, "--body", "drift: yours?",
-		                "--request", "drift.bug",
+		asked = flow.post(work, "body=drift: yours?",
+		                "request=drift.bug",
 		                viewer=f"{name}.{member}")
-		flow.ok("phase", work, "--to", "waiting", "--wait-on-obligation",
-		        str(asked["seq"]), viewer=f"{name}.{member}")
+		flow.ok("phase", f"work={work}", "to=waiting",
+		        f"wait={asked['seq']}", viewer=f"{name}.{member}")
 		consumers[name], questions[name] = work, asked["seq"]
 
 	# The first acceptance creates DRIFT-1; the other two converge into it.
-	first = flow.ok("accept", str(questions["push"]),
-	                "--body", "ours; tracking as parser recovery",
-	                "--create", "--kind", "rsrch",
-	                "--classification", "suspected-defect",
-	                "--title", "parser recovery", viewer="drift.ada")
+	first = flow.ok("accept", f"obligation={questions["push"]}",
+	                "body=ours; tracking as parser recovery",
+	                "create=true", "kind=rsrch",
+	                "classification=suspected-defect",
+	                "title=parser recovery", viewer="drift.ada")
 	drift1 = first["provider"]
 	for name in ("web", "mdb"):
-		flow.ok("accept", str(questions[name]),
-		        "--body", f"same parser regression as {drift1}",
-		        "--into", drift1, viewer="drift.ada")
+		flow.ok("accept", f"obligation={questions[name]}",
+		        f"body=same parser regression as {drift1}",
+		        f"into={drift1}", viewer="drift.ada")
 
 	# Live DEP=3; every edge explains itself through its own obligation.
-	provider = flow.ok("detail", drift1, viewer="drift.ada")
+	provider = flow.ok("detail", f"work={drift1}", viewer="drift.ada")
 	assert provider["open_dependents"] == 3
 	assert {entry["via_obligation"] for entry in
 	        provider["links"]["blocks"]} == set(questions.values())
 	for name, member in MEMBERS.items():
-		checkpoint = flow.ok("detail", consumers[name],
+		checkpoint = flow.ok("detail", f"work={consumers[name]}",
 		                     viewer=f"{name}.{member}")
 		assert checkpoint["phase"] == "queued", f"{name} slept on"
 		assert checkpoint["ready"] is False
@@ -88,20 +88,20 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 
 	# A duplicate acceptance attempt refuses without a byte.
 	error = assert_refusal_changes_nothing(
-		flow, "drift.ada", "accept", str(questions["push"]),
-		"--body", "twice", "--into", drift1)
+		flow, "drift.ada", "accept", f"obligation={questions["push"]}",
+		"body=twice", f"into={drift1}")
 	assert "already accepted" in error
 
 	# The terminal close fans out through all three provenance edges.
-	flow.ok("close", drift1, "--rationale", "fixed and verified",
-	        "--outcome", "satisfying", viewer="drift.ada")
+	flow.ok("close", f"work={drift1}", "rationale=fixed and verified",
+	        "outcome=satisfying", viewer="drift.ada")
 	for name, member in MEMBERS.items():
-		resumed = flow.ok("detail", consumers[name],
+		resumed = flow.ok("detail", f"work={consumers[name]}",
 		                  viewer=f"{name}.{member}")
 		assert resumed["ready"] is True
 		assert resumed["links"]["blocked_by"][0]["outcome"] == "satisfying"
-		flow.ok("close", consumers[name], "--rationale", "verified",
-		        "--outcome", "satisfying", viewer=f"{name}.{member}")
-	assert flow.ok("detail", drift1, viewer="drift.ada")["open_dependents"] == 0
+		flow.ok("close", f"work={consumers[name]}", "rationale=verified",
+		        "outcome=satisfying", viewer=f"{name}.{member}")
+	assert flow.ok("detail", f"work={drift1}", viewer="drift.ada")["open_dependents"] == 0
 	assert_final_invariants(flow, "drift.ada",
 	                        [drift1, *consumers.values()])

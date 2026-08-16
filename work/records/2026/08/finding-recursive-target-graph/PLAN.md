@@ -1765,19 +1765,25 @@ compact, exact selected-Work identity/targeting interaction and cover missed
 output, duplicate titles, narrow screens, scrolling and selection changes
 before the next immutable v11 distribution.
 
-**Queued child: key/value operation grammar.** The second trial found the
+**Completed child: key/value operation grammar.** The second trial found the
 mixed positional/`--option` grammar cumbersome in the command bar. See
 `findings/finding-key-value-command-grammar/FINDING.md` and its plan. Replace
 v11 operation inputs with one strict order-independent `key=value` grammar
 shared by CLI and TUI, preserving global launcher options and every authority,
 retry, ordering and refusal boundary. Do not retain two operation dialects.
+Signed off 2026-08-16 in
+`findings/finding-key-value-command-grammar/review-2026-08-16T12-44-53Z.md`;
+the dependent command-assist, batch, and release Work now recompute from their
+remaining live conditions.
 
-**Queued dependent child: context-sensitive command assist.** See
+**Completed dependent child: context-sensitive command assist.** See
 `findings/finding-tui-command-assist/FINDING.md` and its plan. Drive partial
 verb, parameter, remaining-key, and closed-value hints from the exact command
 specification established by the key/value grammar; render them beside the
 command input without hiding typed text or mutating authority. This child must
-depend on the grammar child in the v11 Work graph.
+depend on the grammar child in the v11 Work graph. Signed off 2026-08-16 in
+`findings/finding-tui-command-assist/review-2026-08-16T13-10-12Z.md`; W19 and
+the release Work now recompute from their remaining live conditions.
 
 **Queued dependent child: `::` multiline command batch.** See
 `findings/finding-tui-command-batch/FINDING.md` and its plan. Keep `:` as the
@@ -1787,6 +1793,20 @@ sequentially, stop honestly on refusal, retain completed/failed/unrun state,
 and preserve per-command retry safety without claiming batch atomicity. This
 child depends on the key/value grammar and adds no scripting language or file
 execution.
+
+**Changes requested 2026-08-16:** the first W19 review is recorded in
+`findings/finding-tui-command-batch/review-2026-08-16T13-26-01Z.md`. Editing a
+failed or completed line currently leaves a stale run summary in place and
+hides the Go/cancel legend; the batch-specific resize acceptance also lacks its
+required regression. Correct those focused gaps and return W19 for review
+before advancing the serial queue.
+
+**Superseded by sign-off 2026-08-16:** both W19 review gaps are corrected and
+accepted in
+`findings/finding-tui-command-batch/review-2026-08-16T13-33-55Z.md`. Buffer
+mutations now invalidate stale summaries and restore the controls, and the
+batch-specific resize path preserves the whole staged input and caret. W19 may
+close satisfying and the serial queue may advance.
 
 **Superseded child: separate live `Blk` and `Dpts` counters.** See
 `findings/finding-live-dependency-counters/FINDING.md` and its plan. Expose
@@ -1861,8 +1881,21 @@ parked until the next schema revision rather than approximated in schema 14.
 **Superseded 2026-08-16:** the timestamp-age cue above is replaced by the
 live hot-zone cue pinned in the same child. Blink open Work with an active
 claimant, plus ready unclaimed review Work; exclude blocked review, waiting,
-parked, and closed Work. This depends on W108 claimant projection but no
-longer depends on recency timestamps.
+parked, and closed Work. Blink only the phase/status cell (`actve` or `rview`),
+not the whole row. This depends on W108 claimant projection but no longer
+depends on recency timestamps.
+
+**Pre-cutover audit 2026-08-16:** W108 is complete and the cue is still absent
+from source. The same live Work was moved from parked to queued at sequence
+128; implement the hot-zone scope before cutover and do not recreate the stale
+“recently changed” item in the fresh authority.
+
+**Completed 2026-08-16:** W84 is implemented and signed off in
+`findings/finding-tui-recent-work-cue/review-2026-08-16T13-43-54Z.md`. The cue
+derives solely from canonical claimant/readiness state and blinks only the
+phase cell; cold, narrow, blocked, waiting, parked, and terminal cases remain
+steady. W84 is removed from recreation. This completes the ruled same-schema
+pre-cutover cleanup set.
 
 **Activated same-schema feedback batch — 2026-08-15.** Per Slawomir, proceed
 serially through W77 (terminal Work has no phase), W74 (root-header cleanup),
@@ -1877,6 +1910,21 @@ trial: adopt permanent `work/records/YYYY/MM/...` dossiers and the human
 `work/open/...` index, update `AGENTS.md`, deploy the next schema, and
 initialize a fresh authority without migrating trial state. Recreate only
 still-relevant Work with canonical record bindings.
+
+**Pre-deploy correction activated 2026-08-16:** W2 is not Work to recreate
+after cutover. The already-confirmed product naming decision makes it a
+same-schema prerequisite: the next distribution must install `bin/baton`,
+while `baton-work` remains only in immutable historical trials and internal
+module/package names. See
+`findings/finding-v11-executable-name/{FINDING,PLAN}.md`. W92 deployment is
+held until W2 closes satisfying.
+
+**Second pre-deploy correction activated 2026-08-16:** W4 is likewise not
+post-cutover Work. It changes the strict v11 configuration/runtime contract,
+not SQLite storage; the fresh authority must accept repository bases in
+`baton.json` at its initial activation. See
+`findings/finding-configured-project-root-paths/{FINDING,PLAN}.md`. Sequence
+W2 then W4, each with its own review gate, before W92 deployment.
 
 **Queued child: category header.** See
 `findings/finding-tui-category-header/FINDING.md` and its plan. Supersede only

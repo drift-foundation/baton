@@ -40,8 +40,8 @@ def _spec():
 
 def _with_roots(config_path):
 	document = _json.loads(open(config_path).read())
-	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo"},
-	                     "drift": {"display": "Drift checkout"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo", "base": "/srv/checkouts/pushcoin"},
+	                     "drift": {"display": "Drift checkout", "base": "/srv/checkouts/drift"}}
 	document["generation"] = document.get("generation", 1)
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
@@ -52,8 +52,8 @@ def _with_roots(config_path):
 def world(tmp_path):
 	config_path = os.path.join(str(tmp_path), "baton.json")
 	document = fx.config_document(_spec())
-	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo"},
-	                     "drift": {"display": "Drift checkout"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo", "base": "/srv/checkouts/pushcoin"},
+	                     "drift": {"display": "Drift checkout", "base": "/srv/checkouts/drift"}}
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	result = lc.init_from_config(config_path, participant="lang.ada")
@@ -102,14 +102,14 @@ def test_the_catalog_uses_the_v10_grammar_and_never_reuses(world, tmp_path):
 	for bad in ("Push", "push-coin", "a" * 65, "push..coin", ".push", ""):
 		document = _json.loads(open(config_path).read())
 		document["generation"] += 1
-		document["roots"][bad] = {"display": "X"}
+		document["roots"][bad] = {"display": "X", "base": "/srv/checkouts/x"}
 		with open(config_path, "w") as handle:
 			_json.dump(document, handle, indent=2, sort_keys=True)
 		with pytest.raises(bw.WorkError, match="root ident|unknown"):
 			lc.accept_config(config_path, actor="lang.ada")
 	# Retirement projects removed=1; reintroduction refuses.
 	document = fx.config_document(_spec())
-	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo", "base": "/srv/checkouts/pushcoin"}}
 	document["generation"] = 2
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
@@ -118,7 +118,7 @@ def test_the_catalog_uses_the_v10_grammar_and_never_reuses(world, tmp_path):
 		"SELECT removed FROM roots WHERE root='drift'").fetchone()[
 		"removed"] == 1
 	document["generation"] = 3
-	document["roots"]["drift"] = {"display": "Back again"}
+	document["roots"]["drift"] = {"display": "Back again", "base": "/srv/checkouts/drift"}
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	with pytest.raises(bw.WorkError, match="never silently reused"):

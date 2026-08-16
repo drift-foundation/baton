@@ -26,28 +26,28 @@ def test_wf04_one_consumer_one_provider(flow):
 	flow.init(document(standard_teams()))
 
 	# 1. Push reports and asks Lang; Push retains Current.
-	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
-	                "--title", "checkout fails after parser update",
-	                "--origin", "external-report", "--classification", "suspected-defect",
-	                "--body", "500 at checkout, trace attached",
+	push1 = flow.ok("create", "team=push", "kind=bug",
+	                "title=checkout fails after parser update",
+	                "origin=external-report", "classification=suspected-defect",
+	                "body=500 at checkout, trace attached",
 	                viewer="push.sl")["work_id"]
-	asked = flow.post(push1, "--body", "parser recovery bug?",
-	                "--request", "lang.bug", viewer="push.sl")
+	asked = flow.post(push1, "body=parser recovery bug?",
+	                "request=lang.bug", viewer="push.sl")
 
 	# 2. Lang accepts intake: provider work, explicit edge, response with
 	# the provider id. Obligation and edge are DISTINCT records.
-	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery drops state",
-	                 "--origin", "external-report", "--classification", "suspected-defect",
-	                 "--body", "accepted from push's report",
+	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery drops state",
+	                 "origin=external-report", "classification=suspected-defect",
+	                 "body=accepted from push's report",
 	                 viewer="lang.ada")["work_id"]
-	flow.ok("block", push1, "--on", lang42, viewer="push.sl")
-	flow.ok("respond", str(asked["seq"]),
-	        "--body", f"ours; tracked as {lang42}", viewer="lang.ada")
+	flow.ok("block", f"work={push1}", f"on={lang42}", viewer="push.sl")
+	flow.ok("respond", f"obligation={asked["seq"]}",
+	        f"body=ours; tracked as {lang42}", viewer="lang.ada")
 
 	# The obligation is gone; the edge remains — ONLY the edge gates.
 	assert flow.ok("obligations", viewer="lang.ada") == []
-	blocked = flow.ok("detail", push1, viewer="push.sl")
+	blocked = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert blocked["ready"] is False
 	assert blocked["open_blockers"] == 1
 	assert blocked["current"] == {"endpoint": "push.bug", "route": "main",
@@ -56,9 +56,9 @@ def test_wf04_one_consumer_one_provider(flow):
 
 	# WS-1: with the edge recorded, the consumer chooses honest WAITING —
 	# dependency-backed, refused if there were nothing to wait for.
-	flow.ok("phase", push1, "--to", "waiting", "--wait-on-gates",
+	flow.ok("phase", f"work={push1}", "to=waiting", "wait=gates",
 	        viewer="push.sl")
-	waiting = flow.ok("detail", push1, viewer="push.sl")
+	waiting = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert waiting["phase"] == "waiting"
 	assert waiting["waiting_on"] == {"type": "gates", "obligation": None}
 	assert flow.ok("summary", viewer="push.sl") == \
@@ -66,39 +66,39 @@ def test_wf04_one_consumer_one_provider(flow):
 
 	# The link is traversable from EITHER side.
 	assert [entry["id"] for entry in
-	        flow.ok("links", push1, viewer="push.sl")["blocked_by"]] == \
+	        flow.ok("links", f"work={push1}", viewer="push.sl")["blocked_by"]] == \
 		[lang42]
 	assert [entry["id"] for entry in
-	        flow.ok("links", lang42, viewer="lang.ada")["blocks"]] == [push1]
+	        flow.ok("links", f"work={lang42}", viewer="lang.ada")["blocks"]] == [push1]
 
 	# 3. Lang classifies the accepted intake and works the phases HONESTLY:
 	# each an explicit audited transition beside its pass — and every pass
 	# releases the claimant and re-phases by readiness (pinned matrix).
-	flow.ok("classify", lang42, "--as", "confirmed-defect",
+	flow.ok("classify", f"work={lang42}", "as=confirmed-defect",
 	        viewer="lang.ada")
-	flow.ok("phase", lang42, "--to", "research", viewer="lang.ada")
+	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
 
-	flow.post(lang42, "--body", "analysis: recovery table clobbered",
-	        "--pass-to", "lang.rev", "--phase", "review", viewer="lang.ada")
-	assert flow.ok("detail", lang42,
+	flow.post(lang42, "body=analysis: recovery table clobbered",
+	        "pass-to=lang.rev", "phase=review", viewer="lang.ada")
+	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["phase"] == "review", \
 		"the pass did not record its destination phase atomically"
 
-	flow.post(lang42, "--body", "approach approved; build it",
-	        "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
+	flow.post(lang42, "body=approach approved; build it",
+	        "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
 	        viewer="lang.ada")
-	midway = flow.ok("detail", lang42, viewer="lang.grace")
+	midway = flow.ok("detail", f"work={lang42}", viewer="lang.grace")
 	assert midway["current"] == {"endpoint": "lang.impl", "route": "build",
 	                             "role": "impl", "handlers": ["grace"]}
 	assert midway["next"]["endpoint"] == "lang.rev"
 	assert midway["phase"] == "active", \
 		"the pass did not record its destination phase atomically"
-	flow.ok("claim", lang42, viewer="lang.grace")
+	flow.ok("claim", f"work={lang42}", viewer="lang.grace")
 
-	returned = flow.post(lang42, "--body", "fixed; tests attached",
-	                   "--pass-to", "lang.rev", "--phase", "review", viewer="lang.grace")
+	returned = flow.post(lang42, "body=fixed; tests attached",
+	                   "pass-to=lang.rev", "phase=review", viewer="lang.grace")
 	assert returned["kind"] == "return"
-	assert flow.ok("detail", lang42,
+	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["phase"] == "review", \
 		"the return did not record its destination phase (and release)"
 	phase_trail = [(event["payload"]["from"], event["payload"]["to"])
@@ -109,13 +109,13 @@ def test_wf04_one_consumer_one_provider(flow):
 		"handoff stages ride their pass events, not separate set_phase acts"
 
 	# 4. Reviewer closes fixed-and-verified — addressed to NOBODY.
-	flow.ok("close", lang42, "--rationale", "fixed and verified", "--outcome", "satisfying",
+	flow.ok("close", f"work={lang42}", "rationale=fixed and verified", "outcome=satisfying",
 	        viewer="lang.ada")
 
 	# 5. PUSH-1 became ready because its BLOCKER changed state — and its
 	# recorded wake condition was satisfied by THAT SAME transaction: one
 	# atomic `wake`, phase back to queued, nothing owed to memory.
-	resumed = flow.ok("detail", push1, viewer="push.sl")
+	resumed = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert resumed["ready"] is True
 	assert resumed["open_blockers"] == 0
 	assert resumed["phase"] == "queued", "the satisfied waiter did not wake"
@@ -131,9 +131,9 @@ def test_wf04_one_consumer_one_provider(flow):
 	assert flow.ok("summary", viewer="push.sl")["waiting"] == 0
 	assert resumed["current"]["endpoint"] == "push.bug", \
 		"the provider close moved the consumer's Current"
-	flow.post(push1, "--body", "verified on staging",
+	flow.post(push1, "body=verified on staging",
 	        viewer="push.sl")
-	flow.ok("close", push1, "--rationale", "verified fixed upstream", "--outcome", "satisfying",
+	flow.ok("close", f"work={push1}", "rationale=verified fixed upstream", "outcome=satisfying",
 	        viewer="push.sl")
 
 	events = assert_final_invariants(flow, "push.sl", [push1, lang42])

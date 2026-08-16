@@ -102,11 +102,9 @@ not rewritten.
 Bindings: NONE exist on any open trial Work (verified via `bindings` per
 Work) — nothing to translate.
 
-Still-relevant open Work to recreate in the fresh authority (13):
-W2 rename executable, W3 init hint, W4 roots config, W6 defct label,
-W9 exit confirmation, W10 priority, W12 Work ID in details, W13 key-value
-syntax, W14 command assist, W19 batch mode, W34 short selectors,
-W78 project filters, W84 recent-work cue.
+Still-relevant open Work to recreate in the fresh authority (4):
+W3 init hint, W10 priority, W34 short selectors, W78 project
+filters.
 
 NOT recreated: W92 (completes at cutover), W11 "cut next v11 trial release"
 (superseded by the W92 release itself — flagged for reviewer confirmation),
@@ -116,8 +114,22 @@ trial authority, references unrewritten).
 Reviewer follow-up (v10 80bbe488, 2026-08-16): additionally recreate the
 TUI Work-search request as PARKED (deferred beyond this release); pinned at
 findings/finding-tui-work-search/ in the umbrella record — no earlier pin
-was found to relocate. Recreated total: 14 (13 open + 1 parked).
+was found to relocate.
 
-Selected next-schema persisted state (per the umbrella plan): W10 three-level
-priority, W78 canonical project metadata, W84 per-Work `last_changed_at`
-plus a stable change sequence.
+Recreated total: 5 — 4 open + 1 parked. W2 (executable rename,
+T2 #125), W4 (single-config roots, T4 #134), W6 (defct label,
+T6 #143), W9 (exit confirmation, T9 #150), W12 (detail Work id,
+T12 #156), W13 (key=value grammar, T13 #162), W14 (command-bar
+assistance, T14 #170), W19 (multiline batch, T19 #180), and W84
+(hot-zone blink cue) were implemented pre-cutover and are NOT
+recreated — the fresh baton.json is born on the single-config
+root model and the fresh CLI/TUI on the ruled compact vocabulary,
+exit prompt, id-led detail header, the one key=value operation
+grammar, its context-sensitive assistance, the `::` batch buffer,
+and the hot-zone cue.
+
+Selected next-schema persisted state (per the umbrella plan): W10
+three-level priority and W78 canonical project metadata. (W84's original
+timestamp/change-sequence design was superseded by the same-schema
+active/review hot-zone cue and is queued as presentation work, not
+selected persisted state.)

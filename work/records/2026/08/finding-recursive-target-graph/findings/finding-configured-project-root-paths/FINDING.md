@@ -54,3 +54,24 @@ association is configured; it does not make one path derivable from another.
 The second trial may continue with its known limitation while feedback is
 collected. This finding is queued for the next revision; no live immutable
 distribution or activated authority is rewritten in place.
+
+## Scheduling correction — 2026-08-16
+
+**Confirmed by Slawomir before schema-15 deployment.** W92 is the “next
+revision” named above. This correction does not require a SQLite schema
+change; it changes the strict `baton.json` configuration contract and runtime
+root resolution. Deferring it until after the fresh authority is activated
+would require immediately replacing or regenerating the configuration that
+was supposed to bootstrap that authority.
+
+Commit `6fe32fd` still accepts only `{ "display": ... }` in each
+`baton.json` root entry and keeps absolute bases in separate `roots.json` input
+used by selected commands. Its W92 runbook nevertheless tells the operator to
+configure the repository root before activation. Adding the required base to
+the committed strict config would be rejected as an unknown field, while
+omitting it leaves ordinary clients unable to resolve repository assets.
+
+Therefore this finding is a pre-cutover prerequisite. It must implement and
+review the single-config model before the next immutable v11 distribution is
+deployed or the fresh authority is initialized. Historical trial homes and
+distributions remain unchanged; v10 remains untouched.

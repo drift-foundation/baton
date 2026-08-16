@@ -17,15 +17,27 @@
 
 ## Superseding plan — 2026-08-16
 
-**Status:** queued after W108 claimant projection; the timestamp-age design
-above is no longer implementation scope.
+**Status — 2026-08-16:** W108 is complete; verified unimplemented and queued
+for the pre-cutover cleanup batch. The timestamp-age design above is no longer
+implementation scope. The live authority item was moved from `parked` to
+`queued` at sequence 128.
 
 1. Derive `hot` only from canonical row state: active claimant present, or
    `phase=review && ready=true`, while status is open.
-2. Apply restrained slow blink to the whole hot Work row without changing
-   selection or layout; retain ordinary textual state when blink is ignored.
+2. Apply restrained slow blink only to the phase/status cell of a hot Work row
+   (`actve` or `rview`) without changing selection or layout; every other cell
+   remains steady, and ordinary textual state remains when blink is ignored.
 3. Prove claimed research/implementation/review Work, ready unclaimed review,
    blocked review, waiting, parked, terminal, narrow-screen, refresh, and
    multiple simultaneously hot rows.
 4. Verify the cue needs no timestamp/age read and performs no authority write,
    then run packaged TUI and full v11 gates.
+5. Remove W84 from the fresh-authority recreation inventory and update its
+   counts/proof after verification.
+
+## Sign-off — 2026-08-16
+
+Complete and accepted in `review-2026-08-16T13-43-54Z.md`. The canonical
+hot-state predicate, phase-cell-only blink, selection composition, cold and
+narrow states, presentation purity, and recreation removal are all verified.
+W84 may close satisfying and is not recreated in the fresh authority.

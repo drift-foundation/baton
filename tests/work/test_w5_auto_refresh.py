@@ -37,7 +37,7 @@ def world(tmp_path):
 	document = fixtures.config_document(
 		{"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
 		          "kinds": ["bug"]}})
-	document["roots"] = {"pushcoin": {"display": "PushCoin"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin", "base": "/srv/checkouts/pushcoin"}}
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	from baton_work import lifecycle as lc
@@ -63,7 +63,7 @@ def _drive_with_refresh(world, script, refresh, **kw):
 		f"sys.path.insert(0, {src!r});"
 		"from baton_work import cli;"
 		"sys.exit(cli.main(sys.argv[1:] + "
-		f"['--refresh', {refresh!r}]))")
+		f"['refresh={refresh}']))")
 	return ptyharness.drive(
 		world["config"], "lang.grace", script,
 		command=[sys.executable, "-c", env_helper], **kw)
@@ -173,7 +173,7 @@ def test_a_refresh_is_read_only_and_selection_is_id_stable(world):
 			(b"j", 0.6),              # anchor on B ("middle target")
 			(b"", 2.2),               # idle across the external close
 			(b"\r", 0.6),             # Enter drills the ANCHORED work
-			(b"q", 0.4),
+			(b"qy", 0.4),
 		]
 		text, status, steps = _drive_with_refresh(
 			world, script, "0.5", settle=1.0)
@@ -206,9 +206,9 @@ def test_the_refresh_interval_must_be_positive(world):
 		os.path.dirname(os.path.abspath(__file__)))), "src")
 	env = dict(os.environ, PYTHONPATH=src)
 	proc = subprocess.run(
-		[sys.executable, "-m", "baton_work.cli", "--config",
-		 world["config"], "--participant", "lang.ada", "tui",
-		 "--refresh", "0"],
+		[sys.executable, "-m", "baton_work.cli",
+		 "--config", world["config"], "--participant", "lang.ada", "tui",
+		 "refresh=0"],
 		capture_output=True, text=True, timeout=120, env=env)
 	assert proc.returncode == 1
 	assert "positive" in proc.stderr
@@ -236,7 +236,7 @@ def test_continuous_input_cannot_postpone_the_refresh(world):
 		# 0.5s interval: several deadlines pass DURING typing.
 		script = [(b"j" if index % 2 else b"k", 0.15)
 		          for index in range(16)]
-		script += [(b"", 0.3), (b"q", 0.4)]
+		script += [(b"", 0.3), (b"qy", 0.4)]
 		text, status, steps = _drive_with_refresh(
 			world, script, "0.5", settle=1.0)
 	finally:
@@ -276,21 +276,21 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 	pj_mod.tree = counting_tree
 	try:
 		# A REFUSED command (close without rationale): cache intact.
-		console.execute(f"close {target}")
+		console.execute(f"close work={target}")
 		assert "rationale" in console.status
 		console.rows()
 		assert calls["n"] == 0, "a refused command flushed the cache"
 
 		# A successful PURE READ: cache intact.
-		console.execute(f"breadcrumb {target}")
+		console.execute(f"breadcrumb work={target}")
 		assert console.status.startswith("ok")
 		console.rows()
 		assert calls["n"] == 0, "a pure read flushed the cache"
 
 		# A successful MUTATION: the next paint re-reads.
-		console.execute("create --team lang --kind bug "
-		                "--title committed --origin self-initiated --classification suspected-defect "
-		                "--body fresh")
+		console.execute("create team=lang kind=bug "
+		                "title=committed origin=self-initiated classification=suspected-defect "
+		                "body=fresh")
 		assert console.status.startswith("ok")
 		rows = console.rows()
 		assert calls["n"] == 1, \
@@ -300,9 +300,9 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		# R4: the SAME public grammar with leading globals — the verb,
 		# not the first raw token, decides. An --op-id mutation commits
 		# and is visible immediately; the cache flushed exactly once.
-		console.execute("--op-id bar-1 create --team lang --kind bug "
-		                "--title protected-commit "
-		                "--origin self-initiated --classification suspected-defect --body fresh")
+		console.execute("create op-id=bar-1 team=lang kind=bug "
+		                "title=protected-commit "
+		                "origin=self-initiated classification=suspected-defect body=fresh")
 		assert console.status.startswith("ok")
 		rows = console.rows()
 		assert calls["n"] == 2, \
@@ -313,8 +313,8 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		# independent reference rides a say into the first work's
 		# thread through the same leading-global grammar.
 		thread_id = world["first"]["thread"]
-		console.execute(f"--ref pushcoin:docs/evidence.md "
-		                f"say {thread_id} --body evidence-noted")
+		console.execute(f"say thread={thread_id} "
+		                f"ref=pushcoin:docs/evidence.md body=evidence-noted")
 		assert console.status.startswith("ok"), console.status
 		console.rows()
 		assert calls["n"] == 3, \
@@ -322,7 +322,7 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 
 		# The negatives stay negative under the new classifier: a
 		# refused command with leading globals flushes nothing.
-		console.execute(f"--op-id bar-3 close {target}")
+		console.execute(f"close op-id=bar-3 work={target}")
 		assert "rationale" in console.status
 		console.rows()
 		assert calls["n"] == 3, \
@@ -330,9 +330,9 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 
 		# R7: an effectively-once REPLAY changes no storage — the exact
 		# retry of bar-1 succeeds but schedules nothing.
-		console.execute("--op-id bar-1 create --team lang --kind bug "
-		                "--title protected-commit "
-		                "--origin self-initiated --classification suspected-defect --body fresh")
+		console.execute("create op-id=bar-1 team=lang kind=bug "
+		                "title=protected-commit "
+		                "origin=self-initiated classification=suspected-defect body=fresh")
 		assert console.status.startswith("ok")
 		assert console.refresh_due is False, \
 			"an operation replay scheduled a refresh"
@@ -343,13 +343,13 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		# retry is a successful NO-OP and schedules nothing.
 		last = pj_mod.thread(store, thread_id, viewer_team="lang",
 		                     viewer_member="grace")["last_seq"]
-		console.execute(f"mark-seen {thread_id} --up-to {last}")
+		console.execute(f"mark-seen thread={thread_id} up-to={last}")
 		assert console.status.startswith("ok")
 		assert console.refresh_due is True, \
 			"the advancing mark-seen did not schedule"
 		console.rows()
 		assert calls["n"] == 4
-		console.execute(f"mark-seen {thread_id} --up-to {last}")
+		console.execute(f"mark-seen thread={thread_id} up-to={last}")
 		assert console.status.startswith("ok")
 		assert console.refresh_due is False, \
 			"an already-seen mark-seen scheduled a refresh"
@@ -382,9 +382,9 @@ def test_unusable_intervals_refuse_before_curses(world, value):
 		os.path.dirname(os.path.abspath(__file__)))), "src")
 	env = dict(os.environ, PYTHONPATH=src)
 	proc = subprocess.run(
-		[sys.executable, "-m", "baton_work.cli", "--config",
-		 world["config"], "--participant", "lang.ada", "tui",
-		 "--refresh", value],
+		[sys.executable, "-m", "baton_work.cli",
+		 "--config", world["config"], "--participant", "lang.ada", "tui",
+		 f"refresh={value}"],
 		capture_output=True, text=True, timeout=120, env=env)
 	assert proc.returncode == 1
 	assert "finite positive" in proc.stderr

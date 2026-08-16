@@ -26,56 +26,56 @@ def test_wf07_announcement(flow):
 	flow.init(document(standard_teams()))
 
 	# 1. Operations opens its Work and publishes one ordinary message +*.*.
-	born = flow.ok("create", "--team", "ops", "--kind", "ops",
-	               "--title", "maintenance window saturday",
-	               "--origin", "self-initiated", "--classification", "suspected-defect",
-	               "--body", "authority migration 02:00-03:00 UTC",
+	born = flow.ok("create", "team=ops", "kind=ops",
+	               "title=maintenance window saturday",
+	               "origin=self-initiated", "classification=suspected-defect",
+	               "body=authority migration 02:00-03:00 UTC",
 	               viewer="ops.bat")
 	ops1, thread_id = born["work_id"], born["thread"]
-	announced = flow.post(ops1, "--body",
-	                    "all teams: expect a short outage",
-	                    "--include", "*.*", viewer="ops.bat")
+	announced = flow.post(ops1,
+	                    "body=all teams: expect a short outage",
+	                    "include=*.*", viewer="ops.bat")
 
 	# 2. Every member's attention is raised EXACTLY ONCE — a member handling
 	# several endpoints (ada routes rsrch, impl and rev) still counts each
 	# message once, not once per matched endpoint.
 	for member in EVERYONE:
-		assert flow.ok("new", ops1, viewer=member)["own"] == 2, \
+		assert flow.ok("new", f"work={ops1}", viewer=member)["own"] == 2, \
 			f"{member} did not see the announcement exactly once"
 
 	# 3. No obligation anywhere, and Current never moved.
 	for team_viewer in ("lang.ada", "push.sl", "web.wren", "mdb.mo",
 	                    "ops.bat"):
 		assert flow.ok("obligations", viewer=team_viewer) == []
-	assert flow.ok("detail", ops1,
+	assert flow.ok("detail", f"work={ops1}",
 	               viewer="ops.bat")["current"]["endpoint"] == "ops.ops"
 
 	# 4. One member marks seen; ONLY that member's New changes.
-	up_to = flow.ok("thread", thread_id, viewer="web.wren")["last_seq"]
-	flow.ok("mark-seen", thread_id, "--up-to", str(up_to),
+	up_to = flow.ok("thread", f"thread={thread_id}", viewer="web.wren")["last_seq"]
+	flow.ok("mark-seen", f"thread={thread_id}", f"up-to={up_to}",
 	        viewer="web.wren")
-	assert flow.ok("new", ops1, viewer="web.wren")["total"] == 0
+	assert flow.ok("new", f"work={ops1}", viewer="web.wren")["total"] == 0
 	for member in ("lang.ada", "push.sl", "mdb.mo"):
-		assert flow.ok("new", ops1, viewer=member)["total"] > 0, \
+		assert flow.ok("new", f"work={ops1}", viewer=member)["total"] > 0, \
 			"one member's mark-seen changed another member's New"
 
 	# 5. Expanding or multi-destination @ and => REFUSE — and the refusal
 	# changes nothing.
-	for flag, value in (("--request", "lang.*"), ("--request", "*.bug"),
-	                    ("--request", "lang.bug,web.bug"),
-	                    ("--pass-to", "*.rev"),
-	                    ("--pass-to", "lang.rev,push.rev")):
+	for token in ("request=lang.*", "request=*.bug",
+	              "request=lang.bug,web.bug",
+	              "pass-to=*.rev",
+	              "pass-to=lang.rev,push.rev"):
 		error = assert_refusal_changes_nothing(
-			flow, "ops.bat", "say", thread_id, "--body", "x", flag,
-			value)
+			flow, "ops.bat", "say", f"thread={thread_id}", "body=x",
+			token)
 		assert "exactly one" in error
 
 	# R71: a `+` selector that lands nowhere refuses — wildcard shapes
 	# included — and the refusal changes nothing.
 	for selector in ("ghost.*", "*.ghost", "ops.ops,ghost.*"):
 		error = assert_refusal_changes_nothing(
-			flow, "ops.bat", "say", thread_id, "--body", "void",
-			"--include", selector)
+			flow, "ops.bat", "say", f"thread={thread_id}", "body=void",
+			f"include={selector}")
 		assert "matches no live endpoint" in error
 
 	# The EXACT expansion is audited with the publication: every live
@@ -97,6 +97,6 @@ def test_wf07_announcement(flow):
 	# And there is NO notice surface: the CLI knows no such verb, and the
 	# unknown verb changes no authority byte.
 	before = flow.ok("events", viewer="ops.bat")
-	proc = flow.raw("notice", "--body", "x", viewer="ops.bat")
+	proc = flow.raw("notice", "body=x", viewer="ops.bat")
 	assert proc.returncode != 0
 	assert flow.ok("events", viewer="ops.bat") == before

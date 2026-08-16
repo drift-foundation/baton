@@ -24,54 +24,54 @@ from ws2cast import verification_teams                        # noqa: E402
 def test_ws2_wf04_failed_candidate_replacement(flow):
 	flow.init(document(verification_teams()))
 
-	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--classification", "suspected-defect", "--body", "provider",
+	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery",
+	                 "origin=external-report", "classification=suspected-defect", "body=provider",
 	                 viewer="lang.ada")["work_id"]
-	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
-	                "--title", "checkout fails", "--origin",
-	                "external-report", "--classification", "suspected-defect", "--body", "blocked",
+	push1 = flow.ok("create", "team=push", "kind=bug",
+	                "title=checkout fails",
+	                "origin=external-report", "classification=suspected-defect", "body=blocked",
 	                viewer="push.sl")["work_id"]
-	flow.ok("block", push1, "--on", lang42, viewer="push.sl")
+	flow.ok("block", f"work={push1}", f"on={lang42}", viewer="push.sl")
 
 	# 1. Research first, then the EXPLICIT move to active — candidate
 	# driftc-A is cut from active work, not from research.
-	flow.ok("phase", lang42, "--to", "research", viewer="lang.ada")
-	flow.ok("phase", lang42, "--to", "active", viewer="lang.ada")
-	first = flow.ok("round", lang42, "--candidate", "driftc-A",
-	                "--assign", "push.verify", "--assign", "web.verify",
+	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
+	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
+	first = flow.ok("round", f"work={lang42}", "candidate=driftc-A",
+	                "assign=push.verify", "assign=web.verify",
 	                viewer="lang.ada")
 
 	# 2. The candidate is STAGED for review before any feedback exists; the
 	# failed report and its acceptance land while the Work is IN review —
 	# and neither transitions anything.
-	flow.ok("phase", lang42, "--to", "review", viewer="lang.ada")
-	flow.ok("report", str(first["assignments"][0]),
-	        "--observation", "failed", "--evidence", "checkout still 500s",
+	flow.ok("phase", f"work={lang42}", "to=review", viewer="lang.ada")
+	flow.ok("report", f"obligation={first["assignments"][0]}",
+	        "observation=failed", "evidence=checkout still 500s",
 	        viewer="push.sl")
-	assert flow.ok("detail", lang42, viewer="lang.ada")["phase"] == \
+	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
 		"review", "a raw report transitioned the provider's phase"
-	flow.ok("assess", str(first["assignments"][0]), "--as", "accepted",
-	        "--rationale", "genuine regression in the candidate",
+	flow.ok("assess", f"obligation={first["assignments"][0]}", "as=accepted",
+	        "rationale=genuine regression in the candidate",
 	        viewer="lang.ada")
-	assert flow.ok("detail", lang42, viewer="lang.ada")["phase"] == \
+	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
 		"review", "an assessment transitioned the provider's phase"
 
 	# 3. LANG-42 is still open and the dependency still unsatisfied.
-	assert flow.ok("detail", lang42, viewer="lang.ada")["status"] == "open"
-	assert flow.ok("detail", push1, viewer="push.sl")["ready"] is False
+	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["status"] == "open"
+	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is False
 
 	# 4. Lang EXPLICITLY resumes rework — the cyclic open-phase model:
 	# review -> active is the reviewer's decision, never the feedback's.
-	flow.ok("phase", lang42, "--to", "active", viewer="lang.ada")
+	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
 
 	# 5. Different candidate driftc-B: round 2, its counter starts empty —
 	# candidate identity is immutable inside round 1, and round 1's report
 	# does not carry forward.
-	second = flow.ok("round", lang42, "--candidate", "driftc-B",
-	                 "--assign", "push.verify", viewer="lang.ada")
+	second = flow.ok("round", f"work={lang42}", "candidate=driftc-B",
+	                 "assign=push.verify", viewer="lang.ada")
 	assert second["round"] == 2
-	rounds = flow.ok("detail", lang42, viewer="lang.ada")["rounds"]
+	rounds = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"]
 	old, fresh = rounds[0], rounds[1]
 	assert old["candidate"] == "driftc-A" and \
 		fresh["candidate"] == "driftc-B"
@@ -90,23 +90,23 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	# 7. The replacement is staged for review; the successful feedback
 	# lands while IN review, transitions nothing, and only the EXPLICIT
 	# close ends the provider gate.
-	flow.ok("phase", lang42, "--to", "review", viewer="lang.ada")
-	flow.ok("report", str(second["assignments"][0]),
-	        "--observation", "passed", "--evidence", "checkout clean",
+	flow.ok("phase", f"work={lang42}", "to=review", viewer="lang.ada")
+	flow.ok("report", f"obligation={second["assignments"][0]}",
+	        "observation=passed", "evidence=checkout clean",
 	        viewer="push.sl")
-	assert flow.ok("detail", lang42, viewer="lang.ada")["phase"] == \
+	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
 		"review", "a passing report transitioned the provider's phase"
-	flow.ok("assess", str(second["assignments"][0]), "--as", "accepted",
-	        "--rationale", "fix verified on the replacement",
+	flow.ok("assess", f"obligation={second["assignments"][0]}", "as=accepted",
+	        "rationale=fix verified on the replacement",
 	        viewer="lang.ada")
-	assert flow.ok("detail", lang42, viewer="lang.ada")["phase"] == \
+	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
 		"review", "an assessment transitioned the provider's phase"
-	assert flow.ok("detail", push1, viewer="push.sl")["ready"] is False, \
+	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is False, \
 		"a report or assessment ended the provider gate"
-	flow.ok("close", lang42, "--rationale",
-	        "driftc-B verified by the affected consumer",
-	        "--outcome", "satisfying", viewer="lang.ada")
-	assert flow.ok("detail", push1, viewer="push.sl")["ready"] is True
+	flow.ok("close", f"work={lang42}",
+	        "rationale=driftc-B verified by the affected consumer",
+	        "outcome=satisfying", viewer="lang.ada")
+	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is True
 
 	# 8. The audited ORDER, not just the phase subsequence: phase acts
 	# interleave with round creation, reports and assessments exactly as
@@ -146,6 +146,6 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	assert summary["candidate"] == "driftc-B", \
 		"the close audited the superseded round instead of the concluded one"
 
-	flow.ok("close", push1, "--rationale", "verified upstream",
-	        "--outcome", "satisfying", viewer="push.sl")
+	flow.ok("close", f"work={push1}", "rationale=verified upstream",
+	        "outcome=satisfying", viewer="push.sl")
 	assert_final_invariants(flow, "lang.ada", [lang42, push1])

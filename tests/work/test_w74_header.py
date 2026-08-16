@@ -47,7 +47,7 @@ def world(tmp_path):
 def test_the_root_header_is_identity_plus_summary_only(world):
 	config_path, _epic = world
 	text, status, _steps = ptyharness.drive(config_path, "lang.ada",
-	                                        [(b"q", 0.4)])
+	                                        [(b"qy", 0.4)])
 	screen = ptyharness.replay(text)
 	header = screen[0]
 	assert header.startswith("lang.ada"), header
@@ -63,7 +63,7 @@ def test_the_root_header_is_identity_plus_summary_only(world):
 def test_drilled_views_keep_their_real_breadcrumb(world):
 	config_path, epic = world
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5), (b"q", 0.4)])
+		(b"\r", 0.5), (b"qy", 0.4)])
 	drilled = ptyharness.replay(steps[0])
 	assert "drill target" in drilled[0], \
 		"the drilled breadcrumb lost its trail"
@@ -76,7 +76,7 @@ def test_the_narrow_root_header_still_fits_and_identifies(world):
 	from baton_work.tui import app
 	narrow = app.MIN_SPLIT_HEIGHT - 2
 	text, status, _steps = ptyharness.drive(
-		config_path, "lang.ada", [(b"q", 0.4)], columns=44,
+		config_path, "lang.ada", [(b"qy", 0.4)], columns=44,
 		lines=narrow)
 	screen = ptyharness.replay(text, columns=44, lines=narrow)
 	assert screen[0].startswith("lang.ada"), screen[0]

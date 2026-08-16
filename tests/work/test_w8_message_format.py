@@ -44,7 +44,7 @@ def world(tmp_path):
 	document = fixtures.config_document(
 		{"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
 		          "kinds": ["bug"]}})
-	document["roots"] = {"pushcoin": {"display": "PushCoin"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin", "base": "/srv/checkouts/pushcoin"}}
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	result = lc_init(config_path)
@@ -71,7 +71,7 @@ def test_messages_render_as_blocks_with_metadata_and_references(world):
 	its own line — in the focused Msgs view."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"\r", 0.6),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	screen = ptyharness.replay(steps[0])
 	flat = "\n".join(screen)
@@ -111,7 +111,7 @@ def test_the_new_marker_is_personal_and_from_the_projection(world):
 
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
 		(b"\r", 0.6),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	screen = ptyharness.replay(steps[0])
 	opener = next(line for line in screen
@@ -137,7 +137,7 @@ def test_a_clipped_block_never_counts_as_seen(world):
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
 		(b"\r", 0.6),
 		(b"s", 0.5),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], columns=40, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	store = bw.Authority(world["database"])
@@ -156,7 +156,7 @@ def test_a_later_clipped_message_is_reachable_with_next(world):
 		(b"\r", 0.6),                 # first message fits; second does not
 		(b"\x17j", 0.4),              # focus Msgs
 		(b"n", 0.6),                  # reach the clipped later message
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], columns=40, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	first = "\n".join(ptyharness.replay(steps[0], columns=40, lines=14))
@@ -174,7 +174,7 @@ def test_the_detail_msgs_pane_uses_the_same_blocks(world):
 	metadata header and indented body."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"\r", 0.6),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	screen = ptyharness.replay(steps[0])
 	flat = "\n".join(screen)
@@ -211,7 +211,7 @@ def test_an_oversized_message_is_readable_via_continuation(tmp_path):
 		(b"s", 0.5),                               # must NOT count it
 		(b"\x17j", 0.4),                           # Ctrl-W j: Msgs pane
 		(b"n", 0.5),                               # continue the body
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], columns=40, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	first = "\n".join(ptyharness.replay(steps[0], columns=40, lines=14))
@@ -233,7 +233,7 @@ def test_an_oversized_message_is_readable_via_continuation(tmp_path):
 	# s clears the message.
 	script = [(b"\r", 0.6), (b"\x17j", 0.4)]
 	script += [(b"n", 0.4)] * 8
-	script += [(b"s", 0.5), (b"q", 0.4)]
+	script += [(b"s", 0.5), (b"qy", 0.4)]
 	text, status, steps = ptyharness.drive(config_path, "lang.grace",
 	                                       script, columns=40, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -270,7 +270,7 @@ def test_the_msgs_seen_bound_excludes_the_reserved_rows(tmp_path):
 	text, status, steps = ptyharness.drive(config_path, "lang.grace", [
 		(b"\r", 0.6),
 		(b"s", 0.5),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], columns=40, lines=lines)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	before = ptyharness.replay(steps[0], columns=40, lines=lines)
@@ -295,7 +295,7 @@ def test_a_long_reference_wraps_and_loses_nothing(tmp_path):
 	config_path = str(tmp_path / "baton.json")
 	document = fixtures.config_document(
 		{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}})
-	document["roots"] = {"pushcoin": {"display": "PushCoin"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin", "base": "/srv/checkouts/pushcoin"}}
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	result = lc_init(config_path)
@@ -313,7 +313,7 @@ def test_a_long_reference_wraps_and_loses_nothing(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], columns=40, lines=20)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	screen = ptyharness.replay(steps[0], columns=40, lines=20)
@@ -357,7 +357,7 @@ def test_continuation_survives_a_terminal_resize(tmp_path):
 		(b"s", 0.6),                               # premature: inert
 		(b"n", 0.6), (b"n", 0.6),                  # walk to the tail
 		(b"s", 0.6),                               # the real mark
-		(b"q", 0.5),
+		(b"qy", 0.5),
 	]
 	text, status, steps = ptyharness.drive(
 		config_path, "lang.grace", script, columns=44, lines=16,

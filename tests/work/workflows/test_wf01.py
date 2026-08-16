@@ -24,12 +24,12 @@ def test_wf01_straight_through_report(flow):
 	flow.init(document(standard_teams()))
 
 	# 1. lang.ada creates the report at lang.rsrch, immutable origin.
-	work = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	               "--title", "parser drops recovery state",
-	               "--origin", "external-report", "--classification", "suspected-defect",
-	               "--body", "reported with a minimal repro",
+	work = flow.ok("create", "team=lang", "kind=rsrch",
+	               "title=parser drops recovery state",
+	               "origin=external-report", "classification=suspected-defect",
+	               "body=reported with a minimal repro",
 	               viewer="lang.ada")["work_id"]
-	checkpoint = flow.ok("detail", work, viewer="lang.ada")
+	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	assert checkpoint["status"] == "open"
 	assert checkpoint["origin"] == "external-report"
 	assert checkpoint["classification"] == "suspected-defect", \
@@ -42,20 +42,20 @@ def test_wf01_straight_through_report(flow):
 
 	# WS-1: research classifies the report and moves into research phase —
 	# two EXPLICIT audited operations by the Current route's handler.
-	flow.ok("classify", work, "--as", "confirmed-defect", viewer="lang.ada")
-	flow.ok("phase", work, "--to", "research", viewer="lang.ada")
-	checkpoint = flow.ok("detail", work, viewer="lang.ada")
+	flow.ok("classify", f"work={work}", "as=confirmed-defect", viewer="lang.ada")
+	flow.ok("phase", f"work={work}", "to=research", viewer="lang.ada")
+	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	assert checkpoint["classification"] == "confirmed-defect"
 	assert checkpoint["phase"] == "research"
 	assert checkpoint["origin"] == "external-report", \
 		"classification changed origin"
 
 	# 2. research passes to implementation with planned Next lang.rev.
-	passed = flow.post(work, "--body", "confirmed; implement",
-	                 "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
+	passed = flow.post(work, "body=confirmed; implement",
+	                 "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
 	                 viewer="lang.ada")
 	assert passed["kind"] == "pass"
-	checkpoint = flow.ok("detail", work, viewer="lang.ada")
+	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	assert checkpoint["current"]["endpoint"] == "lang.impl"
 	assert checkpoint["current"]["handlers"] == ["grace"]
 	assert checkpoint["next"]["endpoint"] == "lang.rev", \
@@ -66,18 +66,18 @@ def test_wf01_straight_through_report(flow):
 	# Transition authority FOLLOWED the baton: ada (no longer a Current
 	# handler) is refused; grace CLAIMS the work — the phase-orthogonal
 	# atomic claim, phase already honest from the handoff.
-	error = flow.refuse("phase", work, "--to", "review", viewer="lang.ada")
+	error = flow.refuse("phase", f"work={work}", "to=review", viewer="lang.ada")
 	assert "never grant" in error
-	flow.ok("claim", work, viewer="lang.grace")
+	flow.ok("claim", f"work={work}", viewer="lang.grace")
 
 	# 3. implementation posts evidence, then passes to the PLANNED review —
 	# which consumes Next and audits as `return`.
-	flow.post(work, "--body", "fix at rev 4f2c; tests attached",
+	flow.post(work, "body=fix at rev 4f2c; tests attached",
 	        viewer="lang.grace")
-	returned = flow.post(work, "--body", "done, please verify",
-	                   "--pass-to", "lang.rev", "--phase", "review", viewer="lang.grace")
+	returned = flow.post(work, "body=done, please verify",
+	                   "pass-to=lang.rev", "phase=review", viewer="lang.grace")
 	assert returned["kind"] == "return"
-	checkpoint = flow.ok("detail", work, viewer="lang.grace")
+	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.grace")
 	assert checkpoint["current"]["endpoint"] == "lang.rev"
 	assert checkpoint["next"] is None, "the consumed Next is still set"
 	assert checkpoint["phase"] == "review", \
@@ -85,13 +85,13 @@ def test_wf01_straight_through_report(flow):
 
 	# 4. one honest review → active → review REWORK cycle: ordinary open
 	# phases move freely and never touch the claim.
-	flow.ok("phase", work, "--to", "active", viewer="lang.ada")
-	flow.ok("phase", work, "--to", "review", viewer="lang.ada")
+	flow.ok("phase", f"work={work}", "to=active", viewer="lang.ada")
+	flow.ok("phase", f"work={work}", "to=review", viewer="lang.ada")
 
 	# Review records verification and closes terminally.
-	flow.ok("close", work, "--rationale", "fixed and verified", "--outcome", "satisfying",
+	flow.ok("close", f"work={work}", "rationale=fixed and verified", "outcome=satisfying",
 	        viewer="lang.ada")
-	checkpoint = flow.ok("detail", work, viewer="lang.ada")
+	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	assert checkpoint["status"] == "closed"
 	assert checkpoint["origin"] == "external-report", \
 		"the terminal close changed immutable origin"

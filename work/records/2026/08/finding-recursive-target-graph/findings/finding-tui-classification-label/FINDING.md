@@ -18,3 +18,15 @@ table-header case correction. The immutable `6d1b944` trial remains unchanged.
 
 The live trial tracks this as v11 Work `26de18dd-W16` with discussion
 `26de18dd-D16`.
+
+## Pre-cutover audit — 2026-08-16
+
+**Confirmed by source inspection.** The current distribution source still maps
+`confirmed-defect` to `cnfrm` in `src/baton_work/tui/app.py`, and the closed
+compact-vocabulary test still requires that old label. This Work is therefore
+open in fact, not stale bookkeeping. It changes only TUI presentation and
+tests, requires no authority/schema revision, and must be completed before the
+fresh-authority cutover rather than recreated afterward.
+
+The classification column is now titled `Cat`; the earlier `Cls` wording above
+is historical context, not a request to restore that header.

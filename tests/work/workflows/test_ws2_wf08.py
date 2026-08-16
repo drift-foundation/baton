@@ -43,26 +43,26 @@ def test_ws2_wf08_abandon_without_closing(flow):
 	flow.init(document(_teams()))
 
 	# 1. One reported and two pending assignments.
-	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--classification", "suspected-defect", "--body", "candidate testing",
+	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery",
+	                 "origin=external-report", "classification=suspected-defect", "body=candidate testing",
 	                 viewer="lang.ada")["work_id"]
-	created = flow.ok("round", lang42, "--candidate", "driftc-A",
-	                  "--assign", "push.verify", "--assign", "web.verify",
-	                  "--assign", "mdb.verify", viewer="lang.ada")
-	flow.ok("report", str(created["assignments"][0]),
-	        "--observation", "passed", "--evidence", "staging clean",
+	created = flow.ok("round", f"work={lang42}", "candidate=driftc-A",
+	                  "assign=push.verify", "assign=web.verify",
+	                  "assign=mdb.verify", viewer="lang.ada")
+	flow.ok("report", f"obligation={created["assignments"][0]}",
+	        "observation=passed", "evidence=staging clean",
 	        viewer="push.sl")
 
 	# 2. The reviewer abandons the round; LANG-42 stays open.
-	before = flow.ok("detail", lang42, viewer="lang.ada")
-	flow.ok("abandon", lang42, "--round", "1",
-	        "--reason", "strategy pivot: candidate line retired",
+	before = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
+	flow.ok("abandon", f"work={lang42}", "round=1",
+	        "reason=strategy pivot: candidate line retired",
 	        viewer="lang.ada")
 
 	# 3. 1/3, two withdrawals, route notifications, immutable candidate and
 	# report history, and NO provider/consumer lifecycle change.
-	after = flow.ok("detail", lang42, viewer="lang.ada")
+	after = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
 	view = after["rounds"][0]
 	assert view["status"] == "abandoned"
 	assert view["progress"] == "1/3"
@@ -86,14 +86,14 @@ def test_ws2_wf08_abandon_without_closing(flow):
 	# 4. Late responses to withdrawn assignments refuse — and change no
 	# byte. A later candidate requires a NEW round and NEW assignments.
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "report", str(created["assignments"][1]),
-		"--observation", "passed", "--evidence", "too late",
+		flow, "lang.ada", "report", f"obligation={created["assignments"][1]}",
+		"observation=passed", "evidence=too late",
 		as_viewer="web.wren")
 	assert "already withdrawn" in error
-	replacement = flow.ok("round", lang42, "--candidate", "driftc-B",
-	                      "--assign", "web.verify", viewer="lang.ada")
+	replacement = flow.ok("round", f"work={lang42}", "candidate=driftc-B",
+	                      "assign=web.verify", viewer="lang.ada")
 	assert replacement["round"] == 2
-	fresh = flow.ok("detail", lang42, viewer="lang.ada")["rounds"][1]
+	fresh = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][1]
 	assert fresh["progress"] == "0/1", \
 		"round 1 evidence leaked into the replacement round"
 	assert len(flow.ok("obligations", viewer="web.wren")) == 1

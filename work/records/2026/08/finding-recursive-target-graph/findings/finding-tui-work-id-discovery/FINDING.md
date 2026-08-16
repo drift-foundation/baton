@@ -28,3 +28,19 @@ a mutation at different Work.
 
 The current trial Work is `8b92cb10-W11`. This finding is queued for the next
 revision; the deployed immutable trial is not modified in place.
+
+## Superseding interaction and pre-cutover audit — 2026-08-16
+
+The later short-selector ruling in
+`../finding-local-work-selectors/FINDING.md` resolves the open interaction
+choice above: Work details expose canonical `id` and authority-local
+`local_id`; the Work list exposes the compact local selector. At minimum this
+Work owns making the canonical selected Work id visible in its detail view;
+the short-selector Work owns the broader parser/list/JSON surface.
+
+**Confirmed by source inspection.** The current detail projection contains
+the canonical `id`, but `_detail_header()` and `_facts()` render neither it nor
+a local selector. This Work remains genuinely open. Showing the existing
+canonical value is a TUI presentation/test correction, needs no authority
+schema change, and must be completed before the fresh cutover rather than
+recreated afterward.

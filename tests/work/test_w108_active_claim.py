@@ -417,7 +417,7 @@ def test_the_public_claim_verb_reaches_the_transition(store, capsys):
 	from baton_work import cli
 	work = _create(store, "cli-claimed")
 	code = cli.main(["--config", store.test_config_path,
-	                 "--participant", "lang.bee", "claim", work])
+	                 "--participant", "lang.bee", "claim", f"work={work}"])
 	out = capsys.readouterr().out
 	assert code == 0, out
 	result = _j.loads(out)
@@ -531,9 +531,9 @@ def test_the_public_release_verb_reaches_the_transition(store, capsys):
 	work = _create(store, "cli-released")
 	tr.claim_work(store, work, actor_team="lang", actor="bee")
 	code = cli.main(["--config", store.test_config_path,
-	                 "--participant", "lang.ada", "release", work,
-	                 "--expect", "lang.bee",
-	                 "--reason", "bee's runner died"])
+	                 "--participant", "lang.ada", "release", f"work={work}",
+	                 "expect=lang.bee",
+	                 "reason=bee's runner died"])
 	out = capsys.readouterr().out
 	assert code == 0, out
 	assert _j.loads(out)["result"]["released_claimant"] == "lang.bee"

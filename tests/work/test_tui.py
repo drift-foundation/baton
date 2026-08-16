@@ -32,7 +32,7 @@ def world(tmp_path_factory):
 
 def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	path, cast = world
-	text, status, _steps = ptyharness.drive(path, "lang.ada", [(b"q", 0.4)])
+	text, status, _steps = ptyharness.drive(path, "lang.ada", [(b"qy", 0.4)])
 	screen = ptyharness.replay(text)
 	# W74: the root header is identity + live summary only — the
 	# redundant "— top-level work" prose is gone.
@@ -59,7 +59,7 @@ def test_the_tree_shows_children_inline_and_u_re_roots(world):
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
 		(b"", 0.5),                   # the root tree
 		(b"u", 0.5),                  # re-root at the epic
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	tree = ptyharness.replay(steps[0])
 	assert any("↳ confirm the defect" in line for line in tree), \
@@ -77,7 +77,7 @@ def test_escape_climbs_back_up_the_drilled_path(world):
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
 		(b"u", 0.5),
 		(b"\x1b", 0.5),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	screen = ptyharness.replay(steps[1])
 	# W74: the root view is recognized by the identity-led header with
@@ -92,7 +92,7 @@ def test_the_thread_view_shows_the_timeline_and_planned_next(world):
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
 		(b"j", 0.3), (b"j", 0.3),     # select ↳ step_fix in the tree
 		(b"\r", 0.6),                 # Enter opens its DETAIL (W71)
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	detail = ptyharness.replay(steps[2])
 	flat = "\n".join(detail)
@@ -117,7 +117,7 @@ def test_marking_seen_is_explicit_and_reflected_in_new(world, tmp_path):
 	                      viewer_member="grace")["total"]
 	assert before > 0
 	text, status, _steps = ptyharness.drive(path, "lang.grace", [
-		(b"\r", 0.4), (b"\x1b", 0.3), (b"q", 0.4),
+		(b"\r", 0.4), (b"\x1b", 0.3), (b"qy", 0.4),
 	])
 	after = pj.new_count(store, cast["lang42"], viewer_team="lang",
 	                     viewer_member="grace")["total"]
@@ -152,7 +152,7 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 	config_path = str(tmp_path / "baton.json")
 	document = fixtures.config_document(
 		{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}})
-	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo", "base": "/srv/checkouts/pushcoin"}}
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	from baton_work import lifecycle as lc
@@ -178,7 +178,7 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	flat = "\n".join(ptyharness.replay(steps[0]))
 	assert f"binding {json_binding} r1" in flat, \
@@ -200,7 +200,7 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	assert "CLS" not in columns, "the lowest-priority column survived"
 	assert {"ST", "CURRENT", "NEXT", "NEW"} <= set(columns)
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
-	                                        [(b"q", 0.4)],
+	                                        [(b"qy", 0.4)],
 	                                        columns=narrow, lines=24)
 	screen = ptyharness.replay(text, columns=narrow, lines=24)
 	header = next(line for line in screen if "Title" in line)
@@ -222,7 +222,7 @@ def test_links_are_on_demand_and_escape_returns(world):
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
 		(b"b", 0.5),                  # links of the selected epic
 		(b"\x1b", 0.5),               # back to the table
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	screen = ptyharness.replay(steps[0])
 	joined = "\n".join(screen)
@@ -284,7 +284,7 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"", 0.4),                   # the untouched default screen
 		(b"z", 0.5),                  # reveal
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	first = ptyharness.replay(steps[0])
 	assert any("stays open" in line for line in first)
@@ -301,13 +301,13 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	# The focused view: contract revision on the open work; outcome and
 	# rationale on the closed one.
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5), (b"q", 0.4)])
+		(b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
 	focused = "\n".join(ptyharness.replay(steps[1]))
 	assert "contract rev r1" in focused, focused[:400]
 	assert "wait:gates" in focused, \
 		"the typed waiting condition is not stated"
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"z", 0.4), (b"j", 0.3), (b"\r", 0.5), (b"o", 0.5), (b"q", 0.4)])
+		(b"z", 0.4), (b"j", 0.3), (b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
 	closed_view = "\n".join(ptyharness.replay(steps[3]))
 	assert "closed satisfying — delivered before the checkpoint" \
 		in closed_view, closed_view[:400]
@@ -344,7 +344,7 @@ def test_a_full_page_still_names_the_closed_rows_it_hides(tmp_path):
 		tr.close_work(store, done, actor_team="lang", actor="ada",
 		              outcome="satisfying", rationale="complete")
 	text, status, steps = ptyharness.drive(
-		config_path, "lang.ada", [(b"", 0.4), (b"q", 0.4)],
+		config_path, "lang.ada", [(b"", 0.4), (b"qy", 0.4)],
 		columns=80, lines=8)
 	screen = ptyharness.replay(steps[0], columns=80, lines=8)
 	assert any("(1 closed hidden" in line for line in screen), screen
@@ -366,7 +366,7 @@ def test_selection_scrolls_so_the_row_enter_will_open_is_visible(tmp_path):
 			               title=f"row {index}", origin="self-initiated", classification="suspected-defect",
 			               author="ada", body="live")
 	text, status, steps = ptyharness.drive(
-		config_path, "lang.ada", [(b"jjjjjj", 0.5), (b"q", 0.4)],
+		config_path, "lang.ada", [(b"jjjjjj", 0.5), (b"qy", 0.4)],
 		columns=80, lines=8)
 	screen = ptyharness.replay(steps[0], columns=80, lines=8)
 	assert any("row 6" in line for line in screen), screen
@@ -384,7 +384,7 @@ def test_the_focused_view_exposes_the_projection_declared_transitions(world):
 		                      viewer_member="ada")["available_transitions"]
 	assert available
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5), (b"q", 0.4)])
+		(b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
 	screen = "\n".join(ptyharness.replay(steps[1]))
 	for transition in available:
 		assert transition in screen, \
@@ -407,7 +407,7 @@ def test_the_command_bar_cannot_replace_the_validated_participant(tmp_path):
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b":--participant push.sl create --team push --kind bug "
 		 b"--title impersonated --origin self-initiated --classification suspected-defect --body nope\n", 0.8),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	with lc.open_bound(config_path) as store:
@@ -435,7 +435,7 @@ def test_the_command_bar_cannot_abbreviate_a_participant_override(tmp_path):
 		(b":--part push.sl create --team push --kind bug "
 		 b"--title abbreviated-impersonation --origin self-initiated --classification suspected-defect "
 		 b"--body nope\n", 0.8),
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	with lc.open_bound(config_path) as store:
@@ -457,7 +457,7 @@ def test_links_drill_through_to_the_far_work(world):
 		(b"b", 0.5),                  # links of the selected epic
 		(b"j", 0.4),                  # select the second dependent (web)
 		(b"\r", 0.5),                 # drill through
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	screen = ptyharness.replay(steps[2])
 	assert any("render crash" in line for line in screen[:1]), \
@@ -496,7 +496,7 @@ def test_thread_selection_never_merges_timelines(tmp_path):
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
 		(b"j", 0.5),                  # Threads pane: select the SECOND
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	listing = "\n".join(ptyharness.replay(steps[0]))
 	assert "Threads (2)" in listing
@@ -540,7 +540,7 @@ def test_the_thread_set_pages_beyond_the_first_fifty(tmp_path):
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.4), (b"o", 0.4),
 		(b"n" * 60, 0.8),             # advance through every bounded page
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], lines=14)
 	listing = "\n".join(ptyharness.replay(steps[2], lines=14))
 	assert last in listing, \
@@ -580,7 +580,7 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 		(b"n", 0.5),                               # second page
 		(b"s", 0.5),                               # seen: PAGE-bounded
 		(b"p", 0.5),                               # back to the start
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	], lines=12)
 	import re as _re
 
@@ -623,7 +623,7 @@ def test_below_the_minimum_the_table_refuses_explicitly(world):
 	narrow = 30
 	assert not app.layout_fits(narrow)
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
-	                                        [(b"q", 0.4)],
+	                                        [(b"qy", 0.4)],
 	                                        columns=narrow, lines=12)
 	screen = ptyharness.replay(text, columns=narrow, lines=12)
 	joined = "\n".join(screen)
@@ -667,7 +667,7 @@ def test_the_thread_set_pages_beyond_one_full_page(tmp_path):
 		(b"\r", 0.6),                 # detail: page one of the set
 		(b"n", 0.5),                  # the continuation page
 		(b"p", 0.5),                  # back to the start
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	first = "\n".join(ptyharness.replay(steps[0]))
 	assert f"Threads ({app.DISC_PAGE + 3})" in first
@@ -713,7 +713,7 @@ def test_the_msgs_pane_names_the_selected_thread_and_subject(tmp_path):
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),                 # the detail: Threads + Msgs
 		(b"j", 0.5),                  # select the SECOND thread
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	listing = "\n".join(ptyharness.replay(steps[0]))
 	assert "T1 two conversations" in listing, listing[:400]
@@ -731,10 +731,191 @@ def test_the_category_header_reads_cat_when_present(world):
 	story above proves it disappears WHOLE when the column is omitted."""
 	path, _cast = world
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
-	                                        [(b"q", 0.4)],
+	                                        [(b"qy", 0.4)],
 	                                        columns=110, lines=24)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	screen = ptyharness.replay(text, columns=110, lines=24)
 	header = next(line for line in screen if "Title" in line)
 	assert "Cat" in header, "the ruled Cat label is missing"
 	assert "Cls" not in header, "the superseded Cls label survived"
+
+
+def test_a_confirmed_defect_renders_defct_on_the_real_console(world):
+	"""W6 (ruled): the compact classification label for confirmed-defect
+	is `defct` — presentation only, on a REAL PTY; canonical JSON keeps
+	the full value."""
+	path, cast = world
+	import baton_work as _bw
+	from baton_work import transitions as _tr
+	store = _bw.Authority(os.path.join(os.path.dirname(path),
+	                                   "work.sqlite3"))
+	work = _tr.create_work(store, team="lang", kind="bug",
+	                       title="a confirmed one",
+	                       origin="external-report",
+	                       classification="confirmed-defect",
+	                       author="ada", body="b")["work_id"]
+	store.close()
+	text, status, _steps = ptyharness.drive(path, "lang.ada",
+	                                        [(b"qy", 0.4)],
+	                                        columns=110, lines=24)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+	screen = ptyharness.replay(text, columns=110, lines=24)
+	row = next(line for line in screen if "a confirmed one" in line)
+	assert "defct" in row, row
+	assert "cnfrm" not in row
+	from baton_work.tui.app import compact_classification
+	assert compact_classification("confirmed-defect") == "defct"
+	# The compact label is PRESENTATION only: canonical JSON keeps the
+	# full classification value, pinned beside the drawn row.
+	import json as _json
+	from baton_work import projection as _pj
+	store = _bw.Authority(os.path.join(os.path.dirname(path),
+	                                   "work.sqlite3"))
+	try:
+		view = _pj.detail(store, work, viewer_team="lang",
+		                  viewer_member="ada")
+		assert view["classification"] == "confirmed-defect", \
+			"the canonical JSON value drifted with the display label"
+		assert "defct" not in _json.dumps(view), \
+			"a compact display label leaked into canonical JSON"
+	finally:
+		store.close()
+
+
+def test_q_asks_before_exit_and_cancellation_changes_nothing(world):
+	"""W9 (ruled): normal-navigation q opens one bottom-row Exit? y/N
+	prompt. n cancels to the unchanged view, an irrelevant key neither
+	confirms nor cancels, Esc cancels, and y exits — with no authority
+	or seen mutation from any of it."""
+	import hashlib
+	path, _cast = world
+	database = os.path.join(os.path.dirname(path), "work.sqlite3")
+	with open(database, "rb") as handle:
+		before = hashlib.sha256(handle.read()).hexdigest()
+	# q -> prompt; x (irrelevant) stays prompting; n cancels; the view
+	# survives; q again; Esc cancels; q; y exits clean.
+	text, status, steps = ptyharness.drive(
+		path, "lang.ada",
+		[(b"q", 0.3), (b"x", 0.3), (b"n", 0.3), (b"q", 0.3),
+		 (b"\x1b", 0.3), (b"q", 0.3), (b"y", 0.4)],
+		columns=110, lines=24)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+	prompt = ptyharness.replay(steps[0], columns=110, lines=24)
+	assert any("Exit? y/N" in line for line in prompt), prompt[-3:]
+	still = ptyharness.replay(steps[1], columns=110, lines=24)
+	assert any("Exit? y/N" in line for line in still), \
+		"an irrelevant key dismissed or confirmed the prompt"
+	cancelled = ptyharness.replay(steps[2], columns=110, lines=24)
+	assert not any("Exit? y/N" in line for line in cancelled), \
+		"n did not cancel the prompt"
+	assert any("Title" in line for line in cancelled), \
+		"cancellation lost the view"
+	with open(database, "rb") as handle:
+		after = hashlib.sha256(handle.read()).hexdigest()
+	assert after == before, "the exit prompt mutated authority state"
+
+
+def test_the_exit_prompt_is_exactly_one_row_wide_and_narrow(world):
+	"""W9 R2: exactly ONE matching prompt row at both widths, and the
+	uppercase halves of the key matrix behave: N cancels, Y exits."""
+	path, _cast = world
+	for columns in (110, 44):
+		text, status, steps = ptyharness.drive(
+			path, "lang.ada",
+			[(b"q", 0.3), (b"N", 0.3), (b"q", 0.3), (b"Y", 0.4)],
+			columns=columns, lines=24)
+		assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, \
+			f"uppercase Y did not exit at {columns} columns"
+		prompt = ptyharness.replay(steps[0], columns=columns, lines=24)
+		hits = [line for line in prompt if "Exit? y/N" in line]
+		assert len(hits) == 1, (columns, hits)
+		cancelled = ptyharness.replay(steps[1], columns=columns,
+		                              lines=24)
+		assert not any("Exit? y/N" in line for line in cancelled), \
+			f"uppercase N did not cancel at {columns} columns"
+
+
+def test_cancelling_the_prompt_keeps_the_visible_status(world):
+	"""W9 R1: the prompt OVERLAYS the footer — a visible status line
+	survives q + cancel exactly as it was."""
+	path, _cast = world
+	# A refused command produces a visible status; q then n must return
+	# to that same status, not a cleared footer.
+	script = [(b":", 0.2), (b"close nothing\r", 0.4),
+	          (b"q", 0.3), (b"n", 0.3), (b"q", 0.3), (b"y", 0.4)]
+	text, status, steps = ptyharness.drive(path, "lang.ada", script,
+	                                       columns=110, lines=24)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+	with_status = ptyharness.replay(steps[1], columns=110, lines=24)
+	visible = [line for line in with_status if line.strip()][-1]
+	assert visible.strip(), "no status was produced to preserve"
+	prompted = ptyharness.replay(steps[2], columns=110, lines=24)
+	assert any("Exit? y/N" in line for line in prompted)
+	cancelled = ptyharness.replay(steps[3], columns=110, lines=24)
+	restored = [line for line in cancelled if line.strip()][-1]
+	assert restored == visible, \
+		f"cancellation lost the status: {visible!r} -> {restored!r}"
+
+
+def test_command_bar_q_stays_literal(world):
+	"""W9: text entry keeps q literal — typing a command containing q
+	must not open the exit prompt."""
+	path, _cast = world
+	text, status, steps = ptyharness.drive(
+		path, "lang.ada",
+		[(b":", 0.3), (b"q", 0.3), (b"\x1b", 0.3), (b"q", 0.3),
+		 (b"y", 0.4)],
+		columns=110, lines=24)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+	typing = ptyharness.replay(steps[1], columns=110, lines=24)
+	assert any(line.startswith(":q") for line in typing), \
+		"the command bar did not keep q literal"
+	assert not any("Exit? y/N" in line for line in typing), \
+		"typing q in the command bar opened the exit prompt"
+
+
+def test_the_detail_header_leads_with_the_exact_work_id(tmp_path):
+	"""W12 (ruled): the detail view exposes the selected Work's exact
+	canonical id — LEADING the header row so narrow widths keep it
+	whole, and following the SELECTION across duplicate titles."""
+	import baton_work as _bw
+	from baton_work import transitions as _tr
+	import fixtures as _fx
+	path, database = _fx.build_instance(
+		str(tmp_path), {"lang": {"members": {"ada": ["dev"]},
+		                "kinds": ["bug"]}})
+	store = _bw.Authority(database)
+	first = _tr.create_work(store, team="lang", kind="bug",
+	                        title="the twin", origin="external-report",
+	                        classification="suspected-defect",
+	                        author="ada", body="a")["work_id"]
+	second = _tr.create_work(store, team="lang", kind="bug",
+	                         title="the twin", origin="external-report",
+	                         classification="suspected-defect",
+	                         author="ada", body="b")["work_id"]
+	store.close()
+	# Open the FIRST twin's detail (row 0); then back out, move one
+	# down, and open the SECOND — the shown id must follow the
+	# selection, at a narrow supported width too.
+	for columns in (110, 44):
+		text, status, steps = ptyharness.drive(
+			path, "lang.ada",
+			[(b"", 0.3), (b"", 0.1), (b"\r", 0.4), (b"\x1b", 0.3),
+			 (b"j", 0.2), (b"\r", 0.4), (b"q", 0.2), (b"y", 0.4)],
+			columns=columns, lines=24)
+		assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+		def header_row(screen):
+			# The detail header is the row carrying the status block —
+			# the ONE row the id must LEAD.
+			return next(line for line in screen if "[open/" in line)
+
+		opened_first = ptyharness.replay(steps[2], columns=columns,
+		                                 lines=24)
+		assert header_row(opened_first).startswith(first), \
+			(columns, first, header_row(opened_first))
+		opened_second = ptyharness.replay(steps[5], columns=columns,
+		                                  lines=24)
+		assert header_row(opened_second).startswith(second), \
+			(columns, second, header_row(opened_second))
+		assert not any(first in line for line in opened_second), \
+			"the detail id did not follow the selection"

@@ -23,8 +23,10 @@ from __future__ import annotations
 
 import curses
 import shlex
+import uuid
 
 from baton_work.authority import Authority, WorkError
+from baton_work import cli as _cli
 from baton_work import projection
 from baton_work import transitions
 
@@ -61,6 +63,66 @@ DISC_PAGE = 10
 MIN_SPLIT_HEIGHT = 14
 
 
+def assist_text(buffer: str) -> str:
+	"""W14: the command-bar assistance line — a pure FORMATTER over
+	`cli.analyze_partial`, the partial-command analyzer owned beside
+	the one declarative grammar the parser executes. Nothing here
+	re-tokenizes or re-reads GRAMMAR: the analyzer speaks the same
+	shell-quoting and first-`=` rules as execution, so the assistance
+	can never drift from the parser, open an authority transaction, or
+	mark anything seen.
+
+	- typing the verb: matching command names;
+	- after a complete verb: the EFFECTIVE remaining required and
+	  optional keys — form conditions applied exactly as the parser
+	  enforces them (accept's two forms, parked/waiting, say's
+	  exclusive carriers, close's duplicate outcome), narrowed by a
+	  live key prefix;
+	- typing `key=` on a closed vocabulary: the accepted values,
+	  narrowed by the typed prefix;
+	- malformed, unknown, or duplicated input: the diagnostic, never a
+	  plausible-looking ordinary hint.
+	"""
+	state = _cli.analyze_partial(buffer)
+	kind = state["state"]
+	if kind == "commands":
+		return "command: " + ", ".join(state["matches"])
+	if kind == "verbs":
+		return ", ".join(state["matches"])
+	if kind == "diagnostic":
+		return state["diagnostic"]
+	if kind == "values":
+		return f"{state['key']}=: " + ", ".join(state["values"])
+	parts = []
+	if state["heading"]:
+		parts.append(state["heading"])
+	required, optional = state["required"], state["optional"]
+	if state["key_matches"] is not None:
+		required = [name for name in required
+		            if name in state["key_matches"]]
+		optional = [name for name in optional
+		            if name in state["key_matches"]]
+	if required:
+		parts.append("required: " + ", ".join(required))
+	if optional:
+		parts.append("optional: " + ", ".join(optional))
+	parts.extend(state["notes"])
+	return "  ".join(parts) if parts else "ready"
+
+
+def hot_work(row: dict) -> bool:
+	"""W84 (ruled hot zone): open Work someone is EXECUTING (a non-null
+	active claimant, any operational phase) or runnable review Work
+	someone needs to CLAIM (phase=review with ready=true, including the
+	interval before the reviewer claims). Blocked (ready=false) review,
+	waiting, parked, and terminal Work are cold. Derived from canonical
+	row state alone — no recency clock, no timestamp inference, no
+	authority read of its own."""
+	return row["status"] == "open" and (
+		row["active"] is not None
+		or (row["phase"] == "review" and row["ready"]))
+
+
 def visible_columns(width: int):
 	"""The column set that fits `width`, dropping DROP_ORDER members until
 	the title keeps MIN_TITLE cells. Shared with the parity suite so the
@@ -86,8 +148,10 @@ def layout_fits(width: int) -> bool:
 # a client must never invent a label by truncation.
 PHASE_COMPACT = {"queued": "queue", "research": "rsrch", "waiting": "wait",
                  "active": "actve", "review": "rview", "parked": "park"}
+# W6 (ruled): confirmed-defect reads `defct` — cnfrm did not express
+# the classification. Presentation only; canonical values unchanged.
 CLASSIFICATION_COMPACT = {"unknown": "unkwn", "suspected-defect": "suspt",
-                          "confirmed-defect": "cnfrm",
+                          "confirmed-defect": "defct",
                           "limitation": "limit", "duplicate": "dupe",
                           "design-choice": "desgn", "rejection": "rejct"}
 
@@ -268,6 +332,16 @@ class Console:
 		self.thread_skip_width: int | None = None
 
 		self.command: str | None = None  # the `:` command-bar buffer
+		# W9: the one-row exit confirmation — q asks, y answers.
+		self.confirm_exit = False
+		# W19: the `::` batch buffer — a list of staged line entries
+		# ({text, state, note, op_id}), or None when closed. Pure view
+		# state until Ctrl-G; states are None (staged), "completed",
+		# "failed", "unrun".
+		self.batch: list[dict] | None = None
+		self.batch_cursor = 0
+		self.batch_confirm = False
+		self.batch_status = ""
 		# W5: the projection CACHE. Ordinary keystrokes operate on
 		# cached data and never query the authority; the configured
 		# timer tick (and an explicit mutation's own refresh) are the
@@ -402,10 +476,47 @@ class Console:
 			self._render_links(screen, height, width)
 		else:
 			self._render_table(screen, height, width, rows)
-		if self.command is not None:
-			screen.addnstr(height - 1, 0, ":" + self.command, width - 1)
+		caret = None
+		if self.confirm_exit:
+			# One row, drawn whole at any width the console accepts.
+			screen.addnstr(height - 1, 0, "Exit? y/N", width - 1)
+		elif self.batch is not None:
+			caret = self._render_batch(screen, height, width)
+		elif self.command is not None:
+			# W14: the input owns the row, with a VISIBLE caret at the
+			# insertion point. When it fits, the assistance renders DIM
+			# on the right of the remaining space, yielding entirely
+			# below 8 free cells. When the input outgrows the row, a
+			# horizontal viewport keeps the caret and the live tail
+			# visible — `<` marks the clipped left; the BUFFER itself
+			# is never cut, so a wider resize (recomputing this
+			# viewport from the same buffer) shows it whole again.
+			typed = ":" + self.command
+			avail = width - 1
+			if len(typed) < avail:
+				screen.addnstr(height - 1, 0, typed, avail)
+				room = avail - len(typed) - 2
+				if room >= 8:
+					hint = assist_text(self.command)
+					screen.addnstr(height - 1, len(typed) + 2,
+					               hint[:room], room, curses.A_DIM)
+				caret = (height - 1, len(typed))
+			else:
+				tail = typed[len(typed) - (avail - 2):]
+				screen.addnstr(height - 1, 0, "<" + tail, avail)
+				caret = (height - 1, 1 + len(tail))
 		elif self.status:
 			screen.addnstr(height - 1, 0, self.status, width - 1)
+		# The caret exists exactly while the bar is open: shown at the
+		# insertion point during entry, hidden again the moment the
+		# bar closes. (A terminal refusing cursor-visibility control
+		# keeps its own default — the row still renders identically.)
+		try:
+			curses.curs_set(1 if caret else 0)
+		except curses.error:
+			pass
+		if caret:
+			screen.move(*caret)
 		screen.refresh()
 
 	def _row_cells(self, row: dict) -> dict:
@@ -489,6 +600,26 @@ class Console:
 			attribute = curses.A_REVERSE \
 				if start + offset == self.cursor else 0
 			screen.addnstr(2 + offset, 0, line, width - 1, attribute)
+			if hot_work(row):
+				# W84: the slow blink marks ONLY the phase/status cell
+				# of a hot row — title, identifiers, counters, routing
+				# and selection stay steady, and the ordinary textual
+				# state remains when a terminal ignores blink. At
+				# widths where the PHASE column is dropped there is
+				# simply no cell to animate.
+				x = title_width
+				for name, col_width in columns:
+					x += 1
+					if name == "PHASE":
+						if x < width - 1:
+							screen.addnstr(
+								2 + offset, x,
+								cells["PHASE"][:col_width]
+								.ljust(col_width),
+								min(col_width, width - 1 - x),
+								attribute | curses.A_BLINK)
+						break
+					x += col_width
 		footer_row = 2 + min(len(visible) - start, budget)
 		if hidden and footer_row <= height - 2:
 			screen.addnstr(footer_row, 0,
@@ -609,7 +740,11 @@ class Console:
 		current = detail["current"]["endpoint"] if detail["current"] \
 			else "-"
 		planned = detail["next"]["endpoint"] if detail["next"] else "-"
-		line = (f"[{detail['status']}"
+		# W12 (ruled): the EXACT canonical Work id leads the header —
+		# first on the line so no narrow width ever clips it, straight
+		# from the selected Work's canonical detail (never a title
+		# inference). Every command-bar operation can be typed from it.
+		line = (f"{detail['id']} [{detail['status']}"
 		        f"/{phase_cell(detail['status'], detail['phase'])}"
 		        f"/{compact_classification(detail['classification'])}] "
 		        f"current {current}  next {planned}  new {detail['new']}")
@@ -736,44 +871,39 @@ class Console:
 
 	# -- the command bar: the ONE public surface, in place ---------------------
 
-	def execute(self, line: str) -> None:
-		"""Feed the typed command to the SAME public CLI entry the JSON
-		agent uses — same config, same participant, same grammar, same
-		refusals. The console adds nothing and hides nothing."""
-		import contextlib
-		import io
-		import json as _json
-
-		from baton_work import cli as _cli
-		if self.config_path is None:
-			self.status = "no config path; the command bar is unavailable"
-			return
-		try:
-			argv = shlex.split(line)
-		except ValueError as broken:
-			self.status = f"unparseable command: {broken}"
-			return
-		if not argv:
-			return
-		if argv[0] == "tui":
-			self.status = "already here"
-			return
-		# The console carries ONE validated participant and ONE bound
-		# configuration (C3). Re-entering either global in the command
-		# bar would be identity by assertion — refused, with the
-		# reason, INCLUDING every argparse long-option abbreviation the
-		# parser would accept for them.
+	@staticmethod
+	def _fixed_global_guard(argv) -> str | None:
+		"""The console carries ONE validated participant and ONE bound
+		configuration (C3). Re-entering either global in the command
+		bar (or a batch line) would be identity by assertion — refused,
+		with the reason. The W13 parser accepts full launcher
+		spellings only (no abbreviation exists anywhere in the
+		grammar), and this guard refuses the session-fixed globals up
+		front so neither surface can ever retarget the console's
+		validated identity or instance."""
 		for token in argv:
 			flag = token.split("=", 1)[0]
 			guarded = any(
 				len(flag) > 2 and fixed.startswith(flag)
 				for fixed in ("--participant", "--config"))
 			if guarded and flag.startswith("--"):
-				self.status = (
-					f"{flag} names the session's fixed global "
-					f"participant/configuration; the command bar "
-					f"never re-enters them")
-				return
+				return (f"{flag} names the session's fixed global "
+				        f"participant/configuration; the command bar "
+				        f"never re-enters them")
+		return None
+
+	def _run_line(self, argv):
+		"""One command through the SAME public CLI entry the JSON agent
+		uses — same config, same participant, same grammar, same
+		refusals. Returns (code, brief, error, committed): the success
+		brief or public refusal text, and whether a storage change
+		ACTUALLY committed (R7: an effectively-once replay and a
+		successful no-op change nothing)."""
+		import contextlib
+		import io
+		import json as _json
+
+		from baton_work.cli import MUTATIONS as _mutations
 		out, err = io.StringIO(), io.StringIO()
 		code = 1
 		with contextlib.redirect_stdout(out), \
@@ -786,12 +916,9 @@ class Console:
 				code = stop.code if isinstance(stop.code, int) else 1
 			except WorkError as refusal:
 				err.write(_json.dumps({"error": str(refusal)}))
-		# R2/R4: only a SUCCESSFUL mutating act refreshes from its
-		# committed result (ruled). The VERB is the first token after
-		# any leading global options (--op-id V, --ref V, ... — the
-		# same public grammar the JSON interface takes), never the
-		# first raw token.
-		from baton_work.cli import MUTATIONS as _mutations
+		# R2/R4: the VERB is the first token after any operation
+		# operand before it (op-id=V, ref=V, ... — the same public
+		# grammar the JSON interface takes), never the first raw token.
 		verb = None
 		position = 0
 		while position < len(argv):
@@ -807,10 +934,6 @@ class Console:
 				result = _json.loads(out.getvalue())["result"]
 			except (ValueError, KeyError):
 				result = None
-			# R7: only an ACTUAL storage change schedules — the public
-			# result says so: an effectively-once REPLAY and a
-			# successful no-op (advanced=false) change nothing and
-			# leave the deadline and cache alone.
 			committed = verb in _mutations
 			if committed and isinstance(result, dict):
 				operation = result.get("operation")
@@ -819,21 +942,289 @@ class Console:
 					committed = False
 				if result.get("advanced") is False:
 					committed = False
-			if committed:
-				self.schedule_refresh()
 			if isinstance(result, dict):
 				for key in ("work_id", "seq", "revision", "generation"):
 					if key in result:
 						brief += f" {key}={result[key]}"
-			self.status = brief
-		else:
+			return 0, brief, "", committed
+		try:
+			error = _json.loads(err.getvalue())["error"][:200]
+		except ValueError:
+			error = (err.getvalue() or "refused").strip()[:200]
+		return code, "", error, False
+
+	def execute(self, line: str) -> None:
+		"""The one-line `:` bar: feed the typed command through
+		`_run_line` and surface the brief or the refusal."""
+		if self.config_path is None:
+			self.status = "no config path; the command bar is unavailable"
+			return
+		try:
+			argv = shlex.split(line)
+		except ValueError as broken:
+			self.status = f"unparseable command: {broken}"
+			return
+		if not argv:
+			return
+		if argv[0] == "tui":
+			self.status = "already here"
+			return
+		guard = self._fixed_global_guard(argv)
+		if guard:
+			self.status = guard
+			return
+		code, brief, error, committed = self._run_line(argv)
+		# R7: only an ACTUAL storage change schedules a refresh.
+		if committed:
+			self.schedule_refresh()
+		self.status = brief if code == 0 else error
+
+	# -- the `::` batch buffer (W19) -------------------------------------------
+
+	@staticmethod
+	def _batch_line(text: str) -> dict:
+		return {"text": text, "state": None, "note": "", "op_id": None}
+
+	@staticmethod
+	def _batch_edited(entry: dict) -> None:
+		"""Any edit returns the line to staged AND discards its
+		generated identity: WS-5 fingerprints the typed input, so an
+		edited line is a NEW command — reusing the old identity would
+		refuse as an identity conflict."""
+		entry["state"] = None
+		entry["note"] = ""
+		entry["op_id"] = None
+
+	def _batch_close(self) -> None:
+		if self.batch_status:
+			self.status = self.batch_status
+		self.batch = None
+		self.batch_cursor = 0
+		self.batch_confirm = False
+		self.batch_status = ""
+
+	def _batch_key(self, key: int) -> bool:
+		"""Keys while the batch buffer is open. Enter is ONLY ever a
+		newline (a pasted newline can never execute); Ctrl-G is Go;
+		Esc cancels behind a one-row confirmation whenever the buffer
+		still holds unexecuted text."""
+		if self.batch_confirm:
+			if key in (ord("y"), ord("Y")):
+				self.batch_status = ""
+				self._batch_close()
+			elif key in (ord("n"), ord("N"), 27):
+				self.batch_confirm = False
+			return True
+		entry = self.batch[self.batch_cursor]
+		if key == 27:
+			if any(line["text"].strip() and
+			       line["state"] != "completed"
+			       for line in self.batch):
+				self.batch_confirm = True
+			else:
+				self._batch_close()
+			return True
+		if key == 7:  # Ctrl-G: Go
+			self._batch_go()
+			return True
+		if key in (10, 13, curses.KEY_ENTER):
+			# R1 (round 2): every buffer MUTATION makes the previous
+			# run summary stale — invalidate it so the legend's
+			# Go/cancel controls return. Cursor-only movement (below)
+			# keeps a still-applicable summary.
+			self.batch_status = ""
+			self.batch.insert(self.batch_cursor + 1,
+			                  self._batch_line(""))
+			self.batch_cursor += 1
+			return True
+		if key == curses.KEY_UP:
+			self.batch_cursor = max(0, self.batch_cursor - 1)
+			return True
+		if key == curses.KEY_DOWN:
+			self.batch_cursor = min(len(self.batch) - 1,
+			                        self.batch_cursor + 1)
+			return True
+		if key in (8, 127, curses.KEY_BACKSPACE):
+			if entry["text"]:
+				self.batch_status = ""
+				entry["text"] = entry["text"][:-1]
+				self._batch_edited(entry)
+			elif len(self.batch) > 1:
+				self.batch_status = ""
+				del self.batch[self.batch_cursor]
+				self.batch_cursor = max(0, self.batch_cursor - 1)
+			return True
+		if 32 <= key <= 126:
+			self.batch_status = ""
+			entry["text"] += chr(key)
+			self._batch_edited(entry)
+			return True
+		return True
+
+	def _batch_go(self) -> None:
+		"""Go (pinned): preflight EVERY pending line statically — the
+		fixed-global guard and THE shared parser, before any authority
+		access; any refusal marks its line failed and NOTHING executes.
+		Then assign per-slot operation identity to mutating lines
+		without an explicit op-id=, and execute sequentially in written
+		order through the same public entry as the one-line bar,
+		stopping at the first refusal: earlier lines are completed
+		(committed — never rolled back), the rest unrun. Completed
+		lines are skipped by later Gos; an unedited retry keeps its
+		identity, so WS-5 replays any committed result instead of
+		duplicating it."""
+		if self.config_path is None:
+			self.batch_status = ("no config path; the command bar is "
+			                     "unavailable")
+			return
+		pending = []
+		preflight_error = None
+		for entry in self.batch:
+			if not entry["text"].strip() or \
+					entry["state"] == "completed":
+				continue
+			entry["state"] = None
+			entry["note"] = ""
 			try:
-				self.status = _json.loads(err.getvalue())["error"][:200]
-			except ValueError:
-				self.status = (err.getvalue() or
-				               "refused").strip()[:200]
+				argv = shlex.split(entry["text"])
+			except ValueError as broken:
+				entry["state"] = "failed"
+				entry["note"] = f"unparseable command: {broken}"
+				preflight_error = preflight_error or entry["note"]
+				continue
+			guard = self._fixed_global_guard(argv)
+			if guard:
+				entry["state"] = "failed"
+				entry["note"] = guard
+				preflight_error = preflight_error or guard
+				continue
+			try:
+				args = _cli._parse_invocation(
+					["--config", self.config_path, "--participant",
+					 f"{self.team}.{self.member}"] + argv)
+			except WorkError as refusal:
+				entry["state"] = "failed"
+				entry["note"] = str(refusal)
+				preflight_error = preflight_error or str(refusal)
+				continue
+			if args.command == "tui":
+				entry["state"] = "failed"
+				entry["note"] = "already here"
+				preflight_error = preflight_error or "already here"
+				continue
+			pending.append((entry, argv, args))
+		if preflight_error:
+			self.batch_status = ("nothing ran — "
+			                     + preflight_error)[:200]
+			return
+		if not pending:
+			self.batch_status = "nothing to run"
+			return
+		# Per-slot identity (pinned): generated for MUTATING lines
+		# without an explicit op-id=, retained while the text is
+		# unchanged, never touching an explicit one. Two identical
+		# lines are two commands — a batch is a list, never a set.
+		for entry, _argv, args in pending:
+			if args.command in _cli.MUTATIONS and \
+					args.op_id is None and entry["op_id"] is None:
+				entry["op_id"] = "batch-" + uuid.uuid4().hex
+		completed = 0
+		stopped = None
+		refresh = False
+		for entry, argv, args in pending:
+			if stopped is not None:
+				entry["state"] = "unrun"
+				continue
+			run_argv = list(argv)
+			if entry["op_id"] is not None and args.op_id is None:
+				run_argv.append("op-id=" + entry["op_id"])
+			code, brief, error, committed = self._run_line(run_argv)
+			if code == 0:
+				entry["state"] = "completed"
+				entry["note"] = brief
+				completed += 1
+				refresh = refresh or committed
+			else:
+				entry["state"] = "failed"
+				entry["note"] = error
+				stopped = error
+		if refresh:
+			self.schedule_refresh()
+		if stopped is not None:
+			self.batch_status = (f"{completed} completed; stopped: "
+			                     + stopped)[:200]
+		else:
+			self.batch_status = f"batch: {completed} completed"
+
+	def _render_batch(self, screen, height: int, width: int):
+		"""W19: the staged batch — a bottom pane of state-marked lines
+		over one legend row naming Go and cancellation. The cursor line
+		renders with the W14 caret/viewport contract and the shared
+		read-only assistance; other lines truncate on screen only (the
+		buffer is never cut). Returns the caret position or None."""
+		rows = min(len(self.batch), max(3, height // 3))
+		first = min(self.batch_cursor,
+		            max(0, len(self.batch) - rows))
+		if self.batch_cursor >= first + rows:
+			first = self.batch_cursor - rows + 1
+		top = height - 1 - rows
+		marks = {None: "   ", "completed": "ok ", "failed": "!! ",
+		         "unrun": "-- "}
+		caret = None
+		for offset in range(rows):
+			index = first + offset
+			if index >= len(self.batch):
+				break
+			entry = self.batch[index]
+			y = top + offset
+			screen.addnstr(y, 0, " " * (width - 1), width - 1)
+			attr = {"completed": curses.A_DIM,
+			        "failed": curses.A_BOLD}.get(entry["state"], 0)
+			screen.addnstr(y, 0, marks[entry["state"]], 3, attr)
+			text = entry["text"]
+			avail = width - 1 - 3
+			if index == self.batch_cursor and avail > 2:
+				if len(text) < avail:
+					screen.addnstr(y, 3, text, avail)
+					room = avail - len(text) - 2
+					if room >= 8:
+						hint = assist_text(text)
+						screen.addnstr(y, 3 + len(text) + 2,
+						               hint[:room], room,
+						               curses.A_DIM)
+					caret = (y, 3 + len(text))
+				else:
+					tail = text[len(text) - (avail - 2):]
+					screen.addnstr(y, 3, "<" + tail, avail)
+					caret = (y, 3 + 1 + len(tail))
+			else:
+				screen.addnstr(y, 3, text[:avail], avail, attr)
+		legend_row = height - 1
+		screen.addnstr(legend_row, 0, " " * (width - 1), width - 1)
+		if self.batch_confirm:
+			screen.addnstr(legend_row, 0, "Discard batch? y/N",
+			               width - 1)
+			return None
+		if self.batch_status:
+			screen.addnstr(legend_row, 0, self.batch_status,
+			               width - 1)
+		else:
+			screen.addnstr(legend_row, 0,
+			               "batch · Enter newline · Ctrl-G go · "
+			               "Esc cancel", width - 1, curses.A_DIM)
+		return caret
 
 	def _command_key(self, key: int) -> None:
+		if key == ord(":") and self.command == "":
+			# W19: `::` — a second colon on the EMPTY bar converts it
+			# into the multiline batch buffer. The one-line `:`
+			# interaction is otherwise untouched.
+			self.command = None
+			self.batch = [self._batch_line("")]
+			self.batch_cursor = 0
+			self.batch_confirm = False
+			self.batch_status = ""
+			return
 		if key in (10, 13, curses.KEY_ENTER):
 			line, self.command = self.command, None
 			self.execute(line)
@@ -851,14 +1242,33 @@ class Console:
 		if self.command is not None:
 			self._command_key(key)
 			return True
+		if self.batch is not None:
+			# W19: every key belongs to the batch buffer while it is
+			# open — q and : stay literal text, exactly like the bar.
+			return self._batch_key(key)
+		# W9 (ruled): in normal navigation q opens ONE bottom-row
+		# Exit? y/N prompt. y/Y exits; n/N/Esc cancels to the UNCHANGED
+		# view — including any visible status, so this whole branch
+		# runs BEFORE the per-key status reset; every other key neither
+		# confirms nor cancels. Nothing here touches the authority or
+		# seen state — pure view state. Text entry in the command bar
+		# keeps q literal (handled above, before this branch).
+		if self.confirm_exit:
+			if key in (ord("y"), ord("Y")):
+				return False
+			if key in (ord("n"), ord("N"), 27):
+				self.confirm_exit = False
+			return True
+		if key == ord("q"):
+			self.confirm_exit = True
+			return True
 		self.status = ""
 		if key == ord(":"):
 			self.command = ""
 			return True
 		rows, _hidden = (self.visible_rows(self.rows())
 		                 if self.mode == "table" else ([], 0))
-		if key in (ord("q"),):
-			return False
+
 		if self.mode == "links":
 			entries = self._links_rows()
 			if key in (curses.KEY_DOWN, ord("j")):
@@ -1012,7 +1422,7 @@ class Console:
 def run(screen, store: Authority, viewer_team: str, viewer_member: str,
         config_path: str | None = None, refresh: float = 2.0) -> None:
 	"""W5: `refresh` seconds (default 2, positive, configurable via
-	`tui --refresh`) is the ONE background trigger for fresh canonical
+	`tui refresh=`) is the ONE background trigger for fresh canonical
 	reads — getch times out, the cache drops, the screen repaints.
 	Ordinary keystrokes operate on the cached projection."""
 	import time
@@ -1042,7 +1452,7 @@ def run(screen, store: Authority, viewer_team: str, viewer_member: str,
 
 
 # SUPERSEDED (C3): the module-level entry that opened a raw authority path is
-# gone. The ONLY launch is `baton-work --config ... --participant ... tui`,
+# gone. The ONLY launch is `baton --config ... --participant ... tui`,
 # which opens through the bound lifecycle and validates the participant
 # before curses claims the screen — the v10 console's refuse-first lesson,
 # now enforced by the configuration boundary rather than by this module.

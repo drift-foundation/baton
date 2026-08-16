@@ -4,10 +4,13 @@ Three independent location domains, none inferred from another: the
 DISTRIBUTION (immutable exact releases with sibling `bin/ doc/ conf/
 tmpl/`), the COORDINATION HOME (the editable instance root `init`
 scaffolds and `activate` turns into an authority), and PROJECT ROOTS
-(resolver-selected repositories `bootstrap` vendors templates into).
-Nothing here reads or writes Baton authority state; nothing here is
-authority validation. The machine-local resolver is explicit input,
-never searched for, never persisted, never fingerprinted.
+(repositories `bootstrap` vendors templates into, each selected by the
+accepted `baton.json` — the single explicit root config, W4). Root
+selection reads the SAME validated document the config-bound open
+digest-checked; lifecycle performs that binding validation, and root
+resolution here merely RECHECKS that the captured accepted digest has
+not advanced before answering. Filesystem writes stay entirely outside
+authority state.
 """
 
 from __future__ import annotations
@@ -24,14 +27,14 @@ from baton_work.config import _no_duplicates, validate_root_id
 # exists the operation refuses before writing, naming the blockers;
 # interrupted attempts are inspected and cleaned up MANUALLY. Baton
 # never recognizes, adopts, resumes, overwrites, or deletes.
-MANAGED_HOME = ("baton.json", "roots.json", "BATON-SETUP.md",
+MANAGED_HOME = ("baton.json", "BATON-SETUP.md",
                 "work.sqlite3")
 
 # The scaffold's CONTENT comes from exact-release assets (R107):
-# `doc/BATON-SETUP.md`, `conf/baton.scaffold.json`, and
-# `conf/roots.scaffold.json` ride every distribution byte-for-byte
-# (source tree: docs/ and conf/). init consumes them and refuses when
-# one is absent — it never substitutes embedded text.
+# `doc/BATON-SETUP.md` and `conf/baton.example.json` ride every
+# distribution byte-for-byte (source tree: docs/ and conf/). init
+# consumes them and refuses when one is absent — it never substitutes
+# embedded text.
 
 
 def _release_dir(release_name: str, source_name: str,
@@ -89,13 +92,12 @@ def scaffold_home(directory: str) -> dict:
 			f"interrupted attempt needs inspection and manual cleanup. "
 			f"init never adopts, resumes, overwrites, or deletes.")
 	# R107: the scaffold documents are the RELEASE'S assets — the setup
-	# instructions and the roots seed byte-for-byte, and the strict
+	# instructions byte-for-byte, and the strict
 	# configuration EXAMPLE as the seed: its skeleton (versions,
 	# instance shape) is kept, its demonstration teams/roots are reset
 	# to the editable empty sections, and only name and authority uuid
 	# are substituted. Never embedded constants.
 	setup_text = _release_asset("doc", "docs", "BATON-SETUP.md")
-	roots_seed = _release_asset("conf", "conf", "roots.scaffold.json")
 	example_seed = _release_asset("conf", "conf", "baton.example.json")
 	try:
 		document = json.loads(example_seed,
@@ -115,7 +117,6 @@ def scaffold_home(directory: str) -> dict:
 	document["instance"]["name"] = "edit-me"
 	document["instance"]["authority_uuid"] = authority_uuid
 	files = (
-		("roots.json", roots_seed),
 		("BATON-SETUP.md", setup_text),
 		("baton.json",
 		 json.dumps(document, indent=2, sort_keys=True) + "\n"),
@@ -168,58 +169,34 @@ def scaffold_home(directory: str) -> dict:
 	                "--participant team.member"}
 
 
-def load_resolver(path: str) -> dict:
-	"""The EXPLICIT machine-local resolver: strict JSON
-	`{"roots": {id: "/absolute/base"}}`. Never searched for, never a
-	default, never persisted or fingerprinted."""
-	try:
-		with open(path, "r", encoding="utf-8") as handle:
-			raw = handle.read()
-	except OSError as failure:
-		raise WorkError(f"cannot read the roots resolver {path}: "
-		                f"{failure}") from None
-	try:
-		# R97: the resolver document is STRICT like every other
-		# document — a duplicate root key must never silently redirect
-		# a portable root to the last-written base.
-		document = json.loads(raw, object_pairs_hook=_no_duplicates)
-	except WorkError:
-		raise
-	except ValueError as broken:
-		raise WorkError(f"the roots resolver {path} is not valid JSON: "
-		                f"{broken}") from None
-	if not isinstance(document, dict) or \
-			not isinstance(document.get("roots"), dict):
-		raise WorkError(f"the roots resolver {path} must be an object "
-		                f'{{"roots": {{id: "/absolute/base"}}}}')
-	stray = sorted(set(document) - {"roots"})
-	if stray:
-		raise WorkError(f"the roots resolver {path} carries unknown "
-		                f"top-level fields {stray}; the document is "
-		                f'exactly {{"roots": {{...}}}}')
-	mapping = {}
-	for root_id, base in document["roots"].items():
-		validate_root_id(root_id, "resolver root")
-		if not isinstance(base, str) or not os.path.isabs(base):
-			raise WorkError(
-				f"resolver root {root_id!r} must map to an ABSOLUTE "
-				f"machine-local base path; got {base!r}")
-		mapping[root_id] = base
-	return mapping
-
-
-def resolve_base(mapping: dict, root_id: str) -> str:
-	if root_id not in mapping:
+def store_root_base(store, root_id: str) -> str:
+	"""W4 (schema-preserving): the accepted baton.json is the SINGLE
+	explicit root config. The base comes from the validated document the
+	ordinary open already digest-checked — never from SQLite rows and
+	never from a second unbound file read. A configuration replaced
+	since this open refuses rather than resolving stale bases; existence
+	is checked here, at use time."""
+	accepted = getattr(store, "accepted_roots", None)
+	if accepted is None:
 		raise WorkError(
-			f"root {root_id!r} has no machine-local mapping in the "
-			f"supplied resolver; add it there — the authority itself "
-			f"never stores absolute paths")
-	base = mapping[root_id]
+			"root resolution requires the config-bound open; this "
+			"store carries no accepted configuration")
+	live = store.meta().get("accepted_digest")
+	if live != store.accepted_digest:
+		raise WorkError(
+			"the accepted configuration changed after this open; "
+			"re-open against the newly accepted baton.json before "
+			"resolving roots")
+	if root_id not in accepted:
+		raise WorkError(
+			f"root {root_id!r} is not a live configured root in the "
+			f"accepted baton.json - the single explicit root config")
+	base = accepted[root_id]
 	if not os.path.isdir(base):
 		raise WorkError(
-			f"root {root_id!r} resolves to {base}, which is not an "
-			f"existing directory on this machine; fix the local "
-			f"resolver or check out the repository")
+			f"root {root_id!r} declares base {base}, which is not an "
+			f"existing directory on this machine; fix baton.json (and "
+			f"re-accept) or check out the repository")
 	return base
 
 
@@ -256,7 +233,7 @@ def _assert_contained(base: str, target: str) -> None:
 		probe = os.path.dirname(probe)
 
 
-def bootstrap_project(root_id: str, resolver_path: str,
+def bootstrap_project(root_id: str, base: str,
                       templates=None) -> dict:
 	"""`baton bootstrap`: vendor this release's numbered templates into
 	one resolved project root and create the `work/` structure. Two
@@ -265,8 +242,6 @@ def bootstrap_project(root_id: str, resolver_path: str,
 	types, symlinks, and escapes refuse without replacement; nothing is
 	ever deleted, overwritten, or written back to the distribution."""
 	validate_root_id(root_id, "bootstrap root")
-	mapping = load_resolver(resolver_path)
-	base = resolve_base(mapping, root_id)
 	source_dir = template_dir()
 	if templates is None:
 		templates = sorted(name for name in os.listdir(source_dir)

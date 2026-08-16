@@ -22,6 +22,8 @@ with the field named, never discovered at tag time.
 
 from __future__ import annotations
 
+import os
+
 import json
 import re
 
@@ -172,8 +174,20 @@ def loads(raw: str) -> dict:
 	for root_id, entry in roots.items():
 		validate_root_id(root_id)
 		named = f"root {root_id!r}"
-		_strict_object(entry, named, ("display",), ("display",))
+		# W4: baton.json is the SINGLE explicit root config — every
+		# root declares its absolute base here; no machine-local
+		# resolver file and no filesystem inference. Validation is
+		# pure syntax; existence is checked at use time.
+		_strict_object(entry, named, ("display", "base"),
+		               ("display", "base"))
 		_display(entry["display"], named)
+		base = entry["base"]
+		if not isinstance(base, str) or not base.strip() or \
+				not os.path.isabs(base):
+			raise WorkError(
+				f"{named} must declare an explicit absolute base "
+				f"path; got {base!r} — a client opened with "
+				f"baton.json knows every repository base explicitly")
 	for team_handle, team in teams.items():
 		validate_handle(team_handle, "team")
 		where = f"team {team_handle!r}"

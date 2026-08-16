@@ -40,3 +40,55 @@ Use semantic parameter names: the general dependency operation is
 
 This is queued for the next immutable revision. The current trial grammar and
 authority are not rewritten in place.
+
+## Pre-cutover audit — 2026-08-16
+
+**Confirmed by source inspection.** `src/baton_work/cli.py` still defines the
+public operation surface with argparse positional operands and `--option`
+flags; the shared strict `key=value` operation grammar does not exist. This
+Work is open in fact. It is a parser/public-interface change with substantial
+regression scope, but it changes no persisted authority schema. It must be
+implemented and reviewed before the fresh cutover rather than recreated as
+unfinished Work afterward. Its dependent command-assist and batch Work remain
+separate and will be classified by the same open-Work audit.
+
+## Implementation boundary pin — 2026-08-16 (implementer, per T13 #162)
+
+Inventory of every public v11 command, with the launcher/operation
+boundary applied before editing:
+
+**Launcher context (conventional options, BEFORE the verb):** `--config`,
+`--participant`, `--expect-projection`. Nothing else. The former pre-verb
+`--op-id`, `--ref`, and `--answer-ref` move INTO the operation grammar as
+`op-id=`, `ref=` (repeatable, ordered), and `answer-ref=` (repeatable,
+ordered), because operation identity and asset references are operation
+semantics: they commit with the act, participate in retry fingerprints,
+and are refused by pure reads and filesystem verbs through the SAME ruled
+semantic refusals as before (the parser accepts the keys; the operation
+decides).
+
+**Operation grammar (every verb operand):** strict order-independent
+`key=value` tokens after the verb, one dialect for the standalone CLI and
+the TUI command bar. Tokens split at the FIRST `=` (values may contain
+`=`); shells and the command bar share shlex quoting; no shell
+evaluation; no positional inference. Unknown keys, missing required keys,
+malformed tokens (no `=`, empty key), duplicate singular keys, retired
+flag/positional spellings, and mixed dialects refuse BEFORE authority
+access, with no residue. Repeatable keys (`ref`, `answer-ref`,
+`template`, `assign`, `label`) preserve occurrence order.
+
+**Semantic renames folded in:** `phase work=W to=X [reason=…]
+[wait=gates|OBLIGATION_SEQ]` replaces the two `--wait-on-*` flags with
+one `wait=` condition (matching the transition's own parameter);
+`classify work=W as=VALUE`; `assess obligation=N as=VALUE`; `accept
+obligation=N body=… (into=W | create=true kind=… title=… …)` — the
+boolean `create` takes the literal value `true`. All other keys keep
+their established names (`work=`, `thread=`, `obligation=`, `on=`,
+`to=`, `expect=`, `reason=`, `directory=`, `locator=`, `root=`,
+`template=`, `timeout=`, `after=`, `limit=`, `refresh=`, …).
+
+Every verb — lifecycle (`init directory=…`, `activate directory=…`,
+`regen`, `resolve locator=…`, `bootstrap root=…`), mutations, and pure
+reads (`detail work=…`, `tree [work=…]`, `thread thread=…`, …) — uses
+the one dialect; no second permanent grammar survives. No boundary
+contradiction was found in the pinned text under this reading.

@@ -894,9 +894,9 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
                   op_id: str | None = None, refs=()) -> dict:
 	"""Explicit claimant recovery (ruled): one honest operation for
 	self-release AND forced recovery. Authority is the live Current
-	endpoint's resolved handlers; --expect is a mandatory compare-and-swap
+	endpoint's resolved handlers; expect= is a mandatory compare-and-swap
 	against the exact recorded claimant, decided inside the write
-	transaction; --reason is durable evidence. A successful release clears
+	transaction; reason= is durable evidence. A successful release clears
 	ONLY the claimant — phase, Current, Next, readiness, dependencies,
 	waiting and discussion state are untouched."""
 	_member(store, actor_team, actor)
@@ -908,7 +908,7 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 	reason = reason.strip()
 	if not isinstance(expect, str) or expect.count(".") != 1 or \
 			not all(expect.split(".")):
-		raise WorkError(f"--expect {expect!r} is not team.member shaped; "
+		raise WorkError(f"expect= {expect!r} is not team.member shaped; "
 		                f"recovery never guesses whose execution it is "
 		                f"interrupting")
 	operation = _operation(store, actor_team, actor, "release", op_id,
@@ -1850,9 +1850,9 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 	provider no later than the acceptance that names it).
 
 	Authority (ruled): the pending exact @ grants its LIVE route handler
-	this one narrow atomic authority over the requesting Work. `--into`
+	this one narrow atomic authority over the requesting Work. `into=`
 	adds same-team + open checks on the provider Work; its Current is
-	recorded as evidence, not a second gate. `--create --parent` alone
+	recorded as evidence, not a second gate. `create=true parent=` alone
 	adds the separate live parent-Current handler gate.
 	"""
 	_member(store, actor_team, actor)
@@ -1891,7 +1891,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		raise WorkError("an acceptance records its rationale")
 	if (into is None) == (create is None):
 		raise WorkError("acceptance names exactly one provider: an "
-		                "existing work (--into) or a new one (--create)")
+		                "existing work (into=) or a new one (create=true)")
 	consumer_id = obligation["work"]
 	provider_team = obligation["team"]
 
@@ -1921,7 +1921,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		create = dict(create, classification=classification, phase=phase)
 		if not isinstance(title, str) or not title.strip():
 			raise WorkError("a work title must be non-empty")
-		_endpoint(store, provider_team, kind, "accept --create")
+		_endpoint(store, provider_team, kind, "accept create=true")
 		if classification not in CLASSIFICATIONS:
 			raise WorkError(f"classification {classification!r} is not "
 			                f"one of {CLASSIFICATIONS}")
@@ -1984,7 +1984,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			provider_id = f"{prefix}-W{seq}"
 			kind = create["kind"]
 			resolution = resolve_endpoint(conn, provider_team, kind,
-			                              "accept --create")
+			                              "accept create=true")
 			payload["resolution"] = resolution
 			parent = create.get("parent")
 			if parent is not None:
@@ -1998,7 +1998,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 				# Disposition 5: the SEPARATE parent-Current handler gate.
 				payload["parent_authorization"] = _handler_gate(
 					conn, parent, actor_team, actor,
-					"accept --create --parent")
+					"accept create=true parent=")
 			conn.execute(
 				"INSERT INTO work (id, team, title, origin, "
 				"classification, phase, status, parent, current_team, "
@@ -2409,9 +2409,9 @@ def unlabel_thread(store: Authority, thread_id: str, work_id: str,
 def _select_target(conn, thread_id: str, actor_team: str, actor: str,
                    operation: str, on: str | None):
 	"""D2/R55/D9: the ONE currently labelled, eligible, OPEN Work a
-	carrying operator acts against. An explicit `--on` must name a
+	carrying operator acts against. An explicit `on=` must name a
 	current label (the thread carries its operating context) and that
-	Work must itself be open and authorized. An omitted `--on` resolves
+	Work must itself be open and authorized. An omitted `on=` resolves
 	only when exactly ONE label is eligible for this operation — zero or
 	several refuse. Returns (work_id, authorization_snapshot)."""
 	labels = [row["work"] for row in conn.execute(
@@ -2420,7 +2420,7 @@ def _select_target(conn, thread_id: str, actor_team: str, actor: str,
 	if on is not None:
 		if on not in labels:
 			raise WorkError(
-				f"--on {on} is not among {thread_id}'s current "
+				f"on={on} is not among {thread_id}'s current "
 				f"labels; the thread carries its operating context")
 		candidates = [on]
 	else:
@@ -2452,9 +2452,9 @@ def _select_target(conn, thread_id: str, actor_team: str, actor: str,
 		return eligible[0]
 	if len(eligible) != 1:
 		raise WorkError(
-			f"{operation} with no --on resolves only when exactly one "
+			f"{operation} with no on= resolves only when exactly one "
 			f"labelled work is eligible; {thread_id} has "
-			f"{len(eligible)} — select the target with --on")
+			f"{len(eligible)} — select the target with on=")
 	return eligible[0]
 
 
@@ -2475,7 +2475,7 @@ def post_thread(store: Authority, thread_id: str, *,
 	obligation, Current, Next, readiness, phase, edge, or Work authority
 	changes. `@` (request) and `=>` (pass, optionally planting a planned
 	Next) affect exactly one currently labelled, eligible open Work:
-	`--on` selects it; omitted, it resolves only at eligible-cardinality
+	`on=` selects it; omitted, it resolves only at eligible-cardinality
 	one, and the resolution is recorded and echoed. A plain message
 	requires live context — at least one labelled open Work — rechecked
 	inside the committing transaction."""
@@ -2509,7 +2509,7 @@ def post_thread(store: Authority, thread_id: str, *,
 		                "nothing to return from otherwise")
 	carrying = request is not None or pass_to is not None
 	if on is not None and not carrying:
-		raise WorkError("--on selects the work a carrying operator acts "
+		raise WorkError("on= selects the work a carrying operator acts "
 		                "against; this message carries none")
 	if include:
 		# Optimistic early refusal only; the recorded expansion is redone
@@ -2572,7 +2572,7 @@ def post_thread(store: Authority, thread_id: str, *,
 		_member_active(conn, author_team, author)
 		if carrying:
 			# The committing selection: still labelled, open, authorized —
-			# and when --on was omitted, STILL exactly one eligible work
+			# and when on= was omitted, STILL exactly one eligible work
 			# under the state that commits. A different resolution than
 			# the one that decided this act's kind lost a race — refuse,
 			# never commit a mislabeled transition.
@@ -2646,7 +2646,7 @@ def post_thread(store: Authority, thread_id: str, *,
 				# The consumed plan clears — but a NEW plan stated on
 				# this same return commits with it (discovered at the
 				# W108 trial handoff: the old code silently dropped a
-				# planted --set-next on a consuming return).
+				# planted set-next= on a consuming return).
 				conn.execute(
 					"UPDATE work SET current_team=?, current_kind=?, "
 					"next_team=?, next_kind=? WHERE id=?",
@@ -2743,11 +2743,11 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 			f"post-terminal revision")
 	if message_seq is None or not isinstance(message_seq, int):
 		raise WorkError("a revision promotes exactly one durable "
-		                "thread message; name it with --message")
+		                "thread message; name it with message=")
 	if expected_revision is None or not isinstance(expected_revision, int) \
 			or expected_revision < 0:
 		raise WorkError("a revision names the expected prior revision "
-		                "explicitly (--expect); concurrent and stale "
+		                "explicitly (expect=); concurrent and stale "
 		                "edits must fail, never overwrite")
 	if not isinstance(rationale, str) or not rationale.strip():
 		raise WorkError("a revision records its rationale")
@@ -2856,7 +2856,7 @@ def bind_work(store: Authority, work_id: str, *, actor_team: str,
 			f"work, never a locator rewrite")
 	if root is None or path is None:
 		raise WorkError("a binding names its root and canonical path "
-		                "(--root, --path)")
+		                "(root=, path=)")
 	from baton_work.config import validate_root_id
 	validate_root_id(root, "binding root")
 	_validate_binding_path(path)
@@ -2864,7 +2864,7 @@ def bind_work(store: Authority, work_id: str, *, actor_team: str,
 			not isinstance(expected_revision, int) or \
 			expected_revision < 0:
 		raise WorkError("a binding change names the expected prior "
-		                "revision explicitly (--expect); stale or "
+		                "revision explicitly (expect=); stale or "
 		                "concurrent edits refuse, never overwrite")
 	if not isinstance(rationale, str) or not rationale.strip():
 		raise WorkError("every post-creation binding change records its "

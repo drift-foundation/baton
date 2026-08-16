@@ -42,3 +42,75 @@ modes remain separate.
 
 The batch feature depends on the key/value operation grammar. It is queued for
 the next immutable revision and does not modify the current trial in place.
+
+## Implementation boundary pin — 2026-08-16 (baton.impl, pre-implementation)
+
+Pinned before coding, per T19. Everything below derives from standing
+rulings (the confirmed decision above, WS-5 operation identity, the W13
+shared grammar, the W14 assist/caret contract); no new product choice is
+exposed, so no blocker is returned.
+
+**Two interactions, one entry rule.** `:` opens the one-line assisted bar,
+unchanged. A second `:` as the FIRST keystroke of an empty bar (i.e. `::`)
+converts it into the batch buffer. The bar's behavior is not modified in
+any other way.
+
+**Staging is pure view state.** Typing, pasting, editing, and navigating
+the batch buffer open no authority transaction, mark nothing seen, and
+change no authority bytes (PTY byte-identity proof). Enter is only ever
+a newline in the batch; a pasted newline can never execute. A visible
+legend names Go (`Ctrl-G`) and cancellation (`Esc`).
+
+**Preflight before any execution.** Go first passes EVERY non-empty,
+not-yet-completed line through the session-identity guard (the fixed
+`--config`/`--participant` refusal, verbatim from the one-line bar) and
+THE shared parser (`cli._parse_invocation` — grammar, closed values,
+form conditions), all static, before any authority access. Any refusal
+marks its line failed with the public refusal text and NOTHING executes;
+every line stays editable.
+
+**Per-line operation identity (deterministic, per slot).** At each Go,
+every MUTATING line (`cli.MUTATIONS` by parsed verb) that does not carry
+an explicit `op-id=` is assigned a generated identity `batch-<uuid hex>`,
+conforming to the WS-5 R82 id grammar. Identity is per LINE SLOT, not per
+text: two identical lines in one batch are two commands and get two
+identities — a batch is a list, never a set. A line's generated identity
+is retained while its text is unchanged and DISCARDED on any edit (WS-5
+fingerprints the typed input; reusing an identity across an edit would
+refuse as an identity conflict, and an edited line IS a new command). An
+explicit `op-id=` is never overwritten, injected twice, or stripped.
+Non-mutating lines receive no identity — the operation semantics refuse
+`op-id=` on pure reads, and the batch does not launder that refusal.
+
+**Sequential stop, honest state.** Once preflight is clean, lines execute
+strictly in written order through the SAME public CLI entry as the
+one-line bar. The first nonzero exit stops the batch: earlier lines are
+`completed` (committed — never described as rolled back), the stopping
+line is `failed` carrying the public refusal, every later line is
+`unrun`. Empty lines are skipped. Each line renders its state; a
+successful mutating line schedules the ONE coalesced refresh.
+
+**Retry.** A later Go executes only non-completed lines, in order.
+`completed` lines are never re-executed by the batch. An UNEDITED
+failed/unrun mutating line retries under its SAME retained identity, so
+WS-5 effectively-once replays any committed result instead of duplicating
+the mutation; an edited line runs as a new command under a new identity.
+
+**Interruption.** Execution is synchronous and sequential in-process; the
+keyboard cannot interrupt a running batch — there is no partial-line
+uncertainty to represent. Process death discards the staged buffer AND
+its generated identities: cross-session retry safety therefore requires
+explicit per-line `op-id=`, exactly as at the CLI. The batch never claims
+stronger recovery than the surface it drives.
+
+**Retained buffer and cancellation.** Failed and unrun lines stay in the
+buffer, editable, with their states and notes. Editing any line (including
+a completed one) returns it to staged. `Esc` over a buffer holding any
+text asks a one-row `Discard batch? y/N` confirmation (n/Esc returns to
+the buffer unchanged); a batch whose lines are all completed (or empty)
+closes without confirmation — there is nothing left to lose.
+
+**No scripting.** No variables, control flow, shell expansion, file
+execution, or includes. Current-line assistance MAY render through the
+same shared analyzer, read-only, exactly as the one-line bar; the two
+modes stay separate interactions.

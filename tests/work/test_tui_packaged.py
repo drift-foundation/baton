@@ -1,6 +1,6 @@
 """B3: the ruled scenario through the DEPLOYED artifact, on a real PTY.
 
-The console under test is the installed `bin/baton-work` produced by the
+The console under test is the installed `bin/baton` produced by the
 v11-only deployer — PYTHONPATH deliberately absent, so the distribution
 stands alone — and the JSON side of every claim runs through the SAME
 installed executable as a separate process. The scenario is the ruled
@@ -44,7 +44,7 @@ def _env():
 @pytest.fixture(scope="module")
 def executable(tmp_path_factory):
 	target = os.path.join(str(tmp_path_factory.mktemp("b3dist")),
-	                      "baton-work-r1")
+	                      "baton-r1")
 	proc = subprocess.run([sys.executable, DEPLOYER, target],
 	                      capture_output=True, text=True, timeout=120)
 	assert proc.returncode == 0, proc.stderr
@@ -56,7 +56,7 @@ def world(executable, tmp_path_factory):
 	"""The instance itself is created THROUGH the installed product:
 	init → edit → activate."""
 	home = str(tmp_path_factory.mktemp("b3home"))
-	proc = subprocess.run([executable, "init", home],
+	proc = subprocess.run([executable, "init", f"directory={home}"],
 	                      capture_output=True, text=True, timeout=120,
 	                      env=_env())
 	assert proc.returncode == 0, proc.stderr
@@ -69,7 +69,7 @@ def world(executable, tmp_path_factory):
 	with open(config_path, "w", encoding="utf-8") as handle:
 		json.dump(document, handle, indent=2, sort_keys=True)
 	proc = subprocess.run([executable, "--participant", "lang.ada",
-	                       "activate", home], capture_output=True,
+	                       "activate", f"directory={home}"], capture_output=True,
 	                      text=True, timeout=120, env=_env())
 	assert proc.returncode == 0, proc.stderr
 	return config_path
@@ -90,7 +90,7 @@ def _console(executable, path, viewer, commands):
 	script = [(b"", 0.5)]
 	for command in commands:
 		script.append((b":" + command.encode() + b"\n", 0.9))
-	script.append((b"q", 0.4))
+	script.append((b"qy", 0.4))
 	text, status, steps = ptyharness.drive(
 		path, viewer, script, columns=WIDTH, lines=HEIGHT,
 		command=[executable])
@@ -106,8 +106,8 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 
 	# 1. ada CREATES the provider epic through the console command bar.
 	screens = _console(executable, path, "lang.ada", [
-		'create --team lang --kind bug --title "parser recovery" '
-		'--origin external-report --classification suspected-defect --body "crash reported"'])
+		'create team=lang kind=bug title="parser recovery" '
+		'origin=external-report classification=suspected-defect body="crash reported"'])
 	assert any("ok work_id=" in line
 	           for screen in screens for line in screen), \
 		"the command bar did not report the created work"
@@ -117,24 +117,24 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# 2. sl creates the CONSUMER work and the dependency edge; the
 	# consumer is not ready while the provider is open.
 	_console(executable, path, "push.sl", [
-		'create --team push --kind bug --title "checkout fails" '
-		'--origin external-report --classification suspected-defect --body "500 at checkout"'])
+		'create team=push kind=bug title="checkout fails" '
+		'origin=external-report classification=suspected-defect body="500 at checkout"'])
 	consumer = _json_read(executable, path, "home",
 	                      viewer="push.sl")["rows"][0]["id"]
 	_console(executable, path, "push.sl",
-	         [f"block {consumer} --on {epic}"])
-	detail = _json_read(executable, path, "detail", consumer,
+	         [f"block work={consumer} on={epic}"])
+	detail = _json_read(executable, path, "detail", f"work={consumer}",
 	                    viewer="push.sl")
 	assert detail["ready"] is False, "the edge did not gate readiness"
 
 	# 3. ada fans out an INCLUDE, then a REQUEST at push's route — the
 	# obligation the JSON side must see as pending.
-	born = _json_read(executable, path, "work-threads", epic,
-	                  "--limit", "1", viewer="lang.ada")["rows"][0]["id"]
+	born = _json_read(executable, path, "work-threads", f"work={epic}",
+	                  "limit=1", viewer="lang.ada")["rows"][0]["id"]
 	_console(executable, path, "lang.ada", [
-		f'say {born} --body "tracking the reports" --include "*.bug"',
-		f'say {born} --body "push: can you retest?" '
-		f'--request push.bug --on {epic}'])
+		f'say thread={born} body="tracking the reports" include="*.bug"',
+		f'say thread={born} body="push: can you retest?" '
+		f'request=push.bug on={epic}'])
 	obligations = _json_read(executable, path, "obligations",
 	                         viewer="push.sl")
 	assert len(obligations) == 1
@@ -142,7 +142,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 
 	# 4. sl RESPONDS through the console; the obligation clears.
 	_console(executable, path, "push.sl",
-	         [f'respond {request_seq} --body "retested; still crashing"'])
+	         [f'respond obligation={request_seq} body="retested; still crashing"'])
 	assert _json_read(executable, path, "obligations",
 	                  viewer="push.sl") == []
 
@@ -152,16 +152,16 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# outbound pass (pass + planted next) from the consuming return
 	# (pass, no new next).
 	_console(executable, path, "lang.ada", [
-		f'say {born} --body "handing over" --on {epic} '
-		f'--pass-to push.bug --phase queued --set-next lang.bug'])
-	detail = _json_read(executable, path, "detail", epic,
+		f'say thread={born} body="handing over" on={epic} '
+		f'pass-to=push.bug phase=queued set-next=lang.bug'])
+	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "push.bug"
 	assert detail["next"]["endpoint"] == "lang.bug"
 	_console(executable, path, "push.sl", [
-		f'say {born} --body "returning with results" --on {epic} '
-		f'--pass-to lang.bug --phase queued'])
-	detail = _json_read(executable, path, "detail", epic,
+		f'say thread={born} body="returning with results" on={epic} '
+		f'pass-to=lang.bug phase=queued'])
+	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "lang.bug", \
 		"the return did not bring Current back"
@@ -185,9 +185,9 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# 6. ada (Current again) CLOSES the epic satisfying; the consumer
 	# UNBLOCKS. The closed provider renders its outcome in the console.
 	_console(executable, path, "lang.ada", [
-		f'close {epic} --rationale "delivered and verified" '
-		f'--outcome satisfying'])
-	assert _json_read(executable, path, "detail", consumer,
+		f'close work={epic} rationale="delivered and verified" '
+		f'outcome=satisfying'])
+	assert _json_read(executable, path, "detail", f"work={consumer}",
 	                  viewer="push.sl")["ready"] is True, \
 		"the terminal close did not unblock the consumer"
 	screens = _console(executable, path, "lang.ada", [])
@@ -195,7 +195,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	assert "c/sat" not in flat, \
 		"a closed row leaked into the default collapsed table"
 	text, status, steps = ptyharness.drive(
-		path, "lang.ada", [(b"z", 0.5), (b"q", 0.4)],
+		path, "lang.ada", [(b"z", 0.5), (b"qy", 0.4)],
 		columns=WIDTH, lines=HEIGHT, command=[executable])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	revealed = "\n".join(ptyharness.replay(steps[0], columns=WIDTH,
@@ -205,7 +205,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 
 	# 7. A refused command surfaces the PUBLIC refusal in the console.
 	screens = _console(executable, path, "push.sl", [
-		f'close {consumer} --outcome satisfying'])
+		f'close work={consumer} outcome=satisfying'])
 	flat = "\n".join(line for screen in screens for line in screen)
 	assert "rationale" in flat, \
 		"the public refusal did not reach the console status line"

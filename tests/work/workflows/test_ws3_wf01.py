@@ -42,32 +42,32 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	flow.init(document(_teams()))
 
 	# Push reports and asks Drift, then waits on exactly that question.
-	born = flow.ok("create", "--team", "push", "--kind", "bug",
-	               "--title", "checkout fails", "--origin",
-	               "external-report", "--classification", "suspected-defect", "--body", "500 at checkout",
+	born = flow.ok("create", "team=push", "kind=bug",
+	               "title=checkout fails",
+	               "origin=external-report", "classification=suspected-defect", "body=500 at checkout",
 	               viewer="push.sl")
 	push1, thread_id = born["work_id"], born["thread"]
-	asked = flow.post(push1, "--body", "drift: yours?",
-	                "--request", "drift.bug", viewer="push.sl")
-	flow.ok("phase", push1, "--to", "waiting", "--wait-on-obligation",
-	        str(asked["seq"]), viewer="push.sl")
+	asked = flow.post(push1, "body=drift: yours?",
+	                "request=drift.bug", viewer="push.sl")
+	flow.ok("phase", f"work={push1}", "to=waiting",
+	        f"wait={asked['seq']}", viewer="push.sl")
 
 	# The actionable entry DECLARES acceptance to the owed route.
 	actionable = flow.ok("obligations", viewer="drift.ada")
 	assert actionable[0]["completes_by"] == ["respond", "dispose", "accept"]
 
 	# A non-handler holds no grant; the refusal changes nothing.
-	error = flow.refuse("accept", str(asked["seq"]), "--body", "not mine",
-	                    "--create", "--kind", "rsrch", "--classification", "suspected-defect", "--title", "x",
+	error = flow.refuse("accept", f"obligation={asked["seq"]}", "body=not mine",
+	                    "create=true", "kind=rsrch", "classification=suspected-defect", "title=x",
 	                    viewer="drift.grace")
 	assert "ownership" in error
 
 	# THE atomic acceptance.
-	result = flow.ok("accept", str(asked["seq"]),
-	                 "--body", "ours; tracking as a parser regression",
-	                 "--create", "--kind", "rsrch",
-	                 "--classification", "suspected-defect",
-	                 "--title", "parser recovery", viewer="drift.ada")
+	result = flow.ok("accept", f"obligation={asked["seq"]}",
+	                 "body=ours; tracking as a parser regression",
+	                 "create=true", "kind=rsrch",
+	                 "classification=suspected-defect",
+	                 "title=parser recovery", viewer="drift.ada")
 	drift1 = result["provider"]
 	assert result["created"] is True
 	assert result["edge"] == {
@@ -78,7 +78,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 
 	# The consumer: woken on its named obligation, gated by the new edge,
 	# provenance visible, rationale in its thread.
-	consumer = flow.ok("detail", push1, viewer="push.sl")
+	consumer = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert consumer["phase"] == "queued", "the obligation waiter slept on"
 	assert consumer["ready"] is False, "the new gate did not hold"
 	assert consumer["links"]["blocked_by"][0]["id"] == drift1
@@ -88,13 +88,13 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	                if entry["seq"] == asked["seq"])
 	assert accepted["status"] == "accepted"
 	assert accepted["accepted_into"] == drift1
-	tail = flow.ok("thread", thread_id,
+	tail = flow.ok("thread", f"thread={thread_id}",
 	               viewer="push.sl")["messages"][-1]
 	assert tail["body"].startswith("ours; tracking")
 	assert flow.ok("obligations", viewer="drift.ada") == []
 
 	# The provider: born at the acceptance, noise-scoped to drift's home.
-	provider = flow.ok("detail", drift1, viewer="drift.ada")
+	provider = flow.ok("detail", f"work={drift1}", viewer="drift.ada")
 	assert provider["open_dependents"] == 1
 	assert provider["origin"] == "external-report"
 	assert [row["id"] for row in
@@ -103,11 +103,11 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 		"the provider record leaked into the consumer's default table"
 
 	# Terminal fanout: closing DRIFT-1 ends the gate and wakes push.
-	flow.ok("close", drift1, "--rationale", "fixed and verified",
-	        "--outcome", "satisfying", viewer="drift.ada")
-	resumed = flow.ok("detail", push1, viewer="push.sl")
+	flow.ok("close", f"work={drift1}", "rationale=fixed and verified",
+	        "outcome=satisfying", viewer="drift.ada")
+	resumed = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert resumed["ready"] is True
 	assert resumed["links"]["blocked_by"][0]["outcome"] == "satisfying"
-	flow.ok("close", push1, "--rationale", "verified upstream",
-	        "--outcome", "satisfying", viewer="push.sl")
+	flow.ok("close", f"work={push1}", "rationale=verified upstream",
+	        "outcome=satisfying", viewer="push.sl")
 	assert_final_invariants(flow, "drift.ada", [push1, drift1])

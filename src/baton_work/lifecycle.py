@@ -317,6 +317,15 @@ def open_bound(config_path: str) -> Authority:
 	except BaseException:
 		store.close()
 		raise
+	# W4 (schema-preserving): the digest check above proved these exact
+	# bytes are the accepted configuration — hand the validated roots to
+	# root-consuming clients from the SAME read, no second unbound load
+	# and no TOCTOU window. The captured digest lets a consumer detect a
+	# configuration replaced after this open.
+	store.accepted_digest = digest
+	store.accepted_roots = {
+		root_id: entry["base"]
+		for root_id, entry in document.get("roots", {}).items()}
 	return store
 
 

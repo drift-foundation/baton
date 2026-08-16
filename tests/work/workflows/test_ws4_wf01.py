@@ -24,8 +24,8 @@ def _walk(flow, *argv, viewer, limit):
 	"""Page a collection to exhaustion, returning (pages, rows)."""
 	pages, rows, after = 0, [], 0
 	while True:
-		page = flow.ok(*argv, "--after", str(after), "--limit",
-		               str(limit), viewer=viewer)
+		page = flow.ok(*argv, f"after={after}", f"limit={limit}",
+		               viewer=viewer)
 		rows += page["rows"] if "rows" in page else page["messages"]
 		pages += 1
 		if page["next_after"] is None:
@@ -39,34 +39,34 @@ def test_ws4_wf01_paging_and_ties(flow):
 	# 1. Two Works; the second thread carries BOTH labels at one
 	# sequence, given in REVERSE identity order — the projection's label
 	# order is total, not insertion or luck.
-	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	               "--title", "paging provider", "--origin",
-	               "self-initiated", "--classification", "suspected-defect", "--body", "root", viewer="lang.ada")
+	born = flow.ok("create", "team=lang", "kind=rsrch",
+	               "title=paging provider",
+	               "origin=self-initiated", "classification=suspected-defect", "body=root", viewer="lang.ada")
 	a, d0 = born["work_id"], born["thread"]
-	sibling = flow.ok("create", "--team", "lang", "--kind", "impl",
-	                  "--title", "the sibling", "--origin",
-	                  "self-initiated", "--classification", "suspected-defect", "--body", "leg", viewer="lang.ada")
+	sibling = flow.ok("create", "team=lang", "kind=impl",
+	                  "title=the sibling",
+	                  "origin=self-initiated", "classification=suspected-defect", "body=leg", viewer="lang.ada")
 	b, b_born = sibling["work_id"], sibling["thread"]
-	tie = flow.ok("start-thread", "--subject", "trial subject", "--body", "tie", "--label", b, "--label", a,
+	tie = flow.ok("start-thread", "subject=trial subject", "body=tie", f"label={b}", f"label={a}",
 	              viewer="lang.ada")["thread"]
-	labels = flow.ok("thread", tie, viewer="lang.ada")["labels"]
+	labels = flow.ok("thread", f"thread={tie}", viewer="lang.ada")["labels"]
 	assert [entry["work"] for entry in labels] == sorted([a, b]), \
 		"a same-sequence label tie has no total order"
 
 	# 2. One `+*.*` joins every other team at ONE sequence; the
 	# participant list still reads back in (added_seq, team) order.
-	flow.post(a, "--body", "all hands", "--include", "*.*",
+	flow.post(a, "body=all hands", "include=*.*",
 	        viewer="lang.ada")
-	participants = flow.ok("thread", d0, viewer="lang.ada")["participants"]
+	participants = flow.ok("thread", f"thread={d0}", viewer="lang.ada")["participants"]
 	assert participants == ["lang", "mdb", "ops", "push", "web"], \
 		"a same-sequence participant tie has no total order"
 
 	# 3. Work -> threads across pages: 8 rows in pages of 3 —
 	# full, full, partial-carrying-None — no skips, no repeats.
-	legs = [flow.ok("start-thread", "--subject", "trial subject", "--body", f"leg {i}", "--label", a,
+	legs = [flow.ok("start-thread", "subject=trial subject", f"body=leg {i}", f"label={a}",
 	                viewer="lang.ada")["thread"] for i in range(6)]
 	expected = [d0, tie] + legs
-	pages, rows = _walk(flow, "work-threads", a, viewer="lang.grace",
+	pages, rows = _walk(flow, "work-threads", f"work={a}", viewer="lang.grace",
 	                    limit=3)
 	assert pages == 3 and [row["id"] for row in rows] == expected, \
 		"the Work->thread join skipped or repeated across pages"
@@ -80,8 +80,8 @@ def test_ws4_wf01_paging_and_ties(flow):
 	# 5. The message window in pages of 2 over 5 messages: strictly
 	# ascending, no duplicate, final page carries the explicit None.
 	for i in range(4):
-		flow.ok("say", tie, "--body", f"reply {i}", viewer="lang.grace")
-	pages, messages = _walk(flow, "thread", tie, viewer="lang.ada",
+		flow.ok("say", f"thread={tie}", f"body=reply {i}", viewer="lang.grace")
+	pages, messages = _walk(flow, "thread", f"thread={tie}", viewer="lang.ada",
 	                        limit=2)
 	seqs = [message["seq"] for message in messages]
 	assert pages == 3 and seqs == sorted(set(seqs)) and len(seqs) == 5, \
@@ -90,59 +90,59 @@ def test_ws4_wf01_paging_and_ties(flow):
 	# 6. The bounds are refusals, not clamps — and refuse changing
 	# nothing: negative cursor, zero and over-max limits, and a mark-seen
 	# cursor beyond the observed sequence.
-	for argv in (("thread", tie, "--after", "-1"),
-	             ("thread", tie, "--limit", "0"),
-	             ("thread", tie, "--limit", "501"),
-	             ("thread", tie, "--limit", "1000"),
-	             ("work-threads", a, "--limit", "600"),
-	             ("threads", "--after", "-1")):
+	for argv in (("thread", f"thread={tie}", "after=-1"),
+	             ("thread", f"thread={tie}", "limit=0"),
+	             ("thread", f"thread={tie}", "limit=501"),
+	             ("thread", f"thread={tie}", "limit=1000"),
+	             ("work-threads", f"work={a}", "limit=600"),
+	             ("threads", "after=-1")):
 		error = assert_refusal_changes_nothing(flow, "lang.ada", *argv)
 		assert "pagination cursor" in error or "page limit" in error, \
 			f"{argv} was clamped instead of refused"
 	error = assert_refusal_changes_nothing(
-		flow, "lang.ada", "mark-seen", tie, "--up-to", "999999")
+		flow, "lang.ada", "mark-seen", f"thread={tie}", "up-to=999999")
 	assert "beyond the observed" in error
 
 	# 7. R67: a relation added to OLD context after a page cursor has
 	# advanced is discovered by the very next page, exactly once — in
 	# both directions of the relation.
-	late = flow.ok("create", "--team", "lang", "--kind", "bug",
-	               "--title", "late", "--origin", "self-initiated", "--classification", "suspected-defect",
-	               "--body", "late", viewer="lang.ada")
-	first = flow.ok("work-threads", late["work_id"], "--limit", "1",
+	late = flow.ok("create", "team=lang", "kind=bug",
+	               "title=late", "origin=self-initiated", "classification=suspected-defect",
+	               "body=late", viewer="lang.ada")
+	first = flow.ok("work-threads", f"work={late["work_id"]}", "limit=1",
 	                viewer="lang.ada")
 	assert [row["id"] for row in first["rows"]] == [late["thread"]]
-	flow.ok("label", d0, "--work", late["work_id"], viewer="lang.ada")
-	found = flow.ok("work-threads", late["work_id"], "--after",
-	                str(first["next_after"]), "--limit", "1",
+	flow.ok("label", f"thread={d0}", f"work={late["work_id"]}", viewer="lang.ada")
+	found = flow.ok("work-threads", f"work={late['work_id']}",
+	                f"after={first["next_after"]}", "limit=1",
 	                viewer="lang.ada")
 	assert [row["id"] for row in found["rows"]] == [d0], \
 		"a label added to old context fell behind the page cursor"
-	tail = flow.ok("work-threads", late["work_id"], "--after",
-	               str(found["next_after"]), "--limit", "1",
+	tail = flow.ok("work-threads", f"work={late['work_id']}",
+	               f"after={found["next_after"]}", "limit=1",
 	               viewer="lang.ada")
 	assert tail["rows"] == [] and tail["next_after"] is None, \
 		"the late label was discovered more than once"
 
 	# The attention surface, same shape: push holds a full first page,
 	# then joins the OLD tie thread by speaking in it.
-	push_born = flow.ok("create", "--team", "push", "--kind", "bug",
-	                    "--title", "push local", "--origin",
-	                    "self-initiated", "--classification", "suspected-defect", "--body", "local",
+	push_born = flow.ok("create", "team=push", "kind=bug",
+	                    "title=push local",
+	                    "origin=self-initiated", "classification=suspected-defect", "body=local",
 	                    viewer="push.sl")["thread"]
-	first = flow.ok("threads", "--limit", "2", viewer="push.sl")
+	first = flow.ok("threads", "limit=2", viewer="push.sl")
 	assert [row["id"] for row in first["rows"]] == [d0, push_born]
-	flow.ok("say", tie, "--body", "push joins old context now",
+	flow.ok("say", f"thread={tie}", "body=push joins old context now",
 	        viewer="push.sl")
-	found = flow.ok("threads", "--after", str(first["next_after"]),
-	                "--limit", "2", viewer="push.sl")
+	found = flow.ok("threads", f"after={first["next_after"]}",
+	                "limit=2", viewer="push.sl")
 	assert [row["id"] for row in found["rows"]] == [tie], \
 		"new participation in old context fell behind the page cursor"
 	assert found["next_after"] is None
 
 	# 8. R69: Work detail advertises no removed Work-addressed operation;
 	# the surviving public posting/seen surface names a thread.
-	advertised = flow.ok("detail", a,
+	advertised = flow.ok("detail", f"work={a}",
 	                     viewer="lang.ada")["available_transitions"]
 	assert "post_message" not in advertised and \
 		"mark_seen" not in advertised, \

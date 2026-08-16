@@ -43,64 +43,64 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	path, _db = fx.build_instance(str(tmp_path))
 
 	# 1. web creates WEB-1 with its first message, atomically.
-	born = _run(path, "create", "--team", "web", "--kind", "bug",
-	            "--title", "render crash", "--origin", "external-report", "--classification", "suspected-defect",
-	            "--body", "tab dies on load",
+	born = _run(path, "create", "team=web", "kind=bug",
+	            "title=render crash", "origin=external-report", "classification=suspected-defect",
+	            "body=tab dies on load",
 	            viewer="web.wren")["result"]
 	web1, thread = born["work_id"], born["thread"]
 
 	# 2. include +lang.rsrch — attention, no obligation.
-	_run(path, "say", thread, "--body", "lang may want to see this",
-	     "--include", "lang.rsrch", viewer="web.wren")
+	_run(path, "say", f"thread={thread}", "body=lang may want to see this",
+	     "include=lang.rsrch", viewer="web.wren")
 	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
 
 	# 3. request @lang.rsrch — one obligation; WEB-1's Current unchanged.
 	# The single labelled work is the eligible target; --on may be omitted.
-	requested = _run(path, "say", thread, "--body",
-	                 "is this your parser bug?",
-	                 "--request", "lang.rsrch", viewer="web.wren")["result"]
+	requested = _run(path, "say", f"thread={thread}",
+	                 "body=is this your parser bug?",
+	                 "request=lang.rsrch", viewer="web.wren")["result"]
 	pending = _run(path, "obligations", viewer="lang.ada")["result"]
 	assert [entry["seq"] for entry in pending] == [requested["seq"]]
-	assert _run(path, "detail", web1,
+	assert _run(path, "detail", f"work={web1}",
 	            viewer="web.wren")["result"]["current"]["endpoint"] == \
 		"web.bug"
 
 	# 4. lang creates LANG-42, relates WEB-1 blocked_by LANG-42, responds.
-	lang_born = _run(path, "create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--classification", "suspected-defect",
-	                 "--body", "deduplicating consumer reports",
+	lang_born = _run(path, "create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery",
+	                 "origin=external-report", "classification=suspected-defect",
+	                 "body=deduplicating consumer reports",
 	                 viewer="lang.ada")["result"]
 	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
-	_run(path, "block", web1, "--on", lang42, viewer="web.wren")
-	assert _run(path, "detail", web1,
+	_run(path, "block", f"work={web1}", f"on={lang42}", viewer="web.wren")
+	assert _run(path, "detail", f"work={web1}",
 	            viewer="web.wren")["result"]["ready"] is False
-	_run(path, "respond", str(requested["seq"]),
-	     "--body", "yes - tracked as our parser recovery work",
+	_run(path, "respond", f"obligation={requested["seq"]}",
+	     "body=yes - tracked as our parser recovery work",
 	     viewer="lang.ada")
 	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
 
 	# 5. pass with planned Next, then the consuming return.
-	passed = _run(path, "say", lang_thread, "--body",
-	              "confirmed, implement", "--on", lang42,
-	              "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
+	passed = _run(path, "say", f"thread={lang_thread}",
+	              "body=confirmed, implement", f"on={lang42}",
+	              "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
-	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
+	detail = _run(path, "detail", f"work={lang42}", viewer="lang.ada")["result"]
 	assert detail["current"]["endpoint"] == "lang.impl"
 	assert detail["next"]["endpoint"] == "lang.rev"
-	returned = _run(path, "say", lang_thread, "--body",
-	                "implementation complete",
-	                "--pass-to", "lang.rev", "--phase", "review", viewer="lang.ada")["result"]
+	returned = _run(path, "say", f"thread={lang_thread}",
+	                "body=implementation complete",
+	                "pass-to=lang.rev", "phase=review", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
-	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
+	detail = _run(path, "detail", f"work={lang42}", viewer="lang.ada")["result"]
 	assert detail["current"]["endpoint"] == "lang.rev"
 	assert detail["next"] is None
 
 	# 6. terminal close unblocks WEB-1, level-triggered.
-	_run(path, "close", lang42, "--rationale", "fixed and verified", "--outcome", "satisfying",
+	_run(path, "close", f"work={lang42}", "rationale=fixed and verified", "outcome=satisfying",
 	     viewer="lang.ada")
-	after = _run(path, "detail", web1, viewer="web.wren")["result"]
+	after = _run(path, "detail", f"work={web1}", viewer="web.wren")["result"]
 	assert after["ready"] is True, "the dependent did not unblock"
 	assert after["open_blockers"] == 0
 
@@ -129,21 +129,21 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	correctly refused to have it."""
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
-	born = _run(path, "create", "--team", "web", "--kind", "bug",
-	            "--title", "crash", "--origin", "external-report", "--classification", "suspected-defect",
-	            "--body", "b", viewer="web.wren")["result"]
+	born = _run(path, "create", "team=web", "kind=bug",
+	            "title=crash", "origin=external-report", "classification=suspected-defect",
+	            "body=b", viewer="web.wren")["result"]
 	web1, thread = born["work_id"], born["thread"]
-	child = _run(path, "create", "--team", "web", "--kind", "bug",
-	             "--title", "narrow the repro", "--origin", "decomposition", "--classification", "suspected-defect",
-	             "--body", "b", "--parent", web1,
+	child = _run(path, "create", "team=web", "kind=bug",
+	             "title=narrow the repro", "origin=decomposition", "classification=suspected-defect",
+	             "body=b", f"parent={web1}",
 	             viewer="web.wren")["result"]["work_id"]
 
-	error = _run(path, "close", web1, "--rationale", "premature", "--outcome", "satisfying",
+	error = _run(path, "close", f"work={web1}", "rationale=premature", "outcome=satisfying",
 	             viewer="web.wren", expect_ok=False)
 	assert child in error["error"], "the refusal does not name the open child"
 
-	requested = _run(path, "say", thread, "--body", "your bug?",
-	                 "--request", "lang.bug", viewer="web.wren")["result"]
-	error = _run(path, "respond", str(requested["seq"]), "--body", "not mine",
+	requested = _run(path, "say", f"thread={thread}", "body=your bug?",
+	                 "request=lang.bug", viewer="web.wren")["result"]
+	error = _run(path, "respond", f"obligation={requested["seq"]}", "body=not mine",
 	             viewer="web.wren", expect_ok=False)
 	assert "cannot discharge" in error["error"]

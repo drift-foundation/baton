@@ -29,92 +29,92 @@ def test_wf05_three_consumers_converge(flow):
 			("push", "sl", "checkout fails"),
 			("web", "wren", "render crash"),
 			("mdb", "mo", "driver hang")):
-		born = flow.ok("create", "--team", team, "--kind", "bug",
-		               "--title", title, "--origin", "external-report", "--classification", "suspected-defect",
-		               "--body", f"local report: {title}",
+		born = flow.ok("create", f"team={team}", "kind=bug",
+		               f"title={title}", "origin=external-report", "classification=suspected-defect",
+		               f"body=local report: {title}",
 		               viewer=f"{team}.{member}")
 		work, thread = born["work_id"], born["thread"]
-		flow.ok("say", thread, "--body", "suspect the lang parser",
+		flow.ok("say", f"thread={thread}", "body=suspect the lang parser",
 		        viewer=f"{team}.{member}")
 		# The one labelled work is the eligible target — @ rides the
 		# thread with the selection resolved and recorded.
-		flow.ok("say", thread, "--body", "lang: is this yours?",
-		        "--request", "lang.bug", viewer=f"{team}.{member}")
+		flow.ok("say", f"thread={thread}", "body=lang: is this yours?",
+		        "request=lang.bug", viewer=f"{team}.{member}")
 		consumers[team], threads[team] = work, thread
 
 	# 2. Lang relates all three to ONE provider record: each acceptance
 	# atomically commits the edge with provenance, the rationale answered
 	# into the ORIGINATING thread, and that thread's #LANG-42
 	# label (audited added|existing).
-	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery drops state",
-	                 "--origin", "external-report", "--classification", "suspected-defect",
-	                 "--body", "three converged reports",
+	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery drops state",
+	                 "origin=external-report", "classification=suspected-defect",
+	                 "body=three converged reports",
 	                 viewer="lang.ada")["work_id"]
 	for obligation in flow.ok("obligations", viewer="lang.ada"):
-		accepted = flow.ok("accept", str(obligation["seq"]),
-		                   "--body", f"ours; tracked as {lang42}",
-		                   "--into", lang42, viewer="lang.ada")
+		accepted = flow.ok("accept", f"obligation={obligation["seq"]}",
+		                   f"body=ours; tracked as {lang42}",
+		                   f"into={lang42}", viewer="lang.ada")
 		assert accepted["edge"]["via_obligation"] == obligation["seq"]
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
-		view = flow.ok("thread", threads[team],
+		view = flow.ok("thread", f"thread={threads[team]}",
 		               viewer=f"{team}.{member}")
 		assert {entry["work"] for entry in view["labels"]} == 			{consumers[team], lang42}, 			"the acceptance did not label the originating thread"
 		assert view["messages"][-1]["body"].startswith("ours; tracked"), 			"the rationale did not return to the originating thread"
 		assert "lang" in view["participants"], 			"the acceptance left no durable participation"
-	assert flow.ok("detail", lang42, viewer="lang.ada")["open_dependents"] == 3
+	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["open_dependents"] == 3
 
 	# The label-versus-edge proof (pinned since the finding): Lang
 	# removes its OWN label from Push's thread — readiness, DEP, and
 	# the eventual closure fanout do not move; the gate is the edge.
-	flow.ok("unlabel", threads["push"], "--work", lang42,
+	flow.ok("unlabel", f"thread={threads["push"]}", f"work={lang42}",
 	        viewer="lang.ada")
-	assert flow.ok("detail", consumers["push"],
+	assert flow.ok("detail", f"work={consumers["push"]}",
 	               viewer="push.sl")["ready"] is False, 		"removing an inert label changed readiness"
-	assert flow.ok("detail", lang42, viewer="lang.ada")["open_dependents"] == 3, 		"removing an inert label changed the dependent count"
+	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["open_dependents"] == 3, 		"removing an inert label changed the dependent count"
 
 	# 3. Provider view shows fan-in THREE; default tables stay noise-scoped;
 	# deliberate traversal opens the graph (not a security boundary).
-	fan_in = flow.ok("links", lang42, viewer="lang.ada")["blocks"]
+	fan_in = flow.ok("links", f"work={lang42}", viewer="lang.ada")["blocks"]
 	assert [entry["id"] for entry in fan_in] == \
 		[consumers["push"], consumers["web"], consumers["mdb"]]
 	push_home = flow.ok("home", viewer="push.sl")
 	assert [row["id"] for row in push_home["rows"]] == \
 		[consumers["push"]], "another team's record entered a default table"
 	assert push_home["summary"]["team"] == "push"
-	via_traversal = flow.ok("links", consumers["push"],
+	via_traversal = flow.ok("links", f"work={consumers["push"]}",
 	                        viewer="push.sl")["blocked_by"][0]["id"]
 	assert via_traversal == lang42
 	others = [entry["id"] for entry in
-	          flow.ok("links", via_traversal, viewer="push.sl")["blocks"]]
+	          flow.ok("links", f"work={via_traversal}", viewer="push.sl")["blocks"]]
 	assert consumers["web"] in others and consumers["mdb"] in others, \
 		"deliberate open-graph traversal hid the other consumers"
 
 	# 4. MariaDB also waits on an unrelated local blocker.
-	build7 = flow.ok("create", "--team", "mdb", "--kind", "build",
-	                 "--title", "CI image rebuild", "--origin",
-	                 "self-initiated", "--classification", "suspected-defect", "--body", "blocks the driver fix",
+	build7 = flow.ok("create", "team=mdb", "kind=build",
+	                 "title=CI image rebuild",
+	                 "origin=self-initiated", "classification=suspected-defect", "body=blocks the driver fix",
 	                 viewer="mdb.mo")["work_id"]
-	flow.ok("block", consumers["mdb"], "--on", build7, viewer="mdb.mo")
+	flow.ok("block", f"work={consumers["mdb"]}", f"on={build7}", viewer="mdb.mo")
 
 	# 5. Closing LANG-42 unblocks Push and Web INDEPENDENTLY; MariaDB stays
 	# blocked by BUILD-7 (multiple-blocker conjunction).
-	flow.ok("close", lang42, "--rationale", "fixed and verified", "--outcome", "satisfying",
+	flow.ok("close", f"work={lang42}", "rationale=fixed and verified", "outcome=satisfying",
 	        viewer="lang.ada")
-	assert flow.ok("detail", consumers["push"],
+	assert flow.ok("detail", f"work={consumers["push"]}",
 	               viewer="push.sl")["ready"] is True
-	assert flow.ok("detail", consumers["web"],
+	assert flow.ok("detail", f"work={consumers["web"]}",
 	               viewer="web.wren")["ready"] is True
-	mdb_view = flow.ok("detail", consumers["mdb"], viewer="mdb.mo")
+	mdb_view = flow.ok("detail", f"work={consumers["mdb"]}", viewer="mdb.mo")
 	assert mdb_view["ready"] is False and mdb_view["open_blockers"] == 1, \
 		"a dependent with a second open blocker became ready"
 
 	# 6. The second blocker clears independently — level-triggered, no
 	# inverse path. (The former reopen leg is superseded by WS-2 immutable
 	# closure; WS2-WF-06 owns the contradiction story.)
-	flow.ok("close", build7, "--rationale", "image rebuilt", "--outcome", "satisfying",
+	flow.ok("close", f"work={build7}", "rationale=image rebuilt", "outcome=satisfying",
 	        viewer="mdb.mo")
-	assert flow.ok("detail", consumers["mdb"],
+	assert flow.ok("detail", f"work={consumers["mdb"]}",
 	               viewer="mdb.mo")["ready"] is True
 
 	assert_final_invariants(flow, "lang.ada",

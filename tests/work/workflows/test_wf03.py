@@ -25,43 +25,43 @@ def test_wf03_provider_rejects_honestly(flow):
 	flow.init(document(standard_teams()))
 
 	# 1. The consumer reports locally and asks Lang, retaining its Current.
-	web1 = flow.ok("create", "--team", "web", "--kind", "bug",
-	               "--title", "render crash on nested tables",
-	               "--origin", "external-report", "--classification", "suspected-defect",
-	               "--body", "crashes with the attached DOM",
+	web1 = flow.ok("create", "team=web", "kind=bug",
+	               "title=render crash on nested tables",
+	               "origin=external-report", "classification=suspected-defect",
+	               "body=crashes with the attached DOM",
 	               viewer="web.wren")["work_id"]
-	requested = flow.post(web1, "--body", "looks like a lang defect?",
-	                    "--request", "lang.bug", viewer="web.wren")
-	assert flow.ok("detail", web1,
+	requested = flow.post(web1, "body=looks like a lang defect?",
+	                    "request=lang.bug", viewer="web.wren")
+	assert flow.ok("detail", f"work={web1}",
 	               viewer="web.wren")["current"]["endpoint"] == "web.bug"
 
 	# 2. Lang requests more evidence — a contribution, not a resolution;
 	# the obligation stays actionable the whole time.
-	flow.post(web1, "--body", "need the minimized repro, please",
+	flow.post(web1, "body=need the minimized repro, please",
 	        viewer="lang.ada")
 	pending = flow.ok("obligations", viewer="lang.ada")
 	assert len(pending) == 1 and pending[0]["status"] == "pending"
-	flow.post(web1, "--body", "minimized repro attached",
+	flow.post(web1, "body=minimized repro attached",
 	        viewer="web.wren")
 
 	# 3. Lang explicitly REJECTS with an honest reason.
-	flow.ok("dispose", str(requested["seq"]),
-	        "--disposition", "not a lang defect: the DOM is malformed "
+	flow.ok("dispose", f"obligation={requested["seq"]}",
+	        "disposition=not a lang defect: the DOM is malformed "
 	        "before the parser sees it", viewer="lang.ada")
 	assert flow.ok("obligations", viewer="lang.ada") == []
 
 	# The rejection created NOTHING on the provider side.
 	assert flow.ok("home", viewer="lang.ada")["rows"] == [], \
 		"a rejection created provider work"
-	links = flow.ok("links", web1, viewer="web.wren")
+	links = flow.ok("links", f"work={web1}", viewer="web.wren")
 	assert links["blocked_by"] == [], "a rejection created a dependency edge"
 
 	# The consumer decides independently — and its terminal state never
 	# claims a fix that did not happen.
-	flow.ok("close", web1, "--rationale",
-	        "workaround shipped: sanitize the DOM before render", "--outcome", "satisfying",
+	flow.ok("close", f"work={web1}",
+	        "rationale=workaround shipped: sanitize the DOM before render", "outcome=satisfying",
 	        viewer="web.wren")
-	closed = flow.ok("detail", web1, viewer="web.wren")
+	closed = flow.ok("detail", f"work={web1}", viewer="web.wren")
 	assert closed["status"] == "closed"
 
 	events = assert_final_invariants(flow, "web.wren", [web1])

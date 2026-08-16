@@ -73,7 +73,7 @@ def test_an_incompatible_projection_version_fails_clearly(world, capsys):
 
 def test_errors_are_json_with_exit_one(world, capsys):
 	path, _ = world
-	error = _run(capsys, path, "detail", "nope-W1", viewer="lang.ada",
+	error = _run(capsys, path, "detail", "work=nope-W1", viewer="lang.ada",
 	             expect_ok=False)
 	assert error == {"error": "no work 'nope-W1'"}
 
@@ -84,11 +84,11 @@ def test_the_fan_in_is_reachable_by_relation_alone(world, capsys):
 	"""From a consumer's own Work to every co-consumer, following typed
 	edges only — never search: pushcoin -> blocked_by -> LANG-42 -> blocks."""
 	path, cast = world
-	mine = _run(capsys, path, "links", cast["pushcoin"],
+	mine = _run(capsys, path, "links", f"work={cast["pushcoin"]}",
 	            viewer="push.sl")["result"]
 	assert [edge["id"] for edge in mine["blocked_by"]] == [cast["lang42"]]
 	provider = _run(capsys, path, "links",
-	                mine["blocked_by"][0]["id"],
+	                f"work={mine['blocked_by'][0]['id']}",
 	                viewer="push.sl")["result"]
 	co_consumers = [edge["id"] for edge in provider["blocks"]]
 	assert co_consumers == [cast["pushcoin"], cast["web"], cast["mdb"]]
@@ -103,23 +103,23 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 	timestamp."""
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
-	created = _run(capsys, path, "create", "--team", "lang", "--kind",
-	               "bug", "--title", "burst", "--origin", "self-initiated", "--classification", "suspected-defect",
-	               "--body", "first", viewer="lang.ada")["result"]
+	created = _run(capsys, path, "create", "team=lang",
+	               "kind=bug", "title=burst", "origin=self-initiated", "classification=suspected-defect",
+	               "body=first", viewer="lang.ada")["result"]
 	work, thread_id = created["work_id"], created["thread"]
 	for index in range(40):
-		_run(capsys, path, "say", thread_id, "--body", f"burst {index}",
+		_run(capsys, path, "say", f"thread={thread_id}", f"body=burst {index}",
 		     viewer="lang.ada")
 
-	full = _run(capsys, path, "thread", thread_id,
+	full = _run(capsys, path, "thread", f"thread={thread_id}",
 	            viewer="lang.ada")["result"]["messages"]
 	assert len(full) == 41
 	# R63: the continuation token is EXPLICIT — pages join on next_after
 	# with no skip and no repeat, because the cursor is the sequence.
 	paged, after = [], 0
 	for _page in range(50):
-		result = _run(capsys, path, "thread", thread_id, "--after",
-		              str(after), "--limit", "7",
+		result = _run(capsys, path, "thread", f"thread={thread_id}",
+		              f"after={after}", "limit=7",
 		              viewer="lang.ada")["result"]
 		paged.extend(result["messages"])
 		if result["next_after"] is None:
@@ -134,27 +134,27 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
-	created = _run(capsys, path, "create", "--team", "lang", "--kind",
-	               "rsrch", "--title", "t", "--origin", "external-report", "--classification", "suspected-defect",
-	               "--body", "b", viewer="lang.ada")["result"]
+	created = _run(capsys, path, "create", "team=lang",
+	               "kind=rsrch", "title=t", "origin=external-report", "classification=suspected-defect",
+	               "body=b", viewer="lang.ada")["result"]
 	assert created["work_id"].endswith(f"-W{created['seq']}")
 
-	passed = _run(capsys, path, "say", created["thread"], "--body",
-	              "go", "--on", created["work_id"],
-	              "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
+	passed = _run(capsys, path, "say", f"thread={created["thread"]}",
+	              "body=go", f"on={created["work_id"]}",
+	              "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
-	returned = _run(capsys, path, "say", created["thread"], "--body",
-	                "done", "--pass-to", "lang.rev", "--phase", "review",
+	returned = _run(capsys, path, "say", f"thread={created["thread"]}",
+	                "body=done", "pass-to=lang.rev", "phase=review",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return", \
 		"the CLI lost the audited return distinction"
 
-	closed = _run(capsys, path, "close", created["work_id"],
-	              "--rationale", "verified", "--outcome", "satisfying",
+	closed = _run(capsys, path, "close", f"work={created["work_id"]}",
+	              "rationale=verified", "outcome=satisfying",
 	              viewer="lang.ada")["result"]
 	assert closed["kind"] == "close_work"
-	detail = _run(capsys, path, "detail", created["work_id"],
+	detail = _run(capsys, path, "detail", f"work={created["work_id"]}",
 	              viewer="lang.ada")["result"]
 	assert detail["status"] == "closed"
 	assert detail["available_transitions"] == [], \
@@ -163,6 +163,6 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 
 def test_a_mutation_without_a_viewer_is_refused(world, capsys):
 	path, cast = world
-	error = _run(capsys, path, "say", "some-thread", "--body", "anon",
+	error = _run(capsys, path, "say", "thread=some-thread", "body=anon",
 	             expect_ok=False)
 	assert "needs --participant" in error["error"]

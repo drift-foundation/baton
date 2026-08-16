@@ -25,72 +25,72 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 
 	# 1. LANG-42 satisfies three waiting consumers and closes; record the
 	# resulting wakes and states.
-	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--classification", "suspected-defect", "--body", "three consumers",
+	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery",
+	                 "origin=external-report", "classification=suspected-defect", "body=three consumers",
 	                 viewer="lang.ada")["work_id"]
 	consumers = {}
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
-		work = flow.ok("create", "--team", team, "--kind", "bug",
-		               "--title", f"{team} report", "--origin",
-		               "external-report", "--classification", "suspected-defect", "--body", "blocked on lang",
+		work = flow.ok("create", f"team={team}", "kind=bug",
+		               f"title={team} report",
+		               "origin=external-report", "classification=suspected-defect", "body=blocked on lang",
 		               viewer=f"{team}.{member}")["work_id"]
-		flow.ok("block", work, "--on", lang42, viewer=f"{team}.{member}")
-		flow.ok("phase", work, "--to", "waiting", "--wait-on-gates",
+		flow.ok("block", f"work={work}", f"on={lang42}", viewer=f"{team}.{member}")
+		flow.ok("phase", f"work={work}", "to=waiting", "wait=gates",
 		        viewer=f"{team}.{member}")
 		consumers[team] = work
-	flow.ok("close", lang42, "--rationale", "fixed and verified",
-	        "--outcome", "satisfying", viewer="lang.ada")
+	flow.ok("close", f"work={lang42}", "rationale=fixed and verified",
+	        "outcome=satisfying", viewer="lang.ada")
 	events = flow.ok("events", viewer="lang.ada")
 	wakes = [event for event in events if event["kind"] == "wake"]
 	assert len(wakes) == 3, "the satisfying close did not wake every waiter"
 	for team in consumers:
-		assert flow.ok("detail", consumers[team],
+		assert flow.ok("detail", f"work={consumers[team]}",
 		               viewer="lang.ada")["phase"] == "queued"
 
 	# 2. A later Push test contradicts the result. Every public attempt to
 	# reopen or mutate LANG-42 refuses without changing bytes, sequence, or
 	# dependents.
-	proc = flow.raw("reopen", lang42, "--reason", "regressed",
+	proc = flow.raw("reopen", lang42, "reason=regressed",
 	                viewer="lang.ada")
 	assert proc.returncode != 0, "a reopen verb still exists"
-	for argv in (("say", flow.born(lang42, "lang.ada"), "--body",
-	              "late evidence"),
-	             ("classify", lang42, "--as", "duplicate"),
-	             ("phase", lang42, "--to", "queued"),
-	             ("close", lang42, "--rationale", "again",
-	              "--outcome", "satisfying"),
-	             ("block", lang42, "--on", consumers["push"])):
+	for argv in (("say", f"thread={flow.born(lang42, 'lang.ada')}",
+	              "body=late evidence"),
+	             ("classify", f"work={lang42}", "as=duplicate"),
+	             ("phase", f"work={lang42}", "to=queued"),
+	             ("close", f"work={lang42}", "rationale=again",
+	              "outcome=satisfying"),
+	             ("block", f"work={lang42}", f"on={consumers['push']}")):
 		assert_refusal_changes_nothing(flow, "lang.ada", *argv)
 	# New blockers may target only OPEN work — the contradiction cannot
 	# silently re-block anyone through the closed record.
 	error = assert_refusal_changes_nothing(
-		flow, "push.sl", "block", consumers["push"], "--on", lang42)
+		flow, "push.sl", "block", f"work={consumers["push"]}", f"on={lang42}")
 	assert "only open Work" in error
 
 	# 3. Lang creates LANG-57 as the follow-up; the relationship is
 	# navigable and non-gating.
-	lang57 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "recovery regression", "--origin",
-	                 "external-report", "--classification", "suspected-defect", "--body", "push contradicts",
-	                 "--follow-up-of", lang42,
+	lang57 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=recovery regression",
+	                 "origin=external-report", "classification=suspected-defect", "body=push contradicts",
+	                 f"follow-up-of={lang42}",
 	                 viewer="lang.ada")["work_id"]
-	fresh = flow.ok("detail", lang57, viewer="lang.ada")
+	fresh = flow.ok("detail", f"work={lang57}", viewer="lang.ada")
 	assert fresh["follow_up_of"] == lang42
 	assert fresh["ready"] is True, "the follow-up relationship gated"
-	graph = flow.ok("links", lang57, viewer="lang.ada")
+	graph = flow.ok("links", f"work={lang57}", viewer="lang.ada")
 	assert graph["follow_up_of"]["id"] == lang42
 	assert graph["follow_up_of"]["outcome"] == "satisfying"
 	assert [entry["id"] for entry in
-	        flow.ok("links", lang42, viewer="lang.ada")["follow_ups"]] == \
+	        flow.ok("links", f"work={lang42}", viewer="lang.ada")["follow_ups"]] == \
 		[lang57]
 
 	# 4. Push gains its OWN new edge; Web and MariaDB are not re-blocked.
-	flow.ok("block", consumers["push"], "--on", lang57, viewer="push.sl")
-	assert flow.ok("detail", consumers["push"],
+	flow.ok("block", f"work={consumers["push"]}", f"on={lang57}", viewer="push.sl")
+	assert flow.ok("detail", f"work={consumers["push"]}",
 	               viewer="push.sl")["ready"] is False
 	for team, member in (("web", "wren"), ("mdb", "mo")):
-		untouched = flow.ok("detail", consumers[team],
+		untouched = flow.ok("detail", f"work={consumers[team]}",
 		                    viewer=f"{team}.{member}")
 		assert untouched["ready"] is True and \
 			untouched["open_blockers"] == 0, \
@@ -98,16 +98,16 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 
 	# 5. Web later proves affected and adds its own explicit edge; closing
 	# LANG-57 fans out only across the NEW edges. Old history unchanged.
-	flow.ok("block", consumers["web"], "--on", lang57, viewer="web.wren")
+	flow.ok("block", f"work={consumers["web"]}", f"on={lang57}", viewer="web.wren")
 	before = [event for event in flow.ok("events", viewer="lang.ada")
 	          if event["payload"].get("work") == lang42 or
 	          event["kind"] == "close_work" and
 	          event["payload"]["work"] == lang42]
-	flow.ok("close", lang57, "--rationale", "regression fixed",
-	        "--outcome", "satisfying", viewer="lang.ada")
-	assert flow.ok("detail", consumers["push"],
+	flow.ok("close", f"work={lang57}", "rationale=regression fixed",
+	        "outcome=satisfying", viewer="lang.ada")
+	assert flow.ok("detail", f"work={consumers["push"]}",
 	               viewer="push.sl")["ready"] is True
-	assert flow.ok("detail", consumers["web"],
+	assert flow.ok("detail", f"work={consumers["web"]}",
 	               viewer="web.wren")["ready"] is True
 	after = [event for event in flow.ok("events", viewer="lang.ada")
 	         if event["payload"].get("work") == lang42 or
@@ -116,7 +116,7 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	assert after == before, "the follow-up's close rewrote LANG-42 history"
 
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
-		flow.ok("close", consumers[team], "--rationale", "verified",
-		        "--outcome", "satisfying", viewer=f"{team}.{member}")
+		flow.ok("close", f"work={consumers[team]}", "rationale=verified",
+		        "outcome=satisfying", viewer=f"{team}.{member}")
 	assert_final_invariants(flow, "lang.ada",
 	                        [lang42, lang57, *consumers.values()])

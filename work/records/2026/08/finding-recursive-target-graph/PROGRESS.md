@@ -3069,3 +3069,429 @@ release directory (every <deployed> resolves to it;
 tools/deploy_work.py stays internal); step 4 names the canonical
 repository-relative recreation-script path so the runbook runs from the
 repository root throughout. No packaging or deployment change.
+
+## Step 99 — W92+W108 committed as 6fe32fd (2026-08-16)
+
+Slawomir committed the reviewed tree ("Adopt permanent records, schema 15,
+and atomic work ownership"); working tree clean. The manual schema-15
+deploy/init/recreation phase (RUNBOOK steps 2-5) is now Slawomir's; holding
+for the deployment result. Remaining queue: W108 closure, W92 close-out,
+then the hot-zone blink item.
+
+## Step 100 — W2: the installed executable is bin/baton (2026-08-16)
+
+Trial W2 activated and passed to impl (T2 #125); implemented pre-cutover:
+
+- tools/deploy_work.py installs bin/baton (archive, verified layout,
+  result output, and the printed init hint); the internal
+  deploy_work.py filename and the baton_work module stay, per the pin.
+- The installed CLI's usage prog is `baton`; docs/BATON-WORK.md
+  (install layout, quickstart, BW examples, baton-rN distribution
+  naming) and the W92 RUNBOOK (<deployed>/bin/baton) follow.
+- Packaged-test surfaces updated (wfdriver, test_packaged,
+  test_deploy_v11, test_tui_packaged, wf14 vendored layout).
+- W2 removed from the recreation script (not recreated in the fresh
+  authority); INVENTORY §F records 13 items (12 open + 1 parked);
+  script re-verified end-to-end on scratch (13 rows, no rename item).
+- Historical trial deployments under /home/sl/opt/baton/v11/* keep
+  their baton-work name untouched.
+
+Gate: 632 parallel + 3 serial green.
+
+## Step 101 — W2 round 2: R1-R3 (2026-08-16)
+
+review-2026-08-16T10-39-06Z:
+- R1: recreate-work.sh's usage line and required-variable error now name
+  bin/baton; a coverage pin
+  (test_the_recreation_script_instructs_the_renamed_executable) reddens
+  if the retired spelling returns. Sweep bites.
+- R2: the layout test asserts EXACT bin/ membership == ["baton"]; a
+  deployer shipping a second bin/ file (swept with a smuggled
+  baton-work stub) fails the gate.
+- R3: INVENTORY §F lists the honest 12 open items (W2 removed, W84
+  restated as the hot-zone blink cue) with total 13 = 12 open + 1
+  parked; RUNBOOK step 4 and the verification paragraph record the
+  actual 13-row scratch proof without the superseded W84
+  timestamp/change-identity description.
+
+Gate: 633 parallel + 3 serial green.
+
+## Step 102 — W2 round 3: R3 residual (2026-08-16)
+
+The INVENTORY persisted-state sentence now selects W10 + W78 only, with an
+explicit supersession note that W84's timestamp/change-sequence design gave
+way to the same-schema hot-zone cue (queued presentation work). Targeted
+sweep: no other current W92 instruction revives the superseded design (the
+recreation script's W84 line is the recreated Work's title only).
+git diff --check clean.
+
+## Step 103 — W2 SIGNED OFF and closed satisfying (2026-08-16)
+
+The installed executable is bin/baton across the deployer, docs, hints,
+packaged tests, and the W92 runbook; the negative artifact pin and the
+script coverage pin stand; the cutover inventory is internally honest.
+
+## Step 104 — W4: baton.json is the single explicit root config (2026-08-16)
+
+Per T4 #134, implemented the pinned single-config root model:
+
+- Every accepted root declares an explicit absolute `base` in
+  baton.json (strict shape {display, base}; pure-syntax acceptance —
+  absolute, non-empty; existence checked at use time). The roots table
+  persists base; resolution reads the live accepted row
+  (project.store_root_base). No roots.json, no --roots-file, no
+  filesystem inference anywhere current-facing.
+- CLI: resolve consumes the accepted config; bootstrap requires
+  --config and resolves --root through the store. load_resolver /
+  resolve_base and the roots.json init seed are removed;
+  conf/roots.scaffold.json is deleted from the repo and distribution;
+  init scaffolds exactly BATON-SETUP.md + baton.json.
+- conf/baton.example.json shows the based shape; BATON-SETUP.md and
+  BATON-WORK.md rewritten; W92 RUNBOOK step 3 declares the baton root
+  with its absolute base.
+- Tests: ws6_project rewritten (acceptance refusals incl. relative/
+  non-string/missing base and bad root id; store_root_base liveness +
+  existence; strict duplicate/stray catalog in baton.json; bootstrap
+  unit tests on direct bases; CLI unknown-root refusal; the retired
+  --roots-file flag refuses as unrecognized — negative pin). wf14
+  rewritten: refusal scenarios are configured roots, relocation is a
+  deliberate generation-2 regen re-declaring the base (checkout-a
+  proven absent from the authority after acceptance), db-hash frozen
+  across pure filesystem verbs. wf15/wf13/deploy/onboarding and ~20
+  inline root definitions updated with explicit bases. Sweep bites
+  (base requirement dropped → acceptance regression red).
+
+Gate: 633 parallel + 3 serial green; git diff --check clean.
+
+## Step 105 — W4 round 2: R1-R3 (2026-08-16)
+
+review-2026-08-16T11-08-53Z:
+- R1 (schema-preserving): the roots.base column is REVERTED — the
+  committed schema-15 table shape stands (negative pin asserts
+  PRAGMA table_info(roots) == [root, display, removed]). The accepted
+  baton.json is the one base source: open_bound hands its
+  digest-validated document's roots (plus the captured digest) to the
+  store, and project.store_root_base answers from that same read — no
+  second unbound load, no TOCTOU. A configuration accepted AFTER the
+  open refuses stale root resolution (race regression; sweep bites when
+  the digest check is neutered). Relocation stays a generation+1 regen
+  because it changes the accepted bytes.
+- R2: the quickstart resolve example puts the global options before the
+  verb — executable as written.
+- R3: project.py's module contract rewritten around the accepted single
+  configuration (filesystem writes outside authority; root selection
+  from the already-validated document); the dangling release-asset
+  comment fragment and the blank scaffold tuple entry are cleaned.
+
+Retained: negative --roots-file pin, relocation/containment/packaged
+coverage. Gate: 636 parallel + 3 serial green; diff-check clean.
+
+## Step 106 — W4 round 3: R4/R5/R3-residual (2026-08-16)
+
+- R4: W4 removed from the recreation script and the live inventory —
+  12 total (11 open + 1 parked); the fresh baton.json is born on the
+  single-config root model. INVENTORY/RUNBOOK totals updated; the
+  idempotent scratch recreation re-proven at 12 rows (the scratch
+  config itself declares the root with a real absolute base).
+- R5: the non-persistence pin is now direct — the configured absolute
+  base (a distinct repo-base dir, disjoint from the config's own path)
+  must be absent from the authority bytes, alongside the exact PRAGMA
+  shape pin. Break-swept by intentionally persisting the base through
+  the accepted-config apply — the pin bites.
+- R3 residual: project.py's header now states that lifecycle performs
+  the binding validation and root resolution merely rechecks the
+  captured accepted digest; blank-line residue collapsed.
+
+Gate: 636 parallel + 3 serial green; diff-check clean. All prior pins
+retained.
+
+## Step 107 — W4 round 4: three prose residuals (2026-08-16)
+
+The recreation script header says 12 items; the RUNBOOK proof label names
+the W2 AND W4 removals; the last deletion blank in project.py is gone.
+Targeted count/text sweep shows no stale 13 labels; git diff --check
+clean; no test rerun needed per the review.
+
+## Step 108 — W4 round 5: last two prose fragments (2026-08-16)
+
+project.py's scaffold comment names only the setup instructions and the
+configuration example seed; the RUNBOOK proof paragraph is reflowed.
+Sweep shows no roots-seed/roots.json mention in src; diff-check clean.
+
+## Step 109 — W6: confirmed-defect renders defct (2026-08-16)
+
+Per T6 #143: CLASSIFICATION_COMPACT maps confirmed-defect to defct
+(presentation only; the closed-map refusals and canonical JSON values
+unchanged — the map pin in test_phase updated, and a new real-PTY
+regression proves the row reads defct, sweeps red on revert). W6 removed
+from the recreation set: 11 total (10 open + 1 parked), INVENTORY/
+RUNBOOK/script header+footer updated, fresh scratch proof at 11 rows
+idempotent. Gate: 637 parallel + 3 serial green; diff-check clean.
+
+## Step 110 — W6 round 2: the canonical-JSON pin (2026-08-16)
+
+The PTY regression now also pins the canonical side: detail() keeps
+classification == "confirmed-defect" and no compact label leaks into the
+serialized JSON. Swept by leaking "defct" through the projection — the
+pin bites. Gate 637 parallel + 3 serial; diff-check clean.
+
+## Step 111 — W6 round 3: the reflow (2026-08-16)
+
+INVENTORY's W2/W4/W6 disposition paragraph and RUNBOOK step 4's
+parenthetical reflowed; diff-check clean; prose-only.
+
+## Step 112 — W9: the one-row exit confirmation (2026-08-16)
+
+Per T9 #150: normal-navigation q sets a pure-view confirm state rendered
+as ONE bottom row "Exit? y/N" (drawn whole at narrow width); y/Y exits,
+n/N/Esc cancels to the unchanged view, every other key neither confirms
+nor cancels; the command bar keeps q literal. Regressions: real-PTY
+confirm/cancel/irrelevant-key with a database-hash no-mutation proof,
+one-row narrow rendering, literal command-bar q; the bare-q sweep
+updated all 53 PTY quit keys to qy. Sweep bites (bare-q exit restored →
+red). W9 out of recreation: 10 total (9 open + 1 parked), fresh scratch
+proof idempotent at 10 rows. Quickstart documents the prompt. Gate 640
+parallel + 3 serial; diff-check clean.
+
+## Step 113 — W9 round 2: status preservation + full key matrix (2026-08-16)
+
+- R1: the confirm branch (and q itself) now runs BEFORE the per-key
+  status reset — the prompt overlays the footer and cancellation
+  restores the exact visible status. New PTY regression produces a
+  refusal status, prompts, cancels, and requires the identical footer
+  line; proven to FAIL against the old ordering (defect reintroduced →
+  red → fix → green).
+- R2: uppercase Y exit and uppercase N cancellation pinned, and the
+  prompt is asserted as EXACTLY one matching row at both 110 and 44
+  columns.
+
+Focused W9 PTY targets green; full tui suite 30 green; diff-check clean;
+the full gate unchanged per the review's boundary.
+
+## Step 114 — W12: the exact Work id leads the detail header (2026-08-16)
+
+Per T12 #156: the canonical id opens the detail header line (first on the
+row, so no supported narrow width clips it), read from the selected
+Work's canonical detail — never a title inference; JSON and command
+authorization untouched. Real-PTY regression on a dedicated twin-title
+world proves the id follows the selection across duplicate titles at 110
+and 44 columns; sweep bites when the id is dropped. W12 out of
+recreation: 9 total (8 open + 1 parked); INVENTORY/RUNBOOK/script
+updated; fresh scratch proof idempotent at 9 rows. Gate 642 parallel + 3
+serial; diff-check clean.
+
+## Step 115 — W12 round 2: leading-header proof + tmp_path (2026-08-16)
+
+R1: the regression identifies THE detail-header row (the status block)
+and requires it to START with the exact selected id at both widths (the
+stale-first-id negative kept); proven to bite by moving the id to the
+header's tail — red, restored — green. R2: the test takes tmp_path,
+builds the twin authority there, and the tempfile import is gone.
+Focused target green; diff-check clean; gate unchanged per the review.
+
+## Step 116 — W13: the one key=value operation grammar (2026-08-16)
+
+Per T13 #162 and the boundary pin appended to the child FINDING:
+
+- The launcher keeps --config/--participant/--expect-projection before
+  the verb; EVERY verb operand (lifecycle, mutations, pure reads, tui)
+  is a strict order-independent key=value token, one dialect for the
+  CLI and the TUI command bar (the bar feeds the same parser).
+  argparse is gone; a declarative per-verb table drives parsing.
+  Tokens split at the first '='; unknown/missing/malformed/duplicate-
+  singular/retired-flag/positional/mixed input refuses BEFORE authority
+  access with a proven no-residue event count; repeatables (ref,
+  answer-ref, template, assign, label) preserve order; op-id=/ref=/
+  answer-ref= are operation operands whose ruled semantic refusals
+  (pure read / filesystem / accept-only) decide as before; phase's
+  wait= folds the two former flags into the transition's own condition;
+  accept's boolean create takes exactly true.
+- tests/work/test_w13_grammar.py (5): order independence + first-=
+  split (an embedded a=b=c body survives), the full refusal matrix
+  with no-residue proof, the closed launcher boundary, repeatable
+  order + op-id replay/conflict through the new grammar, and the TUI
+  bar sharing the dialect (key=value create succeeds on a real PTY;
+  retired spelling refuses with the W13 message). Sweep bites
+  (duplicate-singular check disabled → red).
+- The ENTIRE test corpus (≈60 files) converted to the new grammar —
+  including packaged/PTY/console-bar scripts — with every mechanical
+  corruption from the sweep hunted down (SQL literals, monkeypatch
+  targets, parametrize tables, event-kind pins restored verbatim).
+- recreate-work.sh speaks the new grammar (verified end-to-end on a
+  fresh scratch authority: 8 rows, idempotent); BATON-WORK.md and the
+  W92 RUNBOOK examples converted. W13 removed from recreation:
+  8 total = 7 open + 1 parked; INVENTORY/RUNBOOK counts and proof
+  labels updated.
+
+Gate: 647 parallel + 3 serial green; git diff --check clean.
+
+## Step 117 — W13 round 2: authoritative spec, discovery, wording, proofs (2026-08-16)
+
+review R1-R4:
+- R1: the one declarative specification now carries the public
+  contract — per-verb and per-key help text, closed vocabularies
+  (origin, classification incl. the creation subset without unknown,
+  phases incl. creation/pass subsets, outcome, assessment), corrected
+  required keys (create.classification; close.rationale+outcome;
+  revise.message/expect/rationale; bind.root/path/expect/rationale),
+  and alternative/conditional forms (accept: exactly-one into|create;
+  create=true requires kind/title/classification; into= forbids the
+  creation keys) — all enforced at parse, before authority access;
+  transition validation retained as defense.
+- R2: generated discovery derives from that same spec — baton --help
+  (all verbs) and --help VERB; launcher globals accept both --name
+  VALUE and --name=VALUE, duplicates refuse, unknown globals refuse.
+- R3: wording sweep — cli docstring names `baton` and key=value
+  operands; tui refresh= refusal text; accept refusals instruct
+  create=true/kind=/title=; the bar-guard comment describes the W13
+  parser (argparse is gone); BATON-WORK.md presents `baton` as the
+  product; the duplicated token split is unified.
+- R4: strengthened proofs — grammar refusals with lifecycle.open_bound
+  monkeypatched to explode (never fires, incl. closed-vocabulary and
+  incompatible-form cases); repeatable ref= order proven from the
+  durably projected message references; TUI bar quoted-spaces and
+  embedded-= round-trip read back through canonical JSON;
+  spec-completeness pins (required/vocab/forms) and help/spec parity
+  over every verb and key; both launcher value forms + duplicate/
+  unknown globals + --help covered. Three workflow refusal-text pins
+  updated to the grammar-first messages.
+
+Gate: 652 parallel + 3 serial green; diff-check clean; the recreation
+proof reconciled on the final implementation (8 rows, idempotent, new
+grammar end-to-end).
+
+## Step 118 — W13 round 3: universal discovery, static forms, anti-drift (2026-08-16)
+
+- R1: render_help now derives the universal operands (op-id=/ref=/
+  answer-ref=, with their ruled applicability notes) on every verb, and
+  the parity pin counts them per verb. The declarative grammar gained
+  static conditional forms enforced pre-authority: phase to=parked
+  requires reason=, to=waiting requires wait= (forbidden otherwise);
+  say request=|pass-to= mutually exclusive, on= requires a carrier,
+  phase=/set-next= require pass-to=; close duplicate-of= requires
+  outcome=rejected. All rendered in generated help; transition checks
+  retained. Focused pre-open_bound refusal cases cover each; two
+  workflow refusal-text pins moved to the grammar-first messages.
+- R2: systematic stale-string sweep across src (transitions errors and
+  docstrings, cli accept refusal, TUI comments incl. the launch name)
+  — and a narrow anti-drift regression that scans src/baton_work for
+  any retired flag spelling or the baton-work product name (launcher
+  globals and --help excepted); it fails on reintroduction.
+
+Focused 13 green; gate 655 parallel + 3 serial; diff-check clean.
+
+## Step 119 — W14 implemented: command-bar assistance from the one grammar
+
+Implemented W14 per finding-tui-command-assist and T14 #170. Module-level
+`assist_text(buffer)` in tui/app.py — a pure function over cli.GRAMMAR, the
+SAME declarative specification the parser executes: matching verbs while
+typing, then exactly-one groups plus the remaining required/optional keys
+(universal operands included, updating as keys are supplied), then closed
+values narrowed by the typed prefix. Rendered DIM to the right of the typed
+input, which owns the row; below 8 free cells the hint yields (compact
+fallback). Read-only by construction and by PTY proof (database hash
+byte-identical across typing). Three regressions incl. a spec-parity sweep
+and a 44-column narrow proof; break-sweep red/green. W14 removed from the
+W92 recreation (7 items = 6 open + 1 parked, scratch re-proof + idempotent
+rerun); BATON-WORK.md documents the assistance. Gates: 658 passed (+3
+serial), `git diff --check` clean. Trial: W14 phase=review, passed to
+baton.feat (seq 171/172).
+
+## Step 120 — W14 round 2: shared partial analyzer, condition model, caret viewport
+
+Review round 2 (T14, review-2026-08-16T12-55-05Z) landed. R1: partial-
+command analysis moved beside the grammar — `cli.analyze_partial` +
+`cli._partial_tokens` speak the bar's own execution tokenizer
+(`shlex.split`: quoting, first-`=`), select the live final token by
+position, and carry an open quote honestly (the joined quoted text is ONE
+token; nothing inside it becomes a key); `tui.assist_text` is now a pure
+formatter over the analyzer's states. R2: effective remaining
+required/optional keys derive from the parser's own exactly-one/when/
+conditions model (accept's two forms, parked/waiting promotion, wait=
+withheld outside waiting, say's exclusive carriers with transitively
+excluded pass-only fields, on=/duplicate-of= guidance notes), and
+malformed/unknown/duplicate-singular/conflicting/bad-value input yields
+the parser-shaped diagnostic; repeated repeatables stay available; a live
+key prefix narrows the display. R3: the caret is shown at the insertion
+point while the bar is open and hidden when it closes; over-width input
+scrolls in a horizontal viewport (`<` marks the clipped left) that keeps
+the caret and live tail visible, recomputed on resize from the preserved
+buffer; the assist yields below 8 free cells. ptyharness.replay gained
+cursor evidence (final position + DECTCEM visibility). Seven regressions
+(tokenizer parity incl. quoted/embedded-=/reordered/open-quote, condition
+model, diagnostics, caret+Esc-cancellation+read-only, over-width viewport
+with wide resize, compact fallback); two break-sweeps (condition
+promotion, viewport marker) red/green. Recreation unchanged at 7 (6 open
++ 1 parked), re-proven on the final code. Gates: 662 passed (+3 serial),
+`git diff --check` clean.
+
+## Step 121 — W19 implemented: the `::` multiline batch, boundary-first
+
+Per T19 the boundary pin landed FIRST (finding-tui-command-batch
+FINDING.md, "Implementation boundary pin — 2026-08-16"): `::` on the
+empty bar only; staging pure view state; static preflight (fixed-global
+guard + THE shared parser) before any authority access with one refusal
+stopping everything; per-SLOT generated operation identity for mutating
+lines without explicit op-id= (retained across unedited retries so WS-5
+replays instead of duplicating, discarded on edit, never shadowing an
+explicit id, distinct for identical lines); sequential stop with honest
+completed/failed/unrun state (completed never described as rolled back,
+skipped by later Gos); synchronous execution (no keyboard interruption);
+process death loses generated identities — cross-session safety needs
+explicit op-id=, exactly as at the CLI; Esc confirms over unexecuted
+text. No product choice exposed; no blocker returned. Implementation:
+execute() refactored into the shared `_fixed_global_guard` + `_run_line`
+core the batch drives; `_batch_key`/`_batch_go`/`_render_batch` in
+tui/app.py; the pane marks lines `ok`/`!!`/`--` over a visible
+legend naming Enter/Ctrl-G/Esc; the cursor line inherits the W14
+caret/viewport and read-only assistance. 15 regressions (entry, pure
+staging, Enter-never-Go, preflight refusals, sequential stop, quoting,
+identity retention/reset, twins, explicit-op-id replay, cancellation,
+retained editing, PTY paste/state-markers/narrow viewport); two
+break-sweeps (preflight gate, identity retention) red/green. Recreation
+now 6 items (5 open + 1 parked), scratch re-proof + idempotent rerun;
+BATON-WORK.md documents the batch. Gates: 677 passed (+3 serial),
+`git diff --check` clean.
+
+## Step 122 — W19 round 2: summary invalidation and the batch resize proof
+
+Review round 2 (T19, review-2026-08-16T13-26-01Z) landed. R1: every
+buffer MUTATION — text insertion, character deletion, line insertion,
+line deletion — invalidates the previous run summary, so the legend's
+Ctrl-G/Esc controls return the moment the summary is stale; cursor-only
+movement preserves a still-applicable summary. Covered pure (failed-line
+correction, completed-line edit, line insert/delete, cursor-movement
+retention) and PTY (the stopped refusal on the legend row is replaced by
+the visible Ctrl-G/Esc legend on the first correcting keystroke).
+Break-sweep: dropping the printable-path invalidation turned the
+regression red; restored green. R2: the batch-specific narrow-to-wide
+resize proof — a 105-cell staged line clipped behind `<` at 44 columns
+(caret visible at the pane edge) reappears WHOLE at 110 columns with the
+caret at the insertion point, from the same preserved buffer. Gates: 680
+passed (+3 serial), `git diff --check` clean. Recreation unchanged at 6.
+
+## Step 123 — W84 implemented: the hot-zone blink cue
+
+Implemented W84 per the superseding hot-zone rule and presentation
+clarification. `hot_work(row)` in tui/app.py derives the cue from
+canonical row state ALONE — open with a non-null active claimant (any
+operational phase), or open ready review awaiting its reviewer's claim;
+no recency clock, no timestamps, no authority read of its own. The
+renderer overdraws ONLY the phase/status cell (`actve`/`rview`) of a hot
+row with `A_BLINK` (composed with the selection attribute); title,
+identifiers, counters, routing, and selection stay steady, the textual
+facts remain authoritative where blink is ignored, and at widths where
+the PHASE column is dropped there is simply no cell to animate. Five
+regressions: the focused state matrix through real transitions (claimed
+queued/research/active/review hot; release, blocked review, waiting —
+with an honest open gate — parked, unclaimed queued, and terminal cold;
+blocker-close flipping the review row hot with no edit to the row
+itself), the presentation-purity proof (byte-identical authority plus
+`hot_work` over a minimal canonical dict), and three PTY proofs (blink
+SGR lands immediately before `actve`/`rview` and nowhere else with both
+hot rows animating; a cold table emits NO blink SGR; the PHASE-dropped
+narrow width renders steadily without crash). Break-sweeps: dropping the
+ready guard reds the matrix; whole-row blink reds the cell-only PTY
+proof. W84 removed from recreation — 5 items (4 open + 1 parked),
+scratch re-proof + idempotent rerun; BATON-WORK.md documents the cue.
+Gates: 685 passed (+3 serial), `git diff --check` clean.

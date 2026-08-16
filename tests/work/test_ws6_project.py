@@ -3,7 +3,7 @@
 `init` scaffolds an editable coordination home (valid strict JSON plus
 separate Markdown instructions, no database, deliberately one-shot with
 manual recovery); `activate` remains the one authoritative validation
-and creation; the explicit resolver maps portable roots to machine
+and creation; the accepted baton.json maps portable roots to machine
 bases without ever touching authority state; `bootstrap` vendors this
 release's numbered templates into one resolved project root under a
 two-phase never-overwriting containment model.
@@ -45,16 +45,18 @@ def _text(path):
 		return handle.read()
 
 
-_RESOLVER_COUNT = [0]
-
-
-def _resolver(tmp_path, mapping):
-	_RESOLVER_COUNT[0] += 1
-	path = os.path.join(str(tmp_path),
-	                    f"roots-{_RESOLVER_COUNT[0]}.json")
-	with open(path, "w") as handle:
-		_json.dump({"roots": mapping}, handle)
-	return path
+def _rooted_config(tmp_path, roots):
+	"""W4: baton.json is the single explicit root config — build and
+	activate an instance whose accepted roots carry absolute bases."""
+	document = fx.config_document(
+		{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}})
+	document["roots"] = {
+		root_id: {"display": root_id.title(), "base": base}
+		for root_id, base in roots.items()}
+	config_path = os.path.join(str(tmp_path), "baton.json")
+	with open(config_path, "w") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	return config_path, document
 
 
 # -- init: the one-shot scaffold ----------------------------------------------
@@ -63,14 +65,11 @@ def test_init_scaffolds_valid_strict_json_and_instructions(tmp_path):
 	home = str(tmp_path / "home")
 	os.mkdir(home)
 	result = pr.scaffold_home(home)
-	assert sorted(result["created"]) == ["BATON-SETUP.md", "baton.json",
-	                                     "roots.json"]
+	assert sorted(result["created"]) == ["BATON-SETUP.md", "baton.json"]
 	document = _json.loads(_text(os.path.join(home, "baton.json")))
 	assert document["generation"] == 1
 	assert document["teams"] == {} and document["roots"] == {}
 	assert len(document["instance"]["authority_uuid"]) == 32
-	resolver = _json.loads(_text(os.path.join(home, "roots.json")))
-	assert resolver == {"roots": {}}
 	assert "baton activate" in _text(
 		os.path.join(home, "BATON-SETUP.md"))
 	assert not os.path.exists(os.path.join(home, "work.sqlite3")), \
@@ -94,9 +93,9 @@ def test_init_is_one_shot_and_names_the_blockers(tmp_path):
 	# adopts or resumes.
 	other = str(tmp_path / "other")
 	os.mkdir(other)
-	with open(os.path.join(other, "roots.json"), "w") as handle:
-		handle.write("{}")
-	with pytest.raises(bw.WorkError, match="roots.json"):
+	with open(os.path.join(other, "BATON-SETUP.md"), "w") as handle:
+		handle.write("stale")
+	with pytest.raises(bw.WorkError, match="BATON-SETUP.md"):
 		pr.scaffold_home(other)
 	# A missing directory refuses rather than inventing it.
 	with pytest.raises(bw.WorkError, match="not an existing directory"):
@@ -127,24 +126,43 @@ def test_the_scaffold_then_edit_then_activate_flow(tmp_path):
 
 # -- the resolver --------------------------------------------------------------
 
-def test_the_resolver_is_explicit_strict_and_absolute(tmp_path):
-	good = _resolver(tmp_path, {"pushcoin": str(tmp_path)})
-	assert pr.load_resolver(good) == {"pushcoin": str(tmp_path)}
-	for bad_mapping, needle in (
-			({"Push": str(tmp_path)}, "root ident"),
-			({"pushcoin": "relative/path"}, "ABSOLUTE"),
-			({"pushcoin": 7}, "ABSOLUTE")):
-		path = _resolver(tmp_path, bad_mapping)
+def test_the_root_base_is_explicit_strict_and_absolute(tmp_path):
+	"""W4: every accepted root declares an explicit absolute base in
+	baton.json — bad shapes refuse at acceptance (pure syntax), and the
+	live store answers base lookups with use-time existence checks."""
+	for bad_roots, needle in (
+			({"Push": {"display": "X", "base": str(tmp_path)}},
+			 "root ident"),
+			({"pushcoin": {"display": "X", "base": "relative/path"}},
+			 "absolute base"),
+			({"pushcoin": {"display": "X", "base": 7}},
+			 "absolute base"),
+			({"pushcoin": {"display": "X"}}, "base")):
+		config_path, _document = _rooted_config(tmp_path, {})
+		document = _json.loads(_text(config_path))
+		document["roots"] = bad_roots
+		with open(config_path, "w") as handle:
+			_json.dump(document, handle, indent=2, sort_keys=True)
 		with pytest.raises(bw.WorkError, match=needle):
-			pr.load_resolver(path)
-	with pytest.raises(bw.WorkError, match="cannot read"):
-		pr.load_resolver(str(tmp_path / "missing.json"))
-	mapping = pr.load_resolver(good)
-	with pytest.raises(bw.WorkError, match="no machine-local mapping"):
-		pr.resolve_base(mapping, "drift")
-	gone = _resolver(tmp_path, {"drift": str(tmp_path / "nowhere")})
-	with pytest.raises(bw.WorkError, match="not an existing directory"):
-		pr.resolve_base(pr.load_resolver(gone), "drift")
+			lc.init_from_config(config_path, participant="lang.ada")
+
+	config_path, _document = _rooted_config(
+		tmp_path, {"pushcoin": str(tmp_path),
+		           "drift": str(tmp_path / "nowhere")})
+	lc.init_from_config(config_path, participant="lang.ada")
+	# The base answer comes from the config-bound open's validated
+	# document (W4 schema-preserving) — never from bare-database opens.
+	store = lc.open_bound(config_path)
+	try:
+		assert pr.store_root_base(store, "pushcoin") == str(tmp_path)
+		with pytest.raises(bw.WorkError,
+		                   match="not a live configured root"):
+			pr.store_root_base(store, "ghost")
+		with pytest.raises(bw.WorkError,
+		                   match="not an existing directory"):
+			pr.store_root_base(store, "drift")
+	finally:
+		store.close()
 
 
 # -- bootstrap: containment, idempotence, immutability -------------------------
@@ -152,8 +170,7 @@ def test_the_resolver_is_explicit_strict_and_absolute(tmp_path):
 def test_bootstrap_vendors_the_release_templates_once(tmp_path):
 	base = str(tmp_path / "project")
 	os.mkdir(base)
-	resolver = _resolver(tmp_path, {"pushcoin": base})
-	result = pr.bootstrap_project("pushcoin", resolver)
+	result = pr.bootstrap_project("pushcoin", base)
 	assert "tmpl/work-basic-1.md" in result["created"]
 	assert os.path.isdir(os.path.join(base, "work", "open"))
 	assert os.path.isdir(os.path.join(base, "work", "records"))
@@ -162,7 +179,7 @@ def test_bootstrap_vendors_the_release_templates_once(tmp_path):
 	assert vendored == source, "the vendored bytes differ from the release"
 	# Identical re-run: everything already present, nothing rewritten.
 	before = os.stat(os.path.join(base, "tmpl", "work-basic-1.md"))
-	again = pr.bootstrap_project("pushcoin", resolver)
+	again = pr.bootstrap_project("pushcoin", base)
 	assert again["created"] == []
 	assert "tmpl/work-basic-1.md" in again["already_present"]
 	after = os.stat(os.path.join(base, "tmpl", "work-basic-1.md"))
@@ -179,9 +196,8 @@ def test_bootstrap_refuses_conflicts_types_symlinks_and_escapes(tmp_path):
 	with open(os.path.join(edited, "tmpl", "work-basic-1.md"),
 	          "w") as handle:
 		handle.write("local specialization\n")
-	resolver = _resolver(tmp_path, {"pushcoin": edited})
 	with pytest.raises(bw.WorkError, match="never overwrites"):
-		pr.bootstrap_project("pushcoin", resolver)
+		pr.bootstrap_project("pushcoin", edited)
 	assert _text(os.path.join(edited, "tmpl", "work-basic-1.md")) == \
 		"local specialization\n"
 	# Wrong type at a managed path.
@@ -190,8 +206,7 @@ def test_bootstrap_refuses_conflicts_types_symlinks_and_escapes(tmp_path):
 	os.mkdir(os.path.join(wrong, "tmpl"))
 	os.mkdir(os.path.join(wrong, "tmpl", "work-basic-1.md"))
 	with pytest.raises(bw.WorkError, match="non-file"):
-		pr.bootstrap_project(
-			"pushcoin", _resolver(tmp_path, {"pushcoin": wrong}))
+		pr.bootstrap_project("pushcoin", wrong)
 	# Symlink at a managed path refuses, never followed.
 	linked = str(tmp_path / "linked")
 	outside = str(tmp_path / "outside")
@@ -199,8 +214,7 @@ def test_bootstrap_refuses_conflicts_types_symlinks_and_escapes(tmp_path):
 	os.mkdir(outside)
 	os.symlink(outside, os.path.join(linked, "tmpl"))
 	with pytest.raises(bw.WorkError, match="symlink"):
-		pr.bootstrap_project(
-			"pushcoin", _resolver(tmp_path, {"pushcoin": linked}))
+		pr.bootstrap_project("pushcoin", linked)
 	assert os.listdir(outside) == [], "the symlink was followed"
 	# The distribution itself is never written: the source tmpl/ holds
 	# exactly what it held.
@@ -211,15 +225,20 @@ def test_bootstrap_refuses_conflicts_types_symlinks_and_escapes(tmp_path):
 def test_bootstrap_refuses_unknown_templates_and_roots(tmp_path):
 	base = str(tmp_path / "project")
 	os.mkdir(base)
-	resolver = _resolver(tmp_path, {"pushcoin": base})
 	with pytest.raises(bw.WorkError, match="not a template shipped"):
-		pr.bootstrap_project("pushcoin", resolver,
+		pr.bootstrap_project("pushcoin", base,
 		                     templates=["../secrets.md"])
 	with pytest.raises(bw.WorkError, match="not a template shipped"):
-		pr.bootstrap_project("pushcoin", resolver,
+		pr.bootstrap_project("pushcoin", base,
 		                     templates=["work-basic-99.md"])
-	with pytest.raises(bw.WorkError, match="no machine-local mapping"):
-		pr.bootstrap_project("drift", resolver)
+	# The unknown-root refusal moved to the ONE root catalog: the CLI
+	# resolves --root through the accepted baton.json.
+	config_path, _document = _rooted_config(tmp_path,
+	                                        {"pushcoin": base})
+	lc.init_from_config(config_path, participant="lang.ada")
+	code = work_cli.main(["--config", config_path,
+	                      "bootstrap", "root=drift"])
+	assert code == 1, "an unconfigured root bootstrapped"
 
 
 def test_filesystem_operations_never_touch_authority_state(tmp_path):
@@ -240,13 +259,14 @@ def test_filesystem_operations_never_touch_authority_state(tmp_path):
 	digest = hashlib.sha256(_read(database)).hexdigest()
 	base = str(tmp_path / "project")
 	os.mkdir(base)
-	pr.bootstrap_project(
-		"pushcoin", _resolver(tmp_path, {"pushcoin": base}))
+	pr.bootstrap_project("pushcoin", base)
 	assert hashlib.sha256(_read(database)).hexdigest() == digest, \
 		"a filesystem operation wrote into the authority"
 	raw = _read(database)
-	assert base.encode() not in raw and b"roots.json" not in raw, \
-		"a resolver value leaked into authority state"
+	# This instance accepted NO roots: a base may enter authority state
+	# only through the accepted configuration, never through bootstrap.
+	assert base.encode() not in raw, \
+		"a bootstrap path leaked into authority state"
 
 
 def test_resolve_refuses_escape_paths_and_roots_outside_the_catalog(
@@ -257,7 +277,7 @@ def test_resolve_refuses_escape_paths_and_roots_outside_the_catalog(
 	config_path = os.path.join(str(tmp_path), "baton.json")
 	document = fx.config_document(
 		{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}})
-	document["roots"] = {"pushcoin": {"display": "PushCoin"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin", "base": "/srv/checkouts/pushcoin"}}
 	with open(config_path, "w") as handle:
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	result = lc.init_from_config(config_path, participant="lang.ada")
@@ -268,10 +288,6 @@ def test_resolve_refuses_escape_paths_and_roots_outside_the_catalog(
 		author="ada", body="evidence",
 		binding="pushcoin:work/records/2026/08/finding-resolve")
 	store.close()
-	base = str(tmp_path / "project")
-	os.mkdir(base)
-	resolver = _resolver(tmp_path, {"pushcoin": base, "ghost": base})
-
 	accepted = []
 	for locator in ("pushcoin", "pushcoin:",
 	                "pushcoin:../outside",
@@ -279,7 +295,7 @@ def test_resolve_refuses_escape_paths_and_roots_outside_the_catalog(
 	                "ghost:docs/note.md"):
 		code = work_cli.main([
 			"--config", config_path, "--participant", "lang.ada",
-			"resolve", locator, "--roots-file", resolver])
+			"resolve", f"locator={locator}"])
 		captured = capsys.readouterr()
 		if code == 0:
 			accepted.append((locator, _json.loads(captured.out)["result"]))
@@ -300,7 +316,6 @@ def test_bootstrap_refuses_a_parent_symlink_inserted_after_validation(
 	outside = str(tmp_path / "outside")
 	os.mkdir(base)
 	os.mkdir(outside)
-	resolver = _resolver(tmp_path, {"pushcoin": base})
 	tmpl = os.path.join(base, "tmpl")
 	real_mkdir = pr.os.mkdir
 
@@ -312,7 +327,7 @@ def test_bootstrap_refuses_a_parent_symlink_inserted_after_validation(
 
 	monkeypatch.setattr(pr.os, "mkdir", raced_mkdir)
 	with pytest.raises(bw.WorkError, match="symlink|changed while"):
-		pr.bootstrap_project("pushcoin", resolver)
+		pr.bootstrap_project("pushcoin", base)
 	assert os.listdir(outside) == [], \
 		"bootstrap followed a parent symlink inserted after validation"
 
@@ -324,7 +339,6 @@ def test_bootstrap_reports_the_exact_partial_creation_set(tmp_path,
 	or hide the partial result the operator now has to inspect."""
 	base = str(tmp_path / "project")
 	os.mkdir(base)
-	resolver = _resolver(tmp_path, {"pushcoin": base})
 	real_mkdir = pr.os.mkdir
 
 	def failing_mkdir(path, *args, **kwargs):
@@ -334,7 +348,7 @@ def test_bootstrap_reports_the_exact_partial_creation_set(tmp_path,
 
 	monkeypatch.setattr(pr.os, "mkdir", failing_mkdir)
 	with pytest.raises(bw.WorkError) as caught:
-		pr.bootstrap_project("pushcoin", resolver)
+		pr.bootstrap_project("pushcoin", base)
 	assert "created" in str(caught.value).lower()
 	assert "tmpl" in str(caught.value), \
 		"the refusal omitted the directory this invocation created"
@@ -360,7 +374,7 @@ def test_init_reports_even_the_file_whose_write_failed(tmp_path,
 	with pytest.raises(bw.WorkError) as caught:
 		pr.scaffold_home(home)
 	message = str(caught.value)
-	assert "roots.json" in message and "BATON-SETUP.md" in message, \
+	assert "baton.json" in message and "BATON-SETUP.md" in message, \
 		f"the partial scaffold report is incomplete: {message}"
 
 
@@ -373,7 +387,6 @@ def test_bootstrap_creates_nested_directories_through_the_no_follow_chain(
 	outside = str(tmp_path / "outside")
 	os.mkdir(base)
 	os.mkdir(outside)
-	resolver = _resolver(tmp_path, {"pushcoin": base})
 	work = os.path.join(base, "work")
 	real_mkdir = pr.os.mkdir
 	real_rmdir = pr.os.rmdir
@@ -392,26 +405,31 @@ def test_bootstrap_creates_nested_directories_through_the_no_follow_chain(
 	monkeypatch.setattr(pr.os, "mkdir", raced_nested_mkdir)
 	monkeypatch.setattr(pr.os, "rmdir", observed_rmdir)
 	with pytest.raises(bw.WorkError, match="symlink|changed while"):
-		pr.bootstrap_project("pushcoin", resolver)
+		pr.bootstrap_project("pushcoin", base)
 	assert os.listdir(outside) == [], \
 		"nested mkdir followed a raced parent symlink outside the project"
 	assert deleted == [], \
 		f"bootstrap tried to repair an escape by deleting paths: {deleted}"
 
 
-def test_the_resolver_document_is_strict_json(tmp_path):
-	"""Duplicate mappings and unknown top-level fields cannot silently
-	change which checkout a portable root reaches."""
-	base = str(tmp_path)
-	for index, raw in enumerate((
-			'{"roots":{"pushcoin":"%s","pushcoin":"%s"}}' %
-			(base, base),
-			'{"roots":{},"surprise":true}')):
-		path = str(tmp_path / f"strict-{index}.json")
-		with open(path, "w") as handle:
-			handle.write(raw)
-		with pytest.raises(bw.WorkError, match="duplicate|unknown"):
-			pr.load_resolver(path)
+def test_the_root_catalog_is_strict_in_baton_json(tmp_path):
+	"""W4: duplicate root keys and stray entry fields cannot silently
+	change which checkout a root reaches — baton.json is strict."""
+	config_path, document = _rooted_config(tmp_path,
+	                                       {"pushcoin": str(tmp_path)})
+	raw = _text(config_path)
+	dup = raw.replace('"roots": {', '"roots": {"pushcoin": '
+	                  '{"display": "Dup", "base": "%s"}, '
+	                  % str(tmp_path), 1)
+	with open(config_path, "w") as handle:
+		handle.write(dup)
+	with pytest.raises(bw.WorkError, match="[Dd]uplicate"):
+		lc.init_from_config(config_path, participant="lang.ada")
+	document["roots"]["pushcoin"]["surprise"] = True
+	with open(config_path, "w") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	with pytest.raises(bw.WorkError, match="unknown|stray"):
+		lc.init_from_config(config_path, participant="lang.ada")
 
 
 def test_init_refuses_and_reports_a_short_write(tmp_path, monkeypatch):
@@ -434,7 +452,6 @@ def test_bootstrap_refuses_and_reports_a_short_write(tmp_path, monkeypatch):
 	short write is a reported partial failure, never success."""
 	base = str(tmp_path / "project")
 	os.mkdir(base)
-	resolver = _resolver(tmp_path, {"pushcoin": base})
 	real_write = pr.os.write
 
 	def short_write(fd, data):
@@ -442,4 +459,63 @@ def test_bootstrap_refuses_and_reports_a_short_write(tmp_path, monkeypatch):
 
 	monkeypatch.setattr(pr.os, "write", short_write)
 	with pytest.raises(bw.WorkError, match="partial|short|Created"):
-		pr.bootstrap_project("pushcoin", resolver)
+		pr.bootstrap_project("pushcoin", base)
+
+
+def test_the_retired_resolver_flag_is_gone(tmp_path, capsys):
+	"""W4 negative pin: the public grammar no longer accepts the
+	machine-local resolver input; baton.json is the single root
+	config."""
+	config_path, _document = _rooted_config(tmp_path,
+	                                        {"pushcoin": str(tmp_path)})
+	lc.init_from_config(config_path, participant="lang.ada")
+	for retired in ("--roots-file", "roots-file=anything.json"):
+		code = work_cli.main(["--config", config_path,
+		                      "--participant", "lang.ada", "resolve",
+		                      "locator=pushcoin:x.md", retired])
+		captured = capsys.readouterr()
+		assert code == 1, f"{retired} still parses"
+		assert "retired flag spelling" in captured.err or \
+			"unknown key" in captured.err
+
+
+def test_the_root_base_never_enters_the_schema_15_table(tmp_path):
+	"""W4 R1 (schema-preserving): the accepted document is the ONE base
+	source — the roots table keeps its committed schema-15 portable
+	shape, and the configured absolute base is DIRECTLY absent from the
+	authority bytes."""
+	base = str(tmp_path / "repo-base")
+	os.mkdir(base)
+	config_path, _document = _rooted_config(tmp_path, {"pushcoin": base})
+	result = lc.init_from_config(config_path, participant="lang.ada")
+	store = bw.Authority(result["database"])
+	try:
+		columns = [row["name"] for row in store.conn.execute(
+			"PRAGMA table_info(roots)")]
+		assert columns == ["root", "display", "removed"], columns
+	finally:
+		store.close()
+	raw = _read(result["database"])
+	assert base.encode() not in raw, \
+		"the configured absolute base persisted into authority state"
+
+
+def test_a_replaced_configuration_refuses_stale_root_resolution(tmp_path):
+	"""W4 R1 race: the validated-document handoff is pinned to the open's
+	digest — a configuration accepted AFTER this open refuses root
+	resolution instead of serving a stale base."""
+	config_path, document = _rooted_config(tmp_path,
+	                                       {"pushcoin": str(tmp_path)})
+	lc.init_from_config(config_path, participant="lang.ada")
+	store = lc.open_bound(config_path)
+	try:
+		assert pr.store_root_base(store, "pushcoin") == str(tmp_path)
+		document["generation"] = 2
+		document["roots"]["pushcoin"]["base"] = str(tmp_path / "moved")
+		with open(config_path, "w") as handle:
+			_json.dump(document, handle, indent=2, sort_keys=True)
+		lc.accept_config(config_path, actor="lang.ada")
+		with pytest.raises(bw.WorkError, match="changed after this open"):
+			pr.store_root_base(store, "pushcoin")
+	finally:
+		store.close()

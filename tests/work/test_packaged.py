@@ -36,7 +36,7 @@ def archive(tmp_path_factory):
 	proc = subprocess.run([sys.executable, deployer, target],
 	                      capture_output=True, text=True, timeout=300)
 	assert proc.returncode == 0, proc.stderr
-	return os.path.join(target, "bin", "baton-work")
+	return os.path.join(target, "bin", "baton")
 
 
 def _run(archive_path, authority, *argv, viewer=None, expect_ok=True):
@@ -63,34 +63,34 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	path = str(tmp_path / "baton.json")
 	with open(path, "w") as handle:
 		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
-	_run(archive, path, "activate", os.path.dirname(path),
+	_run(archive, path, "activate", f"directory={os.path.dirname(path)}",
 	     viewer="lang.ada")
 
-	born = _run(archive, path, "create", "--team", "web", "--kind", "bug",
-	            "--title", "render crash", "--origin", "external-report", "--classification", "suspected-defect",
-	            "--body", "tab dies", viewer="web.wren")["result"]
+	born = _run(archive, path, "create", "team=web", "kind=bug",
+	            "title=render crash", "origin=external-report", "classification=suspected-defect",
+	            "body=tab dies", viewer="web.wren")["result"]
 	web1, thread = born["work_id"], born["thread"]
-	requested = _run(archive, path, "say", thread, "--body", "yours?",
-	                 "--request", "lang.rsrch", viewer="web.wren")["result"]
-	lang_born = _run(archive, path, "create", "--team", "lang",
-	                 "--kind", "rsrch", "--title", "parser recovery",
-	                 "--origin", "external-report", "--classification", "suspected-defect", "--body", "dedup",
+	requested = _run(archive, path, "say", f"thread={thread}", "body=yours?",
+	                 "request=lang.rsrch", viewer="web.wren")["result"]
+	lang_born = _run(archive, path, "create", "team=lang",
+	                 "kind=rsrch", "title=parser recovery",
+	                 "origin=external-report", "classification=suspected-defect", "body=dedup",
 	                 viewer="lang.ada")["result"]
 	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
-	_run(archive, path, "block", web1, "--on", lang42, viewer="web.wren")
-	_run(archive, path, "respond", str(requested["seq"]),
-	     "--body", "ours, tracked", viewer="lang.ada")
-	passed = _run(archive, path, "say", lang_thread, "--body", "implement",
-	              "--on", lang42,
-	              "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
+	_run(archive, path, "block", f"work={web1}", f"on={lang42}", viewer="web.wren")
+	_run(archive, path, "respond", f"obligation={requested["seq"]}",
+	     "body=ours, tracked", viewer="lang.ada")
+	passed = _run(archive, path, "say", f"thread={lang_thread}", "body=implement",
+	              f"on={lang42}",
+	              "pass-to=lang.impl", "phase=active", "set-next=lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
-	returned = _run(archive, path, "say", lang_thread, "--body", "done",
-	                "--pass-to", "lang.rev", "--phase", "review", viewer="lang.ada")["result"]
+	returned = _run(archive, path, "say", f"thread={lang_thread}", "body=done",
+	                "pass-to=lang.rev", "phase=review", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
-	_run(archive, path, "close", lang42, "--rationale", "verified", "--outcome", "satisfying",
+	_run(archive, path, "close", f"work={lang42}", "rationale=verified", "outcome=satisfying",
 	     viewer="lang.ada")
-	after = _run(archive, path, "detail", web1, viewer="web.wren")["result"]
+	after = _run(archive, path, "detail", f"work={web1}", viewer="web.wren")["result"]
 	assert after["ready"] is True
 
 	events = _run(archive, path, "events",
@@ -114,11 +114,11 @@ def test_a_refusal_exits_nonzero_through_the_archive(archive, tmp_path):
 	path = str(tmp_path / "baton.json")
 	with open(path, "w") as handle:
 		_json.dump(fx.config_document(), handle, indent=2, sort_keys=True)
-	_run(archive, path, "activate", os.path.dirname(path),
+	_run(archive, path, "activate", f"directory={os.path.dirname(path)}",
 	     viewer="lang.ada")
-	refusal = _run(archive, path, "create", "--team", "lang",
-	               "--kind", "nope", "--title", "x", "--origin",
-	               "external-report", "--classification", "suspected-defect", "--body", "x", viewer="lang.ada",
+	refusal = _run(archive, path, "create", "team=lang",
+	               "kind=nope", "title=x",
+	               "origin=external-report", "classification=suspected-defect", "body=x", viewer="lang.ada",
 	               expect_ok=False)
 	assert "not a registered endpoint" in refusal["error"] or \
 		"not a configured endpoint" in refusal["error"]
@@ -142,7 +142,7 @@ def test_the_archive_answers_without_the_source_tree(archive, tmp_path):
 	proc = subprocess.run(
 		[sys.executable, archive, "--config", path,
 		 "--participant", "lang.ada", "activate",
-		 os.path.dirname(path)],
+		 f"directory={os.path.dirname(path)}"],
 		capture_output=True, text=True, timeout=120, env=env)
 	assert proc.returncode == 0, \
 		"the archive deferred to a poisoned path package: " + proc.stderr

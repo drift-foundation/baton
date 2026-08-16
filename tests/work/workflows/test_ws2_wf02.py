@@ -23,34 +23,34 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 
 	# 1. Round 1 selects exact routes in Push, Web, and MariaDB: three
 	# independent assignments, 0/3.
-	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--classification", "suspected-defect", "--body", "provider",
+	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
+	                 "title=parser recovery",
+	                 "origin=external-report", "classification=suspected-defect", "body=provider",
 	                 viewer="lang.ada")["work_id"]
-	created = flow.ok("round", lang42, "--candidate", "driftc-A",
-	                  "--assign", "push.verify", "--assign", "web.verify",
-	                  "--assign", "mdb.verify", viewer="lang.ada")
+	created = flow.ok("round", f"work={lang42}", "candidate=driftc-A",
+	                  "assign=push.verify", "assign=web.verify",
+	                  "assign=mdb.verify", viewer="lang.ada")
 	push_a, web_a, mdb_a = [str(seq) for seq in created["assignments"]]
-	assert flow.ok("detail", lang42,
+	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["rounds"][0]["progress"] == "0/3"
 
 	# 2. Push reports passed; Lang accepts. 1/3.
-	flow.ok("report", push_a, "--observation", "passed",
-	        "--evidence", "staging clean", viewer="push.sl")
-	flow.ok("assess", push_a, "--as", "accepted",
-	        "--rationale", "clean run", viewer="lang.ada")
-	assert flow.ok("detail", lang42,
+	flow.ok("report", f"obligation={push_a}", "observation=passed",
+	        "evidence=staging clean", viewer="push.sl")
+	flow.ok("assess", f"obligation={push_a}", "as=accepted",
+	        "rationale=clean run", viewer="lang.ada")
+	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["rounds"][0]["progress"] == "1/3"
 
 	# 3. Web reports failed; Lang REJECTS the report as a consumer
 	# configuration error. The projection says failed/rejected with both
 	# rationales — and reads 2/3, never two approvals.
-	flow.ok("report", web_a, "--observation", "failed",
-	        "--evidence", "render farm crash", viewer="web.wren")
-	flow.ok("assess", web_a, "--as", "rejected",
-	        "--rationale", "web's farm runs an unsupported libc",
+	flow.ok("report", f"obligation={web_a}", "observation=failed",
+	        "evidence=render farm crash", viewer="web.wren")
+	flow.ok("assess", f"obligation={web_a}", "as=rejected",
+	        "rationale=web's farm runs an unsupported libc",
 	        viewer="lang.ada")
-	staged = flow.ok("detail", lang42, viewer="lang.ada")["rounds"][0]
+	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][0]
 	assert staged["progress"] == "2/3"
 	web_entry = next(entry for entry in staged["assignments"]
 	                 if entry["endpoint"] == "web.verify")
@@ -61,12 +61,12 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 
 	# 4. MariaDB reports unable; Lang leaves it inconclusive. 3/3, all
 	# three raw reports immutable.
-	flow.ok("report", mdb_a, "--observation", "unable",
-	        "--evidence", "no repro environment this week",
+	flow.ok("report", f"obligation={mdb_a}", "observation=unable",
+	        "evidence=no repro environment this week",
 	        viewer="mdb.mo")
-	flow.ok("assess", mdb_a, "--as", "inconclusive",
-	        "--rationale", "no signal either way", viewer="lang.ada")
-	staged = flow.ok("detail", lang42, viewer="lang.ada")["rounds"][0]
+	flow.ok("assess", f"obligation={mdb_a}", "as=inconclusive",
+	        "rationale=no signal either way", viewer="lang.ada")
+	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][0]
 	assert staged["progress"] == "3/3"
 	assert [entry["observation"] for entry in staged["assignments"]] == \
 		["passed", "failed", "unable"]
@@ -74,17 +74,17 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	# 5. No count, observation, or assessment chose a branch: the work sat
 	# untouched through all of it, and the reviewer may explicitly
 	# continue work instead of closing.
-	checkpoint = flow.ok("detail", lang42, viewer="lang.ada")
+	checkpoint = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
 	assert checkpoint["status"] == "open"
 	assert checkpoint["phase"] == "queued"
-	flow.ok("phase", lang42, "--to", "active", viewer="lang.ada")
+	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
 
 	# 6. Lang supersedes its Web assessment with a new accepted act; the
 	# prior assessment and the raw failed report remain in history.
-	flow.ok("assess", web_a, "--as", "accepted",
-	        "--rationale", "reproduced on a supported libc after all",
+	flow.ok("assess", f"obligation={web_a}", "as=accepted",
+	        "rationale=reproduced on a supported libc after all",
 	        viewer="lang.ada")
-	staged = flow.ok("detail", lang42, viewer="lang.ada")["rounds"][0]
+	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][0]
 	web_entry = next(entry for entry in staged["assignments"]
 	                 if entry["endpoint"] == "web.verify")
 	assert web_entry["observation"] == "failed", \

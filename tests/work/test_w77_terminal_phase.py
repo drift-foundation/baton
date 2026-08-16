@@ -115,7 +115,7 @@ def test_the_tui_renders_dash_for_closed_phase(world):
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"z", 0.5),                  # reveal the closed row
 		(b"j", 0.4), (b"\r", 0.5),    # Enter opens the DETAIL view (W71)
-		(b"q", 0.4),
+		(b"qy", 0.4),
 	])
 	revealed = ptyharness.replay(steps[0])
 	done_line = next(line for line in revealed if "done row" in line)

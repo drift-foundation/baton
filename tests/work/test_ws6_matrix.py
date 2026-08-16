@@ -38,8 +38,8 @@ def _document():
 		{"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
 		          "kinds": ["bug", "rsrch"]},
 		 "push": {"members": {"sl": ["dev"]}, "kinds": ["bug"]}})
-	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo"},
-	                     "drift": {"display": "Drift checkout"}}
+	document["roots"] = {"pushcoin": {"display": "PushCoin monorepo", "base": "/srv/checkouts/pushcoin"},
+	                     "drift": {"display": "Drift checkout", "base": "/srv/checkouts/drift"}}
 	return document
 
 

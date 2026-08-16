@@ -1,4 +1,4 @@
-"""`baton-work`: the JSON rendering of the canonical projection — A6/C3.
+"""`baton`: the JSON rendering of the canonical projection — A6/C3.
 
 The launch surface is the CONFIGURATION BOUNDARY (C3): `--config PATH` names
 the instance, `--participant team.member` names the acting identity, and both
@@ -8,14 +8,13 @@ the defect the boundary ended. Topology is written only by accepted
 configuration generations: `init` consumes generation 1, `regen` accepts
 generation+1 under the config capability, and no registry verb exists.
 
-JSON in flags, JSON out, no terminal formatting; errors are JSON on stderr
-with exit 1, because an agent parsing prose refusals is the defect this
-surface exists to end.
+key=value operands in, JSON out, no terminal formatting; errors are JSON
+on stderr with exit 1, because an agent parsing prose refusals is the
+defect this surface exists to end.
 """
 
 from __future__ import annotations
 
-import argparse
 import json
 import os
 import sys
@@ -43,293 +42,920 @@ def _participant(value: str) -> tuple[str, str]:
 	return team, member
 
 
+# -- W13: the ONE strict order-independent key=value operation grammar -------
+#
+# Launcher context keeps conventional options BEFORE the verb: --config,
+# --participant, --expect-projection (each also in its --name=value
+# spelling), plus --help for generated discovery. Every operation operand
+# after the verb is a `key=value` token — one dialect shared by the
+# standalone CLI and the TUI command bar. Tokens split at the FIRST `=`
+# (values may contain `=`); unknown keys, missing required keys, closed-
+# vocabulary violations, incompatible forms, malformed tokens, duplicate
+# singular keys, and retired flag/positional spellings refuse BEFORE
+# authority access. Repeatable keys preserve occurrence order. `op-id=`,
+# `ref=` and `answer-ref=` are OPERATION semantics: the parser accepts
+# them on every verb and the operation's own ruled refusals decide.
+#
+# THE SPECIFICATION IS THE AUTHORITATIVE PUBLIC GRAMMAR (W13 R1): it
+# carries help text, closed value vocabularies, and alternative/
+# conditional forms, so generated help (--help) and the W14 assistance
+# surface derive from ONE source. Transition-layer validation remains as
+# defense in depth for non-CLI callers.
+
+_ORIGINS = ("external-report", "self-initiated", "decomposition")
+_CREATION_CLASSIFICATIONS = ("suspected-defect", "confirmed-defect",
+                             "limitation", "duplicate", "design-choice",
+                             "rejection")
+_CLASSIFICATIONS = ("unknown",) + _CREATION_CLASSIFICATIONS
+_PHASES = ("queued", "research", "waiting", "active", "review", "parked")
+_CREATION_PHASES = ("queued", "research", "active", "review")
+_PASS_PHASES = ("queued", "research", "active", "review")
+_OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
+_ASSESSMENTS = ("accepted", "rejected", "inconclusive")
+
+
+def _key(name, dest=None, *, required=False, repeat=False, kind="str",
+         default=None, values=None, help=""):
+	return {"name": name, "dest": dest or name.replace("-", "_"),
+	        "required": required, "repeat": repeat, "kind": kind,
+	        "default": default, "values": values, "help": help}
+
+
+# Universal operation operands — part of THE public grammar on every
+# verb; their ruled applicability (mutations only / accept only) is
+# decided by the operation semantics, exactly as the refusals state.
+_UNIVERSAL = (
+	_key("op-id", help="client operation identity; an exact retry "
+	     "replays the one committed result — mutations only, refused "
+	     "by pure reads and filesystem verbs"),
+	_key("ref", dest="refs", repeat=True,
+	     help="ordered typed asset reference; commits with the act — "
+	     "mutations only, refused by pure reads and filesystem verbs"),
+	_key("answer-ref", dest="answer_refs", repeat=True,
+	     help="reference riding accept's emitted answer message — "
+	     "accept only"),
+)
+
+# Each verb: {"help": one-liner, "keys": (...), and optionally
+# "exactly-one": (a, b) — exactly one of the named keys present — plus
+# "when": {key: {"requires": (...), "forbids": (...)}} applied when that
+# key is present. All enforced BEFORE authority access.
+GRAMMAR = {
+	"init": {"help": "scaffold an editable coordination home",
+	         "keys": (_key("directory", required=True,
+	                       help="existing empty directory to scaffold"),)},
+	"activate": {"help": "validate baton.json and create the authority",
+	             "keys": (_key("directory", required=True,
+	                           help="the home holding the edited "
+	                           "baton.json"),)},
+	"regen": {"help": "accept the edited next-generation baton.json",
+	          "keys": ()},
+	"resolve": {"help": "turn a portable locator into a machine path",
+	            "keys": (_key("locator", required=True,
+	                          help="ROOT_ID:relative/path, or a WORK id "
+	                          "whose binding resolves"),)},
+	"bootstrap": {"help": "vendor this release's templates into a root",
+	              "keys": (_key("root", required=True,
+	                            help="a configured root id from the "
+	                            "accepted baton.json"),
+	                       _key("template", dest="templates", repeat=True,
+	                            help="numbered template to vendor; "
+	                            "default every shipped template"))},
+	"create": {"help": "create Work and its born thread atomically",
+	           "keys": (_key("team", required=True,
+	                         help="the owning team"),
+	                    _key("kind", required=True,
+	                         help="a registered endpoint kind"),
+	                    _key("title", required=True,
+	                         help="the Work title (born thread subject)"),
+	                    _key("origin", required=True, values=_ORIGINS,
+	                         help="how this Work arose"),
+	                    _key("body", required=True,
+	                         help="the first message body"),
+	                    _key("parent", help="containing open Work id"),
+	                    _key("classification", required=True,
+	                         values=_CREATION_CLASSIFICATIONS,
+	                         help="the submitter's concrete "
+	                         "classification; 'unknown' refuses"),
+	                    _key("phase", values=_CREATION_PHASES,
+	                         help="initial phase; defaults to queued"),
+	                    _key("follow-up-of",
+	                         help="CLOSED Work this follows up"),
+	                    _key("binding",
+	                         help="atomic creation binding ROOT_ID:"
+	                         "work/records/YYYY/MM/<record>"))},
+	"accept": {"help": "answer an @ obligation by gating on provider "
+	           "Work (existing or created atomically)",
+	           "exactly-one": ("into", "create"),
+	           "when": {"create": {"requires": ("kind", "title",
+	                                            "classification")},
+	                    "into": {"forbids": ("kind", "title",
+	                                         "classification", "phase",
+	                                         "parent")}},
+	           "keys": (_key("obligation", required=True, kind="int",
+	                         help="the pending @ obligation seq"),
+	                    _key("body", required=True,
+	                         help="the acceptance rationale"),
+	                    _key("into", help="existing provider Work id"),
+	                    _key("create", kind="bool", default=False,
+	                         help="create the provider Work in the same "
+	                         "transaction (value: true)"),
+	                    _key("kind", help="provider endpoint kind"),
+	                    _key("title", help="provider Work title"),
+	                    _key("classification",
+	                         values=_CREATION_CLASSIFICATIONS,
+	                         help="provider classification"),
+	                    _key("phase", values=_CREATION_PHASES,
+	                         help="provider initial phase"),
+	                    _key("parent", help="provider parent Work"))},
+	"respond": {"help": "answer an @ obligation with a message",
+	            "keys": (_key("obligation", required=True, kind="int",
+	                          help="the pending obligation seq"),
+	                     _key("body", required=True,
+	                          help="the answer body"))},
+	"dispose": {"help": "close an @ obligation without an answer",
+	            "keys": (_key("obligation", required=True, kind="int",
+	                          help="the pending obligation seq"),
+	                     _key("disposition", required=True,
+	                          help="why no answer is owed"))},
+	"close": {"help": "terminally close Work with outcome + rationale",
+	          "conditions": (
+	              {"if-key": "duplicate-of",
+	               "requires-value": ("outcome", "rejected")},),
+	          "keys": (_key("work", required=True, help="the Work id"),
+	                   _key("rationale", required=True,
+	                        help="durable terminal rationale"),
+	                   _key("outcome", required=True, values=_OUTCOMES,
+	                        help="the terminal outcome"),
+	                   _key("duplicate-of",
+	                        help="surviving Work id for a duplicate "
+	                        "rejection"))},
+	"claim": {"help": "atomically claim open ready Work as its one "
+	          "active executor (phase untouched)",
+	          "keys": (_key("work", required=True,
+	                        help="the Work to claim"),)},
+	"release": {"help": "release/recover the active claim (self or "
+	            "forced) with an exact compare-and-swap",
+	            "keys": (_key("work", required=True, help="the Work id"),
+	                     _key("expect", required=True,
+	                          help="the exact recorded claimant "
+	                          "team.member"),
+	                     _key("reason", required=True,
+	                          help="durable reason the Work became "
+	                          "unclaimed"))},
+	"block": {"help": "record a dependency edge (work waits on blocker)",
+	          "keys": (_key("work", required=True,
+	                        help="the consumer Work"),
+	                   _key("on", required=True,
+	                        help="the blocker Work"))},
+	"mark-seen": {"help": "mark a thread page seen up to a message",
+	              "keys": (_key("thread", required=True,
+	                            help="the thread id"),
+	                       _key("up-to", required=True, kind="int",
+	                            help="last seen message seq"))},
+	"classify": {"help": "reclassify Work (current handler authority)",
+	             "keys": (_key("work", required=True,
+	                           help="the Work id"),
+	                      _key("as", dest="classification",
+	                           required=True, values=_CLASSIFICATIONS,
+	                           help="the canonical classification"))},
+	"phase": {"help": "move Work to another operational phase",
+	          "conditions": (
+	              {"if-value": ("to", "parked"),
+	               "requires": ("reason",)},
+	              {"if-value": ("to", "waiting"), "requires": ("wait",)},
+	              {"unless-value": ("to", "waiting"),
+	               "forbids": ("wait",)}),
+	          "keys": (_key("work", required=True, help="the Work id"),
+	                   _key("to", dest="phase", required=True,
+	                        values=_PHASES, help="the target phase"),
+	                   _key("reason", help="required when parking"),
+	                   _key("wait", help="waiting condition: gates, or "
+	                        "one pending obligation seq (waiting "
+	                        "only)"))},
+	"round": {"help": "open a verification round with assignments",
+	          "keys": (_key("work", required=True, help="the Work id"),
+	                   _key("candidate", required=True,
+	                        help="the candidate under verification"),
+	                   _key("assign", repeat=True, required=True,
+	                        help="verifying endpoint (repeatable)"),
+	                   _key("review-at",
+	                        help="canonical UTC review instant"))},
+	"extend": {"help": "extend an open round's review instant",
+	           "keys": (_key("work", required=True, help="the Work id"),
+	                    _key("round", required=True, kind="int",
+	                         help="the round number"),
+	                    _key("review-at", required=True,
+	                         help="the new canonical UTC instant"))},
+	"report": {"help": "file a verification report",
+	           "keys": (_key("obligation", required=True, kind="int",
+	                         help="the verification assignment seq"),
+	                    _key("observation", required=True,
+	                         help="what was observed"),
+	                    _key("evidence", required=True,
+	                         help="where the evidence lives"))},
+	"assess": {"help": "assess a verification report",
+	           "keys": (_key("obligation", required=True, kind="int",
+	                         help="the reported assignment seq"),
+	                    _key("as", dest="assessment", required=True,
+	                         values=_ASSESSMENTS,
+	                         help="the assessment"),
+	                    _key("rationale", required=True,
+	                         help="why this assessment"))},
+	"abandon": {"help": "abandon an open verification round",
+	            "keys": (_key("work", required=True,
+	                          help="the Work id"),
+	                     _key("round", required=True, kind="int",
+	                          help="the round number"),
+	                     _key("reason", required=True,
+	                          help="why the round ends unresolved"))},
+	"home": {"help": "the team summary and root Work rows", "keys": ()},
+	"tree": {"help": "the canonical bounded tree window (one snapshot)",
+	         "keys": (_key("work", help="optional re-root Work id"),)},
+	"obligations": {"help": "the team's pending @ obligations",
+	                "keys": ()},
+	"summary": {"help": "the always-visible team counters", "keys": ()},
+	"wait": {"help": "block until actionable state or timeout",
+	         "keys": (_key("timeout", required=True, kind="float",
+	                       help="seconds to wait"),)},
+	"detail": {"help": "everything about one Work",
+	           "keys": (_key("work", required=True,
+	                         help="the Work id"),)},
+	"children": {"help": "a Work's immediate children",
+	             "keys": (_key("work", required=True,
+	                           help="the Work id"),)},
+	"links": {"help": "typed graph edges with far-row summaries",
+	          "keys": (_key("work", required=True,
+	                        help="the Work id"),)},
+	"breadcrumb": {"help": "root-first containment ancestry",
+	               "keys": (_key("work", required=True,
+	                             help="the Work id"),)},
+	"new": {"help": "the viewer's personal New breakdown",
+	        "keys": (_key("work", required=True,
+	                      help="the Work id"),)},
+	"operation-log": {"help": "the effectively-once operation journal",
+	                  "keys": (_key("after", kind="int", default=0,
+	                                help="page after this seq"),
+	                           _key("limit", kind="int", default=100,
+	                                help="page size"))},
+	"revisions": {"help": "a Work's contract revision history",
+	              "keys": (_key("work", required=True,
+	                            help="the Work id"),
+	                       _key("after", kind="int", default=0,
+	                            help="page after this revision"),
+	                       _key("limit", kind="int", default=100,
+	                            help="page size"))},
+	"bind": {"help": "correct or attach the canonical dossier binding "
+	         "(compare-and-swap, append-only history)",
+	         "keys": (_key("work", required=True, help="the Work id"),
+	                  _key("root", required=True,
+	                       help="a live configured root id"),
+	                  _key("path", required=True,
+	                       help="the canonical record path work/records/"
+	                       "YYYY/MM/<record>"),
+	                  _key("expect", dest="expected_revision",
+	                       required=True, kind="int",
+	                       help="the expected prior binding revision"),
+	                  _key("rationale", required=True,
+	                       help="why this correction/attachment is "
+	                       "right"),
+	                  _key("git", dest="git_provenance",
+	                       help="optional immutable Git provenance"))},
+	"bindings": {"help": "a Work's append-only binding history",
+	             "keys": (_key("work", required=True,
+	                           help="the Work id"),
+	                      _key("after", kind="int", default=0,
+	                           help="page after this revision"),
+	                      _key("limit", kind="int", default=100,
+	                           help="page size"))},
+	"revise": {"help": "promote one durable message as the complete "
+	           "Work contract (compare-and-swap)",
+	           "keys": (_key("work", required=True, help="the Work id"),
+	                    _key("message", dest="message_seq",
+	                         required=True, kind="int",
+	                         help="the message promoted as the "
+	                         "contract"),
+	                    _key("expect", dest="expected_revision",
+	                         required=True, kind="int",
+	                         help="the expected prior revision"),
+	                    _key("rationale", required=True,
+	                         help="why this promotion is the agreed "
+	                         "contract"))},
+	"start-thread": {"help": "open a labelled thread with its first "
+	                 "message",
+	                 "keys": (_key("subject", required=True,
+	                               help="the thread subject"),
+	                          _key("body", required=True,
+	                               help="the first message body"),
+	                          _key("label", repeat=True, required=True,
+	                               help="Work id to label "
+	                               "(repeatable)"))},
+	"say": {"help": "post one message, optionally carrying operators",
+	        "conditions": (
+	            {"exclusive": ("request", "pass-to")},
+	            {"if-key": "on",
+	             "requires-any": ("request", "pass-to")},
+	            {"if-key": "phase", "requires": ("pass-to",)},
+	            {"if-key": "set-next", "requires": ("pass-to",)}),
+	        "keys": (_key("thread", required=True,
+	                      help="the thread id"),
+	                 _key("body", required=True,
+	                      help="the message body"),
+	                 _key("include", help="attention fan-out list/"
+	                      "wildcards"),
+	                 _key("request", help="ONE endpoint owing a "
+	                      "response (acts on on=)"),
+	                 _key("pass-to", help="ONE endpoint; moves the "
+	                      "baton of on="),
+	                 _key("phase", dest="pass_phase",
+	                      values=_PASS_PHASES,
+	                      help="the destination phase the pass records "
+	                      "atomically; derived from the destination "
+	                      "stage role when omitted"),
+	                 _key("set-next", help="planned return endpoint "
+	                      "(with pass-to)"),
+	                 _key("on", help="the labelled open Work an @ or "
+	                      "=> acts against"))},
+	"label": {"help": "label a thread to a Work",
+	          "keys": (_key("thread", required=True,
+	                        help="the thread id"),
+	                   _key("work", required=True,
+	                        help="the Work id"))},
+	"unlabel": {"help": "remove a thread's Work label",
+	            "keys": (_key("thread", required=True,
+	                          help="the thread id"),
+	                     _key("work", required=True,
+	                          help="the Work id"))},
+	"thread": {"help": "one thread's paged messages",
+	           "keys": (_key("thread", required=True,
+	                         help="the thread id"),
+	                    _key("after", kind="int", default=0,
+	                         help="page after this message seq"),
+	                    _key("limit", kind="int", default=500,
+	                         help="page size"))},
+	"threads": {"help": "the viewer's paged thread listing",
+	            "keys": (_key("after", kind="int", default=0,
+	                          help="page after this seq"),
+	                     _key("limit", kind="int", default=100,
+	                          help="page size"))},
+	"work-threads": {"help": "a Work's paged thread set",
+	                 "keys": (_key("work", required=True,
+	                               help="the Work id"),
+	                          _key("after", kind="int", default=0,
+	                               help="page after this seq"),
+	                          _key("limit", kind="int", default=100,
+	                               help="page size"))},
+	"events": {"help": "the audit trail, ascending by sequence",
+	           "keys": (_key("after", kind="int", default=0,
+	                         help="page after this seq"),
+	                    _key("limit", kind="int", default=1000,
+	                         help="page size"))},
+	"tui": {"help": "the curses console on this instance",
+	        "keys": (_key("refresh", kind="float", default=2.0,
+	                      help="auto-refresh seconds (positive)"),)},
+}
+
+_GLOBALS = ("--config", "--participant", "--expect-projection")
+
+
+class _Args:
+	"""The parsed invocation — launcher globals plus one verb's
+	key=value operands, every dest present."""
+
+
+def _verb_spec(verb):
+	return {entry["name"]: entry
+	        for entry in tuple(GRAMMAR[verb]["keys"]) + _UNIVERSAL}
+
+
+def render_help(verb=None) -> str:
+	"""Generated discovery — derived from THE one specification, so it
+	can never drift into a second hand-maintained grammar (W13 R2)."""
+	def describe(name):
+		info = GRAMMAR[name]
+		lines = [f"{name} — {info['help']}"]
+		for entry in tuple(info["keys"]) + _UNIVERSAL:
+			marks = []
+			marks.append("required" if entry["required"] else "optional")
+			if entry["repeat"]:
+				marks.append("repeatable")
+			if entry["kind"] != "str":
+				marks.append(entry["kind"])
+			line = f"  {entry['name']}=  ({', '.join(marks)})"
+			if entry["values"]:
+				line += "  one of: " + ", ".join(entry["values"])
+			if entry["help"]:
+				line += f"  — {entry['help']}"
+			lines.append(line)
+		exactly = info.get("exactly-one")
+		if exactly:
+			lines.append("  exactly one of: "
+			             + " | ".join(f"{name}=" for name in exactly))
+		for key, rule in (info.get("when") or {}).items():
+			if rule.get("requires"):
+				lines.append(f"  with {key}=: requires "
+				             + ", ".join(f"{k}=" for k
+				                         in rule["requires"]))
+			if rule.get("forbids"):
+				lines.append(f"  with {key}=: forbids "
+				             + ", ".join(f"{k}=" for k
+				                         in rule["forbids"]))
+		for rule in info.get("conditions", ()):
+			if "exclusive" in rule:
+				lines.append("  at most one of: "
+				             + " | ".join(f"{k}=" for k
+				                          in rule["exclusive"]))
+			elif "if-value" in rule:
+				key, value = rule["if-value"]
+				lines.append(
+					f"  with {key}={value}: requires "
+					+ ", ".join(f"{k}=" for k in rule["requires"]))
+			elif "unless-value" in rule:
+				key, value = rule["unless-value"]
+				lines.append(
+					f"  unless {key}={value}: forbids "
+					+ ", ".join(f"{k}=" for k in rule["forbids"]))
+			elif "if-key" in rule:
+				key = rule["if-key"]
+				if rule.get("requires-any"):
+					lines.append(
+						f"  with {key}=: requires one of "
+						+ ", ".join(f"{k}=" for k
+						            in rule["requires-any"]))
+				elif rule.get("requires"):
+					lines.append(
+						f"  with {key}=: requires "
+						+ ", ".join(f"{k}=" for k
+						            in rule["requires"]))
+				elif rule.get("requires-value"):
+					vkey, vvalue = rule["requires-value"]
+					lines.append(
+						f"  with {key}=: requires {vkey}={vvalue}")
+		return "\n".join(lines)
+
+	header = ("usage: baton [--config PATH] [--participant TEAM.MEMBER] "
+	          "[--expect-projection V] [--help [VERB]] VERB key=value …\n"
+	          "Operation operands are strict order-independent key=value "
+	          "tokens; values containing spaces are quoted; each token "
+	          "splits at its first '='.\n")
+	if verb is not None:
+		if verb not in GRAMMAR:
+			raise WorkError(f"unknown command {verb!r}")
+		return header + "\n" + describe(verb) + "\n"
+	body = "\n\n".join(describe(name) for name in sorted(GRAMMAR))
+	return header + "\n" + body + "\n"
+
+
+def _convert(verb, name, kind, value):
+	if kind == "int":
+		try:
+			return int(value)
+		except ValueError:
+			raise WorkError(f"{verb}: {name}= takes an integer; "
+			                f"got {value!r}") from None
+	if kind == "float":
+		try:
+			return float(value)
+		except ValueError:
+			raise WorkError(f"{verb}: {name}= takes a number; "
+			                f"got {value!r}") from None
+	if kind == "bool":
+		if value != "true":
+			raise WorkError(f"{verb}: {name}= is a boolean key and "
+			                f"takes exactly the value true; got "
+			                f"{value!r}")
+		return True
+	return value
+
+
+def _parse_invocation(argv):
+	"""The W13 grammar, applied BEFORE any authority access: launcher
+	globals (conventional, both `--name VALUE` and `--name=VALUE`
+	spellings, duplicates refused), one verb, strict key=value operands
+	validated against the one declarative specification. Refusals are
+	the JSON exit-one contract."""
+	argv = list(argv)
+	args = _Args()
+	args.config = None
+	args.participant = None
+	args.expect_projection = None
+	args.help_requested = False
+	index = 0
+	seen_globals = set()
+	while index < len(argv) and argv[index].startswith("--"):
+		token = argv[index]
+		name, equals, inline = token.partition("=")
+		if name == "--help":
+			args.help_requested = True
+			index += 1
+			continue
+		if name not in _GLOBALS:
+			raise WorkError(
+				f"{name} is not part of the launcher context; the "
+				f"launcher takes only --config, --participant, "
+				f"--expect-projection and --help before the verb — "
+				f"operation input is key=value after it (W13)")
+		if name in seen_globals:
+			raise WorkError(f"duplicate {name}; launcher globals are "
+			                f"singular and never silently overwritten")
+		seen_globals.add(name)
+		if equals:
+			value = inline
+			index += 1
+		else:
+			if index + 1 >= len(argv):
+				raise WorkError(f"{name} needs a value")
+			value = argv[index + 1]
+			index += 2
+		setattr(args, name[2:].replace("-", "_"), value)
+	if args.help_requested:
+		verb = argv[index] if index < len(argv) else None
+		args.command = "--help"
+		args.help_verb = verb
+		return args
+	if index >= len(argv):
+		raise WorkError(
+			"no command; the grammar is [--config …] [--participant …] "
+			"VERB key=value … (--help lists every verb)")
+	verb = argv[index]
+	if verb not in GRAMMAR:
+		raise WorkError(f"unknown command {verb!r} (--help lists every "
+		                f"verb)")
+	spec = _verb_spec(verb)
+	for entry in spec.values():
+		setattr(args, entry["dest"],
+		        [] if entry["repeat"] else entry["default"])
+	seen = set()
+	for token in argv[index + 1:]:
+		key, equals, value = token.partition("=")
+		if token.startswith("--"):
+			raise WorkError(
+				f"{verb}: {key!r} is retired flag spelling; the "
+				f"operation grammar is key=value (W13)")
+		if not equals or not key:
+			raise WorkError(
+				f"{verb}: {token!r} is not a key=value token; "
+				f"positional operands are retired (W13)")
+		if key not in spec:
+			raise WorkError(
+				f"{verb}: unknown key {key!r}; accepted keys: "
+				f"{', '.join(sorted(spec))}")
+		entry = spec[key]
+		if entry["values"] is not None and value not in entry["values"]:
+			raise WorkError(
+				f"{verb}: {key}= takes one of "
+				f"{', '.join(entry['values'])}; got {value!r}")
+		converted = _convert(verb, key, entry["kind"], value)
+		if entry["repeat"]:
+			getattr(args, entry["dest"]).append(converted)
+		else:
+			if key in seen:
+				raise WorkError(
+					f"{verb}: duplicate {key}=; the key is singular")
+			seen.add(key)
+			setattr(args, entry["dest"], converted)
+	info = GRAMMAR[verb]
+	exactly = info.get("exactly-one")
+	conditional = set()
+	if exactly:
+		for rule in (info.get("when") or {}).values():
+			conditional.update(rule.get("requires", ()))
+		present = [name for name in exactly if name in seen]
+		if len(present) != 1:
+			raise WorkError(
+				f"{verb}: exactly one of "
+				f"{' | '.join(name + '=' for name in exactly)} is "
+				f"required; got {len(present)}")
+		chosen = present[0]
+		rule = (info.get("when") or {}).get(chosen, {})
+		missing_form = [name for name in rule.get("requires", ())
+		                if name not in seen]
+		if missing_form:
+			raise WorkError(
+				f"{verb}: {chosen}= requires "
+				f"{', '.join(name + '=' for name in missing_form)}")
+		stray_form = [name for name in rule.get("forbids", ())
+		              if name in seen]
+		if stray_form:
+			raise WorkError(
+				f"{verb}: {chosen}= forbids "
+				f"{', '.join(name + '=' for name in stray_form)}")
+	for rule in info.get("conditions", ()):
+		if "exclusive" in rule:
+			named = [key for key in rule["exclusive"] if key in seen]
+			if len(named) > 1:
+				raise WorkError(
+					f"{verb}: at most one of "
+					f"{' | '.join(k + '=' for k in rule['exclusive'])}"
+					f"; got {', '.join(k + '=' for k in named)}")
+		elif "if-value" in rule:
+			key, value = rule["if-value"]
+			if getattr(args, spec[key]["dest"], None) == value:
+				lacking = [k for k in rule["requires"]
+				           if k not in seen]
+				if lacking:
+					raise WorkError(
+						f"{verb}: {key}={value} requires "
+						f"{', '.join(k + '=' for k in lacking)}")
+		elif "unless-value" in rule:
+			key, value = rule["unless-value"]
+			if getattr(args, spec[key]["dest"], None) != value:
+				stray = [k for k in rule["forbids"] if k in seen]
+				if stray:
+					raise WorkError(
+						f"{verb}: "
+						f"{', '.join(k + '=' for k in stray)} "
+						f"applies only with {key}={value}")
+		elif "if-key" in rule:
+			key = rule["if-key"]
+			if key in seen:
+				if rule.get("requires-any") and not any(
+						k in seen for k in rule["requires-any"]):
+					raise WorkError(
+						f"{verb}: {key}= requires one of "
+						f"{', '.join(k + '=' for k in rule['requires-any'])}")
+				lacking = [k for k in rule.get("requires", ())
+				           if k not in seen]
+				if lacking:
+					raise WorkError(
+						f"{verb}: {key}= requires "
+						f"{', '.join(k + '=' for k in lacking)}")
+				if rule.get("requires-value"):
+					vkey, vvalue = rule["requires-value"]
+					if getattr(args, spec[vkey]["dest"],
+					           None) != vvalue:
+						raise WorkError(
+							f"{verb}: {key}= requires "
+							f"{vkey}={vvalue}")
+	missing = sorted(
+		entry["name"] for entry in spec.values()
+		if entry["required"] and entry["name"] not in exactly_names(info)
+		and entry["name"] not in conditional
+		and (entry["name"] not in seen if not entry["repeat"]
+		     else not getattr(args, entry["dest"])))
+	if missing:
+		raise WorkError(
+			f"{verb}: missing required "
+			f"{', '.join(name + '=' for name in missing)}")
+	# `phase wait=` folds the former two flags into the transition's own
+	# condition parameter: gates, or one obligation seq.
+	if verb == "phase":
+		wait = getattr(args, "wait", None)
+		args.wait_gates = wait == "gates"
+		args.wait_obligation = None
+		if wait is not None and wait != "gates":
+			args.wait_obligation = _convert(verb, "wait", "int", wait)
+	# bootstrap's optional template list: None means "every shipped
+	# template" (the established contract).
+	if verb == "bootstrap" and not args.templates:
+		args.templates = None
+	args.command = verb
+	return args
+
+
+def exactly_names(info):
+	return set(info.get("exactly-one") or ())
+
+
+def _partial_tokens(text):
+	"""Tokens of a PARTIAL command line under the bar's own execution
+	tokenizer (`shlex.split`): the completed tokens exactly as execution
+	would receive them, plus the live final token still being typed —
+	selected by POSITION (unquoted trailing whitespace ends a token),
+	never by object identity. An open quote is tolerated: the live
+	token is the honestly-joined quoted text so far, so nothing inside
+	it can be mistaken for a key. Returns (completed, live, open_quote),
+	or None for a line even the quote rules cannot carry yet (a
+	trailing escape)."""
+	import shlex
+	try:
+		tokens = shlex.split(text)
+	except ValueError:
+		for closer in ('"', "'"):
+			try:
+				tokens = shlex.split(text + closer)
+			except ValueError:
+				continue
+			return tokens[:-1], tokens[-1], True
+		return None
+	if not tokens:
+		return [], None, False
+	if text[-1].isspace():
+		return tokens, None, False
+	return tokens[:-1], tokens[-1], False
+
+
+def analyze_partial(buffer: str) -> dict:
+	"""W14: pure analysis of a PARTIAL command line against THE one
+	declarative specification `_parse_invocation` executes — owned
+	here, beside the grammar, so every assistance surface consumes the
+	parser's own interpretation instead of approximating it. Reads no
+	authority state; converts nothing into effects.
+
+	Returns {"state": ...}:
+	- "commands"   {matches}: empty line — every verb;
+	- "verbs"      {matches}: a verb prefix — the matching verbs;
+	- "values"     {key, values}: live `key=` on a closed vocabulary —
+	  the accepted values, narrowed by the typed prefix;
+	- "diagnostic" {diagnostic}: malformed, unknown, duplicate, or
+	  conflicting input, parser-shaped — from COMPLETED tokens, or from
+	  a live token once typing more cannot repair it;
+	- "operands"   {verb, heading, required, optional, notes,
+	  key_matches}: the EFFECTIVE remaining form — the same
+	  exactly-one/when/conditions model the parser enforces, applied
+	  to what is already typed (a live `key=value` in progress counts
+	  as supplied for display; repeatable keys stay available).
+	"""
+	text = buffer.lstrip()
+	if not text:
+		return {"state": "commands", "matches": sorted(GRAMMAR)}
+	parts = _partial_tokens(text)
+	if parts is None:
+		return {"state": "diagnostic",
+		        "diagnostic": "open escape; finish the token"}
+	completed, live, open_quote = parts
+	if not completed:
+		if live is None:
+			return {"state": "commands", "matches": sorted(GRAMMAR)}
+		matches = sorted(name for name in GRAMMAR
+		                 if name.startswith(live))
+		if matches == [live]:
+			completed, live = [live], None
+		elif matches:
+			return {"state": "verbs", "matches": matches}
+		else:
+			return {"state": "diagnostic",
+			        "diagnostic": "no matching command"}
+	verb = completed[0]
+	if verb not in GRAMMAR:
+		return {"state": "diagnostic",
+		        "diagnostic": "no matching command"}
+	spec = _verb_spec(verb)
+	info = GRAMMAR[verb]
+	supplied = {}
+	repeated = set()
+	for token in completed[1:]:
+		key, equals, value = token.partition("=")
+		if token.startswith("--"):
+			return {"state": "diagnostic", "diagnostic":
+			        f"{key!r} is retired flag spelling; operands are "
+			        f"key=value"}
+		if not equals or not key:
+			return {"state": "diagnostic", "diagnostic":
+			        f"{token!r} is not a key=value token"}
+		if key not in spec:
+			return {"state": "diagnostic",
+			        "diagnostic": f"unknown key {key!r}"}
+		entry = spec[key]
+		if entry["values"] is not None and 				value not in entry["values"]:
+			return {"state": "diagnostic", "diagnostic":
+			        f"{key}= takes one of "
+			        f"{', '.join(entry['values'])}"}
+		try:
+			_convert(verb, key, entry["kind"], value)
+		except WorkError as refusal:
+			return {"state": "diagnostic",
+			        "diagnostic": str(refusal)}
+		if entry["repeat"]:
+			repeated.add(key)
+		elif key in supplied:
+			return {"state": "diagnostic", "diagnostic":
+			        f"duplicate {key}=; the key is singular"}
+		else:
+			supplied[key] = value
+	exactly = exactly_names(info)
+	chosen = [name for name in info.get("exactly-one", ())
+	          if name in supplied]
+	if len(chosen) > 1:
+		return {"state": "diagnostic", "diagnostic":
+		        "exactly one of " + " | ".join(
+		            name + "=" for name in info["exactly-one"])}
+	for rule in info.get("conditions", ()):
+		if "exclusive" in rule:
+			named = [key for key in rule["exclusive"]
+			         if key in supplied]
+			if len(named) > 1:
+				return {"state": "diagnostic", "diagnostic":
+				        "at most one of " + " | ".join(
+				            key + "=" for key in rule["exclusive"])}
+	# The live token: a key still being typed narrows the display; a
+	# `key=value` in progress is diagnosed only once more typing
+	# cannot repair it (its KEY is already fixed).
+	key_matches = None
+	display_supplied = set(supplied)
+	if live is not None:
+		key, equals, prefix = live.partition("=")
+		if equals and key:
+			if key not in spec:
+				return {"state": "diagnostic",
+				        "diagnostic": f"unknown key {key!r}"}
+			entry = spec[key]
+			if not entry["repeat"] and key in supplied:
+				return {"state": "diagnostic", "diagnostic":
+				        f"duplicate {key}=; the key is singular"}
+			if entry["values"] is not None and not open_quote:
+				values = [value for value in entry["values"]
+				          if value.startswith(prefix)]
+				if not values:
+					return {"state": "diagnostic", "diagnostic":
+					        f"{key}= takes one of "
+					        f"{', '.join(entry['values'])}"}
+				return {"state": "values", "key": key,
+				        "values": values}
+			display_supplied.add(key)
+		elif live.startswith("--"):
+			return {"state": "diagnostic", "diagnostic":
+			        f"{live!r} is retired flag spelling; operands "
+			        f"are key=value"}
+		else:
+			key_matches = sorted(name + "=" for name in spec
+			                     if name.startswith(live))
+			if not key_matches:
+				return {"state": "diagnostic", "diagnostic":
+				        f"no {verb} key starts with {live!r}"}
+	# The EFFECTIVE form: the parser's own condition model applied to
+	# the already-typed keys.
+	required = {entry["name"] for entry in spec.values()
+	            if entry["required"]}
+	required -= exactly
+	forbidden = set()
+	notes = []
+	heading = None
+	if exactly:
+		if chosen:
+			rule = (info.get("when") or {}).get(chosen[0], {})
+			required |= set(rule.get("requires", ()))
+			forbidden |= set(rule.get("forbids", ()))
+			forbidden |= exactly - {chosen[0]}
+		else:
+			heading = "one of: " + " | ".join(
+				name + "=" for name in info["exactly-one"])
+	for rule in info.get("conditions", ()):
+		if "exclusive" in rule:
+			named = [key for key in rule["exclusive"]
+			         if key in supplied]
+			if named:
+				forbidden |= set(rule["exclusive"]) - set(named)
+		elif "if-value" in rule:
+			key, value = rule["if-value"]
+			if supplied.get(key) == value:
+				required |= set(rule["requires"])
+		elif "unless-value" in rule:
+			key, value = rule["unless-value"]
+			if supplied.get(key) != value:
+				forbidden |= set(rule["forbids"])
+		elif "if-key" in rule:
+			key = rule["if-key"]
+			if key in supplied or key in repeated:
+				required |= set(rule.get("requires", ()))
+				group = rule.get("requires-any")
+				if group and not any(name in supplied
+				                     for name in group):
+					notes.append(f"{key}= needs " + " or ".join(
+						name + "=" for name in group))
+				if rule.get("requires-value"):
+					vkey, vvalue = rule["requires-value"]
+					if supplied.get(vkey) != vvalue:
+						notes.append(
+							f"{key}= needs {vkey}={vvalue}")
+	# A key whose own requirement is already excluded can never be
+	# satisfied on this form — the parser would refuse the
+	# combination, so the assist stops offering it.
+	for rule in info.get("conditions", ()):
+		if "if-key" in rule and \
+				set(rule.get("requires", ())) & forbidden:
+			forbidden.add(rule["if-key"])
+	remaining = sorted(
+		name + "=" for name in required - forbidden
+		if name not in display_supplied and name not in repeated)
+	optional = sorted(
+		entry["name"] + "=" for entry in spec.values()
+		if not entry["required"]
+		and entry["name"] not in required
+		and entry["name"] not in forbidden
+		and entry["name"] not in exactly
+		and entry["name"] not in display_supplied)
+	return {"state": "operands", "verb": verb, "heading": heading,
+	        "required": remaining, "optional": optional,
+	        "notes": notes, "key_matches": key_matches}
+
+
 def main(argv=None) -> int:
-	# R117: long-option abbreviation is DISABLED — the public grammar
-	# accepts full spellings only, so no abbreviation of a global
-	# (--participant, --config, ...) can slip past a boundary that
-	# checks the full names. The console's command-bar guard and this
-	# parser therefore agree by construction.
-	parser = argparse.ArgumentParser(prog="baton-work",
-	                                 allow_abbrev=False)
-	parser.add_argument("--config",
-	                    help="the instance configuration (baton.json); "
-	                         "every command except init/activate/"
-	                         "bootstrap requires it")
-	parser.add_argument("--participant",
-	                    help="team.member; the acting identity, validated "
-	                         "against the accepted configuration before any "
-	                         "output")
-	parser.add_argument("--op-id", dest="op_id",
-	                    help="optional client operation identity (WS-5): "
-	                         "with it a mutation is effectively-once — "
-	                         "an exact retry replays the one committed "
-	                         "result; without it the weaker "
-	                         "read-before-retry tier applies. Pure reads "
-	                         "take none.")
-	parser.add_argument("--ref", dest="refs", action="append",
-	                    help="ordered typed asset reference "
-	                         "(ROOT_ID:relative/path independent, or "
-	                         "WORK-ID:relative/path dossier-relative); "
-	                         "repeatable; commits with the act. Pure "
-	                         "reads take none.")
-	parser.add_argument("--answer-ref", dest="answer_refs",
-	                    action="append",
-	                    help="accept only: references riding the emitted "
-	                         "ANSWER message (explicit compound "
-	                         "placement)")
-	parser.add_argument("--expect-projection",
-	                    help="fail unless the projection version is "
-	                         "compatible with this")
-	sub = parser.add_subparsers(dest="command", required=True)
-
-	cmd = sub.add_parser("init")
-	cmd.add_argument("directory",
-	                 help="the coordination home to scaffold; must "
-	                 "exist and hold no managed Baton files (one-shot)")
-	cmd = sub.add_parser("activate")
-	cmd.add_argument("directory",
-	                 help="the coordination home holding the edited "
-	                 "baton.json")
-	sub.add_parser("regen")
-	cmd = sub.add_parser("resolve")
-	cmd.add_argument("locator",
-	                 help="ROOT_ID:relative/path, or a WORK id whose "
-	                 "effective binding resolves")
-	cmd.add_argument("--roots-file", dest="roots_file", required=True,
-	                 help="the explicit machine-local resolver JSON")
-	cmd = sub.add_parser("bootstrap")
-	cmd.add_argument("--root", required=True,
-	                 help="the configured project root id to vendor "
-	                 "into")
-	cmd.add_argument("--roots-file", dest="roots_file", required=True,
-	                 help="the explicit machine-local resolver JSON")
-	cmd.add_argument("--template", action="append", dest="templates",
-	                 help="numbered template file to vendor; default: "
-	                 "every shipped template")
-
-	cmd = sub.add_parser("create")
-	cmd.add_argument("--team", required=True)
-	cmd.add_argument("--kind", required=True)
-	cmd.add_argument("--title", required=True)
-	cmd.add_argument("--origin", required=True)
-	cmd.add_argument("--body", required=True)
-	cmd.add_argument("--parent")
-	cmd.add_argument("--classification",
-	                 help="REQUIRED concrete canonical value — the "
-	                 "submitter chooses; 'unknown' and omission refuse "
-	                 "(the current handler may reclassify later)")
-	cmd.add_argument("--phase", help="initial operational phase; defaults "
-	                 "to 'queued'")
-	cmd.add_argument("--follow-up-of", dest="follow_up_of",
-	                 help="id of the CLOSED work this follows up (WS-2)")
-	cmd.add_argument("--binding",
-	                 help="atomic creation binding "
-	                 "ROOT_ID:work/records/YYYY/MM/<stable-record>")
-
-	cmd = sub.add_parser("accept")
-	cmd.add_argument("obligation", type=int)
-	cmd.add_argument("--body", required=True,
-	                 help="the acceptance rationale, answered into the "
-	                 "consumer's thread")
-	cmd.add_argument("--into", help="existing provider work id")
-	cmd.add_argument("--create", action="store_true",
-	                 help="create the provider work in the same "
-	                 "transaction")
-	cmd.add_argument("--kind")
-	cmd.add_argument("--title")
-	cmd.add_argument("--classification")
-	cmd.add_argument("--phase")
-	cmd.add_argument("--parent")
-
-	cmd = sub.add_parser("respond")
-	cmd.add_argument("obligation", type=int)
-	cmd.add_argument("--body", required=True)
-	cmd = sub.add_parser("dispose")
-	cmd.add_argument("obligation", type=int)
-	cmd.add_argument("--disposition", required=True)
-
-	cmd = sub.add_parser("close")
-	cmd.add_argument("work")
-	# R73: omitting --rationale or --outcome refuses through the JSON
-	# stderr/exit-one agent contract, never argparse prose — the checks
-	# live in the transition.
-	cmd.add_argument("--rationale",
-	                 help="the non-empty terminal rationale; durable "
-	                 "review evidence for every outcome")
-	cmd.add_argument("--outcome",
-	                 help="exactly satisfying, non-satisfying, rejected, "
-	                 "or cancelled")
-	cmd.add_argument("--duplicate-of", dest="duplicate_of",
-	                 help="the surviving canonical work id; a duplicate "
-	                 "is a rejected close carrying this explicit "
-	                 "non-gating link")
-	cmd = sub.add_parser("claim")
-	cmd.add_argument("work",
-	                 help="the open ready work to claim as its one "
-	                 "active executor; phase is untouched")
-	cmd = sub.add_parser("release")
-	cmd.add_argument("work")
-	cmd.add_argument("--expect", required=True,
-	                 help="mandatory compare-and-swap: the exact recorded "
-	                 "claimant team.member")
-	cmd.add_argument("--reason", required=True,
-	                 help="non-empty durable evidence for why the work "
-	                 "became unclaimed")
-	cmd = sub.add_parser("block")
-	cmd.add_argument("work")
-	cmd.add_argument("--on", required=True, help="the blocker work id")
-	cmd = sub.add_parser("mark-seen")
-	cmd.add_argument("thread")
-	cmd.add_argument("--up-to", dest="up_to", type=int, required=True)
-	cmd = sub.add_parser("classify")
-	cmd.add_argument("work")
-	cmd.add_argument("--as", dest="classification", required=True,
-	                 help="canonical classification value")
-	cmd = sub.add_parser("phase")
-	cmd.add_argument("work")
-	cmd.add_argument("--to", dest="phase", required=True,
-	                 help="canonical phase value")
-	cmd.add_argument("--reason", help="required when parking")
-	cmd.add_argument("--wait-on-gates", dest="wait_gates",
-	                 action="store_true",
-	                 help="waiting: wake when every required child and "
-	                 "blocker is closed")
-	cmd.add_argument("--wait-on-obligation", dest="wait_obligation",
-	                 type=int, help="waiting: wake when this one pending @ "
-	                 "obligation completes")
-
-	cmd = sub.add_parser("round")
-	cmd.add_argument("work")
-	cmd.add_argument("--candidate", required=True,
-	                 help="exact candidate/artifact identity; immutable")
-	cmd.add_argument("--assign", action="append", required=True,
-	                 help="one exact verifier endpoint; repeatable")
-	cmd.add_argument("--review-at", dest="review_at",
-	                 help="optional UTC ISO instant when the round becomes "
-	                 "due for review")
-	cmd = sub.add_parser("extend")
-	cmd.add_argument("work")
-	cmd.add_argument("--round", type=int, required=True)
-	cmd.add_argument("--review-at", dest="review_at", required=True)
-	cmd = sub.add_parser("report")
-	cmd.add_argument("obligation", type=int)
-	cmd.add_argument("--observation", required=True,
-	                 help="exactly passed, failed, or unable")
-	cmd.add_argument("--evidence", required=True)
-	cmd = sub.add_parser("assess")
-	cmd.add_argument("obligation", type=int)
-	cmd.add_argument("--as", dest="assessment", required=True,
-	                 help="exactly accepted, rejected, or inconclusive")
-	cmd.add_argument("--rationale", required=True)
-	cmd = sub.add_parser("abandon")
-	cmd.add_argument("work")
-	cmd.add_argument("--round", type=int, required=True)
-	cmd.add_argument("--reason", required=True)
-
-	sub.add_parser("home")
-	cmd = sub.add_parser("tree")
-	cmd.add_argument("work", nargs="?", default=None)
-	sub.add_parser("obligations")
-	sub.add_parser("summary")
-	cmd = sub.add_parser("wait")
-	cmd.add_argument("--timeout", type=float, required=True,
-	                 help="seconds to block for actionable work; the wait "
-	                 "is read-only and mutates nothing")
-	for name in ("detail", "children", "links", "breadcrumb", "new"):
-		cmd = sub.add_parser(name)
-		cmd.add_argument("work")
-	cmd = sub.add_parser("operation-log")
-	cmd.add_argument("--after", type=int, default=0)
-	cmd.add_argument("--limit", type=int, default=100)
-	cmd = sub.add_parser("revisions")
-	cmd.add_argument("work")
-	cmd.add_argument("--after", type=int, default=0)
-	cmd.add_argument("--limit", type=int, default=100)
-	cmd = sub.add_parser("bind")
-	cmd.add_argument("work")
-	cmd.add_argument("--root", help="a live configured root id")
-	cmd.add_argument("--path", help="the canonical permanent record "
-	                 "path: work/records/YYYY/MM/<stable-record>")
-	cmd.add_argument("--expect", dest="expected_revision", type=int,
-	                 help="the expected prior binding revision")
-	cmd.add_argument("--rationale",
-	                 help="why this correction/attachment is right")
-	cmd.add_argument("--git", dest="git_provenance",
-	                 help="optional immutable Git provenance")
-	cmd = sub.add_parser("bindings")
-	cmd.add_argument("work")
-	cmd.add_argument("--after", type=int, default=0)
-	cmd.add_argument("--limit", type=int, default=100)
-	cmd = sub.add_parser("revise")
-	cmd.add_argument("work")
-	# R73 discipline: omission refuses through the JSON exit-one
-	# contract in the transition, never argparse prose.
-	cmd.add_argument("--message", dest="message_seq", type=int,
-	                 help="the ONE durable thread message promoted "
-	                 "as the complete contract")
-	cmd.add_argument("--expect", dest="expected_revision", type=int,
-	                 help="the expected prior revision; stale or "
-	                 "concurrent edits refuse, never overwrite")
-	cmd.add_argument("--rationale",
-	                 help="why this promotion is the agreed contract")
-	cmd = sub.add_parser("start-thread")
-	cmd.add_argument("--subject", required=True,
-	                 help="the REQUIRED concise thread subject (one "
-	                 "line, at most 80 UTF-8 bytes)")
-	cmd.add_argument("--body", required=True)
-	cmd.add_argument("--label", action="append", required=True,
-	                 help="a #WORK label; repeatable; at least one open "
-	                 "work of your own team")
-	cmd = sub.add_parser("say")
-	cmd.add_argument("thread")
-	cmd.add_argument("--body", required=True)
-	cmd.add_argument("--include", help="comma list / wildcards; the ONLY "
-	                 "fan-out — attention wiring, changes nothing else")
-	cmd.add_argument("--request", help="ONE endpoint owing a response; "
-	                 "acts on the --on work")
-	cmd.add_argument("--pass-to", dest="pass_to", help="ONE endpoint; "
-	                 "moves the --on work's baton")
-	cmd.add_argument("--phase", dest="pass_phase",
-	                 help="the destination phase the pass records "
-	                 "atomically (queued/research/active/review); "
-	                 "derived from the destination route's stage role "
-	                 "when omitted")
-	cmd.add_argument("--set-next", dest="set_next",
-	                 help="planned return endpoint; requires --pass-to")
-	cmd.add_argument("--on", help="the ONE labelled open work an @ or => "
-	                 "acts against; may be omitted only when exactly one "
-	                 "label is eligible")
-	cmd = sub.add_parser("label")
-	cmd.add_argument("thread")
-	cmd.add_argument("--work", required=True)
-	cmd = sub.add_parser("unlabel")
-	cmd.add_argument("thread")
-	cmd.add_argument("--work", required=True)
-	cmd = sub.add_parser("thread")
-	cmd.add_argument("thread")
-	cmd.add_argument("--after", type=int, default=0)
-	# R68: the default is a LEGAL value; every supplied limit reaches the
-	# contract unchanged — an over-max request refuses, never clamps.
-	cmd.add_argument("--limit", type=int, default=500)
-	cmd = sub.add_parser("threads")
-	cmd.add_argument("--after", type=int, default=0)
-	cmd.add_argument("--limit", type=int, default=100)
-	cmd = sub.add_parser("work-threads")
-	cmd.add_argument("work")
-	cmd.add_argument("--after", type=int, default=0)
-	cmd.add_argument("--limit", type=int, default=100)
-	cmd = sub.add_parser("events")
-	cmd.add_argument("--after", type=int, default=0)
-	cmd.add_argument("--limit", type=int, default=1000)
-
-	cmd = sub.add_parser("tui")
-	cmd.add_argument("--refresh", type=float, default=2.0,
-	                 help="automatic projection refresh interval in "
-	                 "seconds (positive; default 2). The timer is the "
-	                 "one background read trigger; keystrokes never "
-	                 "poll the authority.")
-
-	args = parser.parse_args(argv)
+	if argv is None:
+		import sys as _sys
+		argv = _sys.argv[1:]
+	try:
+		args = _parse_invocation(argv)
+	except WorkError as refusal:
+		print(json.dumps({"error": str(refusal)}), file=sys.stderr)
+		return 1
+	if args.command == "--help":
+		try:
+			print(render_help(args.help_verb), end="")
+		except WorkError as refusal:
+			print(json.dumps({"error": str(refusal)}), file=sys.stderr)
+			return 1
+		return 0
 	try:
 		jsonapi.require_version(args.expect_projection)
 		mutations = set(MUTATIONS)
@@ -347,14 +973,14 @@ def main(argv=None) -> int:
 		if args.op_id is not None and args.command not in mutations:
 			raise WorkError(
 				f"{args.command} is a pure read and takes no operation "
-				f"identity; --op-id protects mutations only (WS-5)")
+				f"identity; op-id= protects mutations only (WS-5)")
 		if args.refs and args.command not in mutations:
 			raise WorkError(
 				f"{args.command} is a pure read and carries no asset "
-				f"references; --ref commits with a mutation (WS-6)")
+				f"references; ref= commits with a mutation (WS-6)")
 		if args.answer_refs and args.command != "accept":
 			raise WorkError(
-				"--answer-ref is accept's explicit compound placement; "
+				"answer-ref= is accept's explicit compound placement; "
 				"no other act emits an answer message")
 		if args.command == "init":
 			# The coordination-home SCAFFOLD (WS-6): editable strict
@@ -387,9 +1013,20 @@ def main(argv=None) -> int:
 			                  "result": result}, indent=2, sort_keys=True))
 			return 0
 		if args.command == "bootstrap":
+			# W4: the root base comes from the ACCEPTED configuration —
+			# bootstrap binds to the instance like every other command.
 			from baton_work import project
+			if not args.config:
+				raise WorkError("bootstrap resolves its root through "
+				                "the accepted baton.json; --config is "
+				                "required")
+			boot_store = lifecycle.open_bound(args.config)
+			try:
+				base = project.store_root_base(boot_store, args.root)
+			finally:
+				boot_store.close()
 			result = project.bootstrap_project(
-				args.root, args.roots_file,
+				args.root, base,
 				templates=args.templates)
 			print(json.dumps({"projection_version":
 			                  jsonapi.PROJECTION_VERSION,
@@ -422,7 +1059,7 @@ def main(argv=None) -> int:
 				if not (math.isfinite(args.refresh) and
 				        0 < args.refresh <= 86400):
 					raise WorkError(
-						"tui --refresh takes a finite positive "
+						"tui refresh= takes a finite positive "
 						"number of seconds (at most 86400); "
 						"automatic refresh cannot be disabled, "
 						"negative, or unrepresentable")
@@ -485,23 +1122,23 @@ def _dispatch(store: Authority, args):
 			refs=args.refs or ())
 	if command == "accept":
 		team, member = _need_participant(args)
-		create_only = {"--kind": args.kind, "--title": args.title,
-		               "--classification": args.classification,
-		               "--phase": args.phase, "--parent": args.parent}
+		create_only = {"kind=": args.kind, "title=": args.title,
+		               "classification=": args.classification,
+		               "phase=": args.phase, "parent=": args.parent}
 		if not args.create:
-			# R50: the forms fail CLOSED — an --into acceptance must not
-			# silently ignore creation options a typo supplied.
+			# R50: the forms fail CLOSED — an into= acceptance must not
+			# silently ignore creation keys a typo supplied.
 			stray = [flag for flag, value in create_only.items()
 			         if value is not None]
 			if stray:
 				raise WorkError(
-					f"accept --into takes no creation option; remove "
-					f"{', '.join(stray)} or use --create")
+					f"accept into= takes no creation key; remove "
+					f"{', '.join(stray)} or use create=true")
 		create = None
 		if args.create:
 			if args.kind is None or args.title is None:
-				raise WorkError("accept --create requires --kind and "
-				                "--title")
+				raise WorkError("accept create=true requires kind= and "
+				                "title=")
 			create = {"kind": args.kind, "title": args.title,
 			          "classification": args.classification,
 			          "phase": args.phase, "parent": args.parent}
@@ -546,7 +1183,6 @@ def _dispatch(store: Authority, args):
 	if command == "resolve":
 		team, member = _need_participant(args)
 		from baton_work import project
-		mapping = project.load_resolver(args.roots_file)
 		left, _colon, rest = args.locator.partition(":")
 		# R92: the ONE shared locator grammar — every suffix is a
 		# contained relative POSIX path, root and dossier forms alike;
@@ -564,7 +1200,7 @@ def _dispatch(store: Authority, args):
 			if binding is None:
 				raise WorkError(f"{left} has no dossier binding to "
 				                f"resolve")
-			base = project.resolve_base(mapping, binding["root"])
+			base = project.store_root_base(store, binding["root"])
 			absolute = os.path.join(base, binding["path"])
 			if rest:
 				absolute = os.path.join(absolute, rest)
@@ -579,18 +1215,9 @@ def _dispatch(store: Authority, args):
 				f"locator: the form is ROOT_ID:<contained relative "
 				f"path> with a non-empty contained suffix; a bare "
 				f"WORK id resolves its dossier root")
-		# R92: an independent root must be live in the ACCEPTED
-		# authority — the resolver maps accepted root ids, it is never
-		# a second root catalog.
-		live = store.conn.execute(
-			"SELECT removed FROM roots WHERE root=?",
-			(left,)).fetchone()
-		if live is None or live["removed"]:
-			raise WorkError(
-				f"root {left!r} is not a live configured root; the "
-				f"machine-local resolver never authorizes roots "
-				f"outside the accepted catalog")
-		base = project.resolve_base(mapping, left)
+		# W4: the accepted authority IS the one root catalog — the
+		# base rides the same live row.
+		base = project.store_root_base(store, left)
 		return {"root": left, "path": rest,
 		        "absolute": os.path.join(base, rest)}
 	if command == "bind":

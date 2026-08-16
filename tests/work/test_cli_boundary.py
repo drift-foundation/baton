@@ -49,20 +49,22 @@ def test_the_removed_registry_verbs_are_gone_not_aliased(instance, capsys):
 	# compatibility alias remains.
 	for verb in ("register-team", "register-member", "register-kind",
 	             "retire-kind", "post"):
-		with pytest.raises(SystemExit) as caught:
-			cli.main(["--config", instance, verb])
-		assert caught.value.code == 2, f"{verb} still parses"
+		code = cli.main(["--config", instance, verb])
+		captured = capsys.readouterr()
+		assert code == 1, f"{verb} still parses"
+		assert "unknown command" in captured.err
 	for flag in ("--authority", "--viewer"):
-		with pytest.raises(SystemExit) as caught:
-			cli.main([flag, "x", "home"])
-		assert caught.value.code == 2, f"{flag} still parses"
+		code = cli.main([flag, "x", "home"])
+		captured = capsys.readouterr()
+		assert code == 1, f"{flag} still parses"
+		assert "launcher context" in captured.err
 
 
 def test_an_unknown_participant_refuses_before_any_output(instance, capsys):
 	error = _run(capsys, instance, "home", participant="ghost.gone",
 	             expect_ok=False)
 	assert "not a participant of the accepted configuration" in error["error"]
-	error = _run(capsys, instance, "say", "some-thread", "--body", "x",
+	error = _run(capsys, instance, "say", "thread=some-thread", "body=x",
 	             participant="lang.nope", expect_ok=False)
 	assert "not a participant" in error["error"]
 
@@ -109,7 +111,7 @@ def test_init_reports_the_binding(tmp_path, capsys):
 		json.dump(fixtures.config_document(), handle, indent=2,
 		          sort_keys=True)
 	result = _run(capsys, config_path, "activate",
-	              os.path.dirname(config_path),
+	              f"directory={os.path.dirname(config_path)}",
 	              participant="lang.ada")["result"]
 	assert result["generation"] == 1
 	assert result["authority_uuid"] == fixtures.UUID
@@ -120,7 +122,7 @@ def test_every_ordinary_read_requires_a_participant(instance, capsys):
 	"""C3 review R1: links/breadcrumb/thread/events were anonymous —
 	an identity-by-assertion defect wearing a read-only disguise. Every
 	non-init command now refuses without --participant."""
-	for argv in (("links", "w"), ("breadcrumb", "w"), ("thread", "w"),
+	for argv in (("links", "work=w"), ("breadcrumb", "work=w"), ("thread", "thread=w"),
 	             ("events",), ("home",), ("obligations",)):
 		error = _run(capsys, instance, *argv, expect_ok=False)
 		assert "needs --participant" in error["error"], argv
@@ -140,8 +142,8 @@ def test_the_public_grammar_accepts_full_spellings_only(tmp_path):
 		os.path.dirname(os.path.abspath(__file__)))), "src")
 	env = dict(os.environ, PYTHONPATH=src)
 	proc = subprocess.run(
-		[_sys.executable, "-m", "baton_work.cli", "--config",
-		 config_path, "--part", "lang.ada", "home"],
+		[_sys.executable, "-m", "baton_work.cli",
+		 "--config", config_path, "--part", "lang.ada", "home"],
 		capture_output=True, text=True, timeout=120, env=env)
 	assert proc.returncode != 0, \
 		"an abbreviated global was accepted by the public grammar"

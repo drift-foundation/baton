@@ -56,3 +56,22 @@ that somebody is executing and runnable review Work that somebody needs to
 claim. It requires W108's canonical claimant projection but no recency clock,
 age calculation, or timestamp-derived client inference. Persisted change
 identity may remain useful for other features; it no longer gates this cue.
+
+## Presentation clarification — 2026-08-16
+
+**Confirmed by Slawomir while auditing the pre-cutover Work.** The slow blink
+applies only to the row's phase/status cell (`actve` or `rview`), not to the
+whole row. Title, identifiers, counters, routing fields, selection treatment,
+and every other cell remain steady. This narrows the presentation rule above;
+the canonical definition of hot Work is unchanged.
+
+## Pre-cutover audit — 2026-08-16
+
+**Confirmed by source and live-authority inspection.** No blink treatment is
+implemented. W108 now provides the canonical claimant projection required by
+the superseding hot-zone design, so the old schema/timestamp reason for
+parking no longer applies. The same live Work remains the authority item even
+though its historical title says “recently changed”; its current scope is the
+active/review hot-zone cue ruled above. The item was moved from `parked` to
+`queued` at authority sequence 128. This is a TUI presentation/test change and
+must be completed before fresh cutover, not recreated afterward.

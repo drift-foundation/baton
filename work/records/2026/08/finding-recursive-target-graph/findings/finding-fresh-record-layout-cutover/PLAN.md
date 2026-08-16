@@ -31,3 +31,24 @@ carry that exact immutable directory through later commands. See
 `review-2026-08-16T10-28-57Z.md`. The reviewed W92+W108 tree is ready for
 Slawomir's commit. Deployment, fresh-authority initialization, recreation,
 parallel acceptance, and trial retirement remain held manual steps.
+
+**Deployment hold — 2026-08-16:** Slawomir stopped before deploying commit
+`6fe32fd`. The open-Work audit has already found W2
+(`findings/finding-v11-executable-name/`), W4
+(`findings/finding-configured-project-root-paths/`), W6
+(`findings/finding-tui-classification-label/`), W9
+(`findings/finding-tui-exit-confirmation/`), W12
+(`findings/finding-tui-work-id-discovery/`), W13
+(`findings/finding-key-value-command-grammar/`), and W84
+(`findings/finding-tui-recent-work-cue/`) incorrectly placed in the
+post-deploy recreation set. The next distribution must install `bin/baton`,
+the fresh authority's accepted `baton.json` must already contain each
+repository's explicit base, confirmed defects must render as `defct`,
+normal-navigation `q` must use the ruled exit confirmation, a selected Work's
+canonical id must be visible in its detail view, and v11 operations must use
+the one strict `key=value` grammar. The superseded W84 timestamp design is now
+the same-schema active/review hot-zone cue and is no longer parked. These all
+require no fresh authority. Continue auditing every open Work before fixing
+the final sequence. Do not deploy, initialize the fresh authority, or run
+recreation until all pre-cutover items review clean, leave the recreation set,
+and the corrected tree is committed.

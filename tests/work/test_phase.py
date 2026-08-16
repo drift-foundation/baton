@@ -561,7 +561,7 @@ def test_the_compact_vocabulary_is_closed_and_complete(world):
 	assert {value: app.compact_classification(value)
 	        for value in tr.CLASSIFICATIONS} == {
 		"unknown": "unkwn", "suspected-defect": "suspt",
-		"confirmed-defect": "cnfrm", "limitation": "limit",
+		"confirmed-defect": "defct", "limitation": "limit",
 		"duplicate": "dupe", "design-choice": "desgn",
 		"rejection": "rejct"}
 	with pytest.raises(ValueError, match="no ruled compact"):

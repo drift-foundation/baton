@@ -11,7 +11,7 @@ The target is an explicit path the operator names; it must not exist yet —
 this tool never adopts, overwrites, or deletes. The layout is the ruled
 release shape:
 
-    <target>/bin/baton-work        executable zipapp (cli:entry)
+    <target>/bin/baton             executable zipapp (cli:entry)
     <target>/doc/BATON-WORK.md     the operator quickstart
     <target>/conf/baton.example.json  a complete valid config example
     <target>/tmpl/<pattern>.md     the numbered template ASSETS beside bin/
@@ -43,7 +43,6 @@ SOURCE_ASSETS = (
 	("docs/BATON-WORK.md", "doc/BATON-WORK.md"),
 	("docs/BATON-SETUP.md", "doc/BATON-SETUP.md"),
 	("conf/baton.example.json", "conf/baton.example.json"),
-	("conf/roots.scaffold.json", "conf/roots.scaffold.json"),
 )
 
 
@@ -82,7 +81,7 @@ def main(argv=None) -> int:
 		                ignore=shutil.ignore_patterns(
 		                    "__pycache__", "*.pyc", "*.pyo"))
 		os.mkdir(os.path.join(scratch, "bin"))
-		archive = os.path.join(scratch, "bin", "baton-work")
+		archive = os.path.join(scratch, "bin", "baton")
 		# cli:entry, NOT cli:main — zipapp discards the target's return
 		# value, which turned refusals into exit 0 (the WF-06 lesson).
 		zipapp.create_archive(staging, archive,
@@ -116,10 +115,10 @@ def main(argv=None) -> int:
 		raise
 	print(json.dumps({
 		"target": target,
-		"executable": os.path.join(target, "bin", "baton-work"),
+		"executable": os.path.join(target, "bin", "baton"),
 		"archive_sha256": digest,
 		"templates": templates,
-		"next": f"{os.path.join(target, 'bin', 'baton-work')} init "
+		"next": f"{os.path.join(target, 'bin', 'baton')} init "
 		        f"YOUR_COORDINATION_HOME",
 	}, indent=2, sort_keys=True))
 	return 0
