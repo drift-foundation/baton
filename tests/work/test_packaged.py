@@ -69,14 +69,14 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	born = _run(archive, path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "render crash", "--origin", "external-report",
 	            "--body", "tab dies", viewer="web.wren")["result"]
-	web1, thread = born["work_id"], born["discussion"]
+	web1, thread = born["work_id"], born["thread"]
 	requested = _run(archive, path, "say", thread, "--body", "yours?",
 	                 "--request", "lang.rsrch", viewer="web.wren")["result"]
 	lang_born = _run(archive, path, "create", "--team", "lang",
 	                 "--kind", "rsrch", "--title", "parser recovery",
 	                 "--origin", "external-report", "--body", "dedup",
 	                 viewer="lang.ada")["result"]
-	lang42, lang_thread = lang_born["work_id"], lang_born["discussion"]
+	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
 	_run(archive, path, "block", web1, "--on", lang42, viewer="web.wren")
 	_run(archive, path, "respond", str(requested["seq"]),
 	     "--body", "ours, tracked", viewer="lang.ada")

@@ -44,7 +44,7 @@ def _run(capsys, config, *argv, participant=None, expect_ok=True):
 
 
 def test_the_removed_registry_verbs_are_gone_not_aliased(instance, capsys):
-	# Slice B: the whole Work-addressed discussion/operator bridge is
+	# Slice B: the whole Work-addressed thread/operator bridge is
 	# gone from the packaged parser — `post WORK` included. No
 	# compatibility alias remains.
 	for verb in ("register-team", "register-member", "register-kind",
@@ -62,7 +62,7 @@ def test_an_unknown_participant_refuses_before_any_output(instance, capsys):
 	error = _run(capsys, instance, "home", participant="ghost.gone",
 	             expect_ok=False)
 	assert "not a participant of the accepted configuration" in error["error"]
-	error = _run(capsys, instance, "say", "some-discussion", "--body", "x",
+	error = _run(capsys, instance, "say", "some-thread", "--body", "x",
 	             participant="lang.nope", expect_ok=False)
 	assert "not a participant" in error["error"]
 
@@ -117,7 +117,7 @@ def test_init_reports_the_binding(tmp_path, capsys):
 
 
 def test_every_ordinary_read_requires_a_participant(instance, capsys):
-	"""C3 review R1: links/breadcrumb/discussion/events were anonymous —
+	"""C3 review R1: links/breadcrumb/thread/events were anonymous —
 	an identity-by-assertion defect wearing a read-only disguise. Every
 	non-init command now refuses without --participant."""
 	for argv in (("links", "w"), ("breadcrumb", "w"), ("thread", "w"),

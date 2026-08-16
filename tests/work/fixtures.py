@@ -158,35 +158,35 @@ def build(path: str) -> dict:
 
 
 def born(store, work_id: str) -> str:
-	"""The discussion born with the Work (shares its created_seq) — a
-	TEST-ONLY derivation; the public surface addresses discussions
+	"""The thread born with the Work (shares its created_seq) — a
+	TEST-ONLY derivation; the public surface addresses threads
 	directly."""
 	return store.conn.execute(
-		"SELECT discussions.id AS id FROM discussions JOIN work "
-		"ON work.created_seq = discussions.created_seq WHERE work.id=?",
+		"SELECT threads.id AS id FROM threads JOIN work "
+		"ON work.created_seq = threads.created_seq WHERE work.id=?",
 		(work_id,)).fetchone()["id"]
 
 
 def post(store, work_id: str, **kw):
 	"""TEST-ONLY adapter for WS-1-era call sites: post into the Work's
-	born discussion, selecting the Work explicitly for carrying
-	operators. Public callers use `post_discussion` directly."""
+	born thread, selecting the Work explicitly for carrying
+	operators. Public callers use `post_thread` directly."""
 	from baton_work import transitions as _tr
 	if kw.get("request") or kw.get("pass_to"):
 		kw.setdefault("on", work_id)
-	return _tr.post_discussion(store, born(store, work_id), **kw)
+	return _tr.post_thread(store, born(store, work_id), **kw)
 
 
 def mark_all_seen(store, work_id: str, *, team: str, member: str,
                   up_to_seq: int):
-	"""TEST-ONLY: advance the member's cursor on every discussion
+	"""TEST-ONLY: advance the member's cursor on every thread
 	currently labelled to the Work (the old bridge reading), via the
-	public per-discussion transition."""
+	public per-thread transition."""
 	from baton_work import transitions as _tr
 	result = None
 	for row in store.conn.execute(
-			"SELECT DISTINCT discussion FROM discussion_labels "
+			"SELECT DISTINCT thread FROM thread_labels "
 			"WHERE work=?", (work_id,)):
-		result = _tr.seen_discussion(store, row["discussion"], team=team,
+		result = _tr.seen_thread(store, row["thread"], team=team,
 		                             member=member, up_to_seq=up_to_seq)
 	return result

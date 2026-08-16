@@ -4,7 +4,7 @@ THE PINNED MODEL, exactly: open on a borderless fixed-column table of the
 viewer's top-level Work; Enter drills into a table of immediate children, the
 same interaction at every depth; a persistent breadcrumb names the drilled
 path; `o` opens the focused Work view (facts, rounds, and the selectable
-discussion set); Enter there opens one discussion's paged thread — never
+thread set); Enter there opens one thread's paged thread — never
 several merged into a false timeline. `b` shows blocking/dependent neighbors
 with stable ids and drills through on Enter. Column priorities, sorting and
 keys are prototype-grade by ruling and carry no semantics of their own.
@@ -44,9 +44,9 @@ COLUMNS = (("ST", 6), ("PHASE", 5), ("CLS", 5), ("PROG", 5), ("DEP", 3),
 DROP_ORDER = ("CLS", "DEP", "PROG", "PHASE", "READY", "NEXT")
 MIN_TITLE = 10
 
-# One bounded page of a Work's discussion SET (prototype size): `n` pages
+# One bounded page of a Work's thread SET (prototype size): `n` pages
 # forward through the canonical continuation cursor, `p` returns to the
-# start — every discussion is reachable, none is silently truncated.
+# start — every thread is reachable, none is silently truncated.
 DISC_PAGE = 10
 
 
@@ -131,7 +131,7 @@ class Console:
 		self.config_path = config_path
 		self.path: list[str] = []        # drilled Work ids, root-first
 		self.cursor = 0
-		self.mode = "table"       # table / links / discussion / thread
+		self.mode = "table"       # table / links / thread / thread
 		self.status = ""
 		# Resolved branches are COLLAPSED by default (ruled): closed rows
 		# leave the table, an explicit count names what is hidden, and a
@@ -142,7 +142,9 @@ class Console:
 		self.disc_cursor = 0
 		self.disc_after = 0
 		self.disc_next: int | None = None
-		self.viewed_discussion: str | None = None
+		self.viewed_thread: str | None = None
+		self.viewed_ordinal = 0
+		self.thread_total = 0
 		self.viewed_last_seq: int | None = None
 		self.thread_after = 0
 		self.command: str | None = None  # the `:` command-bar buffer
@@ -174,11 +176,11 @@ class Console:
 		visible = [row for row in rows if row["status"] == "open"]
 		return visible, len(rows) - len(visible)
 
-	def discussion_rows(self) -> list[dict]:
-		"""ONE bounded page of the focused Work's discussion SET from the
+	def thread_rows(self) -> list[dict]:
+		"""ONE bounded page of the focused Work's thread SET from the
 		paged canonical read — never merged, each row selectable, the
 		continuation cursor kept so `n` reaches every later page."""
-		page = projection.work_discussions(
+		page = projection.work_threads(
 			self.store, self.path[-1], viewer_team=self.team,
 			viewer_member=self.member, after=self.disc_after,
 			limit=DISC_PAGE)
@@ -210,10 +212,10 @@ class Console:
 		                     self.store, viewer_team=self.team)))
 		screen.addnstr(0, 0, self.breadcrumb_text(summary), width - 1,
 		               curses.A_BOLD)
-		if self.mode == "discussion":
-			self._render_discussion(screen, height, width)
-		elif self.mode == "thread":
+		if self.mode == "thread":
 			self._render_thread(screen, height, width)
+		elif self.mode == "msgs":
+			self._render_msgs(screen, height, width)
 		elif self.mode == "links":
 			self._render_links(screen, height, width)
 		else:
@@ -254,9 +256,12 @@ class Console:
 		columns = visible_columns(width)
 		fixed = sum(w for _n, w in columns) + len(columns)
 		title_width = max(MIN_TITLE, width - fixed - 1)
-		header = "TITLE".ljust(title_width)
+		# Trial finding 26de18dd-W2: headers draw initial-capital LABELS
+		# (Title, St, Phase, ...); the canonical projection fields and
+		# the internal responsive-column identifiers stay unchanged.
+		header = "Title".ljust(title_width)
 		for name, col_width in columns:
-			header += " " + name.ljust(col_width)
+			header += " " + name.capitalize().ljust(col_width)
 		screen.addnstr(1, 0, header, width - 1, curses.A_UNDERLINE)
 		visible, hidden = self.visible_rows(rows)
 		# The hidden-count footer is part of the collapse CONTRACT: when
@@ -368,9 +373,9 @@ class Console:
 				line += f"#{waiting['obligation']}"
 		return line
 
-	def _render_discussion(self, screen, height, width) -> None:
+	def _render_thread(self, screen, height, width) -> None:
 		"""The FOCUSED Work view: header, facts, the latest round, and
-		the selectable discussion set — Enter opens one discussion's
+		the selectable thread set — Enter opens one thread's
 		thread; nothing is merged into a false timeline."""
 		work_id = self.path[-1]
 		detail = projection.detail(self.store, work_id,
@@ -400,14 +405,15 @@ class Console:
 				               f"  {entry['endpoint']} {axis}",
 				               width - 1)
 			offset_row = offset_row + 1 + len(latest["assignments"])
-		rows = self.discussion_rows()
+		rows = self.thread_rows()
 		if not rows:
-			screen.addnstr(offset_row, 0, "(no discussions)", width - 1)
+			screen.addnstr(offset_row, 0, "(no threads)", width - 1)
 			return
 		paging = f" after #{self.disc_after}" if self.disc_after else ""
 		more = "  (n: more)" if self.disc_next is not None else ""
+		self.thread_total = detail["thread_count"]
 		screen.addnstr(offset_row, 0,
-		               f"discussions ({detail['discussion_count']})"
+		               f"threads ({detail['thread_count']})"
 		               f"{paging}:{more}",
 		               width - 1)
 		budget = max(1, height - 2 - (offset_row + 1))
@@ -416,23 +422,32 @@ class Console:
 		for offset, row in enumerate(rows[start:start + budget]):
 			attribute = curses.A_REVERSE \
 				if start + offset == self.disc_cursor else 0
+			# Each row leads with the compact selector and the REQUIRED
+			# subject — the human distinguishes conversations by
+			# subject, never by id alone (the id stays for reference).
 			screen.addnstr(offset_row + 1 + offset, 0,
-			               f"  {row['id']} new:{row['new']} "
-			               f"last:#{row['last_seq'] or 0}",
+			               f"  T{row['ordinal']} {row['subject']} "
+			               f"new:{row['new']} "
+			               f"last:#{row['last_seq'] or 0} {row['id']}",
 			               width - 1, attribute)
 
-	def _render_thread(self, screen, height, width) -> None:
-		"""ONE discussion's messages, PAGED through the canonical thread
+	def _render_msgs(self, screen, height, width) -> None:
+		"""ONE thread's messages, PAGED through the canonical thread
 		read — `n` pages forward from the last painted message, `p`
 		returns to the start, `s` marks seen bounded by the painted page
 		(R70/R72)."""
 		snapshot = projection.thread(
-			self.store, self.viewed_discussion, viewer_team=self.team,
+			self.store, self.viewed_thread, viewer_team=self.team,
 			viewer_member=self.member, after=self.thread_after,
 			limit=max(1, height - 4))
 		messages = snapshot["messages"]
+		# The compact Msgs pane names the selected Thread — its T{n}
+		# selector and subject — so several conversations on one Work
+		# are never mistaken for one another.
 		screen.addnstr(1, 0,
-		               f"discussion {self.viewed_discussion} "
+		               f"Msgs T{self.viewed_ordinal}"
+		               f"/{self.thread_total} — "
+		               f"{snapshot['subject']} "
 		               f"after #{self.thread_after} "
 		               f"({len(messages)} shown)", width - 1)
 		self.viewed_last_seq = messages[-1]["seq"] if messages else None
@@ -562,29 +577,29 @@ class Console:
 				self.mode = "table"
 				self.links_work = None
 			return True
-		if self.mode == "thread":
+		if self.mode == "msgs":
 			if key in (27, curses.KEY_LEFT, ord("i")):
-				self.mode = "discussion"
+				self.mode = "thread"
 			elif key == ord("n") and self.viewed_last_seq is not None:
 				self.thread_after = self.viewed_last_seq
 			elif key == ord("p"):
 				self.thread_after = 0
 			elif key == ord("s") and \
-					self.viewed_discussion is not None and \
+					self.viewed_thread is not None and \
 					self.viewed_last_seq is not None:
 				# The EXPLICIT seen transition — the one writer, by
-				# ruling — scoped to the DISPLAYED discussion and
+				# ruling — scoped to the DISPLAYED thread and
 				# bounded by the PAINTED page (R70): a message
 				# committed after paint stays New.
-				result = transitions.seen_discussion(
-					self.store, self.viewed_discussion, team=self.team,
+				result = transitions.seen_thread(
+					self.store, self.viewed_thread, team=self.team,
 					member=self.member,
 					up_to_seq=self.viewed_last_seq)
 				self.status = (f"seen up to #{result['cursor']}"
 				               if result["advanced"] else "already seen")
 			return True
-		if self.mode == "discussion":
-			entries = self.discussion_rows()
+		if self.mode == "thread":
+			entries = self.thread_rows()
 			if key == ord("n") and self.disc_next is not None:
 				self.disc_after = self.disc_next
 				self.disc_cursor = 0
@@ -599,11 +614,13 @@ class Console:
 			elif key in (curses.KEY_UP, ord("k")):
 				self.disc_cursor = max(0, self.disc_cursor - 1)
 			elif key in (curses.KEY_ENTER, 10, 13) and entries:
-				self.viewed_discussion = \
+				self.viewed_thread = \
 					entries[self.disc_cursor]["id"]
+				self.viewed_ordinal = \
+					entries[self.disc_cursor]["ordinal"]
 				self.thread_after = 0
 				self.viewed_last_seq = None
-				self.mode = "thread"
+				self.mode = "msgs"
 			elif key in (27, curses.KEY_LEFT, ord("i")):
 				self.mode = "table"
 			return True
@@ -615,7 +632,7 @@ class Console:
 			self.path.append(rows[self.cursor]["id"])
 			self.cursor = 0
 		elif key == ord("o") and self.path:
-			self.mode = "discussion"
+			self.mode = "thread"
 			self.disc_cursor = 0
 			self.disc_after = 0
 		elif key == ord("b") and rows:

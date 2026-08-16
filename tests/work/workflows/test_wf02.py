@@ -25,7 +25,7 @@ def test_wf02_request_without_transfer(flow):
 	               "--origin", "self-initiated",
 	               "--body", "sweeping the checkout retries",
 	               viewer="push.sl")
-	push1, thread_id = born["work_id"], born["discussion"]
+	push1, thread_id = born["work_id"], born["thread"]
 
 	# 2. `+lang.bug` raises Lang attention — and NOTHING else.
 	flow.post(push1, "--body", "lang folks may find this relevant",

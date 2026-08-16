@@ -31,7 +31,7 @@ def test_wf07_announcement(flow):
 	               "--origin", "self-initiated",
 	               "--body", "authority migration 02:00-03:00 UTC",
 	               viewer="ops.bat")
-	ops1, thread_id = born["work_id"], born["discussion"]
+	ops1, thread_id = born["work_id"], born["thread"]
 	announced = flow.post(ops1, "--body",
 	                    "all teams: expect a short outage",
 	                    "--include", "*.*", viewer="ops.bat")

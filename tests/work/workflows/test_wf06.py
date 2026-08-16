@@ -4,12 +4,12 @@
 Containment and dependency COMPOSED: a release root with one locally-worked
 child and one externally-blocked child; the root's readiness is the
 conjunction of both, closure refuses by naming open children, and personal
-New decomposes exactly with VISIBLE overlap across a discussion labelled to
+New decomposes exactly with VISIBLE overlap across a thread labelled to
 both children (WS-4 Slice A). (The former reopen leg is superseded by WS-2
 immutable closure; WS2-WF-06 owns that story.)
 
-Omitted (WORKFLOW-COVERAGE.md, WS-4): multiply-related discussion
-deduplication — needs first-class discussions.
+Omitted (WORKFLOW-COVERAGE.md, WS-4): multiply-related thread
+deduplication — needs first-class threads.
 
 Defect found by this workflow (workflow-to-regression rule): the cycle-
 refusal checkpoint exposed that the PACKAGED artifact exited 0 on every
@@ -46,11 +46,11 @@ def test_wf06_recursive_release(flow):
 	                  "decomposition", "--body", "externally blocked leg",
 	                  "--parent", root, viewer="lang.ada")["work_id"]
 
-	# WS-4 Slice A: one discussion labelled to BOTH children (created
+	# WS-4 Slice A: one thread labelled to BOTH children (created
 	# while they are open — live context) exercises ancestor dedup later.
-	shared = flow.ok("discuss", "--body", "release readiness sweep",
+	shared = flow.ok("start-thread", "--subject", "trial subject", "--body", "release readiness sweep",
 	                 "--label", local, "--label", blocked,
-	                 viewer="lang.ada")["discussion"]
+	                 viewer="lang.ada")["thread"]
 	flow.ok("say", shared, "--body", "both legs affected",
 	        viewer="lang.ada")
 
@@ -93,18 +93,18 @@ def test_wf06_recursive_release(flow):
 	assert flow.ok("detail", root, viewer="lang.ada")["ready"] is True
 
 	# 5. Ancestor deduplication, made VISIBLE: each child counts the
-	# shared discussion truthfully, the root counts each message once,
+	# shared thread truthfully, the root counts each message once,
 	# and the exact identity total = own + sum(children) - overlap holds.
 	view = flow.ok("thread", shared, viewer="lang.grace")
 	assert {entry["work"] for entry in view["labels"]} == {local, blocked}
 	breakdown = flow.ok("new", root, viewer="lang.grace")
 	assert breakdown["overlap"] >= 2, \
-		"the shared discussion's dedup is invisible"
+		"the shared thread's dedup is invisible"
 	assert breakdown["total"] == breakdown["own"] + \
 		sum(entry["new"] for entry in breakdown["children"]) - \
 		breakdown["overlap"]
 	assert breakdown["total"] > 0
-	# Reading the shared discussion ONCE clears it under both children.
+	# Reading the shared thread ONCE clears it under both children.
 	flow.ok("mark-seen", shared, "--up-to", str(view["last_seq"]),
 	        viewer="lang.grace")
 	cleared = flow.ok("new", root, viewer="lang.grace")

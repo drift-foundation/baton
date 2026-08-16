@@ -37,7 +37,7 @@ def test_wf13_portable_dossier_authority(flow):
 		"--body", "500 at checkout",
 		"--binding", "pushcoin:work/records/2026/08/finding-push-1",
 		viewer="push.sl")
-	push1, push_thread = push_born["work_id"], push_born["discussion"]
+	push1, push_thread = push_born["work_id"], push_born["thread"]
 	detail = flow.ok("detail", push1, viewer="push.sl")
 	assert detail["binding"]["revision"] == 1
 	assert detail["binding"]["root"] == "pushcoin"
@@ -65,7 +65,7 @@ def test_wf13_portable_dossier_authority(flow):
 	# reproduction and requests @lang.bug; Lang accepts into LANG-42
 	# with explicit compound placement; Lang then posts a
 	# LANG-42-relative proof plus an independent baton: reference —
-	# citing LANG-42 in Push's discussion needs NO label (M2).
+	# citing LANG-42 in Push's thread needs NO label (M2).
 	reported = flow.ok("--ref", f"{push1}:repro/checkout-500.sh",
 	                   "say", push_thread, "--body",
 	                   "repro attached; lang: yours?",

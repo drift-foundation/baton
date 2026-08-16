@@ -47,7 +47,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	            "--title", "render crash", "--origin", "external-report",
 	            "--body", "tab dies on load",
 	            viewer="web.wren")["result"]
-	web1, thread = born["work_id"], born["discussion"]
+	web1, thread = born["work_id"], born["thread"]
 
 	# 2. include +lang.rsrch — attention, no obligation.
 	_run(path, "say", thread, "--body", "lang may want to see this",
@@ -71,7 +71,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	                 "external-report",
 	                 "--body", "deduplicating consumer reports",
 	                 viewer="lang.ada")["result"]
-	lang42, lang_thread = lang_born["work_id"], lang_born["discussion"]
+	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
 	_run(path, "block", web1, "--on", lang42, viewer="web.wren")
 	assert _run(path, "detail", web1,
 	            viewer="web.wren")["result"]["ready"] is False
@@ -132,7 +132,7 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	born = _run(path, "create", "--team", "web", "--kind", "bug",
 	            "--title", "crash", "--origin", "external-report",
 	            "--body", "b", viewer="web.wren")["result"]
-	web1, thread = born["work_id"], born["discussion"]
+	web1, thread = born["work_id"], born["thread"]
 	child = _run(path, "create", "--team", "web", "--kind", "bug",
 	             "--title", "narrow the repro", "--origin", "decomposition",
 	             "--body", "b", "--parent", web1,

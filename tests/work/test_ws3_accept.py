@@ -1,7 +1,7 @@
 """WS-3: the atomic provider acceptance.
 
 One transaction commits — or refuses whole — the obligation's terminal
-`accepted` state, the rationale in the consumer's discussion, the
+`accepted` state, the rationale in the consumer's thread, the
 provenance-carrying edge, readiness, the exact-obligation wake (R47), and
 in the create form the provider Work itself, established no later than the
 acceptance that names it (R48). The authority is the ruled narrow grant:
@@ -99,18 +99,18 @@ def test_accept_create_commits_every_half_in_one_ordered_act(world):
 	assert store.conn.execute("SELECT ready FROM work WHERE id=?",
 	                          (push1,)).fetchone()["ready"] == 0
 
-	# Both discussions carry the rationale: the provider's first message
+	# Both threads carry the rationale: the provider's first message
 	# at the accept seq, the consumer's answer as the next ordered act.
 	provider_first = store.conn.execute(
-		"SELECT messages.* FROM messages JOIN discussions "
-		"ON discussions.id = messages.discussion "
-		"JOIN work ON work.created_seq = discussions.created_seq "
+		"SELECT messages.* FROM messages JOIN threads "
+		"ON threads.id = messages.thread "
+		"JOIN work ON work.created_seq = threads.created_seq "
 		"WHERE work.id=?", (provider,)).fetchone()
 	assert provider_first["seq"] == result["seq"]
 	consumer_answer = store.conn.execute(
-		"SELECT messages.* FROM messages JOIN discussions "
-		"ON discussions.id = messages.discussion "
-		"JOIN work ON work.created_seq = discussions.created_seq "
+		"SELECT messages.* FROM messages JOIN threads "
+		"ON threads.id = messages.thread "
+		"JOIN work ON work.created_seq = threads.created_seq "
 		"WHERE work.id=? ORDER BY messages.seq DESC LIMIT 1",
 		(push1,)).fetchone()
 	assert consumer_answer["seq"] == result["seq"] + 1

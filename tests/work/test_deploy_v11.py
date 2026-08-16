@@ -47,6 +47,18 @@ def _run(executable, *argv):
 	                      text=True, timeout=120, env=_env())
 
 
+def test_the_operator_deploy_surface_is_the_just_recipe():
+	"""The Python packager is internal machinery, not the launch command
+	handed to a human at the parallel-trial gate."""
+	justfile = _read(os.path.join(REPO, "justfile")).decode("utf-8")
+	quickstart = _read(os.path.join(REPO, "docs",
+	                                "BATON-WORK.md")).decode("utf-8")
+	assert "deploy-v11 DESTINATION:" in justfile
+	assert 'python3 tools/deploy_work.py "{{DESTINATION}}"' in justfile
+	assert "just deploy-v11 /your/dist/baton-work-rN" in quickstart
+	assert "python3 tools/deploy_work.py" not in quickstart
+
+
 @pytest.fixture(scope="module")
 def dist(tmp_path_factory):
 	target = os.path.join(str(tmp_path_factory.mktemp("v11dist")),

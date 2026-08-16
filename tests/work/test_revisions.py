@@ -1,7 +1,7 @@
 """Append-only Work revisions: one promoted message IS the contract.
 
 Only the resolved Current handler of open Work commits a revision; the
-promoted message must live in a discussion carrying that open Work's
+promoted message must live in a thread carrying that open Work's
 label; the write is compare-and-swap on the expected prior revision,
 rechecked in-lock; history is append-only and immutable; JSON exposes
 exactly one effective revision plus the ordered history with complete
@@ -47,8 +47,8 @@ def _create(store, team="lang", member="ada", **kw):
 	                      body="the initial statement", **kw)
 
 
-def _say(store, discussion, body, team="lang", member="ada"):
-	return tr.post_discussion(store, discussion, author_team=team,
+def _say(store, thread, body, team="lang", member="ada"):
+	return tr.post_thread(store, thread, author_team=team,
 	                          author=member, body=body)["seq"]
 
 
@@ -68,7 +68,7 @@ def _interleave(store, competing):
 def test_a_promotion_records_the_complete_contract(world):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	proposed = _say(store, thread, "the complete revised contract: "
 	                "recover the parser without dropping state",
 	                member="grace")
@@ -80,7 +80,7 @@ def test_a_promotion_records_the_complete_contract(world):
 		"SELECT * FROM revisions WHERE work=? AND revision=1",
 		(work,)).fetchone()
 	assert row["prior"] == 0 and row["seq"] == result["seq"]
-	assert row["discussion"] == thread
+	assert row["thread"] == thread
 	assert row["message_seq"] == proposed
 	assert row["actor"] == "lang.ada"
 	assert row["rationale"] == "agreed in review"
@@ -105,7 +105,7 @@ def test_a_promotion_records_the_complete_contract(world):
 def test_history_is_ordered_append_only_and_effective_is_the_last(world):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	for number in (1, 2, 3):
 		seq = _say(store, thread, f"complete contract, take {number}")
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
@@ -127,7 +127,7 @@ def test_history_is_ordered_append_only_and_effective_is_the_last(world):
 def test_only_the_live_current_handler_promotes(world):
 	store, config_path = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	proposed = _say(store, thread, "proposed replacement contract",
 	                team="push", member="sl")
 	for team, member in (("push", "sl"), ("lang", "grace")):
@@ -159,29 +159,29 @@ def test_only_the_live_current_handler_promotes(world):
 		"lang.grace"
 
 
-# -- provenance: the promoted message keeps the work's own discussion ---------
+# -- provenance: the promoted message keeps the work's own thread ---------
 
 def test_provenance_must_carry_the_open_work_label(world):
 	store, _config = world
 	born = _create(store)
 	work = born["work_id"]
 	other = _create(store)
-	foreign_message = _say(store, other["discussion"],
+	foreign_message = _say(store, other["thread"],
 	                       "written somewhere else")
 	with pytest.raises(bw.WorkError, match="does not carry"):
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
 		               message_seq=foreign_message, expected_revision=0,
 		               rationale="wrong provenance")
-	with pytest.raises(bw.WorkError, match="no discussion message"):
+	with pytest.raises(bw.WorkError, match="no thread message"):
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
 		               message_seq=99999, expected_revision=0,
 		               rationale="missing message")
 	with pytest.raises(bw.WorkError, match="rationale"):
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
-		               message_seq=_say(store, born["discussion"], "ok"),
+		               message_seq=_say(store, born["thread"], "ok"),
 		               expected_revision=0, rationale="   ")
-	# Labelling the other discussion makes its messages eligible.
-	tr.label_discussion(store, other["discussion"], work,
+	# Labelling the other thread makes its messages eligible.
+	tr.label_thread(store, other["thread"], work,
 	                    actor_team="lang", actor="ada")
 	tr.revise_work(store, work, actor_team="lang", actor="ada",
 	               message_seq=foreign_message, expected_revision=0,
@@ -193,12 +193,12 @@ def test_a_mid_flight_unlabel_refuses_the_promotion_in_lock(world):
 	born = _create(store)
 	work = born["work_id"]
 	other = _create(store)
-	tr.label_discussion(store, other["discussion"], work,
+	tr.label_thread(store, other["thread"], work,
 	                    actor_team="lang", actor="ada")
-	proposed = _say(store, other["discussion"], "complete contract")
+	proposed = _say(store, other["thread"], "complete contract")
 	before = store.events()
-	_interleave(store, lambda: tr.unlabel_discussion(
-		store, other["discussion"], work, actor_team="lang",
+	_interleave(store, lambda: tr.unlabel_thread(
+		store, other["thread"], work, actor_team="lang",
 		actor="ada"))
 	with pytest.raises(bw.WorkError, match="lost .* provenance|race"):
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
@@ -214,7 +214,7 @@ def test_a_mid_flight_unlabel_refuses_the_promotion_in_lock(world):
 def test_cas_refuses_stale_and_wrong_expectations(world):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	first = _say(store, thread, "contract one")
 	tr.revise_work(store, work, actor_team="lang", actor="ada",
 	               message_seq=first, expected_revision=0,
@@ -237,7 +237,7 @@ def test_a_concurrent_promotion_makes_the_second_writer_stale(world):
 	sequence."""
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	mine = _say(store, thread, "my complete contract")
 	theirs = _say(store, thread, "their complete contract")
 	_interleave(store, lambda: tr.revise_work(
@@ -267,7 +267,7 @@ def test_a_concurrent_promotion_makes_the_second_writer_stale(world):
 def test_terminal_work_refuses_revision_and_history_survives(world):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	proposed = _say(store, thread, "the final contract")
 	tr.revise_work(store, work, actor_team="lang", actor="ada",
 	               message_seq=proposed, expected_revision=0,
@@ -289,7 +289,7 @@ def test_terminal_work_refuses_revision_and_history_survives(world):
 def test_a_mid_flight_close_refuses_the_promotion_in_lock(world):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	proposed = _say(store, thread, "complete contract")
 	_interleave(store, lambda: tr.close_work(
 		store, work, actor_team="lang", actor="ada",
@@ -311,7 +311,7 @@ def test_child_work_revises_independently_of_its_parent(world):
 	                       title="independent proof",
 	                       origin="decomposition", author="ada",
 	                       body="child contract", parent=parent["work_id"])
-	proposed = _say(store, child["discussion"], "child contract v2")
+	proposed = _say(store, child["thread"], "child contract v2")
 	tr.revise_work(store, child["work_id"], actor_team="lang",
 	               actor="ada", message_seq=proposed,
 	               expected_revision=0, rationale="child only")
@@ -325,7 +325,7 @@ def test_child_work_revises_independently_of_its_parent(world):
 def test_reads_stay_pure_and_the_promotion_is_whole_or_nothing(world):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	proposed = _say(store, thread, "complete contract")
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	digest = hashlib.sha256(open(store.path, "rb").read()).hexdigest()
@@ -378,7 +378,7 @@ def test_reads_stay_pure_and_the_promotion_is_whole_or_nothing(world):
 def test_restart_reconstructs_history_and_retry_refuses(world):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	proposed = _say(store, thread, "complete contract")
 	tr.revise_work(store, work, actor_team="lang", actor="ada",
 	               message_seq=proposed, expected_revision=0,

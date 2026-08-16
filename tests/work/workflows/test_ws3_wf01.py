@@ -3,7 +3,7 @@ atomically (WS3-DESIGN.md D4).
 
 One commit: the provider Work exists (established AT the acceptance, R48),
 the consumer is gated with provenance, the obligation reads accepted→id,
-and the rationale answers into the consumer's discussion. The waiting
+and the rationale answers into the consumer's thread. The waiting
 consumer wakes on its named obligation while the new gate holds readiness
 false (R47).
 """
@@ -46,7 +46,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	               "--title", "checkout fails", "--origin",
 	               "external-report", "--body", "500 at checkout",
 	               viewer="push.sl")
-	push1, thread_id = born["work_id"], born["discussion"]
+	push1, thread_id = born["work_id"], born["thread"]
 	asked = flow.post(push1, "--body", "drift: yours?",
 	                "--request", "drift.bug", viewer="push.sl")
 	flow.ok("phase", push1, "--to", "waiting", "--wait-on-obligation",
@@ -76,7 +76,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	}
 
 	# The consumer: woken on its named obligation, gated by the new edge,
-	# provenance visible, rationale in its discussion.
+	# provenance visible, rationale in its thread.
 	consumer = flow.ok("detail", push1, viewer="push.sl")
 	assert consumer["phase"] == "queued", "the obligation waiter slept on"
 	assert consumer["ready"] is False, "the new gate did not hold"

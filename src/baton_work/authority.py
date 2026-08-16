@@ -34,7 +34,7 @@ import unicodedata
 import time
 import unicodedata
 
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -230,7 +230,7 @@ CREATE TABLE obligations (
 	observation  TEXT,
 	evidence     TEXT,
 	accepted_into TEXT REFERENCES work(id),
-	discussion   TEXT REFERENCES discussions(id),
+	thread   TEXT REFERENCES threads(id),
 	status       TEXT NOT NULL DEFAULT 'pending',
 	resolved_seq INTEGER
 ) STRICT;
@@ -253,22 +253,23 @@ CREATE TABLE assessments (
 	rationale   TEXT NOT NULL,
 	actor       TEXT NOT NULL
 ) STRICT;
-CREATE TABLE discussions (
+CREATE TABLE threads (
 	id          TEXT PRIMARY KEY,
+	subject     TEXT NOT NULL,
 	created_seq INTEGER NOT NULL,
 	created_ts  TEXT NOT NULL
 ) STRICT;
-CREATE TABLE discussion_labels (
-	discussion TEXT NOT NULL REFERENCES discussions(id),
+CREATE TABLE thread_labels (
+	thread TEXT NOT NULL REFERENCES threads(id),
 	work       TEXT NOT NULL REFERENCES work(id),
 	added_seq  INTEGER NOT NULL,
-	PRIMARY KEY (discussion, work)
+	PRIMARY KEY (thread, work)
 ) STRICT;
-CREATE TABLE discussion_participants (
-	discussion TEXT NOT NULL REFERENCES discussions(id),
+CREATE TABLE thread_participants (
+	thread TEXT NOT NULL REFERENCES threads(id),
 	team       TEXT NOT NULL REFERENCES teams(handle),
 	added_seq  INTEGER NOT NULL,
-	PRIMARY KEY (discussion, team)
+	PRIMARY KEY (thread, team)
 ) STRICT;
 CREATE TABLE roots (
 	root       TEXT PRIMARY KEY,
@@ -313,7 +314,7 @@ CREATE TABLE revisions (
 	work        TEXT NOT NULL REFERENCES work(id),
 	revision    INTEGER NOT NULL,
 	prior       INTEGER NOT NULL,
-	discussion  TEXT NOT NULL REFERENCES discussions(id),
+	thread  TEXT NOT NULL REFERENCES threads(id),
 	message_seq INTEGER NOT NULL,
 	actor       TEXT NOT NULL,
 	rationale   TEXT NOT NULL,
@@ -324,13 +325,13 @@ CREATE TABLE revisions (
 CREATE TABLE seen (
 	team       TEXT NOT NULL,
 	member     TEXT NOT NULL,
-	discussion TEXT NOT NULL REFERENCES discussions(id),
+	thread TEXT NOT NULL REFERENCES threads(id),
 	seq        INTEGER NOT NULL,
-	PRIMARY KEY (team, member, discussion)
+	PRIMARY KEY (team, member, thread)
 ) STRICT;
 CREATE TABLE messages (
 	seq         INTEGER PRIMARY KEY,
-	discussion  TEXT NOT NULL REFERENCES discussions(id),
+	thread  TEXT NOT NULL REFERENCES threads(id),
 	author_team TEXT NOT NULL,
 	author      TEXT NOT NULL,
 	body        TEXT NOT NULL,

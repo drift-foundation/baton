@@ -1,13 +1,13 @@
 """WF-11 — assigned Work revisions preserve accountable scope
 (WORKFLOW-TESTS.md).
 
-A requester proposes complete contracts in the labelled discussion but
+A requester proposes complete contracts in the labelled thread but
 cannot revise assigned Work directly; the Current handler promotes each
 durable message as an append-only, compare-and-swap revision; transfer
 of Current transfers the authority; new independently accountable
 results become child Work; terminal history is immutable. JSON exposes
 one effective revision and the ordered history with complete
-self-contained content — no discussion replay, no fixed contract
+self-contained content — no thread replay, no fixed contract
 fields, no template machinery.
 """
 
@@ -27,14 +27,14 @@ from ws2cast import verification_teams                        # noqa: E402
 def test_wf11_work_revisions(flow):
 	flow.init(document(verification_teams()))
 
-	# 1. Open Work with a Current handler and its labelled discussion; a
+	# 1. Open Work with a Current handler and its labelled thread; a
 	# requester posts a COMPLETE proposed contract; Current promotes it
 	# as revision 1 naming expected revision 0 and a rationale.
 	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", "parser recovery", "--origin",
 	               "external-report", "--body", "initial statement",
 	               viewer="lang.ada")
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	proposed = flow.ok("say", thread, "--body",
 	                   "complete contract v1: recover the parser "
 	                   "without dropping state; acceptance: replay "
@@ -46,12 +46,12 @@ def test_wf11_work_revisions(flow):
 	detail = flow.ok("detail", work, viewer="lang.ada")
 	effective = detail["revision"]
 	assert effective["revision"] == 1 and effective["prior"] == 0
-	assert effective["discussion"] == thread
+	assert effective["thread"] == thread
 	assert effective["message_seq"] == proposed
 	assert effective["actor"] == "lang.ada"
 	assert effective["rationale"] == "agreed at intake"
 	assert effective["content"].startswith("complete contract v1"), \
-		"the effective contract is not readable without the discussion"
+		"the effective contract is not readable without the thread"
 
 	# 2. The requester posts a replacement but CANNOT revise directly;
 	# Current evaluates and promotes revision 2, preserving identity,
@@ -82,7 +82,7 @@ def test_wf11_work_revisions(flow):
 	                  "--title", "elsewhere", "--origin",
 	                  "self-initiated", "--body", "other",
 	                  viewer="lang.ada")
-	outside = flow.ok("say", foreign["discussion"], "--body",
+	outside = flow.ok("say", foreign["thread"], "--body",
 	                  "written outside the work's context",
 	                  viewer="lang.ada")["seq"]
 	for argv, needle in (
@@ -168,7 +168,7 @@ def test_wf11_work_revisions(flow):
 	# and the committed revisions survive the close untouched.
 	flow.ok("close", work, "--rationale", "delivered under contract v4",
 	        "--outcome", "satisfying", viewer="push.sl")
-	late = flow.ok("say", foreign["discussion"], "--body",
+	late = flow.ok("say", foreign["thread"], "--body",
 	               "post-terminal wish", viewer="lang.ada")["seq"]
 	error = assert_refusal_changes_nothing(
 		flow, "push.sl", "revise", work, "--message", str(late),

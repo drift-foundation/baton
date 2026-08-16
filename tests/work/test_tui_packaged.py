@@ -129,7 +129,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 
 	# 3. ada fans out an INCLUDE, then a REQUEST at push's route — the
 	# obligation the JSON side must see as pending.
-	born = _json_read(executable, path, "work-discussions", epic,
+	born = _json_read(executable, path, "work-threads", epic,
 	                  "--limit", "1", viewer="lang.ada")["rows"][0]["id"]
 	_console(executable, path, "lang.ada", [
 		f'say {born} --body "tracking the reports" --include "*.bug"',

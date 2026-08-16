@@ -462,10 +462,10 @@ def test_any_configured_participant_may_chip_in_without_work_ownership(world):
 	store, _config = world
 	work = _create(store)
 	assert store.conn.execute(
-		"SELECT 1 FROM discussion_participants JOIN discussions "
-		"ON discussions.id = discussion_participants.discussion "
-		"JOIN work ON work.created_seq = discussions.created_seq "
-		"WHERE work.id=? AND discussion_participants.team='push'",
+		"SELECT 1 FROM thread_participants JOIN threads "
+		"ON threads.id = thread_participants.thread "
+		"JOIN work ON work.created_seq = threads.created_seq "
+		"WHERE work.id=? AND thread_participants.team='push'",
 		(work,)).fetchone() is None, "the outsider was already participating"
 	# R69 supersession: contribution is DISCUSSION-addressed after the
 	# Slice B bridge removal — detail advertises no Work-addressed
@@ -478,9 +478,9 @@ def test_any_configured_participant_may_chip_in_without_work_ownership(world):
 	fx.post(store, work, author_team="push", author="sl",
 	                body="I found related evidence", include="push.bug")
 	assert store.conn.execute(
-		"SELECT 1 FROM messages JOIN discussions "
-		"ON discussions.id = messages.discussion "
-		"JOIN work ON work.created_seq = discussions.created_seq "
+		"SELECT 1 FROM messages JOIN threads "
+		"ON threads.id = messages.thread "
+		"JOIN work ON work.created_seq = threads.created_seq "
 		"WHERE work.id=? AND messages.author_team='push' "
 		"AND messages.author='sl'", (work,)).fetchone(), \
 		"a configured participant's contribution was not recorded"

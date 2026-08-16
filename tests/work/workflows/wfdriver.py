@@ -111,14 +111,14 @@ class Flow:
 		return error
 
 	def born(self, work_id: str, viewer: str) -> str:
-		"""The Work's first related discussion, via the public paged
+		"""The Work's first related thread, via the public paged
 		verb — story shorthand, two real CLI calls underneath."""
-		return self.ok("work-discussions", work_id, "--limit", "1",
+		return self.ok("work-threads", work_id, "--limit", "1",
 		               viewer=viewer)["rows"][0]["id"]
 
 	def post(self, work_id: str, *argv, viewer: str) -> dict:
 		"""WS-1-era story shorthand: say into the Work's first related
-		discussion. Both calls go through the public CLI surface."""
+		thread. Both calls go through the public CLI surface."""
 		return self.ok("say", self.born(work_id, viewer), *argv,
 		               viewer=viewer)
 

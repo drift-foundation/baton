@@ -227,23 +227,23 @@ def _handler_gate(conn, work_id: str, actor_team: str, actor: str,
 	return resolution
 
 
-def _live_context(conn, discussion_id: str) -> bool:
+def _live_context(conn, thread_id: str) -> bool:
 	"""The pinned live-context boundary: at least one currently labelled
 	OPEN Work."""
 	return conn.execute(
-		"SELECT 1 FROM discussion_labels JOIN work "
-		"ON work.id = discussion_labels.work "
-		"WHERE discussion_labels.discussion=? AND work.status='open'",
-		(discussion_id,)).fetchone() is not None
+		"SELECT 1 FROM thread_labels JOIN work "
+		"ON work.id = thread_labels.work "
+		"WHERE thread_labels.thread=? AND work.status='open'",
+		(thread_id,)).fetchone() is not None
 
 
-def _join_discussion(conn, discussion_id: str, team: str, seq: int) -> None:
-	"""Monotonic discussion-team participation (WS-4 R56): once added, a
+def _join_thread(conn, thread_id: str, team: str, seq: int) -> None:
+	"""Monotonic thread-team participation (WS-4 R56): once added, a
 	team stays; nothing in this slice removes it."""
 	conn.execute(
-		"INSERT OR IGNORE INTO discussion_participants "
-		"(discussion, team, added_seq) VALUES (?, ?, ?)",
-		(discussion_id, team, seq))
+		"INSERT OR IGNORE INTO thread_participants "
+		"(thread, team, added_seq) VALUES (?, ?, ?)",
+		(thread_id, team, seq))
 
 
 def _recompute_ready(conn, work_id: str) -> None:
@@ -427,6 +427,12 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	`team.kind`, resolved and validated now, at creation."""
 	if not isinstance(title, str) or not title.strip():
 		raise WorkError("a work title must be non-empty")
+	# W31 rev3 (R2, approved): Work titles and Thread subjects share
+	# ONE normalized contract — non-empty, single line, at most 80
+	# UTF-8 bytes. The normalized title is stored as BOTH the Work
+	# title and the born Thread subject, and participates in the
+	# effectively-once lookup below. No silent truncation.
+	title = validate_subject(title, "work title")
 	if origin not in ORIGINS:
 		raise WorkError(f"origin {origin!r} is not one of {ORIGINS}; origin "
 		                f"is immutable history and is not free text")
@@ -528,18 +534,21 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)",
 			(work_id, team, title, origin, classification, phase, OPEN,
 			 parent, team, kind, follow_up_of, seq))
-		discussion_id = f"{prefix}-D{seq}"
+		thread_id = f"{prefix}-T{seq}"
+		# The born Thread's subject is the Work's title — the one
+		# conversation a creation opens is ABOUT that Work.
 		conn.execute(
-			"INSERT INTO discussions (id, created_seq, created_ts) "
-			"VALUES (?, ?, ?)", (discussion_id, seq, store.clock()))
+			"INSERT INTO threads (id, subject, created_seq, created_ts) "
+			"VALUES (?, ?, ?, ?)", (thread_id, title, seq,
+			                        store.clock()))
 		conn.execute(
-			"INSERT INTO discussion_labels (discussion, work, added_seq) "
-			"VALUES (?, ?, ?)", (discussion_id, work_id, seq))
-		_join_discussion(conn, discussion_id, team, seq)
+			"INSERT INTO thread_labels (thread, work, added_seq) "
+			"VALUES (?, ?, ?)", (thread_id, work_id, seq))
+		_join_thread(conn, thread_id, team, seq)
 		conn.execute(
-			"INSERT INTO messages (seq, discussion, author_team, author, "
+			"INSERT INTO messages (seq, thread, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-			(seq, discussion_id, team, author, body))
+			(seq, thread_id, team, author, body))
 		if binding_root is not None:
 			live_root = conn.execute(
 				"SELECT removed FROM roots WHERE root=?",
@@ -561,10 +570,10 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 		if parent is not None:
 			_recompute_ready(conn, parent)
 		mutate.work_id = work_id
-		mutate.discussion_id = discussion_id
+		mutate.thread_id = thread_id
 
 	def finish(result):
-		result["discussion"] = mutate.discussion_id
+		result["thread"] = mutate.thread_id
 		result["work_id"] = mutate.work_id
 
 	return store._write("create_work", f"{team}.{author}",
@@ -583,7 +592,7 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 	recomputation, never down through force. Every terminal close names
 	exactly one of `satisfying`, `non-satisfying`, `rejected`, or
 	`cancelled` and records a non-empty rationale — terminal decisions
-	are durable review evidence, never reconstructed from discussion
+	are durable review evidence, never reconstructed from thread
 	prose. Cancellation is ordinary accelerated close under the same
 	Current-only authority: no cascade, no child bypass. A duplicate is a
 	`rejected` close whose structured reason names the surviving Work
@@ -1544,7 +1553,7 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 		raise WorkError("a response body must be non-empty")
 
 	payload = {"obligation": obligation_seq, "work": obligation["work"],
-	           "discussion": obligation["discussion"]}
+	           "thread": obligation["thread"]}
 
 	def mutate(conn, seq):
 		# WF-09 race 1: the pending check above is optimistic — a competing
@@ -1557,14 +1566,14 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 			                f"{live['status']}")
 		payload["authorization"] = _obligation_gate(
 			conn, obligation, team, member, "respond")
-		# R59: the answer returns to the discussion the @ was raised in —
+		# R59: the answer returns to the thread the @ was raised in —
 		# the obligation names it; participation persists independently
 		# after the obligation terminates.
 		conn.execute(
-			"INSERT INTO messages (seq, discussion, author_team, author, "
+			"INSERT INTO messages (seq, thread, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-			(seq, obligation["discussion"], team, member, body))
-		_join_discussion(conn, obligation["discussion"], team, seq)
+			(seq, obligation["thread"], team, member, body))
+		_join_thread(conn, obligation["thread"], team, seq)
 		conn.execute(
 			"UPDATE obligations SET status='responded', resolved_seq=? "
 			"WHERE seq=?", (seq, obligation_seq))
@@ -1606,7 +1615,7 @@ def dispose_obligation(store: Authority, obligation_seq: int, *,
 		raise WorkError("a disposition needs words")
 
 	payload = {"obligation": obligation_seq, "work": obligation["work"],
-	           "discussion": obligation["discussion"],
+	           "thread": obligation["thread"],
 	           "disposition": disposition}
 
 	def mutate(conn, seq):
@@ -1637,7 +1646,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
                       answer_refs=()) -> dict:
 	"""WS-3: THE atomic provider acceptance. One transaction commits — or
 	refuses whole — the obligation's terminal `accepted` state naming the
-	provider Work, the rationale answered into the consumer's discussion,
+	provider Work, the rationale answered into the consumer's thread,
 	the provenance-carrying dependency edge, readiness recomputation, the
 	exact-obligation wake (R47: the waiter wakes because its named
 	condition completed; the new gate keeps it unready; gates-waiters do
@@ -1658,6 +1667,13 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		          "classification": create.get("classification"),
 		          "phase": create.get("phase"),
 		          "parent": create.get("parent")}
+		# W31 rev3 (R2): the created provider's title shares the
+		# unified subject contract, normalized BEFORE the operation
+		# lookup so the fingerprint sees the one canonical value.
+		if isinstance(create["title"], str) and create["title"].strip():
+			create = dict(create,
+			              title=validate_subject(create["title"],
+			                                     "work title"))
 	refs = _parse_refs(store, refs)
 	answer_refs = _parse_refs(store, answer_refs, "answer reference")
 	operation = _operation(store, actor_team, actor, "accept", op_id,
@@ -1793,21 +1809,22 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 				(provider_id, provider_team, create["title"],
 				 create["classification"], create["phase"], OPEN, parent,
 				 provider_team, kind, seq))
-			provider_discussion = f"{prefix}-D{seq}"
+			provider_thread = f"{prefix}-T{seq}"
 			conn.execute(
-				"INSERT INTO discussions (id, created_seq, created_ts) "
-				"VALUES (?, ?, ?)",
-				(provider_discussion, seq, store.clock()))
+				"INSERT INTO threads (id, subject, created_seq, "
+				"created_ts) VALUES (?, ?, ?, ?)",
+				(provider_thread, create["title"], seq,
+				 store.clock()))
 			conn.execute(
-				"INSERT INTO discussion_labels (discussion, work, "
+				"INSERT INTO thread_labels (thread, work, "
 				"added_seq) VALUES (?, ?, ?)",
-				(provider_discussion, provider_id, seq))
-			_join_discussion(conn, provider_discussion, provider_team, seq)
+				(provider_thread, provider_id, seq))
+			_join_thread(conn, provider_thread, provider_team, seq)
 			conn.execute(
-				"INSERT INTO messages (seq, discussion, author_team, "
+				"INSERT INTO messages (seq, thread, author_team, "
 				"author, body, ts) VALUES (?, ?, ?, ?, ?, "
 				"datetime('now'))",
-				(seq, provider_discussion, actor_team, actor, body))
+				(seq, provider_thread, actor_team, actor, body))
 			_recompute_ready(conn, provider_id)
 			if parent is not None:
 				_recompute_ready(conn, parent)
@@ -1846,42 +1863,42 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			"accepted_into=? WHERE seq=?",
 			(seq, provider_id, obligation_seq))
 
-		# D5/R59: the ORIGINATING discussion — where the @ was raised —
+		# D5/R59: the ORIGINATING thread — where the @ was raised —
 		# atomically gains the provider Work's label, collision-safely: a
 		# pre-existing label is success audited as `existing`, otherwise
 		# this transaction audits `added`. The label is inert context;
 		# the GATE remains exclusively the explicit edge above.
-		originating = obligation["discussion"]
+		originating = obligation["thread"]
 		if conn.execute(
-				"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
+				"SELECT 1 FROM thread_labels WHERE thread=? AND "
 				"work=?", (originating, provider_id)).fetchone():
 			payload["provider_label"] = "existing"
 		else:
 			conn.execute(
-				"INSERT INTO discussion_labels (discussion, work, "
+				"INSERT INTO thread_labels (thread, work, "
 				"added_seq) VALUES (?, ?, ?)",
 				(originating, provider_id, seq))
 			payload["provider_label"] = "added"
-		payload["discussion"] = originating
+		payload["thread"] = originating
 
-		# The rationale returns to that originating discussion as its own
+		# The rationale returns to that originating thread as its own
 		# ordered, audited act (R48: distinct and later in the same
 		# transaction).
 		message_seq = _emit(
 			conn, "post_message", f"{actor_team}.{actor}",
-			{"discussion": originating, "work": consumer_id,
+			{"thread": originating, "work": consumer_id,
 			 "body_bytes": len(body.encode("utf-8")),
 			 "via_accept": seq, "include": [], "request": None,
 			 "pass": None, "set_next": None, "consumed_next": False})
 		conn.execute(
-			"INSERT INTO messages (seq, discussion, author_team, author, "
+			"INSERT INTO messages (seq, thread, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
 			(message_seq, originating, actor_team, actor, body))
 		if answer_refs:
 			# Explicit compound placement (M1): these ride the emitted
 			# ANSWER message's own act, never guessed onto the accept.
 			store._commit_references(conn, message_seq, answer_refs)
-		_join_discussion(conn, originating, actor_team, message_seq)
+		_join_thread(conn, originating, actor_team, message_seq)
 
 		_recompute_ready(conn, consumer_id)
 		# R47: the exact-obligation waiter wakes (its named condition
@@ -1904,11 +1921,11 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 	                    references=refs)
 
 
-def _discussion(store: Authority, discussion_id: str):
-	row = store.conn.execute("SELECT * FROM discussions WHERE id=?",
-	                         (discussion_id,)).fetchone()
+def _thread(store: Authority, thread_id: str):
+	row = store.conn.execute("SELECT * FROM threads WHERE id=?",
+	                         (thread_id,)).fetchone()
 	if row is None:
-		raise WorkError(f"no discussion {discussion_id!r}")
+		raise WorkError(f"no thread {thread_id!r}")
 	return row
 
 
@@ -1919,10 +1936,10 @@ class _NoAdvance(Exception):
 		self.cursor = cursor
 
 
-def seen_discussion(store: Authority, discussion_id: str, *, team: str,
+def seen_thread(store: Authority, thread_id: str, *, team: str,
                     member: str, up_to_seq: int,
                     op_id: str | None = None, refs=()) -> dict:
-	"""The canonical per-discussion cursor advance: monotonic,
+	"""The canonical per-thread cursor advance: monotonic,
 	idempotent, bounded by the OBSERVED authority sequence (a future
 	cursor would hide messages that do not exist yet), revalidated inside
 	the committing transaction, and truthful — a losing lower mark
@@ -1934,11 +1951,11 @@ def seen_discussion(store: Authority, discussion_id: str, *, team: str,
 	_member(store, team, member)
 	refs = _parse_refs(store, refs)
 	operation = _operation(store, team, member, "mark_seen", op_id,
-	                       {"discussion": discussion_id,
+	                       {"thread": thread_id,
 	                        "up_to_seq": up_to_seq, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
-	_discussion(store, discussion_id)
+	_thread(store, thread_id)
 	if not isinstance(up_to_seq, int) or up_to_seq < 0:
 		raise WorkError("seen takes a non-negative sequence number")
 	if up_to_seq > store.last_seq():
@@ -1951,15 +1968,15 @@ def seen_discussion(store: Authority, discussion_id: str, *, team: str,
 		_member_active(conn, team, member)
 		current = conn.execute(
 			"SELECT seq FROM seen WHERE team=? AND member=? AND "
-			"discussion=?", (team, member, discussion_id)).fetchone()
+			"thread=?", (team, member, thread_id)).fetchone()
 		if current is not None and current["seq"] >= up_to_seq:
 			raise _NoAdvance(current["seq"])
 		conn.execute(
-			"INSERT INTO seen (team, member, discussion, seq) "
+			"INSERT INTO seen (team, member, thread, seq) "
 			"VALUES (?, ?, ?, ?) "
-			"ON CONFLICT(team, member, discussion) DO UPDATE SET "
+			"ON CONFLICT(team, member, thread) DO UPDATE SET "
 			"seq = excluded.seq",
-			(team, member, discussion_id, up_to_seq))
+			(team, member, thread_id, up_to_seq))
 
 	def finish(result):
 		result["advanced"] = True
@@ -1967,7 +1984,7 @@ def seen_discussion(store: Authority, discussion_id: str, *, team: str,
 
 	try:
 		return store._write("mark_seen", f"{team}.{member}",
-		                    {"discussion": discussion_id,
+		                    {"thread": thread_id,
 		                     "up_to": up_to_seq}, mutate,
 		                    operation=operation, finish=finish,
 	                    references=refs)
@@ -1996,10 +2013,25 @@ def _label_gate(store, work_row, actor_team: str, actor: str) -> None:
 			f"another team's work merely by knowing its id")
 
 
-def create_discussion(store: Authority, *, actor_team: str, actor: str,
-                      body: str, labels,
+def validate_subject(subject, what: str = "thread") -> str:
+	"""A Thread's REQUIRED concise subject: non-empty, one line, at most
+	80 UTF-8 bytes — the space-constrained console renders it whole."""
+	if not isinstance(subject, str) or not subject.strip():
+		raise WorkError(f"a {what} requires a concise non-empty subject")
+	subject = subject.strip()
+	if "\n" in subject or "\r" in subject:
+		raise WorkError(f"a {what} subject is a single line")
+	if len(subject.encode("utf-8")) > 80:
+		raise WorkError(f"a {what} subject is at most 80 UTF-8 bytes; "
+		                f"got {len(subject.encode('utf-8'))} — details "
+		                f"belong in the message body")
+	return subject
+
+
+def create_thread(store: Authority, *, actor_team: str, actor: str,
+                      body: str, labels, subject: str,
                       op_id: str | None = None, refs=()) -> dict:
-	"""A discussion is born labelled and speaking: at least one authorized
+	"""A thread is born labelled and speaking: at least one authorized
 	`#WORK` label (each to the actor's own team's Work, at least one of
 	them OPEN — the live-context ruling) and its first message, in one
 	transaction."""
@@ -2007,16 +2039,21 @@ def create_discussion(store: Authority, *, actor_team: str, actor: str,
 	if isinstance(labels, str):
 		labels = [labels]
 	labels = list(labels or [])
+	# R1 (W31 review): the subject is validated/normalized BEFORE the
+	# operation lookup and joins the typed fingerprint — an identical
+	# retry replays; a changed subject under the same op-id refuses.
+	subject = validate_subject(subject)
 	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor,
-	                       "create_discussion", op_id,
-	                       {"body": body, "labels": labels, "refs": refs})
+	                       "create_thread", op_id,
+	                       {"body": body, "labels": labels,
+	                        "subject": subject, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	if not isinstance(body, str) or not body:
-		raise WorkError("a discussion is born with its first message")
+		raise WorkError("a thread is born with its first message")
 	if not labels:
-		raise WorkError("a discussion is born with at least one "
+		raise WorkError("a thread is born with at least one "
 		                "authorized #WORK label (live-context ruling)")
 	if len(set(labels)) != len(labels):
 		raise WorkError("a label is applied once")
@@ -2032,12 +2069,12 @@ def create_discussion(store: Authority, *, actor_team: str, actor: str,
 			"(live-context ruling)")
 
 	prefix = store.meta()["authority_uuid"][:8]
-	payload = {"labels": list(labels),
+	payload = {"labels": list(labels), "subject": subject,
 	           "body_bytes": len(body.encode("utf-8"))}
 
 	def mutate(conn, seq):
 		_member_active(conn, actor_team, actor)
-		discussion_id = f"{prefix}-D{seq}"
+		thread_id = f"{prefix}-T{seq}"
 		live_open = False
 		for work_id in labels:
 			live = conn.execute(
@@ -2053,57 +2090,58 @@ def create_discussion(store: Authority, *, actor_team: str, actor: str,
 				"a new message requires at least one labelled OPEN "
 				"work (live-context ruling)")
 		conn.execute(
-			"INSERT INTO discussions (id, created_seq, created_ts) "
-			"VALUES (?, ?, ?)", (discussion_id, seq, store.clock()))
+			"INSERT INTO threads (id, subject, created_seq, "
+			"created_ts) VALUES (?, ?, ?, ?)",
+			(thread_id, subject, seq, store.clock()))
 		for work_id in labels:
 			conn.execute(
-				"INSERT INTO discussion_labels (discussion, work, "
+				"INSERT INTO thread_labels (thread, work, "
 				"added_seq) VALUES (?, ?, ?)",
-				(discussion_id, work_id, seq))
-		_join_discussion(conn, discussion_id, actor_team, seq)
+				(thread_id, work_id, seq))
+		_join_thread(conn, thread_id, actor_team, seq)
 		conn.execute(
-			"INSERT INTO messages (seq, discussion, author_team, author, "
+			"INSERT INTO messages (seq, thread, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-			(seq, discussion_id, actor_team, actor, body))
-		payload["discussion"] = discussion_id
-		mutate.discussion_id = discussion_id
+			(seq, thread_id, actor_team, actor, body))
+		payload["thread"] = thread_id
+		mutate.thread_id = thread_id
 
 	def finish(result):
-		result["discussion"] = mutate.discussion_id
+		result["thread"] = mutate.thread_id
 
-	return store._write("create_discussion", f"{actor_team}.{actor}",
+	return store._write("create_thread", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
 	                    finish=finish, references=refs)
 
 
-def label_discussion(store: Authority, discussion_id: str, work_id: str, *,
+def label_thread(store: Authority, thread_id: str, work_id: str, *,
                      actor_team: str, actor: str, op_id: str | None = None, refs=()) -> dict:
 	"""Apply an INERT `#WORK` label: reusable context, never a gate. May
 	name terminal Work. Authorized by the Work's owning team (D1)."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "label", op_id,
-	                       {"discussion": discussion_id,
+	                       {"thread": thread_id,
 	                        "work": work_id, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
-	_discussion(store, discussion_id)
+	_thread(store, thread_id)
 	row = _work(store, work_id)
 	_label_gate(store, row, actor_team, actor)
 	if store.conn.execute(
-			"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
-			"work=?", (discussion_id, work_id)).fetchone():
-		raise WorkError(f"{discussion_id} already carries #" + work_id)
+			"SELECT 1 FROM thread_labels WHERE thread=? AND "
+			"work=?", (thread_id, work_id)).fetchone():
+		raise WorkError(f"{thread_id} already carries #" + work_id)
 
-	payload = {"discussion": discussion_id, "work": work_id,
+	payload = {"thread": thread_id, "work": work_id,
 	           "work_team": row["team"]}
 
 	def mutate(conn, seq):
 		_member_active(conn, actor_team, actor)
 		if conn.execute(
-				"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
-				"work=?", (discussion_id, work_id)).fetchone():
-			raise WorkError(f"{discussion_id} already carries #" + work_id)
+				"SELECT 1 FROM thread_labels WHERE thread=? AND "
+				"work=?", (thread_id, work_id)).fetchone():
+			raise WorkError(f"{thread_id} already carries #" + work_id)
 		live = conn.execute("SELECT team, status FROM work WHERE id=?",
 		                    (work_id,)).fetchone()
 		if actor_team != live["team"]:
@@ -2114,76 +2152,76 @@ def label_discussion(store: Authority, discussion_id: str, work_id: str, *,
 		# optimistic diagnostic.
 		payload["work_status"] = live["status"]
 		conn.execute(
-			"INSERT INTO discussion_labels (discussion, work, added_seq) "
-			"VALUES (?, ?, ?)", (discussion_id, work_id, seq))
-		_join_discussion(conn, discussion_id, actor_team, seq)
+			"INSERT INTO thread_labels (thread, work, added_seq) "
+			"VALUES (?, ?, ?)", (thread_id, work_id, seq))
+		_join_thread(conn, thread_id, actor_team, seq)
 
 	return store._write("label", f"{actor_team}.{actor}", payload,
 	                    mutate, operation=operation,
 	                    references=refs)
 
 
-def unlabel_discussion(store: Authority, discussion_id: str, work_id: str,
+def unlabel_thread(store: Authority, thread_id: str, work_id: str,
                        *, actor_team: str, actor: str, op_id: str | None = None, refs=()) -> dict:
 	"""Remove a label under the same D1 authority. Removing the FINAL
-	label refuses — a discussion always keeps explicit Work scope (the
+	label refuses — a thread always keeps explicit Work scope (the
 	live-context ruling). The audit act is the history; the row goes."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "unlabel", op_id,
-	                       {"discussion": discussion_id,
+	                       {"thread": thread_id,
 	                        "work": work_id, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
-	_discussion(store, discussion_id)
+	_thread(store, thread_id)
 	row = _work(store, work_id)
 	_label_gate(store, row, actor_team, actor)
 	if store.conn.execute(
-			"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
-			"work=?", (discussion_id, work_id)).fetchone() is None:
-		raise WorkError(f"{discussion_id} does not carry #" + work_id)
+			"SELECT 1 FROM thread_labels WHERE thread=? AND "
+			"work=?", (thread_id, work_id)).fetchone() is None:
+		raise WorkError(f"{thread_id} does not carry #" + work_id)
 
-	payload = {"discussion": discussion_id, "work": work_id}
+	payload = {"thread": thread_id, "work": work_id}
 
 	def mutate(conn, seq):
 		_member_active(conn, actor_team, actor)
 		if conn.execute(
-				"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
-				"work=?", (discussion_id, work_id)).fetchone() is None:
-			raise WorkError(f"{discussion_id} does not carry #" + work_id)
+				"SELECT 1 FROM thread_labels WHERE thread=? AND "
+				"work=?", (thread_id, work_id)).fetchone() is None:
+			raise WorkError(f"{thread_id} does not carry #" + work_id)
 		remaining = conn.execute(
-			"SELECT COUNT(*) AS n FROM discussion_labels WHERE "
-			"discussion=?", (discussion_id,)).fetchone()["n"]
+			"SELECT COUNT(*) AS n FROM thread_labels WHERE "
+			"thread=?", (thread_id,)).fetchone()["n"]
 		if remaining <= 1:
 			raise WorkError(
-				"#" + work_id + f" is {discussion_id}'s final label; a "
-				f"discussion always keeps explicit work scope "
+				"#" + work_id + f" is {thread_id}'s final label; a "
+				f"thread always keeps explicit work scope "
 				f"(live-context ruling)")
 		conn.execute(
-			"DELETE FROM discussion_labels WHERE discussion=? AND work=?",
-			(discussion_id, work_id))
+			"DELETE FROM thread_labels WHERE thread=? AND work=?",
+			(thread_id, work_id))
 
 	return store._write("unlabel", f"{actor_team}.{actor}", payload,
 	                    mutate, operation=operation,
 	                    references=refs)
 
 
-def _select_target(conn, discussion_id: str, actor_team: str, actor: str,
+def _select_target(conn, thread_id: str, actor_team: str, actor: str,
                    operation: str, on: str | None):
 	"""D2/R55/D9: the ONE currently labelled, eligible, OPEN Work a
 	carrying operator acts against. An explicit `--on` must name a
-	current label (the discussion carries its operating context) and that
+	current label (the thread carries its operating context) and that
 	Work must itself be open and authorized. An omitted `--on` resolves
 	only when exactly ONE label is eligible for this operation — zero or
 	several refuse. Returns (work_id, authorization_snapshot)."""
 	labels = [row["work"] for row in conn.execute(
-		"SELECT work FROM discussion_labels WHERE discussion=? "
-		"ORDER BY added_seq, work", (discussion_id,))]
+		"SELECT work FROM thread_labels WHERE thread=? "
+		"ORDER BY added_seq, work", (thread_id,))]
 	if on is not None:
 		if on not in labels:
 			raise WorkError(
-				f"--on {on} is not among {discussion_id}'s current "
-				f"labels; the discussion carries its operating context")
+				f"--on {on} is not among {thread_id}'s current "
+				f"labels; the thread carries its operating context")
 		candidates = [on]
 	else:
 		candidates = labels
@@ -2215,12 +2253,12 @@ def _select_target(conn, discussion_id: str, actor_team: str, actor: str,
 	if len(eligible) != 1:
 		raise WorkError(
 			f"{operation} with no --on resolves only when exactly one "
-			f"labelled work is eligible; {discussion_id} has "
+			f"labelled work is eligible; {thread_id} has "
 			f"{len(eligible)} — select the target with --on")
 	return eligible[0]
 
 
-def post_discussion(store: Authority, discussion_id: str, *,
+def post_thread(store: Authority, thread_id: str, *,
                     author_team: str, author: str, body: str,
                     include=(), request: str | None = None,
                     pass_to: str | None = None,
@@ -2228,7 +2266,7 @@ def post_discussion(store: Authority, discussion_id: str, *,
                     on: str | None = None,
                     op_id: str | None = None, refs=()) -> dict:
 	"""THE public posting surface (Slice B): one message into one
-	discussion, optionally carrying this operation's tags.
+	thread, optionally carrying this operation's tags.
 
 	`+` (include) stays the ONLY fan-out: expanded against live
 	endpoints, the exact expansion recorded with the publication, each
@@ -2246,13 +2284,13 @@ def post_discussion(store: Authority, discussion_id: str, *,
 	include = list(include or [])
 	refs = _parse_refs(store, refs)
 	protected = _operation(store, author_team, author, "post", op_id,
-	                       {"discussion": discussion_id, "body": body,
+	                       {"thread": thread_id, "body": body,
 	                        "include": include, "request": request,
 	                        "pass_to": pass_to, "set_next": set_next,
 	                        "on": on, "refs": refs})
 	if isinstance(protected, dict):
 		return protected
-	_discussion(store, discussion_id)
+	_thread(store, thread_id)
 	if not isinstance(body, str) or not body:
 		raise WorkError("a message body must be non-empty")
 	if request is not None and pass_to is not None:
@@ -2284,7 +2322,7 @@ def post_discussion(store: Authority, discussion_id: str, *,
 		# Optimistic selection — decides the event kind; the selection
 		# that COMMITS is re-derived in-lock and must agree.
 		selected, _authorization = _select_target(
-			store.conn, discussion_id, author_team, author, operation, on)
+			store.conn, thread_id, author_team, author, operation, on)
 		if passed is not None:
 			row = _work(store, selected)
 			if (row["current_team"], row["current_kind"]) == passed:
@@ -2297,13 +2335,13 @@ def post_discussion(store: Authority, discussion_id: str, *,
 				event_kind = "pass"
 		else:
 			event_kind = "request"
-	elif not _live_context(store.conn, discussion_id):
+	elif not _live_context(store.conn, thread_id):
 		raise WorkError(
-			f"{discussion_id} has no labelled open work; closed context "
+			f"{thread_id} has no labelled open work; closed context "
 			f"is readable history — create or label open follow-up work "
 			f"to continue (live-context ruling)")
 
-	payload = {"discussion": discussion_id,
+	payload = {"thread": thread_id,
 	           "body_bytes": len(body.encode("utf-8")),
 	           "include": [], "request": request, "pass": pass_to,
 	           "set_next": set_next, "on": on,
@@ -2318,10 +2356,10 @@ def post_discussion(store: Authority, discussion_id: str, *,
 			# the one that decided this act's kind lost a race — refuse,
 			# never commit a mislabeled transition.
 			work_id, authorization = _select_target(
-				conn, discussion_id, author_team, author, operation, on)
+				conn, thread_id, author_team, author, operation, on)
 			if work_id != selected:
 				raise WorkError(
-					f"{discussion_id}'s eligible context changed while "
+					f"{thread_id}'s eligible context changed while "
 					f"this {operation} was being prepared; it lost a "
 					f"concurrent race — retry against the current state")
 			payload["work"] = work_id
@@ -2344,14 +2382,14 @@ def post_discussion(store: Authority, discussion_id: str, *,
 						f"race — retry against the current state")
 		else:
 			payload["work"] = None
-			if not _live_context(conn, discussion_id):
+			if not _live_context(conn, thread_id):
 				raise WorkError(
-					f"{discussion_id} has no labelled open work; closed "
+					f"{thread_id} has no labelled open work; closed "
 					f"context is readable history (live-context ruling)")
 		conn.execute(
-			"INSERT INTO messages (seq, discussion, author_team, author, "
+			"INSERT INTO messages (seq, thread, author_team, author, "
 			"body, ts) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-			(seq, discussion_id, author_team, author, body))
+			(seq, thread_id, author_team, author, body))
 		# C4: every endpoint this operation touches is resolved HERE,
 		# inside the transaction — including the wildcard membership
 		# itself (review R1), so the recorded set and its snapshots
@@ -2369,12 +2407,12 @@ def post_discussion(store: Authority, discussion_id: str, *,
 			import json as _json
 			conn.execute(
 				"INSERT INTO obligations (seq, work, message_seq, team, "
-				"kind, route, role, handlers, generation, discussion) "
+				"kind, route, role, handlers, generation, thread) "
 				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 				(seq, payload["work"], seq, requested[0], requested[1],
 				 resolution["route"], resolution["role"],
 				 _json.dumps(resolution["handlers"]),
-				 resolution["generation"], discussion_id))
+				 resolution["generation"], thread_id))
 			touched_teams.add(requested[0])
 		if passed is not None:
 			work_id = payload["work"]
@@ -2400,7 +2438,7 @@ def post_discussion(store: Authority, discussion_id: str, *,
 					 planned[1] if planned else None, work_id))
 			touched_teams.add(passed[0])
 		for team in sorted(touched_teams):
-			_join_discussion(conn, discussion_id, team, seq)
+			_join_thread(conn, thread_id, team, seq)
 
 	def finish(result):
 		result["included"] = [entry["endpoint"]
@@ -2426,10 +2464,10 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
                 rationale: str | None = None,
                 op_id: str | None = None, refs=()) -> dict:
 	"""Append-only Work contract revision: PROMOTES one complete durable
-	discussion message as the effective contract (pinned ruling). Only
+	thread message as the effective contract (pinned ruling). Only
 	the resolved Current handler of OPEN Work commits it; transfer of
 	Current transfers this authority. The promoted message must live in
-	a discussion currently carrying this open Work's label. The write is
+	a thread currently carrying this open Work's label. The write is
 	compare-and-swap on the expected prior revision — a concurrent or
 	stale writer refuses whole without consuming a sequence — and every
 	decision is rechecked inside the committing transaction. The stored
@@ -2452,7 +2490,7 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 			f"post-terminal revision")
 	if message_seq is None or not isinstance(message_seq, int):
 		raise WorkError("a revision promotes exactly one durable "
-		                "discussion message; name it with --message")
+		                "thread message; name it with --message")
 	if expected_revision is None or not isinstance(expected_revision, int) \
 			or expected_revision < 0:
 		raise WorkError("a revision names the expected prior revision "
@@ -2461,17 +2499,17 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 	if not isinstance(rationale, str) or not rationale.strip():
 		raise WorkError("a revision records its rationale")
 	message = store.conn.execute(
-		"SELECT seq, discussion, author_team, author, body FROM messages "
+		"SELECT seq, thread, author_team, author, body FROM messages "
 		"WHERE seq=?", (message_seq,)).fetchone()
 	if message is None:
-		raise WorkError(f"no discussion message {message_seq}")
+		raise WorkError(f"no thread message {message_seq}")
 	if store.conn.execute(
-			"SELECT 1 FROM discussion_labels WHERE discussion=? AND "
-			"work=?", (message["discussion"], work_id)).fetchone() is None:
+			"SELECT 1 FROM thread_labels WHERE thread=? AND "
+			"work=?", (message["thread"], work_id)).fetchone() is None:
 		raise WorkError(
-			f"message {message_seq} lives in {message['discussion']}, "
+			f"message {message_seq} lives in {message['thread']}, "
 			f"which does not carry #" + work_id + "; a promoted "
-			f"contract keeps the work's own discussion provenance")
+			f"contract keeps the work's own thread provenance")
 	current = _current_revision(store.conn, work_id)
 	if expected_revision != current:
 		raise WorkError(
@@ -2481,7 +2519,7 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 
 	payload = {"work": work_id, "revision": expected_revision + 1,
 	           "prior": expected_revision,
-	           "discussion": message["discussion"],
+	           "thread": message["thread"],
 	           "message_seq": message_seq, "rationale": rationale}
 
 	def mutate(conn, seq):
@@ -2497,9 +2535,9 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 		payload["authorization"] = _handler_gate(
 			conn, work_id, actor_team, actor, "revise")
 		if conn.execute(
-				"SELECT 1 FROM discussion_labels WHERE discussion=? "
+				"SELECT 1 FROM thread_labels WHERE thread=? "
 				"AND work=?",
-				(message["discussion"], work_id)).fetchone() is None:
+				(message["thread"], work_id)).fetchone() is None:
 			raise WorkError(
 				f"message {message_seq} lost its #" + work_id +
 				" provenance while this revision was being prepared; "
@@ -2515,10 +2553,10 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 				f"race — re-read and retry against the current state")
 		conn.execute(
 			"INSERT INTO revisions (seq, work, revision, prior, "
-			"discussion, message_seq, actor, rationale, content, "
+			"thread, message_seq, actor, rationale, content, "
 			"created_ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			(seq, work_id, expected_revision + 1, expected_revision,
-			 message["discussion"], message_seq,
+			 message["thread"], message_seq,
 			 f"{actor_team}.{actor}", rationale, message["body"],
 			 store.clock()))
 

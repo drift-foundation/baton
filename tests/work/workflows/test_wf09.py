@@ -118,7 +118,7 @@ def test_wf09_restart_and_races(flow):
 		assert rebuilt["current"] is None and rebuilt["next"] is None
 	assert flow.ok("obligations", viewer="lang.ada") == []
 	assert flow.ok("home", viewer="push.sl")["rows"][0]["status"] == "closed"
-	born = flow.ok("work-discussions", push1,
+	born = flow.ok("work-threads", push1,
 	               viewer="push.sl")["rows"][0]["id"]
 	trail = flow.ok("thread", born, viewer="push.sl")["messages"]
 	assert [msg["seq"] for msg in trail] == \

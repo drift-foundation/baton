@@ -1,9 +1,9 @@
-"""WS-4 Slice A: first-class discussions, inert `#WORK` labels, live
-context, per-discussion cursors, and overlap-explicit New.
+"""WS-4 Slice A: first-class threads, inert `#WORK` labels, live
+context, per-thread cursors, and overlap-explicit New.
 
 Every assertion traces to the pinned rulings and R54–R60: one message
-belongs to one discussion; labels are foreign-key-bound inert context
-authorized by the owning team; a discussion is born labelled and speaking
+belongs to one thread; labels are foreign-key-bound inert context
+authorized by the owning team; a thread is born labelled and speaking
 and always keeps explicit Work scope; posting requires live context;
 participation is monotonic; New is member-relative, distinct-counted, and
 decomposed as total = own + sum(children) - overlap.
@@ -61,12 +61,12 @@ def _interleave(store, competing):
 
 # -- creation atomicity -------------------------------------------------------
 
-def test_work_is_born_with_a_labelled_speaking_discussion(world):
+def test_work_is_born_with_a_labelled_speaking_thread(world):
 	store = world
 	result = _create(store)
-	work, discussion = result["work_id"], result["discussion"]
-	assert discussion.endswith(f"-D{result['seq']}")
-	view = pj.thread(store, discussion, viewer_team="lang",
+	work, thread = result["work_id"], result["thread"]
+	assert thread.endswith(f"-T{result['seq']}")
+	view = pj.thread(store, thread, viewer_team="lang",
 	                 viewer_member="ada")
 	assert [entry["work"] for entry in view["labels"]] == [work]
 	assert view["participants"] == ["lang"]
@@ -75,10 +75,10 @@ def test_work_is_born_with_a_labelled_speaking_discussion(world):
 		"the first message is not atomic with the creation"
 	detail = pj.detail(store, work, viewer_team="lang",
 	                   viewer_member="ada")
-	assert [entry["id"] for entry in detail["discussions"]] == [discussion]
+	assert [entry["id"] for entry in detail["threads"]] == [thread]
 
 
-def test_create_discussion_requires_authorized_live_labels(world):
+def test_create_thread_requires_authorized_live_labels(world):
 	store = world
 	open_work = _create(store)["work_id"]
 	closed = _create(store)["work_id"]
@@ -86,22 +86,22 @@ def test_create_discussion_requires_authorized_live_labels(world):
 	              rationale="done", outcome="satisfying")
 	foreign = _create(store, team="push", member="sl")["work_id"]
 	with pytest.raises(bw.WorkError, match="at least one authorized"):
-		tr.create_discussion(store, actor_team="lang", actor="ada",
-		                     body="b", labels=[])
+		tr.create_thread(store, actor_team="lang", actor="ada",
+		                     body="b", labels=[], subject="trial subject")
 	with pytest.raises(bw.WorkError, match="labelled only by"):
-		tr.create_discussion(store, actor_team="lang", actor="ada",
-		                     body="b", labels=[foreign])
+		tr.create_thread(store, actor_team="lang", actor="ada",
+		                     body="b", labels=[foreign], subject="trial subject")
 	with pytest.raises(bw.WorkError, match="live-context"):
-		tr.create_discussion(store, actor_team="lang", actor="ada",
-		                     body="b", labels=[closed])
+		tr.create_thread(store, actor_team="lang", actor="ada",
+		                     body="b", labels=[closed], subject="trial subject")
 	with pytest.raises(bw.WorkError, match="applied once"):
-		tr.create_discussion(store, actor_team="lang", actor="ada",
-		                     body="b", labels=[open_work, open_work])
+		tr.create_thread(store, actor_team="lang", actor="ada",
+		                     body="b", labels=[open_work, open_work], subject="trial subject")
 	# Spanning terminal and open context is fine — one open label carries.
-	result = tr.create_discussion(store, actor_team="lang", actor="ada",
+	result = tr.create_thread(store, actor_team="lang", actor="ada",
 	                              body="cross-phase context",
-	                              labels=[open_work, closed])
-	view = pj.thread(store, result["discussion"], viewer_team="lang",
+	                              labels=[open_work, closed], subject="trial subject")
+	view = pj.thread(store, result["thread"], viewer_team="lang",
 	                 viewer_member="ada")
 	assert {entry["work"] for entry in view["labels"]} == \
 		{open_work, closed}
@@ -114,22 +114,22 @@ def test_labels_are_owning_team_scoped_both_ways(world):
 	mine = _create(store)
 	theirs = _create(store, team="push", member="sl")
 	with pytest.raises(bw.WorkError, match="labelled only by"):
-		tr.label_discussion(store, mine["discussion"],
+		tr.label_thread(store, mine["thread"],
 		                    theirs["work_id"], actor_team="lang",
 		                    actor="ada")
-	tr.label_discussion(store, mine["discussion"], theirs["work_id"],
+	tr.label_thread(store, mine["thread"], theirs["work_id"],
 	                    actor_team="push", actor="sl")
 	with pytest.raises(bw.WorkError, match="already carries"):
-		tr.label_discussion(store, mine["discussion"], theirs["work_id"],
+		tr.label_thread(store, mine["thread"], theirs["work_id"],
 		                    actor_team="push", actor="sl")
 	with pytest.raises(bw.WorkError, match="labelled only by"):
-		tr.unlabel_discussion(store, mine["discussion"],
+		tr.unlabel_thread(store, mine["thread"],
 		                      theirs["work_id"], actor_team="lang",
 		                      actor="ada")
-	tr.unlabel_discussion(store, mine["discussion"], theirs["work_id"],
+	tr.unlabel_thread(store, mine["thread"], theirs["work_id"],
 	                      actor_team="push", actor="sl")
 	with pytest.raises(bw.WorkError, match="does not carry"):
-		tr.unlabel_discussion(store, mine["discussion"],
+		tr.unlabel_thread(store, mine["thread"],
 		                      theirs["work_id"], actor_team="push",
 		                      actor="sl")
 
@@ -149,7 +149,7 @@ def test_a_label_is_inert_everywhere(world):
 		"obligations": store.conn.execute(
 			"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"],
 	}
-	tr.label_discussion(store, consumer["discussion"],
+	tr.label_thread(store, consumer["thread"],
 	                    provider["work_id"], actor_team="push", actor="sl")
 	after_work = [dict(row) for row in store.conn.execute(
 		"SELECT * FROM work ORDER BY id")]
@@ -165,11 +165,12 @@ def test_a_label_is_inert_everywhere(world):
 	# Terminal work may be labelled; still inert.
 	tr.close_work(store, provider["work_id"], actor_team="push",
 	              actor="sl", rationale="done", outcome="satisfying")
-	other = tr.create_discussion(store, actor_team="push", actor="sl",
+	other = tr.create_thread(store, actor_team="push", actor="sl",
 	                             body="retro",
 	                             labels=[_create(store, team="push",
-	                                             member="sl")["work_id"]])
-	tr.label_discussion(store, other["discussion"], provider["work_id"],
+	                                             member="sl")["work_id"]],
+		subject="trial subject")
+	tr.label_thread(store, other["thread"], provider["work_id"],
 	                    actor_team="push", actor="sl")
 
 
@@ -177,12 +178,12 @@ def test_the_final_label_never_leaves(world):
 	store = world
 	first = _create(store)
 	second = _create(store)
-	tr.label_discussion(store, first["discussion"], second["work_id"],
+	tr.label_thread(store, first["thread"], second["work_id"],
 	                    actor_team="lang", actor="ada")
-	tr.unlabel_discussion(store, first["discussion"], second["work_id"],
+	tr.unlabel_thread(store, first["thread"], second["work_id"],
 	                      actor_team="lang", actor="ada")
 	with pytest.raises(bw.WorkError, match="final label"):
-		tr.unlabel_discussion(store, first["discussion"],
+		tr.unlabel_thread(store, first["thread"],
 		                      first["work_id"], actor_team="lang",
 		                      actor="ada")
 
@@ -192,15 +193,15 @@ def test_the_final_label_never_leaves(world):
 def test_posting_requires_a_labelled_open_work(world):
 	store = world
 	result = _create(store)
-	tr.post_discussion(store, result["discussion"], author_team="push",
+	tr.post_thread(store, result["thread"], author_team="push",
 	                   author="sl", body="any configured member may speak")
 	tr.close_work(store, result["work_id"], actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="live-context|labelled open"):
-		tr.post_discussion(store, result["discussion"], author_team="lang",
+		tr.post_thread(store, result["thread"], author_team="lang",
 		                   author="ada", body="after the end")
-	# The discussion stays READABLE...
-	view = pj.thread(store, result["discussion"], viewer_team="lang",
+	# The thread stays READABLE...
+	view = pj.thread(store, result["thread"], viewer_team="lang",
 	                 viewer_member="ada")
 	assert len(view["messages"]) == 2
 	# ...and labelling open follow-up work makes it postable again.
@@ -208,9 +209,9 @@ def test_posting_requires_a_labelled_open_work(world):
 	                        title="follow-up", origin="external-report",
 	                        author="ada", body="continuation",
 	                        follow_up_of=result["work_id"])
-	tr.label_discussion(store, result["discussion"], follow["work_id"],
+	tr.label_thread(store, result["thread"], follow["work_id"],
 	                    actor_team="lang", actor="ada")
-	tr.post_discussion(store, result["discussion"], author_team="lang",
+	tr.post_thread(store, result["thread"], author_team="lang",
 	                   author="ada", body="continued under new work")
 
 
@@ -223,11 +224,11 @@ def test_the_last_open_label_closing_mid_post_refuses_in_lock(world):
 		other, result["work_id"], actor_team="lang", actor="ada",
 		rationale="closed mid-post", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="live-context|labelled open"):
-		tr.post_discussion(store, result["discussion"], author_team="lang",
+		tr.post_thread(store, result["thread"], author_team="lang",
 		                   author="ada", body="racing the close")
 	count = store.conn.execute(
-		"SELECT COUNT(*) AS n FROM messages WHERE discussion=?",
-		(result["discussion"],)).fetchone()["n"]
+		"SELECT COUNT(*) AS n FROM messages WHERE thread=?",
+		(result["thread"],)).fetchone()["n"]
 	assert count == 1, "the losing post landed on dead context"
 	other.close()
 
@@ -235,7 +236,7 @@ def test_the_last_open_label_closing_mid_post_refuses_in_lock(world):
 # -- seen, New, and the overlap identity --------------------------------------
 
 def test_new_decomposes_with_visible_overlap(world):
-	"""One discussion labelled to two siblings under one parent: each
+	"""One thread labelled to two siblings under one parent: each
 	child's count is truthful, the parent's total counts each message
 	once, and overlap says exactly how much the raw sum overstated."""
 	store = world
@@ -246,11 +247,12 @@ def test_new_decomposes_with_visible_overlap(world):
 	right = tr.create_work(store, team="lang", kind="bug", title="right",
 	                       origin="decomposition", author="ada", body="r",
 	                       parent=parent)
-	shared = tr.create_discussion(store, actor_team="lang", actor="ada",
+	shared = tr.create_thread(store, actor_team="lang", actor="ada",
 	                              body="spans both legs",
 	                              labels=[left["work_id"],
-	                                      right["work_id"]])
-	tr.post_discussion(store, shared["discussion"], author_team="lang",
+	                                      right["work_id"]],
+	                              subject="trial subject")
+	tr.post_thread(store, shared["thread"], author_team="lang",
 	                   author="ada", body="second shared message")
 
 	breakdown = pj.new_count(store, parent, viewer_team="lang",
@@ -262,11 +264,11 @@ def test_new_decomposes_with_visible_overlap(world):
 	# Each child truthfully counts its 2 shared + 1 own creation message.
 	assert left_entry["new"] == 3 and right_entry["new"] == 3
 	assert breakdown["overlap"] == 2, \
-		"the shared discussion's dedup is not visible"
+		"the shared thread's dedup is not visible"
 	assert breakdown["total"] == breakdown["own"] + \
 		left_entry["new"] + right_entry["new"] - breakdown["overlap"]
-	# Reading the shared discussion once clears it EVERYWHERE.
-	tr.seen_discussion(store, shared["discussion"], team="lang",
+	# Reading the shared thread once clears it EVERYWHERE.
+	tr.seen_thread(store, shared["thread"], team="lang",
 	                   member="grace", up_to_seq=store.last_seq())
 	after = pj.new_count(store, parent, viewer_team="lang",
 	                     viewer_member="grace")
@@ -279,20 +281,20 @@ def test_cursors_are_per_member_and_the_bridge_covers_all_labels(world):
 	store = world
 	result = _create(store)
 	second = _create(store)
-	tr.label_discussion(store, result["discussion"], second["work_id"],
+	tr.label_thread(store, result["thread"], second["work_id"],
 	                    actor_team="lang", actor="ada")
-	tr.post_discussion(store, result["discussion"], author_team="lang",
+	tr.post_thread(store, result["thread"], author_team="lang",
 	                   author="ada", body="more")
 	assert pj.new_count(store, second["work_id"], viewer_team="lang",
 	                    viewer_member="grace")["total"] > 0
-	# The Work-addressed bridge advances every labelled discussion...
+	# The Work-addressed bridge advances every labelled thread...
 	fx.mark_all_seen(store, second["work_id"], team="lang", member="grace",
 	             up_to_seq=store.last_seq())
 	assert pj.new_count(store, second["work_id"], viewer_team="lang",
 	                    viewer_member="grace")["total"] == 0
 	assert pj.new_count(store, result["work_id"], viewer_team="lang",
 	                    viewer_member="grace")["total"] == 0, \
-		"the bridge left a labelled discussion uncleared"
+		"the bridge left a labelled thread uncleared"
 	# ...and only THAT member's cursor moved.
 	assert pj.new_count(store, result["work_id"], viewer_team="lang",
 	                    viewer_member="ada")["total"] > 0
@@ -303,15 +305,15 @@ def test_cursors_are_per_member_and_the_bridge_covers_all_labels(world):
 def test_participation_is_monotonic_and_surfaced(world):
 	store = world
 	result = _create(store)
-	tr.post_discussion(store, result["discussion"], author_team="push",
+	tr.post_thread(store, result["thread"], author_team="push",
 	                   author="sl", body="joining by speaking")
-	view = pj.thread(store, result["discussion"], viewer_team="push",
+	view = pj.thread(store, result["thread"], viewer_team="push",
 	                 viewer_member="sl")
 	assert view["participants"] == ["lang", "push"]
-	surface = pj.discussions_for(store, viewer_team="push",
+	surface = pj.threads_for(store, viewer_team="push",
 	                             viewer_member="sl")
 	assert [row["id"] for row in surface["rows"]] == \
-		[result["discussion"]]
+		[result["thread"]]
 	assert surface["rows"][0]["new"] > 0
 	assert surface["snapshot_seq"] == store.last_seq()
 
@@ -324,27 +326,27 @@ def test_label_races_serialize_exactly_once(world):
 	second = _create(store)
 	other = bw.Authority(store.path)
 	other.clock = store.clock
-	_interleave(store, lambda: tr.label_discussion(
-		other, first["discussion"], second["work_id"],
+	_interleave(store, lambda: tr.label_thread(
+		other, first["thread"], second["work_id"],
 		actor_team="lang", actor="ada"))
 	with pytest.raises(bw.WorkError, match="already carries"):
-		tr.label_discussion(store, first["discussion"],
+		tr.label_thread(store, first["thread"],
 		                    second["work_id"], actor_team="lang",
 		                    actor="grace")
-	_interleave(store, lambda: tr.unlabel_discussion(
-		other, first["discussion"], second["work_id"],
+	_interleave(store, lambda: tr.unlabel_thread(
+		other, first["thread"], second["work_id"],
 		actor_team="lang", actor="ada"))
 	with pytest.raises(bw.WorkError, match="does not carry"):
-		tr.unlabel_discussion(store, first["discussion"],
+		tr.unlabel_thread(store, first["thread"],
 		                      second["work_id"], actor_team="lang",
 		                      actor="grace")
 	assert store.conn.execute(
-		"SELECT COUNT(*) AS n FROM discussion_labels WHERE discussion=?",
-		(first["discussion"],)).fetchone()["n"] == 1
+		"SELECT COUNT(*) AS n FROM thread_labels WHERE thread=?",
+		(first["thread"],)).fetchone()["n"] == 1
 	other.close()
 
 
-def test_create_discussion_rolls_back_whole_at_every_boundary(world):
+def test_create_thread_rolls_back_whole_at_every_boundary(world):
 	store = world
 	anchor = _create(store)["work_id"]
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
@@ -372,8 +374,8 @@ def test_create_discussion_rolls_back_whole_at_every_boundary(world):
 		statement["n"], statement["limit"] = 0, boundary
 		store.conn = ExplodingConn()
 		try:
-			tr.create_discussion(store, actor_team="lang", actor="ada",
-			                     body="atomic", labels=[anchor])
+			tr.create_thread(store, actor_team="lang", actor="ada",
+			                     body="atomic", labels=[anchor], subject="trial subject")
 			store.conn = real_conn
 			break
 		except Exception as failure:
@@ -385,7 +387,7 @@ def test_create_discussion_rolls_back_whole_at_every_boundary(world):
 			now = hashlib.sha256(
 				open(store.path, "rb").read()).hexdigest()
 			assert now == baseline, \
-				f"fault at write {boundary} left half a discussion"
+				f"fault at write {boundary} left half a thread"
 			assert store.events() == baseline_events
 		assert boundary < 40, "the creation never completed"
 
@@ -393,29 +395,29 @@ def test_create_discussion_rolls_back_whole_at_every_boundary(world):
 def test_restart_and_purity(world):
 	store = world
 	result = _create(store)
-	tr.post_discussion(store, result["discussion"], author_team="lang",
+	tr.post_thread(store, result["thread"], author_team="lang",
 	                   author="ada", body="two")
-	tr.seen_discussion(store, result["discussion"], team="lang",
+	tr.seen_thread(store, result["thread"], team="lang",
 	                   member="ada", up_to_seq=store.last_seq())
-	before = pj.thread(store, result["discussion"], viewer_team="lang",
+	before = pj.thread(store, result["thread"], viewer_team="lang",
 	                   viewer_member="ada")
 	fresh = bw.Authority(store.path)
 	fresh.clock = store.clock
-	after = pj.thread(fresh, result["discussion"], viewer_team="lang",
+	after = pj.thread(fresh, result["thread"], viewer_team="lang",
 	                  viewer_member="ada")
-	assert after == before, "restart lost discussion state"
+	assert after == before, "restart lost thread state"
 	# Purity: the new read surfaces write no byte.
 	fresh.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	digest = hashlib.sha256(open(fresh.path, "rb").read()).hexdigest()
-	pj.thread(fresh, result["discussion"], viewer_team="lang",
+	pj.thread(fresh, result["thread"], viewer_team="lang",
 	          viewer_member="grace")
-	pj.discussions_for(fresh, viewer_team="lang", viewer_member="grace")
+	pj.threads_for(fresh, viewer_team="lang", viewer_member="grace")
 	pj.new_count(fresh, result["work_id"], viewer_team="push",
 	             viewer_member="sl")
 	fresh.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	assert hashlib.sha256(
 		open(fresh.path, "rb").read()).hexdigest() == digest, \
-		"a discussion read wrote to the authority"
+		"a thread read wrote to the authority"
 	fresh.close()
 
 # -- R63: pagination and ordering are deterministic contracts -----------------
@@ -423,15 +425,15 @@ def test_restart_and_purity(world):
 def test_pagination_is_a_bounded_positive_contract(world):
 	store = world
 	first = _create(store)
-	d, w = first["discussion"], first["work_id"]
+	d, w = first["thread"], first["work_id"]
 	for kwargs in ({"after": -1}, {"limit": 0},
 	               {"limit": pj.MAX_PAGE + 1}):
 		for read in (
 				lambda: pj.thread(store, d, viewer_team="lang",
 				                  viewer_member="ada", **kwargs),
-				lambda: pj.discussions_for(store, viewer_team="lang",
+				lambda: pj.threads_for(store, viewer_team="lang",
 				                           viewer_member="ada", **kwargs),
-				lambda: pj.work_discussions(store, w, viewer_team="lang",
+				lambda: pj.work_threads(store, w, viewer_team="lang",
 				                            viewer_member="ada",
 				                            **kwargs)):
 			with pytest.raises(bw.WorkError,
@@ -452,9 +454,9 @@ def test_shared_sequence_ties_order_by_identity(tmp_path):
 		w2 = _create(store)["work_id"]
 		# Both labels share the creation sequence, given in REVERSE
 		# identity order.
-		tied = tr.create_discussion(store, actor_team="lang", actor="ada",
-		                            body="tie", labels=[w2, w1])
-		view = pj.thread(store, tied["discussion"], viewer_team="lang",
+		tied = tr.create_thread(store, actor_team="lang", actor="ada",
+		                            body="tie", labels=[w2, w1], subject="trial subject")
+		view = pj.thread(store, tied["thread"], viewer_team="lang",
 		                 viewer_member="ada")
 		assert [entry["work"] for entry in view["labels"]] == \
 			sorted([w1, w2]), "a same-sequence label tie has no total order"
@@ -463,7 +465,7 @@ def test_shared_sequence_ties_order_by_identity(tmp_path):
 		fx.post(store, born["work_id"], author_team="lang",
 		                author="ada", body="both join at one seq",
 		                include="*.bug")
-		view = pj.thread(store, born["discussion"], viewer_team="lang",
+		view = pj.thread(store, born["thread"], viewer_team="lang",
 		                 viewer_member="ada")
 		assert view["participants"] == ["lang", "push", "web"], \
 			"a same-sequence participant tie has no total order"
@@ -472,16 +474,16 @@ def test_shared_sequence_ties_order_by_identity(tmp_path):
 def test_paged_joins_have_no_skips_or_repeats(world):
 	store = world
 	first = _create(store)
-	w, born = first["work_id"], first["discussion"]
+	w, born = first["work_id"], first["thread"]
 	expected = [born] + [
-		tr.create_discussion(store, actor_team="lang", actor="ada",
-		                     body=f"leg {i}", labels=[w])["discussion"]
+		tr.create_thread(store, actor_team="lang", actor="ada",
+		                     body=f"leg {i}", labels=[w], subject="trial subject")["thread"]
 		for i in range(6)]
 
-	# Work -> discussions, pages of 3: full, full, partial-with-None.
+	# Work -> threads, pages of 3: full, full, partial-with-None.
 	collected, after, pages = [], 0, 0
 	while True:
-		page = pj.work_discussions(store, w, viewer_team="lang",
+		page = pj.work_threads(store, w, viewer_team="lang",
 		                           viewer_member="ada", after=after,
 		                           limit=3)
 		collected += [row["id"] for row in page["rows"]]
@@ -490,12 +492,12 @@ def test_paged_joins_have_no_skips_or_repeats(world):
 			break
 		after = page["next_after"]
 	assert collected == expected and pages == 3, \
-		"the Work->discussion join skipped or repeated across pages"
+		"the Work->thread join skipped or repeated across pages"
 
 	# The member surface, pages of 2 — same rows, same order, no dup.
 	collected, after = [], 0
 	while True:
-		page = pj.discussions_for(store, viewer_team="lang",
+		page = pj.threads_for(store, viewer_team="lang",
 		                          viewer_member="grace", after=after,
 		                          limit=2)
 		collected += [row["id"] for row in page["rows"]]
@@ -503,11 +505,11 @@ def test_paged_joins_have_no_skips_or_repeats(world):
 			break
 		after = page["next_after"]
 	assert collected == expected, \
-		"the participating-discussion join skipped or repeated"
+		"the participating-thread join skipped or repeated"
 
 	# The message window, pages of 2 over 5 messages.
 	for i in range(4):
-		tr.post_discussion(store, born, author_team="lang", author="ada",
+		tr.post_thread(store, born, author_team="lang", author="ada",
 		                   body=f"b{i}")
 	seqs, after = [], 0
 	while True:
@@ -535,9 +537,9 @@ def test_new_names_one_state_under_an_interleaved_writer(world, monkeypatch):
 	right = tr.create_work(store, team="lang", kind="bug", title="right",
 	                       origin="decomposition", author="ada", body="r",
 	                       parent=parent)["work_id"]
-	shared = tr.create_discussion(store, actor_team="lang", actor="ada",
+	shared = tr.create_thread(store, actor_team="lang", actor="ada",
 	                              body="spans both legs",
-	                              labels=[left, right])["discussion"]
+	                              labels=[left, right], subject="trial subject")["thread"]
 	other = bw.Authority(store.path)
 	other.clock = store.clock
 	pinned = store.last_seq()
@@ -547,7 +549,7 @@ def test_new_names_one_state_under_an_interleaved_writer(world, monkeypatch):
 	def racing(snap_store, works, team, member):
 		if not fired["done"]:
 			fired["done"] = True
-			tr.post_discussion(other, shared, author_team="lang",
+			tr.post_thread(other, shared, author_team="lang",
 			                   author="ada", body="landed mid-read")
 		return real(snap_store, works, team, member)
 
@@ -602,25 +604,25 @@ def test_a_mid_flight_removal_refuses_each_new_mutation_in_lock(raced, act):
 	transaction revalidates and the removed member's act refuses whole."""
 	store, config_path = raced
 	first = _create(store)
-	w1, d1 = first["work_id"], first["discussion"]
+	w1, d1 = first["work_id"], first["thread"]
 	w2 = _create(store)["work_id"]
 	if act == "unlabel":
-		tr.label_discussion(store, d1, w2, actor_team="lang", actor="ada")
+		tr.label_thread(store, d1, w2, actor_team="lang", actor="ada")
 	acts = {
-		"discuss": lambda: tr.create_discussion(
+		"discuss": lambda: tr.create_thread(
 			store, actor_team="lang", actor="grace", body="x",
-			labels=[w1]),
-		"label": lambda: tr.label_discussion(
+			labels=[w1], subject="trial subject"),
+		"label": lambda: tr.label_thread(
 			store, d1, w2, actor_team="lang", actor="grace"),
-		"unlabel": lambda: tr.unlabel_discussion(
+		"unlabel": lambda: tr.unlabel_thread(
 			store, d1, w2, actor_team="lang", actor="grace"),
-		"say": lambda: tr.post_discussion(
+		"say": lambda: tr.post_thread(
 			store, d1, author_team="lang", author="grace", body="x"),
-		"mark-seen": lambda: tr.seen_discussion(
+		"mark-seen": lambda: tr.seen_thread(
 			store, d1, team="lang", member="grace",
 			up_to_seq=store.last_seq()),
 	}
-	kinds = {"discuss": "create_discussion", "label": "label",
+	kinds = {"discuss": "create_thread", "label": "label",
 	         "unlabel": "unlabel", "say": "post_message",
 	         "mark-seen": "mark_seen"}
 	before = [event for event in store.events()
@@ -640,8 +642,8 @@ def test_the_act_first_then_removal_both_commit(raced):
 	next act by the removed identity refuses at the door."""
 	store, config_path = raced
 	first = _create(store)
-	d1 = first["discussion"]
-	spoken = tr.post_discussion(store, d1, author_team="lang",
+	d1 = first["thread"]
+	spoken = tr.post_thread(store, d1, author_team="lang",
 	                            author="grace", body="before removal")
 	_remove_grace(config_path)
 	assert store.meta()["accepted_generation"] == "2"
@@ -651,7 +653,7 @@ def test_the_act_first_then_removal_both_commit(raced):
 	assert [event["seq"] for event in kept] == [spoken["seq"]], \
 		"the removal rewrote committed history"
 	with pytest.raises(bw.WorkError, match="not a registered member"):
-		tr.post_discussion(store, d1, author_team="lang", author="grace",
+		tr.post_thread(store, d1, author_team="lang", author="grace",
 		                   body="after removal")
 
 
@@ -661,12 +663,12 @@ def test_label_audits_the_committing_work_status(world):
 	optimistic diagnostic."""
 	store = world
 	first = _create(store)
-	d1 = first["discussion"]
+	d1 = first["thread"]
 	w2 = _create(store)["work_id"]
 	_interleave(store, lambda: tr.close_work(
 		store, w2, actor_team="lang", actor="ada",
 		rationale="done first", outcome="satisfying"))
-	result = tr.label_discussion(store, d1, w2, actor_team="lang",
+	result = tr.label_thread(store, d1, w2, actor_team="lang",
 	                             actor="ada")
 	event = next(event for event in store.events()
 	             if event["seq"] == result["seq"])
@@ -677,30 +679,30 @@ def test_label_audits_the_committing_work_status(world):
 def test_detail_preview_reports_truncation_explicitly(world):
 	"""R67: the bounded preview shares the relation order and NAMES its
 	truncation — count, flag, and a continuation cursor that hands off to
-	`work_discussions` without a gap or a repeat."""
+	`work_threads` without a gap or a repeat."""
 	store = world
 	w = _create(store)["work_id"]
 	for i in range(52):
-		tr.create_discussion(store, actor_team="lang", actor="ada",
-		                     body=f"d{i}", labels=[w])
+		tr.create_thread(store, actor_team="lang", actor="ada",
+		                     body=f"d{i}", labels=[w], subject="trial subject")
 	view = pj.detail(store, w, viewer_team="lang", viewer_member="ada")
-	assert view["discussion_count"] == 53
-	assert len(view["discussions"]) == 50
-	assert view["discussions_truncated"] is True, \
-		"a 51st discussion exists and the preview never said so"
-	assert view["discussions_next_after"] == \
-		view["discussions"][-1]["added_seq"]
-	rest = pj.work_discussions(store, w, viewer_team="lang",
+	assert view["thread_count"] == 53
+	assert len(view["threads"]) == 50
+	assert view["threads_truncated"] is True, \
+		"a 51st thread exists and the preview never said so"
+	assert view["threads_next_after"] == \
+		view["threads"][-1]["added_seq"]
+	rest = pj.work_threads(store, w, viewer_team="lang",
 	                           viewer_member="ada",
-	                           after=view["discussions_next_after"],
+	                           after=view["threads_next_after"],
 	                           limit=10)
 	assert len(rest["rows"]) == 3 and rest["next_after"] is None
 	assert not {row["id"] for row in rest["rows"]} & \
-		{entry["id"] for entry in view["discussions"]}, \
-		"the preview handoff repeated a discussion"
+		{entry["id"] for entry in view["threads"]}, \
+		"the preview handoff repeated a thread"
 	small = _create(store)["work_id"]
 	view = pj.detail(store, small, viewer_team="lang",
 	                 viewer_member="ada")
-	assert view["discussion_count"] == 1
-	assert view["discussions_truncated"] is False
-	assert view["discussions_next_after"] is None
+	assert view["thread_count"] == 1
+	assert view["threads_truncated"] is False
+	assert view["threads_next_after"] is None

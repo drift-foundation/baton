@@ -91,7 +91,7 @@ FAMILIES = [
 def test_every_family_carries_ordered_references_and_replays(world, family):
 	store, _config = world
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	kwargs = dict(op_id=f"fam-{family}", refs=[REF])
 
 	if family == "create":
@@ -113,7 +113,7 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 		act = lambda **kw: tr.add_dependency(
 			store, work, other, actor_team="lang", actor="ada", **kw)
 	elif family == "revise":
-		proposed = tr.post_discussion(
+		proposed = tr.post_thread(
 			store, thread, author_team="lang", author="ada",
 			body="the contract")["seq"]
 		act = lambda **kw: tr.revise_work(
@@ -121,39 +121,39 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 			message_seq=proposed, expected_revision=0,
 			rationale="promote", **kw)
 	elif family == "discuss":
-		act = lambda **kw: tr.create_discussion(
+		act = lambda **kw: tr.create_thread(
 			store, actor_team="lang", actor="ada", body="ctx",
-			labels=[work], **kw)
+			labels=[work], subject="trial subject", **kw)
 	elif family == "say":
-		act = lambda **kw: tr.post_discussion(
+		act = lambda **kw: tr.post_thread(
 			store, thread, author_team="lang", author="ada",
 			body="spoken", **kw)
 	elif family == "label":
 		other = _create(store)
-		act = lambda **kw: tr.label_discussion(
+		act = lambda **kw: tr.label_thread(
 			store, thread, other["work_id"], actor_team="lang",
 			actor="ada", **kw)
 	elif family == "unlabel":
 		other = _create(store)
-		tr.label_discussion(store, thread, other["work_id"],
+		tr.label_thread(store, thread, other["work_id"],
 		                    actor_team="lang", actor="ada")
-		act = lambda **kw: tr.unlabel_discussion(
+		act = lambda **kw: tr.unlabel_thread(
 			store, thread, other["work_id"], actor_team="lang",
 			actor="ada", **kw)
 	elif family == "mark-seen":
 		top = store.last_seq()
-		act = lambda **kw: tr.seen_discussion(
+		act = lambda **kw: tr.seen_thread(
 			store, thread, team="lang", member="grace", up_to_seq=top,
 			**kw)
 	elif family == "respond":
-		asked = tr.post_discussion(
+		asked = tr.post_thread(
 			store, thread, author_team="lang", author="ada",
 			body="push: confirm", request="push.bug", on=work)["seq"]
 		act = lambda **kw: tr.respond_obligation(
 			store, asked, team="push", member="sl", body="confirmed",
 			**kw)
 	elif family == "dispose":
-		asked = tr.post_discussion(
+		asked = tr.post_thread(
 			store, thread, author_team="lang", author="ada",
 			body="push: confirm", request="push.bug", on=work)["seq"]
 		act = lambda **kw: tr.dispose_obligation(
@@ -161,8 +161,8 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 			disposition="no action needed", **kw)
 	elif family == "accept":
 		consumer = _create(store, team="push", member="sl")
-		asked = tr.post_discussion(
-			store, consumer["discussion"], author_team="push",
+		asked = tr.post_thread(
+			store, consumer["thread"], author_team="push",
 			author="sl", body="lang: yours?", request="lang.bug")["seq"]
 		act = lambda **kw: tr.accept_obligation(
 			store, asked, actor_team="lang", actor="ada", body="ours",
@@ -265,8 +265,8 @@ def test_the_compound_accept_with_both_placements_is_whole_or_nothing(world):
 	provider_target = _create(store)
 	consumer = _create(store, team="push", member="sl",
 	                   binding=f"pushcoin:{PATH}")
-	asked = tr.post_discussion(
-		store, consumer["discussion"], author_team="push", author="sl",
+	asked = tr.post_thread(
+		store, consumer["thread"], author_team="push", author="sl",
 		body="lang: yours?", request="lang.bug")["seq"]
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	baseline = hashlib.sha256(open(store.path, "rb").read()).hexdigest()
@@ -347,7 +347,7 @@ def test_binding_races_in_both_orders(world):
 	# binding vs transfer — transfer first: the former handler refuses
 	# in-lock; bind first then transfer: both stand.
 	raced = _create(store)["work_id"]
-	_interleave(store, lambda: tr.post_discussion(
+	_interleave(store, lambda: tr.post_thread(
 		store, fx.born(store, raced), author_team="lang", author="ada",
 		body="handing over", pass_to="push.bug", on=raced))
 	with pytest.raises(bw.WorkError, match="never grant"):
@@ -393,8 +393,8 @@ def test_reference_races_in_both_orders(world):
 	# the pin-under-commit regression in the focused suite).
 	bound = _create(store, binding=f"pushcoin:{PATH}")
 	reader = _create(store, team="push", member="sl")
-	cited = tr.post_discussion(
-		store, reader["discussion"], author_team="push", author="sl",
+	cited = tr.post_thread(
+		store, reader["thread"], author_team="push", author="sl",
 		body="anchored", refs=[f"{bound['work_id']}:repro/r.sh"])
 	tr.bind_work(store, bound["work_id"], actor_team="lang",
 	             actor="ada", root="drift",
@@ -413,15 +413,15 @@ def test_reference_races_in_both_orders(world):
 	_interleave(store, lambda: tr.close_work(
 		store, closing["work_id"], actor_team="lang", actor="ada",
 		rationale="closing mid-citation", outcome="satisfying"))
-	mid = tr.post_discussion(
-		store, reader["discussion"], author_team="push", author="sl",
+	mid = tr.post_thread(
+		store, reader["thread"], author_team="push", author="sl",
 		body="cites the closing work",
 		refs=[f"{closing['work_id']}:notes.md"])
 	assert store.conn.execute(
 		"SELECT binding_revision FROM act_references WHERE seq=?",
 		(mid["seq"],)).fetchone()["binding_revision"] == 1
-	after = tr.post_discussion(
-		store, reader["discussion"], author_team="push", author="sl",
+	after = tr.post_thread(
+		store, reader["thread"], author_team="push", author="sl",
 		body="cites the closed work",
 		refs=[f"{closing['work_id']}:more.md"])
 	assert store.conn.execute(
@@ -431,8 +431,8 @@ def test_reference_races_in_both_orders(world):
 	# reference vs root retirement — cite first, retire after: the
 	# committed independent row stands (retire-first is the in-lock
 	# refusal regression in the focused suite).
-	early = tr.post_discussion(
-		store, reader["discussion"], author_team="push", author="sl",
+	early = tr.post_thread(
+		store, reader["thread"], author_team="push", author="sl",
 		body="early evidence", refs=["drift:docs/early.md"])
 	_retire_root(config_path, "drift")
 	assert store.conn.execute(

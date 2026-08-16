@@ -38,7 +38,7 @@ def test_operation_id_refuses_del_as_a_control_character(world):
 	store, _config, born = world
 	before = store.events()
 	with pytest.raises(bw.WorkError, match="control"):
-		tr.post_discussion(store, born["discussion"], author_team="lang",
+		tr.post_thread(store, born["thread"], author_team="lang",
 		                   author="ada", body="must not commit",
 		                   op_id="bad\x7fid")
 	assert store.events() == before
@@ -51,12 +51,14 @@ def test_fingerprint_uses_validated_normalized_input(world):
 	semantic request. The fingerprint must be made after normalization, as the
 	design promises, rather than over the caller's pre-validation container."""
 	store, _config, born = world
-	first = tr.create_discussion(
+	first = tr.create_thread(
 		store, actor_team="lang", actor="ada", body="one meaning",
-		labels=born["work_id"], op_id="normalized-label")
-	retry = tr.create_discussion(
+		labels=born["work_id"], subject="trial subject",
+		op_id="normalized-label")
+	retry = tr.create_thread(
 		store, actor_team="lang", actor="ada", body="one meaning",
-		labels=[born["work_id"]], op_id="normalized-label")
+		labels=[born["work_id"]], subject="trial subject",
+		op_id="normalized-label")
 	assert retry["operation"]["state"] == "replayed"
 	assert retry["seq"] == first["seq"]
 
@@ -68,7 +70,7 @@ def test_identity_removal_cannot_race_between_gate_and_replay(
 	commit between their separate reads and the removed identity still learns
 	the stored result."""
 	store, config_path, born = world
-	tr.post_discussion(store, born["discussion"], author_team="lang",
+	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="grace", body="before removal",
 	                   op_id="removed-race")
 	document = json.loads(open(config_path).read())
@@ -88,7 +90,7 @@ def test_identity_removal_cannot_race_between_gate_and_replay(
 
 	monkeypatch.setattr(store, "_op_replay", remove_then_lookup)
 	with pytest.raises(bw.WorkError, match="not a registered member"):
-		tr.post_discussion(store, born["discussion"], author_team="lang",
+		tr.post_thread(store, born["thread"], author_team="lang",
 		                   author="grace", body="before removal",
 		                   op_id="removed-race")
 
@@ -99,7 +101,7 @@ def test_removed_identity_gate_precedes_conflicting_replay_lookup(
 	A removed participant must not learn whether its old operation id exists or
 	whether a new request conflicts with the stored fingerprint."""
 	store, config_path, born = world
-	tr.post_discussion(store, born["discussion"], author_team="lang",
+	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="grace", body="original request",
 	                   op_id="removed-conflict")
 	document = json.loads(open(config_path).read())
@@ -118,6 +120,6 @@ def test_removed_identity_gate_precedes_conflicting_replay_lookup(
 
 	monkeypatch.setattr(store, "_op_replay", remove_then_lookup)
 	with pytest.raises(bw.WorkError, match="not a registered member"):
-		tr.post_discussion(store, born["discussion"], author_team="lang",
+		tr.post_thread(store, born["thread"], author_team="lang",
 		                   author="grace", body="different request",
 		                   op_id="removed-conflict")

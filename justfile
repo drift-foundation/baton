@@ -126,6 +126,15 @@ deploy DESTINATION:
 	set -euo pipefail
 	python3 tools/deploy.py publish "{{DESTINATION}}"
 
+# Publish the v11 `baton-work` product into one NEW explicit immutable
+# distribution directory. `tools/deploy_work.py` is the packaging mechanism;
+# this recipe is the operator-facing entry point. It does not initialize or
+# activate a coordination home and does not touch v10.
+deploy-v11 DESTINATION:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	python3 tools/deploy_work.py "{{DESTINATION}}"
+
 # Point <generation>/latest at an exact release, after that release fully
 # verifies. Rollback is this same command naming the previous release, which is
 # still installed. SUPERSEDES `deploy-activate`: there is no global `current`.

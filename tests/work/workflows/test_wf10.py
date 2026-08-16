@@ -29,7 +29,7 @@ def _rig(flow, tag):
 	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", f"provider {tag}", "--origin",
 	               "external-report", "--body", tag, viewer="lang.ada")
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	dependent = flow.ok("create", "--team", "push", "--kind", "bug",
 	                    "--title", f"consumer {tag}", "--origin",
 	                    "external-report", "--body", "waits",
@@ -147,7 +147,7 @@ def test_wf10_terminal_outcomes(flow):
 	assert survivor["status"] == "open", \
 		"the non-gating duplicate link touched the survivor"
 
-	# 4. Cancellation: proposed in the labelled discussion, committed
+	# 4. Cancellation: proposed in the labelled thread, committed
 	# only by Current — the proposer cannot close around it.
 	fourth = _rig(flow, "four")
 	flow.ok("say", fourth["thread"], "--body",
@@ -157,7 +157,7 @@ def test_wf10_terminal_outcomes(flow):
 		flow, "push.sl", "close", fourth["work"], "--rationale",
 		"descoped", "--outcome", "cancelled")
 	assert "never grant" in error, \
-		"a discussion participant closed around Current"
+		"a thread participant closed around Current"
 	flow.ok("close", fourth["work"], "--rationale",
 	        "descoped for this cycle; follow-up will reopen the question",
 	        "--outcome", "cancelled", viewer="lang.ada")

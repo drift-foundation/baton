@@ -1,8 +1,8 @@
 """WF-05 — three consumers converge on one provider Work (WORKFLOW-TESTS.md).
 
 The central cross-team dependency-web acceptance under the Slice B grammar:
-each consumer asks `@lang.bug` IN its own discussion, Lang ACCEPTS each into
-ONE provider record — every originating discussion atomically gains the
+each consumer asks `@lang.bug` IN its own thread, Lang ACCEPTS each into
+ONE provider record — every originating thread atomically gains the
 `#LANG-42` label and the rationale answer — N:1 convergence with exact
 fan-in, the second-blocker conjunction, level-triggered closure, the noise
 boundary, and the label-versus-edge proof FINALLY landed: removing a label
@@ -22,7 +22,7 @@ from wfdriver import assert_final_invariants, document, standard_teams  # noqa: 
 def test_wf05_three_consumers_converge(flow):
 	flow.init(document(standard_teams()))
 
-	# 1. Three independent local reports, each with its own discussion and
+	# 1. Three independent local reports, each with its own thread and
 	# an exact request through @lang.bug.
 	consumers, threads = {}, {}
 	for team, member, title in (
@@ -33,18 +33,18 @@ def test_wf05_three_consumers_converge(flow):
 		               "--title", title, "--origin", "external-report",
 		               "--body", f"local report: {title}",
 		               viewer=f"{team}.{member}")
-		work, thread = born["work_id"], born["discussion"]
+		work, thread = born["work_id"], born["thread"]
 		flow.ok("say", thread, "--body", "suspect the lang parser",
 		        viewer=f"{team}.{member}")
 		# The one labelled work is the eligible target — @ rides the
-		# discussion with the selection resolved and recorded.
+		# thread with the selection resolved and recorded.
 		flow.ok("say", thread, "--body", "lang: is this yours?",
 		        "--request", "lang.bug", viewer=f"{team}.{member}")
 		consumers[team], threads[team] = work, thread
 
 	# 2. Lang relates all three to ONE provider record: each acceptance
 	# atomically commits the edge with provenance, the rationale answered
-	# into the ORIGINATING discussion, and that discussion's #LANG-42
+	# into the ORIGINATING thread, and that thread's #LANG-42
 	# label (audited added|existing).
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery drops state",
@@ -59,13 +59,13 @@ def test_wf05_three_consumers_converge(flow):
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
 		view = flow.ok("thread", threads[team],
 		               viewer=f"{team}.{member}")
-		assert {entry["work"] for entry in view["labels"]} == 			{consumers[team], lang42}, 			"the acceptance did not label the originating discussion"
-		assert view["messages"][-1]["body"].startswith("ours; tracked"), 			"the rationale did not return to the originating discussion"
+		assert {entry["work"] for entry in view["labels"]} == 			{consumers[team], lang42}, 			"the acceptance did not label the originating thread"
+		assert view["messages"][-1]["body"].startswith("ours; tracked"), 			"the rationale did not return to the originating thread"
 		assert "lang" in view["participants"], 			"the acceptance left no durable participation"
 	assert flow.ok("detail", lang42, viewer="lang.ada")["dep"] == 3
 
 	# The label-versus-edge proof (pinned since the finding): Lang
-	# removes its OWN label from Push's discussion — readiness, DEP, and
+	# removes its OWN label from Push's thread — readiness, DEP, and
 	# the eventual closure fanout do not move; the gate is the edge.
 	flow.ok("unlabel", threads["push"], "--work", lang42,
 	        viewer="lang.ada")

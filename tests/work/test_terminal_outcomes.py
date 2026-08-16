@@ -64,7 +64,7 @@ def _rig(store):
 	with another live gate, a planned Next, a pending carried `@`, and a
 	pending verification assignment."""
 	born = _create(store)
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	single = _create(store, team="push", member="sl")["work_id"]
 	tr.add_dependency(store, single, work, actor_team="push", actor="sl")
 	gated = _create(store, team="web", member="wren")["work_id"]
@@ -72,10 +72,10 @@ def _rig(store):
 	tr.add_dependency(store, gated, work, actor_team="web", actor="wren")
 	tr.add_dependency(store, gated, extra, actor_team="web",
 	                  actor="wren")
-	tr.post_discussion(store, thread, author_team="lang", author="ada",
+	tr.post_thread(store, thread, author_team="lang", author="ada",
 	                   body="onward", pass_to="lang.rsrch",
 	                   set_next="lang.bug", on=work)
-	asked = tr.post_discussion(store, thread, author_team="lang",
+	asked = tr.post_thread(store, thread, author_team="lang",
 	                           author="ada", body="push: confirm",
 	                           request="push.bug", on=work)["seq"]
 	assigned = tr.create_round(store, work, actor_team="lang",
@@ -344,7 +344,7 @@ def test_close_races_serialize_into_one_history(world):
 	# close vs pass: the pass lands first; the close commits under the
 	# COMMITTED current and records it.
 	rig = _rig(store)
-	_interleave(store, lambda: tr.post_discussion(
+	_interleave(store, lambda: tr.post_thread(
 		store, rig["thread"], author_team="lang", author="ada",
 		body="detour", pass_to="lang.bug", on=rig["work"]))
 	result = tr.close_work(store, rig["work"], actor_team="lang",

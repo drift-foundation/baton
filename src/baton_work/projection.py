@@ -243,9 +243,9 @@ def _page_bounds(after, limit) -> tuple[int, int]:
 	return after, limit
 
 
-def thread(store: Authority, discussion_id: str, *, viewer_team: str,
+def thread(store: Authority, thread_id: str, *, viewer_team: str,
            viewer_member: str, after: int = 0, limit: int = 500) -> dict:
-	"""One discussion, one snapshot: labels (with each Work's team and
+	"""One thread, one snapshot: labels (with each Work's team and
 	status), monotonic participants, the viewer's New, and a
 	deterministically paginated message window with its token. Every
 	supplied limit goes through the contract unchanged — no invalid
@@ -254,26 +254,26 @@ def thread(store: Authority, discussion_id: str, *, viewer_team: str,
 	store.conn.execute("BEGIN")
 	try:
 		row = store.conn.execute(
-			"SELECT * FROM discussions WHERE id=?",
-			(discussion_id,)).fetchone()
+			"SELECT * FROM threads WHERE id=?",
+			(thread_id,)).fetchone()
 		if row is None:
-			raise WorkError(f"no discussion {discussion_id!r}")
+			raise WorkError(f"no thread {thread_id!r}")
 		# Total tie-break order: (added_seq, identity) — several initial
 		# labels or expanded participants may share one sequence (R63).
 		labels = [dict(entry) for entry in store.conn.execute(
-			"SELECT discussion_labels.work AS work, work.team AS team, "
-			"work.status AS status FROM discussion_labels JOIN work "
-			"ON work.id = discussion_labels.work "
-			"WHERE discussion_labels.discussion=? "
-			"ORDER BY discussion_labels.added_seq, "
-			"discussion_labels.work", (discussion_id,))]
+			"SELECT thread_labels.work AS work, work.team AS team, "
+			"work.status AS status FROM thread_labels JOIN work "
+			"ON work.id = thread_labels.work "
+			"WHERE thread_labels.thread=? "
+			"ORDER BY thread_labels.added_seq, "
+			"thread_labels.work", (thread_id,))]
 		participants = [entry["team"] for entry in store.conn.execute(
-			"SELECT team FROM discussion_participants WHERE discussion=? "
-			"ORDER BY added_seq, team", (discussion_id,))]
+			"SELECT team FROM thread_participants WHERE thread=? "
+			"ORDER BY added_seq, team", (thread_id,))]
 		messages = [dict(entry) for entry in store.conn.execute(
 			"SELECT seq, author_team, author, body, ts FROM messages "
-			"WHERE discussion=? AND seq > ? ORDER BY seq LIMIT ?",
-			(discussion_id, after, limit))]
+			"WHERE thread=? AND seq > ? ORDER BY seq LIMIT ?",
+			(thread_id, after, limit))]
 		for message in messages:
 			message["references"] = [dict(ref) for ref in
 			                         store.conn.execute(
@@ -282,66 +282,69 @@ def thread(store: Authority, discussion_id: str, *, viewer_team: str,
 				(message["seq"],))]
 		cursor = store.conn.execute(
 			"SELECT seq FROM seen WHERE team=? AND member=? AND "
-			"discussion=?",
-			(viewer_team, viewer_member, discussion_id)).fetchone()
+			"thread=?",
+			(viewer_team, viewer_member, thread_id)).fetchone()
 		floor = cursor["seq"] if cursor else 0
 		unread = store.conn.execute(
-			"SELECT COUNT(*) AS n FROM messages WHERE discussion=? AND "
-			"seq>?", (discussion_id, floor)).fetchone()["n"]
+			"SELECT COUNT(*) AS n FROM messages WHERE thread=? AND "
+			"seq>?", (thread_id, floor)).fetchone()["n"]
 		last = store.conn.execute(
-			"SELECT MAX(seq) AS m FROM messages WHERE discussion=?",
-			(discussion_id,)).fetchone()["m"]
+			"SELECT MAX(seq) AS m FROM messages WHERE thread=?",
+			(thread_id,)).fetchone()["m"]
 		snapshot_seq = store.last_seq()
 	finally:
 		store.conn.execute("ROLLBACK")
-	return {"id": discussion_id, "labels": labels,
+	return {"id": thread_id, "subject": row["subject"],
+	        "labels": labels,
 	        "participants": participants, "messages": messages,
 	        "next_after": messages[-1]["seq"]
 	        if len(messages) == limit else None,
 	        "new": unread, "last_seq": last, "snapshot_seq": snapshot_seq}
 
 
-def discussions_for(store: Authority, *, viewer_team: str,
+def threads_for(store: Authority, *, viewer_team: str,
                     viewer_member: str, after: int = 0,
                     limit: int = 100) -> dict:
-	"""The participating-discussion attention surface (WS-4 R56): every
-	discussion the viewer's team has joined — via its own labels, +,
+	"""The participating-thread attention surface (WS-4 R56): every
+	thread the viewer's team has joined — via its own labels, +,
 	incoming @, or incoming => — with the member's personal New from the
-	same per-discussion cursors, in one snapshot. Pages cursor by the
+	same per-thread cursors, in one snapshot. Pages cursor by the
 	PARTICIPATION's added_seq (R67): a team joining old context after a
 	cursor has advanced must remain discoverable by the next incremental
-	read — the relation's birth orders the page, never the discussion's."""
+	read — the relation's birth orders the page, never the thread's."""
 	after, limit = _page_bounds(after, limit)
 	store.conn.execute("BEGIN")
 	try:
 		rows = []
 		for entry in store.conn.execute(
-				"SELECT discussion_participants.discussion AS discussion, "
-				"discussion_participants.added_seq AS added_seq "
-				"FROM discussion_participants "
-				"WHERE discussion_participants.team=? "
-				"AND discussion_participants.added_seq > ? "
-				"ORDER BY discussion_participants.added_seq, "
-				"discussion_participants.discussion "
+				"SELECT thread_participants.thread AS thread, "
+				"thread_participants.added_seq AS added_seq "
+				"FROM thread_participants "
+				"WHERE thread_participants.team=? "
+				"AND thread_participants.added_seq > ? "
+				"ORDER BY thread_participants.added_seq, "
+				"thread_participants.thread "
 				"LIMIT ?", (viewer_team, after, limit)):
 			cursor = store.conn.execute(
 				"SELECT seq FROM seen WHERE team=? AND member=? AND "
-				"discussion=?",
+				"thread=?",
 				(viewer_team, viewer_member,
-				 entry["discussion"])).fetchone()
+				 entry["thread"])).fetchone()
 			floor = cursor["seq"] if cursor else 0
 			unread = store.conn.execute(
-				"SELECT COUNT(*) AS n FROM messages WHERE discussion=? "
+				"SELECT COUNT(*) AS n FROM messages WHERE thread=? "
 				"AND seq>?",
-				(entry["discussion"], floor)).fetchone()["n"]
+				(entry["thread"], floor)).fetchone()["n"]
 			last = store.conn.execute(
-				"SELECT MAX(seq) AS m FROM messages WHERE discussion=?",
-				(entry["discussion"],)).fetchone()["m"]
-			created = store.conn.execute(
-				"SELECT created_seq FROM discussions WHERE id=?",
-				(entry["discussion"],)).fetchone()["created_seq"]
-			rows.append({"id": entry["discussion"], "new": unread,
-			             "last_seq": last, "created_seq": created,
+				"SELECT MAX(seq) AS m FROM messages WHERE thread=?",
+				(entry["thread"],)).fetchone()["m"]
+			born = store.conn.execute(
+				"SELECT subject, created_seq FROM threads WHERE id=?",
+				(entry["thread"],)).fetchone()
+			rows.append({"id": entry["thread"],
+			             "subject": born["subject"], "new": unread,
+			             "last_seq": last,
+			             "created_seq": born["created_seq"],
 			             "added_seq": entry["added_seq"]})
 		snapshot_seq = store.last_seq()
 	finally:
@@ -352,45 +355,59 @@ def discussions_for(store: Authority, *, viewer_team: str,
 	        "snapshot_seq": snapshot_seq}
 
 
-def work_discussions(store: Authority, work_id: str, *, viewer_team: str,
+def work_threads(store: Authority, work_id: str, *, viewer_team: str,
                      viewer_member: str, after: int = 0,
                      limit: int = 100) -> dict:
-	"""The paged Work-to-discussion direction (R63): every discussion
+	"""The paged Work-to-thread direction (R63): every thread
 	labelled to this Work, one snapshot, with explicit continuation — an
 	agent never fetches an unbounded detail to navigate. Pages cursor by
 	the LABEL's added_seq (R67): old context gaining this Work's label
 	after a cursor has advanced must remain discoverable — the relation's
-	birth orders the page, never the discussion's."""
+	birth orders the page, never the thread's."""
 	after, limit = _page_bounds(after, limit)
 	store.conn.execute("BEGIN")
 	try:
 		_work(store, work_id)
 		rows = []
 		for entry in store.conn.execute(
-				"SELECT discussions.id AS id, "
-				"discussions.created_seq AS created_seq, "
-				"discussion_labels.added_seq AS added_seq "
-				"FROM discussion_labels JOIN discussions "
-				"ON discussions.id = discussion_labels.discussion "
-				"WHERE discussion_labels.work=? "
-				"AND discussion_labels.added_seq > ? "
-				"ORDER BY discussion_labels.added_seq, discussions.id "
+				"SELECT threads.id AS id, "
+				"threads.subject AS subject, "
+				"threads.created_seq AS created_seq, "
+				"thread_labels.added_seq AS added_seq "
+				"FROM thread_labels JOIN threads "
+				"ON threads.id = thread_labels.thread "
+				"WHERE thread_labels.work=? "
+				"AND thread_labels.added_seq > ? "
+				"ORDER BY thread_labels.added_seq, threads.id "
 				"LIMIT ?", (work_id, after, limit)):
 			cursor = store.conn.execute(
 				"SELECT seq FROM seen WHERE team=? AND member=? AND "
-				"discussion=?",
+				"thread=?",
 				(viewer_team, viewer_member, entry["id"])).fetchone()
 			floor = cursor["seq"] if cursor else 0
+			# The thread's stable ORDINAL within the Work's set (label
+			# order) — the compact T{n} selector renders it, never
+			# derives it client-side across pages.
+			ordinal = store.conn.execute(
+				"SELECT COUNT(*) AS n FROM thread_labels "
+				"JOIN threads ON threads.id = thread_labels.thread "
+				"WHERE thread_labels.work=? AND "
+				"(thread_labels.added_seq < ? OR "
+				"(thread_labels.added_seq = ? AND threads.id <= ?))",
+				(work_id, entry["added_seq"], entry["added_seq"],
+				 entry["id"])).fetchone()["n"]
 			rows.append({
 				"id": entry["id"],
+				"subject": entry["subject"],
+				"ordinal": ordinal,
 				"created_seq": entry["created_seq"],
 				"added_seq": entry["added_seq"],
 				"last_seq": store.conn.execute(
 					"SELECT MAX(seq) AS m FROM messages WHERE "
-					"discussion=?", (entry["id"],)).fetchone()["m"],
+					"thread=?", (entry["id"],)).fetchone()["m"],
 				"new": store.conn.execute(
 					"SELECT COUNT(*) AS n FROM messages WHERE "
-					"discussion=? AND seq>?",
+					"thread=? AND seq>?",
 					(entry["id"], floor)).fetchone()["n"],
 			})
 		snapshot_seq = store.last_seq()
@@ -415,35 +432,35 @@ def _descendants(store: Authority, work_id: str) -> list[str]:
 
 def _unseen_set(store: Authority, works, viewer_team: str,
                 viewer_member: str) -> set:
-	"""Distinct unseen message seqs across every discussion labelled to
-	any of `works`, against the member's per-discussion cursors — each
+	"""Distinct unseen message seqs across every thread labelled to
+	any of `works`, against the member's per-thread cursors — each
 	message counted once however many labels reach it."""
 	seqs = set()
 	marks = ",".join("?" for _ in works)
 	for row in store.conn.execute(
-			f"SELECT DISTINCT discussion FROM discussion_labels "
+			f"SELECT DISTINCT thread FROM thread_labels "
 			f"WHERE work IN ({marks})", list(works)):
 		cursor = store.conn.execute(
 			"SELECT seq FROM seen WHERE team=? AND member=? AND "
-			"discussion=?",
-			(viewer_team, viewer_member, row["discussion"])).fetchone()
+			"thread=?",
+			(viewer_team, viewer_member, row["thread"])).fetchone()
 		floor = cursor["seq"] if cursor else 0
 		for message in store.conn.execute(
-				"SELECT seq FROM messages WHERE discussion=? AND seq>?",
-				(row["discussion"], floor)):
+				"SELECT seq FROM messages WHERE thread=? AND seq>?",
+				(row["thread"], floor)):
 			seqs.add(message["seq"])
 	return seqs
 
 
 def new_count(store: Authority, work_id: str, *, viewer_team: str,
               viewer_member: str) -> dict:
-	"""Member-relative `New` over labelled discussions and containment
+	"""Member-relative `New` over labelled threads and containment
 	(WS-4 R57): distinct messages counted once, with the deduplication
 	made VISIBLE — total = own + sum(children.new) - overlap. `own` is
 	the direct labels; each child's count is its truthful subtree total;
 	`overlap` is the raw-sum excess over the distinct union, keeping
 	"jump to the unread child" honest under multiply-labelled
-	discussions. (The WS-1 team-participation gate is superseded per the
+	threads. (The WS-1 team-participation gate is superseded per the
 	red-team note RT9: the counter is member-relative by the pinned
 	ruling; the noise boundary lives in home-table scoping.)"""
 	with _read_snapshot(store):
@@ -524,7 +541,7 @@ def revisions(store: Authority, work_id: str, *, after: int = 0,
 	try:
 		_work(store, work_id)
 		rows = [dict(entry) for entry in store.conn.execute(
-			"SELECT seq, revision, prior, discussion, message_seq, "
+			"SELECT seq, revision, prior, thread, message_seq, "
 			"actor, rationale, content, created_ts FROM revisions "
 			"WHERE work=? AND revision > ? ORDER BY revision LIMIT ?",
 			(work_id, after, limit))]
@@ -559,7 +576,7 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
                         out) -> None:
 	for row in store.conn.execute(
 			"SELECT seq, work, message_seq, team, kind, flavor, round, "
-			"discussion, status FROM obligations WHERE team=? AND "
+			"thread, status FROM obligations WHERE team=? AND "
 			"status='pending' ORDER BY seq", (viewer_team,)):
 		entry = dict(row)
 		# The declared completion verbs — the eligible handlers are
@@ -729,45 +746,47 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	view["rounds"] = [_round_view(store, entry, now)
 	                  for entry in store.conn.execute(
 		"SELECT * FROM rounds WHERE work=? ORDER BY round", (work_id,))]
-	# WS-4 R54: the work's DISCUSSION SET — distinct summaries with
+	# WS-4 R54: the work's THREAD SET — distinct summaries with
 	# stable ids, last-message seq, and the viewer's New, deterministic
 	# order, never merged into one false timeline.
 	# R67: the preview shares the relation order (label added_seq, id)
-	# with `work_discussions`, and truncation is EXPLICIT — the count and
-	# the continuation cursor say a 51st discussion exists; silence never
+	# with `work_threads`, and truncation is EXPLICIT — the count and
+	# the continuation cursor say a 51st thread exists; silence never
 	# does.
-	view["discussions"] = []
-	view["discussion_count"] = store.conn.execute(
-		"SELECT COUNT(*) AS n FROM discussion_labels WHERE work=?",
+	view["threads"] = []
+	view["thread_count"] = store.conn.execute(
+		"SELECT COUNT(*) AS n FROM thread_labels WHERE work=?",
 		(work_id,)).fetchone()["n"]
 	for entry in store.conn.execute(
-			"SELECT discussion_labels.discussion AS id, "
-			"discussion_labels.added_seq AS added_seq "
-			"FROM discussion_labels JOIN discussions "
-			"ON discussions.id = discussion_labels.discussion "
-			"WHERE discussion_labels.work=? "
-			"ORDER BY discussion_labels.added_seq, discussions.id "
+			"SELECT thread_labels.thread AS id, "
+			"threads.subject AS subject, "
+			"thread_labels.added_seq AS added_seq "
+			"FROM thread_labels JOIN threads "
+			"ON threads.id = thread_labels.thread "
+			"WHERE thread_labels.work=? "
+			"ORDER BY thread_labels.added_seq, threads.id "
 			"LIMIT 50", (work_id,)):
 		cursor = store.conn.execute(
 			"SELECT seq FROM seen WHERE team=? AND member=? AND "
-			"discussion=?",
+			"thread=?",
 			(viewer_team, viewer_member, entry["id"])).fetchone()
 		floor = cursor["seq"] if cursor else 0
-		view["discussions"].append({
+		view["threads"].append({
 			"id": entry["id"],
+			"subject": entry["subject"],
 			"added_seq": entry["added_seq"],
 			"last_seq": store.conn.execute(
-				"SELECT MAX(seq) AS m FROM messages WHERE discussion=?",
+				"SELECT MAX(seq) AS m FROM messages WHERE thread=?",
 				(entry["id"],)).fetchone()["m"],
 			"new": store.conn.execute(
-				"SELECT COUNT(*) AS n FROM messages WHERE discussion=? "
+				"SELECT COUNT(*) AS n FROM messages WHERE thread=? "
 				"AND seq>?", (entry["id"], floor)).fetchone()["n"],
 		})
-	view["discussions_truncated"] = \
-		view["discussion_count"] > len(view["discussions"])
-	view["discussions_next_after"] = \
-		view["discussions"][-1]["added_seq"] \
-		if view["discussions_truncated"] else None
+	view["threads_truncated"] = \
+		view["thread_count"] > len(view["threads"])
+	view["threads_next_after"] = \
+		view["threads"][-1]["added_seq"] \
+		if view["threads_truncated"] else None
 	# WS-6: exactly ONE effective dossier binding, returned directly,
 	# plus a BOUNDED ordered history preview with count, truncation, and
 	# a continuation cursor handing off to the paged `bindings` read.
@@ -801,13 +820,13 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		(work_id,)).fetchone()["n"]
 	view["revision"] = None
 	effective = store.conn.execute(
-		"SELECT seq, revision, prior, discussion, message_seq, actor, "
+		"SELECT seq, revision, prior, thread, message_seq, actor, "
 		"rationale, content, created_ts FROM revisions WHERE work=? "
 		"ORDER BY revision DESC LIMIT 1", (work_id,)).fetchone()
 	if effective is not None:
 		view["revision"] = dict(effective)
 	view["revisions"] = [dict(entry) for entry in store.conn.execute(
-		"SELECT seq, revision, prior, discussion, message_seq, actor, "
+		"SELECT seq, revision, prior, thread, message_seq, actor, "
 		"rationale, content, created_ts FROM revisions WHERE work=? "
 		"ORDER BY revision LIMIT 50", (work_id,))]
 	view["revisions_truncated"] = \
@@ -823,7 +842,7 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		{"seq": row["seq"], "endpoint": f"{row['team']}.{row['kind']}",
 		 "flavor": row["flavor"], "status": row["status"],
 		 "accepted_into": row["accepted_into"],
-		 "discussion": row["discussion"],
+		 "thread": row["thread"],
 		 "resolved_seq": row["resolved_seq"]}
 		for row in store.conn.execute(
 			"SELECT * FROM obligations WHERE work=? ORDER BY seq",
@@ -854,7 +873,7 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	if row["status"] == "open":
 		# R69: no Work-addressed posting/seen operation exists after the
 		# Slice B bridge removal — contribution and seen state are
-		# discussion-addressed (say/mark-seen against a discussion id),
+		# thread-addressed (say/mark-seen against a thread id),
 		# so no Work alias is advertised here. An agent reads what it
 		# may do; a stale advertisement is discovery-by-attempt.
 		if handler:

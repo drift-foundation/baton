@@ -126,7 +126,7 @@ def test_new_is_per_member_and_decomposable(world):
 	assert grace["total"] == grace["own"] + \
 		sum(entry["new"] for entry in grace["children"])
 	# WS-4 (RT9 supersession): New is MEMBER-relative over labelled
-	# discussions — no team gate; the noise boundary lives in home-table
+	# threads — no team gate; the noise boundary lives in home-table
 	# scoping. The counter's contract is the R57 identity, for any viewer.
 	sl = pj.new_count(store, cast["lang42"],
 	                  viewer_team="push", viewer_member="sl")
@@ -168,7 +168,7 @@ def test_detail_declares_available_transitions_per_viewer(world):
 	assert outsider["links"]["blocks"]
 
 
-def test_discussion_pages_on_the_sequence(world):
+def test_thread_pages_on_the_sequence(world):
 	store, cast, _ = world
 	thread_id = fx.born(store, cast["lang42"])
 	view = pj.thread(store, thread_id, viewer_team="lang",

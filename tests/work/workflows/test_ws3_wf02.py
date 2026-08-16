@@ -3,7 +3,7 @@
 
 Three independent reports converge on one provider Work through three
 atomic accepts: each edge carries its own provenance, each consumer's
-discussion carries its own rationale, DEP tracks the live load, a
+thread carries its own rationale, DEP tracks the live load, a
 duplicate acceptance attempt refuses without a byte, and the terminal
 close fans out through every provenance edge at once.
 """

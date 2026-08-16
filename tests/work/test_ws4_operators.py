@@ -1,10 +1,10 @@
-"""WS-4 Slice B: public discussion-addressed carrying operators.
+"""WS-4 Slice B: public thread-addressed carrying operators.
 
 `@`, `=>`, and planned Next act on exactly ONE currently labelled,
 eligible open Work (D2/R55/D9): explicit `--on` must name a current
 label; omitted, it resolves only at eligible-cardinality one, recorded
 and echoed. `+` stays the only fan-out and changes nothing but recorded
-attention. Obligations bind to their originating discussion (R59);
+attention. Obligations bind to their originating thread (R59);
 acceptance labels it collision-safely (D5); the gate stays the edge.
 """
 
@@ -67,9 +67,9 @@ def test_omitted_on_resolves_the_single_eligible_and_echoes(world):
 	store = world
 	mine = _create(store)
 	foreign = _create(store, team="push", member="sl")
-	tr.label_discussion(store, mine["discussion"], foreign["work_id"],
+	tr.label_thread(store, mine["thread"], foreign["work_id"],
 	                    actor_team="push", actor="sl")
-	result = tr.post_discussion(store, mine["discussion"],
+	result = tr.post_thread(store, mine["thread"],
 	                            author_team="lang", author="ada",
 	                            body="handing on", pass_to="lang.rsrch")
 	assert result["kind"] == "pass" and result["work"] == mine["work_id"]
@@ -84,29 +84,29 @@ def test_omitted_on_resolves_the_single_eligible_and_echoes(world):
 		"SELECT current_team, current_kind FROM work WHERE id=?",
 		(foreign["work_id"],)).fetchone()
 	assert (untouched["current_team"], untouched["current_kind"]) == \
-		("push", "bug"), "a pass in a discussion moved another work"
+		("push", "bug"), "a pass in a thread moved another work"
 
 
 def test_two_eligible_refuse_and_explicit_on_selects(world):
 	store = world
 	first = _create(store)
 	second = _create(store)
-	tr.label_discussion(store, first["discussion"], second["work_id"],
+	tr.label_thread(store, first["thread"], second["work_id"],
 	                    actor_team="lang", actor="ada")
 	with pytest.raises(bw.WorkError, match="exactly one labelled work"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="whose?",
 		                   request="push.bug")
-	result = tr.post_discussion(store, first["discussion"],
+	result = tr.post_thread(store, first["thread"],
 	                            author_team="lang", author="ada",
 	                            body="push: confirm on the second",
 	                            request="push.bug", on=second["work_id"])
 	obligation = store.conn.execute(
-		"SELECT work, discussion FROM obligations WHERE seq=?",
+		"SELECT work, thread FROM obligations WHERE seq=?",
 		(result["seq"],)).fetchone()
 	assert obligation["work"] == second["work_id"]
-	assert obligation["discussion"] == first["discussion"], \
-		"the obligation does not name its originating discussion"
+	assert obligation["thread"] == first["thread"], \
+		"the obligation does not name its originating thread"
 	payload = _event(store, result["seq"])["payload"]
 	assert payload["on"] == second["work_id"]
 	assert payload["on_resolved"] is False
@@ -117,54 +117,54 @@ def test_selection_refusals_are_exact(world):
 	first = _create(store)
 	stranger = _create(store)
 	with pytest.raises(bw.WorkError, match="not among"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="push.bug",
 		                   on=stranger["work_id"])
 	with pytest.raises(bw.WorkError, match="carries none"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", on=first["work_id"])
 	with pytest.raises(bw.WorkError, match="exactly one endpoint"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="*.bug",
 		                   on=first["work_id"])
 	with pytest.raises(bw.WorkError, match="one operation"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="push.bug",
 		                   pass_to="lang.rsrch", on=first["work_id"])
 	with pytest.raises(bw.WorkError, match="set by a pass"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x",
 		                   set_next="lang.rsrch", on=first["work_id"])
 	# The unauthorized actor has ZERO eligible works, not an error about
 	# someone else's authority.
 	with pytest.raises(bw.WorkError, match="has 0"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="grace", body="x", pass_to="lang.rsrch")
 
 
 def test_closed_context_refuses_carrying_but_welcomes_commentary(world):
 	"""D3 restated: closed Work refuses CARRYING activity; commentary in
-	a discussion that still has open context flows freely."""
+	a thread that still has open context flows freely."""
 	store = world
 	live = _create(store)
 	done = _create(store)
-	tr.label_discussion(store, live["discussion"], done["work_id"],
+	tr.label_thread(store, live["thread"], done["work_id"],
 	                    actor_team="lang", actor="ada")
 	tr.close_work(store, done["work_id"], actor_team="lang", actor="ada",
 	              rationale="finished", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="closed work refuses carrying"):
-		tr.post_discussion(store, live["discussion"], author_team="lang",
+		tr.post_thread(store, live["thread"], author_team="lang",
 		                   author="ada", body="x", request="push.bug",
 		                   on=done["work_id"])
 	# Omitted --on: the closed label is simply not eligible; the open one
 	# resolves.
-	result = tr.post_discussion(store, live["discussion"],
+	result = tr.post_thread(store, live["thread"],
 	                            author_team="lang", author="ada",
 	                            body="push: confirm", request="push.bug")
 	assert store.conn.execute(
 		"SELECT work FROM obligations WHERE seq=?",
 		(result["seq"],)).fetchone()["work"] == live["work_id"]
-	plain = tr.post_discussion(store, live["discussion"],
+	plain = tr.post_thread(store, live["thread"],
 	                           author_team="lang", author="ada",
 	                           body="context note about the closed leg")
 	assert plain["kind"] == "post_message"
@@ -183,7 +183,7 @@ def test_include_records_expansion_and_changes_nothing_else(world):
 		"obligations": store.conn.execute(
 			"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"],
 	}
-	result = tr.post_discussion(store, mine["discussion"],
+	result = tr.post_thread(store, mine["thread"],
 	                            author_team="lang", author="ada",
 	                            body="fyi", include="*.bug")
 	assert result["included"] == ["lang.bug", "push.bug"]
@@ -199,63 +199,63 @@ def test_include_records_expansion_and_changes_nothing_else(world):
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == \
 		before["obligations"]
-	view = pj.thread(store, mine["discussion"], viewer_team="lang",
+	view = pj.thread(store, mine["thread"], viewer_team="lang",
 	                 viewer_member="ada")
 	assert view["participants"] == ["lang", "push"]
 	# Once: a second include does not duplicate the participation row.
-	tr.post_discussion(store, mine["discussion"], author_team="lang",
+	tr.post_thread(store, mine["thread"], author_team="lang",
 	                   author="ada", body="again", include="push.bug")
-	assert pj.thread(store, mine["discussion"], viewer_team="lang",
+	assert pj.thread(store, mine["thread"], viewer_team="lang",
 	                 viewer_member="ada")["participants"] == \
 		["lang", "push"]
 
 
 # -- obligation binding and the response's return path ------------------------
 
-def test_respond_returns_to_the_originating_discussion(world):
+def test_respond_returns_to_the_originating_thread(world):
 	"""R59: the answer lands where the @ was raised, even when the
 	consumer label has since been removed — removal never cancels the
 	obligation, and participation persists after it terminates."""
 	store = world
 	first = _create(store)
 	second = _create(store)
-	tr.label_discussion(store, first["discussion"], second["work_id"],
+	tr.label_thread(store, first["thread"], second["work_id"],
 	                    actor_team="lang", actor="ada")
-	asked = tr.post_discussion(store, first["discussion"],
+	asked = tr.post_thread(store, first["thread"],
 	                           author_team="lang", author="ada",
 	                           body="push: confirm", request="push.bug",
 	                           on=second["work_id"])["seq"]
-	tr.unlabel_discussion(store, first["discussion"], second["work_id"],
+	tr.unlabel_thread(store, first["thread"], second["work_id"],
 	                      actor_team="lang", actor="ada")
 	assert store.conn.execute(
 		"SELECT status FROM obligations WHERE seq=?",
 		(asked,)).fetchone()["status"] == "pending", \
 		"removing the label cancelled the obligation"
 	pending = pj.obligations(store, viewer_team="push")
-	assert pending[0]["discussion"] == first["discussion"], \
-		"public obligation state does not name the discussion"
+	assert pending[0]["thread"] == first["thread"], \
+		"public obligation state does not name the thread"
 	result = tr.respond_obligation(store, asked, team="push", member="sl",
 	                               body="confirmed")
 	landed = store.conn.execute(
-		"SELECT discussion FROM messages WHERE seq=?",
+		"SELECT thread FROM messages WHERE seq=?",
 		(result["seq"],)).fetchone()
-	assert landed["discussion"] == first["discussion"], \
-		"the answer did not return to the originating discussion"
-	view = pj.thread(store, first["discussion"], viewer_team="push",
+	assert landed["thread"] == first["thread"], \
+		"the answer did not return to the originating thread"
+	view = pj.thread(store, first["thread"], viewer_team="push",
 	                 viewer_member="sl")
 	assert "push" in view["participants"], \
 		"participation did not persist past the obligation"
 	detail = pj.detail(store, second["work_id"], viewer_team="lang",
 	                   viewer_member="ada")
-	assert detail["obligations"][0]["discussion"] == first["discussion"]
+	assert detail["obligations"][0]["thread"] == first["thread"]
 
 
 # -- acceptance: originating label, collision-safe ----------------------------
 
-def test_accept_labels_the_originating_discussion(world):
+def test_accept_labels_the_originating_thread(world):
 	store = world
 	consumer = _create(store, team="push", member="sl")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
 	                           request="lang.bug")["seq"]
@@ -265,12 +265,12 @@ def test_accept_labels_the_originating_discussion(world):
 	                              into=provider["work_id"])
 	payload = _event(store, result["seq"])["payload"]
 	assert payload["provider_label"] == "added"
-	assert payload["discussion"] == consumer["discussion"]
-	view = pj.thread(store, consumer["discussion"], viewer_team="push",
+	assert payload["thread"] == consumer["thread"]
+	view = pj.thread(store, consumer["thread"], viewer_team="push",
 	                 viewer_member="sl")
 	assert {entry["work"] for entry in view["labels"]} == \
 		{consumer["work_id"], provider["work_id"]}, \
-		"the acceptance did not label the originating discussion"
+		"the acceptance did not label the originating thread"
 	assert view["messages"][-1]["body"] == "ours; tracked"
 	assert "lang" in view["participants"]
 	assert store.conn.execute(
@@ -283,10 +283,10 @@ def test_accept_tolerates_the_preexisting_label_as_existing(world):
 	store = world
 	consumer = _create(store, team="push", member="sl")
 	provider = _create(store)
-	tr.label_discussion(store, consumer["discussion"],
+	tr.label_thread(store, consumer["thread"],
 	                    provider["work_id"], actor_team="lang",
 	                    actor="ada")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
 	                           request="lang.bug")["seq"]
@@ -296,8 +296,8 @@ def test_accept_tolerates_the_preexisting_label_as_existing(world):
 	assert _event(store, result["seq"])["payload"][
 		"provider_label"] == "existing"
 	assert store.conn.execute(
-		"SELECT COUNT(*) AS n FROM discussion_labels WHERE discussion=? "
-		"AND work=?", (consumer["discussion"],
+		"SELECT COUNT(*) AS n FROM thread_labels WHERE thread=? "
+		"AND work=?", (consumer["thread"],
 		               provider["work_id"])).fetchone()["n"] == 1, \
 		"the collision-safe acceptance duplicated the label"
 
@@ -307,7 +307,7 @@ def test_the_gate_is_the_edge_never_the_label(world):
 	readiness predicate live on different records by construction."""
 	store = world
 	consumer = _create(store, team="push", member="sl")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
 	                           request="lang.bug")["seq"]
@@ -316,7 +316,7 @@ def test_the_gate_is_the_edge_never_the_label(world):
 	                     body="ours", into=provider["work_id"])
 	assert pj.detail(store, consumer["work_id"], viewer_team="push",
 	                 viewer_member="sl")["ready"] is False
-	tr.unlabel_discussion(store, consumer["discussion"],
+	tr.unlabel_thread(store, consumer["thread"],
 	                      provider["work_id"], actor_team="lang",
 	                      actor="ada")
 	after = pj.detail(store, consumer["work_id"], viewer_team="push",
@@ -329,10 +329,10 @@ def test_the_gate_is_the_edge_never_the_label(world):
 	                 viewer_member="sl")["ready"] is True
 
 
-def test_accept_create_labels_the_originating_discussion_too(world):
+def test_accept_create_labels_the_originating_thread_too(world):
 	store = world
 	consumer = _create(store, team="push", member="sl")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
 	                           request="lang.bug")["seq"]
@@ -341,15 +341,15 @@ def test_accept_create_labels_the_originating_discussion_too(world):
 	                              create={"kind": "rsrch", "title": "t"})
 	payload = _event(store, result["seq"])["payload"]
 	assert payload["provider_label"] == "added"
-	view = pj.thread(store, consumer["discussion"], viewer_team="push",
+	view = pj.thread(store, consumer["thread"], viewer_team="push",
 	                 viewer_member="sl")
 	assert result["provider"] in \
 		{entry["work"] for entry in view["labels"]}
-	# The provider's own born discussion exists separately and speaks.
-	born = pj.work_discussions(store, result["provider"],
+	# The provider's own born thread exists separately and speaks.
+	born = pj.work_threads(store, result["provider"],
 	                           viewer_team="lang", viewer_member="ada")
 	ids = [row["id"] for row in born["rows"]]
-	assert consumer["discussion"] in ids and len(ids) == 2
+	assert consumer["thread"] in ids and len(ids) == 2
 
 
 # -- races: both orders across every new decision ------------------------------
@@ -358,15 +358,15 @@ def test_a_mid_flight_unlabel_refuses_the_explicit_selection(world):
 	store = world
 	first = _create(store)
 	second = _create(store)
-	tr.label_discussion(store, first["discussion"], second["work_id"],
+	tr.label_thread(store, first["thread"], second["work_id"],
 	                    actor_team="lang", actor="ada")
 	messages_before = store.conn.execute(
 		"SELECT COUNT(*) AS n FROM messages").fetchone()["n"]
-	_interleave(store, lambda: tr.unlabel_discussion(
-		store, first["discussion"], second["work_id"],
+	_interleave(store, lambda: tr.unlabel_thread(
+		store, first["thread"], second["work_id"],
 		actor_team="lang", actor="ada"))
 	with pytest.raises(bw.WorkError, match="not among"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="push.bug",
 		                   on=second["work_id"])
 	assert store.conn.execute(
@@ -381,7 +381,7 @@ def test_a_mid_flight_close_refuses_the_carrying_operation(world):
 		store, first["work_id"], actor_team="lang", actor="ada",
 		rationale="closed underneath", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", pass_to="lang.rsrch")
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == 0
@@ -391,12 +391,12 @@ def test_a_mid_flight_second_eligible_makes_the_omission_ambiguous(world):
 	store = world
 	first = _create(store)
 	second = _create(store)
-	_interleave(store, lambda: tr.label_discussion(
-		store, first["discussion"], second["work_id"],
+	_interleave(store, lambda: tr.label_thread(
+		store, first["thread"], second["work_id"],
 		actor_team="lang", actor="ada"))
 	with pytest.raises(bw.WorkError,
 	                   match="exactly one labelled work|lost a concurrent"):
-		tr.post_discussion(store, first["discussion"], author_team="lang",
+		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="push.bug")
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == 0, \
@@ -409,15 +409,15 @@ def test_accept_survives_a_racing_consumer_unlabel(world):
 	store = world
 	consumer = _create(store, team="push", member="sl")
 	sibling = _create(store, team="push", member="sl")
-	tr.label_discussion(store, consumer["discussion"],
+	tr.label_thread(store, consumer["thread"],
 	                    sibling["work_id"], actor_team="push", actor="sl")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?", request="lang.bug",
 	                           on=consumer["work_id"])["seq"]
 	provider = _create(store)
-	_interleave(store, lambda: tr.unlabel_discussion(
-		store, consumer["discussion"], consumer["work_id"],
+	_interleave(store, lambda: tr.unlabel_thread(
+		store, consumer["thread"], consumer["work_id"],
 		actor_team="push", actor="sl"))
 	result = tr.accept_obligation(store, asked, actor_team="lang",
 	                              actor="ada", body="ours",
@@ -434,13 +434,13 @@ def test_the_reverse_orders_commit_cleanly(world):
 	store = world
 	first = _create(store)
 	second = _create(store)
-	tr.label_discussion(store, first["discussion"], second["work_id"],
+	tr.label_thread(store, first["thread"], second["work_id"],
 	                    actor_team="lang", actor="ada")
-	asked = tr.post_discussion(store, first["discussion"],
+	asked = tr.post_thread(store, first["thread"],
 	                           author_team="lang", author="ada",
 	                           body="push: confirm", request="push.bug",
 	                           on=second["work_id"])["seq"]
-	tr.unlabel_discussion(store, first["discussion"], second["work_id"],
+	tr.unlabel_thread(store, first["thread"], second["work_id"],
 	                      actor_team="lang", actor="ada")
 	tr.close_work(store, second["work_id"], actor_team="lang",
 	              actor="ada", rationale="done", outcome="satisfying")
@@ -497,15 +497,15 @@ def _exploding_sweep(store, act, limit=40):
 def test_a_carrying_post_commits_whole_or_not_at_all(world):
 	store = world
 	first = _create(store)
-	_exploding_sweep(store, lambda: tr.post_discussion(
-		store, first["discussion"], author_team="lang", author="ada",
+	_exploding_sweep(store, lambda: tr.post_thread(
+		store, first["thread"], author_team="lang", author="ada",
 		body="push: confirm", request="push.bug"))
 
 
 def test_the_labelling_acceptance_commits_whole_or_not_at_all(world):
 	store = world
 	consumer = _create(store, team="push", member="sl")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
 	                           request="lang.bug")["seq"]
@@ -518,7 +518,7 @@ def test_the_labelling_acceptance_commits_whole_or_not_at_all(world):
 def test_restart_reconstructs_the_binding_and_retry_refuses(world):
 	store = world
 	first = _create(store)
-	asked = tr.post_discussion(store, first["discussion"],
+	asked = tr.post_thread(store, first["thread"],
 	                           author_team="lang", author="ada",
 	                           body="push: confirm",
 	                           request="push.bug")["seq"]
@@ -527,9 +527,9 @@ def test_restart_reconstructs_the_binding_and_retry_refuses(world):
 	fresh = bw.Authority(store.path)
 	fresh.clock = store.clock
 	row = fresh.conn.execute(
-		"SELECT discussion, status FROM obligations WHERE seq=?",
+		"SELECT thread, status FROM obligations WHERE seq=?",
 		(asked,)).fetchone()
-	assert row["discussion"] == first["discussion"]
+	assert row["thread"] == first["thread"]
 	assert row["status"] == "responded"
 	with pytest.raises(bw.WorkError, match="already responded"):
 		tr.respond_obligation(fresh, asked, team="push", member="sl",
@@ -551,7 +551,7 @@ def test_every_wildcard_shape_that_lands_nowhere_refuses_whole(world):
 	for selector in ("ghost.bug", "ghost.*", "*.ghost",
 	                 "push.bug,ghost.*"):
 		with pytest.raises(bw.WorkError, match="matches no live endpoint"):
-			tr.post_discussion(store, mine["discussion"],
+			tr.post_thread(store, mine["thread"],
 			                   author_team="lang", author="ada",
 			                   body="nobody", include=selector)
 	assert store.events() == before_events
@@ -589,15 +589,15 @@ def test_a_config_race_that_empties_a_selector_refuses_in_lock(raced):
 	_interleave(store, lambda: lc.accept_config(config_path,
 	                                            actor="lang.ada"))
 	with pytest.raises(bw.WorkError, match="matches no live endpoint"):
-		tr.post_discussion(store, mine["discussion"], author_team="lang",
+		tr.post_thread(store, mine["thread"], author_team="lang",
 		                   author="ada", body="raced", include="*.rsrch")
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM messages").fetchone()["n"] == before, \
 		"the raced empty include still published"
 
 
-def test_the_console_discussion_view_is_pure(world):
-	"""R70 companion: painting the discussion view writes no byte —
+def test_the_console_thread_view_is_pure(world):
+	"""R70 companion: painting the thread view writes no byte —
 	viewing stays pure; only the explicit bounded mark writes."""
 	import hashlib as _hashlib
 	from baton_work.tui.app import Console
@@ -612,16 +612,16 @@ def test_the_console_discussion_view_is_pure(world):
 	digest = _hashlib.sha256(open(store.path, "rb").read()).hexdigest()
 	console = Console(store, "lang", "grace")
 	console.path = [mine["work_id"]]
-	console.mode = "discussion"
-	console._render_discussion(Screen(), 24, 100)
-	console.handle(10)                    # Enter: open the discussion
+	console.mode = "thread"
 	console._render_thread(Screen(), 24, 100)
+	console.handle(10)                    # Enter: open the thread
+	console._render_msgs(Screen(), 24, 100)
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	assert _hashlib.sha256(
 		open(store.path, "rb").read()).hexdigest() == digest, \
-		"painting the discussion view wrote to the authority"
+		"painting the thread view wrote to the authority"
 	console.handle(ord("s"))
-	view = pj.thread(store, mine["discussion"], viewer_team="lang",
+	view = pj.thread(store, mine["thread"], viewer_team="lang",
 	                 viewer_member="grace")
 	assert view["new"] == 0 and view["last_seq"] == mine["seq"], \
 		"the bounded mark did not clear exactly the painted snapshot"

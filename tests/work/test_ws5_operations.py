@@ -65,7 +65,7 @@ def test_the_id_grammar_refuses_junk_before_anything_else(world):
 	born = _create(store)
 	for bad in ("", " ", "a b", "x\ty", "c\x01d", "z" * 129):
 		with pytest.raises(bw.WorkError, match="1-128 bytes"):
-			tr.post_discussion(store, born["discussion"],
+			tr.post_thread(store, born["thread"],
 			                   author_team="lang", author="ada",
 			                   body="x", op_id=bad)
 	assert store.conn.execute(
@@ -77,10 +77,10 @@ def test_scope_is_per_participant_never_global(world):
 	protected operations."""
 	store, _config = world
 	born = _create(store)
-	mine = tr.post_discussion(store, born["discussion"],
+	mine = tr.post_thread(store, born["thread"],
 	                          author_team="lang", author="ada",
 	                          body="ada speaks", op_id="shared-uuid")
-	theirs = tr.post_discussion(store, born["discussion"],
+	theirs = tr.post_thread(store, born["thread"],
 	                            author_team="push", author="sl",
 	                            body="sl speaks", op_id="shared-uuid")
 	assert mine["operation"] == {"id": "shared-uuid",
@@ -96,15 +96,15 @@ def test_scope_is_per_participant_never_global(world):
 def test_every_result_carries_exactly_one_operation_shape(world):
 	store, _config = world
 	born = _create(store)
-	bare = tr.post_discussion(store, born["discussion"],
+	bare = tr.post_thread(store, born["thread"],
 	                          author_team="lang", author="ada", body="x")
 	assert bare["operation"] is None, \
 		"an unprotected call did not say so"
-	fresh = tr.post_discussion(store, born["discussion"],
+	fresh = tr.post_thread(store, born["thread"],
 	                           author_team="lang", author="ada",
 	                           body="y", op_id="op-1")
 	assert fresh["operation"] == {"id": "op-1", "state": "committed"}
-	replay = tr.post_discussion(store, born["discussion"],
+	replay = tr.post_thread(store, born["thread"],
 	                            author_team="lang", author="ada",
 	                            body="y", op_id="op-1")
 	assert replay["operation"] == {"id": "op-1", "state": "replayed"}
@@ -117,14 +117,14 @@ def test_every_result_carries_exactly_one_operation_shape(world):
 def test_exact_retry_replays_without_a_second_effect(world):
 	store, _config = world
 	born = _create(store)
-	first = tr.post_discussion(store, born["discussion"],
+	first = tr.post_thread(store, born["thread"],
 	                           author_team="lang", author="ada",
 	                           body="push: confirm", request="push.bug",
 	                           op_id="ask-1")
 	events_after = store.events()
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	digest = hashlib.sha256(open(store.path, "rb").read()).hexdigest()
-	retry = tr.post_discussion(store, born["discussion"],
+	retry = tr.post_thread(store, born["thread"],
 	                           author_team="lang", author="ada",
 	                           body="push: confirm", request="push.bug",
 	                           op_id="ask-1")
@@ -148,11 +148,11 @@ def test_exact_retry_replays_without_a_second_effect(world):
 def test_conflicting_reuse_refuses_closed(world):
 	store, _config = world
 	born = _create(store)
-	tr.post_discussion(store, born["discussion"], author_team="lang",
+	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="ada", body="first meaning", op_id="op-x")
 	before = store.events()
 	with pytest.raises(bw.WorkError, match="different request"):
-		tr.post_discussion(store, born["discussion"],
+		tr.post_thread(store, born["thread"],
 		                   author_team="lang", author="ada",
 		                   body="second meaning", op_id="op-x")
 	assert store.events() == before
@@ -181,13 +181,13 @@ def test_later_state_replay_returns_the_original_resolution(world):
 	a read of the committed fact, not a new act."""
 	store, _config = world
 	born = _create(store)
-	passed = tr.post_discussion(store, born["discussion"],
+	passed = tr.post_thread(store, born["thread"],
 	                            author_team="lang", author="ada",
 	                            body="onward", pass_to="lang.rsrch",
 	                            op_id="pass-1")
 	tr.close_work(store, born["work_id"], actor_team="lang",
 	              actor="ada", rationale="done", outcome="satisfying")
-	replay = tr.post_discussion(store, born["discussion"],
+	replay = tr.post_thread(store, born["thread"],
 	                            author_team="lang", author="ada",
 	                            body="onward", pass_to="lang.rsrch",
 	                            op_id="pass-1")
@@ -195,7 +195,7 @@ def test_later_state_replay_returns_the_original_resolution(world):
 	assert replay["operation"]["state"] == "replayed"
 	assert replay["work"] == born["work_id"]
 	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
-		tr.post_discussion(store, born["discussion"],
+		tr.post_thread(store, born["thread"],
 		                   author_team="lang", author="ada",
 		                   body="onward again", pass_to="lang.rsrch",
 		                   op_id="pass-2")
@@ -204,7 +204,7 @@ def test_later_state_replay_returns_the_original_resolution(world):
 def test_a_removed_identity_gets_no_replay_carve_out(world):
 	store, config_path = world
 	born = _create(store)
-	tr.post_discussion(store, born["discussion"], author_team="lang",
+	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="grace", body="before removal",
 	                   op_id="grace-1")
 	document = _json.loads(open(config_path).read())
@@ -214,7 +214,7 @@ def test_a_removed_identity_gets_no_replay_carve_out(world):
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	lc.accept_config(config_path, actor="lang.ada")
 	with pytest.raises(bw.WorkError, match="not a registered member"):
-		tr.post_discussion(store, born["discussion"],
+		tr.post_thread(store, born["thread"],
 		                   author_team="lang", author="grace",
 		                   body="before removal", op_id="grace-1")
 
@@ -226,10 +226,10 @@ def test_a_concurrent_identical_attempt_replays_in_lock(world):
 	born = _create(store)
 	other = bw.Authority(store.path)
 	other.clock = store.clock
-	_interleave(store, lambda: tr.post_discussion(
-		other, born["discussion"], author_team="lang", author="ada",
+	_interleave(store, lambda: tr.post_thread(
+		other, born["thread"], author_team="lang", author="ada",
 		body="the one message", op_id="race-1"))
-	result = tr.post_discussion(store, born["discussion"],
+	result = tr.post_thread(store, born["thread"],
 	                            author_team="lang", author="ada",
 	                            body="the one message", op_id="race-1")
 	assert result["operation"]["state"] == "replayed", \
@@ -245,11 +245,11 @@ def test_a_concurrent_conflicting_attempt_refuses_in_lock(world):
 	born = _create(store)
 	other = bw.Authority(store.path)
 	other.clock = store.clock
-	_interleave(store, lambda: tr.post_discussion(
-		other, born["discussion"], author_team="lang", author="ada",
+	_interleave(store, lambda: tr.post_thread(
+		other, born["thread"], author_team="lang", author="ada",
 		body="their meaning", op_id="race-2"))
 	with pytest.raises(bw.WorkError, match="different request"):
-		tr.post_discussion(store, born["discussion"],
+		tr.post_thread(store, born["thread"],
 		                   author_team="lang", author="ada",
 		                   body="my meaning", op_id="race-2")
 	other.close()
@@ -261,10 +261,10 @@ def test_a_protected_no_op_consumes_the_id_without_an_event(world):
 	store, _config = world
 	born = _create(store)
 	top = store.last_seq()
-	tr.seen_discussion(store, born["discussion"], team="lang",
+	tr.seen_thread(store, born["thread"], team="lang",
 	                   member="grace", up_to_seq=top)
 	events_before = store.events()
-	losing = tr.seen_discussion(store, born["discussion"], team="lang",
+	losing = tr.seen_thread(store, born["thread"], team="lang",
 	                            member="grace", up_to_seq=top,
 	                            op_id="mark-1")
 	assert losing["advanced"] is False and losing["cursor"] == top
@@ -278,17 +278,17 @@ def test_a_protected_no_op_consumes_the_id_without_an_event(world):
 		"the no-op did not consume its identity (R76)"
 	# The cursor then advances; the exact retry STILL replays the stored
 	# no-op result verbatim — it names what THAT invocation did.
-	tr.post_discussion(store, born["discussion"], author_team="lang",
+	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="ada", body="later")
-	tr.seen_discussion(store, born["discussion"], team="lang",
+	tr.seen_thread(store, born["thread"], team="lang",
 	                   member="grace", up_to_seq=store.last_seq())
-	retry = tr.seen_discussion(store, born["discussion"], team="lang",
+	retry = tr.seen_thread(store, born["thread"], team="lang",
 	                           member="grace", up_to_seq=top,
 	                           op_id="mark-1")
 	assert retry["advanced"] is False and retry["cursor"] == top
 	assert retry["operation"]["state"] == "replayed"
 	with pytest.raises(bw.WorkError, match="different request"):
-		tr.seen_discussion(store, born["discussion"], team="lang",
+		tr.seen_thread(store, born["thread"], team="lang",
 		                   member="grace", up_to_seq=top - 1,
 		                   op_id="mark-1")
 
@@ -299,10 +299,10 @@ def test_the_operation_log_pages_on_its_own_recorded_cursor(world):
 	store, _config = world
 	born = _create(store)
 	for index in range(5):
-		tr.post_discussion(store, born["discussion"],
+		tr.post_thread(store, born["thread"],
 		                   author_team="lang", author="ada",
 		                   body=f"m{index}", op_id=f"op-{index}")
-	tr.post_discussion(store, born["discussion"], author_team="push",
+	tr.post_thread(store, born["thread"], author_team="push",
 	                   author="sl", body="other actor", op_id="op-0")
 	walked, after, pages = [], 0, 0
 	while True:
@@ -332,7 +332,7 @@ def test_the_operation_log_pages_on_its_own_recorded_cursor(world):
 def test_the_protected_commit_is_whole_or_nothing(world):
 	store, _config = world
 	consumer = _create(store, team="push", member="sl")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
 	                           request="lang.bug")["seq"]
@@ -465,7 +465,7 @@ def test_an_in_lock_removal_race_refuses_the_protected_commit(world):
 	                                            actor="lang.ada"))
 	with pytest.raises(bw.WorkError,
 	                   match="not a registered member|currently accepted"):
-		tr.post_discussion(store, born["discussion"], author_team="lang",
+		tr.post_thread(store, born["thread"], author_team="lang",
 		                   author="grace", body="mid-flight",
 		                   op_id="grace-inlock")
 	assert store.conn.execute(
@@ -482,7 +482,7 @@ def test_a_no_op_removal_race_refuses_in_its_own_observation(
 	store, config_path = world
 	born = _create(store)
 	top = store.last_seq()
-	tr.seen_discussion(store, born["discussion"], team="lang",
+	tr.seen_thread(store, born["thread"], team="lang",
 	                   member="grace", up_to_seq=top)
 	document = _json.loads(open(config_path).read())
 	document["generation"] = 2
@@ -500,7 +500,7 @@ def test_a_no_op_removal_race_refuses_in_its_own_observation(
 
 	monkeypatch.setattr(store, "_op_replay", remove_then_lookup)
 	with pytest.raises(bw.WorkError, match="not a registered member"):
-		tr.seen_discussion(store, born["discussion"], team="lang",
+		tr.seen_thread(store, born["thread"], team="lang",
 		                   member="grace", up_to_seq=top,
 		                   op_id="grace-noop")
 	assert store.conn.execute(

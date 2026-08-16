@@ -63,10 +63,10 @@ def test_every_response_carries_the_full_envelope(world, capsys):
 
 def test_an_incompatible_projection_version_fails_clearly(world, capsys):
 	path, _ = world
-	error = _run(capsys, path, "--expect-projection", "1.0", "home",
+	error = _run(capsys, path, "--expect-projection", "2.3", "home",
 	             viewer="lang.ada", expect_ok=False)
 	assert "not compatible" in error["error"]
-	ok = _run(capsys, path, "--expect-projection", "2.7", "home",
+	ok = _run(capsys, path, "--expect-projection", "3.0", "home",
 	          viewer="lang.ada")
 	assert ok["result"], "a compatible minor was refused"
 
@@ -106,7 +106,7 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 	created = _run(capsys, path, "create", "--team", "lang", "--kind",
 	               "bug", "--title", "burst", "--origin", "self-initiated",
 	               "--body", "first", viewer="lang.ada")["result"]
-	work, thread_id = created["work_id"], created["discussion"]
+	work, thread_id = created["work_id"], created["thread"]
 	for index in range(40):
 		_run(capsys, path, "say", thread_id, "--body", f"burst {index}",
 		     viewer="lang.ada")
@@ -139,12 +139,12 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 	               "--body", "b", viewer="lang.ada")["result"]
 	assert created["work_id"].endswith(f"-W{created['seq']}")
 
-	passed = _run(capsys, path, "say", created["discussion"], "--body",
+	passed = _run(capsys, path, "say", created["thread"], "--body",
 	              "go", "--on", created["work_id"],
 	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
-	returned = _run(capsys, path, "say", created["discussion"], "--body",
+	returned = _run(capsys, path, "say", created["thread"], "--body",
 	                "done", "--pass-to", "lang.rev",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return", \
@@ -163,6 +163,6 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 
 def test_a_mutation_without_a_viewer_is_refused(world, capsys):
 	path, cast = world
-	error = _run(capsys, path, "say", "some-discussion", "--body", "anon",
+	error = _run(capsys, path, "say", "some-thread", "--body", "anon",
 	             expect_ok=False)
 	assert "needs --participant" in error["error"]

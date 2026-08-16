@@ -30,10 +30,10 @@ def test_revision_history_is_a_bounded_paginated_json_list(tmp_path):
 		born = tr.create_work(store, team="lang", kind="bug", title="w",
 		                      origin="external-report", author="ada",
 		                      body="initial statement")
-		work, discussion = born["work_id"], born["discussion"]
+		work, thread = born["work_id"], born["thread"]
 		for number in range(1, 54):
-			message = tr.post_discussion(
-				store, discussion, author_team="lang", author="ada",
+			message = tr.post_thread(
+				store, thread, author_team="lang", author="ada",
 				body=f"complete contract revision {number}")["seq"]
 			tr.revise_work(store, work, actor_team="lang", actor="ada",
 			               message_seq=message,

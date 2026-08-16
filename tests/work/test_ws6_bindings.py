@@ -242,8 +242,8 @@ def test_references_ride_the_act_in_order(world):
 	store, _config = world
 	bound = _create(store, binding=f"pushcoin:{PATH}")
 	target = _create(store, team="push", member="sl")
-	result = tr.post_discussion(
-		store, target["discussion"], author_team="push", author="sl",
+	result = tr.post_thread(
+		store, target["thread"], author_team="push", author="sl",
 		body="evidence attached",
 		refs=[f"drift:docs/notes.md", f"{bound['work_id']}:repro/run.sh"])
 	rows = store.conn.execute(
@@ -254,12 +254,12 @@ def test_references_ride_the_act_in_order(world):
 	assert rows[0]["root"] == "drift" and rows[0]["work"] is None
 	assert (rows[1]["work"], rows[1]["binding_revision"],
 	        rows[1]["root"]) == (bound["work_id"], 1, "pushcoin")
-	# No label gate (M2): bound work is NOT labelled on the discussion,
+	# No label gate (M2): bound work is NOT labelled on the thread,
 	# and the citation added no label, edge, or participation for lang.
-	labels = pj.thread(store, target["discussion"], viewer_team="push",
+	labels = pj.thread(store, target["thread"], viewer_team="push",
 	                   viewer_member="sl")["labels"]
 	assert [entry["work"] for entry in labels] == [target["work_id"]]
-	message = pj.thread(store, target["discussion"], viewer_team="push",
+	message = pj.thread(store, target["thread"], viewer_team="push",
 	                    viewer_member="sl")["messages"][-1]
 	assert [ref["kind"] for ref in message["references"]] == \
 		["independent", "dossier"]
@@ -280,7 +280,7 @@ def test_reference_refusals_are_exact(world):
 			("drift:", "non-empty relative"),
 			("noseparator", "not LEFT:relative/path")):
 		with pytest.raises(bw.WorkError):
-			tr.post_discussion(store, born["discussion"],
+			tr.post_thread(store, born["thread"],
 			                   author_team="lang", author="ada",
 			                   body="x", refs=[token])
 	assert store.conn.execute(
@@ -296,11 +296,11 @@ def test_dossier_citations_survive_root_retirement(world):
 	_retire_root(config_path, "drift")
 	# Independent reference to the retired root refuses.
 	with pytest.raises(bw.WorkError, match="not a live configured root"):
-		tr.post_discussion(store, reader["discussion"],
+		tr.post_thread(store, reader["thread"],
 		                   author_team="push", author="sl", body="x",
 		                   refs=["drift:docs/x.md"])
 	# The dossier citation of the committed revision still publishes.
-	cited = tr.post_discussion(store, reader["discussion"],
+	cited = tr.post_thread(store, reader["thread"],
 	                           author_team="push", author="sl",
 	                           body="still anchored",
 	                           refs=[f"{bound['work_id']}:proof/p.txt"])
@@ -330,7 +330,7 @@ def test_a_reference_pins_the_effective_revision_under_the_commit(world):
 		store, bound["work_id"], actor_team="lang", actor="ada",
 		root="drift", path="work/records/2026/08/f2",
 		expected_revision=1, rationale="corrected mid-flight"))
-	result = tr.post_discussion(store, reader["discussion"],
+	result = tr.post_thread(store, reader["thread"],
 	                            author_team="push", author="sl",
 	                            body="anchored to what committed",
 	                            refs=[f"{bound['work_id']}:repro/r.sh"])
@@ -345,7 +345,7 @@ def test_compound_placement_is_explicit(world):
 	store, _config = world
 	consumer = _create(store, team="push", member="sl",
 	                   binding=f"pushcoin:{PATH}")
-	asked = tr.post_discussion(store, consumer["discussion"],
+	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
 	                           request="lang.bug")["seq"]
@@ -371,11 +371,11 @@ def test_a_reference_bearing_no_op_refuses_whole(world):
 	store, _config = world
 	born = _create(store, binding=f"pushcoin:{PATH}")
 	top = store.last_seq()
-	tr.seen_discussion(store, born["discussion"], team="lang",
+	tr.seen_thread(store, born["thread"], team="lang",
 	                   member="grace", up_to_seq=top)
 	before = store.events()
 	with pytest.raises(bw.WorkError, match="commits no act"):
-		tr.seen_discussion(store, born["discussion"], team="lang",
+		tr.seen_thread(store, born["thread"], team="lang",
 		                   member="grace", up_to_seq=top,
 		                   refs=["pushcoin:notes.md"])
 	assert store.events() == before
@@ -491,8 +491,8 @@ def test_the_reference_bearing_commit_is_whole_or_nothing(world):
 		statement["n"], statement["limit"] = 0, boundary
 		store.conn = ExplodingConn()
 		try:
-			tr.post_discussion(
-				store, reader["discussion"], author_team="push",
+			tr.post_thread(
+				store, reader["thread"], author_team="push",
 				author="sl", body="evidence",
 				refs=["drift:docs/a.md",
 				      f"{bound['work_id']}:repro/b.sh"],
@@ -515,7 +515,7 @@ def test_the_reference_bearing_commit_is_whole_or_nothing(world):
 def test_restart_and_read_purity(world):
 	store, _config = world
 	bound = _create(store, binding=f"pushcoin:{PATH}")
-	tr.post_discussion(store, bound["discussion"], author_team="lang",
+	tr.post_thread(store, bound["thread"], author_team="lang",
 	                   author="ada", body="anchored",
 	                   refs=[f"{bound['work_id']}:notes.md"])
 	fresh = bw.Authority(store.path)
@@ -526,7 +526,7 @@ def test_restart_and_read_purity(world):
 	fresh.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	digest = hashlib.sha256(open(fresh.path, "rb").read()).hexdigest()
 	pj.bindings(fresh, bound["work_id"])
-	pj.thread(fresh, bound["discussion"], viewer_team="lang",
+	pj.thread(fresh, bound["thread"], viewer_team="lang",
 	          viewer_member="grace")
 	fresh.events()
 	fresh.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
@@ -550,7 +550,7 @@ def test_a_mid_flight_root_retirement_refuses_the_reference(world):
 	posts_before = len([event for event in store.events()
 	                    if event["kind"] == "post_message"])
 	with pytest.raises(bw.WorkError, match="not a live configured root"):
-		tr.post_discussion(store, born["discussion"], author_team="lang",
+		tr.post_thread(store, born["thread"], author_team="lang",
 		                   author="ada", body="raced by retirement",
 		                   refs=["drift:docs/x.md"])
 	assert len([event for event in store.events()

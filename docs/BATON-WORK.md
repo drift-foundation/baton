@@ -10,7 +10,10 @@ design dossier holds the full rulings.
 
 Each release is deployed into a NEW explicit immutable directory:
 
-    python3 tools/deploy_work.py /your/dist/baton-work-rN
+    just deploy-v11 /your/dist/baton-work-rN
+
+Run that command from the Baton source checkout. The recipe owns the internal
+packaging mechanism; operators do not invoke it directly.
 
 The installed layout is:
 
@@ -43,10 +46,10 @@ the document passes. A refusal leaves nothing behind.
     $BW --config ~/your-home/baton.json --participant team.member tui
 
 The console renders the same canonical projection the JSON surface
-serves. Keys: j/k select, Enter drill (tables, links, discussions),
+serves. Keys: j/k select, Enter drill (tables, links, threads),
 Esc back, o focused Work view, b blocking/dependent neighbors,
-z reveal closed rows, n page forward through a thread or the
-discussion list, p return to its start (not a previous-page step),
+z reveal closed rows, n page forward through a thread's Msgs or the
+thread list, p return to its start (not a previous-page step),
 s mark the painted page seen, q quit. `:` opens the command bar: everything typed there is
 the PUBLIC CLI grammar run as you (for example
 `:create --team push --kind bug --title "..." --origin

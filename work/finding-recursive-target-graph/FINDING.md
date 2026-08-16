@@ -2652,3 +2652,37 @@ recovery channel while all experimental Work, discussions, transitions and
 TUI feedback occur in the separate v11 authority. A v11 defect never requires
 shutting down, migrating, or repairing v10. Findings from the trial are
 reported and reviewed before any later cutover decision.
+
+## 2026-08-15 — v11 deployment has a `just` operator surface
+
+**Confirmed by Slawomir at the parallel-trial launch.** The implementation of
+the v11 immutable distribution may remain in `tools/deploy_work.py`, because
+zipapp construction, release-asset copying, hashing and atomic publication are
+not usefully reproduced in shell. That Python module is internal packaging
+machinery, not the command handed to an operator.
+
+The repository-level operator command is:
+
+    just deploy-v11 EXPLICIT_NEW_DISTRIBUTION_DIRECTORY
+
+The recipe is deliberately named `deploy-v11` while the frozen v10 `deploy`
+recipe still exists. It is a thin, transparent call into the one deployer and
+does not add a second implementation. It preserves every existing boundary:
+the destination must be new and explicit; deploy installs only immutable
+distribution assets; it does not initialize or activate a coordination home;
+and it does not touch v10.
+
+## 2026-08-15 — the product and executable are named `baton`
+
+**Confirmed by Slawomir after deploying the first Gate B trial.** `baton-work`
+was a temporary development name used to distinguish the v11 Work engine from
+the live v10 executable. It is not a separate product name and must not become
+the name of future releases, including production releases.
+
+The product and installed executable are `baton`. Protocol generation and
+release identity are expressed by the immutable distribution path, for
+example `.../baton/v11/<release>/bin/baton`, not by renaming the executable.
+The already-deployed `6d1b944` trial may continue under its existing
+`bin/baton-work` path so its immutable bytes are not rewritten. The next v11
+distribution must rename the installed executable and all current-facing
+documentation/examples to `baton` before production is considered.

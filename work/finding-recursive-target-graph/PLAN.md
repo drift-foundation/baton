@@ -1616,3 +1616,127 @@ Production deployment, v10 migration, shutdown and cutover remain held.
 at the parser, and both CLI/TUI identity-prefix regressions pass. Gate B remains
 accepted and the isolated trial remains released. Await K's reviewed WIP
 commit message; production operations remain held.
+
+**Parallel-trial deploy UX correction accepted.** Slawomir ruled that the
+operator must not invoke `tools/deploy_work.py` directly. Keep that module as
+the single packaging implementation and expose it through `just deploy-v11
+EXPLICIT_NEW_DISTRIBUTION_DIRECTORY`. The recipe dry-run expands to the exact
+quoted destination and diff checking is clean; no release was published during
+verification. The quickstart names only that public surface and the focused
+deploy suite passes 9/9. Hand Slawomir the corrected trial command. No v10
+behavior or production path changes in this correction.
+
+**Product-name correction pinned for the next v11 distribution.** The current
+immutable `6d1b944` trial may run as deployed, but `baton-work` is only its
+temporary development executable name. Before the next v11 deployment, rename
+the installed executable and current operator documentation/examples to
+`baton`; the versioned distribution path distinguishes v11 from v10. No
+already-published immutable directory is rewritten.
+
+**Queued child: generated `init` next-command option order.** The first real
+trial exposed that `init` prints `baton activate . --participant ...`, while
+the public parser requires global options before the subcommand. See
+`findings/finding-init-next-option-order/FINDING.md` and its plan. The existing
+healthy scaffold is retained and the trial uses the valid order; fix and test
+the generated hint before the next v11 distribution.
+
+**Queued child: TUI table-header case.** The first real TUI trial found the
+Work headings rendered in all caps. See
+`findings/finding-tui-header-case/FINDING.md` and its plan. The next v11
+distribution uses `Title`, `St`, `Phase`, and equivalent initial-capital
+labels without changing canonical projection fields or responsive column ids.
+
+**TUI table-header child accepted.** V11 Work `26de18dd-W2` carried the
+implementation and consuming return to review. The exact renderer/test delta
+is accepted with focused PTY evidence, K's full 541+3 v11 gate and clean diff
+checking. The source fix waits for the next immutable distribution; `6d1b944`
+was not rewritten.
+
+**Queued child: configurable TUI automatic refresh.** The first real trial
+confirmed that v11 currently re-renders only after terminal input. See
+`findings/finding-tui-auto-refresh/FINDING.md` and its plan. The next v11 TUI
+must poll canonical projections automatically with a configurable positive
+seconds delay, default 2 seconds, while preserving selection and producing no
+seen receipt or workflow mutation. No inotify/file-watch contract is added.
+
+**Queued child: confirmed-defect compact label.** The human trial found
+`cnfrm` ambiguous because it describes confirmation rather than the resulting
+classification. See `findings/finding-tui-classification-label/FINDING.md` and
+its plan. A later v11 distribution renders canonical `confirmed-defect` as
+`defct` without changing the authority value or other labels.
+
+**Queued child: leaf Enter navigation.** The human trial found that `Enter` on
+a leaf Work drills into an unexplained empty child table, while its discussion
+messages are hidden behind `o`. See
+`findings/finding-tui-leaf-enter/FINDING.md` and its plan. Preserve parent
+child-drill behavior, but make leaf activation useful and discoverable after a
+focused UX ruling; explicit seen semantics remain unchanged.
+
+**Queued child: formatted discussion reader.** The human trial found the v11
+thread to be a clipped raw list rather than a usable message reader. See
+`findings/finding-tui-message-format/FINDING.md` and its plan. Add a compact,
+borderless presentation for authorship, chronology, message boundaries,
+wrapped bodies, references, and personal new state without changing canonical
+JSON, discussion separation, pagination, or explicit seen semantics.
+
+**Split-pane TUI ruling.** The Work table remains in the top pane and the
+highlighted Work's selected discussion is continuously readable in a bottom
+pane. `Enter` in Work retains child drill-down, `Tab` changes pane focus,
+distinct discussions remain switchable, and one with personal `New` is
+preferred. Preview never advances seen state; `s` explicitly marks only the
+displayed bounded page. This ruling jointly refines the leaf-navigation and
+formatted-reader children above.
+
+**Queued child: subject-bearing Thread vocabulary.** The human trial confirmed
+`Work -> Threads -> Messages`, superseding `Discussion` as the canonical v11
+entity name. See `findings/finding-thread-subject-vocabulary/FINDING.md` and
+its plan. Each Thread has a required subject, Messages retain bodies, and the
+compact bottom pane is `Msgs` with a selected-Thread indicator such as `T1/3`.
+Apply the rename coherently across schema, JSON, CLI, workflows, and TUI in a
+new immutable distribution and fresh authority; do not migrate `6d1b944`.
+
+**Fresh next trial confirmed.** The `6d1b944` authority is disposable; do not
+build a migration for it. Repository findings carry the durable stories. W31
+is the first implementation gate; after its reviewed satisfying close unblocks
+W17 and W23, implement the split-pane navigation and formatted reader. W16
+(`defct`) and W7 (timer-only automatic refresh) are independent queued
+corrections for the same next immutable distribution.
+
+The old trial coordination home now lives at
+`/home/sl/baton-v11.6d1b944`; use it only to finish/review its W31 handoff. The
+next immutable app initializes a fresh `/home/sl/baton-v11`; do not migrate or
+rewrite the archived authority.
+
+**W31 review changes requested.** See
+`findings/finding-thread-subject-vocabulary/review-2026-08-15T22-35-13Z.md`.
+The subject is missing from `create_thread`'s effectively-once fingerprint,
+and `create_work` can store a born Thread subject which the public subject
+validator refuses. Focused evidence is 4 passed / 3 failed. Do not WIP-commit,
+close W31, or unblock W17/W23 until the corrections and full gate review clean.
+
+**W31 R2 ruling approved.** Work titles and Thread subjects share one
+normalized, non-empty, single-line, at-most-80-UTF-8-byte contract. Work
+creation stores that normalized title as its born Thread subject; no redundant
+subject argument and no silent truncation. K may clear the two remaining
+focused regressions, run the full v11 gate, and return W31 to review.
+
+**W31 revision 3 accepted.** See
+`findings/finding-thread-subject-vocabulary/review-2026-08-15T22-45-22Z.md`.
+The fingerprint and born-Thread invariants are corrected; focused W31 is 7/7,
+`just test-v11` is 549 parallel plus 3 serial, and diff checking is clean.
+Close W31 satisfying; W17 and W23 may become ready through ordinary dependency
+recomputation. This accepts W31 only, not the remaining trial queue or a
+production release.
+
+W31 closed satisfying at v11 sequence 52. Authority recomputation leaves W17
+and W23 open with zero open blockers and `Ready = true`; their historical edge
+to satisfying W31 remains visible. They are not part of the W31 acceptance and
+remain queued for a later handoff.
+
+**Queued child: TUI exit confirmation.** The human trial confirmed that `q` in
+normal navigation must ask `Exit? y/N`, matching the accepted v10 safety
+interaction, rather than exiting immediately. See
+`findings/finding-tui-exit-confirmation/FINDING.md` and its plan. Confirmation
+and cancellation are one-row, preserve the prior view, and perform no
+authority or seen mutation. This is independent of W31 and belongs in the next
+immutable v11 distribution.

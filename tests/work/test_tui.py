@@ -36,9 +36,11 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	screen = ptyharness.replay(text)
 	assert any("top-level work" in line for line in screen)
 	assert any("parser recovery" in line for line in screen), screen[:6]
-	header = next(line for line in screen if "TITLE" in line)
-	for column in ("ST", "PROG", "DEP", "READY", "CURRENT", "NEXT", "NEW"):
+	header = next(line for line in screen if "Title" in line)
+	# Trial finding 26de18dd-W2: initial-capital header labels.
+	for column in ("St", "Prog", "Dep", "Ready", "Current", "Next", "New"):
 		assert column in header
+	assert "TITLE" not in header and "READY" not in header
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -71,14 +73,14 @@ def test_escape_climbs_back_up_the_drilled_path(world):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_the_discussion_view_shows_the_timeline_and_planned_next(world):
+def test_the_thread_view_shows_the_timeline_and_planned_next(world):
 	path, cast = world
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
 		(b"\r", 0.5),                 # into the epic's children
 		(b"j", 0.3),                  # select step_fix
 		(b"\r", 0.5),                 # drill into it
-		(b"o", 0.5),                  # the focused view + discussion set
-		(b"\r", 0.5),                 # open the selected discussion
+		(b"o", 0.5),                  # the focused view + thread set
+		(b"\r", 0.5),                 # open the selected thread
 		(b"q", 0.4),
 	])
 	focused = ptyharness.replay(steps[3])
@@ -86,13 +88,13 @@ def test_the_discussion_view_shows_the_timeline_and_planned_next(world):
 		f"the planned Next is not shown: {[l for l in focused if l][:6]}"
 	screen = ptyharness.replay(steps[4])
 	assert any("take it" in line for line in screen), \
-		"the discussion body is not drawn"
+		"the thread body is not drawn"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
 def test_marking_seen_is_explicit_and_reflected_in_new(world, tmp_path):
 	"""The seen transition through the CONSOLE: grace opens the epic's
-	discussion, presses `s`, and the console's own status line reports the
+	thread, presses `s`, and the console's own status line reports the
 	cursor. The count change is asserted in the parity suite via JSON —
 	here the property is that VIEWING ALONE changed nothing."""
 	path, cast = world
@@ -150,7 +152,7 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 		store, team="lang", kind="bug", title="portable facts",
 		origin="external-report", author="ada", body="bound at birth",
 		binding="pushcoin:work/records/2026/08/finding-tui")
-	tr.post_discussion(store, born["discussion"], author_team="lang",
+	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="ada", body="evidence",
 	                   refs=[f"{born['work_id']}:repro/run.sh"])
 	# The canonical JSON facts this parity checkpoint must mirror.
@@ -158,7 +160,7 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 	                   viewer_member="ada")
 	json_binding = (f"{detail['binding']['root']}:"
 	                f"{detail['binding']['path']}")
-	message = pj.thread(store, born["discussion"], viewer_team="lang",
+	message = pj.thread(store, born["thread"], viewer_team="lang",
 	                    viewer_member="ada")["messages"][-1]
 	json_reference = (f"{message['references'][0]['root']}:"
 	                  f"{message['references'][0]['path']}")
@@ -166,8 +168,8 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.5),                 # drill into the work
-		(b"o", 0.5),                  # the focused view + discussion set
-		(b"\r", 0.5),                 # open the selected discussion
+		(b"o", 0.5),                  # the focused view + thread set
+		(b"\r", 0.5),                 # open the selected thread
 		(b"q", 0.4),
 	])
 	focused = "\n".join(ptyharness.replay(steps[1]))
@@ -193,9 +195,9 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	                                        [(b"q", 0.4)],
 	                                        columns=narrow, lines=24)
 	screen = ptyharness.replay(text, columns=narrow, lines=24)
-	header = next(line for line in screen if "TITLE" in line)
-	assert "CLS" not in header
-	assert "CURRENT" in header and "NEW" in header
+	header = next(line for line in screen if "Title" in line)
+	assert "Cls" not in header
+	assert "Current" in header and "New" in header
 	# The title keeps its working width (truncated, never squeezed away)
 	# and the 6/6 identities are drawn whole.
 	assert any("parser recov" in line for line in screen)
@@ -221,7 +223,7 @@ def test_links_are_on_demand_and_escape_returns(world):
 	assert f"blocks {cast['web']} web open" in joined
 	assert f"blocks {cast['mdb']} mdb open" in joined
 	back = ptyharness.replay(steps[1])
-	assert any("TITLE" in line for line in back), \
+	assert any("Title" in line for line in back), \
 		"escape did not return to the table"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -247,8 +249,8 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	live = tr.create_work(store, team="lang", kind="bug",
 	                      title="stays open", origin="external-report",
 	                      author="ada", body="live")
-	promoted = tr.post_discussion(
-		store, live["discussion"], author_team="lang", author="ada",
+	promoted = tr.post_thread(
+		store, live["thread"], author_team="lang", author="ada",
 		body="the complete revised contract")
 	tr.revise_work(store, live["work_id"], actor_team="lang",
 	               actor="ada", message_seq=promoted["seq"],
@@ -454,10 +456,10 @@ def test_links_drill_through_to_the_far_work(world):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_discussion_selection_never_merges_timelines(tmp_path):
-	"""R105: a Work with several labelled discussions lists them
+def test_thread_selection_never_merges_timelines(tmp_path):
+	"""R105: a Work with several labelled threads lists them
 	selectably (ids, personal New); Enter opens exactly the chosen one —
-	the other discussion's messages never bleed in."""
+	the other thread's messages never bleed in."""
 	import json as _json
 
 	import baton_work as bw
@@ -475,34 +477,34 @@ def test_discussion_selection_never_merges_timelines(tmp_path):
 	                      title="two threads", origin="external-report",
 	                      author="ada", body="the born conversation")
 	work = born["work_id"]
-	tr.post_discussion(store, born["discussion"], author_team="lang",
+	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="ada", body="first-thread evidence")
-	second = tr.create_discussion(store, actor_team="lang", actor="ada",
+	second = tr.create_thread(store, actor_team="lang", actor="ada",
 	                              body="second-thread opener",
-	                              labels=[work])["discussion"]
+	                              labels=[work], subject="trial subject")["thread"]
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.5),                 # drill into the work
-		(b"o", 0.5),                  # focused view: the discussion SET
-		(b"j", 0.4),                  # select the SECOND discussion
+		(b"o", 0.5),                  # focused view: the thread SET
+		(b"j", 0.4),                  # select the SECOND thread
 		(b"\r", 0.5),                 # open it
 		(b"q", 0.4),
 	])
 	listing = "\n".join(ptyharness.replay(steps[1]))
-	assert "discussions (2):" in listing
-	assert second in listing, "the second discussion is not listed"
+	assert "threads (2):" in listing
+	assert second in listing, "the second thread is not listed"
 	thread = "\n".join(ptyharness.replay(steps[3]))
 	assert "second-thread opener" in thread
 	assert "first-thread evidence" not in thread, \
-		"another discussion's messages bled into the thread"
+		"another thread's messages bled into the thread"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_the_discussion_set_pages_beyond_the_first_fifty(tmp_path):
-	"""The canonical Work-discussions read exposes continuation. A bounded
+def test_the_thread_set_pages_beyond_the_first_fifty(tmp_path):
+	"""The canonical Work-threads read exposes continuation. A bounded
 	TUI list must let the operator reach every page rather than silently making
-	discussion 51 and later inaccessible."""
+	thread 51 and later inaccessible."""
 	import json as _json
 
 	import baton_work as bw
@@ -517,14 +519,15 @@ def test_the_discussion_set_pages_beyond_the_first_fifty(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="many discussions", origin="external-report",
+	                      title="many threads", origin="external-report",
 	                      author="ada", body="born")
 	last = None
 	for index in range(50):
-		last = tr.create_discussion(
+		last = tr.create_thread(
 			store, actor_team="lang", actor="ada",
-			body=f"separate discussion {index + 2}",
-			labels=[born["work_id"]])["discussion"]
+			body=f"separate thread {index + 2}",
+			labels=[born["work_id"]],
+			subject="trial subject")["thread"]
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
@@ -534,12 +537,12 @@ def test_the_discussion_set_pages_beyond_the_first_fifty(tmp_path):
 	], lines=14)
 	listing = "\n".join(ptyharness.replay(steps[2], lines=14))
 	assert last in listing, \
-		"the discussion after the first 50 is unreachable from the TUI"
+		"the thread after the first 50 is unreachable from the TUI"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
 def test_thread_pages_are_bounded_and_navigable(tmp_path):
-	"""R105: a long discussion is read in BOUNDED pages through the
+	"""R105: a long thread is read in BOUNDED pages through the
 	canonical thread read — n moves past the painted page, p returns to
 	the start, and the seen mark stays bounded by the PAINTED page."""
 	import json as _json
@@ -560,7 +563,7 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 	                      title="long talk", origin="external-report",
 	                      author="ada", body="opener")
 	for index in range(1, 25):
-		tr.post_discussion(store, born["discussion"],
+		tr.post_thread(store, born["thread"],
 		                   author_team="lang", author="ada",
 		                   body=f"message number {index:02d}")
 
@@ -586,7 +589,7 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 	# painted message — later messages stay New.
 	new = pj.new_count(store, born["work_id"], viewer_team="lang",
 	                   viewer_member="ada")["total"]
-	assert new > 0, "the page-bounded seen marked the whole discussion"
+	assert new > 0, "the page-bounded seen marked the whole thread"
 	store.close()
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -610,9 +613,9 @@ def test_below_the_minimum_the_table_refuses_explicitly(world):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_the_discussion_set_pages_beyond_one_full_page(tmp_path):
-	"""R116: the discussion SET itself is paged — a Work with more
-	labelled discussions than one page still reaches every one through
+def test_the_thread_set_pages_beyond_one_full_page(tmp_path):
+	"""R116: the thread SET itself is paged — a Work with more
+	labelled threads than one page still reaches every one through
 	`n` (the canonical continuation cursor) and returns with `p`."""
 	import json as _json
 
@@ -632,10 +635,10 @@ def test_the_discussion_set_pages_beyond_one_full_page(tmp_path):
 	                      title="many talks", origin="external-report",
 	                      author="ada", body="opener")
 	work = born["work_id"]
-	extras = [tr.create_discussion(store, actor_team="lang",
+	extras = [tr.create_thread(store, actor_team="lang",
 	                               actor="ada",
 	                               body=f"topic {index:02d}",
-	                               labels=[work])["discussion"]
+	                               labels=[work], subject="trial subject")["thread"]
 	          for index in range(app.DISC_PAGE + 2)]
 	store.close()
 	beyond = extras[app.DISC_PAGE:]
@@ -647,14 +650,54 @@ def test_the_discussion_set_pages_beyond_one_full_page(tmp_path):
 		(b"q", 0.4),
 	])
 	first = "\n".join(ptyharness.replay(steps[1]))
-	assert f"discussions ({app.DISC_PAGE + 3})" in first
+	assert f"threads ({app.DISC_PAGE + 3})" in first
 	assert "(n: more)" in first, "the full page does not announce more"
 	for extra in beyond:
-		assert extra not in first, "page one leaked later discussions"
+		assert extra not in first, "page one leaked later threads"
 	second = "\n".join(ptyharness.replay(steps[2]))
 	for extra in beyond:
 		assert extra in second, \
-			"a discussion beyond the first page is unreachable"
+			"a thread beyond the first page is unreachable"
 	back = "\n".join(ptyharness.replay(steps[3]))
-	assert born["discussion"] in back, "p did not return to the start"
+	assert born["thread"] in back, "p did not return to the start"
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+
+
+def test_the_msgs_pane_names_the_selected_thread_and_subject(tmp_path):
+	"""W31: the compact bottom pane is Msgs with a T{n}/{total} selector
+	and the REQUIRED subject — several conversations on one Work are
+	never mistaken for one another, and the list leads with subjects."""
+	import json as _json
+
+	import baton_work as bw
+	from baton_work import lifecycle as lc
+	from baton_work import transitions as tr
+
+	config_path = str(tmp_path / "baton.json")
+	document = fixtures.config_document(
+		{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}})
+	with open(config_path, "w") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	result = lc.init_from_config(config_path, participant="lang.ada")
+	store = bw.Authority(result["database"])
+	born = tr.create_work(store, team="lang", kind="bug",
+	                      title="two conversations",
+	                      origin="external-report", author="ada",
+	                      body="opener")
+	tr.create_thread(store, actor_team="lang", actor="ada",
+	                 body="second opener", labels=[born["work_id"]],
+	                 subject="the follow-up questions")
+	store.close()
+
+	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
+		(b"\r", 0.5), (b"o", 0.5),    # the thread list
+		(b"j", 0.4), (b"\r", 0.5),    # open the SECOND thread
+		(b"q", 0.4),
+	])
+	listing = "\n".join(ptyharness.replay(steps[1]))
+	assert "T1 two conversations" in listing, listing[:400]
+	assert "T2 the follow-up questions" in listing
+	msgs = "\n".join(ptyharness.replay(steps[3]))
+	assert "Msgs T2/2 — the follow-up questions" in msgs, msgs[:400]
+	assert "second opener" in msgs
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

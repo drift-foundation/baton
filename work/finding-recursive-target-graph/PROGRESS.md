@@ -2170,3 +2170,108 @@ The acceptance does NOT authorize production deployment, migration,
 shutdown, or cutover; v10 stays the live coordination and recovery
 channel during the trial. Commit message drafted and replied
 (commit-message-gateb.txt, response 3705b2437fc34b913a0c66bb93aea7a3).
+
+## Step 57 — first v11-coordinated finding delivered (2026-08-15)
+
+The trial channel works end-to-end. v10 wake → v11 Work 26de18dd-W2
+("Use initial-capital TUI headers", filed by baton.codex from the
+first human TUI trial): the table header now draws initial-capital
+LABELS (Title, St, Phase, Cls, Prog, Dep, Ready, Current, Next, New)
+via name.capitalize() over the unchanged internal column identifiers;
+canonical projection fields untouched; the immutable 6d1b944 trial
+deploy untouched. PTY expectations updated; the all-caps sweep bites.
+Focused TUI/parity/packaged 33 green; `just test-v11` 541 parallel +
+3 serial green. Returned through v11 under op-id w2-return-1 with the
+evidence message (#13) and the CONSUMING pass to baton.bug (Current
+baton.bug, Next consumed); reviewer woken via v10. Production
+operations remain held.
+
+## Step 58 — W31: subject-bearing Thread vocabulary (2026-08-15)
+
+Per v11 Work 26de18dd-W31 rev 2 and
+findings/finding-thread-subject-vocabulary (no migration of 6d1b944,
+no compatibility aliases, fresh authority for the next distribution):
+
+- **Schema v14**: `threads(id, subject NOT NULL, ...)`,
+  `thread_labels`, `thread_participants`, and every `discussion`
+  column renamed to `thread`; thread ids are now `-T{seq}`.
+- **Transitions**: `create_thread` requires a concise subject
+  (`validate_subject`: non-empty, single line, ≤80 UTF-8 bytes;
+  refusals leave no residue); the born Thread's subject is the Work's
+  title; accept-created provider threads take the created title;
+  replies never carry a subject. Subjects join payloads and therefore
+  WS-5 fingerprints.
+- **Projection 3.0** (breaking): `thread` exposes `subject`;
+  `work_threads` rows carry `subject` and a canonical `ordinal`
+  (stable label-order index for the T{n} selector — never derived
+  client-side); `threads_for` and the detail preview carry subjects.
+- **CLI**: `start-thread --subject` replaces `discuss`; `threads`,
+  `work-threads`, `thread`, `say`, `label`, `unlabel`, `mark-seen`
+  operate on threads; no Discussion vocabulary remains in
+  src/baton_work or the quickstart.
+- **TUI**: the thread list leads with `T{ordinal} {subject}` (id kept
+  for reference); the compact bottom pane is `Msgs
+  T{n}/{total} — {subject}`; modes are threads/msgs.
+- Tests: whole-tree vocabulary migration (38 files); new
+  `test_w31_threads.py` (subject contract, born-title subject,
+  several-threads-per-Work AND one-thread-many-Works with stable
+  ordinals, replies never repeat the subject) and the Msgs-pane PTY
+  test. Sweeps bit for: validation dropped, born subject dropped,
+  Msgs selector dropped, ordinal flattened. The tui boundary guard
+  bit AGAIN on an uppercase noun in a comment (fourth time — lesson
+  recorded).
+
+Gate: engine 442 + TUI/parity 32 + packaged/deploy 14 + workflows 56
+green; `just test-v11` 546 parallel + 3 serial green. Returning W31
+to baton.feat through v11.
+
+## Step 59 — W31 review round: R1 fixed, R2 held for ruling (2026-08-15)
+
+W31 review (findings/finding-thread-subject-vocabulary/
+review-2026-08-15T22-35-13Z.md): R1 — the subject now
+validates/normalizes BEFORE the operation lookup and joins the typed
+effectively-once fingerprint (identical retry replays; changed
+subject under the same op-id refuses "different request", no
+residue); the reviewer's regression is green and the sweep bites.
+R3 — the successful-return addendum is appended to the W31
+implementation response, preserving the blocked-return evidence and
+naming the moved authority. R2 — one normalized single-line ≤80-byte
+contract for Work title AND born Thread subject — awaits Slawomir's
+explicit confirmation per the review; its two regressions remain
+deliberately red and no full-gate claim is made while they stand.
+Returned to baton.feat in v11 (message #45, op-id w31-return-2).
+
+## Step 60 — W31 rev3: the unified title/subject contract (2026-08-15)
+
+Slawomir approved R2 (v11 #46, promoted as W31 revision 3): Work
+titles and Thread subjects share ONE normalized, non-empty,
+single-line, ≤80-UTF-8-byte contract. Implemented:
+
+- `create_work` normalizes the title through `validate_subject(...,
+  "work title")` BEFORE the operation lookup — the fingerprint sees
+  the one canonical value — and stores it as both the Work title and
+  the born Thread subject; an invalid title refuses the creation
+  whole with no residue; no silent truncation.
+- The accept-created provider title normalizes through the same
+  contract before accept's operation lookup.
+- The reviewer's two pre-ruling regressions were adapted to the
+  APPROVED semantics with their invariant preserved (refusal on
+  newline/81-byte titles with byte-pure events; every stored born
+  subject passes the one public validator; normalization proven by a
+  padded title storing stripped). Sweep: dropping the contract makes
+  both bite.
+
+Focused W31: 7/7 green. `just test-v11`: 549 parallel + 3 serial
+green. Returning to baton.feat; no commit and no dependent
+unblocking until review is clean.
+
+## Step 61 — W31 ACCEPTED and closed satisfying (2026-08-15)
+
+Reviewer accepted W31 rev3 (v11 #52): focused 7/7, `just test-v11`
+549 parallel + 3 serial, diff check clean; W17/W23 unblocked. The
+WIP commit message covering the full diff since 6d1b944 (subject-
+bearing Threads, the approved unified title/subject contract,
+projection 3.0, start-thread CLI, Msgs pane, initial-capital headers,
+`just deploy-v11`) was drafted and replied on the v10 claim
+(commit-message-w31.txt, response c4910e08c2175e30ed92481e45063e33).
+Nothing staged or committed; production operations remain held.

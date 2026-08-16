@@ -29,7 +29,7 @@ def test_wf12_effectively_once_retry(flow):
 	               "--title", "retry provider", "--origin",
 	               "external-report", "--body", "root",
 	               viewer="lang.ada")
-	work, thread = born["work_id"], born["discussion"]
+	work, thread = born["work_id"], born["thread"]
 	assert born["operation"] is None, \
 		"an unprotected call did not carry the null operation shape"
 
@@ -133,25 +133,25 @@ def test_wf12_effectively_once_retry(flow):
 	               "--title", "push local", "--origin",
 	               "self-initiated", "--body", "local",
 	               viewer="push.sl")
-	top = flow.ok("thread", side["discussion"],
+	top = flow.ok("thread", side["thread"],
 	              viewer="push.sl")["last_seq"]
-	flow.ok("mark-seen", side["discussion"], "--up-to", str(top),
+	flow.ok("mark-seen", side["thread"], "--up-to", str(top),
 	        viewer="push.sl")
 	events_before = flow.ok("events", viewer="push.sl")
-	noop = flow.ok("--op-id", "mark-1", "mark-seen", side["discussion"],
+	noop = flow.ok("--op-id", "mark-1", "mark-seen", side["thread"],
 	               "--up-to", str(top), viewer="push.sl")
 	assert noop["advanced"] is False
 	assert noop["operation"] == {"id": "mark-1", "state": "committed"}
 	assert flow.ok("events", viewer="push.sl") == events_before, \
 		"a successful no-op invented a domain event"
-	flow.ok("say", side["discussion"], "--body", "later",
+	flow.ok("say", side["thread"], "--body", "later",
 	        viewer="push.sl")
-	later = flow.ok("thread", side["discussion"],
+	later = flow.ok("thread", side["thread"],
 	                viewer="push.sl")["last_seq"]
-	flow.ok("mark-seen", side["discussion"], "--up-to", str(later),
+	flow.ok("mark-seen", side["thread"], "--up-to", str(later),
 	        viewer="push.sl")
 	replayed_noop = flow.ok("--op-id", "mark-1", "mark-seen",
-	                        side["discussion"], "--up-to", str(top),
+	                        side["thread"], "--up-to", str(top),
 	                        viewer="push.sl")
 	assert replayed_noop["operation"]["state"] == "replayed"
 	assert replayed_noop["advanced"] is False and \
@@ -167,9 +167,9 @@ def test_wf12_effectively_once_retry(flow):
 			("create", ("create", "--team", "push", "--kind", "bug",
 			            "--title", "twin", "--origin", "self-initiated",
 			            "--body", "twin"), "push.sl"),
-			("discuss", ("discuss", "--body", "ctx", "--label",
+			("discuss", ("start-thread", "--subject", "trial subject", "--body", "ctx", "--label",
 			             fam["work_id"]), "push.sl"),
-			("label", ("label", side["discussion"], "--work",
+			("label", ("label", side["thread"], "--work",
 			           fam["work_id"]), "push.sl"),
 			("classify", ("classify", fam["work_id"], "--as",
 			              "confirmed-defect"), "push.sl"),

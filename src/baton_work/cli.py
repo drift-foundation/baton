@@ -116,7 +116,7 @@ def main(argv=None) -> int:
 	cmd.add_argument("obligation", type=int)
 	cmd.add_argument("--body", required=True,
 	                 help="the acceptance rationale, answered into the "
-	                 "consumer's discussion")
+	                 "consumer's thread")
 	cmd.add_argument("--into", help="existing provider work id")
 	cmd.add_argument("--create", action="store_true",
 	                 help="create the provider work in the same "
@@ -153,7 +153,7 @@ def main(argv=None) -> int:
 	cmd.add_argument("work")
 	cmd.add_argument("--on", required=True, help="the blocker work id")
 	cmd = sub.add_parser("mark-seen")
-	cmd.add_argument("discussion")
+	cmd.add_argument("thread")
 	cmd.add_argument("--up-to", dest="up_to", type=int, required=True)
 	cmd = sub.add_parser("classify")
 	cmd.add_argument("work")
@@ -237,20 +237,23 @@ def main(argv=None) -> int:
 	# R73 discipline: omission refuses through the JSON exit-one
 	# contract in the transition, never argparse prose.
 	cmd.add_argument("--message", dest="message_seq", type=int,
-	                 help="the ONE durable discussion message promoted "
+	                 help="the ONE durable thread message promoted "
 	                 "as the complete contract")
 	cmd.add_argument("--expect", dest="expected_revision", type=int,
 	                 help="the expected prior revision; stale or "
 	                 "concurrent edits refuse, never overwrite")
 	cmd.add_argument("--rationale",
 	                 help="why this promotion is the agreed contract")
-	cmd = sub.add_parser("discuss")
+	cmd = sub.add_parser("start-thread")
+	cmd.add_argument("--subject", required=True,
+	                 help="the REQUIRED concise thread subject (one "
+	                 "line, at most 80 UTF-8 bytes)")
 	cmd.add_argument("--body", required=True)
 	cmd.add_argument("--label", action="append", required=True,
 	                 help="a #WORK label; repeatable; at least one open "
 	                 "work of your own team")
 	cmd = sub.add_parser("say")
-	cmd.add_argument("discussion")
+	cmd.add_argument("thread")
 	cmd.add_argument("--body", required=True)
 	cmd.add_argument("--include", help="comma list / wildcards; the ONLY "
 	                 "fan-out — attention wiring, changes nothing else")
@@ -264,21 +267,21 @@ def main(argv=None) -> int:
 	                 "acts against; may be omitted only when exactly one "
 	                 "label is eligible")
 	cmd = sub.add_parser("label")
-	cmd.add_argument("discussion")
+	cmd.add_argument("thread")
 	cmd.add_argument("--work", required=True)
 	cmd = sub.add_parser("unlabel")
-	cmd.add_argument("discussion")
+	cmd.add_argument("thread")
 	cmd.add_argument("--work", required=True)
 	cmd = sub.add_parser("thread")
-	cmd.add_argument("discussion")
+	cmd.add_argument("thread")
 	cmd.add_argument("--after", type=int, default=0)
 	# R68: the default is a LEGAL value; every supplied limit reaches the
 	# contract unchanged — an over-max request refuses, never clamps.
 	cmd.add_argument("--limit", type=int, default=500)
-	cmd = sub.add_parser("discussions")
+	cmd = sub.add_parser("threads")
 	cmd.add_argument("--after", type=int, default=0)
 	cmd.add_argument("--limit", type=int, default=100)
-	cmd = sub.add_parser("work-discussions")
+	cmd = sub.add_parser("work-threads")
 	cmd.add_argument("work")
 	cmd.add_argument("--after", type=int, default=0)
 	cmd.add_argument("--limit", type=int, default=100)
@@ -295,7 +298,7 @@ def main(argv=None) -> int:
 		             "respond", "dispose", "close", "block",
 		             "mark-seen", "classify", "phase", "round",
 		             "extend", "report", "assess", "abandon", "revise",
-		             "discuss", "say", "label", "unlabel"}
+		             "start-thread", "say", "label", "unlabel"}
 		filesystem = {"init", "bootstrap", "resolve"}
 		if args.command not in {"init", "activate", "bootstrap"} and \
 				not args.config:
@@ -569,57 +572,57 @@ def _dispatch(store: Authority, args):
 			expected_revision=args.expected_revision,
 			rationale=args.rationale, op_id=args.op_id,
 			refs=args.refs or ())
-	if command == "discuss":
+	if command == "start-thread":
 		team, member = _need_participant(args)
-		return transitions.create_discussion(
+		return transitions.create_thread(
 			store, actor_team=team, actor=member, body=args.body,
-			labels=args.label, op_id=args.op_id,
+			labels=args.label, subject=args.subject, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "say":
 		team, member = _need_participant(args)
-		return transitions.post_discussion(
-			store, args.discussion, author_team=team, author=member,
+		return transitions.post_thread(
+			store, args.thread, author_team=team, author=member,
 			body=args.body, include=args.include or (),
 			request=args.request, pass_to=args.pass_to,
 			set_next=args.set_next, on=args.on, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "label":
 		team, member = _need_participant(args)
-		return transitions.label_discussion(
-			store, args.discussion, args.work, actor_team=team,
+		return transitions.label_thread(
+			store, args.thread, args.work, actor_team=team,
 			actor=member, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "unlabel":
 		team, member = _need_participant(args)
-		return transitions.unlabel_discussion(
-			store, args.discussion, args.work, actor_team=team,
+		return transitions.unlabel_thread(
+			store, args.thread, args.work, actor_team=team,
 			actor=member, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "thread":
 		team, member = _need_participant(args)
-		return projection.thread(store, args.discussion,
+		return projection.thread(store, args.thread,
 		                         viewer_team=team, viewer_member=member,
 		                         after=args.after, limit=args.limit)
-	if command == "discussions":
+	if command == "threads":
 		team, member = _need_participant(args)
-		return projection.discussions_for(store, viewer_team=team,
+		return projection.threads_for(store, viewer_team=team,
 		                                  viewer_member=member,
 		                                  after=args.after,
 		                                  limit=args.limit)
-	if command == "work-discussions":
+	if command == "work-threads":
 		team, member = _need_participant(args)
-		return projection.work_discussions(store, args.work,
+		return projection.work_threads(store, args.work,
 		                                   viewer_team=team,
 		                                   viewer_member=member,
 		                                   after=args.after,
 		                                   limit=args.limit)
 	if command == "mark-seen":
-		# R61: the ONE explicit public seen mutation, discussion-scoped.
+		# R61: the ONE explicit public seen mutation, thread-scoped.
 		# Reads (thread/detail/list) are byte-pure; nothing named like a
 		# read may write.
 		team, member = _need_participant(args)
-		return transitions.seen_discussion(
-			store, args.discussion, team=team, member=member,
+		return transitions.seen_thread(
+			store, args.thread, team=team, member=member,
 			up_to_seq=args.up_to, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "round":

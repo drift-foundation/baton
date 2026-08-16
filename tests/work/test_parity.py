@@ -159,11 +159,11 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 	path, cast = world
 	before = _json(capsys, path, "new", cast["lang42"], viewer="lang.grace")
 	assert before["total"] > 0
-	# grace drills into the epic and marks the epic's own discussion seen.
+	# grace drills into the epic and marks the epic's own thread seen.
 	text, status, _steps = ptyharness.drive(path, "lang.grace", [
 		(b"\r", 0.5),        # drill: path = [lang42]
-		(b"o", 0.5),         # the focused view + discussion set
-		(b"\r", 0.5),        # open the epic's own discussion
+		(b"o", 0.5),         # the focused view + thread set
+		(b"\r", 0.5),        # open the epic's own thread
 		(b"s", 0.5),         # THE explicit seen transition
 		(b"q", 0.4),
 	], columns=WIDTH, lines=HEIGHT)
