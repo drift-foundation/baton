@@ -47,7 +47,7 @@ def world(tmp_path):
 
 def _provider(store):
 	return tr.create_work(store, team="lang", kind="bug", title="LANG-42",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="provider")["work_id"]
 
 
@@ -422,7 +422,7 @@ def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 	store = world
 	work = _provider(store)
 	consumer = tr.create_work(store, team="push", kind="verify",
-	                          title="PUSH-1", origin="external-report",
+	                          title="PUSH-1", origin="external-report", classification="suspected-defect",
 	                          author="sl", body="blocked")["work_id"]
 	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl")
 	tr.set_phase(store, consumer, actor_team="push", actor="sl",

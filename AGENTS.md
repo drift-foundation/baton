@@ -40,7 +40,7 @@
 ## Confirmed decisions are pinned before implementation
 
 - Baton discussion is coordination EVIDENCE, not the durable specification. A ruling that exists only in a message thread is one context loss away from being re-litigated or silently reversed.
-- Before implementing a confirmed product, UX, protocol, or operational decision, write it into the owning `work/finding-*/FINDING.md`, and reflect its queued/in-progress/done state in the applicable `PLAN.md` or umbrella. If no owning finding exists, create one before editing implementation.
+- Before implementing a confirmed product, UX, protocol, or operational decision, write it into the owning record's `FINDING.md` under `work/records/YYYY/MM/finding-<slug>/`, and reflect its queued/in-progress/done state in the applicable `PLAN.md` or umbrella. If no owning record exists, create one before editing implementation.
 - Findings preserve the CHRONOLOGICAL history of decisions; plans and umbrellas name the one that is currently actionable. The two answer different questions — "how did we get here" and "what is true now" — and collapsing them loses whichever the reader needed.
 - At implementation start, REVALIDATE the recorded ruling against current code, protocol, and later decisions. If it has changed, append an explicit dated supersession or clarification with its rationale and update the plan. Never delete or rewrite an old decision as though it had never been made: the reasoning that was superseded is how the next reader knows why the current rule is not the obvious one.
 - A superseding decision must explicitly mark the old text superseded. Two live rules that contradict each other are worse than either alone, because both look authoritative.
@@ -50,17 +50,49 @@
 This gate exists because a ruled decision was lost: the console's `Enter` behaviour was agreed, never written into its finding, and the implementation later contradicted it. `AGENTS.md` is this rule's one owner; it is agent policy and is not duplicated in the README.
 
 
-## Review findings tracking (`work/finding-*` folders)
+## Review findings tracking (`work/records` dossiers)
 
-Findings are dedicated folders under `work/`, one per independently
-schedulable item: `work/finding-<slug>/`. The goals are that no observation or
-decision is lost and that human/reviewer research can prepare queued work
-without interrupting the implementer.
+**Superseded 2026-08-16 at the schema-14 cutover (checkpoint `6c3519e6`):**
+finding dossiers are no longer ephemeral `work/finding-*` folders. A dossier
+is a PERMANENT record created at its canonical path and never moved, archived,
+or deleted by lifecycle:
+
+```text
+work/
+  open/
+    finding-friendly-name -> ../records/YYYY/MM/finding-stable-name
+  records/
+    YYYY/
+      MM/
+        finding-stable-name/
+```
+
+- The year/month is chosen at creation and the canonical `work/records/...`
+  path does not change when Work changes phase or becomes terminal. The record
+  holds the finding, plan, progress, append-only reviews, reproductions,
+  scripts, fixtures, data, and other durable evidence.
+- Baton Work bindings, messages, handoffs, reviews, and cross-references use
+  only the configured repository identity plus the canonical repository-
+  relative `work/records/...` path — never `work/open/...`, never an absolute
+  checkout path, and never a Git commit as the primary locator.
+- `work/open/` is a deliberately maintained human convenience index of
+  relative symlinks for sweeping still-open records. Its links are not
+  protocol state and carry no lifecycle semantics; unlinking a closed
+  record's symlink is later housekeeping and never touches the record.
+- Not every lightweight Baton Work needs a dossier or an open symlink. Once a
+  dossier exists its canonical record path is the stable binding; later
+  corrections to terminal evidence are explicit follow-up history, never a
+  silent rewrite or a rename.
+- Remaining `work/finding-*` folders are LEGACY items pending the deliberate
+  cleanup audit owned by `work/records/2026/08/finding-next-release/`; no new
+  folder is ever created there.
+
+The working process is unchanged by the layout:
 
 - Slawomir and the reviewer normally create, research, prioritize, and queue
   findings. The implementer stays on the current serial item rather than
   spending implementation cycles reconstructing queued decisions.
-- A top-level finding owns `FINDING.md`, `PLAN.md`, and implementer-owned
+- A top-level record owns `FINDING.md`, `PLAN.md`, and implementer-owned
   `PROGRESS.md`. The finding records observed behavior, evidence, decisions,
   and acceptance boundaries; the plan orders current work; progress is the
   implementer's claim of current state.
@@ -73,8 +105,8 @@ without interrupting the implementer.
   authority; the implementer must revalidate them against the current tree.
 - Findings are worked serially to completion. Reviewer work may continue on
   queued findings, but the implementer does not switch merely because a queued
-  folder changed.
-- When starting an item, read its whole folder fresh and re-check every
+  record changed.
+- When starting an item, read its whole record fresh and re-check every
   captured claim. Earlier work may have resolved or invalidated it. Record an
   explicit resolved/superseded outcome rather than silently deleting stale
   work or reimplementing it.
@@ -82,29 +114,38 @@ without interrupting the implementer.
   new defect; filing does not interrupt the serial queue. Human/reviewer still
   own formal enrichment and priority by default.
 - A causally tied child lives at
-  `work/finding-<parent>/findings/finding-<child>/`, with its own `FINDING.md`,
-  `PLAN.md`, and `PROGRESS.md`. The child names its parent/discovery context;
-  the parent plan/progress indexes the child and status. Use a top-level
-  finding instead when it is independent, separately scheduled, or may outlive
-  the parent.
+  `work/records/YYYY/MM/finding-<parent>/findings/finding-<child>/`, with its
+  own `FINDING.md`, `PLAN.md`, and `PROGRESS.md`. The child names its
+  parent/discovery context; the parent plan/progress indexes the child and
+  status. Use a top-level record instead when it is independent, separately
+  scheduled, or may outlive the parent.
 - Do not encode hierarchy/order with dotted names or numeric prefixes. Keep at
   most two child levels. Promote a deeper or independently scheduled child to
-  top level and update live references without leaving an alias/stub. A parent
-  cannot close while it contains an open child.
+  top level as a NEW record with an explicit forwarding note in the old one —
+  the old canonical path stays valid history and is never rewritten.
+  A parent cannot close while it contains an open child.
 - `PROGRESS.md` has one writer: `baton.implementer`. Reviewer input goes into
   FINDING/PLAN, evidence files, or append-only review journals, never progress.
 - Each review pass is append-only
-  `review-YYYY-MM-DDTHH-MM-SSZ.md` in that finding root (UTC). Never edit or
+  `review-YYYY-MM-DDTHH-MM-SSZ.md` in that record root (UTC). Never edit or
   delete an earlier review. The implementer records its response and current
   awaiting-review/changes-requested/signed-off state in `PROGRESS.md`.
 - Before parallel edits, establish file ownership explicitly. Implementation
   handoffs reference the exact finding, plan, progress, and newest review
   paths discussed.
-- Finding folders are ephemeral branch work. After the resolution is committed
-  and closed, remove them in the deliberate cleanup pass. Anything that must
-  outlive the folder (tests, user docs, durable repository policy) must already
-  stand alone elsewhere; no permanent source/test reference may depend on an
-  ephemeral finding path.
+- Anything that must stand alone regardless of the record (tests, user docs,
+  durable repository policy) still lives outside it; a record is evidence and
+  decision history, not a hiding place for product artifacts.
+
+## The active-work claim (finding-active-work-claim, 2026-08-16)
+
+- No participant starts implementation, review, or other execution owned by
+  the Current endpoint before the atomic `claim` operation SUCCEEDS; the
+  authority records the claimant (orthogonal to phase — a reviewer may be
+  the claimant while phase is `review`) and a competing claim fails closed.
+- Discussion and planning while unclaimed are fine. A pass releases the
+  claim and records the destination phase atomically; the recipient claims
+  explicitly once the Work is ready.
 
 ## Baton defects and workarounds
 

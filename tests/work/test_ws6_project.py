@@ -264,7 +264,7 @@ def test_resolve_refuses_escape_paths_and_roots_outside_the_catalog(
 	store = bw.Authority(result["database"])
 	bound = tr.create_work(
 		store, team="lang", kind="bug", title="bound",
-		origin="external-report",
+		origin="external-report", classification="suspected-defect",
 		author="ada", body="evidence",
 		binding="pushcoin:work/records/2026/08/finding-resolve")
 	store.close()

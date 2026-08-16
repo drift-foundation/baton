@@ -27,7 +27,7 @@ def test_wf03_provider_rejects_honestly(flow):
 	# 1. The consumer reports locally and asks Lang, retaining its Current.
 	web1 = flow.ok("create", "--team", "web", "--kind", "bug",
 	               "--title", "render crash on nested tables",
-	               "--origin", "external-report",
+	               "--origin", "external-report", "--classification", "suspected-defect",
 	               "--body", "crashes with the attached DOM",
 	               viewer="web.wren")["work_id"]
 	requested = flow.post(web1, "--body", "looks like a lang defect?",

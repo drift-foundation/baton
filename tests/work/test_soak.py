@@ -70,7 +70,7 @@ def _seed_world(path: str) -> None:
 	store = bw.Authority(database)
 	for team, member in TEAMS:
 		tr.create_work(store, team=team, kind="bug", title=f"{team} seed",
-		               origin="self-initiated", author=member, body="seed")
+		               origin="self-initiated", classification="suspected-defect", author=member, body="seed")
 	store.close()
 
 
@@ -124,11 +124,13 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 
 				def die_mid_transaction(conn, seq):
 					conn.execute(
-						"INSERT INTO work (id, team, title, origin, status, "
-						"current_team, current_kind, ready, created_seq) "
-						"VALUES (?, ?, 'doomed', 'self-initiated', 'open', "
-						"?, 'bug', 1, ?)",
-						(f"{prefix}-W{seq}", team, team, seq))
+						"INSERT INTO work (id, team, title, origin, classification, "
+						"status, "
+						"current_team, current_kind, ready, created_seq, "
+						"last_change_seq, last_changed_at) "
+						"VALUES (?, ?, 'doomed', 'self-initiated', 'suspt-raw', 'open', "
+						"?, 'bug', 1, ?, ?, 'ts')",
+						(f"{prefix}-W{seq}", team, team, seq, seq))
 					os._exit(0)
 				real_write("create_work", f"{team}.{member}", {},
 				           die_mid_transaction)
@@ -138,7 +140,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 					tr.create_work(
 						store, team=team, kind="bug",
 						title=f"w{worker} op{op_index}",
-						origin="self-initiated", author=member,
+						origin="self-initiated", classification="suspected-defect", author=member,
 						body="soak", parent=rng.choice(
 							[None] + my_open_participating()[:4]))
 				elif choice < 0.45:
@@ -189,7 +191,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 						# becomes follow-up work.
 						tr.create_work(
 							store, team=team, kind="bug", title="follow-up",
-							origin="external-report", author=member,
+							origin="external-report", classification="suspected-defect", author=member,
 							body="soak follow-up",
 							follow_up_of=rng.choice(closed))
 				committed += 1

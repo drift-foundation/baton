@@ -41,11 +41,11 @@ def test_ws4_wf01_paging_and_ties(flow):
 	# order is total, not insertion or luck.
 	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", "paging provider", "--origin",
-	               "self-initiated", "--body", "root", viewer="lang.ada")
+	               "self-initiated", "--classification", "suspected-defect", "--body", "root", viewer="lang.ada")
 	a, d0 = born["work_id"], born["thread"]
 	sibling = flow.ok("create", "--team", "lang", "--kind", "impl",
 	                  "--title", "the sibling", "--origin",
-	                  "self-initiated", "--body", "leg", viewer="lang.ada")
+	                  "self-initiated", "--classification", "suspected-defect", "--body", "leg", viewer="lang.ada")
 	b, b_born = sibling["work_id"], sibling["thread"]
 	tie = flow.ok("start-thread", "--subject", "trial subject", "--body", "tie", "--label", b, "--label", a,
 	              viewer="lang.ada")["thread"]
@@ -107,7 +107,7 @@ def test_ws4_wf01_paging_and_ties(flow):
 	# advanced is discovered by the very next page, exactly once — in
 	# both directions of the relation.
 	late = flow.ok("create", "--team", "lang", "--kind", "bug",
-	               "--title", "late", "--origin", "self-initiated",
+	               "--title", "late", "--origin", "self-initiated", "--classification", "suspected-defect",
 	               "--body", "late", viewer="lang.ada")
 	first = flow.ok("work-threads", late["work_id"], "--limit", "1",
 	                viewer="lang.ada")
@@ -128,7 +128,7 @@ def test_ws4_wf01_paging_and_ties(flow):
 	# then joins the OLD tie thread by speaking in it.
 	push_born = flow.ok("create", "--team", "push", "--kind", "bug",
 	                    "--title", "push local", "--origin",
-	                    "self-initiated", "--body", "local",
+	                    "self-initiated", "--classification", "suspected-defect", "--body", "local",
 	                    viewer="push.sl")["thread"]
 	first = flow.ok("threads", "--limit", "2", viewer="push.sl")
 	assert [row["id"] for row in first["rows"]] == [d0, push_born]

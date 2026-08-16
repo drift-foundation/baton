@@ -1,6 +1,6 @@
 """The durable documents must not contradict themselves.
 
-`work/finding-human-console/` is the normative contract: an agent rebooted
+`work/records/2026/08/finding-human-console/` is the normative contract: an agent rebooted
 with no mailbox history builds from it. That makes an internally inconsistent
 document worse than a missing one -- a stale key map is a specification of the
 superseded behaviour, sitting beside the rule that superseded it, with nothing
@@ -18,7 +18,8 @@ import re
 import pytest
 
 FINDING_DIR = (pathlib.Path(__file__).resolve().parents[2]
-               / "work" / "finding-human-console")
+               / "work" / "records" / "2026" / "08"
+               / "finding-human-console")
 
 # The three DURABLE DOCUMENTS, named rather than globbed.
 #

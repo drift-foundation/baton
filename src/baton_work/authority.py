@@ -9,7 +9,7 @@ never share a number, a crash between allocate and commit leaves no gap that a
 reader can observe as a row, and a restart continues above everything that ever
 committed. This is the total order that pagination, audit and readiness
 recomputation stand on; protocol 10's `(created_ts, id)` tie is the defect it
-replaces (`work/finding-same-second-ordering/`).
+replaces (`work/records/2026/08/finding-same-second-ordering/`).
 
 IDENTITY IS VALIDATED AT REGISTRATION, NEVER AT RENDER. A canonical handle is
 at most six terminal display cells (wcwidth semantics, computed here in
@@ -34,7 +34,7 @@ import unicodedata
 import time
 import unicodedata
 
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -117,6 +117,22 @@ def _utc_now() -> str:
 	return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
+def clock_ms_now() -> str:
+	"""The module-level millisecond clock helpers share: the injected
+	BATON_WORK_NOW instant when present (deterministic subprocess stories),
+	real UTC milliseconds otherwise."""
+	return os.environ.get("BATON_WORK_NOW") or _utc_now_ms()
+
+
+def _utc_now_ms() -> str:
+	"""Millisecond-precision UTC instant (schema 15, W84 groundwork): the
+	Work-recency cue divides real elapsed time, which second resolution
+	cannot express. Still ISO-8601 and lexicographically ordered."""
+	now = time.time()
+	whole = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(now))
+	return f"{whole}.{int((now % 1) * 1000):03d}Z"
+
+
 _SCHEMA = """
 CREATE TABLE meta (
 	key   TEXT PRIMARY KEY,
@@ -190,7 +206,7 @@ CREATE TABLE work (
 	team           TEXT NOT NULL REFERENCES teams(handle),
 	title          TEXT NOT NULL,
 	origin         TEXT NOT NULL,
-	classification TEXT NOT NULL DEFAULT 'unknown',
+	classification TEXT NOT NULL,
 	phase          TEXT NOT NULL DEFAULT 'queued',
 	wait_type       TEXT,
 	wait_obligation INTEGER,
@@ -206,7 +222,17 @@ CREATE TABLE work (
 	duplicate_of   TEXT REFERENCES work(id),
 	follow_up_of   TEXT REFERENCES work(id),
 	created_seq    INTEGER NOT NULL,
-	closed_seq     INTEGER
+	closed_seq     INTEGER,
+	priority       TEXT NOT NULL DEFAULT 'normal'
+		CHECK (priority IN ('high', 'normal', 'low')),
+	last_changed_at TEXT NOT NULL,
+	last_change_seq INTEGER NOT NULL,
+	-- finding-active-work-claim: `active` is an authority-backed atomic
+	-- participant claim, not only a descriptive phase. The claimant
+	-- identity lives here; the claim/release transition matrix is that
+	-- finding's own gated implementation (blocks W92's release).
+	active_team    TEXT,
+	active_member  TEXT
 ) STRICT;
 CREATE TABLE edges (
 	work        TEXT NOT NULL REFERENCES work(id),
@@ -356,6 +382,9 @@ class Authority:
 		# timezone can alter stored ordering.
 		self.clock = (lambda: os.environ["BATON_WORK_NOW"]) \
 			if os.environ.get("BATON_WORK_NOW") else _utc_now
+		# The millisecond clock honours the same injected instant so
+		# subprocess stories stay deterministic.
+		self.clock_ms = clock_ms_now
 		self.conn = sqlite3.connect(path, timeout=60.0)
 		self.conn.row_factory = sqlite3.Row
 		self.conn.execute("PRAGMA foreign_keys = ON")

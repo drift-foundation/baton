@@ -67,7 +67,7 @@ def test_home_rows_and_summary_share_one_database_snapshot(tmp_path,
 		reader.conn.execute("PRAGMA journal_mode=WAL")
 		work = tr.create_work(
 			reader, team="push", kind="bug", title="snapshot",
-			origin="self-initiated", author="sl", body="b")["work_id"]
+			origin="self-initiated", classification="suspected-defect", author="sl", body="b")["work_id"]
 		original_summary = pj.team_summary
 		interleaved = False
 

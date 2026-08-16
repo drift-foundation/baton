@@ -22,7 +22,7 @@ def test_wf02_request_without_transfer(flow):
 	# 1. push.sl owns PUSH-1 at push.rev.
 	born = flow.ok("create", "--team", "push", "--kind", "rev",
 	               "--title", "audit the retry path",
-	               "--origin", "self-initiated",
+	               "--origin", "self-initiated", "--classification", "suspected-defect",
 	               "--body", "sweeping the checkout retries",
 	               viewer="push.sl")
 	push1, thread_id = born["work_id"], born["thread"]

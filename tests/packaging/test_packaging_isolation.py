@@ -484,7 +484,10 @@ def test_every_repository_path_named_by_agent_policy_resolves():
         # PLACEHOLDERS are not paths. `work/finding-<slug>` is a template the
         # policy uses to describe a shape; resolving it would be asserting
         # that a literal file called `<slug>` exists.
-        if name.startswith(("http", "-")) or "*" in name or "<" in name:
+        if name.startswith(("http", "-")) or "*" in name or "<" in name \
+                or "..." in name:
+            # `...` is the same kind of placeholder as `<slug>`: the policy
+            # describing `work/records/...` names a shape, not a file.
             continue
         # Only tokens that name something in THIS repository; the policy also
         # mentions deployment-side paths that live elsewhere.

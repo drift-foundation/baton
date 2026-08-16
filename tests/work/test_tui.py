@@ -160,7 +160,7 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 	store = bw.Authority(result["database"])
 	born = tr.create_work(
 		store, team="lang", kind="bug", title="portable facts",
-		origin="external-report", author="ada", body="bound at birth",
+		origin="external-report", classification="suspected-defect", author="ada", body="bound at birth",
 		binding="pushcoin:work/records/2026/08/finding-tui")
 	tr.post_thread(store, born["thread"], author_team="lang",
 	                   author="ada", body="evidence",
@@ -204,7 +204,8 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	                                        columns=narrow, lines=24)
 	screen = ptyharness.replay(text, columns=narrow, lines=24)
 	header = next(line for line in screen if "Title" in line)
-	assert "Cls" not in header
+	assert "Cat" not in header, \
+		"the omitted category column left its header behind"
 	assert "Current" in header and "New" in header
 	# The title keeps its working width (truncated, never squeezed away)
 	# and the 6/6 identities are drawn whole.
@@ -255,7 +256,7 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	live = tr.create_work(store, team="lang", kind="bug",
-	                      title="stays open", origin="external-report",
+	                      title="stays open", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="live")
 	promoted = tr.post_thread(
 		store, live["thread"], author_team="lang", author="ada",
@@ -265,13 +266,13 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	               expected_revision=0,
 	               rationale="agreed at triage")
 	done = tr.create_work(store, team="lang", kind="bug",
-	                      title="already done", origin="external-report",
+	                      title="already done", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="old")["work_id"]
 	tr.close_work(store, done, actor_team="lang", actor="ada",
 	              rationale="delivered before the checkpoint",
 	              outcome="satisfying")
 	blocker = tr.create_work(store, team="lang", kind="bug",
-	                         title="the gate", origin="external-report",
+	                         title="the gate", origin="external-report", classification="suspected-defect",
 	                         author="ada", body="prereq")["work_id"]
 	tr.add_dependency(store, live["work_id"], blocker,
 	                  actor_team="lang", actor="ada")
@@ -336,9 +337,9 @@ def test_a_full_page_still_names_the_closed_rows_it_hides(tmp_path):
 		for index in range(5):
 			tr.create_work(store, team="lang", kind="bug",
 			               title=f"open row {index}",
-			               origin="self-initiated", author="ada", body="live")
+			               origin="self-initiated", classification="suspected-defect", author="ada", body="live")
 		done = tr.create_work(store, team="lang", kind="bug",
-		                      title="closed row", origin="self-initiated",
+		                      title="closed row", origin="self-initiated", classification="suspected-defect",
 		                      author="ada", body="done")["work_id"]
 		tr.close_work(store, done, actor_team="lang", actor="ada",
 		              outcome="satisfying", rationale="complete")
@@ -362,7 +363,7 @@ def test_selection_scrolls_so_the_row_enter_will_open_is_visible(tmp_path):
 	with bw.Authority(database) as store:
 		for index in range(8):
 			tr.create_work(store, team="lang", kind="bug",
-			               title=f"row {index}", origin="self-initiated",
+			               title=f"row {index}", origin="self-initiated", classification="suspected-defect",
 			               author="ada", body="live")
 	text, status, steps = ptyharness.drive(
 		config_path, "lang.ada", [(b"jjjjjj", 0.5), (b"q", 0.4)],
@@ -405,7 +406,7 @@ def test_the_command_bar_cannot_replace_the_validated_participant(tmp_path):
 	config_path, _database = fixtures.build_instance(str(tmp_path), spec)
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b":--participant push.sl create --team push --kind bug "
-		 b"--title impersonated --origin self-initiated --body nope\n", 0.8),
+		 b"--title impersonated --origin self-initiated --classification suspected-defect --body nope\n", 0.8),
 		(b"q", 0.4),
 	])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -432,7 +433,7 @@ def test_the_command_bar_cannot_abbreviate_a_participant_override(tmp_path):
 	config_path, _database = fixtures.build_instance(str(tmp_path), spec)
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b":--part push.sl create --team push --kind bug "
-		 b"--title abbreviated-impersonation --origin self-initiated "
+		 b"--title abbreviated-impersonation --origin self-initiated --classification suspected-defect "
 		 b"--body nope\n", 0.8),
 		(b"q", 0.4),
 	])
@@ -482,7 +483,7 @@ def test_thread_selection_never_merges_timelines(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="two threads", origin="external-report",
+	                      title="two threads", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="the born conversation")
 	work = born["work_id"]
 	tr.post_thread(store, born["thread"], author_team="lang",
@@ -525,7 +526,7 @@ def test_the_thread_set_pages_beyond_the_first_fifty(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="many threads", origin="external-report",
+	                      title="many threads", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="born")
 	last = None
 	for index in range(50):
@@ -566,7 +567,7 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="long talk", origin="external-report",
+	                      title="long talk", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="opener")
 	for index in range(1, 25):
 		tr.post_thread(store, born["thread"],
@@ -651,7 +652,7 @@ def test_the_thread_set_pages_beyond_one_full_page(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="many talks", origin="external-report",
+	                      title="many talks", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="opener")
 	work = born["work_id"]
 	extras = [tr.create_thread(store, actor_team="lang",
@@ -702,7 +703,7 @@ def test_the_msgs_pane_names_the_selected_thread_and_subject(tmp_path):
 	store = bw.Authority(result["database"])
 	born = tr.create_work(store, team="lang", kind="bug",
 	                      title="two conversations",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="opener")
 	tr.create_thread(store, actor_team="lang", actor="ada",
 	                 body="second opener", labels=[born["work_id"]],
@@ -721,3 +722,19 @@ def test_the_msgs_pane_names_the_selected_thread_and_subject(tmp_path):
 	assert "Msgs — the follow-up questions" in msgs, msgs[:400]
 	assert "second opener" in msgs
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+
+
+def test_the_category_header_reads_cat_when_present(world):
+	"""finding-tui-category-header: the classification column renders as
+	`Cat` (presentation only; the canonical field and compact values are
+	unchanged). At full width the header carries it; the narrow-width
+	story above proves it disappears WHOLE when the column is omitted."""
+	path, _cast = world
+	text, status, _steps = ptyharness.drive(path, "lang.ada",
+	                                        [(b"q", 0.4)],
+	                                        columns=110, lines=24)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+	screen = ptyharness.replay(text, columns=110, lines=24)
+	header = next(line for line in screen if "Title" in line)
+	assert "Cat" in header, "the ruled Cat label is missing"
+	assert "Cls" not in header, "the superseded Cls label survived"

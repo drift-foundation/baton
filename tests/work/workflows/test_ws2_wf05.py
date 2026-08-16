@@ -23,16 +23,18 @@ def test_ws2_wf05_non_satisfying_close(flow):
 	# BUILD-7.
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "three consumers",
+	                 "external-report", "--classification", "suspected-defect", "--body", "three consumers",
 	                 viewer="lang.ada")["work_id"]
 	build7 = flow.ok("create", "--team", "mdb", "--kind", "build",
-	                 "--title", "CI image", "--origin", "self-initiated",
+	                 "--title", "CI image", "--origin", "self-initiated", "--classification", "suspected-defect",
 	                 "--body", "unrelated gate", viewer="mdb.mo")["work_id"]
 	consumers = {}
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
+		# Born 'limitation' so the explicit classify below records a real
+		# change (creation now requires a concrete value, fresh schema).
 		work = flow.ok("create", "--team", team, "--kind", "bug",
 		               "--title", f"{team} report", "--origin",
-		               "external-report", "--body", "blocked on lang",
+		               "external-report", "--classification", "limitation", "--body", "blocked on lang",
 		               viewer=f"{team}.{member}")["work_id"]
 		flow.ok("classify", work, "--as", "suspected-defect",
 		        viewer=f"{team}.{member}")

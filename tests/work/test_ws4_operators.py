@@ -40,7 +40,7 @@ def world(tmp_path):
 
 def _create(store, team="lang", member="ada", **kw):
 	return tr.create_work(store, team=team, kind="bug", title="w",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="born speaking", **kw)
 
 
@@ -71,7 +71,7 @@ def test_omitted_on_resolves_the_single_eligible_and_echoes(world):
 	                    actor_team="push", actor="sl")
 	result = tr.post_thread(store, mine["thread"],
 	                            author_team="lang", author="ada",
-	                            body="handing on", pass_to="lang.rsrch")
+	                            body="handing on", pass_to="lang.rsrch", pass_phase="research")
 	assert result["kind"] == "pass" and result["work"] == mine["work_id"]
 	payload = _event(store, result["seq"])["payload"]
 	assert payload["work"] == mine["work_id"]
@@ -130,7 +130,7 @@ def test_selection_refusals_are_exact(world):
 	with pytest.raises(bw.WorkError, match="one operation"):
 		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="push.bug",
-		                   pass_to="lang.rsrch", on=first["work_id"])
+		                   pass_to="lang.rsrch", pass_phase="research", on=first["work_id"])
 	with pytest.raises(bw.WorkError, match="set by a pass"):
 		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x",
@@ -139,7 +139,7 @@ def test_selection_refusals_are_exact(world):
 	# someone else's authority.
 	with pytest.raises(bw.WorkError, match="has 0"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="grace", body="x", pass_to="lang.rsrch")
+		                   author="grace", body="x", pass_to="lang.rsrch", pass_phase="research")
 
 
 def test_closed_context_refuses_carrying_but_welcomes_commentary(world):
@@ -338,7 +338,7 @@ def test_accept_create_labels_the_originating_thread_too(world):
 	                           request="lang.bug")["seq"]
 	result = tr.accept_obligation(store, asked, actor_team="lang",
 	                              actor="ada", body="new provider work",
-	                              create={"kind": "rsrch", "title": "t"})
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	payload = _event(store, result["seq"])["payload"]
 	assert payload["provider_label"] == "added"
 	view = pj.thread(store, consumer["thread"], viewer_team="push",
@@ -382,7 +382,7 @@ def test_a_mid_flight_close_refuses_the_carrying_operation(world):
 		rationale="closed underneath", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", pass_to="lang.rsrch")
+		                   author="ada", body="x", pass_to="lang.rsrch", pass_phase="research")
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == 0
 

@@ -36,7 +36,7 @@ def store(tmp_path):
 @pytest.fixture
 def work(store):
 	return tr.create_work(store, team="lang", kind="rsrch",
-	                      title="parser recovery", origin="external-report",
+	                      title="parser recovery", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="the report")["work_id"]
 
 
@@ -140,14 +140,14 @@ def test_dispose_is_the_no_action_answer_with_words(store, work):
 def test_request_and_pass_in_one_message_is_ambiguous_and_refused(store, work):
 	with pytest.raises(bw.WorkError, match="one operation"):
 		fx.post(store, work, author_team="lang", author="ada",
-		                body="x", request="push.bug", pass_to="lang.impl")
+		                body="x", request="push.bug", pass_to="lang.impl", pass_phase="active")
 
 
 # -- pass (=>) and planned Next ----------------------------------------------
 
 def test_pass_moves_the_one_current(store, work):
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="confirmed defect", pass_to="lang.impl")
+	                body="confirmed defect", pass_to="lang.impl", pass_phase="active")
 	row = _row(store, work)
 	assert (row["current_team"], row["current_kind"]) == ("lang", "impl")
 
@@ -157,14 +157,14 @@ def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
 	Next = lang.rev; the pass BACK to lang.rev is audited as `return` and
 	clears Next."""
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="implement this", pass_to="lang.impl",
+	                body="implement this", pass_to="lang.impl", pass_phase="active",
 	                set_next="lang.rev")
 	row = _row(store, work)
 	assert (row["next_team"], row["next_kind"]) == ("lang", "rev")
 
 	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="implementation complete",
-	                         pass_to="lang.rev")
+	                         pass_to="lang.rev", pass_phase="review")
 	assert result["kind"] == "return", \
 		"the consuming pass is not audited as a return"
 	row = _row(store, work)
@@ -177,11 +177,11 @@ def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
 
 def test_a_pass_elsewhere_leaves_the_planned_next_visibly_set(store, work):
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="implement", pass_to="lang.impl",
+	                body="implement", pass_to="lang.impl", pass_phase="active",
 	                set_next="lang.rev")
 	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="actually needs research first",
-	                         pass_to="lang.rsrch")
+	                         pass_to="lang.rsrch", pass_phase="research")
 	assert result["kind"] == "pass", "a detour is not a return"
 	row = _row(store, work)
 	assert (row["next_team"], row["next_kind"]) == ("lang", "rev"), \
@@ -197,7 +197,7 @@ def test_next_requires_a_pass_and_pass_refuses_fan_out(store, work):
 		                body="x", pass_to="*.*")
 	with pytest.raises(bw.WorkError, match="already at"):
 		fx.post(store, work, author_team="lang", author="ada",
-		                body="x", pass_to="lang.rsrch")
+		                body="x", pass_to="lang.rsrch", pass_phase="research")
 
 
 # -- participation and visibility -------------------------------------------

@@ -26,7 +26,7 @@ def thread(tmp_path):
 	_config, database = fx.build_instance(str(tmp_path), spec)
 	store = bw.Authority(database)
 	created = tr.create_work(store, team="lang", kind="bug", title="w",
-	                         origin="self-initiated", author="ada", body="one")
+	                         origin="self-initiated", classification="suspected-defect", author="ada", body="one")
 	yield store, created["thread"]
 	store.close()
 
@@ -81,12 +81,12 @@ def test_relation_pages_follow_relation_addition_not_thread_birth(tmp_path):
 	_config, database = fx.build_instance(str(tmp_path), spec)
 	store = bw.Authority(database)
 	old = tr.create_work(store, team="lang", kind="bug", title="old",
-	                     origin="self-initiated", author="ada", body="old")
+	                     origin="self-initiated", classification="suspected-defect", author="ada", body="old")
 	target = tr.create_work(store, team="lang", kind="bug", title="target",
-	                        origin="self-initiated", author="ada",
+	                        origin="self-initiated", classification="suspected-defect", author="ada",
 	                        body="target")
 	push = tr.create_work(store, team="push", kind="bug", title="push",
-	                      origin="self-initiated", author="sl", body="push")
+	                      origin="self-initiated", classification="suspected-defect", author="sl", body="push")
 
 	# Advance each relation cursor beyond the OLD thread's birth.
 	work_page = pj.work_threads(

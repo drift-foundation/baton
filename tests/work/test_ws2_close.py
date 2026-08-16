@@ -38,6 +38,7 @@ def world(tmp_path):
 
 
 def _create(store, team="lang", member="ada", **kw):
+	kw.setdefault("classification", "suspected-defect")
 	return tr.create_work(store, team=team, kind="bug", title="w",
 	                      origin="external-report", author=member,
 	                      body="b", **kw)["work_id"]
@@ -86,7 +87,10 @@ def test_either_outcome_ends_the_gate_and_mutates_no_consumer(world):
 	store = world
 	for outcome in ("satisfying", "non-satisfying"):
 		provider = _create(store)
-		consumer = _create(store, team="push", member="sl")
+		# Born 'limitation' so the explicit classify below records a real
+		# change (creation now requires a concrete value, fresh schema).
+		consumer = _create(store, team="push", member="sl",
+		                   classification="limitation")
 		other_gate = _create(store, team="push", member="sl")
 		holder = _create(store, team="push", member="sl")
 		tr.add_dependency(store, consumer, provider,
@@ -152,7 +156,7 @@ def test_closed_work_refuses_every_mutation_but_keeps_reads_and_seen(world):
 		              rationale="again", outcome="satisfying")
 	with pytest.raises(bw.WorkError):
 		tr.create_work(store, team="lang", kind="bug", title="child",
-		               origin="decomposition", author="ada", body="b",
+		               origin="decomposition", classification="suspected-defect", author="ada", body="b",
 		               parent=work)
 	with pytest.raises(bw.WorkError):
 		tr.add_dependency(store, work, blocker,
@@ -392,7 +396,7 @@ def test_dep_counts_only_live_dependents_and_the_drill_matches(world):
 		[dependents[0], dependents[2]], "the drill kept a closed consumer"
 	# The consumer's closure decided NOTHING on the provider...
 	assert view["status"] == "open" and view["phase"] == "queued"
-	assert view["classification"] == "unknown"
+	assert view["classification"] == "suspected-defect"
 	# ...and the journal retains every edge act for history.
 	edge_acts = [event for event in store.events()
 	             if event["kind"] == "add_dependency"]

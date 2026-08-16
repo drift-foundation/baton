@@ -44,7 +44,7 @@ def world(tmp_path):
 
 def _create(store, team="lang", member="ada", **kw):
 	return tr.create_work(store, team=team, kind="bug", title="w",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="born speaking", **kw)
 
 
@@ -206,7 +206,7 @@ def test_posting_requires_a_labelled_open_work(world):
 	assert len(view["messages"]) == 2
 	# ...and labelling open follow-up work makes it postable again.
 	follow = tr.create_work(store, team="lang", kind="bug",
-	                        title="follow-up", origin="external-report",
+	                        title="follow-up", origin="external-report", classification="suspected-defect",
 	                        author="ada", body="continuation",
 	                        follow_up_of=result["work_id"])
 	tr.label_thread(store, result["thread"], follow["work_id"],
@@ -242,10 +242,10 @@ def test_new_decomposes_with_visible_overlap(world):
 	store = world
 	parent = _create(store)["work_id"]
 	left = tr.create_work(store, team="lang", kind="bug", title="left",
-	                      origin="decomposition", author="ada", body="l",
+	                      origin="decomposition", classification="suspected-defect", author="ada", body="l",
 	                      parent=parent)
 	right = tr.create_work(store, team="lang", kind="bug", title="right",
-	                       origin="decomposition", author="ada", body="r",
+	                       origin="decomposition", classification="suspected-defect", author="ada", body="r",
 	                       parent=parent)
 	shared = tr.create_thread(store, actor_team="lang", actor="ada",
 	                              body="spans both legs",
@@ -532,10 +532,10 @@ def test_new_names_one_state_under_an_interleaved_writer(world, monkeypatch):
 	store = world
 	parent = _create(store)["work_id"]
 	left = tr.create_work(store, team="lang", kind="bug", title="left",
-	                      origin="decomposition", author="ada", body="l",
+	                      origin="decomposition", classification="suspected-defect", author="ada", body="l",
 	                      parent=parent)["work_id"]
 	right = tr.create_work(store, team="lang", kind="bug", title="right",
-	                       origin="decomposition", author="ada", body="r",
+	                       origin="decomposition", classification="suspected-defect", author="ada", body="r",
 	                       parent=parent)["work_id"]
 	shared = tr.create_thread(store, actor_team="lang", actor="ada",
 	                              body="spans both legs",

@@ -266,7 +266,7 @@ def test_a_stranding_proposal_is_refused_naming_the_records(world):
 	tmp_path, config_path = world
 	with lc.open_bound(config_path) as store:
 		work = tr.create_work(store, team="web", kind="bug",
-		                      title="live work", origin="external-report",
+		                      title="live work", origin="external-report", classification="suspected-defect",
 		                      author="wren", body="open")["work_id"]
 	document = _generation(VALID, 2)
 	del document["teams"]["web"]["kinds"]["bug"]
@@ -328,7 +328,7 @@ def test_the_in_lock_gate_catches_work_the_precheck_never_saw(world,
 	tmp_path, config_path = world
 	with lc.open_bound(config_path) as store:
 		work = tr.create_work(store, team="web", kind="bug",
-		                      title="raced in", origin="external-report",
+		                      title="raced in", origin="external-report", classification="suspected-defect",
 		                      author="wren", body="committed late")["work_id"]
 	document = _generation(VALID, 2)
 	del document["teams"]["web"]["kinds"]["bug"]

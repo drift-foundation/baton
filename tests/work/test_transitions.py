@@ -52,7 +52,7 @@ def _ready(store, work_id):
 
 def _create(store, title="Parser crash", parent=None, kind="bug"):
 	return tr.create_work(store, team="lang", kind=kind, title=title,
-	                      origin="external-report", author="slaw",
+	                      origin="external-report", classification="suspected-defect", author="slaw",
 	                      body=f"report: {title}", parent=parent)
 
 
@@ -75,8 +75,8 @@ def test_create_is_work_plus_first_message_in_one_event(store):
 	row = store.conn.execute("SELECT * FROM work WHERE id=?",
 	                         (work_id,)).fetchone()
 	assert (row["origin"], row["classification"], row["status"]) == \
-		("external-report", "unknown", "open"), \
-		"classification is canonical `unknown`, never null (WS-1)"
+		("external-report", "suspected-defect", "open"), \
+		"the submitted classification is stored verbatim (fresh schema)"
 	assert row["phase"] == "queued", "new work defaults to queued (WS-1)"
 	assert (row["current_team"], row["current_kind"]) == ("lang", "bug")
 	assert _ready(store, work_id) == 1, "a fresh leaf is ready"
@@ -89,10 +89,13 @@ def test_a_failure_after_the_work_insert_leaves_neither_row(store):
 
 	def half_then_boom(conn, seq):
 		conn.execute(
-			"INSERT INTO work (id, team, title, origin, status, "
-			"current_team, current_kind, ready, created_seq) "
-			"VALUES (?, 'lang', 'orphan', 'external-report', 'open', "
-			"'lang', 'bug', 0, ?)", (f"{prefix}-W{seq}", seq))
+			"INSERT INTO work (id, team, title, origin, classification, "
+			"status, "
+			"current_team, current_kind, ready, created_seq, "
+			"last_change_seq, last_changed_at) "
+			"VALUES (?, 'lang', 'orphan', 'external-report', 'suspt-raw', 'open', "
+			"'lang', 'bug', 0, ?, ?, 'ts')",
+			(f"{prefix}-W{seq}", seq, seq))
 		raise RuntimeError("crash between work and first message")
 
 	with pytest.raises(RuntimeError):
@@ -112,7 +115,7 @@ def test_a_failure_after_the_work_insert_leaves_neither_row(store):
 	(dict(author="ghost"), "not a registered member"),
 ])
 def test_creation_refuses_bad_inputs_before_writing(store, kwargs, fragment):
-	base = dict(team="lang", kind="bug", title="t", origin="external-report",
+	base = dict(team="lang", kind="bug", title="t", origin="external-report", classification="suspected-defect",
 	            author="slaw", body="b")
 	base.update(kwargs)
 	with pytest.raises(bw.WorkError, match=fragment):
@@ -181,7 +184,7 @@ def test_every_transition_is_one_audited_event(store):
 	tr.close_work(store, child, actor_team="lang", actor="slaw",
 	              rationale="done", outcome="satisfying")
 	follow = tr.create_work(store, team="lang", kind="bug",
-	                        title="follow-up", origin="external-report",
+	                        title="follow-up", origin="external-report", classification="suspected-defect",
 	                        author="slaw", body="late evidence",
 	                        follow_up_of=child)
 	kinds = [event["kind"] for event in store.events()]
@@ -201,7 +204,7 @@ def test_closed_work_is_terminal_and_follow_up_is_the_only_new_reference(
 	work = _create(store, kind="rsrch")["work_id"]
 	with pytest.raises(bw.WorkError, match="still open"):
 		tr.create_work(store, team="lang", kind="bug", title="early",
-		               origin="external-report", author="slaw", body="b",
+		               origin="external-report", classification="suspected-defect", author="slaw", body="b",
 		               follow_up_of=work)
 	tr.close_work(store, work, actor_team="lang", actor="slaw",
 	              rationale="done", outcome="satisfying")
@@ -213,7 +216,7 @@ def test_closed_work_is_terminal_and_follow_up_is_the_only_new_reference(
 	fx.mark_all_seen(store, work, team="lang", member="slaw",
 	             up_to_seq=store.last_seq())
 	follow = tr.create_work(store, team="lang", kind="bug",
-	                        title="follow-up", origin="external-report",
+	                        title="follow-up", origin="external-report", classification="suspected-defect",
 	                        author="slaw", body="late evidence",
 	                        follow_up_of=work)["work_id"]
 	assert store.conn.execute(
@@ -259,7 +262,7 @@ def test_wf09_race1_obligation_terminal_actions_exclude_in_the_lock(tmp_path):
 	exactly one commits and the loser refuses INSIDE the lock."""
 	racer, other = _race_pair(tmp_path)
 	work = tr.create_work(racer, team="push", kind="bug", title="w",
-	                      origin="external-report", author="sl",
+	                      origin="external-report", classification="suspected-defect", author="sl",
 	                      body="b")["work_id"]
 	asked = fx.post(racer, work, author_team="push", author="sl",
 	                        body="yours?", request="lang.bug")["seq"]
@@ -286,14 +289,14 @@ def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
 	pass must refuse in the lock, never resurrect Current on closed work."""
 	racer, other = _race_pair(tmp_path)
 	work = tr.create_work(racer, team="lang", kind="bug", title="w",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
 		rationale="fixed and verified", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="closed"):
 		fx.post(racer, work, author_team="lang", author="ada",
-		                body="handing over", pass_to="lang.rev")
+		                body="handing over", pass_to="lang.rev", pass_phase="review")
 	row = racer.conn.execute(
 		"SELECT status, current_team, current_kind FROM work WHERE id=?",
 		(work,)).fetchone()
@@ -309,11 +312,11 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 	a stale record would lie about who last held the baton."""
 	racer, other = _race_pair(tmp_path)
 	work = tr.create_work(racer, team="lang", kind="bug", title="w",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: fx.post(
 		other, work, author_team="lang", author="ada",
-		body="quick handoff", pass_to="lang.rev"))
+		body="quick handoff", pass_to="lang.rev", pass_phase="review"))
 	tr.close_work(racer, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	closing = next(event for event in racer.events()
@@ -325,7 +328,7 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 def test_wf09_double_close_refuses_in_the_lock(tmp_path):
 	racer, other = _race_pair(tmp_path)
 	work = tr.create_work(racer, team="lang", kind="bug", title="w",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",

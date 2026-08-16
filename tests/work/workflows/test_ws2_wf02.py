@@ -25,7 +25,7 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	# independent assignments, 0/3.
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "provider",
+	                 "external-report", "--classification", "suspected-defect", "--body", "provider",
 	                 viewer="lang.ada")["work_id"]
 	created = flow.ok("round", lang42, "--candidate", "driftc-A",
 	                  "--assign", "push.verify", "--assign", "web.verify",

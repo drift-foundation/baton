@@ -216,7 +216,7 @@ references file contains one configured `ROOT_ID:relative/path` per line:
       --participant payments.implementer --to payments.reviewer \
       --kind implementation_handoff \
       --subject "Retry finding ready for review" \
-      --body work/finding-retry/PROGRESS.md \
+      --body work/records/2026/08/finding-retry/PROGRESS.md \
       --references /tmp/retry-handoff.references
 
 References are navigation, not copied evidence. The body is copied into the
@@ -231,13 +231,26 @@ reply with a nonempty body and references. If no response content is needed,
 
 Baton messages are durable coordination evidence, but they should not be the
 only specification of a product or engineering decision. A recommended team
-workflow is one folder per independently schedulable item:
+workflow is one permanent record per independently schedulable item, created
+at its canonical path and never moved by lifecycle:
 
-    work/finding-short-slug/
-      FINDING.md
-      PLAN.md
-      PROGRESS.md
-      review-YYYY-MM-DDTHH-MM-SSZ.md
+    work/
+      open/
+        finding-short-slug -> ../records/YYYY/MM/finding-short-slug
+      records/
+        YYYY/
+          MM/
+            finding-short-slug/
+              FINDING.md
+              PLAN.md
+              PROGRESS.md
+              review-YYYY-MM-DDTHH-MM-SSZ.md
+
+The year/month is fixed at creation. `work/open/` is an optional human
+convenience index of relative symlinks for sweeping still-open records;
+removing a closed record's symlink is ordinary housekeeping, never a
+lifecycle transition, and messages always cite the canonical
+`work/records/...` path, never `work/open/...`.
 
 This layout is team policy, not protocol enforcement. A repository may adapt
 the names, but the responsibilities should remain distinct:
@@ -262,10 +275,11 @@ progress, review, source, and test files matter even when several unstaged
 changes coexist.
 
 Implement one finding serially to a reviewed terminal state. Reviewer research
-may enrich queued findings without interrupting the implementer. After the
-resolution is committed, clean up ephemeral finding folders deliberately;
-durable tests, user documentation, and repository policy must stand on their
-own before the folder disappears.
+may enrich queued findings without interrupting the implementer. The record
+itself is permanent: closing its Work freezes decision history in place, and
+later corrections are explicit follow-up evidence, never a silent rewrite or a
+relocation. Durable tests, user documentation, and repository policy still
+stand on their own outside the record.
 
 ## Recover content and diagnose safely
 

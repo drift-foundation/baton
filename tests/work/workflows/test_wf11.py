@@ -32,7 +32,7 @@ def test_wf11_work_revisions(flow):
 	# as revision 1 naming expected revision 0 and a rationale.
 	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", "parser recovery", "--origin",
-	               "external-report", "--body", "initial statement",
+	               "external-report", "--classification", "suspected-defect", "--body", "initial statement",
 	               viewer="lang.ada")
 	work, thread = born["work_id"], born["thread"]
 	proposed = flow.ok("say", thread, "--body",
@@ -80,7 +80,7 @@ def test_wf11_work_revisions(flow):
 	# nothing changed.
 	foreign = flow.ok("create", "--team", "lang", "--kind", "impl",
 	                  "--title", "elsewhere", "--origin",
-	                  "self-initiated", "--body", "other",
+	                  "self-initiated", "--classification", "suspected-defect", "--body", "other",
 	                  viewer="lang.ada")
 	outside = flow.ok("say", foreign["thread"], "--body",
 	                  "written outside the work's context",
@@ -134,7 +134,7 @@ def test_wf11_work_revisions(flow):
 	# 4. Transfer Current: the prior handler loses the authority; the
 	# new handler promotes revision 4 with the expected revision.
 	flow.ok("say", thread, "--body", "handing the contract to push",
-	        "--on", work, "--pass-to", "push.bug", viewer="lang.ada")
+	        "--on", work, "--pass-to", "push.bug", "--phase", "queued", viewer="lang.ada")
 	next_contract = flow.ok("say", thread, "--body",
 	                        "complete contract v4: push owns delivery",
 	                        viewer="push.sl")["seq"]
@@ -154,7 +154,7 @@ def test_wf11_work_revisions(flow):
 	# revision; the parent closes only after the child concludes.
 	child = flow.ok("create", "--team", "push", "--kind", "bug",
 	                "--title", "independent replay proof", "--origin",
-	                "decomposition", "--body", "own accountable result",
+	                "decomposition", "--classification", "suspected-defect", "--body", "own accountable result",
 	                "--parent", work, viewer="push.sl")["work_id"]
 	error = assert_refusal_changes_nothing(
 		flow, "push.sl", "close", work, "--rationale", "premature",

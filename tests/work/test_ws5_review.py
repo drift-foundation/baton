@@ -26,7 +26,7 @@ def world(tmp_path):
 	config_path, database = fx.build_instance(str(tmp_path), spec)
 	store = bw.Authority(database)
 	born = tr.create_work(store, team="lang", kind="bug", title="w",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="born speaking")
 	yield store, config_path, born
 	store.close()

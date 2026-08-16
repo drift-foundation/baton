@@ -180,6 +180,17 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 			(row["id"],)).fetchone()["n"],
 		"new": new_count(store, row["id"], viewer_team=viewer_team,
 		                 viewer_member=viewer_member)["total"],
+		# Schema 15: the team-local ordering signal (W10) and the row's
+		# stable change identity (W84 groundwork) — canonical values,
+		# never client-derived. Their TUI presentation is W10/W84 work.
+		"priority": row["priority"],
+		"last_changed_at": row["last_changed_at"],
+		"last_change_seq": row["last_change_seq"],
+		# finding-active-work-claim: the atomic claimant, projected so
+		# nobody infers the active worker from route membership. Null
+		# until the gated claim operation exists and succeeds.
+		"active": None if row["active_team"] is None else
+			{"team": row["active_team"], "member": row["active_member"]},
 		# W36: conversation VOLUME and the viewer's directed load —
 		# same recursive scope as the conversation projection,
 		# overlap-safe (a message reachable through several labelled
@@ -985,6 +996,19 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		# writer; agents read this instead of discovering it).
 		if handler and open_children == 0:
 			available.append("close")
+		# W108 R2: the atomic claim is advertised exactly when the
+		# writer would grant it — resolved Current handler, open,
+		# ready, not waiting/parked, unclaimed. The writer stays the
+		# final authority; this is discovery, not a promise.
+		if handler and row["ready"] and \
+				row["phase"] not in ("waiting", "parked") and \
+				row["active_team"] is None:
+			available.append("claim")
+		# Recovery mirror: a resolved Current handler may release
+		# whoever holds the claim (self-release included); advertised
+		# only while a claimant exists. Writer stays final.
+		if handler and row["active_team"] is not None:
+			available.append("release")
 	view["available_transitions"] = sorted(available)
 	# W71: open_blockers is the ROW's own field (one computation, one
 	# meaning) — the former detail-local recompute is gone.

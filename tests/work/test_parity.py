@@ -248,7 +248,7 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 	with bw.Authority(database) as store:
 		work = tr.create_work(store, team="lang", kind="rsrch",
 		                      title="parser recovery",
-		                      origin="external-report", author="ada",
+		                      origin="external-report", classification="suspected-defect", author="ada",
 		                      body="provider")["work_id"]
 		created = tr.create_round(
 			store, work, actor_team="lang", actor="ada",
@@ -317,10 +317,10 @@ def test_collapsed_resolved_rows_agree_on_both_surfaces(tmp_path, capsys):
 	config_path, database = fx.build_instance(str(tmp_path), spec)
 	with bw.Authority(database) as store:
 		tr.create_work(store, team="lang", kind="bug", title="stays open",
-		               origin="external-report", author="ada", body="live")
+		               origin="external-report", classification="suspected-defect", author="ada", body="live")
 		done = tr.create_work(store, team="lang", kind="bug",
 		                      title="already done",
-		                      origin="external-report", author="ada",
+		                      origin="external-report", classification="suspected-defect", author="ada",
 		                      body="old")["work_id"]
 		tr.close_work(store, done, actor_team="lang", actor="ada",
 		              rationale="delivered before the checkpoint",

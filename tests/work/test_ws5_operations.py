@@ -43,7 +43,7 @@ def world(tmp_path):
 
 def _create(store, team="lang", member="ada", **kw):
 	return tr.create_work(store, team=team, kind="bug", title="w",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="born speaking", **kw)
 
 
@@ -183,13 +183,13 @@ def test_later_state_replay_returns_the_original_resolution(world):
 	born = _create(store)
 	passed = tr.post_thread(store, born["thread"],
 	                            author_team="lang", author="ada",
-	                            body="onward", pass_to="lang.rsrch",
+	                            body="onward", pass_to="lang.rsrch", pass_phase="research",
 	                            op_id="pass-1")
 	tr.close_work(store, born["work_id"], actor_team="lang",
 	              actor="ada", rationale="done", outcome="satisfying")
 	replay = tr.post_thread(store, born["thread"],
 	                            author_team="lang", author="ada",
-	                            body="onward", pass_to="lang.rsrch",
+	                            body="onward", pass_to="lang.rsrch", pass_phase="research",
 	                            op_id="pass-1")
 	assert replay["seq"] == passed["seq"]
 	assert replay["operation"]["state"] == "replayed"
@@ -197,7 +197,7 @@ def test_later_state_replay_returns_the_original_resolution(world):
 	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
 		tr.post_thread(store, born["thread"],
 		                   author_team="lang", author="ada",
-		                   body="onward again", pass_to="lang.rsrch",
+		                   body="onward again", pass_to="lang.rsrch", pass_phase="research",
 		                   op_id="pass-2")
 
 
@@ -362,7 +362,7 @@ def test_the_protected_commit_is_whole_or_nothing(world):
 		try:
 			tr.accept_obligation(store, asked, actor_team="lang",
 			                     actor="ada", body="ours",
-			                     create={"kind": "rsrch", "title": "t"},
+			                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"},
 			                     op_id="accept-1")
 			store.conn = real_conn
 			break
@@ -385,7 +385,7 @@ def test_the_protected_commit_is_whole_or_nothing(world):
 	fresh.clock = store.clock
 	replay = tr.accept_obligation(fresh, asked, actor_team="lang",
 	                              actor="ada", body="ours",
-	                              create={"kind": "rsrch", "title": "t"},
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"},
 	                              op_id="accept-1")
 	assert replay["operation"]["state"] == "replayed"
 	assert replay["provider"], "the replayed result lost its decorations"

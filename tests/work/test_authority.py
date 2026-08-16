@@ -67,7 +67,7 @@ def test_init_writes_no_handshake_file(tmp_path):
 def test_meta_pins_protocol_and_uuid(authority):
 	meta = authority.meta()
 	assert meta["protocol_version"] == "11"
-	assert meta["schema_version"] == "14"  # W31: subject-bearing threads
+	assert meta["schema_version"] == "15"  # W92: priority + change recency
 	assert len(meta["authority_uuid"]) == 32
 
 

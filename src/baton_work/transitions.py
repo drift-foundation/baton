@@ -21,7 +21,7 @@ import hashlib as _op_hashlib
 import json as _op_json
 
 from baton_work.authority import (Authority, WorkError,
-                                  validate_op_id)
+                                  clock_ms_now, validate_op_id)
 
 # The confirmed intake example's vocabulary. Additive growth is expected;
 # renames are not.
@@ -29,6 +29,13 @@ ORIGINS = ("external-report", "self-initiated", "decomposition")
 # WS-1 ruling: classification is NEVER null — `unknown` is the canonical
 # default, a value like any other, and clients must not read meaning into
 # absence.
+# finding-active-work-claim: role handles that NAME a work stage derive a
+# pass's destination phase; anything else needs the phase stated in the
+# pass itself. Closed map — derivation never guesses.
+STAGE_PHASES = {"rsrch": "research", "research": "research",
+                "impl": "active", "implementation": "active",
+                "rview": "review", "review": "review"}
+
 CLASSIFICATIONS = ("unknown", "suspected-defect", "confirmed-defect",
                    "limitation", "duplicate", "design-choice", "rejection")
 # WS-1 ruling: the operational phase enum, canonical protocol values only.
@@ -181,10 +188,25 @@ def _sweep_wakes(conn, actor: str) -> None:
 			conn.execute(
 				"UPDATE work SET phase='queued', wait_type=NULL, "
 				"wait_obligation=NULL WHERE id=?", (row["id"],))
+			_touch_work(conn, row["id"])
 			_emit(conn, "wake", actor,
 			      {"work": row["id"], "from": "waiting", "to": "queued",
 			       "condition": {"type": row["wait_type"],
 			                     "obligation": row["wait_obligation"]}})
+
+
+def _touch_work(conn, work_id: str) -> None:
+	"""Schema 15 (W84 groundwork): every direct Work-row mutation stamps
+	the row's stable change identity — the committing event's sequence and
+	one millisecond-precision instant. Clients derive age from these
+	canonical values; they never reconstruct recency from the event ledger.
+	The set of INDIRECT acts that count as Work recency is W84's own ruling
+	and is deliberately not guessed here."""
+	seq = conn.execute(
+		"SELECT value FROM sequence WHERE id=1").fetchone()["value"]
+	conn.execute(
+		"UPDATE work SET last_change_seq=?, last_changed_at=? WHERE id=?",
+		(seq, clock_ms_now(), work_id))
 
 
 def _obligation_gate(conn, obligation, actor_team: str, actor: str,
@@ -246,13 +268,13 @@ def _join_thread(conn, thread_id: str, team: str, seq: int) -> None:
 		(thread_id, team, seq))
 
 
-def _recompute_ready(conn, work_id: str) -> None:
+def _recompute_ready(conn, work_id: str, payload=None) -> None:
 	"""Readiness from CURRENT state: open, and no open children.
 
 	(A3 adds open blockers to the conjunction.) This is the single place
 	readiness is computed, called by whichever transition changed an input —
 	never by a reader, because reads are pure."""
-	row = conn.execute("SELECT status FROM work WHERE id=?",
+	row = conn.execute("SELECT status, ready FROM work WHERE id=?",
 	                   (work_id,)).fetchone()
 	if row is None:
 		return
@@ -265,7 +287,29 @@ def _recompute_ready(conn, work_id: str) -> None:
 		(work_id, OPEN)).fetchone()["n"]
 	ready = 1 if (row["status"] == OPEN and open_children == 0
 	              and open_blockers == 0) else 0
-	conn.execute("UPDATE work SET ready=? WHERE id=?", (ready, work_id))
+	if ready != row["ready"]:
+		# A readiness flip is a visible row change; a same-value recompute
+		# is not and must not disturb the change identity (schema 15).
+		conn.execute("UPDATE work SET ready=? WHERE id=?", (ready, work_id))
+		if ready == 0:
+			# finding-active-work-claim R3: a late-arriving gate keeps
+			# the honest work stage but INVALIDATES execution — the
+			# claimant is released atomically, and the causing event's
+			# payload keeps the released claimant as recoverable
+			# evidence.
+			live = conn.execute(
+				"SELECT active_team, active_member FROM work WHERE id=?",
+				(work_id,)).fetchone()
+			if live["active_team"] is not None:
+				if payload is not None:
+					payload.setdefault("released_claims", []).append(
+						{"work": work_id,
+						 "claimant": f"{live['active_team']}."
+						             f"{live['active_member']}"})
+				conn.execute(
+					"UPDATE work SET active_team=NULL, "
+					"active_member=NULL WHERE id=?", (work_id,))
+		_touch_work(conn, work_id)
 
 
 
@@ -436,7 +480,17 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	if origin not in ORIGINS:
 		raise WorkError(f"origin {origin!r} is not one of {ORIGINS}; origin "
 		                f"is immutable history and is not free text")
-	classification = "unknown" if classification is None else classification
+	# finding-active-work-claim clarification (fresh schema, 2026-08-16;
+	# reviewed under review-2026-08-16T09-27-05Z): the SUBMITTER chooses
+	# a concrete classification — omission and 'unknown' refuse at
+	# creation. The current handler may reclassify later; activation
+	# never requires a redundant classify step.
+	if classification is None or classification == "unknown":
+		raise WorkError(
+			"work creation requires a concrete classification; "
+			"'unknown' (or omitting it) refuses — choose one of "
+			f"{tuple(c for c in CLASSIFICATIONS if c != 'unknown')}; "
+			"the current handler may reclassify later")
 	if classification not in CLASSIFICATIONS:
 		raise WorkError(f"classification {classification!r} is not one of "
 		                f"{CLASSIFICATIONS}")
@@ -530,10 +584,10 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 		conn.execute(
 			"INSERT INTO work (id, team, title, origin, classification, "
 			"phase, status, parent, current_team, current_kind, ready, "
-			"follow_up_of, created_seq) "
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)",
+			"follow_up_of, created_seq, last_change_seq, last_changed_at) "
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)",
 			(work_id, team, title, origin, classification, phase, OPEN,
-			 parent, team, kind, follow_up_of, seq))
+			 parent, team, kind, follow_up_of, seq, seq, clock_ms_now()))
 		thread_id = f"{prefix}-T{seq}"
 		# The born Thread's subject is the Work's title — the one
 		# conversation a creation opens is ABOUT that Work.
@@ -566,9 +620,9 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 				 f"{team}.{author}", seq, store.clock()))
 			payload["binding"] = {"root": binding_root,
 			                      "path": binding_path, "revision": 1}
-		_recompute_ready(conn, work_id)
+		_recompute_ready(conn, work_id, payload)
 		if parent is not None:
-			_recompute_ready(conn, parent)
+			_recompute_ready(conn, parent, payload)
 		mutate.work_id = work_id
 		mutate.thread_id = thread_id
 
@@ -747,8 +801,10 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 			"UPDATE work SET status=?, ready=0, outcome=?, rationale=?, "
 			"duplicate_of=?, "
 			"current_team=NULL, current_kind=NULL, next_team=NULL, "
-			"next_kind=NULL, closed_seq=? WHERE id=?",
+			"next_kind=NULL, active_team=NULL, active_member=NULL, "
+			"closed_seq=? WHERE id=?",
 			(CLOSED, outcome, rationale, duplicate_of, seq, work_id))
+		_touch_work(conn, work_id)
 		# WS-2 group-1 correction (ruled): terminal close atomically
 		# WITHDRAWS every pending exact @ obligation this work carries —
 		# classic requests and verification assignments alike — so closed
@@ -757,19 +813,141 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		_withdraw_pending(conn, work_id, f"{actor_team}.{actor}",
 		                  "the carrying work closed")
 		if live["parent"] is not None:
-			_recompute_ready(conn, live["parent"])
+			_recompute_ready(conn, live["parent"], payload)
 		# THE FAN-OUT, level-triggered: every dependent recomputes from its
 		# own current blocker set. No message is addressed to anyone; a
 		# dependent with other open blockers simply stays unready.
 		for dependent in conn.execute(
 				"SELECT work FROM edges WHERE blocker=?", (work_id,)):
-			_recompute_ready(conn, dependent["work"])
+			_recompute_ready(conn, dependent["work"], payload)
 		# WS-1: this close may have shut the LAST gate some waiting work
 		# recorded — the wake commits atomically with it, or not at all.
 		_sweep_wakes(conn, f"{actor_team}.{actor}")
 
 	return store._write("close_work", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
+	                    references=refs)
+
+
+# -- finding-active-work-claim: the atomic phase-orthogonal claim ------------
+
+def claim_work(store: Authority, work_id: str, *, actor_team: str,
+               actor: str, op_id: str | None = None, refs=()) -> dict:
+	"""THE atomic active-work claim: records WHO is executing without
+	touching phase (orthogonal ruling). One eligible handler of the live
+	Current endpoint acquires open, ready, non-waiting/non-parked Work —
+	every condition rechecked inside the write transaction, so an earlier
+	`ready` observation is advisory and a competing claim fails closed
+	naming the recorded claimant. Release happens only through the ruled
+	transitions (pass, entering waiting/parked, terminal close)."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "claim", op_id,
+	                       {"work": work_id, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	_work(store, work_id)
+	payload = {"work": work_id}
+
+	def mutate(conn, seq):
+		live = conn.execute(
+			"SELECT status, phase, active_team, active_member "
+			"FROM work WHERE id=?", (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; terminal "
+			                f"work cannot be claimed")
+		if live["phase"] in ("waiting", "parked"):
+			raise WorkError(f"{work_id} is {live['phase']}; waiting and "
+			                f"parked work cannot be claimed")
+		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
+		                                      actor, "claim")
+		gates = _open_gates(conn, work_id)
+		if gates:
+			raise WorkError(
+				f"{work_id} has {gates} unmet dependency/child gate(s); "
+				f"blocked work cannot be claimed — readiness is decided "
+				f"here, in the write transaction")
+		if live["active_team"] is not None:
+			raise WorkError(
+				f"{work_id} is already claimed by "
+				f"{live['active_team']}.{live['active_member']}; "
+				f"conflicting claim attempts fail closed (an exact "
+				f"retry replays through its operation id)")
+		payload["claimant"] = f"{actor_team}.{actor}"
+		conn.execute(
+			"UPDATE work SET active_team=?, active_member=? WHERE id=?",
+			(actor_team, actor, work_id))
+		_touch_work(conn, work_id)
+
+	def finish(result):
+		# The committed claimant rides the replayable result — an agent
+		# retrying reads WHO holds the claim without a second call.
+		result["claimant"] = payload["claimant"]
+
+	return store._write("claim", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, finish=finish,
+	                    references=refs)
+
+
+def release_claim(store: Authority, work_id: str, *, actor_team: str,
+                  actor: str, expect: str, reason: str,
+                  op_id: str | None = None, refs=()) -> dict:
+	"""Explicit claimant recovery (ruled): one honest operation for
+	self-release AND forced recovery. Authority is the live Current
+	endpoint's resolved handlers; --expect is a mandatory compare-and-swap
+	against the exact recorded claimant, decided inside the write
+	transaction; --reason is durable evidence. A successful release clears
+	ONLY the claimant — phase, Current, Next, readiness, dependencies,
+	waiting and discussion state are untouched."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	if not isinstance(reason, str) or not reason.strip():
+		raise WorkError("a release records its non-empty durable reason — "
+		                "self-release and forced recovery both explain "
+		                "why the work became unclaimed")
+	reason = reason.strip()
+	if not isinstance(expect, str) or expect.count(".") != 1 or \
+			not all(expect.split(".")):
+		raise WorkError(f"--expect {expect!r} is not team.member shaped; "
+		                f"recovery never guesses whose execution it is "
+		                f"interrupting")
+	operation = _operation(store, actor_team, actor, "release", op_id,
+	                       {"work": work_id, "expect": expect,
+	                        "reason": reason, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	_work(store, work_id)
+	payload = {"work": work_id, "expect": expect, "reason": reason}
+
+	def mutate(conn, seq):
+		live = conn.execute(
+			"SELECT status, active_team, active_member FROM work "
+			"WHERE id=?", (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; terminal "
+			                f"work carries no claim to release")
+		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
+		                                      actor, "release")
+		if live["active_team"] is None:
+			raise WorkError(f"{work_id} is unclaimed; there is no "
+			                f"execution claim to release")
+		recorded = f"{live['active_team']}.{live['active_member']}"
+		if recorded != expect:
+			raise WorkError(
+				f"{work_id} is claimed by {recorded}, not {expect}; "
+				f"the compare-and-swap refuses — recovery never "
+				f"guesses whose execution it is interrupting")
+		payload["released_claimant"] = recorded
+		conn.execute(
+			"UPDATE work SET active_team=NULL, active_member=NULL "
+			"WHERE id=?", (work_id,))
+		_touch_work(conn, work_id)
+
+	def finish(result):
+		result["released_claimant"] = payload["released_claimant"]
+
+	return store._write("release", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, finish=finish,
 	                    references=refs)
 
 
@@ -814,6 +992,7 @@ def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		                                      actor, "classify")
 		conn.execute("UPDATE work SET classification=? WHERE id=?",
 		             (classification, work_id))
+		_touch_work(conn, work_id)
 
 	return store._write("classify", f"{actor_team}.{actor}", payload,
 	                    mutate, operation=operation,
@@ -926,9 +1105,25 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 				wait_type, wait_obligation = "obligation", wait
 		payload["wait"] = None if wait_type is None else \
 			{"type": wait_type, "obligation": wait_obligation}
+		# finding-active-work-claim ("orthogonal" ruling): phase answers
+		# WHAT stage is happening; the claimant answers WHO executes.
+		# Ordinary phase changes never touch the claim — but ENTERING
+		# waiting or parked is a ruled release.
+		if phase in ("waiting", "parked"):
+			live_claim = conn.execute(
+				"SELECT active_team, active_member FROM work WHERE id=?",
+				(work_id,)).fetchone()
+			if live_claim["active_team"] is not None:
+				payload["released_claimant"] = (
+					f"{live_claim['active_team']}."
+					f"{live_claim['active_member']}")
+				conn.execute(
+					"UPDATE work SET active_team=NULL, "
+					"active_member=NULL WHERE id=?", (work_id,))
 		conn.execute(
 			"UPDATE work SET phase=?, wait_type=?, wait_obligation=? "
 			"WHERE id=?", (phase, wait_type, wait_obligation, work_id))
+		_touch_work(conn, work_id)
 
 	return store._write("set_phase", f"{actor_team}.{actor}", payload,
 	                    mutate, operation=operation,
@@ -1447,7 +1642,7 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		conn.execute(
 			"INSERT INTO edges (work, blocker, created_seq) VALUES (?, ?, ?)",
 			(work_id, blocker_id, seq))
-		_recompute_ready(conn, work_id)
+		_recompute_ready(conn, work_id, payload)
 
 	return store._write("add_dependency", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
@@ -1714,8 +1909,12 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		kind = create.get("kind")
 		title = create.get("title")
 		classification = create.get("classification")
-		classification = "unknown" if classification is None \
-			else classification
+		# The same fresh-schema rule as direct creation: the submitting
+		# side chooses; 'unknown' and omission refuse.
+		if classification is None or classification == "unknown":
+			raise WorkError(
+				"work creation requires a concrete classification; "
+				"'unknown' (or omitting it) refuses")
 		phase = create.get("phase")
 		phase = "queued" if phase is None else phase
 		parent = create.get("parent")
@@ -1803,12 +2002,13 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			conn.execute(
 				"INSERT INTO work (id, team, title, origin, "
 				"classification, phase, status, parent, current_team, "
-				"current_kind, ready, created_seq) "
+				"current_kind, ready, created_seq, last_change_seq, "
+				"last_changed_at) "
 				"VALUES (?, ?, ?, 'external-report', ?, ?, ?, ?, ?, ?, "
-				"0, ?)",
+				"0, ?, ?, ?)",
 				(provider_id, provider_team, create["title"],
 				 create["classification"], create["phase"], OPEN, parent,
-				 provider_team, kind, seq))
+				 provider_team, kind, seq, seq, clock_ms_now()))
 			provider_thread = f"{prefix}-T{seq}"
 			conn.execute(
 				"INSERT INTO threads (id, subject, created_seq, "
@@ -1825,9 +2025,9 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 				"author, body, ts) VALUES (?, ?, ?, ?, ?, "
 				"datetime('now'))",
 				(seq, provider_thread, actor_team, actor, body))
-			_recompute_ready(conn, provider_id)
+			_recompute_ready(conn, provider_id, payload)
 			if parent is not None:
-				_recompute_ready(conn, parent)
+				_recompute_ready(conn, parent, payload)
 		payload["provider"] = provider_id
 
 		# The dependency edge, with the existing in-lock protections and
@@ -1900,7 +2100,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			store._commit_references(conn, message_seq, answer_refs)
 		_join_thread(conn, originating, actor_team, message_seq)
 
-		_recompute_ready(conn, consumer_id)
+		_recompute_ready(conn, consumer_id, payload)
 		# R47: the exact-obligation waiter wakes (its named condition
 		# completed) with readiness kept false by the new gate; a
 		# gates-waiter gained a gate and does not wake.
@@ -2262,6 +2462,7 @@ def post_thread(store: Authority, thread_id: str, *,
                     author_team: str, author: str, body: str,
                     include=(), request: str | None = None,
                     pass_to: str | None = None,
+                    pass_phase: str | None = None,
                     set_next: str | None = None,
                     on: str | None = None,
                     op_id: str | None = None, refs=()) -> dict:
@@ -2286,7 +2487,13 @@ def post_thread(store: Authority, thread_id: str, *,
 	protected = _operation(store, author_team, author, "post", op_id,
 	                       {"thread": thread_id, "body": body,
 	                        "include": include, "request": request,
-	                        "pass_to": pass_to, "set_next": set_next,
+	                        "pass_to": pass_to,
+	                        # W108 R1: the destination phase is typed
+	                        # semantic input — a retry with a DIFFERENT
+	                        # phase is a different operation and must
+	                        # refuse, never replay the first choice.
+	                        "pass_phase": pass_phase,
+	                        "set_next": set_next,
 	                        "on": on, "refs": refs})
 	if isinstance(protected, dict):
 		return protected
@@ -2311,6 +2518,20 @@ def post_thread(store: Authority, thread_id: str, *,
 	requested = _one_endpoint(store, request, "@ request") \
 		if request else None
 	passed = _one_endpoint(store, pass_to, "=> pass") if pass_to else None
+	# finding-active-work-claim ("Current and phase move together"): a
+	# pass atomically records the DESTINATION phase. Explicit values are
+	# the honest source; waiting/parked stay explicit handler decisions
+	# and are never a pass destination.
+	if pass_phase is not None:
+		if pass_to is None:
+			raise WorkError("a destination phase rides a pass; there is "
+			                "no pass here")
+		if pass_phase not in ("queued", "research", "active", "review"):
+			raise WorkError(
+				f"destination phase {pass_phase!r} is not one of "
+				f"('queued', 'research', 'active', 'review'); waiting "
+				f"and parked are explicit handler decisions with their "
+				f"ruled conditions, never a pass destination")
 	planned = _one_endpoint(store, set_next, "planned Next") \
 		if set_next else None
 	operation = "@ request" if request is not None else "=> pass"
@@ -2422,10 +2643,16 @@ def post_thread(store: Authority, thread_id: str, *,
 				payload["next_resolution"] = resolve_endpoint(
 					conn, planned[0], planned[1], "planned Next")
 			if consumes_next:
+				# The consumed plan clears — but a NEW plan stated on
+				# this same return commits with it (discovered at the
+				# W108 trial handoff: the old code silently dropped a
+				# planted --set-next on a consuming return).
 				conn.execute(
 					"UPDATE work SET current_team=?, current_kind=?, "
-					"next_team=NULL, next_kind=NULL WHERE id=?",
-					(passed[0], passed[1], work_id))
+					"next_team=?, next_kind=? WHERE id=?",
+					(passed[0], passed[1],
+					 planned[0] if planned else None,
+					 planned[1] if planned else None, work_id))
 			else:
 				# An unconsumed planned Next stays VISIBLY set unless
 				# this pass plants a new one — never silently cleared.
@@ -2436,6 +2663,32 @@ def post_thread(store: Authority, thread_id: str, *,
 					(passed[0], passed[1],
 					 planned[0] if planned else None,
 					 planned[1] if planned else None, work_id))
+			# finding-active-work-claim ("Current and phase move
+			# together"): the pass atomically records the destination
+			# phase — explicit when stated, derived from the
+			# destination route's STAGE role otherwise, refused when
+			# neither names a stage. It never carries the sender's
+			# phase, never substitutes queued, and never derives
+			# waiting from readiness. The sender's claim is released;
+			# the recipient claims explicitly.
+			if pass_phase is not None:
+				destination_phase = pass_phase
+			else:
+				role = payload["pass_resolution"].get("role")
+				destination_phase = STAGE_PHASES.get(role)
+				if destination_phase is None:
+					raise WorkError(
+						f"the destination role {role!r} names no work "
+						f"stage; state the destination phase "
+						f"explicitly — a pass records the honest "
+						f"destination phase, never the sender's and "
+						f"never a generic queued")
+			payload["destination_phase"] = destination_phase
+			conn.execute(
+				"UPDATE work SET active_team=NULL, active_member=NULL, "
+				"phase=?, wait_type=NULL, wait_obligation=NULL "
+				"WHERE id=?", (destination_phase, work_id))
+			_touch_work(conn, work_id)
 			touched_teams.add(passed[0])
 		for team in sorted(touched_teams):
 			_join_thread(conn, thread_id, team, seq)

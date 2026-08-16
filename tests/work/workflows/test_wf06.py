@@ -35,15 +35,15 @@ def test_wf06_recursive_release(flow):
 
 	# 1. The release root and its two children.
 	root = flow.ok("create", "--team", "lang", "--kind", "rsrch",
-	               "--title", "release 1.2.0", "--origin", "self-initiated",
+	               "--title", "release 1.2.0", "--origin", "self-initiated", "--classification", "suspected-defect",
 	               "--body", "the milestone gate", viewer="lang.ada")["work_id"]
 	local = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                "--title", "fix recovery table", "--origin",
-	                "decomposition", "--body", "local leg",
+	                "decomposition", "--classification", "suspected-defect", "--body", "local leg",
 	                "--parent", root, viewer="lang.ada")["work_id"]
 	blocked = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                  "--title", "needs the CI image", "--origin",
-	                  "decomposition", "--body", "externally blocked leg",
+	                  "decomposition", "--classification", "suspected-defect", "--body", "externally blocked leg",
 	                  "--parent", root, viewer="lang.ada")["work_id"]
 
 	# WS-4 Slice A: one thread labelled to BOTH children (created
@@ -56,11 +56,11 @@ def test_wf06_recursive_release(flow):
 
 	# 2. One child runs WF-01 locally; the other waits on an external
 	# provider work (WF-04 pattern).
-	flow.post(local, "--body", "build it", "--pass-to", "lang.impl",
+	flow.post(local, "--body", "build it", "--pass-to", "lang.impl", "--phase", "active",
 	        "--set-next", "lang.rev", viewer="lang.ada")
 	external = flow.ok("create", "--team", "mdb", "--kind", "build",
 	                   "--title", "CI image rebuild", "--origin",
-	                   "external-report", "--body", "lang needs the image",
+	                   "external-report", "--classification", "suspected-defect", "--body", "lang needs the image",
 	                   viewer="mdb.mo")["work_id"]
 	flow.ok("block", blocked, "--on", external, viewer="lang.ada")
 
@@ -79,7 +79,7 @@ def test_wf06_recursive_release(flow):
 
 	# 4. Readiness is the CONJUNCTION: the local child alone is not enough.
 	returned = flow.post(local, "--body", "done", "--pass-to",
-	                   "lang.rev", viewer="lang.grace")
+	                   "lang.rev", "--phase", "review", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	flow.ok("close", local, "--rationale", "fixed and verified", "--outcome", "satisfying",
 	        viewer="lang.ada")

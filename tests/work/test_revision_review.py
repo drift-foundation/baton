@@ -28,7 +28,7 @@ def test_revision_history_is_a_bounded_paginated_json_list(tmp_path):
 	_config, database = fx.build_instance(str(tmp_path), spec)
 	with bw.Authority(database) as store:
 		born = tr.create_work(store, team="lang", kind="bug", title="w",
-		                      origin="external-report", author="ada",
+		                      origin="external-report", classification="suspected-defect", author="ada",
 		                      body="initial statement")
 		work, thread = born["work_id"], born["thread"]
 		for number in range(1, 54):

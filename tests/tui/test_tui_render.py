@@ -2395,7 +2395,7 @@ def test_the_reclaimed_row_is_navigable_not_merely_blank(env):
 		assert layout["inbox_height"] == max(1, top)
 		# The detail PANE has `detail` rows; the model's scrollable height is
 		# one less, because the selected-part footer occupies the last one.
-		# Ruled in `work/finding-human-console/findings/
+		# Ruled in `work/records/2026/08/finding-human-console/findings/
 		# finding-selected-part-footer/FINDING.md`: "The footer consumes one
 		# DETAIL row. Layout, page size, overflow indicators, navigation, and
 		# resize calculations account for it."
@@ -2850,7 +2850,7 @@ def test_the_duplicate_warning_is_attributed_to_the_sender():
 
 # -- the selected-part footer ----------------------------------------------
 #
-# Ruled in `work/finding-human-console/findings/finding-selected-part-footer/`.
+# Ruled in `work/records/2026/08/finding-human-console/findings/finding-selected-part-footer/`.
 # The metadata line used to sit above the body: `[0]` is a manifest address,
 # not a name, and the single-part reader skipped it every time to reach their
 # message. It says the part count now, which is the question a multipart

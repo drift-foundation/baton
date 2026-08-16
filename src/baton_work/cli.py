@@ -30,7 +30,8 @@ from baton_work import jsonapi, lifecycle, projection, transitions
 # always has.
 MUTATIONS = frozenset({
 	"activate", "regen", "create", "accept", "respond", "dispose",
-	"close", "block", "mark-seen", "classify", "phase", "round",
+	"close", "block", "mark-seen", "classify", "claim", "release",
+	"phase", "round",
 	"extend", "report", "assess", "abandon", "revise", "start-thread",
 	"say", "label", "unlabel", "bind"})
 
@@ -113,8 +114,10 @@ def main(argv=None) -> int:
 	cmd.add_argument("--origin", required=True)
 	cmd.add_argument("--body", required=True)
 	cmd.add_argument("--parent")
-	cmd.add_argument("--classification", help="canonical value; defaults to "
-	                 "'unknown'")
+	cmd.add_argument("--classification",
+	                 help="REQUIRED concrete canonical value — the "
+	                 "submitter chooses; 'unknown' and omission refuse "
+	                 "(the current handler may reclassify later)")
 	cmd.add_argument("--phase", help="initial operational phase; defaults "
 	                 "to 'queued'")
 	cmd.add_argument("--follow-up-of", dest="follow_up_of",
@@ -160,6 +163,18 @@ def main(argv=None) -> int:
 	                 help="the surviving canonical work id; a duplicate "
 	                 "is a rejected close carrying this explicit "
 	                 "non-gating link")
+	cmd = sub.add_parser("claim")
+	cmd.add_argument("work",
+	                 help="the open ready work to claim as its one "
+	                 "active executor; phase is untouched")
+	cmd = sub.add_parser("release")
+	cmd.add_argument("work")
+	cmd.add_argument("--expect", required=True,
+	                 help="mandatory compare-and-swap: the exact recorded "
+	                 "claimant team.member")
+	cmd.add_argument("--reason", required=True,
+	                 help="non-empty durable evidence for why the work "
+	                 "became unclaimed")
 	cmd = sub.add_parser("block")
 	cmd.add_argument("work")
 	cmd.add_argument("--on", required=True, help="the blocker work id")
@@ -274,6 +289,11 @@ def main(argv=None) -> int:
 	                 "acts on the --on work")
 	cmd.add_argument("--pass-to", dest="pass_to", help="ONE endpoint; "
 	                 "moves the --on work's baton")
+	cmd.add_argument("--phase", dest="pass_phase",
+	                 help="the destination phase the pass records "
+	                 "atomically (queued/research/active/review); "
+	                 "derived from the destination route's stage role "
+	                 "when omitted")
 	cmd.add_argument("--set-next", dest="set_next",
 	                 help="planned return endpoint; requires --pass-to")
 	cmd.add_argument("--on", help="the ONE labelled open work an @ or => "
@@ -606,6 +626,7 @@ def _dispatch(store: Authority, args):
 			store, args.thread, author_team=team, author=member,
 			body=args.body, include=args.include or (),
 			request=args.request, pass_to=args.pass_to,
+			pass_phase=args.pass_phase,
 			set_next=args.set_next, on=args.on, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "label":
@@ -677,6 +698,17 @@ def _dispatch(store: Authority, args):
 		return transitions.abandon_round(
 			store, args.work, args.round, actor_team=team, actor=member,
 			reason=args.reason, op_id=args.op_id,
+			refs=args.refs or ())
+	if command == "claim":
+		team, member = _need_participant(args)
+		return transitions.claim_work(store, args.work, actor_team=team,
+		                              actor=member, op_id=args.op_id,
+		                              refs=args.refs or ())
+	if command == "release":
+		team, member = _need_participant(args)
+		return transitions.release_claim(
+			store, args.work, actor_team=team, actor=member,
+			expect=args.expect, reason=args.reason, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "classify":
 		team, member = _need_participant(args)

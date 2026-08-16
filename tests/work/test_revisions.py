@@ -43,7 +43,7 @@ def world(tmp_path):
 
 def _create(store, team="lang", member="ada", **kw):
 	return tr.create_work(store, team=team, kind="bug", title="w",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="the initial statement", **kw)
 
 
@@ -309,7 +309,7 @@ def test_child_work_revises_independently_of_its_parent(world):
 	parent = _create(store)
 	child = tr.create_work(store, team="lang", kind="bug",
 	                       title="independent proof",
-	                       origin="decomposition", author="ada",
+	                       origin="decomposition", classification="suspected-defect", author="ada",
 	                       body="child contract", parent=parent["work_id"])
 	proposed = _say(store, child["thread"], "child contract v2")
 	tr.revise_work(store, child["work_id"], actor_team="lang",

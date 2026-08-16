@@ -108,26 +108,26 @@ def build(path: str) -> dict:
 	cast = {"config_path": config_path}
 	cast["lang42"] = tr.create_work(
 		store, team="lang", kind="rsrch", title="parser recovery",
-		origin="external-report", author="ada",
+		origin="external-report", classification="suspected-defect", author="ada",
 		body="crash reported from three consumers")["work_id"]
 	cast["step_confirm"] = tr.create_work(
 		store, team="lang", kind="rsrch", title="confirm the defect",
-		origin="decomposition", author="ada", body="repro first",
+		origin="decomposition", classification="suspected-defect", author="ada", body="repro first",
 		parent=cast["lang42"])["work_id"]
 	cast["step_fix"] = tr.create_work(
 		store, team="lang", kind="rsrch", title="implement the fix",
-		origin="decomposition", author="ada", body="after confirmation",
+		origin="decomposition", classification="suspected-defect", author="ada", body="after confirmation",
 		parent=cast["lang42"])["work_id"]
 
 	cast["pushcoin"] = tr.create_work(
 		store, team="push", kind="bug", title="checkout fails",
-		origin="external-report", author="sl", body="500 at checkout")["work_id"]
+		origin="external-report", classification="suspected-defect", author="sl", body="500 at checkout")["work_id"]
 	cast["web"] = tr.create_work(
 		store, team="web", kind="bug", title="render crash",
-		origin="external-report", author="wren", body="tab dies")["work_id"]
+		origin="external-report", classification="suspected-defect", author="wren", body="tab dies")["work_id"]
 	cast["mdb"] = tr.create_work(
 		store, team="mdb", kind="bug", title="driver hang",
-		origin="external-report", author="mo", body="hangs on insert")["work_id"]
+		origin="external-report", classification="suspected-defect", author="mo", body="hangs on insert")["work_id"]
 
 	tr.add_dependency(store, cast["pushcoin"], cast["lang42"],
 	                  actor_team="push", actor="sl")

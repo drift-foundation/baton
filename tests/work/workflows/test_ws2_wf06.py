@@ -27,13 +27,13 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	# resulting wakes and states.
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "three consumers",
+	                 "external-report", "--classification", "suspected-defect", "--body", "three consumers",
 	                 viewer="lang.ada")["work_id"]
 	consumers = {}
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
 		work = flow.ok("create", "--team", team, "--kind", "bug",
 		               "--title", f"{team} report", "--origin",
-		               "external-report", "--body", "blocked on lang",
+		               "external-report", "--classification", "suspected-defect", "--body", "blocked on lang",
 		               viewer=f"{team}.{member}")["work_id"]
 		flow.ok("block", work, "--on", lang42, viewer=f"{team}.{member}")
 		flow.ok("phase", work, "--to", "waiting", "--wait-on-gates",
@@ -72,7 +72,7 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	# navigable and non-gating.
 	lang57 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "recovery regression", "--origin",
-	                 "external-report", "--body", "push contradicts",
+	                 "external-report", "--classification", "suspected-defect", "--body", "push contradicts",
 	                 "--follow-up-of", lang42,
 	                 viewer="lang.ada")["work_id"]
 	fresh = flow.ok("detail", lang57, viewer="lang.ada")

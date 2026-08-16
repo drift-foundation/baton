@@ -135,7 +135,7 @@ def test_the_installed_product_runs_the_whole_onboarding_story(dist,
 	proc = _run(executable, "--config", config_path, "--participant",
 	            "push.sl", "create", "--team", "push", "--kind", "bug",
 	            "--title", "first trial work", "--origin",
-	            "self-initiated", "--body", "hello v11")
+	            "self-initiated", "--classification", "suspected-defect", "--body", "hello v11")
 	assert proc.returncode == 0, proc.stderr
 	proc = _run(executable, "--config", config_path, "--participant",
 	            "push.sl", "home")
@@ -211,7 +211,7 @@ def test_deploy_and_onboarding_touch_nothing_outside_their_targets(
 	            home).returncode == 0
 	assert _run(executable, "--config", config_path, "--participant",
 	            "push.sl", "create", "--team", "push", "--kind", "bug",
-	            "--title", "contained", "--origin", "self-initiated",
+	            "--title", "contained", "--origin", "self-initiated", "--classification", "suspected-defect",
 	            "--body", "canary run").returncode == 0
 
 	assert _snapshot(canary) == before, \

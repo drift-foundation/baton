@@ -28,25 +28,25 @@ def _rig(flow, tag):
 	"""The full-featured provider each outcome must dismantle."""
 	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", f"provider {tag}", "--origin",
-	               "external-report", "--body", tag, viewer="lang.ada")
+	               "external-report", "--classification", "suspected-defect", "--body", tag, viewer="lang.ada")
 	work, thread = born["work_id"], born["thread"]
 	dependent = flow.ok("create", "--team", "push", "--kind", "bug",
 	                    "--title", f"consumer {tag}", "--origin",
-	                    "external-report", "--body", "waits",
+	                    "external-report", "--classification", "suspected-defect", "--body", "waits",
 	                    viewer="push.sl")["work_id"]
 	flow.ok("block", dependent, "--on", work, viewer="push.sl")
 	gated = flow.ok("create", "--team", "web", "--kind", "bug",
 	                "--title", f"gated {tag}", "--origin",
-	                "external-report", "--body", "two gates",
+	                "external-report", "--classification", "suspected-defect", "--body", "two gates",
 	                viewer="web.wren")["work_id"]
 	extra = flow.ok("create", "--team", "mdb", "--kind", "bug",
 	                "--title", f"extra {tag}", "--origin",
-	                "external-report", "--body", "second gate",
+	                "external-report", "--classification", "suspected-defect", "--body", "second gate",
 	                viewer="mdb.mo")["work_id"]
 	flow.ok("block", gated, "--on", work, viewer="web.wren")
 	flow.ok("block", gated, "--on", extra, viewer="web.wren")
 	flow.ok("say", thread, "--body", "onward", "--on", work,
-	        "--pass-to", "lang.impl", "--set-next", "lang.rsrch",
+	        "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rsrch",
 	        viewer="lang.ada")
 	asked = flow.ok("say", thread, "--body", "push: confirm",
 	                "--request", "push.bug", "--on", work,
@@ -169,11 +169,11 @@ def test_wf10_terminal_outcomes(flow):
 	# independently concluded by its own Current — never a cascade.
 	parent = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "cancellable parent", "--origin",
-	                 "self-initiated", "--body", "p",
+	                 "self-initiated", "--classification", "suspected-defect", "--body", "p",
 	                 viewer="lang.ada")["work_id"]
 	child = flow.ok("create", "--team", "lang", "--kind", "impl",
 	                "--title", "living child", "--origin",
-	                "decomposition", "--body", "c", "--parent", parent,
+	                "decomposition", "--classification", "suspected-defect", "--body", "c", "--parent", parent,
 	                viewer="lang.ada")["work_id"]
 	error = assert_refusal_changes_nothing(
 		flow, "lang.ada", "close", parent, "--rationale", "unwanted",
@@ -289,7 +289,7 @@ def test_wf10_terminal_outcomes(flow):
 	# close that won recorded the Current AS COMMITTED.
 	rig = _rig(flow, "race-pass")
 	events = race(rig, ("say", rig["thread"], "--body", "detour",
-	                    "--on", rig["work"], "--pass-to", "lang.rsrch"),
+	                    "--on", rig["work"], "--pass-to", "lang.rsrch", "--phase", "research"),
 	              "lang.ada")
 	closing = next(event for event in events
 	               if event["kind"] == "close_work" and

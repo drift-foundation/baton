@@ -26,14 +26,14 @@ def test_wf01_straight_through_report(flow):
 	# 1. lang.ada creates the report at lang.rsrch, immutable origin.
 	work = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", "parser drops recovery state",
-	               "--origin", "external-report",
+	               "--origin", "external-report", "--classification", "suspected-defect",
 	               "--body", "reported with a minimal repro",
 	               viewer="lang.ada")["work_id"]
 	checkpoint = flow.ok("detail", work, viewer="lang.ada")
 	assert checkpoint["status"] == "open"
 	assert checkpoint["origin"] == "external-report"
-	assert checkpoint["classification"] == "unknown", \
-		"classification arrived null instead of canonical unknown"
+	assert checkpoint["classification"] == "suspected-defect", \
+		"the submitted concrete classification did not arrive"
 	assert checkpoint["phase"] == "queued"
 	assert checkpoint["current"] == {"endpoint": "lang.rsrch",
 	                                 "route": "intake", "role": "rsrch",
@@ -52,7 +52,7 @@ def test_wf01_straight_through_report(flow):
 
 	# 2. research passes to implementation with planned Next lang.rev.
 	passed = flow.post(work, "--body", "confirmed; implement",
-	                 "--pass-to", "lang.impl", "--set-next", "lang.rev",
+	                 "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
 	                 viewer="lang.ada")
 	assert passed["kind"] == "pass"
 	checkpoint = flow.ok("detail", work, viewer="lang.ada")
@@ -61,30 +61,30 @@ def test_wf01_straight_through_report(flow):
 	assert checkpoint["next"]["endpoint"] == "lang.rev", \
 		"the planned return is not visible while unconsumed"
 	assert checkpoint["origin"] == "external-report"
-	assert checkpoint["phase"] == "research", \
-		"the pass silently rewrote operational phase"
+	assert checkpoint["phase"] == "active", \
+		"the pass did not record its destination phase atomically"
 	# Transition authority FOLLOWED the baton: ada (no longer a Current
-	# handler) is refused; grace moves the work into active.
-	error = flow.refuse("phase", work, "--to", "active", viewer="lang.ada")
+	# handler) is refused; grace CLAIMS the work — the phase-orthogonal
+	# atomic claim, phase already honest from the handoff.
+	error = flow.refuse("phase", work, "--to", "review", viewer="lang.ada")
 	assert "never grant" in error
-	flow.ok("phase", work, "--to", "active", viewer="lang.grace")
+	flow.ok("claim", work, viewer="lang.grace")
 
 	# 3. implementation posts evidence, then passes to the PLANNED review —
 	# which consumes Next and audits as `return`.
 	flow.post(work, "--body", "fix at rev 4f2c; tests attached",
 	        viewer="lang.grace")
 	returned = flow.post(work, "--body", "done, please verify",
-	                   "--pass-to", "lang.rev", viewer="lang.grace")
+	                   "--pass-to", "lang.rev", "--phase", "review", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	checkpoint = flow.ok("detail", work, viewer="lang.grace")
 	assert checkpoint["current"]["endpoint"] == "lang.rev"
 	assert checkpoint["next"] is None, "the consumed Next is still set"
-	assert checkpoint["phase"] == "active", \
-		"the return silently rewrote operational phase"
+	assert checkpoint["phase"] == "review", \
+		"the return did not record its destination phase (and release)"
 
-	# 4. review — including one honest review → active → review REWORK
-	# cycle: ordinary open phases move freely, and every step is audited.
-	flow.ok("phase", work, "--to", "review", viewer="lang.ada")
+	# 4. one honest review → active → review REWORK cycle: ordinary open
+	# phases move freely and never touch the claim.
 	flow.ok("phase", work, "--to", "active", viewer="lang.ada")
 	flow.ok("phase", work, "--to", "review", viewer="lang.ada")
 
@@ -100,19 +100,18 @@ def test_wf01_straight_through_report(flow):
 	events = assert_final_invariants(flow, "lang.ada", [work])
 	assert [event["kind"] for event in events] == \
 		["accept_config", "create_work", "classify", "set_phase", "pass",
-		 "set_phase", "post_message", "return", "set_phase", "set_phase",
-		 "set_phase", "close_work"]
+		 "claim", "post_message", "return", "set_phase", "set_phase",
+		 "close_work"]
 	classified = events[2]
 	assert (classified["payload"]["from"],
-	        classified["payload"]["to"]) == ("unknown", "confirmed-defect")
+	        classified["payload"]["to"]) == ("suspected-defect", "confirmed-defect")
 	assert classified["payload"]["resolution"]["handlers"] == ["ada"]
 	phase_trail = [(event["payload"]["from"], event["payload"]["to"])
 	               for event in events if event["kind"] == "set_phase"]
-	assert phase_trail == [("queued", "research"), ("research", "active"),
-	                       ("active", "review"), ("review", "active"),
+	assert phase_trail == [("queued", "research"), ("review", "active"),
 	                       ("active", "review")]
 	created, handoff = events[1], events[4]
-	consumed, closing = events[7], events[11]
+	consumed, closing = events[7], events[10]
 	assert created["payload"]["resolution"] == {
 		"endpoint": "lang.rsrch", "route": "intake", "role": "rsrch",
 		"handlers": ["ada"], "generation": 1}

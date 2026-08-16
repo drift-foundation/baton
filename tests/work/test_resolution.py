@@ -63,16 +63,16 @@ def test_every_endpoint_establishing_event_carries_a_full_snapshot(world):
 	endpoint-establishing event is bare."""
 	store, _config, _tmp = world
 	work = tr.create_work(store, team="lang", kind="rsrch", title="epic",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="report")["work_id"]
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="fyi", include="*.bug")
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="confirm?", request="web.bug")
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="go", pass_to="lang.impl", set_next="lang.rev")
+	                body="go", pass_to="lang.impl", pass_phase="active", set_next="lang.rev")
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="done", pass_to="lang.rev")
+	                body="done", pass_to="lang.rev", pass_phase="review")
 
 	establishing = [event for event in store.events()
 	                if event["kind"] in ("create_work", "post_message",
@@ -104,7 +104,7 @@ def test_reassignment_changes_the_projection_not_the_history(world):
 	generation 2."""
 	store, config_path, tmp_path = world
 	work = tr.create_work(store, team="lang", kind="rsrch", title="epic",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="report")["work_id"]
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="confirm?", request="web.bug")
@@ -143,7 +143,7 @@ def test_include_expansion_uses_the_generation_at_commit(world, monkeypatch):
 	"""
 	store, config_path, _tmp = world
 	work = tr.create_work(store, team="lang", kind="rsrch", title="epic",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="report")["work_id"]
 	original = tr._expand_include
 
@@ -173,7 +173,7 @@ def test_an_unresolvable_current_is_shown_unresolved_never_bare(world):
 	is historical and the projection must mark it unresolved explicitly."""
 	store, config_path, _tmp = world
 	work = tr.create_work(store, team="web", kind="bug", title="w",
-	                      origin="external-report", author="wren",
+	                      origin="external-report", classification="suspected-defect", author="wren",
 	                      body="b")["work_id"]
 	tr.close_work(store, work, actor_team="web", actor="wren",
 	              rationale="done", outcome="satisfying")
@@ -186,7 +186,7 @@ def test_an_unresolvable_current_is_shown_unresolved_never_bare(world):
 	# A retired kind refuses NEW work at tag time...
 	with pytest.raises(bw.WorkError, match="retired"):
 		tr.create_work(store, team="web", kind="bug", title="late",
-		               origin="external-report", author="wren", body="x")
+		               origin="external-report", classification="suspected-defect", author="wren", body="x")
 	# ...and links to the closed work still render, with current None
 	# (closed clears it) — nothing anywhere is a bare string.
 	graph = pj.links(store, work)

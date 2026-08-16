@@ -67,14 +67,14 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	     viewer="lang.ada")
 
 	born = _run(archive, path, "create", "--team", "web", "--kind", "bug",
-	            "--title", "render crash", "--origin", "external-report",
+	            "--title", "render crash", "--origin", "external-report", "--classification", "suspected-defect",
 	            "--body", "tab dies", viewer="web.wren")["result"]
 	web1, thread = born["work_id"], born["thread"]
 	requested = _run(archive, path, "say", thread, "--body", "yours?",
 	                 "--request", "lang.rsrch", viewer="web.wren")["result"]
 	lang_born = _run(archive, path, "create", "--team", "lang",
 	                 "--kind", "rsrch", "--title", "parser recovery",
-	                 "--origin", "external-report", "--body", "dedup",
+	                 "--origin", "external-report", "--classification", "suspected-defect", "--body", "dedup",
 	                 viewer="lang.ada")["result"]
 	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
 	_run(archive, path, "block", web1, "--on", lang42, viewer="web.wren")
@@ -82,11 +82,11 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	     "--body", "ours, tracked", viewer="lang.ada")
 	passed = _run(archive, path, "say", lang_thread, "--body", "implement",
 	              "--on", lang42,
-	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
+	              "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	returned = _run(archive, path, "say", lang_thread, "--body", "done",
-	                "--pass-to", "lang.rev", viewer="lang.ada")["result"]
+	                "--pass-to", "lang.rev", "--phase", "review", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	_run(archive, path, "close", lang42, "--rationale", "verified", "--outcome", "satisfying",
 	     viewer="lang.ada")
@@ -118,7 +118,7 @@ def test_a_refusal_exits_nonzero_through_the_archive(archive, tmp_path):
 	     viewer="lang.ada")
 	refusal = _run(archive, path, "create", "--team", "lang",
 	               "--kind", "nope", "--title", "x", "--origin",
-	               "external-report", "--body", "x", viewer="lang.ada",
+	               "external-report", "--classification", "suspected-defect", "--body", "x", viewer="lang.ada",
 	               expect_ok=False)
 	assert "not a registered endpoint" in refusal["error"] or \
 		"not a configured endpoint" in refusal["error"]

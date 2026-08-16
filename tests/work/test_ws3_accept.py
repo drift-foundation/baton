@@ -45,7 +45,7 @@ def world(tmp_path):
 
 def _report(store, team="push", member="sl"):
 	work = tr.create_work(store, team=team, kind="bug", title=f"{team} report",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="local report")["work_id"]
 	asked = fx.post(store, work, author_team=team, author=member,
 	                        body="drift: yours?", request="drift.bug")["seq"]
@@ -71,7 +71,7 @@ def test_accept_create_commits_every_half_in_one_ordered_act(world):
 	result = tr.accept_obligation(
 		store, asked, actor_team="drift", actor="ada",
 		body="ours; tracking as a parser regression",
-		create={"kind": "rsrch", "title": "parser recovery"})
+		create={"kind": "rsrch", "classification": "suspected-defect", "title": "parser recovery"})
 	provider = result["provider"]
 	assert result["created"] is True
 
@@ -145,7 +145,7 @@ def test_accept_into_gates_an_existing_provider(world):
 	store, _config = world
 	provider = tr.create_work(store, team="drift", kind="rsrch",
 	                          title="parser recovery",
-	                          origin="external-report", author="ada",
+	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="tracking")["work_id"]
 	push1, asked = _report(store)
 	web1, web_asked = _report(store, team="web", member="wren")
@@ -170,7 +170,7 @@ def test_accept_result_exposes_the_ruled_structured_edge(world):
 	consumer, asked = _report(store)
 	result = tr.accept_obligation(
 		store, asked, actor_team="drift", actor="ada", body="ours",
-		create={"kind": "rsrch", "title": "parser recovery"})
+		create={"kind": "rsrch", "classification": "suspected-defect", "title": "parser recovery"})
 	assert result["edge"] == {
 		"work": consumer,
 		"blocker": result["provider"],
@@ -182,7 +182,7 @@ def test_into_form_refuses_create_only_cli_options(world, capsys):
 	store, config = world
 	provider = tr.create_work(store, team="drift", kind="rsrch",
 	                          title="parser recovery",
-	                          origin="external-report", author="ada",
+	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="tracking")["work_id"]
 	_consumer, asked = _report(store)
 	before = store.events()
@@ -207,7 +207,7 @@ def test_into_form_refuses_every_create_only_cli_option(
 	store, config = world
 	provider = tr.create_work(store, team="drift", kind="rsrch",
 	                          title="parser recovery",
-	                          origin="external-report", author="ada",
+	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="tracking")["work_id"]
 	_consumer, asked = _report(store)
 	before = store.events()
@@ -228,7 +228,7 @@ def test_only_the_live_route_handler_holds_the_grant(world):
 		with pytest.raises(bw.WorkError, match="ownership"):
 			tr.accept_obligation(store, asked, actor_team=team,
 			                     actor=member, body="not mine",
-			                     create={"kind": "rsrch", "title": "t"})
+			                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	# Reassignment moves the grant with the accepted generation.
 	document = _json.loads(open(config_path).read())
 	document["generation"] = 2
@@ -239,10 +239,10 @@ def test_only_the_live_route_handler_holds_the_grant(world):
 	with pytest.raises(bw.WorkError, match="ownership"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="no longer the handler",
-		                     create={"kind": "rsrch", "title": "t"})
+		                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	result = tr.accept_obligation(store, asked, actor_team="drift",
 	                              actor="grace", body="mine now",
-	                              create={"kind": "rsrch", "title": "t"})
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	accept = next(event for event in store.events()
 	              if event["kind"] == "accept")
 	assert accept["payload"]["authorization"]["generation"] == 2
@@ -254,13 +254,13 @@ def test_into_requires_the_obligations_own_team_and_open_work(world):
 	store, _config = world
 	push1, asked = _report(store)
 	foreign = tr.create_work(store, team="web", kind="bug", title="w",
-	                         origin="external-report", author="wren",
+	                         origin="external-report", classification="suspected-defect", author="wren",
 	                         body="b")["work_id"]
 	with pytest.raises(bw.WorkError, match="addressed to"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="wrong team", into=foreign)
 	closed = tr.create_work(store, team="drift", kind="rsrch", title="c",
-	                        origin="external-report", author="ada",
+	                        origin="external-report", classification="suspected-defect", author="ada",
 	                        body="b")["work_id"]
 	tr.close_work(store, closed, actor_team="drift", actor="ada",
 	              rationale="done", outcome="satisfying")
@@ -272,7 +272,7 @@ def test_into_requires_the_obligations_own_team_and_open_work(world):
 def test_create_with_parent_needs_the_separate_parent_gate(world):
 	store, _config = world
 	epic = tr.create_work(store, team="drift", kind="rsrch", title="epic",
-	                      origin="self-initiated", author="ada",
+	                      origin="self-initiated", classification="suspected-defect", author="ada",
 	                      body="the umbrella")["work_id"]
 	push1, asked = _report(store)
 	# grace holds the route after a gen-2 swap of the PARENT's current
@@ -281,12 +281,12 @@ def test_create_with_parent_needs_the_separate_parent_gate(world):
 	# separate-gate case: make ada the obligation handler but NOT the
 	# parent handler by passing the parent's Current away.
 	fx.post(store, epic, author_team="drift", author="ada",
-	                body="park with grace's build", pass_to="drift.bug")
+	                body="park with grace's build", pass_to="drift.bug", pass_phase="queued")
 	# drift.bug routes main -> handlers [ada]; both gates still ada, so
 	# acceptance under a parent succeeds and records BOTH authorities.
 	result = tr.accept_obligation(
 		store, asked, actor_team="drift", actor="ada", body="child of epic",
-		create={"kind": "rsrch", "title": "step", "parent": epic})
+		create={"kind": "rsrch", "classification": "suspected-defect", "title": "step", "parent": epic})
 	accept = next(event for event in store.events()
 	              if event["kind"] == "accept")
 	assert accept["payload"]["parent_authorization"]["endpoint"] == \
@@ -305,7 +305,7 @@ def test_accept_wakes_the_exact_obligation_waiter_but_not_ready(world):
 	             phase="waiting", wait=asked)
 	result = tr.accept_obligation(store, asked, actor_team="drift",
 	                              actor="ada", body="ours",
-	                              create={"kind": "rsrch", "title": "t"})
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	row = store.conn.execute(
 		"SELECT phase, ready, wait_obligation FROM work WHERE id=?",
 		(push1,)).fetchone()
@@ -322,7 +322,7 @@ def test_accept_never_wakes_a_gates_waiter(world):
 	store, _config = world
 	push1, asked = _report(store)
 	other_gate = tr.create_work(store, team="web", kind="bug", title="g",
-	                            origin="external-report", author="wren",
+	                            origin="external-report", classification="suspected-defect", author="wren",
 	                            body="b")["work_id"]
 	tr.add_dependency(store, push1, other_gate, actor_team="push",
 	                  actor="sl")
@@ -330,6 +330,7 @@ def test_accept_never_wakes_a_gates_waiter(world):
 	             phase="waiting", wait="gates")
 	tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 	                     body="ours", create={"kind": "rsrch",
+	                                          "classification": "suspected-defect",
 	                                          "title": "t"})
 	row = store.conn.execute("SELECT phase FROM work WHERE id=?",
 	                         (push1,)).fetchone()
@@ -346,16 +347,16 @@ def test_acceptance_refusals_commit_nothing(world):
 	push1, asked = _report(store)
 	baseline = store.events()
 	cases = [
-		dict(body="", create={"kind": "rsrch", "title": "t"}),
+		dict(body="", create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"}),
 		dict(body="b"),
-		dict(body="b", into="x", create={"kind": "rsrch", "title": "t"}),
-		dict(body="b", create={"kind": "nope", "title": "t"}),
-		dict(body="b", create={"kind": "rsrch", "title": " "}),
-		dict(body="b", create={"kind": "rsrch", "title": "t",
+		dict(body="b", into="x", create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"}),
+		dict(body="b", create={"kind": "nope", "classification": "suspected-defect", "title": "t"}),
+		dict(body="b", create={"kind": "rsrch", "classification": "suspected-defect", "title": " "}),
+		dict(body="b", create={"kind": "rsrch", "classification": "suspected-defect", "title": "t",
 		                       "phase": "parked"}),
 		dict(body="b", create={"kind": "rsrch", "title": "t",
 		                       "classification": ""}),
-		dict(body="b", create={"kind": "rsrch", "title": "t",
+		dict(body="b", create={"kind": "rsrch", "classification": "suspected-defect", "title": "t",
 		                       "phase": ""}),
 		dict(body="b", into="none-W9"),
 	]
@@ -366,7 +367,7 @@ def test_acceptance_refusals_commit_nothing(world):
 	assert store.events() == baseline, "a refused acceptance left effects"
 	# Verification assignments are not acceptable.
 	provider = tr.create_work(store, team="drift", kind="rsrch", title="p",
-	                          origin="external-report", author="ada",
+	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="b")["work_id"]
 	created = tr.create_round(store, provider, actor_team="drift",
 	                          actor="ada", candidate="c",
@@ -384,11 +385,11 @@ def test_the_double_accept_race_creates_no_orphan(world):
 	_interleave(store, lambda: tr.accept_obligation(
 		other, asked, actor_team="drift", actor="ada",
 		body="the first session's acceptance",
-		create={"kind": "rsrch", "title": "first"}))
+		create={"kind": "rsrch", "classification": "suspected-defect", "title": "first"}))
 	with pytest.raises(bw.WorkError, match="already accepted"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="the second session's acceptance",
-		                     create={"kind": "rsrch", "title": "second"})
+		                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "second"})
 	works = [row["id"] for row in store.conn.execute(
 		"SELECT id FROM work WHERE team='drift'")]
 	assert len(works) == 1, "the losing accept left an orphan provider"
@@ -407,6 +408,7 @@ def test_the_accept_versus_consumer_close_race_serializes(world):
 	with pytest.raises(bw.WorkError, match="already withdrawn"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="racing", create={"kind": "rsrch",
+		                                           "classification": "suspected-defect",
 		                                           "title": "t"})
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM work WHERE team='drift'").fetchone(
@@ -417,7 +419,7 @@ def test_the_accept_versus_consumer_close_race_serializes(world):
 def test_the_accept_versus_provider_close_race_serializes(world):
 	store, _config = world
 	provider = tr.create_work(store, team="drift", kind="rsrch", title="p",
-	                          origin="external-report", author="ada",
+	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="b")["work_id"]
 	push1, asked = _report(store)
 	other = bw.Authority(store.path)
@@ -440,7 +442,7 @@ def test_accept_first_then_dispose_and_retry_refuse(world):
 	other = bw.Authority(store.path)
 	_interleave(store, lambda: tr.accept_obligation(
 		other, asked, actor_team="drift", actor="ada", body="accepted",
-		create={"kind": "rsrch", "title": "t"}))
+		create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"}))
 	with pytest.raises(bw.WorkError, match="already accepted"):
 		tr.dispose_obligation(store, asked, team="drift", member="ada",
 		                      disposition="racing dispose")
@@ -449,6 +451,7 @@ def test_accept_first_then_dispose_and_retry_refuse(world):
 	with pytest.raises(bw.WorkError, match="already accepted"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="accepted", create={"kind": "rsrch",
+		                                              "classification": "suspected-defect",
 		                                              "title": "t"})
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM edges").fetchone()["n"] == 1
@@ -490,7 +493,7 @@ def test_the_atomic_accept_rolls_back_whole_at_every_boundary(world):
 		try:
 			tr.accept_obligation(store, asked, actor_team="drift",
 			                     actor="ada", body="atomic",
-			                     create={"kind": "rsrch", "title": "t"})
+			                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 			store.conn = real_conn
 			break
 		except Exception as failure:
@@ -523,7 +526,7 @@ def test_restart_reconstructs_the_acceptance(world):
 	push1, asked = _report(store)
 	result = tr.accept_obligation(store, asked, actor_team="drift",
 	                              actor="ada", body="ours",
-	                              create={"kind": "rsrch", "title": "t"})
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	fresh = bw.Authority(store.path)
 	links = pj.links(fresh, push1)
 	assert links["blocked_by"][0]["id"] == result["provider"]
@@ -555,7 +558,7 @@ def test_the_new_relations_are_schema_bound(world):
 	store.conn.execute("ROLLBACK")
 	# An ordinary block stays provenance-free; respond leaves no provider.
 	other_gate = tr.create_work(store, team="web", kind="bug", title="g",
-	                            origin="external-report", author="wren",
+	                            origin="external-report", classification="suspected-defect", author="wren",
 	                            body="b")["work_id"]
 	tr.add_dependency(store, push1, other_gate, actor_team="push",
 	                  actor="sl")
@@ -579,7 +582,7 @@ def test_accept_first_then_consumer_close_both_commit(world):
 	push1, asked = _report(store)
 	result = tr.accept_obligation(store, asked, actor_team="drift",
 	                              actor="ada", body="ours",
-	                              create={"kind": "rsrch", "title": "t"})
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	tr.close_work(store, push1, actor_team="push", actor="sl",
 	              rationale="resolved locally anyway",
 	              outcome="non-satisfying")
@@ -598,7 +601,7 @@ def test_accept_first_then_provider_close_fans_out(world):
 	push1, asked = _report(store)
 	result = tr.accept_obligation(store, asked, actor_team="drift",
 	                              actor="ada", body="ours",
-	                              create={"kind": "rsrch", "title": "t"})
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	tr.close_work(store, result["provider"], actor_team="drift",
 	              actor="ada", rationale="fixed", outcome="satisfying")
 	row = store.conn.execute("SELECT ready FROM work WHERE id=?",
@@ -616,7 +619,7 @@ def test_dispose_first_makes_the_accept_refuse(world):
 	with pytest.raises(bw.WorkError, match="already disposed"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="racing accept",
-		                     create={"kind": "rsrch", "title": "t"})
+		                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM work WHERE team='drift'").fetchone(
 		)["n"] == 0, "the losing accept left an orphan"
@@ -641,7 +644,7 @@ def test_a_config_change_landing_mid_accept_decides_in_the_lock(world):
 	with pytest.raises(bw.WorkError, match="ownership"):
 		tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 		                     body="stale authority",
-		                     create={"kind": "rsrch", "title": "t"})
+		                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM work WHERE team='drift'").fetchone(
 		)["n"] == 0
@@ -652,7 +655,7 @@ def test_accept_first_then_config_change_keeps_the_snapshot(world):
 	push1, asked = _report(store)
 	tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 	                     body="under generation 1",
-	                     create={"kind": "rsrch", "title": "t"})
+	                     create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	document = _json.loads(open(config_path).read())
 	document["generation"] = 2
 	document["teams"]["drift"]["routes"]["main"]["handlers"] = ["grace"]
@@ -669,7 +672,7 @@ def test_accept_first_then_config_change_keeps_the_snapshot(world):
 def test_concurrent_accepts_of_different_obligations_both_commit(world):
 	store, _config = world
 	provider = tr.create_work(store, team="drift", kind="rsrch", title="p",
-	                          origin="external-report", author="ada",
+	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="b")["work_id"]
 	push1, push_asked = _report(store)
 	web1, web_asked = _report(store, team="web", member="wren")
@@ -693,7 +696,7 @@ def test_concurrent_accepts_of_different_obligations_both_commit(world):
 def test_the_into_form_rolls_back_whole_at_every_boundary(world):
 	store, _config = world
 	provider = tr.create_work(store, team="drift", kind="rsrch", title="p",
-	                          origin="external-report", author="ada",
+	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="b")["work_id"]
 	push1, asked = _report(store)
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
@@ -750,7 +753,7 @@ def test_restart_reconstructs_the_accepted_state_publicly(world):
 	push1, asked = _report(store)
 	result = tr.accept_obligation(store, asked, actor_team="drift",
 	                              actor="ada", body="ours",
-	                              create={"kind": "rsrch", "title": "t"})
+	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	fresh = bw.Authority(store.path)
 	detail = pj.detail(fresh, push1, viewer_team="push",
 	                   viewer_member="sl")
@@ -760,3 +763,33 @@ def test_restart_reconstructs_the_accepted_state_publicly(world):
 	assert entry["accepted_into"] == result["provider"]
 	assert detail["links"]["blocked_by"][0]["via_obligation"] == asked
 	fresh.close()
+
+
+def test_accept_create_refuses_omitted_and_unknown_classification(world):
+	"""finding-active-work-claim (review 2026-08-16T09-27-05Z): the
+	acceptance-creation path independently requires the submitter's
+	concrete classification. Omission and explicit 'unknown' each refuse,
+	and the refusal commits NOTHING — the obligation stays pending, no
+	event, no provider Work, no edge, no message."""
+	store, _config = world
+	_push1, asked = _report(store)
+
+	def snapshot():
+		count = lambda table: store.conn.execute(
+			f"SELECT COUNT(*) AS n FROM {table}").fetchone()["n"]
+		pending = store.conn.execute(
+			"SELECT status FROM obligations WHERE seq=?",
+			(asked,)).fetchone()["status"]
+		return (store.last_seq(), pending, count("work"), count("edges"),
+		        count("messages"))
+
+	before = snapshot()
+	for create in ({"kind": "rsrch", "title": "t"},
+	               {"kind": "rsrch", "title": "t",
+	                "classification": "unknown"}):
+		with pytest.raises(bw.WorkError, match="concrete classification"):
+			tr.accept_obligation(store, asked, actor_team="drift",
+			                     actor="ada", body="ours", create=create)
+		assert snapshot() == before, \
+			f"a refused acceptance ({create}) left effects"
+	assert before[1] == "pending", "the obligation moved"

@@ -45,6 +45,24 @@ the document passes. A refusal leaves nothing behind.
     $BW --config ~/your-home/baton.json --participant team.member home
     $BW --config ~/your-home/baton.json --participant team.member tui
 
+The active claim is its own authority state, orthogonal to phase: `claim
+WORK` records WHO is executing without touching WHAT stage the phase
+names. One eligible handler of the live Current endpoint acquires open,
+ready, non-waiting/non-parked Work — every condition rechecked inside the
+write transaction, so an earlier `ready` observation is advisory and a
+competing claim fails closed naming the recorded claimant. No execution
+begins before the claim succeeds. A pass atomically records the
+destination Current AND the destination phase (`say ... --pass-to X
+--phase review`, or derived from the destination route's stage role),
+releases the sender's claim, and never claims for the recipient; entering
+waiting/parked and terminal close also release. Blocked Work keeps its
+honest stage phase but cannot be claimed. An abandoned or yielded claim
+is recovered with `release WORK --expect team.member --reason TEXT` —
+live Current-handler authority, an exact compare-and-swap against the
+recorded claimant, and a durable reason; it clears only the claimant.
+The projection carries `active` (JSON) and the detail facts name the
+claimant.
+
 The console renders the same canonical projection the JSON surface
 serves. It refreshes automatically on a timer — default every 2
 seconds, configurable with `tui --refresh SECONDS` (positive) — and

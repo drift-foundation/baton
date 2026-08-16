@@ -67,7 +67,7 @@ PATH = "work/records/2026/08/finding-portable"
 
 def _create(store, team="lang", member="ada", **kw):
 	return tr.create_work(store, team=team, kind="bug", title="w",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="born speaking", **kw)
 
 
@@ -185,7 +185,7 @@ def test_binding_authority_is_current_only_with_cas(world):
 		             expected_revision=1, rationale="  ")
 	# Transfer moves the authority; the new handler corrects under CAS.
 	fx.post(store, work, author_team="lang", author="ada",
-	        body="over to push", pass_to="push.bug")
+	        body="over to push", pass_to="push.bug", pass_phase="queued")
 	with pytest.raises(bw.WorkError, match="never grant"):
 		tr.bind_work(store, work, actor_team="lang", actor="ada",
 		             root="drift", path="work/records/2026/08/f2",
@@ -351,7 +351,7 @@ def test_compound_placement_is_explicit(world):
 	                           request="lang.bug")["seq"]
 	result = tr.accept_obligation(
 		store, asked, actor_team="lang", actor="ada", body="ours",
-		create={"kind": "rsrch", "title": "t"},
+		create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"},
 		refs=["pushcoin:docs/decision.md"],
 		answer_refs=[f"{consumer['work_id']}:report/summary.md"])
 	on_accept = store.conn.execute(

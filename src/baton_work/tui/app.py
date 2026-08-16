@@ -36,8 +36,11 @@ from baton_work import transitions
 COLUMNS = (("ST", 6), ("PHASE", 5), ("CLS", 5), ("MSG/MY", 7),
            ("READY", 5), ("CURRENT", 13), ("NEXT", 13), ("NEW", 4))
 
-# Header LABELS where plain capitalize() would miscase a compound name.
-HEADER_LABELS = {"MSG/MY": "Msg/My"}
+# Header LABELS where plain capitalize() would miscase a compound name —
+# plus the ruled `Cat` display label for the classification column
+# (finding-tui-category-header): presentation only, the canonical value,
+# JSON field, and compact vocabulary stay `classification`/`defct`-style.
+HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat"}
 
 # Responsive omission (prototype-grade presentation under the ruling): at
 # narrow widths whole low-priority columns are OMITTED, never squeezed into
@@ -580,6 +583,11 @@ class Console:
 		if detail["status"] == "closed":
 			facts.append(f"closed {detail['outcome']} — "
 			             f"{detail['rationale']}")
+		# finding-active-work-claim: WHO is executing is a canonical
+		# authority value, never inferred from route membership.
+		if detail.get("active") is not None:
+			facts.append(f"active: {detail['active']['team']}."
+			             f"{detail['active']['member']}")
 		binding = detail.get("binding")
 		if binding is not None:
 			facts.append(f"binding {binding['root']}:{binding['path']} "

@@ -38,7 +38,7 @@ def world(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	epic = tr.create_work(store, team="lang", kind="bug",
-	                      title="drill target", origin="external-report",
+	                      title="drill target", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="opener")
 	store.close()
 	return config_path, epic

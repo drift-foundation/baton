@@ -93,7 +93,7 @@ def test_wf15_onboarding_from_an_empty_directory(flow, tmp_path):
 	# through the public surface.
 	work = flow.ok("create", "--team", "push", "--kind", "bug",
 	               "--title", "first report", "--origin",
-	               "external-report", "--body", "onboarded",
+	               "external-report", "--classification", "suspected-defect", "--body", "onboarded",
 	               viewer="push.sl")["work_id"]
 	flow.post(work, "--body", "triaging now", viewer="push.sl")
 	thread = flow.ok("thread", flow.born(work, "push.sl"),

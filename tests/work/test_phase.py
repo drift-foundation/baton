@@ -40,6 +40,7 @@ def world(tmp_path):
 
 
 def _create(store, team="lang", member="ada", **kw):
+	kw.setdefault("classification", "suspected-defect")
 	return tr.create_work(store, team=team, kind="bug", title="w",
 	                      origin="external-report", author=member,
 	                      body="b", **kw)["work_id"]
@@ -56,7 +57,8 @@ def test_creation_defaults_and_explicit_initial_phase(world):
 	store, _config = world
 	work = _create(store)
 	row = _row(store, work)
-	assert row["classification"] == "unknown", "classification is never null"
+	assert row["classification"] == "suspected-defect", \
+		"the submitted classification is stored verbatim"
 	assert row["phase"] == "queued"
 	chosen = _create(store, phase="research",
 	                 classification="suspected-defect")
@@ -140,7 +142,7 @@ def test_every_canonical_value_round_trips_and_rework_cycles(world):
 	for event in events:
 		assert event["payload"]["resolution"]["handlers"] == ["ada"], \
 			"a phase change audited without its authorization snapshot"
-	for value in ("suspected-defect", "confirmed-defect", "limitation",
+	for value in ("confirmed-defect", "limitation",
 	              "duplicate", "design-choice", "rejection", "unknown"):
 		tr.classify(store, work, actor_team="lang", actor="ada",
 		            classification=value)
@@ -149,15 +151,19 @@ def test_every_canonical_value_round_trips_and_rework_cycles(world):
 	assert audited[-1] == "unknown", "unknown is an ordinary value"
 
 
-def test_a_pass_never_changes_phase_and_closed_refuses(world):
+def test_a_pass_records_the_destination_phase_and_closed_refuses(world):
+	# finding-active-work-claim ("Current and phase move together"): the
+	# pass atomically records the destination phase — here the explicit
+	# review handoff — and never carries the sender's phase.
 	store, _config = world
 	work = _create(store)
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="active")
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="over to review", pass_to="lang.rev")
-	assert _row(store, work)["phase"] == "active", \
-		"a pass silently rewrote phase"
+	                body="over to review", pass_to="lang.rev", pass_phase="review")
+	row = _row(store, work)
+	assert row["phase"] == "review", \
+		"the pass did not record its stated destination phase"
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="refuses phase"):
@@ -176,7 +182,7 @@ def test_gates_waiting_wakes_only_at_the_last_gate(world):
 	blocker = _create(store, team="push", member="sl")
 	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
 	inner = tr.create_work(store, team="lang", kind="bug", title="c",
-	                       origin="decomposition", author="ada", body="b",
+	                       origin="decomposition", classification="suspected-defect", author="ada", body="b",
 	                       parent=work)["work_id"]
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="waiting", wait="gates")
@@ -384,7 +390,7 @@ def test_at_input_never_grants_pass_or_close_authority(world):
 		with pytest.raises(bw.WorkError, match="never grant|Current"):
 			if operation == "pass":
 				fx.post(store, work, author_team="push", author="sl",
-				                body="taking it", pass_to="push.bug")
+				                body="taking it", pass_to="push.bug", pass_phase="queued")
 			else:
 				tr.close_work(store, work, actor_team="push", actor="sl",
 				              rationale="not mine to close", outcome="satisfying")
@@ -403,7 +409,7 @@ def test_detail_declares_handler_phase_and_classification_authority(world):
 	assert not {"classify", "set_phase"} & \
 		set(not_owned["available_transitions"])
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="delegated", pass_to="push.bug")
+	                body="delegated", pass_to="push.bug", pass_phase="queued")
 	former = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
 	delegated = pj.detail(store, work, viewer_team="push", viewer_member="sl")
 	assert not {"classify", "set_phase"} & \
@@ -435,7 +441,7 @@ def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 	# gate: authoring for another team refuses first).
 	with pytest.raises(bw.WorkError, match="never grant"):
 		tr.create_work(store, team="lang", kind="bug", title="child",
-		               origin="decomposition", author="grace", body="b",
+		               origin="decomposition", classification="suspected-defect", author="grace", body="b",
 		               parent=work)
 	# The handler does all of it.
 	fx.post(store, work, author_team="lang", author="ada",
@@ -443,7 +449,7 @@ def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 	tr.add_dependency(store, work, _create(store, team="push", member="sl"),
 	                  actor_team="lang", actor="ada")
 	child = tr.create_work(store, team="lang", kind="bug", title="child",
-	                       origin="decomposition", author="ada", body="b",
+	                       origin="decomposition", classification="suspected-defect", author="ada", body="b",
 	                       parent=work)["work_id"]
 	tr.close_work(store, child, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")

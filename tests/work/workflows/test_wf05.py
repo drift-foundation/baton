@@ -30,7 +30,7 @@ def test_wf05_three_consumers_converge(flow):
 			("web", "wren", "render crash"),
 			("mdb", "mo", "driver hang")):
 		born = flow.ok("create", "--team", team, "--kind", "bug",
-		               "--title", title, "--origin", "external-report",
+		               "--title", title, "--origin", "external-report", "--classification", "suspected-defect",
 		               "--body", f"local report: {title}",
 		               viewer=f"{team}.{member}")
 		work, thread = born["work_id"], born["thread"]
@@ -48,7 +48,7 @@ def test_wf05_three_consumers_converge(flow):
 	# label (audited added|existing).
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery drops state",
-	                 "--origin", "external-report",
+	                 "--origin", "external-report", "--classification", "suspected-defect",
 	                 "--body", "three converged reports",
 	                 viewer="lang.ada")["work_id"]
 	for obligation in flow.ok("obligations", viewer="lang.ada"):
@@ -93,7 +93,7 @@ def test_wf05_three_consumers_converge(flow):
 	# 4. MariaDB also waits on an unrelated local blocker.
 	build7 = flow.ok("create", "--team", "mdb", "--kind", "build",
 	                 "--title", "CI image rebuild", "--origin",
-	                 "self-initiated", "--body", "blocks the driver fix",
+	                 "self-initiated", "--classification", "suspected-defect", "--body", "blocks the driver fix",
 	                 viewer="mdb.mo")["work_id"]
 	flow.ok("block", consumers["mdb"], "--on", build7, viewer="mdb.mo")
 

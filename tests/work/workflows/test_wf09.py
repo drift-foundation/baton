@@ -49,13 +49,13 @@ def test_wf09_restart_and_races(flow):
 
 	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
 	                "--title", "checkout fails", "--origin",
-	                "external-report", "--body", "500 at checkout",
+	                "external-report", "--classification", "suspected-defect", "--body", "500 at checkout",
 	                viewer="push.sl")["work_id"]
 	asked = flow.post(push1, "--body", "lang: yours?",
 	                "--request", "lang.bug", viewer="push.sl")
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "accepted",
+	                 "external-report", "--classification", "suspected-defect", "--body", "accepted",
 	                 viewer="lang.ada")["work_id"]
 	flow.ok("block", push1, "--on", lang42, viewer="push.sl")
 
@@ -80,7 +80,7 @@ def test_wf09_restart_and_races(flow):
 	lang_thread = flow.born(lang42, "lang.ada")
 	procs = [flow.spawn("say", lang_thread, "--body", "handing to build",
 	                    "--on", lang42,
-	                    "--pass-to", "lang.impl", viewer="lang.ada"),
+	                    "--pass-to", "lang.impl", "--phase", "active", viewer="lang.ada"),
 	         flow.spawn("close", lang42, "--rationale",
 	                    "fixed and verified", "--outcome", "satisfying", viewer="lang.ada")]
 	winners, losers = _outcomes(flow, procs)

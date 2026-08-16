@@ -107,7 +107,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# 1. ada CREATES the provider epic through the console command bar.
 	screens = _console(executable, path, "lang.ada", [
 		'create --team lang --kind bug --title "parser recovery" '
-		'--origin external-report --body "crash reported"'])
+		'--origin external-report --classification suspected-defect --body "crash reported"'])
 	assert any("ok work_id=" in line
 	           for screen in screens for line in screen), \
 		"the command bar did not report the created work"
@@ -118,7 +118,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# consumer is not ready while the provider is open.
 	_console(executable, path, "push.sl", [
 		'create --team push --kind bug --title "checkout fails" '
-		'--origin external-report --body "500 at checkout"'])
+		'--origin external-report --classification suspected-defect --body "500 at checkout"'])
 	consumer = _json_read(executable, path, "home",
 	                      viewer="push.sl")["rows"][0]["id"]
 	_console(executable, path, "push.sl",
@@ -153,14 +153,14 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# (pass, no new next).
 	_console(executable, path, "lang.ada", [
 		f'say {born} --body "handing over" --on {epic} '
-		f'--pass-to push.bug --set-next lang.bug'])
+		f'--pass-to push.bug --phase queued --set-next lang.bug'])
 	detail = _json_read(executable, path, "detail", epic,
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "push.bug"
 	assert detail["next"]["endpoint"] == "lang.bug"
 	_console(executable, path, "push.sl", [
 		f'say {born} --body "returning with results" --on {epic} '
-		f'--pass-to lang.bug'])
+		f'--pass-to lang.bug --phase queued'])
 	detail = _json_read(executable, path, "detail", epic,
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "lang.bug", \

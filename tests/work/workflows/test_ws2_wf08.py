@@ -45,7 +45,7 @@ def test_ws2_wf08_abandon_without_closing(flow):
 	# 1. One reported and two pending assignments.
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "candidate testing",
+	                 "external-report", "--classification", "suspected-defect", "--body", "candidate testing",
 	                 viewer="lang.ada")["work_id"]
 	created = flow.ok("round", lang42, "--candidate", "driftc-A",
 	                  "--assign", "push.verify", "--assign", "web.verify",

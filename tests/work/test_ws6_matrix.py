@@ -56,7 +56,7 @@ def world(tmp_path):
 
 def _create(store, team="lang", member="ada", **kw):
 	return tr.create_work(store, team=team, kind="bug", title="w",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="born speaking", **kw)
 
 
@@ -349,7 +349,7 @@ def test_binding_races_in_both_orders(world):
 	raced = _create(store)["work_id"]
 	_interleave(store, lambda: tr.post_thread(
 		store, fx.born(store, raced), author_team="lang", author="ada",
-		body="handing over", pass_to="push.bug", on=raced))
+		body="handing over", pass_to="push.bug", pass_phase="queued", on=raced))
 	with pytest.raises(bw.WorkError, match="never grant"):
 		tr.bind_work(store, raced, actor_team="lang", actor="ada",
 		             root="pushcoin", path=PATH, expected_revision=0,
@@ -359,7 +359,7 @@ def test_binding_races_in_both_orders(world):
 	             root="pushcoin", path=PATH, expected_revision=0,
 	             rationale="bound before the transfer")
 	fx.post(store, ordered, author_team="lang", author="ada",
-	        body="now handing over", pass_to="push.bug")
+	        body="now handing over", pass_to="push.bug", pass_phase="queued")
 	assert pj.detail(store, ordered, viewer_team="push",
 	                 viewer_member="sl")["binding"]["revision"] == 1
 

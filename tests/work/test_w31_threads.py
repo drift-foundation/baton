@@ -35,7 +35,7 @@ def world(tmp_path):
 
 def _work(store, title="tracked activity"):
 	return tr.create_work(store, team="lang", kind="bug", title=title,
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="seed")
 
 

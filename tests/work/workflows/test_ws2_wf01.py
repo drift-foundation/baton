@@ -23,11 +23,11 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	# 1. Push owns PUSH-1, waiting on provider Work LANG-42.
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "provider",
+	                 "external-report", "--classification", "suspected-defect", "--body", "provider",
 	                 viewer="lang.ada")["work_id"]
 	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
 	                "--title", "checkout fails", "--origin",
-	                "external-report", "--body", "blocked",
+	                "external-report", "--classification", "suspected-defect", "--body", "blocked",
 	                viewer="push.sl")["work_id"]
 	flow.ok("block", push1, "--on", lang42, viewer="push.sl")
 	flow.ok("phase", push1, "--to", "waiting", "--wait-on-gates",

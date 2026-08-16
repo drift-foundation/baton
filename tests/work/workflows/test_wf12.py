@@ -27,7 +27,7 @@ def test_wf12_effectively_once_retry(flow):
 
 	born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", "retry provider", "--origin",
-	               "external-report", "--body", "root",
+	               "external-report", "--classification", "suspected-defect", "--body", "root",
 	               viewer="lang.ada")
 	work, thread = born["work_id"], born["thread"]
 	assert born["operation"] is None, \
@@ -100,7 +100,7 @@ def test_wf12_effectively_once_retry(flow):
 	# with an id, reassign handlers by regen, close; the committed pass
 	# STILL replays; a fresh identical request under a new id refuses.
 	passed = flow.ok("--op-id", "pass-1", "say", thread, "--body",
-	                 "onward", "--on", work, "--pass-to", "lang.impl",
+	                 "onward", "--on", work, "--pass-to", "lang.impl", "--phase", "active",
 	                 viewer="lang.ada")
 	config = document(verification_teams())
 	config["generation"] = 2
@@ -118,20 +118,20 @@ def test_wf12_effectively_once_retry(flow):
 	assert closed["operation"]["state"] == "committed"
 	replayed_pass = flow.ok("--op-id", "pass-1", "say", thread,
 	                        "--body", "onward", "--on", work,
-	                        "--pass-to", "lang.impl", viewer="lang.ada")
+	                        "--pass-to", "lang.impl", "--phase", "active", viewer="lang.ada")
 	assert replayed_pass["operation"]["state"] == "replayed"
 	assert replayed_pass["seq"] == passed["seq"], \
 		"the committed pass stopped replaying after regen and close"
 	error = assert_refusal_changes_nothing(
 		flow, "lang.grace", "--op-id", "pass-2", "say", thread,
-		"--body", "onward", "--on", work, "--pass-to", "lang.impl")
+		"--body", "onward", "--on", work, "--pass-to", "lang.impl", "--phase", "active")
 	assert "closed work refuses carrying" in error or "has 0" in error
 
 	# 7. A protected successful no-op consumes its id without an event
 	# and replays verbatim after the cursor advances.
 	side = flow.ok("create", "--team", "push", "--kind", "bug",
 	               "--title", "push local", "--origin",
-	               "self-initiated", "--body", "local",
+	               "self-initiated", "--classification", "suspected-defect", "--body", "local",
 	               viewer="push.sl")
 	top = flow.ok("thread", side["thread"],
 	              viewer="push.sl")["last_seq"]
@@ -161,11 +161,11 @@ def test_wf12_effectively_once_retry(flow):
 	# 8. Every mutation family: one exact retry each — the second call
 	# replays the first's committed seq.
 	fam = flow.ok("create", "--team", "push", "--kind", "bug",
-	              "--title", "family", "--origin", "self-initiated",
+	              "--title", "family", "--origin", "self-initiated", "--classification", "suspected-defect",
 	              "--body", "family", viewer="push.sl")
 	for label, argv, viewer in (
 			("create", ("create", "--team", "push", "--kind", "bug",
-			            "--title", "twin", "--origin", "self-initiated",
+			            "--title", "twin", "--origin", "self-initiated", "--classification", "suspected-defect",
 			            "--body", "twin"), "push.sl"),
 			("discuss", ("start-thread", "--subject", "trial subject", "--body", "ctx", "--label",
 			             fam["work_id"]), "push.sl"),

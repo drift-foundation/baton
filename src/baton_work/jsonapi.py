@@ -15,7 +15,10 @@ from __future__ import annotations
 
 from baton_work.authority import Authority, WorkError
 
-PROJECTION_VERSION = "4.0"
+# 4.1 (schema 15): rows additively gain canonical `priority`,
+# `last_changed_at`, and `last_change_seq`. Same major: nothing moved
+# or changed meaning.
+PROJECTION_VERSION = "4.1"
 
 
 def require_version(requested: str | None) -> None:

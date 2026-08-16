@@ -44,7 +44,7 @@ def world(tmp_path):
 	result = lc.init_from_config(config_path, participant="lang.ada")
 	store = bw.Authority(result["database"])
 	first = tr.create_work(store, team="lang", kind="bug",
-	                       title="already here", origin="external-report",
+	                       title="already here", origin="external-report", classification="suspected-defect",
 	                       author="ada", body="first opener")
 	store.close()
 	return {"config": config_path, "database": result["database"],
@@ -105,7 +105,7 @@ def test_the_timer_is_the_one_background_trigger(world, tmp_path):
 		other = bw.Authority(world["database"])
 		created = tr.create_work(other, team="lang", kind="bug",
 		                         title="appeared externally",
-		                         origin="external-report", author="ada",
+		                         origin="external-report", classification="suspected-defect", author="ada",
 		                         body="surprise")
 		other.close()
 
@@ -145,10 +145,10 @@ def test_a_refresh_is_read_only_and_selection_is_id_stable(world):
 	store = bw.Authority(world["database"])
 	middle = tr.create_work(store, team="lang", kind="bug",
 	                        title="middle target",
-	                        origin="external-report", author="ada",
+	                        origin="external-report", classification="suspected-defect", author="ada",
 	                        body="the anchor")
 	tr.create_work(store, team="lang", kind="bug", title="tail row",
-	               origin="external-report", author="ada", body="last")
+	               origin="external-report", classification="suspected-defect", author="ada", body="last")
 	before_new = pj.new_count(store, middle["work_id"],
 	                          viewer_team="lang",
 	                          viewer_member="grace")["total"]
@@ -225,7 +225,7 @@ def test_continuous_input_cannot_postpone_the_refresh(world):
 	def external():
 		other = bw.Authority(world["database"])
 		tr.create_work(other, team="lang", kind="bug",
-		               title="on schedule", origin="external-report",
+		               title="on schedule", origin="external-report", classification="suspected-defect",
 		               author="ada", body="appeared while typing")
 		other.close()
 
@@ -289,7 +289,7 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 
 		# A successful MUTATION: the next paint re-reads.
 		console.execute("create --team lang --kind bug "
-		                "--title committed --origin self-initiated "
+		                "--title committed --origin self-initiated --classification suspected-defect "
 		                "--body fresh")
 		assert console.status.startswith("ok")
 		rows = console.rows()
@@ -302,7 +302,7 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		# and is visible immediately; the cache flushed exactly once.
 		console.execute("--op-id bar-1 create --team lang --kind bug "
 		                "--title protected-commit "
-		                "--origin self-initiated --body fresh")
+		                "--origin self-initiated --classification suspected-defect --body fresh")
 		assert console.status.startswith("ok")
 		rows = console.rows()
 		assert calls["n"] == 2, \
@@ -332,7 +332,7 @@ def test_only_a_successful_mutation_invalidates_the_cache(world):
 		# retry of bar-1 succeeds but schedules nothing.
 		console.execute("--op-id bar-1 create --team lang --kind bug "
 		                "--title protected-commit "
-		                "--origin self-initiated --body fresh")
+		                "--origin self-initiated --classification suspected-defect --body fresh")
 		assert console.status.startswith("ok")
 		assert console.refresh_due is False, \
 			"an operation replay scheduled a refresh"

@@ -70,13 +70,13 @@ def test_wf14_locations_resolver_and_bootstrap(flow, tmp_path):
 	# filesystem-domain and must leave the database byte-identical.
 	push1 = flow.ok(
 		"create", "--team", "push", "--kind", "bug",
-		"--title", "checkout fails", "--origin", "external-report",
+		"--title", "checkout fails", "--origin", "external-report", "--classification", "suspected-defect",
 		"--body", "500 at checkout",
 		"--binding", "pushcoin:work/records/2026/08/finding-wf14",
 		viewer="push.sl")["work_id"]
 	light = flow.ok("create", "--team", "push", "--kind", "bug",
 	                "--title", "lightweight", "--origin",
-	                "self-initiated", "--body", "no dossier",
+	                "self-initiated", "--classification", "suspected-defect", "--body", "no dossier",
 	                viewer="push.sl")["work_id"]
 	database = os.path.join(flow.directory, "work.sqlite3")
 	frozen = hashlib.sha256(_read(database)).hexdigest()

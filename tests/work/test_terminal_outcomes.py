@@ -43,7 +43,7 @@ def world(tmp_path):
 
 def _create(store, team="lang", member="ada", **kw):
 	return tr.create_work(store, team=team, kind="bug", title="w",
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="born speaking", **kw)
 
 
@@ -73,7 +73,7 @@ def _rig(store):
 	tr.add_dependency(store, gated, extra, actor_team="web",
 	                  actor="wren")
 	tr.post_thread(store, thread, author_team="lang", author="ada",
-	                   body="onward", pass_to="lang.rsrch",
+	                   body="onward", pass_to="lang.rsrch", pass_phase="research",
 	                   set_next="lang.bug", on=work)
 	asked = tr.post_thread(store, thread, author_team="lang",
 	                           author="ada", body="push: confirm",
@@ -181,7 +181,7 @@ def test_cancellation_holds_the_same_authority_and_child_rule(world):
 			tr.close_work(store, work, actor_team=team, actor=member,
 			              rationale="not wanted", outcome="cancelled")
 	child = tr.create_work(store, team="lang", kind="bug", title="c",
-	                       origin="decomposition", author="ada",
+	                       origin="decomposition", classification="suspected-defect", author="ada",
 	                       body="child", parent=work)["work_id"]
 	with pytest.raises(bw.WorkError, match="open children"):
 		tr.close_work(store, work, actor_team="lang", actor="ada",
@@ -346,7 +346,7 @@ def test_close_races_serialize_into_one_history(world):
 	rig = _rig(store)
 	_interleave(store, lambda: tr.post_thread(
 		store, rig["thread"], author_team="lang", author="ada",
-		body="detour", pass_to="lang.bug", on=rig["work"]))
+		body="detour", pass_to="lang.bug", pass_phase="queued", on=rig["work"]))
 	result = tr.close_work(store, rig["work"], actor_team="lang",
 	                       actor="ada", rationale="raced by a pass",
 	                       outcome="satisfying")

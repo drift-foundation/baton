@@ -28,7 +28,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	# 1. Push reports and asks Lang; Push retains Current.
 	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
 	                "--title", "checkout fails after parser update",
-	                "--origin", "external-report",
+	                "--origin", "external-report", "--classification", "suspected-defect",
 	                "--body", "500 at checkout, trace attached",
 	                viewer="push.sl")["work_id"]
 	asked = flow.post(push1, "--body", "parser recovery bug?",
@@ -38,7 +38,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	# the provider id. Obligation and edge are DISTINCT records.
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery drops state",
-	                 "--origin", "external-report",
+	                 "--origin", "external-report", "--classification", "suspected-defect",
 	                 "--body", "accepted from push's report",
 	                 viewer="lang.ada")["work_id"]
 	flow.ok("block", push1, "--on", lang42, viewer="push.sl")
@@ -72,43 +72,41 @@ def test_wf04_one_consumer_one_provider(flow):
 	        flow.ok("links", lang42, viewer="lang.ada")["blocks"]] == [push1]
 
 	# 3. Lang classifies the accepted intake and works the phases HONESTLY:
-	# research → review → active → review, each an explicit audited
-	# transition beside its pass — and no pass ever changes phase itself.
+	# each an explicit audited transition beside its pass — and every pass
+	# releases the claimant and re-phases by readiness (pinned matrix).
 	flow.ok("classify", lang42, "--as", "confirmed-defect",
 	        viewer="lang.ada")
 	flow.ok("phase", lang42, "--to", "research", viewer="lang.ada")
 
 	flow.post(lang42, "--body", "analysis: recovery table clobbered",
-	        "--pass-to", "lang.rev", viewer="lang.ada")
+	        "--pass-to", "lang.rev", "--phase", "review", viewer="lang.ada")
 	assert flow.ok("detail", lang42,
-	               viewer="lang.ada")["phase"] == "research", \
-		"the pass to review changed phase by itself"
-	flow.ok("phase", lang42, "--to", "review", viewer="lang.ada")
+	               viewer="lang.ada")["phase"] == "review", \
+		"the pass did not record its destination phase atomically"
 
 	flow.post(lang42, "--body", "approach approved; build it",
-	        "--pass-to", "lang.impl", "--set-next", "lang.rev",
+	        "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
 	        viewer="lang.ada")
 	midway = flow.ok("detail", lang42, viewer="lang.grace")
 	assert midway["current"] == {"endpoint": "lang.impl", "route": "build",
 	                             "role": "impl", "handlers": ["grace"]}
 	assert midway["next"]["endpoint"] == "lang.rev"
-	assert midway["phase"] == "review", \
-		"the pass to implementation changed phase by itself"
-	flow.ok("phase", lang42, "--to", "active", viewer="lang.grace")
+	assert midway["phase"] == "active", \
+		"the pass did not record its destination phase atomically"
+	flow.ok("claim", lang42, viewer="lang.grace")
 
 	returned = flow.post(lang42, "--body", "fixed; tests attached",
-	                   "--pass-to", "lang.rev", viewer="lang.grace")
+	                   "--pass-to", "lang.rev", "--phase", "review", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	assert flow.ok("detail", lang42,
-	               viewer="lang.ada")["phase"] == "active", \
-		"the return changed phase by itself"
-	flow.ok("phase", lang42, "--to", "review", viewer="lang.ada")
+	               viewer="lang.ada")["phase"] == "review", \
+		"the return did not record its destination phase (and release)"
 	phase_trail = [(event["payload"]["from"], event["payload"]["to"])
 	               for event in flow.ok("events", viewer="lang.ada")
 	               if event["kind"] == "set_phase" and
 	               event["payload"]["work"] == lang42]
-	assert phase_trail == [("queued", "research"), ("research", "review"),
-	                       ("review", "active"), ("active", "review")]
+	assert phase_trail == [("queued", "research")], \
+		"handoff stages ride their pass events, not separate set_phase acts"
 
 	# 4. Reviewer closes fixed-and-verified — addressed to NOBODY.
 	flow.ok("close", lang42, "--rationale", "fixed and verified", "--outcome", "satisfying",

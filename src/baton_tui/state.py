@@ -1998,7 +1998,7 @@ class InboxState:
 		"""`Enter` from LIST: open the row and FOCUS the detail.
 
 		Ruled by Slawomir, recorded late -- see
-		`work/finding-human-console/FINDING.md` § "Enter from LIST enters
+		`work/records/2026/08/finding-human-console/FINDING.md` § "Enter from LIST enters
 		DETAIL". From LIST focus this is analogous to a forward `Tab`.
 
 		It also COMMITS a dwell that has not yet elapsed, on that exact

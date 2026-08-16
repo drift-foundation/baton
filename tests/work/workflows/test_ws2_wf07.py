@@ -50,13 +50,13 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 	# 1. Five consumer Works depend on LANG-42.
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "five consumers",
+	                 "external-report", "--classification", "suspected-defect", "--body", "five consumers",
 	                 viewer="lang.ada")["work_id"]
 	consumers = {}
 	for name, member in MEMBERS.items():
 		work = flow.ok("create", "--team", name, "--kind", "bug",
 		               "--title", f"{name} report", "--origin",
-		               "external-report", "--body", "blocked",
+		               "external-report", "--classification", "suspected-defect", "--body", "blocked",
 		               viewer=f"{name}.{member}")["work_id"]
 		flow.ok("block", work, "--on", lang42, viewer=f"{name}.{member}")
 		consumers[name] = work

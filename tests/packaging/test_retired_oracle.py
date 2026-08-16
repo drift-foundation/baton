@@ -10,7 +10,7 @@ against — and a record that can be edited is not a record. That is also why
 nothing was added to it on retirement, not even a header saying it is retired:
 a header would change the hash that makes it evidence, which is the one edit
 that destroys the thing it documents. The retirement is documented HERE and in
-`work/finding-protocol-10-umbrella/`, adjacent to the file rather than in it.
+`work/records/2026/08/finding-protocol-10-umbrella/`, adjacent to the file rather than in it.
 """
 
 from __future__ import annotations

@@ -26,7 +26,7 @@ T2 = "2026-08-15T18:00:00Z"
 def _provider(flow):
 	return flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	               "--title", "parser recovery", "--origin",
-	               "external-report", "--body", "provider",
+	               "external-report", "--classification", "suspected-defect", "--body", "provider",
 	               viewer="lang.ada")["work_id"]
 
 

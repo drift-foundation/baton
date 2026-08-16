@@ -33,7 +33,7 @@ def test_wf13_portable_dossier_authority(flow):
 	# revision 1 in one transaction.
 	push_born = flow.ok(
 		"create", "--team", "push", "--kind", "bug",
-		"--title", "checkout fails", "--origin", "external-report",
+		"--title", "checkout fails", "--origin", "external-report", "--classification", "suspected-defect",
 		"--body", "500 at checkout",
 		"--binding", "pushcoin:work/records/2026/08/finding-push-1",
 		viewer="push.sl")
@@ -48,7 +48,7 @@ def test_wf13_portable_dossier_authority(flow):
 	# attach; Current attaches revision 1 with expected prior 0.
 	lang_born = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                    "--title", "parser recovery", "--origin",
-	                    "external-report", "--body", "provider",
+	                    "external-report", "--classification", "suspected-defect", "--body", "provider",
 	                    viewer="lang.ada")
 	lang42 = lang_born["work_id"]
 	error = assert_refusal_changes_nothing(
@@ -114,7 +114,7 @@ def test_wf13_portable_dossier_authority(flow):
 	assert answer_event["references"][0]["binding_revision"] == 1, \
 		"the old proof was reinterpreted by the correction"
 	flow.ok("say", flow.born(lang42, "lang.ada"), "--body",
-	        "handing to push", "--on", lang42, "--pass-to", "push.bug",
+	        "handing to push", "--on", lang42, "--pass-to", "push.bug", "--phase", "queued",
 	        viewer="lang.ada")
 	error = assert_refusal_changes_nothing(
 		flow, "lang.ada", "bind", lang42, "--root", "drift", "--path",
@@ -171,7 +171,7 @@ def test_wf13_portable_dossier_authority(flow):
 	assert "freezes its binding" in error
 	light = flow.ok("create", "--team", "push", "--kind", "bug",
 	                "--title", "lightweight", "--origin",
-	                "self-initiated", "--body", "no dossier",
+	                "self-initiated", "--classification", "suspected-defect", "--body", "no dossier",
 	                viewer="push.sl")["work_id"]
 	flow.ok("close", light, "--rationale", "quick fix, no record",
 	        "--outcome", "satisfying", viewer="push.sl")

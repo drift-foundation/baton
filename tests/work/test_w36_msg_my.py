@@ -50,14 +50,14 @@ def test_message_count_is_recursive_distinct_and_seen_independent(world):
 	store, _config = world
 	parent = tr.create_work(store, team="lang", kind="bug",
 	                        title="parent scope",
-	                        origin="external-report", author="ada",
+	                        origin="external-report", classification="suspected-defect", author="ada",
 	                        body="parent opener")
 	left = tr.create_work(store, team="lang", kind="bug",
-	                      title="left child", origin="decomposition",
+	                      title="left child", origin="decomposition", classification="suspected-defect",
 	                      author="ada", body="left opener",
 	                      parent=parent["work_id"])
 	right = tr.create_work(store, team="lang", kind="bug",
-	                       title="right child", origin="decomposition",
+	                       title="right child", origin="decomposition", classification="suspected-defect",
 	                       author="ada", body="right opener",
 	                       parent=parent["work_id"])
 	# One thread labelled to BOTH children: its messages must count
@@ -91,11 +91,11 @@ def test_my_counts_only_my_eligible_pending_obligations(world):
 	# eligible handler of that route, and a + inclusion counts for
 	# nobody.
 	epic = tr.create_work(store, team="push", kind="bug",
-	                      title="the epic", origin="external-report",
+	                      title="the epic", origin="external-report", classification="suspected-defect",
 	                      author="sl", body="opener")
 	consumer = tr.create_work(store, team="push", kind="bug",
 	                          title="consumer",
-	                          origin="external-report", author="sl",
+	                          origin="external-report", classification="suspected-defect", author="sl",
 	                          body="consumer opener")
 	tr.post_thread(store, consumer["thread"], author_team="push",
 	               author="sl", body="lang: please confirm",
@@ -127,7 +127,7 @@ def test_terminal_withdrawal_clears_my(world):
 	store, _config = world
 	epic = tr.create_work(store, team="push", kind="bug",
 	                      title="withdrawn epic",
-	                      origin="external-report", author="sl",
+	                      origin="external-report", classification="suspected-defect", author="sl",
 	                      body="opener")
 	tr.post_thread(store, epic["thread"], author_team="push",
 	               author="sl", body="please retest",
@@ -146,7 +146,7 @@ def test_eligibility_follows_the_currently_accepted_routes(world):
 	store, config_path = world
 	epic = tr.create_work(store, team="push", kind="bug",
 	                      title="rerouted epic",
-	                      origin="external-report", author="sl",
+	                      origin="external-report", classification="suspected-defect", author="sl",
 	                      body="opener")
 	tr.post_thread(store, epic["thread"], author_team="push",
 	               author="sl", body="confirm?", request="lang.bug",
@@ -174,7 +174,7 @@ def test_eligibility_follows_the_currently_accepted_routes(world):
 def test_reading_is_pure_and_counts_survive_reopen(world, tmp_path):
 	store, config_path = world
 	epic = tr.create_work(store, team="push", kind="bug",
-	                      title="pure epic", origin="external-report",
+	                      title="pure epic", origin="external-report", classification="suspected-defect",
 	                      author="sl", body="opener")
 	tr.post_thread(store, epic["thread"], author_team="push",
 	               author="sl", body="request", request="lang.bug",
@@ -199,7 +199,7 @@ def test_verification_assignments_count_in_my(world):
 	store, _config = world
 	epic = tr.create_work(store, team="lang", kind="rsrch",
 	                      title="verified epic",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="opener")
 	created = tr.create_round(store, epic["work_id"], actor_team="lang",
 	                          actor="ada", candidate="build-A",

@@ -44,7 +44,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	# Push reports and asks Drift, then waits on exactly that question.
 	born = flow.ok("create", "--team", "push", "--kind", "bug",
 	               "--title", "checkout fails", "--origin",
-	               "external-report", "--body", "500 at checkout",
+	               "external-report", "--classification", "suspected-defect", "--body", "500 at checkout",
 	               viewer="push.sl")
 	push1, thread_id = born["work_id"], born["thread"]
 	asked = flow.post(push1, "--body", "drift: yours?",
@@ -58,7 +58,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 
 	# A non-handler holds no grant; the refusal changes nothing.
 	error = flow.refuse("accept", str(asked["seq"]), "--body", "not mine",
-	                    "--create", "--kind", "rsrch", "--title", "x",
+	                    "--create", "--kind", "rsrch", "--classification", "suspected-defect", "--title", "x",
 	                    viewer="drift.grace")
 	assert "ownership" in error
 
@@ -66,6 +66,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	result = flow.ok("accept", str(asked["seq"]),
 	                 "--body", "ours; tracking as a parser regression",
 	                 "--create", "--kind", "rsrch",
+	                 "--classification", "suspected-defect",
 	                 "--title", "parser recovery", viewer="drift.ada")
 	drift1 = result["provider"]
 	assert result["created"] is True

@@ -4335,7 +4335,7 @@ def _focused_detail(store, columns=60, lines=20):
 	"""Open the row and end up focused on DETAIL.
 
 	This used to be Enter (open) followed by Tab (focus). Enter now DOES the
-	focusing -- ruled, see `work/finding-human-console/FINDING.md` § "Enter
+	focusing -- ruled, see `work/records/2026/08/finding-human-console/FINDING.md` § "Enter
 	from LIST enters DETAIL" -- so the Tab that used to complete this helper
 	would now toggle straight back to LIST."""
 	state = _ready(store)
@@ -6845,7 +6845,7 @@ def test_an_overdue_dwell_does_not_spin():
 def test_enter_on_a_pending_row_claims_it_and_focuses_the_detail(env):
 	"""Ruled by Slawomir and recorded only after the implementation had
 	already contradicted it -- see
-	`work/finding-human-console/FINDING.md` § "Enter from LIST enters DETAIL".
+	`work/records/2026/08/finding-human-console/FINDING.md` § "Enter from LIST enters DETAIL".
 
 	Enter is the EXPLICIT act, so it does not wait out the dwell: the dwell
 	protects against passive scrolling, and a deliberate keystroke is not

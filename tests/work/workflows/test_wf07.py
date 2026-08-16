@@ -28,7 +28,7 @@ def test_wf07_announcement(flow):
 	# 1. Operations opens its Work and publishes one ordinary message +*.*.
 	born = flow.ok("create", "--team", "ops", "--kind", "ops",
 	               "--title", "maintenance window saturday",
-	               "--origin", "self-initiated",
+	               "--origin", "self-initiated", "--classification", "suspected-defect",
 	               "--body", "authority migration 02:00-03:00 UTC",
 	               viewer="ops.bat")
 	ops1, thread_id = born["work_id"], born["thread"]

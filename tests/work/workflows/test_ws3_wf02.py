@@ -50,7 +50,7 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 	for name, member in MEMBERS.items():
 		work = flow.ok("create", "--team", name, "--kind", "bug",
 		               "--title", f"{name} report", "--origin",
-		               "external-report", "--body", "local report",
+		               "external-report", "--classification", "suspected-defect", "--body", "local report",
 		               viewer=f"{name}.{member}")["work_id"]
 		asked = flow.post(work, "--body", "drift: yours?",
 		                "--request", "drift.bug",
@@ -63,6 +63,7 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 	first = flow.ok("accept", str(questions["push"]),
 	                "--body", "ours; tracking as parser recovery",
 	                "--create", "--kind", "rsrch",
+	                "--classification", "suspected-defect",
 	                "--title", "parser recovery", viewer="drift.ada")
 	drift1 = first["provider"]
 	for name in ("web", "mdb"):

@@ -104,7 +104,7 @@ def test_pagination_joins_cleanly_across_a_same_second_burst(tmp_path, capsys):
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
 	created = _run(capsys, path, "create", "--team", "lang", "--kind",
-	               "bug", "--title", "burst", "--origin", "self-initiated",
+	               "bug", "--title", "burst", "--origin", "self-initiated", "--classification", "suspected-defect",
 	               "--body", "first", viewer="lang.ada")["result"]
 	work, thread_id = created["work_id"], created["thread"]
 	for index in range(40):
@@ -135,17 +135,17 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
 	created = _run(capsys, path, "create", "--team", "lang", "--kind",
-	               "rsrch", "--title", "t", "--origin", "external-report",
+	               "rsrch", "--title", "t", "--origin", "external-report", "--classification", "suspected-defect",
 	               "--body", "b", viewer="lang.ada")["result"]
 	assert created["work_id"].endswith(f"-W{created['seq']}")
 
 	passed = _run(capsys, path, "say", created["thread"], "--body",
 	              "go", "--on", created["work_id"],
-	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
+	              "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	returned = _run(capsys, path, "say", created["thread"], "--body",
-	                "done", "--pass-to", "lang.rev",
+	                "done", "--pass-to", "lang.rev", "--phase", "review",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return", \
 		"the CLI lost the audited return distinction"

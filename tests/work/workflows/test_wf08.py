@@ -27,13 +27,13 @@ def test_wf08_reassignment_of_live_work(flow):
 	# through intake → rsrch → ada.
 	push1 = flow.ok("create", "--team", "push", "--kind", "bug",
 	                "--title", "checkout fails", "--origin",
-	                "external-report", "--body", "500 at checkout",
+	                "external-report", "--classification", "suspected-defect", "--body", "500 at checkout",
 	                viewer="push.sl")["work_id"]
 	asked = flow.post(push1, "--body", "lang: yours?",
 	                "--request", "lang.bug", viewer="push.sl")
 	lang42 = flow.ok("create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report", "--body", "accepted",
+	                 "external-report", "--classification", "suspected-defect", "--body", "accepted",
 	                 viewer="lang.ada")["work_id"]
 	first = flow.ok("obligations", viewer="lang.ada")[0]
 	assert first["owed_by"]["handlers"] == ["ada"]
@@ -74,7 +74,7 @@ def test_wf08_reassignment_of_live_work(flow):
 	flow.ok("respond", str(asked["seq"]), "--body",
 	        "taking over; tracked", viewer="lang.grace")
 	passed = flow.post(lang42, "--body", "researching",
-	                 "--pass-to", "lang.impl", viewer="lang.grace")
+	                 "--pass-to", "lang.impl", "--phase", "active", viewer="lang.grace")
 	events = flow.ok("events", viewer="lang.grace")
 	pass_event = next(event for event in events
 	                  if event["seq"] == passed["seq"])

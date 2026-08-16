@@ -43,15 +43,15 @@ def world(tmp_path):
 		                         "kinds": ["bug"]}})
 	store = bw.Authority(database)
 	root = tr.create_work(store, team="lang", kind="bug",
-	                      title="the root", origin="external-report",
+	                      title="the root", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="root opener")
 	child = tr.create_work(store, team="lang", kind="bug",
-	                       title="the child", origin="decomposition",
+	                       title="the child", origin="decomposition", classification="suspected-defect",
 	                       author="ada", body="child opener",
 	                       parent=root["work_id"])
 	grand = tr.create_work(store, team="lang", kind="bug",
 	                       title="the grandchild",
-	                       origin="decomposition", author="ada",
+	                       origin="decomposition", classification="suspected-defect", author="ada",
 	                       body="grand opener",
 	                       parent=child["work_id"])
 	cast = {"config": config_path, "database": database, "root": root,
@@ -158,7 +158,7 @@ def test_json_replaces_dep_with_explicit_graph_fields(world):
 	provider = world["root"]["work_id"]
 	consumer = tr.create_work(store, team="push", kind="bug",
 	                          title="consumer",
-	                          origin="external-report", author="sl",
+	                          origin="external-report", classification="suspected-defect", author="sl",
 	                          body="waits")["work_id"]
 	tr.add_dependency(store, consumer, provider, actor_team="push",
 	                  actor="sl")
@@ -229,7 +229,7 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 					tr.create_work(
 						writer, team="lang", kind="bug",
 						title="the interloper",
-						origin="external-report", author="ada",
+						origin="external-report", classification="suspected-defect", author="ada",
 						body="committed mid-read")
 					tr.set_phase(
 						writer, world["root"]["work_id"],

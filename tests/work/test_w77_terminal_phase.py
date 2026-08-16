@@ -46,7 +46,7 @@ def test_every_terminal_outcome_projects_phase_null(world, outcome, extra):
 	store, _config = world
 	work = tr.create_work(store, team="lang", kind="bug",
 	                      title=f"{outcome} target",
-	                      origin="external-report", author="ada",
+	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="opener")["work_id"]
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="active")
@@ -77,7 +77,7 @@ def test_every_terminal_outcome_projects_phase_null(world, outcome, extra):
 def test_open_work_phase_stays_required_and_non_null(world):
 	store, _config = world
 	work = tr.create_work(store, team="lang", kind="bug",
-	                      title="stays open", origin="external-report",
+	                      title="stays open", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="opener")["work_id"]
 	view = pj.detail(store, work, viewer_team="lang",
 	                 viewer_member="ada")
@@ -93,10 +93,10 @@ def test_the_tui_renders_dash_for_closed_phase(world):
 	Phase cell and the focused header both draw `-`."""
 	store, config_path = world
 	live = tr.create_work(store, team="lang", kind="bug",
-	                      title="live row", origin="external-report",
+	                      title="live row", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="live")
 	done = tr.create_work(store, team="lang", kind="bug",
-	                      title="done row", origin="external-report",
+	                      title="done row", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="old")["work_id"]
 	tr.set_phase(store, done, actor_team="lang", actor="ada",
 	             phase="review")
@@ -147,7 +147,7 @@ def test_the_renderer_refuses_lifecycle_mismatched_phase(world):
 	# refuses at _row_cells rather than painting a lie.
 	store, _config = world
 	work = tr.create_work(store, team="lang", kind="bug",
-	                      title="boundary", origin="external-report",
+	                      title="boundary", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="opener")["work_id"]
 	row = next(entry for entry in pj.home(
 		store, viewer_team="lang", viewer_member="ada")["rows"]

@@ -44,7 +44,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 
 	# 1. web creates WEB-1 with its first message, atomically.
 	born = _run(path, "create", "--team", "web", "--kind", "bug",
-	            "--title", "render crash", "--origin", "external-report",
+	            "--title", "render crash", "--origin", "external-report", "--classification", "suspected-defect",
 	            "--body", "tab dies on load",
 	            viewer="web.wren")["result"]
 	web1, thread = born["work_id"], born["thread"]
@@ -68,7 +68,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	# 4. lang creates LANG-42, relates WEB-1 blocked_by LANG-42, responds.
 	lang_born = _run(path, "create", "--team", "lang", "--kind", "rsrch",
 	                 "--title", "parser recovery", "--origin",
-	                 "external-report",
+	                 "external-report", "--classification", "suspected-defect",
 	                 "--body", "deduplicating consumer reports",
 	                 viewer="lang.ada")["result"]
 	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
@@ -83,7 +83,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	# 5. pass with planned Next, then the consuming return.
 	passed = _run(path, "say", lang_thread, "--body",
 	              "confirmed, implement", "--on", lang42,
-	              "--pass-to", "lang.impl", "--set-next", "lang.rev",
+	              "--pass-to", "lang.impl", "--phase", "active", "--set-next", "lang.rev",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
@@ -91,7 +91,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	assert detail["next"]["endpoint"] == "lang.rev"
 	returned = _run(path, "say", lang_thread, "--body",
 	                "implementation complete",
-	                "--pass-to", "lang.rev", viewer="lang.ada")["result"]
+	                "--pass-to", "lang.rev", "--phase", "review", viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	detail = _run(path, "detail", lang42, viewer="lang.ada")["result"]
 	assert detail["current"]["endpoint"] == "lang.rev"
@@ -130,11 +130,11 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	import fixtures as fx
 	path, _db = fx.build_instance(str(tmp_path))
 	born = _run(path, "create", "--team", "web", "--kind", "bug",
-	            "--title", "crash", "--origin", "external-report",
+	            "--title", "crash", "--origin", "external-report", "--classification", "suspected-defect",
 	            "--body", "b", viewer="web.wren")["result"]
 	web1, thread = born["work_id"], born["thread"]
 	child = _run(path, "create", "--team", "web", "--kind", "bug",
-	             "--title", "narrow the repro", "--origin", "decomposition",
+	             "--title", "narrow the repro", "--origin", "decomposition", "--classification", "suspected-defect",
 	             "--body", "b", "--parent", web1,
 	             viewer="web.wren")["result"]["work_id"]
 

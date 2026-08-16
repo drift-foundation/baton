@@ -35,7 +35,7 @@ def store(tmp_path):
 
 def _create(store, team, member, title, parent=None):
 	return tr.create_work(store, team=team, kind="bug", title=title,
-	                      origin="external-report", author=member,
+	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body=f"report: {title}", parent=parent)["work_id"]
 
 
@@ -99,7 +99,7 @@ def test_closure_is_immutable_and_late_evidence_becomes_follow_up(store):
 
 	follow = tr.create_work(store, team="lang", kind="bug",
 	                        title="regression follow-up",
-	                        origin="external-report", author="ada",
+	                        origin="external-report", classification="suspected-defect", author="ada",
 	                        body="push contradicts the fix",
 	                        follow_up_of=lang42)["work_id"]
 	_block(store, pushcoin, follow)

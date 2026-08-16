@@ -50,7 +50,7 @@ def world(tmp_path):
 	result = lc_init(config_path)
 	store = bw.Authority(result["database"])
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="format target", origin="external-report",
+	                      title="format target", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="short opener")
 	tr.post_thread(store, born["thread"], author_team="lang",
 	               author="ada", body=LONG_BODY,
@@ -200,7 +200,7 @@ def test_an_oversized_message_is_readable_via_continuation(tmp_path):
 	store = bw.Authority(result["database"])
 	sentence = " ".join(f"giant-line-{index:02d}" for index in range(60))
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="oversized", origin="external-report",
+	                      title="oversized", origin="external-report", classification="suspected-defect",
 	                      author="ada", body=sentence)
 	store.close()
 
@@ -262,7 +262,7 @@ def test_the_msgs_seen_bound_excludes_the_reserved_rows(tmp_path):
 	store = bw.Authority(result["database"])
 	tall = " ".join(f"boundary-word-{index:02d}" for index in range(40))
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="boundary", origin="external-report",
+	                      title="boundary", origin="external-report", classification="suspected-defect",
 	                      author="ada", body=tall)
 	store.close()
 
@@ -303,7 +303,7 @@ def test_a_long_reference_wraps_and_loses_nothing(tmp_path):
 	long_path = ("docs/evidence/very/deep/directory/holding/the/"
 	             "reproduction/trace-2026-08-16-with-a-long-name.md")
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="long ref", origin="external-report",
+	                      title="long ref", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="see the trace",
 	                      binding=None)
 	tr.post_thread(store, born["thread"], author_team="lang",
@@ -341,7 +341,7 @@ def test_continuation_survives_a_terminal_resize(tmp_path):
 	store = bw.Authority(result["database"])
 	sentence = " ".join(f"resize-word-{index:02d}" for index in range(40))
 	born = tr.create_work(store, team="lang", kind="bug",
-	                      title="resize target", origin="external-report",
+	                      title="resize target", origin="external-report", classification="suspected-defect",
 	                      author="ada", body=sentence)
 	store.close()
 
@@ -409,7 +409,7 @@ def test_the_detail_skip_resets_when_the_width_changes(tmp_path):
 	store = bw.Authority(result["database"])
 	sentence = " ".join(f"pane-word-{index:02d}" for index in range(40))
 	tr.create_work(store, team="lang", kind="bug", title="pane target",
-	               origin="external-report", author="ada", body=sentence)
+	               origin="external-report", classification="suspected-defect", author="ada", body=sentence)
 
 	class Screen:
 		def addnstr(self, *_args):
