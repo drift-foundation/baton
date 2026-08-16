@@ -2275,3 +2275,146 @@ projection 3.0, start-thread CLI, Msgs pane, initial-capital headers,
 `just deploy-v11`) was drafted and replied on the v10 claim
 (commit-message-w31.txt, response c4910e08c2175e30ed92481e45063e33).
 Nothing staged or committed; production operations remain held.
+
+## Step 62 — W7: split-pane Work and Thread navigation (2026-08-15)
+
+Fresh trial (authority 8b92cb10 on release 948e92f) assigned W7 per
+SAME-SCHEMA-TRIAL-PLAN.md. Revalidated the split-pane ruling in
+findings/finding-tui-leaf-enter (with the Thread-vocabulary
+supersession) and the W8 boundary (message FORMATTING stays out of
+scope). Implemented, schema UNTOUCHED at 14 (TUI-only; the existing
+authority reopens trivially):
+
+- The table mode is a stacked split on terminals ≥14 lines: the Work
+  table above (scroll/collapse/footer unchanged), the highlighted
+  Work's Msgs below. The divider always starts with "Msgs" (the
+  parity parser keys on it); short terminals keep the single pane.
+- Enter keeps its ONE stable meaning (drill into children); a
+  drilled-empty leaf table previews the LEAF's own Msgs below — leaf
+  communication is never behind an empty drill.
+- Tab moves focus (presentation state, writes nothing). Focused Msgs
+  keys: j/k switch the highlighted Work's DISTINCT threads (never
+  merged), n/p page messages, s is the one explicit seen write
+  bounded by the painted page, Esc returns.
+- The pane defaults to the thread carrying the viewer's personal New
+  (label order first match), else the first; highlight changes reset
+  the explicit selection and paging and mark NOTHING seen.
+
+Tests: test_w7_split_pane.py (4 real-PTY: highlight-follows preview
+with New unchanged, leaf drill with Msgs below, Tab focus + page-
+bounded s, New-first default + distinct switching); the parity parser
+stops at the Msgs divider; all existing TUI/parity/packaged suites
+green. Sweeps bit: leaf fallback dropped, New-first default dropped,
+Tab dropped. Gate: `just test-v11` 553 parallel + 3 serial green.
+Returning W7 to baton.feat via v11; reviewer woken via v10.
+
+## Step 63 — W7 review round: R1/R2 corrected (2026-08-16)
+
+Per findings/finding-tui-leaf-enter/review-2026-08-16T02-04-08Z.md:
+
+- **R1** — the preview's thread selector now spans EVERY bounded page
+  of `work_threads`: the visited continuation cursors are state
+  (`preview_pages`), the New-first default walks pages until the
+  personal-New thread is found wherever it lives, focused j/k cross
+  page boundaries in both directions, and the header total is HONEST —
+  exact on the last page, "N+" while more pages exist (never a
+  truncated count shown as complete). Regression: DISC_PAGE+2
+  threads with New only on page two — the default lands on T12/12,
+  k walks T11 then across the boundary to T10/10+.
+- **R2** — focusability follows the RENDERED layout: `split_active`
+  is set at paint time; Tab and the focused-pane key branch gate on
+  it, and the short-terminal paint resets focus to the Work pane. A
+  short terminal never routes keys to an invisible pane. Regression:
+  below MIN_SPLIT_HEIGHT, Tab is inert, no "Msgs" paints, j+Enter
+  drill the visibly highlighted second Work. The sweep disables all
+  three defense layers together and the regression bites (single-
+  layer removal is covered by the remaining layers — recorded
+  honestly).
+
+Gate: 6 focused W7 + 38 TUI/parity green; `just test-v11` 555
+parallel + 3 serial green; schema stays 14. Returning W7 round 2 to
+baton.feat via v11.
+
+## Step 64 — W8: formatted Thread messages (2026-08-16)
+
+W7 closed satisfying (v11 #42); W8 assigned (#43). Revalidated
+findings/finding-tui-message-format (+ the Thread supersession) and
+implemented, schema untouched at 14, presentation only:
+
+- Each message renders as a compact borderless BLOCK: a bold metadata
+  header `#seq team.author ts` carrying the viewer's personal
+  `• new` marker; the body wrapped to the pane width under a
+  two-space indent; each reference readable on its own line.
+- One shared formatter serves BOTH the split preview and the focused
+  Msgs view (`format_message` + `paint_messages`).
+- The page-bounded seen contract is preserved honestly under
+  wrapping: the seen bound is the last message painted IN FULL — a
+  clipped block never counts as seen.
+- Additive projection 3.1: `thread()` messages carry a personal
+  `new` boolean computed against the viewer's seen cursor — the
+  renderer formats it, never derives it. Pagination and the explicit
+  seen mutation are unchanged.
+- The bounded-paging regression now derives page-two's bound from
+  what page one actually painted instead of hardcoding a window, so
+  it survives formatting changes to lines-per-message.
+
+Tests: test_w8_message_format.py (4 real-PTY: block metadata/wrapped
+body/reference lines with the full body reconstructable; personal
+new marker straight from the projection; clipped-block-never-seen at
+a short/narrow viewport; the preview paints the same blocks). Sweeps
+bit: clip bound weakened, personal new flattened, wrapping dropped.
+Gate: 44 TUI-family focused green; `just test-v11` 559 parallel + 3
+serial green. Returning W8 to baton.feat via v11.
+
+## Step 65 — W8 review round: R1–R3 corrected (2026-08-16)
+
+Per findings/finding-tui-message-format/review-2026-08-16T02-22-38Z.md:
+
+- **R1** — intra-message continuation: the FIRST block of a page may
+  continue across pages via a skip cursor; `n` continues an
+  unfinished block before it paginates; a compact `#seq (cont.)`
+  header (narrow-pane safe) names the same message; the seen bound
+  names a message only once its FINAL line has painted. Regression:
+  a 25-line first message at a 6-line viewport — s refuses mid-body,
+  four continuations land the tail, s then clears it.
+- **R2** — the preview budget stops ABOVE the reserved global
+  command/status row, so the seen bound can never count a line the
+  final screen composition replaced. The first regression draft
+  missed the boundary (the fixture never reached the row — recorded
+  honestly); rewritten with an oversized block that fills the pane:
+  the bottom row stays empty pre-status and the block stays New.
+- **R3** — references wrap for display with a deeper continuation
+  indent (canonical value untouched); a 74-byte path at a 40-column
+  pane reconstructs in full from the screen.
+
+All three sweeps bite (continuation path, status reserve, ref wrap).
+Gate: 47 TUI-family focused green; `just test-v11` 562 parallel + 3
+serial green; schema 14. Returning W8 round 2 to baton.feat via v11.
+
+## Step 66 — W8 round 3: R4 resize-safe continuation (2026-08-16)
+
+Per findings/finding-tui-message-format/review-2026-08-16T02-33-41Z.md
+(R2/R3 resolved; R4 remained):
+
+- **R4** — each skip cursor is now WIDTH-BOUND: the view remembers
+  the width the skip was computed at and resets it to zero whenever
+  the paint width differs — a resize can repeat content but can
+  never omit it or fake a full paint (the premature-seen path where
+  a wider rewrap left len(block) <= skip is structurally closed:
+  the painter never sees a cursor from a different wrapping).
+- ptyharness gained real mid-script resize: a ("resize", (cols,
+  lines), pause) script entry issues TIOCSWINSZ + SIGWINCH, and
+  `dynamic_size=True` leaves geometry ioctl-driven — the child
+  stamps its own initial winsize pre-exec (closing the startup
+  race the env pinning existed for) and unsets LINES/COLUMNS at
+  BOTH env levels (pytest's readline putenv()s them at C level,
+  invisible to os.environ — found by probing).
+- Whole-token wrapping (break_on_hyphens=False) keeps identifiers,
+  paths, and hyphenated words unbroken across wraps.
+- Regressions: the real-PTY resize walk (narrow start, continuation,
+  resize to 60 cols, premature s inert, tail, real s clears; the
+  post-resize pages jointly cover the whole body — no omission) and
+  the preview-path width-reset unit check. Both R4 sweeps bite.
+
+Gate: 49 TUI-family focused green; `just test-v11` 564 parallel + 3
+serial green; schema 14. Returning W8 round 3 to baton.feat via v11.

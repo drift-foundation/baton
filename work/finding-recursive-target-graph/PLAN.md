@@ -1740,3 +1740,80 @@ interaction, rather than exiting immediately. See
 and cancellation are one-row, preserve the prior view, and perform no
 authority or seen mutation. This is independent of W31 and belongs in the next
 immutable v11 distribution.
+
+**Queued child: explicit project roots in `baton.json`.** The second trial
+confirmed that a client opened with only `baton.json` cannot locate repository
+assets when absolute bases exist only in a separately supplied `roots.json`.
+See `findings/finding-configured-project-root-paths/FINDING.md` and its plan.
+This supersedes the earlier resolver split: configure each repository base in
+`baton.json`, make no filesystem-path assumptions, and prove the behavior with
+separated distribution/home/CWD/repository workflow tests before the next
+immutable v11 distribution.
+
+**Queued child: three-level Work priority.** The second trial's initial queue
+made clear that readiness and phase do not order several simultaneously
+actionable items. See `findings/finding-work-priority/FINDING.md` and its plan.
+Add team-local `high` / `normal` / `low` priority with `normal` default, audited
+same-team revision, stable priority ordering, JSON/TUI parity, and no effect on
+workflow state. No additional priority tiers are allowed.
+
+**Queued child: discoverable Work ids in the TUI.** The second trial exposed
+that missing `create`'s transient result leaves no TUI path to recover the
+exact Work id required by command-bar operations. See
+`findings/finding-tui-work-id-discovery/FINDING.md` and its plan. Design a
+compact, exact selected-Work identity/targeting interaction and cover missed
+output, duplicate titles, narrow screens, scrolling and selection changes
+before the next immutable v11 distribution.
+
+**Queued child: key/value operation grammar.** The second trial found the
+mixed positional/`--option` grammar cumbersome in the command bar. See
+`findings/finding-key-value-command-grammar/FINDING.md` and its plan. Replace
+v11 operation inputs with one strict order-independent `key=value` grammar
+shared by CLI and TUI, preserving global launcher options and every authority,
+retry, ordering and refusal boundary. Do not retain two operation dialects.
+
+**Queued dependent child: context-sensitive command assist.** See
+`findings/finding-tui-command-assist/FINDING.md` and its plan. Drive partial
+verb, parameter, remaining-key, and closed-value hints from the exact command
+specification established by the key/value grammar; render them beside the
+command input without hiding typed text or mutating authority. This child must
+depend on the grammar child in the v11 Work graph.
+
+**Queued dependent child: `::` multiline command batch.** See
+`findings/finding-tui-command-batch/FINDING.md` and its plan. Keep `:` as the
+assisted one-liner; add `::` as a paste-friendly multiline buffer with Enter
+for new lines and visible `Ctrl-G` Go. Preflight all syntax, execute
+sequentially, stop honestly on refusal, retain completed/failed/unrun state,
+and preserve per-command retry safety without claiming batch atomicity. This
+child depends on the key/value grammar and adds no scripting language or file
+execution.
+
+**Queued child: separate live `Blk` and `Dpts` counters.** See
+`findings/finding-live-dependency-counters/FINDING.md` and its plan. Expose
+canonical open-blocker and open-dependent counts in JSON and render both in
+the TUI. Edge creation increments opposite sides; provider or consumer closure
+decrements the corresponding live count; historical edges remain in the
+ledger/links rather than active totals. Replace the ambiguous lone `Dep`
+surface and prove parity across outcomes, races, restart and rebuild.
+
+**Queued child: authority-local Work selectors.** See
+`findings/finding-local-work-selectors/FINDING.md` and its plan. Expose stable
+`W<sequence>` values in an exact `Id` list column, JSON `local_id`, and Work
+details; accept the short or canonical id through one fail-closed resolver for
+every Work-valued CLI/TUI parameter. Never infer identity from title, cursor,
+order or an ambiguous match, and never truncate the visible selector.
+
+**Queued child: Work-list `Msg/My` counters.** See
+`findings/finding-work-message-action-counts/FINDING.md` and its plan. Project
+overlap-safe total Messages and viewer-eligible pending `@` obligations in the
+same Work scope, expose explicit JSON fields, and render compact `Msg/My`
+without replacing personal `New`. Prove response/withdrawal, multi-handler,
+shared-Thread, descendant, rebuild, narrow-screen and read-purity behavior.
+
+**Active next iteration: preserve schema 14.** Follow
+`SAME-SCHEMA-TRIAL-PLAN.md` serially, starting with W7. The next packaged
+executable must reopen the existing second-trial authority; no migration or
+replacement database is allowed. W10 priority remains open for the later
+fresh-authority release and is not part of the replacement release gate. If
+another item proves to require new persisted schema, defer it and return for
+review rather than widening this iteration.

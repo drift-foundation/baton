@@ -574,14 +574,24 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 		(b"p", 0.5),                               # back to the start
 		(b"q", 0.4),
 	], lines=12)
+	import re as _re
+
+	def numbers(text):
+		return {int(match) for match in
+		        _re.findall(r"message number (\d+)", text)}
+
 	first = "\n".join(ptyharness.replay(steps[2], lines=12))
 	assert "opener" in first
 	assert "message number 20" not in first, \
 		"the page is not bounded by the viewport"
 	second = "\n".join(ptyharness.replay(steps[3], lines=12))
 	assert "opener" not in second and "after #" in second
-	assert any(f"message number {index:02d}" in second
-	           for index in range(8, 17)), second[:400]
+	# Page two holds only messages BEYOND everything page one painted —
+	# derived from the painted pages, not a hardcoded window, so the
+	# bound survives formatting changes to lines-per-message.
+	assert numbers(second), second[:400]
+	assert min(numbers(second)) > max(numbers(first) | {0}), \
+		"page two repeated a page-one message"
 	back = "\n".join(ptyharness.replay(steps[5], lines=12))
 	assert "opener" in back, "p did not return to the first page"
 

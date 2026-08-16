@@ -49,6 +49,11 @@ MIN_TITLE = 10
 # start — every thread is reachable, none is silently truncated.
 DISC_PAGE = 10
 
+# W7 split-pane (ruled): below this terminal height the console stays
+# single-pane — the split never squeezes the Work table into
+# uselessness on a short terminal.
+MIN_SPLIT_HEIGHT = 14
+
 
 def visible_columns(width: int):
 	"""The column set that fits `width`, dropping DROP_ORDER members until
@@ -122,6 +127,86 @@ def progress_cell(row: dict) -> str:
 	return f"{progress['closed']}/{progress['children']}"
 
 
+def format_message(message: dict, width: int) -> list[str]:
+	"""W8: one message as a compact borderless BLOCK — a bold metadata
+	header (#seq author ts, with the viewer's personal new marker), the
+	body wrapped to the pane width under a two-space indent, and each
+	reference readable on its own line. Presentation only: every value
+	is the canonical projection's."""
+	import textwrap
+	marker = " • new" if message.get("new") else ""
+	lines = [f"#{message['seq']} {message['author_team']}."
+	         f"{message['author']} {message.get('ts', '')}{marker}"]
+	body_width = max(10, width - 3)
+	for paragraph in message["body"].splitlines() or [""]:
+		# break_on_hyphens=False: identifiers, paths and hyphenated
+		# words stay whole across wraps — a broken token reads worse
+		# than a ragged margin.
+		wrapped = textwrap.wrap(paragraph, body_width,
+		                        break_on_hyphens=False) or [""]
+		lines.extend("  " + text for text in wrapped)
+	for reference in message.get("references", []):
+		# R3: a reference is READABLE at any pane width — wrapped for
+		# display with a deeper continuation indent; the canonical
+		# value is untouched.
+		text = f"[{reference['root']}:{reference['path']}]"
+		wrapped = textwrap.wrap(text, body_width,
+		                        subsequent_indent="  ",
+		                        break_on_hyphens=False) or [text]
+		lines.extend("  " + piece for piece in wrapped)
+	return lines
+
+
+def paint_messages(screen, top: int, budget: int, width: int,
+                   messages, skip: int = 0) -> dict:
+	"""Paint formatted blocks into `budget` lines. Whole blocks only —
+	EXCEPT the first message, which may continue across pages via
+	`skip` (R1: a message taller than the viewport stays readable).
+	Returns the honest seen bound: `painted_last` names a message only
+	once its FINAL line has actually been painted — a clipped block or
+	an unfinished continuation never counts.
+
+	  painted_last  seq eligible for the explicit seen mark, or None
+	  next_skip     None, or the skip cursor for the next `n` page of
+	                the still-unfinished first message"""
+	row = top
+	painted_last = None
+	for index, message in enumerate(messages):
+		block = format_message(message, width)
+		attribute = curses.A_BOLD if message.get("new") else 0
+		if index == 0 and (skip or len(block) > budget):
+			# The continuation path: paint what fits from the skip
+			# cursor; the header repeats with a (cont.) tag so the
+			# operator knows this is the same message.
+			visible = block[skip:]
+			if skip:
+				# A compact continuation header that survives narrow
+				# panes: the seq plus the (cont.) tag, never a full
+				# metadata line that would clip the tag away.
+				visible = [f"#{message['seq']} (cont.)"] + visible
+			take = min(len(visible), top + budget - row)
+			if take <= 0:
+				return {"painted_last": None, "next_skip": skip}
+			for offset, text in enumerate(visible[:take]):
+				screen.addnstr(row + offset, 0, text, width - 1,
+				               attribute if offset == 0 else 0)
+			row += take
+			consumed = take - (1 if skip else 0)
+			if skip + consumed < len(block):
+				return {"painted_last": None,
+				        "next_skip": skip + consumed}
+			painted_last = message["seq"]
+			continue
+		if row + len(block) > top + budget:
+			break
+		screen.addnstr(row, 0, block[0], width - 1, attribute)
+		for offset, text in enumerate(block[1:], start=1):
+			screen.addnstr(row + offset, 0, text, width - 1)
+		row += len(block)
+		painted_last = message["seq"]
+	return {"painted_last": painted_last, "next_skip": None}
+
+
 class Console:
 	def __init__(self, store: Authority, viewer_team: str,
 	             viewer_member: str, config_path: str | None = None):
@@ -145,11 +230,64 @@ class Console:
 		self.viewed_thread: str | None = None
 		self.viewed_ordinal = 0
 		self.thread_total = 0
+		# W7 split-pane state: which pane holds focus, which Work the
+		# bottom preview reflects, the explicitly selected thread index
+		# (None = the ruled default: personal-New first), the message
+		# page cursor, and the last PAINTED preview message.
+		self.focus = "work"              # or "msgs"
+		# R2: focusability follows the RENDERED layout — set at paint
+		# time, gates Tab and the focused-pane keys, so a short
+		# terminal can never hold focus in an invisible pane.
+		self.split_active = False
+		self.preview_work: str | None = None
+		# R1: the selector spans ALL pages of the bounded thread read —
+		# page_stack holds the visited continuation cursors (current
+		# page last), preview_index selects within the current page.
+		self.preview_pages: list[int] = [0]
+		self.preview_index: int | None = None
+		self.preview_after = 0
+		self.preview_thread: str | None = None
+		self.preview_last_seq: int | None = None
+		self.preview_ordinal = 0
+		self.preview_total = 0
 		self.viewed_last_seq: int | None = None
 		self.thread_after = 0
+		# R1: intra-message continuation cursors — lines of the current
+		# first block already shown on earlier pages.
+		self.thread_skip = 0
+		self.preview_skip = 0
+		# R4: a skip is a LINE index into the block wrapped at one
+		# specific width — each cursor remembers that width and resets
+		# to zero when the terminal changes, so a resize can repeat
+		# content but can never omit it or fake a full paint.
+		self.thread_skip_width: int | None = None
+		self.preview_skip_width: int | None = None
 		self.command: str | None = None  # the `:` command-bar buffer
+		# W5: the projection CACHE. Ordinary keystrokes operate on
+		# cached data and never query the authority; the configured
+		# timer tick (and an explicit mutation's own refresh) are the
+		# only invalidations. Navigation to a NEW context fetches on
+		# miss — displaying a view the cache has never held is not a
+		# poll.
+		self._cache: dict = {}
+		# W5: the id-stable selection anchor — a background refresh
+		# must never move the cursor to a different Work merely
+		# because rows changed.
+		self.selected_id: str | None = None
 
-	# -- data, one projection call per need -----------------------------------
+	# -- data: cached canonical reads (W5) --------------------------------
+
+	def _cached(self, key, loader):
+		if key not in self._cache:
+			self._cache[key] = loader()
+		return self._cache[key]
+
+	def tick(self) -> None:
+		"""The timer tick — the ONE background freshness trigger: drop
+		every cached projection so the next paint re-reads. Read-only;
+		no seen mark, no transition, no cursor decision lives here."""
+		self._cache.clear()
+
 
 	def view(self) -> tuple[list[dict], dict]:
 		"""(rows, summary) — at top level BOTH come from the ONE `home`
@@ -157,13 +295,17 @@ class Console:
 		the same snapshot (WS-1 review R3: never two calls that can sample
 		different sequences)."""
 		if not self.path:
-			top = projection.home(self.store, viewer_team=self.team,
-			                      viewer_member=self.member)
+			top = self._cached(("home",), lambda: projection.home(
+				self.store, viewer_team=self.team,
+				viewer_member=self.member))
 			return top["rows"], top["summary"]
-		return (projection.children(self.store, self.path[-1],
-		                            viewer_team=self.team,
-		                            viewer_member=self.member),
-		        projection.team_summary(self.store, viewer_team=self.team))
+		return (self._cached(("children", self.path[-1]),
+		                     lambda: projection.children(
+			self.store, self.path[-1], viewer_team=self.team,
+			viewer_member=self.member)),
+		        self._cached(("summary",),
+		                     lambda: projection.team_summary(
+			self.store, viewer_team=self.team)))
 
 	def rows(self) -> list[dict]:
 		return self.view()[0]
@@ -180,10 +322,12 @@ class Console:
 		"""ONE bounded page of the focused Work's thread SET from the
 		paged canonical read — never merged, each row selectable, the
 		continuation cursor kept so `n` reaches every later page."""
-		page = projection.work_threads(
-			self.store, self.path[-1], viewer_team=self.team,
-			viewer_member=self.member, after=self.disc_after,
-			limit=DISC_PAGE)
+		page = self._cached(
+			("work_threads", self.path[-1], self.disc_after),
+			lambda: projection.work_threads(
+				self.store, self.path[-1], viewer_team=self.team,
+				viewer_member=self.member, after=self.disc_after,
+				limit=DISC_PAGE))
 		self.disc_next = page["next_after"]
 		return page["rows"]
 
@@ -191,15 +335,18 @@ class Console:
 		# Actionable state on the same line, FROM the projection: the count
 		# a member acts on is never derived here (parity holds it equal to
 		# the JSON obligations list).
-		pending = len(projection.obligations(self.store,
-		                                     viewer_team=self.team))
+		pending = len(self._cached(
+			("obligations",), lambda: projection.obligations(
+				self.store, viewer_team=self.team)))
 		# The parked count is ALWAYS visible (WS-1 ruling): parked work has
 		# no wake condition, so it stays in the operators' faces.
 		suffix = (f"  [oblig:{pending}] [park:{summary['parked']}]"
 		          f" [due:{summary['due']}]")
 		if not self.path:
 			return f"{self.team}.{self.member} — top-level work{suffix}"
-		trail = projection.breadcrumb(self.store, self.path[-1])
+		trail = self._cached(("breadcrumb", self.path[-1]),
+		                     lambda: projection.breadcrumb(
+			self.store, self.path[-1]))
 		return " > ".join(entry["title"] for entry in trail) + suffix
 
 	# -- rendering ------------------------------------------------------------
@@ -208,8 +355,10 @@ class Console:
 		screen.erase()
 		height, width = screen.getmaxyx()
 		rows, summary = (self.view() if self.mode == "table"
-		                 else ([], projection.team_summary(
-		                     self.store, viewer_team=self.team)))
+		                 else ([], self._cached(
+		                     ("summary",),
+		                     lambda: projection.team_summary(
+			self.store, viewer_team=self.team))))
 		screen.addnstr(0, 0, self.breadcrumb_text(summary), width - 1,
 		               curses.A_BOLD)
 		if self.mode == "thread":
@@ -218,7 +367,26 @@ class Console:
 			self._render_msgs(screen, height, width)
 		elif self.mode == "links":
 			self._render_links(screen, height, width)
+		elif self.mode == "table" and height >= MIN_SPLIT_HEIGHT:
+			# W7 (ruled): the stacked split — the Work table above, the
+			# highlighted Work's Msgs below. Enter keeps its one stable
+			# meaning (drill); a leaf's communication is ALREADY visible
+			# underneath, never behind an empty drill.
+			self.split_active = True
+			preview_rows = max(4, height // 3)
+			self._render_table(screen, height - preview_rows, width,
+			                   rows)
+			# R2: the LAST terminal row belongs to the global
+			# command/status line — the preview budget stops above it,
+			# so the seen bound never counts a line the final screen
+			# composition replaced.
+			self._render_preview(screen, height - preview_rows,
+			                     preview_rows - 2, width, rows)
 		else:
+			# R2: no pane is painted, so none may hold focus — a short
+			# terminal never routes keys to an invisible pane.
+			self.split_active = False
+			self.focus = "work"
 			self._render_table(screen, height, width, rows)
 		if self.command is not None:
 			screen.addnstr(height - 1, 0, ":" + self.command, width - 1)
@@ -289,11 +457,130 @@ class Console:
 		if not visible and not hidden:
 			screen.addnstr(2, 0, "(no work here)", width - 1)
 
+	def _preview_target(self, rows) -> str | None:
+		"""The Work the bottom pane reflects: the highlighted row, or —
+		when a drilled table is empty (a leaf) — the drilled Work
+		itself, so leaf communication is visible without any drill."""
+		visible, _hidden = self.visible_rows(rows)
+		if visible:
+			return visible[min(self.cursor, len(visible) - 1)]["id"]
+		if self.path:
+			return self.path[-1]
+		return None
+
+	def _preview_page(self, work_id: str, after: int) -> dict:
+		return self._cached(
+			("work_threads", work_id, after),
+			lambda: projection.work_threads(
+				self.store, work_id, viewer_team=self.team,
+				viewer_member=self.member, after=after,
+				limit=DISC_PAGE))
+
+	def _preview_autoselect(self, work_id: str) -> None:
+		"""The ruled default, across EVERY bounded page: select the
+		first thread carrying personal New wherever it lives; else the
+		first thread. Bounded reads, continuation retained (R1)."""
+		pages, after = [0], 0
+		while True:
+			page = self._preview_page(work_id, after)
+			index = next((offset for offset, row
+			              in enumerate(page["rows"]) if row["new"]),
+			             None)
+			if index is not None:
+				self.preview_pages = pages
+				self.preview_index = index
+				return
+			if page["next_after"] is None:
+				self.preview_pages = [0]
+				self.preview_index = 0
+				return
+			after = page["next_after"]
+			pages = pages + [after]
+
+	def _render_preview(self, screen, top, budget, width, rows) -> None:
+		"""The Msgs pane (W7, ruled): messages for the Work highlighted
+		above. Selecting a different Work updates the preview and marks
+		NOTHING seen; the pane defaults to the thread with personal New
+		when one exists; several threads stay distinct and explicitly
+		switchable (j/k under Tab focus); only the explicit `s` writes.
+		The divider line always starts with "Msgs" — the parity parser
+		keys on it."""
+		target = self._preview_target(rows)
+		if target != self.preview_work:
+			# A new highlight resets the selection and paging and marks
+			# NOTHING; the ruled default (personal New first, wherever
+			# it lives) re-derives across the bounded pages (R1).
+			self.preview_work = target
+			self.preview_pages = [0]
+			self.preview_index = None
+			self.preview_after = 0
+			self.preview_skip = 0
+		focus_hint = "[msgs focused — Tab returns]" \
+			if self.focus == "msgs" else "[Tab: focus msgs]"
+		if target is None:
+			screen.addnstr(top, 0, f"Msgs (none) {focus_hint}",
+			               width - 1)
+			self.preview_thread = None
+			self.preview_last_seq = None
+			return
+		if self.preview_index is None:
+			self._preview_autoselect(target)
+		page = self._preview_page(target, self.preview_pages[-1])
+		threads = page["rows"]
+		if not threads:
+			screen.addnstr(top, 0, f"Msgs (no threads) {focus_hint}",
+			               width - 1)
+			self.preview_thread = None
+			self.preview_last_seq = None
+			return
+		chosen = min(self.preview_index, len(threads) - 1)
+		row = threads[chosen]
+		self.preview_thread = row["id"]
+		self.preview_ordinal = row["ordinal"]
+		# The HONEST bounded total (R1): exact when this is the last
+		# page (the final ordinal), "N+" while more pages exist —
+		# never a truncated count presented as complete.
+		if page["next_after"] is None:
+			total = str(threads[-1]["ordinal"])
+		else:
+			total = f"{threads[-1]['ordinal']}+"
+		self.preview_total = total
+		snapshot = self._cached(
+			("thread", row["id"], self.preview_after,
+			 max(1, budget)),
+			lambda: projection.thread(
+				self.store, row["id"], viewer_team=self.team,
+				viewer_member=self.member, after=self.preview_after,
+				limit=max(1, budget)))
+		messages = snapshot["messages"]
+		attribute = curses.A_BOLD if self.focus == "msgs" else 0
+		screen.addnstr(
+			top, 0,
+			f"Msgs T{row['ordinal']}/{total} — "
+			f"{snapshot['subject']} new:{row['new']} "
+			f"after #{self.preview_after} {focus_hint}",
+			width - 1, attribute)
+		# W8: the preview paints the SAME formatted blocks; the seen
+		# bound is the last message painted in full (R1/R2). R4: the
+		# skip resets when the width it was computed at changes.
+		if self.preview_skip and self.preview_skip_width != width:
+			self.preview_skip = 0
+		self.preview_skip_width = width
+		page = paint_messages(screen, top + 1, budget, width, messages,
+		                      skip=self.preview_skip)
+		self.preview_last_seq = page["painted_last"]
+		self.preview_next_skip = page["next_skip"]
+		if not messages:
+			screen.addnstr(top + 1, 0, "(no messages on this page)",
+			               width - 1)
+
 	def _links_rows(self) -> list[tuple[str, str]]:
 		"""(work id, drawn line) pairs — every fact the `links`
 		projection's far-row summary, with the STABLE id shown so the
 		deliberate cross-team drill-through has a visible anchor."""
-		view = projection.links(self.store, self.links_work)
+		view = self._cached(("links", self.links_work),
+		                    lambda: projection.links(
+			self.store, self.links_work))
 		rows = []
 
 		def far_text(prefix, entry):
@@ -378,9 +665,10 @@ class Console:
 		the selectable thread set — Enter opens one thread's
 		thread; nothing is merged into a false timeline."""
 		work_id = self.path[-1]
-		detail = projection.detail(self.store, work_id,
-		                           viewer_team=self.team,
-		                           viewer_member=self.member)
+		detail = self._cached(("detail", work_id),
+		                      lambda: projection.detail(
+			self.store, work_id, viewer_team=self.team,
+			viewer_member=self.member))
 		screen.addnstr(1, 0, self._detail_header(detail), width - 1)
 		facts = self._facts(detail)
 		for offset, text in enumerate(facts):
@@ -436,10 +724,13 @@ class Console:
 		read — `n` pages forward from the last painted message, `p`
 		returns to the start, `s` marks seen bounded by the painted page
 		(R70/R72)."""
-		snapshot = projection.thread(
-			self.store, self.viewed_thread, viewer_team=self.team,
-			viewer_member=self.member, after=self.thread_after,
-			limit=max(1, height - 4))
+		snapshot = self._cached(
+			("thread", self.viewed_thread, self.thread_after,
+			 max(1, height - 4)),
+			lambda: projection.thread(
+				self.store, self.viewed_thread, viewer_team=self.team,
+				viewer_member=self.member, after=self.thread_after,
+				limit=max(1, height - 4)))
 		messages = snapshot["messages"]
 		# The compact Msgs pane names the selected Thread — its T{n}
 		# selector and subject — so several conversations on one Work
@@ -450,15 +741,18 @@ class Console:
 		               f"{snapshot['subject']} "
 		               f"after #{self.thread_after} "
 		               f"({len(messages)} shown)", width - 1)
-		self.viewed_last_seq = messages[-1]["seq"] if messages else None
-		for offset, message in enumerate(messages):
-			text = (f"#{message['seq']} {message['author_team']}."
-			        f"{message['author']}: {message['body']}")
-			# R90: ordered references render as the same portable
-			# root:path facts the projection carries.
-			for reference in message.get("references", []):
-				text += f" [{reference['root']}:{reference['path']}]"
-			screen.addnstr(2 + offset, 0, text, width - 1)
+		# W8: formatted blocks; the seen bound is the last message
+		# painted IN FULL — a clipped block or unfinished continuation
+		# never counts (R1). R4: a skip computed at another width is
+		# unsafe against the re-wrapped block — reset, repeat, never
+		# omit or fake completion.
+		if self.thread_skip and self.thread_skip_width != width:
+			self.thread_skip = 0
+		self.thread_skip_width = width
+		page = paint_messages(screen, 2, height - 3, width, messages,
+		                      skip=self.thread_skip)
+		self.viewed_last_seq = page["painted_last"]
+		self.viewed_next_skip = page["next_skip"]
 		if not messages:
 			screen.addnstr(2, 0, "(no messages on this page)", width - 1)
 
@@ -558,6 +852,70 @@ class Console:
 		                 if self.mode == "table" else ([], 0))
 		if key in (ord("q"),):
 			return False
+		if self.mode == "table" and key == 9 and self.split_active:
+			# W7: Tab moves focus between the Work pane and the Msgs
+			# pane; focus is presentation state and marks nothing seen.
+			self.focus = "msgs" if self.focus == "work" else "work"
+			return True
+		if self.mode == "table" and self.focus == "msgs" and \
+				self.split_active:
+			# The focused Msgs pane: j/k switch the DISTINCT threads of
+			# the highlighted Work (never merged); n/p page messages;
+			# s is the one explicit seen write, bounded by the painted
+			# page; Esc returns focus to the Work pane.
+			if key in (27, curses.KEY_LEFT):
+				self.focus = "work"
+			elif key in (curses.KEY_DOWN, ord("j")) and \
+					self.preview_work is not None:
+				if self.preview_index is None:
+					self._preview_autoselect(self.preview_work)
+				page = self._preview_page(self.preview_work,
+				                          self.preview_pages[-1])
+				if self.preview_index + 1 < len(page["rows"]):
+					self.preview_index += 1
+				elif page["next_after"] is not None:
+					# R1: the selector crosses pages — the bounded
+					# continuation cursor is state, not garbage.
+					self.preview_pages.append(page["next_after"])
+					self.preview_index = 0
+				self.preview_after = 0
+				self.preview_skip = 0
+			elif key in (curses.KEY_UP, ord("k")) and \
+					self.preview_work is not None:
+				if self.preview_index is None:
+					self._preview_autoselect(self.preview_work)
+				if self.preview_index > 0:
+					self.preview_index -= 1
+				elif len(self.preview_pages) > 1:
+					self.preview_pages.pop()
+					previous = self._preview_page(
+						self.preview_work, self.preview_pages[-1])
+					self.preview_index = \
+						max(0, len(previous["rows"]) - 1)
+				self.preview_after = 0
+				self.preview_skip = 0
+			elif key == ord("n"):
+				# R1: an unfinished oversized block continues first;
+				# only a finished page advances the message cursor.
+				if getattr(self, "preview_next_skip", None) is not None:
+					self.preview_skip = self.preview_next_skip
+				elif self.preview_last_seq is not None:
+					self.preview_after = self.preview_last_seq
+					self.preview_skip = 0
+			elif key == ord("p"):
+				self.preview_after = 0
+				self.preview_skip = 0
+			elif key == ord("s") and \
+					self.preview_thread is not None and \
+					self.preview_last_seq is not None:
+				result = transitions.seen_thread(
+					self.store, self.preview_thread, team=self.team,
+					member=self.member,
+					up_to_seq=self.preview_last_seq)
+				self.status = (f"seen up to #{result['cursor']}"
+				               if result["advanced"]
+				               else "already seen")
+			return True
 		if self.mode == "links":
 			entries = self._links_rows()
 			if key in (curses.KEY_DOWN, ord("j")):
@@ -580,10 +938,16 @@ class Console:
 		if self.mode == "msgs":
 			if key in (27, curses.KEY_LEFT, ord("i")):
 				self.mode = "thread"
-			elif key == ord("n") and self.viewed_last_seq is not None:
-				self.thread_after = self.viewed_last_seq
+			elif key == ord("n"):
+				# R1: continuation before pagination.
+				if getattr(self, "viewed_next_skip", None) is not None:
+					self.thread_skip = self.viewed_next_skip
+				elif self.viewed_last_seq is not None:
+					self.thread_after = self.viewed_last_seq
+					self.thread_skip = 0
 			elif key == ord("p"):
 				self.thread_after = 0
+				self.thread_skip = 0
 			elif key == ord("s") and \
 					self.viewed_thread is not None and \
 					self.viewed_last_seq is not None:
@@ -619,6 +983,7 @@ class Console:
 				self.viewed_ordinal = \
 					entries[self.disc_cursor]["ordinal"]
 				self.thread_after = 0
+				self.thread_skip = 0
 				self.viewed_last_seq = None
 				self.mode = "msgs"
 			elif key in (27, curses.KEY_LEFT, ord("i")):

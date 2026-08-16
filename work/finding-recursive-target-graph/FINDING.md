@@ -2686,3 +2686,163 @@ The already-deployed `6d1b944` trial may continue under its existing
 `bin/baton-work` path so its immutable bytes are not rewritten. The next v11
 distribution must rename the installed executable and all current-facing
 documentation/examples to `baton` before production is considered.
+
+## 2026-08-15 — repository roots are configured in `baton.json`
+
+**Confirmed by Slawomir during the second v11 trial. This explicitly
+supersedes the earlier WS-6 ruling that `baton.json` carries only portable root
+ids while absolute paths live exclusively in a separately supplied
+machine-local resolver.** See
+`findings/finding-configured-project-root-paths/FINDING.md`.
+
+The explicit coordination configuration must tell a validated client where
+each configured source/repository root is. No client may infer a filesystem
+base from the coordination home, current directory, distribution, `$HOME`,
+`~/src`, team identity, display name, or a discovered sibling file. Durable
+references remain `ROOT_ID:relative/path`, but the root id's actual base is
+configured in `baton.json`, so a TUI or JSON client opened with that config can
+resolve the same assets without a hidden second configuration input.
+
+The three ownership domains remain distinct; this correction makes their
+association explicit rather than inferential. It is queued for the next
+revision and does not rewrite the currently deployed immutable trial.
+
+## 2026-08-15 — Work priority is deliberately three-level and team-local
+
+**Confirmed by Slawomir during the second v11 trial.** See
+`findings/finding-work-priority/FINDING.md`. Work has exactly `high`, `normal`,
+and `low` priority, with `normal` as the default. No `urgent`, numeric, or
+finer tier is provided because additional levels invite priority inflation.
+
+Priority orders otherwise-actionable Work but changes no readiness,
+dependency, Current/Next, route, handler, phase, status, or closure semantics.
+The owning team may revise its priority through an audited operation; another
+team may discuss urgency but cannot mutate it. JSON exposes the full value and
+the compact TUI uses `Pri` with `High`, `Norm`, and `Low`.
+
+## 2026-08-15 — TUI-required Work identity must be discoverable
+
+**Observed during the second v11 trial.** See
+`findings/finding-tui-work-id-discovery/FINDING.md`. A Work created through the
+command bar returns its stable id only transiently, while neither the Work
+table nor focused view shows that id. The same command bar requires exact ids
+for `block`, `detail`, `phase`, and related operations. Missing the creation
+result therefore forces an external JSON lookup by non-unique title.
+
+The TUI must provide an exact, persistent way to discover or target the
+selected Work. It must not guess from a title, sequence expectation, stale
+cursor, or invisible row. The precise compact interaction returns for review;
+this is queued trial feedback and does not rewrite the current distribution.
+
+## 2026-08-15 — v11 operations use key/value grammar with contextual assist
+
+**Confirmed by Slawomir during the second v11 trial.** See
+`findings/finding-key-value-command-grammar/FINDING.md` and
+`findings/finding-tui-command-assist/FINDING.md`. After the verb, CLI and TUI
+operations use strict order-independent `key=value` tokens, for example
+`block work=<consumer> on=<provider>`. Values containing spaces are quoted;
+tokens split at the first `=`; unknown, missing, malformed, or duplicate
+singular keys refuse; only declared repeatable keys repeat. The current
+positional/`--option` operation dialect is replaced rather than retained as a
+parallel v11 grammar. Global executable options remain outside this operation
+grammar.
+
+The `:` command bar assists incrementally from the same declarative command
+specification the parser consumes. A partial verb shows matching commands; a
+complete verb shows its parameters; supplied keys narrow the remaining help;
+and closed value vocabularies appear in context. Assistance renders to the
+right when space permits, remains usable at narrow widths, and performs no
+authority or seen mutation. The assist feature depends on the grammar feature;
+neither changes the current immutable trial.
+
+## 2026-08-15 — `::` opens an explicit multiline command batch
+
+**Confirmed by Slawomir during the second v11 trial.** See
+`findings/finding-tui-command-batch/FINDING.md`. `:` remains the assisted
+one-line command interaction with Enter-to-execute. `::` instead opens a
+multiline batch buffer: Enter adds a line, pasted newlines stage commands, and
+visible `Ctrl-G` Go launches the batch.
+
+Go syntax-validates every line before executing anything, then runs commands
+sequentially and stops at the first authority refusal. Completed, failed and
+unrun lines remain distinguishable; no rollback or all-or-nothing claim is
+made. Batch staging is read-only, and execution must preserve safe per-command
+retry identity. This is deliberately not a file-backed scripting language:
+there are no variables, control flow, shell expansion, file execution, or
+recursive includes in this feature. It depends on the accepted key/value
+grammar and does not replace or weaken contextual one-line help.
+
+## 2026-08-15 — Work exposes separate live blocker and dependent counts
+
+**Confirmed by Slawomir while wiring the second-trial release gate.** See
+`findings/finding-live-dependency-counters/FINDING.md`. The current `Dep`
+column counts open Work depending on this Work, so a release gate waiting on
+many corrections displays zero while each correction increments. The graph is
+correct, but the one ambiguous counter hides the opposite direction and
+misleads operators.
+
+Canonical projections expose both `open_blockers` and `open_dependents`. The
+TUI renders them as `Blk` and `Dpts`. Both counts are live only: provider
+closure removes one blocker from each consumer, while consumer closure removes
+one dependent from each provider. Terminal outcomes and historical edges stay
+in links/events and never remain in these active counters. Restart and rebuild
+must reproduce the same values.
+
+## 2026-08-15 — Work has an authority-local short selector
+
+**Confirmed by Slawomir during the second v11 trial.** See
+`findings/finding-local-work-selectors/FINDING.md`. The list view exposes a
+compact generated `Id` such as `W11`, and every Work-valued CLI/TUI parameter
+accepts either that authority-local selector or the full canonical id. JSON and
+details expose both `local_id` and `id`.
+
+The selector is permanent, generated, never reused and resolved only within
+the client's explicit authority. Missing, malformed, foreign, or ambiguous
+input refuses; titles, cursor position and expected creation sequence never
+stand in for identity. The TUI never truncates the `Id` column as sequence
+width grows. Full canonical ids remain the durable form where authority context
+is not already fixed.
+
+## 2026-08-15 — Work lists show total Messages and my pending requests
+
+**Confirmed by Slawomir during the second v11 trial.** See
+`findings/finding-work-message-action-counts/FINDING.md`. The list adds compact
+`Msg/My`, such as `41/1`: total distinct Messages in the row's overlap-safe
+Work scope, followed by unresolved directed `@` obligations the current viewer
+is eligible to answer in that same scope.
+
+`My` is not unread mail, `+` inclusion, ownership, or somebody else's pending
+request. Resolving or withdrawing the obligation decreases `My`; an ANSWER is
+itself a Message and may simultaneously increase `Msg`. `New` remains the
+separate personal seen-cursor count. JSON exposes explicit full fields and the
+projection is read-only and rebuildable from existing canonical state.
+
+## 2026-08-15 — next trial iteration preserves the current SQLite schema
+
+**Confirmed by Slawomir after reviewing the second-trial queue.** See
+`SAME-SCHEMA-TRIAL-PLAN.md`. The next iteration intentionally delivers only
+work that can restart against the existing schema-14 authority. It adds no
+migration, replacement database, shadow authority, or in-place data rewrite.
+The packaged acceptance gate reopens a preserved copy of the current authority
+and proves its existing history remains usable.
+
+`W10` priority stays open for a later fresh-authority release because priority
+adds persisted Work state. It is removed from the scope of the same-schema
+release, not deleted or falsely closed. The existing `W11` release gate cannot
+withdraw its already-recorded W10 edge; Slawomir therefore closes W11
+`cancelled` as superseded and creates a follow-up gate containing only eligible
+work. Any other item found to require a database-schema change is likewise
+deferred rather than smuggled into this iteration.
+
+Configuration/projection/client changes are eligible only when they preserve
+schema 14 and reopen the same authority honestly. In particular, explicit root
+paths may use audited config regeneration only if that gate holds; otherwise
+W4 returns for deferral.
+
+During this iteration v10 is the reliable communication path and v11 is the
+desired workflow record. Implementer handoffs and completion wakeups travel
+through v10; the corresponding progress, evidence and Current/Next transition
+must also be recorded against the exact v11 Work. A v10 completion is not
+accepted until the reviewer verifies that repository evidence and v11 state
+agree. This dual recording is temporary trial discipline, not a claim that
+either authority automatically mirrors the other.

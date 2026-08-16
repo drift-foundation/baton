@@ -58,6 +58,10 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 	title_width = max(app.MIN_TITLE, width - fixed - 1)
 	rows = []
 	for line in screen[2:]:
+		# W7: the split-pane divider always starts with "Msgs" — table
+		# rows end there.
+		if line.startswith("Msgs"):
+			break
 		if not line.strip() or line.startswith("("):
 			continue
 		line = line.ljust(width)          # replay rstrips; offsets are fixed

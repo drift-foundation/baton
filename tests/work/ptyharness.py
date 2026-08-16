@@ -97,7 +97,7 @@ def replay(transcript: str, columns: int = 110, lines: int = 32) -> list[str]:
 
 def drive(authority_path: str, viewer: str, script,
           columns: int = 110, lines: int = 32, settle: float = 0.6,
-          command=None):
+          command=None, dynamic_size: bool = False):
 	"""Spawn the console on a real pty, feed `script` [(bytes, pause)...],
 	return (whole_transcript, exit_status, per_step_prefixes).
 
@@ -118,8 +118,25 @@ def drive(authority_path: str, viewer: str, script,
 		# initialization in the child (it lost under pytest's slower start,
 		# rendering an 80x24 layout the parser then misread). curses honors
 		# LINES/COLUMNS over the ioctl, so state them.
-		os.environ["LINES"] = str(lines)
-		os.environ["COLUMNS"] = str(columns)
+		if not dynamic_size:
+			os.environ["LINES"] = str(lines)
+			os.environ["COLUMNS"] = str(columns)
+		else:
+			# R4 resize tests: geometry must stay ioctl-driven so a
+			# mid-script TIOCSWINSZ (+SIGWINCH) reaches curses. Any
+			# INHERITED LINES/COLUMNS (pytest's own terminal) would
+			# override the ioctl, so they are removed — and the initial
+			# size cannot race curses startup, so the CHILD stamps its
+			# own slave winsize BEFORE exec.
+			# readline (initialized by pytest) putenv()s COLUMNS/LINES
+			# at C level where os.environ never sees them — unset at
+			# BOTH levels or the exec'd curses inherits a stale 80x24.
+			os.environ.pop("LINES", None)
+			os.environ.pop("COLUMNS", None)
+			os.unsetenv("LINES")
+			os.unsetenv("COLUMNS")
+			fcntl.ioctl(0, termios.TIOCSWINSZ,
+			            struct.pack("HHHH", lines, columns, 0, 0))
 		os.environ["LANG"] = "C.UTF-8"
 		if command is None:
 			os.environ["PYTHONPATH"] = src
@@ -145,7 +162,20 @@ def drive(authority_path: str, viewer: str, script,
 
 	pump(settle)
 	prefixes = []
-	for keys, pause in script:
+	import signal
+	for entry in script:
+		if entry[0] == "resize":
+			# A mid-script terminal resize: new winsize + SIGWINCH; the
+			# console consumes KEY_RESIZE and repaints at the new size.
+			_tag, (new_columns, new_lines), pause = entry
+			fcntl.ioctl(fd, termios.TIOCSWINSZ,
+			            struct.pack("HHHH", new_lines, new_columns,
+			                        0, 0))
+			os.kill(pid, signal.SIGWINCH)
+			pump(pause)
+			prefixes.append(out.decode("utf-8", "replace"))
+			continue
+		keys, pause = entry
 		os.write(fd, keys)
 		pump(pause)
 		prefixes.append(out.decode("utf-8", "replace"))

@@ -285,6 +285,11 @@ def thread(store: Authority, thread_id: str, *, viewer_team: str,
 			"thread=?",
 			(viewer_team, viewer_member, thread_id)).fetchone()
 		floor = cursor["seq"] if cursor else 0
+		# W8 (additive): each message carries the viewer's personal
+		# new-state — computed HERE against the seen cursor, so the
+		# renderer formats it and never derives it.
+		for message in messages:
+			message["new"] = message["seq"] > floor
 		unread = store.conn.execute(
 			"SELECT COUNT(*) AS n FROM messages WHERE thread=? AND "
 			"seq>?", (thread_id, floor)).fetchone()["n"]
