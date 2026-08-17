@@ -118,8 +118,8 @@ returns the one canonical action projection for your exact identity —
 open ready unclaimed Work whose Current resolves to you (every eligible
 handler until one claims; the claimant alone after, under the same
 stable `work:` key), pending `@` obligations your endpoint owes
-(`obligation:` keyed by seq), and due verification rounds your Current
-answers for (`round:` keyed per deadline generation, retired by
+(`obligation:` keyed by seq), and due verification trials your Current
+answers for (`trial:` keyed per deadline generation, retired by
 extension). `+`, plain posts, and personal New are attention, never
 wakeups. The header's oblig/due counters are these same personal facts;
 the parked count stays team-wide.
@@ -152,7 +152,7 @@ Claimed Work keeps a liveness heartbeat: the
 claim is the initial beat, and the current claimant sends
 `heartbeat work=Wn` every two minutes while executing or reviewing.
 Six minutes without a successful beat renders the informational `!`
-suffix on the Age cell (`12:04!`); the next beat clears it. The alert
+suffix on the Held cell (`12:04!`); the next beat clears it. The alert
 is never a lease: Baton never auto-releases, transfers, rephases, or
 admits a second claimant on staleness — recovery stays the explicit
 release path. Only the exact current claimant may beat (rechecked in
@@ -173,7 +173,7 @@ stays global, and the active filter is always disclosed — `Filter:N`
 right-aligned on the header plus a dedicated clause line that viewports
 at narrow widths.
 
-Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Current resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Current, and the final `Age` column — elapsed time since the current claim committed (MM:SS under an hour, HH:MM through 99 hours, `99h+` beyond, `-` unclaimed), advanced on the ordinary refresh from the canonical `claimed_at` fact. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing (a non-null active claimant, any phase) and any open ready `review` Work awaiting its reviewer's claim. Blocked review, waiting, parked, and closed Work stay steady. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
+Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Current resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Current, and the final `Held` column — one HH:MM interpretation for every ordinary value (floored minutes, `00:00` through `99:59`, `99h+` beyond). Before pickup it shows `>HH:MM` since the committed handoff, becoming `!HH:MM` after six unclaimed minutes; claiming removes the prefix and resets the display to elapsed time since the canonical `claimed_at` (the handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs); `-` marks unclaimed never-passed Work. The Phase cell carries the same `>`/`!` pickup cue. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing (a non-null active claimant, any phase) and any open ready `review` Work awaiting its reviewer's claim. Blocked review, waiting, parked, and closed Work stay steady. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
 `high`, `normal` (the default), `low` — an ordering signal only, never
 a lifecycle fact. `create priority=...` records it at birth;
 `prioritize work=... as=...` is the audited effectively-once revision,

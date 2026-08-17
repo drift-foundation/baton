@@ -3,7 +3,7 @@
 
 The minimal staged-verification story: publish, assign, report, assess,
 close — with the provider gate open and the consumer blocked throughout the
-round, and each act changing exactly what its ruling says and nothing more.
+trial, and each act changing exactly what its ruling says and nothing more.
 """
 
 from __future__ import annotations
@@ -33,17 +33,17 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	flow.ok("phase", f"work={push1}", "to=waiting", "wait=gates",
 	        viewer="push.sl")
 
-	# 2. Lang's Current reviewer publishes candidate driftc-A, round 1,
+	# 2. Lang's Current reviewer publishes candidate driftc-A, trial 1,
 	# one exact assignment to @push.verify.
-	created = flow.ok("round", f"work={lang42}", "candidate=driftc-A",
+	created = flow.ok("try", f"work={lang42}", "candidate=driftc-A",
 	                  "assign=push.verify", viewer="lang.ada")
 	assignment = str(created["assignments"][0])
 
 	# 3. LANG-42 open, PUSH-1 blocked, the assignment actionable for the
-	# live Push verifier, the round 0/1.
+	# live Push verifier, the trial 0/1.
 	checkpoint = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
 	assert checkpoint["status"] == "open"
-	staged = checkpoint["rounds"][0]
+	staged = checkpoint["trials"][0]
 	assert staged["progress"] == "0/1" and staged["status"] == "open"
 	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is False
 	actionable = flow.ok("obligations", viewer="push.sl")
@@ -55,7 +55,7 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	flow.ok("report", f"obligation={assignment}", "observation=passed",
 	        "evidence=staging clean for 48h", viewer="push.sl")
 	checkpoint = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
-	staged = checkpoint["rounds"][0]
+	staged = checkpoint["trials"][0]
 	assert staged["progress"] == "1/1"
 	entry = staged["assignments"][0]
 	assert entry["observation"] == "passed"
@@ -73,11 +73,11 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["status"] == "open"
 	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["phase"] == "waiting"
 
-	# 6. Lang closes LANG-42 satisfying, naming the round and rationale;
+	# 6. Lang closes LANG-42 satisfying, naming the trial and rationale;
 	# PUSH-1 wakes because this was its LAST gate — Current,
 	# classification, and open status unchanged.
 	flow.ok("close", f"work={lang42}",
-	        "rationale=round 1 accepted evidence; shipping driftc-A",
+	        "rationale=trial 1 accepted evidence; shipping driftc-A",
 	        "outcome=satisfying", viewer="lang.ada")
 	resumed = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert resumed["phase"] == "queued" and resumed["ready"] is True
@@ -86,7 +86,7 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	closing = next(event for event in
 	               flow.ok("events", viewer="lang.ada")
 	               if event["kind"] == "close_work")
-	summary = closing["payload"]["round_summary"]
+	summary = closing["payload"]["trial_summary"]
 	assert summary["candidate"] == "driftc-A"
 	assert summary["progress"] == "1/1"
 	assert summary["observations"]["passed"] == 1

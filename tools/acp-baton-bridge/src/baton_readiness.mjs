@@ -1,5 +1,5 @@
 // Baton readiness, isolated from ACP process/session handling (the
-// pinned slice-A boundary). The canonical projection-5 envelope
+// pinned slice-A boundary). The canonical projection-6 envelope
 // contract is SHARED with the sibling Codex bridge — one validator,
 // imported, never re-typed here — so both external products refuse the
 // same malformed output by the same names.
@@ -29,7 +29,7 @@ export function promptText(envelope, action) {
 	} else if (action.kind === "obligation") {
 		summary = `v11 @ obligation #${action.seq} on ${action.work} awaits ${participant}. Act through the canonical v11 CLI (obligations, respond/accept/dispose).`;
 	} else {
-		summary = `v11 round ${action.round} of ${action.work} is due (generation ${action.deadline_generation}) for ${participant}. Act through the canonical v11 CLI (detail work=${action.work}).`;
+		summary = `v11 trial ${action.trial} of ${action.work} is due (generation ${action.deadline_generation}) for ${participant}. Act through the canonical v11 CLI (detail work=${action.work}).`;
 	}
 	return `[BATON READY] ${summary} Apply standing v11 Baton policy.`;
 }

@@ -8,7 +8,7 @@ import { actionEvent, actionLocator, codexBatonBridge, validateEnvelope } from "
 
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
 
-function envelope(actions, { timedOut = false, participant = "baton.codex", uuid = UUID, projection = "5.0" } = {}) {
+function envelope(actions, { timedOut = false, participant = "baton.codex", uuid = UUID, projection = "6.0" } = {}) {
   return {
     protocol_version: 11,
     projection_version: projection,
@@ -27,12 +27,12 @@ function obligationAction(seq, work) {
   return { kind: "obligation", action_key: `obligation:${seq}`, seq, work, flavor: "response" };
 }
 
-function roundAction(work, round, generation) {
+function trialAction(work, trial, generation) {
   return {
-    kind: "due_round",
-    action_key: `round:${work}:${round}:${generation}`,
+    kind: "due_trial",
+    action_key: `trial:${work}:${trial}:${generation}`,
     work,
-    round,
+    trial,
     deadline_generation: generation,
     review_at: "2026-08-16T12:00:00Z",
   };
@@ -68,7 +68,7 @@ function harness(script, options = {}) {
 test("multiple simultaneous action keys each emit one scoped event", async () => {
   const actions = [
     obligationAction(9, "7ba67cb8-W2"),
-    roundAction("7ba67cb8-W3", 1, 1),
+    trialAction("7ba67cb8-W3", 1, 1),
     workAction("7ba67cb8-W5"),
   ];
   const { run, events } = harness([envelope(actions)]);
@@ -76,7 +76,7 @@ test("multiple simultaneous action keys each emit one scoped event", async () =>
   assert.equal(events.length, 3);
   assert.deepEqual(events.map((event) => event.id), [
     `baton-v11:${UUID}:baton.codex:obligation:9`,
-    `baton-v11:${UUID}:baton.codex:round:7ba67cb8-W3:1:1`,
+    `baton-v11:${UUID}:baton.codex:trial:7ba67cb8-W3:1:1`,
     `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5`,
   ]);
   for (const event of events) {
@@ -116,15 +116,15 @@ test("disappearance forgets the key and reappearance emits it again", async () =
 
 test("a new obligation key and a new deadline generation are new wakes", async () => {
   const { run, events } = harness([
-    envelope([obligationAction(9, "7ba67cb8-W2"), roundAction("7ba67cb8-W3", 1, 1)]),
-    envelope([obligationAction(12, "7ba67cb8-W2"), roundAction("7ba67cb8-W3", 1, 2)]),
+    envelope([obligationAction(9, "7ba67cb8-W2"), trialAction("7ba67cb8-W3", 1, 1)]),
+    envelope([obligationAction(12, "7ba67cb8-W2"), trialAction("7ba67cb8-W3", 1, 2)]),
   ]);
   await run;
   assert.deepEqual(events.map((event) => event.id.split(":").slice(2).join(":")), [
     "baton.codex:obligation:9",
-    "baton.codex:round:7ba67cb8-W3:1:1",
+    "baton.codex:trial:7ba67cb8-W3:1:1",
     "baton.codex:obligation:12",
-    "baton.codex:round:7ba67cb8-W3:1:2",
+    "baton.codex:trial:7ba67cb8-W3:1:2",
   ]);
 });
 
@@ -207,12 +207,12 @@ test("--once exits after the first accepted event", async () => {
 });
 
 test("the locator carries stable identities and never a body", () => {
-  const round = actionLocator(roundAction("7ba67cb8-W3", 2, 5));
-  assert.deepEqual(round, {
-    kind: "due_round",
-    action_key: "round:7ba67cb8-W3:2:5",
+  const trial = actionLocator(trialAction("7ba67cb8-W3", 2, 5));
+  assert.deepEqual(trial, {
+    kind: "due_trial",
+    action_key: "trial:7ba67cb8-W3:2:5",
     work: "7ba67cb8-W3",
-    round: 2,
+    trial: 2,
     deadline_generation: 5,
     review_at: "2026-08-16T12:00:00Z",
   });
@@ -252,10 +252,10 @@ test("an authority switch emits the new action while retiring the old set", asyn
 test("the typed contract refuses every inconsistent envelope by name", () => {
   const cases = [
     // incompatible projection (W207): any 4.x, other majors, missing
-    [envelope([], { projection: "4.3" }), /projection-5 participant-action contract/],
-    [envelope([], { projection: "4.5" }), /projection-5 participant-action contract/],
-    [envelope([], { projection: "6.0" }), /projection-5 participant-action contract/],
-    [{ ...envelope([]), projection_version: undefined }, /projection-5 participant-action contract/],
+    [envelope([], { projection: "4.3" }), /projection-6 participant-action contract/],
+    [envelope([], { projection: "4.5" }), /projection-6 participant-action contract/],
+    [envelope([], { projection: "5.0" }), /projection-6 participant-action contract/],
+    [{ ...envelope([]), projection_version: undefined }, /projection-6 participant-action contract/],
     // missing snapshot token / non-boolean timed_out
     [{ ...envelope([]), snapshot_seq: "42" }, /snapshot_seq/],
     [{ ...envelope([]), result: { actionable: [], timed_out: "no" } }, /timed_out is not a boolean/],
@@ -266,11 +266,11 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
     // malformed per-kind payloads
     [envelope([{ kind: "work", action_key: "work:7ba67cb8-W5" }]), /names no Work/],
     [envelope([{ kind: "obligation", action_key: "obligation:9", work: "7ba67cb8-W2" }]), /has no positive seq/],
-    [envelope([{ kind: "due_round", action_key: "round:7ba67cb8-W3:1:1", work: "7ba67cb8-W3", round: 1 }]), /lacks its positive work\/round\/generation locator/],
+    [envelope([{ kind: "due_trial", action_key: "trial:7ba67cb8-W3:1:1", work: "7ba67cb8-W3", trial: 1 }]), /lacks its positive work\/trial\/generation locator/],
     // key/field disagreement, one per kind
     [envelope([{ ...workAction("7ba67cb8-W5"), action_key: "work:7ba67cb8-W9" }]), /disagrees with work/],
     [envelope([{ ...obligationAction(9, "7ba67cb8-W2"), action_key: "obligation:12" }]), /disagrees with seq/],
-    [envelope([{ ...roundAction("7ba67cb8-W3", 1, 1), action_key: "round:7ba67cb8-W3:1:2" }]), /disagrees with its locator/],
+    [envelope([{ ...trialAction("7ba67cb8-W3", 1, 1), action_key: "trial:7ba67cb8-W3:1:2" }]), /disagrees with its locator/],
     // duplicate action key
     [envelope([workAction("7ba67cb8-W5"), workAction("7ba67cb8-W5")]), /duplicate action_key/],
   ];
@@ -278,7 +278,7 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
     assert.throws(() => validateEnvelope(payload, "baton.codex"), pattern);
   }
   // and the boundary the gate is FOR: a later 5.x minor stays accepted
-  assert.equal(validateEnvelope(envelope([], { projection: "5.4" }), "baton.codex").snapshot_seq, 42);
+  assert.equal(validateEnvelope(envelope([], { projection: "6.4" }), "baton.codex").snapshot_seq, 42);
 });
 
 test("every field the trusted summary consumes is typed and agreeing", () => {
@@ -290,12 +290,12 @@ test("every field the trusted summary consumes is typed and agreeing", () => {
     [envelope([{ ...workAction("7ba67cb8-W5"), claimed: "false" }]), /claimed is not a boolean/],
     [envelope([{ ...workAction("7ba67cb8-W5"), title: 7 }]), /title is not a string/],
     [envelope([{ ...obligationAction(9, "7ba67cb8-W2"), flavor: 3 }]), /flavor is not a string/],
-    [envelope([{ ...roundAction("7ba67cb8-W3", 1, 1), review_at: 0 }]), /review_at is not a string/],
+    [envelope([{ ...trialAction("7ba67cb8-W3", 1, 1), review_at: 0 }]), /review_at is not a string/],
     // structurally valid but impossible ids refuse
     [{ ...envelope([]), snapshot_seq: -1 }, /non-negative snapshot_seq/],
     [envelope([{ ...obligationAction(0, "7ba67cb8-W2"), action_key: "obligation:0" }]), /no positive seq/],
-    [envelope([{ ...roundAction("7ba67cb8-W3", 0, 1), action_key: "round:7ba67cb8-W3:0:1" }]), /positive work\/round\/generation/],
-    [envelope([{ ...roundAction("7ba67cb8-W3", 1, -2), action_key: "round:7ba67cb8-W3:1:-2" }]), /positive work\/round\/generation/],
+    [envelope([{ ...trialAction("7ba67cb8-W3", 0, 1), action_key: "trial:7ba67cb8-W3:0:1" }]), /positive work\/trial\/generation/],
+    [envelope([{ ...trialAction("7ba67cb8-W3", 1, -2), action_key: "trial:7ba67cb8-W3:1:-2" }]), /positive work\/trial\/generation/],
   ];
   for (const [payload, pattern] of cases) {
     assert.throws(() => validateEnvelope(payload, "baton.codex"), pattern);

@@ -72,8 +72,8 @@ export function validateEnvelope(payload, participant) {
   }
   const projection = payload?.projection_version;
   const match = typeof projection === "string" && /^([0-9]+)\.([0-9]+)$/.exec(projection);
-  if (!match || Number(match[1]) !== 5 || Number(match[2]) < 0) {
-    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-5 participant-action contract`);
+  if (!match || Number(match[1]) !== 6 || Number(match[2]) < 0) {
+    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-6 participant-action contract`);
   }
   if (payload?.participant !== participant) {
     throw new Error(`envelope participant ${JSON.stringify(payload?.participant)} is not ${participant}`);
@@ -137,17 +137,17 @@ export function validateEnvelope(payload, participant) {
       if (action.flavor !== undefined && typeof action.flavor !== "string") {
         throw new Error(`obligation action ${action.action_key} flavor is not a string`);
       }
-    } else if (action.kind === "due_round") {
+    } else if (action.kind === "due_trial") {
       if (typeof action.work !== "string" || !action.work ||
-          !Number.isSafeInteger(action.round) || action.round < 1 ||
+          !Number.isSafeInteger(action.trial) || action.trial < 1 ||
           !Number.isSafeInteger(action.deadline_generation) || action.deadline_generation < 1) {
-        throw new Error(`due_round action ${action.action_key} lacks its positive work/round/generation locator`);
+        throw new Error(`due_trial action ${action.action_key} lacks its positive work/trial/generation locator`);
       }
-      if (action.action_key !== `round:${action.work}:${action.round}:${action.deadline_generation}`) {
-        throw new Error(`due_round action key ${action.action_key} disagrees with its locator`);
+      if (action.action_key !== `trial:${action.work}:${action.trial}:${action.deadline_generation}`) {
+        throw new Error(`due_trial action key ${action.action_key} disagrees with its locator`);
       }
       if (action.review_at !== undefined && typeof action.review_at !== "string") {
-        throw new Error(`due_round action ${action.action_key} review_at is not a string`);
+        throw new Error(`due_trial action ${action.action_key} review_at is not a string`);
       }
     } else {
       throw new Error(`unknown action kind ${JSON.stringify(action?.kind)} (${action.action_key})`);
@@ -165,8 +165,8 @@ export function actionLocator(action) {
     locator.obligation_seq = action.seq;
     if (action.flavor !== undefined) locator.flavor = action.flavor;
   }
-  if (action.kind === "due_round") {
-    locator.round = action.round;
+  if (action.kind === "due_trial") {
+    locator.trial = action.trial;
     locator.deadline_generation = action.deadline_generation;
     locator.review_at = action.review_at;
   }
@@ -183,8 +183,8 @@ function summarize(action, participant) {
   if (action.kind === "obligation") {
     return `v11 @ obligation #${action.seq} on ${action.work} awaits ${participant}. Act through the canonical v11 CLI (obligations, respond/accept/dispose).`;
   }
-  if (action.kind === "due_round") {
-    return `v11 round ${action.round} of ${action.work} is due (generation ${action.deadline_generation}) for ${participant}. Act through the canonical v11 CLI (detail work=${action.work}).`;
+  if (action.kind === "due_trial") {
+    return `v11 trial ${action.trial} of ${action.work} is due (generation ${action.deadline_generation}) for ${participant}. Act through the canonical v11 CLI (detail work=${action.work}).`;
   }
   return `v11 action ${action.action_key} awaits ${participant}. Act through the canonical v11 CLI.`;
 }

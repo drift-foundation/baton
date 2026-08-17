@@ -370,7 +370,7 @@ def test_acceptance_refusals_commit_nothing(world):
 	provider = tr.create_work(store, team="drift", kind="rsrch", title="p",
 	                          origin="external-report", classification="suspected-defect", author="ada",
 	                          body="b")["work_id"]
-	created = tr.create_round(store, provider, actor_team="drift",
+	created = tr.create_trial(store, provider, actor_team="drift",
 	                          actor="ada", candidate="c",
 	                          assign=["push.bug"])
 	with pytest.raises(bw.WorkError, match="verification"):

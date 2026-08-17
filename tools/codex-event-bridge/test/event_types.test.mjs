@@ -32,7 +32,7 @@ test("a v11 readiness event becomes one compact trusted line end to end", () => 
   // formatter — the exact wiring a live wake takes.
   const envelope = {
     protocol_version: 11,
-    projection_version: "5.0",
+    projection_version: "6.0",
     participant: "baton.codex",
     authority_uuid: "7ba67cb8585dcfd250799fe0dc16e3fa",
     snapshot_seq: 42,

@@ -51,7 +51,7 @@ def _rig(flow, tag):
 	asked = flow.ok("say", f"thread={thread}", "body=push: confirm",
 	                "request=push.bug", f"on={work}",
 	                viewer="lang.ada")["seq"]
-	assigned = flow.ok("round", f"work={work}", f"candidate=cand-{tag}",
+	assigned = flow.ok("try", f"work={work}", f"candidate=cand-{tag}",
 	                   "assign=push.verify",
 	                   viewer="lang.ada")["assignments"][0]
 	return {"work": work, "thread": thread, "dependent": dependent,
@@ -85,7 +85,7 @@ def _assert_dismantled(flow, rig, outcome, rationale):
 	assert closing["actor"] == "lang.ada"
 	assert closing["payload"]["outcome"] == outcome
 	assert closing["payload"]["rationale"] == rationale
-	assert closing["payload"]["round_summary"]["candidate"] == \
+	assert closing["payload"]["trial_summary"]["candidate"] == \
 		f"cand-{rig['tag']}"
 	error = assert_refusal_changes_nothing(
 		flow, "lang.ada", "close", f"work={rig["work"]}", "rationale=again",
@@ -282,7 +282,7 @@ def test_wf10_terminal_outcomes(flow):
 	reported = any(event["kind"] == "report" and
 	               event["payload"]["obligation"] == rig["assigned"]
 	               for event in events)
-	assert closing["payload"]["round_summary"]["progress"] == \
+	assert closing["payload"]["trial_summary"]["progress"] == \
 		("1/1" if reported else "0/1")
 
 	# close vs pass: the close that lost the serialization refused; a

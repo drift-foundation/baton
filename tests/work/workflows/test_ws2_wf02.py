@@ -21,18 +21,18 @@ from ws2cast import verification_teams                        # noqa: E402
 def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	flow.init(document(verification_teams()))
 
-	# 1. Round 1 selects exact routes in Push, Web, and MariaDB: three
+	# 1. Trial 1 selects exact routes in Push, Web, and MariaDB: three
 	# independent assignments, 0/3.
 	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
 	                 "title=parser recovery",
 	                 "origin=external-report", "classification=suspected-defect", "body=provider",
 	                 viewer="lang.ada")["work_id"]
-	created = flow.ok("round", f"work={lang42}", "candidate=driftc-A",
+	created = flow.ok("try", f"work={lang42}", "candidate=driftc-A",
 	                  "assign=push.verify", "assign=web.verify",
 	                  "assign=mdb.verify", viewer="lang.ada")
 	push_a, web_a, mdb_a = [str(seq) for seq in created["assignments"]]
 	assert flow.ok("detail", f"work={lang42}",
-	               viewer="lang.ada")["rounds"][0]["progress"] == "0/3"
+	               viewer="lang.ada")["trials"][0]["progress"] == "0/3"
 
 	# 2. Push reports passed; Lang accepts. 1/3.
 	flow.ok("report", f"obligation={push_a}", "observation=passed",
@@ -40,7 +40,7 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	flow.ok("assess", f"obligation={push_a}", "as=accepted",
 	        "rationale=clean run", viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}",
-	               viewer="lang.ada")["rounds"][0]["progress"] == "1/3"
+	               viewer="lang.ada")["trials"][0]["progress"] == "1/3"
 
 	# 3. Web reports failed; Lang REJECTS the report as a consumer
 	# configuration error. The projection says failed/rejected with both
@@ -50,7 +50,7 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	flow.ok("assess", f"obligation={web_a}", "as=rejected",
 	        "rationale=web's farm runs an unsupported libc",
 	        viewer="lang.ada")
-	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][0]
+	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["trials"][0]
 	assert staged["progress"] == "2/3"
 	web_entry = next(entry for entry in staged["assignments"]
 	                 if entry["endpoint"] == "web.verify")
@@ -66,7 +66,7 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	        viewer="mdb.mo")
 	flow.ok("assess", f"obligation={mdb_a}", "as=inconclusive",
 	        "rationale=no signal either way", viewer="lang.ada")
-	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][0]
+	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["trials"][0]
 	assert staged["progress"] == "3/3"
 	assert [entry["observation"] for entry in staged["assignments"]] == \
 		["passed", "failed", "unable"]
@@ -84,7 +84,7 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	flow.ok("assess", f"obligation={web_a}", "as=accepted",
 	        "rationale=reproduced on a supported libc after all",
 	        viewer="lang.ada")
-	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][0]
+	staged = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["trials"][0]
 	web_entry = next(entry for entry in staged["assignments"]
 	                 if entry["endpoint"] == "web.verify")
 	assert web_entry["observation"] == "failed", \

@@ -1,12 +1,12 @@
-"""WS2-WF-04 — failed candidate and a replacement round
+"""WS2-WF-04 — failed candidate and a replacement trial
 (WORKFLOW-TESTS.md WS-2 battery).
 
 The pinned order (R66): research, active, candidate A, review, failed
 feedback, active rework, candidate B, review, successful feedback, explicit
 close. An accepted failure resumes work only through the reviewer's EXPLICIT
-transition; the replacement candidate is a new round whose counter starts
+transition; the replacement candidate is a new trial whose counter starts
 empty; and only the eventual explicit close ends the provider gate. The
-audited event ORDER — phase acts interleaved with round creation, reports and
+audited event ORDER — phase acts interleaved with trial creation, reports and
 assessments — is asserted, not merely the phase subsequence.
 """
 
@@ -38,7 +38,7 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	# driftc-A is cut from active work, not from research.
 	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
 	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
-	first = flow.ok("round", f"work={lang42}", "candidate=driftc-A",
+	first = flow.ok("try", f"work={lang42}", "candidate=driftc-A",
 	                "assign=push.verify", "assign=web.verify",
 	                viewer="lang.ada")
 
@@ -65,20 +65,20 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	# review -> active is the reviewer's decision, never the feedback's.
 	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
 
-	# 5. Different candidate driftc-B: round 2, its counter starts empty —
-	# candidate identity is immutable inside round 1, and round 1's report
+	# 5. Different candidate driftc-B: trial 2, its counter starts empty —
+	# candidate identity is immutable inside trial 1, and trial 1's report
 	# does not carry forward.
-	second = flow.ok("round", f"work={lang42}", "candidate=driftc-B",
+	second = flow.ok("try", f"work={lang42}", "candidate=driftc-B",
 	                 "assign=push.verify", viewer="lang.ada")
-	assert second["round"] == 2
-	rounds = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"]
-	old, fresh = rounds[0], rounds[1]
+	assert second["trial"] == 2
+	trials = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["trials"]
+	old, fresh = trials[0], trials[1]
 	assert old["candidate"] == "driftc-A" and \
 		fresh["candidate"] == "driftc-B"
-	assert fresh["progress"] == "0/1", "round 1 evidence carried forward"
+	assert fresh["progress"] == "0/1", "trial 1 evidence carried forward"
 
-	# 6. The pending round-1 assignment (web) was explicitly withdrawn and
-	# notified; both rounds remain ordered audit evidence.
+	# 6. The pending trial-1 assignment (web) was explicitly withdrawn and
+	# notified; both trials remain ordered audit evidence.
 	assert old["status"] == "superseded"
 	assert old["progress"] == "1/2" and old["withdrawn"] == 1
 	withdrawals = [event for event in
@@ -109,12 +109,12 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is True
 
 	# 8. The audited ORDER, not just the phase subsequence: phase acts
-	# interleave with round creation, reports and assessments exactly as
+	# interleave with trial creation, reports and assessments exactly as
 	# the story ran — dense seqs guarantee nothing hides between them.
 	story = [(event["kind"], event["payload"]) for event in
 	         flow.ok("events", viewer="lang.ada")
 	         if event["payload"].get("work") == lang42 and
-	         event["kind"] in ("set_phase", "create_round", "report",
+	         event["kind"] in ("set_phase", "create_trial", "report",
 	                           "assess", "withdraw", "close_work")]
 	trail = [(kind,
 	          f"{payload['from']}->{payload['to']}"
@@ -125,12 +125,12 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	assert trail == [
 		("set_phase", "queued->research"),
 		("set_phase", "research->active"),
-		("create_round", "driftc-A"),
+		("create_trial", "driftc-A"),
 		("set_phase", "active->review"),
 		("report", "driftc-A"),
 		("assess", "accepted"),
 		("set_phase", "review->active"),
-		("create_round", "driftc-B"),
+		("create_trial", "driftc-B"),
 		("withdraw", "web.verify"),
 		("set_phase", "active->review"),
 		("report", "driftc-B"),
@@ -142,9 +142,9 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	summary = next(event for event in
 	               flow.ok("events", viewer="lang.ada")
 	               if event["kind"] == "close_work")["payload"][
-	               "round_summary"]
+	               "trial_summary"]
 	assert summary["candidate"] == "driftc-B", \
-		"the close audited the superseded round instead of the concluded one"
+		"the close audited the superseded trial instead of the concluded one"
 
 	flow.ok("close", f"work={push1}", "rationale=verified upstream",
 	        "outcome=satisfying", viewer="push.sl")

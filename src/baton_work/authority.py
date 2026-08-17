@@ -34,7 +34,10 @@ import unicodedata
 import time
 import unicodedata
 
-SCHEMA_VERSION = 15
+# Schema 16 (W202): the candidate-verification object is a TRIAL —
+# table `trials`, column `trial`, obligations.trial — created by the
+# `try` command. Fresh-authority evolution: no alias, no migration.
+SCHEMA_VERSION = 16
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -252,7 +255,7 @@ CREATE TABLE obligations (
 	handlers     TEXT,
 	generation   INTEGER,
 	flavor       TEXT NOT NULL DEFAULT 'response',
-	round        INTEGER,
+	trial        INTEGER,
 	observation  TEXT,
 	evidence     TEXT,
 	accepted_into TEXT REFERENCES work(id),
@@ -260,9 +263,9 @@ CREATE TABLE obligations (
 	status       TEXT NOT NULL DEFAULT 'pending',
 	resolved_seq INTEGER
 ) STRICT;
-CREATE TABLE rounds (
+CREATE TABLE trials (
 	work        TEXT NOT NULL REFERENCES work(id),
-	round       INTEGER NOT NULL,
+	trial       INTEGER NOT NULL,
 	candidate   TEXT NOT NULL,
 	status      TEXT NOT NULL DEFAULT 'open',
 	review_at   TEXT,
@@ -270,7 +273,7 @@ CREATE TABLE rounds (
 	created_ts  TEXT NOT NULL,
 	created_seq INTEGER NOT NULL,
 	ended_seq   INTEGER,
-	PRIMARY KEY (work, round)
+	PRIMARY KEY (work, trial)
 ) STRICT;
 CREATE TABLE assessments (
 	seq         INTEGER PRIMARY KEY,

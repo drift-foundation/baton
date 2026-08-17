@@ -98,7 +98,7 @@ export async function runBridge(config, {
 			envelope = runWait
 				? await runWait()
 				: await waitOnce(config, { signal });
-			// The shared projection-5 gate guards EVERY path into the
+			// The shared projection-6 gate guards EVERY path into the
 			// agent — scripted test feeds included.
 			validateEnvelope(envelope, config.baton.participant);
 		} catch (error) {

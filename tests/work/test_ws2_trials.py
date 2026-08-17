@@ -1,7 +1,7 @@
-"""WS-2 group 2: candidate rounds, exact assignments, immutable reports,
+"""WS-2 group 2: candidate trials, exact assignments, immutable reports,
 append-only assessments, consistent counters, abandon/withdraw.
 
-Every assertion traces to the pinned rulings: a round pins one exact
+Every assertion traces to the pinned rulings: a trial pins one exact
 candidate and an exact selected verifier set; a report is the verifier's
 immutable raw observation (passed|failed|unable) and never transitions
 anything; the reviewer's assessment (accepted|rejected|inconclusive) is a
@@ -51,8 +51,8 @@ def _provider(store):
 
 def _round_view(store, work, number):
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	return next(entry for entry in detail["rounds"]
-	            if entry["round"] == number)
+	return next(entry for entry in detail["trials"]
+	            if entry["trial"] == number)
 
 
 # -- creation: candidate pinning and exact cardinality -----------------------
@@ -60,10 +60,10 @@ def _round_view(store, work, number):
 def test_a_round_pins_its_candidate_and_exact_selection(world):
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify", "web.verify"])
-	assert created["round"] == 1
+	assert created["trial"] == 1
 	view = _round_view(store, work, 1)
 	assert view["candidate"] == "driftc-A"
 	assert view["status"] == "open"
@@ -82,25 +82,25 @@ def test_round_creation_refusals(world):
 	store, _config = world
 	work = _provider(store)
 	with pytest.raises(bw.WorkError, match="candidate"):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="  ", assign=["push.verify"])
 	with pytest.raises(bw.WorkError, match="at least one"):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A", assign=[])
 	with pytest.raises(bw.WorkError, match="exactly one endpoint"):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A", assign=["*.verify"])
 	with pytest.raises(bw.WorkError, match="selected twice"):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A",
 		                assign=["push.verify", "push.verify"])
 	with pytest.raises(bw.WorkError, match="never grant"):
-		tr.create_round(store, work, actor_team="lang", actor="grace",
+		tr.create_trial(store, work, actor_team="lang", actor="grace",
 		                candidate="driftc-A", assign=["push.verify"])
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="closed"):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A", assign=["push.verify"])
 
 
@@ -115,7 +115,7 @@ def test_a_report_is_immutable_and_transitions_nothing(world):
 	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl")
 	tr.set_phase(store, consumer, actor_team="push", actor="sl",
 	             phase="waiting", wait="gates")
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	assignment = created["assignments"][0]
@@ -152,7 +152,7 @@ def test_a_report_is_immutable_and_transitions_nothing(world):
 def test_only_the_assignment_route_handler_reports(world):
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	assignment = created["assignments"][0]
@@ -176,7 +176,7 @@ def test_verification_assignments_refuse_classic_terminal_verbs(world):
 	classic response/disposal must not create unprojectable assignment states."""
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify", "web.verify"])
 	with pytest.raises(bw.WorkError, match="verification"):
@@ -193,7 +193,7 @@ def test_verification_assignments_refuse_classic_terminal_verbs(world):
 def test_assessment_is_append_only_and_never_rewrites_the_report(world):
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	assignment = created["assignments"][0]
@@ -229,15 +229,15 @@ def test_assessment_is_append_only_and_never_rewrites_the_report(world):
 def test_a_new_candidate_starts_a_new_round_and_withdraws_the_old(world):
 	store, _config = world
 	work = _provider(store)
-	first = tr.create_round(store, work, actor_team="lang", actor="ada",
+	first = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                        candidate="driftc-A",
 	                        assign=["push.verify", "web.verify"])
 	tr.report(store, first["assignments"][0], team="push", member="sl",
 	          observation="failed", evidence="crash")
-	second = tr.create_round(store, work, actor_team="lang", actor="ada",
+	second = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                         candidate="driftc-B",
 	                         assign=["push.verify"])
-	assert second["round"] == 2
+	assert second["trial"] == 2
 	old = _round_view(store, work, 1)
 	assert old["status"] == "superseded"
 	assert old["progress"] == "1/2" and old["withdrawn"] == 1, \
@@ -245,8 +245,8 @@ def test_a_new_candidate_starts_a_new_round_and_withdraws_the_old(world):
 	assert old["candidate"] == "driftc-A"
 	fresh = _round_view(store, work, 2)
 	assert fresh["progress"] == "0/1", \
-		"a round-1 report carried into round 2"
-	# The withdrawn round-1 assignment refuses late replies.
+		"a trial-1 report carried into trial 2"
+	# The withdrawn trial-1 assignment refuses late replies.
 	web_assignment = first["assignments"][1]
 	with pytest.raises(bw.WorkError, match="already withdrawn"):
 		tr.report(store, web_assignment, team="web", member="wren",
@@ -259,39 +259,39 @@ def test_a_new_candidate_starts_a_new_round_and_withdraws_the_old(world):
 def test_abandon_ends_the_round_but_not_the_work(world):
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify", "web.verify",
 	                                  "mdb.verify"])
 	tr.report(store, created["assignments"][0], team="push", member="sl",
 	          observation="passed", evidence="clean run")
 	with pytest.raises(bw.WorkError, match="never grant"):
-		tr.abandon_round(store, work, 1, actor_team="push", actor="sl",
+		tr.abandon_trial(store, work, 1, actor_team="push", actor="sl",
 		                 reason="reporters do not steer")
-	tr.abandon_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.abandon_trial(store, work, 1, actor_team="lang", actor="ada",
 	                 reason="strategy changed")
 	view = _round_view(store, work, 1)
 	assert view["status"] == "abandoned"
 	assert view["progress"] == "1/3" and view["withdrawn"] == 2
 	assert store.conn.execute(
 		"SELECT status FROM work WHERE id=?", (work,)).fetchone()["status"] \
-		== "open", "abandoning a round touched the work lifecycle"
+		== "open", "abandoning a trial touched the work lifecycle"
 	withdrawals = [e for e in store.events() if e["kind"] == "withdraw"]
 	assert {e["payload"]["endpoint"] for e in withdrawals} == \
 		{"web.verify", "mdb.verify"}
 	with pytest.raises(bw.WorkError, match="already abandoned"):
-		tr.abandon_round(store, work, 1, actor_team="lang", actor="ada",
+		tr.abandon_trial(store, work, 1, actor_team="lang", actor="ada",
 		                 reason="twice")
-	# A later candidate needs a NEW round with NEW assignments.
-	again = tr.create_round(store, work, actor_team="lang", actor="ada",
+	# A later candidate needs a NEW trial with NEW assignments.
+	again = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                        candidate="driftc-B", assign=["push.verify"])
-	assert again["round"] == 2
+	assert again["trial"] == 2
 
 
 def test_work_close_ends_open_rounds_and_every_assignment(world):
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify", "web.verify"])
 	tr.report(store, created["assignments"][0], team="push", member="sl",
@@ -314,7 +314,7 @@ def test_work_close_ends_open_rounds_and_every_assignment(world):
 def test_reassignment_moves_round_authority_not_history(world):
 	store, config_path = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	snapshot = store.conn.execute(
@@ -329,9 +329,9 @@ def test_reassignment_moves_round_authority_not_history(world):
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	lc.accept_config(config_path, actor="lang.ada")
 	with pytest.raises(bw.WorkError, match="never grant"):
-		tr.abandon_round(store, work, 1, actor_team="lang", actor="ada",
+		tr.abandon_trial(store, work, 1, actor_team="lang", actor="ada",
 		                 reason="no longer the handler")
-	tr.abandon_round(store, work, 1, actor_team="lang", actor="grace",
+	tr.abandon_trial(store, work, 1, actor_team="lang", actor="grace",
 	                 reason="authority follows the accepted generation")
 	after = store.conn.execute(
 		"SELECT handlers, generation FROM obligations WHERE seq=?",
@@ -349,7 +349,7 @@ def test_report_audit_pins_the_candidate_and_evidence(world):
 	tables is not the same as recording it in the immutable act."""
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A+sha256:1234",
 	                          assign=["push.verify"])
 	result = tr.report(store, created["assignments"][0], team="push",
@@ -367,7 +367,7 @@ def test_reassessment_explicitly_supersedes_the_prior_act(world):
 	an explicit supersession and must name the act it supersedes."""
 	store, _config = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	assignment = created["assignments"][0]
@@ -388,11 +388,11 @@ def test_detail_declares_the_round_actions_available_to_the_handler(world):
 	store, _config = world
 	work = _provider(store)
 	before = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert "create_round" in before["available_transitions"]
-	assert "abandon_round" not in before["available_transitions"]
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	assert "create_trial" in before["available_transitions"]
+	assert "abandon_trial" not in before["available_transitions"]
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"])
 	after = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert "create_round" in after["available_transitions"], \
+	assert "create_trial" in after["available_transitions"], \
 		"publishing a replacement candidate is a declared operation"
-	assert "abandon_round" in after["available_transitions"]
+	assert "abandon_trial" in after["available_transitions"]

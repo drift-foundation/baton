@@ -3,7 +3,7 @@
 THE PINNED MODEL, exactly: open on a borderless fixed-column table of the
 viewer's top-level Work; Enter drills into a table of immediate children, the
 same interaction at every depth; a persistent breadcrumb names the drilled
-path; `o` opens the focused Work view (facts, rounds, and the selectable
+path; `o` opens the focused Work view (facts, trials, and the selectable
 thread set); Enter there opens one thread's paged thread — never
 several merged into a false timeline. `b` shows blocking/dependent neighbors
 with stable ids and drills through on Enter. Column priorities, sorting and
@@ -36,9 +36,9 @@ from baton_work import transitions
 # identity is never abbreviated (6/6 rule makes them fit by construction).
 # Gate B: the set is exactly the canonical projection's row fields — the
 # renderer formats them and never aggregates or invents a value.
-COLUMNS = (("ST", 6), ("PR", 2), ("PHASE", 5), ("CLS", 5),
+COLUMNS = (("ST", 6), ("PR", 2), ("PHASE", 6), ("CLS", 5),
            ("MSG/MY", 7), ("CURRENT", 13), ("NEXT", 13), ("NEW", 4),
-           ("AGE", 6))
+           ("HELD", 6))
 
 # Header LABELS where plain capitalize() would miscase a compound name —
 # plus the ruled `Cat` display label for the classification column
@@ -53,7 +53,7 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat"}
 # with an explicit too-narrow line instead of truncating identities.
 # W3 (ruled): Pr is the FIRST whole column omitted under width
 # pressure, preserving every previously existing narrow layout.
-DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "AGE", "NEXT")
+DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT")
 MIN_TITLE = 10
 
 # One bounded page of a Work's thread SET (prototype size): `n` pages
@@ -174,24 +174,23 @@ def visible_columns(width: int, id_width: int = 0):
 	return tuple(columns)
 
 
-def age_cell(claimed_at, now) -> str:
-	"""W33: the final Age display — elapsed time since the CURRENT
-	claim committed, derived client-side from the canonical claimed_at
-	and the local clock. One fixed five-cell value: MM:SS below one
-	hour, HH:MM through 99 hours, `99h+` beyond, `-` with no current
-	claim. Clock corrections clamp to zero; never a second scheduler
-	and never an extra authority read."""
-	if claimed_at is None:
+def held_cell(since, now) -> str:
+	"""W226 (superseding W33's mixed MM:SS/HH:MM): ONE hours:minutes
+	interpretation for every ordinary value — elapsed time floored to
+	complete minutes, `00:00` through `99:59` as HH:MM, `99h+` above
+	that fixed-width range, `-` with no reference instant. Clock
+	corrections clamp to zero; derived client-side from a canonical
+	instant and the local clock — never a second scheduler, never an
+	extra authority read."""
+	if since is None:
 		return "-"
 	import datetime as _dt
 	stamp = _dt.datetime.fromisoformat(
-		claimed_at.replace("Z", "+00:00")).timestamp()
-	elapsed = max(0, int(now - stamp))
-	if elapsed < 3600:
-		return f"{elapsed // 60:02d}:{elapsed % 60:02d}"
-	hours = elapsed // 3600
+		since.replace("Z", "+00:00").replace(" ", "T")).timestamp()
+	minutes = max(0, int(now - stamp)) // 60
+	hours = minutes // 60
 	if hours <= 99:
-		return f"{hours:02d}:{(elapsed % 3600) // 60:02d}"
+		return f"{hours:02d}:{minutes % 60:02d}"
 	return "99h+"
 
 
@@ -200,22 +199,52 @@ def age_cell(claimed_at, now) -> str:
 STALL_AFTER_SECONDS = 360
 
 
-def age_field(claimed_at, heartbeat_at, now) -> str:
-	"""W47: the six-cell reserved Age field — the claim timer plus the
-	liveness suffix: a trailing space while healthy, `!` once six
-	minutes pass without a successful beat (the claim itself is the
-	first beat), cleared by the next beat. Informational ONLY: a stale
-	suffix never releases, transfers, rephases, or permits a second
-	claimant. Clock corrections clamp healthy."""
-	timer = age_cell(claimed_at, now)
-	if claimed_at is None:
-		return timer
+def held_field(row, now) -> str:
+	"""W226: the six-cell state-dependent Held field.
+
+	CLAIMED: HH:MM since canonical claimed_at (the visible reset at
+	pickup preserves when the recipient actually took the Work) plus
+	the W47 liveness suffix — a trailing space while healthy, `!` once
+	six minutes pass without a successful beat; the suffix never
+	resets the timer. PENDING PICKUP: `>HH:MM` since the committed
+	handoff, `!HH:MM` once six minutes pass unclaimed — informational
+	ONLY; no prefix, suffix, or elapsed time ever mutates workflow
+	authority. Unclaimed never-passed Work renders `-`."""
+	claimed_at = row.get("claimed_at")
+	if claimed_at is not None:
+		timer = held_cell(claimed_at, now)
+		import datetime as _dt
+		last_beat = row.get("heartbeat_at") or claimed_at
+		stamp = _dt.datetime.fromisoformat(
+			last_beat.replace("Z", "+00:00").replace(" ", "T")).timestamp()
+		silent = max(0, int(now - stamp))
+		return timer + ("!" if silent >= STALL_AFTER_SECONDS else " ")
+	handoff_at = row.get("handoff_at")
+	if handoff_at is None or row.get("status") == "closed":
+		return "-"
 	import datetime as _dt
-	last_beat = heartbeat_at or claimed_at
 	stamp = _dt.datetime.fromisoformat(
-		last_beat.replace("Z", "+00:00")).timestamp()
-	silent = max(0, int(now - stamp))
-	return timer + ("!" if silent >= STALL_AFTER_SECONDS else " ")
+		handoff_at.replace("Z", "+00:00").replace(" ", "T")).timestamp()
+	waiting = max(0, int(now - stamp))
+	prefix = "!" if waiting >= STALL_AFTER_SECONDS else ">"
+	return prefix + held_cell(handoff_at, now)
+
+
+def pickup_prefix(row, now) -> str:
+	"""W226 step 4: the compact Phase cell's pickup cue — `>` for an
+	unclaimed operational handoff, `!` once six minutes pass without a
+	claim, a space otherwise. Claiming removes the prefix; glyphs are
+	presentation only and the structured facts stay in JSON."""
+	if row.get("claimed_at") is not None or row.get("status") == "closed":
+		return " "
+	handoff_at = row.get("handoff_at")
+	if handoff_at is None:
+		return " "
+	import datetime as _dt
+	stamp = _dt.datetime.fromisoformat(
+		handoff_at.replace("Z", "+00:00").replace(" ", "T")).timestamp()
+	waiting = max(0, int(now - stamp))
+	return "!" if waiting >= STALL_AFTER_SECONDS else ">"
 
 
 def blocker_cue(row: dict) -> str:
@@ -632,7 +661,7 @@ class Console:
 		pending = sum(1 for action in mine
 		              if action["kind"] == "obligation")
 		due = sum(1 for action in mine
-		          if action["kind"] == "due_round")
+		          if action["kind"] == "due_trial")
 		suffix = (f"  [oblig:{pending}] [park:{summary['parked']}]"
 		          f" [due:{due}]")
 		# W71: the DETAIL view identifies its Work with the real
@@ -791,7 +820,8 @@ class Console:
 		return {
 			"ST": status_cell(row),
 			"PR": compact_priority(row["priority"]),
-			"PHASE": phase_cell(row["status"], row["phase"]),
+			"PHASE": pickup_prefix(row, _time.time())
+			         + phase_cell(row["status"], row["phase"]),
 			"CLS": compact_classification(row["classification"]),
 			# W36: conversation volume and MY directed load, combined
 			# compactly here only — the canonical fields stay separate.
@@ -800,8 +830,7 @@ class Console:
 			# W33: presentation-derived from the canonical claimed_at
 			# and the local clock at paint time — advanced by the ONE
 			# existing refresh cadence, no second scheduler.
-			"AGE": age_field(row.get("claimed_at"),
-			                 row.get("heartbeat_at"), _time.time()),
+			"HELD": held_field(row, _time.time()),
 			"CURRENT": row["current"]["endpoint"] if row["current"]
 			else "-",
 			"NEXT": row["next"]["endpoint"] if row["next"] else "-",
@@ -941,8 +970,8 @@ class Console:
 		if height - 2 > footer_row:
 			screen.addnstr(
 				height - 2, 0,
-				"Enter details · u unfold · Esc back · z closed · "
-				"[b] deps · : command · q quit", width - 1)
+				"Enter details · u unfold · c claim · z closed · "
+				"[b] deps · Esc back · : command · q quit", width - 1)
 
 	def _thread_autoselect(self) -> None:
 		"""The ruled default across EVERY bounded page of the detail
@@ -1084,10 +1113,10 @@ class Console:
 		for offset, text in enumerate(facts):
 			screen.addnstr(2 + offset, 0, text, width - 1)
 		offset_row = 2 + len(facts)
-		if detail["rounds"]:
-			latest = detail["rounds"][-1]
+		if detail["trials"]:
+			latest = detail["trials"][-1]
 			flags = "due" if latest["due"] else latest["status"]
-			line = (f"R{latest['round']} {latest['candidate']} "
+			line = (f"Trial {latest['trial']} {latest['candidate']} "
 			        f"{latest['progress']} {flags} "
 			        f"wthdr:{latest['withdrawn']}")
 			screen.addnstr(offset_row, 0, line, width - 1)
@@ -1508,7 +1537,7 @@ class Console:
 			self._batch_go()
 			return True
 		if key in (10, 13, curses.KEY_ENTER):
-			# R1 (round 2): every buffer MUTATION makes the previous
+			# R1 (trial 2): every buffer MUTATION makes the previous
 			# run summary stale — invalidate it so the legend's
 			# Go/cancel controls return. Cursor-only movement (below)
 			# keeps a still-applicable summary.
@@ -1725,6 +1754,19 @@ class Console:
 		elif 32 <= key <= 126:
 			self.search_input += chr(key)
 
+	def _claim_selected(self, rows) -> None:
+		"""W235 (+R1): claim the chosen Work through the ONE canonical
+		command path — the same atomic claim operation and the same
+		committed-only refresh the typed bar uses — shared by the root
+		table and the search-result mode. The authority stays final: a
+		refusal surfaces its diagnostic untouched and no local state
+		pretends otherwise; the id-anchored selection survives the
+		refresh. Search-entry text and the detail panes never reach
+		this helper."""
+		target = rows[min(self.cursor, len(rows) - 1)]["id"]
+		self.selected_id = target
+		self.execute(f"claim work={target}")
+
 	def _search_mode_key(self, key: int) -> bool:
 		"""The flat result mode: ordinary selection, ordinary detail
 		entry, replacement queries, bounded paging, and the exact Esc
@@ -1763,6 +1805,10 @@ class Console:
 			self.search_page = 1
 			self.cursor = 0
 			self.selected_id = None
+		elif key == ord("c") and rows:
+			# W235 R1: search results are selectable Work — the SAME
+			# shared claim path as the root table.
+			self._claim_selected(rows)
 		elif key == 27:
 			# the exact prior table state returns — path, cursor,
 			# selection, AND closed visibility (R2); the filter was
@@ -1928,6 +1974,8 @@ class Console:
 			self.links_work = rows[self.cursor]["id"]
 			self.links_cursor = 0
 			self.mode = "links"
+		elif key == ord("c") and rows:
+			self._claim_selected(rows)
 		elif key == ord("z"):
 			self.show_closed = not self.show_closed
 			shown, _hidden = self.visible_rows(self.rows())

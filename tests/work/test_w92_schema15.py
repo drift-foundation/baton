@@ -1,4 +1,4 @@
-"""W92: schema 15 carries the selected persisted-state groundwork.
+"""W92: schema 16 carries the selected persisted-state groundwork.
 
 The fresh-authority cutover ships the parked persisted state that schema 14
 could not hold: required team-local Work `priority` (W10) and the stable
@@ -37,8 +37,8 @@ def store(tmp_path):
 		yield authority
 
 
-def test_the_fresh_authority_is_schema_15(store):
-	assert store.meta()["schema_version"] == "15"
+def test_the_fresh_authority_is_schema_16(store):
+	assert store.meta()["schema_version"] == "16"
 
 
 def test_created_work_defaults_to_normal_priority(store):

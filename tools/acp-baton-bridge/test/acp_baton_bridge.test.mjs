@@ -25,7 +25,7 @@ function envelope(actions, { timedOut = false,
                              uuid = UUID } = {}) {
 	return {
 		protocol_version: 11,
-		projection_version: "5.0",
+		projection_version: "6.0",
 		participant,
 		authority_uuid: uuid,
 		snapshot_seq: 42,

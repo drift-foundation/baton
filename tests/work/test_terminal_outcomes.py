@@ -78,7 +78,7 @@ def _rig(store):
 	asked = tr.post_thread(store, thread, author_team="lang",
 	                           author="ada", body="push: confirm",
 	                           request="push.bug", on=work)["seq"]
-	assigned = tr.create_round(store, work, actor_team="lang",
+	assigned = tr.create_trial(store, work, actor_team="lang",
 	                           actor="ada", candidate="c1",
 	                           assign=["push.bug"])["assignments"][0]
 	return {"work": work, "thread": thread, "single": single,
@@ -126,7 +126,7 @@ def test_every_outcome_dismantles_the_same_machine(world, outcome):
 	assert closing["actor"] == "lang.ada"
 	assert closing["payload"]["outcome"] == outcome
 	assert closing["payload"]["rationale"] == "the terminal basis"
-	assert closing["payload"]["round_summary"]["candidate"] == "c1"
+	assert closing["payload"]["trial_summary"]["candidate"] == "c1"
 	# Immutable: a second close and any later carrying refuse.
 	with pytest.raises(bw.WorkError, match="already closed"):
 		tr.close_work(store, rig["work"], actor_team="lang", actor="ada",
@@ -327,7 +327,7 @@ def test_close_races_serialize_into_one_history(world):
 	                       outcome="satisfying")
 	summary = next(event for event in store.events()
 	               if event["seq"] == result["seq"])["payload"][
-	               "round_summary"]
+	               "trial_summary"]
 	assert summary["progress"] == "1/1"
 	assert summary["observations"]["passed"] == 1
 

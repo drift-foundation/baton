@@ -805,14 +805,14 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 			conn, work_id, actor_team, actor, "close")
 		payload["was_current_team"] = live["current_team"]
 		payload["was_current_kind"] = live["current_kind"]
-		# WS-2 group 2: rounds end with their work — no assignment stays
-		# actionable. Group 3: the close AUDITS the concluded round's
+		# WS-2 group 2: trials end with their work — no assignment stays
+		# actionable. Group 3: the close AUDITS the concluded trial's
 		# evidence basis — candidate, receipt fraction, raw observation
 		# summary, elapsed exposure, and the pending assignments about to
 		# be withdrawn — recording the basis of the judgment without
 		# fabricating feedback.
 		concluding = conn.execute(
-			"SELECT * FROM rounds WHERE work=? AND status='open'",
+			"SELECT * FROM trials WHERE work=? AND status='open'",
 			(work_id,)).fetchone()
 		if concluding is not None:
 			tally = {"passed": 0, "failed": 0, "unable": 0}
@@ -820,9 +820,9 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 			still_pending = []
 			for entry in conn.execute(
 					"SELECT team, kind, status, observation FROM "
-					"obligations WHERE work=? AND round=? "
+					"obligations WHERE work=? AND trial=? "
 					"AND flavor='verification'",
-					(work_id, concluding["round"])):
+					(work_id, concluding["trial"])):
 				assigned += 1
 				if entry["status"] == "reported":
 					reported += 1
@@ -830,8 +830,8 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 				elif entry["status"] == "pending":
 					still_pending.append(
 						f"{entry['team']}.{entry['kind']}")
-			payload["round_summary"] = {
-				"round": concluding["round"],
+			payload["trial_summary"] = {
+				"trial": concluding["trial"],
 				"candidate": concluding["candidate"],
 				"progress": f"{reported}/{assigned}",
 				"observations": tally,
@@ -844,7 +844,7 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 				"basis": rationale,
 			}
 		conn.execute(
-			"UPDATE rounds SET status='closed', ended_seq=? "
+			"UPDATE trials SET status='closed', ended_seq=? "
 			"WHERE work=? AND status='open'", (seq, work_id))
 		conn.execute(
 			"UPDATE work SET status=?, ready=0, outcome=?, rationale=?, "
@@ -1285,7 +1285,7 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 	                    references=refs)
 
 
-# -- WS-2 group 2: candidate verification rounds ------------------------------
+# -- WS-2 group 2: candidate verification trials ------------------------------
 
 def _canonical_instant(value, what: str) -> str:
 	"""R41: a deadline is a REAL canonical UTC instant in exactly the
@@ -1308,25 +1308,25 @@ def _canonical_instant(value, what: str) -> str:
 	return value
 
 
-def _round(store: Authority, work_id: str, round_number: int):
+def _trial(store: Authority, work_id: str, trial_number: int):
 	row = store.conn.execute(
-		"SELECT * FROM rounds WHERE work=? AND round=?",
-		(work_id, round_number)).fetchone()
+		"SELECT * FROM trials WHERE work=? AND trial=?",
+		(work_id, trial_number)).fetchone()
 	if row is None:
-		raise WorkError(f"{work_id} has no round {round_number}")
+		raise WorkError(f"{work_id} has no trial {trial_number}")
 	return row
 
 
-def create_round(store: Authority, work_id: str, *, actor_team: str,
+def create_trial(store: Authority, work_id: str, *, actor_team: str,
                  actor: str, candidate: str, assign,
                  review_at: str | None = None,
                  op_id: str | None = None, refs=()) -> dict:
-	"""One verification round for one EXACT candidate, with an exact
+	"""One verification trial for one EXACT candidate, with an exact
 	selected set of verifier routes (each an @ verification obligation —
 	actionable for testing WITHOUT clearing anyone's dependency, granting
 	no mutation authority, and never a wake condition).
 
-	Publishing a different candidate is a NEW round: any open round is
+	Publishing a different candidate is a NEW trial: any open trial is
 	superseded and its pending assignments are withdrawn with route
 	notification — replies stay pinned to the exact candidate they tested
 	and never carry forward silently."""
@@ -1335,7 +1335,7 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 		assign = [assign]
 	assign = list(assign or [])
 	refs = _parse_refs(store, refs)
-	operation = _operation(store, actor_team, actor, "create_round",
+	operation = _operation(store, actor_team, actor, "create_trial",
 	                       op_id, {"work": work_id,
 	                               "candidate": candidate,
 	                               "assign": assign,
@@ -1345,21 +1345,21 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 	row = _work(store, work_id)
 	if row["status"] != OPEN:
 		raise WorkError(f"{work_id} is {row['status']}; a closed work "
-		                f"takes no verification rounds")
+		                f"takes no verification trials")
 	if not isinstance(candidate, str) or not candidate.strip():
-		raise WorkError("a round names its exact candidate/artifact; "
+		raise WorkError("a trial names its exact candidate/artifact; "
 		                "candidate identity is required and immutable")
 	if isinstance(assign, str):
 		assign = [assign]
 	if not assign:
-		raise WorkError("a round selects at least one exact verifier route")
+		raise WorkError("a trial selects at least one exact verifier route")
 	selected = []
 	for endpoint in assign:
 		pair = _one_endpoint(store, endpoint, "verification assignment")
 		if pair in selected:
 			raise WorkError(
 				f"verification assignment {endpoint!r} is selected twice; "
-				f"one round creates at most one obligation per endpoint")
+				f"one trial creates at most one obligation per endpoint")
 		selected.append(pair)
 
 	if review_at is not None:
@@ -1379,50 +1379,50 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 		                    (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; a closed work "
-			                f"takes no verification rounds")
+			                f"takes no verification trials")
 		payload["authorization"] = _handler_gate(
-			conn, work_id, actor_team, actor, "create round")
+			conn, work_id, actor_team, actor, "try")
 		previous = conn.execute(
-			"SELECT round FROM rounds WHERE work=? AND status='open'",
+			"SELECT trial FROM trials WHERE work=? AND status='open'",
 			(work_id,)).fetchone()
 		if previous is not None:
 			conn.execute(
-				"UPDATE rounds SET status='superseded', ended_seq=? "
-				"WHERE work=? AND round=?",
-				(seq, work_id, previous["round"]))
+				"UPDATE trials SET status='superseded', ended_seq=? "
+				"WHERE work=? AND trial=?",
+				(seq, work_id, previous["trial"]))
 			_withdraw_pending(conn, work_id, f"{actor_team}.{actor}",
-			                  "superseded by a new candidate round",
-			                  round_number=previous["round"])
-			payload["supersedes"] = previous["round"]
+			                  "superseded by a new candidate trial",
+			                  trial_number=previous["trial"])
+			payload["supersedes"] = previous["trial"]
 		# R42: ONE transaction-local instant — the deadline is rechecked
 		# against it inside the committing write (it may have passed since
-		# the optimistic check), and it becomes the round's created_ts.
+		# the optimistic check), and it becomes the trial's created_ts.
 		now = store.clock()
 		if review_at is not None and review_at <= now:
 			raise WorkError(
 				f"review_at {review_at!r} is not later than now ({now}); "
 				f"a deadline born expired is a loose end")
 		number = (conn.execute(
-			"SELECT COALESCE(MAX(round), 0) AS n FROM rounds WHERE work=?",
+			"SELECT COALESCE(MAX(trial), 0) AS n FROM trials WHERE work=?",
 			(work_id,)).fetchone()["n"]) + 1
 		conn.execute(
-			"INSERT INTO rounds (work, round, candidate, status, "
+			"INSERT INTO trials (work, trial, candidate, status, "
 			"review_at, deadline_generation, created_ts, created_seq) "
 			"VALUES (?, ?, ?, 'open', ?, ?, ?, ?)",
 			(work_id, number, candidate, review_at,
 			 1 if review_at else 0, now, seq))
-		payload["round"] = number
+		payload["trial"] = number
 		payload["assignments"] = []
 		for team, kind in selected:
 			resolution = resolve_endpoint(conn, team, kind,
 			                              "verification assignment")
 			assignment_seq = _emit(
 				conn, "assign", f"{actor_team}.{actor}",
-				{"work": work_id, "round": number,
+				{"work": work_id, "trial": number,
 				 "candidate": candidate, "resolution": resolution})
 			conn.execute(
 				"INSERT INTO obligations (seq, work, message_seq, team, "
-				"kind, route, role, handlers, generation, flavor, round) "
+				"kind, route, role, handlers, generation, flavor, trial) "
 				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'verification', ?)",
 				(assignment_seq, work_id, seq, team, kind,
 				 resolution["route"], resolution["role"],
@@ -1430,29 +1430,29 @@ def create_round(store: Authority, work_id: str, *, actor_team: str,
 				 resolution["generation"], number))
 			payload["assignments"].append(
 				{"obligation": assignment_seq, "resolution": resolution})
-		mutate.round_number = number
+		mutate.trial_number = number
 
 	def finish(result):
-		result["round"] = mutate.round_number
+		result["trial"] = mutate.trial_number
 		result["assignments"] = [entry["obligation"]
 		                         for entry in payload["assignments"]]
 
-	return store._write("create_round", f"{actor_team}.{actor}",
+	return store._write("create_trial", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
 	                    finish=finish, references=refs)
 
 
 def _withdraw_pending(conn, work_id: str, actor: str, reason: str,
-                      round_number=None) -> None:
-	"""Withdraw pending obligations (optionally one round's) with the
+                      trial_number=None) -> None:
+	"""Withdraw pending obligations (optionally one trial's) with the
 	audited per-obligation notification — shared by close, supersession,
 	and abandon. Withdrawal never fabricates feedback."""
 	import json as _json
 	clause = "work=? AND status='pending'"
 	params = [work_id]
-	if round_number is not None:
-		clause += " AND round=?"
-		params.append(round_number)
+	if trial_number is not None:
+		clause += " AND trial=?"
+		params.append(trial_number)
 	for obligation in conn.execute(
 			f"SELECT seq, team, kind, route, role, handlers, generation "
 			f"FROM obligations WHERE {clause}", params).fetchall():
@@ -1473,7 +1473,7 @@ def report(store: Authority, obligation_seq: int, *, team: str, member: str,
            observation: str, evidence: str,
            op_id: str | None = None, refs=()) -> dict:
 	"""The verifier's IMMUTABLE raw observation: exactly passed, failed, or
-	unable, with evidence, pinned to its assignment/round/candidate. It
+	unable, with evidence, pinned to its assignment/trial/candidate. It
 	never votes, transitions, satisfies, wakes, or closes anything."""
 	_member(store, team, member)
 	refs = _parse_refs(store, refs)
@@ -1499,9 +1499,9 @@ def report(store: Authority, obligation_seq: int, *, team: str, member: str,
 		raise WorkError(f"assignment {obligation_seq} is already "
 		                f"{obligation['status']}")
 
-	pinned = _round(store, obligation["work"], obligation["round"])
+	pinned = _trial(store, obligation["work"], obligation["trial"])
 	payload = {"work": obligation["work"], "obligation": obligation_seq,
-	           "round": obligation["round"],
+	           "trial": obligation["trial"],
 	           "candidate": pinned["candidate"],
 	           "observation": observation, "evidence": evidence}
 
@@ -1591,69 +1591,69 @@ def assess(store: Authority, obligation_seq: int, *, actor_team: str,
 	                    references=refs)
 
 
-def abandon_round(store: Authority, work_id: str, round_number: int, *,
+def abandon_trial(store: Authority, work_id: str, trial_number: int, *,
                   actor_team: str, actor: str, reason: str,
                   op_id: str | None = None, refs=()) -> dict:
-	"""End a round WITHOUT closing the work: pending assignments are
+	"""End a trial WITHOUT closing the work: pending assignments are
 	withdrawn with route notification, candidate and report history stay
 	immutable, and no provider or consumer lifecycle state changes."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
-	operation = _operation(store, actor_team, actor, "abandon_round",
-	                       op_id, {"work": work_id, "round": round_number,
+	operation = _operation(store, actor_team, actor, "abandon_trial",
+	                       op_id, {"work": work_id, "trial": trial_number,
 	                               "reason": reason, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_work(store, work_id)
-	existing = _round(store, work_id, round_number)
+	existing = _trial(store, work_id, trial_number)
 	if existing["status"] != "open":
-		raise WorkError(f"round {round_number} of {work_id} is already "
+		raise WorkError(f"trial {trial_number} of {work_id} is already "
 		                f"{existing['status']}")
 	if not isinstance(reason, str) or not reason.strip():
-		raise WorkError("abandoning a round records a reason")
+		raise WorkError("abandoning a trial records a reason")
 
-	payload = {"work": work_id, "round": round_number, "reason": reason}
+	payload = {"work": work_id, "trial": trial_number, "reason": reason}
 
 	def mutate(conn, seq):
 		live = conn.execute(
-			"SELECT status FROM rounds WHERE work=? AND round=?",
-			(work_id, round_number)).fetchone()
+			"SELECT status FROM trials WHERE work=? AND trial=?",
+			(work_id, trial_number)).fetchone()
 		if live["status"] != "open":
-			raise WorkError(f"round {round_number} of {work_id} is "
+			raise WorkError(f"trial {trial_number} of {work_id} is "
 			                f"already {live['status']}")
 		payload["authorization"] = _handler_gate(
-			conn, work_id, actor_team, actor, "abandon round")
+			conn, work_id, actor_team, actor, "abandon trial")
 		conn.execute(
-			"UPDATE rounds SET status='abandoned', ended_seq=? "
-			"WHERE work=? AND round=?", (seq, work_id, round_number))
+			"UPDATE trials SET status='abandoned', ended_seq=? "
+			"WHERE work=? AND trial=?", (seq, work_id, trial_number))
 		_withdraw_pending(conn, work_id, f"{actor_team}.{actor}",
-		                  reason, round_number=round_number)
+		                  reason, trial_number=trial_number)
 
-	return store._write("abandon_round", f"{actor_team}.{actor}",
+	return store._write("abandon_trial", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
 	                    references=refs)
 
 
-def extend_round(store: Authority, work_id: str, round_number: int, *,
+def extend_trial(store: Authority, work_id: str, trial_number: int, *,
                  actor_team: str, actor: str, review_at: str,
                  op_id: str | None = None, refs=()) -> dict:
 	"""Extend the SAME candidate's testing window: an explicit audited
 	reviewer decision — never a hidden timer reset. All reports and pending
 	assignments are retained; the deadline generation advances so due-ness
 	is per-generation; repeated extensions are visible history. May also
-	give a deadline to a round created without one."""
+	give a deadline to a trial created without one."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
-	operation = _operation(store, actor_team, actor, "extend_round",
-	                       op_id, {"work": work_id, "round": round_number,
+	operation = _operation(store, actor_team, actor, "extend_trial",
+	                       op_id, {"work": work_id, "trial": trial_number,
 	                               "review_at": review_at, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_work(store, work_id)
-	existing = _round(store, work_id, round_number)
+	existing = _trial(store, work_id, trial_number)
 	if existing["status"] != "open":
-		raise WorkError(f"round {round_number} of {work_id} is "
-		                f"{existing['status']}; only an open round's window "
+		raise WorkError(f"trial {trial_number} of {work_id} is "
+		                f"{existing['status']}; only an open trial's window "
 		                f"extends")
 	if not isinstance(review_at, str) or not review_at.strip():
 		raise WorkError("an extension names the new review_at instant")
@@ -1668,18 +1668,18 @@ def extend_round(store: Authority, work_id: str, round_number: int, *,
 			f"review_at {review_at!r} does not extend the current window "
 			f"({existing['review_at']}); an extension moves forward")
 
-	payload = {"work": work_id, "round": round_number,
+	payload = {"work": work_id, "trial": trial_number,
 	           "candidate": existing["candidate"],
 	           "from_review_at": existing["review_at"],
 	           "to_review_at": review_at}
 
 	def mutate(conn, seq):
 		live = conn.execute(
-			"SELECT status, review_at, deadline_generation FROM rounds "
-			"WHERE work=? AND round=?", (work_id, round_number)).fetchone()
+			"SELECT status, review_at, deadline_generation FROM trials "
+			"WHERE work=? AND trial=?", (work_id, trial_number)).fetchone()
 		if live["status"] != "open":
-			raise WorkError(f"round {round_number} of {work_id} is "
-			                f"{live['status']}; only an open round's "
+			raise WorkError(f"trial {trial_number} of {work_id} is "
+			                f"{live['status']}; only an open trial's "
 			                f"window extends")
 		if live["review_at"] is not None and \
 				review_at <= live["review_at"]:
@@ -1694,15 +1694,15 @@ def extend_round(store: Authority, work_id: str, round_number: int, *,
 				f"review_at {review_at!r} is not later than now ({now}); "
 				f"a deadline born expired is a loose end")
 		payload["authorization"] = _handler_gate(
-			conn, work_id, actor_team, actor, "extend round")
+			conn, work_id, actor_team, actor, "extend trial")
 		payload["deadline_generation"] = live["deadline_generation"] + 1
 		conn.execute(
-			"UPDATE rounds SET review_at=?, deadline_generation=? "
-			"WHERE work=? AND round=?",
+			"UPDATE trials SET review_at=?, deadline_generation=? "
+			"WHERE work=? AND trial=?",
 			(review_at, live["deadline_generation"] + 1, work_id,
-			 round_number))
+			 trial_number))
 
-	return store._write("extend_round", f"{actor_team}.{actor}",
+	return store._write("extend_trial", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
 	                    references=refs)
 

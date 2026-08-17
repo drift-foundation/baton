@@ -146,8 +146,21 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			assert drawn_row["status"] == app.status_cell(json_row)
 			# WS-1 parity: the TUI draws the approved COMPACT vocabulary
 			# for the canonical JSON values, presentation-only.
-			assert drawn_row["phase"] == app.phase_cell(
-				json_row["status"], json_row["phase"])
+			# W226: the painted Phase carries the pickup prefix
+			# derived from the same canonical facts.
+			assert drawn_row["phase"].lstrip("> !") == app.phase_cell(
+				json_row["status"], json_row["phase"]).strip()
+			pending = (json_row.get("claimed_at") is None
+			           and json_row.get("handoff_at") is not None
+			           and json_row.get("status") != "closed")
+			if pending:
+				wanted = ">" if json_row.get("pickup") == "pending" \
+					else "!"
+				assert drawn_row["phase"].startswith(wanted), \
+					(drawn_row["phase"], json_row.get("pickup"))
+			else:
+				assert not drawn_row["phase"].startswith((">", "!")), \
+					(drawn_row["phase"], json_row.get("pickup"))
 			assert drawn_row["classification"] == \
 				app.compact_classification(json_row["classification"])
 			# W71: Prog/Dep left the table; the canonical row still
@@ -256,7 +269,7 @@ def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
 
 def test_the_round_line_agrees_with_the_canonical_projection(
 		tmp_path, capsys, monkeypatch):
-	"""WS-2 group 3 bounded parity: the compact round line distinguishes
+	"""WS-2 group 3 bounded parity: the compact trial line distinguishes
 	due/pending/reported/withdrawn and shows the raw observation SEPARATELY
 	from the reviewer's assessment — every value from the same canonical
 	projection the JSON agent reads."""
@@ -273,7 +286,7 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 		                      title="parser recovery",
 		                      origin="external-report", classification="suspected-defect", author="ada",
 		                      body="provider")["work_id"]
-		created = tr.create_round(
+		created = tr.create_trial(
 			store, work, actor_team="lang", actor="ada",
 			candidate="driftc-A", assign=["push.verify", "web.verify"],
 			review_at="2026-08-15T12:00:00Z")
@@ -285,7 +298,7 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 	monkeypatch.setenv("BATON_WORK_NOW", "2026-08-15T13:00:00Z")
 
 	expected = _json(capsys, config_path, "detail", f"work={work}",
-	                 viewer="lang.ada")["rounds"][0]
+	                 viewer="lang.ada")["trials"][0]
 	assert expected["due"] is True
 
 	text, status, steps = ptyharness.drive(
@@ -296,11 +309,11 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 	rendered = steps[-2] if len(steps) > 1 else text
 	screen = ptyharness.replay(rendered, columns=WIDTH, lines=HEIGHT)
 	joined = "\n".join(screen)
-	round_line = (f"R{expected['round']} {expected['candidate']} "
+	round_line = (f"Trial {expected['trial']} {expected['candidate']} "
 	              f"{expected['progress']} due "
 	              f"wthdr:{expected['withdrawn']}")
 	assert round_line in joined, \
-		f"TUI round line missing or wrong: {joined!r}"
+		f"TUI trial line missing or wrong: {joined!r}"
 	push_entry = next(entry for entry in expected["assignments"]
 	                  if entry["endpoint"] == "push.verify")
 	assert f"push.verify {push_entry['observation']}/" \

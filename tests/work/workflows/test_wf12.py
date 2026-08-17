@@ -176,7 +176,7 @@ def test_wf12_effectively_once_retry(flow):
 			              "as=confirmed-defect"), "push.sl"),
 			("phase", ("phase", f"work={fam["work_id"]}", "to=active"),
 			 "push.sl"),
-			("round", ("round", f"work={fam["work_id"]}", "candidate=c1",
+			("try", ("try", f"work={fam["work_id"]}", "candidate=c1",
 			           "assign=web.verify"), "push.sl"),
 			("revise", ("revise", f"work={fam["work_id"]}",
 			            f"message={fam['seq']}", "expect=0",

@@ -2,10 +2,10 @@
 (WORKFLOW-TESTS.md WS-2 battery).
 
 Five consumers depend on LANG-42, but the reviewer selects only Push and
-Web for staged verification: the round total is two, not five; outside
+Web for staged verification: the trial total is two, not five; outside
 contributions stay readable evidence without touching the counter; and the
 eventual explicit provider outcome fans out through all five edges while
-the round's reports remain exactly the selected teams' evidence.
+the trial's reports remain exactly the selected teams' evidence.
 """
 
 from __future__ import annotations
@@ -62,13 +62,13 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 		consumers[name] = work
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["open_dependents"] == 5
 
-	# 2. Lang selects ONLY Push and Web: the round total is two, not five,
+	# 2. Lang selects ONLY Push and Web: the trial total is two, not five,
 	# and only the exact selected route handlers hold assignments.
-	created = flow.ok("round", f"work={lang42}", "candidate=driftc-A",
+	created = flow.ok("try", f"work={lang42}", "candidate=driftc-A",
 	                  "assign=push.verify", "assign=web.verify",
 	                  viewer="lang.ada")
 	checkpoint = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
-	staged = checkpoint["rounds"][0]
+	staged = checkpoint["trials"][0]
 	assert staged["assigned"] == 2 and staged["progress"] == "0/2"
 	assert len(flow.ok("obligations", viewer="push.sl")) == 1
 	assert len(flow.ok("obligations", viewer="web.wren")) == 1
@@ -85,7 +85,7 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 	                    viewer="mdb.mo")
 	assert "ownership" in error
 	assert flow.ok("detail", f"work={lang42}",
-	               viewer="lang.ada")["rounds"][0]["progress"] == "0/2"
+	               viewer="lang.ada")["trials"][0]["progress"] == "0/2"
 
 	# The selected teams report; the reviewer adjudicates.
 	flow.ok("report", f"obligation={created["assignments"][0]}",
@@ -99,7 +99,7 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 		        "rationale=relevant clean run", viewer="lang.ada")
 
 	# 4. The reviewer closes on the selected evidence; the explicit outcome
-	# fans out through ALL FIVE edges, while the round keeps exactly the
+	# fans out through ALL FIVE edges, while the trial keeps exactly the
 	# two selected teams' reports.
 	flow.ok("close", f"work={lang42}",
 	        "rationale=verified by the selected subset", "outcome=satisfying",
@@ -111,9 +111,9 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 		links = flow.ok("links", f"work={consumers[name]}",
 		                viewer=f"{name}.{member}")
 		assert links["blocked_by"][0]["outcome"] == "satisfying"
-	final = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["rounds"][0]
+	final = flow.ok("detail", f"work={lang42}", viewer="lang.ada")["trials"][0]
 	assert final["progress"] == "2/2" and final["assigned"] == 2, \
-		"the fan-out inflated the round beyond the selected subset"
+		"the fan-out inflated the trial beyond the selected subset"
 
 	for name, member in MEMBERS.items():
 		flow.ok("close", f"work={consumers[name]}", "rationale=verified",

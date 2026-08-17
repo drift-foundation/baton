@@ -201,7 +201,7 @@ def test_threadless_trial_assignment_belongs_only_to_its_work(world):
 	rig = _rig(store)
 	parent = rig["parent"]["work_id"]
 	a = rig["a"]["work_id"]
-	trial = tr.create_round(store, a, actor_team="lang", actor="ada",
+	trial = tr.create_trial(store, a, actor_team="lang", actor="ada",
 	                        candidate="staged-build-17",
 	                        assign=["lang.bug"])
 	assert _detail(store, a, member="ada")["my_pending_obligations"] == 1

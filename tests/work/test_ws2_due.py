@@ -4,7 +4,7 @@ discretion, and the atomic/race/restart matrix rows.
 Due-ness is a pure function of the stored `review_at`, the injected clock,
 and the deadline generation: no scheduler, no timer audit row, no read
 mutation — idempotent across reads and restarts. Every branch out of a due
-round is an explicit audited reviewer decision; elapsed time and feedback
+trial is an explicit audited reviewer decision; elapsed time and feedback
 never choose one automatically.
 """
 
@@ -53,8 +53,8 @@ def _provider(store):
 
 def _round_view(store, work, number=1):
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	return next(entry for entry in detail["rounds"]
-	            if entry["round"] == number)
+	return next(entry for entry in detail["trials"]
+	            if entry["trial"] == number)
 
 
 # -- derived due -------------------------------------------------------------
@@ -62,7 +62,7 @@ def _round_view(store, work, number=1):
 def test_due_is_derived_deterministic_and_idempotent(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	view = _round_view(store, work)
@@ -79,7 +79,7 @@ def test_due_is_derived_deterministic_and_idempotent(world):
 	fresh = bw.Authority(store.path)
 	fresh.clock = lambda: T1
 	assert pj.detail(fresh, work, viewer_team="lang",
-	                 viewer_member="ada")["rounds"][0]["due"] is True
+	                 viewer_member="ada")["trials"][0]["due"] is True
 	fresh.close()
 	assert all(event["kind"] != "due"
 	           for event in store.events()), "a timer wrote an audit row"
@@ -91,7 +91,7 @@ def test_a_deadline_born_expired_refuses(world):
 	store = world
 	work = _provider(store)
 	with pytest.raises(bw.WorkError, match="loose end"):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A", assign=["push.verify"],
 		                review_at=T0)
 
@@ -105,38 +105,38 @@ def test_review_at_refuses_noncanonical_or_invalid_instants(world, bad):
 	store = world
 	work = _provider(store)
 	with pytest.raises(bw.WorkError):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A", assign=["push.verify"],
 		                review_at=bad)
 
 
 def test_a_round_rechecks_deadline_after_entering_the_write(world):
 	"""A deadline can pass after optimistic validation but before the write
-	lock; a round must not commit already due."""
+	lock; a trial must not commit already due."""
 	store = world
 	work = _provider(store)
 	moments = iter((T0, T2))
 	store.clock = lambda: next(moments)
 	with pytest.raises(bw.WorkError, match="not later than now|expired"):
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="driftc-A", assign=["push.verify"],
 		                review_at=T1)
 	assert store.conn.execute(
-		"SELECT COUNT(*) AS n FROM rounds").fetchone()["n"] == 0
+		"SELECT COUNT(*) AS n FROM trials").fetchone()["n"] == 0
 
 
-def test_due_round_is_in_the_responsible_routes_actionable_projection(world):
+def test_due_trial_is_in_the_responsible_routes_actionable_projection(world):
 	"""The summary count is an alarm, not a locator: the confirmed mapping
-	requires the due round itself in the responsible route's actionable list."""
+	requires the due trial itself in the responsible route's actionable list."""
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	assert pj.obligations(store, viewer_team="lang") == []
 	store.now = T1
 	actionable = pj.obligations(store, viewer_team="lang")
-	assert any(entry.get("work") == work and entry.get("round") == 1
+	assert any(entry.get("work") == work and entry.get("trial") == 1
 	           for entry in actionable), \
 		"due count has no actionable record identifying what needs review"
 
@@ -145,13 +145,13 @@ def test_actionable_projection_is_one_database_snapshot(world, monkeypatch):
 	"""The response and its derived due locator describe one authority
 	snapshot. A close between their queries may yield wholly before or wholly
 	after, never an already-withdrawn response without its same-snapshot due
-	round."""
+	trial."""
 	store = world
 	store.conn.execute("PRAGMA journal_mode=WAL")
 	work = _provider(store)
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="review this", request="lang.rev")
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	store.now = T1
@@ -172,7 +172,7 @@ def test_actionable_projection_is_one_database_snapshot(world, monkeypatch):
 	monkeypatch.setattr(pj, "_endpoint_struct", close_between_queries)
 	flavors = [entry["flavor"] for entry in
 	           pj.obligations(store, viewer_team="lang", now=T1)]
-	assert flavors in ([], ["response", "due_round"]), \
+	assert flavors in ([], ["response", "due_trial"]), \
 		f"actionable response tore across the close: {flavors!r}"
 
 
@@ -181,7 +181,7 @@ def test_due_never_transitions_anything(world):
 	candidate, dependencies, and assignments are byte-identical."""
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	before = store.events()
@@ -201,7 +201,7 @@ def test_extension_is_audited_retains_evidence_and_advances_generation(
 		world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify", "web.verify"],
 	                          review_at=T1)
@@ -209,14 +209,14 @@ def test_extension_is_audited_retains_evidence_and_advances_generation(
 	          observation="passed", evidence="clean")
 	# Not-forward refusal while the deadline is still ahead of the clock.
 	with pytest.raises(bw.WorkError, match="moves forward"):
-		tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+		tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 		                review_at=T1)
 	store.now = T1
 	assert _round_view(store, work)["due"] is True
 	with pytest.raises(bw.WorkError, match="never grant"):
-		tr.extend_round(store, work, 1, actor_team="lang", actor="grace",
+		tr.extend_trial(store, work, 1, actor_team="lang", actor="grace",
 		                review_at=T2)
-	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 	                review_at=T2)
 	view = _round_view(store, work)
 	assert view["due"] is False, "the extension did not clear due"
@@ -225,27 +225,27 @@ def test_extension_is_audited_retains_evidence_and_advances_generation(
 	assert view["progress"] == "1/2" and view["pending"] == 1, \
 		"the extension lost reports or pending assignments"
 	act = next(event for event in store.events()
-	           if event["kind"] == "extend_round")
+	           if event["kind"] == "extend_trial")
 	assert act["payload"]["candidate"] == "driftc-A"
 	assert (act["payload"]["from_review_at"],
 	        act["payload"]["to_review_at"]) == (T1, T2)
 	assert act["payload"]["deadline_generation"] == 2
 	# Repeated extensions are VISIBLE history, not a hidden timer reset.
 	store.now = T2
-	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 	                review_at="2026-08-16T00:00:00Z")
 	assert len([e for e in store.events()
-	            if e["kind"] == "extend_round"]) == 2
+	            if e["kind"] == "extend_trial"]) == 2
 
 
 def test_extension_gives_a_deadline_to_an_undated_round(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"])
 	assert _round_view(store, work)["review_at"] is None
 	assert _round_view(store, work)["deadline_generation"] == 0
-	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 	                review_at=T1)
 	view = _round_view(store, work)
 	assert view["review_at"] == T1 and view["deadline_generation"] == 1
@@ -254,11 +254,11 @@ def test_extension_gives_a_deadline_to_an_undated_round(world):
 def test_extension_rechecks_deadline_after_entering_the_write(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"])
 	_interleave(store, lambda: setattr(store, "now", T2))
 	with pytest.raises(bw.WorkError, match="not later than now|expired"):
-		tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+		tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 		                review_at=T1)
 	view = _round_view(store, work)
 	assert view["review_at"] is None and view["deadline_generation"] == 0
@@ -273,7 +273,7 @@ def test_silence_may_inform_the_reviewer_but_never_impersonates_a_report(
 	pending set — no feedback fabricated anywhere."""
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A",
 	                assign=["push.verify", "web.verify", "mdb.verify"],
 	                review_at=T1)
@@ -283,7 +283,7 @@ def test_silence_may_inform_the_reviewer_but_never_impersonates_a_report(
 	              outcome="satisfying")
 	closing = next(event for event in store.events()
 	               if event["kind"] == "close_work")
-	summary = closing["payload"]["round_summary"]
+	summary = closing["payload"]["trial_summary"]
 	assert summary["progress"] == "0/3"
 	assert summary["observations"] == {"passed": 0, "failed": 0,
 	                                   "unable": 0}
@@ -301,7 +301,7 @@ def test_silence_may_inform_the_reviewer_but_never_impersonates_a_report(
 def test_the_close_evidence_counts_receipt_not_support(world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify", "web.verify",
 	                                  "mdb.verify"])
@@ -317,7 +317,7 @@ def test_the_close_evidence_counts_receipt_not_support(world):
 	              outcome="satisfying")
 	summary = next(event for event in store.events()
 	               if event["kind"] == "close_work")["payload"][
-	               "round_summary"]
+	               "trial_summary"]
 	assert summary["progress"] == "2/3", \
 		"a rejected failure stopped counting as received"
 	assert summary["observations"] == {"passed": 1, "failed": 1,
@@ -341,7 +341,7 @@ def _interleave(store, competing):
 def test_the_extension_versus_close_race_serializes(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	other = bw.Authority(store.path)
@@ -349,8 +349,8 @@ def test_the_extension_versus_close_race_serializes(world):
 	_interleave(store, lambda: tr.close_work(
 		other, work, actor_team="lang", actor="ada",
 		rationale="closed first", outcome="non-satisfying"))
-	with pytest.raises(bw.WorkError, match="only an open round"):
-		tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	with pytest.raises(bw.WorkError, match="only an open trial"):
+		tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 		                review_at=T2)
 	assert _round_view(store, work)["status"] == "closed"
 	other.close()
@@ -359,12 +359,12 @@ def test_the_extension_versus_close_race_serializes(world):
 def test_the_report_versus_abandon_race_serializes(world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	other = bw.Authority(store.path)
 	other.clock = lambda: store.now
-	_interleave(store, lambda: tr.abandon_round(
+	_interleave(store, lambda: tr.abandon_trial(
 		other, work, 1, actor_team="lang", actor="ada",
 		reason="abandoned mid-flight"))
 	with pytest.raises(bw.WorkError, match="already withdrawn"):
@@ -378,7 +378,7 @@ def test_the_report_versus_abandon_race_serializes(world):
 def test_the_assessment_versus_close_race_serializes(world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	tr.report(store, created["assignments"][0], team="push", member="sl",
@@ -399,15 +399,15 @@ def test_the_assessment_versus_close_race_serializes(world):
 def test_the_new_round_versus_abandon_race_serializes(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"])
 	other = bw.Authority(store.path)
 	other.clock = lambda: store.now
-	_interleave(store, lambda: tr.create_round(
+	_interleave(store, lambda: tr.create_trial(
 		other, work, actor_team="lang", actor="ada",
 		candidate="driftc-B", assign=["web.verify"]))
 	with pytest.raises(bw.WorkError, match="already superseded"):
-		tr.abandon_round(store, work, 1, actor_team="lang", actor="ada",
+		tr.abandon_trial(store, work, 1, actor_team="lang", actor="ada",
 		                 reason="racing abandon")
 	assert _round_view(store, work, 1)["status"] == "superseded"
 	assert _round_view(store, work, 2)["status"] == "open"
@@ -417,7 +417,7 @@ def test_the_new_round_versus_abandon_race_serializes(world):
 def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 	"""Fault injection: explode at each successive write statement inside
 	the closing transaction. Every fault leaves the authority byte-for-byte
-	at the pre-close state — dense sequence, open work, open round, pending
+	at the pre-close state — dense sequence, open work, open trial, pending
 	assignments, waiting consumer — or the close commits whole."""
 	store = world
 	work = _provider(store)
@@ -427,7 +427,7 @@ def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl")
 	tr.set_phase(store, consumer, actor_team="push", actor="sl",
 	             phase="waiting", wait="gates")
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A",
 	                assign=["push.verify", "web.verify"], review_at=T1)
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
@@ -472,7 +472,7 @@ def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 				f"fault at write {boundary} left partial state"
 			assert store.events() == baseline_events
 		assert boundary < 50, "the close never completed"
-	# The completed close is WHOLE: outcome, round, withdrawals, wake.
+	# The completed close is WHOLE: outcome, trial, withdrawals, wake.
 	assert _round_view(store, work)["status"] == "closed"
 	assert _round_view(store, work)["withdrawn"] == 2
 	row = store.conn.execute("SELECT phase FROM work WHERE id=?",
@@ -483,7 +483,7 @@ def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 def test_restart_reconstructs_the_complete_round_state(world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify", "web.verify"],
 	                          review_at=T1)
@@ -493,17 +493,17 @@ def test_restart_reconstructs_the_complete_round_state(world):
 	          actor="ada", assessment="rejected", rationale="bad config")
 	tr.assess(store, created["assignments"][0], actor_team="lang",
 	          actor="ada", assessment="accepted", rationale="reproduced")
-	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 	                review_at=T2)
 	before = pj.detail(store, work, viewer_team="lang",
-	                   viewer_member="ada")["rounds"]
+	                   viewer_member="ada")["trials"]
 
 	fresh = bw.Authority(store.path)
 	fresh.clock = store.clock
 	after = pj.detail(fresh, work, viewer_team="lang",
-	                  viewer_member="ada")["rounds"]
+	                  viewer_member="ada")["trials"]
 	fresh.close()
-	assert after == before, "restart lost round state"
+	assert after == before, "restart lost trial state"
 	entry = after[0]["assignments"][0]
 	assert entry["observation"] == "failed"
 	assert [a["assessment"] for a in entry["assessments"]] == \
@@ -517,7 +517,7 @@ def test_restart_reconstructs_the_complete_round_state(world):
 def test_wait_returns_immediately_when_actionable(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	store.now = T1
@@ -525,7 +525,7 @@ def test_wait_returns_immediately_when_actionable(world):
 	                            viewer_member="ada",
 	                            timeout_seconds=0.01)
 	assert result["timed_out"] is False
-	assert result["actionable"][0]["flavor"] == "due_round"
+	assert result["actionable"][0]["flavor"] == "due_trial"
 	# The verifier's pending assignment is equally immediate.
 	result = pj.wait_actionable(store, viewer_team="push",
 	                            viewer_member="sl",
@@ -537,7 +537,7 @@ def test_wait_returns_immediately_when_actionable(world):
 def test_wait_times_out_quietly_before_the_deadline(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	before = store.events()
@@ -565,7 +565,7 @@ def test_wait_wakes_when_the_deadline_arrives(world):
 	                      author="sl", body="g")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
 	                  actor="ada")
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	start = _time.monotonic()
@@ -620,12 +620,12 @@ def test_wait_reflects_extension_close_abandon_and_restart(world):
 	                      author="sl", body="g")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
 	                  actor="ada")
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	store.now = T1
 	# Extension clears the due entry: the wait times out again.
-	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 	                review_at=T2)
 	assert pj.wait_actionable(store, viewer_team="lang",
 	                          viewer_member="ada",
@@ -639,8 +639,8 @@ def test_wait_reflects_extension_close_abandon_and_restart(world):
 	                           timeout_seconds=0.05)
 	fresh.close()
 	assert woken["timed_out"] is False
-	# Abandon removes the round; close removes the work: quiet either way.
-	tr.abandon_round(store, work, 1, actor_team="lang", actor="ada",
+	# Abandon removes the trial; close removes the work: quiet either way.
+	tr.abandon_trial(store, work, 1, actor_team="lang", actor="ada",
 	                 reason="enough")
 	assert pj.wait_actionable(store, viewer_team="lang",
 	                          viewer_member="ada",
@@ -657,24 +657,24 @@ def test_wait_reflects_extension_close_abandon_and_restart(world):
 def test_the_extension_versus_close_race_extension_first(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
 	other = bw.Authority(store.path)
 	other.clock = lambda: store.now
-	_interleave(store, lambda: tr.extend_round(
+	_interleave(store, lambda: tr.extend_trial(
 		other, work, 1, actor_team="lang", actor="ada", review_at=T2))
 	# The close after a committed extension is LEGAL: both acts commit,
-	# and the concluded round records the extended window.
+	# and the concluded trial records the extended window.
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale="closing after the extension",
 	              outcome="satisfying")
 	kinds = [event["kind"] for event in store.events()]
-	assert kinds.count("extend_round") == 1
+	assert kinds.count("extend_trial") == 1
 	assert kinds.count("close_work") == 1
 	summary = next(event for event in store.events()
 	               if event["kind"] == "close_work")["payload"][
-	               "round_summary"]
+	               "trial_summary"]
 	assert summary["review_at"] == T2
 	assert summary["deadline_generation"] == 2
 	other.close()
@@ -683,7 +683,7 @@ def test_the_extension_versus_close_race_extension_first(world):
 def test_the_report_versus_abandon_race_report_first(world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	other = bw.Authority(store.path)
@@ -693,7 +693,7 @@ def test_the_report_versus_abandon_race_report_first(world):
 		observation="passed", evidence="landed first"))
 	# The abandon after a committed report is LEGAL: it withdraws nothing
 	# (nothing is pending) and the report is retained, not duplicated.
-	tr.abandon_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.abandon_trial(store, work, 1, actor_team="lang", actor="ada",
 	                 reason="abandoning after the report")
 	view = _round_view(store, work)
 	assert view["status"] == "abandoned"
@@ -705,7 +705,7 @@ def test_the_report_versus_abandon_race_report_first(world):
 def test_the_assessment_versus_close_race_assessment_first(world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	tr.report(store, created["assignments"][0], team="push", member="sl",
@@ -728,17 +728,17 @@ def test_the_assessment_versus_close_race_assessment_first(world):
 def test_the_new_round_versus_abandon_race_abandon_first(world):
 	store = world
 	work = _provider(store)
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"])
 	other = bw.Authority(store.path)
 	other.clock = lambda: store.now
-	_interleave(store, lambda: tr.abandon_round(
+	_interleave(store, lambda: tr.abandon_trial(
 		other, work, 1, actor_team="lang", actor="ada",
 		reason="abandoned first"))
-	# The new round after a committed abandon is LEGAL: round 1 stays
+	# The new trial after a committed abandon is LEGAL: trial 1 stays
 	# abandoned (never re-labeled superseded) and its single withdrawal is
 	# not duplicated by the supersession sweep.
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-B", assign=["web.verify"])
 	assert _round_view(store, work, 1)["status"] == "abandoned"
 	assert _round_view(store, work, 2)["status"] == "open"
@@ -751,7 +751,7 @@ def test_the_new_round_versus_abandon_race_abandon_first(world):
 def test_two_reports_race_exactly_one_commits(world):
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"])
 	other = bw.Authority(store.path)
@@ -779,7 +779,7 @@ def test_retry_without_operation_ids_refuses_and_never_duplicates(world):
 	its first attempt committed must READ before retrying."""
 	store = world
 	work = _provider(store)
-	created = tr.create_round(store, work, actor_team="lang", actor="ada",
+	created = tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                          candidate="driftc-A",
 	                          assign=["push.verify"], review_at=T1)
 	assignment = created["assignments"][0]
@@ -788,10 +788,10 @@ def test_retry_without_operation_ids_refuses_and_never_duplicates(world):
 	with pytest.raises(bw.WorkError, match="already reported"):
 		tr.report(store, assignment, team="push", member="sl",
 		          observation="passed", evidence="clean")
-	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 	                review_at=T2)
 	with pytest.raises(bw.WorkError, match="moves forward"):
-		tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+		tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 		                review_at=T2)
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
@@ -800,7 +800,7 @@ def test_retry_without_operation_ids_refuses_and_never_duplicates(world):
 		              rationale="done", outcome="satisfying")
 	kinds = [event["kind"] for event in store.events()]
 	assert kinds.count("report") == 1
-	assert kinds.count("extend_round") == 1
+	assert kinds.count("extend_trial") == 1
 	assert kinds.count("close_work") == 1
 
 

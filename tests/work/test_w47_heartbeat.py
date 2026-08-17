@@ -35,7 +35,12 @@ from baton_work import cli as work_cli                        # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
 from baton_work.tui.app import (STALL_AFTER_SECONDS, Console,  # noqa: E402
-                                age_field)
+                                held_field)
+
+
+def field(claimed, beat, now):
+	"""The W47-era three-argument spelling over the W226 row field."""
+	return held_field({"claimed_at": claimed, "heartbeat_at": beat}, now)
 import fixtures as fx                                         # noqa: E402
 
 
@@ -230,21 +235,21 @@ def test_the_alert_thresholds_and_display(world):
 	clamp healthy; claim Age itself keeps counting."""
 	base = "2026-08-16T12:00:00Z"
 	origin = stamp(base)
-	assert age_field(None, None, origin) == "-"
-	assert age_field(base, base, origin) == "00:00 "
+	assert field(None, None, origin) == "-"
+	assert field(base, base, origin) == "00:00 "
 	just_before = origin + STALL_AFTER_SECONDS - 1
-	assert age_field(base, base, just_before).endswith(" ")
+	assert field(base, base, just_before).endswith(" ")
 	at_boundary = origin + STALL_AFTER_SECONDS
-	assert age_field(base, base, at_boundary) == "06:00!"
+	assert field(base, base, at_boundary) == "00:06!"
 	# a fresh beat clears the alert while the claim age keeps counting
 	fresh_beat = "2026-08-16T12:06:00Z"
-	assert age_field(base, fresh_beat, at_boundary) == "06:00 "
+	assert field(base, fresh_beat, at_boundary) == "00:06 "
 	# missing beat falls back to the claim (the initial beat)
-	assert age_field(base, None, at_boundary) == "06:00!"
+	assert field(base, None, at_boundary) == "00:06!"
 	# clock correction clamps healthy
 	future_beat = "2026-08-16T13:00:00Z"
-	assert age_field(base, future_beat, at_boundary).endswith(" ")
-	assert all(len(age_field(base, base, origin + n)) <= 6
+	assert field(base, future_beat, at_boundary).endswith(" ")
+	assert all(len(field(base, base, origin + n)) <= 6
 	           for n in (0, 3600, 3600 * 100))
 
 
@@ -257,7 +262,7 @@ def test_stale_is_informational_never_a_lease(world):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	row = row_of(world, work)
 	late = stamp(row["heartbeat_at"]) + STALL_AFTER_SECONDS + 30
-	stale_cell = age_field(row["claimed_at"], row["heartbeat_at"],
+	stale_cell = field(row["claimed_at"], row["heartbeat_at"],
 	                       late)
 	assert stale_cell.endswith("!")
 	assert row["active"] == {"team": "lang", "member": "ada"}, \
@@ -268,7 +273,7 @@ def test_stale_is_informational_never_a_lease(world):
 	tr.heartbeat(store, work, actor_team="lang", actor="ada")
 	fresh = row_of(world, work)
 	now = stamp(fresh["heartbeat_at"]) + 1
-	assert age_field(fresh["claimed_at"], fresh["heartbeat_at"],
+	assert field(fresh["claimed_at"], fresh["heartbeat_at"],
 	                 now).endswith(" "), \
 		"the successful beat did not clear the alert"
 
@@ -301,7 +306,7 @@ def test_the_stale_suffix_paints_and_narrow_omits_whole(world):
 	assert [row["id"] for row in console.rows()] == order_before, \
 		"a heartbeat reordered the window"
 	from baton_work.tui.app import DROP_ORDER
-	assert "AGE" in DROP_ORDER
+	assert "HELD" in DROP_ORDER
 
 
 # -- round 2 -----------------------------------------------------------------
@@ -395,8 +400,8 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	# shape; W179's honest-breaking major moved the projection to 5.0
 	# (no alias), so the CURRENT same-major demand is 5.x and a stale
 	# 4.x demand refuses.
-	assert jsonapi.PROJECTION_VERSION == "5.0"
-	jsonapi.require_version("5.0")
+	assert jsonapi.PROJECTION_VERSION == "6.1"
+	jsonapi.require_version("6.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.2")
 

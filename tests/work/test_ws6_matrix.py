@@ -82,7 +82,7 @@ def _refs_on(store, seq):
 FAMILIES = [
 	"create", "close", "classify", "phase", "block", "revise",
 	"discuss", "say", "label", "unlabel", "mark-seen", "respond",
-	"dispose", "accept", "round", "report", "assess", "abandon",
+	"dispose", "accept", "try", "report", "assess", "abandon",
 	"extend", "bind",
 ]
 
@@ -167,19 +167,19 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 		act = lambda **kw: tr.accept_obligation(
 			store, asked, actor_team="lang", actor="ada", body="ours",
 			into=work, **kw)
-	elif family == "round":
-		act = lambda **kw: tr.create_round(
+	elif family == "try":
+		act = lambda **kw: tr.create_trial(
 			store, work, actor_team="lang", actor="ada",
 			candidate="c1", assign=["push.bug"], **kw)
 	elif family == "report":
-		assigned = tr.create_round(
+		assigned = tr.create_trial(
 			store, work, actor_team="lang", actor="ada",
 			candidate="c1", assign=["push.bug"])["assignments"][0]
 		act = lambda **kw: tr.report(
 			store, assigned, team="push", member="sl",
 			observation="passed", evidence="clean", **kw)
 	elif family == "assess":
-		assigned = tr.create_round(
+		assigned = tr.create_trial(
 			store, work, actor_team="lang", actor="ada",
 			candidate="c1", assign=["push.bug"])["assignments"][0]
 		tr.report(store, assigned, team="push", member="sl",
@@ -188,17 +188,17 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 			store, assigned, actor_team="lang", actor="ada",
 			assessment="accepted", rationale="verified", **kw)
 	elif family == "abandon":
-		created = tr.create_round(
+		created = tr.create_trial(
 			store, work, actor_team="lang", actor="ada",
 			candidate="c1", assign=["push.bug"])
-		act = lambda **kw: tr.abandon_round(
-			store, work, created["round"], actor_team="lang",
+		act = lambda **kw: tr.abandon_trial(
+			store, work, created["trial"], actor_team="lang",
 			actor="ada", reason="withdrawn", **kw)
 	elif family == "extend":
-		tr.create_round(store, work, actor_team="lang", actor="ada",
+		tr.create_trial(store, work, actor_team="lang", actor="ada",
 		                candidate="c1", assign=["push.bug"],
 		                review_at="2027-01-01T00:00:00Z")
-		act = lambda **kw: tr.extend_round(
+		act = lambda **kw: tr.extend_trial(
 			store, work, 1, actor_team="lang", actor="ada",
 			review_at="2027-06-01T00:00:00Z", **kw)
 	elif family == "bind":

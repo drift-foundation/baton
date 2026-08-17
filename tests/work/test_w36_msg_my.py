@@ -200,7 +200,7 @@ def test_reading_is_pure_and_counts_survive_reopen(world, tmp_path):
 
 
 def test_verification_assignments_count_in_my(world):
-	"""R1: a candidate-round @ verification assignment is directed load
+	"""R1: a candidate-trial @ verification assignment is directed load
 	for its eligible handler until reported or withdrawn — never for a
 	non-handler."""
 	store, _config = world
@@ -208,7 +208,7 @@ def test_verification_assignments_count_in_my(world):
 	                      title="verified epic",
 	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="opener")
-	created = tr.create_round(store, epic["work_id"], actor_team="lang",
+	created = tr.create_trial(store, epic["work_id"], actor_team="lang",
 	                          actor="ada", candidate="build-A",
 	                          assign=["push.bug"])
 	assert _row(store, epic["work_id"], viewer_team="push",
@@ -224,13 +224,13 @@ def test_verification_assignments_count_in_my(world):
 	            viewer_member="sl")["my_pending_obligations"] == 0, \
 		"the report did not clear the verification load"
 
-	# Withdrawal clears likewise: a second round, then abandonment.
-	second = tr.create_round(store, epic["work_id"], actor_team="lang",
+	# Withdrawal clears likewise: a second trial, then abandonment.
+	second = tr.create_trial(store, epic["work_id"], actor_team="lang",
 	                         actor="ada", candidate="build-B",
 	                         assign=["push.bug"])
 	assert _row(store, epic["work_id"], viewer_team="push",
 	            viewer_member="sl")["my_pending_obligations"] == 1
-	tr.abandon_round(store, epic["work_id"], second["round"],
+	tr.abandon_trial(store, epic["work_id"], second["trial"],
 	                 actor_team="lang", actor="ada",
 	                 reason="candidate replaced")
 	assert _row(store, epic["work_id"], viewer_team="push",

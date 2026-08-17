@@ -64,3 +64,25 @@ structured fact for an actual claimant; it does not reset `Held`.
 
 This makes an atomic pass followed by a crashed or absent recipient visible as
 pending pickup rather than leaving apparently active Work in silent limbo.
+
+## Supersession — 2026-08-17: preserve the claim-time insight
+
+**Confirmed by Slawomir.** This supersedes only the earlier statement that the
+displayed `Held` interval continues through claim without resetting. That
+would conceal when the recipient actually picked the Work up.
+
+The compact field is state-dependent:
+
+- before claim, `>HH:MM` shows elapsed time since the committed handoff;
+- after six minutes without pickup, `!HH:MM` shows that same pending interval;
+- on claim, the pickup prefix disappears and the displayed `HH:MM` resets to
+  elapsed time since canonical `claimed_at`;
+- claimant heartbeat staleness remains the existing trailing `!` suffix and
+  never resets the claim-held timer;
+- a later pass starts a new pending-pickup interval for the new destination.
+
+Canonical JSON retains both the handoff instant and `claimed_at`, plus
+structured pickup/overdue state. The reset is presentation semantics, not loss
+of evidence or a workflow mutation. This preserves both operational insights:
+how long a handoff has remained unclaimed and how long the current claimant
+has actually held the Work.

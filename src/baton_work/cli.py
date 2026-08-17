@@ -31,7 +31,7 @@ MUTATIONS = frozenset({
 	"activate", "regen", "create", "accept", "respond", "dispose",
 	"close", "block", "mark-seen", "classify", "claim", "release",
 	"prioritize", "pass", "heartbeat",
-	"phase", "round",
+	"phase", "try",
 	"extend", "report", "assess", "abandon", "revise", "start-thread",
 	"say", "label", "unlabel", "bind"})
 
@@ -281,7 +281,7 @@ GRAMMAR = {
 	                   _key("wait", help="waiting condition: gates, or "
 	                        "one pending obligation seq (waiting "
 	                        "only)"))},
-	"round": {"help": "open a verification round with assignments",
+	"try": {"help": "ask the assigned endpoints to TRY one exact candidate — opens a trial",
 	          "keys": (_key("work", required=True, help="the Work id"),
 	                   _key("candidate", required=True,
 	                        help="the candidate under verification"),
@@ -289,10 +289,10 @@ GRAMMAR = {
 	                        help="verifying endpoint (repeatable)"),
 	                   _key("review-at",
 	                        help="canonical UTC review instant"))},
-	"extend": {"help": "extend an open round's review instant",
+	"extend": {"help": "extend an open trial's review instant",
 	           "keys": (_key("work", required=True, help="the Work id"),
-	                    _key("round", required=True, kind="int",
-	                         help="the round number"),
+	                    _key("trial", required=True, kind="int",
+	                         help="the trial number"),
 	                    _key("review-at", required=True,
 	                         help="the new canonical UTC instant"))},
 	"report": {"help": "file a verification report",
@@ -310,13 +310,13 @@ GRAMMAR = {
 	                         help="the assessment"),
 	                    _key("rationale", required=True,
 	                         help="why this assessment"))},
-	"abandon": {"help": "abandon an open verification round",
+	"abandon": {"help": "abandon an open verification trial",
 	            "keys": (_key("work", required=True,
 	                          help="the Work id"),
-	                     _key("round", required=True, kind="int",
-	                          help="the round number"),
+	                     _key("trial", required=True, kind="int",
+	                          help="the trial number"),
 	                     _key("reason", required=True,
-	                          help="why the round ends unresolved"))},
+	                          help="why the trial ends unresolved"))},
 	"home": {"help": "the team summary and root Work rows",
 	         "keys": _filter_keys()},
 	"search": {"help": "read-only team-scoped Work search (title "
@@ -1416,17 +1416,17 @@ def _dispatch(store: Authority, args):
 			store, args.thread, team=team, member=member,
 			up_to_seq=args.up_to, op_id=args.op_id,
 			refs=args.refs or ())
-	if command == "round":
+	if command == "try":
 		team, member = _need_participant(args)
-		return transitions.create_round(
+		return transitions.create_trial(
 			store, args.work, actor_team=team, actor=member,
 			candidate=args.candidate, assign=args.assign,
 			review_at=args.review_at, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "extend":
 		team, member = _need_participant(args)
-		return transitions.extend_round(
-			store, args.work, args.round, actor_team=team, actor=member,
+		return transitions.extend_trial(
+			store, args.work, args.trial, actor_team=team, actor=member,
 			review_at=args.review_at, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "report":
@@ -1443,8 +1443,8 @@ def _dispatch(store: Authority, args):
 			refs=args.refs or ())
 	if command == "abandon":
 		team, member = _need_participant(args)
-		return transitions.abandon_round(
-			store, args.work, args.round, actor_team=team, actor=member,
+		return transitions.abandon_trial(
+			store, args.work, args.trial, actor_team=team, actor=member,
 			reason=args.reason, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "claim":

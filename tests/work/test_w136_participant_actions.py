@@ -4,7 +4,7 @@ finding-v11-participant-readiness (first child of the messaging cutover
 gate): `participant_actions` owns the wake rules — routed Work
 (unclaimed wakes every resolved Current handler; the claim leaves only
 the claimant, same Work action key), `@` obligations (eligible members
-of the owed endpoint; identity = seq), and due verification rounds
+of the owed endpoint; identity = seq), and due verification trials
 (eligible members of the Work's Current; identity includes the deadline
 generation, so extension retires the alarm). `+`, plain posts, and
 personal New never enter. JSON `wait` and the TUI's personal
@@ -147,34 +147,34 @@ def test_obligations_wake_eligible_members_and_reroute_follows(world):
 		"a completed @ kept waking the team"
 
 
-def test_due_rounds_wake_current_handlers_per_generation(world):
-	"""A due round wakes the Work's resolved Current members under a
+def test_due_trials_wake_current_handlers_per_generation(world):
+	"""A due trial wakes the Work's resolved Current members under a
 	generation-scoped key: extension retires the alarm and the next
 	due generation is a NEW action."""
 	store = world["store"]
 	work = make(world, "verified")["work_id"]
 	store.clock = lambda: "2026-08-16T11:00:00Z"
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="cand-A", assign=["push.bug"],
 	                review_at="2026-08-16T12:00:00Z")
 	store.clock = lambda: "2026-08-16T12:00:00Z"
 	due = [action for action in actions(world, "ada")
-	       if action["kind"] == "due_round"]
+	       if action["kind"] == "due_trial"]
 	assert len(due) == 1
 	first_key = due[0]["action_key"]
 	assert first_key.endswith(":1")
-	assert not any(action["kind"] == "due_round"
+	assert not any(action["kind"] == "due_trial"
 	               for action in actions(world, "grace"))
 	# extension retires the alarm...
 	store.clock = lambda: "2026-08-16T12:30:00Z"
-	tr.extend_round(store, work, 1, actor_team="lang", actor="ada",
+	tr.extend_trial(store, work, 1, actor_team="lang", actor="ada",
 	                review_at="2026-08-16T13:00:00Z")
-	assert not any(action["kind"] == "due_round"
+	assert not any(action["kind"] == "due_trial"
 	               for action in actions(world, "ada"))
 	# ...and the later due generation is a NEW action key
 	store.clock = lambda: "2026-08-16T13:00:00Z"
 	due = [action for action in actions(world, "ada")
-	       if action["kind"] == "due_round"]
+	       if action["kind"] == "due_trial"]
 	assert len(due) == 1 and due[0]["action_key"] != first_key
 	assert due[0]["action_key"].endswith(":2")
 
@@ -183,7 +183,7 @@ def test_wait_is_member_relative_and_deterministic(world):
 	"""`wait` passes both identity halves: an eligible member wakes
 	immediately with structured keyed actions and a snapshot token; an
 	ineligible member times out quietly; the order is deterministic
-	(obligations, due rounds, then Work)."""
+	(obligations, due trials, then Work)."""
 	store = world["store"]
 	work = make(world, "waking")["work_id"]
 	born = make(world, "asking", team="push", author="sl")
@@ -195,7 +195,7 @@ def test_wait_is_member_relative_and_deterministic(world):
 	                           timeout_seconds=0.05)
 	assert woken["timed_out"] is False
 	kinds = [action["kind"] for action in woken["actionable"]]
-	assert kinds == sorted(kinds, key=("obligation", "due_round",
+	assert kinds == sorted(kinds, key=("obligation", "due_trial",
 	                                   "work").index), \
 		"the action order is not the documented deterministic one"
 	assert "snapshot_seq" in woken
@@ -279,7 +279,7 @@ def test_cli_wait_reaches_the_participant_projection(world):
 	assert _json.loads(out)["result"]["timed_out"] is True
 
 
-# -- round 2 -----------------------------------------------------------------
+# -- trial 2 -----------------------------------------------------------------
 
 def test_the_projection_version_names_the_wake_contract(world):
 	"""R1: the permanent wake contract is versioned — 4.3 introduced
@@ -288,8 +288,8 @@ def test_the_projection_version_names_the_wake_contract(world):
 	honest-breaking, no alias). Same-major demands succeed; a stale
 	4.x demand refuses."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "5.0"
-	jsonapi.require_version("5.0")
+	assert jsonapi.PROJECTION_VERSION == "6.1"
+	jsonapi.require_version("6.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.3")
 	with pytest.raises(bw.WorkError, match="not compatible"):
@@ -298,7 +298,7 @@ def test_the_projection_version_names_the_wake_contract(world):
 
 def test_a_real_reroute_moves_eligibility_without_new_keys(world):
 	"""R2: an ACTUAL accepted regeneration reroutes the endpoint — the
-	pending @, the routed Work, and the due round move to the new
+	pending @, the routed Work, and the due trial move to the new
 	handler set without rewriting history or changing their stable
 	action keys."""
 	store = world["store"]
@@ -308,7 +308,7 @@ def test_a_real_reroute_moves_eligibility_without_new_keys(world):
 	                       author="sl", body="lang: confirm?",
 	                       request="lang.bug", on=born["work_id"])
 	store.clock = lambda: "2026-08-16T11:00:00Z"
-	tr.create_round(store, work, actor_team="lang", actor="ada",
+	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="cand-R", assign=["push.bug"],
 	                review_at="2026-08-16T12:00:00Z")
 	store.clock = lambda: "2026-08-16T12:00:00Z"
@@ -316,7 +316,7 @@ def test_a_real_reroute_moves_eligibility_without_new_keys(world):
 	obligation_key = f"obligation:{asked['seq']}"
 	before = keys(world, "ada")
 	assert work_key in before and obligation_key in before
-	round_key = next(k for k in before if k.startswith("round:"))
+	round_key = next(k for k in before if k.startswith("trial:"))
 	assert not any(k in keys(world, "grace")
 	               for k in (work_key, obligation_key, round_key))
 	# the REAL reroute: generation 2 resolves the route to grace alone
@@ -337,7 +337,7 @@ def test_a_real_reroute_moves_eligibility_without_new_keys(world):
 	assert not any(k in after_ada
 	               for k in (work_key, obligation_key, round_key)), \
 		"the old handler kept eligibility after the reroute"
-	# history unwritten: the obligation row and round generation stand
+	# history unwritten: the obligation row and trial generation stand
 	entry = next(action for action in actions(world, "grace")
 	             if action["action_key"] == obligation_key)
 	assert entry["seq"] == asked["seq"]

@@ -239,6 +239,57 @@ def _first_open_blockers(store: Authority, work_ids) -> dict:
 	return first
 
 
+def _handoffs(store: Authority, work_ids) -> dict:
+	"""W226: the committed HANDOFF instant per Work — the newest
+	pass/return event's transaction time, batched for a whole window in
+	one statement (the W39 no-N+1 boundary), straight from the
+	append-only journal. Responsibility begins at this instant, before
+	any member claims. {work_id: ts}; absent for never-passed Work."""
+	work_ids = list(work_ids)
+	if not work_ids:
+		return {}
+	marks = ",".join("?" * len(work_ids))
+	return {hit["consumer"]: hit["handed"]
+	        for hit in store.conn.execute(
+		f"WITH last_pass AS ("
+		f"  SELECT json_extract(payload, '$.work') AS w, "
+		f"         MAX(seq) AS s FROM events "
+		f"  WHERE kind IN ('pass', 'return') "
+		f"  AND json_extract(payload, '$.work') IN ({marks}) "
+		f"  GROUP BY 1) "
+		f"SELECT lp.w AS consumer, pe.ts AS handed "
+		f"FROM last_pass lp JOIN events pe ON pe.seq = lp.s",
+		work_ids)}
+
+
+# W226 (protocol-fixed, same constant as the W47 heartbeat alert): six
+# minutes without pickup after a committed handoff is OVERDUE — a
+# structured, informational fact; no timeout mutates workflow authority.
+PICKUP_OVERDUE_SECONDS = 360
+
+
+def _pickup_state(active_team, handoff_at, now_iso, status="open"):
+	"""The structured pickup/claim state (W226): 'claimed' while an
+	active claimant exists, 'pending'/'overdue' for an unclaimed
+	committed handoff, None for unclaimed never-passed Work — and
+	None on TERMINAL Work (R2): a pickup obligation cannot exist on
+	closed Work, while handoff_at remains as history. Derived at
+	snapshot time from recorded instants — never display glyphs."""
+	if status == "closed":
+		return None
+	if active_team is not None:
+		return "claimed"
+	if handoff_at is None:
+		return None
+	import datetime as _dt
+	handed = _dt.datetime.fromisoformat(
+		handoff_at.replace("Z", "+00:00").replace(" ", "T"))
+	now = _dt.datetime.fromisoformat(
+		now_iso.replace("Z", "+00:00").replace(" ", "T"))
+	elapsed = max(0, int((now - handed).total_seconds()))
+	return "overdue" if elapsed >= PICKUP_OVERDUE_SECONDS else "pending"
+
+
 def _claimed_ats(store: Authority, work_ids) -> dict:
 	"""W33+W47: the committed CURRENT-claim timestamp AND the latest
 	qualifying heartbeat for a whole window in ONE batched statement
@@ -275,7 +326,9 @@ def _claimed_ats(store: Authority, work_ids) -> dict:
 
 def _row_view(store: Authority, row: dict, viewer_team: str,
               viewer_member: str, first_blockers: dict | None = None,
-              claimed_ats: dict | None = None) -> dict:
+              claimed_ats: dict | None = None,
+              handoffs: dict | None = None,
+              now: str | None = None) -> dict:
 	"""One Work as a projection row: stable ids and structured values, no
 	preformatted display strings (parity ruling)."""
 	counts = store.conn.execute(
@@ -291,6 +344,17 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		if claimed_ats is None:
 			claimed_ats = _claimed_ats(store, [row["id"]])
 		claim_fact = claimed_ats.get(row["id"], (None, None))
+	# W226: the committed handoff instant and the structured pickup
+	# state resolve once per row from the batched journal map, against
+	# ONE sampled instant per window (R1) — rows inside one snapshot
+	# can never disagree at the six-minute boundary.
+	if handoffs is None:
+		handoffs = _handoffs(store, [row["id"]])
+	if now is None:
+		now = store.clock()
+	handoff_at = handoffs.get(row["id"])
+	pickup = _pickup_state(row["active_team"], handoff_at, now,
+	                       row["status"])
 	return {
 		"id": row["id"],
 		# W4: the generated authority-local short selector — derived
@@ -368,6 +432,13 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		# six-minute stall alert from this recorded fact alone.
 		"claimed_at": claim_fact[0],
 		"heartbeat_at": claim_fact[1],
+		# W226: responsibility begins at the committed handoff — the
+		# instant the newest pass/return to the current endpoint
+		# committed (null for never-passed Work) — and the pickup
+		# state is STRUCTURED: claimed | pending | overdue | null.
+		# Glyphs are TUI presentation; agents read these facts.
+		"handoff_at": handoff_at,
+		"pickup": pickup,
 		# W36/W179: conversation VOLUME and the viewer's directed load —
 		# DIRECT visible scope (the threads entering this row exposes),
 		# overlap-safe, seen-independent, purely derived.
@@ -392,8 +463,11 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str,
 		ids = [row["id"] for row in rows]
 		first = _first_open_blockers(store, ids)
 		claimed = _claimed_ats(store, ids)
+		handed = _handoffs(store, ids)
+		window_now = store.clock()
 		views = [_row_view(store, dict(row), viewer_team, viewer_member,
-		                   first_blockers=first, claimed_ats=claimed)
+		                   first_blockers=first, claimed_ats=claimed,
+		                   handoffs=handed, now=window_now)
 		         for row in rows]
 		# W5: filtering happens INSIDE the canonical snapshot, after
 		# the row facts are projected — JSON and the TUI consume the
@@ -453,10 +527,13 @@ def search(store: Authority, query, *, viewer_team: str,
 		ids = [row["id"] for row in candidates]
 		first = _first_open_blockers(store, ids)
 		claimed = _claimed_ats(store, ids)
+		handed = _handoffs(store, ids)
+		window_now = store.clock()
 		views = []
 		for row in candidates:
 			view = _row_view(store, row, viewer_team, viewer_member,
-			                 first_blockers=first, claimed_ats=claimed)
+			                 first_blockers=first, claimed_ats=claimed,
+			                 handoffs=handed, now=window_now)
 			if active and not _filter_matches(view, active,
 			                                  viewer_team,
 			                                  viewer_member):
@@ -499,8 +576,11 @@ def children(store: Authority, work_id: str, *, viewer_team: str,
 		ids = [row["id"] for row in rows]
 		first = _first_open_blockers(store, ids)
 		claimed = _claimed_ats(store, ids)
+		handed = _handoffs(store, ids)
+		window_now = store.clock()
 		return [_row_view(store, dict(row), viewer_team, viewer_member,
-		                  first_blockers=first, claimed_ats=claimed)
+		                  first_blockers=first, claimed_ats=claimed,
+		                  handoffs=handed, now=window_now)
 		        for row in rows]
 
 
@@ -535,9 +615,12 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		ids = [entry["id"] for entry, _depth in window]
 		first = _first_open_blockers(store, ids)
 		claimed = _claimed_ats(store, ids)
+		handed = _handoffs(store, ids)
+		window_now = store.clock()
 		rows = [dict(_row_view(store, entry, viewer_team,
 		                       viewer_member, first_blockers=first,
-		                       claimed_ats=claimed),
+		                       claimed_ats=claimed, handoffs=handed,
+		                       now=window_now),
 		             depth=depth)
 		        for entry, depth in window]
 		# W5 (approved containment rule): within each bounded
@@ -966,9 +1049,9 @@ def revisions(store: Authority, work_id: str, *, after: int = 0,
 def obligations(store: Authority, *, viewer_team: str,
                 now: str | None = None) -> list[dict]:
 	"""The team's ACTIONABLE set — separate from unseen counts by ruling:
-	`@` enters this projection, `+` never does. R43: every LIVE due round
+	`@` enters this projection, `+` never does. R43: every LIVE due trial
 	the team currently answers for appears as one structured derived entry
-	per deadline generation — the alarm's LOCATOR: work, round, candidate,
+	per deadline generation — the alarm's LOCATOR: work, trial, candidate,
 	deadline, generation, and the live responsible endpoint. Purely
 	derived; it follows accepted Current/route changes and disappears on
 	extension, abandonment, supersession, or close."""
@@ -984,7 +1067,7 @@ def obligations(store: Authority, *, viewer_team: str,
 def _collect_actionable(store: Authority, viewer_team: str, now: str,
                         out) -> None:
 	for row in store.conn.execute(
-			"SELECT seq, work, message_seq, team, kind, flavor, round, "
+			"SELECT seq, work, message_seq, team, kind, flavor, trial, "
 			"thread, status FROM obligations WHERE team=? AND "
 			"status='pending' ORDER BY seq", (viewer_team,)):
 		entry = dict(row)
@@ -996,17 +1079,17 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
 		entry["owed_by"] = _endpoint_struct(store, row["team"], row["kind"])
 		out.append(entry)
 	for row in store.conn.execute(
-			"SELECT rounds.work, rounds.round, rounds.candidate, "
-			"rounds.review_at, rounds.deadline_generation, "
+			"SELECT trials.work, trials.trial, trials.candidate, "
+			"trials.review_at, trials.deadline_generation, "
 			"work.current_team, work.current_kind "
-			"FROM rounds JOIN work ON work.id = rounds.work "
-			"WHERE rounds.status='open' AND rounds.review_at IS NOT NULL "
-			"AND rounds.review_at <= ? AND work.current_team=? "
-			"ORDER BY rounds.review_at, rounds.work",
+			"FROM trials JOIN work ON work.id = trials.work "
+			"WHERE trials.status='open' AND trials.review_at IS NOT NULL "
+			"AND trials.review_at <= ? AND work.current_team=? "
+			"ORDER BY trials.review_at, trials.work",
 			(now, viewer_team)):
 		out.append({
-			"flavor": "due_round",
-			"work": row["work"], "round": row["round"],
+			"flavor": "due_trial",
+			"work": row["work"], "trial": row["trial"],
 			"candidate": row["candidate"],
 			"review_at": row["review_at"],
 			"deadline_generation": row["deadline_generation"],
@@ -1015,8 +1098,8 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
 		})
 
 
-def _round_view(store: Authority, row, now: str | None = None) -> dict:
-	"""One verification round, both axes visible: the raw observation and
+def _trial_view(store: Authority, row, now: str | None = None) -> dict:
+	"""One verification trial, both axes visible: the raw observation and
 	the reviewer's effective assessment are shown side by side so receipt
 	progress (`reported/assigned`) is never mistaken for support. The
 	counters are internally consistent by construction — one query, one
@@ -1024,9 +1107,9 @@ def _round_view(store: Authority, row, now: str | None = None) -> dict:
 	assignments = []
 	assigned = reported = withdrawn = pending = 0
 	for entry in store.conn.execute(
-			"SELECT * FROM obligations WHERE work=? AND round=? "
+			"SELECT * FROM obligations WHERE work=? AND trial=? "
 			"AND flavor='verification' ORDER BY seq",
-			(row["work"], row["round"])):
+			(row["work"], row["trial"])):
 		assigned += 1
 		if entry["status"] == "reported":
 			reported += 1
@@ -1054,7 +1137,7 @@ def _round_view(store: Authority, row, now: str | None = None) -> dict:
 		now = store.clock()
 	due = (row["status"] == "open" and row["review_at"] is not None
 	       and now >= row["review_at"])
-	return {"round": row["round"], "candidate": row["candidate"],
+	return {"trial": row["trial"], "candidate": row["candidate"],
 	        "status": row["status"],
 	        "review_at": row["review_at"],
 	        "deadline_generation": row["deadline_generation"],
@@ -1082,13 +1165,13 @@ def participant_actions(store: Authority, *, viewer_team: str,
 	- `@` obligations: actionable exactly for members the obligation's
 	  owed endpoint currently resolves; identity = the obligation seq.
 	  Rerouting changes eligibility without rewriting history.
-	- due verification rounds: actionable exactly for members the
+	- due verification trials: actionable exactly for members the
 	  Work's live Current endpoint resolves; identity includes work,
-	  round, and deadline generation, so an extension retires the old
+	  trial, and deadline generation, so an extension retires the old
 	  alarm and a later due generation is new.
 	- `+`, plain posts, and personal New are attention, never wakeups.
 
-	Deterministic order: obligations (seq), due rounds (review_at,
+	Deterministic order: obligations (seq), due trials (review_at,
 	work), then Work actions (creation order). One read snapshot; no
 	write of any kind."""
 	if now is None:
@@ -1110,7 +1193,7 @@ def participant_actions(store: Authority, *, viewer_team: str,
 
 		for row in store.conn.execute(
 				"SELECT seq, work, message_seq, team, kind, flavor, "
-				"round, thread, status FROM obligations "
+				"trial, thread, status FROM obligations "
 				"WHERE team=? AND status='pending' ORDER BY seq",
 				(viewer_team,)):
 			owed = resolve(row["team"], row["kind"])
@@ -1127,24 +1210,24 @@ def participant_actions(store: Authority, *, viewer_team: str,
 			entry["owed_by"] = owed
 			actions.append(entry)
 		for row in store.conn.execute(
-				"SELECT rounds.work, rounds.round, rounds.candidate, "
-				"rounds.review_at, rounds.deadline_generation, "
+				"SELECT trials.work, trials.trial, trials.candidate, "
+				"trials.review_at, trials.deadline_generation, "
 				"work.current_team, work.current_kind "
-				"FROM rounds JOIN work ON work.id = rounds.work "
-				"WHERE rounds.status='open' "
-				"AND rounds.review_at IS NOT NULL "
-				"AND rounds.review_at <= ? AND work.current_team=? "
-				"ORDER BY rounds.review_at, rounds.work",
+				"FROM trials JOIN work ON work.id = trials.work "
+				"WHERE trials.status='open' "
+				"AND trials.review_at IS NOT NULL "
+				"AND trials.review_at <= ? AND work.current_team=? "
+				"ORDER BY trials.review_at, trials.work",
 				(now, viewer_team)):
 			responsible = resolve(row["current_team"],
 			                      row["current_kind"])
 			if not responsible or viewer_member not in 					(responsible["handlers"] or ()):
 				continue
 			actions.append({
-				"kind": "due_round", "flavor": "due_round",
-				"action_key": (f"round:{row['work']}:{row['round']}"
+				"kind": "due_trial", "flavor": "due_trial",
+				"action_key": (f"trial:{row['work']}:{row['trial']}"
 				               f":{row['deadline_generation']}"),
-				"work": row["work"], "round": row["round"],
+				"work": row["work"], "trial": row["trial"],
 				"candidate": row["candidate"],
 				"review_at": row["review_at"],
 				"deadline_generation": row["deadline_generation"],
@@ -1209,7 +1292,7 @@ def team_summary(store: Authority, *, viewer_team: str,
 	line, and parity holds the two surfaces equal. R46: rows, the due
 	predicate, and the token come from one read snapshot."""
 	# The due count is ALWAYS visible, like parked (WS-2 group 3): open
-	# rounds whose review_at has arrived, on work this team currently
+	# trials whose review_at has arrived, on work this team currently
 	# answers for — derived at read time from the same clock.
 	if now is None:
 		now = store.clock()
@@ -1228,10 +1311,10 @@ def _summary_in_snapshot(store: Authority, viewer_team: str,
 			"SELECT COUNT(*) AS n FROM work WHERE team=? AND status='open' "
 			+ clause, (viewer_team, *params)).fetchone()["n"]
 	due = store.conn.execute(
-		"SELECT COUNT(*) AS n FROM rounds JOIN work "
-		"ON work.id = rounds.work "
-		"WHERE rounds.status='open' AND rounds.review_at IS NOT NULL "
-		"AND rounds.review_at <= ? AND work.current_team=?",
+		"SELECT COUNT(*) AS n FROM trials JOIN work "
+		"ON work.id = trials.work "
+		"WHERE trials.status='open' AND trials.review_at IS NOT NULL "
+		"AND trials.review_at <= ? AND work.current_team=?",
 		(now, viewer_team)).fetchone()["n"]
 	return {"team": viewer_team,
 	        "open": count(""),
@@ -1264,11 +1347,11 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	view = _row_view(store, row, viewer_team, viewer_member)
 	view["snapshot_seq"] = store.last_seq()
 	# One sampled instant for the WHOLE response (R42): due flags in
-	# every round agree with each other and with the snapshot.
+	# every trial agree with each other and with the snapshot.
 	now = store.clock()
-	view["rounds"] = [_round_view(store, entry, now)
+	view["trials"] = [_trial_view(store, entry, now)
 	                  for entry in store.conn.execute(
-		"SELECT * FROM rounds WHERE work=? ORDER BY round", (work_id,))]
+		"SELECT * FROM trials WHERE work=? ORDER BY trial", (work_id,))]
 	# WS-4 R54: the work's THREAD SET — distinct summaries with
 	# stable ids, last-message seq, and the viewer's New, deterministic
 	# order, never merged into one false timeline.
@@ -1403,11 +1486,11 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		# may do; a stale advertisement is discovery-by-attempt.
 		if handler:
 			available += ["request", "pass", "add_dependency",
-			              "create_child", "classify", "create_round"]
+			              "create_child", "classify", "create_trial"]
 			if store.conn.execute(
-					"SELECT 1 FROM rounds WHERE work=? AND status='open'",
+					"SELECT 1 FROM trials WHERE work=? AND status='open'",
 					(work_id,)).fetchone():
-				available += ["abandon_round", "extend_round"]
+				available += ["abandon_trial", "extend_trial"]
 			if row["phase"] != "waiting":
 				# waiting leaves only through its condition-bound wake.
 				available.append("set_phase")

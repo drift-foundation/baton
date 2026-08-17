@@ -23,7 +23,8 @@ from baton_work.authority import Authority, WorkError
 # epoch (null while unclaimed and on terminal rows) — the first
 # projection carrying claimant liveness evidence. Same major.
 # 4.3 (W136): `wait` becomes PARTICIPANT-relative — its actionable
-# entries are typed actions (kind: obligation | due_round | work) with
+# entries are typed actions (originally kind: obligation | due_round |
+# work; due_round became due_trial at 6.0) with
 # stable `action_key` identities, filtered to the exact requesting
 # member by live route resolution; routed Work enters the wake set for
 # the first time. Same major: envelope shape and every other
@@ -44,7 +45,17 @@ from baton_work.authority import Authority, WorkError
 # fields, so the major moves: 5.0, honest and breaking — the human
 # ruled no v11 client-compat limit during the trial, so no alias, no
 # migration, and a 4.x demand refuses cleanly.
-PROJECTION_VERSION = "5.0"
+# 6.0 (W202, finding-try-trial-vocabulary): the candidate-verification
+# object is a TRIAL created by `try` — the `round` verb, the rounds
+# projection fields, the round: action keys, and the due_round wake
+# kind are GONE without alias (fresh-authority evolution, ruled
+# no-migration). Same honest-breaking policy as 5.0: an old-major
+# demand refuses cleanly.
+# 6.1 (W226, finding-tui-held-duration): rows/detail gain the
+# committed `handoff_at` instant (newest pass/return; null for
+# never-passed Work) and the structured `pickup` state
+# (claimed | pending | overdue | null). Additive; glyphs stay TUI-only.
+PROJECTION_VERSION = "6.1"
 
 
 def require_version(requested: str | None) -> None:

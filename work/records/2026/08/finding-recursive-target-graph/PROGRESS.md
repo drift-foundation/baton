@@ -4614,3 +4614,147 @@ five; restored green. test_deploy_v11's ruled-layout pin amended for
 the two-product bin/ and lib/ (exact listings, third-file smuggling
 still fails). Bridge README documents the deployed layout. Gates:
 just test-v11 815 passed + 3 serial + acp 23/23; diff --check clean.
+
+## Step 169 — W235: c claims the selected Work
+
+Implemented finding-tui-selected-work-claim (claimed W235 at v11
+seq 292, already active). One branch in the table-mode dispatch: `c`
+with a selected row routes `claim work=<canonical id>` through the
+EXISTING Console.execute — the same CLI parser, the same atomic
+authority claim, the same committed-only refresh scheduling; no second
+mutation path, no optimistic local state, and the id-anchored
+selection survives the refresh. The footer legend advertises "c claim"
+(reordered so the W17 "[b] deps" pin still fits at 60 columns; the
+comment avoids the boundary scanner's SQL-token check). New
+tests/work/test_w235_tui_claim.py (3): the successful claim commits
+the canonical operation (audited claim event, ok status, refresh
+scheduled, selection preserved on the same row); the shortcut is
+scoped to table navigation (in the command bar `c` is text, in the
+detail view it claims nothing); refusals fail closed showing the
+returned diagnostic with NO local fiction and NO refresh — competing
+claim (grace's claim survives, her name in the status), blocked/
+not-ready Work, an ineligible viewer through the same canonical path,
+and terminal Work. Break-sweep: replacing the canonical call with
+optimistic local status redded two of three; restored green. Gates:
+just test-v11 818 passed + 3 serial + acp 23/23; diff --check clean.
+
+## Step 170 — W202: try creates a trial
+
+Implemented finding-try-trial-vocabulary (claimed W202 at v11 seq 296,
+phase active at 297) — the authority-wide round->try/trial rename with
+NO alias and NO migration, under the ruled fresh-authority boundary.
+SCHEMA_VERSION 16: table trials (column trial), obligations.trial; the
+creation command is `try` (grammar help "ask the assigned endpoints to
+TRY one exact candidate — opens a trial"), the transition
+create_trial, event kinds create_trial/extend_trial/abandon_trial,
+payload keys trial/trial_summary, detail projection field `trials`
+(TUI renders "Trial N <candidate> ..."), extend/abandon take trial=,
+available_transitions declare create_trial/extend_trial/abandon_trial,
+the W136 wake kind is due_trial with trial:<work>:<n>:<gen> action
+keys, and PROJECTION_VERSION 6.0 (honest-breaking, old-major demands
+refuse — same policy as 5.0). Both readiness bridges moved with the
+contract: the shared gate requires projection major 6 and validates
+due_trial with trial-key agreement; the Codex summarize and the ACP
+promptText speak trial; fixtures/tests at 6.0 (codex 41/41, acp
+23/23). English non-domain wording (round-trip, historical review
+rounds) untouched; docs/BATON-WORK.md wake paragraph now names due
+verification trials and trial: keys. Seventeen test files converted
+plus version/schema pins (w92 schema-16, w136/w47/jsonapi 6.0,
+parity Trial line, ws2 suites, wf03/wf08 workflow stories). New
+tests/work/test_w202_try_trial.py (3): the obsolete round command
+refuses as unknown with nothing created; try creates a trial with
+coherent vocabulary end to end (result kind, trials projection, no
+round key anywhere, audited create_trial event); due wakes carry
+due_trial/trial: for the responsible Current route. Break-sweep:
+resurrecting a round alias in the grammar redded the no-alias pin;
+restored green. Gates: just test-v11 821 passed + 3 serial + acp
+23/23; codex 41/41; git diff --check clean.
+
+## Step 171 — W226: Held, handoff facts, and pickup cues
+
+Implemented finding-tui-held-duration with both supersessions (claimed
+W226 per the queue directive at v11 seq 293; W202 landed first as
+required). Projection: the batched _handoffs map (newest pass/return
+event's committed ts per Work, one statement, W39 no-N+1) feeds every
+window builder (home/search/children) and the single-row detail; rows
+gain handoff_at (null for never-passed Work) and the STRUCTURED pickup
+state — claimed | pending | overdue (the fixed six-minute constant
+PICKUP_OVERDUE_SECONDS, same 360 as the W47 alert) | null — derived at
+snapshot time from recorded instants, never glyphs; PROJECTION 6.1
+(additive). TUI: the column renames Age -> Held; held_cell is ONE
+floored HH:MM interpretation (00:00 through 99:59, 99h+ above,
+negative-clock clamp); held_field is state-dependent — claimed shows
+HH:MM since claimed_at with the claimant-only heartbeat suffix (the
+visible reset at pickup preserves when the recipient actually took the
+Work; falsifiable at any handoff-claim distance via a synthetic
+two-hour boundary pin), pending shows >HH:MM since handoff_at flipping
+to !HH:MM at six minutes, never-passed unclaimed shows dash; the Phase
+cell (widened to six) carries the same >/! pickup cue via
+pickup_prefix, removed on claim. No prefix, suffix, or elapsed time
+mutates workflow authority (pinned: an overdue projection writes no
+event). W33/W47 formatter and label pins superseded in place (HH:MM
+floors, Held header, HELD column identity, module-level field
+adapter); the parity phase pin verifies the prefix against the same
+canonical facts. New tests/work/test_w226_held_pickup.py (3):
+structured JSON facts without glyphs including snapshot overdue; the
+full ruled state walk (pending -> overdue -> claim reset -> heartbeat
+suffix -> repass new interval) plus the synthetic reset boundary; and
+terminal/authority-untouched. Break-sweep: removing the claim-time
+reset redded the boundary pin (after strengthening it to be
+falsifiable — the live-speed case could not red); restored green.
+BATON-WORK.md rewritten for Held/pickup. Gates: just test-v11 824
+passed + 3 serial + acp 23/23; diff --check clean.
+
+## Step 172 — W235 R1: c claims search results too
+
+Round-1 review named the one bounded gap: c did nothing on selectable
+search-result Work. Corrected (reclaimed W235): the claim logic is now
+the ONE shared _claim_selected helper — canonical command path,
+committed-only refresh, id-anchored selection — invoked from both the
+root table and the search-result mode; search-ENTRY text and the
+detail panes never reach it. New regression: typing c in the query
+bar stays text and claims nothing; a submitted query's selected
+result claims canonically (audited event, ok status, selection
+surviving on the same row). Gates: just test-v11 825 passed + 3
+serial + acp 23/23; diff --check clean.
+
+## Step 173 — W202 R1: the vocabulary is coherent everywhere
+
+Round-1 review confirmed the behavior and named the residual domain
+prose (reclaimed W202). Cleaned exactly as bounded: projection's
+helper is _trial_view with due-trials wording; the TUI module contract
+says trials; transitions' close comment says trials end with their
+work; jsonapi's CURRENT typed-action inventory names the due_round ->
+due_trial transition explicitly (the 6.0 change note naming the
+removed surface remains, as permitted). test_ws2_rounds.py renamed to
+test_ws2_trials.py; residual domain prose, variables, diagnostics, and
+story data (rationales included) converted across the eleven named
+suites/workflows with the legitimate uses preserved (round-trip,
+review-iteration prose, and the W202 negative assertions proving the
+obsolete spelling refuses). No behavior or schema change. Gates: just
+test-v11 825 + 3 serial + acp 23/23; codex 41/41; diff --check clean.
+
+## Step 174 — W202 R2: the two stale ACP comments
+
+Round-two review confirmed the vocabulary is clean and named the last
+two live source comments describing the shared gate as projection 5
+(baton_readiness.mjs:2, acp_baton_bridge.mjs:101). Both now say
+projection-6; nothing else changed. ACP suite 23/23; git diff --check
+clean.
+
+## Step 175 — W226 R1/R2: the tree batch, the one clock, terminal null
+
+Round-1 review confirmed the visible behavior (59/59 focused) and
+returned two projection corrections (reclaimed W226). R1: tree() now
+batches _handoffs once for its complete root/child window exactly like
+_first_open_blockers/_claimed_ats, and EVERY window builder (home/
+search/children/tree) samples the derivation clock once and passes
+that instant into every _row_view — rows inside one snapshot can never
+disagree at the six-minute boundary. A trace-callback regression pins
+the handoff-query count at exactly one as the tree grows sevenfold.
+R2: _pickup_state takes the row status and terminal Work projects
+pickup=None (a pickup obligation cannot exist on closed Work) while
+handoff_at remains history; the regression closes handed-off Work,
+advances far past the threshold, and asserts pickup None with
+handoff_at retained in BOTH detail and a window projection. Gates:
+just test-v11 827 + 3 serial + acp 23/23; diff --check clean.

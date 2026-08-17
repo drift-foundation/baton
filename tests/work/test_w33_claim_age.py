@@ -1,7 +1,7 @@
 """W33: the claim-Age column and the final hot-cue composition.
 
 Age (finding-tui-claim-age): elapsed time since the CURRENT claim
-committed — MM:SS below one hour, HH:MM through 99 hours, `99h+`
+committed — W226 supersession: ONE HH:MM interpretation, `99h+`
 beyond, `-` with no claim — derived client-side from the canonical
 `claimed_at` (the newest claim event's timestamp, never
 last_changed_at) on the ONE existing refresh cadence. The final steady
@@ -30,7 +30,7 @@ import baton_work as bw                                       # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
 from baton_work.tui.app import (COLUMNS, DROP_ORDER, Console,  # noqa: E402
-                                age_cell)
+                                held_cell)
 import fixtures as fx                                         # noqa: E402
 
 
@@ -67,24 +67,26 @@ class Screen:
 
 
 def test_the_age_formatter_matrix():
-	"""The pure five-cell display: MM:SS, HH:MM, the 99h+ cap, the
+	"""The pure display (W226): floored HH:MM, the 99h+ cap, the
 	unclaimed dash, and the negative-clock clamp."""
 	base = "2026-08-16T12:00:00Z"
 	import datetime as _dt
 	origin = _dt.datetime.fromisoformat(
 		base.replace("Z", "+00:00")).timestamp()
-	assert age_cell(None, origin) == "-"
-	assert age_cell(base, origin) == "00:00"
-	assert age_cell(base, origin + 59) == "00:59"
-	assert age_cell(base, origin + 61) == "01:01"
-	assert age_cell(base, origin + 3599) == "59:59"
-	assert age_cell(base, origin + 3600) == "01:00"
-	assert age_cell(base, origin + 3600 * 26 + 60 * 7) == "26:07"
-	assert age_cell(base, origin + 3600 * 99 + 59 * 60) == "99:59"
-	assert age_cell(base, origin + 3600 * 100) == "99h+"
-	assert age_cell(base, origin - 30) == "00:00", \
+	assert held_cell(None, origin) == "-"
+	assert held_cell(base, origin) == "00:00"
+	assert held_cell(base, origin + 59) == "00:00"
+	assert held_cell(base, origin + 60) == "00:01"
+	assert held_cell(base, origin + 3599) == "00:59"
+	assert held_cell(base, origin + 3600) == "01:00"
+	assert held_cell(base, origin + 3600 * 26 + 60 * 7) == "26:07"
+	assert held_cell(base, origin + 3600 * 99 + 59 * 60) == "99:59"
+	assert held_cell(base, origin + 3600 * 100) == "99h+"
+	# the negative-clock clamp
+	assert held_cell(base, origin - 30) == "00:00"
+	assert held_cell(base, origin - 30) == "00:00", \
 		"a clock correction did not clamp to zero"
-	assert all(len(age_cell(base, origin + n)) <= 5
+	assert all(len(held_cell(base, origin + n)) <= 5
 	           for n in (0, 59, 3600, 3600 * 100)), \
 		"the display broke the fixed five-cell budget"
 
@@ -139,14 +141,14 @@ def test_claim_timestamps_fetch_in_one_batch(world):
 
 
 def test_the_age_column_is_final_and_derives_from_claimed_at(world):
-	"""The table ends with a five-cell Age column: live MM:SS on the
+	"""The table ends with the six-cell Held column: live HH:MM on the
 	claimed row, `-` on unclaimed rows INCLUDING the bold ready-review
 	row; the painted value is exactly the formatter over claimed_at."""
 	# W47 widened the field to six cells: the claim timer plus the
 	# reserved liveness-suffix cell.
-	assert COLUMNS[-1] == ("AGE", 6)
-	assert "AGE" in DROP_ORDER, \
-		"Age must be omissible as one whole responsive column"
+	assert COLUMNS[-1] == ("HELD", 6)
+	assert "HELD" in DROP_ORDER, \
+		"Held must be omissible as one whole responsive column"
 	claimed = make(world, title="claimed row")
 	tr.claim_work(world["store"], claimed, actor_team="lang",
 	              actor="ada")
@@ -159,7 +161,7 @@ def test_the_age_column_is_final_and_derives_from_claimed_at(world):
 	console._render_table(screen, 24, 110, console.rows())
 	header = next(text for _y, _x, text, _a in screen.calls
 	              if "Title" in text)
-	assert header.rstrip().endswith("Age"), header
+	assert header.rstrip().endswith("Held"), header
 	claimed_line = next(text for _y, _x, text, _a in screen.calls
 	                    if "claimed row" in text)
 	assert re.search(r"\d{2}:\d{2}\s*$", claimed_line), claimed_line
