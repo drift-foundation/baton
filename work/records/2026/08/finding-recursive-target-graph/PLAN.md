@@ -2053,3 +2053,11 @@ structured facts, never those TUI glyphs. This is queued as W226.
 answer what is happening now and what happens next, so render their resolved
 route handles (`impl`, `rview`) rather than endpoint kinds (`baton.impl`,
 `baton.feat`). JSON and commands retain the complete structured endpoint.
+
+**Live cutover defect — 2026-08-17:** see
+`findings/finding-local-thread-selectors/`. Projection 6.1 displays the born
+discussion as `T2`, but `say thread=T2 ...` refuses because only the hidden
+canonical Thread id is accepted. Add a strict authority-local `Tn` resolver
+for every Thread-valued command operand before v11 messaging can retire v10.
+The full canonical id is permitted only as a logged temporary workaround for
+continuing this trial.

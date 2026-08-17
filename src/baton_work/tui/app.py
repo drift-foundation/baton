@@ -1178,8 +1178,12 @@ class Console:
 		for offset, row in enumerate(rows[start:start + list_budget]):
 			attribute = curses.A_REVERSE \
 				if start + offset == chosen else 0
+			# W7: the label is the ACCEPTED local selector (the
+			# canonical id's sequence), never the Work-scoped label
+			# ordinal — what the pane shows is what `say thread=`
+			# takes.
 			screen.addnstr(offset_row + 1 + offset, 0,
-			               f"  T{row['ordinal']} {row['subject']} "
+			               f"  {row['local_id']} {row['subject']} "
 			               f"new:{row['new']} {row['id']}",
 			               width - 1, attribute)
 		# W176: exactly ONE blank separator row between the Thread list

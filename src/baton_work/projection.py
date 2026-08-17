@@ -784,7 +784,11 @@ def thread(store: Authority, thread_id: str, *, viewer_team: str,
 		snapshot_seq = store.last_seq()
 	finally:
 		store.conn.execute("ROLLBACK")
-	return {"id": thread_id, "subject": row["subject"],
+	# W7: the authority-local short selector alongside canonical
+	# identity — the spelling every Thread-valued command accepts.
+	return {"id": thread_id,
+	        "local_id": thread_id.rsplit("-", 1)[1],
+	        "subject": row["subject"],
 	        "labels": labels,
 	        "participants": participants, "messages": messages,
 	        "next_after": messages[-1]["seq"]
@@ -832,6 +836,7 @@ def threads_for(store: Authority, *, viewer_team: str,
 				"SELECT subject, created_seq FROM threads WHERE id=?",
 				(entry["thread"],)).fetchone()
 			rows.append({"id": entry["thread"],
+			             "local_id": entry["thread"].rsplit("-", 1)[1],
 			             "subject": born["subject"], "new": unread,
 			             "last_seq": last,
 			             "created_seq": born["created_seq"],
@@ -888,6 +893,10 @@ def work_threads(store: Authority, work_id: str, *, viewer_team: str,
 				 entry["id"])).fetchone()["n"]
 			rows.append({
 				"id": entry["id"],
+				# W7: the accepted local selector spelling; the
+				# label-order ordinal below remains a pagination
+				# fact (R63), never an identifier.
+				"local_id": entry["id"].rsplit("-", 1)[1],
 				"subject": entry["subject"],
 				"ordinal": ordinal,
 				"created_seq": entry["created_seq"],

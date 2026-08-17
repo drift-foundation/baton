@@ -4827,3 +4827,27 @@ verified real, not skipped). (3) The history assertion pins the ONE
 canonical ascending-revision order [(1, CHILD), (2, GRANDCHILD)].
 Gates: just test-v11 834 passed + 3 serial + acp 23/23; diff --check
 clean.
+
+## Step 179 — W7: visible local Thread selectors accepted
+
+The live cutover refusal (`say thread=T2` → `No thread 'T2'` from the
+very TUI displaying T2) is closed by ONE strict authority-local Thread
+resolver — the exact Work-selector discipline: local `T<sequence>`
+qualifies against the opened authority, canonical must belong to it
+(foreign refuses by name), everything else refuses naming both
+accepted spellings. It runs in the ONE central pre-dispatch operand
+pass (now `_resolve_selector_operands`) covering all five
+Thread-valued operands — say, thread, label, unlabel, mark-seen — so
+resolution precedes the WS-5 fingerprint and both spellings are one
+operation identity (replayed retry pinned). Revalidation exposed a
+necessary supersession, appended to the child FINDING: the TUI
+Threads-pane `T{n}` was the Work-scoped LABEL ORDINAL, which silently
+diverges from thread identity once label order differs from creation
+order — the pane now renders the accepted local selector; `ordinal`
+stays a pagination fact. thread/threads/work-threads expose `local_id`
+(additive, PROJECTION 6.2). Evidence: 7 regressions incl. the
+byte-shape observed command, an ordinal/identity-divergence PTY case,
+and a packaged-console cutover path; break-sweeps redded 6/7 (the
+packaged sweep reproduced `no thread 'T2'` verbatim) and the
+ordinal-label revert redded the pane pin. Gates: 840 parallel + 4
+serial + acp 23/23; diff --check clean.

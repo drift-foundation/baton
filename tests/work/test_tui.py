@@ -725,8 +725,8 @@ def test_the_message_panes_are_role_labelled_not_content_repeating(tmp_path):
 		(b"qy", 0.4),
 	])
 	listing = "\n".join(ptyharness.replay(steps[0]))
-	assert "T1 two conversations" in listing, listing[:400]
-	assert "T2 the follow-up questions" in listing
+	assert "T2 two conversations" in listing, listing[:400]
+	assert "T3 the follow-up questions" in listing
 	msgs = "\n".join(ptyharness.replay(steps[1]))
 	assert "Messages (1)" in msgs, msgs[:400]
 	assert "Message M" in msgs, "the reader heading lost its role label"

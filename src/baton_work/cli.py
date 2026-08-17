@@ -1018,24 +1018,31 @@ def analyze_partial(buffer: str) -> dict:
 # each routes through THE strict selector resolver before dispatch, so
 # the short and canonical spellings are interchangeable everywhere and
 # a malformed or foreign value refuses before any transition runs.
+# W7 (finding-local-thread-selectors): Thread-valued operands get the
+# SAME pre-dispatch pass — resolution happens before the transitions
+# fingerprint the operation, so `T2` and the canonical spelling are
+# ONE operation identity, including effectively-once retries.
 _WORK_VALUED = frozenset({"work", "on", "parent", "into",
                           "duplicate-of", "follow-up-of", "label"})
+_THREAD_VALUED = frozenset({"thread"})
 
 
-def _resolve_work_operands(store, args) -> None:
+def _resolve_selector_operands(store, args) -> None:
 	spec = _verb_spec(args.command)
 	for name, entry in spec.items():
-		if name not in _WORK_VALUED:
+		if name in _WORK_VALUED:
+			resolver = transitions.resolve_work_selector
+		elif name in _THREAD_VALUED:
+			resolver = transitions.resolve_thread_selector
+		else:
 			continue
 		value = getattr(args, entry["dest"], None)
 		if entry["repeat"]:
 			if value:
 				setattr(args, entry["dest"],
-				        [transitions.resolve_work_selector(store, one)
-				         for one in value])
+				        [resolver(store, one) for one in value])
 		elif value is not None:
-			setattr(args, entry["dest"],
-			        transitions.resolve_work_selector(store, value))
+			setattr(args, entry["dest"], resolver(store, value))
 
 
 def main(argv=None) -> int:
@@ -1150,7 +1157,7 @@ def main(argv=None) -> int:
 		store = lifecycle.open_bound(args.config)
 		try:
 			_validate_participant(store, args.participant)
-			_resolve_work_operands(store, args)
+			_resolve_selector_operands(store, args)
 			if args.command == "tui":
 				if not args.participant:
 					raise WorkError("tui needs --participant team.member")

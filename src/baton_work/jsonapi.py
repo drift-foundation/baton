@@ -55,7 +55,11 @@ from baton_work.authority import Authority, WorkError
 # committed `handoff_at` instant (newest pass/return; null for
 # never-passed Work) and the structured `pickup` state
 # (claimed | pending | overdue | null). Additive; glyphs stay TUI-only.
-PROJECTION_VERSION = "6.1"
+# 6.2 (W7, finding-local-thread-selectors): thread, threads, and
+# work-threads expose `local_id` — the authority-local `T<sequence>`
+# spelling every Thread-valued command accepts — alongside canonical
+# identity. Additive.
+PROJECTION_VERSION = "6.2"
 
 
 def require_version(requested: str | None) -> None:

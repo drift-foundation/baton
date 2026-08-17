@@ -103,6 +103,39 @@ def resolve_work_selector(store: Authority, value) -> str:
 		f"<authority>-W<sequence> id")
 
 
+# W7 (finding-local-thread-selectors): the SAME two-spelling contract
+# for Threads. The TUI presents Threads with the local `T<sequence>`
+# label; a stable identifier presented as the way to name a Thread is
+# accepted wherever a command asks for one.
+_LOCAL_THREAD = _sel_re.compile(r"^T[1-9][0-9]*$")
+_CANONICAL_THREAD = _sel_re.compile(r"^[0-9a-f]{8}-T[1-9][0-9]*$")
+
+
+def resolve_thread_selector(store: Authority, value) -> str:
+	"""THE one strict Thread-selector resolver — the exact discipline of
+	`resolve_work_selector`, scoped to the ONE authority this client
+	explicitly opened. `T<seq>` qualifies against that authority; a
+	canonical id must already belong to it (a foreign id refuses by
+	name). Anything else refuses without guessing — never from subject,
+	cursor position, or creation order. The resolver fixes IDENTITY
+	only; a well-formed absent selector still gets the honest
+	`no thread` refusal from the lookup that follows."""
+	prefix = store.meta()["authority_uuid"][:8]
+	if isinstance(value, str) and _LOCAL_THREAD.match(value):
+		return f"{prefix}-{value}"
+	if isinstance(value, str) and _CANONICAL_THREAD.match(value):
+		if not value.startswith(prefix + "-"):
+			raise WorkError(
+				f"{value!r} names a different authority; this client "
+				f"is bound to {prefix} and never resolves across "
+				f"instances")
+		return value
+	raise WorkError(
+		f"{value!r} is not a Thread selector; use the authority-local "
+		f"T<sequence> (for example T2) or the canonical "
+		f"<authority>-T<sequence> id")
+
+
 def _endpoint(store: Authority, team: str, kind: str, what: str) -> None:
 	"""An endpoint names a LIVE kind. Refused at use time, with retirement
 	distinguished from absence: a retired kind is a name that existed, and
