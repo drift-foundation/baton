@@ -183,22 +183,19 @@ def test_later_state_replay_returns_the_original_resolution(world):
 	born = _create(store)
 	passed = tr.pass_work(store, born["work_id"],
 	                      actor_team="lang", actor="ada",
-	                      to="lang.rsrch", phase="research",
-	                      comment="onward", op_id="pass-1")
+	                      to="lang.rsrch", comment="onward", op_id="pass-1")
 	tr.close_work(store, born["work_id"], actor_team="lang",
 	              actor="ada", rationale="done", outcome="satisfying")
 	replay = tr.pass_work(store, born["work_id"],
 	                      actor_team="lang", actor="ada",
-	                      to="lang.rsrch", phase="research",
-	                      comment="onward", op_id="pass-1")
+	                      to="lang.rsrch", comment="onward", op_id="pass-1")
 	assert replay["seq"] == passed["seq"]
 	assert replay["operation"]["state"] == "replayed"
 	assert replay["work"] == born["work_id"]
 	with pytest.raises(bw.WorkError, match="terminal work never moves"):
 		tr.pass_work(store, born["work_id"],
 		             actor_team="lang", actor="ada",
-		             to="lang.rsrch", phase="research",
-		             comment="onward again", op_id="pass-2")
+		             to="lang.rsrch", comment="onward again", op_id="pass-2")
 
 
 def test_a_removed_identity_gets_no_replay_carve_out(world):

@@ -53,12 +53,17 @@ write transaction, so an earlier `ready` observation is advisory and a
 competing claim fails closed naming the recorded claimant. No execution
 begins before the claim succeeds. A pass atomically records the
 destination Current AND the destination phase through its own canonical
-THREADLESS verb — `pass work=W to=team.kind phase=review comment="..."`
-(phase derived from the destination route's stage role when omitted;
+THREADLESS verb — `pass work=W to=team.kind comment="..."`
+(the DESTINATION ROUTE decides the phase from its stage role —
+research, implementation and reviewer/approver roles map to
+`research`, `active` and `review`; `phase=` is refused as an unknown
+key, an unmapped destination role refuses rather than guessing, and a
+route transfer never produces `queued`. Same-route stage changes stay
+with the separately authorized `phase` verb);
 `comment=` is durable handoff evidence stored with the authoritative
 pass event itself, never a discussion message; `set-next=` plants the
 planned return; `thread=` is refused as an unknown key — a Work
-transfer has no thread-selection decision) — releases the sender's
+transfer has no thread-selection decision — releases the sender's
 claim, and never claims for the recipient. A pass creates no Message,
 advances no cursor, and changes no Message/My/New/obligation count;
 conversation stays explicit through `say`. Plain `say` is discussion
@@ -151,11 +156,12 @@ JSON as `search query= [after= limit=]` plus the filter operands.
 Claimed Work keeps a liveness heartbeat: the
 claim is the initial beat, and the current claimant sends
 `heartbeat work=Wn` every two minutes while executing or reviewing.
-Six minutes without a successful beat renders the informational `!`
-suffix on the Held cell (`12:04!`); the next beat clears it. The alert
-is never a lease: Baton never auto-releases, transfers, rephases, or
-admits a second claimant on staleness — recovery stays the explicit
-release path. Only the exact current claimant may beat (rechecked in
+Silence renders NOTHING: an agent can be alive and busy inside one
+model turn with no opportunity to beat, so the console shows no
+staleness alert and never infers failure from a missing call.
+Liveness was never a lease either — Baton does not auto-release,
+transfer, rephase, or admit a second claimant on staleness, and
+recovery stays the explicit release path. Only the exact current claimant may beat (rechecked in
 the committing transaction), the audited event journal is the record,
 and canonical JSON exposes `heartbeat_at` scoped to the current claim
 epoch so every client reaches the same conclusion.
@@ -173,7 +179,7 @@ stays global, and the active filter is always disclosed — `Filter:N`
 right-aligned on the header plus a dedicated clause line that viewports
 at narrow widths.
 
-Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Current resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Current, and the final `Held` column — one HH:MM interpretation for every ordinary value (floored minutes, `00:00` through `99:59`, `99h+` beyond). Before pickup it shows `>HH:MM` since the committed handoff, becoming `!HH:MM` after six unclaimed minutes; claiming removes the prefix and resets the display to elapsed time since the canonical `claimed_at` (the handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs); `-` marks unclaimed never-passed Work. The Phase cell carries the same `>`/`!` pickup cue. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing (a non-null active claimant, any phase) and any open ready `review` Work awaiting its reviewer's claim. Blocked review, waiting, parked, and closed Work stay steady. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
+Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Current resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Current, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). `>` marks every open Work with NO active claimant — a state marker, not an overdue assertion, independent of elapsed time — so an unclaimed row reads `>MM:SS` since the committed handoff, or `>-` when there is no handoff to time. Claiming removes the marker and resets the display to elapsed time since the canonical `claimed_at`; releasing, passing, or a readiness change that releases the claimant restores it while the Work stays open, and closed Work has no execution claim and no marker. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. The Phase cell carries the same `>` marker. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing (a non-null active claimant, any phase) and any open ready `review` Work awaiting its reviewer's claim. Blocked review, waiting, parked, and closed Work stay steady. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
 `high`, `normal` (the default), `low` — an ordering signal only, never
 a lifecycle fact. `create priority=...` records it at birth;
 `prioritize work=... as=...` is the audited effectively-once revision,

@@ -8,7 +8,7 @@ import { actionEvent, actionLocator, codexBatonBridge, validateEnvelope } from "
 
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
 
-function envelope(actions, { timedOut = false, participant = "baton.codex", uuid = UUID, projection = "6.0" } = {}) {
+function envelope(actions, { timedOut = false, participant = "baton.codex", uuid = UUID, projection = "7.0" } = {}) {
   return {
     protocol_version: 11,
     projection_version: projection,
@@ -19,8 +19,13 @@ function envelope(actions, { timedOut = false, participant = "baton.codex", uuid
   };
 }
 
-function workAction(id, { claimed = false, title = "t" } = {}) {
-  return { kind: "work", action_key: `work:${id}`, work: id, local_id: id.split("-").pop(), title, phase: "queued", claimed };
+// W49: the Work action key is an EPISODE locator — work id, assignment
+// episode, accepted configuration generation — and must agree with the
+// structured fields beside it.
+function workAction(id, { claimed = false, title = "t", episode = 1, generation = 1 } = {}) {
+  return { kind: "work", action_key: `work:${id}:${episode}:g${generation}`, work: id,
+           episode_seq: episode, config_generation: generation,
+           local_id: id.split("-").pop(), title, phase: "queued", claimed };
 }
 
 function obligationAction(seq, work) {
@@ -77,7 +82,7 @@ test("multiple simultaneous action keys each emit one scoped event", async () =>
   assert.deepEqual(events.map((event) => event.id), [
     `baton-v11:${UUID}:baton.codex:obligation:9`,
     `baton-v11:${UUID}:baton.codex:trial:7ba67cb8-W3:1:1`,
-    `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5`,
+    `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5:1:g1`,
   ]);
   for (const event of events) {
     assert.equal(event.source, "baton-v11");
@@ -146,7 +151,7 @@ test("malformed and wrong-protocol output refuse instead of guessing", async () 
     { ...envelope([]), protocol_version: 10 },
     envelope([], { participant: "someone.else" }),
     { ...envelope([]), result: {} },
-    envelope([{ kind: "work", action_key: "work:x" }]),
+    envelope([{ kind: "work", action_key: "work:x:1:g1" }]),
   ];
   const warnings = [];
   const controller = new AbortController();
@@ -225,7 +230,7 @@ test("the locator carries stable identities and never a body", () => {
     flavor: "response",
   });
   const event = actionEvent(envelope([]), workAction("7ba67cb8-W5"), { target: "baton" });
-  assert.equal(event.id, `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5`);
+  assert.equal(event.id, `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5:1:g1`);
   assert.equal(validateEnvelope(envelope([]), "baton.codex").protocol_version, 11);
 });
 
@@ -243,19 +248,19 @@ test("an authority switch emits the new action while retiring the old set", asyn
   ]);
   await run;
   assert.deepEqual(events.map((event) => event.id), [
-    `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5`,
-    `baton-v11:${OTHER}:baton.codex:work:7ba67cb8-W5`,
-    `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5`,
+    `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5:1:g1`,
+    `baton-v11:${OTHER}:baton.codex:work:7ba67cb8-W5:1:g1`,
+    `baton-v11:${UUID}:baton.codex:work:7ba67cb8-W5:1:g1`,
   ]);
 });
 
 test("the typed contract refuses every inconsistent envelope by name", () => {
   const cases = [
     // incompatible projection (W207): any 4.x, other majors, missing
-    [envelope([], { projection: "4.3" }), /projection-6 participant-action contract/],
-    [envelope([], { projection: "4.5" }), /projection-6 participant-action contract/],
-    [envelope([], { projection: "5.0" }), /projection-6 participant-action contract/],
-    [{ ...envelope([]), projection_version: undefined }, /projection-6 participant-action contract/],
+    [envelope([], { projection: "4.3" }), /projection-7 participant-action contract/],
+    [envelope([], { projection: "4.5" }), /projection-7 participant-action contract/],
+    [envelope([], { projection: "5.0" }), /projection-7 participant-action contract/],
+    [{ ...envelope([]), projection_version: undefined }, /projection-7 participant-action contract/],
     // missing snapshot token / non-boolean timed_out
     [{ ...envelope([]), snapshot_seq: "42" }, /snapshot_seq/],
     [{ ...envelope([]), result: { actionable: [], timed_out: "no" } }, /timed_out is not a boolean/],
@@ -264,11 +269,11 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
     // unknown kind
     [envelope([{ kind: "message", action_key: "message:9" }]), /unknown action kind "message"/],
     // malformed per-kind payloads
-    [envelope([{ kind: "work", action_key: "work:7ba67cb8-W5" }]), /names no Work/],
+    [envelope([{ kind: "work", action_key: "work:7ba67cb8-W5:1:g1" }]), /names no Work/],
     [envelope([{ kind: "obligation", action_key: "obligation:9", work: "7ba67cb8-W2" }]), /has no positive seq/],
     [envelope([{ kind: "due_trial", action_key: "trial:7ba67cb8-W3:1:1", work: "7ba67cb8-W3", trial: 1 }]), /lacks its positive work\/trial\/generation locator/],
     // key/field disagreement, one per kind
-    [envelope([{ ...workAction("7ba67cb8-W5"), action_key: "work:7ba67cb8-W9" }]), /disagrees with work/],
+    [envelope([{ ...workAction("7ba67cb8-W5"), action_key: "work:7ba67cb8-W9:1:g1" }]), /disagrees with work/],
     [envelope([{ ...obligationAction(9, "7ba67cb8-W2"), action_key: "obligation:12" }]), /disagrees with seq/],
     [envelope([{ ...trialAction("7ba67cb8-W3", 1, 1), action_key: "trial:7ba67cb8-W3:1:2" }]), /disagrees with its locator/],
     // duplicate action key
@@ -277,8 +282,8 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
   for (const [payload, pattern] of cases) {
     assert.throws(() => validateEnvelope(payload, "baton.codex"), pattern);
   }
-  // and the boundary the gate is FOR: a later 5.x minor stays accepted
-  assert.equal(validateEnvelope(envelope([], { projection: "6.4" }), "baton.codex").snapshot_seq, 42);
+  // and the boundary the gate is FOR: a later 7.x minor stays accepted
+  assert.equal(validateEnvelope(envelope([], { projection: "7.4" }), "baton.codex").snapshot_seq, 42);
 });
 
 test("every field the trusted summary consumes is typed and agreeing", () => {
@@ -300,8 +305,13 @@ test("every field the trusted summary consumes is typed and agreeing", () => {
   for (const [payload, pattern] of cases) {
     assert.throws(() => validateEnvelope(payload, "baton.codex"), pattern);
   }
-  // optional descriptive fields stay optional when absent
-  const bare = envelope([{ kind: "work", action_key: "work:7ba67cb8-W5", work: "7ba67cb8-W5" }]);
+  // optional DESCRIPTIVE fields stay optional when absent. W49 moved
+  // episode_seq and config_generation out of that set: they are the
+  // action's identity, not description, so a bare action still carries
+  // them and the key still has to agree.
+  const bare = envelope([{ kind: "work", action_key: "work:7ba67cb8-W5:1:g1",
+                           work: "7ba67cb8-W5", episode_seq: 1,
+                           config_generation: 1 }]);
   assert.equal(validateEnvelope(bare, "baton.codex").snapshot_seq, 42);
 });
 

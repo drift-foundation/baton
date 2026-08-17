@@ -58,8 +58,8 @@ function positiveInteger(value, fallback, name) {
 }
 
 // The refuse-not-guess envelope gate (W148 R3, W207): protocol 11,
-// the projection-5 contract (W179's honest breaking boundary; later
-// 5.x additions welcome; 4.x, other majors, or missing refuse), the
+// the projection-7 contract (W49's honest breaking boundary; later
+// 7.x additions welcome; 6.x, other majors, or missing refuse), the
 // configured participant, a snapshot token,
 // boolean timeout semantics that agree with the action set, and
 // exactly the three typed action kinds — each with the locator fields
@@ -72,8 +72,8 @@ export function validateEnvelope(payload, participant) {
   }
   const projection = payload?.projection_version;
   const match = typeof projection === "string" && /^([0-9]+)\.([0-9]+)$/.exec(projection);
-  if (!match || Number(match[1]) !== 6 || Number(match[2]) < 0) {
-    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-6 participant-action contract`);
+  if (!match || Number(match[1]) !== 7 || Number(match[2]) < 0) {
+    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-7 participant-action contract`);
   }
   if (payload?.participant !== participant) {
     throw new Error(`envelope participant ${JSON.stringify(payload?.participant)} is not ${participant}`);
@@ -107,8 +107,20 @@ export function validateEnvelope(payload, participant) {
       if (typeof action.work !== "string" || !action.work) {
         throw new Error(`work action ${action.action_key} names no Work`);
       }
-      if (action.action_key !== `work:${action.work}`) {
-        throw new Error(`work action key ${action.action_key} disagrees with work ${action.work}`);
+      // W49: the key is an EPISODE locator — Work id, the authority's
+      // assignment episode, and the accepted configuration generation.
+      // Both structured facts are required so a consumer never has to
+      // parse the key to recover them, and the key must AGREE with
+      // them: a disagreeing envelope would let one episode be
+      // suppressed under another's identity.
+      if (!Number.isSafeInteger(action.episode_seq) || action.episode_seq < 0) {
+        throw new Error(`work action ${action.action_key} has no non-negative episode_seq`);
+      }
+      if (!Number.isSafeInteger(action.config_generation) || action.config_generation < 0) {
+        throw new Error(`work action ${action.action_key} has no non-negative config_generation`);
+      }
+      if (action.action_key !== `work:${action.work}:${action.episode_seq}:g${action.config_generation}`) {
+        throw new Error(`work action key ${action.action_key} disagrees with work ${action.work} episode ${action.episode_seq} generation ${action.config_generation}`);
       }
       // W148 R3a: every field the TRUSTED summary consumes is typed —
       // a wrong local_id would instruct a command for the wrong Work,

@@ -199,7 +199,6 @@ def test_into_form_refuses_create_only_cli_options(world, capsys):
 	"kind=rsrch",
 	"title=parser recovery",
 	"classification=bug",
-	"phase=queued",
 	"parent=ignored-W1",
 ])
 def test_into_form_refuses_every_create_only_cli_option(
@@ -282,7 +281,7 @@ def test_create_with_parent_needs_the_separate_parent_gate(world):
 	# separate-gate case: make ada the obligation handler but NOT the
 	# parent handler by passing the parent's Current away.
 	fx.post(store, epic, author_team="drift", author="ada",
-	                body="park with grace's build", pass_to="drift.bug", pass_phase="queued")
+	                body="park with grace's build", pass_to="drift.bug")
 	# drift.bug routes main -> handlers [ada]; both gates still ada, so
 	# acceptance under a parent succeeds and records BOTH authorities.
 	result = tr.accept_obligation(

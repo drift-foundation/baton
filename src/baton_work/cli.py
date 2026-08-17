@@ -70,7 +70,6 @@ _CREATION_CLASSIFICATIONS = ("suspected-defect", "confirmed-defect",
 _CLASSIFICATIONS = ("unknown",) + _CREATION_CLASSIFICATIONS
 _PHASES = ("queued", "research", "waiting", "active", "review", "parked")
 _CREATION_PHASES = ("queued", "research", "active", "review")
-_PASS_PHASES = ("queued", "research", "active", "review")
 _OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
 _PRIORITIES = ("high", "normal", "low")
 
@@ -432,17 +431,14 @@ GRAMMAR = {
 	                 _key("on", help="the labelled open Work an @ "
 	                      "acts against"))},
 	"pass": {"help": "transfer the Work baton: handoff evidence, "
-	         "Current, and destination phase in ONE atomic THREADLESS "
-	         "Work event (W171: no thread, no message, no count moves)",
+	         "Current, and the ROUTE-DERIVED destination phase in ONE "
+	         "atomic THREADLESS Work event (W171: no thread, no "
+	         "message, no count moves; W73: the destination route "
+	         "decides the phase, so phase= is refused as unknown)",
 	         "keys": (_key("work", required=True,
 	                       help="the Work whose baton moves"),
 	                  _key("to", required=True,
 	                       help="ONE destination endpoint team.kind"),
-	                  _key("phase", dest="pass_phase",
-	                       values=_PASS_PHASES,
-	                       help="the destination phase recorded "
-	                       "atomically; derived from the destination "
-	                       "stage role when omitted"),
 	                  _key("comment", required=True,
 	                       help="durable handoff evidence stored with "
 	                       "the authoritative pass event — never a "
@@ -1384,7 +1380,7 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.pass_work(
 			store, args.work, actor_team=team, actor=member,
-			to=args.to, phase=args.pass_phase,
+			to=args.to,
 			comment=args.comment, set_next=args.set_next,
 			op_id=args.op_id, refs=args.refs or ())
 	if command == "label":

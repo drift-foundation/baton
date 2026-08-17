@@ -32,3 +32,35 @@ defect; ready for `baton.claude`, returning to `baton.codex` for review.
    refusal to mark later unseen Messages.
 6. Run focused PTY coverage and `just test-v11`, then return for independent
    review and live human acceptance.
+
+## Follow-up — newest-first and spatial pane focus
+
+1. Revalidate the current wide/narrow pane geometry, bounded pagination,
+   personal-new entry selection, explicit seen cursor, and refresh-stable
+   selection against the live trial.
+2. Present the Message index newest-first without changing canonical sequence,
+   thread paging facts, reader identity, or seen semantics. Cover more than
+   one bounded page so “newest first” is not only an in-page reversal.
+3. Give the one focused pane a distinct borderless heading marker and keep it
+   accurate through entry, directional movement, refresh, resize, and escape.
+4. Implement spatial `Ctrl-W` directions across all three panes. Prove reader
+   to Threads is one upward move, index/reader horizontal movement at wide
+   width, and visible-stack movement at narrow width.
+5. Preserve read purity and add PTY/source/package parity tests for focus,
+   selection, paging, seen, resize, and long content.
+6. Run focused tests and `just test-v11`, then return for independent review
+   and human acceptance.
+
+## Follow-up — contextual `say` prefill
+
+1. Revalidate command-mode editing, assist, quoting, paste, batch mode, and
+   local Thread-selector resolution against the selected-Thread model.
+2. On exact contextual `say`, seed one editable
+   `thread=<selected-local-thread>` operand while preserving the caret and
+   existing command assistance.
+3. Refuse ambiguity by doing nothing outside a Work detail with one selected
+   Thread. Preserve explicit pasted operands and prevent duplicate insertion.
+4. Cover selection changes after seeding, multiple Threads, resize/refresh,
+   no seen mutation, source/package parity, and successful posting to the
+   originally seeded Thread.
+5. Run focused command-bar/PTY tests and `just test-v11`; return for review.

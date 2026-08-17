@@ -37,7 +37,7 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -235,7 +235,19 @@ CREATE TABLE work (
 	-- identity lives here; the claim/release transition matrix is that
 	-- finding's own gated implementation (blocks W92's release).
 	active_team    TEXT,
-	active_member  TEXT
+	active_member  TEXT,
+	-- W49 (finding-acp-same-key-redelivery-loss): the ASSIGNMENT EPISODE.
+	-- Deliberately NOT last_change_seq, which every visible edit touches:
+	-- a claim, a heartbeat, an ordinary phase move, a priority or
+	-- classification revision would each redeliver work nobody reassigned
+	-- — including prompting a claimant again immediately after their own
+	-- claim. This mints only when the Work BECOMES NEWLY ACTIONABLE for
+	-- whoever its Current resolves: creation, pass/return, explicit claim
+	-- release, a false-to-true readiness flip, a condition wake, and a
+	-- parked-to-queued resume. Consumers key delivery on it, so a Work
+	-- handed away and handed back BETWEEN two polls is a new episode even
+	-- though no observer ever saw it absent.
+	episode_seq    INTEGER NOT NULL DEFAULT 0
 ) STRICT;
 CREATE TABLE edges (
 	work        TEXT NOT NULL REFERENCES work(id),

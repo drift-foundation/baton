@@ -296,7 +296,7 @@ def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
 		rationale="fixed and verified", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="closed"):
 		fx.post(racer, work, author_team="lang", author="ada",
-		                body="handing over", pass_to="lang.rev", pass_phase="review")
+		                body="handing over", pass_to="lang.rev")
 	row = racer.conn.execute(
 		"SELECT status, current_team, current_kind FROM work WHERE id=?",
 		(work,)).fetchone()
@@ -316,7 +316,7 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 	                      body="b")["work_id"]
 	_interleave(racer, lambda: fx.post(
 		other, work, author_team="lang", author="ada",
-		body="quick handoff", pass_to="lang.rev", pass_phase="review"))
+		body="quick handoff", pass_to="lang.rev"))
 	tr.close_work(racer, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	closing = next(event for event in racer.events()

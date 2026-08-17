@@ -80,7 +80,7 @@ def test_wf09_restart_and_races(flow):
 	lang_thread = flow.born(lang42, "lang.ada")
 	procs = [flow.spawn("say", f"thread={lang_thread}", "body=handing to build",
 	                    f"on={lang42}",
-	                    "pass-to=lang.impl", "phase=active", viewer="lang.ada"),
+	                    "pass-to=lang.impl", viewer="lang.ada"),
 	         flow.spawn("close", f"work={lang42}",
 	                    "rationale=fixed and verified", "outcome=satisfying", viewer="lang.ada")]
 	winners, losers = _outcomes(flow, procs)

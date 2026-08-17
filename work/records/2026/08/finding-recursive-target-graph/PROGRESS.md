@@ -4851,3 +4851,497 @@ and a packaged-console cutover path; break-sweeps redded 6/7 (the
 packaged sweep reproduced `no thread 'T2'` verbatim) and the
 ordinal-label revert redded the pane pin. Gates: 840 parallel + 4
 serial + acp 23/23; diff --check clean.
+
+## Step 180 — W2: the ACP session runs v11-only as baton.claude
+
+Claimed W2 on the pass comment "Bootstrap the reviewed ACP session as
+baton.claude, verify v11-only readiness and identity, then return W2
+for review" (seq 16). The session this entry is written from IS the
+bootstrapped one, so the verification is live rather than simulated.
+
+Readiness path, v11-only. The wake arrived as `[BATON READY] v11 Work
+W2 (Make v11 messaging sufficient to retire v10) is ready and
+unclaimed for baton.claude. Act through the canonical v11 CLI (detail
+work=W2). Apply standing v11 Baton policy.` — the exact `promptText()`
+work branch. Re-running the bridge's ONE public invocation (`--config
+<v11> --participant baton.claude wait timeout=...`, key=value grammar)
+and feeding the envelope back through the DEPLOYED shared validator
+regenerates the same line, now reading `is claimed by you` because the
+claim at seq 17 committed: protocol 11, projection 6.2, authority
+`92c57e47...`, `action_key work:92c57e47-W2`. The live process is
+`/home/sl/opt/baton/v11/92ba37a/lib/acp-baton-bridge/src/acp_baton_bridge.mjs
+--config .../baton.claude/bootstrap.json --once`, i.e. the bridge
+shipped INSIDE the immutable v11 deployment, not the checkout. Its
+`src/` is byte-identical to the reviewed tree, and the checkout is
+clean at 92ba37a — the same commit the deployment directory names. The
+deployment vendors only the shared v11 slice of the sibling bridge
+(`codex_baton_bridge.mjs`, `config.mjs`, `send_event.mjs`); the
+v10-specific `baton_source.mjs`/`stack.mjs` are deliberately absent. A
+sweep of both deployed bridges for v10 flag syntax, v10 identities and
+v10 paths returns nothing. No v10 process participates in this
+session's wake path.
+
+Identity. `validateEnvelope` fails closed on anything but an exact
+match — offering this same envelope under `baton.codex` refuses with
+`envelope participant "baton.claude" is not baton.codex` — and
+delivery memory is scoped `authority_uuid:participant:action_key`, so
+no authority or identity can collide. Every authority event this
+session produced is attributed to `baton.claude` (claim 17, heartbeat
+18, mark_seen 19).
+
+Live surface exercise against the acceptance boundary. Readiness,
+`home`/`tree`/`detail`/`children`/`links`/`breadcrumb`/`search`/
+`events`/`summary`/`obligations`/`bindings`/`revisions`, thread
+listing and reading, and the personal New/seen cursor all answer
+coherently. `mark-seen thread=T2 up-to=2` moved exactly T2 (own 1→0,
+subtree 2→1) and left T3/T7 untouched — nothing silently consumed.
+Thread and Work selectors show full local/canonical parity after W7,
+and the fail-closed matrix refuses by name: foreign authority, bad
+case, bare integer, missing id, and `up-to=` beyond the observed
+sequence ("a mark names what was read, never the future"). Cursors
+persist across process boundaries by construction, every CLI call
+being a fresh process. Gates: just test-v11 840 passed + 4 serial +
+acp 23/23; diff --check clean.
+
+Observation returned with the pass, not worked around. Enumerating
+readiness processes to prove v11-only surfaced an ORPHANED v10
+waiter: the v10 CLI holding `wait --participant baton.implementer
+--timeout 3000`, PPID 1, no tty, left behind by an earlier Claude
+session (`/tmp/claude-fab7-cwd`). It is harmless to the authority —
+protocol 10 `wait` is read-only, holds no claim, and this one
+self-expires ~50 minutes after 05:20 — but it is exactly the hazard
+the v10 "one live consumer per active turn" convention names: a
+readiness result returning into a terminal whose turn has ended wakes
+nobody. The designed parallel pair is intact (v10 `baton.reviewer`
+live under the codex stack, v11 `baton.codex` live under
+codex-baton-bridge); this orphan is a stale leftover rather than part
+of it, so Claude's v10 safety wake is currently unsupervised.
+Reviewer owns triage and priority.
+
+## Step 181 — W2 return 2: load continuity, proven not asserted
+
+Codex passed W2 back for an ACP load-continuity proof only (no
+reruns, no file changes). Confirmed with evidence rather than
+assertion: the bridge had been relaunched as `--config load.json` and
+the agent beneath it runs `--resume=0fff820b-...`, byte-identical to
+the `--session-id=0fff820b-...` of the step-180 turn and to the id
+persisted in `session.json`; same growing transcript. The step-180
+conclusion was restated from retained context, not re-derived. Two
+honest notes returned with it: the claim at seq 26 had been left
+unpassed across the interruption (discharged rather than held), and
+my own posts M20/M23 counted as personal New against their author —
+a readability wart, not silent consumption. W2 returned at seq 32.
+
+## Step 182 — W27: a bootstrap never rotates a live selection
+
+Implemented finding-acp-bootstrap-overwrites-session (claimed W27).
+Revalidation confirmed all four of the reviewer's code claims in the
+current tree: `setup()` spawned the child before the `new` path
+looked at any persisted state, `persistedSessionId()` collapsed
+absent/malformed/unreadable into one `null`, `persistSessionId()`
+used a replacing `writeFileSync`, and `runBridge()` built the session
+lazily so a bad bootstrap looked healthy while idle.
+
+Three bounded changes. (1) `readSessionSelection()` returns the three
+facts as three results — absent, malformed/unreadable with a reason,
+or present with the id — so only genuine absence can authorize a
+first bootstrap. (2) `preflightSessionSelection()` runs at the TOP of
+`runBridge()`, before the Baton wait and before any spawn: with
+`session.mode=new` and any existing state it throws a
+`SessionStateError` naming the surviving session and pointing at a
+`load` configuration. A selection fault is fatal by construction —
+`runBridge` rethrows it instead of folding it into the retry loop,
+because no amount of retrying repairs a launch aimed at somebody
+else's continuity. Introducing that throw path meant teardown could
+no longer sit after the loop; it moved into a `finally` so an
+abandoned bootstrap still kills its child. (3) Publication is
+create-only (`flag: "wx"`), and the load path now refuses unusable
+state BY NAME rather than advising a new bootstrap — that advice is
+how a recoverable id gets discarded.
+
+Revalidation exposed one refinement the pinned ruling did not
+anticipate, appended as a dated clarification to the child FINDING:
+unconditional create-only breaks in-run recovery. `ensureSession()`
+rebuilds after agent death, and in `new` mode that rebuild makes a
+fresh session — the existing acceptance test *agent exit mid-turn is
+visible, retried, and readiness survives* went red, observed rather
+than predicted, and refusing the update would leave `session.json`
+naming a dead session for a later `load` to resume. The honest
+boundary is OWNERSHIP, not write count: a run's FIRST publication is
+create-only and races other bridges; once published, that run owns
+the record and an in-run rebuild updates it. Ownership is therefore
+run-scoped, shared across the sessions one bridge builds. Rotation is
+still absent — nothing lets a second bootstrap replace a selection it
+did not create.
+
+Evidence: 5 new regressions — first bootstrap persists exactly one
+selection; repeated bootstrap refuses with ZERO Baton polls, zero
+agent events and byte-identical surviving state, after which `load`
+still resumes the original; malformed and empty-selection state
+refuse both modes by name and survive, with load never misreporting
+them as absent; the in-run rebuild updates the run's own record; and
+create-only preserves a racing winner byte-for-byte. Break-sweeps
+redded exactly the intended pins (preflight removed → 2; replacing
+publication → 1; ownership disabled → 2, including the pre-existing
+crash-recovery test; load treating unusable state as absent → 1).
+Live proof against the real deployment: the exact operator mistake —
+checkout bridge with `bootstrap.json` while `session.json` names
+0fff820b — now exits 2 naming the surviving session, spawning
+nothing and polling nothing, with the live state md5 unchanged.
+Gates: just test-v11 840 passed + 4 serial + acp 28/28; diff --check
+clean.
+
+## Step 183 — W27 R1: process death is not session death
+
+Round one requested changes (reclaimed W27) and the ruling is right;
+my 14:41 clarification was wrong in its conclusion and is superseded.
+I had reasoned that because an agent process dies and `ensureSession()`
+rebuilds, the run should create a fresh session and update its own
+record. The review named what that misses: ACP session history
+OUTLIVES an agent process — the live W2 proof restarted the adapter
+and loaded `0fff820b...` with context intact. Creating a session
+there discards exactly that continuity and rotates `session.json`
+from inside the original bootstrap run. The observation behind my
+clarification (unconditional create-only breaks recovery) was sound;
+the conclusion drawn from it was not.
+
+Corrected to the ruled contract. The run record now RETAINS the id
+published by the first create-only bootstrap
+(`runSelection = {published, sessionId}`), and the resume decision is
+`mode === "load" || runSelection.published`. Every replacement agent
+process in that run therefore issues `session/load` of the retained
+id — run state, not a re-read, so nothing that happens to the file
+mid-run can steer a rebuild onto a different session. It never calls
+`session/new` again and never republishes: publication is now exactly
+once per run, unconditionally create-only, and the selection is
+immutable for the life of the run. The load-capability check follows
+the same effective decision, so a replacement process that cannot
+resume is refused BY NAME instead of silently falling back to
+creation; that refusal is an ordinary retryable setup failure, so
+readiness stays pending and the selection survives. The configured
+`load` entry point moved into `readConfiguredSelection()`, keeping
+its absent/malformed refusals unchanged.
+
+Evidence: the in-run-rewrite regression is REPLACED by identity-
+bearing coverage — exactly one `session/new`, exactly one
+`session/load` carrying that identical id, `session.json` still
+naming it, and the crash's readiness still redelivered — plus a new
+recovery refusal proving a replacement without the load capability is
+refused by name, creates no second session, attempts no load, leaves
+the selection intact, and runs no further prompt. The pre-existing
+crash-recovery test passes UNCHANGED and now exercises the resume
+path. Break-sweeps: restoring the create-on-rebuild decision reds 3
+(both new pins and the pre-existing crash test); republishing on a
+resumed rebuild reds 2. One vacuous assertion I had written in the
+capability test (a predicate that could never fail) was found and
+replaced with the real load/prompt-count pins. The superseded 14:41
+section keeps its reasoning and gains a forward marker to the ruling,
+so the two never both read as live. Gates: just test-v11 840 passed +
+4 serial + acp 29/29; diff --check clean.
+
+## Step 184 — W27 R2: the load entry gets the same one-decision rule
+
+Round two accepted the `new`-entry recovery and named the symmetric
+hole I left: for `session.mode=load`, `runSelection.published` stays
+false and `sessionId` stays null, so every replacement session called
+`readConfiguredSelection()` again. A `session.json` edited while the
+bridge ran — by another bootstrap, an operator, a stale writer —
+could therefore move a rebuild onto a different session, even though
+one bridge run must hold exactly one continuity context. R1 fixed the
+`new` entry and left `load` reading the file per rebuild; the rule
+was only half applied.
+
+Corrected by moving the whole decision to ONE place.
+`preflightSessionSelection(config, runSelection)` now covers both
+entries at bridge startup, before wait and before spawn: `new` keeps
+its repeated-bootstrap refusal, and `load` resolves AND validates its
+selection there, retaining the id in run state. `setup()` then always
+resumes `runSelection.sessionId` — never a re-read — so both entries
+are genuinely symmetric: a `new` run retains what it published, a
+`load` run retains what the preflight validated, and neither lets a
+mid-run file change pick the session. `readConfiguredSelection()` is
+deleted; its absent/malformed refusals moved into the preflight and
+are now startup refusals rather than deferred retry-loop warnings.
+A load run still never writes the file at all.
+
+Two pre-existing tests changed FIXTURE only, no assertion touched:
+*load without the capability fails closed before any session use* and
+*a missing load capability keeps failing closed across repeated
+envelopes* both ran mode=load against an EMPTY state dir and relied
+on reaching the capability check. Under the ruled startup refusal
+(R2 item 3) they can no longer get that far, so each now seeds a
+valid selection through a new `seedSelection()` fixture helper. Their
+assertions — the `/loadSession capability/` refusal and the absence
+of any session use — are byte-identical. Flagging it explicitly
+because editing existing tests needs confirmation, and here the
+review's item 3 is what required the behavior these fixtures had
+encoded.
+
+Evidence: the A-to-B regression starts a load run on `session-A`,
+kills the agent mid-prompt, repoints the file at `session-B`, and
+proves every load in the run names `session-A` (deduped set equality,
+not a first-element check), that no `session/new` ever happens in a
+load run, and that the externally changed file still reads
+`session-B` — the run neither followed nor rewrote it. Plus a startup
+refusal for a load run with no selection: zero Baton polls, zero
+agent events. My own unusable-state test moved from warning-based to
+startup-rejection with the same zero-poll/zero-event pins.
+Break-sweeps: restoring the per-rebuild re-read reds exactly the
+A-to-B pin (1); skipping the preflight for the load entry reds 5,
+including the round-one bootstrap guard and the pre-existing
+load-resume test. Gates: just test-v11 840 passed + 4 serial + acp
+31/31; diff --check clean.
+
+## Step 185 — W55: Held becomes capped MM:SS
+
+Implemented finding-held-mmss-overflow (claimed W55) exactly as
+Slawomir confirmed it. Revalidation first: `held_cell` was W226's
+floored-minutes HH:MM with a `99h+` cap, `held_field` composed the
+pending `>`/`!` prefix and the W47 liveness suffix around it, and the
+column budget was six cells — all still true, so the pinned ruling
+applied unchanged.
+
+Presentation only, one function. `held_cell` now derives elapsed
+WHOLE SECONDS from the same canonical instant the state-dependent
+contract already selects, renders `00:00` through `99:59` as MM:SS,
+and returns `∞` at 100 minutes and beyond. The negative-clock clamp,
+the no-origin `-`, the client-side derivation (no second scheduler,
+no extra authority read), and every origin/prefix/suffix rule are
+untouched. Nothing in the authority, JSON projection, or refresh
+scheduling changed.
+
+The overflow spelling is the part worth stating: `∞` was chosen over
+a saturated `99:59`, which would read as a live value, and over a
+unit-bearing cap like `99h+`, whose units the eye cannot infer from
+the ordinary cells beside it. It is an ordinary base value, so it
+composes — a stale claimant reads `∞!`, an overdue pending row `!∞`.
+
+Existing tests updated per PLAN step 3, which authorizes exactly
+this: the pure matrix (test_w33), the ruled-state walk (test_w226),
+and the alert-threshold display (test_w47) all encoded the HH:MM
+scale in their expected values. Intent and structure are unchanged —
+only the expected strings move, and the matrix gained the boundaries
+the acceptance names (1s, 59s, 60s, 61s, 59:59, 99:59, exactly
+100:00, one second past it, and far beyond). NEW coverage for the
+composition boundary nothing previously reached: `∞!` stale, `∞ `
+healthy, `!∞` overdue pending, and the six-cell budget still held at
+overflow. That test also records why `>∞` is not asserted — a pending
+handoff old enough to overflow is necessarily past the six-minute
+threshold, so the `>` prefix is unreachable there.
+
+Break-sweeps: restoring HH:MM/`99h+` reds 4; saturating at `99:59`
+instead of `∞` reds 3; dropping the negative clamp reds 1.
+`docs/BATON-WORK.md` carried the old contract in operator-facing
+prose and now states the new one. Gates: just test-v11 840 passed + 4
+serial + acp 31/31; diff --check clean.
+
+## Step 186 — W49: assignment episodes, not Work identity
+
+Implemented finding-acp-same-key-redelivery-loss (claimed W49), the
+last blocker on W2. This is the defect I hit and reported from inside
+the trial: W27 was delivered to me, reviewed, and returned to the SAME
+participant between two bridge polls, so `work:<id>` never appeared
+absent and the return was suppressed indefinitely.
+
+Authority (schema 17). `work.episode_seq` is the assignment episode,
+minted by `_mint_episode` beside `_touch_work` so the contrast is
+visible where a reader will need it. It mints on creation,
+pass/return, explicit claim release, a false-to-true readiness flip,
+the condition wake, and the parked-to-queued resume — six sites, each
+commented with why it makes the Work newly actionable. It deliberately
+does NOT mint on claim, heartbeat, ordinary phase, priority,
+classification, or descriptive edits, which is exactly why
+`last_change_seq` could not be reused: every one of those touches it,
+and reusing it would prompt a claimant again immediately after their
+own claim.
+
+Projection 7.0 (honest-breaking, no alias). The Work action key is now
+an EPISODE LOCATOR — `work:<id>:<episode>:g<generation>` — carrying
+the accepted configuration generation so a participant removed from a
+route and restored between polls cannot stay suppressed under a key
+that never moved. `work`, `episode_seq` and `config_generation` ride
+beside it as structured fields; consumers never parse the key to
+recover identity, and both bridge validators now refuse a key that
+disagrees with its own fields.
+
+Bridges. Both consume the canonical episode. The ACP bridge gained the
+piece that closes the observed twelve-minute queue gap: immediately
+before each agent turn, `episodeStillLive()` re-reads the participant
+projection with `timeout=0` and requires that exact key to still be
+present. A missing key means the episode is over — dropped, logged,
+marked delivered so a dead episode is not retried, and no Work
+mutated. This NARROWS but cannot close the window; a mutation can
+still win between that read and the claim, which is why it stays a
+cheap read and the agent's atomic claim remains the final authority.
+
+Test-shape note worth review: a scripted `runWait` feed has no
+independent source to re-read, so `runBridge` defaults revalidation
+against the just-observed envelope and tests inject `revalidate`
+explicitly to exercise the drop path. The default is stated in a
+comment at the injection point rather than hidden.
+
+Evidence: new tests/work/test_w49_assignment_episodes.py (7) —
+the observed pass-away-and-back-between-reads case, every named
+non-minting mutation with an explicit assertion that
+`last_change_seq` DID move meanwhile (so the contrast is really being
+exercised), release waking the whole endpoint rather than only the
+releaser, dependency and child unblock, parked resume versus parking,
+authority-derived identity agreed across a restart, and key/field
+agreement. Three ACP drop-path regressions: a stale episode never
+reaches the agent, a dropped episode does not resurrect while a NEW
+episode still delivers, and a live episode delivers exactly once.
+Break-sweeps: removing the pass/return mint reproduces the exact W27
+suppression (1 red); reverting the key to bare Work identity reds 8.
+
+DECLARED test edits, all authorized by PLAN steps 2 and 4 (projection
+major + bridge consumers): schema and projection pins in
+test_authority, test_w92_schema15 (its name states the version, so it
+moved too), test_jsonapi, test_w47_heartbeat; key-shape fixtures in
+both bridge suites. ONE existing test changed INTENT, not just
+values: `test_a_real_reroute_moves_eligibility_without_new_keys`
+asserted that a config acceptance keeps Work keys stable, which the
+reviewer's own revalidation supersedes. It is renamed
+`..._and_is_a_new_resolution_episode`, keeps the @ and trial identity
+assertions unchanged, and now also pins that the WORK-side
+`episode_seq` is untouched by a config acceptance — only the
+generation half of the key moves. Renaming rather than leaving a name
+that asserts the opposite of the behavior; flagged for explicit
+review. Gates: just test-v11 848 passed + 4 serial + acp 34/34, plus
+the sibling codex bridge 41/41 (outside the v11 gate, run directly
+because W49 changes its shared validator); diff --check clean.
+
+## Step 187 — W65: unclaimed is the primary Work cue
+
+Implemented finding-unclaimed-work-cue (claimed W65). Revalidation
+confirmed both halves of the defect in the current tree: `held_field`
+and `pickup_prefix` escalated `>` to `!` at six minutes and appended a
+heartbeat `!` to claimed rows, and `_pickup_state` aged any unclaimed
+handoff into `overdue` regardless of whether a claim was possible —
+which is exactly how W2 painted an alert while dependency-blocked with
+its reviewer claim correctly released.
+
+Presentation. `>` now marks EVERY open Work with no active claimant: a
+state marker, not an overdue assertion, independent of elapsed time.
+Claiming removes it; release, pass, or a readiness change that
+releases the claimant restores it; closed Work has no execution claim
+and no marker. Unclaimed never-passed Work reads `>-` — the marker is
+about the claim, the timer half is still `-` because there is no
+handoff to time. Both six-minute switches are gone, and
+`STALL_AFTER_SECONDS` went with them; the comment left in its place
+says why, because the two-minute cadence and the audited heartbeat
+instants are all still real, they simply no longer drive a glyph.
+An agent mid-turn cannot beat, and calling that failure was a false
+alarm.
+
+Projection. `_pickup_state` takes readiness and phase and returns
+`pending` — honestly unclaimed — for blocked, waiting and parked Work
+instead of `overdue`. `overdue` asserts somebody OWES a pickup, so it
+may only describe Work a pickup is actually possible on. Terminal
+Work already projected None.
+
+Evidence: new tests/work/test_w65_unclaimed_cue.py (4) — the full
+ruled matrix proving each marker from its OWN state (ready/unclaimed
+never-passed, passed, the exact blocked W2 shape, parked, claimed,
+released, terminal); the six-minute boundary changing nothing in
+either direction across four offsets out to 100x; the overdue
+correction including RECOVERY once the blocker closes, so the fix is
+not just a permanent downgrade; and JSON carrying facts with no glyph
+while heartbeat diagnostics survive. Break-sweeps: restoring the
+pickup escalation reds 4, restoring the old overdue rule reds 1.
+
+DECLARED test edits, all forced by the ruling rather than by
+convenience. Four W47 tests exercised the removed glyphs and are
+converted, keeping every assertion that was not about the glyph:
+`test_the_alert_thresholds_and_display` →
+`test_heartbeat_silence_never_changes_the_display`;
+`test_stale_is_informational_never_a_lease` →
+`test_silence_is_never_a_lease_and_never_a_glyph` (its authority
+assertions — the claim holds, a competing claim fails closed — are
+unchanged, and it now also pins that `heartbeat_at` survives as a
+diagnostic); `test_the_stale_suffix_paints_and_narrow_omits_whole` →
+`test_the_held_cell_paints_and_narrow_omits_whole` (the responsive
+whole-column omission is untouched); and
+`test_the_stale_suffix_actually_paints` →
+`test_protocol_silence_never_paints_an_alert`, which now asserts the
+opposite of what it used to and additionally pins that the timer keeps
+advancing across the old boundary. My own W55 tests moved with them
+(`∞!` → `∞ `, `!∞` → `>∞`), and the W226 walk lost its `!` steps.
+`test_parity` encoded the handoff-gated prefix rule and now checks the
+canonical one, plus an explicit assertion that no `!` reaches the
+painted Phase cell at all.
+
+One self-correction: I first added an assertion that a heartbeat
+advances `heartbeat_at`, which failed because the beat lands inside
+the same one-second instant as the claim. That was my over-reach, not
+a defect; it is replaced with an assertion on the audited event, which
+is the durable evidence. `docs/BATON-WORK.md` carried both removed
+cues in operator prose and now states the marker rule, the overdue
+boundary, and why silence renders nothing.
+
+## Step 188 — W73: the destination route decides the phase
+
+Implemented finding-route-derived-handoff-phase (claimed W73). The
+defect is the handoff INTO W49: passed to `baton.impl` with
+`phase=queued`, then claimed and actively worked, so the projection
+showed `active=baton.claude` beside `phase=queued`. The claim stayed
+exclusive so nothing was lost, but the operational view was false.
+
+Authority. `pass_work` no longer takes `phase` at all and derives the
+destination stage from the resolved route role under the same lock
+that moves Current. The public grammar drops the operand, so `phase=`
+is now an unknown-key refusal rather than a narrowed value set, and
+the command-bar assist no longer offers it — a suggestion the parser
+refuses is worse than silence. The phase also left the operation
+fingerprint: it is no longer typed input, so a retry naming the same
+destination is the same operation. An unmapped role refuses inside the
+transaction naming the accepted vocabulary. `set_phase` is untouched:
+same-route stage changes remain separately authorized.
+
+VOCABULARY DECISION for review. The finding enumerates stages, not
+spellings, and `STAGE_PHASES` was already a role-name map carrying two
+spellings per stage. I added `approv`/`approver` → `review` (the
+finding names approver, and the live authority's config uses
+`approv`), plus `rev` → `review` and `dev` → `active`. The last two
+are judgement: `rev` is this repository's own reviewer role in 61
+fixture sites, and `dev` is the generic implementation role used by
+the shipped `conf/baton.example.json` and ~250 fixture sites — without
+it an operator following the shipped example could not pass at all.
+The alternative was re-fixturing every cast, which risks breaking
+assertions unrelated to this finding. The unmapped-refusal guard still
+protects genuinely unknown roles. Reviewer should confirm or narrow.
+
+Evidence: new tests/work/test_w73_route_derived_phase.py (9) — every
+mapped stage role including approver derives its phase with no caller
+input; a handoff never produces `queued` (asserted structurally
+against the map, then behaviourally through the exact W49 shape
+followed by the claim); the operand is gone from BOTH surfaces (a
+`TypeError` from the authority call and an `unknown key` refusal from
+the CLI, with the Work unchanged); an unmapped destination refuses
+without burning an event or moving Current; Current, phase, claim
+release, planned Next and the W49 episode all commit as ONE event;
+and `set_phase` still works. Break-sweeps: a silent `queued` fallback
+for unmapped roles reds 2; mapping implementation to `queued` — the
+exact W49 shape — reds 5.
+
+DECLARED test edits, plan step 4 being the mechanical half of this
+work. Four W108 tests encoded the caller override and are converted:
+`test_an_explicit_destination_phase_wins` becomes
+`test_the_route_decides_the_phase_and_the_caller_cannot`;
+`..._demands_the_phase` becomes `..._refuses_the_handoff` and now also
+pins that nothing commits; `test_waiting_and_parked_are_never_a_pass_
+destination` becomes `..._are_unreachable_through_a_handoff`, proving
+it structurally since no role maps to either; and the retry-identity
+test now pins the DESTINATION as the identity rather than the phase.
+`test_w13_grammar` moved from a value refusal to an unknown-key
+refusal. Roughly twenty files had `phase=`/`pass_phase=` stripped
+mechanically. Two fixtures gained real routes rather than one generic
+role, because a provider that receives per-stage handoffs needs them:
+`ws2cast`'s lang team, and a review route added to `test_phase`'s lang
+team WITHOUT disturbing its `main` route (my first attempt replaced
+`main` and broke six unrelated tests — reverted to the minimal shape).
+`test_wf12`'s reroute follows the renamed route.
+
+One trap closed on the way: with the parameter gone, a leftover
+`pass_phase=` in the test fixture would have been silently ignored and
+the assertion would have passed for the wrong reason. `fixtures.post`
+now raises on the retired kwarg instead.

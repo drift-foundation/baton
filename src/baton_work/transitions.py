@@ -32,9 +32,16 @@ ORIGINS = ("external-report", "self-initiated", "decomposition")
 # finding-active-work-claim: role handles that NAME a work stage derive a
 # pass's destination phase; anything else needs the phase stated in the
 # pass itself. Closed map — derivation never guesses.
+# W73: the ONE stage-role vocabulary a route transfer derives its
+# destination phase from. A handoff never produces `queued` — the baton
+# arriving IS the work starting at the destination's stage — and an
+# unmapped role refuses rather than guessing, because a wrong phase is
+# a false operational view that survives in the projection.
 STAGE_PHASES = {"rsrch": "research", "research": "research",
                 "impl": "active", "implementation": "active",
-                "rview": "review", "review": "review"}
+                "dev": "active",
+                "rview": "review", "review": "review", "rev": "review",
+                "approv": "review", "approver": "review"}
 
 CLASSIFICATIONS = ("unknown", "suspected-defect", "confirmed-defect",
                    "limitation", "duplicate", "design-choice", "rejection")
@@ -261,6 +268,9 @@ def _sweep_wakes(conn, actor: str) -> None:
 				"UPDATE work SET phase='queued', wait_type=NULL, "
 				"wait_obligation=NULL WHERE id=?", (row["id"],))
 			_touch_work(conn, row["id"])
+			# W49: the condition wake returns the Work to its Current
+			# endpoint's queue — newly actionable, so a new episode.
+			_mint_episode(conn, row["id"])
 			_emit(conn, "wake", actor,
 			      {"work": row["id"], "from": "waiting", "to": "queued",
 			       "condition": {"type": row["wait_type"],
@@ -279,6 +289,26 @@ def _touch_work(conn, work_id: str) -> None:
 	conn.execute(
 		"UPDATE work SET last_change_seq=?, last_changed_at=? WHERE id=?",
 		(seq, clock_ms_now(), work_id))
+
+
+def _mint_episode(conn, work_id: str) -> None:
+	"""W49: start a NEW assignment episode for this Work.
+
+	The neighbouring `_touch_work` stamps every visible edit; this stamps
+	only the ones that make the Work newly actionable for whoever its
+	Current resolves — creation, pass/return, explicit claim release, a
+	false-to-true readiness flip, a condition wake, and a parked-to-queued
+	resume. Claim, heartbeat, ordinary phase moves, priority,
+	classification and descriptive edits deliberately do NOT mint: an
+	episode is "you have been handed this", not "something about this
+	changed".
+
+	The value is the committing event's sequence, so it is authority-
+	derived and every independent client agrees on it across restarts —
+	never a local poll counter, which two consumers could not reconcile."""
+	seq = conn.execute(
+		"SELECT value FROM sequence WHERE id=1").fetchone()["value"]
+	conn.execute("UPDATE work SET episode_seq=? WHERE id=?", (seq, work_id))
 
 
 def _obligation_gate(conn, obligation, actor_team: str, actor: str,
@@ -363,6 +393,13 @@ def _recompute_ready(conn, work_id: str, payload=None) -> None:
 		# A readiness flip is a visible row change; a same-value recompute
 		# is not and must not disturb the change identity (schema 15).
 		conn.execute("UPDATE work SET ready=? WHERE id=?", (ready, work_id))
+		if ready == 1:
+			# W49: false-to-true readiness is the unblock wake — the last
+			# child closed, or the last blocker did. Nobody passed this
+			# Work, but it just became actionable for its Current, which
+			# is exactly what an episode names. The reverse flip is not
+			# an episode: it REMOVES actionability.
+			_mint_episode(conn, work_id)
 		if ready == 0:
 			# finding-active-work-claim R3: a late-arriving gate keeps
 			# the honest work stage but INVALIDATES execution — the
@@ -679,6 +716,8 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 			(work_id, team, title, origin, classification, phase, OPEN,
 			 parent, team, kind, priority, follow_up_of, seq, seq,
 			 clock_ms_now()))
+		# W49: creation is the first assignment episode.
+		_mint_episode(conn, work_id)
 		thread_id = f"{prefix}-T{seq}"
 		# The born Thread's subject is the Work's title — the one
 		# conversation a creation opens is ABOUT that Work.
@@ -1033,6 +1072,10 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 			"UPDATE work SET active_team=NULL, active_member=NULL "
 			"WHERE id=?", (work_id,))
 		_touch_work(conn, work_id)
+		# W49: the Work becomes available to its Current endpoint again.
+		# Every eligible handler — including the released claimant, who
+		# may legitimately re-take it — needs a fresh wake.
+		_mint_episode(conn, work_id)
 
 	def finish(result):
 		result["released_claimant"] = payload["released_claimant"]
@@ -1321,6 +1364,12 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 			"UPDATE work SET phase=?, wait_type=?, wait_obligation=? "
 			"WHERE id=?", (phase, wait_type, wait_obligation, work_id))
 		_touch_work(conn, work_id)
+		# W49: ONLY the parked→queued resume mints. Ordinary stage moves
+		# (queued/research/active/review) change what is happening, not
+		# who has been handed the Work, and entering waiting or parked
+		# REMOVES actionability rather than granting it.
+		if payload["from"] == "parked" and phase == "queued":
+			_mint_episode(conn, work_id)
 
 	return store._write("set_phase", f"{actor_team}.{actor}", payload,
 	                    mutate, operation=operation,
@@ -2785,7 +2834,7 @@ def post_thread(store: Authority, thread_id: str, *,
 
 
 def pass_work(store: Authority, work_id: str, *, actor_team: str,
-              actor: str, to: str, phase: str | None = None,
+              actor: str, to: str,
               comment: str, set_next: str | None = None,
               op_id: str | None = None, refs=()) -> dict:
 	"""W171 (finding-pass-is-work-event): pass is an authoritative
@@ -2798,13 +2847,12 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	conversation stays explicit and separate through say."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
+	# W73: the destination phase is no longer typed input, so it is no
+	# longer part of the operation identity — the route decides it, and
+	# a retry naming the same destination is the same operation.
 	protected = _operation(store, actor_team, actor, "pass_work", op_id,
 	                       {"work": work_id, "to": to,
-	                        # the destination phase is typed semantic
-	                        # input (W108 R1): a retry with a DIFFERENT
-	                        # phase is a different operation and must
-	                        # refuse, never replay the first choice.
-	                        "phase": phase, "comment": comment,
+	                        "comment": comment,
 	                        "set_next": set_next, "refs": refs})
 	if isinstance(protected, dict):
 		return protected
@@ -2814,16 +2862,6 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	passed = _one_endpoint(store, to, "pass")
 	planned = _one_endpoint(store, set_next, "planned Next") \
 		if set_next else None
-	# finding-active-work-claim ("Current and phase move together"):
-	# explicit values are the honest source; waiting/parked stay
-	# explicit handler decisions and are never a pass destination.
-	if phase is not None and phase not in ("queued", "research",
-	                                       "active", "review"):
-		raise WorkError(
-			f"destination phase {phase!r} is not one of ('queued', "
-			f"'research', 'active', 'review'); waiting and parked are "
-			f"explicit handler decisions with their ruled conditions, "
-			f"never a pass destination")
 	# Optimistic pre-read — decides this act's event kind; everything
 	# is re-derived under the state that COMMITS.
 	row = _work(store, work_id)
@@ -2899,29 +2937,36 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 				(passed[0], passed[1],
 				 planned[0] if planned else None,
 				 planned[1] if planned else None, work_id))
-		# The pass atomically records the destination phase — explicit
-		# when stated, derived from the destination route's STAGE role
-		# otherwise, refused when neither names a stage. It never
-		# carries the sender's phase, never substitutes queued, and
-		# never derives waiting from readiness. The sender's claim is
-		# released; the recipient claims explicitly.
-		if phase is not None:
-			destination_phase = phase
-		else:
-			role = payload["pass_resolution"].get("role")
-			destination_phase = STAGE_PHASES.get(role)
-			if destination_phase is None:
-				raise WorkError(
-					f"the destination role {role!r} names no work "
-					f"stage; state the destination phase explicitly — "
-					f"a pass records the honest destination phase, "
-					f"never the sender's and never a generic queued")
+		# W73: the DESTINATION ROUTE decides the phase, never the
+		# caller. W49 was handed to baton.impl with phase=queued and
+		# then actively worked, so the projection showed a claimed Work
+		# sitting in `queued` — exclusive, but an operationally false
+		# view that would misdirect scheduling as more agents share a
+		# route. Deriving it under the same lock that moves Current
+		# makes that state unrepresentable through the public handoff.
+		# An unmapped role refuses rather than guessing; a route
+		# transfer never produces `queued`; same-route stage changes
+		# remain the separately authorized `set_phase`.
+		role = payload["pass_resolution"].get("role")
+		destination_phase = STAGE_PHASES.get(role)
+		if destination_phase is None:
+			raise WorkError(
+				f"the destination role {role!r} names no work stage "
+				f"(mapped roles: {', '.join(sorted(STAGE_PHASES))}); a "
+				f"handoff derives its phase from the route it lands "
+				f"on, so an unmapped destination refuses rather than "
+				f"guessing one")
 		payload["destination_phase"] = destination_phase
 		conn.execute(
 			"UPDATE work SET active_team=NULL, active_member=NULL, "
 			"phase=?, wait_type=NULL, wait_obligation=NULL "
 			"WHERE id=?", (destination_phase, work_id))
 		_touch_work(conn, work_id)
+		# W49: a pass/return hands the Work to a new Current and
+		# releases the sender's claim — the canonical new episode. The
+		# recipient must be woken even if a previous episode of the SAME
+		# Work was delivered to them and never observed as absent.
+		_mint_episode(conn, work_id)
 
 	def finish(result):
 		result["work"] = work_id

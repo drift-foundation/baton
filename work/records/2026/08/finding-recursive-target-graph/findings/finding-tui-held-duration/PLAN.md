@@ -37,3 +37,16 @@ pickup state and is no longer presentation-only.
    reset at claim, heartbeat without reset, repass, terminal and structured-
    JSON/no-glyph boundaries.
 6. Run focused tests and `just test-v11`, then return for independent review.
+
+## Follow-up — 2026-08-17
+
+The completed W226 authority/pickup work remains historical. The confirmed
+presentation follow-up in
+`findings/finding-held-mmss-overflow/{FINDING,PLAN}.md` supersedes only the
+timer scale: `MM:SS` through `99:59`, then `∞`. It requires no schema or JSON
+projection change.
+
+After that overlapping formatter change, implement
+`findings/finding-unclaimed-work-cue/{FINDING,PLAN}.md`: unclaimed `>` is the
+primary state cue; elapsed pickup and heartbeat `!` alerts are removed, and
+blocked/waiting/parked Work never projects an overdue pickup obligation.

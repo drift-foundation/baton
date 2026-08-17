@@ -70,9 +70,9 @@ def test_every_endpoint_establishing_event_carries_a_full_snapshot(world):
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="confirm?", request="web.bug")
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="go", pass_to="lang.impl", pass_phase="active", set_next="lang.rev")
+	                body="go", pass_to="lang.impl", set_next="lang.rev")
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="done", pass_to="lang.rev", pass_phase="review")
+	                body="done", pass_to="lang.rev")
 
 	establishing = [event for event in store.events()
 	                if event["kind"] in ("create_work", "post_message",

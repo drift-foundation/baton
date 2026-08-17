@@ -86,3 +86,26 @@ structured pickup/overdue state. The reset is presentation semantics, not loss
 of evidence or a workflow mutation. This preserves both operational insights:
 how long a handoff has remained unclaimed and how long the current claimant
 has actually held the Work.
+
+## Supersession — 2026-08-17: `MM:SS` with a bounded ordinary range
+
+**Confirmed by Slawomir.** This supersedes the `HH:MM` scale and `99h+`
+overflow spelling above. `Held` is an operational timer, and the useful live
+resolution is minutes and seconds rather than hours and minutes.
+
+The complete display contract is owned by
+`findings/finding-held-mmss-overflow/FINDING.md`. The existing handoff/pickup,
+claim reset, heartbeat suffix, and structured JSON rulings remain in force.
+
+## Supersession — 2026-08-17: unclaimed is the primary signal
+
+**Confirmed by Slawomir.** The elapsed `!` alert rules above are superseded.
+An agent can remain alive and busy without being able to emit a protocol
+heartbeat, while blocked Work may remain intentionally unclaimed. The useful
+fact is whether execution is claimed, not an inferred failure from silence.
+
+The complete replacement is owned by
+`findings/finding-unclaimed-work-cue/FINDING.md`: `>` marks open unclaimed
+Work, claiming removes it, and dependency/readiness state explains separately
+whether pickup is currently possible. The Held timer remains the elapsed-time
+signal; no elapsed threshold changes the cue to `!`.

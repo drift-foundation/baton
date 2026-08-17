@@ -100,11 +100,12 @@ def test_wf12_effectively_once_retry(flow):
 	# with an id, reassign handlers by regen, close; the committed pass
 	# STILL replays; a fresh identical request under a new id refuses.
 	passed = flow.ok("pass", "op-id=pass-1", f"work={work}",
-	                 "to=lang.impl", "phase=active",
-	                 "comment=onward", viewer="lang.ada")
+	                 "to=lang.impl", "comment=onward", viewer="lang.ada")
 	config = document(verification_teams())
 	config["generation"] = 2
-	config["teams"]["lang"]["routes"]["main"]["handlers"] = ["grace"]
+	# the Work sits on lang.impl, whose route is `build` (W73 gave the
+	# provider real per-stage routes so a handoff can derive its phase)
+	config["teams"]["lang"]["routes"]["build"]["handlers"] = ["grace"]
 	flow.write_config(config)
 	regen = flow.ok("regen", "op-id=regen-1", viewer="lang.ada")
 	assert regen["operation"]["state"] == "committed"
@@ -117,15 +118,14 @@ def test_wf12_effectively_once_retry(flow):
 	                 viewer="lang.grace")
 	assert closed["operation"]["state"] == "committed"
 	replayed_pass = flow.ok("pass", "op-id=pass-1", f"work={work}",
-	                        "to=lang.impl", "phase=active", "comment=onward",
+	                        "to=lang.impl", "comment=onward",
 	                        viewer="lang.ada")
 	assert replayed_pass["operation"]["state"] == "replayed"
 	assert replayed_pass["seq"] == passed["seq"], \
 		"the committed pass stopped replaying after regen and close"
 	error = assert_refusal_changes_nothing(
 		flow, "lang.grace", "pass", "op-id=pass-2", f"work={work}",
-		"to=lang.impl", "phase=active",
-		"comment=onward")
+		"to=lang.impl", "comment=onward")
 	assert "terminal work never moves" in error
 
 	# 7. A protected successful no-op consumes its id without an event

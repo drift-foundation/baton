@@ -95,6 +95,13 @@ contradiction was found in the pinned text under this reading.
 
 ## Follow-up ruling — 2026-08-16: transfer is an explicit `pass`
 
+**Superseded in part 2026-08-17 by
+`finding-route-derived-handoff-phase`:** the explicit `pass` verb and its
+threadless Work-level meaning remain current, but callers no longer supply
+`phase=`. The destination route derives the phase, and an unmapped route role
+refuses. The historical ruling below is retained as the chronology of how the
+explicit transfer verb was introduced.
+
 **Confirmed by Slawomir during the fresh v11 trial.** The existing compound
 form
 

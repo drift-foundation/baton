@@ -175,76 +175,80 @@ def visible_columns(width: int, id_width: int = 0):
 
 
 def held_cell(since, now) -> str:
-	"""W226 (superseding W33's mixed MM:SS/HH:MM): ONE hours:minutes
-	interpretation for every ordinary value — elapsed time floored to
-	complete minutes, `00:00` through `99:59` as HH:MM, `99h+` above
-	that fixed-width range, `-` with no reference instant. Clock
-	corrections clamp to zero; derived client-side from a canonical
-	instant and the local clock — never a second scheduler, never an
-	extra authority read."""
+	"""W55 (superseding only W226's timer scale and overflow spelling):
+	ONE minutes:seconds interpretation for every ordinary value —
+	elapsed whole seconds, `00:00` through `99:59` as MM:SS, `∞` at 100
+	minutes and beyond, `-` with no reference instant. The overflow is
+	`∞` rather than a saturated `99:59` (which would read as a live
+	value) or a unit-bearing cap (whose units the eye cannot infer from
+	the ordinary cells beside it). Clock corrections clamp to zero;
+	derived client-side from a canonical instant and the local clock —
+	never a second scheduler, never an extra authority read."""
 	if since is None:
 		return "-"
 	import datetime as _dt
 	stamp = _dt.datetime.fromisoformat(
 		since.replace("Z", "+00:00").replace(" ", "T")).timestamp()
-	minutes = max(0, int(now - stamp)) // 60
-	hours = minutes // 60
-	if hours <= 99:
-		return f"{hours:02d}:{minutes % 60:02d}"
-	return "99h+"
+	seconds = max(0, int(now - stamp))
+	minutes = seconds // 60
+	if minutes <= 99:
+		return f"{minutes:02d}:{seconds % 60:02d}"
+	return "∞"
 
 
-# W47 (protocol-fixed): two-minute cadence, three missed beats — six
-# minutes without a successful heartbeat shows the informational alert.
-STALL_AFTER_SECONDS = 360
+# W47's presentation threshold is GONE (W65): six minutes of protocol
+# silence no longer renders an alert, because a claimed agent can be
+# alive and busy inside a single model turn with no opportunity to call
+# `heartbeat`. The two-minute cadence and the heartbeat instants remain
+# real, audited, structured JSON facts — they simply do not drive a
+# glyph. `PICKUP_OVERDUE_SECONDS` in the projection still describes a
+# genuine unclaimed-pickup obligation.
 
 
 def held_field(row, now) -> str:
-	"""W226: the six-cell state-dependent Held field.
+	"""The six-cell Held field, on W55's MM:SS timer, under W65's
+	UNCLAIMED-primary ruling.
 
-	CLAIMED: HH:MM since canonical claimed_at (the visible reset at
-	pickup preserves when the recipient actually took the Work) plus
-	the W47 liveness suffix — a trailing space while healthy, `!` once
-	six minutes pass without a successful beat; the suffix never
-	resets the timer. PENDING PICKUP: `>HH:MM` since the committed
-	handoff, `!HH:MM` once six minutes pass unclaimed — informational
-	ONLY; no prefix, suffix, or elapsed time ever mutates workflow
-	authority. Unclaimed never-passed Work renders `-`."""
+	The operational signal is whether open Work has a claimant, because
+	unclaimed means NOBODY is executing it. So `>` marks every open Work
+	with no active claimant — a STATE marker, not an overdue assertion,
+	independent of elapsed time — and claiming removes it. Release, a
+	pass, or a readiness change that releases the claimant restores it
+	while the Work stays open. Closed Work has no execution claim and
+	gets no marker.
+
+	W65 removed both six-minute `!` switches. Pending pickup no longer
+	escalates: elapsed time is already visible in the timer and does not
+	need a second, louder spelling. The claimant heartbeat suffix is
+	gone too, because a claimed agent can be alive and busy inside one
+	model turn with no opportunity to call `heartbeat` — treating
+	silence as execution failure manufactured false alarms. Heartbeat
+	instants remain structured JSON diagnostics.
+
+	CLAIMED: `MM:SS ` since canonical claimed_at (the visible reset at
+	pickup preserves when the recipient actually took the Work).
+	UNCLAIMED OPEN: `>MM:SS` since the committed handoff, or `>-` when
+	there is no handoff to time. CLOSED: `-`. Readiness, wait and park
+	are separate table and JSON facts; they explain why unclaimed Work
+	may not be claimable, and never hide that it is unclaimed."""
 	claimed_at = row.get("claimed_at")
 	if claimed_at is not None:
-		timer = held_cell(claimed_at, now)
-		import datetime as _dt
-		last_beat = row.get("heartbeat_at") or claimed_at
-		stamp = _dt.datetime.fromisoformat(
-			last_beat.replace("Z", "+00:00").replace(" ", "T")).timestamp()
-		silent = max(0, int(now - stamp))
-		return timer + ("!" if silent >= STALL_AFTER_SECONDS else " ")
-	handoff_at = row.get("handoff_at")
-	if handoff_at is None or row.get("status") == "closed":
+		return held_cell(claimed_at, now) + " "
+	if row.get("status") == "closed":
 		return "-"
-	import datetime as _dt
-	stamp = _dt.datetime.fromisoformat(
-		handoff_at.replace("Z", "+00:00").replace(" ", "T")).timestamp()
-	waiting = max(0, int(now - stamp))
-	prefix = "!" if waiting >= STALL_AFTER_SECONDS else ">"
-	return prefix + held_cell(handoff_at, now)
+	return ">" + held_cell(row.get("handoff_at"), now)
 
 
 def pickup_prefix(row, now) -> str:
-	"""W226 step 4: the compact Phase cell's pickup cue — `>` for an
-	unclaimed operational handoff, `!` once six minutes pass without a
-	claim, a space otherwise. Claiming removes the prefix; glyphs are
-	presentation only and the structured facts stay in JSON."""
+	"""The compact Phase cell's companion to `held_field` under W65:
+	`>` for every open Work with no active claimant, a space once it is
+	claimed or closed. No elapsed-time transition — the marker states a
+	fact about the claim, not a judgement about how long it has been
+	true. Glyphs are presentation only; the structured facts stay in
+	JSON."""
 	if row.get("claimed_at") is not None or row.get("status") == "closed":
 		return " "
-	handoff_at = row.get("handoff_at")
-	if handoff_at is None:
-		return " "
-	import datetime as _dt
-	stamp = _dt.datetime.fromisoformat(
-		handoff_at.replace("Z", "+00:00").replace(" ", "T")).timestamp()
-	waiting = max(0, int(now - stamp))
-	return "!" if waiting >= STALL_AFTER_SECONDS else ">"
+	return ">"
 
 
 def blocker_cue(row: dict) -> str:

@@ -21,13 +21,18 @@ def verification_teams() -> dict:
 			{"main": {"role": "dev", "handlers": [member]}},
 			{"bug": {"display": "Bug", "route": "main"},
 			 "verify": {"display": "Verify", "route": "main"}})
+	# W73: a handoff derives its phase from the destination ROUTE, so a
+	# provider that receives passes needs real per-stage roles rather
+	# than one generic `dev`. The cast's shape is otherwise unchanged.
 	spec["lang"] = team(
 		"Lang",
-		{"ada": {"display": "Ada", "roles": ["dev"],
+		{"ada": {"display": "Ada", "roles": ["rsrch", "impl"],
 		         "capabilities": ["config"]},
-		 "grace": {"display": "Grace", "roles": ["dev"]}},
-		{"dev": {"display": "Developer"}},
-		{"main": {"role": "dev", "handlers": ["ada"]}},
-		{"rsrch": {"display": "Research", "route": "main"},
-		 "impl": {"display": "Implement", "route": "main"}})
+		 "grace": {"display": "Grace", "roles": ["rsrch", "impl"]}},
+		{"rsrch": {"display": "Research"},
+		 "impl": {"display": "Implementation"}},
+		{"intake": {"role": "rsrch", "handlers": ["ada"]},
+		 "build": {"role": "impl", "handlers": ["ada"]}},
+		{"rsrch": {"display": "Research", "route": "intake"},
+		 "impl": {"display": "Implement", "route": "build"}})
 	return spec

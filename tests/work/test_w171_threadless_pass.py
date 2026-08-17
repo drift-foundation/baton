@@ -106,7 +106,7 @@ def test_the_event_is_the_complete_authoritative_record(world):
 	work = make(world)["work_id"]
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",
-	            "phase=review", "set-next=lang.bug",
+	            "set-next=lang.bug",
 	            "comment=exact evidence, verbatim")
 	event = [entry for entry in world["store"].events()
 	         if entry["seq"] == passed["seq"]][0]
@@ -188,7 +188,7 @@ def test_the_handoff_and_the_consuming_return(world):
 	work = make(world)["work_id"]
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",
-	            "phase=review", "set-next=lang.bug",
+	            "set-next=lang.bug",
 	            "comment=please review")
 	assert passed["kind"] == "pass"
 	detail = ok(world, "detail", f"work={work}")
@@ -200,7 +200,7 @@ def test_the_handoff_and_the_consuming_return(world):
 	           for action in woken["actionable"]), \
 		"the destination was not woken through Work readiness"
 	returned = ok(world, "pass", f"work={work}", "to=lang.bug",
-	              "phase=active", "comment=approved",
+	              "comment=approved",
 	              viewer="rev.bee")
 	assert returned["kind"] == "return", \
 		"the consuming pass is not audited as a return"

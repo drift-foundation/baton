@@ -56,8 +56,7 @@ def test_wf06_recursive_release(flow):
 
 	# 2. One child runs WF-01 locally; the other waits on an external
 	# provider work (WF-04 pattern).
-	flow.ok("pass", f"work={local}", "to=lang.impl", "phase=active",
-	        "set-next=lang.rev",
+	flow.ok("pass", f"work={local}", "to=lang.impl", "set-next=lang.rev",
 	        "comment=build it", viewer="lang.ada")
 	external = flow.ok("create", "team=mdb", "kind=build",
 	                   "title=CI image rebuild",
@@ -80,7 +79,6 @@ def test_wf06_recursive_release(flow):
 
 	# 4. Readiness is the CONJUNCTION: the local child alone is not enough.
 	returned = flow.ok("pass", f"work={local}", "to=lang.rev",
-	                   "phase=review",
 	                   "comment=done", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	flow.ok("close", f"work={local}", "rationale=fixed and verified", "outcome=satisfying",

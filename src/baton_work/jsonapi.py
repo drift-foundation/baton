@@ -59,7 +59,7 @@ from baton_work.authority import Authority, WorkError
 # work-threads expose `local_id` — the authority-local `T<sequence>`
 # spelling every Thread-valued command accepts — alongside canonical
 # identity. Additive.
-PROJECTION_VERSION = "6.2"
+PROJECTION_VERSION = "7.0"
 
 
 def require_version(requested: str | None) -> None:

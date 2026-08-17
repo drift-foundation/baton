@@ -262,25 +262,38 @@ def _handoffs(store: Authority, work_ids) -> dict:
 		work_ids)}
 
 
-# W226 (protocol-fixed, same constant as the W47 heartbeat alert): six
-# minutes without pickup after a committed handoff is OVERDUE — a
-# structured, informational fact; no timeout mutates workflow authority.
+# W226's structured pickup threshold remains protocol-visible even though
+# W65 removed every elapsed-time alert glyph: six minutes without pickup
+# after a committed, currently claimable handoff is OVERDUE. No timeout
+# mutates workflow authority.
 PICKUP_OVERDUE_SECONDS = 360
 
 
-def _pickup_state(active_team, handoff_at, now_iso, status="open"):
+def _pickup_state(active_team, handoff_at, now_iso, status="open",
+                  ready=True, phase=None):
 	"""The structured pickup/claim state (W226): 'claimed' while an
 	active claimant exists, 'pending'/'overdue' for an unclaimed
 	committed handoff, None for unclaimed never-passed Work — and
 	None on TERMINAL Work (R2): a pickup obligation cannot exist on
 	closed Work, while handoff_at remains as history. Derived at
-	snapshot time from recorded instants — never display glyphs."""
+	snapshot time from recorded instants — never display glyphs.
+
+	W65: 'overdue' asserts that somebody OWES a pickup, so it may only
+	describe Work a pickup is actually possible on. The live defect was
+	W2 reporting overdue while dependency-blocked: adding its blockers
+	had correctly released the reviewer's claim, and the projection
+	then went on aging the old handoff even though the authority made
+	a new claim impossible. Blocked, waiting and parked Work stays
+	'pending' — honestly unclaimed, with readiness/wait/phase as the
+	separate structured facts that explain why it is not claimable."""
 	if status == "closed":
 		return None
 	if active_team is not None:
 		return "claimed"
 	if handoff_at is None:
 		return None
+	if not ready or phase in ("waiting", "parked"):
+		return "pending"
 	import datetime as _dt
 	handed = _dt.datetime.fromisoformat(
 		handoff_at.replace("Z", "+00:00").replace(" ", "T"))
@@ -354,7 +367,8 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		now = store.clock()
 	handoff_at = handoffs.get(row["id"])
 	pickup = _pickup_state(row["active_team"], handoff_at, now,
-	                       row["status"])
+	                       row["status"], ready=bool(row["ready"]),
+	                       phase=row["phase"])
 	return {
 		"id": row["id"],
 		# W4: the generated authority-local short selector — derived
@@ -428,8 +442,8 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		# changing age display is client-derived. Null while unclaimed,
 		# after release, and on terminal rows. W47 adds heartbeat_at:
 		# the latest qualifying beat of the CURRENT claim epoch (the
-		# claim itself is the initial beat); clients derive the fixed
-		# six-minute stall alert from this recorded fact alone.
+		# claim itself is the initial beat). W65 removed display alarms
+		# derived from silence; the instant remains a structured diagnostic.
 		"claimed_at": claim_fact[0],
 		"heartbeat_at": claim_fact[1],
 		# W226: responsibility begins at the committed handoff — the
@@ -1168,9 +1182,12 @@ def participant_actions(store: Authority, *, viewer_team: str,
 	  non-waiting/parked Work is actionable for every member the
 	  live Current endpoint resolves; after the atomic claim it stays
 	  actionable for the exact claimant alone (rediscoverable after a
-	  restart, whatever its readiness drifts to). The stable action
-	  identity is the Work id — claiming never manufactures a second
-	  wake.
+	  restart, whatever its readiness drifts to). W49: the action
+	  identity is the ASSIGNMENT EPISODE — Work id, its
+	  `episode_seq`, and the accepted configuration generation.
+	  Claiming never manufactures a second wake (a claim does not
+	  mint), but a pass away and back BETWEEN two polls does, which
+	  Work identity alone could not express.
 	- `@` obligations: actionable exactly for members the obligation's
 	  owed endpoint currently resolves; identity = the obligation seq.
 	  Rerouting changes eligibility without rewriting history.
@@ -1241,6 +1258,17 @@ def participant_actions(store: Authority, *, viewer_team: str,
 				"review_at": row["review_at"],
 				"deadline_generation": row["deadline_generation"],
 				"responsible": responsible})
+		# W49: endpoint eligibility is GENERATION-relative, so the
+		# accepted configuration generation is part of the action
+		# identity. A participant removed from a route and restored
+		# between two polls would otherwise stay suppressed under an
+		# episode key that never changed. A config acceptance is rare and
+		# conservatively redelivers otherwise-unchanged actionable Work —
+		# an honest new resolution episode, not a false wake.
+		generation_row = store.conn.execute(
+			"SELECT value FROM meta WHERE key='accepted_generation'"
+		).fetchone()
+		generation = int(generation_row["value"]) if generation_row else 0
 		for row in store.conn.execute(
 				"SELECT * FROM work WHERE status='open' "
 				"ORDER BY created_seq"):
@@ -1258,8 +1286,17 @@ def participant_actions(store: Authority, *, viewer_team: str,
 					continue
 			actions.append({
 				"kind": "work",
-				"action_key": f"work:{row['id']}",
+				# W49: an EPISODE LOCATOR, not Work identity. The Work id
+				# stays in its own structured field — consumers never
+				# parse this key to recover it. Handing Work away and
+				# back between two polls changes the episode, so the
+				# return is delivered even though no consumer ever
+				# observed the key absent.
+				"action_key": (f"work:{row['id']}:{row['episode_seq']}"
+				               f":g{generation}"),
 				"work": row["id"],
+				"episode_seq": row["episode_seq"],
+				"config_generation": generation,
 				"local_id": row["id"].rsplit("-", 1)[1],
 				"title": row["title"],
 				"phase": row["phase"],

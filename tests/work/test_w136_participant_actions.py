@@ -72,48 +72,93 @@ def keys(world, member, team="lang"):
 	                                                   team=team)]
 
 
+def work_key(world, work, member="ada", team="lang"):
+	"""W49: the Work action key is an EPISODE locator, so a test that
+	means "this Work's current wake" reads it from the projection
+	rather than reconstructing `work:<id>`. Returns None when the Work
+	is not actionable for that member."""
+	for action in actions(world, member, team=team):
+		# obligations and due trials also carry `work`, so the kind is
+		# part of the match — an episode belongs to the Work action.
+		if action["kind"] == "work" and action["work"] == work:
+			return action["action_key"]
+	return None
+
+
+def episode(world, work, member="ada", team="lang"):
+	for action in actions(world, member, team=team):
+		if action["kind"] == "work" and action["work"] == work:
+			return action["episode_seq"]
+	return None
+
+
 def test_routed_work_wakes_handlers_and_the_claim_narrows(world):
 	"""Unclaimed ready routed Work wakes EVERY resolved handler under
-	ONE stable key; the claim leaves the claimant alone without a new
-	key; the loser loses it; release restores both; the claimant
-	rediscovers their own Work after restart."""
+	ONE key; the claim leaves the claimant alone and does NOT mint a
+	new episode; the loser loses it; release DOES mint, restoring both
+	under a fresh episode (W49); the claimant rediscovers their own
+	Work after restart."""
 	store = world["store"]
 	work = make(world, "shared duty")["work_id"]
-	key = f"work:{work}"
-	assert key in keys(world, "ada") and key in keys(world, "bee")
-	assert key not in keys(world, "grace"), \
+	born_key = work_key(world, work)
+	assert born_key is not None
+	assert born_key in keys(world, "ada") and born_key in keys(world, "bee")
+	assert born_key not in keys(world, "grace"), \
 		"an unresolved member was woken"
-	assert key not in keys(world, "sl", team="push")
+	assert born_key not in keys(world, "sl", team="push")
 	tr.claim_work(store, work, actor_team="lang", actor="bee")
-	assert key in keys(world, "bee"), "the claimant lost their wake"
-	assert key not in keys(world, "ada"), \
+	# W49: a claim is not a handoff, so the episode must NOT move —
+	# otherwise the claimant is prompted again by their own claim.
+	assert work_key(world, work, member="bee") == born_key, \
+		"the claim minted a new episode and would re-wake the claimant"
+	assert born_key in keys(world, "bee"), "the claimant lost their wake"
+	assert born_key not in keys(world, "ada"), \
 		"the losing handler kept the wake"
 	entry = next(action for action in actions(world, "bee")
-	             if action["action_key"] == key)
+	             if action["action_key"] == born_key)
 	assert entry["claimed"] is True
+	assert entry["work"] == work, \
+		"the Work id must stay a structured field, not be parsed back "\
+		"out of the episode locator"
+	# a heartbeat is liveness, never reassignment
+	tr.heartbeat(store, work, actor_team="lang", actor="bee")
+	assert work_key(world, work, member="bee") == born_key, \
+		"a heartbeat minted an episode"
 	# restart: the claimant rediscovers their still-open Work
 	fresh = bw.Authority(world["database"])
 	try:
 		rediscovered = pj.participant_actions(
 			fresh, viewer_team="lang",
 			viewer_member="bee")["actions"]
-		assert key in [action["action_key"]
-		               for action in rediscovered]
+		assert born_key in [action["action_key"]
+		                    for action in rediscovered]
 	finally:
 		fresh.close()
 	tr.release_claim(store, work, actor_team="lang", actor="bee",
 	                 expect="lang.bee", reason="cycling")
-	assert key in keys(world, "ada") and key in keys(world, "bee")
+	# W49: release hands the Work back to the endpoint — a NEW episode,
+	# so every eligible handler (the released claimant included) wakes
+	# again even though the Work id never changed.
+	released_key = work_key(world, work)
+	assert released_key is not None and released_key != born_key, \
+		"release did not mint a new assignment episode"
+	assert released_key in keys(world, "ada") and \
+		released_key in keys(world, "bee")
 	# blocked/waiting/parked/closed leave the unclaimed wake set
 	gate = make(world, "gate", team="push", author="sl")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
 	                  actor="ada")
-	assert key not in keys(world, "ada"), "a blocked row still woke"
+	assert work_key(world, work) is None, "a blocked row still woke"
 	tr.close_work(store, gate, actor_team="push", actor="sl",
 	              rationale="done", outcome="satisfying")
+	# the unblock is a false-to-true readiness flip: a new episode
+	unblocked_key = work_key(world, work)
+	assert unblocked_key is not None and \
+		unblocked_key not in (born_key, released_key), \
+		"the dependency unblock did not mint a new episode"
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="parked", reason="later")
-	assert key not in keys(world, "ada"), "a parked row still woke"
+	assert work_key(world, work) is None, "a parked row still woke"
 
 
 def test_obligations_wake_eligible_members_and_reroute_follows(world):
@@ -272,8 +317,12 @@ def test_cli_wait_reaches_the_participant_projection(world):
 	assert code == 0
 	body = _json.loads(out)["result"]
 	assert body["timed_out"] is False
-	assert f"work:{work}" in [action["action_key"]
-	                          for action in body["actionable"]]
+	entry = next(action for action in body["actionable"]
+	             if action["kind"] == "work" and action["work"] == work)
+	# W49: the public surface carries the episode locator plus the
+	# structured facts a consumer needs without parsing the key
+	assert entry["action_key"] == \
+		f"work:{work}:{entry['episode_seq']}:g{entry['config_generation']}"
 	code, out, _err = run("lang.grace")
 	assert code == 0
 	assert _json.loads(out)["result"]["timed_out"] is True
@@ -288,19 +337,29 @@ def test_the_projection_version_names_the_wake_contract(world):
 	honest-breaking, no alias). Same-major demands succeed; a stale
 	4.x demand refuses."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "6.2"
-	jsonapi.require_version("6.0")
+	assert jsonapi.PROJECTION_VERSION == "7.0"
+	jsonapi.require_version("7.0")
+	with pytest.raises(bw.WorkError, match="not compatible"):
+		jsonapi.require_version("6.2")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.3")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("3.9")
 
 
-def test_a_real_reroute_moves_eligibility_without_new_keys(world):
-	"""R2: an ACTUAL accepted regeneration reroutes the endpoint — the
-	pending @, the routed Work, and the due trial move to the new
-	handler set without rewriting history or changing their stable
-	action keys."""
+def test_a_real_reroute_moves_eligibility_and_is_a_new_resolution_episode(world):
+	"""R2 as superseded by W49. An ACTUAL accepted regeneration reroutes
+	the endpoint: the pending @, the routed Work, and the due trial all
+	move to the new handler set without rewriting history. The @ and
+	trial identities are unchanged, as before.
+
+	The WORK key deliberately changes, because endpoint eligibility is
+	generation-relative: a participant removed and restored between two
+	polls would otherwise stay suppressed forever under a key that never
+	moved. A config acceptance is rare, and conservatively redelivering
+	otherwise-unchanged actionable Work is an honest new resolution
+	episode rather than a false wake. (This clause replaces the original
+	"without changing their stable action keys" for Work only.)"""
 	store = world["store"]
 	work = make(world, "rerouted")["work_id"]
 	born = make(world, "asked", team="push", author="sl")
@@ -312,13 +371,14 @@ def test_a_real_reroute_moves_eligibility_without_new_keys(world):
 	                candidate="cand-R", assign=["push.bug"],
 	                review_at="2026-08-16T12:00:00Z")
 	store.clock = lambda: "2026-08-16T12:00:00Z"
-	work_key = f"work:{work}"
+	before_key = work_key(world, work)
+	before_episode = episode(world, work)
 	obligation_key = f"obligation:{asked['seq']}"
 	before = keys(world, "ada")
-	assert work_key in before and obligation_key in before
+	assert before_key in before and obligation_key in before
 	round_key = next(k for k in before if k.startswith("trial:"))
 	assert not any(k in keys(world, "grace")
-	               for k in (work_key, obligation_key, round_key))
+	               for k in (before_key, obligation_key, round_key))
 	# the REAL reroute: generation 2 resolves the route to grace alone
 	document = _json.load(open(world["config"]))
 	document["generation"] = 2
@@ -330,12 +390,25 @@ def test_a_real_reroute_moves_eligibility_without_new_keys(world):
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	lc.accept_config(world["config"], actor="lang.ada")
 	after_grace = keys(world, "grace")
-	for key in (work_key, obligation_key, round_key):
+	# unchanged identities: the @ and the trial
+	for key in (obligation_key, round_key):
 		assert key in after_grace, \
 			f"the reroute did not carry {key} to the new handler"
+	# the Work moved too, under a NEW generation-bearing episode key
+	grace_key = work_key(world, work, member="grace")
+	assert grace_key is not None, \
+		"the reroute did not carry the Work to the new handler"
+	assert grace_key != before_key, \
+		"a config acceptance must be a new resolution episode"
+	assert grace_key.endswith(":g2") and before_key.endswith(":g1"), \
+		"the accepted configuration generation is not in the key"
+	# the WORK-side episode itself is untouched: nobody passed anything
+	assert episode(world, work, member="grace") == before_episode, \
+		"a config acceptance minted a Work assignment episode"
 	after_ada = keys(world, "ada")
 	assert not any(k in after_ada
-	               for k in (work_key, obligation_key, round_key)), \
+	               for k in (before_key, grace_key, obligation_key,
+	                         round_key)), \
 		"the old handler kept eligibility after the reroute"
 	# history unwritten: the obligation row and trial generation stand
 	entry = next(action for action in actions(world, "grace")
@@ -350,7 +423,7 @@ def test_the_snapshot_is_never_mixed(world, monkeypatch):
 	wholly pre-commit; the next call is wholly post-commit."""
 	store = world["store"]
 	work = make(world, "raced")["work_id"]
-	key = f"work:{work}"
+	key = work_key(world, work)
 	pre_seq = store.conn.execute(
 		"SELECT MAX(seq) AS s FROM events").fetchone()["s"]
 	original = pj._endpoint_struct

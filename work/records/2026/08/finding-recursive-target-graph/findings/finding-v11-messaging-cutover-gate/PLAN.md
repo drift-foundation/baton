@@ -63,3 +63,25 @@ cross-major alias is introduced.
    as child Work.
 7. Close this gate only after the agreed fallback-free interval and Slawomir's
    explicit retirement ruling.
+
+## Live cutover discovery — 2026-08-17
+
+`finding-acp-bootstrap-overwrites-session` records the continuity-trial defect
+where a second `session.mode=new` launch silently replaced the selected ACP
+session before Work pickup. Restore the surviving original selection for the
+trial, but keep W2 open until repeated bootstrap fails closed and load resumes
+the original session unchanged.
+
+The resumed-original-session half is accepted in
+`../../review-2026-08-17T14-35-25Z.md`: event 32 returned from the original
+`0fff820b...` context without rerunning tests, and event 35 made W27 an explicit
+W2 blocker. W2 closes only after W27 is independently reviewed and reaches a
+satisfying terminal outcome.
+
+`finding-acp-same-key-redelivery-loss` records the next live cutover defect:
+after W27 left Claude and returned between readiness observations, its stable
+Work action key remained suppressed by the persistent ACP bridge. The bridge
+was alive while W27 became pickup-overdue and unclaimed. A bridge restart is an
+explicit trial workaround only; W2 remains open until an authority-derived
+assignment episode makes same-participant return handoffs deliverable and
+queued stale prompts are revalidated before entering an agent turn.

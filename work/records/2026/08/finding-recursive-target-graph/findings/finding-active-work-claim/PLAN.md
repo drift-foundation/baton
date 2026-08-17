@@ -56,3 +56,18 @@ approved and pinned in `FINDING.md`; item 10 is cleared for implementation.
 clean; see `review-2026-08-16T10-19-38Z.md`. Reviewer verification is 28
 focused tests green with a clean diff check; K reports the full v11 gate at
 632 parallel plus 3 serial tests green.
+
+## Follow-up — route-derived handoff phase
+
+1. Remove `phase=` from the public `pass` grammar, transition API, protected
+   operation identity, help, examples, parity surface, and packaged client.
+2. Derive the destination phase only from the destination route's live stage
+   role under the write lock. Add approver-to-review mapping and refuse any
+   destination role without a canonical stage.
+3. Prove implementation, research, reviewer, and approver route handoffs;
+   reject explicit `phase=`, unmapped roles, stale config, retries, and route
+   races without mutation.
+4. Update workflows so a handoff names only `to=`, while same-route stage
+   changes continue through the separate authorized phase transition.
+5. Re-run the full v11 gate and independently review before the messaging
+   cutover closes.

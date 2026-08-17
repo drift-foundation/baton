@@ -1,8 +1,9 @@
 """W33: the claim-Age column and the final hot-cue composition.
 
 Age (finding-tui-claim-age): elapsed time since the CURRENT claim
-committed — W226 supersession: ONE HH:MM interpretation, `99h+`
-beyond, `-` with no claim — derived client-side from the canonical
+committed — W226 supersession, on W55's scale: ONE MM:SS
+interpretation, `∞` at 100 minutes and beyond, `-` with no claim —
+derived client-side from the canonical
 `claimed_at` (the newest claim event's timestamp, never
 last_changed_at) on the ONE existing refresh cadence. The final steady
 hot cue is bold Title + Age; the indefinite hot-state blink is gone.
@@ -67,27 +68,32 @@ class Screen:
 
 
 def test_the_age_formatter_matrix():
-	"""The pure display (W226): floored HH:MM, the 99h+ cap, the
-	unclaimed dash, and the negative-clock clamp."""
+	"""The pure display (W55, superseding W226's scale): whole-second
+	MM:SS, the `∞` overflow at 100 minutes, the unclaimed dash, and the
+	negative-clock clamp."""
 	base = "2026-08-16T12:00:00Z"
 	import datetime as _dt
 	origin = _dt.datetime.fromisoformat(
 		base.replace("Z", "+00:00")).timestamp()
 	assert held_cell(None, origin) == "-"
 	assert held_cell(base, origin) == "00:00"
-	assert held_cell(base, origin + 59) == "00:00"
-	assert held_cell(base, origin + 60) == "00:01"
-	assert held_cell(base, origin + 3599) == "00:59"
-	assert held_cell(base, origin + 3600) == "01:00"
-	assert held_cell(base, origin + 3600 * 26 + 60 * 7) == "26:07"
-	assert held_cell(base, origin + 3600 * 99 + 59 * 60) == "99:59"
-	assert held_cell(base, origin + 3600 * 100) == "99h+"
+	assert held_cell(base, origin + 1) == "00:01"
+	assert held_cell(base, origin + 59) == "00:59"
+	assert held_cell(base, origin + 60) == "01:00"
+	assert held_cell(base, origin + 61) == "01:01"
+	assert held_cell(base, origin + 60 * 26 + 7) == "26:07"
+	# the last ordinary value, and the first overflow one
+	assert held_cell(base, origin + 60 * 59 + 59) == "59:59"
+	assert held_cell(base, origin + 60 * 99 + 59) == "99:59"
+	assert held_cell(base, origin + 60 * 100) == "∞"
+	assert held_cell(base, origin + 60 * 100 + 1) == "∞"
+	assert held_cell(base, origin + 3600 * 400) == "∞", \
+		"well past the cap did not stay at the overflow value"
 	# the negative-clock clamp
-	assert held_cell(base, origin - 30) == "00:00"
 	assert held_cell(base, origin - 30) == "00:00", \
 		"a clock correction did not clamp to zero"
 	assert all(len(held_cell(base, origin + n)) <= 5
-	           for n in (0, 59, 3600, 3600 * 100)), \
+	           for n in (0, 59, 3600, 60 * 100, 3600 * 400)), \
 		"the display broke the fixed five-cell budget"
 
 

@@ -1,11 +1,12 @@
 """W80: the explicit `pass` verb — transfer gets its own canonical
 surface.
 
-`pass work= to= phase= comment=` (W171, finding-pass-is-work-event):
+`pass work= to= comment=` (W171, finding-pass-is-work-event; phase input
+superseded by W73):
 ONE indivisible THREADLESS Work event — the comment is durable handoff
 evidence stored with the authoritative pass event itself, Current and
-the destination phase transfer (explicit `phase=`, or derived from the
-destination stage role), any planned `set-next=` records, and the
+the route-derived destination phase transfer, any planned `set-next=`
+records, and the
 sender's active claim releases. No Thread is involved and no Message
 exists: a pass moves no cursor and no Message/My/New/obligation count.
 A refusal leaves everything unchanged. Plain `say` remains discussion
@@ -76,7 +77,7 @@ def make(world):
 
 
 def test_pass_is_one_indivisible_transfer(world):
-	"""The canonical surface: evidence appended, Current + explicit
+	"""The canonical surface: evidence appended, Current + derived
 	phase + planned Next recorded, the sender's claim released — one
 	act, one audited event."""
 	born = make(world)
@@ -84,7 +85,7 @@ def test_pass_is_one_indivisible_transfer(world):
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	before = ok(world, "thread", f"thread={thread}")
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",
-	            "phase=review", "set-next=lang.bug",
+	            "set-next=lang.bug",
 	            "comment=please verify")
 	assert passed["kind"] == "pass"
 	assert passed["work"] == work
@@ -103,8 +104,8 @@ def test_pass_is_one_indivisible_transfer(world):
 
 
 def test_the_destination_phase_derives_from_the_stage_role(world):
-	"""Omitted phase= derives from the destination route's stage role —
-	rview lands review, impl lands active — exactly the W108 rule."""
+	"""The destination route's stage role decides the phase — rview
+	lands review and impl lands active — exactly the W73 rule."""
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
 	ok(world, "pass", f"work={work}", "to=rev.bug",
@@ -150,10 +151,8 @@ def test_authorization_and_retry(world):
 	                viewer="rev.bee")
 	assert "rev.bee" in error
 	first = ok(world, "pass", f"work={work}", "to=rev.bug",
-	           "phase=review",
 	           "comment=handing over", "op-id=xfer-1")
 	again = ok(world, "pass", f"work={work}", "to=rev.bug",
-	           "phase=review",
 	           "comment=handing over", "op-id=xfer-1")
 	assert again["operation"]["state"] == "replayed"
 	assert again["seq"] == first["seq"]
@@ -192,8 +191,14 @@ def test_the_assist_teaches_the_new_dialect(world):
 	for name in ("work=", "to=", "comment="):
 		assert name in hint.split("optional:")[0], (name, hint)
 	assert "thread=" not in hint, "the assist resurrected the thread coupling"
-	assert "phase=" in hint and "set-next=" in hint
+	# W73: the route decides the phase, so the assist must not offer the
+	# operand either — a suggestion the parser refuses is worse than
+	# silence.
+	assert "phase=" not in hint, "the assist offered the retired phase key"
+	assert "set-next=" in hint
 	say_hint = assist_text("say thread=T1 body=b ")
 	assert "pass-to=" not in say_hint and "set-next=" not in say_hint
-	assert assist_text("pass work=W1 to=lang.bug phase=")\
-		.startswith("phase=: ")
+	# and typing the retired key gets the parser's own diagnostic, not
+	# a value list for an operand that no longer exists
+	assert assist_text("pass work=W1 to=lang.bug phase=") == \
+		"unknown key 'phase'"

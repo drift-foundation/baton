@@ -48,3 +48,49 @@ The earlier horizontal index/body proposal was superseded before this live
 screen existed. This dated ruling restores it only inside Work details based
 on direct acceptance evidence; the main screen remains Work-only and `Enter`
 continues to open Work details.
+
+## Live-navigation follow-up — 2026-08-17
+
+**Confirmed by Slawomir during the v11 messaging cutover trial.** The shipped
+three-region screen is structurally correct but still not usable enough:
+
+- the Message index is oldest-first, so the common act of reading current
+  activity begins with a scroll to the end;
+- pane focus is not visually distinguishable, making `Ctrl-W` movement hard
+  to reason about; and
+- moving from the selected-message reader to Threads requires an accidental
+  trip through the Message index rather than direct spatial navigation.
+
+The follow-up keeps the three independent panes and changes their interaction:
+
+1. The Message index displays the newest Message first. Canonical message
+   sequence and audit chronology remain ascending facts; only the human index
+   order is reversed. New/seen and `s` continue to name the selected canonical
+   sequence, never display position.
+2. Exactly one pane has an unmistakable borderless focus marker in its heading
+   (for example `»Threads`, `»Msgs`, or `»Body`); inactive headings retain
+   their names without the marker. Selection highlighting inside a list is
+   not sufficient evidence of pane focus.
+3. `Ctrl-W` plus a direction moves geometrically among Threads, Message index,
+   and reader. At wide width, left/right move between index and reader and up
+   from either lower pane reaches Threads directly. At narrow stacked width,
+   up/down follows the visible stack. Navigation never requires cycling
+   through an unrelated pane and never marks content seen.
+
+Paging, refresh, resize, long bodies/references, and the one-selected-reader
+contract remain intact. This is a projection/presentation correction with no
+authority-schema change.
+
+## Contextual `say` follow-up — 2026-08-17
+
+**Confirmed by Slawomir.** While a Thread is selected in Work details, typing
+`:say` should prefill that selected Thread because it is the overwhelmingly
+likely destination. The TUI seeds `thread=<visible-local-selector>` into the
+editable command buffer and leaves the user to supply `body=` and any optional
+attention/request operands.
+
+The prefill is contextual assistance, not implicit execution: it does not
+send, mark seen, change selection, or mutate authority. It never overwrites an
+explicit pasted `thread=`, never inserts the key twice, and does nothing where
+no unambiguous selected Thread exists. The selector is captured when seeded;
+later editing or focus movement does not silently retarget the draft.

@@ -185,7 +185,7 @@ def test_binding_authority_is_current_only_with_cas(world):
 		             expected_revision=1, rationale="  ")
 	# Transfer moves the authority; the new handler corrects under CAS.
 	fx.post(store, work, author_team="lang", author="ada",
-	        body="over to push", pass_to="push.bug", pass_phase="queued")
+	        body="over to push", pass_to="push.bug")
 	with pytest.raises(bw.WorkError, match="never grant"):
 		tr.bind_work(store, work, actor_team="lang", actor="ada",
 		             root="drift", path="work/records/2026/08/f2",

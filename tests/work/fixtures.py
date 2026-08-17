@@ -174,11 +174,19 @@ def post(store, work_id: str, **kw):
 	call site rides the W171 THREADLESS pass event (the old body
 	becomes the handoff comment); everything else stays a message."""
 	from baton_work import transitions as _tr
+	if "pass_phase" in kw:
+		# W73: the destination route decides the phase. A test that
+		# still states one is asserting a contract that no longer
+		# exists, and silently ignoring it would let the assertion pass
+		# for the wrong reason.
+		raise AssertionError(
+			"pass_phase= is retired (W73): the destination route "
+			"decides the handoff phase — route the destination kind at "
+			"a stage role instead")
 	if kw.get("pass_to"):
 		return _tr.pass_work(
 			store, work_id, actor_team=kw["author_team"],
 			actor=kw["author"], to=kw["pass_to"],
-			phase=kw.get("pass_phase"),
 			comment=kw.get("body") or "handoff",
 			set_next=kw.get("set_next"), op_id=kw.get("op_id"),
 			refs=kw.get("refs", ()))

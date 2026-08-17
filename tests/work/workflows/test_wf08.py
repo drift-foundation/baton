@@ -74,7 +74,6 @@ def test_wf08_reassignment_of_live_work(flow):
 	flow.ok("respond", f"obligation={asked["seq"]}",
 	        "body=taking over; tracked", viewer="lang.grace")
 	passed = flow.ok("pass", f"work={lang42}", "to=lang.impl",
-	                 "phase=active",
 	                 "comment=researching", viewer="lang.grace")
 	events = flow.ok("events", viewer="lang.grace")
 	pass_event = next(event for event in events

@@ -209,3 +209,33 @@ release WORK --expect team.member --reason TEXT
 This is recovery of execution ownership, not a workflow handoff. Passing,
 waiting, parking, and close retain their separately ruled claimant-release
 effects.
+
+## Route-derived handoff phase — 2026-08-17
+
+**Confirmed by Slawomir after the live ACP handoff exposed `impl + queued`.**
+This supersedes the earlier allowance for a caller to state an explicit
+destination phase on `pass`. A handoff already chooses a destination route;
+the resolved route's stage role is the sole source of its destination phase.
+
+- `pass` accepts no `phase=` operand. It resolves the destination endpoint and
+  derives `research`, `active`, or `review` from that route's configured role
+  inside the same authority transaction that changes Current and releases the
+  sender's claim.
+- Every role usable as a handoff destination must have one canonical stage
+  mapping. Implementation maps to `active`; research maps to `research`;
+  reviewer and approver map to `review`. A destination with no stage mapping
+  refuses rather than asking the caller to repair the route with ad-hoc phase
+  input.
+- Explicit phase mutation remains available to the live Current handler when
+  the same route changes stage without a handoff. It is not a second way to
+  describe a route transfer.
+- `queued` remains intake awaiting pickup. It is never the phase produced by
+  a route transfer.
+
+The live W49 counterexample was caused by passing to `baton.impl` with an
+explicit `phase=queued`; Claude then acquired the orthogonal claim and began
+execution while the TUI truthfully retained the false caller-supplied phase.
+With more handlers, the atomic claim still prevents two winners, but clients
+would schedule from misleading state and repeatedly lose acquisition races.
+The authority must prevent the contradiction rather than relying on every
+caller to remember a phase convention.

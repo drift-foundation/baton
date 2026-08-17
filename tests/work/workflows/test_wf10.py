@@ -45,8 +45,7 @@ def _rig(flow, tag):
 	                viewer="mdb.mo")["work_id"]
 	flow.ok("block", f"work={gated}", f"on={work}", viewer="web.wren")
 	flow.ok("block", f"work={gated}", f"on={extra}", viewer="web.wren")
-	flow.ok("pass", f"work={work}", "to=lang.impl", "phase=active",
-	        "set-next=lang.rsrch",
+	flow.ok("pass", f"work={work}", "to=lang.impl", "set-next=lang.rsrch",
 	        "comment=onward", viewer="lang.ada")
 	asked = flow.ok("say", f"thread={thread}", "body=push: confirm",
 	                "request=push.bug", f"on={work}",
@@ -289,8 +288,7 @@ def test_wf10_terminal_outcomes(flow):
 	# close that won recorded the Current AS COMMITTED.
 	rig = _rig(flow, "race-pass")
 	events = race(rig, ("pass", f"work={rig["work"]}",
-	                    "to=lang.rsrch", "phase=research",
-	                    f"thread={rig["thread"]}", "comment=detour"),
+	                    "to=lang.rsrch", f"thread={rig["thread"]}", "comment=detour"),
 	              "lang.ada")
 	closing = next(event for event in events
 	               if event["kind"] == "close_work" and

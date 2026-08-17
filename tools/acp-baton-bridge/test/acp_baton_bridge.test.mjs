@@ -3,19 +3,26 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync,
+         writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateConfig } from "../src/config.mjs";
 import { runBridge } from "../src/acp_baton_bridge.mjs";
+import { AcpAgentSession } from "../src/acp_agent_session.mjs";
+import { episodeStillLive } from "../src/baton_readiness.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FAKE_AGENT = join(HERE, "fake_acp_agent.mjs");
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
 
-function workAction(id, { title = "t" } = {}) {
-	return { kind: "work", action_key: `work:${id}`, work: id,
+// W49: a Work action carries its assignment EPISODE and the accepted
+// configuration generation, and the key must agree with both.
+function workAction(id, { title = "t", episode = 1, generation = 1 } = {}) {
+	return { kind: "work",
+	         action_key: `work:${id}:${episode}:g${generation}`,
+	         work: id, episode_seq: episode, config_generation: generation,
 	         local_id: id.split("-").pop(), title, phase: "queued",
 	         claimed: false };
 }
@@ -25,7 +32,7 @@ function envelope(actions, { timedOut = false,
                              uuid = UUID } = {}) {
 	return {
 		protocol_version: 11,
-		projection_version: "6.0",
+		projection_version: "7.0",
 		participant,
 		authority_uuid: uuid,
 		snapshot_seq: 42,
@@ -54,6 +61,17 @@ function rig({ env = {}, participant = "baton.claude",
 		retryMs: 25,
 	});
 	return { home, log, config };
+}
+
+// W27 R2: a `load` run resolves its selection at STARTUP, so any test
+// that means to exercise something LATER in the load path must give the
+// run a valid selection to resolve. This seeds the fixture only; it
+// changes no assertion.
+function seedSelection(config, sessionId) {
+	mkdirSync(config.stateDir, { recursive: true });
+	writeFileSync(join(config.stateDir, "session.json"),
+	              `${JSON.stringify({ sessionId }, null, 2)}\n`);
+	return sessionId;
 }
 
 function events(log) {
@@ -257,6 +275,7 @@ test("session mode=load resumes the persisted session across restart", async () 
 test("load without the capability fails closed before any session use", async () => {
 	const { log, config } = rig({ env: { FAKE_ACP_NO_LOAD: "1" } });
 	config.session.mode = "load";
+	seedSelection(config, "s-capability-probe");
 	const warnings = [];
 	const { signal, runWait } = script([
 		envelope([workAction("7ba67cb8-W163")]),
@@ -347,6 +366,7 @@ test("an unsupported mode keeps failing closed across repeated envelopes", async
 test("a missing load capability keeps failing closed across repeated envelopes", async () => {
 	const { log, config } = rig({ env: { FAKE_ACP_NO_LOAD: "1" } });
 	config.session.mode = "load";
+	seedSelection(config, "s-capability-retry");
 	const warnings = [];
 	const set = [workAction("7ba67cb8-W163")];
 	const { signal, runWait } = script([envelope(set), envelope(set)]);
@@ -545,4 +565,350 @@ test("failed mode enforcement publishes no resumable session id", async () => {
 	assert.throws(() => readFileSync(join(config.stateDir, "session.json")),
 		/ENOENT/,
 		"a session rejected before exact mode enforcement was published for later load");
+});
+
+// W27 (finding-acp-bootstrap-overwrites-session): session.mode=new MAKES
+// a continuity context, so it is correct only when none exists yet. The
+// live defect was a second bootstrap silently replacing the persisted
+// selection before any Work was claimed, after which load resumed the
+// wrong session. Rotation stays deliberately unimplemented.
+
+// W49 (finding-acp-same-key-redelivery-loss): a queued prompt is an
+// EDGE to re-evaluate, never authority to act from an old envelope.
+
+test("episode revalidation is an immediate exact-key Baton read", async () => {
+	const { config } = rig();
+	const action = workAction("7ba67cb8-W27", { episode: 9, generation: 3 });
+	const invocations = [];
+	const live = await episodeStillLive(config, action, {
+		execute: async (file, argv) => {
+			invocations.push({ file, argv });
+			return { stdout: JSON.stringify(envelope([action])) };
+		},
+	});
+	assert.equal(live, true);
+	assert.deepEqual(invocations, [{
+		file: config.baton.binary,
+		argv: ["--config", config.baton.config,
+		       "--participant", config.baton.participant,
+		       "wait", "timeout=0"],
+	}], "pre-turn revalidation did not use the exact nonblocking wait");
+	const stale = await episodeStillLive(config, action, {
+		execute: async () => ({ stdout: JSON.stringify(envelope([
+			workAction("7ba67cb8-W27", { episode: 10, generation: 3 }),
+		])) }),
+	});
+	assert.equal(stale, false,
+		"a different episode of the same Work was accepted as still live");
+});
+
+test("a queued prompt whose episode ended is dropped before the agent turn", async () => {
+	const { log, config } = rig();
+	const action = workAction("7ba67cb8-W27");
+	const { signal, runWait } = script([envelope([action])]);
+	const infos = [];
+	// the Work was claimed/passed/closed while this prompt sat queued:
+	// the revalidation read no longer carries the exact episode key
+	await runBridge(config, { signal, runWait,
+		revalidate: async () => false,
+		logger: { info(message) { infos.push(message); }, warn() {} } });
+	assert.ok(!events(log).some((entry) => entry.event === "prompt/start"),
+		"a stale episode was presented to the agent as current work");
+	assert.ok(infos.some((line) =>
+		new RegExp(`${action.action_key} is no longer actionable`)
+			.test(line)),
+		"the drop was not reported by episode");
+});
+
+test("a stale drop does not resurrect: only a NEW episode redelivers", async () => {
+	const { log, config } = rig();
+	const dead = workAction("7ba67cb8-W27", { episode: 1 });
+	const reborn = workAction("7ba67cb8-W27", { episode: 9 });
+	let live = false;
+	const { signal, runWait } = script([
+		envelope([dead]),            // dropped: episode already over
+		envelope([dead]),            // still the dead episode, still dropped
+		envelope([reborn]),          // handed back: a genuinely new episode
+	]);
+	await runBridge(config, { signal, runWait,
+		revalidate: async (action) => action.episode_seq === 9 || live,
+		logger: quiet });
+	const prompts = events(log).filter((entry) => entry.event === "prompt/start");
+	assert.equal(prompts.length, 1,
+		"the dead episode was retried, or the new one was suppressed");
+	assert.match(prompts[0].text, /W27/);
+});
+
+test("revalidation passing leaves ordinary delivery untouched", async () => {
+	const { log, config } = rig();
+	const set = [workAction("7ba67cb8-W163")];
+	const { signal, runWait } = script([envelope(set), envelope(set)]);
+	await runBridge(config, { signal, runWait,
+		revalidate: async () => true, logger: quiet });
+	assert.equal(
+		events(log).filter((entry) => entry.event === "prompt/start").length, 1,
+		"a still-live episode was delivered more than once");
+});
+
+test("the first bootstrap creates and persists exactly one selection", async () => {
+	const { log, config } = rig();
+	await runBridge(config, {
+		...script([envelope([workAction("7ba67cb8-W163")])]),
+		logger: quiet });
+	const born = events(log).filter((entry) => entry.event === "session/new");
+	assert.equal(born.length, 1, "more than one session was created");
+	const state = JSON.parse(
+		readFileSync(join(config.stateDir, "session.json"), "utf8"));
+	assert.equal(state.sessionId, born[0].sessionId,
+		"the persisted selection is not the session that was created");
+});
+
+test("a repeated bootstrap refuses before any Baton wait or agent spawn", async () => {
+	const { log, config } = rig();
+	await runBridge(config, {
+		...script([envelope([workAction("7ba67cb8-W163")])]),
+		logger: quiet });
+	const statePath = join(config.stateDir, "session.json");
+	const survivor = readFileSync(statePath);
+	const born = events(log).find((entry) => entry.event === "session/new");
+	const before = events(log).length;
+
+	// A SECOND bootstrap against the same state dir — the exact live
+	// mistake (bootstrap.json where load.json was meant).
+	let waits = 0;
+	const second = script([envelope([workAction("7ba67cb8-W164")])]);
+	await assert.rejects(
+		() => runBridge(config, {
+			signal: second.signal,
+			runWait: () => { waits += 1; return second.runWait(); },
+			logger: quiet }),
+		/session\.mode=new but .*already selects session/,
+		"the repeated bootstrap did not refuse by name");
+
+	assert.equal(waits, 0, "the refused bootstrap still polled Baton");
+	assert.equal(events(log).length, before,
+		"the refused bootstrap still reached the ACP agent");
+	assert.deepEqual(readFileSync(statePath), survivor,
+		"the surviving selection was not preserved byte-for-byte");
+
+	// And the original session is still the one that loads.
+	config.session.mode = "load";
+	await runBridge(config, {
+		...script([envelope([workAction("7ba67cb8-W165")])]),
+		logger: quiet });
+	const loaded = events(log).find((entry) => entry.event === "session/load");
+	assert.equal(loaded.sessionId, born.sessionId,
+		"load resumed something other than the original session");
+});
+
+test("existing but unusable session state refuses both modes and survives", async () => {
+	for (const [label, bytes] of [["malformed", "{not json"],
+	                              ["empty selection", '{"sessionId":""}']]) {
+		const { log, config } = rig();
+		mkdirSync(config.stateDir, { recursive: true });
+		const statePath = join(config.stateDir, "session.json");
+		writeFileSync(statePath, bytes);
+
+		await assert.rejects(
+			() => runBridge(config, {
+				...script([envelope([workAction("7ba67cb8-W163")])]),
+				logger: quiet }),
+			/already exists and is not a usable session selection/,
+			`${label} state did not refuse the bootstrap by name`);
+		assert.equal(readFileSync(statePath, "utf8"), bytes,
+			`${label} state was not preserved`);
+		assert.equal(events(log).length, 0,
+			`${label} state still reached the ACP agent`);
+
+		// load must not answer unusable state with "bootstrap a new one":
+		// that advice is how a recoverable id gets discarded. W27 R2: it
+		// refuses at STARTUP, with no Baton poll and no agent event.
+		config.session.mode = "load";
+		let waits = 0;
+		const resume = script([envelope([workAction("7ba67cb8-W163")])]);
+		await assert.rejects(
+			() => runBridge(config, {
+				signal: resume.signal,
+				runWait: () => { waits += 1; return resume.runWait(); },
+				logger: quiet }),
+			(error) =>
+				/not a usable session selection/.test(error.message)
+				&& !/run a 'new' bootstrap/.test(error.message),
+			`${label} state was not refused by name on load`);
+		assert.equal(waits, 0, `${label} load still polled Baton`);
+		assert.equal(events(log).length, 0,
+			`${label} load still reached the ACP agent`);
+		assert.equal(readFileSync(statePath, "utf8"), bytes,
+			`${label} state was not preserved across the load attempt`);
+	}
+});
+
+test("a load run with no persisted selection refuses at startup", async () => {
+	// W27 R2 item 3: missing configured-load state is a launch mistake,
+	// so it surfaces before the first poll rather than as a retry loop.
+	const { log, config } = rig({ sessionMode: "load" });
+	let waits = 0;
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	await assert.rejects(
+		() => runBridge(config, {
+			signal, runWait: () => { waits += 1; return runWait(); },
+			logger: quiet }),
+		/no persisted session exists in .*run a 'new' bootstrap/s,
+		"a load run without a selection did not refuse at startup");
+	assert.equal(waits, 0, "the refused load run still polled Baton");
+	assert.equal(events(log).length, 0,
+		"the refused load run still reached the ACP agent");
+});
+
+test("a load run retains session A when the file changes to B mid-run", async () => {
+	// W27 R2 item 4. One bridge run holds ONE continuity context. An
+	// external edit — another bootstrap, an operator, a stale writer —
+	// must not steer this run's replacement agent process onto a
+	// different session, and this run must not rewrite what it found.
+	const { log, config } = rig({ env: { FAKE_ACP_EXIT_ON_PROMPT: "1" },
+	                              sessionMode: "load" });
+	const statePath = join(config.stateDir, "session.json");
+	seedSelection(config, "session-A");
+	let calls = 0;
+	const controller = new AbortController();
+	await runBridge(config, {
+		signal: controller.signal,
+		runWait: async () => {
+			calls += 1;
+			if (calls === 1) return envelope([workAction("7ba67cb8-W163")]);
+			if (calls === 2) {
+				// the agent died on the first prompt; meanwhile the file
+				// is repointed at a different session entirely
+				delete config.agent.env.FAKE_ACP_EXIT_ON_PROMPT;
+				seedSelection(config, "session-B");
+				return envelope([workAction("7ba67cb8-W163")]);
+			}
+			controller.abort();
+			const error = new Error("aborted");
+			error.name = "AbortError";
+			throw error;
+		},
+		logger: quiet,
+	});
+	const loaded = events(log).filter((entry) => entry.event === "session/load");
+	assert.ok(loaded.length >= 2,
+		"the replacement agent process never loaded");
+	assert.deepEqual([...new Set(loaded.map((entry) => entry.sessionId))],
+		["session-A"],
+		"a rebuild reread the file and switched sessions mid-run");
+	assert.equal(
+		events(log).filter((entry) => entry.event === "session/new").length, 0,
+		"a load run created a session");
+	assert.equal(JSON.parse(readFileSync(statePath, "utf8")).sessionId,
+		"session-B",
+		"the load run rewrote the externally changed file");
+});
+
+test("agent-process death resumes the same session and never rotates it", async () => {
+	// W27 R1. An agent PROCESS dying is not the ACP session dying: the
+	// live W2 trial restarted the adapter and loaded the original
+	// session with its context intact. So a replacement process must
+	// LOAD the retained id — one session/new for the run, a load of
+	// that identical id afterwards, and session.json untouched.
+	// Creating a second session here would be a silent rotation
+	// performed from inside the original bootstrap run.
+	const { log, config } = rig({ env: { FAKE_ACP_EXIT_ON_PROMPT: "1" } });
+	let calls = 0;
+	const controller = new AbortController();
+	await runBridge(config, {
+		signal: controller.signal,
+		runWait: async () => {
+			calls += 1;
+			if (calls === 1) return envelope([workAction("7ba67cb8-W163")]);
+			if (calls === 2) {
+				delete config.agent.env.FAKE_ACP_EXIT_ON_PROMPT;
+				return envelope([workAction("7ba67cb8-W163")]);
+			}
+			controller.abort();
+			const error = new Error("aborted");
+			error.name = "AbortError";
+			throw error;
+		},
+		logger: quiet,
+	});
+	const statePath = join(config.stateDir, "session.json");
+	const born = events(log).filter((entry) => entry.event === "session/new");
+	assert.equal(born.length, 1,
+		"the replacement process created a second session instead of "
+		+ "resuming the selected one");
+	const loaded = events(log).filter((entry) => entry.event === "session/load");
+	assert.equal(loaded.length, 1, "the replacement process did not load");
+	assert.equal(loaded[0].sessionId, born[0].sessionId,
+		"recovery loaded a different session than the one selected");
+	const state = JSON.parse(readFileSync(statePath, "utf8"));
+	assert.equal(state.sessionId, born[0].sessionId,
+		"the selection was rewritten during ordinary operation");
+	// and readiness still survived the crash
+	assert.equal(
+		events(log).filter((entry) => entry.event === "prompt/start").length, 2,
+		"readiness was discarded by the crash instead of retried");
+});
+
+test("recovery without the load capability refuses and creates nothing", async () => {
+	// The fallback that must not exist: if the replacement process
+	// cannot load, the bridge reports it and leaves readiness pending —
+	// it never reaches for session/new to keep going.
+	const { log, config } = rig({ env: { FAKE_ACP_EXIT_ON_PROMPT: "1" } });
+	const warnings = [];
+	let calls = 0;
+	const controller = new AbortController();
+	await runBridge(config, {
+		signal: controller.signal,
+		runWait: async () => {
+			calls += 1;
+			if (calls === 1) return envelope([workAction("7ba67cb8-W163")]);
+			if (calls === 2) {
+				// the replacement agent cannot resume
+				delete config.agent.env.FAKE_ACP_EXIT_ON_PROMPT;
+				config.agent.env.FAKE_ACP_NO_LOAD = "1";
+				return envelope([workAction("7ba67cb8-W163")]);
+			}
+			controller.abort();
+			const error = new Error("aborted");
+			error.name = "AbortError";
+			throw error;
+		},
+		logger: { info() {}, warn(message) { warnings.push(message); } },
+	});
+	const statePath = join(config.stateDir, "session.json");
+	const survivor = JSON.parse(readFileSync(statePath, "utf8"));
+	assert.ok(warnings.some((line) => /loadSession capability/.test(line)),
+		"the unresumable replacement was not refused by name");
+	const born = events(log).filter((entry) => entry.event === "session/new");
+	assert.equal(born.length, 1,
+		"the bridge fell back to creating a session it could not resume");
+	assert.equal(survivor.sessionId, born[0].sessionId,
+		"the selection did not survive the failed recovery");
+	assert.equal(
+		events(log).filter((entry) => entry.event === "session/load").length, 0,
+		"a load was attempted despite the missing capability");
+	// The refusal precedes any session use, so the only prompt is the
+	// one the crash ate: readiness stays pending for a healthy agent
+	// rather than being spent against a session that was never resumed.
+	assert.equal(
+		events(log).filter((entry) => entry.event === "prompt/start").length, 1,
+		"a prompt ran after the recovery refusal");
+});
+
+test("publication is create-only: a racing winner is never replaced", async () => {
+	const { config } = rig();
+	const session = new AcpAgentSession(config, { logger: quiet });
+	mkdirSync(config.stateDir, { recursive: true });
+	const statePath = join(config.stateDir, "session.json");
+	// The window the startup preflight cannot cover: another bridge
+	// published between our preflight and our own write.
+	const winner = '{\n  "sessionId": "winner-0001"\n}\n';
+	writeFileSync(statePath, winner);
+	assert.throws(() => session.persistSessionId("loser-0002"),
+		/another bridge published .*while this bootstrap was creating/,
+		"the create-only publication replaced the winner");
+	assert.equal(readFileSync(statePath, "utf8"), winner,
+		"the winning selection was not preserved byte-for-byte");
 });

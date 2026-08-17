@@ -150,17 +150,20 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			# derived from the same canonical facts.
 			assert drawn_row["phase"].lstrip("> !") == app.phase_cell(
 				json_row["status"], json_row["phase"]).strip()
-			pending = (json_row.get("claimed_at") is None
-			           and json_row.get("handoff_at") is not None
-			           and json_row.get("status") != "closed")
-			if pending:
-				wanted = ">" if json_row.get("pickup") == "pending" \
-					else "!"
-				assert drawn_row["phase"].startswith(wanted), \
+			# W65: the marker states one canonical fact — open Work
+			# with no active claimant — independently of elapsed time,
+			# of whether it was ever passed, and of readiness. There is
+			# no `!` escalation on either surface any more.
+			unclaimed = (json_row.get("claimed_at") is None
+			             and json_row.get("status") != "closed")
+			if unclaimed:
+				assert drawn_row["phase"].startswith(">"), \
 					(drawn_row["phase"], json_row.get("pickup"))
 			else:
 				assert not drawn_row["phase"].startswith((">", "!")), \
 					(drawn_row["phase"], json_row.get("pickup"))
+			assert "!" not in drawn_row["phase"], \
+				(drawn_row["phase"], json_row.get("pickup"))
 			assert drawn_row["classification"] == \
 				app.compact_classification(json_row["classification"])
 			# W71: Prog/Dep left the table; the canonical row still

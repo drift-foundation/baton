@@ -3,9 +3,9 @@
 `active_team`/`active_member` answer WHO is executing; `phase` answers WHAT
 stage is happening — claiming never rewrites phase, ordinary phase changes
 never release, and a pass atomically records the destination Current AND
-the destination phase (explicit, or derived from the destination route's
-stage role) while releasing the sender's claim and never claiming for the
-recipient. Blocked Work keeps its honest stage phase but cannot be claimed;
+the destination phase (W73: derived from the destination route's stage
+role, never from the caller) while releasing the sender's claim and
+never claiming for the recipient. Blocked Work keeps its honest stage phase but cannot be claimed;
 every claim precondition is rechecked inside the write transaction.
 """
 
@@ -226,29 +226,51 @@ def test_a_pass_records_the_destination_phase_atomically(store):
 	assert row["phase"] == "active" and row["active_team"] is None
 
 
-def test_an_explicit_destination_phase_wins(store):
+def test_the_route_decides_the_phase_and_the_caller_cannot(store):
+	"""W73 supersedes R1's caller override. W49 was handed to
+	baton.impl with phase=queued and then actively worked, so the
+	projection showed a claimed Work sitting in `queued`. The
+	destination route now decides, and the operand is gone from the
+	grammar entirely — the false state is unrepresentable rather than
+	merely discouraged."""
 	work = _create(store)
 	fx.post(store, work, author_team="lang", author="ada",
-	        body="triage first", pass_to="lang.rev",
-	        pass_phase="research")
-	assert _row(store, work)["phase"] == "research"
+	        body="triage first", pass_to="lang.rev")
+	assert _row(store, work)["phase"] == "review", \
+		"the reviewer route did not decide the destination stage"
+	# a handoff never produces `queued`, whatever the sender wanted
+	assert _row(store, work)["phase"] != "queued"
+	with pytest.raises(TypeError):
+		tr.pass_work(store, work, actor_team="lang", actor="ada",
+		             to="lang.rsrch", comment="x", phase="queued")
 
 
-def test_a_stageless_destination_role_demands_the_phase(store):
+def test_a_stageless_destination_role_refuses_the_handoff(store):
+	"""W73: with no caller override left, an unmapped destination role
+	has nothing to fall back on and refuses inside the transaction
+	rather than guessing a stage."""
 	work = _create(store)
+	before = store.last_seq()
 	with pytest.raises(bw.WorkError, match="names no work stage"):
 		fx.post(store, work, author_team="lang", author="ada",
 		        body="over to ops", pass_to="lang.odd")
-	fx.post(store, work, author_team="lang", author="ada",
-	        body="over to ops", pass_to="lang.odd", pass_phase="queued")
-	assert _row(store, work)["phase"] == "queued"
+	assert store.last_seq() == before, \
+		"the refused handoff still committed an event"
+	assert _row(store, work)["phase"] == "queued", \
+		"the refused handoff moved the stage"
 
 
-def test_waiting_and_parked_are_never_a_pass_destination(store):
+def test_waiting_and_parked_are_unreachable_through_a_handoff(store):
+	"""They were never a pass destination, and W73 removes the operand
+	that could even name them: no stage role maps to either, so a
+	handoff cannot produce them by any route."""
+	from baton_work.transitions import STAGE_PHASES
+	assert "waiting" not in STAGE_PHASES.values()
+	assert "parked" not in STAGE_PHASES.values()
 	work = _create(store)
-	with pytest.raises(bw.WorkError, match="never a pass destination"):
-		fx.post(store, work, author_team="lang", author="ada",
-		        body="x", pass_to="lang.rev", pass_phase="waiting")
+	fx.post(store, work, author_team="lang", author="ada",
+	        body="x", pass_to="lang.rev")
+	assert _row(store, work)["phase"] == "review"
 
 
 def test_blocked_review_work_keeps_review_but_refuses_claim(store):
@@ -345,196 +367,21 @@ def test_a_consuming_return_commits_a_newly_planted_next(store):
 		"the consuming return dropped the newly planted Next"
 
 
-def test_the_pass_retry_identity_includes_the_destination_phase(store):
-	"""R1: the destination phase is typed semantic input — the exact same
-	pass replays its one event, while the same operation id with only the
-	phase changed refuses as an operation conflict and changes nothing."""
+def test_the_pass_retry_identity_is_the_destination_not_the_phase(store):
+	"""W73: the phase is no longer typed input, so it is no longer part
+	of the operation identity — the exact same pass replays its one
+	event, and a same-id retry naming a DIFFERENT destination is still
+	a conflict that changes nothing."""
 	work = _create(store)
 	first = fx.post(store, work, author_team="lang", author="ada",
-	                body="over", pass_to="lang.rev", pass_phase="review",
-	                op_id="pass-p")
+	                body="over", pass_to="lang.rev", op_id="pass-p")
 	same = fx.post(store, work, author_team="lang", author="ada",
-	               body="over", pass_to="lang.rev", pass_phase="review",
-	               op_id="pass-p")
+	               body="over", pass_to="lang.rev", op_id="pass-p")
 	assert same["seq"] == first["seq"]
 	assert same["operation"]["state"] == "replayed"
 	before = (store.last_seq(), _row(store, work)["phase"])
 	with pytest.raises(bw.WorkError):
 		fx.post(store, work, author_team="lang", author="ada",
-		        body="over", pass_to="lang.rev", pass_phase="research",
-		        op_id="pass-p")
+		        body="over", pass_to="lang.rsrch", op_id="pass-p")
 	assert (store.last_seq(), _row(store, work)["phase"]) == before, \
-		"a conflicting phase retry replayed or committed"
-
-
-def test_claim_is_advertised_exactly_when_the_writer_grants_it(store):
-	"""R2: canonical discovery — `claim` appears in available_transitions
-	precisely for the resolved Current handler of open, ready,
-	non-waiting/non-parked, unclaimed Work; every other state hides it."""
-	def offered(work, viewer="ada"):
-		view = pj.detail(store, work, viewer_team="lang",
-		                 viewer_member=viewer)
-		return "claim" in view["available_transitions"]
-
-	ready = _create(store, "offer-ready")
-	assert offered(ready), "an eligible ready handler is not offered claim"
-	assert offered(ready, viewer="bee"), "the second handler is eligible too"
-
-	blocked = _create(store, "offer-blocked")
-	gate = _create(store, "offer-gate")
-	tr.add_dependency(store, blocked, gate, actor_team="lang", actor="ada")
-	assert not offered(blocked), "blocked work advertised claim"
-
-	claimed = _create(store, "offer-claimed")
-	tr.claim_work(store, claimed, actor_team="lang", actor="ada")
-	assert not offered(claimed, viewer="bee"), \
-		"already-claimed work advertised claim"
-
-	parked = _create(store, "offer-parked")
-	tr.set_phase(store, parked, actor_team="lang", actor="ada",
-	             phase="parked", reason="later")
-	assert not offered(parked), "parked work advertised claim"
-
-	reviewing = _create(store, "offer-outsider", kind="rev")
-	assert not offered(reviewing, viewer="bee"), \
-		"a non-handler of the review route was offered claim"
-	assert offered(reviewing), "the review-route handler is eligible"
-
-	closed = _create(store, "offer-closed")
-	tr.close_work(store, closed, actor_team="lang", actor="ada",
-	              rationale="done", outcome="satisfying")
-	view = pj.detail(store, closed, viewer_team="lang",
-	                 viewer_member="ada")
-	assert view["available_transitions"] == [], \
-		"closed work advertised operations"
-
-
-def test_the_public_claim_verb_reaches_the_transition(store, capsys):
-	"""R2 (CLI proof): the advertised operation and the public verb are
-	the same surface — `claim WORK` through cli.main commits the claim
-	the projection then shows."""
-	import json as _j
-	from baton_work import cli
-	work = _create(store, "cli-claimed")
-	code = cli.main(["--config", store.test_config_path,
-	                 "--participant", "lang.bee", "claim", f"work={work}"])
-	out = capsys.readouterr().out
-	assert code == 0, out
-	result = _j.loads(out)
-	assert result["result"]["claimant"] == "lang.bee"
-	view = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert view["active"] == {"team": "lang", "member": "bee"}
-
-
-def test_release_recovers_the_claim_and_nothing_else(store):
-	"""Ruled recovery: self-release and forced recovery are the same
-	honest operation — claimant-only mutation with durable reason."""
-	work = _create(store, "recover-me")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="research")
-	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	before = store.conn.execute(
-		"SELECT phase, ready, current_team, current_kind, next_team "
-		"FROM work WHERE id=?", (work,)).fetchone()
-	# Forced recovery by the OTHER resolved handler.
-	result = tr.release_claim(store, work, actor_team="lang", actor="bee",
-	                          expect="lang.ada",
-	                          reason="claimant stopped responding")
-	assert result["released_claimant"] == "lang.ada"
-	row = _row(store, work)
-	assert row["active_team"] is None
-	after = store.conn.execute(
-		"SELECT phase, ready, current_team, current_kind, next_team "
-		"FROM work WHERE id=?", (work,)).fetchone()
-	assert tuple(after) == tuple(before), \
-		"release mutated something beyond the claimant"
-	event = [e for e in store.events() if e["seq"] == result["seq"]][0]
-	assert event["kind"] == "release"
-	assert event["payload"]["released_claimant"] == "lang.ada"
-	assert event["payload"]["reason"] == "claimant stopped responding"
-	# Self-release uses the SAME operation.
-	tr.claim_work(store, work, actor_team="lang", actor="bee")
-	tr.release_claim(store, work, actor_team="lang", actor="bee",
-	                 expect="lang.bee", reason="yielding to ada")
-	assert _row(store, work)["active_team"] is None
-
-
-def test_release_compare_and_swap_refuses_in_the_transaction(store):
-	work = _create(store, "cas")
-	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	before = store.last_seq()
-	with pytest.raises(bw.WorkError, match="claimed by lang.ada, not"):
-		tr.release_claim(store, work, actor_team="lang", actor="bee",
-		                 expect="lang.bee", reason="stale observation")
-	assert store.last_seq() == before
-	assert _row(store, work)["active_member"] == "ada", \
-		"a mismatched CAS release mutated the claim"
-
-	unclaimed = _create(store, "cas-empty")
-	with pytest.raises(bw.WorkError, match="unclaimed"):
-		tr.release_claim(store, unclaimed, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="nothing there")
-	with pytest.raises(bw.WorkError, match="non-empty durable reason"):
-		tr.release_claim(store, work, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="   ")
-
-
-def test_release_authority_is_the_live_current_endpoint(store):
-	"""bee handles the build route but NOT the review route: on a
-	review-kind Work bee's release refuses even with an exact expect."""
-	work = _create(store, "review-owned", kind="rev")
-	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	with pytest.raises(bw.WorkError):
-		tr.release_claim(store, work, actor_team="lang", actor="bee",
-		                 expect="lang.ada", reason="not mine to take")
-	assert _row(store, work)["active_member"] == "ada"
-
-
-def test_release_retry_replays_and_conflicts_honestly(store):
-	work = _create(store, "release-retry")
-	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	first = tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                         expect="lang.ada", reason="pausing",
-	                         op_id="rel-1")
-	again = tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                         expect="lang.ada", reason="pausing",
-	                         op_id="rel-1")
-	assert again["seq"] == first["seq"]
-	assert again["operation"]["state"] == "replayed"
-	with pytest.raises(bw.WorkError):
-		tr.release_claim(store, work, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="different words",
-		                 op_id="rel-1")
-
-
-def test_release_is_advertised_only_while_claimed(store):
-	def offered(work, viewer="ada"):
-		view = pj.detail(store, work, viewer_team="lang",
-		                 viewer_member=viewer)
-		return "release" in view["available_transitions"]
-
-	work = _create(store, "offer-release")
-	assert not offered(work), "unclaimed work advertised release"
-	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	assert offered(work), "the claimant is not offered self-release"
-	assert offered(work, viewer="bee"), \
-		"the other resolved handler is not offered recovery"
-	reviewing = _create(store, "offer-release-outsider", kind="rev")
-	tr.claim_work(store, reviewing, actor_team="lang", actor="ada")
-	assert not offered(reviewing, viewer="bee"), \
-		"a non-handler was offered release"
-
-
-def test_the_public_release_verb_reaches_the_transition(store, capsys):
-	import json as _j
-	from baton_work import cli
-	work = _create(store, "cli-released")
-	tr.claim_work(store, work, actor_team="lang", actor="bee")
-	code = cli.main(["--config", store.test_config_path,
-	                 "--participant", "lang.ada", "release", f"work={work}",
-	                 "expect=lang.bee",
-	                 "reason=bee's runner died"])
-	out = capsys.readouterr().out
-	assert code == 0, out
-	assert _j.loads(out)["result"]["released_claimant"] == "lang.bee"
-	assert _row(store, work)["active_team"] is None
+		"a conflicting destination retry replayed or committed"

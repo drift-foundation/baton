@@ -44,6 +44,11 @@ satisfying and remains excluded from fresh-authority recreation.
 **Status — 2026-08-16:** approved and queued as separate same-schema Work;
 completed W13 remains closed.
 
+**Superseded in part — 2026-08-17:** W73 removes caller-supplied `phase=` and
+derives the handoff phase from the destination route. The explicit threadless
+`pass` verb remains current; the historical implementation plan below is not
+the actionable grammar.
+
 1. Add the canonical `pass work= to= phase= thread= comment=` form to the one
    declarative grammar, including the existing optional planned-Next operand.
 2. Route it through the existing atomic post-and-transfer transition; do not

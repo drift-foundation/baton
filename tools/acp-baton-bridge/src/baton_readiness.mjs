@@ -62,14 +62,32 @@ export class DeliveryMemory {
 
 // The ONE public Baton invocation — launcher globals then the key=value
 // wait; the executor is injectable so tests pin the exact argv.
-export async function waitOnce(config, { execute, signal } = {}) {
+export async function waitOnce(config, { execute, signal, timeout } = {}) {
+	const seconds = timeout ?? config.baton.waitTimeoutSeconds;
 	const argv = ["--config", config.baton.config,
 	              "--participant", config.baton.participant,
-	              "wait", `timeout=${config.baton.waitTimeoutSeconds}`];
+	              "wait", `timeout=${seconds}`];
 	const runner = execute ?? ((file, args) => execFileAsync(
 		file, args,
 		{ encoding: "utf8", maxBuffer: 4 * 1024 * 1024, signal }));
 	const result = await runner(config.baton.binary, argv);
 	const payload = JSON.parse(result.stdout);
 	return validateEnvelope(payload, config.baton.participant);
+}
+
+// W49: readiness is an EDGE TO RE-EVALUATE, never authority to act
+// from an old envelope. A prompt can sit queued behind a long turn —
+// observed live at ~12 minutes — by which time the Work may have been
+// claimed, passed on, closed or superseded. Immediately before the
+// agent turn starts, re-read the participant projection with
+// `timeout=0` and require this EXACT episode key to still be present.
+// A missing key means the episode is over: drop it and continue,
+// mutating no Work. This narrows but cannot close the window — a
+// mutation can still win between this read and the agent's claim — so
+// the agent's mandatory atomic claim remains the final authority and
+// fails closed. That is why this is a cheap read, not a lock.
+export async function episodeStillLive(config, action, options = {}) {
+	const envelope = await waitOnce(config, { ...options, timeout: 0 });
+	return envelope.result.actionable.some(
+		(live) => live.action_key === action.action_key);
 }

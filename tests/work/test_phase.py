@@ -30,10 +30,24 @@ import fixtures as fx                                         # noqa: E402
 
 @pytest.fixture
 def world(tmp_path):
-	spec = {"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
+	# W73: a handoff derives its phase from the destination ROUTE. The
+	# generic `main` route stays exactly as it was for every other case
+	# here; only lang's `rev` kind gains a reviewer route so that a
+	# review handoff still means review.
+	spec = {"lang": {"members": {"ada": ["dev", "rview"],
+	                             "grace": ["dev", "rview"]},
 	                 "kinds": ["bug", "rev"]},
 	        "push": {"members": {"sl": ["dev"]}, "kinds": ["bug"]}}
-	config_path, database = fx.build_instance(str(tmp_path), spec)
+	document = fx.config_document(spec)
+	lang = document["teams"]["lang"]
+	lang["routes"]["review"] = {"role": "rview",
+	                            "handlers": ["ada", "grace"]}
+	lang["kinds"]["rev"]["route"] = "review"
+	config_path = os.path.join(str(tmp_path), "baton.json")
+	with open(config_path, "w", encoding="utf-8") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	database = lc.init_from_config(
+		config_path, participant="lang.ada")["database"]
 	store = bw.Authority(database)
 	yield store, config_path
 	store.close()
@@ -160,7 +174,7 @@ def test_a_pass_records_the_destination_phase_and_closed_refuses(world):
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="active")
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="over to review", pass_to="lang.rev", pass_phase="review")
+	                body="over to review", pass_to="lang.rev")
 	row = _row(store, work)
 	assert row["phase"] == "review", \
 		"the pass did not record its stated destination phase"
@@ -390,7 +404,7 @@ def test_at_input_never_grants_pass_or_close_authority(world):
 		with pytest.raises(bw.WorkError, match="never grant|Current"):
 			if operation == "pass":
 				fx.post(store, work, author_team="push", author="sl",
-				                body="taking it", pass_to="push.bug", pass_phase="queued")
+				                body="taking it", pass_to="push.bug")
 			else:
 				tr.close_work(store, work, actor_team="push", actor="sl",
 				              rationale="not mine to close", outcome="satisfying")
@@ -409,7 +423,7 @@ def test_detail_declares_handler_phase_and_classification_authority(world):
 	assert not {"classify", "set_phase"} & \
 		set(not_owned["available_transitions"])
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="delegated", pass_to="push.bug", pass_phase="queued")
+	                body="delegated", pass_to="push.bug")
 	former = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
 	delegated = pj.detail(store, work, viewer_team="push", viewer_member="sl")
 	assert not {"classify", "set_phase"} & \

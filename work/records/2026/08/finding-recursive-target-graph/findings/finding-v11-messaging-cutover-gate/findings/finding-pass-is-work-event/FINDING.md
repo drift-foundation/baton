@@ -21,6 +21,12 @@ next.
 
 ## Decision — 2026-08-16
 
+**Superseded in part 2026-08-17 by
+`finding-route-derived-handoff-phase`:** `pass` remains a threadless Work
+transition with durable `comment=` evidence, but `phase=` is no longer caller
+input. The destination route derives it atomically; the example and wording
+below are retained as historical decision evidence.
+
 `pass` is an authoritative Work transition and must not require or accept a
 discussion thread.
 
@@ -63,4 +69,3 @@ Work event journal.
   unchanged.
 - Workflow tests cover a normal implementation-to-review handoff, an
   approval-to-review return, and a pass on Work containing several Threads.
-

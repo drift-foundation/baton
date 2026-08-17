@@ -78,15 +78,13 @@ def test_wf04_one_consumer_one_provider(flow):
 	        viewer="lang.ada")
 	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
 
-	flow.ok("pass", f"work={lang42}", "to=lang.rev", "phase=review",
-	        "comment=analysis: recovery table clobbered",
+	flow.ok("pass", f"work={lang42}", "to=lang.rev", "comment=analysis: recovery table clobbered",
 	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["phase"] == "review", \
 		"the pass did not record its destination phase atomically"
 
-	flow.ok("pass", f"work={lang42}", "to=lang.impl", "phase=active",
-	        "set-next=lang.rev",
+	flow.ok("pass", f"work={lang42}", "to=lang.impl", "set-next=lang.rev",
 	        "comment=approach approved; build it", viewer="lang.ada")
 	midway = flow.ok("detail", f"work={lang42}", viewer="lang.grace")
 	assert midway["current"] == {"endpoint": "lang.impl", "route": "build",
@@ -97,7 +95,6 @@ def test_wf04_one_consumer_one_provider(flow):
 	flow.ok("claim", f"work={lang42}", viewer="lang.grace")
 
 	returned = flow.ok("pass", f"work={lang42}", "to=lang.rev",
-	                   "phase=review",
 	                   "comment=fixed; tests attached",
 	                   viewer="lang.grace")
 	assert returned["kind"] == "return"

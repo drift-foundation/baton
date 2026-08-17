@@ -1946,6 +1946,20 @@ screen and Thread hierarchy, but use a compact Message index plus one selected
 body/Refs reader (wide split, narrow stack). This is new Work; W71 stays
 closed and no authority schema change is required.
 
+**Live follow-up — 2026-08-17:** the three-pane W14 layout needs newest-first
+Message order, an unmistakable focused-pane heading, and direct spatial
+`Ctrl-W` movement among Threads, Message index, and reader. See
+`findings/finding-tui-message-index-body-layout/findings/finding-message-pane-navigation/`.
+It is presentation-only, waits behind the overlapping W65 TUI correction,
+and gates the v10 messaging retirement trial.
+
+**Contextual compose follow-up — 2026-08-17:** when Work details have a
+selected Thread, `:say` seeds its visible local selector as `thread=...`.
+See `findings/finding-tui-message-index-body-layout/findings/finding-contextual-say-prefill/`.
+This remains an editable command, never implicit send or seen state, and is
+serialized after the pane-navigation work because both change detail-screen
+interaction.
+
 **Queued footer wording correction — 2026-08-16:** `b links` visually reads as
 “blinks” and was mistaken for the hot-zone cue. See
 `findings/finding-tui-dependency-key-label/`. Render `[b] deps`; retain the
@@ -2047,6 +2061,19 @@ through `99:59`, with `99h+` as the explicit fixed-width overflow sentinel.
 An unclaimed operational handoff prefixes Phase with `>`, changing to `!` after
 six minutes; claim removes the prefix without resetting `Held`. JSON exposes
 structured facts, never those TUI glyphs. This is queued as W226.
+
+**Held-scale follow-up — 2026-08-17:** the `HH:MM`/`99h+` scale immediately
+above is superseded by
+`findings/finding-tui-held-duration/findings/finding-held-mmss-overflow/`.
+Render elapsed whole seconds as `MM:SS` through `99:59`, then `∞`; preserve the
+existing pickup, claim-reset, heartbeat, refresh, and structured-JSON rules.
+
+**Unclaimed-cue follow-up — 2026-08-17:** after the overlapping Held-scale
+change, follow
+`findings/finding-tui-held-duration/findings/finding-unclaimed-work-cue/`.
+Open unclaimed Work uses `>` as the primary execution-state cue. Remove elapsed
+pickup/heartbeat `!` alerts; readiness and Wait explain separately why an
+unclaimed Work may not be claimable.
 
 **Queued stage-label correction — 2026-08-16:** see
 `findings/finding-tui-current-next-stage/`. Work-table `Current` and `Next`

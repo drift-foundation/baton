@@ -22,11 +22,101 @@ import {
 
 class PolicyViolation extends Error {}
 class SessionSetupError extends Error {}
+// W27: a session-SELECTION fault, distinct from a setup fault. Retrying
+// cannot fix a launch that would replace somebody's continuity, so the
+// bridge never folds one of these into its ordinary retry loop.
+class SessionStateError extends Error {}
+
+export function sessionStatePathFor(config) {
+	return join(config.stateDir, "session.json");
+}
+
+// W27: absent, malformed and unreadable are THREE different facts, not
+// one null. Only genuine absence permits a first bootstrap; anything
+// already on disk is a selection somebody may still be resuming, and it
+// is preserved and named rather than overwritten or guessed at.
+export function readSessionSelection(path) {
+	let text;
+	try {
+		text = readFileSync(path, "utf8");
+	} catch (error) {
+		if (error.code === "ENOENT") return { state: "absent" };
+		return { state: "unreadable", reason: error.message };
+	}
+	let parsed;
+	try {
+		parsed = JSON.parse(text);
+	} catch (error) {
+		return { state: "malformed", reason: error.message };
+	}
+	const sessionId = parsed?.sessionId;
+	if (typeof sessionId !== "string" || !sessionId) {
+		return { state: "malformed",
+		         reason: "no non-empty 'sessionId' string" };
+	}
+	return { state: "present", sessionId };
+}
+
+// ONE selection decision per bridge run, taken at STARTUP — before the
+// Baton wait and before any agent spawns — so a misconfigured launch is
+// an immediate nonzero result rather than a deferred retry loop that
+// looks healthy while idle.
+//
+// `new` MAKES a continuity context, so it is correct only when none has
+// been selected yet; `--once` independently controls bridge lifetime and
+// never licenses a second creation. `load` RESUMES one, so it resolves
+// and validates that id here and RETAINS it for the whole run (W27 R2).
+// After this returns, no rebuild consults the file again: a run holds
+// exactly one continuity context, and an external edit mid-run cannot
+// steer a replacement process onto a different session. Rotation stays
+// deliberately absent — create first with `new`, then resume with
+// `load`.
+export function preflightSessionSelection(config, runSelection) {
+	const path = sessionStatePathFor(config);
+	const selection = readSessionSelection(path);
+	if (config.session.mode === "new") {
+		if (selection.state === "absent") return;
+		if (selection.state === "present") {
+			throw new SessionStateError(
+				`session.mode=new but ${path} already selects session `
+				+ `${selection.sessionId}; refusing rather than replacing `
+				+ `it — resume that session with a 'load' configuration`);
+		}
+		throw new SessionStateError(
+			`session.mode=new but ${path} already exists and is not a `
+			+ `usable session selection (${selection.reason}); refusing `
+			+ `rather than replacing it — the file is preserved for `
+			+ `inspection`);
+	}
+	if (selection.state === "absent") {
+		throw new SessionStateError(
+			`session.mode=load but no persisted session exists in ${path}; `
+			+ `run a 'new' bootstrap deliberately first`);
+	}
+	// Existing-but-unusable is NOT absence, and must never be answered
+	// with "bootstrap a new one" — that advice would discard a selection
+	// whose id may still be recoverable from the file itself.
+	if (selection.state !== "present") {
+		throw new SessionStateError(
+			`session.mode=load but ${path} is not a usable session `
+			+ `selection (${selection.reason}); refusing — the file is `
+			+ `preserved, repair or remove it deliberately`);
+	}
+	if (runSelection) runSelection.sessionId = selection.sessionId;
+}
 
 export class AcpAgentSession {
-	constructor(config, { logger = console, onUpdate } = {}) {
+	constructor(config, { logger = console, onUpdate, runSelection } = {}) {
 		this.config = config;
 		this.logger = logger;
+		// W27 R1: RUN-scoped, deliberately shared across every session
+		// object one bridge builds. Once this run has published its
+		// first selection it RETAINS that id: an agent PROCESS dying is
+		// not the ACP session dying, so a replacement process resumes
+		// the same session rather than creating — and silently rotating
+		// to — another one.
+		this.runSelection = runSelection ?? { published: false,
+		                                      sessionId: null };
 		// The foreground surface: streamed activity and genuine agent
 		// elicitation/questions belong to the operator — never command
 		// approvals (the ruled bypass boundary).
@@ -49,26 +139,45 @@ export class AcpAgentSession {
 	}
 
 	sessionStatePath() {
-		return join(this.config.stateDir, "session.json");
+		return sessionStatePathFor(this.config);
 	}
 
 	// The bridge persists ONLY its own session selection — never agent
 	// history, never Baton authority state.
-	persistedSessionId() {
-		try {
-			const state = JSON.parse(
-				readFileSync(this.sessionStatePath(), "utf8"));
-			return typeof state.sessionId === "string" && state.sessionId
-				? state.sessionId : null;
-		} catch {
-			return null;
-		}
+	sessionSelection() {
+		return readSessionSelection(this.sessionStatePath());
 	}
 
+	persistedSessionId() {
+		const selection = this.sessionSelection();
+		return selection.state === "present" ? selection.sessionId : null;
+	}
+
+	// W27: publication is CREATE-ONLY and happens exactly ONCE per run.
+	// The startup preflight closes the common case, but it cannot close
+	// the window between itself and this write, so the filesystem
+	// settles the race: whoever creates the file wins, and the loser
+	// abandons its own fresh session rather than replacing the winner's
+	// byte-for-byte. W27 R1: there is no second write. The selection is
+	// immutable for the life of the run, and a replacement agent
+	// process resumes the retained id instead of rewriting this file.
 	persistSessionId(sessionId) {
 		mkdirSync(this.config.stateDir, { recursive: true });
-		writeFileSync(this.sessionStatePath(),
-		              `${JSON.stringify({ sessionId }, null, 2)}\n`);
+		try {
+			writeFileSync(this.sessionStatePath(),
+			              `${JSON.stringify({ sessionId }, null, 2)}\n`,
+			              { flag: "wx" });
+		} catch (error) {
+			if (error.code !== "EEXIST") throw error;
+			throw new SessionStateError(
+				`another bridge published ${this.sessionStatePath()} while `
+				+ `this bootstrap was creating session ${sessionId}; the `
+				+ `existing selection is preserved and this session is `
+				+ `abandoned — resume the winner with a 'load' `
+				+ `configuration`);
+		}
+		this.runSelection.published = true;
+		this.runSelection.sessionId = sessionId;
 	}
 
 	// R4: every setup call races the subprocess's death, a spawn
@@ -132,24 +241,31 @@ export class AcpAgentSession {
 			clientInfo: { name: "acp-baton-bridge", version: "0.1.0" },
 		}), "initialize", deadline);
 		this.capabilities = init.agentCapabilities ?? {};
-		if (this.config.session.mode === "load"
-				&& !this.capabilities.loadSession) {
+		// W27 R1: a run that has already published RESUMES its retained
+		// session, so it needs the load capability exactly as much as a
+		// configured `load` run does. Creating a replacement session is
+		// never the fallback — that is the rotation this finding closes.
+		const resumeExisting = this.config.session.mode === "load"
+			|| this.runSelection.published;
+		if (resumeExisting && !this.capabilities.loadSession) {
 			throw new SessionSetupError(
-				"session.mode=load is configured but the agent does not "
-				+ "advertise the loadSession capability; refusing — "
-				+ "continuity may not be assumed");
+				(this.config.session.mode === "load"
+					? "session.mode=load is configured"
+					: `this run already selected session `
+						+ `${this.runSelection.sessionId} to resume`)
+				+ " but the agent does not advertise the loadSession "
+				+ "capability; refusing — continuity may not be assumed");
 		}
 
 		// 2. Establish exactly the configured session.
 		let response;
-		if (this.config.session.mode === "load") {
-			const sessionId = this.persistedSessionId();
-			if (!sessionId) {
-				throw new SessionSetupError(
-					"session.mode=load but no persisted session exists "
-					+ "in the state directory; run a 'new' bootstrap "
-					+ "deliberately first");
-			}
+		if (resumeExisting) {
+			// W27 R2: ALWAYS the retained id — run state settled by the
+			// startup preflight, never a re-read. Both entries are
+			// symmetric here: a `new` run retains what it published, a
+			// `load` run retains what the preflight validated, and
+			// neither lets a mid-run file change pick the session.
+			const sessionId = this.runSelection.sessionId;
 			response = await this.supervised(this.connection.loadSession({
 				sessionId, cwd: this.config.session.cwd, mcpServers: [],
 			}), "session/load", deadline);
@@ -169,7 +285,9 @@ export class AcpAgentSession {
 		// complete setup boundary — mode enforcement included — has
 		// succeeded. A rejected setup persists nothing, and a failed
 		// bootstrap never erases an earlier accepted session record.
-		if (this.config.session.mode === "new") {
+		// W27 R1: exactly one publication per run; a resumed rebuild
+		// republishes nothing.
+		if (this.config.session.mode === "new" && !resumeExisting) {
 			this.persistSessionId(this.sessionId);
 		}
 		this.ready = true;
@@ -275,4 +393,4 @@ export class AcpAgentSession {
 	}
 }
 
-export { PolicyViolation, SessionSetupError };
+export { PolicyViolation, SessionSetupError, SessionStateError };

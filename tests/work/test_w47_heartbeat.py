@@ -1,4 +1,4 @@
-"""W47: the claimant heartbeat and the informational stall alert.
+"""W47: the claimant heartbeat as a structured diagnostic.
 
 `heartbeat work=Wn` (finding-work-claim-heartbeat, same-schema journal
 ruling): a deliberate audited beat by the EXACT current claimant — the
@@ -6,9 +6,9 @@ claim event is the initial beat; the committing transaction rechecks
 open status and the exact claimant so a racing release/pass/close
 refuses the beat without an event. Projection resolves the latest
 qualifying beat of the CURRENT claim epoch for the whole window in one
-batched read and exposes `heartbeat_at`; clients derive the fixed
-six-minute alert (`12:04!` vs `12:04 `) from that fact and a local
-clock. Informational only: a stale beat never releases, transfers,
+batched read and exposes `heartbeat_at`. W65 superseded the former
+six-minute alert because an agent can remain busy inside one turn without
+an opportunity to beat; silence changes no display. A stale beat never releases, transfers,
 rephases, or admits a second claimant, and the beat itself never
 touches change identity, order, phase, messages, New, claim Age, or
 the phase-change blink.
@@ -34,7 +34,7 @@ import baton_work as bw                                       # noqa: E402
 from baton_work import cli as work_cli                        # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
-from baton_work.tui.app import (STALL_AFTER_SECONDS, Console,  # noqa: E402
+from baton_work.tui.app import (Console,  # noqa: E402
                                 held_field)
 
 
@@ -229,44 +229,58 @@ def test_replay_and_cli_surface(world):
 	assert code == 1 and "is not a Work selector" in err
 
 
-def test_the_alert_thresholds_and_display(world):
-	"""The six-cell field: trailing space while healthy, `!` at six
-	silent minutes, cleared by a beat, `-` unclaimed, clock corrections
-	clamp healthy; claim Age itself keeps counting."""
+SILENT_SIX_MINUTES = 360
+
+
+def test_heartbeat_silence_never_changes_the_display(world):
+	"""W65 replaces W47's presentation threshold. A claimed agent can be
+	alive and busy inside one model turn with no opportunity to call
+	`heartbeat`, so silence is NOT evidence of failure and no longer
+	renders an alert. The claimed field is the timer plus a trailing
+	space, always; only the timer moves."""
 	base = "2026-08-16T12:00:00Z"
 	origin = stamp(base)
-	assert field(None, None, origin) == "-"
+	assert field(None, None, origin) == ">-", \
+		"unclaimed open Work lost its primary marker"
 	assert field(base, base, origin) == "00:00 "
-	just_before = origin + STALL_AFTER_SECONDS - 1
-	assert field(base, base, just_before).endswith(" ")
-	at_boundary = origin + STALL_AFTER_SECONDS
-	assert field(base, base, at_boundary) == "00:06!"
-	# a fresh beat clears the alert while the claim age keeps counting
+	# the old boundary is now an ordinary instant in both directions
+	just_before = origin + SILENT_SIX_MINUTES - 1
+	at_boundary = origin + SILENT_SIX_MINUTES
+	well_past = origin + SILENT_SIX_MINUTES * 10
+	assert field(base, base, just_before) == "05:59 "
+	assert field(base, base, at_boundary) == "06:00 ", \
+		"six silent minutes still painted an alert"
+	assert field(base, base, well_past) == "60:00 "
+	# a fresh beat changes NOTHING, which is the point: the claim age
+	# is the fact, and the beat is not part of the display
 	fresh_beat = "2026-08-16T12:06:00Z"
-	assert field(base, fresh_beat, at_boundary) == "00:06 "
-	# missing beat falls back to the claim (the initial beat)
-	assert field(base, None, at_boundary) == "00:06!"
-	# clock correction clamps healthy
+	assert field(base, fresh_beat, at_boundary) == "06:00 "
+	assert field(base, None, at_boundary) == "06:00 ", \
+		"a missing beat changed the display"
 	future_beat = "2026-08-16T13:00:00Z"
-	assert field(base, future_beat, at_boundary).endswith(" ")
+	assert field(base, future_beat, at_boundary) == "06:00 "
 	assert all(len(field(base, base, origin + n)) <= 6
 	           for n in (0, 3600, 3600 * 100))
+	# W55's overflow composes with the (now constant) suffix
+	assert field(base, base, origin + 60 * 100) == "∞ "
 
 
-def test_stale_is_informational_never_a_lease(world):
-	"""Six silent minutes render `!` and change NOTHING else: the
-	claim holds, another claim fails closed naming the claimant, and
-	the claimant's own late beat clears the alert."""
+def test_silence_is_never_a_lease_and_never_a_glyph(world):
+	"""Six silent minutes change NOTHING — not the claim, not a
+	competing claim's refusal, and (W65) not the display either. The
+	audited heartbeat facts stay in JSON regardless."""
 	store = world["store"]
 	work = make(world, title="long runner")
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	row = row_of(world, work)
-	late = stamp(row["heartbeat_at"]) + STALL_AFTER_SECONDS + 30
-	stale_cell = field(row["claimed_at"], row["heartbeat_at"],
-	                       late)
-	assert stale_cell.endswith("!")
+	late = stamp(row["heartbeat_at"]) + SILENT_SIX_MINUTES + 30
+	silent_cell = field(row["claimed_at"], row["heartbeat_at"], late)
+	assert silent_cell.endswith(" ") and "!" not in silent_cell, \
+		f"protocol silence painted an alert: {silent_cell!r}"
 	assert row["active"] == {"team": "lang", "member": "ada"}, \
 		"staleness altered the claim"
+	assert row["heartbeat_at"] is not None, \
+		"the structured heartbeat diagnostic was removed with the glyph"
 	with pytest.raises(bw.WorkError,
 	                   match="resolved handler|claimed by"):
 		tr.claim_work(store, work, actor_team="lang", actor="grace")
@@ -274,13 +288,19 @@ def test_stale_is_informational_never_a_lease(world):
 	fresh = row_of(world, work)
 	now = stamp(fresh["heartbeat_at"]) + 1
 	assert field(fresh["claimed_at"], fresh["heartbeat_at"],
-	                 now).endswith(" "), \
-		"the successful beat did not clear the alert"
+	             now).endswith(" ")
+	# the beat is audited even when it lands inside the same second as
+	# the claim (one-second instant resolution), so the EVENT is the
+	# durable evidence, not a timestamp comparison
+	assert store.conn.execute(
+		"SELECT COUNT(*) AS n FROM events WHERE kind='heartbeat'"
+	).fetchone()["n"] == 1, "the beat was not audited"
 
 
-def test_the_stale_suffix_paints_and_narrow_omits_whole(world):
-	"""The painted cell carries the suffix; the Age field still omits
-	as ONE whole responsive column; a beat never reorders the row."""
+def test_the_held_cell_paints_and_narrow_omits_whole(world):
+	"""The painted cell carries the timer (W65: no suffix to carry);
+	the Held field still omits as ONE whole responsive column; a beat
+	never reorders the row."""
 	store = world["store"]
 	first = make(world, title="steady")
 	second = make(world, title="beating")
@@ -400,8 +420,8 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	# shape; W179's honest-breaking major moved the projection to 5.0
 	# (no alias), so the CURRENT same-major demand is 5.x and a stale
 	# 4.x demand refuses.
-	assert jsonapi.PROJECTION_VERSION == "6.2"
-	jsonapi.require_version("6.0")
+	assert jsonapi.PROJECTION_VERSION == "7.0"
+	jsonapi.require_version("7.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.2")
 
@@ -462,10 +482,12 @@ def test_the_two_writer_race_resolves_fail_closed(world):
 	assert row_of(world, other)["heartbeat_at"] is None
 
 
-def test_the_stale_suffix_actually_paints(world, monkeypatch):
-	"""R5: the painted table cell itself flips from the reserved blank
-	to `!` as the paint clock crosses six silent minutes, and back
-	after a successful beat."""
+def test_protocol_silence_never_paints_an_alert(world, monkeypatch):
+	"""R5 as superseded by W65. The painted cell used to flip from a
+	reserved blank to `!` as the paint clock crossed six silent
+	minutes. It no longer does — an agent mid-turn cannot beat, and a
+	glyph that calls that failure is a false alarm. The timer keeps
+	advancing across the old boundary and the trailing blank stays."""
 	from baton_work.tui import app as tui_app
 	store = world["store"]
 	work = make(world, title="stalling")
@@ -488,12 +510,16 @@ def test_the_stale_suffix_actually_paints(world, monkeypatch):
 		return next(text for text in screen.texts
 		            if "stalling" in text)
 
-	healthy = cell_at(claimed + STALL_AFTER_SECONDS - 1)
-	assert "!" not in healthy, healthy
-	stale = cell_at(claimed + STALL_AFTER_SECONDS)
-	assert stale.rstrip().endswith("!"), \
-		f"the table never painted the stall alert: {stale!r}"
-	# the claimant's beat clears the painted alert immediately
+	before = cell_at(claimed + SILENT_SIX_MINUTES - 1)
+	assert "!" not in before, before
+	across = cell_at(claimed + SILENT_SIX_MINUTES)
+	assert "!" not in across, \
+		f"the table still paints a stall alert: {across!r}"
+	assert "06:00" in across, \
+		f"the timer stopped advancing across the old boundary: {across!r}"
+	far = cell_at(claimed + SILENT_SIX_MINUTES * 10)
+	assert "!" not in far, far
+	# a beat changes nothing that is painted
 	tr.heartbeat(store, work, actor_team="lang", actor="ada")
 	console.schedule_refresh()
 	beat_ts = stamp(row_of(world, work)["heartbeat_at"])

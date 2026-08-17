@@ -67,7 +67,7 @@ def test_an_incompatible_projection_version_fails_clearly(world, capsys):
 	             viewer="lang.ada", expect_ok=False)
 	assert "not compatible" in error["error"], \
 		"the honest-breaking 5.0 still satisfied a 4.x demand"
-	ok = _run(capsys, path, "--expect-projection", "6.0", "home",
+	ok = _run(capsys, path, "--expect-projection", "7.0", "home",
 	          viewer="lang.ada")
 	assert ok["result"], "a compatible minor was refused"
 
@@ -143,11 +143,11 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 	assert created["work_id"].endswith(f"-W{created['seq']}")
 
 	passed = _run(capsys, path, "pass", f"work={created["work_id"]}",
-	              "to=lang.impl", "phase=active", "set-next=lang.rev", "comment=go",
+	              "to=lang.impl", "set-next=lang.rev", "comment=go",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	returned = _run(capsys, path, "pass", f"work={created["work_id"]}",
-	                "to=lang.rev", "phase=review", "comment=done",
+	                "to=lang.rev", "comment=done",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return", \
 		"the CLI lost the audited return distinction"

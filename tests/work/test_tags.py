@@ -150,7 +150,7 @@ def test_a_message_cannot_carry_a_pass_at_all(store, work):
 
 def test_pass_moves_the_one_current(store, work):
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="confirmed defect", pass_to="lang.impl", pass_phase="active")
+	                body="confirmed defect", pass_to="lang.impl")
 	row = _row(store, work)
 	assert (row["current_team"], row["current_kind"]) == ("lang", "impl")
 
@@ -160,14 +160,14 @@ def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
 	Next = lang.rev; the pass BACK to lang.rev is audited as `return` and
 	clears Next."""
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="implement this", pass_to="lang.impl", pass_phase="active",
+	                body="implement this", pass_to="lang.impl",
 	                set_next="lang.rev")
 	row = _row(store, work)
 	assert (row["next_team"], row["next_kind"]) == ("lang", "rev")
 
 	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="implementation complete",
-	                         pass_to="lang.rev", pass_phase="review")
+	                         pass_to="lang.rev")
 	assert result["kind"] == "return", \
 		"the consuming pass is not audited as a return"
 	row = _row(store, work)
@@ -180,11 +180,11 @@ def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
 
 def test_a_pass_elsewhere_leaves_the_planned_next_visibly_set(store, work):
 	fx.post(store, work, author_team="lang", author="ada",
-	                body="implement", pass_to="lang.impl", pass_phase="active",
+	                body="implement", pass_to="lang.impl",
 	                set_next="lang.rev")
 	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="actually needs research first",
-	                         pass_to="lang.rsrch", pass_phase="research")
+	                         pass_to="lang.rsrch")
 	assert result["kind"] == "pass", "a detour is not a return"
 	row = _row(store, work)
 	assert (row["next_team"], row["next_kind"]) == ("lang", "rev"), \
@@ -200,7 +200,7 @@ def test_next_requires_a_pass_and_pass_refuses_fan_out(store, work):
 		                body="x", pass_to="*.*")
 	with pytest.raises(bw.WorkError, match="already at"):
 		fx.post(store, work, author_team="lang", author="ada",
-		                body="x", pass_to="lang.rsrch", pass_phase="research")
+		                body="x", pass_to="lang.rsrch")
 
 
 # -- participation and visibility -------------------------------------------

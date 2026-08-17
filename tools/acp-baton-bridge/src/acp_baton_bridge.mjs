@@ -16,11 +16,16 @@
 import { loadConfig } from "./config.mjs";
 import {
 	DeliveryMemory,
+	episodeStillLive,
 	promptText,
 	validateEnvelope,
 	waitOnce,
 } from "./baton_readiness.mjs";
-import { AcpAgentSession } from "./acp_agent_session.mjs";
+import {
+	AcpAgentSession,
+	SessionStateError,
+	preflightSessionSelection,
+} from "./acp_agent_session.mjs";
 
 function usage() {
 	return `usage: acp-baton-bridge --config PATH [options]
@@ -61,7 +66,32 @@ export async function runBridge(config, {
 	logger = console,
 	once = false,
 	onUpdate,
+	revalidate,
 } = {}) {
+	// W49: the pre-turn episode revalidation is a SECOND read of the
+	// same participant projection. In production that is a real
+	// `timeout=0` wait against the authority. A scripted `runWait` feed
+	// has no independent source to re-read — its envelope was produced
+	// microseconds ago — so it revalidates against that envelope unless
+	// a test injects `revalidate` to exercise the drop path deliberately.
+	const stillLive = revalidate
+		?? (runWait
+			? async (action, envelope) => envelope.result.actionable.some(
+				(live) => live.action_key === action.action_key)
+			: (action) => episodeStillLive(config, action, { signal }));
+	// One selection record for the whole run, shared by every session
+	// object this bridge builds: a `load` run has it settled by the
+	// preflight below, a `new` run by its first create-only publication.
+	// Replacement agent processes RESUME it — see AcpAgentSession.setup.
+	const runSelection = { published: false, sessionId: null };
+
+	// W27: the session-selection preflight comes FIRST — before the
+	// Baton wait and before any agent is spawned. Both a bootstrap aimed
+	// at an existing selection and a load pointed at missing or unusable
+	// state are launch mistakes no retry can repair, so they surface
+	// immediately instead of idling as a healthy-looking loop.
+	preflightSessionSelection(config, runSelection);
+
 	const memory = new DeliveryMemory();
 	let session = null;
 	let deliveredTotal = 0;
@@ -78,7 +108,7 @@ export async function runBridge(config, {
 		// succeeded and whose subprocess is still alive.
 		if (session && session.alive()) return session;
 		if (session) await session.stop();
-		session = sessionFactory(config, { logger, onUpdate });
+		session = sessionFactory(config, { logger, onUpdate, runSelection });
 		try {
 			const sessionId = await session.start();
 			logger.info(`acp session ready: ${sessionId} `
@@ -92,6 +122,10 @@ export async function runBridge(config, {
 		}
 	};
 
+	// W27 introduced a throw path OUT of this loop, so teardown can no
+	// longer sit after it: an abandoned bootstrap must still kill its
+	// child and drop its abort listener on the way out.
+	try {
 	while (!signal.aborted) {
 		let envelope;
 		try {
@@ -113,6 +147,19 @@ export async function runBridge(config, {
 		let failed = false;
 		for (const action of fresh) {
 			try {
+				// W49: revalidate the exact episode IMMEDIATELY before
+				// the turn. A queued prompt whose Work has since been
+				// claimed, passed on or closed is STALE readiness —
+				// dropped, never presented as current work. It is
+				// marked delivered so this dead episode is not retried;
+				// a genuinely new assignment arrives under a new key.
+				if (!await stillLive(action, envelope)) {
+					memory.markDelivered(envelope, action);
+					logger.info(
+						`v11 action ${action.action_key} is no longer `
+						+ `actionable; dropped without invoking the agent`);
+					continue;
+				}
 				const live = await ensureSession();
 				await live.promptText(promptText(envelope, action));
 				memory.markDelivered(envelope, action);
@@ -122,6 +169,12 @@ export async function runBridge(config, {
 					`v11 action delivered: ${action.action_key} -> `
 					+ `${config.baton.participant}'s configured session`);
 			} catch (error) {
+				// W27: a session-selection fault is FATAL, never
+				// retried. Losing the create-only race means this
+				// bootstrap's session is already abandoned; looping
+				// would spawn agent after agent against a selection
+				// that belongs to the winner.
+				if (error instanceof SessionStateError) throw error;
 				// The key stays undelivered; readiness is never
 				// discarded by a failed turn, exit, or policy failure.
 				failed = true;
@@ -140,8 +193,10 @@ export async function runBridge(config, {
 			await delay(config.retryMs, signal);
 		}
 	}
-	signal.removeEventListener("abort", onAbort);
-	if (session) await session.stop();
+	} finally {
+		signal.removeEventListener("abort", onAbort);
+		if (session) await session.stop();
+	}
 	return 0;
 }
 
