@@ -1,7 +1,8 @@
 # Plan
 
-**Status:** confirmed defect, queued independently. The umbrella-binding
-stopgap is documented; it must not replace this correction.
+**Status:** W309 round-one corrections independently reviewed and signed off
+2026-08-17; ready to close satisfying. The umbrella-binding stopgap is no
+longer needed after deployment of this correction.
 
 1. Revalidate the repository's canonical child-depth policy against the
    current binding parser and projection contract.

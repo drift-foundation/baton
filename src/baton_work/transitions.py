@@ -378,22 +378,31 @@ def _validate_ref_path(path: str, what: str) -> str:
 
 import re as _ws6_re
 
+# W309: the canonical permanent-record shapes — a top-level record OR
+# a causally tied child under the repository's ruled layout
+# `<record>/findings/<child>`, at most TWO child levels deep
+# (AGENTS.md: deeper children are promoted to top level, never bound).
+_BINDING_COMPONENT = r"[A-Za-z0-9][A-Za-z0-9._-]*"
 _BINDING_PATH = _ws6_re.compile(
 	r"^work/records/[0-9]{4}/(0[1-9]|1[0-2])/"
-	r"[A-Za-z0-9][A-Za-z0-9._-]*$")
+	+ _BINDING_COMPONENT
+	+ r"(?:/findings/" + _BINDING_COMPONENT + r"){0,2}$")
 _WORK_ID = _ws6_re.compile(r"^[0-9a-f]{8}-W[0-9]+$")
 
 
 def _validate_binding_path(path: str) -> str:
-	"""M4: the canonical permanent-record locator is exactly
-	`work/records/YYYY/MM/<stable-record>` — literal prefix, four-digit
-	year, month 01-12, ONE safe record component. Validation is pure
-	syntax; nothing is probed."""
+	"""M4 + W309: the canonical permanent-record locator — literal
+	prefix, four-digit year, month 01-12, then a safe record component
+	optionally followed by the repository's ruled child layout: up to
+	TWO `/findings/<child>` levels. Absolute paths, traversal, empty
+	or edge components, other separators, and deeper nesting refuse.
+	Validation is pure syntax; nothing is probed."""
 	_validate_ref_path(path, "binding")
 	if not _BINDING_PATH.match(path):
 		raise WorkError(
-			f"binding path {path!r} is not the canonical permanent "
-			f"record shape work/records/YYYY/MM/<stable-record>")
+			f"binding path {path!r} is not a canonical permanent "
+			f"record shape: work/records/YYYY/MM/<stable-record>"
+			f"[/findings/<child>[/findings/<grandchild>]]")
 	return path
 
 

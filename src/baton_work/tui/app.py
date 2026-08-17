@@ -560,8 +560,9 @@ class Console:
 		return list(window["rows"]), window["summary"]
 
 	def search_rows(self) -> list[dict]:
-		"""The accepted search through the SAME cache/refresh path the
-		table uses — the timer tick invalidates, keystrokes serve from
+		"""W336: the search window flows through the SAME countdown and
+		observation boundary as the main table — the accepted search
+		through the SAME cache/refresh path the table uses — the timer tick invalidates, keystrokes serve from
 		cache, and the id anchor keeps selection stable. W6 R1: paging
 		operates on the console's EFFECTIVE visible universe — while
 		closed Work is hidden and no explicit status filter overrides
@@ -569,6 +570,7 @@ class Console:
 		closed matches can never consume a page or distort its counts;
 		exposing closed rows (z) or filtering status=closed lifts the
 		constraint. JSON's canonical all-status result is untouched."""
+		owed = self.refresh_due and self.tick_owed
 		effective = dict(self.work_filter or {})
 		if not self.show_closed and "status" not in effective:
 			effective["status"] = "open"
@@ -583,7 +585,25 @@ class Console:
 				work_filter=effective,
 				after=self.search_after, limit=self.search_limit))
 		self.search_next = window["next_after"]
-		return list(window["rows"])
+		rows = list(window["rows"])
+		self._spend_owed_cycle(owed)
+		self._observe_phases(rows)
+		return rows
+
+	def _spend_owed_cycle(self, owed: bool) -> None:
+		"""W336: the ONE countdown boundary. Every table-shaped window
+		— the main/re-rooted tree AND search, through the full render()
+		path and key paths alike — spends the phase-blink cycle here,
+		and only for the successful scheduled read that `owed`
+		witnessed. Failed reads never reach this call; mutation-only
+		refreshes and keystroke repaints arrive with owed False."""
+		if not owed:
+			return
+		self.phase_blink = {work_id: remaining - 1
+		                    for work_id, remaining
+		                    in self.phase_blink.items()
+		                    if remaining > 1}
+		self.tick_owed = False
 
 	def rows(self) -> list[dict]:
 		# W33 R1: consumption is bound to the SUCCESSFUL scheduled
@@ -594,12 +614,7 @@ class Console:
 		# refresh (no owed tick) spends none.
 		owed = self.refresh_due and self.tick_owed
 		rows = self.view()[0]
-		if owed:
-			self.phase_blink = {work_id: remaining - 1
-			                    for work_id, remaining
-			                    in self.phase_blink.items()
-			                    if remaining > 1}
-			self.tick_owed = False
+		self._spend_owed_cycle(owed)
 		self._observe_phases(rows)
 		return rows
 
@@ -688,7 +703,12 @@ class Console:
 		screen.erase()
 		height, width = screen.getmaxyx()
 		if self.mode == "table":
-			rows, summary = self.view()
+			# W336: the LIVE render path drains the countdown too — the
+			# window comes through rows() (the countdown/observation
+			# boundary); the summary re-read is served from the same
+			# cached snapshot, never a second authority read.
+			rows = self.rows()
+			summary = self.view()[1]
 		elif self.mode == "search":
 			rows = self.search_rows()
 			summary = self._cached(

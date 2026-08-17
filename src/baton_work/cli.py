@@ -180,7 +180,9 @@ GRAMMAR = {
 	                         help="CLOSED Work this follows up"),
 	                    _key("binding",
 	                         help="atomic creation binding ROOT_ID:"
-	                         "work/records/YYYY/MM/<record>"))},
+	                         "work/records/YYYY/MM/<record>"
+	                         "[/findings/<child>"
+	                         "[/findings/<grandchild>]]"))},
 	"accept": {"help": "answer an @ obligation by gating on provider "
 	           "Work (existing or created atomically)",
 	           "exactly-one": ("into", "create"),
@@ -376,7 +378,8 @@ GRAMMAR = {
 	                       help="a live configured root id"),
 	                  _key("path", required=True,
 	                       help="the canonical record path work/records/"
-	                       "YYYY/MM/<record>"),
+	                       "YYYY/MM/<record>[/findings/<child>"
+	                       "[/findings/<grandchild>]]"),
 	                  _key("expect", dest="expected_revision",
 	                       required=True, kind="int",
 	                       help="the expected prior binding revision"),

@@ -237,6 +237,15 @@ def drive(authority_path: str, viewer: str, script,
 			pump(pause)
 			prefixes.append(out.decode("utf-8", "replace"))
 			continue
+		if entry[0] == "call":
+			# W336: an in-script Python hook — lets a test mutate the
+			# authority from THIS process while the console runs, so a
+			# live timer/render loop can observe a genuine change.
+			_tag, hook, pause = entry
+			hook()
+			pump(pause)
+			prefixes.append(out.decode("utf-8", "replace"))
+			continue
 		keys, pause = entry
 		os.write(fd, keys)
 		pump(pause)

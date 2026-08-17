@@ -4758,3 +4758,72 @@ handoff_at remains history; the regression closes handed-off Work,
 advances far past the threshold, and asserts pickup None with
 handoff_at retained in BOTH detail and a window projection. Gates:
 just test-v11 827 + 3 serial + acp 23/23; diff --check clean.
+
+## Step 176 — W336: the live render path drains the blink
+
+Implemented finding-tui-phase-blink-countdown-stall (claimed W336;
+the pre-cutover rerelease defect observed live on W24's stuck queue
+blink). The confirmed cause held: render()'s table mode read the
+window through view() while the countdown/observation lived only in
+rows(), so timer renders consumed the refresh request without
+spending a cycle. Fix: ONE countdown boundary — _spend_owed_cycle —
+with rows() delegating to it and render()'s table mode now flowing
+THROUGH rows() (the summary re-read serves from the same cached
+snapshot, no second authority read); search_rows() wraps the same
+boundary (owed sampled before the fetch, spend + observe after), so
+search and re-rooted tables obey the same rule with no duplicated
+reads and no cursor/selection change. ptyharness gained a ("call",
+hook, pause) script step so a test can mutate the authority from its
+own process while the console runs. New
+tests/work/test_w336_blink_drain.py (2): the REAL PTY timer/render
+loop — cold first paint never blinks, an externally committed phase
+change blinks on the live no-interaction path, and the blink escape
+is GONE from the per-tick output deltas after three successful
+scheduled cycles and stays gone (the stalled-for-hours defect cannot
+reproduce); and the search-window countdown sharing pin (3 -> 2 -> 1
+-> gone through tick + search_rows). Break-sweep: reintroducing the
+exact view() bypass redded the live PTY pin; restored green. Gates:
+just test-v11 829 passed + 3 serial + acp 23/23; diff --check clean.
+
+## Step 177 — W309: canonical child dossiers bind
+
+Implemented finding-child-dossier-binding (claimed W309). The one
+validator extension exactly as planned: _BINDING_PATH accepts the
+repository-ruled shapes — work/records/YYYY/MM/<record> plus up to
+TWO /findings/<child> levels (AGENTS.md: at most two child levels;
+deeper children are promoted, never bound) — while _validate_ref_path
+still runs first and every other refusal stands. The refusal names
+the full accepted grammar; the bind verb's CLI help names the child
+shapes. New tests/work/test_w309_child_bindings.py (3): the observed
+refusal case (finding-recursive-target-graph/findings/
+finding-topic-vocabulary), a real two-level grandchild, and a
+top-level record all bind with the locator preserved byte-for-byte
+into JSON; a fourteen-case adversarial matrix (absolute, work/open/,
+traversal, trailing slash, bad months 13/00, two-digit year, bare or
+trailing findings, a children/ separator, THREE findings levels, a
+non-findings second component, dot-leading component, non-records
+prefix) all refuse with nothing recorded; and op-id replay, the
+append-only revision to the grandchild shape, revision history, and
+closure all preserve the child locator with the filesystem never
+probed. Break-sweep: restoring the single-component regex redded the
+child pins; green on restore. Gates: just test-v11 832 passed + 3
+serial + acp 23/23; diff --check clean.
+
+## Step 178 — W309 R1: bounded help, atomic + packaged proof, one order
+
+Round-1 review returned three bounded items (reclaimed W309; W336 was
+accepted and closed at seq 347). (1) The create verb's binding help no
+longer advertises unbounded depth — it names the same exact bounded
+grammar bind shows: ROOT_ID:work/records/YYYY/MM/<record>[/findings/
+<child>[/findings/<grandchild>]]. (2) New atomic-creation coverage:
+the observed locator through create binding=ROOT:path binds at
+creation, and a third-child-level atomic binding refuses with NO Work
+row and NO consumed sequence; and the packaged-archive case deploys
+through the real deploy_work.py, creates Work with a grandchild
+binding through the deployed bin/baton, reads it back byte-for-byte
+through packaged JSON, and proves a too-deep creation refuses without
+committing Work (the deploy itself takes ~0.2s with a warm npm cache —
+verified real, not skipped). (3) The history assertion pins the ONE
+canonical ascending-revision order [(1, CHILD), (2, GRANDCHILD)].
+Gates: just test-v11 834 passed + 3 serial + acp 23/23; diff --check
+clean.
