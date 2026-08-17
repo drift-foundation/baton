@@ -1,10 +1,33 @@
 # Plan
 
-**Status — 2026-08-16:** waiting on child Work `W148`, queued to `baton.impl`,
-after independent sign-off and satisfying closure of participant-readiness
-Work `W136`. The deliberately minimal Codex topology is pinned. A separate
-ACP-generic sibling is queued for Claude and other ACP-capable agents; do not
-revive the superseded generalized Baton multi-protocol bridge design.
+**Status — 2026-08-17:** W171, W179, W176 and W187 are closed satisfying. W207
+independently certifies the standalone Codex readiness bridge for projection 5
+and is signed off; closing it releases the final known dependency on W163.
+W163's external ACP-generic client is the next implementation-planning item.
+Do not revive the superseded generalized Baton multi-protocol bridge design.
+
+The live W148 return exposed and Slawomir approved
+`finding-pass-is-work-event`: remove the discussion-thread requirement from
+`pass` and retain its comment as authoritative Work-event evidence. Correct
+and independently review that operation before completing the W148 return.
+
+The same trial approved `finding-message-pane-header-redundancy`: after the
+threadless-pass correction, replace the lower split area's repeated subject
+and selected-id heading with stable Messages-list and Message-detail labels.
+
+Before that pane cleanup, `finding-visible-scope-message-counts` corrects the
+default Work `Msg`, `My`, and `New` projections to match directly reachable
+Threads. Recursive descendant totals remain explicit drill-down data and never
+inflate ordinary rows or headers.
+
+After the pane cleanup, `finding-wait-column-label` performs the final small
+table-label correction: `Wait` plus `Wn+N` replaces ambiguous `Blk`/arrow
+output without changing dependency semantics.
+
+Before the next immutable candidate, `finding-codex-bridge-projection-5`
+recertifies the external Codex readiness bridge for W179's projection 5.0.
+The old immutable projection-4.3 deployment keeps its matching old bridge; no
+cross-major alias is introduced.
 
 1. Finish and independently review the currently queued same-schema usability
    corrections; keep v10 as the reliable channel throughout.

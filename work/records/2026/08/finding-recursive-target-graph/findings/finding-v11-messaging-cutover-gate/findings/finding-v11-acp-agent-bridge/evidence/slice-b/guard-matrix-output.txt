@@ -1,0 +1,59 @@
+ok   BLOCK  plain commit
+ok   BLOCK  -C form
+ok   BLOCK  cd chain
+ok   BLOCK  --git-dir reset
+ok   BLOCK  -c config commit
+ok   BLOCK  push
+ok   BLOCK  rebase
+ok   BLOCK  cherry-pick
+ok   BLOCK  filter-branch
+ok   BLOCK  reflog expire
+ok   BLOCK  gc
+ok   BLOCK  merge
+ok   BLOCK  revert
+ok   BLOCK  update-ref
+ok   BLOCK  attached semicolon
+ok   BLOCK  semicolon prefix
+ok   BLOCK  attached and-chain
+ok   BLOCK  attached pipe
+ok   BLOCK  attached background
+ok   BLOCK  env assignment wrapper
+ok   BLOCK  bare assignment prefix
+ok   BLOCK  sudo -E
+ok   BLOCK  nohup
+ok   BLOCK  timeout duration
+ok   BLOCK  pipe into xargs git
+ok   BLOCK  backslash escape
+ok   BLOCK  absolute path git
+ok   BLOCK  bash -c
+ok   BLOCK  sh -c chained
+ok   BLOCK  bash -lc
+ok   BLOCK  shell script arg w/ git
+ok   BLOCK  command substitution
+ok   BLOCK  backtick substitution
+ok   BLOCK  process substitution
+ok   BLOCK  eval
+ok   BLOCK  malformed JSON
+ok   BLOCK  non-string command
+ok   BLOCK  unterminated quote git
+ok   BLOCK  unknown flag obscuring
+ok   BLOCK  git add
+ok   BLOCK  git stash
+ok   BLOCK  git checkout branch
+ok   BLOCK  git branch
+ok   BLOCK  git tag
+ok   BLOCK  git restore
+ok   BLOCK  alias definition
+ok   BLOCK  nice with value
+ok   BLOCK  sudo -u value
+ok   ALLOW  git log
+ok   ALLOW  git status
+ok   ALLOW  git diff chained
+ok   ALLOW  prose mentioning commit
+ok   ALLOW  plain echo
+ok   ALLOW  bash -c harmless
+ok   ALLOW  env wrapper harmless
+ok   ALLOW  unterminated no git
+ok   ALLOW  substitution no git
+----
+guard matrix: all cases hold

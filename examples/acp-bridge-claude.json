@@ -1,0 +1,31 @@
+{
+  "//": "acp-baton-bridge example: Claude via the separately installed",
+  "//2": "@agentclientprotocol/claude-agent-acp adapter. EVERY value below",
+  "//3": "is a placeholder the operator must replace; nothing here can run",
+  "//4": "as shipped. Agent adapters, credentials, and prohibition policies",
+  "//5": "are deployment-owned and never bundled with Baton.",
+  "baton": {
+    "binary": "<ABSOLUTE-PATH-TO-DEPLOYED-BATON-EXECUTABLE>",
+    "config": "<ABSOLUTE-PATH-TO-BATON-HOME>/baton.json",
+    "participant": "<TEAM.MEMBER>",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "<ABSOLUTE-PATH-TO-SANDBOX-LAUNCHER-OR-CLAUDE-AGENT-ACP>",
+    "args": [],
+    "env": {
+      "AGENT_REAL": "<ABSOLUTE-PATH-TO-claude-agent-acp-WHEN-USING-THE-SANDBOX-LAUNCHER>"
+    },
+    "cwd": "<ABSOLUTE-PATH-TO-AGENT-WORKSPACE>"
+  },
+  "session": { "mode": "new", "cwd": "<ABSOLUTE-PATH-TO-AGENT-WORKSPACE>" },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "<ABSOLUTE-PATH-TO-WORKSPACE>/.claude/settings.json",
+    "<ABSOLUTE-PATH-TO-BLOCKING-PRETOOLUSE-HOOK>",
+    "<ABSOLUTE-PATH-TO-PROTECTED-PATHS-LIST>"
+  ],
+  "stateDir": "<ABSOLUTE-PATH-TO-BRIDGE-STATE-DIR>/<TEAM.MEMBER>",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

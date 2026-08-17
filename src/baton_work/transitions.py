@@ -2616,9 +2616,6 @@ def _select_target(conn, thread_id: str, actor_team: str, actor: str,
 def post_thread(store: Authority, thread_id: str, *,
                     author_team: str, author: str, body: str,
                     include=(), request: str | None = None,
-                    pass_to: str | None = None,
-                    pass_phase: str | None = None,
-                    set_next: str | None = None,
                     on: str | None = None,
                     op_id: str | None = None, refs=()) -> dict:
 	"""THE public posting surface (Slice B): one message into one
@@ -2628,12 +2625,13 @@ def post_thread(store: Authority, thread_id: str, *,
 	endpoints, the exact expansion recorded with the publication, each
 	reached team joining monotonic participation once — and no
 	obligation, Current, Next, readiness, phase, edge, or Work authority
-	changes. `@` (request) and `=>` (pass, optionally planting a planned
-	Next) affect exactly one currently labelled, eligible open Work:
-	`on=` selects it; omitted, it resolves only at eligible-cardinality
-	one, and the resolution is recorded and echoed. A plain message
-	requires live context — at least one labelled open Work — rechecked
-	inside the committing transaction."""
+	changes. `@` (request) affects exactly one currently labelled,
+	eligible open Work: `on=` selects it; omitted, it resolves only at
+	eligible-cardinality one, and the resolution is recorded and echoed.
+	A plain message requires live context — at least one labelled open
+	Work — rechecked inside the committing transaction. The Work baton
+	NEVER moves through a message: pass is its own threadless Work
+	event (W171, finding-pass-is-work-event)."""
 	_member(store, author_team, author)
 	if isinstance(include, str):
 		include = [part for part in include.split(",") if part]
@@ -2642,27 +2640,13 @@ def post_thread(store: Authority, thread_id: str, *,
 	protected = _operation(store, author_team, author, "post", op_id,
 	                       {"thread": thread_id, "body": body,
 	                        "include": include, "request": request,
-	                        "pass_to": pass_to,
-	                        # W108 R1: the destination phase is typed
-	                        # semantic input — a retry with a DIFFERENT
-	                        # phase is a different operation and must
-	                        # refuse, never replay the first choice.
-	                        "pass_phase": pass_phase,
-	                        "set_next": set_next,
 	                        "on": on, "refs": refs})
 	if isinstance(protected, dict):
 		return protected
 	_thread(store, thread_id)
 	if not isinstance(body, str) or not body:
 		raise WorkError("a message body must be non-empty")
-	if request is not None and pass_to is not None:
-		raise WorkError("one message carries one operation: @ requests a "
-		                "response, => passes the baton; asking both at "
-		                "once makes the obligation ambiguous")
-	if set_next is not None and pass_to is None:
-		raise WorkError("a planned Next is set by a pass; there is "
-		                "nothing to return from otherwise")
-	carrying = request is not None or pass_to is not None
+	carrying = request is not None
 	if on is not None and not carrying:
 		raise WorkError("on= selects the work a carrying operator acts "
 		                "against; this message carries none")
@@ -2672,45 +2656,16 @@ def post_thread(store: Authority, thread_id: str, *,
 		_expand_include(store, include)
 	requested = _one_endpoint(store, request, "@ request") \
 		if request else None
-	passed = _one_endpoint(store, pass_to, "=> pass") if pass_to else None
-	# finding-active-work-claim ("Current and phase move together"): a
-	# pass atomically records the DESTINATION phase. Explicit values are
-	# the honest source; waiting/parked stay explicit handler decisions
-	# and are never a pass destination.
-	if pass_phase is not None:
-		if pass_to is None:
-			raise WorkError("a destination phase rides a pass; there is "
-			                "no pass here")
-		if pass_phase not in ("queued", "research", "active", "review"):
-			raise WorkError(
-				f"destination phase {pass_phase!r} is not one of "
-				f"('queued', 'research', 'active', 'review'); waiting "
-				f"and parked are explicit handler decisions with their "
-				f"ruled conditions, never a pass destination")
-	planned = _one_endpoint(store, set_next, "planned Next") \
-		if set_next else None
-	operation = "@ request" if request is not None else "=> pass"
+	operation = "@ request"
 
 	event_kind = "post_message"
-	consumes_next = False
 	selected = None
 	if carrying:
-		# Optimistic selection — decides the event kind; the selection
-		# that COMMITS is re-derived in-lock and must agree.
+		# Optimistic selection — the selection that COMMITS is
+		# re-derived in-lock and must agree.
 		selected, _authorization = _select_target(
 			store.conn, thread_id, author_team, author, operation, on)
-		if passed is not None:
-			row = _work(store, selected)
-			if (row["current_team"], row["current_kind"]) == passed:
-				raise WorkError(f"{selected} is already at "
-				                f"{passed[0]}.{passed[1]}; a pass moves "
-				                f"the baton")
-			if (row["next_team"], row["next_kind"]) == passed:
-				event_kind, consumes_next = "return", True
-			else:
-				event_kind = "pass"
-		else:
-			event_kind = "request"
+		event_kind = "request"
 	elif not _live_context(store.conn, thread_id):
 		raise WorkError(
 			f"{thread_id} has no labelled open work; closed context "
@@ -2719,9 +2674,7 @@ def post_thread(store: Authority, thread_id: str, *,
 
 	payload = {"thread": thread_id,
 	           "body_bytes": len(body.encode("utf-8")),
-	           "include": [], "request": request, "pass": pass_to,
-	           "set_next": set_next, "on": on,
-	           "consumed_next": consumes_next}
+	           "include": [], "request": request, "on": on}
 
 	def mutate(conn, seq):
 		_member_active(conn, author_team, author)
@@ -2741,21 +2694,6 @@ def post_thread(store: Authority, thread_id: str, *,
 			payload["work"] = work_id
 			payload["on_resolved"] = on is None
 			payload["authorization"] = authorization
-			if passed is not None:
-				live = conn.execute(
-					"SELECT current_team, current_kind, next_team, "
-					"next_kind FROM work WHERE id=?",
-					(work_id,)).fetchone()
-				if (live["current_team"], live["current_kind"]) == passed:
-					raise WorkError(f"{work_id} is already at "
-					                f"{passed[0]}.{passed[1]}; a pass "
-					                f"moves the baton")
-				if (((live["next_team"], live["next_kind"]) == passed)
-						!= consumes_next):
-					raise WorkError(
-						f"{work_id}'s planned Next changed while this "
-						f"pass was being prepared; it lost a concurrent "
-						f"race — retry against the current state")
 		else:
 			payload["work"] = None
 			if not _live_context(conn, thread_id):
@@ -2790,61 +2728,6 @@ def post_thread(store: Authority, thread_id: str, *,
 				 _json.dumps(resolution["handlers"]),
 				 resolution["generation"], thread_id))
 			touched_teams.add(requested[0])
-		if passed is not None:
-			work_id = payload["work"]
-			payload["pass_resolution"] = resolve_endpoint(
-				conn, passed[0], passed[1], "=> pass")
-			if planned is not None:
-				payload["next_resolution"] = resolve_endpoint(
-					conn, planned[0], planned[1], "planned Next")
-			if consumes_next:
-				# The consumed plan clears — but a NEW plan stated on
-				# this same return commits with it (discovered at the
-				# W108 trial handoff: the old code silently dropped a
-				# planted set-next= on a consuming return).
-				conn.execute(
-					"UPDATE work SET current_team=?, current_kind=?, "
-					"next_team=?, next_kind=? WHERE id=?",
-					(passed[0], passed[1],
-					 planned[0] if planned else None,
-					 planned[1] if planned else None, work_id))
-			else:
-				# An unconsumed planned Next stays VISIBLY set unless
-				# this pass plants a new one — never silently cleared.
-				conn.execute(
-					"UPDATE work SET current_team=?, current_kind=?, "
-					"next_team=COALESCE(?, next_team), "
-					"next_kind=COALESCE(?, next_kind) WHERE id=?",
-					(passed[0], passed[1],
-					 planned[0] if planned else None,
-					 planned[1] if planned else None, work_id))
-			# finding-active-work-claim ("Current and phase move
-			# together"): the pass atomically records the destination
-			# phase — explicit when stated, derived from the
-			# destination route's STAGE role otherwise, refused when
-			# neither names a stage. It never carries the sender's
-			# phase, never substitutes queued, and never derives
-			# waiting from readiness. The sender's claim is released;
-			# the recipient claims explicitly.
-			if pass_phase is not None:
-				destination_phase = pass_phase
-			else:
-				role = payload["pass_resolution"].get("role")
-				destination_phase = STAGE_PHASES.get(role)
-				if destination_phase is None:
-					raise WorkError(
-						f"the destination role {role!r} names no work "
-						f"stage; state the destination phase "
-						f"explicitly — a pass records the honest "
-						f"destination phase, never the sender's and "
-						f"never a generic queued")
-			payload["destination_phase"] = destination_phase
-			conn.execute(
-				"UPDATE work SET active_team=NULL, active_member=NULL, "
-				"phase=?, wait_type=NULL, wait_obligation=NULL "
-				"WHERE id=?", (destination_phase, work_id))
-			_touch_work(conn, work_id)
-			touched_teams.add(passed[0])
 		for team in sorted(touched_teams):
 			_join_thread(conn, thread_id, team, seq)
 
@@ -2855,6 +2738,156 @@ def post_thread(store: Authority, thread_id: str, *,
 			result["work"] = payload["work"]
 
 	return store._write(event_kind, f"{author_team}.{author}",
+	                    payload, mutate, operation=protected,
+	                    finish=finish, references=refs)
+
+
+def pass_work(store: Authority, work_id: str, *, actor_team: str,
+              actor: str, to: str, phase: str | None = None,
+              comment: str, set_next: str | None = None,
+              op_id: str | None = None, refs=()) -> dict:
+	"""W171 (finding-pass-is-work-event): pass is an authoritative
+	WORK transition, not a discussion message. One atomic act moves
+	Current to exactly one destination endpoint, records the honest
+	destination phase, releases the sender's claim, applies any planned
+	Next, and stores `comment` as durable handoff evidence in the pass
+	event itself. No Thread is involved: a pass creates no Message,
+	advances no cursor, and changes no Message/My/New/obligation count —
+	conversation stays explicit and separate through say."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	protected = _operation(store, actor_team, actor, "pass_work", op_id,
+	                       {"work": work_id, "to": to,
+	                        # the destination phase is typed semantic
+	                        # input (W108 R1): a retry with a DIFFERENT
+	                        # phase is a different operation and must
+	                        # refuse, never replay the first choice.
+	                        "phase": phase, "comment": comment,
+	                        "set_next": set_next, "refs": refs})
+	if isinstance(protected, dict):
+		return protected
+	if not isinstance(comment, str) or not comment.strip():
+		raise WorkError("a pass records its handoff evidence; state "
+		                "comment=")
+	passed = _one_endpoint(store, to, "pass")
+	planned = _one_endpoint(store, set_next, "planned Next") \
+		if set_next else None
+	# finding-active-work-claim ("Current and phase move together"):
+	# explicit values are the honest source; waiting/parked stay
+	# explicit handler decisions and are never a pass destination.
+	if phase is not None and phase not in ("queued", "research",
+	                                       "active", "review"):
+		raise WorkError(
+			f"destination phase {phase!r} is not one of ('queued', "
+			f"'research', 'active', 'review'); waiting and parked are "
+			f"explicit handler decisions with their ruled conditions, "
+			f"never a pass destination")
+	# Optimistic pre-read — decides this act's event kind; everything
+	# is re-derived under the state that COMMITS.
+	row = _work(store, work_id)
+	if row["status"] != OPEN:
+		raise WorkError(f"{work_id} is {row['status']}; the baton of "
+		                f"terminal work never moves")
+	if (row["current_team"], row["current_kind"]) == passed:
+		raise WorkError(f"{work_id} is already at "
+		                f"{passed[0]}.{passed[1]}; a pass moves the "
+		                f"baton")
+	consumes_next = (row["next_team"], row["next_kind"]) == passed
+	event_kind = "return" if consumes_next else "pass"
+
+	payload = {"work": work_id, "comment": comment,
+	           "set_next": set_next, "consumed_next": consumes_next}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live = conn.execute(
+			"SELECT status, current_team, current_kind, next_team, "
+			"next_kind, active_team, active_member FROM work "
+			"WHERE id=?", (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; the baton "
+			                f"of terminal work never moves")
+		# WS-1 in the lock: only the resolved Current handler transfers.
+		payload["authorization"] = _handler_gate(
+			conn, work_id, actor_team, actor, "pass")
+		# W171 R1: the active claim is EXECUTION ownership, not route
+		# membership — a second eligible handler must use the explicit
+		# recovery protocol, never transfer underneath the recorded
+		# claimant. Only the claimant's own pass releases the claim.
+		if live["active_team"] is not None and \
+				(live["active_team"], live["active_member"]) != \
+				(actor_team, actor):
+			raise WorkError(
+				f"{work_id} is actively claimed by "
+				f"{live['active_team']}.{live['active_member']}; route "
+				f"eligibility never moves work underneath its recorded "
+				f"executor — recover or release the claim explicitly "
+				f"first")
+		if (live["current_team"], live["current_kind"]) == passed:
+			raise WorkError(f"{work_id} is already at "
+			                f"{passed[0]}.{passed[1]}; a pass moves "
+			                f"the baton")
+		if (((live["next_team"], live["next_kind"]) == passed)
+				!= consumes_next):
+			raise WorkError(
+				f"{work_id}'s planned Next changed while this pass "
+				f"was being prepared; it lost a concurrent race — "
+				f"retry against the current state")
+		payload["pass_resolution"] = resolve_endpoint(
+			conn, passed[0], passed[1], "pass")
+		if planned is not None:
+			payload["next_resolution"] = resolve_endpoint(
+				conn, planned[0], planned[1], "planned Next")
+		if consumes_next:
+			# The consumed plan clears — but a NEW plan stated on this
+			# same return commits with it (W108 trial handoff ruling).
+			conn.execute(
+				"UPDATE work SET current_team=?, current_kind=?, "
+				"next_team=?, next_kind=? WHERE id=?",
+				(passed[0], passed[1],
+				 planned[0] if planned else None,
+				 planned[1] if planned else None, work_id))
+		else:
+			# An unconsumed planned Next stays VISIBLY set unless this
+			# pass plants a new one — never silently cleared.
+			conn.execute(
+				"UPDATE work SET current_team=?, current_kind=?, "
+				"next_team=COALESCE(?, next_team), "
+				"next_kind=COALESCE(?, next_kind) WHERE id=?",
+				(passed[0], passed[1],
+				 planned[0] if planned else None,
+				 planned[1] if planned else None, work_id))
+		# The pass atomically records the destination phase — explicit
+		# when stated, derived from the destination route's STAGE role
+		# otherwise, refused when neither names a stage. It never
+		# carries the sender's phase, never substitutes queued, and
+		# never derives waiting from readiness. The sender's claim is
+		# released; the recipient claims explicitly.
+		if phase is not None:
+			destination_phase = phase
+		else:
+			role = payload["pass_resolution"].get("role")
+			destination_phase = STAGE_PHASES.get(role)
+			if destination_phase is None:
+				raise WorkError(
+					f"the destination role {role!r} names no work "
+					f"stage; state the destination phase explicitly — "
+					f"a pass records the honest destination phase, "
+					f"never the sender's and never a generic queued")
+		payload["destination_phase"] = destination_phase
+		conn.execute(
+			"UPDATE work SET active_team=NULL, active_member=NULL, "
+			"phase=?, wait_type=NULL, wait_obligation=NULL "
+			"WHERE id=?", (destination_phase, work_id))
+		_touch_work(conn, work_id)
+
+	def finish(result):
+		result["work"] = work_id
+		result["to"] = payload["pass_resolution"]["endpoint"]
+		result["destination_phase"] = payload["destination_phase"]
+		result["consumed_next"] = consumes_next
+
+	return store._write(event_kind, f"{actor_team}.{actor}",
 	                    payload, mutate, operation=protected,
 	                    finish=finish, references=refs)
 

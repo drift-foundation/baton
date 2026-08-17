@@ -53,13 +53,16 @@ write transaction, so an earlier `ready` observation is advisory and a
 competing claim fails closed naming the recorded claimant. No execution
 begins before the claim succeeds. A pass atomically records the
 destination Current AND the destination phase through its own canonical
-verb — `pass work=W to=team.kind phase=review thread=T comment="..."`
+THREADLESS verb — `pass work=W to=team.kind phase=review comment="..."`
 (phase derived from the destination route's stage role when omitted;
-`comment=` is durable handoff evidence appended to the chosen labelled
-thread, never a rewrite of the Work; `set-next=` plants the planned
-return) — releases the sender's claim, and never claims for the
-recipient. Plain `say` is discussion (plus the `@ request=` operator);
-it no longer carries transfer keys; entering
+`comment=` is durable handoff evidence stored with the authoritative
+pass event itself, never a discussion message; `set-next=` plants the
+planned return; `thread=` is refused as an unknown key — a Work
+transfer has no thread-selection decision) — releases the sender's
+claim, and never claims for the recipient. A pass creates no Message,
+advances no cursor, and changes no Message/My/New/obligation count;
+conversation stays explicit through `say`. Plain `say` is discussion
+(plus the `@ request=` operator); it carries no transfer keys; entering
 waiting/parked and terminal close also release. Blocked Work keeps its
 honest stage phase but cannot be claimed. An abandoned or yielded claim
 is recovered with `release work=WORK expect=team.member reason=TEXT` —
@@ -86,9 +89,14 @@ list, and below it a compact Message index (`M<seq>` labels over the
 existing stable sequence, with author, time, and your personal
 new/seen state) beside a reader showing exactly ONE selected message
 — its metadata header, wrapped body, and references under a separate
-Refs section. At usable width the index sits left of the reader; at
-narrow width they stack, index above reader — never merged into a
-flat stream. Selecting a Thread opens its first personal-new message
+Refs section. The split-area headings identify pane ROLES —
+`Messages (N)` over the index and `Message M<seq>` over the reader —
+never content already visible elsewhere: the Thread row alone owns the
+discussion subject, the reversed index row owns selection, and one
+blank separator row (spacing, not a border) divides the Thread list
+from the lower panes. At usable width the index sits left of the
+reader; at narrow width they stack, index above reader — never merged
+into a flat stream. Selecting a Thread opens its first personal-new message
 when one exists. u unfolds/re-roots the tree at the selected Work,
 Esc goes back, Ctrl-W then h/j/k/l (or arrows, or w / another
 Ctrl-W) moves across the three regions (Threads, index, reader),
@@ -115,6 +123,19 @@ answers for (`round:` keyed per deadline generation, retired by
 extension). `+`, plain posts, and personal New are attention, never
 wakeups. The header's oblig/due counters are these same personal facts;
 the parked count stays team-wide.
+
+Work counters describe the DIRECT visible scope: a row's or detail
+header's `Msg`, `My`, and `New` cover exactly the threads labelled
+directly to that Work — the same conversations entering the Work
+exposes — with thread-less verification assignments staying on their
+own Work. Every contained child reports its own direct counters;
+closed, collapsed, or nested descendants never inflate a visible
+parent, and a thread deliberately labelled to several Works counts in
+each direct view (visible reuse). The recursive union exists only in
+the explicitly named breakdown (`new work=W`): `own`, per-child
+subtree counts, `overlap` for multiply-labelled dedup, and
+`subtree_total` — clients never project that union into a plain cell.
+Agent JSON and the human console read the same direct defaults.
 
 `/` searches Work: a one-line query bar
 (typing reads nothing; Enter submits ONE canonical `search query=...`),
@@ -162,13 +183,14 @@ normal, low then creation order without leaving their parent. The
 two-cell `Pr` column renders `Hi`/`No`/`Lo` and is the first column
 omitted at narrow widths; JSON always carries the full strings.
 
-The table's `Blk` field shows the inline dependency cue: `← Wn` names
-the deterministic first OPEN blocker (oldest by creation), `+N` counts
-the rest; a row with no open blocker has no cue, and satisfied edges
-leave it (the ledger keeps history). `↳` containment stays a separate
-fact; `[b] deps` remains the full neighbor view; narrow layouts omit
-the cue whole — never clipped. The boolean Ready column is gone: the
-arrow explains what must finish.
+The table's `Wait` field shows the inline dependency cue, arrowless:
+`Wn` names the deterministic first OPEN blocker (oldest by creation)
+and `Wn+N` adds the count of remaining open blockers; a row with no
+open blocker has an empty cell, and satisfied edges leave it (the
+ledger keeps history). `↳` remains exclusively the containment-tree
+marker; `[b] deps` remains the full neighbor view; narrow layouts omit
+the cue whole — never clipped or relabelled. The boolean Ready column
+is gone: the cue names what must finish.
 
 Every Work carries its authority-local short
 selector — the `Id` column leading the table (`W11`, growing to fit

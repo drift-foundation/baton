@@ -69,13 +69,24 @@ test:
 # pools then run serially without xdist. This includes the adversarial soak,
 # but deliberately does not build or certify release artifacts; `just build`
 # then `just test` remains the full candidate gate.
-test-v11:
+test-v11: && test-acp
 	#!/usr/bin/env bash
 	set -euo pipefail
 	[[ -x "{{PY}}" ]] || { echo "error: venv missing; run 'just venv' first" >&2; exit 1; }
 	"{{PY}}" -c 'import pytest, xdist' >/dev/null 2>&1 || { echo "error: pytest/xdist missing; run 'just venv' first" >&2; exit 1; }
 	"{{PY}}" -m pytest -v -n "$(nproc)" -m "not serial" tests/work
 	"{{PY}}" -m pytest -v -m serial tests/work
+
+# W163 R5: the ACP readiness client is a v11 product — its acceptance
+# runs inside the ONE operator-facing v11 gate above. The pinned SDK
+# installs deterministically from the committed lockfile when absent.
+test-acp:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	cd tools/acp-baton-bridge
+	command -v node >/dev/null || { echo "error: node (>=20) is required for the ACP gate" >&2; exit 1; }
+	[[ -d node_modules/@agentclientprotocol/sdk ]] || npm ci --no-fund --no-audit
+	npm test
 
 # Prepare the WHOLE release candidate under `build/`: both products, both
 # manifests, and a snapshot of every Git-owned payload file, from one catalog,

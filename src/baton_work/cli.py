@@ -429,7 +429,8 @@ GRAMMAR = {
 	                 _key("on", help="the labelled open Work an @ "
 	                      "acts against"))},
 	"pass": {"help": "transfer the Work baton: handoff evidence, "
-	         "Current, and destination phase in ONE atomic act",
+	         "Current, and destination phase in ONE atomic THREADLESS "
+	         "Work event (W171: no thread, no message, no count moves)",
 	         "keys": (_key("work", required=True,
 	                       help="the Work whose baton moves"),
 	                  _key("to", required=True,
@@ -439,12 +440,10 @@ GRAMMAR = {
 	                       help="the destination phase recorded "
 	                       "atomically; derived from the destination "
 	                       "stage role when omitted"),
-	                  _key("thread", required=True,
-	                       help="the labelled thread carrying the "
-	                       "handoff evidence"),
 	                  _key("comment", required=True,
-	                       help="durable handoff evidence appended to "
-	                       "the thread — never a rewrite of the Work"),
+	                       help="durable handoff evidence stored with "
+	                       "the authoritative pass event — never a "
+	                       "discussion message"),
 	                  _key("set-next", help="planned return "
 	                       "endpoint"))},
 	"label": {"help": "label a thread to a Work",
@@ -1363,25 +1362,21 @@ def _dispatch(store: Authority, args):
 		return transitions.post_thread(
 			store, args.thread, author_team=team, author=member,
 			body=args.body, include=args.include or (),
-			request=args.request, pass_to=None, pass_phase=None,
-			set_next=None, on=args.on, op_id=args.op_id,
+			request=args.request, on=args.on, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "pass":
-		# W80 (ruled): the canonical transfer surface — one
-		# indivisible transition through the SAME single writer the
-		# compound say form used: append the comment as durable
-		# handoff evidence, transfer Current and the destination
-		# phase, apply any planned Next, and release the sender's
-		# claim. A refusal leaves message and workflow state
+		# W171 (finding-pass-is-work-event): pass is an authoritative
+		# THREADLESS Work transition — comment as durable evidence in
+		# the pass event, Current + destination phase + planned Next +
+		# claim release in one atomic act; no message, no thread, no
+		# cursor or count movement. A refusal leaves everything
 		# unchanged.
 		team, member = _need_participant(args)
-		return transitions.post_thread(
-			store, args.thread, author_team=team, author=member,
-			body=args.comment, include=(),
-			request=None, pass_to=args.to,
-			pass_phase=args.pass_phase,
-			set_next=args.set_next, on=args.work, op_id=args.op_id,
-			refs=args.refs or ())
+		return transitions.pass_work(
+			store, args.work, actor_team=team, actor=member,
+			to=args.to, phase=args.pass_phase,
+			comment=args.comment, set_next=args.set_next,
+			op_id=args.op_id, refs=args.refs or ())
 	if command == "label":
 		team, member = _need_participant(args)
 		return transitions.label_thread(

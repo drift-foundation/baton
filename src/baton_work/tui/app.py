@@ -219,25 +219,29 @@ def age_field(claimed_at, heartbeat_at, now) -> str:
 
 
 def blocker_cue(row: dict) -> str:
-	"""W39: the inline dependency cue — `← Wn` names the deterministic
-	first OPEN blocker (canonical projection data, the reviewed W4
-	selector identity), `+N` counts the remaining open blockers. Empty
-	when nothing open blocks the row: a boolean hid the gate's
-	identity; the arrow explains what must finish. A dependency is a
-	graph edge, never a containment child — the `↳` marker is a
-	different fact and stays untouched."""
+	"""W39/W187: the inline dependency cue under the `Wait` heading —
+	`Wn` names the deterministic first OPEN blocker (canonical
+	projection data, the reviewed W4 selector identity), `+N` counts
+	the remaining open blockers: `W171+2` waits on W171 and two more.
+	Empty when nothing open blocks the row. NO arrow (W187 ruling: it
+	competed with the containment marker and `Blk` read ambiguously);
+	a dependency is a graph edge, never a containment child — the `↳`
+	marker is a different fact and stays untouched."""
 	first = row.get("first_open_blocker")
 	if not first:
 		return ""
 	more = row["open_blockers"] - 1
-	return f"← {first}" + (f" +{more}" if more > 0 else "")
+	return f"{first}" + (f"+{more}" if more > 0 else "")
 
 
 def cue_column_width(rows) -> int:
-	"""W39: the dependency-cue column width — the longest visible cue,
-	whole or absent (0): narrow layouts omit the field entirely, never
-	clip or relabel it."""
-	return max((len(blocker_cue(row)) for row in rows), default=0)
+	"""W39/W187 R1: the dependency-cue column width — the longest
+	visible cue OR the `Wait` heading, whichever is wider, so a lone
+	short cue (W2) can never let the four-cell heading spill into the
+	next column; still 0 when no row carries a cue (the field is
+	omitted whole, heading included)."""
+	longest = max((len(blocker_cue(row)) for row in rows), default=0)
+	return max(longest, len("Wait")) if longest else 0
 
 
 def id_column_width(rows) -> int:
@@ -842,7 +846,9 @@ class Console:
 		# the internal responsive-column identifiers stay unchanged.
 		header = "Id".ljust(id_width) + " " + "Title".ljust(title_width)
 		if cue_width:
-			header += " " + "Blk".ljust(cue_width)
+			# W187: `Wait` — what this row waits on; `Blk` read
+			# ambiguously between blocks and blocked-by.
+			header += " " + "Wait".ljust(cue_width)
 		for name, col_width in columns:
 			label = HEADER_LABELS.get(name, name.capitalize())
 			header += " " + label.ljust(col_width)
@@ -1127,7 +1133,11 @@ class Console:
 			               f"  T{row['ordinal']} {row['subject']} "
 			               f"new:{row['new']} {row['id']}",
 			               width - 1, attribute)
-		msgs_top = offset_row + 1 + min(len(rows) - start, list_budget)
+		# W176: exactly ONE blank separator row between the Thread list
+		# and the lower Messages/Message panes — spacing, not a border
+		# or a repeated label, separates the two navigation levels.
+		msgs_top = offset_row + 1 + min(len(rows) - start,
+		                                list_budget) + 1
 
 		# W14: the lower region — Message index + selected reader.
 		self._render_message_region(screen, msgs_top, height, width,
@@ -1284,9 +1294,14 @@ class Console:
 		rmarker = "»" if self.focus == "reader" else " "
 		more = "  (n: more)" if snapshot["next_after"] is not None \
 			else ""
-		index_label = f"{imarker}Msgs — {snapshot['subject']}{more}"
-		reader_label = f"{rmarker}M{selected['seq']}" if selected \
-			else f"{rmarker}Reader"
+		# W176 (finding-message-pane-header-redundancy): the split-area
+		# headings identify PANE ROLES, never content already visible in
+		# the selected Thread and Message rows. The Thread row owns the
+		# subject; the reversed index row owns selection; the reader
+		# heading names the selected message exactly once.
+		index_label = f"{imarker}Messages ({len(messages)}){more}"
+		reader_label = f"{rmarker}Message M{selected['seq']}" \
+			if selected else f"{rmarker}Message"
 		wide = width - 1 - self.INDEX_WIDTH - 2 >= self.MIN_READER
 		if wide:
 			reader_x = self.INDEX_WIDTH + 2

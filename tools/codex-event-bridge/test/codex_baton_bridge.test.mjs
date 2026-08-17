@@ -8,7 +8,7 @@ import { actionEvent, actionLocator, codexBatonBridge, validateEnvelope } from "
 
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
 
-function envelope(actions, { timedOut = false, participant = "baton.codex", uuid = UUID, projection = "4.3" } = {}) {
+function envelope(actions, { timedOut = false, participant = "baton.codex", uuid = UUID, projection = "5.0" } = {}) {
   return {
     protocol_version: 11,
     projection_version: projection,
@@ -251,10 +251,11 @@ test("an authority switch emits the new action while retiring the old set", asyn
 
 test("the typed contract refuses every inconsistent envelope by name", () => {
   const cases = [
-    // incompatible projection: older 4.x, other major, missing
-    [envelope([], { projection: "4.2" }), /4\.3 participant-action contract/],
-    [envelope([], { projection: "5.0" }), /4\.3 participant-action contract/],
-    [{ ...envelope([]), projection_version: undefined }, /4\.3 participant-action contract/],
+    // incompatible projection (W207): any 4.x, other majors, missing
+    [envelope([], { projection: "4.3" }), /projection-5 participant-action contract/],
+    [envelope([], { projection: "4.5" }), /projection-5 participant-action contract/],
+    [envelope([], { projection: "6.0" }), /projection-5 participant-action contract/],
+    [{ ...envelope([]), projection_version: undefined }, /projection-5 participant-action contract/],
     // missing snapshot token / non-boolean timed_out
     [{ ...envelope([]), snapshot_seq: "42" }, /snapshot_seq/],
     [{ ...envelope([]), result: { actionable: [], timed_out: "no" } }, /timed_out is not a boolean/],
@@ -276,8 +277,8 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
   for (const [payload, pattern] of cases) {
     assert.throws(() => validateEnvelope(payload, "baton.codex"), pattern);
   }
-  // and the boundary the gate is FOR: a later 4.x minor stays accepted
-  assert.equal(validateEnvelope(envelope([], { projection: "4.7" }), "baton.codex").snapshot_seq, 42);
+  // and the boundary the gate is FOR: a later 5.x minor stays accepted
+  assert.equal(validateEnvelope(envelope([], { projection: "5.4" }), "baton.codex").snapshot_seq, 42);
 });
 
 test("every field the trusted summary consumes is typed and agreeing", () => {

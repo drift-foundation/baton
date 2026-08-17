@@ -153,14 +153,14 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# (pass, no new next).
 	_console(executable, path, "lang.ada", [
 		f'pass work={epic} to=push.bug phase=queued '
-		f'set-next=lang.bug thread={born} comment="handing over"'])
+		f'set-next=lang.bug comment="handing over"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "push.bug"
 	assert detail["next"]["endpoint"] == "lang.bug"
 	_console(executable, path, "push.sl", [
 		f'pass work={epic} to=lang.bug phase=queued '
-		f'thread={born} comment="returning with results"'])
+		f'comment="returning with results"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
 	assert detail["current"]["endpoint"] == "lang.bug", \
@@ -169,8 +169,9 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 		"the consuming return did not consume the planned Next"
 	events = _json_read(executable, path, "events", viewer="lang.ada")
 	passes = [entry["payload"] for entry in events
-	          if entry["payload"].get("pass")]
-	assert [(p["pass"], p.get("set_next"), p["consumed_next"])
+	          if entry["kind"] in ("pass", "return")]
+	assert [(p["pass_resolution"]["endpoint"], p.get("set_next"),
+	         p["consumed_next"])
 	        for p in passes] == \
 		[("push.bug", "lang.bug", False), ("lang.bug", None, True)], \
 		"the audit does not distinguish outbound pass from return"

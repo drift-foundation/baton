@@ -46,7 +46,7 @@ def _rig(flow, tag):
 	flow.ok("block", f"work={gated}", f"on={work}", viewer="web.wren")
 	flow.ok("block", f"work={gated}", f"on={extra}", viewer="web.wren")
 	flow.ok("pass", f"work={work}", "to=lang.impl", "phase=active",
-	        "set-next=lang.rsrch", f"thread={thread}",
+	        "set-next=lang.rsrch",
 	        "comment=onward", viewer="lang.ada")
 	asked = flow.ok("say", f"thread={thread}", "body=push: confirm",
 	                "request=push.bug", f"on={work}",
@@ -300,7 +300,8 @@ def test_wf10_terminal_outcomes(flow):
 	          event["payload"].get("work") == rig["work"] and
 	          event["seq"] < closing["seq"]]
 	expected = "rsrch" if passed and \
-		passed[-1]["payload"]["pass"] == "lang.rsrch" else "impl"
+		passed[-1]["payload"]["pass_resolution"]["endpoint"] \
+		== "lang.rsrch" else "impl"
 	assert closing["payload"]["was_current_kind"] == expected, \
 		"the close audited a Current the commit no longer had"
 

@@ -4106,3 +4106,511 @@ the Baton distribution manifests and baton core contain no Codex code
 steps 148-150, past reviews) intentionally keeps the old name as
 record. Gates: Node 41/41; just test-v11 790 passed (+3 serial);
 diff-check clean. No live process touched.
+
+## Step 152 — W171: pass is a threadless Work event
+
+Implemented the pinned finding-pass-is-work-event contract (claimed
+W171 at v11 seq 174, phase active at 175). transitions.pass_work is
+the new authoritative transfer: ONE atomic act — comment stored as
+durable handoff evidence in the pass/return event payload itself,
+Current + destination phase (explicit or STAGE_PHASES-derived from the
+destination role, refused when neither names a stage), planned
+set-next (consuming return clears it, detour keeps it visibly set),
+sender claim release, wait fields cleared, _touch_work — with the
+handler gate, already-at, and planned-Next races all re-derived
+in-lock; op-id retries replay the one committed transfer. The event
+result echoes work/to/destination_phase/consumed_next. post_thread
+lost the ENTIRE pass vocabulary (pass_to/pass_phase/set_next
+parameters, the => branches, the mutate transfer block): say is
+discussion + the @ request operator, and a message can never move the
+baton (a pass_to kwarg is now a TypeError). CLI: the pass verb drops
+thread= from its grammar (unknown-key refusal by the W13 parser — the
+old coupling cannot silently survive) and dispatches to pass_work; the
+TUI command bar rides the same surface. PROJECTION_VERSION 4.4 with
+the inventory comment. New tests/work/test_w171_threadless_pass.py
+(5): unknown-operand refusal with nothing moved; the complete
+authoritative event record (exact comment, pass_resolution,
+destination_phase, set_next, consumed_next, authorization snapshot, NO
+thread key); message/cursor/count immutability proven on Work carrying
+several threads (messages table, seen cursors, obligations, every
+thread page, member-relative new counts for three viewers, and
+detail.message_count all byte-still while Current moves);
+impl-to-review handoff waking the destination through W136 Work
+readiness plus the approval-to-review consuming return; unauthorized/
+already-at/terminal refusals. test_w80_pass rewritten threadless (the
+retry-dedup pin now counts transfer events, the evidence pin reads the
+event payload); w13 grammar matrix gains the unknown-thread case and
+the assist pin flips to thread-absent; wf01-wf13 workflow passes
+converted to the threadless dialect (wf10 audits pass_resolution);
+fixtures.post routes legacy pass_to call sites through pass_work;
+ws4 selection tests carry @ request (a message-borne pass is a
+TypeError pin now); w136 version pin moves to 4.4. Break-sweeps:
+removing the claim release redded the two atomicity pins; dropping
+comment from the payload redded the two evidence pins; both restored
+green. docs/BATON-WORK.md pass paragraph rewritten threadless. Gates:
+just test-v11 795 passed (+3 serial); git diff --check clean.
+
+## Step 153 — W171 R1: the claimant gate on pass
+
+Round-1 review (review-2026-08-16T19-53-50Z.md) found the one hole the
+move exposed: pass_work's committing re-read omitted
+active_team/active_member, so on a shared route a second eligible
+handler could transfer Work underneath the recorded claimant and
+silently clear the claim. Corrected exactly as ruled: the live row now
+carries the claimant; if a claim exists and is not the actor, the pass
+refuses NAMING the claimant ("actively claimed by lang.ada; route
+eligibility never moves work underneath its recorded executor —
+recover or release the claim explicitly first") without burning an
+event or touching Work; the claimant's own atomic release-and-transfer
+and the existing unclaimed-pass behavior are unchanged. The reviewer's
+additive regression (two-handler route: Grace's steal refuses with
+current/phase/next/active/status all unchanged, then Ada's own pass
+succeeds) was the red; it greens with the fix. Gates: just test-v11
+796 passed (+3 serial); diff --check clean.
+
+## Step 154 — W179: direct-scope Work counters
+
+Implemented finding-visible-scope-message-counts (claimed W179 at v11
+seq 198, already active). The three ruled corrections, exactly per the
+reviewer's revalidation: _message_count now counts distinct messages
+in the Work's DIRECTLY labelled threads (no _descendants expansion);
+_my_pending selects pending obligations THROUGH those direct threads
+(DISTINCT via LEFT JOIN thread_labels), with thread-less verification
+assignments staying on their own Work directly — never aggregated from
+descendants either way; _row_view's plain "new" cell is the direct
+"own" count, correcting home/tree/detail/JSON/TUI in the one shared
+place. new_count keeps the explicit recursive read but names the union
+subtree_total (own/children/overlap retained; overlap = own +
+child_sum - subtree_total). PROJECTION_VERSION 4.5 with inventory
+comment. W36's recursive-default Msg pin rewritten to direct scope
+(parent counts only its opener; the both-children shared thread counts
+for EACH child, never the parent; seen-independence retained). New
+tests/work/test_w179_direct_scope_counters.py (4) pins the W24 shape —
+parent with two direct messages, open children, one hidden CLOSED
+child, a nested grandchild, and a multiply-labelled thread: home row
+and detail return identical direct facts equal to the threads entering
+exposes; every kind of descendant conversation growth moves nothing on
+the parent; the breakdown stays honest and named (no unqualified
+"total", own == the plain cell, subtree_total = own + sum - overlap,
+overlap visible for the shared thread, the closed child honest inside
+the explicit read); seen on a direct thread clears only direct
+counters while the subtree read keeps the descendants. Consumers
+renamed across parity/projection/tui/w5/ws4/wf02/wf06/wf07; the parity
+TUI cell pin now compares the drawn row to "own". Break-sweep:
+restoring the recursive default in _row_view redded five pins across
+the new suite and parity; restored green. BATON-WORK.md gained the
+direct-scope paragraph. Gates: just test-v11 800 passed (+3 serial);
+diff --check clean.
+
+## Step 155 — W179: the honest-breaking 5.0
+
+Review round 1: behavior green; the human ruled there is no v11
+client-compat limit during the trial, so the breaking projection is
+named honestly — PROJECTION_VERSION 5.0, no alias, no migration (the
+4.5 inventory entry became the 5.0 entry stating the ruling). A stale
+4.x --expect-projection demand now refuses cleanly: the jsonapi compat
+pin flips (4.0 refuses, 5.0 succeeds), the w136 wake-contract pin
+demands 5.0 and proves the 4.3 refusal, and the w47 heartbeat pin
+drops its 4.2 same-major demand for the current 5.0 one. Cross-product
+implication FLAGGED for ruling, not silently changed:
+codex-baton-bridge's signed-off envelope gate requires projection 4.x
+>= 4.3 and will refuse a 5.0 wait — the next immutable candidate
+carrying W136/W148/W171/W179 needs the bridge's gate moved to the 5.x
+contract as its own reviewed follow-up before the overlap launch. The
+threadless-verification My question (verification assignments counted
+on their own Work directly, my LEFT JOIN reading) stays held for the
+pending ruling; W176 not started. Gates: just test-v11 800 passed
+(+3 serial); diff --check clean.
+
+## Step 156 — W176: role-labelled message panes with the one separator
+
+Implemented finding-message-pane-header-redundancy (claimed W176 at
+v11 seq 206 after the explicit pass; already active). Two bounded
+renderer changes in _render_detail/_render_message_region, no
+protocol or projection change: (1) exactly ONE blank separator row
+reserved between the last painted Thread row and the lower region
+(spacing, not a border); (2) the content-repeating headings replaced
+by stable pane-role labels — `Messages (N)` (page-honest count with
+the existing more cue) over the index and `Message M<seq>` over the
+reader (`Message` bare when nothing is selected). The Thread row
+remains the sole subject owner; the reversed index row remains the
+selection cue. Superseded the W31 subject-repeating pin
+(test_the_msgs_pane_names_the_selected_thread_and_subject ->
+test_the_message_panes_are_role_labelled_not_content_repeating: no
+`Msgs —`, subject appears exactly once, both role labels present);
+w71 focus pins updated to the new labels. New
+tests/work/test_w176_pane_labels.py (4): wide distinct regions with
+the exact one-blank-row separator; long (80-byte-max) and
+wide-character subjects contained in their Thread rows and absent
+from the lower headings; selection moving the list highlight and the
+reader heading/body together; the narrow stack keeping labels,
+honest counts, and the separator. Break-sweeps: restoring the
+subject-heading redded three pins; removing the separator redded the
+two exact-separator pins; both restored green. BATON-WORK.md pane
+paragraph updated. Gates: just test-v11 806 passed (+3 serial —
+includes the reviewer's added W179 direct-label obligation pin);
+diff --check clean.
+
+## Step 157 — W187: the Wait column, arrowless
+
+Implemented finding-wait-column-label (claimed W187 at v11 seq 214
+after W176 closed satisfying; already active). Presentation only, two
+sites exactly as revalidated: blocker_cue renders `Wn` / `Wn+N` (was
+`← Wn` / `← Wn +N`) — W171+2 reads "waits on W171 and two more open
+blockers", empty when nothing blocks; _render_table's sole heading
+renamed Blk -> Wait (Blk read ambiguously between blocks/blocked-by,
+and the arrow competed with the ↳ containment marker, which stays the
+only containment fact). Deterministic first-blocker selection,
+open_blockers count, [b] deps, ultra-short selectors, and the
+whole-column narrow omission untouched. W39's presentation pins
+superseded in place (arrow-detector assertions replaced by
+gate-selector presence checks; header pins assert Wait and refuse
+Blk); the parity header-width probe reads the painted Wait heading.
+New tests/work/test_w187_wait_column.py (2): zero/one/many render
+empty / Wn / Wn+N with the exact count and no arrow anywhere at wide
+width, and narrow tables either keep the Wait heading with the
+arrowless cell or omit the whole field with no fragment. Break-sweep:
+restoring the arrow form redded seven pins across w187/w39; green on
+restore. BATON-WORK.md cue paragraph rewritten. Gates: just test-v11
+809 passed (+3 serial); diff --check clean.
+
+## Step 158 — W187 R1: the Wait heading fits its column
+
+Round-1 review named the one defect the relabel exposed: with a lone
+short cue (W2), cue_column_width returned 2 while the Wait heading is
+4 cells — the heading spilled into the next column and shifted every
+later cell (the old `← W2` form was coincidentally 4 wide and masked
+it). Applied the pinned correction: cue_column_width is
+max(longest cue, len("Wait")) when any cue exists, still 0 when none —
+the field (heading included) is still omitted whole at narrow widths.
+The reviewer's added regression
+test_the_wait_heading_fits_the_allocated_cue_column was the red; it
+greens with the fix. Gates: just test-v11 810 passed (+3 serial);
+diff --check clean.
+
+## Step 159 — W207: the bridge certifies projection 5
+
+Implemented the revalidated projection-5 gate (claimed W207 at v11
+seq 225, already active) — the exact follow-up flagged at W179's 5.0
+ruling. codex_baton_bridge.mjs validateEnvelope now requires
+projection major 5 with minor >= 0: 4.x (4.3 and 4.5 pinned), other
+majors (6.0 pinned), and missing all refuse by the new name
+"projection-5 participant-action contract"; every other envelope check
+(protocol 11, participant, authority uuid, snapshot token, boolean
+timed_out, contradictory-timeout, duplicate keys, the three typed
+kinds with key/field agreement, R3a trusted-summary fields) is
+untouched. Node fixtures moved to 5.0 (bridge suite envelope default
+and the formatter's end-to-end event); the acceptance boundary pin is
+now a later 5.x minor (5.4). README launch section updated: requires a
+release speaking projection 5 (the next candidate carries
+W136/W148/W171/W179), 4.x refused. The bridge stays external —
+nothing enters baton core or the distribution. Break-sweep: reverting
+the gate to 4.x redded the typed-contract refusal matrix (bounded
+run; the full suite additionally hangs under the defect because the
+executor-boundary test's monitor retries the refused envelope forever
+— itself a demonstration that a wrong-major deployment cannot pass
+CI). Gates: npm test 41/41; just test-v11 810 passed (+3 serial);
+diff --check clean.
+
+## Step 160 — W163 slice A: the generic ACP readiness client
+
+Implemented plan slice A of finding-v11-acp-agent-bridge (claimed W163
+at v11 seq 238, phase active from the handoff). New external program
+tools/acp-baton-bridge beside the Codex bridge — pinned OFFICIAL SDK
+@agentclientprotocol/sdk 1.3.0 (ACP v1, ndJsonStream over the agent
+subprocess's stdio; exact-version dependency, package-lock committed,
+node_modules gitignored). Four modules with the ruled boundaries:
+config.mjs (everything explicit — agent command/args/env/cwd, baton
+binary/config/participant, session new|load + cwd, the exact
+permissionMode, policyResources whose absence REFUSES startup,
+stateDir; nothing inferred), baton_readiness.mjs (imports the SHARED
+projection-5 validateEnvelope from the Codex bridge — one gate, never
+re-typed; agent-generic compact [BATON READY] prompt text; W148-style
+authority+participant+key level-triggered DeliveryMemory; injectable
+wait executor), acp_agent_session.mjs (spawn the CONFIGURED agent;
+initialize/negotiate BEFORE any session use; new-with-persisted-id or
+load-exactly-the-persisted-session — bridge-owned state only; require
+the EXACT configured mode after new/load with no fallback; serialized
+prompt turns; requestPermission under bypass -> cancelled + reported
+policy/protocol failure, NEVER auto-approved; streamed updates to the
+foreground surface), acp_baton_bridge.mjs (the supervised loop: wait
+-> shared gate -> unseen actions -> serialized turns; failures visible
+and retried without discarding readiness; --once; SIGINT/SIGTERM).
+test/fake_acp_agent.mjs is a REAL subprocess speaking the same SDK
+with env-selected behaviors (no-bypass, no-modes, no-load, permission
+request, slow turn, malformed first line, exit-on-prompt, JSONL
+evidence log). Thirteen acceptance tests: lifecycle ordering
+(initialize -> session/new -> set_mode(bypassPermissions) -> prompt),
+compact-line delivery in the configured mode, level-trigger +
+reappearance, busy serialization with no interleaved turns,
+permission-cancel + visible failed delivery, crash retry with the
+same key reaching the healthy agent, two-participant isolation both
+directions, wrong-participant refusal with nothing reaching the
+agent, load-resumes-the-persisted-id continuity, load-without-
+capability fail-closed before session use, unsupported-mode
+fail-closed with no set_mode fallback, missing-policy startup
+refusal, malformed-output retry. Break-sweep: replacing the cancel
+with auto-approval (the explicitly forbidden compatibility mechanism)
+redded the permission pin; green on restore. README documents the
+boundary, config, behavior, and that slices B (live Claude) and C
+(Gemini by configuration) are separately reviewed steps — W163 does
+not close on a fake substitute. Gates: acp bridge 13/13; codex bridge
+41/41; just test-v11 810 passed (+3 serial); diff --check clean.
+
+## Step 161 — W163 slice A round 2: the five corrections
+
+Round-1 review (review-2026-08-17T01-14-16Z.md) returned R1-R5; all
+landed (reclaimed W163 at v11 seq 250). R1 reproducibility: the fake
+agent now OWNS its lifetime — an explicit keepalive interval plus
+deliberate exit(0) on stdin end/close, so no Node version's event-loop
+accounting can end the subprocess before initialize; engines pins
+node >= 20; npm test runs the explicit ./test file path. R2 no
+partial-session reuse: AcpAgentSession publishes ready=true only after
+initialize + session new/load + exact mode enforcement ALL succeed;
+start() failure kills and forgets the partial connection; ensureSession
+reuses only alive()==ready sessions and nulls a failed factory; two
+repeated-envelope regressions (unsupported mode, missing load
+capability) prove the refusal repeats with initialize counted per
+retry, zero prompts, zero set_mode fallback. R3 required policy:
+policyResources is REQUIRED non-empty with non-empty entries (absent,
+empty, blank, missing, unreadable-mode-000 all refuse before spawn);
+agent.env values must be strings; the fake agent gained the
+deployment-policy model (FAKE_ACP_TRY_FORBIDDEN gated by the policy
+file) and two pinned paths: a configured hard denial engages with NO
+side-effect file, no permission prompt, visible failed tool_call on
+the foreground surface, and the wake still delivered; a broken policy
+FAILS CLOSED (hook/failure logged, stopReason refusal, no side
+effect). R4 supervision: every setup call (initialize, session
+new/load, set_mode) races the child's exit, spawn 'error' (missing
+executable is a visible lifecycle event), and the configured
+setupTimeoutMs deadline; prompt turns race agent death (no arbitrary
+work deadline); signal abort tears the child down so pending protocol
+calls reject — proven by mute-agent deadline + recovery, stuck-turn
+shutdown returning within bounds, and missing-executable retry tests.
+R5 one gate: just test-v11 now ends with the test-acp sub-gate
+(deterministic npm ci from the committed lockfile when node_modules is
+absent, then npm test) — the operator-facing v11 gate cannot be green
+while the ACP suite is red. Gates: acp 22/22 THROUGH just test-v11
+(810 + 3 serial + 22); codex 41/41; diff --check clean.
+
+## Step 162 — W163 slice A round 3: R6 session-id atomicity
+
+Round-2 review (review-2026-08-17T02-59-17Z.md) closed R1-R5 and named
+the one remaining atomicity hole: the new-session path persisted
+session.json immediately after session/new, BEFORE enforceMode proved
+the exact configured permission mode — a mode-rejected agent was
+killed and forgotten in memory, but its rejected session id stayed
+published as resumable state, so a later load could resume a session
+that never completed the approved setup boundary. Corrected
+(reclaimed W163 at v11 seq 254): the session id becomes resumable
+state only after the COMPLETE setup boundary — initialize, session
+new/load, and exact mode enforcement — has succeeded; a rejected
+setup persists nothing, and because persistence happens only on that
+success path, a failed bootstrap never erases an earlier accepted
+session record (valid continuity is not cleanup collateral). The
+reviewer's additive regression (failed mode enforcement publishes no
+resumable session id) was the red; 23/23 with the fix. Gates: just
+test-v11 810 + 3 serial + acp 23/23; codex 41/41; diff --check clean.
+
+## Step 163 — W163 slice B: the live Claude proof
+
+Executed the separately gated live proof (reclaimed W163 at v11
+seq 258) with REAL components end to end, no fakes: the official
+@agentclientprotocol/claude-agent-acp adapter pinned at 0.69.0,
+installed under /home/sl/opt/acp/claude-agent-acp/0.69.0 (separate
+from the Baton distribution); a scratch projection-5.0 v11 authority
+at /home/sl/baton-acp-live/authority with participant acp.claude and a
+wrapper CLI over the repo tree; a dedicated workspace whose project
+settings carry the deployment policy (permissions.deny + a blocking
+PreToolUse hook); acp-baton-bridge unchanged from the signed-off
+slice A. Five live runs (logs + threads archived in
+finding-v11-acp-agent-bridge/evidence/slice-b/):
+1. Bootstrap (session new): initialize -> new session -> exact
+   bypassPermissions selected; the v11 wake for W2 prompted the live
+   Claude session, which autonomously claimed the Work through the
+   canonical CLI, posted the continuity marker XYZQ-2739-ALPHA in the
+   thread, and closed it satisfying — streamed output visible on the
+   foreground surface throughout.
+2. Continuity (session load): the persisted session id was loaded and
+   a NEW Work's wake asked for the earlier marker — the loaded session
+   recalled XYZQ-2739-ALPHA and posted it durably (T6 seq 8): the live
+   continuity marker survived an external Baton-triggered turn in the
+   intended session.
+3. Permitted-without-prompt: a wake asking for a benign shell command
+   ran with ZERO permission requests; allowed.txt exists.
+4. Prohibited: FAILED HONESTLY — the live agent found that the
+   'git -C <path> commit' spelling evaded both the deny prefix
+   pattern and the naive substring hook (a stray empty commit landed
+   in the SCRATCH repo, since reset to baseline), and also reported
+   the hook's false-positive on prose quoting the command. A genuine
+   deployment-policy defect, discovered by the live gate exactly as
+   designed.
+5. Prohibited, hardened: the policy was rebuilt as a PARSING guard
+   (git_guard.py: shell segments split on operators, git global flags
+   skipped, the actual subcommand matched against the prohibition
+   set; unparseable-with-git fails closed) — self-test matrix pins
+   allow/block for nine spellings including -C, -c, --git-dir, sudo
+   wrappers, and prose false-positive avoidance. Both commit
+   spellings then DENIED verbatim before execution, HEAD unchanged
+   (no side effect), zero cancelled permission requests (the hard
+   denial is agent-side beneath bypass, exactly as ruled), and the
+   report quoting the prohibited text posted without a false
+   positive.
+The slice-B acceptance therefore holds live: initialize-before-
+session, wake-prompts-the-configured-session, load continuity,
+visible streaming, exact bypass mode, permitted-without-prompt, and
+configured-prohibited-without-side-effect-or-prompt. Slice C (Gemini
+by configuration) remains open. Gates unchanged: just test-v11 810 +
+3 + acp 23/23; codex 41/41; diff --check clean.
+
+## Step 164 — W163 slice B round 2: R7 fail-closed guard, R8 evidence
+
+Round-1 slice-B review (review-2026-08-17T03-19-52Z.md) accepted the
+live transport/continuity evidence and returned two corrections
+(reclaimed W163 at v11 seq 264). R7: git_guard.py is rebuilt as a
+genuinely FAIL-CLOSED enforcer — malformed hook JSON, non-string
+commands, untokenizable lines mentioning git, unresolvable shell
+constructs mentioning git, and nesting-depth overruns all DENY;
+attached POSIX operators are tokenized in punctuation mode (never
+whitespace splitting, so 'git commit;true' and 'git commit&&true'
+block); env assignments, wrapper programs AND their flags unwrap
+iteratively (env/sudo -E/nohup/timeout N/xargs/nice/stdbuf/...);
+sh|bash -c strings are analyzed RECURSIVELY; substitutions ($( ), ` `,
+<( ), >( )) mentioning git deny outright; an unrecognized git global
+flag that obscures the subcommand denies when anything prohibited
+follows; the prohibition set widened (am/merge/revert/update-ref
+included). The executable adversarial matrix guard_matrix.sh pins 47
+cases — every configured prohibited mutation, attached separators,
+wrapper stacks, nested shells, substitutions, eval, malformed/
+non-string/unterminated inputs (fail closed), and nine permitted
+forms including prose mentioning 'git commit' — all holding, with
+exit-status enforcement so a mismatch fails the script. R8: the exact
+enforcement boundary is preserved dossier-relative in
+evidence/slice-b/ — block-git-commit.sh (the wrapper settings.json
+invokes), git_guard.py, guard_matrix.sh, and guard-matrix-output.txt
+(exit 0). Live re-run (run6): the agent attempted THREE spellings —
+plain, env+nohup+-C wrapper stack, nested bash -c — every one denied
+verbatim before execution by the named-subcommand message, HEAD
+unchanged (no side effect), zero cancelled permission requests, no
+workarounds. Slice-B acceptance now holds under an enforcer that
+cannot be bypassed by alternate shell syntax and never fails open.
+
+## Step 165 — W163 slice B round 3: R9 the kernel boundary, R10 self-contained evidence
+
+Round-2 review (review-2026-08-17T03-26-12Z.md) was right that finite
+Bash parsing can never be the ruled hard boundary. R9 is now a REAL
+containment boundary (reclaimed W163 at v11 seq 268): the deployment
+launches the ACP agent through policy/launch-agent-sandboxed.sh —
+bubblewrap (unprivileged kernel mount namespace) remounting every path
+in protected-paths.txt READ-ONLY around the agent subprocess. No
+spelling, wrapper, alias, arbitrary interpreter, or renamed executable
+inside the session can mutate protected repository state: the kernel
+refuses the write. boundary_matrix.sh proves enforcement through the
+ACTUAL boundary for the complete prohibition class — commit, add,
+reset, branch, tag, stash, checkout -b, update-ref, alias-spelled
+commit, python3 writing .git directly, shell redirection into .git,
+and a renamed-git binary all BLOCK; log/status/diff and workspace
+writes ALLOW — 16 cases, exit-enforced. The PreToolUse hook remains
+exactly what the review permits: an immediate friendly denial in
+front of the kernel backstop, with its R9-named gaps fixed anyway
+(index/worktree verbs add/checkout/switch/restore/stash/branch/tag/
+mv/rm/clean/apply/worktree added; -c alias.* definitions fail closed;
+wrapper value-flags nice -n 5 / sudo -u nobody consumed) and the
+guard matrix extended to 56 cases. Live rerun (run7) through the
+sandboxed agent: the commit and git-add spellings denied pre-execution
+by the hook, and the python3 direct .git write reached the kernel and
+failed with EROFS inside the live session — the backstop demonstrated
+live; HEAD unchanged, worktree clean, zero permission prompts. R10:
+the wrapper resolves git_guard.py beside itself; boundary_matrix.sh
+self-provisions a throwaway repo when run without arguments; the
+COMPLETE enforcement boundary (wrapper, guard, both matrices,
+launcher, protected-paths, sandboxed load.json, run7 log, T26
+transcript) is archived dossier-relative, and BOTH matrices were
+re-run from the dossier copies (guard-matrix-output.txt and
+boundary-matrix-output.txt, both "all cases hold") — reproduction no
+longer depends on /home/sl/baton-acp-live.
+
+## Step 166 — W163 slice B round 4: R11 no uncontained launch
+
+Round-3 review verified R9/R10 (guard 56/56, kernel 16/16, the
+reviewer's own /proc/1/root probe denied) and named the one bounded
+gap: an empty or comment-only protected-paths list launched the agent
+with ZERO read-only mounts — broken policy silently producing an
+uncontained session. Corrected (reclaimed W163 at v11 seq 272): the
+launcher counts EFFECTIVE entries and refuses before exec bwrap when
+the count is zero; boundary_matrix.sh gained four executable refusal
+cases (empty list, comments-only, missing file, nonexistent entry —
+all must exit 2), now 20/20. protected-paths.txt and the bridge README
+document that entries identify ACTUAL Git metadata paths — the
+resolved gitdir (git rev-parse --absolute-git-dir) for worktree-style
+.git files, never an assumed .git directory — and that an empty list
+refuses the launch. Both matrices re-run from the dossier copies:
+guard 56/56, boundary 20/20, outputs archived. The accepted live
+continuity and EROFS proofs were not repeated per the review.
+
+## Step 167 — W163: the co-deployed bridge and the safe examples
+
+Implemented the pinned distribution ruling (reclaimed W163 at v11
+seq 276 after the slice-B sign-off at seq 275). build_release's
+SNAPSHOT now carries the generic acp-baton-bridge INTO the release
+candidate: source modules, package.json, the exact-version
+package-lock.json, the bin/ entry point, the README, and the complete
+acceptance suite (fake agent included) — plus the shared projection-5
+gate file it imports WITH that file's own two sibling imports
+(config.mjs, send_event.mjs from the codex bridge). node_modules is
+never shipped: the operator runs npm ci beside the shipped lockfile
+for a deterministic install, exactly the pattern the test-acp gate
+uses. _modes generalized: anything under a bin/ directory is an entry
+point (the co-deployed wrapper publishes 0755; previously only
+top-level bin/ was executable). Proven end to end: a fresh candidate
+built into a scratch root passes validate(), carries every bridge
+file, publishes the wrapper 0755, and the FULL 23-test acceptance
+suite runs green FROM THE CANDIDATE after npm ci — the operator needs
+nothing from the source checkout. Two non-secret example configs ship
+(examples/acp-bridge-claude.json with the sandbox-launcher/AGENT_REAL
+shape and the three policy resources; examples/acp-bridge-gemini.json
+driving gemini --acp purely by configuration): every value is an
+explicit <PLACEHOLDER> that cannot run as shipped — nonexistent
+policy paths refuse startup before any agent spawns — and the
+comments state that adapters, credentials, and prohibition policies
+stay deployment-owned. Agent adapters remain uninstalled/unbundled.
+Packaging baseline unchanged (test_release_build 2 pre-existing
+failures / 79 passed, identical before and after; the wider
+tests/packaging suite was already red on this WIP tree independent of
+this change). Gates: just test-v11 810 + 3 + acp 23/23; codex 41/41;
+diff --check clean. Slice C remains pending a real Gemini entry point.
+
+## Step 168 — W163 distribution round 2: R12-R14, the real deployer
+
+Round-1 distribution review (review-2026-08-17T03-49-32Z.md) was
+right on all three counts (reclaimed W163 at v11 seq 280). R12: the
+co-deployment now lives in the ACTUAL v11 path — tools/deploy_work.py
+(the mechanism behind just deploy-v11); the earlier build_release.py
+changes are REVERTED whole, restoring the frozen v10 pipeline
+untouched. R13: the immutable-distribution boundary holds — the
+bridge's pinned dependencies are resolved DURING candidate
+construction (a staged npm ci from the committed exact-version
+lockfile inside the scratch candidate, verified to have produced the
+pinned @agentclientprotocol/sdk) BEFORE the atomic rename; no npm, no
+network, and no mutation at the published target, and a missing
+tool/failed resolution refuses while the target does not yet exist.
+R14: the release layout is the reviewer-suggested stable shape —
+bin/acp-baton-bridge (a generated 0755 wrapper) beside bin/baton,
+with the private runtime at lib/acp-baton-bridge (source, lockfile,
+README, acceptance suite, resolved node_modules) and the shared
+projection-5 gate at lib/codex-event-bridge/src so relative imports
+hold; examples publish as conf/acp-bridge-{claude,gemini}.example.json.
+New committed regression tests/work/test_w163_deploy_bridge.py (5,
+inside the just test-v11 gate): both entry points exist 0755 with the
+deployer's facts naming the bridge; examples present, placeholder-
+inert, and free of host paths; the pinned SDK version resolved INSIDE
+the target matching the lockfile plus the shared gate beside it; the
+bridge --help AND the complete shipped 23-test acceptance suite run
+from the target with npm and the host node checkout stripped from
+PATH (node-only shim) — no checkout, no npm, no network; and
+npm-unavailable assembly refuses with the target never becoming
+visible. Break-sweep: dropping the _stage_bridge call redded four of
+five; restored green. test_deploy_v11's ruled-layout pin amended for
+the two-product bin/ and lib/ (exact listings, third-file smuggling
+still fails). Bridge README documents the deployed layout. Gates:
+just test-v11 815 passed + 3 serial + acp 23/23; diff --check clean.

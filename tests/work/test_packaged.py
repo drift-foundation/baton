@@ -81,13 +81,11 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	_run(archive, path, "respond", f"obligation={requested["seq"]}",
 	     "body=ours, tracked", viewer="lang.ada")
 	passed = _run(archive, path, "pass", f"work={lang42}",
-	              "to=lang.impl", "phase=active", "set-next=lang.rev",
-	              f"thread={lang_thread}", "comment=implement",
+	              "to=lang.impl", "phase=active", "set-next=lang.rev", "comment=implement",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	returned = _run(archive, path, "pass", f"work={lang42}",
-	                "to=lang.rev", "phase=review",
-	                f"thread={lang_thread}", "comment=done",
+	                "to=lang.rev", "phase=review", "comment=done",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	_run(archive, path, "close", f"work={lang42}", "rationale=verified", "outcome=satisfying",

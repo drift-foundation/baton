@@ -53,7 +53,6 @@ def test_wf01_straight_through_report(flow):
 	# 2. research passes to implementation with planned Next lang.rev.
 	passed = flow.ok("pass", f"work={work}", "to=lang.impl",
 	                 "phase=active", "set-next=lang.rev",
-	                 f"thread={flow.born(work, 'lang.ada')}",
 	                 "comment=confirmed; implement", viewer="lang.ada")
 	assert passed["kind"] == "pass"
 	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
@@ -77,7 +76,6 @@ def test_wf01_straight_through_report(flow):
 	        viewer="lang.grace")
 	returned = flow.ok("pass", f"work={work}", "to=lang.rev",
 	                   "phase=review",
-	                   f"thread={flow.born(work, 'lang.grace')}",
 	                   "comment=done, please verify",
 	                   viewer="lang.grace")
 	assert returned["kind"] == "return"

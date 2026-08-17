@@ -146,9 +146,10 @@ def test_ctrl_w_moves_panes_and_footer_advertises(world):
 	assert "after #" not in opened, \
 		"the internal projection cursor leaked (W71)"
 	msgs = "\n".join(ptyharness.replay(steps[1]))
-	assert "»Msgs" in msgs, "Ctrl-W j did not focus the Message index"
+	assert "»Messages (" in msgs, \
+		"Ctrl-W j did not focus the Message index"
 	reader = "\n".join(ptyharness.replay(steps[2]))
-	assert "»M" in reader and "»Msgs" not in reader, \
+	assert "»Message M" in reader and "»Messages (" not in reader, \
 		"the second Ctrl-W j did not focus the reader"
 	cycled = "\n".join(ptyharness.replay(steps[3]))
 	assert "»Threads" in cycled, "Ctrl-W Ctrl-W did not cycle to Threads"

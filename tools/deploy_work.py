@@ -12,8 +12,21 @@ this tool never adopts, overwrites, or deletes. The layout is the ruled
 release shape:
 
     <target>/bin/baton             executable zipapp (cli:entry)
+    <target>/bin/acp-baton-bridge  the co-deployed generic ACP readiness
+                                   client (W163 distribution ruling)
+    <target>/lib/acp-baton-bridge/ its private runtime: source, pinned
+                                   lockfile, README, acceptance suite,
+                                   and node_modules RESOLVED DURING
+                                   CANDIDATE CONSTRUCTION — the deployed
+                                   release runs without the source
+                                   checkout, npm, or network
+    <target>/lib/codex-event-bridge/src/  the shared projection-5
+                                   envelope gate the bridge imports
     <target>/doc/BATON-WORK.md     the operator quickstart
     <target>/conf/baton.example.json  a complete valid config example
+    <target>/conf/acp-bridge-*.example.json  non-secret bridge examples
+                                   (explicit placeholders; cannot run
+                                   as shipped)
     <target>/tmpl/<pattern>.md     the numbered template ASSETS beside bin/
                                    (M6: never embedded in the zipapp)
 
@@ -30,6 +43,7 @@ import hashlib
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import zipapp
@@ -43,7 +57,69 @@ SOURCE_ASSETS = (
 	("docs/BATON-WORK.md", "doc/BATON-WORK.md"),
 	("docs/BATON-SETUP.md", "doc/BATON-SETUP.md"),
 	("conf/baton.example.json", "conf/baton.example.json"),
+	# W163: non-secret bridge example configurations — every value an
+	# explicit placeholder; nothing runnable as shipped.
+	("examples/acp-bridge-claude.json",
+	 "conf/acp-bridge-claude.example.json"),
+	("examples/acp-bridge-gemini.json",
+	 "conf/acp-bridge-gemini.example.json"),
 )
+
+# W163 (distribution ruling, 2026-08-17): the generic acp-baton-bridge
+# co-deploys with Baton as a ready product. Its runtime dependencies are
+# resolved INTO the candidate before atomic publication (a staged
+# `npm ci` from the committed exact-version lockfile); a missing tool or
+# failed resolution refuses the deployment before the target exists.
+# Agent adapters, credentials, and prohibition policies remain
+# deployment-owned and are never bundled.
+SOURCE_BRIDGE = os.path.join(REPO, "tools", "acp-baton-bridge")
+SOURCE_SHARED_GATE = (
+	"tools/codex-event-bridge/src/codex_baton_bridge.mjs",
+	"tools/codex-event-bridge/src/config.mjs",
+	"tools/codex-event-bridge/src/send_event.mjs",
+)
+BRIDGE_WRAPPER = """#!/usr/bin/env bash
+# Distribution entry point for the co-deployed generic ACP readiness
+# client (W163). The runtime lives in ../lib/acp-baton-bridge with its
+# dependencies already resolved; nothing is fetched or installed here.
+HERE="$(cd "$(dirname "$0")" && pwd)"
+exec node "$HERE/../lib/acp-baton-bridge/src/acp_baton_bridge.mjs" "$@"
+"""
+
+
+def _stage_bridge(scratch: str) -> None:
+	"""Assemble the READY bridge product inside the candidate."""
+	if not os.path.isdir(SOURCE_BRIDGE):
+		fail(f"this checkout is incomplete: {SOURCE_BRIDGE} is missing")
+	runtime = os.path.join(scratch, "lib", "acp-baton-bridge")
+	shutil.copytree(SOURCE_BRIDGE, runtime,
+	                ignore=shutil.ignore_patterns("node_modules"))
+	for relative in SOURCE_SHARED_GATE:
+		source = os.path.join(REPO, relative)
+		if not os.path.isfile(source):
+			fail(f"this checkout is incomplete: {source} is missing")
+		destination = os.path.join(
+			scratch, "lib", os.path.relpath(relative, "tools"))
+		os.makedirs(os.path.dirname(destination), exist_ok=True)
+		shutil.copyfile(source, destination)
+	if shutil.which("node") is None or shutil.which("npm") is None:
+		fail("node and npm (node >= 20) are required to assemble the "
+		     "co-deployed ACP bridge; refusing before publication")
+	resolved = subprocess.run(
+		["npm", "ci", "--no-fund", "--no-audit"], cwd=runtime,
+		capture_output=True, text=True)
+	if resolved.returncode != 0:
+		fail("npm ci could not resolve the bridge's pinned dependencies "
+		     f"from its committed lockfile; refusing before "
+		     f"publication: {resolved.stderr.strip()[:400]}")
+	if not os.path.isdir(os.path.join(
+			runtime, "node_modules", "@agentclientprotocol", "sdk")):
+		fail("dependency resolution left no @agentclientprotocol/sdk; "
+		     "refusing an incomplete bridge runtime before publication")
+	wrapper = os.path.join(scratch, "bin", "acp-baton-bridge")
+	with open(wrapper, "w", encoding="utf-8") as handle:
+		handle.write(BRIDGE_WRAPPER)
+	os.chmod(wrapper, 0o755)
 
 
 def fail(message: str) -> "NoReturn":
@@ -107,6 +183,7 @@ def main(argv=None) -> int:
 			destination = os.path.join(scratch, target_rel)
 			os.makedirs(os.path.dirname(destination), exist_ok=True)
 			shutil.copyfile(source, destination)
+		_stage_bridge(scratch)
 		with open(archive, "rb") as handle:
 			digest = hashlib.sha256(handle.read()).hexdigest()
 		os.rename(scratch, target)
@@ -116,6 +193,7 @@ def main(argv=None) -> int:
 	print(json.dumps({
 		"target": target,
 		"executable": os.path.join(target, "bin", "baton"),
+		"acp_bridge": os.path.join(target, "bin", "acp-baton-bridge"),
 		"archive_sha256": digest,
 		"templates": templates,
 		"next": f"{os.path.join(target, 'bin', 'baton')} init "

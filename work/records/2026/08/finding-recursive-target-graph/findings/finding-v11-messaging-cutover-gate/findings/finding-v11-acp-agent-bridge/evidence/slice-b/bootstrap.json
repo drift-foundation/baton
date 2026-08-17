@@ -1,0 +1,27 @@
+{
+  "baton": {
+    "binary": "/home/sl/baton-acp-live/bin/baton",
+    "config": "/home/sl/baton-acp-live/authority/baton.json",
+    "participant": "acp.claude",
+    "waitTimeoutSeconds": 30
+  },
+  "agent": {
+    "command": "/home/sl/opt/acp/claude-agent-acp/0.69.0/node_modules/.bin/claude-agent-acp",
+    "args": [],
+    "env": {},
+    "cwd": "/home/sl/baton-acp-live/workspace"
+  },
+  "session": {
+    "mode": "new",
+    "cwd": "/home/sl/baton-acp-live/workspace"
+  },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "/home/sl/baton-acp-live/workspace/.claude/settings.json",
+    "/home/sl/baton-acp-live/policy/block-git-commit.sh",
+    "/home/sl/baton-acp-live/policy/git_guard.py"
+  ],
+  "stateDir": "/home/sl/baton-acp-live/state",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

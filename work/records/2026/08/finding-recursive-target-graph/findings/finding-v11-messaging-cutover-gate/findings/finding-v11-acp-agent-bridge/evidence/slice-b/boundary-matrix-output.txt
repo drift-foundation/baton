@@ -1,0 +1,22 @@
+ok   BLOCK  commit
+ok   BLOCK  add
+ok   BLOCK  reset
+ok   BLOCK  branch
+ok   BLOCK  tag
+ok   BLOCK  stash
+ok   BLOCK  checkout -b
+ok   BLOCK  update-ref
+ok   BLOCK  alias commit
+ok   BLOCK  python .git write
+ok   BLOCK  sh redirect .git
+ok   BLOCK  rename attack
+ok   ALLOW  git log
+ok   ALLOW  git status
+ok   ALLOW  git diff
+ok   ALLOW  workspace write
+ok   REFUSE empty protection list
+ok   REFUSE comments-only list
+ok   REFUSE missing list file
+ok   REFUSE nonexistent entry
+----
+boundary matrix: all cases hold

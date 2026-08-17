@@ -93,14 +93,16 @@ def test_the_thread_view_shows_the_timeline_and_planned_next(world):
 		(b"j", 0.3), (b"j", 0.3),     # select ↳ step_fix in the tree
 		(b"\r", 0.6),                 # Enter opens its DETAIL (W71)
 		(b"\x17j", 0.4),              # W14: the Message index
-		(b"j", 0.5),                  # select the pass message
+		(b"j", 0.5),                  # W171: the pass left no message —
+		                              # selection stays on the born body
 		(b"qy", 0.4),
 	])
 	flat = "\n".join(ptyharness.replay(steps[2]))
 	assert "next lang.rev" in flat, \
 		f"the planned Next is not shown: {flat[:300]}"
 	selected = "\n".join(ptyharness.replay(steps[4]))
-	assert "take it" in selected, "the selected body is not drawn"
+	assert "after confirmation" in selected, \
+		"the selected body is not drawn"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -116,13 +118,13 @@ def test_marking_seen_is_explicit_and_reflected_in_new(world, tmp_path):
 	from baton_work import projection as pj
 	store = lc.open_bound(path)
 	before = pj.new_count(store, cast["lang42"], viewer_team="lang",
-	                      viewer_member="grace")["total"]
+	                      viewer_member="grace")["subtree_total"]
 	assert before > 0
 	text, status, _steps = ptyharness.drive(path, "lang.grace", [
 		(b"\r", 0.4), (b"\x1b", 0.3), (b"qy", 0.4),
 	])
 	after = pj.new_count(store, cast["lang42"], viewer_team="lang",
-	                     viewer_member="grace")["total"]
+	                     viewer_member="grace")["subtree_total"]
 	assert after == before, "viewing in the console changed New"
 	store.close()
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -614,7 +616,7 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 	# The s pressed on page TWO marked only through that page's last
 	# painted message — later messages stay New.
 	new = pj.new_count(store, born["work_id"], viewer_team="lang",
-	                   viewer_member="ada")["total"]
+	                   viewer_member="ada")["subtree_total"]
 	assert new > 0, "the page-bounded seen marked the whole thread"
 	store.close()
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -690,10 +692,11 @@ def test_the_thread_set_pages_beyond_one_full_page(tmp_path):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_the_msgs_pane_names_the_selected_thread_and_subject(tmp_path):
-	"""W31: the compact bottom pane is Msgs with a T{n}/{total} selector
-	and the REQUIRED subject — several conversations on one Work are
-	never mistaken for one another, and the list leads with subjects."""
+def test_the_message_panes_are_role_labelled_not_content_repeating(tmp_path):
+	"""W176 (superseding the W31 subject-repeating pin): the Thread row
+	alone owns the subject; the lower headings are the stable pane
+	roles `Messages (N)` and `Message M…` — several conversations are
+	still never mistaken because SELECTION lives in the Thread rows."""
 	import json as _json
 
 	import baton_work as bw
@@ -725,7 +728,11 @@ def test_the_msgs_pane_names_the_selected_thread_and_subject(tmp_path):
 	assert "T1 two conversations" in listing, listing[:400]
 	assert "T2 the follow-up questions" in listing
 	msgs = "\n".join(ptyharness.replay(steps[1]))
-	assert "Msgs — the follow-up questions" in msgs, msgs[:400]
+	assert "Messages (1)" in msgs, msgs[:400]
+	assert "Message M" in msgs, "the reader heading lost its role label"
+	assert "Msgs —" not in msgs, "the content-repeating heading survived"
+	assert msgs.count("the follow-up questions") == 1, \
+		"the subject leaked out of its Thread row"
 	assert "second opener" in msgs
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 

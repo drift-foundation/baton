@@ -136,7 +136,7 @@ def test_current_me_new_and_endpoint_filters(world):
 	# mark? the born message is New until marked)
 	view = pj.new_count(store, mine, viewer_team="lang",
 	                    viewer_member="grace")
-	assert view["total"] > 0
+	assert view["subtree_total"] > 0
 	assert titles(ok(world, "home", "new=true",
 	                 viewer="lang.grace")) == ["current is lang"]
 	born_thread = pj.work_threads(store, mine, viewer_team="lang",

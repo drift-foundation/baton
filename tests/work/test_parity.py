@@ -59,10 +59,10 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 	id_width = header.index("Title") - 1
 	columns = app.visible_columns(width, id_width)
 	fixed = sum(col_width for _n, col_width in columns) + len(columns)
-	# W39: the optional Blk (dependency-cue) field sits between Title
-	# and the fixed columns; its width falls out of the header the app
-	# itself painted.
-	blk_at = header.index("Blk") if "Blk" in header else None
+	# W39/W187: the optional Wait (dependency-cue) field sits between
+	# Title and the fixed columns; its width falls out of the header
+	# the app itself painted.
+	blk_at = header.index("Wait") if "Wait" in header else None
 	if blk_at is not None:
 		cue_width = width - 1 - fixed - blk_at
 		title_width = blk_at - id_width - 2
@@ -208,7 +208,7 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 	state."""
 	path, cast = world
 	before = _json(capsys, path, "new", f"work={cast["lang42"]}", viewer="lang.grace")
-	assert before["total"] > 0
+	assert before["subtree_total"] > 0
 	# grace drills into the epic and marks the epic's own thread seen.
 	text, status, _steps = ptyharness.drive(path, "lang.grace", [
 		(b"\r", 0.5),        # drill: path = [lang42]
@@ -223,12 +223,13 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 
 	after = _json(capsys, path, "new", f"work={cast["lang42"]}", viewer="lang.grace")
 	assert after["own"] == 0, "the console's s did not commit the cursor"
-	assert after["total"] == before["total"] - before["own"], \
+	assert after["subtree_total"] == before["subtree_total"] - before["own"], \
 		"the decomposition moved by a different amount than own"
-	# ...and the TUI's home row shows the same reduced number.
+	# ...and the TUI's home row shows the same reduced number — the
+	# W179 DIRECT cell, own scope only.
 	screen = _screen_rows(path, "lang.grace")
 	drawn = _parse_rows(screen)
-	assert drawn[0]["new"] == after["total"]
+	assert drawn[0]["new"] == after["own"]
 
 
 def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):

@@ -57,9 +57,10 @@ function positiveInteger(value, fallback, name) {
   return selected;
 }
 
-// The refuse-not-guess envelope gate (W148 R3): protocol 11, the W136
-// projection-4.3 contract (later 4.x additions welcome; older 4.x or
-// another major refuse), the configured participant, a snapshot token,
+// The refuse-not-guess envelope gate (W148 R3, W207): protocol 11,
+// the projection-5 contract (W179's honest breaking boundary; later
+// 5.x additions welcome; 4.x, other majors, or missing refuse), the
+// configured participant, a snapshot token,
 // boolean timeout semantics that agree with the action set, and
 // exactly the three typed action kinds — each with the locator fields
 // its compact event needs and an action_key that AGREES with them.
@@ -71,8 +72,8 @@ export function validateEnvelope(payload, participant) {
   }
   const projection = payload?.projection_version;
   const match = typeof projection === "string" && /^([0-9]+)\.([0-9]+)$/.exec(projection);
-  if (!match || Number(match[1]) !== 4 || Number(match[2]) < 3) {
-    throw new Error(`projection ${JSON.stringify(projection)} does not carry the 4.3 participant-action contract`);
+  if (!match || Number(match[1]) !== 5 || Number(match[2]) < 0) {
+    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-5 participant-action contract`);
   }
   if (payload?.participant !== participant) {
     throw new Error(`envelope participant ${JSON.stringify(payload?.participant)} is not ${participant}`);

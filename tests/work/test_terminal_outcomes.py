@@ -72,9 +72,9 @@ def _rig(store):
 	tr.add_dependency(store, gated, work, actor_team="web", actor="wren")
 	tr.add_dependency(store, gated, extra, actor_team="web",
 	                  actor="wren")
-	tr.post_thread(store, thread, author_team="lang", author="ada",
-	                   body="onward", pass_to="lang.rsrch", pass_phase="research",
-	                   set_next="lang.bug", on=work)
+	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	             to="lang.rsrch", phase="research",
+	             comment="onward", set_next="lang.bug")
 	asked = tr.post_thread(store, thread, author_team="lang",
 	                           author="ada", body="push: confirm",
 	                           request="push.bug", on=work)["seq"]
@@ -344,9 +344,9 @@ def test_close_races_serialize_into_one_history(world):
 	# close vs pass: the pass lands first; the close commits under the
 	# COMMITTED current and records it.
 	rig = _rig(store)
-	_interleave(store, lambda: tr.post_thread(
-		store, rig["thread"], author_team="lang", author="ada",
-		body="detour", pass_to="lang.bug", pass_phase="queued", on=rig["work"]))
+	_interleave(store, lambda: tr.pass_work(
+		store, rig["work"], actor_team="lang", actor="ada",
+		to="lang.bug", phase="queued", comment="detour"))
 	result = tr.close_work(store, rig["work"], actor_team="lang",
 	                       actor="ada", rationale="raced by a pass",
 	                       outcome="satisfying")

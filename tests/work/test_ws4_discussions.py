@@ -265,7 +265,7 @@ def test_new_decomposes_with_visible_overlap(world):
 	assert left_entry["new"] == 3 and right_entry["new"] == 3
 	assert breakdown["overlap"] == 2, \
 		"the shared thread's dedup is not visible"
-	assert breakdown["total"] == breakdown["own"] + \
+	assert breakdown["subtree_total"] == breakdown["own"] + \
 		left_entry["new"] + right_entry["new"] - breakdown["overlap"]
 	# Reading the shared thread once clears it EVERYWHERE.
 	tr.seen_thread(store, shared["thread"], team="lang",
@@ -273,7 +273,7 @@ def test_new_decomposes_with_visible_overlap(world):
 	after = pj.new_count(store, parent, viewer_team="lang",
 	                     viewer_member="grace")
 	assert after["overlap"] == 0
-	assert after["total"] == after["own"] + \
+	assert after["subtree_total"] == after["own"] + \
 		sum(entry["new"] for entry in after["children"])
 
 
@@ -286,18 +286,18 @@ def test_cursors_are_per_member_and_the_bridge_covers_all_labels(world):
 	tr.post_thread(store, result["thread"], author_team="lang",
 	                   author="ada", body="more")
 	assert pj.new_count(store, second["work_id"], viewer_team="lang",
-	                    viewer_member="grace")["total"] > 0
+	                    viewer_member="grace")["subtree_total"] > 0
 	# The Work-addressed bridge advances every labelled thread...
 	fx.mark_all_seen(store, second["work_id"], team="lang", member="grace",
 	             up_to_seq=store.last_seq())
 	assert pj.new_count(store, second["work_id"], viewer_team="lang",
-	                    viewer_member="grace")["total"] == 0
+	                    viewer_member="grace")["subtree_total"] == 0
 	assert pj.new_count(store, result["work_id"], viewer_team="lang",
-	                    viewer_member="grace")["total"] == 0, \
+	                    viewer_member="grace")["subtree_total"] == 0, \
 		"the bridge left a labelled thread uncleared"
 	# ...and only THAT member's cursor moved.
 	assert pj.new_count(store, result["work_id"], viewer_team="lang",
-	                    viewer_member="ada")["total"] > 0
+	                    viewer_member="ada")["subtree_total"] > 0
 
 
 # -- participation and surfaces -----------------------------------------------
@@ -563,13 +563,13 @@ def test_new_names_one_state_under_an_interleaved_writer(world, monkeypatch):
 	assert view["own"] == 1
 	assert [entry["new"] for entry in view["children"]] == [2, 2]
 	assert view["overlap"] == 1
-	assert view["total"] == view["own"] + \
+	assert view["subtree_total"] == view["own"] + \
 		sum(entry["new"] for entry in view["children"]) - \
 		view["overlap"] == 4, "the decomposition tore across the write"
 	after = pj.new_count(store, parent, viewer_team="lang",
 	                     viewer_member="grace")
 	assert after["snapshot_seq"] == pinned + 1
-	assert after["total"] == view["total"] + 1, \
+	assert after["subtree_total"] == view["subtree_total"] + 1, \
 		"the committed message never became visible"
 	other.close()
 

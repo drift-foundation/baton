@@ -89,16 +89,16 @@ def _endpoint_struct(store: Authority, team, kind) -> dict | None:
 
 
 def _message_count(store: Authority, work_id: str) -> int:
-	"""W36 `Msg`: total DISTINCT messages across every thread labelled
-	to this Work or its descendants — conversation volume, not unread;
-	seen and answers never decrease it."""
-	scope = _descendants(store, work_id)
-	marks = ",".join("?" * len(scope))
+	"""W36 `Msg`, W179 DIRECT scope: total DISTINCT messages across the
+	threads labelled DIRECTLY to this Work — exactly the conversation
+	entering the Work exposes. Descendants report their own counters;
+	hidden closed children never inflate a visible parent. Conversation
+	volume, not unread; seen and answers never decrease it."""
 	return store.conn.execute(
 		"SELECT COUNT(DISTINCT messages.seq) AS n FROM messages "
 		"JOIN thread_labels ON thread_labels.thread = messages.thread "
-		f"WHERE thread_labels.work IN ({marks})",
-		scope).fetchone()["n"]
+		"WHERE thread_labels.work = ?",
+		(work_id,)).fetchone()["n"]
 
 
 def _my_pending(store: Authority, work_id: str, viewer_team: str,
@@ -108,18 +108,28 @@ def _my_pending(store: Authority, work_id: str, viewer_team: str,
 	under the CURRENTLY accepted route resolution — never inclusions,
 	never another member's load, never ownership. A shared route
 	obligation leaves every handler's count on any resolution;
-	terminal withdrawal removes it likewise."""
-	scope = _descendants(store, work_id)
-	marks = ",".join("?" * len(scope))
+	terminal withdrawal removes it likewise. W179: the scope is the
+	Work's DIRECTLY labelled threads — the same visible scope as Msg
+	and New; a thread deliberately reused by several Works contributes
+	to each direct view."""
 	count = 0
 	eligible: dict = {}
 	# EVERY pending directed flavor the participant can discharge
 	# counts (R1): response (respond/dispose/accept) AND verification
 	# (report) — each keeps its own completion transition; withdrawal
 	# clears either.
+	# Thread-borne obligations (@ requests) count through the direct
+	# thread labels; thread-less directed obligations (verification
+	# assignments) belong to their own Work directly — neither is ever
+	# aggregated from descendants.
 	for entry in store.conn.execute(
-			"SELECT team, kind FROM obligations "
-			f"WHERE work IN ({marks}) AND status='pending'", scope):
+			"SELECT DISTINCT obligations.seq, obligations.team, "
+			"obligations.kind FROM obligations "
+			"LEFT JOIN thread_labels "
+			"ON thread_labels.thread = obligations.thread "
+			"WHERE obligations.status='pending' AND "
+			"(thread_labels.work = ? OR (obligations.thread IS NULL "
+			"AND obligations.work = ?))", (work_id, work_id)):
 		key = (entry["team"], entry["kind"])
 		if key not in eligible:
 			resolved = _endpoint_struct(store, entry["team"],
@@ -332,8 +342,12 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 			"ON work.id = edges.work "
 			"WHERE edges.blocker=? AND work.status='open'",
 			(row["id"],)).fetchone()["n"],
+		# W179: the plain cell is the DIRECT count — the viewer's unseen
+		# messages in threads labelled directly to this row, the scope
+		# entering the row exposes. The recursive union stays available
+		# only through the explicitly named subtree breakdown.
 		"new": new_count(store, row["id"], viewer_team=viewer_team,
-		                 viewer_member=viewer_member)["total"],
+		                 viewer_member=viewer_member)["own"],
 		# Schema 15: the team-local ordering signal (W10) and the row's
 		# stable change identity (W84 groundwork) — canonical values,
 		# never client-derived. Their TUI presentation is W10/W84 work.
@@ -354,10 +368,9 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		# six-minute stall alert from this recorded fact alone.
 		"claimed_at": claim_fact[0],
 		"heartbeat_at": claim_fact[1],
-		# W36: conversation VOLUME and the viewer's directed load —
-		# same recursive scope as the conversation projection,
-		# overlap-safe (a message reachable through several labelled
-		# paths counts once), seen-independent, purely derived.
+		# W36/W179: conversation VOLUME and the viewer's directed load —
+		# DIRECT visible scope (the threads entering this row exposes),
+		# overlap-safe, seen-independent, purely derived.
 		"message_count": _message_count(store, row["id"]),
 		"my_pending_obligations": _my_pending(
 			store, row["id"], viewer_team, viewer_member),
@@ -850,11 +863,13 @@ def new_count(store: Authority, work_id: str, *, viewer_team: str,
               viewer_member: str) -> dict:
 	"""Member-relative `New` over labelled threads and containment
 	(WS-4 R57): distinct messages counted once, with the deduplication
-	made VISIBLE — total = own + sum(children.new) - overlap. `own` is
-	the direct labels; each child's count is its truthful subtree total;
-	`overlap` is the raw-sum excess over the distinct union, keeping
-	"jump to the unread child" honest under multiply-labelled
-	threads. (The WS-1 team-participation gate is superseded per the
+	made VISIBLE — subtree_total = own + sum(children.new) - overlap.
+	`own` is the direct labels (W179: exactly the plain `new` cell);
+	each child's count is its truthful subtree total; `overlap` is the
+	raw-sum excess over the distinct union, keeping "jump to the unread
+	child" honest under multiply-labelled threads. W179: the union is
+	NAMED subtree_total — no client may project it into a plain New/
+	Msg/My cell. (The WS-1 team-participation gate is superseded per the
 	red-team note RT9: the counter is member-relative by the pinned
 	ruling; the noise boundary lives in home-table scoping.)"""
 	with _read_snapshot(store):
@@ -876,7 +891,7 @@ def new_count(store: Authority, work_id: str, *, viewer_team: str,
 		snapshot_seq = store.last_seq()
 	return {"id": work_id, "own": len(own_set), "children": children,
 	        "overlap": len(own_set) + child_sum - len(total_set),
-	        "total": len(total_set), "snapshot_seq": snapshot_seq}
+	        "subtree_total": len(total_set), "snapshot_seq": snapshot_seq}
 
 
 def bindings(store: Authority, work_id: str, *, after: int = 0,

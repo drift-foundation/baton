@@ -1,0 +1,44 @@
+{
+  "authority_uuid": "fefefefefefefefefefefefefefefefe",
+  "participant": "acp.claude",
+  "projection_version": "5.0",
+  "protocol_version": 11,
+  "result": {
+    "id": "fefefefe-T6",
+    "labels": [
+      {
+        "status": "closed",
+        "team": "acp",
+        "work": "fefefefe-W6"
+      }
+    ],
+    "last_seq": 8,
+    "messages": [
+      {
+        "author": "claude",
+        "author_team": "acp",
+        "body": "Live slice-B continuity check: reply in this Work's thread with the exact marker you replied with earlier in this same session, then close this Work satisfying.",
+        "new": true,
+        "references": [],
+        "seq": 6,
+        "ts": "2026-08-17 03:12:12"
+      },
+      {
+        "author": "claude",
+        "author_team": "acp",
+        "body": "XYZQ-2739-ALPHA",
+        "new": true,
+        "references": [],
+        "seq": 8,
+        "ts": "2026-08-17 03:12:27"
+      }
+    ],
+    "new": 2,
+    "next_after": null,
+    "participants": [
+      "acp"
+    ],
+    "subject": "State the exact continuity marker from earlier in this session"
+  },
+  "snapshot_seq": 21
+}

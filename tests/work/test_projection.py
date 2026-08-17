@@ -122,17 +122,17 @@ def test_new_is_per_member_and_decomposable(world):
 	# breakdown decomposes exactly.
 	grace = pj.new_count(store, cast["lang42"],
 	                     viewer_team="lang", viewer_member="grace")
-	assert grace["total"] > 0
-	assert grace["total"] == grace["own"] + \
+	assert grace["subtree_total"] > 0
+	assert grace["subtree_total"] == grace["own"] + \
 		sum(entry["new"] for entry in grace["children"])
 	# WS-4 (RT9 supersession): New is MEMBER-relative over labelled
 	# threads — no team gate; the noise boundary lives in home-table
 	# scoping. The counter's contract is the R57 identity, for any viewer.
 	sl = pj.new_count(store, cast["lang42"],
 	                  viewer_team="push", viewer_member="sl")
-	assert sl["total"] == sl["own"] + \
+	assert sl["subtree_total"] == sl["own"] + \
 		sum(entry["new"] for entry in sl["children"]) - sl["overlap"]
-	assert grace["total"] == grace["own"] + \
+	assert grace["subtree_total"] == grace["own"] + \
 		sum(entry["new"] for entry in grace["children"]) - grace["overlap"]
 
 

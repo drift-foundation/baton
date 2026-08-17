@@ -151,7 +151,7 @@ def test_a_refresh_is_read_only_and_selection_is_id_stable(world):
 	               origin="external-report", classification="suspected-defect", author="ada", body="last")
 	before_new = pj.new_count(store, middle["work_id"],
 	                          viewer_team="lang",
-	                          viewer_member="grace")["total"]
+	                          viewer_member="grace")["subtree_total"]
 	store.close()
 
 	import threading
@@ -194,7 +194,7 @@ def test_a_refresh_is_read_only_and_selection_is_id_stable(world):
 	store = bw.Authority(world["database"])
 	after_new = pj.new_count(store, middle["work_id"],
 	                         viewer_team="lang",
-	                         viewer_member="grace")["total"]
+	                         viewer_member="grace")["subtree_total"]
 	store.close()
 	assert after_new == before_new + 1, \
 		"the background refresh marked something seen"

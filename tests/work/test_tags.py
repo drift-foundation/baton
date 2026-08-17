@@ -137,10 +137,13 @@ def test_dispose_is_the_no_action_answer_with_words(store, work):
 	assert obligation["status"] == "disposed"
 
 
-def test_request_and_pass_in_one_message_is_ambiguous_and_refused(store, work):
-	with pytest.raises(bw.WorkError, match="one operation"):
-		fx.post(store, work, author_team="lang", author="ada",
-		                body="x", request="push.bug", pass_to="lang.impl", pass_phase="active")
+def test_a_message_cannot_carry_a_pass_at_all(store, work):
+	# W171: the posting surface has NO pass vocabulary — a message that
+	# tries to move the baton is a type error, not a workflow refusal.
+	with pytest.raises(TypeError):
+		tr.post_thread(store, fx.born(store, work), author_team="lang",
+		               author="ada", body="x", request="push.bug",
+		               pass_to="lang.impl")
 
 
 # -- pass (=>) and planned Next ----------------------------------------------
@@ -189,9 +192,9 @@ def test_a_pass_elsewhere_leaves_the_planned_next_visibly_set(store, work):
 
 
 def test_next_requires_a_pass_and_pass_refuses_fan_out(store, work):
-	with pytest.raises(bw.WorkError, match="set by a pass"):
-		fx.post(store, work, author_team="lang", author="ada",
-		                body="x", set_next="lang.rev")
+	with pytest.raises(TypeError):
+		tr.post_thread(store, fx.born(store, work), author_team="lang",
+		               author="ada", body="x", set_next="lang.rev")
 	with pytest.raises(bw.WorkError, match="exactly one endpoint"):
 		fx.post(store, work, author_team="lang", author="ada",
 		                body="x", pass_to="*.*")

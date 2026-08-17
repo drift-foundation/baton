@@ -1,0 +1,32 @@
+{
+  "baton": {
+    "binary": "/home/sl/baton-acp-live/bin/baton",
+    "config": "/home/sl/baton-acp-live/authority/baton.json",
+    "participant": "acp.claude",
+    "waitTimeoutSeconds": 30
+  },
+  "agent": {
+    "command": "/home/sl/baton-acp-live/policy/launch-agent-sandboxed.sh",
+    "args": [],
+    "env": {
+      "AGENT_REAL": "/home/sl/opt/acp/claude-agent-acp/0.69.0/node_modules/.bin/claude-agent-acp"
+    },
+    "cwd": "/home/sl/baton-acp-live/workspace"
+  },
+  "session": {
+    "mode": "load",
+    "cwd": "/home/sl/baton-acp-live/workspace"
+  },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "/home/sl/baton-acp-live/workspace/.claude/settings.json",
+    "/home/sl/baton-acp-live/policy/block-git-commit.sh",
+    "/home/sl/baton-acp-live/policy/git_guard.py",
+    "/home/sl/baton-acp-live/policy/launch-agent-sandboxed.sh",
+    "/home/sl/baton-acp-live/policy/protected-paths.txt",
+    "/home/sl/baton-acp-live/policy/boundary_matrix.sh"
+  ],
+  "stateDir": "/home/sl/baton-acp-live/state",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

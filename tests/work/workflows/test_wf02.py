@@ -30,9 +30,9 @@ def test_wf02_request_without_transfer(flow):
 	# 2. `+lang.bug` raises Lang attention — and NOTHING else.
 	flow.post(push1, "body=lang folks may find this relevant",
 	        "include=lang.bug", viewer="push.sl")
-	assert flow.ok("new", f"work={push1}", viewer="lang.ada")["total"] > 0, \
+	assert flow.ok("new", f"work={push1}", viewer="lang.ada")["subtree_total"] > 0, \
 		"+ raised no attention for the included team"
-	assert flow.ok("new", f"work={push1}", viewer="lang.grace")["total"] > 0
+	assert flow.ok("new", f"work={push1}", viewer="lang.grace")["subtree_total"] > 0
 	assert flow.ok("obligations", viewer="lang.ada") == [], \
 		"+ created an obligation"
 	checkpoint = flow.ok("detail", f"work={push1}", viewer="push.sl")
@@ -64,8 +64,8 @@ def test_wf02_request_without_transfer(flow):
 	up_to = flow.ok("thread", f"thread={thread_id}", viewer="lang.ada")["last_seq"]
 	flow.ok("mark-seen", f"thread={thread_id}", f"up-to={up_to}",
 	        viewer="lang.ada")
-	assert flow.ok("new", f"work={push1}", viewer="lang.ada")["total"] == 0
-	assert flow.ok("new", f"work={push1}", viewer="lang.grace")["total"] > 0, \
+	assert flow.ok("new", f"work={push1}", viewer="lang.ada")["subtree_total"] == 0
+	assert flow.ok("new", f"work={push1}", viewer="lang.grace")["subtree_total"] > 0, \
 		"one member's mark-seen moved another member's cursor"
 
 	# 5. Lang EXPLICITLY responds; the obligation leaves the actionable set.

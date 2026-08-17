@@ -282,12 +282,16 @@ def test_cli_wait_reaches_the_participant_projection(world):
 # -- round 2 -----------------------------------------------------------------
 
 def test_the_projection_version_names_the_wake_contract(world):
-	"""R1: the permanent wake contract is versioned — 4.3 announces the
-	participant-relative typed actions; same-major demands succeed."""
+	"""R1: the permanent wake contract is versioned — 4.3 introduced
+	the participant-relative typed actions, 4.4 the threadless pass,
+	and W179's direct-scope counters moved the major to 5.0 (ruled
+	honest-breaking, no alias). Same-major demands succeed; a stale
+	4.x demand refuses."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "4.3"
-	jsonapi.require_version("4.3")
-	jsonapi.require_version("4.0")
+	assert jsonapi.PROJECTION_VERSION == "5.0"
+	jsonapi.require_version("5.0")
+	with pytest.raises(bw.WorkError, match="not compatible"):
+		jsonapi.require_version("4.3")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("3.9")
 

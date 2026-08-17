@@ -58,7 +58,6 @@ def test_wf06_recursive_release(flow):
 	# provider work (WF-04 pattern).
 	flow.ok("pass", f"work={local}", "to=lang.impl", "phase=active",
 	        "set-next=lang.rev",
-	        f"thread={flow.born(local, 'lang.ada')}",
 	        "comment=build it", viewer="lang.ada")
 	external = flow.ok("create", "team=mdb", "kind=build",
 	                   "title=CI image rebuild",
@@ -82,7 +81,6 @@ def test_wf06_recursive_release(flow):
 	# 4. Readiness is the CONJUNCTION: the local child alone is not enough.
 	returned = flow.ok("pass", f"work={local}", "to=lang.rev",
 	                   "phase=review",
-	                   f"thread={flow.born(local, 'lang.grace')}",
 	                   "comment=done", viewer="lang.grace")
 	assert returned["kind"] == "return"
 	flow.ok("close", f"work={local}", "rationale=fixed and verified", "outcome=satisfying",
@@ -104,16 +102,16 @@ def test_wf06_recursive_release(flow):
 	breakdown = flow.ok("new", f"work={root}", viewer="lang.grace")
 	assert breakdown["overlap"] >= 2, \
 		"the shared thread's dedup is invisible"
-	assert breakdown["total"] == breakdown["own"] + \
+	assert breakdown["subtree_total"] == breakdown["own"] + \
 		sum(entry["new"] for entry in breakdown["children"]) - \
 		breakdown["overlap"]
-	assert breakdown["total"] > 0
+	assert breakdown["subtree_total"] > 0
 	# Reading the shared thread ONCE clears it under both children.
 	flow.ok("mark-seen", f"thread={shared}", f"up-to={view["last_seq"]}",
 	        viewer="lang.grace")
 	cleared = flow.ok("new", f"work={root}", viewer="lang.grace")
 	assert cleared["overlap"] == 0
-	assert cleared["total"] == cleared["own"] + \
+	assert cleared["subtree_total"] == cleared["own"] + \
 		sum(entry["new"] for entry in cleared["children"])
 	# The breadcrumb drill is deterministic from any position.
 	trail = flow.ok("breadcrumb", f"work={blocked}", viewer="lang.ada")

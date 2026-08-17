@@ -79,7 +79,6 @@ def test_wf04_one_consumer_one_provider(flow):
 	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
 
 	flow.ok("pass", f"work={lang42}", "to=lang.rev", "phase=review",
-	        f"thread={flow.born(lang42, 'lang.ada')}",
 	        "comment=analysis: recovery table clobbered",
 	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}",
@@ -88,7 +87,6 @@ def test_wf04_one_consumer_one_provider(flow):
 
 	flow.ok("pass", f"work={lang42}", "to=lang.impl", "phase=active",
 	        "set-next=lang.rev",
-	        f"thread={flow.born(lang42, 'lang.ada')}",
 	        "comment=approach approved; build it", viewer="lang.ada")
 	midway = flow.ok("detail", f"work={lang42}", viewer="lang.grace")
 	assert midway["current"] == {"endpoint": "lang.impl", "route": "build",
@@ -100,7 +98,6 @@ def test_wf04_one_consumer_one_provider(flow):
 
 	returned = flow.ok("pass", f"work={lang42}", "to=lang.rev",
 	                   "phase=review",
-	                   f"thread={flow.born(lang42, 'lang.grace')}",
 	                   "comment=fixed; tests attached",
 	                   viewer="lang.grace")
 	assert returned["kind"] == "return"

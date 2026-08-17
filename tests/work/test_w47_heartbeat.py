@@ -391,13 +391,14 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	first projection carrying heartbeat evidence, and a same-major
 	demand still succeeds."""
 	from baton_work import jsonapi
-	# W136 advanced the additive minor again (participant wait);
-	# heartbeat evidence remains part of every 4.2+ shape.
-	assert jsonapi.PROJECTION_VERSION >= "4.2"
-	jsonapi.require_version("4.2")
-	jsonapi.require_version("4.0")          # same major stays welcome
+	# Heartbeat evidence entered at 4.2 and remains part of every later
+	# shape; W179's honest-breaking major moved the projection to 5.0
+	# (no alias), so the CURRENT same-major demand is 5.x and a stale
+	# 4.x demand refuses.
+	assert jsonapi.PROJECTION_VERSION == "5.0"
+	jsonapi.require_version("5.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
-		jsonapi.require_version("3.0")
+		jsonapi.require_version("4.2")
 
 
 def test_the_two_writer_race_resolves_fail_closed(world):

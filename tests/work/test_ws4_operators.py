@@ -71,20 +71,17 @@ def test_omitted_on_resolves_the_single_eligible_and_echoes(world):
 	                    actor_team="push", actor="sl")
 	result = tr.post_thread(store, mine["thread"],
 	                            author_team="lang", author="ada",
-	                            body="handing on", pass_to="lang.rsrch", pass_phase="research")
-	assert result["kind"] == "pass" and result["work"] == mine["work_id"]
+	                            body="push: confirm", request="push.bug")
+	assert result["kind"] == "request" and result["work"] == mine["work_id"]
 	payload = _event(store, result["seq"])["payload"]
 	assert payload["work"] == mine["work_id"]
 	assert payload["on_resolved"] is True, \
 		"the omitted selection was not recorded as resolved"
-	moved = store.conn.execute("SELECT current_kind FROM work WHERE id=?",
-	                           (mine["work_id"],)).fetchone()
-	assert moved["current_kind"] == "rsrch"
-	untouched = store.conn.execute(
-		"SELECT current_team, current_kind FROM work WHERE id=?",
-		(foreign["work_id"],)).fetchone()
-	assert (untouched["current_team"], untouched["current_kind"]) == \
-		("push", "bug"), "a pass in a thread moved another work"
+	obligation = store.conn.execute(
+		"SELECT work FROM obligations WHERE seq=?",
+		(result["seq"],)).fetchone()
+	assert obligation["work"] == mine["work_id"], \
+		"a request in a thread obligated another work"
 
 
 def test_two_eligible_refuse_and_explicit_on_selects(world):
@@ -127,11 +124,13 @@ def test_selection_refusals_are_exact(world):
 		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="*.bug",
 		                   on=first["work_id"])
-	with pytest.raises(bw.WorkError, match="one operation"):
+	# W171: the posting surface carries NO pass vocabulary at all — a
+	# baton transfer through a message is a type error, not a refusal.
+	with pytest.raises(TypeError):
 		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", request="push.bug",
-		                   pass_to="lang.rsrch", pass_phase="research", on=first["work_id"])
-	with pytest.raises(bw.WorkError, match="set by a pass"):
+		                   pass_to="lang.rsrch", on=first["work_id"])
+	with pytest.raises(TypeError):
 		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x",
 		                   set_next="lang.rsrch", on=first["work_id"])
@@ -139,7 +138,7 @@ def test_selection_refusals_are_exact(world):
 	# someone else's authority.
 	with pytest.raises(bw.WorkError, match="has 0"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="grace", body="x", pass_to="lang.rsrch", pass_phase="research")
+		                   author="grace", body="x", request="push.bug")
 
 
 def test_closed_context_refuses_carrying_but_welcomes_commentary(world):
@@ -382,7 +381,7 @@ def test_a_mid_flight_close_refuses_the_carrying_operation(world):
 		rationale="closed underneath", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", pass_to="lang.rsrch", pass_phase="research")
+		                   author="ada", body="x", request="push.bug")
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == 0
 

@@ -1,5 +1,10 @@
 # Plan — recursive Work graph with tagged discussions
 
+**Selected-row claim follow-up — 2026-08-16:**
+`findings/finding-tui-selected-work-claim/` records the confirmed TUI correction:
+lowercase `c` claims the selected Work through the existing canonical atomic
+claim operation. Implementation and regression coverage are queued.
+
 **Protocol-11 documentation gate — 2026-08-16:** before declaring v11 landed,
 update `docs/EFFECTIVE-BATON.md` from its protocol-10 operating model to teach
 honest phase + active-claim transitions, sustained research as claimed work,
@@ -2033,6 +2038,15 @@ hot-state blink but retains a client-local Phase-cell blink for three scheduled
 refresh ticks after an observed Phase change. Initial load is cold; keystrokes,
 redraws, resize, and immediate mutation refreshes do not consume or restart the
 countdown. Bold Title plus claim Age remain the steady presentation.
+
+**Queued timer-label/scale supersession — 2026-08-17:** see
+`findings/finding-tui-held-duration/`. The closed W33 stays closed, but its
+mixed `MM:SS`/`HH:MM` presentation is superseded. Rename the column `Held` and
+render elapsed endpoint responsibility from handoff as `HH:MM` from `00:00`
+through `99:59`, with `99h+` as the explicit fixed-width overflow sentinel.
+An unclaimed operational handoff prefixes Phase with `>`, changing to `!` after
+six minutes; claim removes the prefix without resetting `Held`. JSON exposes
+structured facts, never those TUI glyphs. This is queued as W226.
 
 **Queued stage-label correction — 2026-08-16:** see
 `findings/finding-tui-current-next-stage/`. Work-table `Current` and `Next`

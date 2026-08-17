@@ -54,9 +54,9 @@ def test_wf07_announcement(flow):
 	up_to = flow.ok("thread", f"thread={thread_id}", viewer="web.wren")["last_seq"]
 	flow.ok("mark-seen", f"thread={thread_id}", f"up-to={up_to}",
 	        viewer="web.wren")
-	assert flow.ok("new", f"work={ops1}", viewer="web.wren")["total"] == 0
+	assert flow.ok("new", f"work={ops1}", viewer="web.wren")["subtree_total"] == 0
 	for member in ("lang.ada", "push.sl", "mdb.mo"):
-		assert flow.ok("new", f"work={ops1}", viewer=member)["total"] > 0, \
+		assert flow.ok("new", f"work={ops1}", viewer=member)["subtree_total"] > 0, \
 			"one member's mark-seen changed another member's New"
 
 	# 5. Expanding or multi-destination @ and => REFUSE — and the refusal
@@ -72,7 +72,7 @@ def test_wf07_announcement(flow):
 	for destination in ("to=*.rev", "to=lang.rev,push.rev"):
 		error = assert_refusal_changes_nothing(
 			flow, "ops.bat", "pass", f"work={ops1}", destination,
-			f"thread={thread_id}", "comment=x")
+			"comment=x")
 		assert "exactly one" in error
 
 	# R71: a `+` selector that lands nowhere refuses — wildcard shapes

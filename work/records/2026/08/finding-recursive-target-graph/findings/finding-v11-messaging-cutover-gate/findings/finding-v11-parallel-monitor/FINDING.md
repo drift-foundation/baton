@@ -155,3 +155,21 @@ actionable and returns canonical JSON. `codex-baton-bridge` decides how that
 readiness schedules a turn in an existing Codex thread. Operator recipes may
 start both products together, but the bridge is not a Baton CLI mode and is not
 part of the immutable Baton client distribution.
+
+## Clarification — 2026-08-16: unchanged topology still requires one re-exec
+
+The earlier decisions to leave the v10 stack and existing bridge unchanged
+mean no second app-server, dispatcher, socket, target mapping or v10 monitor
+configuration. They do not mean an already-running Node process can acquire
+new formatter code without restarting.
+
+The first live W148 event reached the correct Codex thread but carried the old
+generic `[EXTERNAL EVENT]` wrapper because the dispatcher had been running
+since 2026-08-13, before the compact trusted v11 formatter landed. The source
+and focused tests were correct; the live process had never loaded them.
+
+Before the final live proof, coordinate one stop and restart of the same
+`just codex-baton` stack from the reviewed source revision, using its unchanged
+configuration. Reattach the Codex TUI to the same app-server/thread, then run
+exactly one `codex-baton-bridge` producer for `baton.codex`. Do not work around
+the stale process by running a second dispatcher or app-server.

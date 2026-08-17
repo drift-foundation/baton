@@ -1,0 +1,15 @@
+{
+  "name": "acp-baton-bridge",
+  "private": true,
+  "type": "module",
+  "description": "External ACP readiness client: canonical v11 Baton wait -> one configured ACP agent session over JSON-RPC/stdio. Agent-generic; not part of Baton core.",
+  "scripts": {
+    "test": "node --test ./test/acp_baton_bridge.test.mjs"
+  },
+  "dependencies": {
+    "@agentclientprotocol/sdk": "1.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

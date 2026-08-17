@@ -1,8 +1,10 @@
 """W36: canonical Msg/My — conversation volume and the viewer's directed
 load (same-schema iteration).
 
-`message_count` is the total DISTINCT messages in the row's recursive
-scope (overlap-safe; seen-independent; answers only grow it).
+`message_count` is the total DISTINCT messages in the row's DIRECT
+visible scope (W179: exactly the threads labelled directly to the Work;
+descendants report their own; overlap-safe; seen-independent; answers
+only grow it).
 `my_pending_obligations` counts unresolved directed @ obligations where
 THIS participant is an eligible handler under the CURRENTLY accepted
 route resolution; shared resolutions and terminal withdrawal clear it for
@@ -46,7 +48,7 @@ def _row(store, work_id, viewer_team="lang", viewer_member="ada"):
 	                 viewer_member=viewer_member)
 
 
-def test_message_count_is_recursive_distinct_and_seen_independent(world):
+def test_message_count_is_direct_distinct_and_seen_independent(world):
 	store, _config = world
 	parent = tr.create_work(store, team="lang", kind="bug",
 	                        title="parent scope",
@@ -67,20 +69,25 @@ def test_message_count_is_recursive_distinct_and_seen_independent(world):
 		labels=[left["work_id"], right["work_id"]],
 		subject="the shared conversation")
 
-	# parent: 3 openers + 1 shared = 4 distinct.
-	assert _row(store, parent["work_id"])["message_count"] == 4
+	# W179 DIRECT scope: the parent counts ONLY its own opener; each
+	# child counts its opener plus the shared thread — which counts
+	# for BOTH children (visible reuse), never for the parent.
+	assert _row(store, parent["work_id"])["message_count"] == 1
 	assert _row(store, left["work_id"])["message_count"] == 2
 	assert _row(store, right["work_id"])["message_count"] == 2
 
 	tr.post_thread(store, shared["thread"], author_team="lang",
 	               author="ada", body="one more in the shared thread")
-	assert _row(store, parent["work_id"])["message_count"] == 5
+	assert _row(store, parent["work_id"])["message_count"] == 1, \
+		"a descendant conversation inflated the parent's direct Msg"
+	assert _row(store, left["work_id"])["message_count"] == 3
+	assert _row(store, right["work_id"])["message_count"] == 3
 
 	# Seen-independence: marking everything seen changes nothing.
 	tr.seen_thread(store, shared["thread"], team="lang", member="ada",
 	               up_to_seq=store.last_seq())
-	assert _row(store, parent["work_id"])["message_count"] == 5
-	assert _row(store, parent["work_id"])["new"] != 5, \
+	assert _row(store, left["work_id"])["message_count"] == 3
+	assert _row(store, left["work_id"])["new"] != 3, \
 		"New and Msg collapsed into one meaning"
 
 

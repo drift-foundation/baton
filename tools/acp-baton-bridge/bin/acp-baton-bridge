@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+import { runAcpBatonBridge } from "../src/acp_baton_bridge.mjs";
+
+runAcpBatonBridge().then((code) => { process.exitCode = code; }, (error) => {
+  process.stderr.write(`acp-baton-bridge: ${error.message}\n`);
+  process.exitCode = 2;
+});

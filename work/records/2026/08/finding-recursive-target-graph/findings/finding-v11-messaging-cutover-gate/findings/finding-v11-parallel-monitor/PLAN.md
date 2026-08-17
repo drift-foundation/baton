@@ -1,10 +1,11 @@
 # Plan
 
-**Status — 2026-08-16:** round-two changes requested on v11 Work `W148` in
-`review-2026-08-16T18-15-02Z.md`; returning to `baton.impl`. Parent `W24`
-remains waiting on this gate. The earlier generalized multi-source adapter and
-two-complete-stack plans are superseded by the one-bridge/standalone-v11-
-producer decisions in `FINDING.md`.
+**Status — 2026-08-16:** W148 closed satisfying at v11 seq 183. Automated
+review and the final live proof in `review-2026-08-16T19-08-57Z.md` established
+compact same-thread delivery, unchanged v10 operation, and no readiness-side
+mutation. The earlier generalized multi-source adapter and two-complete-stack
+plans remain superseded by the one-bridge/standalone-v11-producer decisions in
+`FINDING.md`.
 
 1. Add the external `codex-baton-bridge` entry point and protocol-11 action-set
    parser under the Codex event-bridge integration; leave Baton core, the v10
@@ -17,7 +18,9 @@ producer decisions in `FINDING.md`.
 4. Add focused Node tests for every acceptance case named in `FINDING.md`, and
    rerun the unchanged v10 adapter and complete bridge suites.
 5. Independently review the implementation before any live process is changed.
-6. Launch the v11 producer beside the existing v10 stack, targeting this same
-   Codex thread; prove one consumer per identity and no cross-authority effects.
+6. Coordinate one re-exec of the same v10 stack so its dispatcher loads the
+   reviewed compact v11 formatter; keep its config/topology unchanged. Reattach
+   this thread, launch the v11 producer beside it, and prove one consumer per
+   identity, compact trusted delivery and no cross-authority effects.
 7. Return the live evidence to the parent gate. Stack integration and removal
    of the v10 source wait for the explicit v10-retirement ruling.

@@ -1,15 +1,15 @@
 """W80: the explicit `pass` verb — transfer gets its own canonical
 surface.
 
-`pass work= to= phase= thread= comment=` (finding-key-value-command-
-grammar, follow-up ruling): ONE indivisible transition through the same
-single writer the compound say form used — the comment lands as durable
-handoff evidence in the chosen labelled Thread, Current and the
-destination phase transfer (explicit `phase=`, or derived from the
+`pass work= to= phase= comment=` (W171, finding-pass-is-work-event):
+ONE indivisible THREADLESS Work event — the comment is durable handoff
+evidence stored with the authoritative pass event itself, Current and
+the destination phase transfer (explicit `phase=`, or derived from the
 destination stage role), any planned `set-next=` records, and the
-sender's active claim releases. A refusal leaves message and workflow
-state unchanged. Plain `say` remains discussion with the `@ request=`
-operator; `pass-to=` is retired from it entirely.
+sender's active claim releases. No Thread is involved and no Message
+exists: a pass moves no cursor and no Message/My/New/obligation count.
+A refusal leaves everything unchanged. Plain `say` remains discussion
+with the `@ request=` operator.
 """
 
 from __future__ import annotations
@@ -82,18 +82,24 @@ def test_pass_is_one_indivisible_transfer(world):
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
+	before = ok(world, "thread", f"thread={thread}")
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",
 	            "phase=review", "set-next=lang.bug",
-	            f"thread={thread}", "comment=please verify")
+	            "comment=please verify")
 	assert passed["kind"] == "pass"
+	assert passed["work"] == work
+	assert passed["destination_phase"] == "review"
 	detail = ok(world, "detail", f"work={work}")
 	assert detail["current"]["endpoint"] == "rev.bug"
 	assert detail["phase"] == "review"
 	assert detail["next"]["endpoint"] == "lang.bug"
 	assert detail["active"] is None, "the pass kept the sender's claim"
 	page = ok(world, "thread", f"thread={thread}")
-	assert page["messages"][-1]["body"] == "please verify", \
-		"the handoff evidence did not land in the chosen thread"
+	assert page["messages"] == before["messages"], \
+		"a threadless pass manufactured a discussion message"
+	event = [e for e in world["store"].events() if e["seq"] == passed["seq"]][0]
+	assert event["payload"]["comment"] == "please verify", \
+		"the handoff evidence is not in the authoritative pass event"
 
 
 def test_the_destination_phase_derives_from_the_stage_role(world):
@@ -102,10 +108,10 @@ def test_the_destination_phase_derives_from_the_stage_role(world):
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
 	ok(world, "pass", f"work={work}", "to=rev.bug",
-	   f"thread={thread}", "comment=over to review")
+	   "comment=over to review")
 	assert ok(world, "detail", f"work={work}")["phase"] == "review"
 	ok(world, "pass", f"work={work}", "to=lang.bug",
-	   f"thread={thread}", "comment=back to build",
+	   "comment=back to build",
 	   viewer="rev.bee")
 	assert ok(world, "detail", f"work={work}")["phase"] == "active"
 
@@ -121,7 +127,7 @@ def test_a_refused_pass_changes_nothing(world):
 	with open(world["database"], "rb") as handle:
 		before = hashlib.sha256(handle.read()).hexdigest()
 	error = refusal(world, "pass", f"work={work}", "to=ghost.bug",
-	                f"thread={thread}", "comment=nowhere")
+	                "comment=nowhere")
 	assert "ghost" in error
 	after_detail = ok(world, "detail", f"work={work}")
 	for field in ("current", "phase", "next", "active", "status"):
@@ -140,21 +146,24 @@ def test_authorization_and_retry(world):
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
 	error = refusal(world, "pass", f"work={work}", "to=rev.bug",
-	                f"thread={thread}", "comment=not mine",
+	                "comment=not mine",
 	                viewer="rev.bee")
 	assert "rev.bee" in error
 	first = ok(world, "pass", f"work={work}", "to=rev.bug",
-	           "phase=review", f"thread={thread}",
+	           "phase=review",
 	           "comment=handing over", "op-id=xfer-1")
 	again = ok(world, "pass", f"work={work}", "to=rev.bug",
-	           "phase=review", f"thread={thread}",
+	           "phase=review",
 	           "comment=handing over", "op-id=xfer-1")
 	assert again["operation"]["state"] == "replayed"
 	assert again["seq"] == first["seq"]
+	events = [e for e in world["store"].events()
+	          if e["kind"] in ("pass", "return")
+	          and e["payload"].get("work") == work]
+	assert len(events) == 1, "the retry duplicated the transfer event"
 	page = ok(world, "thread", f"thread={thread}")
-	assert sum(1 for message in page["messages"]
-	           if message["body"] == "handing over") == 1, \
-		"the retry duplicated the handoff evidence"
+	assert all(m["body"] != "handing over" for m in page["messages"]), \
+		"the pass left a discussion message behind"
 
 
 def test_say_is_discussion_only_now(world):
@@ -180,8 +189,9 @@ def test_the_assist_teaches_the_new_dialect(world):
 	"""The shared analyzer offers pass's form and never resurrects the
 	retired say keys."""
 	hint = assist_text("pass ")
-	for name in ("work=", "to=", "thread=", "comment="):
+	for name in ("work=", "to=", "comment="):
 		assert name in hint.split("optional:")[0], (name, hint)
+	assert "thread=" not in hint, "the assist resurrected the thread coupling"
 	assert "phase=" in hint and "set-next=" in hint
 	say_hint = assist_text("say thread=T1 body=b ")
 	assert "pass-to=" not in say_hint and "set-next=" not in say_hint

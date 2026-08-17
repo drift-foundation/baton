@@ -62,3 +62,33 @@ This attention state is deliberately ephemeral and presentation-only. It is
 not persisted, reconnecting starts cold, and it neither reads nor requires a
 high-resolution authority timestamp. Bold Title plus claim `Age` remain the
 steady hot-work indicators after the short change cue expires.
+
+## Supersession — 2026-08-17: `Held` and one hours/minutes scale
+
+**Confirmed by Slawomir.** The `Age` header and its mixed `MM:SS`/`HH:MM`
+scale above are superseded. The same five-cell timer is labelled `Held` and
+always expresses elapsed claim ownership as hours and minutes:
+
+- `00:00` at claim time and for the first incomplete minute;
+- `HH:MM` through `99:59`, flooring partial minutes;
+- `99h+` beyond the fixed-width display range;
+- `-` when no current claim exists.
+
+The old mixed scale was visually ambiguous: a value such as `01:30` did not
+say whether it meant one minute and thirty seconds or one hour and thirty
+minutes. Seconds provide no useful operational signal beside the existing
+two-minute refresh/heartbeat model, while claims commonly last longer than
+the 99 minutes that a fixed-width `MM:SS` display could represent.
+
+This changes presentation only. The canonical `claimed_at` fact, claim
+lifecycle, heartbeat/stall suffix, refresh behavior, negative-clock clamp,
+responsive whole-column omission and authority schema remain unchanged. The
+closed W33 is not reopened; a separately tracked follow-up owns the change.
+
+## Supersession — 2026-08-17: `Held` begins at handoff
+
+The claim-start and unclaimed-`-` statements immediately above are superseded
+by `../finding-tui-held-duration/FINDING.md`. `Held` now measures the current
+endpoint's responsibility interval from committed handoff, continues through
+claim without resetting, and composes with the structured pending-pickup state.
+The closed W33 remains closed.

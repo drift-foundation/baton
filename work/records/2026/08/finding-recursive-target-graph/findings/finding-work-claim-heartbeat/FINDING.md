@@ -111,3 +111,13 @@ unclaimed); responsive layouts still omit it as one whole column. Heartbeat
 does not reset `claimed_at`, change Phase/Current/Next/readiness, touch Work
 change identity, reorder the row, create a message, alter New, or arm the
 phase-change blink.
+
+## Clarification — 2026-08-17: pickup alert is not heartbeat staleness
+
+The later ruling in `../finding-tui-held-duration/FINDING.md` supersedes only
+this record's statements that the visible duration is total claim duration and
+that unclaimed operational Work has no alert. `Held` now starts at handoff and
+continues through claim. Before claim, `>` and then `!` report pending/overdue
+pickup; after claim, heartbeat staleness remains the independent liveness fact.
+Neither condition mutates workflow authority or resets `Held`, and canonical
+JSON exposes both as structured state rather than glyph-encoded strings.

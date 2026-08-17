@@ -170,9 +170,19 @@ def born(store, work_id: str) -> str:
 def post(store, work_id: str, **kw):
 	"""TEST-ONLY adapter for WS-1-era call sites: post into the Work's
 	born thread, selecting the Work explicitly for carrying
-	operators. Public callers use `post_thread` directly."""
+	operators. Public callers use `post_thread` directly. A pass_to=
+	call site rides the W171 THREADLESS pass event (the old body
+	becomes the handoff comment); everything else stays a message."""
 	from baton_work import transitions as _tr
-	if kw.get("request") or kw.get("pass_to"):
+	if kw.get("pass_to"):
+		return _tr.pass_work(
+			store, work_id, actor_team=kw["author_team"],
+			actor=kw["author"], to=kw["pass_to"],
+			phase=kw.get("pass_phase"),
+			comment=kw.get("body") or "handoff",
+			set_next=kw.get("set_next"), op_id=kw.get("op_id"),
+			refs=kw.get("refs", ()))
+	if kw.get("request"):
 		kw.setdefault("on", work_id)
 	return _tr.post_thread(store, born(store, work_id), **kw)
 

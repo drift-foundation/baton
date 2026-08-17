@@ -1,6 +1,7 @@
 """W39: inline dependency arrows in Work lists; Ready removed.
 
-The ruled cue (finding-tui-inline-dependency-cue): `← Wn` on a row means
+The ruled cue (finding-tui-inline-dependency-cue, W187 relabel:
+`Wait`, arrowless): `Wn` on a row means
 that Work is blocked by the named OPEN Work — the deterministic first
 open blocker's authority-local selector, `+N` for the rest. A row with
 no open blocker has no cue; satisfied historical edges leave the live
@@ -81,12 +82,12 @@ def test_the_projection_names_the_deterministic_first_blocker(world):
 	assert row["first_open_blocker"] == first.rsplit("-", 1)[1], \
 		"the cue is not the oldest open blocker"
 	assert row["open_blockers"] == 3
-	assert blocker_cue(row) == f"← {first.rsplit('-', 1)[1]} +2"
+	assert blocker_cue(row) == f"{first.rsplit('-', 1)[1]}+2"
 	tr.close_work(world["store"], first, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	row = row_of(world, consumer)
 	assert row["first_open_blocker"] == second.rsplit("-", 1)[1]
-	assert blocker_cue(row) == f"← {second.rsplit('-', 1)[1]} +1"
+	assert blocker_cue(row) == f"{second.rsplit('-', 1)[1]}+1"
 	for blocker in (second, third):
 		tr.close_work(world["store"], blocker, actor_team="lang",
 		              actor="ada", rationale="done",
@@ -123,14 +124,14 @@ def test_one_blocker_renders_without_a_count(world):
 	gate = make(world, title="the gate")
 	block(world, consumer, gate)
 	assert blocker_cue(row_of(world, consumer)) == \
-		f"← {gate.rsplit('-', 1)[1]}"
+		f"{gate.rsplit('-', 1)[1]}"
 	assert blocker_cue(row_of(world, gate)) == "", \
 		"the provider side grew a cue"
 
 
 def test_ready_is_gone_and_the_cue_column_renders(world):
-	"""The painted table: no Ready header, the Blk field carries
-	`← Wn +N` on the blocked row and stays empty on others."""
+	"""The painted table: no Ready header, the Wait field carries
+	`Wn+N` on the blocked row and stays empty on others."""
 	assert "READY" not in dict(COLUMNS)
 	assert "READY" not in DROP_ORDER
 	consumer = make(world, title="blocked row")
@@ -142,17 +143,19 @@ def test_ready_is_gone_and_the_cue_column_renders(world):
 	console._render_table(screen, 24, 110, console.rows())
 	header = next(text for text in screen.painted if "Title" in text)
 	assert "Ready" not in header, header
-	assert "Blk" in header, header
+	assert "Wait" in header, header
+	assert "Blk" not in header, header
 	blocked = next(text for text in screen.painted
 	               if "blocked row" in text)
-	assert re.search(r"← W\d+ \+1", blocked), blocked
+	assert re.search(r"W\d+\+1", blocked), blocked
+	assert "←" not in blocked, blocked
 	unblocked = next(text for text in screen.painted if "g1" in text)
 	assert "←" not in unblocked
 
 
 def test_containment_and_dependency_stay_distinct(world):
 	"""A row can be BOTH a containment child (`↳` in the title) and
-	blocked (`← Wn` in the cue field) — two facts, two markers, never
+	blocked (`Wn` in the Wait field) — two facts, two cues, never
 	conflated."""
 	parent = make(world, title="the parent")
 	child = tr.create_work(world["store"], team="lang", kind="bug",
@@ -169,7 +172,8 @@ def test_containment_and_dependency_stay_distinct(world):
 	child_row = next(text for text in screen.painted
 	                 if "the child" in text)
 	assert "↳ the child" in child_row, child_row
-	assert f"← {gate.rsplit('-', 1)[1]}" in child_row, child_row
+	assert f"{gate.rsplit('-', 1)[1]}" in child_row, child_row
+	assert "←" not in child_row, child_row
 	gate_row = next(text for text in screen.painted
 	                if "the gate" in text)
 	assert "↳" not in gate_row and "←" not in gate_row
@@ -177,15 +181,18 @@ def test_containment_and_dependency_stay_distinct(world):
 
 def test_narrow_widths_omit_the_cue_whole_never_clip_it(world):
 	"""When the cue field alone breaks the fit it disappears entirely —
-	no `←` fragment survives — while the table itself still paints and
+	no cue fragment survives — while the table itself still paints and
 	`[b] deps` remains the full view."""
 	consumer = make(world, title="tight")
-	block(world, consumer, make(world, title="gate"))
+	gate = make(world, title="gate")
+	block(world, consumer, gate)
 	console = Console(world["store"], "lang", "ada",
 	                  config_path=world["config"])
 	wide = Screen()
 	console._render_table(wide, 24, 110, console.rows())
-	assert any("←" in text for text in wide.painted)
+	gate_cue = gate.rsplit("-", 1)[1]
+	assert any("tight" in text and gate_cue in text
+	           for text in wide.painted), "no cue on the blocked row"
 	# find a width where the table fits WITHOUT the cue but not with it
 	from baton_work.tui.app import id_column_width, layout_fits
 	rows = console.rows()
@@ -197,9 +204,10 @@ def test_narrow_widths_omit_the_cue_whole_never_clip_it(world):
 	              and not layout_fits(w, id_width + 1 + cue))
 	tight = Screen()
 	console._render_table(tight, 24, narrow, rows)
-	assert not any("←" in text for text in tight.painted), \
+	assert not any("tight" in text and gate_cue in text
+	               for text in tight.painted), \
 		"the cue was clipped instead of omitted whole"
-	assert not any("Blk" in text for text in tight.painted)
+	assert not any("Wait" in text for text in tight.painted)
 	assert any("tight" in text for text in tight.painted), \
 		"the table stopped painting instead of omitting the cue"
 	# the full dependency view stays reachable
@@ -215,9 +223,11 @@ def test_the_cue_follows_refresh(world):
 	block(world, consumer, gate)
 	console = Console(world["store"], "lang", "ada",
 	                  config_path=world["config"])
+	gate_cue = gate.rsplit("-", 1)[1]
 	before = Screen()
 	console._render_table(before, 24, 110, console.rows())
-	assert any("←" in text for text in before.painted)
+	assert any("refreshed" in text and gate_cue in text
+	           for text in before.painted), "no cue before the close"
 	console.execute(f"close work={gate.rsplit('-', 1)[1]} "
 	                f"rationale=done outcome=satisfying")
 	assert console.status.startswith("ok"), console.status
@@ -225,7 +235,7 @@ def test_the_cue_follows_refresh(world):
 	console._render_table(after, 24, 110, console.rows())
 	blocked_row = next(text for text in after.painted
 	                   if "refreshed" in text)
-	assert "←" not in blocked_row, \
+	assert gate_cue not in blocked_row, \
 		"a satisfied edge kept its live cue"
 
 
@@ -237,7 +247,7 @@ def test_json_and_tui_agree_on_the_cue(world):
 	for title in ("p1", "p2", "p3"):
 		block(world, consumer, make(world, title=title))
 	row = row_of(world, consumer)
-	expected = f"← {row['first_open_blocker']} +{row['open_blockers'] - 1}"
+	expected = f"{row['first_open_blocker']}+{row['open_blockers'] - 1}"
 	assert blocker_cue(row) == expected
 	screen = Screen()
 	console = Console(world["store"], "lang", "ada",

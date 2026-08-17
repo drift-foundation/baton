@@ -13,3 +13,4 @@ build/
 .build-staging-*/
 .build-retiring-*/
 .claude/settings.local.json
+node_modules/

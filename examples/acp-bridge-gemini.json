@@ -1,0 +1,28 @@
+{
+  "//": "acp-baton-bridge example: Gemini via its native ACP mode",
+  "//2": "(gemini --acp). EVERY value below is a placeholder the operator",
+  "//3": "must replace; nothing here can run as shipped. The SAME generic",
+  "//4": "bridge drives Gemini purely by configuration — no Baton parsing",
+  "//5": "or action semantics change per agent. Gemini's own prohibition",
+  "//6": "policy mechanism is deployment-owned, exactly like Claude's.",
+  "baton": {
+    "binary": "<ABSOLUTE-PATH-TO-DEPLOYED-BATON-EXECUTABLE>",
+    "config": "<ABSOLUTE-PATH-TO-BATON-HOME>/baton.json",
+    "participant": "<TEAM.MEMBER-DISTINCT-FROM-EVERY-OTHER-AGENT>",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "<ABSOLUTE-PATH-TO-GEMINI-CLI>",
+    "args": ["--acp"],
+    "env": {},
+    "cwd": "<ABSOLUTE-PATH-TO-AGENT-WORKSPACE>"
+  },
+  "session": { "mode": "new", "cwd": "<ABSOLUTE-PATH-TO-AGENT-WORKSPACE>" },
+  "permissionMode": "<EXACT-GEMINI-SESSION-MODE-THE-OPERATOR-SELECTS>",
+  "policyResources": [
+    "<ABSOLUTE-PATH-TO-GEMINI-DEPLOYMENT-POLICY-RESOURCE>"
+  ],
+  "stateDir": "<ABSOLUTE-PATH-TO-BRIDGE-STATE-DIR>/<TEAM.MEMBER>",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

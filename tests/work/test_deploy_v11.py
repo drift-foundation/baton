@@ -83,14 +83,18 @@ def test_the_deployed_layout_is_the_ruled_release_shape(dist):
 	                                             "work-basic-1.md"))
 	assert b"work-basic-1.md" not in _read(executable), \
 		"a template asset leaked into the zipapp"
-	# R102: the COMPLETE distribution — executable, documentation,
-	# configuration example, and template assets.
-	assert sorted(os.listdir(target)) == ["bin", "conf", "doc", "tmpl"]
-	# W2 (negative artifact pin): the release ships EXACTLY bin/baton —
-	# the retired baton-work name, or any second file smuggled into
-	# bin/, fails the gate rather than shipping two spellings.
-	assert os.listdir(os.path.join(target, "bin")) == ["baton"], \
-		"bin/ must contain exactly the renamed executable"
+	# R102 + W163: the COMPLETE distribution — executable,
+	# documentation, configuration examples, template assets, and the
+	# co-deployed ACP bridge runtime under lib/.
+	assert sorted(os.listdir(target)) == ["bin", "conf", "doc", "lib",
+	                                      "tmpl"]
+	# W2 (negative artifact pin), amended by the W163 distribution
+	# ruling: bin/ ships EXACTLY the two product entry points — the
+	# retired baton-work name, or any third file smuggled into bin/,
+	# fails the gate rather than shipping extra spellings.
+	assert sorted(os.listdir(os.path.join(target, "bin"))) == \
+		["acp-baton-bridge", "baton"], \
+		"bin/ must contain exactly the two product entry points"
 	assert _read(os.path.join(target, "doc", "BATON-WORK.md")) == \
 		_read(os.path.join(REPO, "docs", "BATON-WORK.md"))
 	example = os.path.join(target, "conf", "baton.example.json")

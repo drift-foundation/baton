@@ -1,0 +1,8 @@
+# Protected paths for launch-agent-sandboxed.sh — one absolute path per
+# line, remounted READ-ONLY around the ACP agent. Entries must identify
+# ACTUAL Git metadata paths: for an ordinary checkout that is the .git
+# DIRECTORY; for a worktree-style checkout, .git is a FILE pointing at
+# the real gitdir elsewhere — protect the RESOLVED gitdir
+# (git rev-parse --absolute-git-dir), never an assumed .git directory.
+# An empty or comment-only list refuses the launch (fail closed).
+/home/sl/baton-acp-live/workspace/repo/.git

@@ -28,7 +28,23 @@ from baton_work.authority import Authority, WorkError
 # member by live route resolution; routed Work enters the wake set for
 # the first time. Same major: envelope shape and every other
 # projection unchanged.
-PROJECTION_VERSION = "4.3"
+# 4.4 (W171, finding-pass-is-work-event): `pass` is a THREADLESS Work
+# event — the public grammar drops thread= (refused as unknown), the
+# pass/return event payload carries the exact comment plus complete
+# transition metadata and no thread, and a pass moves no message,
+# cursor, or Message/My/New/obligation count. Same major: the envelope
+# and every other projection unchanged.
+# 5.0 (W179, finding-visible-scope-message-counts): default Work
+# counters describe the DIRECT visible scope — Msg/My/New in home
+# rows and detail cover exactly the threads labelled directly to the
+# Work (thread-less verification obligations stay with their own
+# Work); descendants never inflate a parent. The recursive union
+# survives only in the explicitly named breakdown, whose field is now
+# `subtree_total` (was `total`). This CHANGES the meaning of existing
+# fields, so the major moves: 5.0, honest and breaking — the human
+# ruled no v11 client-compat limit during the trial, so no alias, no
+# migration, and a 4.x demand refuses cleanly.
+PROJECTION_VERSION = "5.0"
 
 
 def require_version(requested: str | None) -> None:

@@ -325,8 +325,11 @@ def test_static_conditions_refuse_before_authority(world, monkeypatch):
 		(("say", "thread=t", "body=b", "on=w"), "requires request="),
 		(("say", "thread=t", "body=b", "phase=review"),
 		 "unknown key 'phase'"),
-		(("pass", "work=w", "to=a.b", "thread=t", "comment=c",
+		(("pass", "work=w", "to=a.b", "comment=c",
 		  "phase=nowhere"), "phase= takes one of"),
+		# W171: pass is threadless — the old coupling is an unknown key.
+		(("pass", "work=w", "to=a.b", "comment=c", "thread=t"),
+		 "unknown key 'thread'"),
 		(("close", "work=x", "rationale=r", "outcome=satisfying",
 		  "duplicate-of=y"), "requires outcome=rejected"),
 	]
@@ -496,7 +499,7 @@ def test_assist_applies_the_parsers_condition_model():
 	assert "required: request=" in carrier, carrier
 	passing = assist_text("pass work=W1 to=lang.impl ")
 	assert "required:" in passing and "comment=" in passing \
-		and "thread=" in passing
+		and "thread=" not in passing
 	dup = assist_text("close work=X rationale=r duplicate-of=W2 ")
 	assert "duplicate-of= needs outcome=rejected" in dup
 	settled = assist_text(

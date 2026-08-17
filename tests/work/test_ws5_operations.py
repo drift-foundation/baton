@@ -181,24 +181,24 @@ def test_later_state_replay_returns_the_original_resolution(world):
 	a read of the committed fact, not a new act."""
 	store, _config = world
 	born = _create(store)
-	passed = tr.post_thread(store, born["thread"],
-	                            author_team="lang", author="ada",
-	                            body="onward", pass_to="lang.rsrch", pass_phase="research",
-	                            op_id="pass-1")
+	passed = tr.pass_work(store, born["work_id"],
+	                      actor_team="lang", actor="ada",
+	                      to="lang.rsrch", phase="research",
+	                      comment="onward", op_id="pass-1")
 	tr.close_work(store, born["work_id"], actor_team="lang",
 	              actor="ada", rationale="done", outcome="satisfying")
-	replay = tr.post_thread(store, born["thread"],
-	                            author_team="lang", author="ada",
-	                            body="onward", pass_to="lang.rsrch", pass_phase="research",
-	                            op_id="pass-1")
+	replay = tr.pass_work(store, born["work_id"],
+	                      actor_team="lang", actor="ada",
+	                      to="lang.rsrch", phase="research",
+	                      comment="onward", op_id="pass-1")
 	assert replay["seq"] == passed["seq"]
 	assert replay["operation"]["state"] == "replayed"
 	assert replay["work"] == born["work_id"]
-	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
-		tr.post_thread(store, born["thread"],
-		                   author_team="lang", author="ada",
-		                   body="onward again", pass_to="lang.rsrch", pass_phase="research",
-		                   op_id="pass-2")
+	with pytest.raises(bw.WorkError, match="terminal work never moves"):
+		tr.pass_work(store, born["work_id"],
+		             actor_team="lang", actor="ada",
+		             to="lang.rsrch", phase="research",
+		             comment="onward again", op_id="pass-2")
 
 
 def test_a_removed_identity_gets_no_replay_carve_out(world):

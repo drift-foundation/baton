@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": ["Bash(git commit:*)", "Bash(git push:*)", "Bash(git rebase:*)", "Bash(git reset:*)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {"type": "command", "command": "/home/sl/baton-acp-live/policy/block-git-commit.sh"}
+        ]
+      }
+    ]
+  }
+}

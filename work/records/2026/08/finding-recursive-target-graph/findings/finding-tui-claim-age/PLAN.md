@@ -22,3 +22,10 @@ schema.
 7. Consume a phase-change blink cycle only after the scheduled canonical
    refresh succeeds; timer expiry followed by a failed read must retain the
    countdown for the next successful refresh.
+
+## Follow-up — 2026-08-17
+
+W33 is closed and remains historical. The confirmed `Held`/`HH:MM`
+supersession is queued as new Work and specified in
+`../finding-tui-held-duration/{FINDING,PLAN}.md`; it must not reopen or rewrite
+W33.
