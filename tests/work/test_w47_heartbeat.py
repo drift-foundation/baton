@@ -141,7 +141,7 @@ def test_beats_have_no_semantic_side_effects(world):
 	assert result["operation"] is None
 	after = row_of(world, work)
 	for field in ("last_change_seq", "last_changed_at", "phase",
-	              "status", "current", "next", "ready", "new",
+	              "status", "handler", "next", "ready", "new",
 	              "message_count", "priority", "claimed_at"):
 		assert after[field] == before[field], field
 	console.schedule_refresh()
@@ -236,33 +236,34 @@ def test_heartbeat_silence_never_changes_the_display(world):
 	"""W65 replaces W47's presentation threshold. A claimed agent can be
 	alive and busy inside one model turn with no opportunity to call
 	`heartbeat`, so silence is NOT evidence of failure and no longer
-	renders an alert. The claimed field is the timer plus a trailing
-	space, always; only the timer moves."""
+	renders an alert. W15 then removed the marker and the trailing
+	space: the field is the bare timer, always, and only the timer
+	moves."""
 	base = "2026-08-16T12:00:00Z"
 	origin = stamp(base)
-	assert field(None, None, origin) == ">-", \
-		"unclaimed open Work lost its primary marker"
-	assert field(base, base, origin) == "00:00 "
+	assert field(None, None, origin) == "-", \
+		"unclaimed open Work still renders the retired marker"
+	assert field(base, base, origin) == "00:00"
 	# the old boundary is now an ordinary instant in both directions
 	just_before = origin + SILENT_SIX_MINUTES - 1
 	at_boundary = origin + SILENT_SIX_MINUTES
 	well_past = origin + SILENT_SIX_MINUTES * 10
-	assert field(base, base, just_before) == "05:59 "
-	assert field(base, base, at_boundary) == "06:00 ", \
+	assert field(base, base, just_before) == "05:59"
+	assert field(base, base, at_boundary) == "06:00", \
 		"six silent minutes still painted an alert"
-	assert field(base, base, well_past) == "60:00 "
+	assert field(base, base, well_past) == "60:00"
 	# a fresh beat changes NOTHING, which is the point: the claim age
 	# is the fact, and the beat is not part of the display
 	fresh_beat = "2026-08-16T12:06:00Z"
-	assert field(base, fresh_beat, at_boundary) == "06:00 "
-	assert field(base, None, at_boundary) == "06:00 ", \
+	assert field(base, fresh_beat, at_boundary) == "06:00"
+	assert field(base, None, at_boundary) == "06:00", \
 		"a missing beat changed the display"
 	future_beat = "2026-08-16T13:00:00Z"
-	assert field(base, future_beat, at_boundary) == "06:00 "
+	assert field(base, future_beat, at_boundary) == "06:00"
 	assert all(len(field(base, base, origin + n)) <= 6
 	           for n in (0, 3600, 3600 * 100))
 	# W55's overflow composes with the (now constant) suffix
-	assert field(base, base, origin + 60 * 100) == "∞ "
+	assert field(base, base, origin + 60 * 100) == "∞"
 
 
 def test_silence_is_never_a_lease_and_never_a_glyph(world):
@@ -275,9 +276,9 @@ def test_silence_is_never_a_lease_and_never_a_glyph(world):
 	row = row_of(world, work)
 	late = stamp(row["heartbeat_at"]) + SILENT_SIX_MINUTES + 30
 	silent_cell = field(row["claimed_at"], row["heartbeat_at"], late)
-	assert silent_cell.endswith(" ") and "!" not in silent_cell, \
+	assert "!" not in silent_cell and ">" not in silent_cell, \
 		f"protocol silence painted an alert: {silent_cell!r}"
-	assert row["current"] == {"team": "lang", "member": "ada",
+	assert row["handler"] == {"team": "lang", "member": "ada",
 	                   "participant": "lang.ada"}, \
 		"staleness altered the claim"
 	assert row["heartbeat_at"] is not None, \
@@ -288,8 +289,9 @@ def test_silence_is_never_a_lease_and_never_a_glyph(world):
 	tr.heartbeat(store, work, actor_team="lang", actor="ada")
 	fresh = row_of(world, work)
 	now = stamp(fresh["heartbeat_at"]) + 1
-	assert field(fresh["claimed_at"], fresh["heartbeat_at"],
-	             now).endswith(" ")
+	# W15: no suffix at all now — a fresh beat still changes nothing
+	beaten = field(fresh["claimed_at"], fresh["heartbeat_at"], now)
+	assert "!" not in beaten and ">" not in beaten, beaten
 	# the beat is audited even when it lands inside the same second as
 	# the claim (one-second instant resolution), so the EVENT is the
 	# durable evidence, not a timestamp comparison
@@ -421,8 +423,8 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	# shape; W179's honest-breaking major moved the projection to 5.0
 	# (no alias), so the CURRENT same-major demand is 5.x and a stale
 	# 4.x demand refuses.
-	assert jsonapi.PROJECTION_VERSION == "8.0"
-	jsonapi.require_version("8.0")
+	assert jsonapi.PROJECTION_VERSION == "9.0"
+	jsonapi.require_version("9.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.2")
 

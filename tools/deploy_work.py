@@ -47,7 +47,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import zipapp
+import zipfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCE_PACKAGE = os.path.join(REPO, "src", "baton_work")
@@ -95,6 +95,65 @@ BRIDGE_WRAPPER = """#!/usr/bin/env bash
 HERE="$(cd "$(dirname "$0")" && pwd)"
 exec node "$HERE/../lib/acp-baton-bridge/src/acp_baton_bridge.mjs" "$@"
 """
+
+
+# W4 (finding-v11-reproducible-zipapp): the executable is a REPRODUCIBLE
+# artifact — its bytes depend only on its intentional source inputs.
+#
+# `zipapp.create_archive` stamps every member with its staging mtime, so
+# two deployments of byte-identical sources differed. The observed
+# evidence caught only generated `__main__.py`, because the copied
+# sources kept their mtimes between the two builds in one checkout; a
+# fresh clone or a touched file moves the other thirteen members too.
+# The fix is therefore metadata-wide rather than a special case for the
+# generated member.
+FIXED_DATE = (1980, 1, 1, 0, 0, 0)   # the earliest the DOS format holds
+FILE_ATTR = (0o100644 << 16)
+DIR_ATTR = (0o040755 << 16) | 0x10
+
+# Byte-for-byte what zipapp writes, so the ruled bootstrap is unchanged:
+# cli:entry, NOT cli:main — zipapp discards the target's return value,
+# which turned refusals into exit 0 (the WF-06 lesson).
+MAIN_SOURCE = ("# -*- coding: utf-8 -*-\n"
+               "import baton_work.cli\n"
+               "baton_work.cli.entry()\n")
+SHEBANG = b"#!/usr/bin/env python3\n"
+
+
+def _members(staging):
+	"""Every archive member as (arcname, is_dir, bytes), in ONE sorted
+	order. Walk order is filesystem-dependent — inode order on some
+	filesystems — so enumeration is sorted rather than trusted."""
+	out = [("__main__.py", False, MAIN_SOURCE.encode("utf-8"))]
+	for base, dirs, files in os.walk(staging):
+		dirs.sort()
+		rel = os.path.relpath(base, staging)
+		if rel != ".":
+			out.append((rel.replace(os.sep, "/") + "/", True, b""))
+		for name in sorted(files):
+			path = os.path.join(base, name)
+			arcname = os.path.relpath(path, staging).replace(os.sep, "/")
+			with open(path, "rb") as handle:
+				out.append((arcname, False, handle.read()))
+	return sorted(out, key=lambda entry: entry[0])
+
+
+def _write_zipapp(staging, archive):
+	"""The deterministic writer: fixed member timestamps and modes, a
+	pinned create_system, sorted members, and stored (uncompressed)
+	entries — nothing derived from the build host or the clock."""
+	with open(archive, "wb") as handle:
+		handle.write(SHEBANG)
+		with zipfile.ZipFile(handle, "w") as bundle:
+			for arcname, is_dir, payload in _members(staging):
+				info = zipfile.ZipInfo(arcname, date_time=FIXED_DATE)
+				# 3 = Unix. ZipInfo otherwise picks it from the BUILD
+				# host, so the same sources would differ across hosts.
+				info.create_system = 3
+				info.external_attr = DIR_ATTR if is_dir else FILE_ATTR
+				info.compress_type = zipfile.ZIP_STORED
+				bundle.writestr(info, payload)
+	os.chmod(archive, 0o755)
 
 
 def _stage_bridge(scratch: str) -> None:
@@ -168,12 +227,7 @@ def main(argv=None) -> int:
 		                    "__pycache__", "*.pyc", "*.pyo"))
 		os.mkdir(os.path.join(scratch, "bin"))
 		archive = os.path.join(scratch, "bin", "baton")
-		# cli:entry, NOT cli:main — zipapp discards the target's return
-		# value, which turned refusals into exit 0 (the WF-06 lesson).
-		zipapp.create_archive(staging, archive,
-		                      interpreter="/usr/bin/env python3",
-		                      main="baton_work.cli:entry")
-		os.chmod(archive, 0o755)
+		_write_zipapp(staging, archive)
 		shutil.rmtree(staging)
 		templates = sorted(name for name in os.listdir(SOURCE_TEMPLATES)
 		                   if name.endswith(".md"))

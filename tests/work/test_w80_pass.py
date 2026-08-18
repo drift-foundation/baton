@@ -89,12 +89,12 @@ def test_pass_is_one_indivisible_transfer(world):
 	            "comment=please verify")
 	assert passed["kind"] == "pass"
 	assert passed["work"] == work
-	assert passed["destination_phase"] == "review"
+	assert passed["destination_phase"] == "queued"
 	detail = ok(world, "detail", f"work={work}")
 	assert detail["route"]["endpoint"] == "rev.bug"
-	assert detail["phase"] == "review"
+	assert detail["phase"] == "queued"
 	assert detail["next"]["endpoint"] == "lang.bug"
-	assert detail["current"] is None, "the pass kept the sender's claim"
+	assert detail["handler"] is None, "the pass kept the sender's claim"
 	page = ok(world, "thread", f"thread={thread}")
 	assert page["messages"] == before["messages"], \
 		"a threadless pass manufactured a discussion message"
@@ -103,18 +103,22 @@ def test_pass_is_one_indivisible_transfer(world):
 		"the handoff evidence is not in the authoritative pass event"
 
 
-def test_the_destination_phase_derives_from_the_stage_role(world):
-	"""The destination route's stage role decides the phase — rview
-	lands review and impl lands active — exactly the W73 rule."""
+def test_the_destination_phase_is_the_scheduler_state_not_the_role(world):
+	"""W38 supersedes W73's derivation. A handoff hands over
+	responsibility, not activity, so BOTH directions land `queued` —
+	review to build and build to review alike. The destination role says
+	what kind of work it is, through the Route, and nothing about
+	whether anybody has started."""
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
 	ok(world, "pass", f"work={work}", "to=rev.bug",
 	   "comment=over to review")
-	assert ok(world, "detail", f"work={work}")["phase"] == "review"
+	assert ok(world, "detail", f"work={work}")["phase"] == "queued"
 	ok(world, "pass", f"work={work}", "to=lang.bug",
 	   "comment=back to build",
 	   viewer="rev.bee")
-	assert ok(world, "detail", f"work={work}")["phase"] == "active"
+	# W38: a handoff lands queued — the recipient has not started.
+	assert ok(world, "detail", f"work={work}")["phase"] == "queued"
 
 
 def test_a_refused_pass_changes_nothing(world):
@@ -131,7 +135,7 @@ def test_a_refused_pass_changes_nothing(world):
 	                "comment=nowhere")
 	assert "ghost" in error
 	after_detail = ok(world, "detail", f"work={work}")
-	for field in ("route", "phase", "next", "current", "status"):
+	for field in ("route", "phase", "next", "handler", "status"):
 		assert after_detail[field] == before_detail[field], field
 	after_page = ok(world, "thread", f"thread={thread}")
 	assert len(after_page["messages"]) == len(before_page["messages"]), \

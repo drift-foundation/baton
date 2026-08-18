@@ -96,7 +96,7 @@ def test_the_subject_matrix_attaches_by_typed_contract(world):
 	tr.prioritize(store, work, actor_team="lang", actor="ada",
 	              priority="high")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="research")
+	             phase="parked", reason="w38")
 	page = read(world, work)
 	assert kinds(page) == ["create_work", "claim", "heartbeat",
 	                       "classify", "prioritize", "set_phase"]

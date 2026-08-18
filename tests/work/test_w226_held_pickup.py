@@ -4,10 +4,19 @@ handoff/pickup facts, on W55's MM:SS timer.
 Responsibility begins at the committed handoff: canonical JSON exposes
 `handoff_at` and the structured `pickup` state (claimed | pending |
 overdue | null) — never display glyphs — while the TUI renders the
-state-dependent Held field (W65: `>MM:SS` for every open unclaimed
-Work, the visible reset to claimed_at at pickup, a constant blank
-suffix once claimed) and the Phase pickup prefix. No prefix, suffix,
-or elapsed time mutates workflow authority.
+state-dependent Held field.
+
+W65 marked every open unclaimed row `>MM:SS` here and prefixed Phase to
+match. W15 SUPERSEDED that presentation: projection 8 makes `Current`
+the exact claimant, blank when nobody holds the Work, so the marker
+repeated a fact the row already stated. Held is now a bare timer —
+`MM:SS` from `claimed_at` while claimed, from the handoff while
+unclaimed, `-` with no origin, the cap otherwise — and `Current` is
+what distinguishes the two intervals.
+
+The timer ORIGINS below are unchanged by that supersession, and are the
+substance of this suite. No timer, marker, or elapsed value has ever
+mutated workflow authority.
 """
 
 from __future__ import annotations
@@ -28,7 +37,7 @@ import baton_work as bw                                       # noqa: E402
 from baton_work import lifecycle as lc                        # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
-from baton_work.tui.app import held_field, pickup_prefix      # noqa: E402
+from baton_work.tui.app import held_field                    # noqa: E402
 import fixtures as fx                                         # noqa: E402
 
 
@@ -100,24 +109,20 @@ def test_the_held_field_walks_the_ruled_states(world):
 	             to="rev.bug", comment="over")
 	row = row_of(world, work)
 	handed = epoch(row["handoff_at"])
-	# pending: >MM:SS since the committed handoff (W55 scale)
-	assert held_field(row, handed + 90) == ">01:30"
-	assert pickup_prefix(row, handed + 90) == ">"
-	# W65: crossing six minutes changes NOTHING — unclaimed is the
-	# fact, and it was already being stated
-	assert held_field(row, handed + 360) == ">06:00"
-	assert pickup_prefix(row, handed + 360) == ">"
-	# claim: the prefix disappears and the DISPLAYED interval resets to
-	# claimed_at — the pickup insight is preserved, not erased
+	# pending: MM:SS since the committed handoff (W55 scale). W15
+	# removed the `>` prefix — Current carries the claimant cue now.
+	assert held_field(row, handed + 90) == "01:30"
+	# W65: crossing six minutes changes NOTHING
+	assert held_field(row, handed + 360) == "06:00"
+	# claim: the DISPLAYED interval resets to claimed_at — the pickup
+	# insight is preserved, not erased
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	row = row_of(world, work)
 	assert row["pickup"] == "claimed"
 	claimed = epoch(row["claimed_at"])
-	assert held_field(row, claimed + 30) == "00:30 "
-	assert pickup_prefix(row, claimed + 30) == " "
-	# W65: the claimant suffix is a constant blank; silence is not
-	# failure and never reaches the display
-	assert held_field(row, claimed + 361) == "06:01 "
+	assert held_field(row, claimed + 30) == "00:30"
+	# W65: silence is not failure and never reaches the display
+	assert held_field(row, claimed + 361) == "06:01"
 	# the visible reset is FALSIFIABLE at any handoff-claim distance: a
 	# claim two hours after the handoff shows 30 seconds of claim-held,
 	# never the handoff interval — which on this scale would be `∞`
@@ -125,7 +130,7 @@ def test_the_held_field_walks_the_ruled_states(world):
 	             "handoff_at": "2026-08-17T10:00:00Z",
 	             "heartbeat_at": None}
 	at = epoch("2026-08-17T12:00:30Z")
-	assert held_field(synthetic, at) == "00:30 ", \
+	assert held_field(synthetic, at) == "00:30", \
 		"claim did not reset the displayed interval to claimed_at"
 	# repass starts a NEW pending interval for the new destination
 	tr.pass_work(store, work, actor_team="rev", actor="bee",
@@ -133,29 +138,29 @@ def test_the_held_field_walks_the_ruled_states(world):
 	fresh = row_of(world, work)
 	assert fresh["pickup"] == "pending"
 	assert epoch(fresh["handoff_at"]) >= handed
-	assert held_field(fresh, epoch(fresh["handoff_at"]) + 60) == ">01:00"
+	assert held_field(fresh, epoch(fresh["handoff_at"]) + 60) == "01:00"
 
 
 def test_the_overflow_value_composes_like_any_other_base():
-	"""W55 + W65: `∞` is an ordinary base value, not a special-cased
-	cell — the unclaimed marker composes with it exactly as with MM:SS,
-	and the claimed suffix is the same constant blank. Padding is
-	presentation only."""
+	"""W55: the overflow is an ordinary base value, not a special-cased
+	cell. Under W15 it composes with nothing at all — claimed and
+	unclaimed rows both render it bare, which is the supersession's
+	point. Padding is presentation only."""
 	at = epoch("2026-08-17T11:40:00Z")          # 100 minutes past 10:00
 	silent = {"claimed_at": "2026-08-17T10:00:00Z", "handoff_at": None,
 	          "heartbeat_at": "2026-08-17T10:00:00Z"}
-	assert held_field(silent, at) == "∞ ", \
+	assert held_field(silent, at) == "∞", \
 		"protocol silence still decorated the overflow value"
 	beating = dict(silent, heartbeat_at="2026-08-17T11:39:30Z")
-	assert held_field(beating, at) == "∞ ", \
+	assert held_field(beating, at) == "∞", \
 		"a fresh beat rendered differently from a silent one"
-	# an unclaimed handoff old enough to overflow keeps the plain
-	# unclaimed marker: W65 removed the elapsed-time escalation, so
-	# `>∞` is now the reachable long-pending spelling.
+	# an unclaimed handoff old enough to overflow renders the SAME bare
+	# overflow as a claimed one: W65 removed the elapsed-time
+	# escalation and W15 removed the marker, so `∞` is the one spelling
+	# and `Current` says which kind of interval it is.
 	pending = {"claimed_at": None, "heartbeat_at": None,
 	           "handoff_at": "2026-08-17T10:00:00Z", "status": "open"}
-	assert held_field(pending, at) == ">∞"
-	assert pickup_prefix(pending, at) == ">"
+	assert held_field(pending, at) == "∞"
 	# and the whole field still fits the six-cell budget it shares with
 	# every ordinary value
 	assert all(len(held_field(row, at)) <= 6
@@ -177,7 +182,7 @@ def test_terminal_work_and_authority_are_untouched(world):
 	detail = pj.detail(store, work, viewer_team="rev",
 	                   viewer_member="bee")
 	assert detail["route"]["endpoint"] == "rev.bug"
-	assert detail["current"] is None
+	assert detail["handler"] is None
 	# closed Work renders dash and no prefix regardless of history
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	tr.close_work(store, work, actor_team="rev", actor="bee",
@@ -185,7 +190,6 @@ def test_terminal_work_and_authority_are_untouched(world):
 	closed = pj.detail(store, work, viewer_team="rev",
 	                   viewer_member="bee")
 	assert held_field(closed, 0) == "-"
-	assert pickup_prefix(closed, 0) == " "
 
 
 def test_tree_handoff_reads_stay_constant_as_the_window_grows(world):

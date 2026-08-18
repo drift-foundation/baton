@@ -77,11 +77,9 @@ def test_hot_zone_state_matrix(world):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	assert hot_work(row_of(store, work))
 	# claimed research and active: hot in every executing phase
-	for phase in ("research", "active"):
-		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase=phase)
+	for _ in (1,):
 		claimed = row_of(store, work)
-		assert claimed["current"] is not None
+		assert claimed["handler"] is not None
 		assert hot_work(claimed), phase
 	# released: cold again
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
@@ -89,11 +87,12 @@ def test_hot_zone_state_matrix(world):
 	assert not hot_work(row_of(store, work))
 	# ready unclaimed review: hot — the interval before the reviewer
 	# claims is exactly the zone the cue exists for
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="review")
-	review = row_of(store, work)
-	assert review["current"] is None and review["ready"]
-	assert hot_work(review)
+	# W38: runnable UNCLAIMED Work is cold, whatever its route's role.
+	# W84's "review awaiting its reviewer" clause is gone with the
+	# review phase — nobody is executing it, which is the whole point.
+	runnable = row_of(store, work)
+	assert runnable["handler"] is None and runnable["ready"]
+	assert not hot_work(runnable)
 	# claimed review: still hot
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	assert hot_work(row_of(store, work))
@@ -104,33 +103,37 @@ def test_hot_zone_state_matrix(world):
 	tr.add_dependency(store, work, blocker, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
 	blocked = row_of(store, work)
-	assert not blocked["ready"] and blocked["phase"] == "review"
+	# W38 R1: a gate on unclaimed queued Work commits waiting.
+	assert not blocked["ready"] and blocked["phase"] == "waiting"
 	assert not hot_work(blocked)
 	# the blocker itself: open queued unclaimed — cold
 	assert not hot_work(row_of(store, blocker))
-	# closing the blocker restores readiness: hot again with NO edit
-	# to the review row itself
+	# closing the blocker restores readiness — but readiness is not
+	# heat under W38: runnable and unclaimed is still nobody executing.
 	tr.close_work(store, blocker, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
-	assert hot_work(row_of(store, work))
+	assert not hot_work(row_of(store, work))
+	tr.claim_work(store, work, actor_team="lang", actor="ada")
+	assert hot_work(row_of(store, work)), \
+		"claiming runnable Work did not make it hot"
 	# parked is cold — and leaving the park restores the review cue
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="parked", reason="later")
 	assert not hot_work(row_of(store, work))
+	# leaving the park resumes it, and a claim is what makes it hot
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="queued")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="review")
+	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	assert hot_work(row_of(store, work))
 	# waiting is cold (waiting-on-gates needs an OPEN blocker, and the
 	# waiting row is honestly not ready)
 	second_gate = make(store, title="second-gate")
+	# W38: the gate arriving on CLAIMED Work releases it into `waiting`
+	# by itself — asking for the phase again would refuse as redundant.
 	tr.add_dependency(store, work, second_gate, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
 	waiting = row_of(store, work)
-	assert waiting["current"] is None
+	assert waiting["handler"] is None
 	assert not hot_work(waiting)
 	# terminal: cold, and the closed blocker already proved it
 	closed = row_of(store, blocker)
@@ -155,10 +158,12 @@ def test_the_cue_reads_no_clock_and_writes_nothing(world):
 	with open(database, "rb") as handle:
 		assert hashlib.sha256(handle.read()).hexdigest() == before, \
 			"deriving the cue touched the authority"
-	minimal = {"status": "open", "current": None, "phase": "review",
-	           "ready": True}
+	minimal = {"status": "open", "phase": "active", "ready": True,
+	           "handler": {"team": "lang", "member": "ada"}}
 	assert hot_work(minimal), \
 		"the cue needed more than canonical row state"
+	assert not hot_work(dict(minimal, handler=None, phase="queued")), \
+		"unclaimed Work read as hot"
 
 
 def test_cold_tables_never_emit_blink(tmp_path):
@@ -175,8 +180,6 @@ def test_cold_tables_never_emit_blink(tmp_path):
 	store = Authority(database)
 	blocked = make(store, title="blocked-review")
 	gate = make(store, title="gate")
-	tr.set_phase(store, blocked, actor_team="lang", actor="ada",
-	             phase="review")
 	tr.add_dependency(store, blocked, gate, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
 	done = make(store, title="finished")

@@ -104,7 +104,7 @@ def test_the_named_non_minting_mutations_never_redeliver(world):
 	tr.heartbeat(store, work, actor_team="lang", actor="ada")
 	assert key(world, work) == born, "a heartbeat minted an episode"
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="research", reason=None)
+	             phase="queued", reason=None)
 	assert key(world, work) == born, "an ordinary phase move minted"
 	tr.prioritize(store, work, actor_team="lang", actor="ada",
 	              priority="high")

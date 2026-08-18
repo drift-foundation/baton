@@ -81,3 +81,14 @@ Replace endpoint-valued `current` with `route`, project the exact live claimant
 as nullable `current`, update every authority/client/ACP/TUI consumer, and
 prove the distinction across transitions, races, restart, and a fresh trial
 authority. No implementation begins before the child record is revalidated.
+
+## Follow-up — Phase is scheduler state
+
+**Status — 2026-08-18:** confirmed; queued for implementation in
+`findings/finding-phase-is-scheduler-state/`.
+
+Replace workflow-role phases with the closed scheduler states queued, active,
+waiting, and parked; make active equivalent to a live claimant; derive
+queued/waiting after pass, release, and gate changes; and project no phase for
+terminal Work. Update authority, CLI/JSON, TUI, workflows, readiness, docs,
+and fresh-authority regressions together.

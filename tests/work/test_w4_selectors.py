@@ -292,7 +292,7 @@ def test_the_bar_and_detail_speak_the_short_selector(world):
 	console.execute(f"claim work={short}")
 	assert console.status.startswith("ok"), console.status
 	claimed = ok(world, "detail", f"work={short}")
-	assert claimed["current"] == {"team": "lang", "member": "ada",
+	assert claimed["handler"] == {"team": "lang", "member": "ada",
 	                   "participant": "lang.ada"}
 	header = console._detail_header(claimed)
 	assert header.startswith(f"{work} ({short}) ["), header

@@ -43,14 +43,17 @@ containment, typed non-containment edges, one owning team, and exactly one
 route endpoint.
 
 - `status` is `open` or terminally `closed` with an outcome and rationale.
-- `phase` is the operational stage — `queued`, `research`, `active`,
-  `review`, `waiting`, `parked`.
+- `phase` is the SCHEDULER state, and nothing else: `queued` (runnable,
+  unclaimed), `active` (claimed — somebody is executing it), `waiting`
+  (blocked on a recorded gate or obligation), `parked` (deliberately
+  deferred). Terminal Work has no phase. What KIND of work it is —
+  implementation, review, research — is the route's role, never a phase.
 - `route` is the ONE endpoint whose resolved handlers may claim the Work;
   `next` is an optional planned successor.
-- `current` is the EXACT participant holding the claim, and is null while
-  nobody holds it. It is orthogonal to phase: it records WHO is executing,
-  not what stage is happening. Route answers who MAY act; current answers
-  who IS acting, and an unclaimed routed handoff names no current.
+- `handler` is the EXACT participant holding the claim, and is null while
+  nobody holds it. Route answers who MAY act; handler answers who IS
+  acting, and an unclaimed routed handoff names no handler. Phase and
+  handler move together: `active` if and only if a handler holds it.
 
 **Threads** are shared discussions labelled to Work. **Messages** are the
 conversation inside them. **Events** are the Work's append-only operational
@@ -87,13 +90,14 @@ message count, and a discussion post never moves a baton.
   delivery on the whole key and never parse it to recover the Work id, which
   rides beside it as its own field.
 - **Pass the baton explicitly.** `pass work=W to=team.kind comment="…"` is one
-  atomic THREADLESS Work event: it moves `route`, clears `current`, records
+  atomic THREADLESS Work event: it moves `route`, clears `handler`, records
   the destination
-  phase DERIVED FROM THE DESTINATION ROUTE's stage role, releases the sender's
-  claim, and stores `comment` as durable handoff evidence. It creates no
-  message, advances no cursor, and moves no conversational count. A route
-  transfer never produces `queued`, and an unmapped destination role refuses
-  rather than guessing.
+  phase, releases the sender's claim, and stores `comment` as durable
+  handoff evidence. It creates no message, advances no cursor, and moves
+  no conversational count. The destination phase is the SCHEDULER state of
+  unclaimed Work — `queued` when runnable, `waiting` when a gate is
+  unsatisfied — because handing over responsibility is not the same as
+  somebody starting. The destination role decides nothing here.
 - **Ask with `@`.** `say thread=T… body="…" request=team.kind on=W…`
   publishes the message and creates one directed obligation owed by that
   endpoint, atomically. The route does not move: the answer is owed TO the

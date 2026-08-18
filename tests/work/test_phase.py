@@ -1,11 +1,15 @@
 """WS-1: public classification and operational phase — the authorized matrix.
 
 Every assertion here traces to the confirmed rulings: never-null canonical
-classification, the six-phase enum with compact values kept presentation-
-only, Current-route-handler transition authority, free open-phase movement
-with the three special rules (parked, waiting/wake, closed), typed wake
-conditions with the atomic single `wake`, and the always-visible parked
-count.
+classification, the closed FOUR-state scheduler axis (W38: queued, active,
+waiting, parked, with compact values kept presentation-only), Route-handler
+transition authority, the special rules (parked, waiting/wake, closed),
+typed wake conditions with the atomic single `wake`, and the always-visible
+parked count.
+
+W38 note: `active` is not reachable through the phase verb — it means a
+handler holds the Work, which only `claim` establishes — and every phase
+this verb CAN reach is an unclaimed state, so each one releases.
 """
 
 from __future__ import annotations
@@ -74,12 +78,13 @@ def test_creation_defaults_and_explicit_initial_phase(world):
 	assert row["classification"] == "suspected-defect", \
 		"the submitted classification is stored verbatim"
 	assert row["phase"] == "queued"
-	chosen = _create(store, phase="research",
-	                 classification="suspected-defect")
+	# W38: creation has no phase operand at all. A new Work is open,
+	# unclaimed and ungated, so `queued` is the only state it can
+	# honestly be in — there is no initial choice left to preserve.
+	chosen = _create(store, classification="suspected-defect")
 	row = _row(store, chosen)
 	assert (row["phase"], row["classification"]) == \
-		("research", "suspected-defect"), \
-		"an explicit valid initial choice was not preserved"
+		("queued", "suspected-defect")
 
 
 def test_creation_refuses_waiting_parked_and_compact_values(world):
@@ -105,13 +110,12 @@ def test_only_a_resolved_current_handler_may_transition(world):
 	for team, member in (("lang", "grace"), ("push", "sl")):
 		with pytest.raises(bw.WorkError, match="never grant"):
 			tr.set_phase(store, work, actor_team=team, actor=member,
-			             phase="active")
+			             phase="parked", reason="not mine to move")
 		with pytest.raises(bw.WorkError, match="never grant"):
 			tr.classify(store, work, actor_team=team, actor=member,
 			            classification="confirmed-defect")
 	assert _row(store, work)["phase"] == "queued", "a refusal mutated"
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="active")
+	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	tr.classify(store, work, actor_team="lang", actor="ada",
 	            classification="confirmed-defect")
 	row = _row(store, work)
@@ -132,10 +136,8 @@ def test_reassignment_moves_transition_authority(world):
 		_json.dump(document, handle, indent=2, sort_keys=True)
 	lc.accept_config(config_path, actor="lang.ada")
 	with pytest.raises(bw.WorkError, match="never grant"):
-		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="active")
-	tr.set_phase(store, work, actor_team="lang", actor="grace",
-	             phase="active")
+		tr.claim_work(store, work, actor_team="lang", actor="ada")
+	tr.claim_work(store, work, actor_team="lang", actor="grace")
 	assert _row(store, work)["phase"] == "active"
 
 
@@ -144,15 +146,19 @@ def test_reassignment_moves_transition_authority(world):
 def test_every_canonical_value_round_trips_and_rework_cycles(world):
 	store, _config = world
 	work = _create(store)
-	trail = ["research", "active", "review", "active", "review", "queued"]
-	for phase in trail:
-		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase=phase)
+	# W38: the round trip is the SCHEDULER axis. `active` is absent by
+	# construction — it arrives with a claim, not with this verb — and
+	# the old research/review rework cycle is a Route concern now.
+	trail = ["parked", "queued"]
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="parked", reason="deferring")
+	tr.set_phase(store, work, actor_team="lang", actor="ada",
+	             phase="queued")
 	events = [event for event in store.events()
 	          if event["kind"] == "set_phase"]
 	assert [event["payload"]["to"] for event in events] == trail
 	assert [event["payload"]["from"] for event in events] == \
-		["queued"] + trail[:-1]
+		["queued", "parked"]
 	for event in events:
 		assert event["payload"]["resolution"]["handlers"] == ["ada"], \
 			"a phase change audited without its authorization snapshot"
@@ -171,18 +177,17 @@ def test_a_pass_records_the_destination_phase_and_closed_refuses(world):
 	# review handoff — and never carries the sender's phase.
 	store, _config = world
 	work = _create(store)
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="active")
+	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="over to review", pass_to="lang.rev")
 	row = _row(store, work)
-	assert row["phase"] == "review", \
+	assert row["phase"] == "queued", \
 		"the pass did not record its stated destination phase"
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="refuses phase"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="queued")
+		             phase="parked", reason="w38")
 	with pytest.raises(bw.WorkError, match="refuses classification"):
 		tr.classify(store, work, actor_team="lang", actor="ada",
 		            classification="duplicate")
@@ -198,8 +203,6 @@ def test_gates_waiting_wakes_only_at_the_last_gate(world):
 	inner = tr.create_work(store, team="lang", kind="bug", title="c",
 	                       origin="decomposition", classification="suspected-defect", author="ada", body="b",
 	                       parent=work)["work_id"]
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
 	assert _row(store, work)["wait_type"] == "gates"
 
 	tr.close_work(store, inner, actor_team="lang", actor="ada",
@@ -237,9 +240,9 @@ def test_obligation_waiting_wakes_once_and_grants_nothing(world):
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="waiting", wait=asked)
 	# The respondent's input does NOT grant mutation authority...
-	with pytest.raises(bw.WorkError, match="waiting on its recorded"):
-		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="active")
+	with pytest.raises(bw.WorkError,
+	                   match="waiting on its recorded|cannot be claimed"):
+		tr.claim_work(store, work, actor_team="lang", actor="ada")
 	responded = tr.respond_obligation(store, asked, team="push",
 	                                  member="sl", body="confirmed")
 	row = _row(store, work)
@@ -250,8 +253,7 @@ def test_obligation_waiting_wakes_once_and_grants_nothing(world):
 		{"type": "obligation", "obligation": asked}
 	# ...and having supplied it, push STILL cannot mutate the work.
 	with pytest.raises(bw.WorkError, match="never grant"):
-		tr.set_phase(store, work, actor_team="push", actor="sl",
-		             phase="active")
+		tr.claim_work(store, work, actor_team="push", actor="sl")
 
 
 def test_obligation_waiting_refuses_wrong_or_completed_obligations(world):
@@ -286,8 +288,6 @@ def test_the_wake_race_neither_loses_nor_duplicates(world):
 	second = _create(store, team="push", member="sl")
 	tr.add_dependency(store, work, first, actor_team="lang", actor="ada", rationale="test dependency")
 	tr.add_dependency(store, work, second, actor_team="lang", actor="ada", rationale="test dependency")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
 
 	other = bw.Authority(store.path)
 	original = store._write
@@ -339,12 +339,14 @@ def test_parking_needs_a_reason_keeps_current_and_never_wakes(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	with pytest.raises(bw.WorkError, match="reason"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
 		             phase="parked")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="parked", reason="strategy review pending")
+	# W38 R1: a gate arriving UNDER a park does not revoke the deferral.
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
+	assert _row(store, work)["phase"] == "parked"
 	row = _row(store, work)
 	assert row["phase"] == "parked"
 	assert (row["route_team"], row["route_kind"]) == ("lang", "bug"), \
@@ -356,8 +358,7 @@ def test_parking_needs_a_reason_keeps_current_and_never_wakes(world):
 	assert not [e for e in store.events() if e["kind"] == "wake"]
 	# parked leaves ONLY to queued, explicitly.
 	with pytest.raises(bw.WorkError, match="parked"):
-		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="active")
+		tr.claim_work(store, work, actor_team="lang", actor="ada")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="queued")
 	assert _row(store, work)["phase"] == "queued"
@@ -380,9 +381,9 @@ def test_waiting_condition_is_visible_in_the_projection(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
+	# W38 R1: the gate itself commits the waiting state and its
+	# condition — no separate phase act is needed or accepted.
 	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
 	assert detail["phase"] == "waiting"
 	assert detail["waiting_on"] == {"type": "gates", "obligation": None}
@@ -575,8 +576,8 @@ def test_the_compact_vocabulary_is_closed_and_complete(world):
 	del world
 	from baton_work.tui import app
 	assert {value: app.compact_phase(value) for value in tr.PHASES} == {
-		"queued": "queue", "research": "rsrch", "waiting": "wait",
-		"active": "actve", "review": "rview", "parked": "park"}
+		"queued": "queue", "waiting": "wait",
+		"active": "actve", "parked": "park"}
 	assert {value: app.compact_classification(value)
 	        for value in tr.CLASSIFICATIONS} == {
 		"unknown": "unkwn", "suspected-defect": "suspt",

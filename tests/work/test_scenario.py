@@ -108,8 +108,10 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	# The ordered audit trail: every step, one event, dense sequence.
 	events = _run(path, "events", viewer="lang.ada")["result"]
 	kinds = [event["kind"] for event in events]
-	assert kinds[-6:] == ["create_work", "add_dependency", "respond",
-	                      "pass", "return", "close_work"]
+	# W38 R1: the gated dependent now sits in `waiting`, so closing the
+	# last blocker emits the wake that makes it actionable again.
+	assert kinds[-7:] == ["create_work", "add_dependency", "respond",
+	                      "pass", "return", "close_work", "wake"]
 	seqs = [event["seq"] for event in events]
 	assert seqs == list(range(1, len(seqs) + 1)), "the trail has a hole"
 	# ...and the return step is the one that consumed the planned Next.

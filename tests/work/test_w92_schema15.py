@@ -37,8 +37,8 @@ def store(tmp_path):
 		yield authority
 
 
-def test_the_fresh_authority_is_schema_18(store):
-	assert store.meta()["schema_version"] == "18"
+def test_the_fresh_authority_is_schema_19(store):
+	assert store.meta()["schema_version"] == "19"
 
 
 def test_created_work_defaults_to_normal_priority(store):
@@ -76,7 +76,7 @@ def test_a_direct_row_mutation_advances_the_change_identity(store):
 	                         origin="external-report", classification="suspected-defect", author="ada",
 	                         body="b")
 	moved = tr.set_phase(store, created["work_id"], actor_team="lang",
-	                     actor="ada", phase="active", reason="starting")
+	                     actor="ada", phase="parked", reason="starting")
 	row = store.conn.execute(
 		"SELECT last_change_seq FROM work WHERE id=?",
 		(created["work_id"],)).fetchone()
@@ -127,12 +127,12 @@ def test_the_active_claim_state_is_present_and_unclaimed(store):
 	                         origin="external-report", classification="suspected-defect", author="ada",
 	                         body="b")
 	row = store.conn.execute(
-		"SELECT current_team, current_member FROM work WHERE id=?",
+		"SELECT handler_team, handler_member FROM work WHERE id=?",
 		(created["work_id"],)).fetchone()
-	assert (row["current_team"], row["current_member"]) == (None, None)
+	assert (row["handler_team"], row["handler_member"]) == (None, None)
 	view = pj.detail(store, created["work_id"], viewer_team="lang",
 	                 viewer_member="ada")
-	assert view["current"] is None
+	assert view["handler"] is None
 
 
 def test_creation_requires_a_concrete_classification(store):

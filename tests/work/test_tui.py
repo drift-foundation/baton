@@ -44,7 +44,7 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	# Trial finding 26de18dd-W2: initial-capital header labels.
 	# W71: Prog/Dep left the table — containment shows as indentation,
 	# graph counts live in details/links.
-	for column in ("St", "Current", "Next", "New"):
+	for column in ("St", "Handler", "Next", "New"):
 		assert column in header
 	assert "Prog" not in header and "Dep " not in header
 	assert "TITLE" not in header and "READY" not in header
@@ -207,7 +207,7 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	narrow = 68
 	columns = [name for name, _w in app.visible_columns(narrow)]
 	assert "CLS" not in columns, "the lowest-priority column survived"
-	assert {"ST", "CURRENT", "NEXT", "NEW"} <= set(columns)
+	assert {"ST", "HANDLER", "NEXT", "NEW"} <= set(columns)
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],
 	                                        columns=narrow, lines=24)
@@ -215,7 +215,7 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	header = next(line for line in screen if "Title" in line)
 	assert "Cat" not in header, \
 		"the omitted category column left its header behind"
-	assert "Current" in header and "New" in header
+	assert "Handler" in header and "New" in header
 	# The title keeps its working width (truncated, never squeezed away)
 	# and the 6/6 identities are drawn whole.
 	assert any("parser rec" in line for line in screen)
@@ -287,8 +287,6 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	tr.add_dependency(store, live["work_id"], blocker,
 	                  actor_team="lang", actor="ada",
 	                  rationale="test dependency")
-	tr.set_phase(store, live["work_id"], actor_team="lang", actor="ada",
-	             phase="waiting", reason=None, wait="gates")
 	store.close()
 
 	# Default: the closed row is collapsed and NAMED as hidden.

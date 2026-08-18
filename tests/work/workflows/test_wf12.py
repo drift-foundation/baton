@@ -167,6 +167,13 @@ def test_wf12_effectively_once_retry(flow):
 	# W288: the revise family below promotes a contract, which is the
 	# claimant's act — so this fixture Work is claimed.
 	flow.ok("claim", f"work={fam["work_id"]}", viewer="push.sl")
+	# W38: every settable phase is an UNCLAIMED state, so the phase
+	# family would release that claim out from under revise. It gets
+	# its own Work; the families are independent by design.
+	phased = flow.ok("create", "team=push", "kind=bug",
+	                 "title=phased", "origin=self-initiated",
+	                 "classification=suspected-defect",
+	                 "body=phased", viewer="push.sl")
 	for label, argv, viewer in (
 			("create", ("create", "team=push", "kind=bug",
 			            "title=twin", "origin=self-initiated", "classification=suspected-defect",
@@ -177,8 +184,8 @@ def test_wf12_effectively_once_retry(flow):
 			           f"work={fam["work_id"]}"), "push.sl"),
 			("classify", ("classify", f"work={fam["work_id"]}",
 			              "as=confirmed-defect"), "push.sl"),
-			("phase", ("phase", f"work={fam["work_id"]}", "to=active"),
-			 "push.sl"),
+			("phase", ("phase", f"work={phased["work_id"]}",
+			           "to=parked", "reason=family"), "push.sl"),
 			("try", ("try", f"work={fam["work_id"]}", "candidate=c1",
 			           "assign=web.verify"), "push.sl"),
 			("revise", ("revise", f"work={fam["work_id"]}",

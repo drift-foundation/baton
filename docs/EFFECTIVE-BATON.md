@@ -18,9 +18,14 @@ error message appears, it is the real refusal text.
 
 **Work** is the unit of accountability. It has one owning team, one **Route**
 endpoint whose handlers owe the next decision, a **phase** that says what stage
-it is in, and a **Current** participant who is executing it right now — null
-while nobody holds the claim. Route and Current are different questions and
-Baton keeps them separate: who MAY act, and who IS acting. Discussion
+it is in, and a **Handler** — the participant executing it right now, null
+while nobody holds the claim. Route and Handler are different questions and
+Baton keeps them separate: who MAY act, and who IS acting.
+
+Phase is a closed SCHEDULER axis: `queued` (runnable, unclaimed), `active`
+(claimed), `waiting` (gated), `parked` (deliberately deferred), and nothing
+at all once the Work is closed. It never says what KIND of work this is —
+that is the route's role. Discussion
 happens in **Threads** and **Messages**; what actually happened to the Work is
 its append-only **Events** journal. Nothing is inferred from your working
 directory, your shell history, or a wake-up prompt.
@@ -53,18 +58,32 @@ application-level authentication.
 
 Configuration composes in one direction, and it is worth reading once:
 
-    kind  ->  route  ->  role  ->  phase
-    app.bug -> impl  -> impl   -> active
-    app.rview -> rview -> rview -> review
+    kind      ->  route   ->  role + handlers
+    app.bug   ->  impl    ->  impl,  [mina, ops]
+    app.rview ->  rview   ->  rview, [juno]
 
-An **endpoint** is `team.kind`. Each kind names a **route**; each route has a
-**role** and a handler list; the role decides the phase a handoff lands in.
-That chain is why you never supply a destination phase by hand.
+An **endpoint** is `team.kind`. Each kind names a **route**; each route
+carries a **role** and a handler list. The chain ends there: the role says
+what KIND of work this endpoint does, and it says nothing about phase.
 
-The Work's `route` is that endpoint — eligibility. Its `current` is the exact
+Phase is a separate axis entirely, and it answers only two questions — can
+this run, and is it running:
+
+    queued   runnable, nobody has claimed it
+    active   a handler holds it, so somebody is executing it
+    waiting  a recorded gate or obligation is unsatisfied
+    parked   deliberately deferred, with a reason
+    (terminal Work has no phase at all)
+
+A handoff lands `queued` when the Work is runnable and `waiting` when a gate
+holds it, whatever the destination role — which is why you never supply a
+destination phase by hand.
+
+The Work's `route` is that endpoint — eligibility. Its `handler` is the exact
 participant who claimed it, or null. Authorization always resolves from the
-route, never from a claimant's name, so a routed handoff nobody has picked up
-projects `current: null` rather than pretending somebody is on it.
+route, never from a handler's name, so a routed handoff nobody has picked up
+projects `handler: null` and phase `queued` rather than pretending somebody is
+on it.
 
 ## The straight-through path
 
@@ -83,35 +102,42 @@ required and `unknown` is refused: say what you actually think it is, and
     $BATON claim work=W2
     # -> {"claimant": "app.mina", "seq": 3}
 
-**Claim before you execute**, because only a successful claim populates
-Current. Not before you read, discuss, or plan — before
-you *do* the thing the route owns. The claim is atomic and rechecked inside the
+**Claim before you execute**, because only a successful claim populates the
+handler. Not before you read, discuss, or plan — before
+you *do* the thing the route owns — and claiming is what makes the Work
+`active`, because active means somebody is doing it. The claim is atomic and rechecked inside the
 write transaction, so an earlier readiness observation is advisory and a
 competing claim fails closed:
 
     W2 is already claimed by app.mina; conflicting claim attempts fail closed
     (an exact retry replays through its operation id)
 
-Note what claiming does *not* do: the phase is still `queued`. A claim answers
-*who is executing*, never *what stage this is*. Move the stage deliberately:
+Note what claiming *does*: the phase becomes `active` in the same
+transaction. Handler and phase are one fact seen twice — `active` means
+exactly that a handler holds it — so there is no window where the board shows
+work in progress that nobody is doing.
 
-    $BATON phase work=W2 to=research
+Classification is a separate axis and moves freely while you hold it:
+
     $BATON classify work=W2 as=confirmed-defect
 
-Research is visible work, not a gap in the record. Then hand it on:
+The route already says whether this is research, implementation or review,
+so there is no stage to move. Then hand it on:
 
     $BATON pass work=W2 to=app.rview \
         comment="reproduced; escape handling confirmed at the tokenizer"
-    # -> {"to": "app.rview", "destination_phase": "review"}
+    # -> {"to": "app.rview", "destination_phase": "queued"}
 
-`pass` is one atomic **threadless** event. It moves the route, clears
-Current, records the destination phase *derived from the destination route*,
+`pass` is one atomic **threadless** event. It moves the route, clears the
+handler, records the destination phase — `queued` when the Work is runnable,
+`waiting` when a gate holds it,
 and stores `comment` as durable handoff evidence. It creates no message and
 moves no conversational count. You cannot supply `phase=` — it is refused as
 unknown — so a handoff can never advertise a stage nobody is in.
 
-Review may send the same Work back for another `active -> review` iteration.
-That is ordinary, not a failure state:
+Review may send the same Work straight back for another round. That is
+ordinary, not a failure state — and it lands `queued`, because the recipient
+has not started yet:
 
     $BATON pass work=W2 to=app.bug set-next=app.rview \
         comment="fix is right but the regression only covers the quoted form"
@@ -181,9 +207,10 @@ releases your claim.
 
 Two facts move differently here, and the difference is the point. **The route
 does not move** — your Work still belongs to the same eligible endpoint, and
-the answer is owed *to* that endpoint rather than instead of it. **Current
-does clear**, because entering the wait releases your claim: nobody is
-executing Work that is blocked on somebody else's answer.
+the answer is owed *to* that endpoint rather than instead of it. **The handler
+clears**, because entering the wait releases your claim: nobody is executing
+Work that is blocked on somebody else's answer, and the phase says `waiting`
+rather than pretending otherwise.
 
 Because a blocking request suspends the Work *you* are executing, you must
 actually be executing it:

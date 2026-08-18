@@ -106,7 +106,8 @@ def test_a_promotion_records_the_complete_contract(world):
 		"the complete revised contract")
 	assert [entry["revision"] for entry in detail["revisions"]] == [1]
 	# The Work record itself did not move.
-	assert detail["status"] == "open" and detail["phase"] == "queued"
+	# W38: the revising claimant holds it, so it reads active.
+	assert detail["status"] == "open" and detail["phase"] == "active"
 	assert detail["route"]["endpoint"] == "lang.bug"
 
 

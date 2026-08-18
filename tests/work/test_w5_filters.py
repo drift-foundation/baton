@@ -88,8 +88,6 @@ def test_every_field_selects_and_composes_with_and(world):
 	tr.classify(store, high, actor_team="lang", actor="ada",
 	            classification="confirmed-defect")
 	tr.claim_work(store, high, actor_team="lang", actor="ada")
-	tr.set_phase(store, high, actor_team="lang", actor="ada",
-	             phase="active")
 	done = make(world, "closed out")["work_id"]
 	tr.close_work(store, done, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
@@ -180,9 +178,9 @@ def test_refusals_come_before_any_partial_view(world):
 	# matching nothing is exactly the stale-consumer failure this
 	# finding removes.
 	assert "neither a configured TEAM.MEMBER participant nor me" in \
-		refusal(world, "home", "current=lang.ghost")
+		refusal(world, "home", "handler=lang.ghost")
 	assert "filter eligibility with route= instead" in \
-		refusal(world, "home", "current=lang.bug")
+		refusal(world, "home", "handler=lang.bug")
 
 
 def test_parent_context_retention_in_the_tree(world):

@@ -54,12 +54,14 @@ competing claim fails closed naming the recorded claimant. No execution
 begins before the claim succeeds. A pass atomically records the
 destination Route AND the destination phase through its own canonical
 THREADLESS verb — `pass work=W to=team.kind comment="..."`
-(the DESTINATION ROUTE decides the phase from its stage role —
-research, implementation and reviewer/approver roles map to
-`research`, `active` and `review`; `phase=` is refused as an unknown
-key, an unmapped destination role refuses rather than guessing, and a
-route transfer never produces `queued`. Same-route stage changes stay
-with the separately authorized `phase` verb);
+(W38: phase is a closed SCHEDULER axis — `queued` runnable and
+unclaimed, `active` claimed, `waiting` gated, `parked` deferred, and
+absent once terminal. A handoff hands over responsibility, not
+activity, so it lands `queued` when the Work is runnable and `waiting`
+when a gate holds it, whatever the destination role. `phase=` is
+refused as an unknown key. The route's role still says whether this is
+research, implementation or review — it just no longer masquerades as a
+scheduler state, and `active` is reachable only by claiming);
 `comment=` is durable handoff evidence stored with the authoritative
 pass event itself, never a discussion message; `set-next=` plants the
 planned return; `thread=` is refused as an unknown key — a Work
@@ -71,9 +73,10 @@ conversation stays explicit through `say`. Plain `say` is discussion
 waiting/parked and terminal close also release. Blocked Work keeps its
 honest stage phase but cannot be claimed. An abandoned or yielded claim
 is recovered with `release work=WORK expect=team.member reason=TEXT` —
-live Current-handler authority, an exact compare-and-swap against the
-recorded claimant, and a durable reason; it clears only the claimant.
-The projection carries `active` (JSON) and the detail facts name the
+live Route-handler authority, an exact compare-and-swap against the
+recorded claimant, and a durable reason; it clears the claimant and
+derives the scheduler state the Work lands in. The projection carries
+`handler` (JSON) and the detail facts name the
 claimant.
 
 The console renders the same canonical projection the JSON surface
@@ -100,7 +103,7 @@ selects the next tab and `[` the previous, from anywhere in the detail
 view, and the footer always advertises `[/] tabs`. Events is the Work's
 append-only operational play-by-play: creation, classification,
 priority, contract and binding changes, dependency additions and
-corrections, claims, heartbeats, releases, phase/Current/Next moves,
+corrections, claims, heartbeats, releases, phase/Route/Next moves,
 passes, verification lifecycle, and terminal disposition — with `E<seq>`
 as the visible stable identifier, the typed roles explaining WHY each
 event belongs to this Work, the other Works it affected, and claim
@@ -196,7 +199,7 @@ epoch so every client reaches the same conclusion.
 
 Required dependency edges are explicit, reviewable workflow decisions:
 `block work=WORK on=BLOCKER rationale="..."` records why Work must wait.
-If that live edge was itself a mistake, the consumer Work's Current handler
+If that live edge was itself a mistake, the consumer Work's Route handler
 uses `unblock work=WORK on=BLOCKER rationale="..."`; this corrects only the
 exact open edge, recomputes readiness atomically, and never closes or edits
 either Work. Both verbs require their rationale and support `op-id=`. The
@@ -206,11 +209,11 @@ historical edges and are never rewritten through `unblock`.
 
 Work lists filter composably over canonical
 facts — `home`, `tree`, and `tui` take the same optional operands
-(`team= status= phase= route= current= category= ready= new= priority=`, full
+(`team= status= phase= route= handler= category= ready= new= priority=`, full
 canonical values only, AND composition, one value per field), and the
 console's `:filter` shares the exact grammar (bare `:filter` clears;
 state is client-local and restart-cold). `route=me` means you resolve
-as a handler — eligibility; `current=me` means you HOLD the claim, and
+as a handler — eligibility; `handler=me` means you HOLD the claim, and
 unclaimed Work matches neither. `new=true` means your personal New is
 nonzero. Filtering
 runs inside the canonical snapshot: a matching child keeps its
@@ -219,7 +222,7 @@ stays global, and the active filter is always disclosed — `Filter:N`
 right-aligned on the header plus a dedicated clause line that viewports
 at narrow widths.
 
-Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Current, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). `>` marks every open Work with NO active claimant — a state marker, not an overdue assertion, independent of elapsed time — so an unclaimed row reads `>MM:SS` since the committed handoff, or `>-` when there is no handoff to time. Claiming removes the marker and resets the display to elapsed time since the canonical `claimed_at`; releasing, passing, or a readiness change that releases the claimant restores it while the Work stays open, and closed Work has no execution claim and no marker. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. The Phase cell carries the same `>` marker. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing (a non-null active claimant, any phase) and any open ready `review` Work awaiting its reviewer's claim. Blocked review, waiting, parked, and closed Work stay steady. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
+Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Handler, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). W15 removed the unclaimed `>` marker from both Phase and Held: the Handler column is blank when nobody holds the Work, so the marker restated a fact the row already carried. Held is a bare timer — since `claimed_at` while claimed, since the handoff while unclaimed, `-` with no origin — and Handler is what distinguishes the two intervals. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing — which under W38 is exactly `phase=active`. Unclaimed, waiting, parked and closed Work stay steady; the personal pickup cue for ready unclaimed Work whose Route resolves to you is the separate bold-Title rule above. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
 `high`, `normal` (the default), `low` — an ordering signal only, never
 a lifecycle fact. `create priority=...` records it at birth;
 `prioritize work=... as=...` is the audited effectively-once revision,

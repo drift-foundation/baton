@@ -31,8 +31,6 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	                viewer="push.sl")["work_id"]
 	flow.ok("block", f"work={push1}", f"on={lang42}",
 	        "rationale=compiler defect gates push", viewer="push.sl")
-	flow.ok("phase", f"work={push1}", "to=waiting", "wait=gates",
-	        viewer="push.sl")
 
 	# 2. Lang's Current reviewer publishes candidate driftc-A, trial 1,
 	# one exact assignment to @push.verify.

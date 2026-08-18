@@ -77,7 +77,7 @@ def test_ws2_wf02_mixed_reports_and_adjudication(flow):
 	checkpoint = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
 	assert checkpoint["status"] == "open"
 	assert checkpoint["phase"] == "queued"
-	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
+	flow.ok("phase", f"work={lang42}", "to=parked", "reason=w38", viewer="lang.ada")
 
 	# 6. Lang supersedes its Web assessment with a new accepted act; the
 	# prior assessment and the raw failed report remain in history.

@@ -160,7 +160,7 @@ def test_the_age_column_is_final_and_derives_from_claimed_at(world):
 	              actor="ada")
 	review = make(world, title="review row")
 	tr.set_phase(world["store"], review, actor_team="lang", actor="ada",
-	             phase="review")
+	             phase="parked", reason="w38")
 	console = Console(world["store"], "lang", "ada",
 	                  config_path=world["config"])
 	screen = Screen()
@@ -192,9 +192,9 @@ def test_phase_change_blinks_for_exactly_three_ticks(world):
 
 	assert blinking() == [], "the initial load blinked"
 	tr.set_phase(world["store"], work, actor_team="lang", actor="ada",
-	             phase="research")
+	             phase="parked", reason="w38")
 	console.schedule_refresh()
-	assert any("rsrch" in text for text in blinking()), \
+	assert any("park" in text for text in blinking()), \
 		"an observed phase change did not arm the cue"
 	assert console.phase_blink[work] == 3
 	# keystrokes/redraws: repaint five times, nothing consumed
@@ -213,7 +213,7 @@ def test_phase_change_blinks_for_exactly_three_ticks(world):
 	assert console.phase_blink.get(work, 0) == 0
 	# a LATER genuine change re-arms in full
 	tr.set_phase(world["store"], work, actor_team="lang", actor="ada",
-	             phase="active")
+	             phase="queued")
 	console.schedule_refresh()
 	blinking()
 	assert console.phase_blink[work] == 3
@@ -228,7 +228,7 @@ def test_mutation_refreshes_neither_consume_nor_restart(world):
 	                  config_path=world["config"])
 	console.rows()                       # cold baseline
 	tr.set_phase(world["store"], watched, actor_team="lang",
-	             actor="ada", phase="research")
+	             actor="ada", phase="parked", reason="w38")
 	console.schedule_refresh()
 	console.rows()
 	assert console.phase_blink[watched] == 3
@@ -254,7 +254,7 @@ def test_a_failed_scheduled_refresh_does_not_consume_the_cue(world,
 	                  config_path=world["config"])
 	console.rows()                       # cold baseline
 	tr.set_phase(world["store"], work, actor_team="lang",
-	             actor="ada", phase="research")
+	             actor="ada", phase="parked", reason="w38")
 	console.schedule_refresh()
 	console.rows()
 	assert console.phase_blink[work] == 3
@@ -278,7 +278,7 @@ def test_reconnect_starts_cold(world):
 	                config_path=world["config"])
 	first.rows()
 	tr.set_phase(world["store"], work, actor_team="lang", actor="ada",
-	             phase="active")
+	             phase="parked", reason="a later genuine change")
 	first.schedule_refresh()
 	first.rows()
 	assert first.phase_blink[work] == 3

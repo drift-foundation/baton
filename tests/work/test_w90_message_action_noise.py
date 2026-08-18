@@ -113,7 +113,7 @@ def test_every_other_fact_survives(world):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	_detail, facts = facts_for(world, work, "ada")
 	joined = "\n".join(facts)
-	assert "current: lang.ada" in joined, facts
+	assert "handler: lang.ada" in joined, facts
 	assert "binding baton:work/records/2026/08/finding-x r1" in joined, facts
 
 	# a terminal Work keeps its outcome and durable rationale

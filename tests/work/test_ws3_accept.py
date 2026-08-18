@@ -307,15 +307,20 @@ def test_accept_wakes_the_exact_obligation_waiter_but_not_ready(world):
 	                              actor="ada", body="ours",
 	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	row = store.conn.execute(
-		"SELECT phase, ready, wait_obligation FROM work WHERE id=?",
+		"SELECT phase, ready, wait_type, wait_obligation "
+		"FROM work WHERE id=?",
 		(push1,)).fetchone()
-	assert row["phase"] == "queued", \
-		"the exact-obligation waiter did not wake"
+	# W38 R3: the acceptance created the gate in the same transaction,
+	# so the waiter retargets onto it rather than advertising runnable.
+	assert row["phase"] == "waiting", \
+		"the waiter did not retarget to its new gate"
+	assert row["wait_type"] == "gates"
 	assert row["ready"] == 0, "the new gate did not hold readiness false"
+	# ...and it emits NO wake, because nothing woke. A `wake` event
+	# whose from and to are both `waiting` would put a false
+	# actionability signal into every trail that reads the journal.
 	wakes = [event for event in store.events() if event["kind"] == "wake"]
-	assert len(wakes) == 1
-	assert wakes[0]["payload"]["condition"]["obligation"] == asked
-	assert wakes[0]["seq"] > result["seq"]
+	assert wakes == [], "a retarget was audited as a wake"
 
 
 def test_accept_never_wakes_a_gates_waiter(world):
@@ -326,8 +331,6 @@ def test_accept_never_wakes_a_gates_waiter(world):
 	                            body="b")["work_id"]
 	tr.add_dependency(store, push1, other_gate, actor_team="push",
 	                  actor="sl", rationale="test dependency")
-	tr.set_phase(store, push1, actor_team="push", actor="sl",
-	             phase="waiting", wait="gates")
 	tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
 	                     body="ours", create={"kind": "rsrch",
 	                                          "classification": "suspected-defect",
@@ -516,9 +519,10 @@ def test_the_atomic_accept_rolls_back_whole_at_every_boundary(world):
 	assert store.conn.execute(
 		"SELECT via_obligation FROM edges WHERE work=?",
 		(push1,)).fetchone()["via_obligation"] == asked
+	# W38 R3: the acceptance gated it, so the wait retargets.
 	assert store.conn.execute(
 		"SELECT phase, ready FROM work WHERE id=?",
-		(push1,)).fetchone()["phase"] == "queued"
+		(push1,)).fetchone()["phase"] == "waiting"
 
 
 def test_restart_reconstructs_the_acceptance(world):

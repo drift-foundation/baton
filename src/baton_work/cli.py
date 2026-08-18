@@ -68,8 +68,11 @@ _CREATION_CLASSIFICATIONS = ("suspected-defect", "confirmed-defect",
                              "limitation", "duplicate", "design-choice",
                              "rejection")
 _CLASSIFICATIONS = ("unknown",) + _CREATION_CLASSIFICATIONS
-_PHASES = ("queued", "research", "waiting", "active", "review", "parked")
-_CREATION_PHASES = ("queued", "research", "active", "review")
+# W38: the closed scheduler axis. All four are FILTERABLE — asking to
+# see what is running is an ordinary question — but only three are
+# SETTABLE, because `active` is established by claiming, not by asking.
+_PHASES = ("queued", "active", "waiting", "parked")
+_SETTABLE_PHASES = ("queued", "waiting", "parked")
 _OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
 _PRIORITIES = ("high", "normal", "low")
 
@@ -86,7 +89,7 @@ def _filter_keys():
 	        _key("route", help="canonical TEAM.KIND endpoint whose "
 	             "handlers may claim, or me (the viewer resolves as a "
 	             "handler)"),
-	        _key("current", help="the exact TEAM.MEMBER holding the "
+	        _key("handler", help="the exact TEAM.MEMBER holding the "
 	             "claim, or me (the viewer holds it); unclaimed work "
 	             "matches neither"),
 	        _key("category", values=_CLASSIFICATIONS,
@@ -102,7 +105,7 @@ def _filter_keys():
 
 def _filter_operands(args):
 	active = {}
-	for name in ("team", "status", "phase", "route", "current", "category",
+	for name in ("team", "status", "phase", "route", "handler", "category",
 	             "ready", "new", "priority"):
 		value = getattr(args, name, None)
 		if value is not None:
@@ -174,8 +177,6 @@ GRAMMAR = {
 	                         values=_CREATION_CLASSIFICATIONS,
 	                         help="the submitter's concrete "
 	                         "classification; 'unknown' refuses"),
-	                    _key("phase", values=_CREATION_PHASES,
-	                         help="initial phase; defaults to queued"),
 	                    _key("priority", values=_PRIORITIES,
 	                         help="the owning team's ordering signal; "
 	                         "defaults to normal"),
@@ -207,8 +208,6 @@ GRAMMAR = {
 	                    _key("classification",
 	                         values=_CREATION_CLASSIFICATIONS,
 	                         help="provider classification"),
-	                    _key("phase", values=_CREATION_PHASES,
-	                         help="provider initial phase"),
 	                    _key("parent", help="provider parent Work"))},
 	"respond": {"help": "answer an @ obligation with a message",
 	            "keys": (_key("obligation", required=True, kind="int",
@@ -291,7 +290,9 @@ GRAMMAR = {
 	               "forbids": ("wait",)}),
 	          "keys": (_key("work", required=True, help="the Work id"),
 	                   _key("to", dest="phase", required=True,
-	                        values=_PHASES, help="the target phase"),
+	                        values=_SETTABLE_PHASES,
+	                        help="the target phase; `active` is not "
+	                             "settable — claim the Work instead"),
 	                   _key("reason", help="required when parking"),
 	                   _key("wait", help="waiting condition: gates, or "
 	                        "one pending obligation seq (waiting "
@@ -1295,14 +1296,14 @@ def _dispatch(store: Authority, args):
 			team=args.team, kind=args.kind, title=args.title,
 			origin=args.origin, author=member, body=args.body,
 			parent=args.parent, classification=args.classification,
-			phase=args.phase, follow_up_of=args.follow_up_of,
+			follow_up_of=args.follow_up_of,
 			priority=args.priority, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "accept":
 		team, member = _need_participant(args)
 		create_only = {"kind=": args.kind, "title=": args.title,
 		               "classification=": args.classification,
-		               "phase=": args.phase, "parent=": args.parent}
+		               "parent=": args.parent}
 		if not args.create:
 			# R50: the forms fail CLOSED — an into= acceptance must not
 			# silently ignore creation keys a typo supplied.
@@ -1319,7 +1320,7 @@ def _dispatch(store: Authority, args):
 				                "title=")
 			create = {"kind": args.kind, "title": args.title,
 			          "classification": args.classification,
-			          "phase": args.phase, "parent": args.parent}
+			          "parent": args.parent}
 		return transitions.accept_obligation(
 			store, args.obligation, actor_team=team, actor=member,
 			answer_refs=args.answer_refs or (),

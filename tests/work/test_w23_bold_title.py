@@ -147,8 +147,9 @@ def test_hot_titles_are_bold_on_the_real_terminal(tmp_path):
 	                        origin="external-report",
 	                        classification="suspected-defect",
 	                        author="ada", body="b")["work_id"]
-	tr.set_phase(store, review, actor_team="lang", actor="ada",
-	             phase="review")
+	# W38: bold is personal actionability. A second claimed row is the
+	# hot case now — an unclaimed row of any role is nobody executing.
+	tr.claim_work(store, review, actor_team="lang", actor="ada")
 	cold = tr.create_work(store, team="lang", kind="bug",
 	                      title="cold-title",
 	                      origin="external-report",

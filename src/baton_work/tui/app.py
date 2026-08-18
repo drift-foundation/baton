@@ -22,6 +22,7 @@ both.
 from __future__ import annotations
 
 import curses
+import os
 import shlex
 import time as _time
 import uuid
@@ -36,12 +37,12 @@ from baton_work import transitions
 # identity is never abbreviated (6/6 rule makes them fit by construction).
 # Gate B: the set is exactly the canonical projection's row fields — the
 # renderer formats them and never aggregates or invents a value.
-# W245 (finding-current-is-claimant): ROUTE and CURRENT are separate
-# columns because they answer separate questions — who MAY claim, and
-# who IS executing. The single old Current column showed the endpoint,
-# so a routed handoff nobody had picked up looked staffed.
+# W245/W38: ROUTE and HANDLER are separate columns because they answer
+# separate questions — who MAY claim, and who IS executing. The single
+# old Current column showed the endpoint, so a routed handoff nobody had
+# picked up looked staffed. W38 renamed the claimant to HANDLER.
 COLUMNS = (("ST", 6), ("PR", 2), ("PHASE", 6), ("CLS", 5),
-           ("MSG/MY", 7), ("ROUTE", 13), ("CURRENT", 13), ("NEXT", 13),
+           ("MSG/MY", 7), ("ROUTE", 13), ("HANDLER", 13), ("NEXT", 13),
            ("NEW", 4), ("HELD", 6))
 
 # Header LABELS where plain capitalize() would miscase a compound name —
@@ -121,16 +122,26 @@ def assist_text(buffer: str) -> str:
 
 
 def hot_work(row: dict) -> bool:
-	"""W84 (ruled hot zone): open Work someone is EXECUTING (a non-null
-	active claimant, any operational phase) or runnable review Work
-	someone needs to CLAIM (phase=review with ready=true, including the
-	interval before the reviewer claims). Blocked (ready=false) review,
-	waiting, parked, and terminal Work are cold. Derived from canonical
-	row state alone — no recency clock, no timestamp inference, no
-	authority read of its own."""
-	return row["status"] == "open" and (
-		row["current"] is not None
-		or (row["phase"] == "review" and row["ready"]))
+	"""W84 (ruled hot zone): open Work someone is EXECUTING.
+
+	W84's second clause was "runnable REVIEW Work someone needs to
+	claim", which W38 makes inexpressible here: there is no review
+	phase any more, and the review-ness of Work is its Route's role, not
+	a scheduler state. Reintroducing it would mean this presentation
+	helper matching on role names — exactly the role-shaped reasoning
+	W38 removed from the phase axis.
+
+	So the zone reduces to its first clause, which is also the one W38
+	sharpened: hot means somebody is executing it, which is now the same
+	statement as `phase == "active"`. Runnable unclaimed Work of every
+	role reads the same, because it IS the same situation — nobody has
+	picked it up. FLAGGED for the reviewer: this narrows a ruled cue,
+	and the narrowing is a consequence of W38 rather than a decision
+	this Work was asked to make.
+
+	Derived from canonical row state alone — no recency clock, no
+	timestamp inference, no authority read of its own."""
+	return row["status"] == "open" and row["handler"] is not None
 
 
 def actionable_work(row: dict, viewer_team: str,
@@ -138,30 +149,30 @@ def actionable_work(row: dict, viewer_team: str,
 	"""W81 (superseding the global hot-zone bold): bold Title is
 	PERSONAL actionability — "what am I supposed to handle?" — true
 	exactly when:
-	- this viewer IS the row's Current claimant; or
+	- this viewer IS the row's Handler; or
 	- the Work is open, ready, unclaimed, not waiting/parked, and its
 	  Route endpoint resolves to this viewer (every eligible handler of
 	  a multi-handler Route sees it until one claims; after the claim
 	  only the winner keeps the cue); or
 	- this viewer has an unresolved directed @ obligation on the Work
 	  (independently actionable even while blocked).
-	Everyone else's activity stays visible through Phase, Current, and
+	Everyone else's activity stays visible through Phase, Handler, and
 	claim Age. Pure row facts in, presentation out — no authority
 	read, no authorization change.
 
 	W245: the two clauses now read as the two different questions they
-	always were — Current answers WHO IS EXECUTING, Route answers WHO
+	always were — Handler answers WHO IS EXECUTING, Route answers WHO
 	MAY CLAIM."""
-	current = row.get("current")
-	if current and current.get("team") == viewer_team and \
-			current.get("member") == viewer_member:
+	handler = row.get("handler")
+	if handler and handler.get("team") == viewer_team and \
+			handler.get("member") == viewer_member:
 		return True
 	if row.get("my_pending_obligations"):
 		return True
 	route = row.get("route")
 	return (row.get("status") == "open"
 	        and bool(row.get("ready"))
-	        and current is None
+	        and handler is None
 	        and row.get("phase") not in ("waiting", "parked")
 	        and route is not None
 	        and route["endpoint"].split(".", 1)[0] == viewer_team
@@ -216,49 +227,33 @@ def held_cell(since, now) -> str:
 
 
 def held_field(row, now) -> str:
-	"""The six-cell Held field, on W55's MM:SS timer, under W65's
-	UNCLAIMED-primary ruling.
+	"""The Held field: an elapsed timer and nothing else (W15).
 
-	The operational signal is whether open Work has a claimant, because
-	unclaimed means NOBODY is executing it. So `>` marks every open Work
-	with no active claimant — a STATE marker, not an overdue assertion,
-	independent of elapsed time — and claiming removes it. Release, a
-	pass, or a readiness change that releases the claimant restores it
-	while the Work stays open. Closed Work has no execution claim and
-	gets no marker.
+	W65 made `>` the primary unclaimed cue here and in Phase. Projection
+	8 superseded that: `Handler` is the exact claimant and is BLANK
+	when nobody holds the Work, so the row already says it. Repeating
+	the same fact in two more cells was noise that made the operational
+	stage harder to scan, and the marker is gone from both.
 
-	W65 removed both six-minute `!` switches. Pending pickup no longer
-	escalates: elapsed time is already visible in the timer and does not
-	need a second, louder spelling. The claimant heartbeat suffix is
-	gone too, because a claimed agent can be alive and busy inside one
-	model turn with no opportunity to call `heartbeat` — treating
-	silence as execution failure manufactured false alarms. Heartbeat
-	instants remain structured JSON diagnostics.
+	W65's other conclusions stand. Both six-minute `!` switches stay
+	removed: pending pickup does not escalate, and the claimant
+	heartbeat suffix is gone because a claimed agent can be alive and
+	busy inside one model turn with no opportunity to call `heartbeat` —
+	treating silence as execution failure manufactured false alarms.
+	Heartbeat instants remain structured JSON diagnostics.
 
-	CLAIMED: `MM:SS ` since canonical claimed_at (the visible reset at
+	CLAIMED: `MM:SS` since canonical claimed_at (the visible reset at
 	pickup preserves when the recipient actually took the Work).
-	UNCLAIMED OPEN: `>MM:SS` since the committed handoff, or `>-` when
-	there is no handoff to time. CLOSED: `-`. Readiness, wait and park
-	are separate table and JSON facts; they explain why unclaimed Work
-	may not be claimable, and never hide that it is unclaimed."""
+	UNCLAIMED OPEN: `MM:SS` since the committed handoff, or `-` when
+	there is no handoff to time. CLOSED: `-`. Which of the first two a
+	row is reading is answered by `Handler`, not by a glyph here.
+	Readiness, wait and park remain separate table and JSON facts."""
 	claimed_at = row.get("claimed_at")
 	if claimed_at is not None:
-		return held_cell(claimed_at, now) + " "
+		return held_cell(claimed_at, now)
 	if row.get("status") == "closed":
 		return "-"
-	return ">" + held_cell(row.get("handoff_at"), now)
-
-
-def pickup_prefix(row, now) -> str:
-	"""The compact Phase cell's companion to `held_field` under W65:
-	`>` for every open Work with no active claimant, a space once it is
-	claimed or closed. No elapsed-time transition — the marker states a
-	fact about the claim, not a judgement about how long it has been
-	true. Glyphs are presentation only; the structured facts stay in
-	JSON."""
-	if row.get("claimed_at") is not None or row.get("status") == "closed":
-		return " "
-	return ">"
+	return held_cell(row.get("handoff_at"), now)
 
 
 def blocker_cue(row: dict) -> str:
@@ -311,8 +306,8 @@ def layout_fits(width: int, id_width: int = 0) -> bool:
 # display cells, never a protocol identity and never a mutation value. Both
 # maps are CLOSED (R5 ruling): an unmapped canonical value fails visibly —
 # a client must never invent a label by truncation.
-PHASE_COMPACT = {"queued": "queue", "research": "rsrch", "waiting": "wait",
-                 "active": "actve", "review": "rview", "parked": "park"}
+PHASE_COMPACT = {"queued": "queue", "waiting": "wait",
+                 "active": "actve", "parked": "park"}
 # W6 (ruled): confirmed-defect reads `defct` — cnfrm did not express
 # the classification. Presentation only; canonical values unchanged.
 # W3 (ruled): the two-cell compact priority — presentation only; the
@@ -872,8 +867,9 @@ class Console:
 		return {
 			"ST": status_cell(row),
 			"PR": compact_priority(row["priority"]),
-			"PHASE": pickup_prefix(row, _time.time())
-			         + phase_cell(row["status"], row["phase"]),
+			# W15: Phase is the operational stage alone. The claimant
+			# cue lives in Handler, which is blank when unclaimed.
+			"PHASE": phase_cell(row["status"], row["phase"]),
 			"CLS": compact_classification(row["classification"]),
 			# W36: conversation volume and MY directed load, combined
 			# compactly here only — the canonical fields stay separate.
@@ -884,12 +880,12 @@ class Console:
 			# existing refresh cadence, no second scheduler.
 			"HELD": held_field(row, _time.time()),
 			"ROUTE": row["route"]["endpoint"] if row["route"] else "-",
-			# W245: the exact claimant, or `-` when NOBODY holds it.
-			# The pickup cue for unclaimed routed Work is ruled
-			# separately and still rides on the ST column.
-			"CURRENT": (f"{row['current']['team']}."
-			            f"{row['current']['member']}")
-			if row["current"] else "-",
+			# W245/W38: the exact claimant, or `-` when NOBODY holds
+			# it. Phase says whether the Work is running; this says who
+			# is running it.
+			"HANDLER": (f"{row['handler']['team']}."
+			            f"{row['handler']['member']}")
+			if row["handler"] else "-",
 			"NEXT": row["next"]["endpoint"] if row["next"] else "-",
 			"NEW": str(row["new"]),
 		}
@@ -1124,10 +1120,10 @@ class Console:
 			             f"{detail['rationale']}")
 		# finding-active-work-claim: WHO is executing is a canonical
 		# authority value, never inferred from route membership.
-		# W245: it is spelled `current`, and its absence is the fact.
-		if detail.get("current") is not None:
-			facts.append(f"current: {detail['current']['team']}."
-			             f"{detail['current']['member']}")
+		# W245/W38: it is spelled `handler`, and its absence is the fact.
+		if detail.get("handler") is not None:
+			facts.append(f"handler: {detail['handler']['team']}."
+			             f"{detail['handler']['member']}")
 		binding = detail.get("binding")
 		if binding is not None:
 			facts.append(f"binding {binding['root']}:{binding['path']} "
@@ -1144,9 +1140,9 @@ class Console:
 
 	def _detail_header(self, detail: dict) -> str:
 		route = detail["route"]["endpoint"] if detail["route"] else "-"
-		current = (f"{detail['current']['team']}."
-		           f"{detail['current']['member']}") \
-			if detail["current"] else "-"
+		handler = (f"{detail['handler']['team']}."
+		           f"{detail['handler']['member']}") \
+			if detail["handler"] else "-"
 		planned = detail["next"]["endpoint"] if detail["next"] else "-"
 		# W12 (ruled): the EXACT canonical Work id leads the header —
 		# first on the line so no narrow width ever clips it, straight
@@ -1158,7 +1154,7 @@ class Console:
 		        f"/{compact_classification(detail['classification'])}] "
 		        # W245: both facts, in the order they are asked —
 		        # who may claim, then who actually holds it.
-		        f"route {route}  current {current}  "
+		        f"route {route}  handler {handler}  "
 		        f"next {planned}  new {detail['new']}")
 		waiting = detail.get("waiting_on")
 		if waiting is not None:
@@ -2544,6 +2540,38 @@ class Console:
 		               if result["advanced"] else "already seen")
 
 
+# W25: the normal-mode (DECCKM off) cursor spellings, which `smkx` asks
+# terminals not to use and some send anyway. The application-mode forms
+# (`ESC O A`…) are already translated by keypad, and `ESC [ A`… are what
+# reaches the loop as a bare escape.
+ESCAPE_PEEK_MS = 25
+_CURSOR_FINALS = {ord("A"): curses.KEY_UP, ord("B"): curses.KEY_DOWN,
+                  ord("C"): curses.KEY_RIGHT, ord("D"): curses.KEY_LEFT}
+
+
+def _decode_normal_mode_cursor(screen) -> int:
+	"""Translate `ESC [ A/B/C/D` (and the `ESC O` variant) into the
+	cursor constants, or return 27 for a genuine bare Esc.
+
+	Anything that is not a cursor sequence is pushed back, so an escape
+	introducing some other sequence is not silently eaten — the reader
+	sees exactly what it would have seen before."""
+	screen.timeout(ESCAPE_PEEK_MS)
+	introducer = screen.getch()
+	if introducer == -1:
+		return 27
+	if introducer not in (ord("["), ord("O")):
+		curses.ungetch(introducer)
+		return 27
+	final = screen.getch()
+	if final in _CURSOR_FINALS:
+		return _CURSOR_FINALS[final]
+	if final != -1:
+		curses.ungetch(final)
+	curses.ungetch(introducer)
+	return 27
+
+
 def run(screen, store: Authority, viewer_team: str, viewer_member: str,
         config_path: str | None = None, refresh: float = 2.0,
         work_filter: dict | None = None) -> None:
@@ -2553,6 +2581,26 @@ def run(screen, store: Authority, viewer_team: str, viewer_member: str,
 	Ordinary keystrokes operate on the cached projection."""
 	import time
 	curses.curs_set(0)
+	# W25: keypad translation is already on — `curses.wrapper` calls
+	# `keypad(1)` before this function runs — so the cursor keys are
+	# decoded, but only in ONE of the two spellings a terminal may send.
+	#
+	# `keypad(1)` emits `smkx`, which asks the terminal for APPLICATION
+	# cursor mode, and xterm's terminfo then expects `ESC O B` for Down.
+	# A terminal that stays in NORMAL cursor mode sends `ESC [ B`
+	# instead — and ncurses, having asked for the other mode, hands that
+	# through as a bare 27 followed by two ordinary characters. The
+	# aliases in the handlers were therefore reachable from one kind of
+	# terminal and invisible from the other, which is why vi keys kept
+	# working and the tests, injecting `curses.KEY_*` directly, could
+	# not see the gap at all. `curses.define_key` would be the tidy fix
+	# but is absent from this build, so the normal-mode forms are
+	# decoded here.
+	#
+	# The peek costs nothing when a bare Esc is pressed: nothing
+	# follows, the short read expires, and 27 is returned unchanged.
+	if not os.environ.get("ESCDELAY"):
+		curses.set_escdelay(ESCAPE_PEEK_MS)
 	console = Console(store, viewer_team, viewer_member,
 	                  config_path=config_path, work_filter=work_filter)
 	console.render(screen)
@@ -2572,6 +2620,8 @@ def run(screen, store: Authority, viewer_team: str, viewer_member: str,
 		key = screen.getch()
 		if key == -1:
 			continue
+		if key == 27:
+			key = _decode_normal_mode_cursor(screen)
 		if not console.handle(key):
 			return
 		console.render(screen)

@@ -62,3 +62,40 @@ than taken unilaterally.
 If the split is approved, the safe half is the whole Python surface plus
 its Justfile recipes; the unsafe half is exactly the five Codex paths and
 the stack-only config fields.
+
+## Re-audit in the recreated authority — 2026-08-18
+
+The trial authority was recreated for the W245 schema change, so the
+W101/W102 edge recorded above no longer exists: this item is now W7 and
+its gate is W6 (`Retire v10 deployments and mailbox data`, open and
+active with baton.ops). W7 woke ready and unclaimed again — the same
+stranded-handler shape the section above describes, reintroduced by the
+recreation rather than by any ruling.
+
+Recorded `block work=W7 on=W6` (seq 21) with the rationale carrying the
+measurement below. W7 is unready again and the claim released as a
+consequence.
+
+**The refusal condition is not merely still true; the v10 runtime is in
+active use.** Measured immediately before the edge:
+
+- 10 x `tools/codex-event-bridge/src/baton_source.mjs` and 1 x
+  `main.mjs`, from the WORKING TREE, uptime 17h12m;
+- 1 x `tools/codex-event-bridge/src/stack.mjs` — also on the removal
+  list — running against `/home/sl/baton/conf/codex-event-bridge.json`;
+- 10 x the deployed v10 CLI,
+  `/home/sl/baton/app/baton-cli/v10/v10.2.0/bin/baton`, against
+  `/home/sl/baton/mailbox/v10/baton.json`, **started 21 seconds before
+  this audit**.
+
+That last group is the important one. Earlier audits found long-lived
+leftovers, which could be read as processes nobody had gotten around to
+stopping. A v10 stack restarted seconds ago is a live dependency: the
+cutover W6 owns has not happened, and removing these paths now would cut
+a running participant off mid-session.
+
+The Python v10 surface (`src/baton_core/`, `src/baton_tui/`, `compat/`,
+`tests/core/`, `tests/tui/`, `tests/packaging/`, the v10 build tools)
+still has no live consumer. The recommended safe/unsafe split from the
+earlier audit therefore stands unchanged and still awaits a ruling; it
+is recorded above rather than acted on.

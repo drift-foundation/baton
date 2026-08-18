@@ -100,8 +100,6 @@ def test_the_actionability_matrix(world):
 	second_gate = make(world, "second gate")["work_id"]
 	tr.add_dependency(store, work, second_gate, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
 	assert not actionable_work(row_for(world, work), "lang", "ada")
 	tr.close_work(store, second_gate, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
@@ -295,7 +293,7 @@ def test_two_eligible_handlers_bold_until_one_claims(tmp_path):
 		# the loser still reads the activity: claimant + age facts live
 		view = pj.detail(store, work, viewer_team="lang",
 		                 viewer_member="ada")
-		assert view["current"] == {"team": "lang", "member": "bee",
+		assert view["handler"] == {"team": "lang", "member": "bee",
 	                   "participant": "lang.bee"}
 		assert view["claimed_at"] is not None
 	finally:

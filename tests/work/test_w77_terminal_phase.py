@@ -49,10 +49,10 @@ def test_every_terminal_outcome_projects_phase_null(world, outcome, extra):
 	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="opener")["work_id"]
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="active")
+	             phase="parked", reason="an audited phase move")
 	before = pj.detail(store, work, viewer_team="lang",
 	                   viewer_member="ada")
-	assert before["phase"] == "active"
+	assert before["phase"] == "parked"
 	tr.close_work(store, work, actor_team="lang", actor="ada",
 	              rationale=f"closed {outcome}", outcome=outcome,
 	              **extra)
@@ -64,14 +64,14 @@ def test_every_terminal_outcome_projects_phase_null(world, outcome, extra):
 	# null is projection-only.
 	stored = store.conn.execute(
 		"SELECT phase FROM work WHERE id=?", (work,)).fetchone()["phase"]
-	assert stored == "active", "the close rewrote stored history"
+	assert stored == "parked", "the close rewrote stored history"
 	# The audit keeps the open-phase transition and gains no phase
 	# erasure event.
 	kinds = [event["kind"] for event in store.events()]
 	assert "set_phase" in kinds
 	payloads = [event["payload"] for event in store.events()
 	            if event["kind"] == "set_phase"]
-	assert payloads[-1]["to"] == "active"
+	assert payloads[-1]["to"] == "parked"
 
 
 def test_open_work_phase_stays_required_and_non_null(world):
@@ -98,8 +98,6 @@ def test_the_tui_renders_dash_for_closed_phase(world):
 	done = tr.create_work(store, team="lang", kind="bug",
 	                      title="done row", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="old")["work_id"]
-	tr.set_phase(store, done, actor_team="lang", actor="ada",
-	             phase="review")
 	tr.close_work(store, done, actor_team="lang", actor="ada",
 	              rationale="finished", outcome="satisfying")
 

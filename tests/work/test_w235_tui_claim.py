@@ -74,9 +74,9 @@ def select(ui, work_id):
 
 def active(world, work_id):
 	row = world["store"].conn.execute(
-		"SELECT current_team, current_member FROM work WHERE id=?",
+		"SELECT handler_team, handler_member FROM work WHERE id=?",
 		(work_id,)).fetchone()
-	return (row["current_team"], row["current_member"])
+	return (row["handler_team"], row["handler_member"])
 
 
 def test_c_claims_the_selected_work_canonically(world):

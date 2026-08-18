@@ -70,7 +70,18 @@ from baton_work.authority import Authority, WorkError
 # client reading `current` would silently take an endpoint struct for a
 # claimant. So the major moves and a 7.x demand refuses cleanly, which
 # is exactly the stale-consumer refusal this finding asks for.
-PROJECTION_VERSION = "8.0"
+# 9.0 (W38, finding-phase-is-scheduler-state): PHASE is a closed
+# scheduler axis — queued | active | waiting | parked, terminal null. The
+# role-shaped `research` and `review` values are gone, and a handoff no
+# longer derives its phase from the destination role. `active` now means
+# exactly "a participant holds the claim". The claimant published as
+# `current` at 8.0 is renamed `handler`, and the `current=` filter
+# becomes `handler=`; `route` and `next` are unchanged.
+# Participant-action envelopes carry `phase`, so their VALUE SET changed
+# and every readiness consumer must be updated in the same candidate —
+# the major moves and an 8.x demand refuses cleanly rather than reading
+# a vocabulary that no longer exists.
+PROJECTION_VERSION = "9.0"
 
 
 def require_version(requested: str | None) -> None:

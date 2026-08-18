@@ -7,3 +7,6 @@
 3. [done] Reconcile the compact TUI help and operator documentation.
 4. [done] Run the focused TUI tests and the v11 gate: 72 focused tests and the
    complete 1,013-item parallel v11 slice passed on 2026-08-17.
+5. [open] Correct the real-terminal decoding gap and prove cursor input through
+   a packaged PTY. See
+   `findings/finding-real-terminal-cursor-key-decoding/`.

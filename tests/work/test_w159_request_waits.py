@@ -69,8 +69,8 @@ def asking(world, claim="ada"):
 
 def state(world, work):
 	return dict(world["store"].conn.execute(
-		"SELECT phase, wait_type, wait_obligation, current_team, "
-		"current_member, route_team, route_kind FROM work WHERE id=?",
+		"SELECT phase, wait_type, wait_obligation, handler_team, "
+		"handler_member, route_team, route_kind FROM work WHERE id=?",
 		(work,)).fetchone())
 
 
@@ -90,7 +90,7 @@ def test_a_directed_request_blocks_atomically(world, spelling):
 	assert after["wait_type"] == "obligation"
 	assert after["wait_obligation"] == posted["seq"], \
 		"the wait names some other obligation than the one just created"
-	assert after["current_team"] is None, "the claim was not released"
+	assert after["handler_team"] is None, "the claim was not released"
 	# Current does NOT move: the answer is owed TO the handler
 	assert (after["route_team"], after["route_kind"]) == \
 		(before["route_team"], before["route_kind"])
@@ -142,13 +142,22 @@ def test_the_exact_waiter_wakes_once_on_every_resolution(world):
 			                     actor="sl", body="gated on this",
 			                     into=provider)
 		after = state(world, work)
-		assert after["phase"] == "queued", \
-			f"{resolve} did not wake the exact waiter"
-		assert after["wait_type"] is None
+		# W38 R3: `accept` gates the waiter on the provider it just
+		# named, so that resolution RETARGETS rather than waking.
+		if resolve == "accept":
+			assert after["phase"] == "waiting", \
+				"accept advertised a gated waiter as runnable"
+			assert after["wait_type"] == "gates"
+		else:
+			assert after["phase"] == "queued", \
+				f"{resolve} did not wake the exact waiter"
+			assert after["wait_type"] is None
 		wakes = [e for e in store.events()
 		         if e["kind"] == "wake"
 		         and e["payload"]["work"] == work]
-		assert len(wakes) == 1, f"{resolve} woke the waiter {len(wakes)}x"
+		expected = 0 if resolve == "accept" else 1
+		assert len(wakes) == expected, \
+			f"{resolve} woke the waiter {len(wakes)}x, expected {expected}"
 
 
 def test_an_unrelated_obligation_does_not_wake_the_waiter(world):
@@ -270,7 +279,7 @@ def test_a_second_blocking_request_cannot_stack(world):
 	               body="push: advise", request="push.bug", on=work)
 	suspended = state(world, work)
 	assert suspended["phase"] == "waiting"
-	assert suspended["current_team"] is None
+	assert suspended["handler_team"] is None
 	refuses(world, "unclaimed", thread_id=thread, author_team="lang",
 	        author="ada", body="push: again", request="push.bug",
 	        on=work)
@@ -375,7 +384,7 @@ def test_every_injected_boundary_leaves_the_authority_byte_identical(world):
 	assert replay["operation"]["state"] == "replayed"
 	fresh.close()
 	after = state(world, work)
-	assert after["phase"] == "waiting" and after["current_team"] is None
+	assert after["phase"] == "waiting" and after["handler_team"] is None
 
 
 def test_the_blocking_request_serializes_against_a_claim_release(world):
@@ -463,7 +472,7 @@ def test_the_console_command_path_produces_the_same_facts(world):
 	detail = pj.detail(store, work, viewer_team="lang",
 	                   viewer_member="ada")
 	assert detail["phase"] == "waiting"
-	assert detail["current"] is None
+	assert detail["handler"] is None
 	assert detail["waiting_on"]["type"] == "obligation"
 	# the Events journal shows the same effective choice
 	entry = next(e for e in pj.work_events(store, work, newest=True,
@@ -539,7 +548,7 @@ def test_json_shows_the_waiting_condition_and_the_effective_choice(world):
 	detail = pj.detail(store, work, viewer_team="lang",
 	                   viewer_member="ada")
 	assert detail["phase"] == "waiting"
-	assert detail["current"] is None
+	assert detail["handler"] is None
 	assert detail["waiting_on"] == {"type": "obligation",
 	                                "obligation": posted["seq"]}
 	entry = next(e for e in pj.work_events(store, work, newest=True,

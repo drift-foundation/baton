@@ -57,8 +57,6 @@ def test_wf04_one_consumer_one_provider(flow):
 
 	# WS-1: with the edge recorded, the consumer chooses honest WAITING —
 	# dependency-backed, refused if there were nothing to wait for.
-	flow.ok("phase", f"work={push1}", "to=waiting", "wait=gates",
-	        viewer="push.sl")
 	waiting = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert waiting["phase"] == "waiting"
 	assert waiting["waiting_on"] == {"type": "gates", "obligation": None}
@@ -77,12 +75,11 @@ def test_wf04_one_consumer_one_provider(flow):
 	# releases the claimant and re-phases by readiness (pinned matrix).
 	flow.ok("classify", f"work={lang42}", "as=confirmed-defect",
 	        viewer="lang.ada")
-	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
 
 	flow.ok("pass", f"work={lang42}", "to=lang.rev", "comment=analysis: recovery table clobbered",
 	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}",
-	               viewer="lang.ada")["phase"] == "review", \
+	               viewer="lang.ada")["phase"] == "queued", \
 		"the pass did not record its destination phase atomically"
 
 	flow.ok("pass", f"work={lang42}", "to=lang.impl", "set-next=lang.rev",
@@ -91,7 +88,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	assert midway["route"] == {"endpoint": "lang.impl", "route": "build",
 	                             "role": "impl", "handlers": ["grace"]}
 	assert midway["next"]["endpoint"] == "lang.rev"
-	assert midway["phase"] == "active", \
+	assert midway["phase"] == "queued", \
 		"the pass did not record its destination phase atomically"
 	flow.ok("claim", f"work={lang42}", viewer="lang.grace")
 
@@ -100,14 +97,17 @@ def test_wf04_one_consumer_one_provider(flow):
 	                   viewer="lang.grace")
 	assert returned["kind"] == "return"
 	assert flow.ok("detail", f"work={lang42}",
-	               viewer="lang.ada")["phase"] == "review", \
+	               viewer="lang.ada")["phase"] == "queued", \
 		"the return did not record its destination phase (and release)"
 	phase_trail = [(event["payload"]["from"], event["payload"]["to"])
 	               for event in flow.ok("events", viewer="lang.ada")
 	               if event["kind"] == "set_phase" and
 	               event["payload"]["work"] == lang42]
-	assert phase_trail == [("queued", "research")], \
-		"handoff stages ride their pass events, not separate set_phase acts"
+	# W38: handoffs record their destination in the pass event, and the
+	# scheduler axis has no role-shaped stages to move between, so an
+	# ordinary story emits no set_phase acts at all.
+	assert phase_trail == [], \
+		"handoff states ride their pass events, not separate set_phase acts"
 
 	# 4. Reviewer closes fixed-and-verified — addressed to NOBODY.
 	flow.ok("close", f"work={lang42}", "rationale=fixed and verified", "outcome=satisfying",

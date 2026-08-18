@@ -44,3 +44,11 @@ by the existing configuration surface: `dev` is implementation/`active`, and
 and every other role still refuses unless explicitly added to the closed map.
 The canonical `impl`, `rsrch`, `rview`, and `approv` spellings retain their
 pinned meanings.
+
+## Superseded — 2026-08-18
+
+The decision that destination role determines `research`, `active`, or
+`review` phase is superseded by the scheduler-state model recorded in
+`../finding-phase-is-scheduler-state/FINDING.md`. Route still determines
+eligibility and the kind of activity; it no longer names phase. This file is
+preserved as the history of the live confusion that led to the replacement.

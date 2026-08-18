@@ -43,9 +43,6 @@ def test_ws2_wf05_non_satisfying_close(flow):
 		consumers[team] = work
 	flow.ok("block", f"work={consumers["mdb"]}", f"on={build7}",
 	        "rationale=second provider required", viewer="mdb.mo")
-	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
-		flow.ok("phase", f"work={consumers[team]}", "to=waiting",
-		        "wait=gates", viewer=f"{team}.{member}")
 
 	# 2. Lang closes LANG-42 with explicit non-satisfying and rationale.
 	flow.ok("close", f"work={lang42}",

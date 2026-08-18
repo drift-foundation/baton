@@ -1,7 +1,7 @@
 # Plan
 
-**Status — 2026-08-17:** confirmed; implementation must follow W49 because
-both change the pass authority path and its episode tests.
+**Superseded — 2026-08-18:** implemented historical plan. The scheduler-state
+follow-up at `../finding-phase-is-scheduler-state/` now owns phase semantics.
 
 1. Revalidate the stage-role vocabulary and every current explicit-phase pass
    call against the latest W49 authority changes.

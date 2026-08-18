@@ -37,7 +37,7 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 18
+SCHEMA_VERSION = 19
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -237,14 +237,18 @@ CREATE TABLE work (
 	-- claim, not only a descriptive phase. The claim/release transition
 	-- matrix is that finding's own gated implementation (blocks W92's
 	-- release).
-	-- W245 (finding-current-is-claimant): this IS Current. It names the
-	-- exact participant executing the Work and is NULL while nobody
-	-- holds the claim, so a routed handoff awaiting pickup can no
-	-- longer read as somebody working. Routing lives in route_* above;
-	-- the two were previously both called "current" in different
-	-- layers, which is the ambiguity this finding removes.
-	current_team   TEXT,
-	current_member TEXT,
+	-- W245 (finding-current-is-claimant): the exact participant
+	-- executing the Work, NULL while nobody holds the claim, so a
+	-- routed handoff awaiting pickup can no longer read as somebody
+	-- working. Routing lives in route_* above.
+	-- W38 (finding-phase-is-scheduler-state): named HANDLER. Route,
+	-- Handler and Next are three different questions — responsible
+	-- endpoint now, exact claimed member, planned endpoint next — and
+	-- Handler is deliberately a MEMBER so they cannot masquerade as one
+	-- axis. It is also the phase invariant: phase is `active` if and
+	-- only if this is non-null.
+	handler_team   TEXT,
+	handler_member TEXT,
 	-- W49 (finding-acp-same-key-redelivery-loss): the ASSIGNMENT EPISODE.
 	-- Deliberately NOT last_change_seq, which every visible edit touches:
 	-- a claim, a heartbeat, an ordinary phase move, a priority or

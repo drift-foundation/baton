@@ -113,8 +113,8 @@ def test_the_guide_separates_route_stability_from_claim_release():
 	flat = " ".join(_text().split())
 	assert "**The route does not move**" in flat, \
 		"the guide does not say the ROUTE stays put across a request"
-	assert "**Current does clear**" in flat, \
-		"the guide does not say a blocking request CLEARS current"
+	assert "**The handler clears**" in flat, \
+		"the guide does not say a blocking request clears the handler"
 	assert "Current does not move" not in flat, \
 		"the guide still teaches the superseded W245 invariant"
 

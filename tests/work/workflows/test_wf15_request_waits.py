@@ -49,7 +49,7 @@ def test_wf15_a_directed_request_waits_by_default(flow):
 	work, thread = born["work_id"], born["thread"]
 	flow.ok("claim", f"work={work}", viewer="push.sl")
 	before = flow.ok("detail", f"work={work}", viewer="push.sl")
-	assert before["current"] == {"team": "push", "member": "sl",
+	assert before["handler"] == {"team": "push", "member": "sl",
 	                   "participant": "push.sl"}
 	last_before = before["snapshot_seq"] if "snapshot_seq" in before \
 		else max(e["seq"] for e in flow.ok("events", viewer="push.sl"))
@@ -70,7 +70,7 @@ def test_wf15_a_directed_request_waits_by_default(flow):
 	assert after["phase"] == "waiting"
 	assert after["waiting_on"] == {"type": "obligation",
 	                               "obligation": asked["seq"]}
-	assert after["current"] is None, "the blocking ask kept the claim"
+	assert after["handler"] is None, "the blocking ask kept the claim"
 	assert after["route"]["endpoint"] == before["route"]["endpoint"], \
 		"asking for input transferred ownership"
 	assert after["ready"] is False or after["phase"] == "waiting"
@@ -126,7 +126,7 @@ def test_wf15_wait_false_is_the_asynchronous_contrast(flow):
 
 	after = flow.ok("detail", f"work={work}", viewer="push.sl")
 	assert after["phase"] == before["phase"], "wait=false changed the stage"
-	assert after["current"] == before["current"], "wait=false released the claim"
+	assert after["handler"] == before["handler"], "wait=false released the claim"
 	assert after["waiting_on"] is None
 	assert [entry["seq"] for entry in flow.ok("obligations",
 	                                          viewer="drift.ada")] == \

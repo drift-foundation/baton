@@ -98,9 +98,10 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	              viewer="lang.ada")["result"]
 	seqs = [event["seq"] for event in events]
 	assert seqs == list(range(1, len(seqs) + 1))
-	assert [event["kind"] for event in events][-6:] == \
+	# W38 R1: the gated dependent waits, so the final close wakes it.
+	assert [event["kind"] for event in events][-7:] == \
 		["create_work", "add_dependency", "respond", "pass", "return",
-		 "close_work"]
+		 "close_work", "wake"]
 
 
 def test_a_refusal_exits_nonzero_through_the_archive(archive, tmp_path):

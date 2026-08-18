@@ -4,6 +4,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { actionEvent, actionLocator, codexBatonBridge, validateEnvelope } from "../src/codex_baton_bridge.mjs";
 
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
@@ -257,10 +258,10 @@ test("an authority switch emits the new action while retiring the old set", asyn
 test("the typed contract refuses every inconsistent envelope by name", () => {
   const cases = [
     // incompatible projection (W207): any 4.x, other majors, missing
-    [envelope([], { projection: "4.3" }), /projection-7 participant-action contract/],
-    [envelope([], { projection: "4.5" }), /projection-7 participant-action contract/],
-    [envelope([], { projection: "5.0" }), /projection-7 participant-action contract/],
-    [{ ...envelope([]), projection_version: undefined }, /projection-7 participant-action contract/],
+    [envelope([], { projection: "4.3" }), /projection-7\/8\/9 participant-action contract/],
+    [envelope([], { projection: "4.5" }), /projection-7\/8\/9 participant-action contract/],
+    [envelope([], { projection: "5.0" }), /projection-7\/8\/9 participant-action contract/],
+    [{ ...envelope([]), projection_version: undefined }, /projection-7\/8\/9 participant-action contract/],
     // missing snapshot token / non-boolean timed_out
     [{ ...envelope([]), snapshot_seq: "42" }, /snapshot_seq/],
     [{ ...envelope([]), result: { actionable: [], timed_out: "no" } }, /timed_out is not a boolean/],
@@ -284,6 +285,22 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
   }
   // and the boundary the gate is FOR: a later 7.x minor stays accepted
   assert.equal(validateEnvelope(envelope([], { projection: "7.4" }), "baton.codex").snapshot_seq, 42);
+  // Projection 8 changed claimant-authority semantics without changing this
+  // fully typed participant-action envelope. The transition bridge accepts
+  // both bounded majors, never arbitrary future ones.
+  assert.equal(validateEnvelope(envelope([], { projection: "8.0" }), "baton.codex").snapshot_seq, 42);
+  // W38: projection 9 is the CANDIDATE contract — the phase value set
+  // changed, but the participant-action envelope's own fields did not,
+  // so the bounded transition window is 7/8/9 and 10 is still refused.
+  assert.equal(validateEnvelope(envelope([], { projection: "9.0" }), "baton.codex").snapshot_seq, 42);
+  assert.throws(() => validateEnvelope(envelope([], { projection: "10.0" }), "baton.codex"), /projection-7\/8\/9 participant-action contract/);
+});
+
+test("the bridge accepts the repository's current projection", () => {
+  const source = readFileSync(new URL("../../../src/baton_work/jsonapi.py", import.meta.url), "utf8");
+  const match = /^PROJECTION_VERSION = "([^"]+)"$/m.exec(source);
+  assert.ok(match, "baton_work.jsonapi names no projection version");
+  assert.equal(validateEnvelope(envelope([], { projection: match[1] }), "baton.codex").projection_version, match[1]);
 });
 
 test("every field the trusted summary consumes is typed and agreeing", () => {

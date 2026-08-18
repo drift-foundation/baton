@@ -337,10 +337,10 @@ def test_the_projection_version_names_the_wake_contract(world):
 	honest-breaking, no alias). Same-major demands succeed; a stale
 	4.x demand refuses."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "8.0"
-	jsonapi.require_version("8.0")
+	assert jsonapi.PROJECTION_VERSION == "9.0"
+	jsonapi.require_version("9.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
-		jsonapi.require_version("7.0")
+		jsonapi.require_version("8.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.3")
 	with pytest.raises(bw.WorkError, match="not compatible"):

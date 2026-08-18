@@ -107,7 +107,7 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 	elif family == "phase":
 		act = lambda **kw: tr.set_phase(
 			store, work, actor_team="lang", actor="ada",
-			phase="active", **kw)
+			phase="parked", reason="matrix", **kw)
 	elif family == "block":
 		other = _create(store, team="push", member="sl")["work_id"]
 		act = lambda **kw: tr.add_dependency(

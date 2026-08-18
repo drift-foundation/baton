@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 import { validateConfig } from "../src/config.mjs";
 import { runBridge } from "../src/acp_baton_bridge.mjs";
 import { AcpAgentSession } from "../src/acp_agent_session.mjs";
-import { episodeStillLive } from "../src/baton_readiness.mjs";
+import { episodeStillLive, validateEnvelope } from "../src/baton_readiness.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FAKE_AGENT = join(HERE, "fake_acp_agent.mjs");
@@ -39,6 +39,31 @@ function envelope(actions, { timedOut = false,
 		result: { actionable: actions, timed_out: timedOut },
 	};
 }
+
+test("ACP readiness accepts the projection-8 participant-action contract", () => {
+	const payload = envelope([]);
+	payload.projection_version = "8.0";
+	assert.equal(validateEnvelope(payload, "baton.claude").projection_version,
+	             "8.0");
+});
+
+test("ACP readiness accepts the projection-9 candidate contract", () => {
+	// W38 moved the major because the PHASE value set changed. The
+	// envelope's own fields did not, so this consumer must accept 9 in
+	// the same candidate that ships it — a readiness bridge one major
+	// behind is a silent outage, which is how projection 8 was found.
+	const payload = envelope([]);
+	payload.projection_version = "9.0";
+	assert.equal(validateEnvelope(payload, "baton.claude").projection_version,
+	             "9.0");
+});
+
+test("ACP readiness still refuses an unsupported future major", () => {
+	const payload = envelope([]);
+	payload.projection_version = "10.0";
+	assert.throws(() => validateEnvelope(payload, "baton.claude"),
+	              /projection-7\/8\/9 participant-action contract/);
+});
 
 function rig({ env = {}, participant = "baton.claude",
                sessionMode = "new", policyResources } = {}) {

@@ -425,8 +425,6 @@ def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 	                          title="PUSH-1", origin="external-report", classification="suspected-defect",
 	                          author="sl", body="blocked")["work_id"]
 	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl", rationale="test dependency")
-	tr.set_phase(store, consumer, actor_team="push", actor="sl",
-	             phase="waiting", wait="gates")
 	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A",
 	                assign=["push.verify", "web.verify"], review_at=T1)

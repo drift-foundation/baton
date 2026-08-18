@@ -236,13 +236,17 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 			if not interleaved:
 				interleaved = True
 				with bw.Authority(database) as writer:
-					tr.create_work(
+					# W38 R1: the root has open children, so it is
+					# `waiting` and cannot be parked. The interloper is
+					# a leaf, and parking it is the same interleaving
+					# proof — a second visible commit mid-read.
+					interloper = tr.create_work(
 						writer, team="lang", kind="bug",
 						title="the interloper",
 						origin="external-report", classification="suspected-defect", author="ada",
-						body="committed mid-read")
+						body="committed mid-read")["work_id"]
 					tr.set_phase(
-						writer, world["root"]["work_id"],
+						writer, interloper,
 						actor_team="lang", actor="ada",
 						phase="parked",
 						reason="interleaving proof")
@@ -257,7 +261,9 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 			"a mid-read commit leaked a new root into the tree"
 		root_row = next(row for row in window["rows"]
 		                if row["title"] == "the root")
-		assert root_row["phase"] == "queued", \
+		# W38 R1: the root has open children, so its snapshot phase is
+		# `waiting` — the point is that it is the PRE-commit value.
+		assert root_row["phase"] == "waiting", \
 			"the tree mixed a post-commit phase into pre-commit rows"
 		assert window["summary"]["parked"] == 0, \
 			"the summary came from a later snapshot than the rows"

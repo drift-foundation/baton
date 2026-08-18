@@ -323,12 +323,12 @@ def test_static_conditions_refuse_before_authority(world, monkeypatch):
 		(("say", "thread=t", "body=b", "pass-to=c.d"),
 		 "unknown key 'pass-to'"),
 		(("say", "thread=t", "body=b", "on=w"), "requires request="),
-		(("say", "thread=t", "body=b", "phase=review"),
+		(("say", "thread=t", "body=b", "phase=queued"),
 		 "unknown key 'phase'"),
 		# W73: the destination ROUTE decides the phase, so the operand
 		# is gone from the grammar entirely — not a narrowed value set.
 		(("pass", "work=w", "to=a.b", "comment=c",
-		  "phase=review"), "unknown key 'phase'"),
+		  "phase=queued"), "unknown key 'phase'"),
 		(("pass", "work=w", "to=a.b", "comment=c",
 		  "phase=nowhere"), "unknown key 'phase'"),
 		# W171: pass is threadless — the old coupling is an unknown key.

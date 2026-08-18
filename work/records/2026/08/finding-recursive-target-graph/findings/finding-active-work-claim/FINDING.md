@@ -251,3 +251,45 @@ clears current, and the recipient later claims explicitly.
 
 The complete ruling and acceptance boundary live in
 `findings/finding-current-is-claimant/FINDING.md`.
+
+## Phase is scheduler state — 2026-08-18
+
+**Confirmed by Slawomir.** The route-derived workflow-stage model above is
+superseded. Phase answers whether Work can run and whether somebody is
+executing it; route/current answer what kind of activity it is and who owns
+it.
+
+- `queued`: open, runnable, and unclaimed;
+- `active`: open and atomically claimed, regardless of whether the claimant
+  is implementing, reviewing, researching, or approving;
+- `waiting`: open, unclaimed, and not runnable because an exact dependency or
+  condition-bound obligation is unsatisfied;
+- `parked`: open, unclaimed, and deliberately deferred without an automatic
+  wake condition; and
+- terminal Work has no phase (`null` in JSON and `-` in the TUI).
+
+Route retains the eligible endpoint and role. Current retains the exact live
+claimant. Consequently `active` if and only if Current is non-null; reviewer,
+implementer, researcher, and approver are never encoded as parallel phase
+names.
+
+A pass changes route, clears Current, and projects `queued` or `waiting` from
+the resulting runnable state. Claim succeeds only for queued Work and changes
+it atomically to active. Release and every claimant-releasing gate recompute
+queued/waiting rather than leaving an unclaimed active phase. Parking and
+terminal closure remain explicit. The full replacement contract lives in
+`findings/finding-phase-is-scheduler-state/FINDING.md`.
+
+## Route / Handler / Next vocabulary — 2026-08-18
+
+**Confirmed by Slawomir.** The `current` field name in the preceding sections
+is superseded by `handler`. Route and Next are both endpoints: Route is the
+responsible endpoint now, and Next is the optional planned endpoint after the
+next pass. Handler is the singular exact member holding the live claim and is
+null while unclaimed. Past routes and handlers are Events, never Route.
+
+The TUI uses the headings `Route`, `Handler`, and `Next`; JSON uses structured
+`route`, nullable `handler`, and structured nullable `next`.
+`route.handlers` remains the eligible-member list, while top-level `handler`
+is the one selected member. Claim remains the operation name: a successful
+claim establishes Handler and active phase atomically.

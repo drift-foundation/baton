@@ -114,7 +114,7 @@ def test_the_event_is_the_complete_authoritative_record(world):
 	assert payload["comment"] == "exact evidence, verbatim"
 	assert payload["work"] == work
 	assert payload["pass_resolution"]["endpoint"] == "rev.bug"
-	assert payload["destination_phase"] == "review"
+	assert payload["destination_phase"] == "queued"
 	assert payload["set_next"] == "lang.bug"
 	assert payload["consumed_next"] is False
 	assert payload["authorization"]["endpoint"] == "lang.bug", \
@@ -122,7 +122,7 @@ def test_the_event_is_the_complete_authoritative_record(world):
 	assert "thread" not in payload, \
 		"the threadless event still names a thread"
 	assert passed["to"] == "rev.bug"
-	assert passed["destination_phase"] == "review"
+	assert passed["destination_phase"] == "queued"
 
 
 def test_a_pass_moves_no_message_cursor_or_count(world):
@@ -192,8 +192,8 @@ def test_the_handoff_and_the_consuming_return(world):
 	            "comment=please review")
 	assert passed["kind"] == "pass"
 	detail = ok(world, "detail", f"work={work}")
-	assert detail["current"] is None, "the handoff kept the claim"
-	assert detail["phase"] == "review"
+	assert detail["handler"] is None, "the handoff kept the claim"
+	assert detail["phase"] == "queued"
 	woken = pj.wait_actionable(store, viewer_team="rev",
 	                           viewer_member="bee", timeout_seconds=0)
 	assert any(action["kind"] == "work" and action["work"] == work
@@ -238,7 +238,7 @@ def test_another_route_handler_cannot_pass_the_claimants_work(world):
 	                "comment=steal the handoff", viewer="lang.grace")
 	assert "claim" in error and "lang.ada" in error, error
 	after = ok(world, "detail", f"work={work}")
-	for field in ("route", "phase", "next", "current", "status"):
+	for field in ("route", "phase", "next", "handler", "status"):
 		assert after[field] == before[field], \
 			f"the losing non-claimant changed {field}"
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",

@@ -104,8 +104,8 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		          "status": cells["ST"],
 		          "route": None if cells.get("ROUTE", "-") == "-"
 		          else cells["ROUTE"],
-		          "current": None if cells["CURRENT"] == "-"
-		          else cells["CURRENT"],
+		          "handler": None if cells["HANDLER"] == "-"
+		          else cells["HANDLER"],
 		          "next": None if cells["NEXT"] == "-" else cells["NEXT"],
 		          "new": int(cells["NEW"])}
 		for key, name in (("phase", "PHASE"), ("classification", "CLS"),
@@ -150,22 +150,21 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			assert drawn_row["status"] == app.status_cell(json_row)
 			# WS-1 parity: the TUI draws the approved COMPACT vocabulary
 			# for the canonical JSON values, presentation-only.
-			# W226: the painted Phase carries the pickup prefix
-			# derived from the same canonical facts.
+			# HISTORY, not current behaviour: W226 painted a pickup
+			# prefix in this cell and W65 made it the primary unclaimed
+			# cue. W15 removed both, because projection 8's `Current`
+			# already states the claimant and is blank when there is
+			# none.
+			#
+			# The `lstrip` below is deliberate belt-and-braces: it would
+			# TOLERATE a marker rather than assert one, so the value
+			# check keeps working on the compact vocabulary alone and
+			# the assertion after it is what actually forbids a marker
+			# from coming back.
 			assert drawn_row["phase"].lstrip("> !") == app.phase_cell(
 				json_row["status"], json_row["phase"]).strip()
-			# W65: the marker states one canonical fact — open Work
-			# with no active claimant — independently of elapsed time,
-			# of whether it was ever passed, and of readiness. There is
-			# no `!` escalation on either surface any more.
-			unclaimed = (json_row.get("claimed_at") is None
-			             and json_row.get("status") != "closed")
-			if unclaimed:
-				assert drawn_row["phase"].startswith(">"), \
-					(drawn_row["phase"], json_row.get("pickup"))
-			else:
-				assert not drawn_row["phase"].startswith((">", "!")), \
-					(drawn_row["phase"], json_row.get("pickup"))
+			assert not drawn_row["phase"].startswith((">", "!")), \
+				(drawn_row["phase"], json_row.get("pickup"))
 			assert "!" not in drawn_row["phase"], \
 				(drawn_row["phase"], json_row.get("pickup"))
 			assert drawn_row["classification"] == \
@@ -190,9 +189,9 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			assert drawn_row["next"] == expected_next
 			# W245: the claimant column is the one that must read `-`
 			# when nobody holds the Work — the whole point of the split.
-			expected_current = (json_row["current"] or {}).get("participant")
-			assert drawn_row["current"] == expected_current, \
-				f"TUI Current {drawn_row['current']!r} disagrees with " \
+			expected_current = (json_row["handler"] or {}).get("participant")
+			assert drawn_row["handler"] == expected_current, \
+				f"TUI Handler {drawn_row['handler']!r} disagrees with " \
 				f"JSON {expected_current!r} on {json_row['title']!r}"
 			assert drawn_row["new"] == json_row["new"], \
 				f"{viewer} New disagrees on {json_row['title']!r}: " \
@@ -267,7 +266,14 @@ def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
 	from baton_work import transitions as tr
 	database = os.path.join(os.path.dirname(path), "work.sqlite3")
 	with bw.Authority(database) as store:
-		tr.set_phase(store, cast["pushcoin"], actor_team="push", actor="sl",
+		# W38 R1: park a LEAF. Work with open children is `waiting`,
+		# and waiting leaves only through its condition-bound wake.
+		leaf = tr.create_work(store, team="push", kind="bug",
+		                      title="parkable leaf",
+		                      origin="self-initiated",
+		                      classification="suspected-defect",
+		                      author="sl", body="b")["work_id"]
+		tr.set_phase(store, leaf, actor_team="push", actor="sl",
 		             phase="parked", reason="parity checkpoint")
 	try:
 		home = _json(capsys, path, "home", viewer="push.sl")
@@ -277,7 +283,7 @@ def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
 			f"TUI header {screen[0]!r} disagrees with the JSON summary"
 	finally:
 		with bw.Authority(database) as store:
-			tr.set_phase(store, cast["pushcoin"], actor_team="push",
+			tr.set_phase(store, leaf, actor_team="push",
 			             actor="sl", phase="queued")
 
 

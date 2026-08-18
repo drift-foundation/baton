@@ -101,10 +101,6 @@ def test_either_outcome_ends_the_gate_and_mutates_no_consumer(world):
 		                  actor_team="push", actor="sl", rationale="test dependency")
 		tr.classify(store, consumer, actor_team="push", actor="sl",
 		            classification="suspected-defect")
-		tr.set_phase(store, consumer, actor_team="push", actor="sl",
-		             phase="waiting", wait="gates")
-		tr.set_phase(store, holder, actor_team="push", actor="sl",
-		             phase="waiting", wait="gates")
 
 		closing = tr.close_work(store, provider, actor_team="lang",
 		                        actor="ada", rationale="terminal",

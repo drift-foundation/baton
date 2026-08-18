@@ -80,16 +80,16 @@ def test_a_routed_handoff_awaiting_pickup_projects_no_current(store):
 	work = _create(store)
 	view = _view(store, work)
 	assert view["route"]["endpoint"] == "lang.bug"
-	assert view["current"] is None, \
+	assert view["handler"] is None, \
 		"unclaimed Work projected a current participant"
 
 
 def test_only_a_successful_claim_populates_current(store):
 	work = _create(store)
-	assert _view(store, work)["current"] is None
+	assert _view(store, work)["handler"] is None
 	tr.claim_work(store, work, actor_team="lang", actor="bee")
 	view = _view(store, work)
-	assert view["current"] == {"team": "lang", "member": "bee",
+	assert view["handler"] == {"team": "lang", "member": "bee",
 	                           "participant": "lang.bee"}
 	# eligibility is untouched by who happened to win it
 	assert view["route"]["endpoint"] == "lang.bug"
@@ -102,7 +102,7 @@ def test_release_clears_current_and_leaves_the_route_alone(store):
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
 	                 expect="lang.ada", reason="handing back")
 	view = _view(store, work)
-	assert view["current"] is None
+	assert view["handler"] is None
 	assert view["route"]["endpoint"] == "lang.bug", \
 		"releasing a claim rerouted the Work"
 
@@ -116,8 +116,8 @@ def test_a_pass_moves_route_and_leaves_the_recipient_unclaimed(store):
 	             to="lang.rev", comment="over to review")
 	view = _view(store, work)
 	assert view["route"]["endpoint"] == "lang.rev"
-	assert view["phase"] == "review"
-	assert view["current"] is None, \
+	assert view["phase"] == "queued"
+	assert view["handler"] is None, \
 		"the pass claimed the Work for its recipient"
 
 
@@ -126,7 +126,7 @@ def test_parking_leaves_no_current(store):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="parked", reason="later")
-	assert _view(store, work)["current"] is None, \
+	assert _view(store, work)["handler"] is None, \
 		"parked Work still names an executing participant"
 
 
@@ -142,9 +142,7 @@ def test_waiting_on_gates_leaves_no_current(store):
 	second = _create(store, title="gate two")
 	tr.add_dependency(store, work, second, actor_team="lang",
 	                  actor="ada", rationale="live gate")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
-	assert _view(store, work)["current"] is None, \
+	assert _view(store, work)["handler"] is None, \
 		"waiting Work still names an executing participant"
 
 
@@ -157,7 +155,7 @@ def test_blocked_work_keeps_its_route_and_names_no_current(store):
 	assert view["ready"] is False
 	assert view["route"]["endpoint"] == "lang.bug", \
 		"a dependency rewrote the route"
-	assert view["current"] is None
+	assert view["handler"] is None
 
 
 def test_a_terminal_close_names_no_current(store):
@@ -167,7 +165,7 @@ def test_a_terminal_close_names_no_current(store):
 	              rationale="done", outcome="satisfying")
 	view = _view(store, work)
 	assert view["status"] == "closed"
-	assert view["current"] is None, "closed Work still named an executor"
+	assert view["handler"] is None, "closed Work still named an executor"
 
 
 # -- authorization still resolves from the route ----------------------------
@@ -185,7 +183,7 @@ def test_authorization_resolves_from_route_not_from_the_claimant(store):
 	# and a non-handler is refused for a different reason entirely
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
 	                 expect="lang.ada", reason="free it")
-	assert _view(store, work)["current"] is None
+	assert _view(store, work)["handler"] is None
 
 
 def test_a_claim_race_produces_exactly_one_current(store):
@@ -195,7 +193,7 @@ def test_a_claim_race_produces_exactly_one_current(store):
 	with pytest.raises(bw.WorkError):
 		tr.claim_work(store, work, actor_team="lang", actor="bee")
 	assert store.last_seq() == before, "the losing claim burned an event"
-	assert _view(store, work)["current"]["member"] == "ada"
+	assert _view(store, work)["handler"]["member"] == "ada"
 
 
 # -- no alias survives ------------------------------------------------------
@@ -217,10 +215,10 @@ def test_a_pinned_older_projection_refuses_rather_than_misreading(store):
 	a 7.x consumer would take an endpoint struct for a claimant and be
 	confidently wrong. The major bump makes that refuse instead."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "8.0"
-	jsonapi.require_version("8.0")
+	assert jsonapi.PROJECTION_VERSION == "9.0"
+	jsonapi.require_version("9.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
-		jsonapi.require_version("7.0")
+		jsonapi.require_version("8.0")
 
 
 def test_a_stale_consumer_cannot_read_route_membership_as_execution(store):
@@ -230,7 +228,7 @@ def test_a_stale_consumer_cannot_read_route_membership_as_execution(store):
 	work = _create(store)
 	view = _view(store, work)
 	eligible = "ada" in (view["route"]["handlers"] or ())
-	executing = view["current"] is not None
+	executing = view["handler"] is not None
 	assert eligible and not executing, \
 		"eligibility and execution are no longer distinguishable"
 
@@ -241,10 +239,10 @@ def test_storage_names_the_two_facts_separately(store):
 	work = _create(store)
 	tr.claim_work(store, work, actor_team="lang", actor="bee")
 	row = store.conn.execute(
-		"SELECT route_team, route_kind, current_team, current_member "
+		"SELECT route_team, route_kind, handler_team, handler_member "
 		"FROM work WHERE id=?", (work,)).fetchone()
 	assert (row["route_team"], row["route_kind"]) == ("lang", "bug")
-	assert (row["current_team"], row["current_member"]) == ("lang", "bee")
+	assert (row["handler_team"], row["handler_member"]) == ("lang", "bee")
 
 
 def test_close_evidence_records_the_route_it_closed_from(store):
@@ -280,7 +278,7 @@ def test_the_split_survives_a_restart(store):
 	with bw.Authority(database) as reopened:
 		view = pj.detail(reopened, work, viewer_team="lang",
 		                 viewer_member="ada")
-		assert view["current"] == {"team": "lang", "member": "bee",
+		assert view["handler"] == {"team": "lang", "member": "bee",
 		                           "participant": "lang.bee"}
 		assert view["route"]["endpoint"] == "lang.bug"
 
@@ -301,9 +299,9 @@ def test_current_filter_can_name_a_claimant_retired_by_a_later_config(store):
 	lc.accept_config(store.test_config_path, actor="lang.ada")
 
 	view = _view(store, work)
-	assert view["current"]["participant"] == "lang.bee"
+	assert view["handler"]["participant"] == "lang.bee"
 	filtered = pj.home(store, viewer_team="lang", viewer_member="ada",
-	                   work_filter={"current": "lang.bee"})
+	                   work_filter={"handler": "lang.bee"})
 	assert [row["id"] for row in filtered["rows"]] == [work]
 
 

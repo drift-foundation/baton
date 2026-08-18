@@ -58,8 +58,8 @@ def test_the_live_timer_render_loop_drains_the_blink(world):
 	def flip_phase():
 		store = bw.Authority(world["database"])
 		try:
-			tr.set_phase(store, world["work"], actor_team="lang",
-			             actor="ada", phase="active")
+			tr.claim_work(store, world["work"], actor_team="lang",
+			             actor="ada")
 		finally:
 			store.close()
 
@@ -96,8 +96,8 @@ def test_search_windows_share_the_countdown_boundary(world):
 	console = Console(store, "lang", "ada",
 	                  config_path=world["config"])
 	console.rows()                          # cold baseline
-	tr.set_phase(store, world["work"], actor_team="lang",
-	             actor="ada", phase="active")
+	tr.claim_work(store, world["work"], actor_team="lang",
+	             actor="ada")
 	console.schedule_refresh()
 	console.rows()                          # observe: arms 3
 	assert console.phase_blink[world["work"]] == 3

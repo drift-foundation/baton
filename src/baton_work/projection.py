@@ -148,9 +148,9 @@ def _my_pending(store: Authority, work_id: str, viewer_team: str,
 # value per field. No comma syntax, negation, comparison, or OR
 # language; compact TUI display spellings are refused as input.
 # W245: `route` and `current` are DIFFERENT questions and both are
-# filterable. route=me means "I am eligible to claim this"; current=me
+# filterable. route=me means "I am eligible to claim this"; handler=me
 # means "I hold the claim". Conflating them is what this finding fixes.
-FILTER_FIELDS = ("team", "status", "phase", "route", "current", "category",
+FILTER_FIELDS = ("team", "status", "phase", "route", "handler", "category",
                  "ready", "new", "priority")
 
 
@@ -183,11 +183,11 @@ def normalize_filter(store: Authority, active, viewer_team: str):
 			raise WorkError(
 				f"filter route={active['route']!r} is neither a "
 				f"configured TEAM.KIND endpoint nor me")
-	if "current" in active and active["current"] != "me":
+	if "handler" in active and active["handler"] != "me":
 		# W245: current is a PARTICIPANT, so an endpoint spelling here
 		# is the exact stale-consumer mistake this finding removes —
 		# refuse it by name rather than silently matching nothing.
-		team, dot, member = active["current"].partition(".")
+		team, dot, member = active["handler"].partition(".")
 		# W245 R1: EVER known, not currently live. A later accepted
 		# generation may retire a member while the claim they hold is
 		# preserved by ruling — so the authority can truthfully project
@@ -203,11 +203,12 @@ def normalize_filter(store: Authority, active, viewer_team: str):
 				(team, member)).fetchone()
 			if endpoint:
 				raise WorkError(
-					f"filter current={active['current']!r} is a TEAM.KIND "
-					f"endpoint; current is the exact claiming PARTICIPANT "
-					f"— filter eligibility with route= instead")
+					f"filter handler={active['handler']!r} is a TEAM.KIND "
+					f"endpoint; the handler is the exact claiming "
+					f"PARTICIPANT — filter eligibility with route= "
+					f"instead")
 			raise WorkError(
-				f"filter current={active['current']!r} is neither a "
+				f"filter handler={active['handler']!r} is neither a "
 				f"configured TEAM.MEMBER participant nor me")
 	return {field: active[field] for field in FILTER_FIELDS
 	        if field in active}
@@ -217,7 +218,7 @@ def _filter_matches(row: dict, active: dict, viewer_team: str,
                     viewer_member: str) -> bool:
 	"""One row against the normalized filter — canonical projected
 	values only (`route=me` = the viewer is one of the endpoint's
-	resolved handlers; `current=me` = the viewer HOLDS the claim;
+	resolved handlers; `handler=me` = the viewer HOLDS the claim;
 	`new=true` = the viewer's personal New count is nonzero)."""
 	for field, value in active.items():
 		if field == "team" and row["team"] != value:
@@ -235,15 +236,15 @@ def _filter_matches(row: dict, active: dict, viewer_team: str,
 					return False
 			elif not route or route["endpoint"] != value:
 				return False
-		if field == "current":
-			# W245: the EXACT claimant, so unclaimed Work matches
+		if field == "handler":
+			# W245/W38: the EXACT claimant, so unclaimed Work matches
 			# nothing here however eligible the viewer may be.
-			current = row["current"]
+			handler = row["handler"]
 			if value == "me":
-				if not (current and current["team"] == viewer_team
-				        and current["member"] == viewer_member):
+				if not (handler and handler["team"] == viewer_team
+				        and handler["member"] == viewer_member):
 					return False
-			elif not current or current["participant"] != value:
+			elif not handler or handler["participant"] != value:
 				return False
 		if field == "category" and row["classification"] != value:
 			return False
@@ -307,7 +308,7 @@ def _handoffs(store: Authority, work_ids) -> dict:
 PICKUP_OVERDUE_SECONDS = 360
 
 
-def _pickup_state(current_team, handoff_at, now_iso, status="open",
+def _pickup_state(handler_team, handoff_at, now_iso, status="open",
                   ready=True, phase=None):
 	"""The structured pickup/claim state (W226): 'claimed' while an
 	active claimant exists, 'pending'/'overdue' for an unclaimed
@@ -326,7 +327,7 @@ def _pickup_state(current_team, handoff_at, now_iso, status="open",
 	separate structured facts that explain why it is not claimable."""
 	if status == "closed":
 		return None
-	if current_team is not None:
+	if handler_team is not None:
 		return "claimed"
 	if handoff_at is None:
 		return None
@@ -389,7 +390,7 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 	# W47 R2: the claim/heartbeat pair resolves EXACTLY once per row —
 	# window callers pass one batched map; a single-row caller batches
 	# its one id here, once, never per field.
-	if row["current_team"] is None:
+	if row["handler_team"] is None:
 		claim_fact = (None, None)
 	else:
 		if claimed_ats is None:
@@ -404,7 +405,7 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 	if now is None:
 		now = store.clock()
 	handoff_at = handoffs.get(row["id"])
-	pickup = _pickup_state(row["current_team"], handoff_at, now,
+	pickup = _pickup_state(row["handler_team"], handoff_at, now,
 	                       row["status"], ready=bool(row["ready"]),
 	                       phase=row["phase"])
 	return {
@@ -479,9 +480,9 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		# therefore no longer reads as somebody working, which is the
 		# live-trial failure this finding names. No `active` alias is
 		# kept: two names for one fact preserved the ambiguity.
-		"current": None if row["current_team"] is None else
-			{"team": row["current_team"], "member": row["current_member"],
-			 "participant": f"{row['current_team']}.{row['current_member']}"},
+		"handler": None if row["handler_team"] is None else
+			{"team": row["handler_team"], "member": row["handler_member"],
+			 "participant": f"{row['handler_team']}.{row['handler_member']}"},
 		# W33: when a current claimant exists, the timestamp its claim
 		# landed (the newest claim event) — canonical fact only; the
 		# changing age display is client-derived. Null while unclaimed,
@@ -733,11 +734,11 @@ def links(store: Authority, work_id: str) -> dict:
 		        "outcome": other["outcome"],
 		        "route": _endpoint_struct(store, other["route_team"],
 		                                  other["route_kind"]),
-		        "current": None if other["current_team"] is None else
-		            {"team": other["current_team"],
-		             "member": other["current_member"],
-		             "participant": f"{other['current_team']}."
-		                            f"{other['current_member']}"}}
+		        "handler": None if other["handler_team"] is None else
+		            {"team": other["handler_team"],
+		             "member": other["handler_member"],
+		             "participant": f"{other['handler_team']}."
+		                            f"{other['handler_member']}"}}
 
 	return {
 		"id": work_id,
@@ -1700,8 +1701,8 @@ def participant_actions(store: Authority, *, viewer_team: str,
 		for row in store.conn.execute(
 				"SELECT * FROM work WHERE status='open' "
 				"ORDER BY created_seq"):
-			if row["current_team"] is not None:
-				if (row["current_team"], row["current_member"]) != 						(viewer_team, viewer_member):
+			if row["handler_team"] is not None:
+				if (row["handler_team"], row["handler_member"]) != 						(viewer_team, viewer_member):
 					continue
 			else:
 				if not row["ready"] or 						row["phase"] in ("waiting", "parked"):
@@ -1728,7 +1729,7 @@ def participant_actions(store: Authority, *, viewer_team: str,
 				"local_id": row["id"].rsplit("-", 1)[1],
 				"title": row["title"],
 				"phase": row["phase"],
-				"claimed": row["current_team"] is not None})
+				"claimed": row["handler_team"] is not None})
 	return {"actions": actions, "snapshot_seq": snapshot_seq}
 
 
@@ -1984,19 +1985,19 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		# final authority; this is discovery, not a promise.
 		if handler and row["ready"] and \
 				row["phase"] not in ("waiting", "parked") and \
-				row["current_team"] is None:
+				row["handler_team"] is None:
 			available.append("claim")
 		# Recovery mirror: a resolved Route handler may release
 		# whoever holds the claim (self-release included); advertised
 		# only while a claimant exists. Writer stays final.
-		if handler and row["current_team"] is not None:
+		if handler and row["handler_team"] is not None:
 			available.append("release")
 		# W47 R1: the heartbeat is advertised EXACTLY for the recorded
 		# active claimant — stricter than the route-handler test; no
 		# teammate, other team, unclaimed, or closed row ever offers
 		# it (closure offers nothing at all above).
-		if row["current_team"] == viewer_team and \
-				row["current_member"] == viewer_member:
+		if row["handler_team"] == viewer_team and \
+				row["handler_member"] == viewer_member:
 			available.append("heartbeat")
 	view["available_transitions"] = sorted(available)
 	# W71: open_blockers is the ROW's own field (one computation, one

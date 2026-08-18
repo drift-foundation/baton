@@ -114,8 +114,6 @@ def test_correcting_the_last_gate_wakes_waiting_work_in_the_same_transaction(
 	blocker = _create(store, team="push", member="sl", title="mistaken gate")
 	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada",
 	                  rationale="suspected provider dependency")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
 
 	removed = tr.remove_dependency(
 		store, work, blocker, actor_team="lang", actor="ada",
@@ -149,8 +147,6 @@ def test_correcting_a_nonfinal_gate_leaves_waiting_work_asleep(world):
 	                  rationale="first gate")
 	tr.add_dependency(store, work, second, actor_team="lang", actor="ada",
 	                  rationale="second gate")
-	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait="gates")
 
 	tr.remove_dependency(store, work, first, actor_team="lang", actor="ada",
 	                     rationale="only the first edge was mistaken")

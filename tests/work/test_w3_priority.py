@@ -95,8 +95,6 @@ def test_prioritize_is_owning_team_authority(world):
 	# ada claims and moves the phase; GRACE (not the claimant, not
 	# necessarily the resolved handler) still holds priority authority
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
-	tr.set_phase(world["store"], work, actor_team="lang", actor="ada",
-	             phase="active")
 	result = tr.prioritize(world["store"], work, actor_team="lang",
 	                       actor="grace", priority="high")
 	assert row_of(world, work)["priority"] == "high"
@@ -155,7 +153,7 @@ def test_priority_never_touches_the_workflow_axes(world):
 	              priority="high")
 	after = row_of(world, work)
 	untouched = ("phase", "status", "ready", "route", "next",
-	             "current", "open_blockers", "open_dependents",
+	             "handler", "open_blockers", "open_dependents",
 	             "first_open_blocker", "claimed_at")
 	for field in untouched:
 		assert after[field] == before[field], field

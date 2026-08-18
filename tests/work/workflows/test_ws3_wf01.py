@@ -58,7 +58,7 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	assert waiting["phase"] == "waiting", waiting["phase"]
 	assert waiting["waiting_on"] == {"type": "obligation",
 	                                 "obligation": asked["seq"]}
-	assert waiting["current"] is None, "the blocking ask kept the claim"
+	assert waiting["handler"] is None, "the blocking ask kept the claim"
 	assert waiting["route"]["endpoint"] == "push.bug", \
 		"asking for input moved Current"
 
@@ -89,7 +89,12 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	# The consumer: woken on its named obligation, gated by the new edge,
 	# provenance visible, rationale in its thread.
 	consumer = flow.ok("detail", f"work={push1}", viewer="push.sl")
-	assert consumer["phase"] == "queued", "the obligation waiter slept on"
+	# W38 R3: answering the obligation does NOT make the consumer
+	# runnable — the acceptance created a dependency in the same
+	# transaction. The wait retargets to that gate rather than
+	# advertising work nothing can claim.
+	assert consumer["phase"] == "waiting", "the obligation waiter slept on"
+	assert consumer["waiting_on"]["type"] == "gates"
 	assert consumer["ready"] is False, "the new gate did not hold"
 	assert consumer["links"]["blocked_by"][0]["id"] == drift1
 	assert consumer["links"]["blocked_by"][0]["via_obligation"] == \

@@ -69,7 +69,7 @@ def _setup(store, claim_by="ada"):
 
 def _state(store, work):
 	view = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	return (view["revision"], view["route"]["endpoint"], view["current"],
+	return (view["revision"], view["route"]["endpoint"], view["handler"],
 	        view["phase"])
 
 

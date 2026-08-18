@@ -230,8 +230,12 @@ def assert_dense_audit(flow: Flow, viewer: str) -> list[dict]:
 
 
 def assert_final_invariants(flow: Flow, viewer: str, work_ids) -> list[dict]:
-	"""Discipline 7: ordered audit; every open Work has exactly one Current;
-	a terminal Work has neither Current nor Next."""
+	"""Discipline 7: ordered audit; every open Work has exactly one Route;
+	a terminal Work has neither Route nor Next.
+
+	W38: the HANDLER is nullable by design — unclaimed Work has none —
+	so it is deliberately not asserted here. What every open Work must
+	have is the endpoint responsible for it."""
 	events = assert_dense_audit(flow, viewer)
 	for work_id in work_ids:
 		detail = flow.ok("detail", f"work={work_id}", viewer=viewer)
@@ -239,9 +243,14 @@ def assert_final_invariants(flow: Flow, viewer: str, work_ids) -> list[dict]:
 			assert detail["route"] is not None and \
 				detail["route"]["endpoint"], \
 				f"open {work_id} has no Route endpoint"
+			assert (detail["phase"] == "active") == \
+				(detail["handler"] is not None), \
+				f"open {work_id} contradicts active-iff-handler"
 		else:
 			assert detail["route"] is None and detail["next"] is None, \
 				f"terminal {work_id} retains an endpoint"
+			assert detail["handler"] is None and detail["phase"] is None, \
+				f"terminal {work_id} retains a handler or phase"
 	return events
 
 

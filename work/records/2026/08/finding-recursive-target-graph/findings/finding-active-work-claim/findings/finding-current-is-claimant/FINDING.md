@@ -106,3 +106,19 @@ retains the useful `route=me` meaning; `current=` filters the exact claimant
 and `current=me` means “claimed by this viewer.” Events that currently say
 `was_current_kind` become route-named evidence. No compatibility aliases are
 kept in the fresh projection.
+
+## Naming superseded — 2026-08-18
+
+The route/claim distinction above remains authoritative, but the public name
+`current` for the exact claimant is superseded. Slawomir approved the clearer
+three-part vocabulary under the scheduler-state follow-up:
+
+- `route`: the endpoint responsible now and the set of members eligible to
+  claim;
+- `handler`: the one exact member who won the claim, or null while unclaimed;
+- `next`: the optional endpoint planned for the subsequent handoff.
+
+Route is not history. Past routing and prior handlers belong in Events. The
+claim operation establishes Handler; release/pass/gates/close clear it under
+the scheduler-state rules. See
+`../finding-phase-is-scheduler-state/FINDING.md`.

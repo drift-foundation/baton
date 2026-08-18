@@ -46,3 +46,24 @@ presentation only.
 - A heartbeat or its absence never changes the marker or Held duration.
 - JSON keeps claimant/readiness/phase facts structured and carries no glyph.
 - The MM:SS/overflow follow-up composes without changing these semantics.
+
+## Superseding presentation ruling — 2026-08-17
+
+**Confirmed by Slawomir.** The earlier ruling to render `>` for every open
+unclaimed Work is superseded. Projection 8 makes `Current` authoritative: a
+blank `Current` cell already states that nobody has claimed the Work. Repeating
+the same fact in `Phase` and `Held` adds noise and makes the operational stage
+harder to scan.
+
+- Remove the `>` prefix from both the Phase and Held cells.
+- Phase displays only the compact operational phase.
+- Held keeps its elapsed value: since `claimed_at` while claimed, since the
+  handoff while unclaimed, `-` when no timer origin exists, and `∞` at the
+  existing cap. `Current` disambiguates claimed from unclaimed.
+- Keep structured `current`, `claimed_at`, `handoff_at`, `pickup`, readiness,
+  waiting, and parking facts unchanged in JSON.
+- Do not restore the removed `!` timeout/heartbeat alarms.
+
+This supersedes only the `>` presentation. The earlier diagnosis that
+heartbeat silence is not failure, and that readiness/wait/park are independent
+facts, remains authoritative.

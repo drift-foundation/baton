@@ -35,10 +35,10 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 		               f"title={team} report",
 		               "origin=external-report", "classification=suspected-defect", "body=blocked on lang",
 		               viewer=f"{team}.{member}")["work_id"]
+		# W38 R1: the block itself commits waiting/gates — a separate
+		# phase act would refuse as redundant.
 		flow.ok("block", f"work={work}", f"on={lang42}",
 		        "rationale=shared provider required", viewer=f"{team}.{member}")
-		flow.ok("phase", f"work={work}", "to=waiting", "wait=gates",
-		        viewer=f"{team}.{member}")
 		consumers[team] = work
 	flow.ok("close", f"work={lang42}", "rationale=fixed and verified",
 	        "outcome=satisfying", viewer="lang.ada")
@@ -58,7 +58,7 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	for argv in (("say", f"thread={flow.born(lang42, 'lang.ada')}",
 	              "body=late evidence"),
 	             ("classify", f"work={lang42}", "as=duplicate"),
-	             ("phase", f"work={lang42}", "to=queued"),
+	             ("phase", f"work={lang42}", "to=parked", "reason=w38"),
 	             ("close", f"work={lang42}", "rationale=again",
 	              "outcome=satisfying"),
 	             ("block", f"work={lang42}", f"on={consumers['push']}",

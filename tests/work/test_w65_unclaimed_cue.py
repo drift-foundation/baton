@@ -7,11 +7,18 @@ claim — yet the pickup projection went on aging the old handoff and
 escalating, even though authority rules made a new claim impossible.
 
 The ruling: the operational signal is whether open Work has a
-claimant, because unclaimed means nobody is executing it. `>` states
-that fact independently of elapsed time; readiness, wait and park are
-separate structured facts explaining why unclaimed Work may not be
-claimable. Both six-minute `!` escalations are gone — a claimed agent
-can be alive and busy inside one model turn with no chance to beat.
+claimant, because unclaimed means nobody is executing it. Readiness,
+wait and park are separate structured facts explaining why unclaimed
+Work may not be claimable. Both six-minute `!` escalations are gone — a
+claimed agent can be alive and busy inside one model turn with no
+chance to beat.
+
+W65 stated the claimant fact with a `>` marker in Phase and Held. W15
+SUPERSEDED that: projection 8 makes `Current` the exact claimant and
+blank when unclaimed, so the marker was a second spelling of something
+already on the row. The matrix below now proves the marker is ABSENT in
+every state, and the released case asserts the `current` fact that
+replaced it. Everything else in the W65 ruling stands.
 """
 
 from __future__ import annotations
@@ -32,7 +39,7 @@ import baton_work as bw                                       # noqa: E402
 from baton_work import lifecycle as lc                        # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
-from baton_work.tui.app import held_field, pickup_prefix      # noqa: E402
+from baton_work.tui.app import held_field                    # noqa: E402
 import fixtures as fx                                         # noqa: E402
 
 SIX_MINUTES = 360
@@ -79,17 +86,19 @@ def epoch(ts):
 		ts.replace("Z", "+00:00").replace(" ", "T")).timestamp()
 
 
-def test_every_open_unclaimed_state_carries_the_marker(world):
-	"""The full ruled matrix. Each row proves the marker from its OWN
-	state, not from how long it has been in it."""
+def test_no_open_state_carries_a_marker_any_more(world):
+	"""W15 superseded W65's `>` presentation: projection 8 makes
+	`Current` the exact claimant, blank when unclaimed, so the row
+	already states the fact. The same ruled matrix now proves the
+	marker is GONE from Held — and, through the parity suite, from
+	Phase — while every timer origin is unchanged."""
 	store = world["store"]
 	now = epoch("2026-08-17T12:00:00Z")
 
 	# ready / unclaimed / never passed — no timer origin, still unclaimed
 	fresh = row_of(world, make(world, "ready"))
-	assert pickup_prefix(fresh, now) == ">"
-	assert held_field(fresh, now) == ">-", \
-		"a born unclaimed Work hid the fact behind a missing timer"
+	assert held_field(fresh, now) == "-", \
+		"a born unclaimed Work still renders a marker"
 
 	# passed / unclaimed
 	passed_id = make(world, "passed")
@@ -97,8 +106,8 @@ def test_every_open_unclaimed_state_carries_the_marker(world):
 	             to="rev.bug", comment="over")
 	passed = row_of(world, passed_id)
 	handed = epoch(passed["handoff_at"])
-	assert pickup_prefix(passed, handed + 5) == ">"
-	assert held_field(passed, handed + 5) == ">00:05"
+	assert held_field(passed, handed + 5) == "00:05", \
+		"the handoff timer origin changed with the marker"
 
 	# blocked / unclaimed — the exact W2 shape
 	blocked_id = make(world, "blocked")
@@ -109,8 +118,8 @@ def test_every_open_unclaimed_state_carries_the_marker(world):
 	                  actor="bee", rationale="test dependency")
 	blocked = row_of(world, blocked_id)
 	assert blocked["ready"] is False
-	assert pickup_prefix(blocked, now) == ">", \
-		"dependency-blocked Work stopped stating that it is unclaimed"
+	assert ">" not in held_field(blocked, now), \
+		"dependency-blocked Work still carries the retired marker"
 
 	# waiting and parked stay unclaimed too
 	waiting_id = make(world, "waiting")
@@ -119,41 +128,42 @@ def test_every_open_unclaimed_state_carries_the_marker(world):
 	             to="rev.bug", comment="over")
 	tr.add_dependency(store, waiting_id, waiting_blocker,
 	                  actor_team="rev", actor="bee", rationale="test dependency")
-	tr.set_phase(store, waiting_id, actor_team="rev", actor="bee",
-	             phase="waiting", wait="gates")
 	waiting = row_of(world, waiting_id)
 	assert waiting["phase"] == "waiting" and waiting["ready"] is False
-	assert pickup_prefix(waiting, now) == ">"
+	assert ">" not in held_field(waiting, now)
 	assert waiting["pickup"] == "pending", \
 		"waiting Work with a real handoff claimed an overdue pickup"
 	parked_id = make(world, "parked")
 	tr.set_phase(store, parked_id, actor_team="lang", actor="ada",
 	             phase="parked", reason="later")
-	assert pickup_prefix(row_of(world, parked_id), now) == ">"
+	assert ">" not in held_field(row_of(world, parked_id), now)
 
 	# claimed loses the marker; released regains it
 	claimed_id = make(world, "claimed")
 	tr.claim_work(store, claimed_id, actor_team="lang", actor="ada")
 	claimed = row_of(world, claimed_id)
-	assert pickup_prefix(claimed, now) == " "
-	assert held_field(claimed, epoch(claimed["claimed_at"]) + 5) == "00:05 "
+	# claimed and unclaimed now render the SAME shape; `Current` is what
+	# tells them apart, which is the whole point of the supersession.
+	assert held_field(claimed, epoch(claimed["claimed_at"]) + 5) == "00:05"
 	tr.release_claim(store, claimed_id, actor_team="lang", actor="ada",
 	                 expect="lang.ada", reason="cycling")
-	assert pickup_prefix(row_of(world, claimed_id), now) == ">", \
-		"a released claim did not restore the unclaimed marker"
+	released = row_of(world, claimed_id)
+	assert released["handler"] is None, \
+		"the claimant fact that now carries the cue is missing"
+	assert ">" not in held_field(released, now)
 
 	# terminal Work has no execution claim and no marker
 	done = make(world, "done")
 	tr.close_work(store, done, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	closed = row_of(world, done)
-	assert pickup_prefix(closed, now) == " "
 	assert held_field(closed, now) == "-"
 
 
 def test_crossing_six_minutes_changes_nothing(world):
-	"""The escalation is gone in BOTH directions: an unclaimed row keeps
-	its plain marker, and a claimed row keeps its blank suffix."""
+	"""W65's conclusion, which W15 did NOT supersede: the six-minute
+	escalation stays gone in both directions. Only the marker changed;
+	silence still never becomes an alert."""
 	store = world["store"]
 	work = make(world)
 	tr.pass_work(store, work, actor_team="lang", actor="ada",
@@ -161,16 +171,15 @@ def test_crossing_six_minutes_changes_nothing(world):
 	row = row_of(world, work)
 	handed = epoch(row["handoff_at"])
 	for offset in (0, SIX_MINUTES - 1, SIX_MINUTES, SIX_MINUTES * 100):
-		assert pickup_prefix(row, handed + offset) == ">", \
-			f"the unclaimed marker changed at +{offset}s"
-		assert "!" not in held_field(row, handed + offset), \
-			f"an alert appeared at +{offset}s"
+		cell = held_field(row, handed + offset)
+		assert "!" not in cell and ">" not in cell, \
+			f"a marker or alert appeared at +{offset}s: {cell!r}"
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	held = row_of(world, work)
 	claimed = epoch(held["claimed_at"])
 	for offset in (0, SIX_MINUTES - 1, SIX_MINUTES, SIX_MINUTES * 100):
 		cell = held_field(held, claimed + offset)
-		assert cell.endswith(" ") and "!" not in cell, \
+		assert "!" not in cell and ">" not in cell, \
 			f"a claimed row alerted at +{offset}s: {cell!r}"
 
 
@@ -222,7 +231,7 @@ def test_json_carries_facts_and_no_glyph(world):
 	blob = _json.dumps(row)
 	assert ">" not in blob and "!" not in blob, \
 		"a display glyph reached canonical JSON"
-	for field in ("pickup", "handoff_at", "ready", "phase", "current"):
+	for field in ("pickup", "handoff_at", "ready", "phase", "handler"):
 		assert field in row, f"{field} stopped being a structured fact"
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	tr.heartbeat(store, work, actor_team="rev", actor="bee")

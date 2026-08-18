@@ -35,10 +35,10 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	flow.ok("block", f"work={push1}", f"on={lang42}",
 	        "rationale=compiler defect gates push", viewer="push.sl")
 
-	# 1. Research first, then the EXPLICIT move to active — candidate
-	# driftc-A is cut from active work, not from research.
-	flow.ok("phase", f"work={lang42}", "to=research", viewer="lang.ada")
-	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
+	# 1. W38: a trial is opened on Work somebody is executing, so the
+	# reviewer CLAIMS it — there is no separate research-to-active stage
+	# move any more, and the candidate is cut from claimed work.
+	flow.ok("claim", f"work={lang42}", viewer="lang.ada")
 	first = flow.ok("try", f"work={lang42}", "candidate=driftc-A",
 	                "assign=push.verify", "assign=web.verify",
 	                viewer="lang.ada")
@@ -46,25 +46,23 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	# 2. The candidate is STAGED for review before any feedback exists; the
 	# failed report and its acceptance land while the Work is IN review —
 	# and neither transitions anything.
-	flow.ok("phase", f"work={lang42}", "to=review", viewer="lang.ada")
 	flow.ok("report", f"obligation={first["assignments"][0]}",
 	        "observation=failed", "evidence=checkout still 500s",
 	        viewer="push.sl")
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
-		"review", "a raw report transitioned the provider's phase"
+		"active", "a raw report transitioned the provider's phase"
 	flow.ok("assess", f"obligation={first["assignments"][0]}", "as=accepted",
 	        "rationale=genuine regression in the candidate",
 	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
-		"review", "an assessment transitioned the provider's phase"
+		"active", "an assessment transitioned the provider's phase"
 
 	# 3. LANG-42 is still open and the dependency still unsatisfied.
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["status"] == "open"
 	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is False
 
-	# 4. Lang EXPLICITLY resumes rework — the cyclic open-phase model:
-	# review -> active is the reviewer's decision, never the feedback's.
-	flow.ok("phase", f"work={lang42}", "to=active", viewer="lang.ada")
+	# 4. W38: there is no review->active stage cycle to resume. The
+	# reviewer simply keeps the claim; feedback never moves it.
 
 	# 5. Different candidate driftc-B: trial 2, its counter starts empty —
 	# candidate identity is immutable inside trial 1, and trial 1's report
@@ -88,20 +86,19 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	assert [event["payload"]["endpoint"] for event in withdrawals] == \
 		["web.verify"]
 
-	# 7. The replacement is staged for review; the successful feedback
-	# lands while IN review, transitions nothing, and only the EXPLICIT
-	# close ends the provider gate.
-	flow.ok("phase", f"work={lang42}", "to=review", viewer="lang.ada")
+	# 7. The successful feedback lands while the reviewer still holds
+	# the claim, transitions nothing, and only the EXPLICIT close ends
+	# the provider gate.
 	flow.ok("report", f"obligation={second["assignments"][0]}",
 	        "observation=passed", "evidence=checkout clean",
 	        viewer="push.sl")
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
-		"review", "a passing report transitioned the provider's phase"
+		"active", "a passing report transitioned the provider's phase"
 	flow.ok("assess", f"obligation={second["assignments"][0]}", "as=accepted",
 	        "rationale=fix verified on the replacement",
 	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["phase"] == \
-		"review", "an assessment transitioned the provider's phase"
+		"active", "an assessment transitioned the provider's phase"
 	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is False, \
 		"a report or assessment ended the provider gate"
 	flow.ok("close", f"work={lang42}",
@@ -115,7 +112,7 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	story = [(event["kind"], event["payload"]) for event in
 	         flow.ok("events", viewer="lang.ada")
 	         if event["payload"].get("work") == lang42 and
-	         event["kind"] in ("set_phase", "create_trial", "report",
+	         event["kind"] in ("claim", "create_trial", "report",
 	                           "assess", "withdraw", "close_work")]
 	trail = [(kind,
 	          f"{payload['from']}->{payload['to']}"
@@ -123,17 +120,17 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	          payload.get("candidate") or payload.get("assessment") or
 	          payload.get("endpoint") or "")
 	         for kind, payload in story]
+	# W38: the stage moves that used to punctuate this story are gone.
+	# The reviewer claims once and holds it; trials, reports and
+	# assessments interleave without transitioning anything, which is
+	# the property this trail exists to pin.
 	assert trail == [
-		("set_phase", "queued->research"),
-		("set_phase", "research->active"),
+		("claim", ""),
 		("create_trial", "driftc-A"),
-		("set_phase", "active->review"),
 		("report", "driftc-A"),
 		("assess", "accepted"),
-		("set_phase", "review->active"),
 		("create_trial", "driftc-B"),
 		("withdraw", "web.verify"),
-		("set_phase", "active->review"),
 		("report", "driftc-B"),
 		("assess", "accepted"),
 		("close_work", ""),

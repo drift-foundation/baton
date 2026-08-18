@@ -40,3 +40,17 @@ a protected user contract.
 4. The v11 operator documentation advertises cursor-key parity without adding
    a second set of semantics.
 
+## Regression found in live trial — 2026-08-18
+
+The earlier conclusion that no implementation gap existed is **superseded for
+real terminals**. Slawomir reported that cursor keys do not move in the
+deployed v11 TUI. The handlers do accept synthetic `curses.KEY_UP`,
+`KEY_DOWN`, `KEY_LEFT`, and `KEY_RIGHT` values, which is why the focused model
+tests passed, but `baton_work.tui.app.run()` never enables keypad translation
+on its curses screen. The acceptance evidence therefore proved dispatch after
+translation, not that a terminal escape sequence reaches that dispatch.
+
+The child finding
+`findings/finding-real-terminal-cursor-key-decoding/FINDING.md` owns the
+correction and the missing packaged-PTY evidence. The cursor/vi parity ruling
+itself is unchanged.

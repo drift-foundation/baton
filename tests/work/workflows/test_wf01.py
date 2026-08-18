@@ -43,10 +43,10 @@ def test_wf01_straight_through_report(flow):
 	# WS-1: research classifies the report and moves into research phase —
 	# two EXPLICIT audited operations by the Route's handler.
 	flow.ok("classify", f"work={work}", "as=confirmed-defect", viewer="lang.ada")
-	flow.ok("phase", f"work={work}", "to=research", viewer="lang.ada")
+	flow.ok("phase", f"work={work}", "to=parked", "reason=deferring", viewer="lang.ada")
 	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
 	assert checkpoint["classification"] == "confirmed-defect"
-	assert checkpoint["phase"] == "research"
+	assert checkpoint["phase"] == "parked"
 	assert checkpoint["origin"] == "external-report", \
 		"classification changed origin"
 
@@ -61,12 +61,13 @@ def test_wf01_straight_through_report(flow):
 	assert checkpoint["next"]["endpoint"] == "lang.rev", \
 		"the planned return is not visible while unconsumed"
 	assert checkpoint["origin"] == "external-report"
-	assert checkpoint["phase"] == "active", \
+	assert checkpoint["phase"] == "queued", \
 		"the pass did not record its destination phase atomically"
-	# Transition authority FOLLOWED the baton: ada (no longer a Current
-	# handler) is refused; grace CLAIMS the work — the phase-orthogonal
-	# atomic claim, phase already honest from the handoff.
-	error = flow.refuse("phase", f"work={work}", "to=review", viewer="lang.ada")
+	# Transition authority FOLLOWED the baton: ada (no longer a Route
+	# handler) is refused; grace CLAIMS the work, and W38 makes that
+	# claim the thing that turns it active.
+	error = flow.refuse("phase", f"work={work}", "to=parked",
+	                    "reason=not mine", viewer="lang.ada")
 	assert "never grant" in error
 	flow.ok("claim", f"work={work}", viewer="lang.grace")
 
@@ -81,13 +82,13 @@ def test_wf01_straight_through_report(flow):
 	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.grace")
 	assert checkpoint["route"]["endpoint"] == "lang.rev"
 	assert checkpoint["next"] is None, "the consumed Next is still set"
-	assert checkpoint["phase"] == "review", \
+	assert checkpoint["phase"] == "queued", \
 		"the return did not record its destination phase (and release)"
 
 	# 4. one honest review → active → review REWORK cycle: ordinary open
 	# phases move freely and never touch the claim.
-	flow.ok("phase", f"work={work}", "to=active", viewer="lang.ada")
-	flow.ok("phase", f"work={work}", "to=review", viewer="lang.ada")
+	flow.ok("claim", f"work={work}", viewer="lang.ada")
+	flow.ok("phase", f"work={work}", "to=queued", viewer="lang.ada")
 
 	# Review records verification and closes terminally.
 	flow.ok("close", f"work={work}", "rationale=fixed and verified", "outcome=satisfying",
@@ -101,7 +102,7 @@ def test_wf01_straight_through_report(flow):
 	events = assert_final_invariants(flow, "lang.ada", [work])
 	assert [event["kind"] for event in events] == \
 		["accept_config", "create_work", "classify", "set_phase", "pass",
-		 "claim", "post_message", "return", "set_phase", "set_phase",
+		 "claim", "post_message", "return", "claim", "set_phase",
 		 "close_work"]
 	classified = events[2]
 	assert (classified["payload"]["from"],
@@ -109,8 +110,11 @@ def test_wf01_straight_through_report(flow):
 	assert classified["payload"]["resolution"]["handlers"] == ["ada"]
 	phase_trail = [(event["payload"]["from"], event["payload"]["to"])
 	               for event in events if event["kind"] == "set_phase"]
-	assert phase_trail == [("queued", "research"), ("review", "active"),
-	                       ("active", "review")]
+	# W38: the only explicit phase acts left in this story are the park
+	# and the resume that follows it.
+	# W38: the park and its resume, then the release the reviewer's own
+	# queued move performs after claiming.
+	assert phase_trail == [("queued", "parked"), ("active", "queued")]
 	created, handoff = events[1], events[4]
 	consumed, closing = events[7], events[10]
 	assert created["payload"]["resolution"] == {

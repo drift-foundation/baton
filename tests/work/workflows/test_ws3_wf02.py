@@ -62,7 +62,7 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 		                    viewer=f"{name}.{member}")
 		assert suspended["phase"] == "waiting"
 		assert suspended["waiting_on"]["obligation"] == asked["seq"]
-		assert suspended["current"] is None
+		assert suspended["handler"] is None
 		consumers[name], questions[name] = work, asked["seq"]
 
 	# The first acceptance creates DRIFT-1; the other two converge into it.
@@ -85,7 +85,11 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 	for name, member in MEMBERS.items():
 		checkpoint = flow.ok("detail", f"work={consumers[name]}",
 		                     viewer=f"{name}.{member}")
-		assert checkpoint["phase"] == "queued", f"{name} slept on"
+		# W38 R3: each acceptance gated its consumer on the shared
+		# provider, so the obligation wait retargets onto that gate
+		# instead of advertising the consumer as runnable.
+		assert checkpoint["phase"] == "waiting", f"{name} slept on"
+		assert checkpoint["waiting_on"]["type"] == "gates"
 		assert checkpoint["ready"] is False
 		assert checkpoint["links"]["blocked_by"][0]["via_obligation"] == \
 			questions[name]
