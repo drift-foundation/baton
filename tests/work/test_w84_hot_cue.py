@@ -104,7 +104,7 @@ def test_hot_zone_state_matrix(world):
 	                  actor="ada", rationale="test dependency")
 	blocked = row_of(store, work)
 	# W38 R1: a gate on unclaimed queued Work commits waiting.
-	assert not blocked["ready"] and blocked["phase"] == "waiting"
+	assert not blocked["ready"] and blocked["phase"] == "block"
 	assert not hot_work(blocked)
 	# the blocker itself: open queued unclaimed — cold
 	assert not hot_work(row_of(store, blocker))

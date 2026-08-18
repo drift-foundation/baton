@@ -10,14 +10,16 @@ async function readGenerated(schemaDir, relativePath) {
 }
 
 export async function verifySchemaCompatibility(schemaDir) {
-  const [requests, notifications, inputs, statuses] = await Promise.all([
+  const [requests, notifications, inputs, statuses, threadStart, threadResume] = await Promise.all([
     readGenerated(schemaDir, "ClientRequest.ts"),
     readGenerated(schemaDir, "ServerNotification.ts"),
     readGenerated(schemaDir, "v2/UserInput.ts"),
     readGenerated(schemaDir, "v2/ThreadStatus.ts"),
+    readGenerated(schemaDir, "v2/ThreadStartParams.ts"),
+    readGenerated(schemaDir, "v2/ThreadResumeParams.ts"),
   ]);
   const missing = [];
-  for (const method of ["initialize", "thread/resume", "thread/read", "turn/start"]) {
+  for (const method of ["initialize", "thread/start", "thread/resume", "thread/read", "turn/start"]) {
     if (!requests.includes(`\"method\": \"${method}\"`)) missing.push(`request ${method}`);
   }
   for (const method of ["thread/status/changed", "turn/started", "turn/completed", "item/started", "item/completed"]) {
@@ -27,6 +29,8 @@ export async function verifySchemaCompatibility(schemaDir) {
   if (!statuses.includes('{ \"type\": \"idle\" }') || !statuses.includes('{ \"type\": \"active\"')) {
     missing.push("idle/active thread status variants");
   }
+  if (!threadStart.includes("developerInstructions?: string | null")) missing.push("thread/start developerInstructions");
+  if (!threadResume.includes("developerInstructions?: string | null")) missing.push("thread/resume developerInstructions");
   if (missing.length > 0) {
     throw new Error(`installed app-server schema is incompatible; missing ${missing.join(", ")}. Regenerate schemas and update CodexClient.`);
   }

@@ -26,6 +26,7 @@ import {
 	SessionStateError,
 	preflightSessionSelection,
 } from "./acp_agent_session.mjs";
+import { readRoleInstructions } from "../../codex-event-bridge/src/role_instructions.mjs";
 
 function usage() {
 	return `usage: acp-baton-bridge --config PATH [options]
@@ -67,7 +68,12 @@ export async function runBridge(config, {
 	once = false,
 	onUpdate,
 	revalidate,
+	loadInstructions = readRoleInstructions,
 } = {}) {
+	// W101: resolve the accepted role before session selection or process use.
+	// Missing and ambiguous configuration is a launch refusal, never a prompt
+	// an operator must remember to paste into an already-running agent.
+	const role = await loadInstructions(config.baton, config.baton, { signal });
 	// W49: the pre-turn episode revalidation is a SECOND read of the
 	// same participant projection. In production that is a real
 	// `timeout=0` wait against the authority. A scripted `runWait` feed
@@ -161,7 +167,8 @@ export async function runBridge(config, {
 					continue;
 				}
 				const live = await ensureSession();
-				await live.promptText(promptText(envelope, action));
+				await live.promptText(promptText(envelope, action,
+				                              role.instructions));
 				memory.markDelivered(envelope, action);
 				deliveredNow += 1;
 				deliveredTotal += 1;

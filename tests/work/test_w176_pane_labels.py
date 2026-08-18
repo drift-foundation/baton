@@ -76,10 +76,14 @@ def test_wide_regions_are_distinct_and_separated_by_one_blank_row(tmp_path):
 	# The three headings are distinct regions on one screen.
 	joined = "\n".join(rows)
 	assert "Threads (1)" in joined
-	assert "Messages (2)" in joined
-	assert "Message M" in joined
-	assert "Msgs —" not in joined and "»M" not in joined.replace(
-		"»Message M", ""), "a content-repeating heading survived"
+	assert "Messages (2/" in joined
+	# W30 supersedes W176's reader heading. The reader's own canonical
+	# metadata now occupies that row, so the selected identity appears
+	# ONCE (in `#N`) instead of three times.
+	assert "Message M" not in joined, \
+		"the redundant reader heading survived"
+	assert "#" in joined, "the reader metadata did not take the row"
+	assert "Msgs —" not in joined, "a content-repeating heading survived"
 	# Exactly ONE blank separator row between the last thread row and
 	# the Messages heading.
 	between = rows[threads_at + 1:messages_at]
@@ -111,8 +115,8 @@ def test_long_and_wide_subjects_stay_in_their_thread_row(tmp_path):
 		assert "subject that" not in lower and \
 			"宽字符" not in lower, \
 			"a subject leaked into the lower pane headings"
-		assert "Messages (1)" in lower
-		assert "Message M" in lower
+		assert "Messages (1/" in lower
+		assert "Message M" not in lower, "the reader heading survived"
 
 
 def test_selection_moves_list_highlight_and_reader_together(tmp_path):
@@ -125,12 +129,14 @@ def test_selection_moves_list_highlight_and_reader_together(tmp_path):
 	before = "\n".join(screens[1])
 	after = "\n".join(screens[2])
 	def reader_id(flat):
+		# W30: the reader's own metadata identifies it, so the selected
+		# Message is read from `#N` rather than from a heading.
 		for line in flat.splitlines():
-			if "Message M" in line:
-				return line.split("Message M")[1].split()[0]
-		raise AssertionError("no reader heading")
+			if "#" in line and "lang.ada" in line:
+				return line.split("#")[1].split()[0]
+		raise AssertionError(f"no reader metadata in {flat[:400]!r}")
 	assert reader_id(before) != reader_id(after), \
-		"selection did not change the reader heading"
+		"selection did not move the reader"
 	assert "reply number" in after, \
 		"the reader body did not follow the selection"
 
@@ -140,8 +146,8 @@ def test_narrow_stack_keeps_role_labels_and_counts(tmp_path):
 	screens = _screen(config_path, [(b"\r", 0.8), (b"qy", 0.4)],
 	                  columns=60, lines=24)
 	joined = "\n".join(screens[0])
-	assert "Messages (3)" in joined, joined[:600]
-	assert "Message M" in joined
+	assert "Messages (3/" in joined, joined[:600]
+	assert "Message M" not in joined, "the reader heading survived"
 	assert "Msgs —" not in joined
 	rows = screens[0]
 	threads_at = next(index for index, line in enumerate(rows)
@@ -165,6 +171,9 @@ def test_an_empty_projected_page_keeps_honest_role_labels(tmp_path):
 	console = Console(store, "lang", "ada", config_path=config_path)
 	console._cached = lambda _key, _read: {
 		"messages": [], "next_after": None, "next_before": None,
+		# W29: the canonical read always carries the whole-Thread
+		# counts, so the stub does too — an empty page is 0/0.
+		"total": 0, "new": 0,
 		"subject": "must not leak into a pane heading"}
 	painted = []
 
@@ -176,7 +185,10 @@ def test_an_empty_projected_page_keeps_honest_role_labels(tmp_path):
 		Screen(), 5, 24, 110, {"id": born["thread"]})
 	store.close()
 	flat = "\n".join(text for _y, _x, text in painted)
-	assert "Messages (0)" in flat
-	assert "Message" in flat and "Message M" not in flat
+	assert "Messages (0/" in flat
+	assert "Message M" not in flat
+	# W30: the explicit empty-reader text occupies the row the heading
+	# used to, so an empty selection still says so.
+	assert "(no message selected)" in flat
 	assert "(no messages on this page)" in flat
 	assert "must not leak" not in flat

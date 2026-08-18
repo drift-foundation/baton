@@ -60,3 +60,17 @@ Messages (1)                         Message M163
   heading/body together.
 - Empty, one-message and multi-message Threads render honest counts without
   duplicated identifiers or subjects.
+
+## Follow-up ruling — 2026-08-18
+
+The 2026-08-16 rule that the detail pane gets its own `Message M…` heading is
+**superseded**. In the live projection-9 trial Slawomir confirmed that the
+selected row in the Message index plus the reader's canonical `#N author time`
+metadata already identify the message. A standalone reader heading consumes a
+second row without adding orientation. The replacement density/count contracts
+live in `work/records/2026/08/finding-v11-message-pane-ergonomics/`.
+
+The earlier rules removing the repeated Topic subject, keeping Message
+metadata separate from the body, and making pane focus visible remain current.
+Reader focus moves onto the metadata row rather than retaining a dedicated
+heading row.

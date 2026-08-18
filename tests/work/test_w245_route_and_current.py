@@ -215,8 +215,8 @@ def test_a_pinned_older_projection_refuses_rather_than_misreading(store):
 	a 7.x consumer would take an endpoint struct for a claimant and be
 	confidently wrong. The major bump makes that refuse instead."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "9.0"
-	jsonapi.require_version("9.0")
+	assert jsonapi.PROJECTION_VERSION == "11.0"
+	jsonapi.require_version("11.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("8.0")
 

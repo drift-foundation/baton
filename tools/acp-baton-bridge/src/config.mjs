@@ -29,6 +29,15 @@ export function validateConfig(raw) {
 	if (!/^[^.\s]+\.[^.\s]+$/.test(baton.participant)) {
 		fail("baton.participant must be team.member");
 	}
+	// W101: the launch role is ALWAYS explicit, even for a participant
+	// that holds exactly one role today — a later second role must not
+	// silently change this session's persona.
+	if (typeof baton.role !== "string" || !baton.role.trim()) {
+		fail("baton.role is required: name the held role this session launches in");
+	}
+	if (!/^[^.\s]+$/.test(baton.role)) {
+		fail("baton.role must be one role handle without whitespace or dots");
+	}
 	const waitTimeout = baton.waitTimeoutSeconds ?? 60;
 	if (!Number.isSafeInteger(waitTimeout) || waitTimeout < 1) {
 		fail("baton.waitTimeoutSeconds must be a positive integer");
@@ -105,6 +114,7 @@ export function validateConfig(raw) {
 			binary: baton.binary,
 			config: baton.config,
 			participant: baton.participant,
+			role: baton.role,
 			waitTimeoutSeconds: waitTimeout,
 		},
 		agent: {

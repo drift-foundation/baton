@@ -59,8 +59,18 @@ export class CodexClient extends EventEmitter {
     }
   }
 
-  async resume(threadId) {
-    const result = await this.request("thread/resume", { threadId });
+  async startThread({ cwd, developerInstructions }) {
+    const result = await this.request("thread/start", { cwd, developerInstructions });
+    if (!result?.thread?.id || !result.thread.status) throw new Error("thread/start returned an unexpected response");
+    this.subscribedThreads.add(result.thread.id);
+    this.#setStatus(result.thread.id, result.thread.status);
+    return result;
+  }
+
+  async resume(threadId, { developerInstructions } = {}) {
+    const params = { threadId };
+    if (developerInstructions !== undefined) params.developerInstructions = developerInstructions;
+    const result = await this.request("thread/resume", params);
     if (!result?.thread || result.thread.id !== threadId || !result.thread.status) {
       throw new Error(`thread/resume returned an unexpected response for ${threadId}`);
     }

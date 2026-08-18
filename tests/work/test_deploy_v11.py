@@ -124,6 +124,9 @@ def test_the_deployed_layout_is_the_ruled_release_shape(dist):
 	example = os.path.join(target, "conf", "baton.example.json")
 	assert _read(example) == _read(os.path.join(REPO, "conf",
 	                                            "baton.example.json"))
+	infra_example = os.path.join(target, "conf", "infra.example.json")
+	assert _read(infra_example) == _read(os.path.join(REPO, "conf",
+	                                                  "infra.example.json"))
 	# The shipped example is a VALID strict document, provable by the
 	# product's own loader.
 	sys.path.insert(0, os.path.join(REPO, "src"))

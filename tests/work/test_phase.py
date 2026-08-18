@@ -87,9 +87,12 @@ def test_creation_defaults_and_explicit_initial_phase(world):
 		("queued", "suspected-defect")
 
 
-def test_creation_refuses_waiting_parked_and_compact_values(world):
+def test_creation_refuses_blocked_parked_and_compact_values(world):
 	store, _config = world
-	for phase, message in (("waiting", "wake condition"),
+	# W78: a creation has no live gate, so `block` refuses naming that
+	# — the older wording said "wake condition", which was the same
+	# refusal under the retired vocabulary.
+	for phase, message in (("block", "live gate"),
 	                       ("parked", "reason")):
 		with pytest.raises(bw.WorkError, match=message):
 			_create(store, phase=phase)
@@ -203,25 +206,33 @@ def test_gates_waiting_wakes_only_at_the_last_gate(world):
 	inner = tr.create_work(store, team="lang", kind="bug", title="c",
 	                       origin="decomposition", classification="suspected-defect", author="ada", body="b",
 	                       parent=work)["work_id"]
-	assert _row(store, work)["wait_type"] == "gates"
+	assert _row(store, work)["gate_kind"] == "work"
 
 	tr.close_work(store, inner, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
-	assert _row(store, work)["phase"] == "waiting", \
+	assert _row(store, work)["phase"] == "block", \
 		"satisfying only SOME gates woke the work"
 	assert not [e for e in store.events() if e["kind"] == "wake"]
 
 	closing = tr.close_work(store, blocker, actor_team="push", actor="sl",
 	                        rationale="done", outcome="satisfying")
 	row = _row(store, work)
-	assert row["phase"] == "queued" and row["wait_type"] is None
+	assert row["phase"] == "queued" and row["gate_kind"] is None
 	wakes = [e for e in store.events() if e["kind"] == "wake"]
 	assert len(wakes) == 1, "the wake was lost or duplicated"
 	assert wakes[0]["seq"] == closing["seq"] + 1, \
 		"the wake is not atomic with the satisfying close"
 	assert wakes[0]["payload"] == {
-		"work": work, "from": "waiting", "to": "queued",
-		"condition": {"type": "gates", "obligation": None}}
+		"work": work, "from": "block", "to": "queued",
+		# W47: the resulting scheduler phase, stated rather than
+		# inferred from the from/to pair beside it.
+		"phase_now": [{"work": work, "phase": "queued"}],
+		# W78: the gate episode ends here too, and the gate that
+		# cleared is named rather than described as a condition type.
+		"gate_now": [{"work": work, "kind": None, "gate_work": None,
+		              "obligation": None}],
+		"cleared_gate": {"kind": "work", "work": blocker,
+		                 "obligation": None}}
 
 
 def test_waiting_with_no_open_gate_is_refused(world):
@@ -229,7 +240,7 @@ def test_waiting_with_no_open_gate_is_refused(world):
 	work = _create(store)
 	with pytest.raises(bw.WorkError, match="already-satisfied"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="waiting", wait="gates")
+		             phase="block", wait="gates")
 
 
 def test_obligation_waiting_wakes_once_and_grants_nothing(world):
@@ -238,19 +249,19 @@ def test_obligation_waiting_wakes_once_and_grants_nothing(world):
 	asked = fx.post(store, work, author_team="lang", author="ada",
 	                        body="push: confirm?", request="push.bug")["seq"]
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
-	             phase="waiting", wait=asked)
+	             phase="block", wait=asked)
 	# The respondent's input does NOT grant mutation authority...
 	with pytest.raises(bw.WorkError,
-	                   match="waiting on its recorded|cannot be claimed"):
+	                   match="blocked on its displayed|cannot be claimed"):
 		tr.claim_work(store, work, actor_team="lang", actor="ada")
 	responded = tr.respond_obligation(store, asked, team="push",
 	                                  member="sl", body="confirmed")
 	row = _row(store, work)
-	assert row["phase"] == "queued" and row["wait_obligation"] is None
+	assert row["phase"] == "queued" and row["gate_obligation"] is None
 	wakes = [e for e in store.events() if e["kind"] == "wake"]
 	assert len(wakes) == 1 and wakes[0]["seq"] == responded["seq"] + 1
-	assert wakes[0]["payload"]["condition"] == \
-		{"type": "obligation", "obligation": asked}
+	assert wakes[0]["payload"]["cleared_gate"] == \
+		{"kind": "message", "work": None, "obligation": asked}
 	# ...and having supplied it, push STILL cannot mutate the work.
 	with pytest.raises(bw.WorkError, match="never grant"):
 		tr.claim_work(store, work, actor_team="push", actor="sl")
@@ -267,16 +278,16 @@ def test_obligation_waiting_refuses_wrong_or_completed_obligations(world):
 	                      body="done already")
 	with pytest.raises(bw.WorkError, match="already-satisfied|already"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="waiting", wait=answered)
+		             phase="block", wait=answered)
 	elsewhere = fx.post(store, other, author_team="lang",
 	                            author="ada", body="?",
 	                            request="push.bug")["seq"]
 	with pytest.raises(bw.WorkError, match="its OWN"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="waiting", wait=elsewhere)
+		             phase="block", wait=elsewhere)
 	with pytest.raises(bw.WorkError, match="no obligation"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="waiting", wait=99999)
+		             phase="block", wait=99999)
 
 
 def test_the_wake_race_neither_loses_nor_duplicates(world):
@@ -328,7 +339,7 @@ def test_entering_waiting_races_the_satisfying_close(world):
 	store._write = satisfy_between
 	with pytest.raises(bw.WorkError, match="already-satisfied"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="waiting", wait="gates")
+		             phase="block", wait="gates")
 	assert _row(store, work)["phase"] == "queued"
 	other.close()
 
@@ -374,7 +385,7 @@ def test_the_parked_count_is_always_visible_in_the_summary(world):
 	assert summary["parked"] == 1 and summary["open"] == 1
 	assert pj.team_summary(store, viewer_team="push")["parked"] == 0
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert detail["phase"] == "parked" and detail["waiting_on"] is None
+	assert detail["phase"] == "parked" and detail["gate"] is None
 
 
 def test_waiting_condition_is_visible_in_the_projection(world):
@@ -385,8 +396,8 @@ def test_waiting_condition_is_visible_in_the_projection(world):
 	# condition — no separate phase act is needed or accepted.
 	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert detail["phase"] == "waiting"
-	assert detail["waiting_on"] == {"type": "gates", "obligation": None}
+	assert detail["phase"] == "block"
+	assert detail["gate"]["kind"] == "work"
 
 
 def test_at_input_never_grants_pass_or_close_authority(world):
@@ -576,7 +587,7 @@ def test_the_compact_vocabulary_is_closed_and_complete(world):
 	del world
 	from baton_work.tui import app
 	assert {value: app.compact_phase(value) for value in tr.PHASES} == {
-		"queued": "queue", "waiting": "wait",
+		"queued": "queue", "block": "block",
 		"active": "actve", "parked": "park"}
 	assert {value: app.compact_classification(value)
 	        for value in tr.CLASSIFICATIONS} == {

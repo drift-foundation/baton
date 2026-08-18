@@ -124,8 +124,8 @@ def test_a_gated_handoff_lands_waiting(world):
 	                  actor="ada", rationale="gate")
 	result = tr.pass_work(world["store"], work, actor_team="lang",
 	                      actor="ada", to="lang.impl", comment="over")
-	assert result["destination_phase"] == "waiting"
-	assert phase_of(world, work) == "waiting"
+	assert result["destination_phase"] == "block"
+	assert phase_of(world, work) == "block"
 
 
 def test_pass_still_takes_no_phase_operand(world):

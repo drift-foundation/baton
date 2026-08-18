@@ -82,6 +82,7 @@ def _project(conn, document: dict) -> None:
 			"ON CONFLICT (root) DO UPDATE SET display=excluded.display, "
 			"removed=0", (root_id, entry["display"]))
 	conn.execute("DELETE FROM route_handlers")
+	conn.execute("DELETE FROM kind_alternates")
 	conn.execute("DELETE FROM member_roles")
 	conn.execute("DELETE FROM member_capabilities")
 	for team_handle, team in teams.items():
@@ -127,6 +128,12 @@ def _project(conn, document: dict) -> None:
 				"SET display=excluded.display, route=excluded.route, "
 				"retired=0",
 				(team_handle, kind_handle, kind["display"], kind["route"]))
+			# W230: the explicitly selectable alternates for this kind.
+			for alternate in kind.get("alternates", ()):
+				conn.execute(
+					"INSERT INTO kind_alternates (team, kind, route) "
+					"VALUES (?, ?, ?)",
+					(team_handle, kind_handle, alternate))
 
 
 def _parse_config_refs(refs, catalog, *, allow_dossier: bool) -> list:
@@ -323,6 +330,7 @@ def open_bound(config_path: str) -> Authority:
 	# and no TOCTOU window. The captured digest lets a consumer detect a
 	# configuration replaced after this open.
 	store.accepted_digest = digest
+	store.accepted_config = document
 	store.accepted_roots = {
 		root_id: entry["base"]
 		for root_id, entry in document.get("roots", {}).items()}

@@ -153,6 +153,16 @@ class Flow:
 
 def team(display: str, participants: dict, roles: dict, routes: dict,
          kinds: dict) -> dict:
+	# W101: every declared role carries durable operating instructions,
+	# so a story that does not care about the text gets a default rather
+	# than an invalid configuration. A story that DOES care states its
+	# own and this leaves it alone.
+	roles = {handle: ({"instructions":
+	                   f"You are the {handle} for {display}. Read this "
+	                   f"repository's policy and the operating guide "
+	                   f"before your first assignment.", **entry}
+	                  if "instructions" not in entry else entry)
+	         for handle, entry in roles.items()}
 	return {"display": display, "participants": participants,
 	        "roles": roles, "routes": routes, "kinds": kinds}
 

@@ -103,19 +103,35 @@ def test_json_exposes_structured_handoff_facts_without_glyphs(world):
 
 
 def test_the_held_field_walks_the_ruled_states(world):
+	"""W78 supersedes the handoff origin walked here before.
+
+	Held now measures the two intervals that are real operational time,
+	and each is explainable from its own row: `active` since the claim,
+	with `Handler` naming who holds it; `block` since the displayed
+	gate's episode started, with `Wait` naming that gate. Everything
+	else is `-`.
+
+	The retired rule ran a clock on an unclaimed handoff, which is the
+	defect this Work exists to remove: two unclaimed rows in the same
+	phase ran different clocks because one happened to carry a
+	historical `handoff_at`, and nothing on either row explained the
+	difference."""
 	store = world["store"]
 	work = make(world)
 	tr.pass_work(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	row = row_of(world, work)
 	handed = epoch(row["handoff_at"])
-	# pending: MM:SS since the committed handoff (W55 scale). W15
-	# removed the `>` prefix — Current carries the claimant cue now.
-	assert held_field(row, handed + 90) == "01:30"
-	# W65: crossing six minutes changes NOTHING
-	assert held_field(row, handed + 360) == "06:00"
-	# claim: the DISPLAYED interval resets to claimed_at — the pickup
-	# insight is preserved, not erased
+	# queued after a handoff: no timer at all, however old the handoff
+	assert row["phase"] == "queued"
+	assert held_field(row, handed + 90) == "-", \
+		"an unclaimed handoff started a clock the row cannot explain"
+	assert held_field(row, handed + 36000) == "-"
+	# and the handoff instant is still projected — it is history, not
+	# a timer origin
+	assert row["handoff_at"] is not None and row["pickup"] == "pending"
+
+	# claim: MM:SS since claimed_at
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	row = row_of(world, work)
 	assert row["pickup"] == "claimed"
@@ -123,22 +139,34 @@ def test_the_held_field_walks_the_ruled_states(world):
 	assert held_field(row, claimed + 30) == "00:30"
 	# W65: silence is not failure and never reaches the display
 	assert held_field(row, claimed + 361) == "06:01"
-	# the visible reset is FALSIFIABLE at any handoff-claim distance: a
-	# claim two hours after the handoff shows 30 seconds of claim-held,
-	# never the handoff interval — which on this scale would be `∞`
+	# falsifiable at any handoff-claim distance: a claim two hours after
+	# the handoff shows the claim interval, never the handoff one
 	synthetic = {"claimed_at": "2026-08-17T12:00:00Z",
 	             "handoff_at": "2026-08-17T10:00:00Z",
 	             "heartbeat_at": None}
 	at = epoch("2026-08-17T12:00:30Z")
 	assert held_field(synthetic, at) == "00:30", \
 		"claim did not reset the displayed interval to claimed_at"
-	# repass starts a NEW pending interval for the new destination
-	tr.pass_work(store, work, actor_team="rev", actor="bee",
-	             to="lang.bug", comment="back")
-	fresh = row_of(world, work)
-	assert fresh["pickup"] == "pending"
-	assert epoch(fresh["handoff_at"]) >= handed
-	assert held_field(fresh, epoch(fresh["handoff_at"]) + 60) == "01:00"
+
+	# block: MM:SS since the DISPLAYED gate's episode start
+	blocker = make(world)
+	tr.add_dependency(store, work, blocker, actor_team="rev", actor="bee",
+	                  rationale="needs the gate first")
+	blocked = row_of(world, work)
+	assert blocked["phase"] == "block"
+	started = epoch(blocked["gate"]["started_at"])
+	assert held_field(blocked, started + 45) == "00:45"
+	assert blocked["claimed_at"] is None, \
+		"the late gate did not release the claim"
+
+	# parked: no timer
+	tr.close_work(store, blocker, actor_team="lang", actor="ada",
+	              outcome="satisfying", rationale="done")
+	tr.set_phase(store, work, actor_team="rev", actor="bee",
+	             phase="parked", reason="deferred by the operator")
+	parked = row_of(world, work)
+	assert parked["phase"] == "parked"
+	assert held_field(parked, epoch(parked["last_changed_at"]) + 90) == "-"
 
 
 def test_the_overflow_value_composes_like_any_other_base():
@@ -154,17 +182,22 @@ def test_the_overflow_value_composes_like_any_other_base():
 	beating = dict(silent, heartbeat_at="2026-08-17T11:39:30Z")
 	assert held_field(beating, at) == "∞", \
 		"a fresh beat rendered differently from a silent one"
-	# an unclaimed handoff old enough to overflow renders the SAME bare
+	# a BLOCKED row old enough to overflow renders the SAME bare
 	# overflow as a claimed one: W65 removed the elapsed-time
-	# escalation and W15 removed the marker, so `∞` is the one spelling
-	# and `Current` says which kind of interval it is.
-	pending = {"claimed_at": None, "heartbeat_at": None,
-	           "handoff_at": "2026-08-17T10:00:00Z", "status": "open"}
-	assert held_field(pending, at) == "∞"
+	# escalation, W15 removed the marker, and W78 made the blocked
+	# interval a first-class one — so `∞` is the one spelling, and
+	# `Handler`/`Wait` say which kind of interval it is.
+	# (An unclaimed handoff no longer runs a clock at all; that case is
+	# walked in the ruled-states test above.)
+	blocked = {"claimed_at": None, "heartbeat_at": None,
+	           "handoff_at": "2026-08-17T09:00:00Z", "status": "open",
+	           "gate": {"kind": "work", "selector": "W4",
+	                    "started_at": "2026-08-17T10:00:00Z"}}
+	assert held_field(blocked, at) == "∞"
 	# and the whole field still fits the six-cell budget it shares with
 	# every ordinary value
 	assert all(len(held_field(row, at)) <= 6
-	           for row in (silent, beating, pending))
+	           for row in (silent, beating, blocked))
 
 
 def test_terminal_work_and_authority_are_untouched(world):

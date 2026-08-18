@@ -103,3 +103,14 @@ uses human labels for the common typed fields and still exposes the complete
 payload, roles, related Works, references, rationale, and interval facts.
 Switching tabs preserves each tab's focused pane, selected id, page cursor, and
 reader scroll. `Ctrl-W` remains pane-local; `Esc` returns to the Work list.
+
+## Presentation follow-up — 2026-08-18
+
+**Confirmed by Slawomir during the projection-9 trial.** The compact Event
+index and single-line payload rendering above are refined by
+`../finding-v11-detail-pane-formatting/`. Event rows become a fixed-column
+table, the Work projection exposes scheduler-phase intervals so the table can
+show how long each phase episode took, and the reader renders the complete
+payload as two-space-indented JSON. The append-only journal, event identities,
+paging, tab navigation, claim intervals, and full-detail requirements above
+remain authoritative.

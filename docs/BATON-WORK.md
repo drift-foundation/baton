@@ -45,6 +45,16 @@ the document passes. A refusal leaves nothing behind.
     $BW --config ~/your-home/baton.json --participant team.member home
     $BW --config ~/your-home/baton.json --participant team.member tui
 
+Agent launchers resolve durable role instructions from the accepted
+configuration rather than reading `baton.json` themselves:
+
+    $BW --config ~/your-home/baton.json --participant team.member instructions role=ROLE
+
+`role=` is always required — every role carries instructions, and the launch
+role is named rather than inferred so a later second role cannot silently
+change a session's persona. A missing or unheld role refuses before a launcher
+creates or resumes a session.
+
 The active claim is its own authority state, orthogonal to phase: `claim
 work=WORK` records WHO is executing without touching WHAT stage the phase
 names. One eligible handler of the live Route endpoint acquires open,
@@ -86,9 +96,11 @@ that timer is the ONLY background read: ordinary keystrokes operate
 on the cached projection and never poll the authority. A background
 refresh is read-only and keeps the selection on the same Work.
 
-The main screen is a two-level containment tree: top-level Work with
-each root's immediate `↳` children; a `▸N` disclosure marks a child
-holding deeper children, reached with `u`. The tree the console
+The main screen is a three-level containment tree: top-level Work,
+each root's immediate `↳` children, and their `  ↳` children in turn.
+A `▸N` disclosure marks any visible row holding Work this window does
+not show — the fourth level and below, or children a filter removed —
+reached with `u`. The tree the console
 paints is one canonical projection — the JSON verb `tree` (optionally
 `tree WORK` for a re-rooted window) returns the identical rows,
 summary and snapshot token, all read under one transaction. Keys: j/k select, Enter

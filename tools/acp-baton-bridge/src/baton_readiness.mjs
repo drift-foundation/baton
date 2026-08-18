@@ -17,8 +17,9 @@ const execFileAsync = promisify(execFile);
 
 // One compact trusted line per action — the SAME turn-input shape the
 // Codex path renders, agent-generic: locator plus the standing-policy
-// cue, no bodies, no generic instruction block.
-export function promptText(envelope, action) {
+// cue plus accepted role instructions, no discussion bodies or event-supplied
+// instruction block.
+export function promptText(envelope, action, roleInstructions = null) {
 	const participant = envelope.participant;
 	let summary;
 	if (action.kind === "work") {
@@ -31,7 +32,9 @@ export function promptText(envelope, action) {
 	} else {
 		summary = `v11 trial ${action.trial} of ${action.work} is due (generation ${action.deadline_generation}) for ${participant}. Act through the canonical v11 CLI (detail work=${action.work}).`;
 	}
-	return `[BATON READY] ${summary} Apply standing v11 Baton policy.`;
+	const operating = roleInstructions
+		? ` Configured role instructions: ${roleInstructions}` : "";
+	return `[BATON READY] ${summary}${operating} Apply standing v11 Baton policy.`;
 }
 
 // WHOLE-SET level-triggered delivery memory, identity-scoped exactly

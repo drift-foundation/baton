@@ -302,19 +302,19 @@ def test_accept_wakes_the_exact_obligation_waiter_but_not_ready(world):
 	store, _config = world
 	push1, asked = _report(store)
 	tr.set_phase(store, push1, actor_team="push", actor="sl",
-	             phase="waiting", wait=asked)
+	             phase="block", wait=asked)
 	result = tr.accept_obligation(store, asked, actor_team="drift",
 	                              actor="ada", body="ours",
 	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
 	row = store.conn.execute(
-		"SELECT phase, ready, wait_type, wait_obligation "
+		"SELECT phase, ready, gate_kind, gate_obligation "
 		"FROM work WHERE id=?",
 		(push1,)).fetchone()
 	# W38 R3: the acceptance created the gate in the same transaction,
 	# so the waiter retargets onto it rather than advertising runnable.
-	assert row["phase"] == "waiting", \
+	assert row["phase"] == "block", \
 		"the waiter did not retarget to its new gate"
-	assert row["wait_type"] == "gates"
+	assert row["gate_kind"] == "work"
 	assert row["ready"] == 0, "the new gate did not hold readiness false"
 	# ...and it emits NO wake, because nothing woke. A `wake` event
 	# whose from and to are both `waiting` would put a false
@@ -337,7 +337,7 @@ def test_accept_never_wakes_a_gates_waiter(world):
 	                                          "title": "t"})
 	row = store.conn.execute("SELECT phase FROM work WHERE id=?",
 	                         (push1,)).fetchone()
-	assert row["phase"] == "waiting", \
+	assert row["phase"] == "block", \
 		"an accept woke a gates-waiter it had just re-gated"
 	assert not [event for event in store.events()
 	            if event["kind"] == "wake"]
@@ -468,7 +468,7 @@ def test_the_atomic_accept_rolls_back_whole_at_every_boundary(world):
 	store, _config = world
 	push1, asked = _report(store)
 	tr.set_phase(store, push1, actor_team="push", actor="sl",
-	             phase="waiting", wait=asked)
+	             phase="block", wait=asked)
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	baseline = hashlib.sha256(open(store.path, "rb").read()).hexdigest()
 	baseline_events = store.events()
@@ -522,7 +522,7 @@ def test_the_atomic_accept_rolls_back_whole_at_every_boundary(world):
 	# W38 R3: the acceptance gated it, so the wait retargets.
 	assert store.conn.execute(
 		"SELECT phase, ready FROM work WHERE id=?",
-		(push1,)).fetchone()["phase"] == "waiting"
+		(push1,)).fetchone()["phase"] == "block"
 
 
 def test_restart_reconstructs_the_acceptance(world):

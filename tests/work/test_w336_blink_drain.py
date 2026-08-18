@@ -31,9 +31,14 @@ import ptyharness                                             # noqa: E402
 pytestmark = pytest.mark.skipif(
 	not hasattr(__import__("pty"), "fork"), reason="no pty support")
 
-BLINK_PHASE = re.compile(
-	r"\x1b\[(?:\d+;)*0?5(?:;\d+)*m(?:\x1b\[[0-9;?]*[A-Za-z])*\s*[>!]?"
-	r"(actve|queue|rview|rsrch)")
+# W105: the phase-change cue covers the whole visible ROW, so the blink
+# escape now precedes the row's Id rather than its Phase cell. Anchoring
+# on the phase compact value would look for the attribute where it no
+# longer starts — and would also still name `rview`/`rsrch`, phases W38
+# removed. The drain semantics this file is really about are unchanged.
+BLINK_ROW = re.compile(
+	r"\x1b\[(?:\d+;)*0?5(?:;\d+)*m(?:\x1b\[[0-9;?]*[A-Za-z])*\s*"
+	r"W\d+\b")
 
 
 @pytest.fixture()
@@ -77,15 +82,15 @@ def test_the_live_timer_render_loop_drains_the_blink(world):
 	deltas = [steps[0]] + [steps[i][len(steps[i - 1]):]
 	                       for i in range(1, len(steps))]
 	# the cold load never blinks
-	assert not BLINK_PHASE.search(deltas[0]), "the first table blinked"
+	assert not BLINK_ROW.search(deltas[0]), "the first table blinked"
 	# the observed change arms the cue on the timer path
-	armed = any(BLINK_PHASE.search(delta) for delta in deltas[1:3])
+	armed = any(BLINK_ROW.search(delta) for delta in deltas[1:3])
 	assert armed, "the phase change never blinked on the live path"
 	# after three successful scheduled cycles the cue is GONE — the
 	# stalled-for-hours defect cannot reproduce
-	assert not BLINK_PHASE.search(deltas[4]), \
+	assert not BLINK_ROW.search(deltas[4]), \
 		"the blink survived past three scheduled refreshes"
-	assert not BLINK_PHASE.search(deltas[5]), \
+	assert not BLINK_ROW.search(deltas[5]), \
 		"the blink came back after draining"
 
 

@@ -89,3 +89,23 @@ verified that every v10 consumer is gone.
   and contains no `baton_core`, `baton_tui`, v10 manifest, or v10 monitor.
 - A source/build/tool scan may still find v10 in explicitly historical records
   queued for W103 review, but never in an executable fallback path.
+
+## Revalidation — 2026-08-18 (W4 tuner correction)
+
+The second review's narrow ruling matches the current tree. W101 restored
+`assignedParticipants` for the retained
+`targets.*.identity.participant` contract, while the retired top-level
+`baton` block and legacy `targets.*.participant` fields remain absent from the
+validated result. W4 must test that behavioral boundary rather than forbid an
+implementation identifier shared by the new contract. The correction is
+test-only: runtime source and the completed v10 removals remain unchanged.
+
+## Tuner correction complete — 2026-08-18
+
+The W4 guard now executes `validateConfig` instead of scanning its source. It
+proves the retired top-level `baton` block and legacy per-target `participant`
+are absent from the validated configuration, the retained generic event
+transport remains, and two distinct targets cannot reuse one
+`identity.participant`. Focused W4/public-documentation tests pass 48/48, the
+complete Codex bridge suite passes 6/6 files, `just --list` resolves, and
+`git diff --check` is clean.

@@ -23,19 +23,23 @@
 ## Coordination identities
 
 - Read `docs/AGENTS-MAILBOX-PROTO.md` in full before publishing or consuming Baton handoffs. The local deployment supplies the executable and explicit absolute config path; never infer or hard-code either in repository policy.
-- This project's coordination identities are `baton.reviewer` for the reviewer and `baton.implementer` for the implementer. Resolve role-only instructions to those identities; never substitute a participant from another domain.
+- This project's coordination identities are `baton.codex` for the reviewer
+  (`rview`), `baton.claude` for the implementer (`impl`), `baton.slaw` for the
+  approver (`approv`), and `baton.tuner` for final polish (`tuner`). Resolve
+  role-only instructions to those identities; never substitute a participant
+  from another domain. Every agent launch names both its participant and one
+  explicit role it holds.
 - Run exactly one active readiness path per participant — never two concurrent
   `wait`s for the same address. Two consumers need two participant addresses,
-  not one shared identity. Process every claim immediately with `reply` or
-  `close`.
-- `wait` is read-only: it blocks until work is ready, reports the deterministic
-  head message (healthy or damaged) or the presence of a notice, and creates no
-  claim or seen receipt. An active agent keeps one `wait` armed, polls its
-  terminal, then explicitly uses `claim --message-id` for directed work or
-  `see` for notices. Re-arm `wait` after every result. Never leave a successful
-  readiness result unattended; terminal completion may not itself schedule a
-  new model turn.
-- The SQLite instance is the only coordination authority. Never mutate it with raw SQL or manually reconstruct protocol state. Never read it directly either: if a question about the mailbox can only be answered by opening the store, that inability is the finding.
+  not one shared identity. Act on every wake immediately: `claim` the Work
+  before executing it, and `pass` or `close` it rather than leaving it held.
+- `wait` is read-only: it blocks until actionable state or timeout and creates
+  no claim. An active agent keeps one `wait` armed, polls its terminal, then
+  acts explicitly — `claim work=` to take Work, `respond`/`accept`/`dispose`
+  to answer a directed `@` obligation, `mark-seen` to acknowledge messages.
+  Re-arm `wait` after every result. Never leave a successful readiness result
+  unattended; terminal completion may not itself schedule a new model turn.
+- The SQLite instance is the only coordination authority. Never mutate it with raw SQL or manually reconstruct protocol state. Never read it directly either: if a question about the coordination state can only be answered by opening the store, that inability is the finding.
 
 ## Confirmed decisions are pinned before implementation
 
@@ -83,6 +87,13 @@ work/
   dossier exists its canonical record path is the stable binding; later
   corrections to terminal evidence are explicit follow-up history, never a
   silent rewrite or a rename.
+- Every finding dossier MUST have exactly one corresponding Work on the
+  authoritative Baton ledger, bound to its canonical `work/records/...` path.
+  Create the Work and dossier together when possible. If research creates the
+  dossier first, create its ledger Work immediately before any further work or
+  handoff. A deferred or roadmap finding is parked on the ledger; it is never
+  left as an off-ledger folder. The reverse is intentionally not required:
+  lightweight Work may still exist without a dossier.
 - Remaining `work/finding-*` folders are LEGACY items pending the deliberate
   cleanup audit owned by `work/records/2026/08/finding-next-release/`; no new
   folder is ever created there.
@@ -124,8 +135,9 @@ The working process is unchanged by the layout:
   top level as a NEW record with an explicit forwarding note in the old one —
   the old canonical path stays valid history and is never rewritten.
   A parent cannot close while it contains an open child.
-- `PROGRESS.md` has one writer: `baton.implementer`. Reviewer input goes into
-  FINDING/PLAN, evidence files, or append-only review journals, never progress.
+- `PROGRESS.md` has one writer: the implementer (`baton.claude`). Reviewer
+  input goes into FINDING/PLAN, evidence files, or append-only review
+  journals, never progress.
 - Each review pass is append-only
   `review-YYYY-MM-DDTHH-MM-SSZ.md` in that record root (UTC). Never edit or
   delete an earlier review. The implementer records its response and current
@@ -140,12 +152,18 @@ The working process is unchanged by the layout:
 ## The active-work claim (finding-active-work-claim, 2026-08-16)
 
 - No participant starts implementation, review, or other execution owned by
-  the Current endpoint before the atomic `claim` operation SUCCEEDS; the
-  authority records the claimant (orthogonal to phase — a reviewer may be
-  the claimant while phase is `review`) and a competing claim fails closed.
+  the Work's Route endpoint before the atomic `claim` operation SUCCEEDS,
+  and a competing claim fails closed.
+- Route, Handler and Next are three different questions: which endpoint MAY
+  claim, which member IS executing, and which endpoint is planned next. The
+  claim records the Handler.
+- Phase is not orthogonal to the claim. It is a closed scheduler axis —
+  `queued`, `active`, `block`, `parked`, and nothing at all once terminal —
+  and `active` means exactly "a Handler holds it". Only `claim` reaches
+  `active`; a `block` row names the one gate holding it.
 - Discussion and planning while unclaimed are fine. A pass releases the
-  claim and records the destination phase atomically; the recipient claims
-  explicitly once the Work is ready.
+  claim and derives the destination phase from the destination Route
+  atomically; the recipient claims explicitly once the Work is ready.
 
 ## Baton defects and workarounds
 

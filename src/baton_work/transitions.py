@@ -52,16 +52,26 @@ CLASSIFICATIONS = ("unknown", "suspected-defect", "confirmed-defect",
 #
 #   queued   open, runnable, unclaimed
 #   active   open and CLAIMED — active iff Handler is non-null
-#   waiting  open, unclaimed, blocked on a recorded gate or obligation
+#   block    open, unclaimed, held by ONE displayed unsatisfied gate
 #   parked   open, unclaimed, deliberately deferred with no wake condition
 #   (terminal work has no phase at all: null in JSON, `-` in the TUI)
 #
+# W78 (finding-unclaimed-work-cue) renamed `waiting` to `block` and gave
+# it a typed, timed cause. One phase covers every unsatisfied gate
+# whether the gate is another Work or a directed Message obligation;
+# splitting them into two phases would have hidden that both are the
+# same scheduler condition — this Work cannot advance — while the
+# interesting difference (what would unblock it) belongs in the gate,
+# not the phase. The gate is displayed beside the row and its episode
+# start is what the Held timer measures, so every advancing clock is
+# explainable from the row it sits on.
+#
 # Compact TUI renderings are PRESENTATION and are never accepted as
 # mutation values.
-PHASES = ("queued", "active", "waiting", "parked")
+PHASES = ("queued", "active", "block", "parked")
 # W38: a creation is open, unclaimed and ungated, so `queued` is the only
-# state it can honestly land in. `active` would need a claimant, `waiting`
-# a recorded condition, and `parked` a reason — none of which a creation
+# state it can honestly land in. `active` would need a claimant, `block`
+# a live gate, and `parked` a reason — none of which a creation
 # has. The operand is therefore gone from `create` rather than accepting
 # exactly one value.
 CREATION_PHASES = ("queued",)
@@ -186,7 +196,27 @@ def _member_active(conn, team: str, member: str) -> None:
 		                f"currently accepted configuration")
 
 
-def resolve_endpoint(conn, team: str, kind: str, what: str) -> dict:
+def selectable_routes(conn, team: str, kind: str) -> list:
+	"""W230: every route this endpoint may be sent to — the default
+	first, then its configured alternates in handle order.
+
+	The default leads deliberately: it is not one candidate among
+	equals. An omitted selection resolves to it, and nothing ever picks
+	an alternate on the operator's behalf."""
+	row = conn.execute(
+		"SELECT route FROM kinds WHERE team=? AND handle=?",
+		(team, kind)).fetchone()
+	if row is None or row["route"] is None:
+		return []
+	alternates = [entry["route"] for entry in conn.execute(
+		"SELECT route FROM kind_alternates WHERE team=? AND kind=? "
+		"ORDER BY route", (team, kind))]
+	return [row["route"]] + [route for route in alternates
+	                         if route != row["route"]]
+
+
+def resolve_endpoint(conn, team: str, kind: str, what: str,
+                     selected: str | None = None) -> dict:
 	"""One endpoint, resolved through the ACCEPTED route to its role and
 	handlers, with the configuration generation stamped — C4's snapshot.
 
@@ -208,18 +238,33 @@ def resolve_endpoint(conn, team: str, kind: str, what: str) -> dict:
 		raise WorkError(f"{what}: {team}.{kind} has no route in the accepted "
 		                f"configuration; endpoint history is never recorded "
 		                f"partly resolved")
+	# W230: an explicitly selected route replaces the default for THIS
+	# Work, and only if the accepted configuration offers it. An
+	# unconfigured or since-removed selection refuses rather than
+	# silently falling back — a quiet fallback would send Work to a
+	# different agent than the operator chose, which is the one thing
+	# an explicit selection exists to prevent.
+	route = row["route"]
+	if selected is not None and selected != route:
+		offered = selectable_routes(conn, team, kind)
+		if selected not in offered:
+			raise WorkError(
+				f"{what}: {team}.{kind} does not offer route "
+				f"{selected!r}; the accepted configuration offers "
+				f"{offered}")
+		route = selected
 	route_row = conn.execute(
 		"SELECT role FROM routes WHERE team=? AND handle=? AND removed=0",
-		(team, row["route"])).fetchone()
+		(team, route)).fetchone()
 	if route_row is None:
 		raise WorkError(f"{what}: {team}.{kind} routes through "
-		                f"{row['route']!r}, which is not live")
+		                f"{route!r}, which is not live")
 	handlers = [entry["member"] for entry in conn.execute(
 		"SELECT member FROM route_handlers WHERE team=? AND route=? "
-		"ORDER BY member", (team, row["route"]))]
+		"ORDER BY member", (team, route))]
 	generation = conn.execute(
 		"SELECT value FROM meta WHERE key='accepted_generation'").fetchone()
-	return {"endpoint": f"{team}.{kind}", "route": row["route"],
+	return {"endpoint": f"{team}.{kind}", "route": route,
 	        "role": route_row["role"], "handlers": handlers,
 	        "generation": int(generation["value"]) if generation else 0}
 
@@ -255,75 +300,248 @@ def _open_gates(conn, work_id: str) -> int:
 	return children + blockers
 
 
-def _unclaimed_state(conn, work_id: str) -> tuple[str, str | None]:
-	"""W38: the scheduler state of OPEN, UNCLAIMED Work as
-	(phase, wait_type) — `waiting` on the aggregate gate when one is
-	unsatisfied, `queued` when it can run.
+def _displayed_gate(conn, work_id: str, current) -> tuple | None:
+	"""W78: WHICH single gate is holding this Work, or None if none is.
+
+	Returns `(kind, work, obligation)` — exactly one of the last two is
+	set — and returns `current` UNCHANGED whenever the gate it names is
+	still the one holding the Work. That is what makes the episode
+	stable: the answer only differs when the displayed gate genuinely
+	differs.
+
+	A blocking directed obligation outranks Work gates while it is
+	pending, because the Work was suspended BY that request and
+	answering it is the act that moves the Work. It is identified by the
+	STORED gate rather than rediscovered, because a Work may carry
+	pending obligations that never blocked it — `request wait=false`
+	creates exactly that — and those must not capture the cue.
+
+	The Work gate is the oldest open gate by permanent creation order.
+	Two kinds count, because both are what `_open_gates` counts: an open
+	required CHILD and an open explicit BLOCKER. The pinned selection
+	rule names the oldest open blocker, which is the case it was written
+	for; extending the same order over children is the only way a
+	child-gated Work can name what holds it. The alternative — a `block`
+	row with an empty Wait cell and a running clock — is precisely the
+	unexplained timer this Work exists to remove, so leaving children
+	out would have reintroduced the defect in a new place."""
+	if current is not None and current[0] == "message" \
+			and current[2] is not None:
+		live = conn.execute(
+			"SELECT status FROM obligations WHERE seq=?",
+			(current[2],)).fetchone()
+		if live is not None and live["status"] == "pending":
+			return current
+	gate = conn.execute(
+		"SELECT id, created_seq FROM work WHERE parent=? AND status=? "
+		"UNION "
+		"SELECT work.id, work.created_seq FROM edges JOIN work "
+		"ON work.id=edges.blocker WHERE edges.work=? AND work.status=? "
+		"ORDER BY created_seq LIMIT 1",
+		(work_id, OPEN, work_id, OPEN)).fetchone()
+	if gate is not None:
+		return ("work", gate["id"], None)
+	return None
+
+
+def _gate_now(payload, work_id: str, gate) -> None:
+	"""W78: record a displayed-gate EPISODE boundary on this event.
+
+	Mirrors `_phase_now` and is deliberately SEPARATE from it, because a
+	gate change inside `block` is a new gate episode and not a phase
+	transition: recording it as one would fabricate a phase change that
+	never happened, and the Events playback would show the Work leaving
+	and re-entering a phase it never left.
+
+	A LIST whose entries name their Work, for the same reason
+	`phase_now` is one: a single event can retarget more than one."""
+	if payload is not None:
+		payload.setdefault("gate_now", []).append(
+			{"work": work_id,
+			 "kind": None if gate is None else gate[0],
+			 "gate_work": None if gate is None else gate[1],
+			 "obligation": None if gate is None else gate[2]})
+
+
+def _write_gate(conn, work_id: str, payload, gate) -> None:
+	"""Commit one displayed-gate episode, stamping its start."""
+	if gate is None:
+		conn.execute(
+			"UPDATE work SET gate_kind=NULL, gate_work=NULL, "
+			"gate_obligation=NULL, gate_started_at=NULL, gate_seq=NULL "
+			"WHERE id=?", (work_id,))
+	else:
+		seq = conn.execute(
+			"SELECT value FROM sequence WHERE id=1").fetchone()["value"]
+		conn.execute(
+			"UPDATE work SET gate_kind=?, gate_work=?, gate_obligation=?, "
+			"gate_started_at=?, gate_seq=? WHERE id=?",
+			(*gate, clock_ms_now(), seq, work_id))
+	# A new gate episode IS a visible row change, so it stamps the row's
+	# change identity like every other one.
+	_touch_work(conn, work_id)
+	_gate_now(payload, work_id, gate)
+
+
+def _retarget_gate(conn, work_id: str, payload) -> None:
+	"""W78: keep the stored gate episode equal to the displayed gate.
+
+	Called by every transaction that can change what holds a Work —
+	adding or removing a dependency, closing a blocker or a child,
+	creating a child, answering or disposing an obligation, and every
+	readiness recomputation.
+
+	The episode start moves ONLY when the displayed gate actually
+	changes. That is the whole point: adding a second blocker behind the
+	displayed one, a heartbeat, a priority edit or a refresh leave the
+	clock alone, and a client never has to guess a start instant the
+	authority did not commit."""
+	row = conn.execute(
+		"SELECT phase, gate_kind, gate_work, gate_obligation "
+		"FROM work WHERE id=?", (work_id,)).fetchone()
+	if row is None:
+		return
+	current = (row["gate_kind"], row["gate_work"], row["gate_obligation"])
+	if row["gate_kind"] is None:
+		current = None
+	if row["phase"] != "block":
+		gate = None
+	else:
+		gate = _displayed_gate(conn, work_id, current)
+		if gate is None:
+			# Still `block`, nothing left holding it: this Work is about
+			# to be woken by the sweep at the end of this very
+			# transaction. Leave the episode alone so the wake can name
+			# the gate that CLEARED and end the episode itself. Clearing
+			# it here would erase that evidence one statement before it
+			# is needed, and would also, for an instant, describe a
+			# blocked Work as blocked by nothing.
+			return
+	if gate == current:
+		return
+	_write_gate(conn, work_id, payload, gate)
+
+
+def _enter_message_gate(conn, work_id: str, payload, obligation: int) -> None:
+	"""W78: a blocking directed request establishes its own gate.
+
+	The obligation that suspends the Work is known only here, so this is
+	the one gate the authority sets explicitly rather than deriving."""
+	_write_gate(conn, work_id, payload, ("message", None, obligation))
+
+
+def _phase_now(payload, work_id: str, phase: str | None) -> None:
+	"""W47: record the scheduler phase the Work is in AFTER this event.
+
+	One key on every phase-changing event, so the ledger states the
+	transition rather than leaving a reader to infer it from five
+	differently-named payload fields (`to`, `destination_phase`,
+	`phase`, `from_phase`, and the wake's own pair). The projection
+	replays these to build phase intervals; nothing recomputes the
+	authority's decision.
+
+	A LIST, and each entry names its Work, because one event can move
+	more than one: creating a child gates its parent, so the child's
+	`create_work` event is where the PARENT enters `block`. A bare
+	phase string would attribute that to the wrong Work.
+
+	`None` means the Work has no phase at all, which is true of exactly
+	one transition: terminal close."""
+	if payload is not None:
+		payload.setdefault("phase_now", []).append(
+			{"work": work_id, "phase": phase})
+
+
+def _unclaimed_state(conn, work_id: str) -> str:
+	"""W38: the scheduler phase of OPEN, UNCLAIMED Work — `block` when a
+	gate is unsatisfied, `queued` when it can run.
 
 	Every claimant-releasing transition derives its state here rather
 	than carrying one in, so `pass`, `release`, recovery and readiness
 	changes cannot disagree about the same committed gate state.
 
-	The wait_type rides along deliberately. `waiting` without a recorded
-	condition is unwakeable — `_sweep_wakes` only reconsiders rows whose
-	condition it can evaluate — so deriving the phase without it would
-	produce Work that is gated forever even after the gate closes."""
-	if _open_gates(conn, work_id):
-		return "waiting", "gates"
-	return "queued", None
+	W78: this used to return a `wait_type` beside the phase, because
+	`waiting` without a recorded condition is unwakeable. The condition
+	now lives in the displayed-gate episode, which every caller commits
+	through `_retarget_gate` in the same transaction — so the phase and
+	the thing holding it can no longer be written apart."""
+	return "block" if _open_gates(conn, work_id) else "queued"
 
 
-def _sweep_wakes(conn, actor: str) -> None:
-	"""Level-triggered wake: every OPEN waiting Work whose recorded
-	condition is now satisfied atomically becomes `queued`, with one `wake`
-	event in the SAME transaction that satisfied it. Runs at the end of
-	every transaction that can close a gate or complete an obligation
-	(close, respond, dispose). A racing retry finds the phase
-	already `queued` and wakes nothing twice."""
+def _sweep_wakes(conn, actor: str, payload=None) -> None:
+	"""Level-triggered wake: every OPEN blocked Work whose displayed gate
+	is now satisfied atomically becomes `queued`, with one `wake` event in
+	the SAME transaction that satisfied it. Runs at the end of every
+	transaction that can close a gate or complete an obligation (close,
+	respond, dispose). A racing retry finds the phase already `queued`
+	and wakes nothing twice."""
 	for row in conn.execute(
-			"SELECT id, wait_type, wait_obligation FROM work "
-			"WHERE status=? AND phase='waiting'", (OPEN,)).fetchall():
-		satisfied = False
-		if row["wait_type"] == "gates":
-			satisfied = _open_gates(conn, row["id"]) == 0
-		elif row["wait_type"] == "obligation":
+			"SELECT id, gate_kind, gate_work, gate_obligation FROM work "
+			"WHERE status=? AND phase='block'", (OPEN,)).fetchall():
+		current = (row["gate_kind"], row["gate_work"],
+		           row["gate_obligation"])
+		if row["gate_kind"] is None:
+			current = None
+		if row["gate_kind"] == "message":
 			pending = conn.execute(
 				"SELECT status FROM obligations WHERE seq=?",
-				(row["wait_obligation"],)).fetchone()
+				(row["gate_obligation"],)).fetchone()
 			satisfied = pending is not None and \
 				pending["status"] != "pending"
+		else:
+			# A Work gate is satisfied only when the AGGREGATE is: the
+			# displayed blocker closing does not release Work that other
+			# gates still hold.
+			satisfied = _open_gates(conn, row["id"]) == 0
 		if satisfied and _open_gates(conn, row["id"]):
 			# W38 R3: the recorded condition is satisfied, but the
 			# SCHEDULER condition is not. Work can wait on a directed
 			# obligation and independently acquire a dependency;
 			# answering the obligation does not make it runnable.
-			# Retarget the wait to what is still holding it, stay
-			# waiting, and mint NOTHING — nothing became actionable, so
-			# waking a handler here would be a false alarm.
-			if row["wait_type"] != "gates":
-				# Deliberately NO event: nothing woke. Emitting a
-				# `wake` whose from and to are both `waiting` would put
-				# a false actionability signal in the journal and in
-				# every trail that reads it. The transition that
-				# satisfied the old condition is already audited, and
-				# the retargeted condition is visible on the row.
-				conn.execute(
-					"UPDATE work SET wait_type='gates', "
-					"wait_obligation=NULL WHERE id=?", (row["id"],))
-				_touch_work(conn, row["id"])
+			# Retarget to whatever is still holding it, stay blocked,
+			# and mint NOTHING — nothing became actionable, so waking a
+			# handler here would be a false alarm.
+			#
+			# W78: the retarget is a real, timed episode. Deliberately
+			# no `wake` EVENT: one whose from and to are both `block`
+			# would put a false actionability signal in the journal,
+			# since nothing became actionable.
+			#
+			# But the episode boundary itself IS recorded, on the event
+			# that caused it — the response, disposal or close being
+			# committed right now. The row alone describes only the
+			# LATEST episode, so without this the boundary would vanish
+			# the moment the gate changed again; and the replay
+			# reconstructs nothing, so an unrecorded boundary is absent
+			# forever rather than derivable later. `_gate_now` is
+			# separate from `_phase_now` precisely so this can be said
+			# without fabricating a phase transition that never
+			# happened.
+			_retarget_gate(conn, row["id"], payload)
+			_touch_work(conn, row["id"])
 			continue
 		if satisfied:
 			conn.execute(
-				"UPDATE work SET phase='queued', wait_type=NULL, "
-				"wait_obligation=NULL WHERE id=?", (row["id"],))
+				"UPDATE work SET phase='queued' WHERE id=?", (row["id"],))
+			_write_gate(conn, row["id"], None, None)
 			_touch_work(conn, row["id"])
 			# W49: the condition wake returns the Work to its Route
 			# endpoint's queue — newly actionable, so a new episode.
 			_mint_episode(conn, row["id"])
 			_emit(conn, "wake", actor,
-			      {"work": row["id"], "from": "waiting", "to": "queued",
-			       "condition": {"type": row["wait_type"],
-			                     "obligation": row["wait_obligation"]}})
+			      {"work": row["id"], "from": "block", "to": "queued",
+			       "phase_now": [{"work": row["id"],
+			                      "phase": "queued"}],
+			       "gate_now": [{"work": row["id"], "kind": None,
+			                     "gate_work": None, "obligation": None}],
+			       # W78: the gate that CLEARED, named for what it is.
+			       # `gate_now` beside it is the episode boundary (the
+			       # Work now has no gate at all); calling this one
+			       # `gate` would have read as the current one.
+			       "cleared_gate": {
+				       "kind": current[0] if current else None,
+				       "work": current[1] if current else None,
+				       "obligation": current[2] if current else None}})
 
 
 def _touch_work(conn, work_id: str) -> None:
@@ -384,12 +602,18 @@ def _handler_gate(conn, work_id: str, actor_team: str, actor: str,
 	the audit payload. `@` respondents and other teams get an explicit
 	refusal — input never grants mutation authority."""
 	row = conn.execute(
-		"SELECT route_team, route_kind FROM work WHERE id=?",
-		(work_id,)).fetchone()
+		"SELECT route_team, route_kind, route_selected FROM work "
+		"WHERE id=?", (work_id,)).fetchone()
 	if row["route_team"] is None or row["route_kind"] is None:
 		raise WorkError(f"{what}: {work_id} has no Route endpoint")
+	# W230: through the Work's OWN route, which is its explicit
+	# selection when it has one. Resolving the endpoint's default here
+	# would authorize the default's handlers and refuse the agent
+	# actually holding the Work — a Work sent to an alternate could
+	# never be passed back, and the selection would strand it.
 	resolution = resolve_endpoint(conn, row["route_team"],
-	                              row["route_kind"], what)
+	                              row["route_kind"], what,
+	                              selected=row["route_selected"])
 	if actor_team != row["route_team"] or \
 			actor not in resolution["handlers"]:
 		raise WorkError(
@@ -476,17 +700,26 @@ def _recompute_ready(conn, work_id: str, payload=None) -> None:
 						 "claimant": f"{live['handler_team']}."
 						             f"{live['handler_member']}",
 						 "from_phase": live["phase"]})
+					_phase_now(payload, work_id, "block")
 				conn.execute(
 					"UPDATE work SET handler_team=NULL, "
-					"handler_member=NULL, phase='waiting', "
-					"wait_type='gates', wait_obligation=NULL "
-					"WHERE id=?", (work_id,))
+					"handler_member=NULL, phase='block' WHERE id=?",
+					(work_id,))
 			elif live["phase"] == "queued":
+				if payload is not None:
+					_phase_now(payload, work_id, "block")
 				conn.execute(
-					"UPDATE work SET phase='waiting', "
-					"wait_type='gates', wait_obligation=NULL "
-					"WHERE id=?", (work_id,))
+					"UPDATE work SET phase='block' WHERE id=?",
+					(work_id,))
 		_touch_work(conn, work_id)
+	# W78: OUTSIDE the readiness flip, deliberately. The case the ruling
+	# names — the displayed blocker closes while another gate remains —
+	# does not flip readiness at all: the Work was blocked before and is
+	# blocked after. Retargeting only on a flip would leave that row
+	# showing a closed gate and a clock measuring an episode that ended,
+	# which is the same unexplained timer in a new place. A recompute
+	# that changes nothing writes nothing, so this is free.
+	_retarget_gate(conn, work_id, payload)
 
 
 
@@ -688,7 +921,7 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	if phase not in CREATION_PHASES:
 		raise WorkError(
 			f"a work is not created {phase!r}: active needs a claimant, "
-			f"waiting needs a recorded wake condition, and parking needs "
+			f"block needs a live gate, and parking needs "
 			f"a reason — a creation has none of those, so it lands queued "
 			f"and moves on its own transitions")
 	if not isinstance(body, str) or not body:
@@ -768,6 +1001,8 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 			payload["authorization"] = _handler_gate(
 				conn, parent, team, author, "attach child")
 		payload["resolution"] = resolve_endpoint(conn, team, kind, "create")
+		# W47: creation opens the Work's first scheduler episode.
+		_phase_now(payload, work_id, phase)
 		if follow_up_of is not None:
 			live_predecessor = conn.execute(
 				"SELECT status FROM work WHERE id=?",
@@ -996,6 +1231,9 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		conn.execute(
 			"UPDATE trials SET status='closed', ended_seq=? "
 			"WHERE work=? AND status='open'", (seq, work_id))
+		# W47: terminal closure ends the open episode and opens none —
+		# a closed Work has no phase at all.
+		_phase_now(payload, work_id, None)
 		conn.execute(
 			"UPDATE work SET status=?, ready=0, outcome=?, rationale=?, "
 			"duplicate_of=?, "
@@ -1003,6 +1241,17 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 			"next_kind=NULL, handler_team=NULL, handler_member=NULL, "
 			"closed_seq=? WHERE id=?",
 			(CLOSED, outcome, rationale, duplicate_of, seq, work_id))
+		# W78: and it ends the GATE episode with it. Closing blocked
+		# Work is explicitly allowed — a consumer can be cancelled while
+		# its blocker stays open — and the `phase` column keeps its last
+		# value because it is NOT NULL, so without this the terminal row
+		# would keep a live gate: a closed Work painting a `Wait` cause
+		# and a running Held clock, which is the exact invariant this
+		# Work exists to establish. The edge itself remains journal
+		# history; what ends is the scheduler episode.
+		if conn.execute("SELECT gate_kind FROM work WHERE id=?",
+		                (work_id,)).fetchone()["gate_kind"] is not None:
+			_write_gate(conn, work_id, payload, None)
 		_touch_work(conn, work_id)
 		# WS-2 group-1 correction (ruled): terminal close atomically
 		# WITHDRAWS every pending exact @ obligation this work carries —
@@ -1019,9 +1268,9 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		for dependent in conn.execute(
 				"SELECT work FROM edges WHERE blocker=?", (work_id,)):
 			_recompute_ready(conn, dependent["work"], payload)
-		# WS-1: this close may have shut the LAST gate some waiting work
+		# WS-1: this close may have shut the LAST gate some blocked work
 		# recorded — the wake commits atomically with it, or not at all.
-		_sweep_wakes(conn, f"{actor_team}.{actor}")
+		_sweep_wakes(conn, f"{actor_team}.{actor}", payload)
 
 	return store._write("close_work", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
@@ -1060,8 +1309,8 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; terminal "
 			                f"work cannot be claimed")
-		if live["phase"] in ("waiting", "parked"):
-			raise WorkError(f"{work_id} is {live['phase']}; waiting and "
+		if live["phase"] in ("block", "parked"):
+			raise WorkError(f"{work_id} is {live['phase']}; blocked and "
 			                f"parked work cannot be claimed")
 		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
 		                                      actor, "claim")
@@ -1080,6 +1329,7 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 		payload["claimant"] = f"{actor_team}.{actor}"
 		payload["from_phase"] = live["phase"]
 		payload["phase"] = "active"
+		_phase_now(payload, work_id, "active")
 		conn.execute(
 			"UPDATE work SET handler_team=?, handler_member=?, "
 			"phase='active' WHERE id=?", (actor_team, actor, work_id))
@@ -1105,7 +1355,7 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 	against the exact recorded claimant, decided inside the write
 	transaction; reason= is durable evidence. A successful release clears
 	ONLY the claimant — phase, Route, Next, readiness, dependencies,
-	waiting and discussion state are untouched."""
+	gate and discussion state are untouched."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
 	if not isinstance(reason, str) or not reason.strip():
@@ -1145,14 +1395,18 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 				f"the compare-and-swap refuses — recovery never "
 				f"guesses whose execution it is interrupting")
 		payload["released_claimant"] = recorded
+		landing = _unclaimed_state(conn, work_id)
+		_phase_now(payload, work_id, landing)
 		conn.execute(
 			# W38: releasing the claim ends `active`, and the state it
 			# lands in is derived from the committed gates rather than
 			# carried in — so a release that races a new blocker cannot
 			# leave runnable-looking Work that nothing can claim.
 			"UPDATE work SET handler_team=NULL, handler_member=NULL, "
-			"phase=?, wait_type=?, wait_obligation=NULL WHERE id=?",
-			(*_unclaimed_state(conn, work_id), work_id))
+			"phase=? WHERE id=?", (landing, work_id))
+		# W78: landing in `block` names the gate that holds it and
+		# starts that gate's episode in the same transaction.
+		_retarget_gate(conn, work_id, payload)
 		_touch_work(conn, work_id)
 		# W49: the Work becomes available to its Route endpoint again.
 		# Every eligible handler — including the released claimant, who
@@ -1330,7 +1584,7 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 
 	The special rules, exactly as ruled: `parked` needs a non-empty reason,
 	keeps its one accountable Route, and leaves ONLY through explicit
-	parked→queued; `waiting` records exactly one typed wake condition
+	parked→queued; `block` records exactly one typed gate
 	(`wait="gates"` for the aggregate required-Work gate, or an obligation
 	seq for one exact pending `@`), refuses an already-satisfied condition,
 	and leaves ONLY through the condition-bound audited wake; closed work
@@ -1353,7 +1607,7 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		raise WorkError(
 			"active is not a phase you set: it means a participant is "
 			"executing the Work, which only `claim` establishes — claim "
-			"it, or move it to queued, waiting, or parked")
+			"it, or move it to queued, block, or parked")
 	if phase not in PHASES:
 		raise WorkError(f"phase {phase!r} is not one of {PHASES}; compact "
 		                f"display values are presentation only and are not "
@@ -1367,17 +1621,17 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 				"parking requires a reason: parked work has NO wake "
 				"condition and can sit forever, so the why must be on "
 				"the record")
-	if phase == "waiting":
+	if phase == "block":
 		if wait is None:
 			raise WorkError(
-				"waiting requires a recorded wake condition: "
-				"wait='gates' for the aggregate required-Work gate, or "
-				"the seq of one exact pending @ obligation")
+				"block requires a recorded gate: wait='gates' for the "
+				"aggregate required-Work gate, or the seq of one exact "
+				"pending @ obligation")
 		if wait != "gates" and not isinstance(wait, int):
 			raise WorkError(f"wait condition {wait!r} is neither 'gates' "
 			                f"nor an obligation seq")
 	elif wait is not None:
-		raise WorkError(f"a wake condition belongs to 'waiting' only, "
+		raise WorkError(f"a gate belongs to 'block' only, "
 		                f"not {phase!r}")
 
 	payload = {"work": work_id, "from": row["phase"], "to": phase,
@@ -1396,15 +1650,15 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 			raise WorkError(
 				f"{work_id} is parked; parked work resumes only through "
 				f"the explicit parked→queued transition, deliberately")
-		if live["phase"] == "waiting":
+		if live["phase"] == "block":
 			raise WorkError(
-				f"{work_id} is waiting on its recorded condition; waiting "
-				f"leaves only through the condition-bound audited wake")
+				f"{work_id} is blocked on its displayed gate; block "
+				f"leaves only through the gate-bound audited wake")
 		payload["from"] = live["phase"]
 		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
 		                                      actor, "set_phase")
 		wait_type, wait_obligation = None, None
-		if phase == "waiting":
+		if phase == "block":
 			if wait == "gates":
 				if _open_gates(conn, work_id) == 0:
 					raise WorkError(
@@ -1438,11 +1692,11 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		payload["wait"] = None if wait_type is None else \
 			{"type": wait_type, "obligation": wait_obligation}
 		# W38: every phase this verb can reach is an UNCLAIMED state, so
-		# each one releases. Previously only waiting and parked did,
+		# each one releases. Previously only block and parked did,
 		# because queued/research/active/review were all claimable
 		# stages; with the role-shaped phases gone, `queued` means
 		# runnable and unclaimed just as literally as the other two.
-		if phase in ("queued", "waiting", "parked"):
+		if phase in ("queued", "block", "parked"):
 			live_claim = conn.execute(
 				"SELECT handler_team, handler_member FROM work WHERE id=?",
 				(work_id,)).fetchone()
@@ -1456,22 +1710,27 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		# W38 R2: leaving a deliberate park does not make open gates
 		# vanish. Asking for `queued` asks to RESUME, and what that
 		# reveals is whatever the committed gates say — queued when
-		# runnable, waiting on those gates when not. Writing queued
+		# runnable, blocked on those gates when not. Writing queued
 		# verbatim would commit runnable-looking Work that nothing can
 		# claim, which is the same contradiction R1 closes on the
 		# readiness side.
 		committed = phase
 		if phase == "queued":
-			committed, wait_type = _unclaimed_state(conn, work_id)
-			wait_obligation = None
+			committed = _unclaimed_state(conn, work_id)
 			payload["to"] = committed
-			payload["wait"] = None if wait_type is None else \
-				{"type": wait_type, "obligation": None}
-		conn.execute(
-			"UPDATE work SET phase=?, wait_type=?, wait_obligation=? "
-			"WHERE id=?", (committed, wait_type, wait_obligation, work_id))
+		_phase_now(payload, work_id, committed)
+		conn.execute("UPDATE work SET phase=? WHERE id=?",
+		             (committed, work_id))
+		# W78: an explicit `block wait=<obligation>` names its own gate;
+		# every other landing derives the displayed gate from what is
+		# actually open. Both go through the one episode writer, so the
+		# phase and the thing holding it are committed together.
+		if committed == "block" and wait_obligation is not None:
+			_enter_message_gate(conn, work_id, payload, wait_obligation)
+		else:
+			_retarget_gate(conn, work_id, payload)
 		_touch_work(conn, work_id)
-		# W49: ONLY the parked→queued resume mints. Entering waiting or
+		# W49: ONLY the parked→queued resume mints. Entering block or
 		# parked REMOVES actionability rather than granting it, and a
 		# release into queued mints through `release` itself.
 		if payload["from"] == "parked" and phase == "queued":
@@ -1995,7 +2254,7 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 			raise WorkError(
 				f"blocking {work_id} on {blocker_id} closes a loop through "
 				f"{' -> '.join(path)}; a required-edge cycle is everyone "
-				f"waiting forever, and it is refused at insertion")
+				f"blocked forever, and it is refused at insertion")
 		conn.execute(
 			"INSERT INTO edges (work, blocker, created_seq) VALUES (?, ?, ?)",
 			(work_id, blocker_id, seq))
@@ -2066,11 +2325,11 @@ def remove_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		             (work_id, blocker_id))
 		_recompute_ready(conn, work_id, payload)
 		# Removing the final live gate satisfies the same recorded
-		# `waiting:gates` condition as closing that gate. Recompute marks
+		# `block` Work gate as closing that gate. Recompute marks
 		# readiness; the level-triggered sweep performs the audited phase
 		# release in THIS correction transaction rather than stranding the
 		# Work until some unrelated later writer happens to sweep it.
-		_sweep_wakes(conn, f"{actor_team}.{actor}")
+		_sweep_wakes(conn, f"{actor_team}.{actor}", payload)
 
 	return store._write("remove_dependency", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
@@ -2201,7 +2460,7 @@ def respond_obligation(store: Authority, obligation_seq: int, *,
 			"UPDATE obligations SET status='responded', resolved_seq=? "
 			"WHERE seq=?", (seq, obligation_seq))
 		# WS-1: completing an obligation may be the recorded wake condition.
-		_sweep_wakes(conn, f"{team}.{member}")
+		_sweep_wakes(conn, f"{team}.{member}", payload)
 
 	return store._write("respond", f"{team}.{member}", payload, mutate,
 	                    operation=operation,
@@ -2254,7 +2513,7 @@ def dispose_obligation(store: Authority, obligation_seq: int, *,
 			"UPDATE obligations SET status='disposed', resolved_seq=? "
 			"WHERE seq=?", (seq, obligation_seq))
 		# WS-1: completion by disposal satisfies the condition the same way.
-		_sweep_wakes(conn, f"{team}.{member}")
+		_sweep_wakes(conn, f"{team}.{member}", payload)
 
 	return store._write("dispose", f"{team}.{member}", payload, mutate,
 	                    operation=operation,
@@ -2359,8 +2618,8 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			                f"only")
 		if phase not in CREATION_PHASES:
 			raise WorkError(
-				f"a work is not created {phase!r}: waiting needs a "
-				f"recorded wake condition and parking needs a reason")
+				f"a work is not created {phase!r}: block needs a live "
+				f"gate and parking needs a reason")
 		if parent is not None:
 			parent_row = _work(store, parent)
 			if parent_row["status"] != OPEN:
@@ -2453,6 +2712,16 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 				"author, body, ts) VALUES (?, ?, ?, ?, ?, "
 				"datetime('now'))",
 				(seq, provider_thread, actor_team, actor, body))
+			# W47: `accept create=` is the SECOND Work-creation path,
+			# and the ledger has to say so. Without this the provider is
+			# born with no recorded phase at all, so its scheduler
+			# history is empty from birth — the replay reconstructs
+			# nothing, by design, so an unrecorded entry is simply
+			# absent forever. `_recompute_ready` below may append a
+			# second entry for this same Work in this same event (a gate
+			# present at birth moves it straight to block); the replay
+			# takes the last entry per event, which is that later truth.
+			_phase_now(payload, provider_id, create["phase"])
 			_recompute_ready(conn, provider_id, payload)
 			if parent is not None:
 				_recompute_ready(conn, parent, payload)
@@ -2478,7 +2747,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			raise WorkError(
 				f"blocking {consumer_id} on {provider_id} closes a loop "
 				f"through {' -> '.join(path)}; a required-edge cycle is "
-				f"everyone waiting forever")
+				f"everyone blocked forever")
 		conn.execute(
 			"INSERT INTO edges (work, blocker, via_obligation, "
 			"created_seq) VALUES (?, ?, ?, ?)",
@@ -2532,7 +2801,7 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 		# R47: the exact-obligation waiter wakes (its named condition
 		# completed) with readiness kept false by the new gate; a
 		# gates-waiter gained a gate and does not wake.
-		_sweep_wakes(conn, f"{actor_team}.{actor}")
+		_sweep_wakes(conn, f"{actor_team}.{actor}", payload)
 		mutate.provider_id = provider_id
 
 	def finish(result):
@@ -3046,7 +3315,7 @@ def post_thread(store: Authority, thread_id: str, *,
 				# holds no claim, or somebody else's claim, would
 				# otherwise be able to park work out from under its
 				# executor.
-				# Entering waiting or parked already releases the
+				# Entering block or parked already releases the
 				# claim, so the claim check below subsumes any phase
 				# test: a suspended Work is necessarily unclaimed and
 				# refuses there. Phase is read for the evidence only.
@@ -3069,15 +3338,30 @@ def post_thread(store: Authority, thread_id: str, *,
 				payload["released_claimant"] = \
 					f"{live['handler_team']}.{live['handler_member']}"
 				payload["from_phase"] = live["phase"]
-				# Enter the exact-obligation wait and release the
+				# W47: this transaction moves the phase itself — it goes
+				# through neither `set_phase` nor `release_claim` — so
+				# this event must carry the boundary. `from_phase` above
+				# is evidence about the claim it released, not the
+				# scheduler axis; without the record below the replay
+				# leaves the claim's `active` episode open while the
+				# Work is in fact blocked on its obligation, which is
+				# the false actionability signal W38 ruled against.
+				_phase_now(payload, payload["work"], "block")
+				# Enter the exact-obligation gate and release the
 				# claim. the Route is deliberately untouched: the answer
 				# is owed TO the requesting Work's Route, not
 				# instead of it.
 				conn.execute(
-					"UPDATE work SET phase='waiting', "
-					"wait_type='obligation', wait_obligation=?, "
+					"UPDATE work SET phase='block', "
 					"handler_team=NULL, handler_member=NULL WHERE id=?",
-					(seq, payload["work"]))
+					(payload["work"],))
+				# W78: `block M<seq>` at PUBLICATION, timed from here.
+				# This is the one gate the authority sets explicitly
+				# rather than deriving, because the obligation that
+				# suspends the Work is known only at this point — a
+				# Work may carry other pending obligations that never
+				# blocked it, and those must not capture the cue.
+				_enter_message_gate(conn, payload["work"], payload, seq)
 				_touch_work(conn, payload["work"])
 		for team in sorted(touched_teams):
 			_join_thread(conn, thread_id, team, seq)
@@ -3101,9 +3385,27 @@ def post_thread(store: Authority, thread_id: str, *,
 	                    finish=finish, references=refs)
 
 
+def _default_route(conn, team: str, kind: str) -> str | None:
+	row = conn.execute("SELECT route FROM kinds WHERE team=? AND handle=?",
+	                   (team, kind)).fetchone()
+	return row["route"] if row else None
+
+
+def _current_route(conn, row) -> str | None:
+	"""The route a Work is on NOW: its explicit selection, or the
+	endpoint's default when it has none."""
+	try:
+		selected = row["route_selected"]
+	except (IndexError, KeyError):
+		selected = None
+	return selected or _default_route(conn, row["route_team"],
+	                                  row["route_kind"])
+
+
 def pass_work(store: Authority, work_id: str, *, actor_team: str,
               actor: str, to: str,
               comment: str, set_next: str | None = None,
+              route: str | None = None,
               op_id: str | None = None, refs=()) -> dict:
 	"""W171 (finding-pass-is-work-event): pass is an authoritative
 	WORK transition, not a discussion message. One atomic act moves
@@ -3120,7 +3422,7 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	# a retry naming the same destination is the same operation.
 	protected = _operation(store, actor_team, actor, "pass_work", op_id,
 	                       {"work": work_id, "to": to,
-	                        "comment": comment,
+	                        "comment": comment, "route": route,
 	                        "set_next": set_next, "refs": refs})
 	if isinstance(protected, dict):
 		return protected
@@ -3136,10 +3438,19 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	if row["status"] != OPEN:
 		raise WorkError(f"{work_id} is {row['status']}; the baton of "
 		                f"terminal work never moves")
-	if (row["route_team"], row["route_kind"]) == passed:
+	# W230: "already there" is now about the ROUTE, not only the visible
+	# endpoint. Selecting an alternate is a pass to the same endpoint
+	# that genuinely moves the baton — to a different agent — and it is
+	# the operation this Work exists for. Comparing endpoints alone
+	# would have refused exactly the reroute the finding requires, so
+	# the comparison includes which route the Work is on now.
+	if (row["route_team"], row["route_kind"]) == passed \
+			and _current_route(store.conn, row) == (
+				route or _default_route(store.conn, *passed)):
 		raise WorkError(f"{work_id} is already at "
-		                f"{passed[0]}.{passed[1]}; a pass moves the "
-		                f"baton")
+		                f"{passed[0]}.{passed[1]} on route "
+		                f"{_current_route(store.conn, row)!r}; a pass "
+		                f"moves the baton")
 	consumes_next = (row["next_team"], row["next_kind"]) == passed
 	event_kind = "return" if consumes_next else "pass"
 
@@ -3149,8 +3460,8 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	def mutate(conn, seq):
 		_member_active(conn, actor_team, actor)
 		live = conn.execute(
-			"SELECT status, route_team, route_kind, next_team, "
-			"next_kind, handler_team, handler_member FROM work "
+			"SELECT status, route_team, route_kind, route_selected, "
+			"next_team, next_kind, handler_team, handler_member FROM work "
 			"WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; the baton "
@@ -3171,18 +3482,31 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 				f"eligibility never moves work underneath its recorded "
 				f"executor — recover or release the claim explicitly "
 				f"first")
-		if (live["route_team"], live["route_kind"]) == passed:
+		# W230: the authoritative half of the same comparison — route
+		# included, so selecting an alternate on the same visible
+		# endpoint is a real move. Committed under the lock, because a
+		# regen between the pre-read and here could change which route
+		# is the default.
+		if (live["route_team"], live["route_kind"]) == passed \
+				and _current_route(conn, live) == (
+					route or _default_route(conn, *passed)):
 			raise WorkError(f"{work_id} is already at "
-			                f"{passed[0]}.{passed[1]}; a pass moves "
-			                f"the baton")
+			                f"{passed[0]}.{passed[1]} on route "
+			                f"{_current_route(conn, live)!r}; a pass "
+			                f"moves the baton")
 		if (((live["next_team"], live["next_kind"]) == passed)
 				!= consumes_next):
 			raise WorkError(
 				f"{work_id}'s planned Next changed while this pass "
 				f"was being prepared; it lost a concurrent race — "
 				f"retry against the current state")
+		# W230: an explicitly selected route travels with the handoff.
+		# It is resolved INSIDE the lock like every other endpoint fact,
+		# so a regen removing the alternate between the operator's
+		# choice and the commit refuses rather than routing elsewhere.
 		payload["pass_resolution"] = resolve_endpoint(
-			conn, passed[0], passed[1], "pass")
+			conn, passed[0], passed[1], "pass", selected=route)
+		payload["route_selected"] = route
 		if planned is not None:
 			payload["next_resolution"] = resolve_endpoint(
 				conn, planned[0], planned[1], "planned Next")
@@ -3191,8 +3515,8 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 			# same return commits with it (W108 trial handoff ruling).
 			conn.execute(
 				"UPDATE work SET route_team=?, route_kind=?, "
-				"next_team=?, next_kind=? WHERE id=?",
-				(passed[0], passed[1],
+				"route_selected=?, next_team=?, next_kind=? WHERE id=?",
+				(passed[0], passed[1], route,
 				 planned[0] if planned else None,
 				 planned[1] if planned else None, work_id))
 		else:
@@ -3200,9 +3524,10 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 			# pass plants a new one — never silently cleared.
 			conn.execute(
 				"UPDATE work SET route_team=?, route_kind=?, "
+				"route_selected=?, "
 				"next_team=COALESCE(?, next_team), "
 				"next_kind=COALESCE(?, next_kind) WHERE id=?",
-				(passed[0], passed[1],
+				(passed[0], passed[1], route,
 				 planned[0] if planned else None,
 				 planned[1] if planned else None, work_id))
 		# W73: the DESTINATION ROUTE decides the phase, never the
@@ -3219,14 +3544,15 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 		# hands over RESPONSIBILITY, not activity: the recipient is not
 		# working on it until they claim, so the destination phase is
 		# the scheduler state of unclaimed Work — queued when runnable,
-		# waiting when a gate is unsatisfied. The destination ROLE says
+		# blocked when a gate is unsatisfied. The destination ROLE says
 		# implementation or review, and it says so through the Route.
-		destination_phase, wait_type = _unclaimed_state(conn, work_id)
+		destination_phase = _unclaimed_state(conn, work_id)
 		payload["destination_phase"] = destination_phase
+		_phase_now(payload, work_id, destination_phase)
 		conn.execute(
 			"UPDATE work SET handler_team=NULL, handler_member=NULL, "
-			"phase=?, wait_type=?, wait_obligation=NULL "
-			"WHERE id=?", (destination_phase, wait_type, work_id))
+			"phase=? WHERE id=?", (destination_phase, work_id))
+		_retarget_gate(conn, work_id, payload)
 		_touch_work(conn, work_id)
 		# W49: a pass/return hands the Work to a new Route and
 		# releases the sender's claim — the canonical new episode. The

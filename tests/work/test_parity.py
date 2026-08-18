@@ -25,7 +25,9 @@ sys.path.insert(0, os.path.join(
 	os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
 	"src"))
 
+import baton_work as bw                                       # noqa: E402
 from baton_work import cli                                    # noqa: E402
+from baton_work import transitions as tr                      # noqa: E402
 from baton_work.tui import app                                # noqa: E402
 from baton_work.tui.app import COLUMNS                        # noqa: E402
 import fixtures                                               # noqa: E402
@@ -87,9 +89,25 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		rest = line[rest_at:]
 		line = line[id_width + 1:]
 		raw_title = line[:title_width].rstrip()
-		depth = 1 if raw_title.startswith("↳ ") else 0
-		clean = raw_title[2:] if depth else raw_title
-		clean = clean.split(" ▸")[0]
+		# W154: the Title cell is reserved STRUCTURE then the
+		# truncatable title — `↳ ` for a containment child and `▸N ` for
+		# hidden deeper Work, both ahead of the text. Parsing them off
+		# the front is now the only way to read the title, which is the
+		# point: neither symbol can be truncated away by a long title.
+		# W155 R3: depth is decoded from the INDENT, not from a single
+		# `↳ ` prefix. The old rule mapped everything that was not
+		# exactly `↳ `-prefixed to depth 0, so a depth-2 row read as a
+		# ROOT — a parity parser silently disagreeing with the JSON
+		# about containment, which is the concrete reason that window
+		# change was a breaking one.
+		marker = raw_title.find("↳ ")
+		if marker < 0:
+			depth, clean = 0, raw_title
+		else:
+			depth = marker // 2 + 1
+			clean = raw_title[marker + 2:]
+		if clean.startswith("▸"):
+			clean = clean.split(" ", 1)[1] if " " in clean else ""
 		cells = {"title": clean, "depth": depth,
 		         "local_id": local_id, "cue": cue}
 		offset = 0
@@ -101,6 +119,11 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		# W245: ROUTE (eligible endpoint) and CURRENT (exact claimant)
 		# are separate columns, so parity checks them separately.
 		parsed = {"title": cells["title"], "depth": cells["depth"],
+		          # W155 R3: identity is part of parity. It was computed
+		          # and then dropped, so nothing could compare the two
+		          # surfaces row FOR row — only field by field in an
+		          # order both happened to agree on.
+		          "local_id": cells["local_id"],
 		          "status": cells["ST"],
 		          "route": None if cells.get("ROUTE", "-") == "-"
 		          else cells["ROUTE"],
@@ -207,8 +230,16 @@ def test_containment_children_agree_inline(world, capsys):
 	                  viewer="lang.grace")["rows"] if row["depth"] == 1]
 	screen = _screen_rows(path, "lang.grace")
 	drawn = [row for row in _parse_rows(screen) if row["depth"] == 1]
-	assert [row["title"] for row in drawn][:len(expected)] == \
-		[row["title"] for row in expected]
+	# W78: the parent's `Wait` cell now names its displayed child gate,
+	# which widens the cue column; the title absorbs the remainder and
+	# is the one column that truncates. Parity is about the two surfaces
+	# agreeing on the SAME rows in the same order, so the drawn title is
+	# compared as the prefix it is — the identity beside it is never
+	# abbreviated and is checked whole below.
+	for drawn_row, json_row in zip(drawn, expected):
+		assert json_row["title"].startswith(drawn_row["title"].rstrip()), \
+			f"{drawn_row['title']!r} is not a prefix of {json_row['title']!r}"
+	assert len(drawn) >= len(expected)
 	for drawn_row, json_row in zip(drawn, expected):
 		assert drawn_row["new"] == json_row["new"]
 		assert drawn_row["next"] == (json_row["next"] or {}).get("endpoint")
@@ -402,3 +433,63 @@ def test_collapsed_resolved_rows_agree_on_both_surfaces(tmp_path, capsys):
 	closed_json = next(row for row in expected
 	                   if row["title"] == "already done")
 	assert closed_drawn["status"] == app.status_cell(closed_json) == "c/sat"
+
+
+def test_three_levels_agree_between_json_and_the_tui(tmp_path_factory,
+                                                     capsys):
+	"""W155 R3: the acceptance contract says canonical `tree` JSON and
+	the TUI expose the SAME bounded window, and until now nothing
+	compared them below depth 1.
+
+	A root/child/grandchild/fourth-level chain is the case that matters:
+	the fourth level must be absent from both surfaces, and its visible
+	ancestor must disclose it on both. Identity, order, depth, title
+	prefix and `deeper` are compared row by row — the parser that
+	decodes this screen is the one W155's review found mapping a
+	depth-2 row to a root.
+	"""
+	directory = tmp_path_factory.mktemp("threedeep")
+	home = directory / "home"
+	home.mkdir()
+	config_path, database = fixtures.build_instance(
+		str(home), {"lang": {"members": {"grace": ["dev"]}, "kinds": ["bug"]}})
+	store = bw.Authority(database)
+	made, parent = [], None
+	for level in range(4):
+		parent = tr.create_work(
+			store, team="lang", kind="bug", title=f"level {level} work",
+			origin="external-report" if level == 0 else "decomposition",
+			classification="suspected-defect", author="grace", body="b",
+			parent=parent)["work_id"]
+		made.append(parent)
+	store.close()
+
+	expected = _json(capsys, config_path, "tree", viewer="lang.grace")["rows"]
+	drawn = _parse_rows(_screen_rows(config_path, "lang.grace"))
+
+	assert [row["id"] for row in expected] == made[:3], \
+		"the JSON window is not the three-level chain"
+	assert made[3] not in [row["id"] for row in expected], \
+		"the fourth level reached the JSON window"
+	assert len(drawn) == len(expected), \
+		f"the surfaces disagree about how many rows: {drawn}"
+	for drawn_row, json_row in zip(drawn, expected):
+		assert drawn_row["local_id"] == json_row["local_id"], \
+			f"row order differs: {drawn_row} vs {json_row}"
+		assert drawn_row["depth"] == json_row["depth"], \
+			(f"{json_row['local_id']} is depth {json_row['depth']} in JSON "
+			 f"and {drawn_row['depth']} on screen")
+		assert json_row["title"].startswith(drawn_row["title"].rstrip()), \
+			f"{drawn_row['title']!r} is not a prefix of {json_row['title']!r}"
+	# the disclosure is the same fact on both surfaces
+	deepest = expected[-1]
+	assert deepest["deeper"] is True, \
+		"the JSON does not disclose the fourth level"
+	assert not any(row["deeper"] for row in expected[:-1]), \
+		"a row whose children are visible claims to hide Work"
+	screen = _screen_rows(config_path, "lang.grace")
+	marked = [line for line in screen if "▸" in line]
+	assert len(marked) == 1, f"the screen disclosure is not one row: {marked}"
+	assert deepest["local_id"] in marked[0], marked[0]
+	assert "level 3 work" not in "\n".join(screen), \
+		"the fourth level painted"

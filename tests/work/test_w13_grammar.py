@@ -84,7 +84,7 @@ def test_bad_input_refuses_before_authority_access(world, capsys):
 		(("detail", "work=W1", "work=W2"), "duplicate work="),
 		(("close", "--rationale", "x"), "retired flag spelling"),
 		(("detail", "some-W1"), "positional operands are retired"),
-		(("phase", "work=x", "to=waiting", "wait=maybe"), "integer"),
+		(("phase", "work=x", "to=block", "wait=maybe"), "integer"),
 		(("accept", "obligation=1", "body=x", "create=yes"),
 		 "exactly the value true"),
 	]
@@ -315,9 +315,9 @@ def test_static_conditions_refuse_before_authority(world, monkeypatch):
 	config, _database = world
 	cases = [
 		(("phase", "work=x", "to=parked"), "requires reason="),
-		(("phase", "work=x", "to=waiting"), "requires wait="),
+		(("phase", "work=x", "to=block"), "requires wait="),
 		(("phase", "work=x", "to=queued", "wait=gates"),
-		 "applies only with to=waiting"),
+		 "applies only with to=block"),
 		# W80: transfer left say — pass-to/phase/set-next are unknown
 		# keys there now; the carrier condition binds on= to request=.
 		(("say", "thread=t", "body=b", "pass-to=c.d"),
@@ -359,8 +359,8 @@ def test_help_parity_covers_universal_operands_and_conditions(world,
 	assert "to=" in passing and "comment=" in passing
 	phase = work_cli.render_help("phase")
 	assert "with to=parked: requires reason=" in phase
-	assert "with to=waiting: requires wait=" in phase
-	assert "unless to=waiting: forbids wait=" in phase
+	assert "with to=block: requires wait=" in phase
+	assert "unless to=block: forbids wait=" in phase
 	close = work_cli.render_help("close")
 	assert "with duplicate-of=: requires outcome=rejected" in close
 
@@ -508,10 +508,10 @@ def test_assist_applies_the_parsers_condition_model():
 	assert assist_text(
 		"say thread=T1 body=x request=push.bug wait=") == \
 		"wait=: true, false"
-	waiting = assist_text("phase work=W1 to=waiting ")
+	waiting = assist_text("phase work=W1 to=block ")
 	assert "wait=" in waiting.split("optional:")[0]
 	assert "wait=" not in assist_text("phase work=W1 "), \
-		"wait= offered outside to=waiting"
+		"wait= offered outside to=block"
 	# W80: transfer left say entirely — the assist never offers the
 	# retired keys, and on= binds to request=.
 	discussion = assist_text("say thread=T1 body=b ")

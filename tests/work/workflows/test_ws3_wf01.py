@@ -49,15 +49,19 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	push1, thread_id = born["work_id"], born["thread"]
 	# W159: ONE act. The claim is what the blocking form suspends, and
 	# the request itself enters the exact-obligation wait and releases
-	# it — the retired two-command `say` then `phase to=waiting` is
+	# it — the retired two-command `say` then `phase to=block` is
 	# exactly the race this Work removed.
 	flow.ok("claim", f"work={push1}", viewer="push.sl")
 	asked = flow.post(push1, "body=drift: yours?",
 	                "request=drift.bug", viewer="push.sl")
 	waiting = flow.ok("detail", f"work={push1}", viewer="push.sl")
-	assert waiting["phase"] == "waiting", waiting["phase"]
-	assert waiting["waiting_on"] == {"type": "obligation",
-	                                 "obligation": asked["seq"]}
+	assert waiting["phase"] == "block", waiting["phase"]
+	# W78: the structured gate — kind, the operator-facing M… locator,
+	# and the pending obligation's own identity and state.
+	assert waiting["gate"]["kind"] == "message"
+	assert waiting["gate"]["obligation"]["seq"] == asked["seq"]
+	assert waiting["gate"]["selector"] == f"M{asked['seq']}"
+	assert waiting["gate"]["started_at"] is not None
 	assert waiting["handler"] is None, "the blocking ask kept the claim"
 	assert waiting["route"]["endpoint"] == "push.bug", \
 		"asking for input moved Current"
@@ -93,8 +97,8 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	# runnable — the acceptance created a dependency in the same
 	# transaction. The wait retargets to that gate rather than
 	# advertising work nothing can claim.
-	assert consumer["phase"] == "waiting", "the obligation waiter slept on"
-	assert consumer["waiting_on"]["type"] == "gates"
+	assert consumer["phase"] == "block", "the obligation waiter slept on"
+	assert consumer["gate"]["kind"] == "work"
 	assert consumer["ready"] is False, "the new gate did not hold"
 	assert consumer["links"]["blocked_by"][0]["id"] == drift1
 	assert consumer["links"]["blocked_by"][0]["via_obligation"] == \

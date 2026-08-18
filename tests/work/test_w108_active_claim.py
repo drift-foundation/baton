@@ -66,7 +66,7 @@ def _create(store, title="claimable", parent=None, kind="bug"):
 
 def _row(store, work):
 	return store.conn.execute(
-		"SELECT phase, ready, handler_team, handler_member, wait_type "
+		"SELECT phase, ready, handler_team, handler_member, gate_kind "
 		"FROM work WHERE id=?", (work,)).fetchone()
 
 
@@ -180,9 +180,9 @@ def test_entering_waiting_releases_the_claim(store):
 	                body="blocking question", request="lang.rev")
 	obligation = asked["seq"]
 	released = tr.set_phase(store, work, actor_team="lang", actor="ada",
-	                        phase="waiting", wait=obligation)
+	                        phase="block", wait=obligation)
 	row = _row(store, work)
-	assert row["phase"] == "waiting"
+	assert row["phase"] == "block"
 	assert row["handler_team"] is None, \
 		"entering waiting kept the execution claim"
 	event = [e for e in store.events() if e["seq"] == released["seq"]][0]
@@ -280,7 +280,7 @@ def test_a_blocked_handoff_lands_waiting_and_refuses_claim(store):
 	fx.post(store, work, author_team="lang", author="ada",
 	        body="review while blocked", pass_to="lang.rev")
 	row = _row(store, work)
-	assert row["phase"] == "waiting", \
+	assert row["phase"] == "block", \
 		"a gated handoff advertised itself as runnable"
 	assert row["ready"] == 0
 	with pytest.raises(bw.WorkError, match="cannot be claimed"):
@@ -319,7 +319,7 @@ def test_a_late_gate_releases_the_claim_and_moves_to_waiting(store):
 	linked = tr.add_dependency(store, work, blocker, actor_team="lang",
 	                           actor="ada", rationale="test dependency")
 	row = _row(store, work)
-	assert row["phase"] == "waiting", \
+	assert row["phase"] == "block", \
 		"a released, gated Work kept a phase nobody was executing"
 	assert row["ready"] == 0
 	assert row["handler_team"] is None, \

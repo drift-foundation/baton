@@ -62,7 +62,7 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 		"the report arrived pre-assessed"
 	assert checkpoint["status"] == "open", "a report closed the provider"
 	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["phase"] == \
-		"waiting", "a report transitioned the consumer"
+		"block", "a report transitioned the consumer"
 
 	# 5. Lang records accepted with rationale — a separate audit act that
 	# still changes no workflow state.
@@ -70,7 +70,7 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	        "rationale=clean run on the exact candidate",
 	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["status"] == "open"
-	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["phase"] == "waiting"
+	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["phase"] == "block"
 
 	# 6. Lang closes LANG-42 satisfying, naming the trial and rationale;
 	# PUSH-1 wakes because this was its LAST gate — Current,

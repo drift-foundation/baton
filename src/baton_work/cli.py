@@ -20,7 +20,7 @@ import os
 import sys
 
 from baton_work.authority import WorkError
-from baton_work import jsonapi, lifecycle, projection, transitions
+from baton_work import config, jsonapi, lifecycle, projection, transitions
 
 
 # The public MUTATING verbs — shared with the console's command bar so
@@ -71,8 +71,8 @@ _CLASSIFICATIONS = ("unknown",) + _CREATION_CLASSIFICATIONS
 # W38: the closed scheduler axis. All four are FILTERABLE — asking to
 # see what is running is an ordinary question — but only three are
 # SETTABLE, because `active` is established by claiming, not by asking.
-_PHASES = ("queued", "active", "waiting", "parked")
-_SETTABLE_PHASES = ("queued", "waiting", "parked")
+_PHASES = ("queued", "active", "block", "parked")
+_SETTABLE_PHASES = ("queued", "block", "parked")
 _OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
 _PRIORITIES = ("high", "normal", "low")
 
@@ -150,6 +150,9 @@ GRAMMAR = {
 	                           "baton.json"),)},
 	"regen": {"help": "accept the edited next-generation baton.json",
 	          "keys": ()},
+	"instructions": {"help": "resolve this participant's durable role instructions for an agent launcher",
+	                 "keys": (_key("role", required=True,
+	                               help="the held role to launch in; always explicit, so a later second role cannot silently change the session's persona"),)},
 	"resolve": {"help": "turn a portable locator into a machine path",
 	            "keys": (_key("locator", required=True,
 	                          help="ROOT_ID:relative/path, or a WORK id "
@@ -285,8 +288,8 @@ GRAMMAR = {
 	          "conditions": (
 	              {"if-value": ("to", "parked"),
 	               "requires": ("reason",)},
-	              {"if-value": ("to", "waiting"), "requires": ("wait",)},
-	              {"unless-value": ("to", "waiting"),
+	              {"if-value": ("to", "block"), "requires": ("wait",)},
+	              {"unless-value": ("to", "block"),
 	               "forbids": ("wait",)}),
 	          "keys": (_key("work", required=True, help="the Work id"),
 	                   _key("to", dest="phase", required=True,
@@ -294,8 +297,8 @@ GRAMMAR = {
 	                        help="the target phase; `active` is not "
 	                             "settable — claim the Work instead"),
 	                   _key("reason", help="required when parking"),
-	                   _key("wait", help="waiting condition: gates, or "
-	                        "one pending obligation seq (waiting "
+	                   _key("wait", help="the gate: gates, or "
+	                        "one pending obligation seq (block "
 	                        "only)"))},
 	"try": {"help": "ask the assigned endpoints to TRY one exact candidate — opens a trial",
 	          "keys": (_key("work", required=True, help="the Work id"),
@@ -475,6 +478,11 @@ GRAMMAR = {
 	                       help="durable handoff evidence stored with "
 	                       "the authoritative pass event — never a "
 	                       "discussion message"),
+	                  _key("route", help="W230: explicitly select one of "
+	                       "the destination endpoint's configured routes; "
+	                       "omitted always resolves to the endpoint's "
+	                       "deterministic default, and Baton never "
+	                       "selects an alternate on your behalf"),
 	                  _key("set-next", help="planned return "
 	                       "endpoint"))},
 	"label": {"help": "label a thread to a Work",
@@ -1078,6 +1086,91 @@ def analyze_partial(buffer: str) -> dict:
 	        "notes": notes, "key_matches": key_matches}
 
 
+def _common_prefix(candidates) -> str:
+	shared = os.path.commonprefix(list(candidates)) if candidates else ""
+	return shared
+
+
+def complete_partial(buffer: str) -> dict:
+	"""W27: conservative Tab completion over the SAME analysis the
+	assistance line and the parser use.
+
+	Returns `{"buffer", "progressed", "candidates"}`. It edits only the
+	live final token, preserves everything before it byte-for-byte, and
+	reads no authority, config or filesystem. Shorthand is an input
+	GESTURE: nothing here becomes accepted grammar, and execution still
+	demands full canonical spellings.
+
+	The rules, all deterministic and none of them cycling:
+
+	- a unique candidate completes and appends its ruled delimiter — a
+	  space for verbs and closed values, `=` for operand names;
+	- several candidates extend only their common prefix, so a repeated
+	  Tab that can make no further progress changes nothing and the
+	  existing assist line remains the candidate display;
+	- a diagnostic, an open quote, or no candidate leaves the buffer
+	  exactly as it was.
+
+	The candidate set for operand names is the EFFECTIVE one, not every
+	name that shares a prefix: a key already supplied, or forbidden by
+	the form conditions the parser enforces, is not offered — completing
+	to something the parser would then refuse is worse than not
+	completing at all."""
+	analysis = analyze_partial(buffer)
+	unchanged = {"buffer": buffer, "progressed": False, "candidates": []}
+	state = analysis["state"]
+	if state == "diagnostic":
+		return unchanged
+	parts = _partial_tokens(buffer.lstrip())
+	if parts is None:
+		return unchanged
+	_completed, live, open_quote = parts
+	if open_quote:
+		# Rewriting the inside of an open quoted value would change its
+		# quoting, which this never does.
+		return unchanged
+	live = live or ""
+
+	if state in ("commands", "verbs"):
+		candidates = [name for name in analysis["matches"]
+		              if name.startswith(live)]
+		delimiter = " "
+	elif state == "values":
+		candidates = [value for value in analysis["values"]]
+		key = analysis["key"]
+		typed = live.partition("=")[2]
+		candidates = [value for value in candidates
+		              if value.startswith(typed)]
+		live, delimiter = typed, " "
+	elif state == "operands":
+		offered = set(analysis["required"]) | set(analysis["optional"])
+		if analysis["heading"]:
+			# an exactly-one choice is selectable until one is chosen
+			offered |= {name for name in analysis["heading"]
+			            .removeprefix("one of: ").split(" | ") if name}
+		candidates = [name for name in (analysis["key_matches"] or [])
+		              if name in offered]
+		delimiter = ""
+	else:
+		return unchanged
+	if not candidates:
+		return unchanged
+
+	if len(candidates) == 1:
+		completion = candidates[0] + delimiter
+	else:
+		completion = _common_prefix(candidates)
+		if len(completion) <= len(live):
+			return {"buffer": buffer, "progressed": False,
+			        "candidates": sorted(candidates)}
+	if completion == live:
+		return {"buffer": buffer, "progressed": False,
+		        "candidates": sorted(candidates)}
+	head = buffer[:len(buffer) - len(live)] if live else buffer
+	return {"buffer": head + completion, "progressed": True,
+	        "candidates": sorted(candidates)}
+
+
 # W4: every Work-valued operand, by KEY NAME across the one grammar —
 # each routes through THE strict selector resolver before dispatch, so
 # the short and canonical spellings are interchangeable everywhere and
@@ -1299,6 +1392,10 @@ def _dispatch(store: Authority, args):
 			follow_up_of=args.follow_up_of,
 			priority=args.priority, op_id=args.op_id,
 			refs=args.refs or ())
+	if command == "instructions":
+		_need_participant(args)
+		return config.participant_instructions(store.accepted_config,
+		                                       args.participant, args.role)
 	if command == "accept":
 		team, member = _need_participant(args)
 		create_only = {"kind=": args.kind, "title=": args.title,
@@ -1455,7 +1552,7 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.pass_work(
 			store, args.work, actor_team=team, actor=member,
-			to=args.to,
+			to=args.to, route=args.route,
 			comment=args.comment, set_next=args.set_next,
 			op_id=args.op_id, refs=args.refs or ())
 	if command == "label":
@@ -1566,7 +1663,7 @@ def _dispatch(store: Authority, args):
 	if command == "phase":
 		team, member = _need_participant(args)
 		if args.wait_gates and args.wait_obligation is not None:
-			raise WorkError("waiting records exactly ONE typed condition: "
+			raise WorkError("block records exactly ONE typed gate: "
 			                "gates or one obligation, not both")
 		wait = "gates" if args.wait_gates else args.wait_obligation
 		return transitions.set_phase(store, args.work, actor_team=team,

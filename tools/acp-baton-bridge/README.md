@@ -41,6 +41,7 @@ or model identity is inferred:
     "binary": "/home/sl/opt/baton/v11/<CANDIDATE>/bin/baton",
     "config": "/home/sl/baton-v11/baton.json",
     "participant": "baton.claude",
+    "role": "impl",
     "waitTimeoutSeconds": 60
   },
   "agent": {
@@ -63,6 +64,14 @@ or model identity is inferred:
   persisted session; refused before any session use when the agent does
   not advertise `loadSession`). The bridge persists only its own
   session selection — never agent history, never Baton authority state.
+- `baton.role` selects one role held by `baton.participant` and is REQUIRED,
+  even when that participant holds exactly one role. Inferring it would mean
+  that giving the participant a second role later silently changed the persona
+  of every session launched here. Before any session creation or load, the
+  bridge resolves the accepted instruction projection through the configured
+  Baton executable; a missing or unheld role fails closed. ACP has no
+  developer-instruction field, so the resolved text rides every supervised
+  readiness prompt, including the first.
 - `permissionMode` is the exact operator-selected ACP session mode
   (the ruled trial mode is `bypassPermissions`). The bridge requires it
   among the agent's advertised modes and selects it after new/load; a
@@ -97,6 +106,8 @@ policy/protocol failure; it is never auto-approved. Streamed agent
 output and genuine elicitation go to the foreground surface. Process
 exit, malformed JSON-RPC, unsupported capability, and session-load
 failure are visible and retried without discarding current readiness.
+The prompt includes the role instructions from the accepted Baton generation;
+an operator-authored one-off persona prompt is not part of the normal path.
 
 ## Run
 

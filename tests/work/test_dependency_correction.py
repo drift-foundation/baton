@@ -120,7 +120,7 @@ def test_correcting_the_last_gate_wakes_waiting_work_in_the_same_transaction(
 		rationale="evidence proves this edge was mistaken")
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
 	assert detail["ready"] is True
-	assert detail["phase"] == "queued" and detail["waiting_on"] is None
+	assert detail["phase"] == "queued" and detail["gate"] is None
 	wakes = [event for event in store.events()
 	         if event["kind"] == "wake" and
 	         event["payload"]["work"] == work]
@@ -128,8 +128,10 @@ def test_correcting_the_last_gate_wakes_waiting_work_in_the_same_transaction(
 	assert wakes[0]["seq"] == removed["seq"] + 1, \
 		"the correction and its wake did not commit together"
 	assert wakes[0]["actor"] == "lang.ada"
-	assert wakes[0]["payload"]["condition"] == {
-		"type": "gates", "obligation": None}
+	# W78: the wake names the gate that CLEARED, typed and located,
+	# rather than the condition kind that used to stand in for it.
+	assert wakes[0]["payload"]["cleared_gate"] == {
+		"kind": "work", "work": blocker, "obligation": None}
 	actions = pj.participant_actions(
 		store, viewer_team="lang", viewer_member="ada")["actions"]
 	assert len([action for action in actions
@@ -152,8 +154,8 @@ def test_correcting_a_nonfinal_gate_leaves_waiting_work_asleep(world):
 	                     rationale="only the first edge was mistaken")
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
 	assert detail["ready"] is False
-	assert detail["phase"] == "waiting"
-	assert detail["waiting_on"] == {"type": "gates", "obligation": None}
+	assert detail["phase"] == "block"
+	assert detail["gate"]["kind"] == "work"
 	assert not [event for event in store.events()
 	            if event["kind"] == "wake" and
 	            event["payload"]["work"] == work]

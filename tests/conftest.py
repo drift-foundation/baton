@@ -3,7 +3,7 @@
 `src/` is not on `sys.path` by default, so the packages under test are
 invisible to a bare `pytest` invocation. Adding it here rather than through a
 `PYTHONPATH` in the justfile means the suite runs the same way however it is
-started -- `just test`, `pytest`, `pytest tests/tui/test_tui_render.py`, or an
+started -- `just test-v11`, `pytest`, `pytest tests/work/test_phase.py`, or an
 IDE runner -- instead of only through the one entry point that happened to
 export the variable.
 
@@ -38,14 +38,8 @@ def pytest_configure(config):
     )
 
 
-# NOTHING HERE BUILDS THE RELEASE CANDIDATE. An earlier version of this file
-# called `candidate.ensure()` before collection, so a bare `pytest` would
-# manufacture the very artifact the packaged and currency gates claim to
-# inspect. The ruled sequence is `just build`, `just test`, `just deploy`, and
-# step two may not perform step one -- otherwise a green suite says nothing
-# about the bytes a human is about to publish.
-#
-# The gates that need a candidate call `candidate.require()`, which refuses
-# legibly when there is none. Everything else in this suite runs from source
-# and is unaffected, including the reusable checkout `TestPackaging` copies,
-# which have no builders at all.
+# W4 (finding-v10-runtime-removal): the candidate-build explanation that
+# stood here described `tests/candidate.py` and the v10 `just build` /
+# `just test` sequence, both of which are gone. The v11 deployer is a
+# separate operator-facing recipe and no part of this suite invokes it,
+# so there is nothing left to warn about.

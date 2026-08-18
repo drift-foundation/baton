@@ -67,13 +67,17 @@ def test_wf15_a_directed_request_waits_by_default(flow):
 		f"the blocking request consumed more than one sequence: " \
 		f"{last_before} -> {asked['seq']}"
 	after = flow.ok("detail", f"work={work}", viewer="push.sl")
-	assert after["phase"] == "waiting"
-	assert after["waiting_on"] == {"type": "obligation",
-	                               "obligation": asked["seq"]}
+	assert after["phase"] == "block"
+	# W78: the structured gate — kind, the operator-facing M… locator,
+	# and the pending obligation's own identity and state.
+	assert after["gate"]["kind"] == "message"
+	assert after["gate"]["obligation"]["seq"] == asked["seq"]
+	assert after["gate"]["selector"] == f"M{asked['seq']}"
+	assert after["gate"]["started_at"] is not None
 	assert after["handler"] is None, "the blocking ask kept the claim"
 	assert after["route"]["endpoint"] == before["route"]["endpoint"], \
 		"asking for input transferred ownership"
-	assert after["ready"] is False or after["phase"] == "waiting"
+	assert after["ready"] is False or after["phase"] == "block"
 
 	# 4. The obligation is real and actionable for the asked endpoint.
 	owed = flow.ok("obligations", viewer="drift.ada")
@@ -94,7 +98,7 @@ def test_wf15_a_directed_request_waits_by_default(flow):
 	        "body=ours; picking it up", viewer="drift.ada")
 	woken = flow.ok("detail", f"work={work}", viewer="push.sl")
 	assert woken["phase"] == "queued", "the exact waiter slept on"
-	assert woken["waiting_on"] is None
+	assert woken["gate"] is None
 	wakes = [e for e in flow.ok("events", viewer="push.sl")
 	         if e["kind"] == "wake"
 	         and e["payload"]["work"] == work]
@@ -127,7 +131,7 @@ def test_wf15_wait_false_is_the_asynchronous_contrast(flow):
 	after = flow.ok("detail", f"work={work}", viewer="push.sl")
 	assert after["phase"] == before["phase"], "wait=false changed the stage"
 	assert after["handler"] == before["handler"], "wait=false released the claim"
-	assert after["waiting_on"] is None
+	assert after["gate"] is None
 	assert [entry["seq"] for entry in flow.ok("obligations",
 	                                          viewer="drift.ada")] == \
 		[asked["seq"]], "the asynchronous form created no obligation"
@@ -153,7 +157,7 @@ def test_wf15_the_blocking_form_refuses_what_it_cannot_suspend(flow):
 	                    viewer="push.sl")
 	assert "unclaimed" in error, error
 	assert flow.ok("detail", f"work={work}",
-	               viewer="push.sl")["phase"] != "waiting"
+	               viewer="push.sl")["phase"] != "block"
 
 	error = flow.refuse("say", f"thread={thread}", "body=plain",
 	                    "wait=true", viewer="push.sl")

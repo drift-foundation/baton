@@ -176,9 +176,20 @@ def test_a_raw_left_sequence_returns_from_a_drill(executable, world):
 	"""The left/right boundary: `u` re-roots the window on the selected
 	Work and LEFT pops back out, the same as Esc. If the sequence were
 	not decoded, the console would stay drilled."""
-	drilled = _screen(executable, world, [(b"u", 0.6)])
-	returned = _screen(executable, world, [(b"u", 0.6), (LEFT, 0.6)])
-	top = _screen(executable, world, [])
+	# W78: a `block` row runs a live Held timer from its gate episode,
+	# so three screens captured seconds apart legitimately differ in
+	# that one cell. The comparison is about WHICH WINDOW is drawn, so
+	# the timer is normalized out rather than the test being made to
+	# race the clock.
+	import re as _re
+
+	def _steady(screen):
+		return [_re.sub(r"\b\d\d:\d\d\b", "MM:SS", line)
+		        for line in screen]
+
+	drilled = _steady(_screen(executable, world, [(b"u", 0.6)]))
+	returned = _steady(_screen(executable, world, [(b"u", 0.6), (LEFT, 0.6)]))
+	top = _steady(_screen(executable, world, []))
 	assert drilled != top, "`u` did not visibly re-root the window"
 	assert returned == top, \
 		"a raw LEFT sequence did not return from the drill"

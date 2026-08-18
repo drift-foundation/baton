@@ -69,7 +69,7 @@ def asking(world, claim="ada"):
 
 def state(world, work):
 	return dict(world["store"].conn.execute(
-		"SELECT phase, wait_type, wait_obligation, handler_team, "
+		"SELECT phase, gate_kind, gate_obligation, handler_team, "
 		"handler_member, route_team, route_kind FROM work WHERE id=?",
 		(work,)).fetchone())
 
@@ -86,9 +86,9 @@ def test_a_directed_request_blocks_atomically(world, spelling):
 	                        author="ada", body="push: please advise",
 	                        request="push.bug", on=work, wait=spelling)
 	after = state(world, work)
-	assert after["phase"] == "waiting"
-	assert after["wait_type"] == "obligation"
-	assert after["wait_obligation"] == posted["seq"], \
+	assert after["phase"] == "block"
+	assert after["gate_kind"] == "message"
+	assert after["gate_obligation"] == posted["seq"], \
 		"the wait names some other obligation than the one just created"
 	assert after["handler_team"] is None, "the claim was not released"
 	# Current does NOT move: the answer is owed TO the handler
@@ -125,7 +125,7 @@ def test_the_exact_waiter_wakes_once_on_every_resolution(world):
 		posted = tr.post_thread(store, thread, author_team="lang",
 		                        author="ada", body="push: advise",
 		                        request="push.bug", on=work)
-		assert state(world, work)["phase"] == "waiting"
+		assert state(world, work)["phase"] == "block"
 		if resolve == "respond":
 			tr.respond_obligation(store, posted["seq"], team="push",
 			                      member="sl", body="here you are")
@@ -145,13 +145,13 @@ def test_the_exact_waiter_wakes_once_on_every_resolution(world):
 		# W38 R3: `accept` gates the waiter on the provider it just
 		# named, so that resolution RETARGETS rather than waking.
 		if resolve == "accept":
-			assert after["phase"] == "waiting", \
+			assert after["phase"] == "block", \
 				"accept advertised a gated waiter as runnable"
-			assert after["wait_type"] == "gates"
+			assert after["gate_kind"] == "work"
 		else:
 			assert after["phase"] == "queued", \
 				f"{resolve} did not wake the exact waiter"
-			assert after["wait_type"] is None
+			assert after["gate_kind"] is None
 		wakes = [e for e in store.events()
 		         if e["kind"] == "wake"
 		         and e["payload"]["work"] == work]
@@ -173,7 +173,7 @@ def test_an_unrelated_obligation_does_not_wake_the_waiter(world):
 	                              request="push.bug", on=other)
 	tr.respond_obligation(store, other_posted["seq"], team="push",
 	                      member="sl", body="that one")
-	assert state(world, work)["phase"] == "waiting", \
+	assert state(world, work)["phase"] == "block", \
 		"an unrelated resolution woke the wrong waiter"
 	assert state(world, other)["phase"] == "queued"
 	tr.respond_obligation(store, posted["seq"], team="push",
@@ -278,7 +278,7 @@ def test_a_second_blocking_request_cannot_stack(world):
 	tr.post_thread(store, thread, author_team="lang", author="ada",
 	               body="push: advise", request="push.bug", on=work)
 	suspended = state(world, work)
-	assert suspended["phase"] == "waiting"
+	assert suspended["phase"] == "block"
 	assert suspended["handler_team"] is None
 	refuses(world, "unclaimed", thread_id=thread, author_team="lang",
 	        author="ada", body="push: again", request="push.bug",
@@ -384,7 +384,7 @@ def test_every_injected_boundary_leaves_the_authority_byte_identical(world):
 	assert replay["operation"]["state"] == "replayed"
 	fresh.close()
 	after = state(world, work)
-	assert after["phase"] == "waiting" and after["handler_team"] is None
+	assert after["phase"] == "block" and after["handler_team"] is None
 
 
 def test_the_blocking_request_serializes_against_a_claim_release(world):
@@ -400,7 +400,7 @@ def test_the_blocking_request_serializes_against_a_claim_release(world):
 		tr.post_thread(store, thread, author_team="lang", author="ada",
 		               body="push: advise", request="push.bug", on=work)
 	assert store.last_seq() == before
-	assert state(world, work)["phase"] != "waiting", \
+	assert state(world, work)["phase"] != "block", \
 		"a refused blocking request stranded the Work in waiting"
 
 
@@ -471,16 +471,19 @@ def test_the_console_command_path_produces_the_same_facts(world):
 	assert "error" not in (console.status or "").lower(), console.status
 	detail = pj.detail(store, work, viewer_team="lang",
 	                   viewer_member="ada")
-	assert detail["phase"] == "waiting"
+	assert detail["phase"] == "block"
 	assert detail["handler"] is None
-	assert detail["waiting_on"]["type"] == "obligation"
+	assert detail["gate"]["kind"] == "message"
 	# the Events journal shows the same effective choice
 	entry = next(e for e in pj.work_events(store, work, newest=True,
 	                                       limit=50)["events"]
 	             if e["kind"] == "request")
 	assert entry["payload"]["wait"] is True
 	assert entry["payload"]["released_claimant"] == "lang.ada"
-	assert detail["waiting_on"]["obligation"] == entry["seq"]
+	# W78: the gate carries the obligation's identity and state, and
+	# names the SOURCE MESSAGE as the operator-facing locator.
+	assert detail["gate"]["obligation"]["seq"] == entry["seq"]
+	assert detail["gate"]["selector"] == f"M{entry['seq']}"
 
 
 # -- R5: the immediate result reports which form committed -------------------
@@ -501,7 +504,7 @@ def test_the_say_result_echoes_the_effective_choice(world, spelling,
 	                        request="push.bug", on=work, wait=spelling)
 	assert result["wait"] is expected
 	# and it agrees with what actually happened
-	assert (state(world, work)["phase"] == "waiting") is expected
+	assert (state(world, work)["phase"] == "block") is expected
 
 
 def test_a_plain_message_invents_no_waiting_choice(world):
@@ -547,10 +550,17 @@ def test_json_shows_the_waiting_condition_and_the_effective_choice(world):
 	                        request="push.bug", on=work)
 	detail = pj.detail(store, work, viewer_team="lang",
 	                   viewer_member="ada")
-	assert detail["phase"] == "waiting"
+	assert detail["phase"] == "block"
 	assert detail["handler"] is None
-	assert detail["waiting_on"] == {"type": "obligation",
-	                                "obligation": posted["seq"]}
+	assert detail["gate"]["kind"] == "message"
+	assert detail["gate"]["message"] == posted["seq"]
+	assert detail["gate"]["selector"] == f"M{posted['seq']}"
+	assert detail["gate"]["obligation"]["seq"] == posted["seq"]
+	assert detail["gate"]["obligation"]["status"] == "pending"
+	assert detail["gate"]["obligation"]["endpoint"] == "push.bug"
+	# W78: the gate's own start instant is what a blocked row's timer
+	# reads; it is committed here, not derived by a client.
+	assert detail["gate"]["started_at"] is not None
 	entry = next(e for e in pj.work_events(store, work, newest=True,
 	                                       limit=50)["events"]
 	             if e["seq"] == posted["seq"])

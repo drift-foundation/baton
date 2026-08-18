@@ -68,7 +68,7 @@ def titles(result):
 def test_title_and_identifier_matching(world):
 	"""Case-folded title substrings; case-insensitive exact/prefix ids
 	(canonical and local); nonmatching fields never match; nested Work
-	beyond the two-level window is found; other teams' Work is not."""
+	beyond the three-level window is found; other teams' Work is not."""
 	parent = make(world, "Parser recovery epic")
 	child = make(world, "deep recovery step", parent=parent)
 	grandchild = make(world, "RECOVERY table rebuild", parent=child)

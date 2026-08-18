@@ -35,3 +35,10 @@ child (W233) because they cannot be written until W101 lands.
 8. [split to W233] The two Codex documents. They must describe the shape that
    exists after W101 removes the v10 monitor stack, and W101 is itself held
    until W102 completes the standalone cutover.
+9. [done 2026-08-18] Add the confirmed product one-liner, distinguish generic
+   ACP-compatible agents from the separate Codex bridge, and explain provider
+   resilience plus model/persona assignment as reasons to use Baton.
+10. [done 2026-08-18] Make the architecture diagram version-neutral by naming
+    its durable middle layer `Baton protocol authority`.
+11. [done 2026-08-18] Remove config, database, and `wait` mechanics from the
+    product diagram; retain local dossiers and the Codex/ACP adapter boundary.

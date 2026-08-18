@@ -54,7 +54,17 @@ def config_document(spec_teams=None, uuid: str = UUID) -> dict:
 		kinds = {kind: {"display": kind.title(), "route": "main"}
 		         for kind in spec["kinds"]}
 		teams[team] = {"display": team.title(), "participants": participants,
-		               "roles": {role: {"display": role.title()}
+		               # W101: every declared role carries durable
+		               # operating instructions, so the fixture supplies
+		               # them too — a config without them is refused at
+		               # acceptance, which is the point.
+		               "roles": {role: {
+			               "display": role.title(),
+			               "instructions": (
+				               f"You are the {role} for {team}. Read this "
+				               f"repository's policy and the operating "
+				               f"guide before your first assignment, then "
+				               f"act only on Work routed to you.")}
 		                         for role in roles},
 		               "routes": routes, "kinds": kinds}
 	return {"config_version": 1, "protocol_version": 11, "generation": 1,

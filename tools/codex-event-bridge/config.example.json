@@ -1,9 +1,7 @@
 {
-  "baton": {
+  "roleInstructions": {
     "binary": "/absolute/path/to/bin/baton",
-    "config": "/absolute/path/to/mailbox/baton.json",
-    "waitTimeoutSeconds": 60,
-    "retryMs": 1000
+    "config": "/absolute/path/to/mailbox/baton.json"
   },
   "servers": {
     "local": {
@@ -14,12 +12,18 @@
     "driftquery": {
       "server": "local",
       "threadId": "019c0000-0000-7000-8000-000000000001",
-      "participant": "dq.reviewer"
+      "identity": {
+        "participant": "dq.reviewer",
+        "role": "review"
+      }
     },
     "pushcoin": {
       "server": "local",
       "threadId": "019c0000-0000-7000-8000-000000000002",
-      "participant": "pushcoin.reviewer"
+      "identity": {
+        "participant": "pushcoin.reviewer",
+        "role": "review"
+      }
     }
   },
   "eventSocket": "/run/user/1000/codex-events.sock",

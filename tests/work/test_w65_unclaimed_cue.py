@@ -106,8 +106,14 @@ def test_no_open_state_carries_a_marker_any_more(world):
 	             to="rev.bug", comment="over")
 	passed = row_of(world, passed_id)
 	handed = epoch(passed["handoff_at"])
-	assert held_field(passed, handed + 5) == "00:05", \
-		"the handoff timer origin changed with the marker"
+	# W78 supersedes the handoff timer origin this line pinned. An
+	# unclaimed handoff no longer runs a clock: it was the defect —
+	# two unclaimed rows in one phase ran different clocks because one
+	# carried a historical `handoff_at` and nothing on either row
+	# explained why. The instant is still projected as history.
+	assert held_field(passed, handed + 5) == "-", \
+		"an unclaimed handoff still starts an unexplainable clock"
+	assert passed["handoff_at"] is not None
 
 	# blocked / unclaimed — the exact W2 shape
 	blocked_id = make(world, "blocked")
@@ -122,14 +128,14 @@ def test_no_open_state_carries_a_marker_any_more(world):
 		"dependency-blocked Work still carries the retired marker"
 
 	# waiting and parked stay unclaimed too
-	waiting_id = make(world, "waiting")
+	waiting_id = make(world, "block")
 	waiting_blocker = make(world, "waiting blocker")
 	tr.pass_work(store, waiting_id, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	tr.add_dependency(store, waiting_id, waiting_blocker,
 	                  actor_team="rev", actor="bee", rationale="test dependency")
 	waiting = row_of(world, waiting_id)
-	assert waiting["phase"] == "waiting" and waiting["ready"] is False
+	assert waiting["phase"] == "block" and waiting["ready"] is False
 	assert ">" not in held_field(waiting, now)
 	assert waiting["pickup"] == "pending", \
 		"waiting Work with a real handoff claimed an overdue pickup"

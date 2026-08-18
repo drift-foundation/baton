@@ -5,6 +5,7 @@ import { CodexClient } from "./codex_client.mjs";
 import { loadConfig, validateConfig } from "./config.mjs";
 import { EventBridge } from "./event_bridge.mjs";
 import { formatEventMessage, normalizeEvent } from "./event_types.mjs";
+import { readRoleInstructions } from "./role_instructions.mjs";
 import { verifySchemaCompatibility } from "./schema_check.mjs";
 
 const toolRoot = fileURLToPath(new URL("..", import.meta.url));
@@ -13,12 +14,14 @@ function usage() {
   return `usage: codex-event-bridge --config PATH [--debug]
        codex-event-bridge --endpoint URL --target NAME --thread ID [--debug]
        codex-event-bridge --config PATH --once [--target NAME] [--message TEXT]
+       codex-event-bridge --start-thread --endpoint URL --cwd PATH --baton PATH --baton-config PATH --participant TEAM.MEMBER --role ROLE
        codex-event-bridge --endpoint URL --list-threads
 
 options:
   --schema-dir PATH  generated schema directory
   --once             inject one test event and wait for turn/completed
   --list-threads     list recent thread IDs without resuming them
+  --start-thread     create one Codex thread with accepted Baton role instructions
   --message TEXT     text for --once
   --target NAME      target selected by --once or single-target shorthand`;
 }
@@ -27,7 +30,7 @@ function parse(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
-    if (arg === "--debug" || arg === "--once" || arg === "--list-threads" || arg === "--help" || arg === "-h") {
+    if (arg === "--debug" || arg === "--once" || arg === "--list-threads" || arg === "--start-thread" || arg === "--help" || arg === "-h") {
       options[arg.replace(/^-+/, "")] = true;
       continue;
     }
@@ -49,8 +52,17 @@ function logger(debug) {
   };
 }
 
+export async function resolveTargetInstructions(config, { read = readRoleInstructions, signal } = {}) {
+  if (!config.roleInstructions) return config;
+  const entries = await Promise.all(Object.entries(config.targets).map(async ([name, target]) => {
+    const resolved = await read(config.roleInstructions, target.identity, { signal });
+    return [name, Object.freeze({ ...target, developerInstructions: resolved.instructions, instructionRole: resolved.role, instructionGeneration: resolved.configurationGeneration })];
+  }));
+  return Object.freeze({ ...config, targets: Object.freeze(Object.fromEntries(entries)) });
+}
+
 async function resolveConfig(options) {
-  if (options.config) return await loadConfig(options.config);
+  if (options.config) return await resolveTargetInstructions(await loadConfig(options.config));
   if (options.endpoint && options.target && options.thread) {
     return validateConfig({
       servers: { local: { endpoint: options.endpoint } },
@@ -78,7 +90,9 @@ async function injectOnce(config, options, log) {
   client.on("serverRequest", (request) => log.warn(`[${targetName}] interactive request ${request.method} (${request.id}) cannot be answered by --once`));
   await client.connectAndInitialize();
   try {
-    const resumed = await client.resume(target.threadId);
+    const resumed = await client.resume(target.threadId, {
+      developerInstructions: target.developerInstructions,
+    });
     log.info(`[${targetName}] thread resumed: ${target.threadId} (${resumed.thread.status.type})`);
     if (resumed.thread.status.type !== "idle") throw new Error(`target ${targetName} is not idle (${resumed.thread.status.type})`);
     const event = normalizeEvent({
@@ -92,6 +106,23 @@ async function injectOnce(config, options, log) {
     const completed = await client.waitForTurnCompletion(target.threadId, turn.id);
     log.info(`[${targetName}] turn completed: ${completed.id} (${completed.status})`);
     return completed.status === "completed" ? 0 : 1;
+  } finally {
+    client.disconnect();
+  }
+}
+
+async function bootstrapThread(options, log) {
+  for (const name of ["endpoint", "cwd", "baton", "baton-config", "participant"]) {
+    if (!options[name]) throw new Error(`--start-thread requires --${name}`);
+  }
+  const identity = { participant: options.participant, ...(options.role === undefined ? {} : { role: options.role }) };
+  const resolved = await readRoleInstructions({ binary: options.baton, config: options["baton-config"] }, identity);
+  const client = new CodexClient({ name: "bootstrap", endpoint: options.endpoint, debug: options.debug, logger: log });
+  await client.connectAndInitialize();
+  try {
+    const started = await client.startThread({ cwd: options.cwd, developerInstructions: resolved.instructions });
+    process.stdout.write(`${JSON.stringify({ threadId: started.thread.id, participant: resolved.participant, role: resolved.role, configurationGeneration: resolved.configurationGeneration })}\n`);
+    return 0;
   } finally {
     client.disconnect();
   }
@@ -124,6 +155,7 @@ export async function runMain(argv = process.argv.slice(2)) {
   await verifySchemaCompatibility(schemaDir);
   const version = detectCodexVersion();
   log.info(`detected ${version}; generated schema: ${schemaDir}`);
+  if (options["start-thread"]) return await bootstrapThread(options, log);
   if (options["list-threads"]) return await listThreads(options.endpoint, options, log);
   const config = await resolveConfig(options);
   if (options.once) return await injectOnce(config, options, log);

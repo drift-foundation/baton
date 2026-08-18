@@ -34,3 +34,14 @@ yet part of this ruling.
 
 This feature depends on the key/value command grammar. It is queued for the
 next immutable revision; the current trial remains unchanged.
+
+## Follow-up ruling — 2026-08-18
+
+The sentence above saying that Tab completion is not yet part of the ruling is
+**superseded only as a scope boundary**. Slawomir has now approved
+grammar-derived Tab completion for verbs, operand names, and closed-vocabulary
+operand values. The durable contract and implementation plan live in
+`work/records/2026/08/finding-v11-command-mode-ergonomics/`; dynamic values
+requiring authority reads remain outside the first completion slice. The
+existing read-only assistance contract and its one-specification rule remain
+current.

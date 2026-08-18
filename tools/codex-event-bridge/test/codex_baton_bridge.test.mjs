@@ -257,11 +257,12 @@ test("an authority switch emits the new action while retiring the old set", asyn
 
 test("the typed contract refuses every inconsistent envelope by name", () => {
   const cases = [
-    // incompatible projection (W207): any 4.x, other majors, missing
-    [envelope([], { projection: "4.3" }), /projection-7\/8\/9 participant-action contract/],
-    [envelope([], { projection: "4.5" }), /projection-7\/8\/9 participant-action contract/],
-    [envelope([], { projection: "5.0" }), /projection-7\/8\/9 participant-action contract/],
-    [{ ...envelope([]), projection_version: undefined }, /projection-7\/8\/9 participant-action contract/],
+    // incompatible projection (W207): pre-contract majors and missing
+    [envelope([], { projection: "4.3" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
+    [envelope([], { projection: "4.5" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
+    [envelope([], { projection: "5.0" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
+    [envelope([], { projection: "6.9" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
+    [{ ...envelope([]), projection_version: undefined }, /projection-7\/8\/9\/10\/11 participant-action contract/],
     // missing snapshot token / non-boolean timed_out
     [{ ...envelope([]), snapshot_seq: "42" }, /snapshot_seq/],
     [{ ...envelope([]), result: { actionable: [], timed_out: "no" } }, /timed_out is not a boolean/],
@@ -289,11 +290,16 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
   // fully typed participant-action envelope. The transition bridge accepts
   // both bounded majors, never arbitrary future ones.
   assert.equal(validateEnvelope(envelope([], { projection: "8.0" }), "baton.codex").snapshot_seq, 42);
-  // W38: projection 9 is the CANDIDATE contract — the phase value set
-  // changed, but the participant-action envelope's own fields did not,
-  // so the bounded transition window is 7/8/9 and 10 is still refused.
+  // W38/W78: projection 9 changed the phase value set and projection 10
+  // changed detail presentation, but the participant-action envelope's own
+  // fields did not, so the bounded transition window is 7/8/9/10.
   assert.equal(validateEnvelope(envelope([], { projection: "9.0" }), "baton.codex").snapshot_seq, 42);
-  assert.throws(() => validateEnvelope(envelope([], { projection: "10.0" }), "baton.codex"), /projection-7\/8\/9 participant-action contract/);
+  assert.equal(validateEnvelope(envelope([], { projection: "10.0" }), "baton.codex").snapshot_seq, 42);
+  // W155: projection 11 is now SUPPORTED — the tree window's third
+  // level added a value to the consumed `depth` domain, so the major
+  // moved and this consumer moved with it. 12 is the unsupported future.
+  assert.equal(validateEnvelope(envelope([], { projection: "11.0" }), "baton.codex").projection_version, "11.0");
+  assert.throws(() => validateEnvelope(envelope([], { projection: "12.0" }), "baton.codex"), /projection-7\/8\/9\/10\/11 participant-action contract/);
 });
 
 test("the bridge accepts the repository's current projection", () => {

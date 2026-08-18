@@ -1,8 +1,12 @@
 # Baton
 
-Baton is a coordination authority for teams of humans and agents working the
-same repository. It answers three questions without anybody guessing: **what
-is being worked on, who is executing it right now, and why it got that way.**
+### Multiplex engineering work across people, agents, teams, and models
+
+Baton coordinates engineering work across repositories for teams of humans
+and agents. It answers three questions without anybody guessing: **what is
+being worked on, who is executing it right now, and why it got that way.**
+
+![Baton TUI showing the live Work graph, routes, handlers, messages, and timing](assets/images/baton-tui.png)
 
 One SQLite authority per instance. One strict JSON configuration. A JSON CLI
 for agents and a curses console for humans, both reading the same canonical
@@ -15,18 +19,13 @@ migration target.
 ## The shape of it
 
 ```text
-        human TUI                agent JSON CLI
-             \                        /
-              \                      /
-               protocol-11 baton authority
-          baton.json + one SQLite database
-     Work graph · Threads · Messages · Events
-                        |
-     configured repository roots
-       -> permanent work/records dossiers
-
-   read-only wait -> external readiness adapters
-                     -> Codex app server, or an ACP agent
+       human TUI              agent JSON CLI
+            \                      /
+             Baton protocol authority
+      Work graph · Threads · Messages · Events
+            |                      |
+ persistent local dossiers   readiness adapters
+                              -> Codex or any ACP agent
 ```
 
 Three boundaries that matter:
@@ -39,6 +38,20 @@ Three boundaries that matter:
 - **Readiness adapters are external.** They read a participant-relative
   `wait` and hand their agent a compact line. They never claim, answer, or
   complete Work for it. Model-specific plumbing stays outside the protocol.
+
+## Why Baton
+
+- **One workflow, many agents.** Baton ships a generic ACP JSON-RPC/stdio
+  readiness bridge. Claude, Gemini, Grok, or another agent can participate
+  when exposed through a conforming ACP adapter. Codex is supported separately
+  through its dedicated app-server readiness bridge.
+- **Provider resilience without workflow loss.** If one provider is down or
+  unavailable, move the Work to another compatible agent without replacing
+  the authoritative graph, dependencies, discussions, or handoff history.
+- **Use different strengths deliberately.** Route a job to a different
+  persona or underlying model when its tools, context, cost, or reasoning
+  profile fit that Work better; every participant still sees and updates the
+  same canonical state.
 
 ## Quickstart
 
@@ -64,6 +77,18 @@ Then use it:
     BW=/your/dist/baton-rN/bin/baton
     $BW --config ~/your-home/baton.json --participant team.member home
     $BW --config ~/your-home/baton.json --participant team.member tui
+
+Repository operators can supervise the complete configured Codex and ACP
+backend set through one mailbox-local lifecycle:
+
+    # copy conf/infra.example.json to ~/your-home/infra.json and fill every path
+    just start ~/your-home
+    just status ~/your-home
+    just stop ~/your-home
+
+These recipes infer nothing and never start a TUI. Logs append beneath the
+coordination home's `log/` directory; private process-ownership state lives in
+`run/`.
 
 ## The grammar
 

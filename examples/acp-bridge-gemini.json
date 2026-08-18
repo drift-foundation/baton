@@ -9,6 +9,7 @@
     "binary": "<ABSOLUTE-PATH-TO-DEPLOYED-BATON-EXECUTABLE>",
     "config": "<ABSOLUTE-PATH-TO-BATON-HOME>/baton.json",
     "participant": "<TEAM.MEMBER-DISTINCT-FROM-EVERY-OTHER-AGENT>",
+    "role": "<ROLE-WITH-CONFIGURED-INSTRUCTIONS>",
     "waitTimeoutSeconds": 60
   },
   "agent": {

@@ -423,8 +423,8 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	# shape; W179's honest-breaking major moved the projection to 5.0
 	# (no alias), so the CURRENT same-major demand is 5.x and a stale
 	# 4.x demand refuses.
-	assert jsonapi.PROJECTION_VERSION == "9.0"
-	jsonapi.require_version("9.0")
+	assert jsonapi.PROJECTION_VERSION == "11.0"
+	jsonapi.require_version("11.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.2")
 

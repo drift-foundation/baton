@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import pty as _pty
+import re
 import sys
 
 import pytest
@@ -52,7 +53,7 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 
 
 def test_the_tree_shows_children_inline_and_u_re_roots(world):
-	"""W71: the main screen is a two-level containment tree — children
+	"""W71/W155: the main screen is a three-level containment tree — children
 	appear as ↳ rows under their roots without any drill; `u` re-roots
 	the window at the selected Work with a real breadcrumb."""
 	path, cast = world
@@ -62,13 +63,20 @@ def test_the_tree_shows_children_inline_and_u_re_roots(world):
 		(b"qy", 0.4),
 	])
 	tree = ptyharness.replay(steps[0])
-	assert any("↳ confirm the defect" in line for line in tree), \
+	# W78: the epic is gated by its own open children, so its `Wait`
+	# cell now names the displayed child gate instead of sitting empty
+	# beside a running clock. That widens the cue column at this
+	# terminal width, and the title — the one column that absorbs the
+	# remainder — takes the truncation, exactly as it does for any
+	# other cue. The ↳ containment marker is a different fact and is
+	# untouched, which is what this test is about.
+	assert any("↳ confirm the de" in line for line in tree), \
 		"children are not inline ↳ rows"
-	assert any("↳ implement the fix" in line for line in tree)
+	assert any("↳ implement the" in line for line in tree)
 	rooted = ptyharness.replay(steps[1])
 	assert "parser recovery" in rooted[0], \
 		f"the re-rooted breadcrumb is missing: {rooted[0]!r}"
-	assert any("↳ confirm the defect" in line for line in rooted)
+	assert any("↳ confirm the de" in line for line in rooted)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -313,8 +321,10 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 		(b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
 	focused = "\n".join(ptyharness.replay(steps[1]))
 	assert "contract rev r1" in focused, focused[:400]
-	assert "wait:gates" in focused, \
-		"the typed waiting condition is not stated"
+	# W78: the focused row names the GATE, not the condition kind —
+	# `wait W3` points at something an operator can open.
+	assert re.search(r"wait W\d+", focused), \
+		f"the displayed gate is not stated: {focused[:400]}"
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"z", 0.4), (b"j", 0.3), (b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
 	closed_view = "\n".join(ptyharness.replay(steps[3]))
@@ -719,9 +729,10 @@ def test_the_thread_set_pages_beyond_one_full_page(tmp_path):
 
 def test_the_message_panes_are_role_labelled_not_content_repeating(tmp_path):
 	"""W176 (superseding the W31 subject-repeating pin): the Thread row
-	alone owns the subject; the lower headings are the stable pane
-	roles `Messages (N)` and `Message M…` — several conversations are
-	still never mistaken because SELECTION lives in the Thread rows."""
+	alone owns the subject; `Messages (total/unseen)` names the lower index,
+	while the reader begins with its own `#N` metadata instead of a repeated
+	`Message M…` heading. Several conversations are still never mistaken
+	because SELECTION lives in the Thread rows."""
 	import json as _json
 
 	import baton_work as bw
@@ -753,8 +764,11 @@ def test_the_message_panes_are_role_labelled_not_content_repeating(tmp_path):
 	assert "T2 two conversations" in listing, listing[:400]
 	assert "T3 the follow-up questions" in listing
 	msgs = "\n".join(ptyharness.replay(steps[1]))
-	assert "Messages (1)" in msgs, msgs[:400]
-	assert "Message M" in msgs, "the reader heading lost its role label"
+	assert "Messages (1/" in msgs, msgs[:400]
+	# W30: the reader heading is gone — its row now carries the
+	# reader's own canonical metadata, so the selected identity is
+	# stated once rather than three times.
+	assert "Message M" not in msgs, "the redundant reader heading survived"
 	assert "Msgs —" not in msgs, "the content-repeating heading survived"
 	assert msgs.count("the follow-up questions") == 1, \
 		"the subject leaked out of its Thread row"

@@ -137,7 +137,7 @@ def test_a_report_is_immutable_and_transitions_nothing(world):
 	assert not [e for e in store.events() if e["kind"] == "wake"]
 	row = store.conn.execute("SELECT phase, ready FROM work WHERE id=?",
 	                         (consumer,)).fetchone()
-	assert row["phase"] == "waiting" and row["ready"] == 0
+	assert row["phase"] == "block" and row["ready"] == 0
 	provider = store.conn.execute(
 		"SELECT status, phase FROM work WHERE id=?", (work,)).fetchone()
 	assert provider["status"] == "open" and provider["phase"] == "queued"
@@ -160,7 +160,7 @@ def test_only_the_assignment_route_handler_reports(world):
 	# A verification assignment can never be a wake condition.
 	with pytest.raises(bw.WorkError, match="never transitions"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
-		             phase="waiting", wait=assignment)
+		             phase="block", wait=assignment)
 	# ...and classic verbs refuse it.
 	with pytest.raises(bw.WorkError, match="completes by respond"):
 		tr.report(store, fx.post(

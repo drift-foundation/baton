@@ -201,9 +201,32 @@ def loads(raw: str) -> dict:
 			raise WorkError(f"{where} roles must be an object")
 		for role_handle, role in roles.items():
 			validate_handle(role_handle, "role")
+			# W101 (superseding its own optional-instructions boundary):
+			# EVERY declared role carries durable operating
+			# instructions. Optional instructions made an uninstructed
+			# role look like a complete deployment while any agent
+			# launched into it fell back to whatever prompt an operator
+			# happened to remember — the one-off prompt this Work exists
+			# to retire. A deployment with an uninstructed role is
+			# incomplete and refuses here, at acceptance, rather than at
+			# the launch that needed the text.
+			#
+			# Deliberately role-GENERIC: this requires instructions on
+			# every declared role and never names a particular role
+			# handle. Which roles a deployment declares, and what their
+			# texts must say, is that deployment's ruling and not the
+			# protocol's.
 			_strict_object(role, f"{where} role {role_handle!r}",
-			               ("display",), ("display",))
+			               ("display", "instructions"),
+			               ("display", "instructions"))
 			_display(role["display"], f"{where} role {role_handle!r}")
+			if not isinstance(role["instructions"], str) or \
+					not role["instructions"].strip():
+				raise WorkError(
+					f"{where} role {role_handle!r} instructions must be a "
+					f"non-empty string: every role carries the durable "
+					f"operating instructions an agent launched into it "
+					f"receives")
 
 		participants = team["participants"]
 		if not isinstance(participants, dict) or not participants:
@@ -262,7 +285,13 @@ def loads(raw: str) -> dict:
 		for kind_handle, kind in kinds.items():
 			validate_handle(kind_handle, "kind")
 			named = f"{where} kind {kind_handle!r}"
-			_strict_object(kind, named, ("display", "route"),
+			# W230: one VISIBLE kind may offer more than one route. The
+			# `route` stays the deterministic default — omitted selection
+			# always resolves to it — and `alternates` names the routes
+			# an operator may select explicitly. Baton never fails over,
+			# races them, or shows every candidate on a Work row; the
+			# choice is a deliberate per-Work act or it does not happen.
+			_strict_object(kind, named, ("display", "route", "alternates"),
 			               ("display", "route"))
 			_display(kind["display"], named)
 			if not isinstance(kind["route"], str) or \
@@ -270,6 +299,32 @@ def loads(raw: str) -> dict:
 				raise WorkError(f"{named} resolves through route "
 				                f"{kind['route']!r}, which {where} does not "
 				                f"declare")
+			alternates = kind.get("alternates")
+			if alternates is not None:
+				alternates = _string_list(alternates, f"{named} alternates")
+				default_role = routes[kind["route"]]["role"]
+				for alternate in alternates:
+					if alternate not in routes:
+						raise WorkError(
+							f"{named} names alternate route "
+							f"{alternate!r}, which {where} does not declare")
+					if alternate == kind["route"]:
+						raise WorkError(
+							f"{named} lists its own default route "
+							f"{alternate!r} as an alternate; the default is "
+							f"already selectable")
+					# The endpoint's MEANING must not change with the
+					# route. An alternate carrying a different role would
+					# make `baton.impl` mean implementation or review
+					# depending on a per-Work choice, which is exactly
+					# what the visible endpoint exists to prevent.
+					if routes[alternate]["role"] != default_role:
+						raise WorkError(
+							f"{named} alternate route {alternate!r} carries "
+							f"role {routes[alternate]['role']!r}, not the "
+							f"endpoint's {default_role!r}; an alternate "
+							f"changes WHO handles the Work, never what the "
+							f"endpoint means")
 	return document
 
 
@@ -298,3 +353,42 @@ def participants(document: dict) -> list[str]:
 		for member_handle in team["participants"]:
 			out.append(f"{team_handle}.{member_handle}")
 	return sorted(out)
+
+
+def participant_instructions(document: dict, participant: str,
+                             role: str) -> dict:
+	"""Resolve one participant's durable operating instructions.
+
+	W101 (superseding its own inference rule): the role is ALWAYS
+	explicit, even when the participant holds exactly one. Inferring it
+	meant that giving a participant a second role later would silently
+	change the persona of every session launched for them — a
+	deployment edit quietly rewriting who an agent is. Naming the role
+	makes the participant, the role, and therefore the scope of the
+	session auditable deployment inputs.
+
+	Instructions are owned by the ROLE and inherited by every member
+	launched in it. They are never copied into member entries, so
+	correcting a role's text corrects every session started from it.
+	"""
+	team_handle, dot, member_handle = str(participant).partition(".")
+	team = document.get("teams", {}).get(team_handle)
+	member = team.get("participants", {}).get(member_handle) if dot and team else None
+	if member is None:
+		raise WorkError(f"participant {participant!r} is not in the accepted configuration")
+	roles = team["roles"]
+	held = member["roles"]
+	if not isinstance(role, str) or not role.strip():
+		raise WorkError(
+			f"launching {participant} needs an explicit role=; a "
+			f"participant holding one role today may hold two tomorrow, "
+			f"and the session's persona must not change on that edit")
+	if role not in held:
+		raise WorkError(f"participant {participant} does not hold role {role!r}; select one of {sorted(held)}")
+	selected = role
+	entry = roles[selected]
+	if "instructions" not in entry:
+		raise WorkError(f"role {team_handle}.{selected} has no configured instructions")
+	return {"participant": participant, "role": selected,
+	        "instructions": entry["instructions"],
+	        "configuration_generation": document["generation"]}

@@ -31,6 +31,7 @@ class FakeWebSocket {
     this.sent.push(message);
     queueMicrotask(() => {
       if (message.method === "initialize") this.receive({ id: message.id, result: { userAgent: "fake" } });
+      else if (message.method === "thread/start") this.receive({ id: message.id, result: { thread: { id: "thread-new", status: { type: "idle" }, turns: [] } } });
       else if (message.method === "thread/resume") this.receive({ id: message.id, result: { thread: { id: message.params.threadId, status: { type: "idle" }, turns: [] } } });
       else if (message.method === "turn/start") this.receive({ id: message.id, result: { turn: { id: `turn-${message.params.threadId}`, status: "inProgress" } } });
     });
@@ -76,5 +77,19 @@ test("routes status notifications by thread id", async () => {
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(client.statusOf("thread-a").type, "active");
   assert.equal(statuses.at(-1).threadId, "thread-a");
+  client.disconnect();
+});
+
+test("creates and resumes threads with configured developer instructions", async () => {
+  FakeWebSocket.instances = [];
+  const client = new CodexClient({ name: "local", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+  await client.connectAndInitialize();
+  const started = await client.startThread({ cwd: "/work", developerInstructions: "Tune packaging only." });
+  await client.resume(started.thread.id, { developerInstructions: "Tune packaging only." });
+  const sent = FakeWebSocket.instances[0].sent;
+  const start = sent.find((message) => message.method === "thread/start");
+  const resume = sent.find((message) => message.method === "thread/resume");
+  assert.deepEqual(start.params, { cwd: "/work", developerInstructions: "Tune packaging only." });
+  assert.deepEqual(resume.params, { threadId: "thread-new", developerInstructions: "Tune packaging only." });
   client.disconnect();
 });

@@ -47,7 +47,7 @@ def test_home_is_the_viewers_own_top_level_and_nothing_else(world):
 	standalone.pop("snapshot_seq")  # a top-level call carries its token
 	assert lang_home["summary"] == standalone
 	assert set(lang_home["summary"]) == {"team", "open", "parked",
-	                                     "waiting", "due"}
+	                                     "blocked", "due"}
 	push_home = pj.home(store, viewer_team="push", viewer_member="sl")
 	assert [row["id"] for row in push_home["rows"]] == [cast["pushcoin"]], \
 		"a linked external record entered another team's default table"

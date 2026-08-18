@@ -71,7 +71,8 @@ from baton_work.authority import Authority, WorkError
 # claimant. So the major moves and a 7.x demand refuses cleanly, which
 # is exactly the stale-consumer refusal this finding asks for.
 # 9.0 (W38, finding-phase-is-scheduler-state): PHASE is a closed
-# scheduler axis — queued | active | waiting | parked, terminal null. The
+# scheduler axis — queued | active | waiting | parked, terminal null
+# (`waiting` is renamed `block` at 10.0). The
 # role-shaped `research` and `review` values are gone, and a handoff no
 # longer derives its phase from the destination role. `active` now means
 # exactly "a participant holds the claim". The claimant published as
@@ -81,7 +82,48 @@ from baton_work.authority import Authority, WorkError
 # and every readiness consumer must be updated in the same candidate —
 # the major moves and an 8.x demand refuses cleanly rather than reading
 # a vocabulary that no longer exists.
-PROJECTION_VERSION = "9.0"
+# 9.1 (W29, finding-message-total-unseen-heading): the thread read
+# carries `total` — the whole-thread Message count at the snapshot,
+# beside the whole-thread personal `new`. Additive: a page-length
+# reading of the old shape stays valid, it was just never the thread.
+# 9.2 (W47, finding-event-index-phase-duration): `work-events` entries
+# carry a typed `phase_interval` on the event that ENTERED each
+# scheduler episode — phase, start/end sequence and timestamps, elapsed
+# whole seconds, and whether it is still open. Replayed from the
+# ledger's `phase_now` records, which every phase-changing transition
+# now writes. Additive.
+# 10.0 (W78, finding-unclaimed-work-cue): the `waiting` phase is renamed
+# `block` and `waiting_on` is REPLACED by a structured `gate` — kind
+# (`work` or `message`), the canonical locator and its `W…`/`M…`
+# selector, the episode's `started_at`, and for a Message gate the
+# pending obligation's identity, state and endpoint. The summary
+# counter `waiting` becomes `blocked`.
+# Both halves are breaking. The phase VALUE SET changed, so every
+# consumer that matched `waiting` must be updated in the same candidate;
+# and `waiting_on` named the wake CONDITION while `gate` names the one
+# thing actually holding the Work and since when. A 9.x client would
+# have had to combine `waiting_on`, `first_open_blocker` and journal
+# timestamps to answer what `gate` answers directly — and could not
+# answer it at all when the displayed gate changed inside `block`, which
+# the authority previously committed silently. So the major moves and a
+# 9.x demand refuses cleanly rather than reading a shape that cannot
+# express the question.
+# 11.0 (W155, finding-tui-three-level-work-tree): the `tree` window spans
+# THREE containment levels instead of two, and every row carries an
+# additive `deeper` — this row contains Work the window does not show.
+#
+# I first published this as a MINOR, reasoning that nothing was renamed
+# and that a client written as "0 is a root, anything else is a child"
+# would merely draw a grandchild at the wrong indent — a mis-render, not
+# a misread. Review overturned that with a counterexample from this very
+# repository: `test_parity.py::_parse_rows` matched a leading `↳ ` and
+# mapped everything else to depth 0, so a depth-2 row decoded as a ROOT.
+# That is a consumer silently reading the wrong containment, and this
+# file's own rule is that every response inside one major is compatible.
+# Adding a value to a consumed domain breaks that rule whatever the
+# failure is called, so the major moves and the readiness and
+# role-instruction consumers are widened in the same candidate.
+PROJECTION_VERSION = "11.0"
 
 
 def require_version(requested: str | None) -> None:

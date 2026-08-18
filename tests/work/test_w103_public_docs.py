@@ -15,6 +15,7 @@ from __future__ import annotations
 import os
 import pathlib
 import re
+import subprocess
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
 
@@ -25,6 +26,8 @@ ACTIVE_DOCS = (
 	"docs/BATON-WORK.md",
 	"docs/BATON-SETUP.md",
 	"docs/AGENTS-MAILBOX-PROTO.md",
+	"docs/CODEX-APP-SERVER-EVENT-CONNECTIVITY.md",
+	"tools/codex-event-bridge/README.md",
 )
 
 # Retired protocol-10 launch surfaces. A hit means active guidance is
@@ -42,9 +45,21 @@ def _text(relative):
 	return (REPO / relative).read_text(encoding="utf-8")
 
 
+def _prose(body):
+	"""The document with markdown link and image TARGETS removed.
+
+	W29 note: this guard forbids retired launch paths, and it was
+	matching bare substrings — so a screenshot named
+	`assets/images/baton-tui.png` read as an instruction to run the
+	retired `baton-tui` binary. A file may be named after the product
+	it depicts; what must not survive is prose telling somebody to RUN
+	the retired thing. Link targets are therefore not prose."""
+	return re.sub(r"\]\([^)]*\)", "]()", body)
+
+
 def test_active_documents_prescribe_no_retired_launch_path():
 	for relative in ACTIVE_DOCS:
-		body = _text(relative)
+		body = _prose(_text(relative))
 		for token in RETIRED:
 			assert token not in body, \
 				f"{relative} still prescribes the retired {token!r}"
@@ -74,6 +89,13 @@ def test_every_repository_link_in_the_readme_resolves():
 			continue
 		target = REPO / link
 		assert target.exists(), f"README links a missing path: {link}"
+
+
+def test_the_readme_positions_baton_across_repositories():
+	opening = " ".join(_text("README.md").split("![Baton TUI", 1)[0].split())
+	assert "engineering work across repositories" in opening
+	assert "teams of humans and agents" in opening
+	assert "same repository" not in opening
 
 
 def test_the_readme_does_not_send_readers_into_a_non_v11_guide():
@@ -107,3 +129,23 @@ def test_the_agent_policy_names_protocol_eleven_and_the_stable_path():
 	assert "protocol 11" in body
 	assert "stable on purpose" in body, \
 		"the policy does not explain why the v10 filename is kept"
+
+
+def test_the_codex_bridge_example_matches_the_runtime_validator():
+	"""W6: the documented post-v10 target/identity shape is executable,
+	not a hand-maintained approximation of the JavaScript schema."""
+	script = r'''
+import { readFileSync } from "node:fs";
+import { validateConfig } from "./tools/codex-event-bridge/src/config.mjs";
+
+const raw = JSON.parse(readFileSync(
+  "./tools/codex-event-bridge/config.example.json", "utf8"));
+const config = validateConfig(raw);
+if (!config.roleInstructions || !config.targets.driftquery.identity) {
+  throw new Error("post-v10 role instruction identity was not validated");
+}
+'''
+	done = subprocess.run(
+		["node", "--input-type=module", "--eval", script], cwd=REPO,
+		capture_output=True, text=True, timeout=30)
+	assert done.returncode == 0, done.stderr

@@ -113,7 +113,7 @@ def test_either_outcome_ends_the_gate_and_mutates_no_consumer(world):
 		assert (woken["route_team"], woken["route_kind"]) == \
 			("push", "bug"), "the provider result moved a consumer's Current"
 		held = _row(store, holder)
-		assert held["phase"] == "waiting" and held["ready"] == 0, \
+		assert held["phase"] == "block" and held["ready"] == 0, \
 			"a consumer with another open gate was woken"
 		wakes = [e for e in store.events() if e["kind"] == "wake" and
 		         e["payload"]["work"] == consumer]

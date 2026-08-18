@@ -1,6 +1,7 @@
 """W71: the superseding navigation contract (final schema-14 item).
 
-Main screen: a bounded two-level containment tree (roots + ↳ children,
+Main screen: a bounded three-level containment tree (roots, ↳ children
+and their children — W155 superseded W71's two-level cap,
 disclosure counts for deeper children). Enter has ONE meaning — open the
 Work detail; `u` unfolds/re-roots with real breadcrumbs. The detail view
 stacks the Threads list above the selected Thread's Messages with Ctrl-W
@@ -60,18 +61,30 @@ def world(tmp_path):
 	return cast
 
 
-def test_the_tree_is_two_levels_with_disclosure(world):
-	"""Roots + ↳ children only; a child with its own children carries a
-	visible disclosure count; grandchildren never paint at the root."""
+def test_the_tree_is_three_levels_with_disclosure(world):
+	"""W155 supersedes W71's two-level cap: root, child and grandchild
+	paint together, each at its own fixed indent, and the deepest
+	visible row discloses anything below it.
+
+	W154's rule is unchanged and composes here — the disclosure sits in
+	reserved structural space ahead of the title, so no title length can
+	delete it. Only the level that carries it moved, because a
+	grandchild is now visible rather than hidden.
+	"""
 	text, status, _steps = ptyharness.drive(world["config"], "lang.ada",
 	                                        [(b"qy", 0.4)])
 	screen = ptyharness.replay(text)
 	flat = "\n".join(screen)
 	assert "the root" in flat
-	assert "↳ the child ▸1" in flat, \
-		f"the deeper-child disclosure is missing: {flat[:400]}"
-	assert "the grandchild" not in flat, \
-		"a grandchild painted at the root (more than two levels)"
+	assert "↳ the child" in flat, \
+		f"the containment child is missing: {flat[:400]}"
+	assert "  ↳ the grandchi" in flat, \
+		f"the third level does not paint: {flat[:400]}"
+	# the child's children are now INSIDE the window, so it discloses
+	# nothing; there is nothing hidden under it to disclose.
+	child_row = next(line for line in screen
+	                 if "↳ the child" in line)
+	assert "▸" not in child_row, child_row
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -149,7 +162,10 @@ def test_ctrl_w_moves_panes_and_footer_advertises(world):
 	assert "»Messages (" in msgs, \
 		"Ctrl-W j did not focus the Message index"
 	reader = "\n".join(ptyharness.replay(steps[2]))
-	assert "»Message M" in reader and "»Messages (" not in reader, \
+	# W30: the reader heading is gone. Focus now shows on the reader's
+	# own metadata row, and the index heading beside it drops its
+	# marker — the two panes share one row, so both halves are checked.
+	assert "»#" in reader and "»Messages (" not in reader, \
 		"the second Ctrl-W j did not focus the reader"
 	cycled = "\n".join(ptyharness.replay(steps[3]))
 	assert "»Threads" in cycled, "Ctrl-W Ctrl-W did not cycle to Threads"
@@ -263,7 +279,7 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 		                if row["title"] == "the root")
 		# W38 R1: the root has open children, so its snapshot phase is
 		# `waiting` — the point is that it is the PRE-commit value.
-		assert root_row["phase"] == "waiting", \
+		assert root_row["phase"] == "block", \
 			"the tree mixed a post-commit phase into pre-commit rows"
 		assert window["summary"]["parked"] == 0, \
 			"the summary came from a later snapshot than the rows"

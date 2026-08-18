@@ -23,8 +23,8 @@ while nobody holds the claim. Route and Handler are different questions and
 Baton keeps them separate: who MAY act, and who IS acting.
 
 Phase is a closed SCHEDULER axis: `queued` (runnable, unclaimed), `active`
-(claimed), `waiting` (gated), `parked` (deliberately deferred), and nothing
-at all once the Work is closed. It never says what KIND of work this is —
+(claimed), `block` (one named gate is holding it), `parked` (deliberately
+deferred), and nothing at all once the Work is closed. It never says what KIND of work this is —
 that is the route's role. Discussion
 happens in **Threads** and **Messages**; what actually happened to the Work is
 its append-only **Events** journal. Nothing is inferred from your working
@@ -71,11 +71,12 @@ this run, and is it running:
 
     queued   runnable, nobody has claimed it
     active   a handler holds it, so somebody is executing it
-    waiting  a recorded gate or obligation is unsatisfied
+    block    one displayed gate is holding it — another Work, or a
+             directed Message obligation
     parked   deliberately deferred, with a reason
     (terminal Work has no phase at all)
 
-A handoff lands `queued` when the Work is runnable and `waiting` when a gate
+A handoff lands `queued` when the Work is runnable and `block` when a gate
 holds it, whatever the destination role — which is why you never supply a
 destination phase by hand.
 
@@ -130,7 +131,7 @@ so there is no stage to move. Then hand it on:
 
 `pass` is one atomic **threadless** event. It moves the route, clears the
 handler, records the destination phase — `queued` when the Work is runnable,
-`waiting` when a gate holds it,
+`block` when a gate holds it,
 and stores `comment` as durable handoff evidence. It creates no message and
 moves no conversational count. You cannot supply `phase=` — it is refused as
 unknown — so a handoff can never advertise a stage nobody is in.
@@ -164,8 +165,11 @@ Work, not a reopening.
 Phase must tell the truth. Three states mean genuinely different things, and
 conflating them is the most common way a board becomes fiction.
 
-- **`waiting`** — blocked on something *named*: one exact obligation, or the
-  Work's dependency gates. Requires `wait=`.
+- **`block`** — held by ONE displayed gate, and the row names it: `W…` for a
+  blocking Work, `M…` for the source Message of a directed obligation. The
+  `gate` field carries the kind, the locator, and the instant that gate became
+  the one holding the Work — which is what the Held timer measures. Requires
+  `wait=` when you set it by hand.
 - **`parked`** — an explicit, un-gated deferral. Requires `reason=`. It stays a
   visible loose end; it is not a quiet grave.
 - **A dependency edge** does not rewrite phase at all. Blocked Work keeps its
@@ -177,7 +181,7 @@ conflating them is the most common way a board becomes fiction.
 Waiting and parked Work cannot be claimed either — suspending already released
 the claim:
 
-    W13 is waiting; waiting and parked work cannot be claimed
+    W13 is blocked; blocked and parked work cannot be claimed
 
 ## Discussion, attention, and directed requests
 
@@ -202,14 +206,14 @@ refused at tag time rather than discovered later.
     # -> {"kind": "request", "work": "…-W13", "wait": true}
 
 In one transaction that publishes the message, creates the obligation owed by
-`lib.bug`, moves your Work to `waiting` on that exact obligation seq, and
+`lib.bug`, moves your Work to `block` on that exact obligation, displayed as `M<seq>`, and
 releases your claim.
 
 Two facts move differently here, and the difference is the point. **The route
 does not move** — your Work still belongs to the same eligible endpoint, and
 the answer is owed *to* that endpoint rather than instead of it. **The handler
 clears**, because entering the wait releases your claim: nobody is executing
-Work that is blocked on somebody else's answer, and the phase says `waiting`
+Work that is blocked on somebody else's answer, and the phase says `block`
 rather than pretending otherwise.
 
 Because a blocking request suspends the Work *you* are executing, you must
@@ -226,7 +230,7 @@ When the answer lands, the Work returns to the phase it left:
     $BATON say ... # as lib.rai:
     baton --participant lib.rai respond obligation=17 \
         body="yes — spans are already tracked internally; exposing them is additive"
-    # W13: phase waiting -> queued, waiting_on -> null
+    # W13: phase block -> queued, gate -> null
 
 Use `wait=false` when you genuinely can proceed meanwhile. It is a deliberate
 statement, not a convenience:
@@ -482,7 +486,7 @@ edit cannot grant itself the capability to be accepted.
 
 1. Read canonical state before acting; a wake line is a hint, not authority.
 2. Claim before you execute. Never hold a claim you are not progressing.
-3. Let phase tell the truth — `waiting` names its blocker, `parked` names its
+3. Let phase tell the truth — `block` names its gate, `parked` names its
    reason.
 4. Pass with real handoff evidence; the route decides the phase.
 5. Ask with a directed request, and let it block when you honestly cannot

@@ -102,3 +102,60 @@ After the resumed reviewer verifies the host process table contains no v10
 consumer, it re-enumerates `/home/sl/baton` against the approved inventory and
 may perform the bounded deletion. Any unexpected process, path, link, owner,
 mount, or failed removal aborts rather than broadening the operation.
+
+## Revalidation at the projection-9 cutover — 2026-08-18
+
+**Confirmed:** the fresh projection-9 authority is active at the stable
+`/home/sl/baton-v11/baton.json` locator and the exact deployed client is
+`/home/sl/opt/baton/v11/fc613e3/bin/baton`. The human v11 TUI and Claude ACP
+bridge are running against that authority.
+
+**Observed defect in the live cutover:** restarting this Codex session through
+`just codex-baton /home/sl/baton/conf/codex-event-bridge.json` also restarted
+the retired global v10 readiness source. The config still names the deployed
+v10 client and mailbox, and the supervisor consequently owns ten v10 monitor
+processes plus their recurring `wait` children. The fresh v11 authority itself
+is empty; no old message or Work history has been migrated.
+
+**Confirmed ruling:** there is no remaining v10 compatibility requirement.
+The combined v10 supervisor/config is not the target topology and must not be
+used again after this disconnect window. Complete the already approved
+standalone-app-server cutover, arm only the v11 Codex readiness producer, prove
+the v11 TUI/Codex/ACP paths, and then retire `/home/sl/baton` exactly as
+bounded above. Recreate only the still-actionable Work contracts in the fresh
+authority; the old authority remains evidence and is not protocol state for
+continued work.
+
+## Live cutover result — 2026-08-18
+
+**Confirmed:** after the human disconnect/reconnect, the process table contains
+the standalone Codex app server, generic dispatcher, v11 Codex readiness
+producer, and v11 ACP bridge. It contains no combined stack, v10 monitor,
+v10 `wait`, v10 client, or v10 mailbox consumer.
+
+The bounded `/home/sl/baton` removal revalidated the approved inventory before
+acting: ordinary Slawomir-owned non-mount root, 55 files, 31 directories, and
+the two known internal `latest` symlinks. Removal deleted the writable mailbox,
+configuration, receipts, aliases, legacy releases, and containing directories,
+then stopped on the two mode-0555 v10.2.0 exact-release trees rather than
+changing permissions or escalating the deletion primitive.
+
+The remaining target is exactly 16 mode-0444 files in 14 directories beneath
+`app/baton-cli/v10/v10.2.0` and `app/baton-tui/v10/v10.2.0`; there are no
+remaining symlinks. Completion requires a fresh human ruling on making those
+two immutable release directories writable for removal. No agent retry is
+authorized by the failed attempt.
+
+**Human completion:** Slawomir removed the two remaining immutable release
+trees with the exact `/home/sl/baton` target. Independent post-removal checks
+confirm the path is absent. The live process table contains only the v11 human
+TUI, v11 Claude ACP bridge and wait, standalone Codex app server, generic event
+dispatcher, and the single v11 Codex readiness producer and wait. No process
+names the deleted root, a v10 client, a v10 mailbox, `baton_source.mjs`, or the
+combined `codex-baton` supervisor. The v11 authority answered a canonical
+`home` read at projection 9.0 after deletion.
+
+The deleted mailbox/history has no in-scope recovery copy, as explicitly
+approved. Executable v10 fallback under `/home/sl/baton` is gone. Repository
+runtime and current-document cleanup remains separately gated as W4 and its
+dependents; it does not invalidate this completed host cutover.

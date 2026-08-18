@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateConfig } from "../src/config.mjs";
-import { runBridge } from "../src/acp_baton_bridge.mjs";
+import { runBridge as productionRunBridge } from "../src/acp_baton_bridge.mjs";
 import { AcpAgentSession } from "../src/acp_agent_session.mjs";
 import { episodeStillLive, validateEnvelope } from "../src/baton_readiness.mjs";
 
@@ -58,15 +58,28 @@ test("ACP readiness accepts the projection-9 candidate contract", () => {
 	             "9.0");
 });
 
-test("ACP readiness still refuses an unsupported future major", () => {
+test("ACP readiness accepts projection 11 and still refuses an unsupported future major", () => {
+	// W155: the tree window moved to three levels, which added a value
+	// to the consumed `depth` domain — a breaking change under the
+	// projection file's own same-major rule — so the major moved to 11
+	// and this consumer moves with it in the SAME candidate. The
+	// participant-action envelope's own fields did not change.
 	const payload = envelope([]);
-	payload.projection_version = "10.0";
+	for (const supported of ["10.0", "11.0"]) {
+		payload.projection_version = supported;
+		assert.equal(validateEnvelope(payload, "baton.claude").projection_version,
+		             supported);
+	}
+	payload.projection_version = "12.0";
 	assert.throws(() => validateEnvelope(payload, "baton.claude"),
-	              /projection-7\/8\/9 participant-action contract/);
+	              /projection-7\/8\/9\/10\/11 participant-action contract/);
 });
 
+// W101: `role` is a required launch input, so the rig supplies one by
+// default. A test that cares about its absence builds the config
+// directly and asserts the refusal.
 function rig({ env = {}, participant = "baton.claude",
-               sessionMode = "new", policyResources } = {}) {
+               role = "impl", sessionMode = "new", policyResources } = {}) {
 	const home = mkdtempSync(join(tmpdir(), "acp-bridge-"));
 	const log = join(home, "agent-log.jsonl");
 	writeFileSync(log, "");
@@ -74,7 +87,7 @@ function rig({ env = {}, participant = "baton.claude",
 	if (!policyResources) writeFileSync(policy[0], "{}\n");
 	const config = validateConfig({
 		baton: { binary: "/unused/baton", config: "/unused/baton.json",
-		         participant },
+		         participant, role },
 		agent: { command: process.execPath,
 		         args: [FAKE_AGENT],
 		         env: { FAKE_ACP_LOG: log, ...env },
@@ -122,6 +135,16 @@ function script(steps) {
 }
 
 const quiet = { info() {}, warn() {} };
+
+const runBridge = (config, options = {}) => productionRunBridge(config, {
+	loadInstructions: async () => ({
+		participant: config.baton.participant,
+		role: config.baton.role ?? "impl",
+		instructions: "Honor the configured participant role.",
+		configurationGeneration: 1,
+	}),
+	...options,
+});
 
 test("initialize and mode negotiation complete before any prompt", async () => {
 	const { log, config } = rig();
@@ -876,6 +899,47 @@ test("agent-process death resumes the same session and never rotates it", async 
 		"readiness was discarded by the crash instead of retried");
 });
 
+test("new and loaded ACP sessions receive accepted role instructions on their first readiness turn", async () => {
+	for (const sessionMode of ["new", "load"]) {
+		const { log, config } = rig({ participant: "baton.tuner", role: "tuner", sessionMode });
+		if (sessionMode === "load") seedSelection(config, "retained-tuner-session");
+		const wake = script([envelope([workAction("7ba67cb8-W101")], { participant: "baton.tuner" })]);
+		await productionRunBridge(config, {
+			signal: wake.signal,
+			runWait: wake.runWait,
+			logger: quiet,
+			loadInstructions: async (source, identity) => {
+				assert.equal(source.binary, "/unused/baton");
+				assert.deepEqual(identity, config.baton);
+				return { participant: "baton.tuner", role: "tuner",
+				         instructions: "Own documentation and deployment polish.",
+				         configurationGeneration: 3 };
+			},
+		});
+		const prompts = events(log).filter((entry) => entry.event === "prompt/start");
+		assert.equal(prompts.length, 1);
+		assert.match(prompts[0].text, /Configured role instructions: Own documentation and deployment polish\./);
+		assert.match(prompts[0].text, /^\[BATON READY\].*Apply standing v11 Baton policy\.$/);
+	}
+});
+
+// W101: "ambiguous" is no longer a reachable refusal — the role is always
+// explicit — so this exercises the refusals that ARE reachable: a read that
+// fails, and one naming a role the participant does not hold.
+test("a refused ACP role-instruction read stops before wait or session use", async () => {
+	const { log, config } = rig({ participant: "baton.tuner", role: "tuner" });
+	let waits = 0;
+	await assert.rejects(
+		() => productionRunBridge(config, {
+			runWait: async () => { waits += 1; return envelope([]); },
+			logger: quiet,
+			loadInstructions: async () => { throw new Error("participant baton.tuner does not hold role 'tuner'"); },
+		}),
+		/does not hold role/);
+	assert.equal(waits, 0);
+	assert.equal(events(log).length, 0);
+});
+
 test("recovery without the load capability refuses and creates nothing", async () => {
 	// The fallback that must not exist: if the replacement process
 	// cannot load, the bridge reports it and leaves readiness pending —
@@ -936,4 +1000,31 @@ test("publication is create-only: a racing winner is never replaced", async () =
 		"the create-only publication replaced the winner");
 	assert.equal(readFileSync(statePath, "utf8"), winner,
 		"the winning selection was not preserved byte-for-byte");
+});
+
+test("W101: the ACP launch configuration must name an explicit role", () => {
+	// Every launcher names participant AND role. Inferring the role
+	// meant a participant gaining a second role later silently changed
+	// the persona of every session started for them, so a role-less
+	// configuration is refused before any session is created or loaded.
+	const base = () => {
+		const { config } = rig();
+		return JSON.parse(JSON.stringify({
+			baton: config.baton, agent: config.agent,
+			session: config.session, permissionMode: config.permissionMode,
+			policyResources: config.policyResources,
+			stateDir: config.stateDir, retryMs: config.retryMs,
+		}));
+	};
+	const absent = base();
+	delete absent.baton.role;
+	assert.throws(() => validateConfig(absent), /baton\.role is required/);
+	const blank = base();
+	blank.baton.role = "   ";
+	assert.throws(() => validateConfig(blank), /baton\.role is required/);
+	const dotted = base();
+	dotted.baton.role = "team.role";
+	assert.throws(() => validateConfig(dotted), /baton\.role must be one role handle/);
+	// and the ordinary form survives
+	assert.equal(validateConfig(base()).baton.role, "impl");
 });

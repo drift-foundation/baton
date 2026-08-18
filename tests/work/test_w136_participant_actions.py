@@ -337,8 +337,8 @@ def test_the_projection_version_names_the_wake_contract(world):
 	honest-breaking, no alias). Same-major demands succeed; a stale
 	4.x demand refuses."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "9.0"
-	jsonapi.require_version("9.0")
+	assert jsonapi.PROJECTION_VERSION == "11.0"
+	jsonapi.require_version("11.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("8.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
@@ -382,7 +382,8 @@ def test_a_real_reroute_moves_eligibility_and_is_a_new_resolution_episode(world)
 	# the REAL reroute: generation 2 resolves the route to grace alone
 	document = _json.load(open(world["config"]))
 	document["generation"] = 2
-	document["teams"]["lang"]["roles"]["dev"] = {"display": "Dev"}
+	document["teams"]["lang"]["roles"]["dev"] = {
+		"display": "Dev", "instructions": "Own this team's work."}
 	document["teams"]["lang"]["participants"]["grace"]["roles"] = \
 		["dev", "obs"]
 	document["teams"]["lang"]["routes"]["main"]["handlers"] = ["grace"]

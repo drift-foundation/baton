@@ -85,6 +85,7 @@ export class EventBridge extends EventEmitter {
         name,
         serverName: target.server,
         threadId: target.threadId,
+        developerInstructions: target.developerInstructions,
         queue: [],
         recent: new Map(),
         status: { type: "notLoaded" },
@@ -275,7 +276,9 @@ export class EventBridge extends EventEmitter {
 
   async #reconcileTarget(state) {
     const client = this.serverStates.get(state.serverName).client;
-    const response = await client.resume(state.threadId);
+    const response = await client.resume(state.threadId, {
+      developerInstructions: state.developerInstructions,
+    });
     state.status = response.thread.status;
 
     if (state.queue[0]?.ambiguous) {

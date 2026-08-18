@@ -53,7 +53,7 @@ def test_ws2_wf05_non_satisfying_close(flow):
 	# retain Current and classification.
 	for team, member, phase in (("push", "sl", "queued"),
 	                            ("web", "wren", "queued"),
-	                            ("mdb", "mo", "waiting")):
+	                            ("mdb", "mo", "block")):
 		checkpoint = flow.ok("detail", f"work={consumers[team]}",
 		                     viewer=f"{team}.{member}")
 		assert checkpoint["phase"] == phase, f"{team} phase wrong"

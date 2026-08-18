@@ -107,3 +107,40 @@ screenshots remain repository documentation rather than runtime inputs.
   schema; ACP examples and commands match the co-deployed release layout.
 - Human review confirms the public architecture diagram and any TUI image do
   not depict the retired product or expose machine-specific data.
+
+## Follow-up public positioning — 2026-08-18
+
+**Confirmed by Slawomir.** The README leads with the one-line product promise
+“Multiplex engineering work across people, agents, teams, and models.” Baton
+must not present itself as an agent-only tool because humans participate in the
+same authority and TUI.
+
+The README also makes the integration boundary and its operational value
+explicit:
+
+- Baton ships a generic ACP JSON-RPC/stdio readiness bridge. Claude, Gemini,
+  Grok, or another agent can participate when exposed through a conforming ACP
+  adapter; naming examples does not move model-specific credentials, sessions,
+  permissions, or adapter policy into Baton.
+- Codex is supported separately through the dedicated app-server readiness
+  bridge rather than being described as ACP.
+- Model-neutral coordination is an operational hedge: a team can switch away
+  from an unavailable provider or route suitable Work to another model/persona
+  without replacing its authoritative Work graph or losing the handoff trail.
+
+### Version-neutral architecture label
+
+**Confirmed by Slawomir.** The README's “Shape of it” diagram names the durable
+layer **Baton protocol authority**, not `protocol-11 baton authority`. The
+diagram explains the product architecture and should not require editorial
+changes merely because a later protocol release changes the current version.
+Version-specific compatibility statements remain prose outside that durable
+architecture label.
+
+### User-facing architecture boundary
+
+**Confirmed by Slawomir.** The “Shape of it” diagram omits `baton.json`,
+SQLite, and the `wait` operation. Those are implementation and operator
+details, not concepts that help a reader understand the product at a glance.
+The diagram names persistent local dossiers directly and shows readiness
+adapters leading to Codex or any ACP agent.

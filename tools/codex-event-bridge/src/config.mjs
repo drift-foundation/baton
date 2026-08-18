@@ -70,25 +70,36 @@ export function validateConfig(raw) {
     const assignment = `${server}\u0000${threadId}`;
     if (assignedThreads.has(assignment)) throw new TypeError(`thread ${threadId} on ${server} is assigned to more than one target`);
     assignedThreads.add(assignment);
-    const participant = value.participant === undefined ? null : nonempty(value.participant, `targets.${name}.participant`);
-    if (participant && assignedParticipants.has(participant)) throw new TypeError(`Baton participant ${participant} is assigned to more than one target`);
-    if (participant) assignedParticipants.add(participant);
-    targets[targetName] = Object.freeze({ server, threadId, participant });
+    let identity = null;
+    if (value.identity !== undefined) {
+      const rawIdentity = object(value.identity, `targets.${name}.identity`);
+      const participant = nonempty(rawIdentity.participant, `targets.${name}.identity.participant`);
+      if (!/^[^.\s]+\.[^.\s]+$/.test(participant)) throw new TypeError(`targets.${name}.identity.participant must be team.member`);
+      if (assignedParticipants.has(participant)) throw new TypeError(`Baton participant ${participant} is assigned to more than one target`);
+      assignedParticipants.add(participant);
+      // W101: the launch role is ALWAYS explicit. Inferring it meant a
+      // participant gaining a second role later silently changed the
+      // persona of every session started for them.
+      const role = nonempty(rawIdentity.role, `targets.${name}.identity.role`);
+      if (!/^[^.\s]+$/.test(role)) throw new TypeError(`targets.${name}.identity.role must be one role handle without whitespace or dots`);
+      identity = Object.freeze({ participant, role });
+    }
+    targets[targetName] = Object.freeze({ server, threadId, identity });
   }
 
-  let baton = null;
-  if (raw.baton !== undefined) {
-    const rawBaton = object(raw.baton, "baton");
-    const binary = nonempty(rawBaton.binary, "baton.binary");
-    const batonConfig = nonempty(rawBaton.config, "baton.config");
-    if (!isAbsolute(binary)) throw new TypeError("baton.binary must be an absolute path");
-    if (!isAbsolute(batonConfig)) throw new TypeError("baton.config must be an absolute path");
-    baton = Object.freeze({
-      binary,
-      config: batonConfig,
-      waitTimeoutSeconds: positiveInteger(rawBaton.waitTimeoutSeconds, 60, "baton.waitTimeoutSeconds"),
-      retryMs: positiveInteger(rawBaton.retryMs, 1000, "baton.retryMs"),
-    });
+  let roleInstructions = null;
+  if (raw.roleInstructions !== undefined) {
+    const source = object(raw.roleInstructions, "roleInstructions");
+    const binary = nonempty(source.binary, "roleInstructions.binary");
+    const batonConfig = nonempty(source.config, "roleInstructions.config");
+    if (!isAbsolute(binary)) throw new TypeError("roleInstructions.binary must be an absolute path");
+    if (!isAbsolute(batonConfig)) throw new TypeError("roleInstructions.config must be an absolute path");
+    roleInstructions = Object.freeze({ binary, config: batonConfig });
+    const missing = Object.entries(targets).filter(([, target]) => target.identity === null).map(([name]) => name);
+    if (missing.length > 0) throw new TypeError(`roleInstructions requires an identity on every target; missing ${missing.join(", ")}`);
+  } else {
+    const configured = Object.entries(targets).filter(([, target]) => target.identity !== null).map(([name]) => name);
+    if (configured.length > 0) throw new TypeError(`target identities require roleInstructions; configured ${configured.join(", ")}`);
   }
 
   const eventSocket = nonempty(raw.eventSocket ?? defaultEventSocketPath(), "eventSocket");
@@ -96,7 +107,7 @@ export function validateConfig(raw) {
   const config = {
     servers: Object.freeze(servers),
     targets: Object.freeze(targets),
-    baton,
+    roleInstructions,
     eventSocket,
     dedupWindowMs: positiveInteger(raw.dedupWindowMs, 5000, "dedupWindowMs"),
     maxEventBytes: positiveInteger(raw.maxEventBytes, 64 * 1024, "maxEventBytes", 1024),

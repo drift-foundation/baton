@@ -47,3 +47,45 @@ CLI, and they own the app server for the reviewing Codex session.
 W102 -> W101 -> this record. Nothing here may land before W101 has actually
 removed the paths; a documentation change that anticipates a removal is the
 same defect as one that lags it.
+
+## Revalidation — 2026-08-18 (implementation start)
+
+The prerequisite is satisfied: W4 closed satisfying after removing the
+combined v10 monitor/supervisor, its stack-only configuration, and its launch
+recipe. The current tree retains three independently launched pieces:
+
+- `codex app-server --listen ws://127.0.0.1:4500` (or the low-level
+  `just codex-app-server` recipe);
+- `bin/codex-event-bridge --config ...` as the generic multi-target event
+  dispatcher;
+- one `bin/codex-baton-bridge` per participant as the read-only protocol-11
+  readiness producer feeding that dispatcher's Unix socket and configured
+  target.
+
+W101 additionally made accepted Baton role instructions part of Codex thread
+creation and every configured resume. The generic bridge configuration now
+uses `roleInstructions` plus each target's `identity`; the removed top-level
+`baton` and legacy target `participant` fields are not part of this model.
+
+The official Codex app-server page still identifies app-server as the deep
+integration surface, documents the loopback WebSocket listener and remote TUI,
+and marks WebSocket/app-server operation experimental. Repository schema
+checks and the installed generated schemas remain the executable contract for
+the exact methods and fields this bridge consumes.
+
+## Implemented — 2026-08-18
+
+- Rewrote the architecture document around independently supervised
+  app-server, generic dispatcher, v11 readiness producers, and remote TUIs.
+- Rewrote the bridge README as an executable startup sequence, preserving
+  W101 thread bootstrap and resume-time durable role instructions.
+- Added both documents to the standing active v11 documentation scan and made
+  the checked-in JSON example execute through the real bridge validator.
+- Removed all combined-supervisor, overlap, stack-owned configuration, retired
+  monitor, and obsolete projection-5 guidance from the two active surfaces.
+
+Evidence: focused W4/W103 documentation checks pass 49/49; the complete Codex
+bridge suite passes 6/6 files; the checked-in example validates; installed
+`codex app-server --help` and `codex resume --help` confirm the documented
+commands; the retired-vocabulary scan is empty; and `git diff --check` is
+clean.

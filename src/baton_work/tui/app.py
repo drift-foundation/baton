@@ -1,9 +1,10 @@
 """Curses rendering of the canonical projection — B1.
 
-THE PINNED MODEL, exactly: open on a borderless fixed-column table of the
-viewer's top-level Work; Enter drills into a table of immediate children, the
-same interaction at every depth; a persistent breadcrumb names the drilled
-path; `o` opens the focused Work view (facts, trials, and the selectable
+THE PINNED MODEL, exactly: open on a borderless fixed-column table showing
+three containment levels — the viewer's top-level Work, its children, and
+theirs (W155, superseding W71's two-level cap). `u` re-roots the window at the
+selected Work and a persistent breadcrumb names that path; Enter opens the
+focused Work's detail rather than drilling a level; `o` opens the focused Work view (facts, trials, and the selectable
 thread set); Enter there opens one thread's paged thread — never
 several merged into a false timeline. `b` shows blocking/dependent neighbors
 with stable ids and drills through on Enter. Column priorities, sorting and
@@ -63,6 +64,10 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat"}
 DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "ROUTE")
 MIN_TITLE = 10
 
+# W26: the command-history bound. Session-local presentation state, so
+# this is a memory courtesy rather than a protocol limit.
+HISTORY_LIMIT = 500
+
 # One bounded page of a Work's thread SET (prototype size): `n` pages
 # forward through the canonical continuation cursor, `p` returns to the
 # start — every thread is reachable, none is silently truncated.
@@ -86,7 +91,7 @@ def assist_text(buffer: str) -> str:
 	- typing the verb: matching command names;
 	- after a complete verb: the EFFECTIVE remaining required and
 	  optional keys — form conditions applied exactly as the parser
-	  enforces them (accept's two forms, parked/waiting, say's
+	  enforces them (accept's two forms, parked/block, say's
 	  exclusive carriers, close's duplicate outcome), narrowed by a
 	  live key prefix;
 	- typing `key=` on a closed vocabulary: the accepted values,
@@ -150,7 +155,7 @@ def actionable_work(row: dict, viewer_team: str,
 	PERSONAL actionability — "what am I supposed to handle?" — true
 	exactly when:
 	- this viewer IS the row's Handler; or
-	- the Work is open, ready, unclaimed, not waiting/parked, and its
+	- the Work is open, ready, unclaimed, not blocked/parked, and its
 	  Route endpoint resolves to this viewer (every eligible handler of
 	  a multi-handler Route sees it until one claims; after the claim
 	  only the winner keeps the cue); or
@@ -173,7 +178,7 @@ def actionable_work(row: dict, viewer_team: str,
 	return (row.get("status") == "open"
 	        and bool(row.get("ready"))
 	        and handler is None
-	        and row.get("phase") not in ("waiting", "parked")
+	        and row.get("phase") not in ("block", "parked")
 	        and route is not None
 	        and route["endpoint"].split(".", 1)[0] == viewer_team
 	        and viewer_member in (route.get("handlers") or ()))
@@ -193,6 +198,22 @@ def visible_columns(width: int, id_width: int = 0):
 			break
 		columns = [entry for entry in columns if entry[0] != name]
 	return tuple(columns)
+
+
+def duration_cell(seconds) -> str:
+	"""W47: the same MM:SS scale as `held_cell`, from a count of whole
+	seconds the PROJECTION computed rather than a client clock.
+
+	Kept beside `held_cell` and sharing its overflow so the two cells
+	read identically; the difference is only where the number comes
+	from. `-` when there is no interval at all."""
+	if seconds is None:
+		return "-"
+	seconds = max(0, int(seconds))
+	minutes = seconds // 60
+	if minutes < 100:
+		return f"{minutes:02d}:{seconds % 60:02d}"
+	return "∞"
 
 
 def held_cell(since, now) -> str:
@@ -242,34 +263,159 @@ def held_field(row, now) -> str:
 	treating silence as execution failure manufactured false alarms.
 	Heartbeat instants remain structured JSON diagnostics.
 
-	CLAIMED: `MM:SS` since canonical claimed_at (the visible reset at
-	pickup preserves when the recipient actually took the Work).
-	UNCLAIMED OPEN: `MM:SS` since the committed handoff, or `-` when
-	there is no handoff to time. CLOSED: `-`. Which of the first two a
-	row is reading is answered by `Handler`, not by a glyph here.
-	Readiness, wait and park remain separate table and JSON facts."""
+	W78 replaces the unclaimed-handoff origin. Held measures the two
+	intervals that are real operational time, and each is explainable
+	from its own row:
+
+	ACTIVE: `MM:SS` since canonical `claimed_at` — time the current
+	Handler has actually held the Work, and `Handler` names them.
+	BLOCK: `MM:SS` since the displayed gate's episode start — time lost
+	to that gate, and `Wait` names it.
+	EVERYTHING ELSE — queued, parked, terminal: `-`.
+
+	An unclaimed handoff no longer starts a visible clock. It was the
+	defect: two unclaimed rows in the same phase ran different clocks
+	because one happened to carry a historical `handoff_at`, and nothing
+	on either row explained the difference. `handoff_at` and `pickup`
+	remain structured history; they simply do not drive this cell.
+
+	The instant is always the authority's. The TUI never substitutes
+	`last_changed_at`, an edge's creation time, or its own observation
+	time for a start the authority did not commit."""
 	claimed_at = row.get("claimed_at")
 	if claimed_at is not None:
 		return held_cell(claimed_at, now)
-	if row.get("status") == "closed":
-		return "-"
-	return held_cell(row.get("handoff_at"), now)
+	gate = row.get("gate")
+	if gate and row.get("status") == "open":
+		return held_cell(gate.get("started_at"), now)
+	return "-"
+
+
+# W48: the sentinel that distinguishes an ABSENT Event payload from a
+# present falsy one. `None` cannot do this job — `null` is itself a
+# payload the ledger can hold.
+_ABSENT_PAYLOAD = object()
+
+
+def soft_wrap(line: str, cell_width: int) -> list[str]:
+	"""Break one logical line to the pane, preserving its structure.
+
+	W48: continuations keep the line's OWN leading spaces and add
+	exactly two more cells. The previous wrapper gave every indented
+	line one fixed four-space continuation, so a deeply nested JSON
+	scalar lost its structural depth the moment it wrapped — the reader
+	showed a value at a nesting level it does not occupy.
+
+	This preserves every displayed character. It never reserializes,
+	summarizes, folds or clips; a line too long for the pane comes back
+	as more visual lines, not as less content. An empty logical line
+	stays one empty visual line rather than vanishing.
+
+	The rule generalizes what the old wrapper did for the human label
+	lines rather than replacing it: a top-level line indents its
+	continuations by two, and a two-space fact line by four, which is
+	exactly what it produced before.
+	"""
+	width = max(8, cell_width)
+	indent = len(line) - len(line.lstrip(" "))
+	continuation = " " * min(indent + 2, max(0, width - 1))
+	if len(line) <= width:
+		return [line]
+	out, rest, prefix = [], line, ""
+	while True:
+		# At least one character per pass, so the loop cannot spin. The
+		# clamp above normally keeps `room` positive on its own; making
+		# progress STRUCTURAL means a future mistake in that arithmetic
+		# shows up as a fragment too wide for the cell — which every
+		# caller and test already checks — instead of as a hang, which
+		# nothing can check.
+		room = max(1, width - len(prefix))
+		if len(rest) <= room:
+			out.append(prefix + rest)
+			return out
+		# Break AFTER the last space inside the budget, so words survive
+		# and the space itself stays on the line it ended. A space
+		# inside a JSON string is DATA — consuming it at the break would
+		# silently rewrite the value, and `"alpha   beta"` would come
+		# back as `"alphabeta"`. Only the continuation indent this
+		# function adds is presentation; every original character stays,
+		# in order, so stripping that indent reassembles the line
+		# exactly.
+		#
+		# With no space in the budget the break is hard, because an
+		# unbroken JSON token must still be shown whole across lines
+		# rather than truncated.
+		found = rest.rfind(" ", 0, room)
+		cut = found + 1 if found > 0 else room
+		out.append(prefix + rest[:cut])
+		rest = rest[cut:]
+		prefix = continuation
+		if not rest:
+			return out
+
+
+def _title_cell(row: dict, title_width: int) -> str:
+	"""The Title column: reserved structure, then the truncatable title.
+
+	W154. The containment marker and the deeper-Work disclosure are
+	STRUCTURAL — they say where this row sits and whether anything is
+	hidden beneath it — so they are laid out first and the title takes
+	whatever room is left. Appending the disclosure to the title and
+	cutting the result, as this used to, made the cue the first thing a
+	long title removed: the one row that most needed to say "there is
+	more under here" was the one that stopped saying it.
+
+	The disclosure is the child's own canonical progress count. It is
+	deliberately NOT a claimant: a parent's Handler stays blank unless
+	that parent is itself claimed, because the cue says deeper Work
+	exists, not that this row is being worked on.
+	"""
+	# W155: three containment levels, so the indent is per LEVEL — two
+	# cells each, then the `↳` that marks containment. Fixed and
+	# unambiguous at every depth, and still containment only: a
+	# dependency is a graph edge and wears the separate `Wait` cue.
+	depth = row.get("depth") or 0
+	prefix = ("  " * (depth - 1) + "↳ ") if depth else ""
+	# W154/W155: the more-levels icon. It says this row contains Work
+	# this window does not show — at the cap that is the fourth level,
+	# and it is equally true of children a filter removed. The count is
+	# the row's own canonical progress total; it aggregates no Handler,
+	# Phase or message state from below.
+	if row.get("deeper"):
+		children = (row.get("progress") or {}).get("children") or 0
+		prefix += f"▸{children} " if children else "▸ "
+	room = max(0, title_width - len(prefix))
+	return (prefix + row["title"][:room])[:title_width].ljust(title_width)
 
 
 def blocker_cue(row: dict) -> str:
-	"""W39/W187: the inline dependency cue under the `Wait` heading —
-	`Wn` names the deterministic first OPEN blocker (canonical
-	projection data, the reviewed W4 selector identity), `+N` counts
-	the remaining open blockers: `W171+2` waits on W171 and two more.
-	Empty when nothing open blocks the row. NO arrow (W187 ruling: it
-	competed with the containment marker and `Blk` read ambiguously);
-	a dependency is a graph edge, never a containment child — the `↳`
-	marker is a different fact and stays untouched."""
-	first = row.get("first_open_blocker")
-	if not first:
+	"""The inline cue under the `Wait` heading: WHAT is holding this row.
+
+	W39/W187 established `Wn` for the deterministic first open blocker
+	with `+N` counting the rest — `W171+2` waits on W171 and two more.
+	NO arrow (W187: it competed with the containment marker and `Blk`
+	read ambiguously); a dependency is a graph edge, never a containment
+	child, and the `↳` marker is a different fact.
+
+	W78 makes the cue name the projected GATE rather than the blocker
+	list, because those are not the same question. A directed Message
+	obligation blocks a Work with no blocker edge at all, and used to
+	leave this cell empty beside a running clock — the row showed a
+	timer and nothing that explained it. `M66` now names the source
+	Message, which is the locator an operator can actually open; the
+	internal obligation number is a JSON fact and is deliberately not in
+	the compact row.
+
+	`+N` still counts additional open WORK blockers, and only for a Work
+	gate: the timer belongs to the displayed gate alone, so a count
+	beside a Message gate would suggest the two were commensurable."""
+	gate = row.get("gate")
+	if not gate:
 		return ""
-	more = row["open_blockers"] - 1
-	return f"{first}" + (f"+{more}" if more > 0 else "")
+	if gate["kind"] == "message":
+		return gate["selector"] or ""
+	more = (row.get("open_blockers") or 0) - 1
+	return f"{gate['selector']}" + (f"+{more}" if more > 0 else "")
 
 
 def cue_column_width(rows) -> int:
@@ -306,7 +452,11 @@ def layout_fits(width: int, id_width: int = 0) -> bool:
 # display cells, never a protocol identity and never a mutation value. Both
 # maps are CLOSED (R5 ruling): an unmapped canonical value fails visibly —
 # a client must never invent a label by truncation.
-PHASE_COMPACT = {"queued": "queue", "waiting": "wait",
+# W78: `block` renders as itself — five cells, the column width, and
+# the same word the authority uses. `wait` was the compact spelling of
+# `waiting`, and keeping it would have left the TUI naming a phase the
+# protocol no longer has.
+PHASE_COMPACT = {"queued": "queue", "block": "block",
                  "active": "actve", "parked": "park"}
 # W6 (ruled): confirmed-defect reads `defct` — cnfrm did not express
 # the classification. Presentation only; canonical values unchanged.
@@ -380,6 +530,35 @@ def status_cell(row: dict) -> str:
 	return compact_outcome(row["outcome"])
 
 
+def _completion_command(verb: str, owed: dict) -> str:
+	"""One ready-to-edit command for a terminal verb.
+
+	W228 asks for "enough command context to act without consulting
+	JSON", and a bare `verb obligation=N` is not that — `respond` needs
+	a body, `dispose` a disposition, `accept` a provider. Each verb's
+	required operands come from the CLI's OWN grammar rather than a
+	second copy here, so a grammar change cannot leave this line quietly
+	advertising a command that refuses."""
+	from baton_work.cli import GRAMMAR
+	spec = GRAMMAR.get(verb)
+	if spec is None:
+		return f"{verb} obligation={owed['seq']}"
+	parts = [verb]
+	for key in spec["keys"]:
+		if not key.get("required"):
+			continue
+		if key["name"] == "obligation":
+			parts.append(f"obligation={owed['seq']}")
+		else:
+			parts.append(f"{key['name']}=…")
+	if verb == "accept":
+		# accept's provider is an exactly-one-of rule rather than a
+		# required key, so the grammar's `required` flags cannot express
+		# it; the verb refuses without one.
+		parts.append("into=W… | create=true kind=… title=… classification=…")
+	return " ".join(parts)
+
+
 def format_message(message: dict, width: int) -> list[str]:
 	"""W8: one message as a compact borderless BLOCK — a bold metadata
 	header (#seq author ts, with the viewer's personal new marker), the
@@ -390,6 +569,18 @@ def format_message(message: dict, width: int) -> list[str]:
 	marker = " • new" if message.get("new") else ""
 	lines = [f"#{message['seq']} {message['author_team']}."
 	         f"{message['author']} {message.get('ts', '')}{marker}"]
+	# W228: the selected Message states the action it owes and how to
+	# satisfy it. The index cue says WHICH Message; this says what to
+	# type, so an ordinary directed decision stops requiring a trip to
+	# `obligations` to correlate a sequence with a Message by hand. The
+	# verbs are the authority's own declared completion set — never a
+	# guess, and never discovered by trying them.
+	owed = message.get("owed")
+	if owed:
+		lines.append(f"  @ you owe obligation {owed['seq']}"
+		             f" ({owed['owed_by']['endpoint']})")
+		for verb in owed["completes_by"]:
+			lines.append(f"  complete: {_completion_command(verb, owed)}")
 	body_width = max(10, width - 3)
 	for paragraph in message["body"].splitlines() or [""]:
 		# break_on_hyphens=False: identifiers, paths and hyphenated
@@ -501,6 +692,21 @@ class Console:
 		self.tick_owed = False
 
 		self.command: str | None = None  # the `:` command-bar buffer
+		# W26: bounded, session-local command history. Presentation
+		# state, not protocol state — it is never read from or written
+		# to the authority, and a second Console has its own.
+		self.history: list[str] = []
+		# Where Up/Down currently sits: an index into `history`, or
+		# None meaning "on the live draft, past the newest entry".
+		self.history_cursor: int | None = None
+		# The buffer as it was before history navigation began, so
+		# Down past the newest entry restores it BYTE-EXACTLY rather
+		# than approximately.
+		self.history_draft: str | None = None
+		# W26 reverse search: {"query", "match", "draft"} while active.
+		# `match` is an index into `history` or None when nothing
+		# matches; `draft` is the pre-search buffer Esc restores.
+		self.reverse: dict | None = None
 		# W81: the contextual `say` seed. `seeded_say` is the exact
 		# operand text this client inserted, so an explicit one arriving
 		# later can displace precisely that and nothing else.
@@ -563,13 +769,15 @@ class Console:
 
 
 	def view(self) -> tuple[list[dict], dict]:
-		"""(tree rows, summary) — W71: the main screen is a bounded
-		TWO-LEVEL containment window. At the top it shows every root
-		plus each root's immediate children (depth 1, `↳`); re-rooted
-		(`u`) it shows the selected Work plus its immediate children.
-		Indentation is the single-parent containment tree ONLY — graph
-		edges never masquerade as children. Each row dict carries a
-		presentation `depth`."""
+		"""(tree rows, summary) — W155 (superseding W71's two-level
+		cap): the main screen is a bounded THREE-LEVEL containment
+		window. At the top it shows every root, each root's immediate
+		children (depth 1, `↳`) and their children in turn (depth 2);
+		re-rooted (`u`) it shows the selected Work and the next three
+		levels beneath it. Indentation is the single-parent containment
+		tree ONLY — graph edges never masquerade as children. Each row
+		dict carries a presentation `depth` and a `deeper` flag saying
+		whether it holds Work this window does not show."""
 		# W71 R3: ONE canonical projection call — rows (with depth),
 		# summary and token all come from one read snapshot; the screen
 		# can never mix two authority states, and JSON `tree` returns
@@ -825,28 +1033,99 @@ class Console:
 			# visible — `<` marks the clipped left; the BUFFER itself
 			# is never cut, so a wider resize (recomputing this
 			# viewport from the same buffer) shows it whole again.
-			typed = ":" + self.command
-			avail = width - 1
-			if len(typed) < avail:
-				screen.addnstr(height - 1, 0, typed, avail)
-				room = avail - len(typed) - 2
-				if room >= 8:
-					if self.command.strip() == "filter" and \
-							self.work_filter:
-						# W5 (ruled): command entry exposes the
-						# current clauses — SPACE seeds them into the
-						# buffer for editing; bare Enter clears.
-						hint = ("current: " + self._filter_clauses()
-						        + " · space edits · Enter clears")
-					else:
-						hint = assist_text(self.command)
-					screen.addnstr(height - 1, len(typed) + 2,
-					               hint[:room], room, curses.A_DIM)
-				caret = (height - 1, len(typed))
+			# W26: while reverse search is open the row shows the
+			# query and its match instead of the ordinary buffer, so
+			# the operator can always see WHICH command Enter would
+			# submit. The caret sits in the query, which is what is
+			# being edited.
+			if self.reverse is not None:
+				found = self.reverse["match"]
+				shown = "" if found is None else self.history[found]
+				avail = width - 1
+				# W26 R2: reverse search obeys the SAME viewport rule as
+				# ordinary entry, because it is ordinary entry — typing
+				# appends to the query, so the insertion point is the
+				# query's end. Painting `row[:avail]` showed the OLDEST
+				# prefix and then parked the caret on the last cell: the
+				# caret sat on unrelated text while every character
+				# being typed was off-screen.
+				#
+				# Three things compete for the row, and they are ranked.
+				# The identity comes first — an operator who cannot see
+				# `(reverse-i-search)` does not know which mode Enter
+				# will act in. The live query tail comes second. The
+				# match comes last: it is the RESULT, and a result that
+				# crowds out the input it came from is backwards.
+				head = "(reverse-i-search)`"
+				# the space after the closing quote SEPARATES the query
+				# from the match; with no match there is nothing to
+				# separate, and on a narrow row that cell is better
+				# spent on the query the operator is typing.
+				joint = "': " if found is not None else "':"
+				room = avail - len(head) - len(joint)
+				if room < 1:
+					# Degenerate width: keep the identity and put the
+					# caret at its end. Nothing else fits, and inventing
+					# a second, shorter spelling of the prompt would
+					# make the mode unrecognizable exactly when the
+					# operator most needs to recognize it.
+					screen.addnstr(height - 1, 0, head[:avail], avail,
+					               curses.A_DIM if found is None else
+					               curses.A_NORMAL)
+					caret = (height - 1, max(0, min(len(head),
+					                                avail - 1)))
+				else:
+					query = self.reverse["query"]
+					# `<` marks the clipped left, exactly as ordinary
+					# entry marks it. The stored query is NEVER cut —
+					# a wider resize recomputes this viewport from the
+					# intact value and shows it whole again.
+					clipped = query if len(query) <= room \
+						else "<" + query[-(room - 1):]
+					# The ranking is enforced ABOVE, by computing
+					# `room` from the fixed parts alone: the query gets
+					# its space before the match is considered at all.
+					# Appending the whole match here needs no bookkeeping
+					# — the paint below clips the row to the cell, which
+					# is the same thing said once instead of twice.
+					row = head + clipped + joint + shown
+					# DIM when nothing matches, so a query that has
+					# narrowed to nothing is visibly distinct from one
+					# that found something.
+					screen.addnstr(height - 1, 0, row[:avail], avail,
+					               curses.A_DIM if found is None else
+					               curses.A_NORMAL)
+					# the caret sits at the END of the query, which is
+					# where typing lands — the match beside it is the
+					# result, not input
+					caret = (height - 1,
+					         min(len(head) + len(clipped),
+					             max(0, avail - 1)))
 			else:
-				tail = typed[len(typed) - (avail - 2):]
-				screen.addnstr(height - 1, 0, "<" + tail, avail)
-				caret = (height - 1, 1 + len(tail))
+				typed = ":" + self.command
+				avail = width - 1
+				if len(typed) < avail:
+					screen.addnstr(height - 1, 0, typed, avail)
+					room = avail - len(typed) - 2
+					if room >= 8:
+						if self.command.strip() == "filter" and \
+								self.work_filter:
+							# W5 (ruled): command entry exposes the
+							# current clauses — SPACE seeds them into
+							# the buffer for editing; bare Enter
+							# clears.
+							hint = ("current: "
+							        + self._filter_clauses()
+							        + " · space edits · Enter clears")
+						else:
+							hint = assist_text(self.command)
+						screen.addnstr(height - 1, len(typed) + 2,
+						               hint[:room], room, curses.A_DIM)
+					caret = (height - 1, len(typed))
+				else:
+					tail = typed[len(typed) - (avail - 2):]
+					screen.addnstr(height - 1, 0, "<" + tail, avail)
+					caret = (height - 1, 1 + len(tail))
 		elif self.status:
 			screen.addnstr(height - 1, 0, self.status, width - 1)
 		# The caret exists exactly while the bar is open: shown at the
@@ -964,13 +1243,18 @@ class Console:
 			# child that itself contains children carries a visible
 			# disclosure count (its canonical progress total) reachable
 			# through `u`.
-			title = row["title"]
-			if row.get("depth"):
-				title = "↳ " + title
-			if row.get("depth") and row["progress"]["children"]:
-				title += f" ▸{row['progress']['children']}"
-			line = (row["local_id"].ljust(id_width) + " "
-			        + title[:title_width].ljust(title_width))
+			#
+			# W154: both symbols are STRUCTURE and are reserved BEFORE
+			# the truncatable title. They used to be a prefix and a
+			# suffix around the whole title, which was then cut to the
+			# column — so a long enough title deleted the very cue that
+			# said more Work was hidden beneath it. That is how W5 came
+			# to look like a leaf while W6 was open and claimed under
+			# it. Title length, terminal width, selection, filters and
+			# the other columns can now shorten the TITLE, and never the
+			# fact that something is down there.
+			title_cell = _title_cell(row, title_width)
+			line = (row["local_id"].ljust(id_width) + " " + title_cell)
 			if cue_width:
 				line += " " + blocker_cue(row).ljust(cue_width)
 			cells = self._row_cells(row)
@@ -978,6 +1262,22 @@ class Console:
 				line += " " + cells[name][:col_width].ljust(col_width)
 			attribute = curses.A_REVERSE \
 				if start + offset == self.cursor else 0
+			if self.phase_blink.get(row["id"], 0) > 0:
+				# W105: the ephemeral phase-CHANGE cue covers the whole
+				# visible row, not just the Phase cell. It was easy to
+				# miss while scanning Titles, and it vanished entirely
+				# at widths where the responsive layout drops PHASE —
+				# so the cue was absent exactly where the row is
+				# hardest to read.
+				#
+				# Composed into the BASE attribute rather than
+				# overpainted, which is what makes it survive column
+				# omission and compose with selection and the
+				# actionable-Title bold instead of replacing either.
+				# The scope is the CLIPPED visible row: what is painted
+				# blinks, and off-screen columns have nothing to
+				# animate.
+				attribute |= curses.A_BLINK
 			screen.addnstr(top + 1 + offset, 0, line, width - 1,
 			               attribute)
 			if actionable_work(row, self.team, self.member):
@@ -989,30 +1289,9 @@ class Console:
 				# attribute COMPOSES with the bold rather than
 				# erasing it.
 				screen.addnstr(
-					top + 1 + offset, id_width + 1,
-					title[:title_width].ljust(title_width),
+					top + 1 + offset, id_width + 1, title_cell,
 					min(title_width, max(0, width - 1 - id_width - 1)),
 					attribute | curses.A_BOLD)
-			if self.phase_blink.get(row["id"], 0) > 0:
-				# W33: the ephemeral phase-CHANGE cue — the phase cell
-				# blinks for three scheduled refresh ticks after an
-				# OBSERVED genuine Phase change, then the steady bold
-				# Title + Age remain. At widths where the PHASE column
-				# is dropped there is simply no cell to animate.
-				x = id_width + 1 + title_width \
-					+ ((1 + cue_width) if cue_width else 0)
-				for name, col_width in columns:
-					x += 1
-					if name == "PHASE":
-						if x < width - 1:
-							screen.addnstr(
-								top + 1 + offset, x,
-								cells["PHASE"][:col_width]
-								.ljust(col_width),
-								min(col_width, width - 1 - x),
-								attribute | curses.A_BLINK)
-						break
-					x += col_width
 		footer_row = top + 1 + min(len(visible) - start, budget)
 		if hidden and footer_row <= height - 2:
 			screen.addnstr(footer_row, 0,
@@ -1156,11 +1435,15 @@ class Console:
 		        # who may claim, then who actually holds it.
 		        f"route {route}  handler {handler}  "
 		        f"next {planned}  new {detail['new']}")
-		waiting = detail.get("waiting_on")
-		if waiting is not None:
-			line += f"  wait:{waiting['type']}"
-			if waiting["obligation"] is not None:
-				line += f"#{waiting['obligation']}"
+		# W78: the focused row states WHAT is holding the Work, not the
+		# kind of condition it is waiting on. `wait:gates` named a
+		# category; `wait W4` and `wait M66` name the thing an operator
+		# can go and look at. The detail pane below adds the gate's
+		# full facts — obligation state and resolved endpoint — which
+		# the compact row deliberately leaves out.
+		gate = detail.get("gate")
+		if gate is not None:
+			line += f"  wait {gate['selector']}"
 		return line
 
 	DETAIL_TABS = ("messages", "events")
@@ -1228,16 +1511,17 @@ class Console:
 		index_label = f"{imarker}Events ({len(events)}){more}"
 		reader_label = f"{rmarker}Event E{selected['seq']}" \
 			if selected else f"{rmarker}Event"
-		wide = width - 1 - self.INDEX_WIDTH - 2 >= self.MIN_READER
+		index_width = self.EVENT_INDEX_WIDTH
+		wide = width - 1 - index_width - 2 >= self.MIN_READER
 		if wide:
-			reader_x = self.INDEX_WIDTH + 2
+			reader_x = index_width + 2
 			reader_width = width - 1 - reader_x
-			screen.addnstr(top, 0, index_label, self.INDEX_WIDTH,
+			screen.addnstr(top, 0, index_label, index_width,
 			               index_bold)
 			screen.addnstr(top, reader_x, reader_label, reader_width,
 			               reader_bold)
 			self._paint_event_index(screen, top + 1, region - 1, 0,
-			                        self.INDEX_WIDTH, events)
+			                        index_width, events)
 			self._paint_event_reader(screen, top + 1, region - 1,
 			                         reader_x, reader_width, selected)
 		else:
@@ -1260,6 +1544,48 @@ class Console:
 		bits.extend(["Ctrl-W panes", "j/k select", "Esc back"])
 		self._detail_footer(screen, height, width, bits)
 
+	# W47: the Event index is a fixed-column table. Concatenating the
+	# fields put every later one at a different cell, so nothing lined
+	# up and the eye could not scan a column. Widths are FIXED and an
+	# entire lower-priority column is dropped whole when the pane is
+	# too narrow — truncating one would move every column after it,
+	# which is the defect in a subtler form.
+	#
+	# Priority order, highest first: the stable id, the typed kind, the
+	# actor, the time, the scheduler phase, its duration.
+	EVENT_COLUMNS = (("EVENT", 6), ("KIND", 12), ("ACTOR", 10),
+	                 ("TIME", 5), ("PHASE", 5), ("FOR", 5))
+	# The Events index carries six columns where the Messages index
+	# carries a line of prose, so it gets its own width. Sharing the
+	# narrower Messages budget would have dropped PHASE and FOR at
+	# every terminal size, which is the whole point of the table.
+	EVENT_INDEX_WIDTH = sum(w for _n, w in EVENT_COLUMNS) + 5
+
+	def _event_columns(self, cell_width):
+		"""The widest column set that fits, dropping from the right."""
+		columns = list(self.EVENT_COLUMNS)
+		while columns and sum(w for _n, w in columns) + len(columns) - 1 \
+				> cell_width:
+			columns.pop()
+		return columns
+
+	def _event_row(self, entry, columns) -> str:
+		interval = entry.get("phase_interval")
+		values = {
+			"EVENT": f"E{entry['seq']}",
+			"KIND": entry["kind"],
+			"ACTOR": entry["actor"] or "",
+			"TIME": (entry.get("ts") or "")[11:16],
+			# The phase-ENTRY event owns these two cells; every other
+			# row reads `-`, so one episode appears exactly once.
+			"PHASE": compact_phase(interval["phase"])
+			if interval else "-",
+			"FOR": duration_cell(interval["elapsed_seconds"])
+			if interval else "-",
+		}
+		return " ".join(values[name][:width].ljust(width)
+		                for name, width in columns)
+
 	def _paint_event_index(self, screen, top, rows, x, cell_width,
 	                       events):
 		"""`E<seq>` is the visible stable event identifier — the
@@ -1269,18 +1595,22 @@ class Console:
 			screen.addnstr(top, x, "(no events on this page)",
 			               cell_width)
 			return
+		columns = self._event_columns(cell_width)
+		header = " ".join(name[:width].ljust(width)
+		                  for name, width in columns)
+		screen.addnstr(top, x, header[:cell_width].ljust(cell_width),
+		               cell_width, curses.A_DIM)
+		rows = max(0, rows - 1)
 		ordered = list(reversed(events))
 		seqs = [entry["seq"] for entry in ordered]
 		chosen = seqs.index(self.event_cursor) \
 			if self.event_cursor in seqs else 0
 		start = max(0, min(chosen - rows + 1, len(ordered) - rows))
 		for offset, entry in enumerate(ordered[start:start + rows]):
-			stamp = (entry.get("ts") or "")[11:16]
-			text = (f"E{entry['seq']} {entry['kind']} {stamp} "
-			        f"{entry['actor']}")
+			text = self._event_row(entry, columns)
 			attribute = curses.A_REVERSE \
 				if entry["seq"] == self.event_cursor else 0
-			screen.addnstr(top + offset, x,
+			screen.addnstr(top + 1 + offset, x,
 			               text[:cell_width].ljust(cell_width),
 			               cell_width, attribute)
 
@@ -1289,7 +1619,14 @@ class Console:
 		payload. Routine events read compactly, but nothing is hidden:
 		the ruling is that folding must be explicit, never silent
 		omission."""
-		payload = entry.get("payload") or {}
+		# W48: an ABSENT payload and a present falsy one are different
+		# facts. `entry.get("payload") or {}` turned `null`, `false`,
+		# `0`, `""` and `[]` into `{}` — the reader claimed an empty
+		# object where the ledger holds a JSON value with its own type
+		# and spelling. Only a genuinely missing key falls back.
+		payload = entry.get("payload", _ABSENT_PAYLOAD)
+		if payload is _ABSENT_PAYLOAD:
+			payload = {}
 		lines = [f"#{entry['seq']} {entry['kind']} {entry['actor']} "
 		         f"{entry['ts']}",
 		         f"  roles: {', '.join(entry['roles'])}"]
@@ -1309,18 +1646,36 @@ class Console:
 			else:
 				lines.append(f"  claim: ended E{interval['end_seq']} "
 				             f"({interval['end_kind']}) after {held}s")
-		for label in ("rationale", "reason", "comment", "outcome",
-		              "from", "to", "destination_phase", "title",
-		              "classification", "priority", "claimant",
-		              "released_claimant", "blocker", "provider"):
-			if payload.get(label) is not None:
-				lines.append(f"  {label}: {payload[label]}")
+		# The typed labels read the payload's own fields, so they apply
+		# only when it IS an object. A list or scalar payload has no
+		# fields to label and goes straight to the JSON block below.
+		if isinstance(payload, dict):
+			for label in ("rationale", "reason", "comment", "outcome",
+			              "from", "to", "destination_phase", "title",
+			              "classification", "priority", "claimant",
+			              "released_claimant", "blocker", "provider"):
+				if payload.get(label) is not None:
+					lines.append(f"  {label}: {payload[label]}")
 		for reference in entry.get("references") or ():
 			lines.append(f"  ref: {reference.get('root')}:"
 			             f"{reference.get('path')}")
+		# W48: `payload:` is a SECTION LABEL on its own line and the
+		# JSON begins beneath it, two spaces per nesting level. One
+		# `json.dumps(..., sort_keys=True)` line put nested objects and
+		# arrays on a single wrapped line, where the reader's generic
+		# wrapping obscured the structure the operator is reading the
+		# payload to see.
+		#
+		# Each JSON logical line is supplied SEPARATELY, before any
+		# terminal-width handling — wrapping is the painter's job and
+		# is presentation only. `ensure_ascii=False` keeps Unicode
+		# readable; `sort_keys=True` keeps the order deterministic.
 		import json as _payload_json
-		lines.append("  payload: "
-		             + _payload_json.dumps(payload, sort_keys=True))
+		lines.append("  payload:")
+		lines.extend(
+			"  " + text for text in
+			_payload_json.dumps(payload, indent=2, sort_keys=True,
+			                    ensure_ascii=False).splitlines())
 		return lines
 
 	def _paint_event_reader(self, screen, top, rows, x, cell_width,
@@ -1329,13 +1684,9 @@ class Console:
 			screen.addnstr(top, x, "(no event selected)", cell_width)
 			self.event_clipped = False
 			return
-		import textwrap
 		wrapped = []
 		for line in self._event_lines(entry):
-			indent = "    " if line.startswith("  ") else "  "
-			wrapped.extend(textwrap.wrap(line, max(8, cell_width),
-			                             subsequent_indent=indent)
-			               or [""])
+			wrapped.extend(soft_wrap(line, cell_width))
 		skip = min(self.event_skip, max(0, len(wrapped) - 1))
 		self.event_skip = skip
 		visible = wrapped[skip:]
@@ -1455,47 +1806,175 @@ class Console:
 		nothing."""
 		return messages[-1]["seq"] if messages else None
 
+	# W49: the Message index is a fixed-column table, declared here as
+	# data. Concatenating the fields made every row's time and state
+	# start wherever the author's name happened to end, so nothing could
+	# be scanned down a column.
+	#
+	# Visual order is `Id From Time St`. PRIORITY is different and
+	# deliberate — Id, From, St, then Time — so width pressure drops the
+	# clock before it drops the viewer's own new/seen fact. Id is not in
+	# this table because its width is computed per page from the longest
+	# visible selector.
+	#
+	# `From` is 13 cells because a configured handle is at most six
+	# display cells and the address is `team.member`; the compact
+	# vocabulary is the authority for that, not this renderer.
+	#
+	# W228 used the seam W49 left: `Do` is the viewer-relative action
+	# cue, and adding it was one entry here plus one drop-order
+	# position. It sits second in the VISUAL order, beside the selector,
+	# because an owed action is the reason to act on the row at all —
+	# and it drops LAST of the optional fields for the same reason. The
+	# aggregate `oblig:1` in the header and the bold Work row say
+	# something is owed somewhere; only this says which Message, and it
+	# is the fact W228 found undiscoverable without leaving the TUI.
+	MESSAGE_COLUMNS = (("Do", 4), ("From", 13), ("Time", 5), ("St", 4))
+	MESSAGE_DROP_ORDER = ("Time", "St", "From", "Do")
+
+	@staticmethod
+	def message_id_width(messages) -> int:
+		"""The `Id` allocation for ONE painted page: the longest visible
+		`M<seq>`, never narrower than its own heading.
+
+		Computed from the page rather than from a constant, so a
+		sequence crossing a decimal boundary widens the column instead
+		of clipping the one field every other operation is typed from.
+		All rows in a paint share it."""
+		widest = max((len(f"M{message['seq']}") for message in messages),
+		             default=0)
+		return max(len("Id"), widest)
+
+	@staticmethod
+	def message_cue_width(messages) -> int:
+		"""The `Do` allocation for ONE painted page: the longest visible
+		`@<seq>`, never narrower than its own heading.
+
+		W228 R1: obligation sequences are monotonic and unbounded, so a
+		FIXED four cells turns `@1000` into `@100` — not a hidden cue but
+		a different obligation, and the operator would type the verb at
+		whichever one that names. Sized from the page for exactly the
+		reason `Id` is: a selector is the thing every command is typed
+		from, so it widens the column rather than losing a digit."""
+		widest = max((len(f"@{message['owed']['seq']}")
+		              for message in messages if message.get("owed")),
+		             default=0)
+		return max(len("Do"), widest)
+
+	@classmethod
+	def message_columns(cls, cell_width: int, id_width: int,
+	                    cue_width: int | None = None):
+		"""The columns that fit, dropping whole fields in reverse
+		priority. `Id` and the selection cue always survive: a row whose
+		selector is gone cannot be acted on, so there is nothing left to
+		render.
+
+		`cue_width` is the page's own `Do` allocation; the declared
+		width is the minimum, never a cap."""
+		widths = {name: width for name, width in cls.MESSAGE_COLUMNS}
+		if cue_width is not None and "Do" in widths:
+			widths["Do"] = max(widths["Do"], cue_width)
+		kept = [name for name, _width in cls.MESSAGE_COLUMNS]
+
+		def used(names):
+			total = id_width
+			for name, _declared in cls.MESSAGE_COLUMNS:
+				if name in names:
+					total += 1 + widths[name]
+			return total
+
+		for candidate in cls.MESSAGE_DROP_ORDER:
+			if used(kept) <= cell_width:
+				break
+			kept.remove(candidate)
+		return [(name, widths[name]) for name, _declared
+		        in cls.MESSAGE_COLUMNS if name in kept]
+
+	def _message_cells(self, message) -> dict:
+		# W228: `@<seq>` names the obligation this viewer owes on this
+		# exact Message. A glyph alone would not identify WHICH
+		# obligation, and the ruling requires legibility without relying
+		# on colour, blink or bold — so the cue is text carrying the
+		# local sequence the terminal verbs are typed with.
+		owed = message.get("owed")
+		return {
+			"Do": f"@{owed['seq']}" if owed else "",
+			"From": f"{message['author_team']}.{message['author']}",
+			"Time": (message.get("ts") or "")[11:16],
+			"St": "new" if message.get("new") else "seen",
+		}
+
 	def _paint_index(self, screen, top, rows, x, cell_width, messages):
-		"""The compact Message index: `M<seq>` (the existing stable
-		sequence — nothing invented), author, time, and the personal
-		new/seen state. W76: the NEWEST Message paints at the top; the
-		page itself stays canonical ascending everywhere else, so only
-		this display order is reversed. The selected row is reversed;
-		personal-new rows are bold; the window scrolls to keep the
-		selection painted."""
+		"""The Message index as a fixed-column table: `M<seq>` (the
+		existing stable sequence — nothing invented), author, event
+		time, and the personal new/seen state, each clipped inside its
+		own allocation so no field's overflow can move a later one.
+
+		W76: the NEWEST Message paints at the top; the page itself stays
+		canonical ascending everywhere else, so only this display order
+		is reversed. The selected row is reversed; personal-new rows are
+		bold; the window scrolls to keep the selection painted."""
 		if not messages:
 			screen.addnstr(top, x, "(no messages on this page)",
 			               cell_width)
+			return
+		id_width = self.message_id_width(messages)
+		columns = self.message_columns(cell_width, id_width,
+		                               self.message_cue_width(messages))
+		header = "Id".ljust(id_width)
+		for name, width in columns:
+			header += " " + name.ljust(width)
+		screen.addnstr(top, x, header[:cell_width].ljust(cell_width),
+		               cell_width, curses.A_UNDERLINE)
+		listing = max(0, rows - 1)
+		if not listing:
 			return
 		messages = list(reversed(messages))
 		seqs = [message["seq"] for message in messages]
 		chosen = seqs.index(self.msg_cursor) \
 			if self.msg_cursor in seqs else 0
-		start = max(0, min(chosen - rows + 1, len(messages) - rows))
-		for offset, message in enumerate(messages[start:start + rows]):
-			stamp = (message.get("ts") or "")[11:16]
-			state = "new" if message.get("new") else "seen"
-			text = (f"M{message['seq']} {message['author_team']}."
-			        f"{message['author']} {stamp} {state}")
+		start = max(0, min(chosen - listing + 1, len(messages) - listing))
+		start = max(0, start)
+		for offset, message in enumerate(messages[start:start + listing]):
+			cells = self._message_cells(message)
+			text = f"M{message['seq']}".ljust(id_width)
+			for name, width in columns:
+				text += " " + cells[name][:width].ljust(width)
 			attribute = 0
 			if message["seq"] == self.msg_cursor:
 				attribute = curses.A_REVERSE
 			elif message.get("new"):
 				attribute = curses.A_BOLD
-			screen.addnstr(top + offset, x,
+			screen.addnstr(top + 1 + offset, x,
 			               text[:cell_width].ljust(cell_width),
 			               cell_width, attribute)
 
-	def _paint_reader(self, screen, top, rows, x, cell_width, selected):
+	def _paint_reader(self, screen, top, rows, x, cell_width, selected,
+	                  focused=False):
 		"""The reader: exactly ONE selected Message as its canonical
 		formatted block — metadata header, wrapped body, Refs visually
 		separate — scrolled by `reader_skip` with an honest `(cont.)`
-		tag; a clipped tail is disclosed, never silently dropped."""
+		tag; a clipped tail is disclosed, never silently dropped.
+
+		W30: there is no reader HEADING any more. It spent a whole row
+		saying `Message M20` while the reversed index row already
+		showed the selection and the metadata beneath already said
+		`#20` — the same fact three times, one of them costing a body
+		line. Focus therefore rides the first reader row, marked in the
+		same `»` column the index heading uses; bold alone would not do,
+		because unseen metadata is already bold."""
+		marker = "»" if focused else " "
 		if selected is None:
-			screen.addnstr(top, x, "(no message selected)", cell_width)
+			screen.addnstr(top, x, marker + "(no message selected)",
+			               cell_width)
 			self.reader_clipped = False
 			return
-		block = format_message(selected, cell_width)
+		# The marker owns column 0 of the cell, so the block wraps one
+		# cell narrower. `format_message` happens to reserve a column of
+		# its own, which would make this look redundant — it is not: the
+		# reservation is stated HERE because the marker is painted here,
+		# and it must not depend on another function's internal margin.
+		block = format_message(selected, max(1, cell_width - 1))
 		skip = min(self.reader_skip, max(0, len(block) - 1))
 		self.reader_skip = skip
 		visible = block[skip:]
@@ -1505,8 +1984,9 @@ class Console:
 		for offset, text in enumerate(visible[:take]):
 			attribute = curses.A_BOLD if offset == 0 and \
 				(skip or selected.get("new")) else 0
-			screen.addnstr(top + offset, x, text, cell_width,
-			               attribute)
+			screen.addnstr(top + offset, x,
+			               (marker if offset == 0 else " ") + text,
+			               cell_width, attribute)
 		shown = take - (1 if skip else 0)
 		self.reader_clipped = skip + shown < len(block)
 
@@ -1551,46 +2031,61 @@ class Console:
 		selected = next((message for message in messages
 		                 if message["seq"] == self.msg_cursor), None)
 		index_bold = curses.A_BOLD if self.focus == "index" else 0
-		reader_bold = curses.A_BOLD if self.focus == "reader" else 0
 		imarker = "»" if self.focus == "index" else " "
-		rmarker = "»" if self.focus == "reader" else " "
 		# W76: the index reads newest-first, so "more" is honestly OLDER.
 		more = "  (n: older)" if snapshot["next_before"] is not None \
 			else ""
 		# W176 (finding-message-pane-header-redundancy): the split-area
 		# headings identify PANE ROLES, never content already visible in
 		# the selected Thread and Message rows. The Thread row owns the
-		# subject; the reversed index row owns selection; the reader
-		# heading names the selected message exactly once.
-		index_label = f"{imarker}Messages ({len(messages)}){more}"
-		reader_label = f"{rmarker}Message M{selected['seq']}" \
-			if selected else f"{rmarker}Message"
+		# subject; the reversed index row owns selection. W30 carried
+		# that rule to its conclusion: the reader's own heading said
+		# nothing the index row and the metadata beneath it did not
+		# already say, so the reader has no heading and this is the
+		# only pane label the region paints.
+		# W29: `(total/unseen)` for the WHOLE Thread, both from the
+		# canonical snapshot. `len(messages)` is the painted page, so
+		# it reported ten rows as if the conversation held ten — the
+		# heading an operator cannot reconcile with what they are
+		# reading. The `(n: older)` continuation beside it still
+		# describes paging, which is a different question.
+		index_label = (f"{imarker}Messages "
+		               f"({snapshot['total']}/{snapshot['new']}){more}")
 		wide = width - 1 - self.INDEX_WIDTH - 2 >= self.MIN_READER
 		if wide:
 			reader_x = self.INDEX_WIDTH + 2
 			reader_width = width - 1 - reader_x
 			screen.addnstr(top, 0, index_label, self.INDEX_WIDTH,
 			               index_bold)
-			screen.addnstr(top, reader_x, reader_label, reader_width,
-			               reader_bold)
 			self._paint_index(screen, top + 1, region - 1, 0,
 			                  self.INDEX_WIDTH, messages)
-			self._paint_reader(screen, top + 1, region - 1, reader_x,
-			                   reader_width, selected)
+			# W30: the reader begins on the SAME row as the Message
+			# index heading and keeps every row it had, so the body
+			# viewport gains one line instead of spending it on a
+			# label.
+			self._paint_reader(screen, top, region, reader_x,
+			                   reader_width, selected,
+			                   focused=self.focus == "reader")
 		else:
+			# W49: +1 for the index's own column header. It is part of
+			# the index, so the header's row comes out of the index's
+			# allocation rather than out of its LISTING — otherwise
+			# adding the header would silently drop the last visible
+			# Message from a narrow page.
 			index_rows = max(1, min(len(messages) or 1,
 			                        max(2, region // 3),
-			                        region - 3))
+			                        region - 2)) + 1
 			screen.addnstr(top, 0, index_label, width - 1,
 			               index_bold)
 			self._paint_index(screen, top + 1, index_rows, 0,
 			                  width - 1, messages)
+			# Stacked: the reader starts immediately after the index
+			# region, with no intervening label row.
 			reader_top = top + 1 + index_rows
-			screen.addnstr(reader_top, 0, reader_label, width - 1,
-			               reader_bold)
-			self._paint_reader(screen, reader_top + 1,
-			                   top + region - reader_top - 1, 0,
-			                   width - 1, selected)
+			self._paint_reader(screen, reader_top,
+			                   top + region - reader_top, 0,
+			                   width - 1, selected,
+			                   focused=self.focus == "reader")
 		# Operator-facing more/page state + the advertised controls
 		# (ruled: paged surfaces disclose their controls; Ctrl-W is the
 		# region convention; the seen action names its exact bound).
@@ -1694,6 +2189,12 @@ class Console:
 	def execute(self, line: str) -> None:
 		"""The one-line `:` bar: feed the typed command through
 		`_run_line` and surface the brief or the refusal."""
+		# W26: the submission is recorded HERE, before any refusal
+		# path, and never from a success status or an authority event.
+		# Every one-line submission passes through this method — local
+		# `filter` included — so this is the single point where "the
+		# operator submitted this text" is true.
+		self._remember(line)
 		if self.config_path is None:
 			self.status = "no config path; the command bar is unavailable"
 			return
@@ -2181,7 +2682,133 @@ class Console:
 		self.seeded_say = f"thread={selector} "
 		self.command = f"say {self.seeded_say}"
 
+	def _remember(self, line: str) -> None:
+		"""W26: record one SUBMITTED command.
+
+		Every non-empty submission enters history, including one the
+		parser or the authority refuses — correcting a refused command
+		is the primary reason the feature exists, so deriving history
+		from success would omit exactly the entries most worth
+		recalling. Adjacent identical submissions collapse, and the
+		bound evicts oldest-first."""
+		text = line.strip()
+		if not text or (self.history and self.history[-1] == text):
+			return
+		self.history.append(text)
+		if len(self.history) > HISTORY_LIMIT:
+			del self.history[:len(self.history) - HISTORY_LIMIT]
+
+	def _history_step(self, older: bool) -> None:
+		"""Up walks toward older entries, Down toward newer. Down past
+		the newest restores the scratch draft the operator had before
+		navigating."""
+		if not self.history:
+			return
+		if self.history_cursor is None:
+			if not older:
+				return
+			self.history_draft = self.command
+			self.history_cursor = len(self.history) - 1
+		elif older:
+			self.history_cursor = max(0, self.history_cursor - 1)
+		else:
+			self.history_cursor += 1
+			if self.history_cursor >= len(self.history):
+				# past the newest: the draft, exactly as it was
+				self.history_cursor = None
+				self.command = self.history_draft or ""
+				self.history_draft = None
+				self._reconcile_say_seed()
+				return
+		self.command = self.history[self.history_cursor]
+		self._reconcile_say_seed()
+
+	def _reverse_match(self, query: str, before: int | None) -> int | None:
+		"""The newest entry at or before `before` containing `query`.
+		Case-sensitive, as ruled."""
+		start = len(self.history) - 1 if before is None else before
+		for index in range(start, -1, -1):
+			if query in self.history[index]:
+				return index
+		return None
+
+	def _reverse_adopt(self) -> None:
+		"""Take the displayed match into the ordinary buffer and leave
+		search. Nothing executes: this is the `recall, tweak, rerun`
+		path, and the tweak happens in the normal editor."""
+		if self.reverse is not None and self.reverse["match"] is not None:
+			self.command = self.history[self.reverse["match"]]
+		self.reverse = None
+		self._reconcile_say_seed()
+
+	def _reverse_key(self, key: int) -> None:
+		"""Incremental reverse search. Shell-familiar by ruling:
+		typing NARROWS, repeated Ctrl-R steps to the next older match,
+		Right or Tab accepts, Enter submits, Esc restores the draft."""
+		state = self.reverse
+		if key in (10, 13, curses.KEY_ENTER):
+			if state["match"] is None:
+				# Enter submits the chosen match. With nothing
+				# chosen there is nothing to submit — and the buffer
+				# behind the prompt is the pre-search draft, which the
+				# operator can no longer see. Running it would execute
+				# invisible text. Staying in search is the safe
+				# reading: Esc still restores that draft deliberately.
+				return
+			self._reverse_adopt()
+			line, self.command = self.command, None
+			self.seeded_say = None
+			self.history_cursor = self.history_draft = None
+			self.execute(line)
+			return
+		if key == 27:
+			# cancel: the pre-search draft, byte for byte
+			self.command = state["draft"]
+			self.reverse = None
+			self._reconcile_say_seed()
+			return
+		if key == 18:                      # Ctrl-R: next OLDER match
+			nxt = None if state["match"] is None else state["match"] - 1
+			if nxt is not None and nxt >= 0:
+				found = self._reverse_match(state["query"], nxt)
+				if found is not None:
+					state["match"] = found
+			# no wrap past the oldest match, deliberately: wrapping
+			# hides that the search has run out
+			return
+		if key in (curses.KEY_RIGHT, 9):   # Right / Tab accept
+			# Both leave search with the match in the ordinary buffer
+			# and the caret at its end. W26 reserved this branch for
+			# W27: once the match is adopted it IS an ordinary buffer,
+			# so Tab adopts and then completes it in the same gesture —
+			# which is what the ruling asks for, and why W26 stopped
+			# here rather than calling a verb that did not exist.
+			self._reverse_adopt()
+			if key == 9:
+				self._complete_command()
+			return
+		if key in (8, 127, curses.KEY_BACKSPACE):
+			state["query"] = state["query"][:-1]
+		elif 32 <= key <= 126:
+			state["query"] += chr(key)
+		else:
+			return
+		state["match"] = self._reverse_match(state["query"], None)
+
 	def _command_key(self, key: int) -> None:
+		if self.reverse is not None:
+			self._reverse_key(key)
+			return
+		if key == 18 and self.history:      # Ctrl-R opens the search
+			self.reverse = {"query": "", "draft": self.command,
+			                "match": len(self.history) - 1}
+			return
+		if key in (curses.KEY_UP, curses.KEY_DOWN):
+			self._history_step(older=key == curses.KEY_UP)
+			return
+		if key == 9:                        # Tab completes
+			self._complete_command()
+			return
 		if key == ord(" ") and self.command == "filter" and \
 				self.work_filter:
 			# W5 R2: the first space after exact `filter` SEEDS the
@@ -2204,16 +2831,68 @@ class Console:
 		if key in (10, 13, curses.KEY_ENTER):
 			line, self.command = self.command, None
 			self.seeded_say = None
+			self.history_cursor = self.history_draft = None
 			self.execute(line)
 		elif key == 27:
 			self.command = None
 			self.seeded_say = None
+			self.history_cursor = self.history_draft = None
 		elif key in (8, 127, curses.KEY_BACKSPACE):
 			self.command = self.command[:-1]
 			self._reconcile_say_seed()
 		elif 32 <= key <= 126:
-			self.command += chr(key)
-			self._reconcile_say_seed()
+			self._command_type(chr(key))
+
+	def _command_type(self, character: str) -> None:
+		"""One printable character into the bar, through the one path
+		that owns the buffer's side effects."""
+		self.command += character
+		self._reconcile_say_seed()
+
+	def _complete_command(self) -> None:
+		"""W27: Tab turns the existing analysis into conservative
+		editing.
+
+		The completion is applied by TYPING the remaining characters
+		rather than assigning the finished buffer, and that is the whole
+		trick. Two command-bar behaviours are triggered by reaching an
+		exact verb, not by parsing a submitted line — `say` seeds the
+		selected `thread=`, and the first space after `filter` seeds the
+		editable current clauses. Assigning `say ` wholesale would
+		produce an unseeded buffer that ordinary typing could never
+		reach, so completion goes through the same keys the operator
+		would have pressed.
+
+		A transition that rewrites the buffer ends the feed: its result
+		is the authoritative buffer, and appending the rest of a
+		completion on top of it would duplicate what the transition
+		already supplied.
+
+		No candidate, no progress, an open quote or a diagnostic all
+		leave the buffer untouched — the assist line is already the
+		candidate display, and a repeated Tab never chooses for the
+		operator."""
+		if self.command is None:
+			return
+		result = _cli.complete_partial(self.command)
+		if not result["progressed"]:
+			return
+		completed = result["buffer"]
+		if not completed.startswith(self.command):
+			# completion only ever extends the live token; anything else
+			# would be a rewrite this must not perform
+			return
+		for character in completed[len(self.command):]:
+			expected = self.command + character
+			if character == " ":
+				# the space that seeds `filter` is a real key, and it is
+				# handled where that transition lives
+				self._command_key(ord(" "))
+			else:
+				self._command_type(character)
+			if self.command != expected:
+				# a seed or other transition owns the buffer now
+				return
 
 	# -- interaction ----------------------------------------------------------
 
@@ -2247,7 +2926,12 @@ class Console:
 			return True
 		self.status = ""
 		if key == ord(":"):
+			# W26: one scratch draft per opening, positioned AFTER the
+			# newest entry — the first Up recalls the newest submission.
 			self.command = ""
+			self.history_cursor = None
+			self.history_draft = None
+			self.reverse = None
 			return True
 		if key == ord("/") and self.mode in ("table", "search"):
 			# W6: open (or replace) the search query bar.
@@ -2298,9 +2982,9 @@ class Console:
 			self.detail_return = "table"
 			self.mode = "detail"
 		elif key == ord("u") and rows:
-			# W71: the visible unfold — re-root the two-level window at
-			# the selected Work; breadcrumbs identify the position and
-			# Esc returns upward. Re-rooting at the current root is
+			# W71/W155: the visible unfold — re-root the three-level
+			# window at the selected Work; breadcrumbs identify the
+			# position and Esc returns upward. Re-rooting at the current root is
 			# idempotent: one logical unfold, one Back (R2).
 			target = rows[self.cursor]["id"]
 			if not (self.path and self.path[-1] == target):

@@ -58,10 +58,13 @@ def test_wf04_one_consumer_one_provider(flow):
 	# WS-1: with the edge recorded, the consumer chooses honest WAITING —
 	# dependency-backed, refused if there were nothing to wait for.
 	waiting = flow.ok("detail", f"work={push1}", viewer="push.sl")
-	assert waiting["phase"] == "waiting"
-	assert waiting["waiting_on"] == {"type": "gates", "obligation": None}
+	assert waiting["phase"] == "block"
+	# W78: the structured gate names WHAT holds the Work and since when.
+	assert waiting["gate"]["kind"] == "work"
+	assert waiting["gate"]["selector"].startswith("W")
+	assert waiting["gate"]["started_at"] is not None
 	assert flow.ok("summary", viewer="push.sl") == \
-		{"team": "push", "open": 1, "parked": 0, "waiting": 1, "due": 0}
+		{"team": "push", "open": 1, "parked": 0, "blocked": 1, "due": 0}
 
 	# The link is traversable from EITHER side.
 	assert [entry["id"] for entry in
@@ -120,7 +123,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	assert resumed["ready"] is True
 	assert resumed["open_blockers"] == 0
 	assert resumed["phase"] == "queued", "the satisfied waiter did not wake"
-	assert resumed["waiting_on"] is None
+	assert resumed["gate"] is None
 	events_now = flow.ok("events", viewer="push.sl")
 	wakes = [event for event in events_now if event["kind"] == "wake"]
 	closes = [event for event in events_now
@@ -129,7 +132,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	assert len(wakes) == 1, "the wake was lost or duplicated"
 	assert wakes[0]["seq"] == closes[0]["seq"] + 1, \
 		"the wake did not commit atomically with the provider close"
-	assert flow.ok("summary", viewer="push.sl")["waiting"] == 0
+	assert flow.ok("summary", viewer="push.sl")["blocked"] == 0
 	assert resumed["route"]["endpoint"] == "push.bug", \
 		"the provider close moved the consumer's Current"
 	flow.post(push1, "body=verified on staging",

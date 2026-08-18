@@ -67,7 +67,7 @@ def _create(store, title="w"):
 
 def _row(store, work):
 	return store.conn.execute(
-		"SELECT phase, handler_team, handler_member, wait_type "
+		"SELECT phase, handler_team, handler_member, gate_kind "
 		"FROM work WHERE id=?", (work,)).fetchone()
 
 
@@ -85,7 +85,7 @@ def _invariant(store):
 # -- the closed vocabulary --------------------------------------------------
 
 def test_the_axis_holds_exactly_the_four_scheduler_states():
-	assert tr.PHASES == ("queued", "active", "waiting", "parked")
+	assert tr.PHASES == ("queued", "active", "block", "parked")
 	assert "research" not in tr.PHASES and "review" not in tr.PHASES
 
 
@@ -103,7 +103,7 @@ def test_the_public_grammar_offers_only_the_settable_states():
 	as a destination is not."""
 	settable = dict(work_cli.GRAMMAR["phase"]["keys"][1].items())
 	assert "active" not in settable["values"]
-	assert set(settable["values"]) == {"queued", "waiting", "parked"}
+	assert set(settable["values"]) == {"queued", "block", "parked"}
 	home = {key["name"]: key for key in work_cli.GRAMMAR["home"]["keys"]}
 	assert "active" in home["phase"]["values"], \
 		"an operator cannot ask which Work is running"
@@ -152,8 +152,8 @@ def test_a_gated_pass_lands_waiting_and_can_still_wake(store):
 	tr.pass_work(store, work, actor_team="lang", actor="ada",
 	             to="lang.rev", comment="over while gated")
 	row = _row(store, work)
-	assert row["phase"] == "waiting"
-	assert row["wait_type"] == "gates", \
+	assert row["phase"] == "block"
+	assert row["gate_kind"] == "work", \
 		"a derived wait recorded no condition, so nothing can wake it"
 	tr.close_work(store, blocker, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
@@ -171,7 +171,7 @@ def test_a_late_gate_on_claimed_work_releases_into_waiting(store):
 	tr.add_dependency(store, work, blocker, actor_team="lang",
 	                  actor="ada", rationale="late")
 	row = _row(store, work)
-	assert (row["phase"], row["handler_team"]) == ("waiting", None)
+	assert (row["phase"], row["handler_team"]) == ("block", None)
 	_invariant(store)
 
 
@@ -184,8 +184,8 @@ def test_a_gate_on_unclaimed_queued_work_moves_it_to_waiting(store):
 	tr.add_dependency(store, work, blocker, actor_team="lang",
 	                  actor="ada", rationale="late gate")
 	row = _row(store, work)
-	assert (row["phase"], row["handler_team"], row["wait_type"]) == \
-	       ("waiting", None, "gates")
+	assert (row["phase"], row["handler_team"], row["gate_kind"]) == \
+	       ("block", None, "work")
 	_invariant(store)
 
 
@@ -201,8 +201,8 @@ def test_unparking_gated_work_reveals_waiting_not_queued(store):
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="queued")
 	row = _row(store, work)
-	assert (row["phase"], row["handler_team"], row["wait_type"]) == \
-	       ("waiting", None, "gates")
+	assert (row["phase"], row["handler_team"], row["gate_kind"]) == \
+	       ("block", None, "work")
 	_invariant(store)
 
 
@@ -216,15 +216,15 @@ def test_resolving_one_wait_condition_does_not_ignore_an_open_gate(store):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	request = tr.post_thread(store, thread, author_team="lang", author="ada",
 	                         body="please verify", request="lang.rev", on=work)
-	assert _row(store, work)["wait_type"] == "obligation"
+	assert _row(store, work)["gate_kind"] == "message"
 	blocker = _create(store, "independent gate")
 	tr.add_dependency(store, work, blocker, actor_team="lang",
 	                  actor="ada", rationale="also required")
 	tr.respond_obligation(store, request["seq"], team="lang", member="ada",
 	                      body="verification complete")
 	row = _row(store, work)
-	assert (row["phase"], row["handler_team"], row["wait_type"]) == \
-	       ("waiting", None, "gates")
+	assert (row["phase"], row["handler_team"], row["gate_kind"]) == \
+	       ("block", None, "work")
 	tr.close_work(store, blocker, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	assert _row(store, work)["phase"] == "queued"

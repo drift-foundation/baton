@@ -441,14 +441,14 @@ def test_parking_and_waiting_both_end_the_interval(world):
 	assert interval["end_kind"] == "set_phase", \
 		"parking did not end the work-time interval"
 
-	born = make(world, "waiting")
+	born = make(world, "block")
 	waiting = born["work_id"]
 	asked = tr.post_thread(store, born["thread"], author_team="lang",
 	                       author="ada", body="blocking question",
 	                       request="lang.rev", wait=False, on=waiting)
 	tr.claim_work(store, waiting, actor_team="lang", actor="ada")
 	tr.set_phase(store, waiting, actor_team="lang", actor="ada",
-	             phase="waiting", wait=asked["seq"])
+	             phase="block", wait=asked["seq"])
 	interval = next(e["claim_interval"]
 	                for e in read(world, waiting)["events"]
 	                if e["kind"] == "claim")

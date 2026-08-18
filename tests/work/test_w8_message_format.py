@@ -79,18 +79,30 @@ def test_the_reader_renders_the_block_with_metadata_and_references(world):
 		(b"qy", 0.4),
 	], columns=44, lines=24)
 	screen = ptyharness.replay(steps[1], columns=44, lines=24)
+	# W30: the reader has no heading, so its first row carries this
+	# metadata and also carries the pane focus marker — `»` focused, a
+	# space otherwise. The marker is an unconditional inset, so the
+	# block starts one column in; the anchor allows for it rather than
+	# dropping to an unanchored search, which would stop proving that
+	# the header is a row of its own.
 	header = next((line for line in screen
-	               if re.match(r"^#3 lang\.ada \d{4}-\d{2}-\d{2}", line)),
+	               if re.match(r"^[ »]#3 lang\.ada \d{4}-\d{2}-\d{2}",
+	                           line)),
 	              None)
 	assert header is not None, \
 		f"no metadata header with a timestamp: {screen[:12]}"
-	assert "  Refs:" in screen, "the Refs section heading is missing"
+	# W30: column 0 of the reader is the focus marker, not block
+	# content. Drop it and the block's own indentation is unchanged —
+	# which is what these assertions are about.
+	block = [line[1:] for line in screen
+	         if re.match(r"^[ »]", line) and line.strip()]
+	assert "  Refs:" in block, "the Refs section heading is missing"
 	rebuilt_ref = "".join(
-		line.strip() for line in screen
+		line.strip() for line in block
 		if line.startswith("    "))
 	assert "[pushcoin:docs/evidence.md]" in rebuilt_ref, \
 		"the reference does not render whole under Refs"
-	body = " ".join(line.strip() for line in screen
+	body = " ".join(line.strip() for line in block
 	                if line.startswith("  ")
 	                and not line.startswith(("    ", "  Refs:")))
 	assert LONG_BODY in body, "wrapping lost body text"
@@ -361,8 +373,9 @@ def test_the_narrow_stack_keeps_two_regions_never_a_flat_stream(world):
 	screen = ptyharness.replay(steps[0], columns=44, lines=24)
 	index_rows = [line for line in screen if re.match(r"^M\d+ ", line)]
 	assert len(index_rows) == 2, screen
+	# W30: one column of inset for the reader's focus marker.
 	headers = [line for line in screen
-	           if re.match(r"^#\d+ lang\.", line)]
+	           if re.match(r"^[ »]#\d+ lang\.", line)]
 	assert len(headers) == 1, \
 		f"narrow width merged bodies back into a stream: {headers}"
 

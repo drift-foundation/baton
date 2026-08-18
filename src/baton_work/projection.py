@@ -60,13 +60,34 @@ def _work(store: Authority, work_id: str) -> dict:
 	return dict(row)
 
 
-def _endpoint_struct(store: Authority, team, kind) -> dict | None:
+def _selected_route(row) -> str | None:
+	"""The route explicitly chosen for one Work row, if any.
+
+	A sqlite3.Row raises on an absent column rather than returning None,
+	and several projections build rows from narrower SELECTs, so the
+	access is guarded here once instead of at each call site."""
+	try:
+		return row["route_selected"]
+	except (IndexError, KeyError):
+		return None
+
+
+def _endpoint_struct(store: Authority, team, kind,
+                     selected: str | None = None) -> dict | None:
 	"""Structured endpoint data, resolved against the CURRENTLY accepted
 	configuration at read time (projection 2.0). History keeps the snapshot
 	recorded at event time; this is the live view. An endpoint the current
 	generation no longer resolves is shown explicitly unresolved — route,
 	role and handlers None/empty — never silently dropped and never a bare
-	string."""
+	string.
+
+	W230: `selected` is the route explicitly chosen for one Work. It
+	replaces the kind's default and is THE only route projected for that
+	Work — the finding's rule, and the reason the choice is durable: a
+	row that showed the default while the Work was actually routed
+	elsewhere would send the operator to the wrong agent. A selection
+	the accepted configuration no longer offers reports unresolved,
+	exactly as any other stale endpoint does."""
 	if not team or not kind:
 		return None
 	row = store.conn.execute(
@@ -76,16 +97,24 @@ def _endpoint_struct(store: Authority, team, kind) -> dict | None:
 	              "role": None, "handlers": []}
 	if row is None or row["retired"] or row["route"] is None:
 		return structured
+	handle = row["route"]
+	if selected is not None and selected != handle:
+		offered = [entry["route"] for entry in store.conn.execute(
+			"SELECT route FROM kind_alternates WHERE team=? AND kind=?",
+			(team, kind))]
+		if selected not in offered:
+			return structured
+		handle = selected
 	route = store.conn.execute(
 		"SELECT role FROM routes WHERE team=? AND handle=? AND removed=0",
-		(team, row["route"])).fetchone()
+		(team, handle)).fetchone()
 	if route is None:
 		return structured
-	structured["route"] = row["route"]
+	structured["route"] = handle
 	structured["role"] = route["role"]
 	structured["handlers"] = [entry["member"] for entry in store.conn.execute(
 		"SELECT member FROM route_handlers WHERE team=? AND route=? "
-		"ORDER BY member", (team, row["route"]))]
+		"ORDER BY member", (team, handle))]
 	return structured
 
 
@@ -257,6 +286,46 @@ def _filter_matches(row: dict, active: dict, viewer_team: str,
 	return True
 
 
+def _gate_struct(store: Authority, row) -> dict | None:
+	"""W78: the ONE displayed gate holding this Work, or None.
+
+	`kind` is `work` or `message`. A Work gate carries the blocking
+	Work's canonical id and its local `W…` selector; a Message gate
+	carries the source Message seq, its `M…` selector, and the pending
+	obligation's identity, state and resolved endpoint — the facts Work
+	detail needs without a second lookup.
+
+	`started_at` is the instant THIS gate became the one holding the
+	Work. It is the only legitimate origin for a blocked row's timer:
+	`handoff_at`, `last_changed_at` and the edge's creation time each
+	describe something else, and substituting one of them is exactly the
+	unexplained clock this Work removes."""
+	if row["gate_kind"] is None:
+		return None
+	gate = {"kind": row["gate_kind"],
+	        "started_at": row["gate_started_at"],
+	        "started_seq": row["gate_seq"],
+	        "work": None, "selector": None, "message": None,
+	        "obligation": None}
+	if row["gate_kind"] == "work":
+		gate["work"] = row["gate_work"]
+		gate["selector"] = row["gate_work"].rsplit("-", 1)[1]
+		return gate
+	found = store.conn.execute(
+		"SELECT seq, message_seq, status, team, kind, flavor "
+		"FROM obligations WHERE seq=?",
+		(row["gate_obligation"],)).fetchone()
+	if found is None:
+		return gate
+	gate["message"] = found["message_seq"]
+	gate["selector"] = f"M{found['message_seq']}"
+	gate["obligation"] = {"seq": found["seq"],
+	                      "status": found["status"],
+	                      "flavor": found["flavor"],
+	                      "endpoint": f"{found['team']}.{found['kind']}"}
+	return gate
+
+
 def _first_open_blockers(store: Authority, work_ids) -> dict:
 	"""W39 R1 (no-N+1): the deterministic first-open-blocker selectors
 	for a WHOLE window in one batch — growing the visible tree never
@@ -322,7 +391,7 @@ def _pickup_state(handler_team, handoff_at, now_iso, status="open",
 	W2 reporting overdue while dependency-blocked: adding its blockers
 	had correctly released the reviewer's claim, and the projection
 	then went on aging the old handoff even though the authority made
-	a new claim impossible. Blocked, waiting and parked Work stays
+	a new claim impossible. Blocked and parked Work stays
 	'pending' — honestly unclaimed, with readiness/wait/phase as the
 	separate structured facts that explain why it is not claimable."""
 	if status == "closed":
@@ -331,7 +400,7 @@ def _pickup_state(handler_team, handoff_at, now_iso, status="open",
 		return "claimed"
 	if handoff_at is None:
 		return None
-	if not ready or phase in ("waiting", "parked"):
+	if not ready or phase in ("block", "parked"):
 		return "pending"
 	import datetime as _dt
 	handed = _dt.datetime.fromisoformat(
@@ -422,9 +491,16 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		# projects null ("not applicable", never omitted); the stored
 		# last-phase value and audit history stay untouched.
 		"phase": row["phase"] if row["status"] == "open" else None,
-		"waiting_on": None if row["wait_type"] is None else
-			{"type": row["wait_type"],
-			 "obligation": row["wait_obligation"]},
+		# W78 (finding-unclaimed-work-cue): ONE structured current gate
+		# replaces `waiting_on`. That field named the wake CONDITION but
+		# never which gate was actually holding the Work or since when,
+		# so a client had to combine it with `first_open_blocker` and
+		# journal timestamps to explain a blocked row's clock — and
+		# could not explain it at all when the displayed gate changed
+		# inside `block`. Every field here is committed by the
+		# authority; nothing is reconstructed and no client parses a
+		# `W…`/`M…` presentation string to recover it.
+		"gate": _gate_struct(store, row),
 		"status": row["status"],
 		"ready": bool(row["ready"]),
 		"outcome": row["outcome"],
@@ -433,8 +509,11 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		"follow_up_of": row["follow_up_of"],
 		# W245 (finding-current-is-claimant): ROUTE is eligibility, and
 		# it is the only thing authorization resolves from.
+		# W230: the Work's OWN route — its explicit selection when it has
+		# one, the kind's default otherwise.
 		"route": _endpoint_struct(store, row["route_team"],
-		                          row["route_kind"]),
+		                          row["route_kind"],
+		                          _selected_route(row)),
 		"next": _endpoint_struct(store, row["next_team"], row["next_kind"]),
 		"progress": {"children": counts["total"] or 0,
 		             "closed": counts["closed"] or 0},
@@ -644,14 +723,47 @@ def children(store: Authority, work_id: str, *, viewer_team: str,
 		        for row in rows]
 
 
+def _children_outside(store: Authority, work_ids, inside: set) -> set:
+	"""W155: which of these rows contain Work the window does not show?
+
+	Asked of the window ACTUALLY RETURNED rather than of a depth number,
+	so it stays true when the cap moves and covers the case W154 ruled
+	on: a filter that removed a row's children must not also remove the
+	fact that they exist.
+
+	ONE batched statement for the whole window (the W39 R1 boundary):
+	growing the visible tree never grows the number of reads."""
+	work_ids = list(work_ids)
+	if not work_ids:
+		return set()
+	marks = ",".join("?" * len(work_ids))
+	return {row["parent"] for row in store.conn.execute(
+		f"SELECT DISTINCT parent FROM work WHERE parent IN ({marks}) "
+		f"AND id NOT IN ({marks})", tuple(work_ids) + tuple(inside))}
+
+
 def tree(store: Authority, root: str | None = None, *, viewer_team: str,
          viewer_member: str, work_filter=None) -> dict:
 	"""W71 R3: THE canonical bounded tree window the navigation contract
-	paints — the team's roots (or one supplied re-root) each followed by its
-	immediate children (depth 1), the team summary, and the snapshot token,
-	all derived under ONE read transaction. JSON and the TUI consume this
-	same result; neither composes it from separate reads, so a writer
-	committing mid-read can never produce a mixed tree."""
+	paints — the team's roots (or one supplied re-root), their children and
+	their grandchildren, the team summary, and the snapshot token, all
+	derived under ONE read transaction. JSON and the TUI consume this same
+	result; neither composes it from separate reads, so a writer committing
+	mid-read can never produce a mixed tree.
+
+	W155 supersedes W71's two-level visual cap with THREE levels. Two
+	levels hid a common shape: a root's child waiting with no Handler
+	while its own child was open and claimed, giving the operator no
+	visible reason to re-root. Containment semantics are untouched — one
+	parent, depth means containment and nothing else.
+
+	Each row carries `deeper`: this row has children that this window
+	does NOT contain. At the cap that is the fourth level and beyond,
+	which is the case W155 names; it is also true of any row whose
+	children a filter removed, because W154's ruling is that filters must
+	never silently remove the fact that a visible Work has hidden
+	children. Defining it against the window ACTUALLY RETURNED covers
+	both without the client knowing how deep the cap is."""
 	with _read_snapshot(store):
 		if root is None:
 			# W3: root siblings rank high, normal, low, then the stable
@@ -665,13 +777,45 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		# W39 R1: gather the WHOLE window first, then one batched
 		# blocker-selector read for all of it — row construction never
 		# issues a per-row selector query.
+		# W3: sibling groups order identically at every level WITHOUT
+		# leaving their parent.
+		order = ("ORDER BY CASE priority WHEN 'high' THEN 0 "
+		         "WHEN 'normal' THEN 1 ELSE 2 END, created_seq")
+
+		def children_by_parent(parent_ids):
+			"""One ordered statement for a WHOLE level, grouped by
+			parent in memory.
+
+			W155 R1: asking per parent added one statement for every
+			visible row at the level above — on every two-second TUI
+			refresh. The window's cost is now bounded by the number of
+			LEVELS, which is what the W39 R1 no-N+1 boundary means and
+			what makes a third level affordable at all."""
+			parent_ids = list(parent_ids)
+			if not parent_ids:
+				return {}
+			marks = ",".join("?" * len(parent_ids))
+			grouped = {}
+			for row in store.conn.execute(
+					f"SELECT * FROM work WHERE parent IN ({marks}) {order}",
+					tuple(parent_ids)):
+				grouped.setdefault(row["parent"], []).append(dict(row))
+			return grouped
+
+		# W155: three levels, two statements. The cap lives here, in the
+		# one place that builds the window, so JSON and the TUI cannot
+		# disagree about how deep it goes.
+		children = children_by_parent([base["id"] for base in bases])
+		grandchildren = children_by_parent(
+			[child["id"] for base in bases
+			 for child in children.get(base["id"], ())])
 		window = []
 		for base in bases:
 			window.append((base, 0))
-			for child in store.conn.execute(
-					"SELECT * FROM work WHERE parent=? "
-					"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq", (base["id"],)).fetchall():
-				window.append((dict(child), 1))
+			for child in children.get(base["id"], ()):
+				window.append((child, 1))
+				for grandchild in grandchildren.get(child["id"], ()):
+					window.append((grandchild, 2))
 		ids = [entry["id"] for entry, _depth in window]
 		first = _first_open_blockers(store, ids)
 		claimed = _claimed_ats(store, ids)
@@ -691,30 +835,40 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		# Filtering never promotes a child, changes depth, or reorders.
 		active = normalize_filter(store, work_filter, viewer_team)
 		if active:
-			def keep(parent, children):
-				parent_match = _filter_matches(parent, active,
-				                               viewer_team,
-				                               viewer_member)
-				matched = [child for child in children
-				           if _filter_matches(child, active,
-				                              viewer_team,
-				                              viewer_member)]
-				if parent_match or matched:
-					yield dict(parent, filter_match=parent_match)
-					for child in matched:
-						yield dict(child, filter_match=True)
-
-			filtered = []
-			index = 0
-			while index < len(rows):
-				parent = rows[index]
-				index += 1
-				children = []
-				while index < len(rows) and rows[index]["depth"]:
-					children.append(rows[index])
-					index += 1
-				filtered.extend(keep(parent, children))
-			rows = filtered
+			# W155: the same W5 containment rule over three levels
+			# instead of two. A row is kept when it matches, or when a
+			# DESCENDANT inside this window matches — in which case it
+			# is structural context (`filter_match: false`) so the
+			# matching row keeps its place in the containment it lives
+			# in. Filtering never promotes a row, changes its depth, or
+			# reorders siblings.
+			matches = [_filter_matches(row, active, viewer_team,
+			                           viewer_member) for row in rows]
+			keep = list(matches)
+			# one backward pass: a kept row keeps its nearest shallower
+			# ancestor, which then keeps its own, so context propagates
+			# all the way up without a second scan per level.
+			for index in range(len(rows) - 1, -1, -1):
+				if not keep[index]:
+					continue
+				depth = rows[index]["depth"]
+				for above in range(index - 1, -1, -1):
+					if rows[above]["depth"] < depth:
+						keep[above] = True
+						depth = rows[above]["depth"]
+						if depth == 0:
+							break
+			rows = [dict(row, filter_match=matches[index])
+			        for index, row in enumerate(rows) if keep[index]]
+		# W155: `deeper` is decided LAST, against the rows this call
+		# actually returns. Deciding it before the filter would answer a
+		# question nobody asked — whether children exist outside the
+		# unfiltered window — and would let a filter silently remove the
+		# fact that a visible row has hidden children, which is exactly
+		# what W154 ruled against.
+		returned = {row["id"] for row in rows}
+		deeper = _children_outside(store, returned, returned)
+		rows = [dict(row, deeper=row["id"] in deeper) for row in rows]
 		summary = _summary_in_snapshot(store, viewer_team, store.clock())
 		snapshot_seq = store.last_seq()
 	return {"rows": rows, "summary": summary, "filter": active,
@@ -791,6 +945,55 @@ def _page_bounds(after, limit) -> tuple[int, int]:
 	if not isinstance(limit, int) or limit < 1 or limit > MAX_PAGE:
 		raise WorkError(f"the page limit is between 1 and {MAX_PAGE}")
 	return after, limit
+
+
+def completes_by(flavor: str) -> list:
+	"""The declared terminal verbs for one obligation flavor.
+
+	W228: stated ONCE. The same expression existed in two projections
+	already and the Message cue would have been a third copy — three
+	places to disagree about what an agent is allowed to do. Agents read
+	this; they never probe by trying verbs."""
+	return (["respond", "dispose", "accept"] if flavor == "response"
+	        else ["report"])
+
+
+def _owed_on_messages(store: Authority, thread_id: str, seqs,
+                      viewer_team: str, viewer_member: str) -> dict:
+	"""W228: the viewer's PENDING obligations, keyed by the Message that
+	created each one.
+
+	Viewer-relative in the same way every other actionable fact is: an
+	obligation is owed by whoever its endpoint currently resolves, so
+	another member's obligation does not mark this viewer's row. The
+	presentation never infers one from a directed Message — a Message
+	with a resolved obligation is ordinary prose again, and only
+	canonical pending state says otherwise.
+
+	One batched statement for the page (the W39 R1 boundary): the cue
+	must not cost a read per Message row."""
+	seqs = list(seqs)
+	if not seqs:
+		return {}
+	marks = ",".join("?" * len(seqs))
+	owed = {}
+	for row in store.conn.execute(
+			f"SELECT seq, message_seq, work, team, kind, flavor "
+			f"FROM obligations WHERE status='pending' AND thread=? "
+			f"AND message_seq IN ({marks}) ORDER BY seq",
+			(thread_id, *seqs)):
+		endpoint = _endpoint_struct(store, row["team"], row["kind"])
+		if not endpoint or viewer_member not in (endpoint["handlers"] or ()):
+			continue
+		if endpoint["endpoint"].split(".", 1)[0] != viewer_team:
+			continue
+		owed.setdefault(row["message_seq"], {
+			"seq": row["seq"], "work": row["work"],
+			"flavor": row["flavor"],
+			"owed_by": endpoint,
+			"completes_by": completes_by(row["flavor"]),
+		})
+	return owed
 
 
 def thread(store: Authority, thread_id: str, *, viewer_team: str,
@@ -886,9 +1089,28 @@ def thread(store: Authority, thread_id: str, *, viewer_team: str,
 		# renderer formats it and never derives it.
 		for message in messages:
 			message["new"] = message["seq"] > floor
+		# W228: the viewer's own pending obligation, on the exact
+		# Message that created it. `oblig:1` in the header and a bold
+		# Work row are aggregates — they say something is owed
+		# somewhere, which is not the same as being able to act.
+		owed = _owed_on_messages(store, thread_id,
+		                         [message["seq"] for message in messages],
+		                         viewer_team, viewer_member)
+		for message in messages:
+			message["owed"] = owed.get(message["seq"])
 		unread = store.conn.execute(
 			"SELECT COUNT(*) AS n FROM messages WHERE thread=? AND "
 			"seq>?", (thread_id, floor)).fetchone()["n"]
+		# W29: the WHOLE-thread message count, read inside the same
+		# snapshot as `unread` so the pair can never disagree. The
+		# loaded page is one bounded window, so a client that counted
+		# `messages` would report the page and call it the thread —
+		# which is exactly the defect. Clients are not asked to infer
+		# it from page length, sequence numbers, or cursor presence,
+		# because none of those can express it.
+		total = store.conn.execute(
+			"SELECT COUNT(*) AS n FROM messages WHERE thread=?",
+			(thread_id,)).fetchone()["n"]
 		last = store.conn.execute(
 			"SELECT MAX(seq) AS m FROM messages WHERE thread=?",
 			(thread_id,)).fetchone()["m"]
@@ -908,7 +1130,8 @@ def thread(store: Authority, thread_id: str, *, viewer_team: str,
 	        # probe row proved an older page exists, so following it can
 	        # never open an empty one.
 	        "next_before": messages[0]["seq"] if older_exists else None,
-	        "new": unread, "last_seq": last, "snapshot_seq": snapshot_seq}
+	        "new": unread, "total": total,
+	        "last_seq": last, "snapshot_seq": snapshot_seq}
 
 
 # W123 (finding-work-events-tab): the Work Events play-by-play.
@@ -1026,7 +1249,7 @@ def _claim_intervals(store: Authority, work_id: str,
 
 	A `claim` opens an interval; the first later event that releases it
 	closes it — an explicit release, a pass/return, a terminal close,
-	entry into waiting or parked, or a gate that invalidated the claim
+	entry into block or parked, or a gate that invalidated the claim
 	(recorded typed in `released_claims`, never guessed). Heartbeats are
 	liveness evidence INSIDE the interval and never restart it or
 	fabricate work time.
@@ -1062,7 +1285,7 @@ def _claim_intervals(store: Authority, work_id: str,
 		ends = released or (names_work and (
 			row["kind"] in _CLAIM_END_KINDS
 			or (row["kind"] == "set_phase"
-			    and payload.get("to") in ("waiting", "parked"))))
+			    and payload.get("to") in ("block", "parked"))))
 		if ends:
 			open_claim["end_seq"] = row["seq"]
 			open_claim["end_kind"] = row["kind"]
@@ -1075,6 +1298,66 @@ def _claim_intervals(store: Authority, work_id: str,
 		open_claim["elapsed_seconds"] = max(0, int(
 			(instant(now_iso)
 			 - instant(open_claim["started_at"])).total_seconds()))
+	return intervals
+
+
+def _phase_intervals(store: Authority, work_id: str,
+                     now_iso: str) -> dict:
+	"""W47: the scheduler history, keyed by the event that ENTERED each
+	phase.
+
+	Replayed from the append-only ledger's `phase_now` records, which
+	every phase-changing transition writes — so this reconstructs
+	nothing and re-decides nothing. An episode ends at the next event
+	that records a different phase for this Work; terminal closure
+	records `None` and ends the last one without opening another.
+
+	Heartbeats never appear here, because they never record a phase.
+	That is the property by construction rather than by exclusion list:
+	an event that does not change the phase writes no `phase_now`, so
+	it cannot split an episode.
+
+	An OPEN episode carries its elapsed time measured from the read's
+	own instant, exactly as claim intervals do; a completed one is
+	fixed forever."""
+	import datetime as _dt
+
+	def instant(value):
+		return _dt.datetime.fromisoformat(
+			value.replace("Z", "+00:00").replace(" ", "T"))
+
+	intervals, current = {}, None
+	for row in store.conn.execute(
+			"SELECT seq, kind, payload, ts FROM events ORDER BY seq"):
+		payload = _json.loads(row["payload"])
+		entries = [entry for entry in (payload.get("phase_now") or ())
+		           if entry.get("work") == work_id]
+		if not entries:
+			continue
+		phase = entries[-1]["phase"]
+		if current is not None:
+			if current["phase"] == phase:
+				# the same phase recorded again is not a new episode
+				continue
+			current["end_seq"] = row["seq"]
+			current["end_kind"] = row["kind"]
+			current["ended_at"] = row["ts"]
+			current["open"] = False
+			current["elapsed_seconds"] = max(0, int(
+				(instant(row["ts"])
+				 - instant(current["started_at"])).total_seconds()))
+		current = None
+		if phase is None:
+			continue
+		current = {"phase": phase, "start_seq": row["seq"],
+		           "started_at": row["ts"], "end_seq": None,
+		           "end_kind": None, "ended_at": None,
+		           "elapsed_seconds": None, "open": True}
+		intervals[row["seq"]] = current
+	if current is not None:
+		current["elapsed_seconds"] = max(0, int(
+			(instant(now_iso)
+			 - instant(current["started_at"])).total_seconds()))
 	return intervals
 
 
@@ -1158,6 +1441,7 @@ def work_events(store: Authority, work_id: str, *, after: int = 0,
 			more_forward = len(rows) > limit
 			rows = rows[:limit]
 		intervals = _claim_intervals(store, work_id, store.clock())
+		phases = _phase_intervals(store, work_id, store.clock())
 		# W123 R1/R4: two typed relations live on the Work ROW rather
 		# than in a payload — the identity a creation produced, and the
 		# parent an accept-created provider was placed beneath. Resolve
@@ -1224,6 +1508,12 @@ def work_events(store: Authority, work_id: str, *, after: int = 0,
 					if interval["end_seq"] == entry["seq"]:
 						item["claim_interval"] = interval
 						break
+			# W47: the phase interval rides its ENTRY event only. The
+			# index shows one row per episode, so attaching it to the
+			# closing boundary too — as claim intervals deliberately
+			# do — would print the same episode twice.
+			if entry["seq"] in phases:
+				item["phase_interval"] = phases[entry["seq"]]
 			entries.append(item)
 		snapshot_seq = store.last_seq()
 	finally:
@@ -1525,9 +1815,7 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
 		entry = dict(row)
 		# The declared completion verbs — the eligible handlers are
 		# exactly owed_by.handlers; agents read, they do not probe.
-		entry["completes_by"] = (["respond", "dispose", "accept"]
-		                         if row["flavor"] == "response"
-		                         else ["report"])
+		entry["completes_by"] = completes_by(row["flavor"])
 		entry["owed_by"] = _endpoint_struct(store, row["team"], row["kind"])
 		out.append(entry)
 	for row in store.conn.execute(
@@ -1608,7 +1896,7 @@ def participant_actions(store: Authority, *, viewer_team: str,
 	operator exists: the existing rules decide everything.
 
 	- routed Work (`=>`/pass): an open, ready, unclaimed,
-	  non-waiting/parked Work is actionable for every member the
+	  non-blocked/parked Work is actionable for every member the
 	  live Route endpoint resolves; after the atomic claim it stays
 	  actionable for the exact claimant alone (rediscoverable after a
 	  restart, whatever its readiness drifts to). W49: the action
@@ -1659,9 +1947,7 @@ def participant_actions(store: Authority, *, viewer_team: str,
 			entry["kind_name"] = row["kind"]
 			entry["kind"] = "obligation"
 			entry["action_key"] = f"obligation:{row['seq']}"
-			entry["completes_by"] = (["respond", "dispose", "accept"]
-			                         if row["flavor"] == "response"
-			                         else ["report"])
+			entry["completes_by"] = completes_by(row["flavor"])
 			entry["owed_by"] = owed
 			actions.append(entry)
 		for row in store.conn.execute(
@@ -1705,7 +1991,7 @@ def participant_actions(store: Authority, *, viewer_team: str,
 				if (row["handler_team"], row["handler_member"]) != 						(viewer_team, viewer_member):
 					continue
 			else:
-				if not row["ready"] or 						row["phase"] in ("waiting", "parked"):
+				if not row["ready"] or 						row["phase"] in ("block", "parked"):
 					continue
 				if row["route_team"] != viewer_team:
 					continue
@@ -1794,7 +2080,8 @@ def _summary_in_snapshot(store: Authority, viewer_team: str,
 	return {"team": viewer_team,
 	        "open": count(""),
 	        "parked": count("AND phase='parked'"),
-	        "waiting": count("AND phase='waiting'"),
+	        # W78: the counter follows the phase it counts.
+	        "blocked": count("AND phase='block'"),
 	        "due": due}
 
 
@@ -1971,8 +2258,8 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 					"SELECT 1 FROM trials WHERE work=? AND status='open'",
 					(work_id,)).fetchone():
 				available += ["abandon_trial", "extend_trial"]
-			if row["phase"] != "waiting":
-				# waiting leaves only through its condition-bound wake.
+			if row["phase"] != "block":
+				# block leaves only through its gate-bound wake.
 				available.append("set_phase")
 		# Only open CHILDREN prevent closure — an open blocker gates
 		# readiness, never an honest terminal close (same rule as the
@@ -1981,10 +2268,10 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 			available.append("close")
 		# W108 R2: the atomic claim is advertised exactly when the
 		# writer would grant it — resolved Route handler, open,
-		# ready, not waiting/parked, unclaimed. The writer stays the
+		# ready, not blocked/parked, unclaimed. The writer stays the
 		# final authority; this is discovery, not a promise.
 		if handler and row["ready"] and \
-				row["phase"] not in ("waiting", "parked") and \
+				row["phase"] not in ("block", "parked") and \
 				row["handler_team"] is None:
 			available.append("claim")
 		# Recovery mirror: a resolved Route handler may release

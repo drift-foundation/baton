@@ -25,6 +25,7 @@ release shape:
     <target>/doc/BATON-WORK.md     the operator quickstart
     <target>/doc/AGENTS-MAILBOX-PROTO.md  the agent protocol contract
     <target>/conf/baton.example.json  a complete valid config example
+    <target>/conf/infra.example.json  the strict repository lifecycle example
     <target>/conf/acp-bridge-*.example.json  non-secret bridge examples
                                    (explicit placeholders; cannot run
                                    as shipped)
@@ -67,6 +68,7 @@ SOURCE_ASSETS = (
 	# THIS release, not from a checkout they may not have.
 	("docs/EFFECTIVE-BATON.md", "doc/EFFECTIVE-BATON.md"),
 	("conf/baton.example.json", "conf/baton.example.json"),
+	("conf/infra.example.json", "conf/infra.example.json"),
 	# W163: non-secret bridge example configurations — every value an
 	# explicit placeholder; nothing runnable as shipped.
 	("examples/acp-bridge-claude.json",
@@ -86,6 +88,7 @@ SOURCE_BRIDGE = os.path.join(REPO, "tools", "acp-baton-bridge")
 SOURCE_SHARED_GATE = (
 	"tools/codex-event-bridge/src/codex_baton_bridge.mjs",
 	"tools/codex-event-bridge/src/config.mjs",
+	"tools/codex-event-bridge/src/role_instructions.mjs",
 	"tools/codex-event-bridge/src/send_event.mjs",
 )
 BRIDGE_WRAPPER = """#!/usr/bin/env bash

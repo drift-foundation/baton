@@ -58,10 +58,12 @@ function positiveInteger(value, fallback, name) {
 }
 
 // The refuse-not-guess envelope gate (W148 R3, W207): protocol 11,
-// the projection-7/8/9 participant-action contract (W49's honest
+// the projection-7/8/9/10/11 participant-action contract (W49's honest
 // breaking boundary, retained unchanged by projection 8's
-// claimant-authority work and projection 9's scheduler-state phases —
-// the envelope's own fields did not change; later minor additions
+// claimant-authority work, projection 9's scheduler-state phases, and
+// projection 10's detail presentation changes, and projection 11's
+// three-level tree window — the envelope's own fields did
+// not change through any of them; later minor additions
 // welcome; 6.x, future majors, or missing refuse), the
 // configured participant, a snapshot token,
 // boolean timeout semantics that agree with the action set, and
@@ -76,8 +78,8 @@ export function validateEnvelope(payload, participant) {
   const projection = payload?.projection_version;
   const match = typeof projection === "string" && /^([0-9]+)\.([0-9]+)$/.exec(projection);
   const major = match ? Number(match[1]) : null;
-  if (!match || ![7, 8, 9].includes(major)) {
-    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-7/8/9 participant-action contract`);
+  if (!match || ![7, 8, 9, 10, 11].includes(major)) {
+    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-7/8/9/10/11 participant-action contract`);
   }
   if (payload?.participant !== participant) {
     throw new Error(`envelope participant ${JSON.stringify(payload?.participant)} is not ${participant}`);

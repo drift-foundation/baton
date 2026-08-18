@@ -37,7 +37,7 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 19
+SCHEMA_VERSION = 21
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -197,6 +197,16 @@ CREATE TABLE kinds (
 	retired INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY (team, handle)
 ) STRICT;
+-- W230: the routes one visible kind may be sent to BESIDES its default.
+-- Separate from `kinds.route` because the default is not one of many
+-- equals: an omitted selection always resolves to it, and Baton never
+-- fails over to an alternate or races them.
+CREATE TABLE kind_alternates (
+	team   TEXT NOT NULL REFERENCES teams(handle),
+	kind   TEXT NOT NULL,
+	route  TEXT NOT NULL,
+	PRIMARY KEY (team, kind, route)
+) STRICT;
 CREATE TABLE events (
 	seq     INTEGER PRIMARY KEY,
 	kind    TEXT NOT NULL,
@@ -211,8 +221,33 @@ CREATE TABLE work (
 	origin         TEXT NOT NULL,
 	classification TEXT NOT NULL,
 	phase          TEXT NOT NULL DEFAULT 'queued',
-	wait_type       TEXT,
-	wait_obligation INTEGER,
+	-- W78 (finding-unclaimed-work-cue), schema 20: ONE structured
+	-- current gate replaces the old `wait_type`/`wait_obligation` pair.
+	-- The pair said which CONDITION would wake the Work but never which
+	-- gate was actually holding it or since when, so a blocked row's
+	-- clock had no origin the row could explain — the defect this Work
+	-- exists to remove. A client reads this instead of combining
+	-- `waiting_on`, `first_open_blocker` and journal timestamps.
+	--
+	-- `gate_kind` is 'work' (an open required child or explicit
+	-- blocker) or 'message' (a pending directed obligation), and NULL
+	-- exactly when this Work is not blocked — which includes every
+	-- CLOSED row. The `phase` column cannot be the test for that,
+	-- because it is NOT NULL and keeps its last value forever: a Work
+	-- closed while blocked still reads `phase='block'` here while
+	-- holding no gate, and the projection derives its terminal null
+	-- from `status`. Terminal closure ends the gate episode in the same
+	-- transaction it ends the phase episode, and records that boundary
+	-- on the close event.
+	-- `gate_started_at` is the instant THIS displayed gate became the
+	-- one holding the Work — changing the displayed gate starts a new
+	-- episode, and a refresh or an unrelated event does not.
+	gate_kind       TEXT
+		CHECK (gate_kind IS NULL OR gate_kind IN ('work', 'message')),
+	gate_work       TEXT REFERENCES work(id),
+	gate_obligation INTEGER REFERENCES obligations(seq),
+	gate_started_at TEXT,
+	gate_seq        INTEGER,
 	status         TEXT NOT NULL DEFAULT 'open',
 	parent         TEXT REFERENCES work(id),
 	-- W245 (finding-current-is-claimant): the ROUTE is eligibility —
@@ -220,6 +255,14 @@ CREATE TABLE work (
 	-- Authorization resolves from here, never from a claimant's name.
 	route_team     TEXT,
 	route_kind     TEXT,
+	-- W230: the route SELECTED for this Work, NULL meaning the kind's
+	-- deterministic default. The row records the endpoint, and the
+	-- endpoint's route is otherwise resolved fresh on every read — so
+	-- without this a Work handed to an explicitly chosen alternate
+	-- would silently resolve back to the default at the next read, and
+	-- the operator's deliberate choice would last exactly one
+	-- transaction.
+	route_selected TEXT,
 	next_team      TEXT,
 	next_kind      TEXT,
 	ready          INTEGER NOT NULL DEFAULT 0,

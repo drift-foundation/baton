@@ -2,60 +2,97 @@
 
 ## Purpose
 
-One local event bridge dispatches external events to many isolated, persistent
-Codex threads through one or more Codex app-server instances. Each logical
-agent owns one target thread. For that agent, its TUI and the bridge are peer
-clients operating on the same thread ID.
+One generic event dispatcher routes external events to isolated, persistent
+Codex threads through one or more Codex app-server instances. Baton readiness
+is one event source: a separate protocol-11 producer reads one participant's
+canonical `wait` projection and forwards compact readiness events to that
+participant's configured target.
 
-The bridge may manage many agent/thread pairs concurrently. Activity in one
-thread must not serialize or block unrelated threads.
+For normal repository operation, one mailbox-local lifecycle controller owns
+the explicitly configured backend set. App-server, the dispatcher, and each
+readiness client remain separate child processes; none discovers, adopts, or
+silently restarts another.
 
-The installed Codex schemas are the implementation contract. The upstream
-[Codex app-server documentation](https://developers.openai.com/codex/app-server)
-describes the integration surface, but app-server and its WebSocket transport
-remain experimental.
+The installed Codex schemas are the executable protocol contract. The
+official [Codex app-server documentation](https://developers.openai.com/codex/app-server)
+describes the integration surface, loopback WebSocket listener, and remote
+TUI. App-server and its WebSocket transport remain experimental.
 
-## Topology
+## Post-v10 topology
 
 ```text
-Local event producers
-        │
-        ▼
- Unix socket 0600
-        │
-        ▼
-┌───────────────────────────────────┐
-│ codex-event-bridge                │
-│                                   │
-│ normalize / validate / limit      │
-│ deduplicate / route               │
-│                                   │
-│ target A queue + state            │
-│ target B queue + state            │
-│ target C queue + state            │
-└────────────────┬──────────────────┘
-                 │ app-server protocol
-                 ▼
-          codex app-server
-          /       |       \
-         /        |        \
-    thread A   thread B   thread C
-       ▲          ▲          ▲
-       │          │          │
-     TUI A      TUI B      TUI C
+                         codex --remote ENDPOINT
+                                  │
+                                  ▼
+Other local producers ─┐    Codex app-server
+                       │      │    │    │
+Baton wait, participant A     A    B    C persistent threads
+  │                    │      ▲    ▲    ▲
+  └─ codex-baton-bridge│      │    │    │
+                       ▼      └────┬────┘
+Baton wait, participant B   app-server protocol
+  │                    │           ▲
+  └─ codex-baton-bridge┴─> Unix socket 0600
+                                  │
+                                  ▼
+                         codex-event-bridge
+                      validate / dedupe / route
+                       one queue per target
 ```
 
-The first version uses one app-server on a loopback WebSocket. Configuration
-nevertheless names servers independently so a target can move to another
-app-server later without changing event producers or dispatcher logic.
+The processes have deliberately separate responsibilities:
+
+- `codex app-server` owns conversations, turns, approvals, and authoritative
+  thread state.
+- `codex-event-bridge` owns the Unix socket, target mapping, event validation,
+  deduplication, per-target queues, app-server connections, and configured
+  thread resumes.
+- One `codex-baton-bridge` process owns the sole readiness path for one Baton
+  participant. It reads `wait` and emits events; it never claims Work, answers
+  obligations, marks messages seen, or changes authority state.
+- A remote Codex TUI is an interactive peer on the same persistent thread. It
+  is not driven through keystrokes or terminal automation.
+
+No backend process starts or silently restarts another. The lifecycle
+controller starts them in declared dependency order and stops only the exact
+process identities it recorded. Failure of one component remains visible and
+does not imply that the others stopped.
+
+## Normal lifecycle
+
+Copy `conf/infra.example.json` to `MAILBOX/infra.json`, then replace every
+placeholder with an absolute deployment path. The manifest is strict JSON and
+is the entire launch contract; the recipes infer no release, authority,
+participant, thread, socket, credential, or policy path.
+
+```bash
+just start /absolute/path/to/mailbox
+just status /absolute/path/to/mailbox
+just stop /absolute/path/to/mailbox
+```
+
+`start` brings up the declared services in dependency order and is idempotent
+only when the complete owned set is healthy. `status` reports every service,
+PID, health state, and log and succeeds only for that complete healthy set.
+`stop` sends `SIGTERM` in reverse dependency order to processes whose recorded
+Linux start identity and argv still match; it never adopts a process and never
+escalates to a force signal.
+
+Logs append beneath `MAILBOX/log/`. Private atomic ownership state lives
+beneath `MAILBOX/run/`. A partial, stale, changed, or tampered set refuses a
+new start; inspect it with `status`, correct any manifest problem, and use the
+bounded `stop`. These commands never start or stop a TUI.
 
 ## Configuration model
 
+The dispatcher uses the post-v10 schema in
+`tools/codex-event-bridge/config.example.json`:
+
 ```json
 {
-  "baton": {
+  "roleInstructions": {
     "binary": "/absolute/path/to/bin/baton",
-    "config": "/absolute/path/to/mailbox/baton.json"
+    "config": "/absolute/path/to/baton.json"
   },
   "servers": {
     "local": {
@@ -63,398 +100,221 @@ app-server later without changing event producers or dispatcher logic.
     }
   },
   "targets": {
-    "driftquery-reviewer": {
+    "baton-tuner": {
       "server": "local",
-      "threadId": "abc123",
-      "participant": "dq.reviewer"
-    },
-    "pushcoin-reviewer": {
-      "server": "local",
-      "threadId": "def456",
-      "participant": "pushcoin.reviewer"
+      "threadId": "019c0000-0000-7000-8000-000000000001",
+      "identity": {
+        "participant": "baton.tuner",
+        "role": "tuner"
+      }
     }
-  }
+  },
+  "eventSocket": "/run/user/1000/codex-events.sock"
 }
 ```
 
-A target name is a bridge routing identifier. It has no meaning to Codex. A
-thread ID may appear under only one target unless an explicit future design
-supports aliases; rejecting accidental duplicates avoids two local queues
-racing on the same thread. A Baton participant may also appear under only one
-target, preserving one readiness path and one deterministic destination.
+A target name is a local routing identifier, not a Codex or Baton identity.
+Each server/thread pair belongs to one target. Each Baton participant also
+belongs to one target, preserving one readiness consumer and one deterministic
+thread destination. Selecting different roles does not make duplicate
+participant assignments safe.
 
-One foreground invocation starts and supervises the complete configured set:
+`roleInstructions` identifies the canonical Baton CLI and accepted
+configuration. The dispatcher does not read `baton.json` directly. Before it
+connects targets, it invokes the participant-relative `instructions` read for
+each `identity` — which names both the participant and one explicit role — and
+reapplies the accepted text as `developerInstructions` on every configured
+thread resume. A target missing a role, or naming one its participant does not
+hold, refuses before any connection. There is no inferred role: a participant
+holding one role today may hold two tomorrow, and that edit must not silently
+change an existing session's persona.
 
-```text
-just codex-baton /absolute/path/to/config.json
-    │
-    ├── every named loopback app-server
-    ├── one shared multi-target event bridge
-    └── one read-only Baton monitor per target/participant
+The removed stack-owned `baton` block and legacy target `participant` field
+are not part of this schema. Readiness timing and retries belong to each
+separately launched readiness producer.
+
+## Manual startup and troubleshooting
+
+The following low-level commands expose each component independently. Use
+them for configuration, bootstrap, diagnostics, and the documented acceptance
+gates. A manually launched process is deliberately not adopted by
+`just start`; stop it before switching to lifecycle ownership.
+
+### 1. Start the loopback app-server
+
+```bash
+codex app-server --listen ws://127.0.0.1:4500
 ```
 
-The TUI remains an independent interactive peer and may attach or reconnect at
-any time.
+The repository's `just codex-app-server` recipe is a low-level convenience for
+this one process. It does not start the dispatcher or readiness producers.
 
-This is a machine-wide service boundary. A team does not launch another bridge
-or another `wait` for its participant. Adding a Codex-backed team means adding
-one unique participant/target/thread mapping to the shared configuration and
-restarting the one supervisor deliberately. The configuration may contain only
-the reviewer roles when implementers use another agent runner; product roles
-do not have to share one integration mechanism.
+### 2. Create a persistent participant thread
 
-The bridge socket is not the readiness boundary. Before any Baton monitor is
-started, the supervisor queries bridge status and requires every configured
-thread to have completed its initial `thread/resume`. A thread still owned by
-an older per-session Codex backend produces an active-writer conflict and keeps
-the target unavailable. The supervisor reports those targets and tears down the
-partial stack; the operator closes the old TUI/backend, restarts the stack, and
-then runs `codex resume --remote ENDPOINT THREAD_ID`.
+Create the thread through the bridge bootstrap so the accepted Baton role
+instructions are present from its first turn:
 
-After migration, a reviewer's routine invocation changes from:
-
-```text
-codex resume THREAD_ID
+```bash
+tools/codex-event-bridge/bin/codex-event-bridge \
+    --start-thread \
+    --endpoint ws://127.0.0.1:4500 \
+    --cwd /absolute/path/to/workspace \
+    --baton /absolute/path/to/bin/baton \
+    --baton-config /absolute/path/to/baton.json \
+    --participant baton.tuner \
+    --role tuner
 ```
 
-to:
+The command prints JSON containing the thread ID, selected role, and accepted
+configuration generation. Put that ID and identity into the dispatcher
+configuration. Existing manually prompted threads are bootstrap compatibility
+only; deliberately recreate or resume them through this path when durable role
+instructions become authoritative.
 
-```text
+### 3. Start the generic dispatcher
+
+```bash
+tools/codex-event-bridge/bin/codex-event-bridge \
+    --config /absolute/path/to/codex-event-bridge.json
+```
+
+Startup validates the configuration and generated Codex schemas, resolves all
+role instructions, connects each named app-server, and resumes each configured
+thread. It creates the event socket with mode `0600`.
+
+### 4. Start one readiness producer per participant
+
+```bash
+tools/codex-event-bridge/bin/codex-baton-bridge \
+    --baton /absolute/path/to/bin/baton \
+    --config /absolute/path/to/baton.json \
+    --participant baton.tuner \
+    --target baton-tuner \
+    --socket /run/user/1000/codex-events.sock
+```
+
+The target and socket must exactly match the dispatcher configuration. Start
+one process for every configured participant and exactly one process for each
+participant. A second producer sees the same level-triggered action set and
+can manufacture duplicate Codex turns.
+
+### 5. Attach the interactive TUI
+
+```bash
 codex resume --remote ws://127.0.0.1:4500 THREAD_ID
 ```
 
-The endpoint is shared; the thread ID is the unique session selector. The
-participant is not passed on the Codex command line because the supervisor
-configuration already binds that thread ID to exactly one Baton participant.
+The endpoint selects app-server; the thread ID selects the logical agent.
+Attaching the TUI neither starts nor owns the dispatcher or readiness
+producer.
 
-## How a session receives its own Baton readiness
-
-Routing is explicit and deterministic:
+## Baton readiness flow
 
 ```text
-baton.reviewer wait reports message M
-    │ monitor owns participant baton.reviewer
-    ▼
-event target baton-reviewer
-    │ bridge target maps to thread T1
-    ▼
-turn/start(threadId=T1, message=M)
-
-dq.reviewer wait reports message N
-    │ monitor owns participant dq.reviewer
-    ▼
-event target driftquery-reviewer
-    │ bridge target maps to thread T2
-    ▼
-turn/start(threadId=T2, message=N)
+participant-relative `wait`
+        │
+        ▼
+validate protocol, projection, participant and typed action keys
+        │
+        ▼
+one compact event addressed to the configured target
+        │
+        ▼
+target FIFO -> turn/start on the persistent thread
+        │
+        ▼
+agent re-reads detail and claims or resolves through the canonical v11 CLI
 ```
 
-The event contains the participant and exact Baton message ID. The Codex turn
-on T1 claims M; the turn on T2 claims N. App-server events also carry their
-thread ID, so bridge state and attached TUI visibility remain thread-scoped.
-There is no global readiness broadcast and no inference from cwd or project
-name.
+Readiness is an edge to re-evaluate, never authority to execute. The producer
+forwards Work assignment episodes, directed obligations, and due verification
+trials using stable action keys. It suppresses a key while it remains present,
+forgets it when it disappears, and emits it again if a new episode makes it
+actionable later. Restarting the producer deliberately rediscovers the current
+set.
 
-Baton readiness uses a compact one-line turn input rather than the generic
-external-event envelope:
+The resulting trusted turn input is compact, for example:
 
 ```text
-[BATON READY] Baton message M is ready for baton.reviewer. Apply standing Baton policy.
+[BATON READY] v11 Work W6 (...) is ready and unclaimed for baton.tuner. Act through the canonical v11 CLI (detail work=W6). Apply standing v11 Baton policy.
 ```
 
-The exact message ID remains visible, while duplicated JSON, timestamps,
-routing fields, and the generic inspect/fix paragraph are omitted. Baton
-readiness is trusted local metadata from the user's Baton process and contains
-no mailbox body. Other producer types retain the full safety envelope because
-their summaries and details are the actual evidence the agent must evaluate.
+It contains locators, not discussion bodies. The awakened agent must still
+perform the atomic claim or other canonical operation; the producer never does
+that on its behalf.
 
-## Component boundaries
+## Generic event producers
 
-### Event producers
-
-- Know only the local Unix event socket and a configured target name.
-- Send normalized JSON through `codex-event send`.
-- Do not know thread IDs, server endpoints, or app-server protocol details.
-- Include `run-and-notify`, build-result watchers, and arbitrary local
-  applications or adapters.
-
-The Baton adapter is a read-only readiness producer, not a mailbox consumer.
-One `baton-codex-monitor` owns one participant's sole `wait`, forwards the
-reported message ID or notice readiness through the Unix socket, and suppresses
-the unchanged queue head. The Codex turn performs the exact `claim` or `see`
-and resolves claims. The adapter never consumes on the agent's behalf.
-
-An event carries its destination explicitly:
+Other local producers know only the Unix event socket and target name. A
+normalized event carries its destination explicitly:
 
 ```json
 {
-  "target": "driftquery",
+  "target": "baton-tuner",
   "source": "build",
   "type": "build-failed",
   "summary": "planner tests failed"
 }
 ```
 
-Producer identity or producer-specific configuration may supply the target,
-but routing never belongs inside `CodexClient`.
+These fields are untrusted data when presented to Codex. They cannot override
+user, developer, repository, sandbox, or approval instructions. Baton events
+are a distinct trusted local type because they are produced from the user's
+canonical Baton CLI and contain no mailbox or discussion body.
 
-### EventBridge dispatcher
+## Dispatcher and per-target lifecycle
 
-- Owns target lookup, event validation, size limits, deduplication, and queues.
-- Treats all external event fields as untrusted data.
-- Maintains one FIFO and one dispatch state machine per target.
-- Dispatches independent idle targets concurrently.
-- Retains queued events across app-server disconnections while the bridge
-  process remains alive.
-- Never changes sandboxing, approval policy, or approval reviewer as a routing
-  shortcut.
+The dispatcher validates and normalizes each event, rejects unknown targets
+or size/capacity violations, deduplicates within the target, and appends the
+event to that target's FIFO. One busy thread does not block unrelated targets.
 
-Deduplication includes the target:
+Each target can be unavailable, active, apparently idle, or reconciling.
+App-server acceptance or rejection of `turn/start` is authoritative; local
+idle state is only an optimization. If a TUI wins the race, the dispatcher
+keeps the event, refreshes that target, and retries with bounded backoff.
 
-```text
-hash(target + source + type + normalized summary + normalized details)
-```
+Every queued event receives a stable `clientUserMessageId`. When a connection
+drops after submission but before response, the dispatcher resumes/reads the
+thread and looks for the matching persisted client ID before deciding whether
+to dequeue or retry. This is a reconciliation key, not an assumption that
+`turn/start` is idempotent.
 
-Identical payloads sent to two targets are two distinct events.
+Queues survive an app-server disconnect while the dispatcher process remains
+alive. They are not crash-durable; restarting the dispatcher loses in-memory
+events. A disconnected server pauses only its targets, while targets assigned
+to other servers continue.
 
-Memory is bounded at three levels. Defaults remain configurable:
+## Security and approval boundaries
 
-```text
-maximum encoded event:     64 KiB
-maximum events per target: 100
-maximum events globally:   1000
-```
+- Keep the MVP listener on loopback. Plain WebSockets are only for localhost
+  or an explicitly secured forwarding arrangement.
+- The producer socket is mode `0600`; the dispatcher never replaces an
+  existing non-socket path.
+- Unknown targets and oversized events refuse before queueing.
+- Debug logging may contain complete event and protocol payloads.
+- The bridge never changes sandboxing, approval policy, reviewer, or execution
+  permissions.
+- Approval requests remain a human-action gate. The dispatcher logs
+  server-initiated requests but never approves them automatically.
 
-### CodexClient
+Approval ownership must be tested for bridge-originated and TUI-originated
+turns. If an approval is delivered only to the initiating connection, a
+supported human relay is required; weakening policy is not a workaround.
 
-`CodexClient` is the only app-server protocol-aware module. Target names never
-cross this boundary. Its conceptual operations are:
+## Isolation acceptance
 
-```text
-connect(server)
-initialize()
-resume(threadId)
-readThread(threadId)
-startTurn(threadId, input)
-consume notifications and server requests
-```
+Before relying on the topology, test one app-server, five isolated threads,
+five TUIs, one dispatcher, and the required readiness producers:
 
-For each configured server, the preferred first implementation uses one
-initialized connection subscribed to all of that server's configured threads.
-The official protocol says starting or resuming a thread subscribes the current
-connection to its events, and every relevant notification includes a
-`threadId`. The acceptance tests must determine whether approval routing or
-other connection-scoped behavior requires one connection per target instead.
+1. Send simultaneous events to A, B, and C.
+2. Start an interactive TUI turn for D and leave E idle.
+3. Verify A/B/C run independently, D is unaffected, and E remains untouched.
+4. Verify thread markers, cwd, instructions, model, sandbox, approval state,
+   notifications, and output never cross targets.
+5. Verify reconnect reconciliation and ambiguous-delivery handling do not
+   create duplicate turns.
+6. Verify both approval ownership directions remain human-actionable.
 
-The installed generated schemas determine request fields and payload shapes.
-For the observed `codex-cli 0.147.0`, `thread/resume` returns runtime status,
-`thread/read` reads status without subscribing, and
-`thread/status/changed` reports later transitions.
-
-### Codex app-server
-
-- Owns persistent conversations and authoritative thread state.
-- Arbitrates requests from TUIs and the bridge.
-- Executes independent turns for different threads concurrently, subject to
-  server capacity.
-- Rejects requests when a target thread is already active or the server is
-  overloaded.
-
-The bridge must verify, not assume, how a resumed thread resolves or retains:
-
-```text
-model
-working directory
-AGENTS.md and other instructions
-sandbox policy
-approval policy and reviewer
-```
-
-The protocol permits configuration at thread resume and turn start, and some
-turn overrides become defaults for later turns. The bridge initially supplies
-no override. Acceptance tests compare effective settings before and during an
-externally initiated turn.
-
-### Codex TUI
-
-- Connects with `codex --remote ws://127.0.0.1:4500`.
-- Resumes the thread for one logical agent.
-- Displays interactive and externally initiated work for that agent.
-- Does not serve as the automation API and is never driven by injected
-  keystrokes, PTY automation, `expect`, or tmux commands.
-
-## Routing and per-target lifecycle
-
-```text
-Producer sends event
-        │
-        ▼
-validate / normalize / route
-        │
-        ├── invalid or unknown target ──> reject
-        ├── duplicate for target ───────> suppress
-        ├── target or global limit ─────> reject with backpressure
-        └── accepted
-                │
-                ▼
-        selected target FIFO
-                │
-        ┌───────┴────────┐
-        │                │
- target active     target appears idle
-        │                │
-       wait         attempt turn/start
-                         │
-                 accepted by server?
-                    │          │
-                   yes         no
-                    │          │
-             one active turn   keep event, reconcile,
-                    │          retry with backoff
-             turn/completed
-                    │
-             reconcile target
-                    │
-             dispatch next
-```
-
-Each target has four relevant local states:
-
-- **Unavailable:** its server is disconnected or the thread could not resume.
-- **Active:** the thread reports active or a bridge turn is in flight.
-- **Apparently idle:** local observations allow a dispatch attempt.
-- **Reconciling:** the bridge is refreshing state after reconnect, completion,
-  rejection, or ambiguous delivery.
-
-Local state is an optimization. Server acceptance or rejection of
-`turn/start` is truth. A TUI can win the race after an idle notification; the
-bridge retains the event, reconciles that one target, and retries later.
-
-Every queued event also receives a stable client message ID. The bridge passes
-it as the installed protocol's `clientUserMessageId`. If the connection drops
-after submission but before the response, delivery is ambiguous: the bridge
-must resume/read the thread and look for the matching persisted user-message
-`clientId` before deciding whether to dequeue or retry. The field is a
-reconciliation key; it is not assumed to make `turn/start` idempotent.
-
-An active turn in target A does not prevent target B or C from dispatching.
-Server-wide overload does apply global backpressure and an exponentially
-increasing retry delay with jitter.
-
-## Same-thread continuity per target
-
-The bridge never creates a fresh thread for each event. For each logical agent:
-
-```text
-TUI A ──────────────> thread A
-Event bridge ───────> thread A
-```
-
-Configured target threads are persistent, not ephemeral. In the tested
-`codex-cli 0.147.0` build, another connection could not resume a newly created
-ephemeral thread because no rollout existed. A newly started persistent thread
-also became peer-resumable only after its first turn materialized the rollout.
-Configure an established TUI conversation containing at least one turn.
-
-The continuity acceptance test is performed separately for every configured
-target:
-
-1. The human enters a unique marker through that target's TUI.
-2. An external event for that target asks for the marker.
-3. The bridge starts a turn on the configured thread.
-4. Codex returns the correct marker for that target only.
-5. The externally initiated turn appears in the attached TUI.
-
-The test also records effective continuity for working directory, instruction
-sources including `AGENTS.md`, sandbox policy, approval policy and reviewer,
-and model selection. Conversation continuity alone is insufficient.
-
-## Reconnection and queue lifetime
-
-When an app-server connection drops, the Unix event receiver and unaffected
-servers remain available:
-
-```text
-disconnect server S
-    │
-    ├── retain queues for S targets in memory
-    ├── continue dispatching targets on other servers
-    ├── reconnect with bounded exponential backoff and jitter
-    ├── initialize the new connection
-    ├── resume every configured thread assigned to S
-    ├── reconcile every target independently
-    └── resume eligible dispatch
-```
-
-The initial queue is not crash-durable. Restarting the bridge loses queued
-events. Durable queue storage is a separate product decision.
-
-One app-server is also one initial failure domain: if it crashes, every target
-assigned to it pauses. The server/target configuration boundary permits later
-sharding without changing the event format.
-
-## Security and trust boundaries
-
-- App-server listens only on `127.0.0.1` in the local MVP.
-- The producer interface is a Unix socket with mode `0600`.
-- The bridge never replaces an existing non-socket filesystem path.
-- Unknown targets and oversized events are rejected before queueing.
-- Events are presented to Codex as untrusted data.
-- The bridge does not change approval policy, sandbox policy, approval
-  reviewer, or execution permissions.
-- Full protocol payloads are logged only when debug logging is enabled.
-
-## Approval-routing gate
-
-Approval behavior is a protocol acceptance gate, not an implementation detail.
-The app-server sends approvals as server-initiated requests to a client, and
-that client must respond with a decision. The bridge never approves
-automatically.
-
-Test both ownership directions for each possible topology:
-
-```text
-Bridge starts turn
-    -> approval needed
-    -> can the target's TUI display and answer it?
-
-TUI starts turn
-    -> approval needed
-    -> does the bridge only observe lifecycle events,
-       or receive a server request it would have to answer?
-```
-
-The tests must determine whether approvals are connection-scoped,
-thread-scoped, turn-owner-scoped, or broadcast. If a bridge-initiated approval
-is delivered only to the bridge connection, a supported routing or explicit
-human approval-relay design is required. Automatic acceptance, reviewer
-replacement, and sandbox weakening are not acceptable workarounds.
-
-## Multi-target acceptance gate
-
-Before durability, systemd units, or elaborate producers, run this topology:
-
-```text
-1 app-server
-5 isolated threads
-5 TUIs
-1 bridge
-```
-
-Start simultaneous events for A, B, and C; start an interactive TUI turn for D;
-leave E idle. Verify:
-
-- A, B, and C execute concurrently.
-- D is unaffected by event dispatch.
-- E stays untouched.
-- Notifications route only to their matching thread state machine.
-- Markers, working directories, instructions, and output never cross targets.
-- Effective model, sandbox, and approval settings match the target thread.
-- Both approval ownership directions are understood and remain actionable.
-- A disconnect and reconnect resumes and reconciles all five targets without
-  losing in-process queued events.
-- A disconnect between `turn/start` submission and response does not create a
-  duplicate external turn.
-
-Passing this gate establishes that one app-server can safely support N isolated
-event-driven Codex agents for this local workflow.
+Passing this gate establishes that the local app-server can support the
+configured isolated agents. It does not turn the experimental transport into
+a production-supported OpenAI interface.

@@ -44,7 +44,7 @@ route endpoint.
 
 - `status` is `open` or terminally `closed` with an outcome and rationale.
 - `phase` is the SCHEDULER state, and nothing else: `queued` (runnable,
-  unclaimed), `active` (claimed — somebody is executing it), `waiting`
+  unclaimed), `active` (claimed — somebody is executing it), `block`
   (blocked on a recorded gate or obligation), `parked` (deliberately
   deferred). Terminal Work has no phase. What KIND of work it is —
   implementation, review, research — is the route's role, never a phase.
@@ -95,7 +95,7 @@ message count, and a discussion post never moves a baton.
   phase, releases the sender's claim, and stores `comment` as durable
   handoff evidence. It creates no message, advances no cursor, and moves
   no conversational count. The destination phase is the SCHEDULER state of
-  unclaimed Work — `queued` when runnable, `waiting` when a gate is
+  unclaimed Work — `queued` when runnable, `block` when a gate is
   unsatisfied — because handing over responsibility is not the same as
   somebody starting. The destination role decides nothing here.
 - **Ask with `@`.** `say thread=T… body="…" request=team.kind on=W…`

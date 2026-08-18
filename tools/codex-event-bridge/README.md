@@ -1,24 +1,62 @@
 # Codex event bridge
 
-This local MVP routes external events to multiple isolated persistent Codex
-threads through `codex app-server`. Each target has an independent queue and
-state machine, so a busy thread does not block unrelated targets.
+This local integration routes external events to isolated, persistent Codex
+threads through `codex app-server`. Each configured target owns an independent
+queue and state machine, so a busy thread does not block unrelated targets.
 
-The durable architecture and unresolved approval-routing gate are documented
-in [`../../docs/CODEX-APP-SERVER-EVENT-CONNECTIVITY.md`](../../docs/CODEX-APP-SERVER-EVENT-CONNECTIVITY.md).
+The post-v10 topology and safety boundaries are documented in
+[`../../docs/CODEX-APP-SERVER-EVENT-CONNECTIVITY.md`](../../docs/CODEX-APP-SERVER-EVENT-CONNECTIVITY.md).
 
 ## Requirements
 
 - Linux
-- Node.js 22 or newer; no npm packages are required
+- Node.js 22 or newer; the Codex bridge itself has no npm dependencies
 - Codex with `app-server`, `--remote`, and schema generation support
+- A protocol-11 Baton executable/configuration for Baton readiness
 - `inotifywait` only for the optional watcher example
 
-This tree was developed against `codex-cli 0.147.0`. App-server and its
-WebSocket transport are experimental. Regenerate and review schemas whenever
-Codex changes.
+App-server and its WebSocket transport are experimental. Regenerate and review
+the installed schemas whenever Codex changes.
 
-## 1. Inspect Codex and generate schemas
+## Process model
+
+Normal repository operation uses the mailbox-local lifecycle recipes to
+supervise this configured backend set:
+
+1. one loopback Codex app-server;
+2. one generic `codex-event-bridge` dispatcher for its configuration;
+3. one `codex-baton-bridge` readiness producer per Baton participant;
+4. one configured ACP readiness client and agent session;
+5. any number of remote TUI clients attached to the configured threads.
+
+The dispatcher does not spawn readiness producers, and readiness producers do
+not spawn app-server or the dispatcher. Their target and socket arguments are
+the explicit wiring between them.
+
+Copy `../../conf/infra.example.json` to `MAILBOX/infra.json`, replace every
+placeholder with an absolute deployment path, then run from the repository
+root:
+
+```bash
+just start /absolute/path/to/mailbox
+just status /absolute/path/to/mailbox
+just stop /absolute/path/to/mailbox
+```
+
+The strict manifest is the entire launch contract. The recipes infer no
+release, authority, participant, thread, socket, credential, or policy path.
+Logs append in `MAILBOX/log/`; private atomic ownership state lives in
+`MAILBOX/run/`. Start is idempotent only for the complete healthy owned set,
+status is nonzero for any partial or unhealthy set, and stop signals only
+recorded matching process identities in reverse dependency order. The
+controller never starts a TUI, adopts a manually launched process, or
+escalates beyond `SIGTERM`.
+
+The component commands below remain useful for bootstrap, troubleshooting,
+and acceptance testing. Stop manually launched components before switching to
+the lifecycle recipes.
+
+## 1. Generate and inspect Codex schemas
 
 From this directory:
 
@@ -32,31 +70,48 @@ codex app-server generate-json-schema --out .codex-app-server-schema
 codex app-server generate-ts --out .codex-app-server-schema
 ```
 
-The bridge refuses to start if its required methods or fields are absent from
-that generated schema directory.
+The bridge refuses startup if the generated schema directory lacks a method or
+field it consumes.
 
-## 2. Start app-server (low-level development)
+## 2. Start app-server manually
 
 ```bash
 codex app-server --listen ws://127.0.0.1:4500
 ```
 
-Keep the listener on loopback. The current config validator rejects non-local
-endpoints. Normal Baton operation uses the supervised stack below instead; it
-starts every configured app-server itself.
+Keep the listener on loopback. The validator rejects non-loopback endpoints.
+From the repository root, `just codex-app-server` starts this process only.
 
-## 3. Connect the normal TUI
-
-In another terminal:
+Check the TUI connection in another terminal:
 
 ```bash
 codex --remote ws://127.0.0.1:4500
 ```
 
-Create or resume the conversation for one logical agent and enter a distinctive
-message. Repeat in separate TUI clients for additional isolated agents.
+## 3. Create participant threads with durable instructions
 
-List recent thread IDs without resuming them:
+Create each persistent thread through the bridge bootstrap:
+
+```bash
+bin/codex-event-bridge \
+    --start-thread \
+    --endpoint ws://127.0.0.1:4500 \
+    --cwd /absolute/path/to/workspace \
+    --baton /absolute/path/to/bin/baton \
+    --baton-config /absolute/path/to/baton.json \
+    --participant team.member \
+    --role role
+```
+
+The command resolves the participant's role instructions through the public
+Baton CLI before creating anything, starts the thread with those instructions,
+and prints JSON containing its thread ID, selected role, and accepted
+configuration generation. `--role` is required, even for a participant who
+holds exactly one role: inferring it would mean that giving that participant a
+second role later silently changed the persona of every session started here.
+A missing or unheld role refuses before thread creation.
+
+List recent IDs without resuming them:
 
 ```bash
 bin/codex-event-bridge \
@@ -64,183 +119,123 @@ bin/codex-event-bridge \
     --list-threads
 ```
 
-Match the working directory and preview to the intended TUI conversation. Put
-each selected ID into a copy of `config.example.json`. A server/thread pair may
-belong to only one target.
+## 4. Configure the dispatcher
 
-## 4. Verify one protocol turn
-
-Before starting the daemon, verify initialization, resume, `turn/start`, and
-`turn/completed` for one configured target:
-
-```bash
-bin/codex-event-bridge \
-    --config ./config.json \
-    --once \
-    --target driftquery \
-    --message 'External event test. Respond that you received it.'
-```
-
-The same operation can be configured entirely on the command line for a single
-target:
-
-```bash
-bin/codex-event-bridge \
-    --endpoint ws://127.0.0.1:4500 \
-    --target driftquery \
-    --thread '<THREAD_ID>' \
-    --once
-```
-
-## 5. Start the bridge
-
-```bash
-bin/codex-event-bridge --config ./config.json
-```
-
-Use `--debug` only when full protocol traffic is needed; event contents and
-other sensitive payloads can appear in debug logs.
-
-The bridge logs server connection, every resumed target, queueing, turn starts,
-turn completions, overload backoff, and reconnect reconciliation. Its Unix
-socket is created with mode `0600`.
-
-## Start every Codex/Baton session with one command
-
-For normal operation, maintain one machine-level configuration and run one
-supervisor for it. Configure one unique Baton participant and one unique
-persistent Codex thread for every logical agent; individual repositories must
-not start competing bridges or pollers:
+Copy `config.example.json` and replace every placeholder. The relevant shape
+is:
 
 ```json
 {
-  "baton": {
+  "roleInstructions": {
     "binary": "/absolute/path/to/bin/baton",
-    "config": "/absolute/path/to/mailbox/baton.json"
+    "config": "/absolute/path/to/baton.json"
   },
   "servers": {
     "local": { "endpoint": "ws://127.0.0.1:4500" }
   },
   "targets": {
-    "baton-reviewer": {
+    "baton-tuner": {
       "server": "local",
-      "threadId": "<BATON_REVIEWER_THREAD_ID>",
-      "participant": "baton.reviewer"
-    },
-    "lang-reviewer": {
-      "server": "local",
-      "threadId": "<LANG_REVIEWER_THREAD_ID>",
-      "participant": "lang.reviewer"
+      "threadId": "<BATON_TUNER_THREAD_ID>",
+      "identity": {
+        "participant": "baton.tuner",
+        "role": "tuner"
+      }
     }
   },
   "eventSocket": "/run/user/1000/codex-events.sock"
 }
 ```
 
-Then run from the repository root:
+Every server/thread pair and every `identity.participant` must be unique.
+Different role selections do not make two targets for one participant safe.
+When `roleInstructions` is present, every target needs an identity. On every
+dispatcher startup, the bridge resolves the accepted text again and supplies
+it as `developerInstructions` while resuming each target.
+
+## 5. Verify one protocol turn
+
+Before starting the long-running dispatcher, verify initialization, resume,
+`turn/start`, and `turn/completed` for one target:
 
 ```bash
-just codex-baton /absolute/path/to/config.json
+bin/codex-event-bridge \
+    --config ./config.json \
+    --once \
+    --target baton-tuner \
+    --message 'External event test. Respond that you received it.'
 ```
 
-That foreground supervisor starts the app-server, shared dispatcher, and one
-read-only Baton poller per target. Each poller forwards only its participant's
-readiness to its mapped thread. A busy thread queues only its own events; other
-threads continue independently. Duplicate participant or thread assignments
-fail before startup. Pollers start only after every configured thread has
-successfully resumed. If an older per-session Codex backend still owns a
-thread, startup names the unavailable target and stops the partial stack. If
-any child process exits, the supervisor stops the whole stack rather than
-leaving a partially wired deployment behind.
-
-Close old per-session TUIs before the first shared launch. Once the stack is
-ready, connect any number of TUIs with `codex resume --remote ENDPOINT
-THREAD_ID`, using the configured thread belonging to that logical agent. Stop
-the complete stack with `Ctrl-C`. The manual app-server and bridge commands
-above remain useful for protocol development and focused troubleshooting.
-
-For example:
+For a single target without role-instruction resolution, the low-level
+shorthand is:
 
 ```bash
-codex resume --remote ws://127.0.0.1:4500 <BATON_REVIEWER_THREAD_ID>
-codex resume --remote ws://127.0.0.1:4500 <LANG_REVIEWER_THREAD_ID>
+bin/codex-event-bridge \
+    --endpoint ws://127.0.0.1:4500 \
+    --target scratch \
+    --thread '<THREAD_ID>' \
+    --once
 ```
 
-Do not omit `--remote` after migration. A plain `codex resume THREAD_ID`
-starts an isolated backend and prevents the shared bridge from acquiring that
-thread's active-writer lock.
-
-## codex-baton-bridge: the v11 readiness producer (certification overlap)
-
-`bin/codex-baton-bridge` is the standalone protocol-11 readiness producer for
-the v10-to-v11 certification overlap. Baton itself stays model-neutral — its
-CLI and JSON authority expose only the participant-relative, read-only
-`wait`; this external bridge decides how that readiness schedules a turn in
-an existing Codex thread, and it is not part of the immutable Baton client
-distribution (other agents may consume the same Baton surface through ACP or
-their own adapters). Launch it beside the ALREADY RUNNING v10 stack — it
-starts no second app-server, dispatcher, or bridge process, and the
-supervisor configuration above is not touched.
-
-The existing stack process must nevertheless be running this reviewed source
-revision. A Node dispatcher started before the compact v11 formatter landed
-keeps its old module code in memory and will render the generic external-event
-wrapper. Coordinate one stop/restart of the SAME `just codex-baton` stack with
-the same config, then reattach the same Codex thread before launching the v11
-producer. Do not start a second dispatcher or app-server as a workaround.
-
-codex-baton-bridge requires a v11 release whose `wait` speaks the
-projection-5 participant-action contract (W136's typed actions under
-W179's honest breaking boundary; W207 certified the bridge for exactly
-this major). Older trial releases (the projection-4.1 `825e97d` build,
-or any 4.x) are correctly refused by the envelope gate. So the operator
-first deploys a new immutable v11 candidate containing
-W136/W148/W171/W179, then launches with that exact release's
-`bin/baton`, the running stack's configured target name, and its
-configured event socket. For the current trial deployment those
-resolve to:
+## 6. Start the generic dispatcher
 
 ```bash
-tools/codex-event-bridge/bin/codex-baton-bridge \
-  --baton /home/sl/opt/baton/v11/<NEW_CANDIDATE>/bin/baton \
-  --config /home/sl/baton-v11/baton.json \
-  --participant baton.codex \
-  --target baton-reviewer \
-  --socket /home/sl/.local/run/codex-events.sock
+bin/codex-event-bridge --config ./config.json
 ```
 
-where `<NEW_CANDIDATE>` is the newly deployed release hash — never an older
-release that predates projection 5 — and `--target`/`--socket` must match
-the running stack's configuration (here `baton-reviewer` on
-`/home/sl/.local/run/codex-events.sock`), not fresh names.
+The bridge logs connections, resumed targets, queueing, turn starts,
+completions, backoff, and reconnect reconciliation. Its Unix socket is created
+with mode `0600`. Use `--debug` only when full protocol traffic is needed;
+event contents and other sensitive payloads may appear in debug logs.
 
-It repeatedly invokes `BATON --config PATH --participant TEAM.MEMBER wait
-timeout=S` (the protocol-11 key=value grammar), validates the typed
-projection-5 envelope, and forwards one trusted compact event per unseen
-action key into the running stack's existing event socket, addressed to the
-existing target. The bridge then renders the same one-line `[BATON READY]`
-turn input it uses for v10 readiness. codex-baton-bridge is read-only and
-level-triggered: it never claims, responds, or advances cursors, and a key
-is suppressed while present, forgotten when it disappears, and re-emitted if
-it returns.
+## 7. Start Baton readiness producers
 
-Run exactly ONE readiness producer per participant. v11 `wait` is read-only
-and level-triggered, so a second waiter steals nothing and consumes nothing —
-instead both observe the same actionable set and each forwards it, which
-manufactures duplicate Codex turns for the same wake (beyond whatever a short
-bridge dedup window happens to absorb). One producer per participant keeps
-delivery single-sourced, exactly as the v10 stack runs one poller per
-participant. During the overlap the v10 stack keeps running unchanged in
-parallel; integrating this producer into the `just codex-baton` supervisor
-happens only at the v10 retirement gate, as a separately reviewed change.
+Start exactly one producer for each participant:
 
-## 6. Send events
+```bash
+bin/codex-baton-bridge \
+    --baton /absolute/path/to/bin/baton \
+    --config /absolute/path/to/baton.json \
+    --participant baton.tuner \
+    --target baton-tuner \
+    --socket /run/user/1000/codex-events.sock
+```
+
+`--target` and `--socket` must match the dispatcher configuration. Optional
+`--wait-timeout` and `--retry-ms` control this producer only. Use `--once` to
+exit after at least one event is accepted by the dispatcher.
+
+The producer repeatedly invokes:
+
+```text
+BATON --config PATH --participant TEAM.MEMBER wait timeout=SECONDS
+```
+
+It validates the protocol-11 participant-action envelope and forwards one
+compact event per unseen action key. It is read-only and level-triggered: it
+never claims Work, responds to obligations, advances a cursor, or mutates the
+authority. A key is suppressed while present, forgotten when it disappears,
+and delivered again when a new assignment episode makes it actionable.
+
+Run one readiness path per participant. Two producers see the same action set
+and can create duplicate turns; they do not divide work between themselves.
+
+## 8. Attach TUIs
+
+```bash
+codex resume --remote ws://127.0.0.1:4500 <BATON_TUNER_THREAD_ID>
+```
+
+The TUI is an interactive peer on the same thread. It does not own the
+dispatcher or readiness producer. Closing it does not stop those processes.
+
+## Send generic events
 
 With a message flag:
 
 ```bash
 bin/codex-event send \
-    --target driftquery \
+    --target baton-tuner \
     --source test \
     --type external-test \
     --message 'This event came from outside the TUI. Acknowledge it and report pwd.'
@@ -251,78 +246,57 @@ Or through stdin:
 ```bash
 echo 'build failed: planner.rs:418' |
     bin/codex-event send \
-        --target driftquery \
+        --target baton-tuner \
         --source build \
         --type build-failed
 ```
 
-Use `--socket PATH` or `CODEX_EVENT_SOCKET` if the daemon socket is not the
-default `$XDG_RUNTIME_DIR/codex-events.sock`.
+Use `--socket PATH` or `CODEX_EVENT_SOCKET` when the dispatcher socket differs
+from `$XDG_RUNTIME_DIR/codex-events.sock`.
 
-External fields are labelled as untrusted data in the Codex input. They cannot
-override standing user, developer, or repository instructions.
+Generic event fields are labelled as untrusted data in the Codex input and
+cannot override standing user, developer, repository, sandbox, or approval
+instructions. Baton readiness uses a separate trusted local event type and
+contains only the action locator and standing-policy cue, never a discussion
+body.
 
-Baton readiness is deliberately terse: trusted local readiness from the user's
-Baton process appears as one `[BATON READY]` line containing the exact message
-ID or notice readiness. It contains no mailbox body. The bridge omits the
-duplicated `wait` JSON and generic event-evaluation paragraph for these
-wakeups. Other external event types retain the full safety and evidence
-envelope.
-
-## 7. Command integration
+## Command integration
 
 `run-and-notify` runs a command directly without a shell, preserves its exit
 status, streams output to the terminal, and includes only a bounded output tail
 in a failure event:
 
 ```bash
-bin/run-and-notify --target driftquery -- cargo test
+bin/run-and-notify --target baton-tuner -- cargo test
 ```
 
 Successful commands are silent by default. Add `--notify-success` to emit a
-`build-succeeded` event. Change the retained tail with
-`--max-output-bytes BYTES`.
+success event or `--max-output-bytes BYTES` to change the retained tail.
 
-The optional `inotifywait` demonstration watches one build-result file rather
-than every editor save:
-
-```bash
-examples/watch-build-result /tmp/my-project-build-result driftquery ./bin/codex-event
-```
-
-Writing a line beginning with `FAILED` to that file emits a `build-failed`
-event.
-
-## 8. Same-thread and isolation acceptance
-
-For one target, enter this through its TUI:
-
-```text
-Remember the marker ALPHA-917 for this session.
-```
-
-Then send:
+The optional watcher demonstrates one build-result file rather than every
+editor save:
 
 ```bash
-bin/codex-event send \
-    --target driftquery \
-    --source acceptance \
-    --type continuity-test \
-    --message 'What marker did I give you earlier?'
+examples/watch-build-result /tmp/build-result baton-tuner ./bin/codex-event
 ```
 
-The answer must contain `ALPHA-917` and appear in that target's TUI. Also verify
-its working directory, instruction sources, model, sandbox, approval policy,
-and approval reviewer rather than assuming all settings were inherited.
+Writing a line beginning with `FAILED` emits a `build-failed` event.
 
-Before relying on the dispatcher, perform the five-target gate from the
-architecture document: simultaneous events for A/B/C, an interactive turn for
-D, and no activity for E. No context, notification, cwd, instruction, or
-approval state may cross targets.
+## Same-thread and isolation acceptance
 
-Approval requests remain a hard gate. The bridge logs them but never answers or
-approves them. Verify experimentally whether a TUI can act on approvals for a
-bridge-originated turn before using events that may require approval.
+For one target, enter a unique marker through its TUI, then send a generic
+event asking for that marker. The response must contain the marker and appear
+in the same TUI. Also verify cwd, instruction sources, model, sandbox, approval
+policy, and reviewer rather than assuming every setting was inherited.
+
+Before relying on a multi-target dispatcher, perform the five-target gate from
+the architecture document: simultaneous events for A/B/C, an interactive turn
+for D, and no activity for E. No context, notification, cwd, instruction,
+approval state, or output may cross targets.
+
+Approval requests remain a hard gate. The bridge logs server requests but
+never answers or approves them. Verify how the attached TUI receives approvals
+for bridge-originated turns before using events that may require approval.
 
 ## Verification
 
@@ -332,7 +306,7 @@ Run the sandboxed unit suite:
 npm test
 ```
 
-With a foreground app-server already listening on port 4500, the manual local
+With a foreground app-server listening on port 4500, the manual local
 integration suites are:
 
 ```bash
@@ -341,33 +315,42 @@ npm run test:app-server -- ws://127.0.0.1:4500
 npm run test:dispatcher -- ws://127.0.0.1:4500
 ```
 
-The app-server tests create persistent threads because another connection
-cannot resume an ephemeral or zero-turn thread in the tested build. They seed
-the rollouts, exercise peer subscriptions and concurrent dispatch, and delete
-only their recorded test thread IDs afterward.
+The integration tests create persistent threads, seed their rollouts, exercise
+peer subscriptions and concurrent dispatch, and delete only their recorded
+test thread IDs afterward.
 
 ## Troubleshooting
 
 `cannot connect to Codex app-server`
-: Confirm the server is running and `/readyz` responds. Confirm both server and
-  client use `ws://127.0.0.1:4500`.
+: Confirm the listener is running and `/readyz` responds. Confirm both server
+  and client use the configured loopback endpoint.
 
 `installed app-server schema is incompatible`
 : Regenerate both schema forms with the installed Codex executable. Review the
-  changed generated types and update only `CodexClient` for protocol changes.
+  changed generated types before changing `CodexClient`.
+
+`Baton instructions refused`
+: Confirm the dispatcher and bootstrap use the canonical Baton binary and
+  accepted config, that every target names both `identity.participant` and
+  `identity.role`, and that each participant holds the role its target
+  selects. There is no inferred role to fall back on.
 
 `thread/resume` fails
 : Re-run `--list-threads`, confirm the thread exists and is not archived, and
   confirm required MCP servers initialize successfully.
 
-Event stays queued
-: The target may be active, unavailable, reconciling an ambiguous delivery, or
-  under server overload backoff. Check the target-prefixed daemon logs.
+`Event stays queued`
+: The target may be active, unavailable, reconciling ambiguous delivery, or
+  under server overload backoff. Check target-prefixed dispatcher logs.
 
-Event appears in the wrong conversation
-: Stop the bridge and correct the target's thread ID. Do not assign one
-  server/thread pair to multiple targets.
+`Readiness never arrives`
+: Confirm the readiness producer is running, its Baton paths identify the
+  accepted authority, and its target/socket match the dispatcher.
 
-Turn waits for approval
+`Event appears in the wrong conversation`
+: Stop the dispatcher and correct the target thread ID. Never assign a
+  server/thread pair or Baton participant to multiple targets.
+
+`Turn waits for approval`
 : This is expected until approval ownership is validated. Do not weaken the
   sandbox or enable automatic approval as a workaround.

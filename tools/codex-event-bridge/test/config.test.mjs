@@ -38,29 +38,21 @@ test("requires global capacity to cover one target", () => {
   assert.throws(() => validateConfig(raw), /maxQueueTotal/);
 });
 
-test("validates Baton assignments for independently routed sessions", () => {
+// W4 (finding-v10-runtime-removal): the `baton` block and the
+// per-target `participant` were the ALL-SESSION STACK's configuration —
+// consumed only by the retired `stack.mjs`, which spawned one v10
+// monitor per participant. The generic dispatcher never read them, so
+// they left with the stack rather than being kept as dead schema.
+test("the retired stack-only configuration is gone", () => {
   const raw = base();
-  raw.baton = {
-    binary: "/opt/baton/bin/baton",
-    config: "/srv/mailbox/baton.json",
-  };
+  raw.baton = { binary: "/opt/baton/bin/baton", config: "/srv/x.json" };
   raw.targets.a.participant = "baton.reviewer";
-  raw.targets.b.participant = "lang.reviewer";
   const config = validateConfig(raw);
-  assert.equal(config.baton.waitTimeoutSeconds, 60);
-  assert.equal(config.targets.a.participant, "baton.reviewer");
-  assert.equal(config.targets.b.participant, "lang.reviewer");
-});
-
-test("rejects one Baton participant assigned to two Codex sessions", () => {
-  const raw = base();
-  raw.targets.a.participant = "baton.reviewer";
-  raw.targets.b.participant = "baton.reviewer";
-  assert.throws(() => validateConfig(raw), /participant baton\.reviewer is assigned to more than one target/);
-});
-
-test("requires absolute Baton paths", () => {
-  const raw = base();
-  raw.baton = { binary: "bin/baton", config: "/srv/mailbox/baton.json" };
-  assert.throws(() => validateConfig(raw), /baton\.binary must be an absolute path/);
+  assert.equal(config.baton, undefined,
+               "the stack's baton block is still validated");
+  assert.equal(config.targets.a.participant, undefined,
+               "the stack's per-target participant is still validated");
+  // ...and the generic transport it shared a file with is untouched.
+  assert.ok(config.targets.a.server);
+  assert.ok(config.eventSocket);
 });

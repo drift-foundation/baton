@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "startTimeoutSeconds": 15,
+  "stopTimeoutSeconds": 10,
+  "services": [
+    {
+      "name": "codex-app-server",
+      "command": [
+        "/absolute/path/to/codex",
+        "app-server",
+        "--listen",
+        "ws://127.0.0.1:4500"
+      ],
+      "readiness": {
+        "type": "http",
+        "url": "http://127.0.0.1:4500/readyz",
+        "expectedStatus": 200
+      }
+    },
+    {
+      "name": "codex-dispatcher",
+      "command": [
+        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--config",
+        "/absolute/path/to/codex-event-bridge.json"
+      ],
+      "after": [
+        "codex-app-server"
+      ],
+      "requires": [
+        "/absolute/path/to/codex-event-bridge.json"
+      ],
+      "readiness": {
+        "type": "unix_socket",
+        "path": "/absolute/path/to/runtime/codex-events.sock"
+      }
+    },
+    {
+      "name": "codex-readiness",
+      "participant": "baton.codex",
+      "command": [
+        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/absolute/path/to/v11-release/bin/baton",
+        "--config",
+        "/absolute/path/to/mailbox/baton.json",
+        "--participant",
+        "baton.codex",
+        "--target",
+        "baton-reviewer",
+        "--socket",
+        "/absolute/path/to/runtime/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/absolute/path/to/v11-release/bin/baton",
+        "/absolute/path/to/mailbox/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
+      "name": "claude-acp",
+      "participant": "baton.claude",
+      "command": [
+        "/absolute/path/to/v11-release/bin/acp-baton-bridge",
+        "--config",
+        "/absolute/path/to/acp-bridge-claude.json"
+      ],
+      "after": [
+        "codex-readiness"
+      ],
+      "requires": [
+        "/absolute/path/to/acp-bridge-claude.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    }
+  ]
+}
