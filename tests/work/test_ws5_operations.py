@@ -119,14 +119,14 @@ def test_exact_retry_replays_without_a_second_effect(world):
 	born = _create(store)
 	first = tr.post_thread(store, born["thread"],
 	                           author_team="lang", author="ada",
-	                           body="push: confirm", request="push.bug",
+	                           body="push: confirm", request="push.bug", wait=False,
 	                           op_id="ask-1")
 	events_after = store.events()
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	digest = hashlib.sha256(open(store.path, "rb").read()).hexdigest()
 	retry = tr.post_thread(store, born["thread"],
 	                           author_team="lang", author="ada",
-	                           body="push: confirm", request="push.bug",
+	                           body="push: confirm", request="push.bug", wait=False,
 	                           op_id="ask-1")
 	assert retry["seq"] == first["seq"]
 	assert retry["operation"]["state"] == "replayed"
@@ -332,7 +332,7 @@ def test_the_protected_commit_is_whole_or_nothing(world):
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
-	                           request="lang.bug")["seq"]
+	                           request="lang.bug", wait=False)["seq"]
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	baseline = hashlib.sha256(open(store.path, "rb").read()).hexdigest()
 	baseline_events = store.events()

@@ -176,8 +176,8 @@ def test_terminal_work_and_authority_are_untouched(world):
 		"an overdue pickup wrote to the authority"
 	detail = pj.detail(store, work, viewer_team="rev",
 	                   viewer_member="bee")
-	assert detail["current"]["endpoint"] == "rev.bug"
-	assert detail["active"] is None
+	assert detail["route"]["endpoint"] == "rev.bug"
+	assert detail["current"] is None
 	# closed Work renders dash and no prefix regardless of history
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	tr.close_work(store, work, actor_team="rev", actor="bee",

@@ -36,9 +36,13 @@ from baton_work import transitions
 # identity is never abbreviated (6/6 rule makes them fit by construction).
 # Gate B: the set is exactly the canonical projection's row fields — the
 # renderer formats them and never aggregates or invents a value.
+# W245 (finding-current-is-claimant): ROUTE and CURRENT are separate
+# columns because they answer separate questions — who MAY claim, and
+# who IS executing. The single old Current column showed the endpoint,
+# so a routed handoff nobody had picked up looked staffed.
 COLUMNS = (("ST", 6), ("PR", 2), ("PHASE", 6), ("CLS", 5),
-           ("MSG/MY", 7), ("CURRENT", 13), ("NEXT", 13), ("NEW", 4),
-           ("HELD", 6))
+           ("MSG/MY", 7), ("ROUTE", 13), ("CURRENT", 13), ("NEXT", 13),
+           ("NEW", 4), ("HELD", 6))
 
 # Header LABELS where plain capitalize() would miscase a compound name —
 # plus the ruled `Cat` display label for the classification column
@@ -53,7 +57,9 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat"}
 # with an explicit too-narrow line instead of truncating identities.
 # W3 (ruled): Pr is the FIRST whole column omitted under width
 # pressure, preserving every previously existing narrow layout.
-DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT")
+# W245: NEXT then ROUTE go before CURRENT — under width pressure the
+# question that survives longest is who is actually executing.
+DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "ROUTE")
 MIN_TITLE = 10
 
 # One bounded page of a Work's thread SET (prototype size): `n` pages
@@ -123,7 +129,7 @@ def hot_work(row: dict) -> bool:
 	row state alone — no recency clock, no timestamp inference, no
 	authority read of its own."""
 	return row["status"] == "open" and (
-		row["active"] is not None
+		row["current"] is not None
 		or (row["phase"] == "review" and row["ready"]))
 
 
@@ -132,30 +138,34 @@ def actionable_work(row: dict, viewer_team: str,
 	"""W81 (superseding the global hot-zone bold): bold Title is
 	PERSONAL actionability — "what am I supposed to handle?" — true
 	exactly when:
-	- this viewer holds the row's active claim; or
+	- this viewer IS the row's Current claimant; or
 	- the Work is open, ready, unclaimed, not waiting/parked, and its
-	  Current endpoint resolves to this viewer (every eligible handler
-	  of a multi-handler Current sees it until one claims; after the
-	  claim only the winner keeps the cue); or
+	  Route endpoint resolves to this viewer (every eligible handler of
+	  a multi-handler Route sees it until one claims; after the claim
+	  only the winner keeps the cue); or
 	- this viewer has an unresolved directed @ obligation on the Work
 	  (independently actionable even while blocked).
 	Everyone else's activity stays visible through Phase, Current, and
 	claim Age. Pure row facts in, presentation out — no authority
-	read, no authorization change."""
-	active = row.get("active")
-	if active and active.get("team") == viewer_team and \
-			active.get("member") == viewer_member:
+	read, no authorization change.
+
+	W245: the two clauses now read as the two different questions they
+	always were — Current answers WHO IS EXECUTING, Route answers WHO
+	MAY CLAIM."""
+	current = row.get("current")
+	if current and current.get("team") == viewer_team and \
+			current.get("member") == viewer_member:
 		return True
 	if row.get("my_pending_obligations"):
 		return True
-	current = row.get("current")
+	route = row.get("route")
 	return (row.get("status") == "open"
 	        and bool(row.get("ready"))
-	        and active is None
+	        and current is None
 	        and row.get("phase") not in ("waiting", "parked")
-	        and current is not None
-	        and current["endpoint"].split(".", 1)[0] == viewer_team
-	        and viewer_member in (current.get("handlers") or ()))
+	        and route is not None
+	        and route["endpoint"].split(".", 1)[0] == viewer_team
+	        and viewer_member in (route.get("handlers") or ()))
 
 
 def visible_columns(width: int, id_width: int = 0):
@@ -433,7 +443,22 @@ class Console:
 		self.focus = "threads"
 		self.detail_work: str | None = None
 		self.ctrl_w_pending = False
-		self.thread_after = 0
+		# W76: the Message index reads NEWEST-FIRST, so its cursor pages
+		# toward older messages. None means "the newest page".
+		self.thread_before = None
+		# W123: Work detail has two tabs. Messages is the default —
+		# opening a Work is usually about the conversation — and Events
+		# is the operational play-by-play. Each tab keeps its OWN focused
+		# pane, selection, page cursor and reader scroll, so switching
+		# away and back returns to where the operator was rather than
+		# resetting them.
+		self.detail_tab = "messages"
+		self.event_cursor = None
+		self.event_before = None
+		self.event_focus = "index"
+		self.event_skip = 0
+		self.viewed_event_seqs: list[int] = []
+		self.viewed_events_next_before = None
 		# W14: the Message-index cursor — the chosen message's
 		# existing stable seq (never an invented identifier), preserved
 		# across refresh, paging, and resize while the message remains
@@ -447,8 +472,7 @@ class Console:
 		self.reader_skip_width: int | None = None
 		self.reader_clipped = False
 		self.viewed_seqs: list[int] = []
-		self.viewed_next_after: int | None = None
-		self.msg_seek = True
+		self.viewed_next_before: int | None = None
 		# W33: the ephemeral phase-CHANGE attention state — client-
 		# local only, never persisted; reconnect starts cold. The
 		# baseline is the first loaded snapshot (blinks nothing);
@@ -482,6 +506,10 @@ class Console:
 		self.tick_owed = False
 
 		self.command: str | None = None  # the `:` command-bar buffer
+		# W81: the contextual `say` seed. `seeded_say` is the exact
+		# operand text this client inserted, so an explicit one arriving
+		# later can displace precisely that and nothing else.
+		self.seeded_say: str | None = None
 		# W9: the one-row exit confirmation — q asks, y answers.
 		self.confirm_exit = False
 		# W19: the `::` batch buffer — a list of staged line entries
@@ -855,8 +883,13 @@ class Console:
 			# and the local clock at paint time — advanced by the ONE
 			# existing refresh cadence, no second scheduler.
 			"HELD": held_field(row, _time.time()),
-			"CURRENT": row["current"]["endpoint"] if row["current"]
-			else "-",
+			"ROUTE": row["route"]["endpoint"] if row["route"] else "-",
+			# W245: the exact claimant, or `-` when NOBODY holds it.
+			# The pickup cue for unclaimed routed Work is ruled
+			# separately and still rides on the ST column.
+			"CURRENT": (f"{row['current']['team']}."
+			            f"{row['current']['member']}")
+			if row["current"] else "-",
 			"NEXT": row["next"]["endpoint"] if row["next"] else "-",
 			"NEW": str(row["new"]),
 		}
@@ -1033,8 +1066,8 @@ class Console:
 		rows = []
 
 		def far_text(prefix, entry):
-			endpoint = (entry["current"]["endpoint"]
-			            if entry["current"] else "-")
+			endpoint = (entry["route"]["endpoint"]
+			            if entry["route"] else "-")
 			extra = "" if entry["outcome"] is None \
 				else f" {compact_outcome(entry['outcome'])}"
 			rows.append((entry["id"],
@@ -1071,18 +1104,30 @@ class Console:
 		"""The focused facts, EVERY one a canonical projection value: the
 		terminal outcome with its durable rationale, the effective binding
 		(WS-6 R90 portable root:path), the effective contract revision,
-		duplicate/follow-up identity, and the transitions the projection
-		DECLARES for this viewer — a human never discovers authority by
-		attempting invisible operations."""
+		and duplicate/follow-up identity.
+
+		W90: the `can:` line is GONE from here. It rendered the Work's
+		`available_transitions` directly above the Threads list, where
+		`can: prioritize` reads as something you might do to the message
+		you are looking at. It is a capability of the Work — open to any
+		configured member of its owning team — and repeating it on a
+		reading surface invited exactly that misreading.
+
+		Nothing about the capability itself changed: `available_transitions`
+		remains in the canonical JSON detail for every client, and the
+		command grammar is untouched. What was removed is the claim that
+		it belongs beside a conversation. A genuine Work-actions or help
+		surface is where it should reappear."""
 		facts = []
 		if detail["status"] == "closed":
 			facts.append(f"closed {detail['outcome']} — "
 			             f"{detail['rationale']}")
 		# finding-active-work-claim: WHO is executing is a canonical
 		# authority value, never inferred from route membership.
-		if detail.get("active") is not None:
-			facts.append(f"active: {detail['active']['team']}."
-			             f"{detail['active']['member']}")
+		# W245: it is spelled `current`, and its absence is the fact.
+		if detail.get("current") is not None:
+			facts.append(f"current: {detail['current']['team']}."
+			             f"{detail['current']['member']}")
 		binding = detail.get("binding")
 		if binding is not None:
 			facts.append(f"binding {binding['root']}:{binding['path']} "
@@ -1095,14 +1140,13 @@ class Console:
 			facts.append(f"duplicate-of {detail['duplicate_of']}")
 		if detail["follow_up_of"] is not None:
 			facts.append(f"follow-up-of {detail['follow_up_of']}")
-		if detail["available_transitions"]:
-			facts.append("can: " +
-			             " ".join(detail["available_transitions"]))
 		return facts
 
 	def _detail_header(self, detail: dict) -> str:
-		current = detail["current"]["endpoint"] if detail["current"] \
-			else "-"
+		route = detail["route"]["endpoint"] if detail["route"] else "-"
+		current = (f"{detail['current']['team']}."
+		           f"{detail['current']['member']}") \
+			if detail["current"] else "-"
 		planned = detail["next"]["endpoint"] if detail["next"] else "-"
 		# W12 (ruled): the EXACT canonical Work id leads the header —
 		# first on the line so no narrow width ever clips it, straight
@@ -1112,13 +1156,200 @@ class Console:
 		        f"[{detail['status']}"
 		        f"/{phase_cell(detail['status'], detail['phase'])}"
 		        f"/{compact_classification(detail['classification'])}] "
-		        f"current {current}  next {planned}  new {detail['new']}")
+		        # W245: both facts, in the order they are asked —
+		        # who may claim, then who actually holds it.
+		        f"route {route}  current {current}  "
+		        f"next {planned}  new {detail['new']}")
 		waiting = detail.get("waiting_on")
 		if waiting is not None:
 			line += f"  wait:{waiting['type']}"
 			if waiting["obligation"] is not None:
 				line += f"#{waiting['obligation']}"
 		return line
+
+	DETAIL_TABS = ("messages", "events")
+
+	def _tab_bar(self) -> str:
+		"""W123: `Messages  Events` with the active tab distinguished.
+		The bar is presentation; the tab itself is client state and
+		touches no authority."""
+		return "  ".join(
+			f"[{name.title()}]" if name == self.detail_tab
+			else f" {name.title()} "
+			for name in self.DETAIL_TABS)
+
+	def _switch_tab(self, step: int) -> None:
+		"""`]` next, `[` previous. Each tab's own focus, selection, page
+		cursor and reader scroll live in separate fields, so switching
+		preserves both sides by construction rather than by saving and
+		restoring a shared slot."""
+		here = self.DETAIL_TABS.index(self.detail_tab)
+		self.detail_tab = self.DETAIL_TABS[
+			(here + step) % len(self.DETAIL_TABS)]
+
+	def _detail_footer(self, screen, height, width, bits) -> None:
+		"""The advertised controls. `[/] tabs` is ALWAYS present: the
+		ruling is that tab navigation must not be discoverable only by
+		prior knowledge."""
+		screen.addnstr(height - 2, 0,
+		               " · ".join(["[/] tabs", *bits]), width - 1)
+
+	def _render_events(self, screen, top, height, width) -> None:
+		"""The Events tab: a bounded index of `E<seq>` beside a reader
+		showing one selected event's complete typed detail.
+
+		Layout mirrors Messages deliberately — wide splits index|reader,
+		narrow stacks them — because the two tabs are the same shape of
+		thing and an operator should not have to learn two geometries.
+		Like Messages (W76) it opens NEWEST-FIRST on one bounded page;
+		`n` reaches older events, `p` returns to the newest."""
+		region = height - 2 - top
+		if region < 2:
+			return
+		page_limit = max(1, region - 2)
+		snapshot = self._cached(
+			("work-events", self.detail_work, self.event_before,
+			 page_limit),
+			lambda: projection.work_events(
+				self.store, self.detail_work,
+				before=self.event_before,
+				newest=self.event_before is None, limit=page_limit))
+		events = snapshot["events"]
+		self.viewed_events_next_before = snapshot["next_before"]
+		seqs = [entry["seq"] for entry in events]
+		self.viewed_event_seqs = seqs
+		if self.event_cursor not in seqs:
+			self.event_cursor = seqs[-1] if seqs else None
+			self.event_skip = 0
+		selected = next((entry for entry in events
+		                 if entry["seq"] == self.event_cursor), None)
+		index_bold = curses.A_BOLD if self.event_focus == "index" else 0
+		reader_bold = curses.A_BOLD if self.event_focus == "reader" else 0
+		imarker = "»" if self.event_focus == "index" else " "
+		rmarker = "»" if self.event_focus == "reader" else " "
+		more = "  (n: older)" if snapshot["next_before"] is not None \
+			else ""
+		index_label = f"{imarker}Events ({len(events)}){more}"
+		reader_label = f"{rmarker}Event E{selected['seq']}" \
+			if selected else f"{rmarker}Event"
+		wide = width - 1 - self.INDEX_WIDTH - 2 >= self.MIN_READER
+		if wide:
+			reader_x = self.INDEX_WIDTH + 2
+			reader_width = width - 1 - reader_x
+			screen.addnstr(top, 0, index_label, self.INDEX_WIDTH,
+			               index_bold)
+			screen.addnstr(top, reader_x, reader_label, reader_width,
+			               reader_bold)
+			self._paint_event_index(screen, top + 1, region - 1, 0,
+			                        self.INDEX_WIDTH, events)
+			self._paint_event_reader(screen, top + 1, region - 1,
+			                         reader_x, reader_width, selected)
+		else:
+			index_rows = max(1, min(len(events) or 1,
+			                        max(2, region // 3), region - 3))
+			screen.addnstr(top, 0, index_label, width - 1, index_bold)
+			self._paint_event_index(screen, top + 1, index_rows, 0,
+			                        width - 1, events)
+			reader_top = top + 1 + index_rows
+			screen.addnstr(reader_top, 0, reader_label, width - 1,
+			               reader_bold)
+			self._paint_event_reader(screen, reader_top + 1,
+			                         top + region - reader_top - 1, 0,
+			                         width - 1, selected)
+		bits = []
+		if snapshot["next_before"] is not None:
+			bits.append("older events — n older · p newest")
+		elif self.event_before is not None:
+			bits.append("newer events — p newest")
+		bits.extend(["Ctrl-W panes", "j/k select", "Esc back"])
+		self._detail_footer(screen, height, width, bits)
+
+	def _paint_event_index(self, screen, top, rows, x, cell_width,
+	                       events):
+		"""`E<seq>` is the visible stable event identifier — the
+		authoritative sequence, nothing invented. Newest first, matching
+		the Message index."""
+		if not events:
+			screen.addnstr(top, x, "(no events on this page)",
+			               cell_width)
+			return
+		ordered = list(reversed(events))
+		seqs = [entry["seq"] for entry in ordered]
+		chosen = seqs.index(self.event_cursor) \
+			if self.event_cursor in seqs else 0
+		start = max(0, min(chosen - rows + 1, len(ordered) - rows))
+		for offset, entry in enumerate(ordered[start:start + rows]):
+			stamp = (entry.get("ts") or "")[11:16]
+			text = (f"E{entry['seq']} {entry['kind']} {stamp} "
+			        f"{entry['actor']}")
+			attribute = curses.A_REVERSE \
+				if entry["seq"] == self.event_cursor else 0
+			screen.addnstr(top + offset, x,
+			               text[:cell_width].ljust(cell_width),
+			               cell_width, attribute)
+
+	def _event_lines(self, entry) -> list[str]:
+		"""Human labels for the common typed fields, then the COMPLETE
+		payload. Routine events read compactly, but nothing is hidden:
+		the ruling is that folding must be explicit, never silent
+		omission."""
+		payload = entry.get("payload") or {}
+		lines = [f"#{entry['seq']} {entry['kind']} {entry['actor']} "
+		         f"{entry['ts']}",
+		         f"  roles: {', '.join(entry['roles'])}"]
+		for other in entry.get("related") or ():
+			lines.append(f"  related: {other['work']} "
+			             f"({other['role']})")
+		interval = entry.get("claim_interval")
+		if interval:
+			held = interval["elapsed_seconds"]
+			lines.append(f"  claim: {interval['claimant']} from "
+			             f"E{interval['claim_seq']} "
+			             f"{interval['started_at']}")
+			if interval["end_seq"] is None:
+				# W123 R3: an open claim shows how long it has been
+				# held, not merely that it is open.
+				lines.append(f"  claim: still open, held {held}s")
+			else:
+				lines.append(f"  claim: ended E{interval['end_seq']} "
+				             f"({interval['end_kind']}) after {held}s")
+		for label in ("rationale", "reason", "comment", "outcome",
+		              "from", "to", "destination_phase", "title",
+		              "classification", "priority", "claimant",
+		              "released_claimant", "blocker", "provider"):
+			if payload.get(label) is not None:
+				lines.append(f"  {label}: {payload[label]}")
+		for reference in entry.get("references") or ():
+			lines.append(f"  ref: {reference.get('root')}:"
+			             f"{reference.get('path')}")
+		import json as _payload_json
+		lines.append("  payload: "
+		             + _payload_json.dumps(payload, sort_keys=True))
+		return lines
+
+	def _paint_event_reader(self, screen, top, rows, x, cell_width,
+	                        entry) -> None:
+		if entry is None:
+			screen.addnstr(top, x, "(no event selected)", cell_width)
+			self.event_clipped = False
+			return
+		import textwrap
+		wrapped = []
+		for line in self._event_lines(entry):
+			indent = "    " if line.startswith("  ") else "  "
+			wrapped.extend(textwrap.wrap(line, max(8, cell_width),
+			                             subsequent_indent=indent)
+			               or [""])
+		skip = min(self.event_skip, max(0, len(wrapped) - 1))
+		self.event_skip = skip
+		visible = wrapped[skip:]
+		if skip:
+			visible = [f"E{entry['seq']} (cont.)"] + visible
+		take = max(0, min(len(visible), rows))
+		for offset, line in enumerate(visible[:take]):
+			screen.addnstr(top + offset, x, line, cell_width)
+		shown = take - (1 if skip else 0)
+		self.event_clipped = skip + shown < len(wrapped)
 
 	def _render_detail(self, screen, height, width) -> None:
 		"""W71: the Work DETAIL view — header and facts, then the
@@ -1153,6 +1384,16 @@ class Console:
 				               width - 1)
 			offset_row = offset_row + 1 + len(latest["assignments"])
 
+		# W123: the tab bar is ALWAYS painted, so both views are
+		# discoverable without prior knowledge, and the active one is
+		# distinguished rather than merely remembered.
+		screen.addnstr(offset_row, 0, self._tab_bar(), width - 1,
+		               curses.A_BOLD)
+		offset_row += 1
+		if self.detail_tab == "events":
+			self._render_events(screen, offset_row, height, width)
+			return
+
 		rows = self.thread_rows()
 		if self.disc_cursor is None:
 			self._thread_autoselect()
@@ -1161,6 +1402,7 @@ class Console:
 			screen.addnstr(offset_row, 0, "(no threads)", width - 1)
 			self.viewed_thread = None
 			self.msg_cursor = None
+			self._detail_footer(screen, height, width, [])
 			return
 		chosen = min(self.disc_cursor, len(rows) - 1)
 		selected = rows[chosen]
@@ -1206,23 +1448,30 @@ class Console:
 	MIN_READER = 40
 
 	def _autoselect_seq(self, messages):
-		"""The ruled default: the page's first personal-new Message
-		when one exists, else the first Message. Selection marks
+		"""W76: entry selects the NEWEST Message on the page.
+
+		This replaces W14's walk to the first personal-new Message, and
+		it is not a weakening: the seen cursor is a MONOTONIC sequence,
+		so whenever anything is unseen the newest Message is itself
+		unseen. Selecting it therefore lands on new mail when there is
+		new mail, and on the end of the conversation when there is not
+		— without loading every page to find out. Selection marks
 		nothing."""
-		for message in messages:
-			if message.get("new"):
-				return message["seq"]
-		return messages[0]["seq"] if messages else None
+		return messages[-1]["seq"] if messages else None
 
 	def _paint_index(self, screen, top, rows, x, cell_width, messages):
 		"""The compact Message index: `M<seq>` (the existing stable
 		sequence — nothing invented), author, time, and the personal
-		new/seen state. The selected row is reversed; personal-new rows
-		are bold; the window scrolls to keep the selection painted."""
+		new/seen state. W76: the NEWEST Message paints at the top; the
+		page itself stays canonical ascending everywhere else, so only
+		this display order is reversed. The selected row is reversed;
+		personal-new rows are bold; the window scrolls to keep the
+		selection painted."""
 		if not messages:
 			screen.addnstr(top, x, "(no messages on this page)",
 			               cell_width)
 			return
+		messages = list(reversed(messages))
 		seqs = [message["seq"] for message in messages]
 		chosen = seqs.index(self.msg_cursor) \
 			if self.msg_cursor in seqs else 0
@@ -1279,67 +1528,27 @@ class Console:
 			return
 		page_limit = max(1, region - 2)
 		snapshot = self._cached(
-			("thread", selected_thread["id"], self.thread_after,
+			("thread", selected_thread["id"], self.thread_before,
 			 page_limit),
 			lambda: projection.thread(
 				self.store, selected_thread["id"],
 				viewer_team=self.team, viewer_member=self.member,
-				after=self.thread_after, limit=page_limit))
+				before=self.thread_before,
+				newest=self.thread_before is None, limit=page_limit))
 		messages = snapshot["messages"]
-		self.viewed_next_after = snapshot["next_after"]
+		self.viewed_next_before = snapshot["next_before"]
 		seqs = [message["seq"] for message in messages]
 		self.viewed_seqs = seqs
 		if self.msg_cursor not in seqs:
-			chosen = None
-			if self.msg_cursor is None and messages and \
-					getattr(self, "msg_seek", True) and \
-					not any(m.get("new") for m in messages):
-				# W14 rounds 2+3 (ruled): the new-first promise is
-				# THREAD-wide, not first-page-only. When every message
-				# on this bounded page is seen, walk the canonical
-				# continuation to the page holding the first
-				# personal-new message and open THERE. When the walk
-				# reaches the end without finding one — the Thread is
-				# ALL seen — retain the FINAL page and select its
-				# newest message: an old opener is never the default
-				# entry into a finished conversation.
-				found = False
-				last_after, last_page = self.thread_after, snapshot
-				after = snapshot["next_after"]
-				while after is not None:
-					ahead = self._cached(
-						("thread", selected_thread["id"], after,
-						 page_limit),
-						lambda a=after: projection.thread(
-							self.store, selected_thread["id"],
-							viewer_team=self.team,
-							viewer_member=self.member, after=a,
-							limit=page_limit))
-					if any(m.get("new") for m in ahead["messages"]):
-						self.thread_after = after
-						snapshot = ahead
-						found = True
-						break
-					if ahead["messages"]:
-						last_after, last_page = after, ahead
-					after = ahead["next_after"]
-				if not found:
-					self.thread_after = last_after
-					snapshot = last_page
-					if snapshot["messages"]:
-						chosen = snapshot["messages"][-1]["seq"]
-				messages = snapshot["messages"]
-				seqs = [m["seq"] for m in messages]
-				self.viewed_next_after = snapshot["next_after"]
-				self.viewed_seqs = seqs
-			# The selection is keyed by the STABLE seq: refresh,
-			# paging, and resize keep it while the Message remains
-			# present; otherwise the new-first default (or the ruled
-			# all-seen newest fallback) reapplies.
-			self.msg_cursor = chosen if chosen is not None \
-				else self._autoselect_seq(messages)
+			# W76: ONE bounded read. The old entry path walked forward
+			# through every page hunting the first personal-new Message,
+			# which could load an entire Thread just to reach its tail.
+			# Entering at the newest page makes that walk unnecessary —
+			# see _autoselect_seq for why newest is also newest-unseen.
+			# The selection is keyed by the STABLE seq: refresh, paging
+			# and resize keep it while the Message remains present.
+			self.msg_cursor = self._autoselect_seq(messages)
 			self.reader_skip = 0
-			self.msg_seek = False
 		if self.reader_skip_width != width:
 			self.reader_skip = 0
 			self.reader_skip_width = width
@@ -1349,7 +1558,8 @@ class Console:
 		reader_bold = curses.A_BOLD if self.focus == "reader" else 0
 		imarker = "»" if self.focus == "index" else " "
 		rmarker = "»" if self.focus == "reader" else " "
-		more = "  (n: more)" if snapshot["next_after"] is not None \
+		# W76: the index reads newest-first, so "more" is honestly OLDER.
+		more = "  (n: older)" if snapshot["next_before"] is not None \
 			else ""
 		# W176 (finding-message-pane-header-redundancy): the split-area
 		# headings identify PANE ROLES, never content already visible in
@@ -1389,17 +1599,17 @@ class Console:
 		# (ruled: paged surfaces disclose their controls; Ctrl-W is the
 		# region convention; the seen action names its exact bound).
 		bits = []
-		if snapshot["next_after"] is not None:
-			bits.append("more msgs — n next · p first")
-		elif self.thread_after:
-			bits.append("earlier msgs — p first")
+		if snapshot["next_before"] is not None:
+			bits.append("older msgs — n older · p newest")
+		elif self.thread_before is not None:
+			bits.append("newer msgs — p newest")
 		if self.reader_clipped:
 			bits.append("reader: j scrolls")
 		seen_label = f"M{self.msg_cursor}" if self.msg_cursor \
 			else "selected"
 		bits.extend(["Ctrl-W panes", "j/k select",
 		             f"s seen through {seen_label}", "Esc back"])
-		screen.addnstr(height - 2, 0, " · ".join(bits), width - 1)
+		self._detail_footer(screen, height, width, bits)
 
 	# -- the command bar: the ONE public surface, in place ---------------------
 
@@ -1876,6 +2086,105 @@ class Console:
 		return " ".join(f"{field}={value}" for field, value
 		                in (self.work_filter or {}).items())
 
+	@staticmethod
+	def _explicit_operands(buffer: str, key: str) -> int | None:
+		"""W81 R3: how many REAL `key=` operands the buffer carries,
+		read through the command grammar's OWN partial tokenizer.
+
+		The first attempt at this was a second, approximate lexer, and
+		it disagreed with execution in both directions — first counting
+		`thread=` inside a quoted value (R1), then counting it after an
+		ESCAPED space that `shlex` does not treat as a token boundary
+		at all (R3). Extending an approximation one escape case at a
+		time is how the two interpretations keep drifting; the fix is to
+		have only one. `cli._partial_tokens` is the same partial-`shlex`
+		reading the assistance and the parser already share, so
+		detection and execution cannot disagree about quotes,
+		backslashes, or escaped whitespace — and an escaped spelling
+		that `shlex` resolves INTO a genuine operand is counted,
+		because by then it genuinely is one.
+
+		Returns None when the line cannot be tokenized even under the
+		quote rules (a trailing escape). Callers treat that as "do not
+		touch the seed": the safe direction, since the failure this
+		guards against is silently deleting a destination."""
+		parsed = _cli._partial_tokens(buffer)
+		if parsed is None:
+			return None
+		completed, live, _open_quote = parsed
+		tokens = list(completed)
+		if live is not None:
+			tokens.append(live)
+		# token 0 is the verb; operands follow it
+		return sum(1 for token in tokens[1:] if token.startswith(key))
+
+	def _selected_thread_selector(self) -> str | None:
+		"""The ONE unambiguous selected Thread's visible local selector,
+		or None. Root/list views and empty Thread views have no
+		selection and must not invent a destination.
+
+		The selector is the row's `local_id` — what the Threads pane
+		actually shows and what `say thread=` actually accepts. Never
+		the Work-scoped label ordinal (W7 showed those diverge) and
+		never a canonical id the client reassembled for itself."""
+		# W81 R2: the seed means "reply where I am READING". While the
+		# Events tab is active there is no visible selected Thread, so
+		# seeding from the retained Messages cursor would invent a
+		# destination the operator cannot see.
+		if self.mode != "detail" or self.detail_work is None:
+			return None
+		if self.detail_tab != "messages":
+			return None
+		rows = self.thread_rows()
+		if not rows or self.disc_cursor is None:
+			return None
+		chosen = rows[min(self.disc_cursor, len(rows) - 1)]
+		return chosen.get("local_id")
+
+	def _reconcile_say_seed(self) -> None:
+		"""W81: seed `thread=` from where the operator is reading.
+
+		Seeding happens ONCE, at the moment the buffer becomes exactly
+		`say`, and only in a detail view with one selected Thread. The
+		seeded value is a SNAPSHOT of context: later focus or selection
+		movement never retargets a command the operator is already
+		composing.
+
+		An explicit `thread=` — typed or pasted — always wins. Paste in
+		a curses bar is indistinguishable from fast typing, so a pasted
+		`say thread=T5 ...` necessarily passes through the exact-`say`
+		moment and picks up the seed; when its own operand then arrives,
+		the seed is removed rather than left to duplicate. That is the
+		ruled "never duplicates or overwrites an explicit thread=",
+		enforced by construction instead of by hoping paste looks
+		different from typing."""
+		if self.command is None:
+			self.seeded_say = None
+			return
+		if self.seeded_say is not None:
+			if self.seeded_say not in self.command:
+				# edited away by hand; it is no longer ours to manage
+				self.seeded_say = None
+			elif (self._explicit_operands(self.command, "thread=")
+			      or 0) > 1:
+				at = self.command.index(self.seeded_say)
+				rest = self.command[at + len(self.seeded_say):]
+				head = self.command[:at]
+				# the seed carries its own trailing space; dropping it
+				# next to the space that preceded it would leave a gap
+				if head.endswith(" ") and rest.startswith(" "):
+					rest = rest[1:]
+				self.command = head + rest
+				self.seeded_say = None
+			return
+		if self.command != "say":
+			return
+		selector = self._selected_thread_selector()
+		if selector is None:
+			return
+		self.seeded_say = f"thread={selector} "
+		self.command = f"say {self.seeded_say}"
+
 	def _command_key(self, key: int) -> None:
 		if key == ord(" ") and self.command == "filter" and \
 				self.work_filter:
@@ -1898,13 +2207,17 @@ class Console:
 			return
 		if key in (10, 13, curses.KEY_ENTER):
 			line, self.command = self.command, None
+			self.seeded_say = None
 			self.execute(line)
 		elif key == 27:
 			self.command = None
+			self.seeded_say = None
 		elif key in (8, 127, curses.KEY_BACKSPACE):
 			self.command = self.command[:-1]
+			self._reconcile_say_seed()
 		elif 32 <= key <= 126:
 			self.command += chr(key)
+			self._reconcile_say_seed()
 
 	# -- interaction ----------------------------------------------------------
 
@@ -2018,25 +2331,69 @@ class Console:
 
 	def _handle_detail(self, key: int) -> bool:
 		"""The detail view's keys. Ctrl-W (23) is the region-navigation
-		prefix (ruled, the Vim split convention) across the THREE
-		regions in order — Threads, Message index, reader: h/k/up move
-		back, j/l/down move forward, w or a second Ctrl-W cycles."""
+		prefix (ruled, the Vim split convention).
+
+		W76: the three regions are GEOMETRIC, not a linear tuple. The
+		Threads list sits above both Message panes, and the index and
+		reader sit beside each other (stacked when narrow, but with the
+		same logical neighbours). So one upward move from the READER
+		reaches Threads directly — the Message index is not a mandatory
+		intermediate stop, which is what made the panes feel like a list
+		rather than three panels. Unmapped edge directions stay put; a
+		second Ctrl-W (or `w`) keeps the deterministic three-pane
+		cycle."""
 		regions = ("threads", "index", "reader")
+		# direction -> {from: to}. Absent entries are edges: stay.
+		neighbours = {
+			"up": {"index": "threads", "reader": "threads"},
+			"down": {"threads": "index", "index": "reader"},
+			"left": {"reader": "index"},
+			"right": {"index": "reader"},
+		}
 		if self.ctrl_w_pending:
 			self.ctrl_w_pending = False
-			here = regions.index(self.focus) \
-				if self.focus in regions else 1
-			if key in (ord("h"), ord("k"), curses.KEY_UP,
-			           curses.KEY_LEFT):
-				self.focus = regions[max(0, here - 1)]
-			elif key in (ord("j"), ord("l"), curses.KEY_DOWN,
-			             curses.KEY_RIGHT):
-				self.focus = regions[min(len(regions) - 1, here + 1)]
+			# W123: Ctrl-W stays PANE-LOCAL to the active tab. Events
+			# has two panes; the map degenerates to the index/reader
+			# pair without a Threads list above them.
+			if self.detail_tab == "events":
+				if key in (ord("j"), curses.KEY_DOWN, ord("l"),
+				           curses.KEY_RIGHT):
+					self.event_focus = "reader"
+				elif key in (ord("k"), curses.KEY_UP, ord("h"),
+				             curses.KEY_LEFT):
+					self.event_focus = "index"
+				elif key in (ord("w"), 23):
+					self.event_focus = "reader" \
+						if self.event_focus == "index" else "index"
+				return True
+			here = self.focus if self.focus in regions else "index"
+			if key in (ord("k"), curses.KEY_UP):
+				direction = "up"
+			elif key in (ord("j"), curses.KEY_DOWN):
+				direction = "down"
+			elif key in (ord("h"), curses.KEY_LEFT):
+				direction = "left"
+			elif key in (ord("l"), curses.KEY_RIGHT):
+				direction = "right"
 			elif key in (ord("w"), 23):
-				self.focus = regions[(here + 1) % len(regions)]
+				self.focus = regions[(regions.index(here) + 1)
+				                     % len(regions)]
+				return True
+			else:
+				return True
+			self.focus = neighbours[direction].get(here, here)
 			return True
 		if key == 23:
 			self.ctrl_w_pending = True
+			return True
+		# W123: tab switching works from ANYWHERE in Work detail, not
+		# only from a particular pane — it is a view-level move, not a
+		# pane-level one.
+		if key == ord("]"):
+			self._switch_tab(1)
+			return True
+		if key == ord("["):
+			self._switch_tab(-1)
 			return True
 		if key in (27, curses.KEY_LEFT):
 			# W6: leaving detail returns to the view that opened it —
@@ -2044,6 +2401,8 @@ class Console:
 			self.mode = self.detail_return
 			self.detail_return = "table"
 			return True
+		if self.detail_tab == "events":
+			return self._handle_events_keys(key)
 		if self.focus == "threads":
 			rows = self.thread_rows()
 			if self.disc_cursor is None:
@@ -2083,47 +2442,91 @@ class Console:
 				self._mark_selected_seen()
 			return True
 		# -- the Message index (also any legacy focus spelling) ------------
+		# W76: the index reads NEWEST-FIRST, so screen-down selects an
+		# OLDER Message — one step back along the canonical ascending
+		# page — and screen-up selects a newer one. Paging follows the
+		# same direction: `n` reaches the older page, `p` returns to the
+		# newest one (never a previous-page step).
 		if key in (curses.KEY_DOWN, ord("j")):
-			if self.msg_cursor in self.viewed_seqs:
-				here = self.viewed_seqs.index(self.msg_cursor)
-				if here + 1 < len(self.viewed_seqs):
-					self.msg_cursor = self.viewed_seqs[here + 1]
-					self.reader_skip = 0
-				elif self.viewed_next_after is not None:
-					self.thread_after = self.viewed_next_after
-					self._reset_message_selection(keep_thread=True,
-					                              seek=False)
-		elif key in (curses.KEY_UP, ord("k")):
 			if self.msg_cursor in self.viewed_seqs:
 				here = self.viewed_seqs.index(self.msg_cursor)
 				if here > 0:
 					self.msg_cursor = self.viewed_seqs[here - 1]
 					self.reader_skip = 0
+				elif self.viewed_next_before is not None:
+					self.thread_before = self.viewed_next_before
+					self._reset_message_selection(keep_thread=True)
+		elif key in (curses.KEY_UP, ord("k")):
+			if self.msg_cursor in self.viewed_seqs:
+				here = self.viewed_seqs.index(self.msg_cursor)
+				if here + 1 < len(self.viewed_seqs):
+					self.msg_cursor = self.viewed_seqs[here + 1]
+					self.reader_skip = 0
 		elif key == ord("n"):
-			if self.viewed_next_after is not None:
-				self.thread_after = self.viewed_next_after
-				self._reset_message_selection(keep_thread=True,
-				                              seek=False)
+			if self.viewed_next_before is not None:
+				self.thread_before = self.viewed_next_before
+				self._reset_message_selection(keep_thread=True)
 		elif key == ord("p"):
-			self.thread_after = 0
-			self._reset_message_selection(keep_thread=True,
-			                              seek=False)
+			self.thread_before = None
+			self._reset_message_selection(keep_thread=True)
 		elif key == ord("s"):
 			self._mark_selected_seen()
 		return True
 
-	def _reset_message_selection(self, keep_thread: bool = False,
-	                             seek: bool = True) -> None:
-		"""Moving to another Thread (or another page) re-arms the
-		new-first message autoselect; the reader restarts at the top.
-		ENTERING a thread arms the THREAD-wide new-first seek; an
-		explicit n/p page command does not — the operator asked for
-		that page, and the seek must never override it."""
+	def _handle_events_keys(self, key: int) -> bool:
+		"""The Events tab's own keys, mirroring Messages so the two
+		tabs behave alike: j/k select (newest-first, so down is older),
+		n reaches the older page, p returns to the newest, and in the
+		reader j/k scroll one long event. Nothing here writes: Events
+		is a read of the immutable journal, and there is no seen cursor
+		to advance."""
+		if self.event_focus == "reader":
+			if key in (curses.KEY_DOWN, ord("j")):
+				if getattr(self, "event_clipped", False):
+					self.event_skip += 1
+			elif key in (curses.KEY_UP, ord("k")):
+				self.event_skip = max(0, self.event_skip - 1)
+			elif key == ord("p"):
+				self.event_skip = 0
+			return True
+		if key in (curses.KEY_DOWN, ord("j")):
+			if self.event_cursor in self.viewed_event_seqs:
+				here = self.viewed_event_seqs.index(self.event_cursor)
+				if here > 0:
+					self.event_cursor = self.viewed_event_seqs[here - 1]
+					self.event_skip = 0
+				elif self.viewed_events_next_before is not None:
+					self.event_before = self.viewed_events_next_before
+					self.event_cursor = None
+					self.event_skip = 0
+		elif key in (curses.KEY_UP, ord("k")):
+			if self.event_cursor in self.viewed_event_seqs:
+				here = self.viewed_event_seqs.index(self.event_cursor)
+				if here + 1 < len(self.viewed_event_seqs):
+					self.event_cursor = self.viewed_event_seqs[here + 1]
+					self.event_skip = 0
+		elif key == ord("n"):
+			if self.viewed_events_next_before is not None:
+				self.event_before = self.viewed_events_next_before
+				self.event_cursor = None
+				self.event_skip = 0
+		elif key == ord("p"):
+			self.event_before = None
+			self.event_cursor = None
+			self.event_skip = 0
+		return True
+
+	def _reset_message_selection(self, keep_thread: bool = False) -> None:
+		"""Moving to another Thread (or another page) drops the message
+		selection so the newest-first default reapplies; the reader
+		restarts at the top. W76 retired the `seek` flag with the
+		forward walk it armed: entry is now one bounded newest-page
+		read, so there is no thread-wide hunt for a page command to
+		override."""
 		if not keep_thread:
-			self.thread_after = 0
+			self.thread_before = None
 		self.msg_cursor = None
 		self.reader_skip = 0
-		self.msg_seek = seek
 
 	def _mark_selected_seen(self) -> None:
 		"""The EXPLICIT seen transition — the one writer, by ruling —

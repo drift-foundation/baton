@@ -111,8 +111,10 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 	elif family == "block":
 		other = _create(store, team="push", member="sl")["work_id"]
 		act = lambda **kw: tr.add_dependency(
-			store, work, other, actor_team="lang", actor="ada", **kw)
+			store, work, other, actor_team="lang", actor="ada", **kw, rationale="test dependency")
 	elif family == "revise":
+		# W288: promotion is the claimant's act.
+		tr.claim_work(store, work, actor_team="lang", actor="ada")
 		proposed = tr.post_thread(
 			store, thread, author_team="lang", author="ada",
 			body="the contract")["seq"]
@@ -148,14 +150,14 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 	elif family == "respond":
 		asked = tr.post_thread(
 			store, thread, author_team="lang", author="ada",
-			body="push: confirm", request="push.bug", on=work)["seq"]
+			body="push: confirm", request="push.bug", wait=False, on=work)["seq"]
 		act = lambda **kw: tr.respond_obligation(
 			store, asked, team="push", member="sl", body="confirmed",
 			**kw)
 	elif family == "dispose":
 		asked = tr.post_thread(
 			store, thread, author_team="lang", author="ada",
-			body="push: confirm", request="push.bug", on=work)["seq"]
+			body="push: confirm", request="push.bug", wait=False, on=work)["seq"]
 		act = lambda **kw: tr.dispose_obligation(
 			store, asked, team="push", member="sl",
 			disposition="no action needed", **kw)
@@ -163,7 +165,7 @@ def test_every_family_carries_ordered_references_and_replays(world, family):
 		consumer = _create(store, team="push", member="sl")
 		asked = tr.post_thread(
 			store, consumer["thread"], author_team="push",
-			author="sl", body="lang: yours?", request="lang.bug")["seq"]
+			author="sl", body="lang: yours?", request="lang.bug", wait=False)["seq"]
 		act = lambda **kw: tr.accept_obligation(
 			store, asked, actor_team="lang", actor="ada", body="ours",
 			into=work, **kw)
@@ -267,7 +269,7 @@ def test_the_compound_accept_with_both_placements_is_whole_or_nothing(world):
 	                   binding=f"pushcoin:{PATH}")
 	asked = tr.post_thread(
 		store, consumer["thread"], author_team="push", author="sl",
-		body="lang: yours?", request="lang.bug")["seq"]
+		body="lang: yours?", request="lang.bug", wait=False)["seq"]
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	baseline = hashlib.sha256(open(store.path, "rb").read()).hexdigest()
 	baseline_events = store.events()

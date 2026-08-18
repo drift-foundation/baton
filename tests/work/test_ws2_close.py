@@ -94,11 +94,11 @@ def test_either_outcome_ends_the_gate_and_mutates_no_consumer(world):
 		other_gate = _create(store, team="push", member="sl")
 		holder = _create(store, team="push", member="sl")
 		tr.add_dependency(store, consumer, provider,
-		                  actor_team="push", actor="sl")
+		                  actor_team="push", actor="sl", rationale="test dependency")
 		tr.add_dependency(store, holder, provider,
-		                  actor_team="push", actor="sl")
+		                  actor_team="push", actor="sl", rationale="test dependency")
 		tr.add_dependency(store, holder, other_gate,
-		                  actor_team="push", actor="sl")
+		                  actor_team="push", actor="sl", rationale="test dependency")
 		tr.classify(store, consumer, actor_team="push", actor="sl",
 		            classification="suspected-defect")
 		tr.set_phase(store, consumer, actor_team="push", actor="sl",
@@ -114,7 +114,7 @@ def test_either_outcome_ends_the_gate_and_mutates_no_consumer(world):
 			f"a {outcome} close did not end the gate"
 		assert woken["status"] == "open"
 		assert woken["classification"] == "suspected-defect"
-		assert (woken["current_team"], woken["current_kind"]) == \
+		assert (woken["route_team"], woken["route_kind"]) == \
 			("push", "bug"), "the provider result moved a consumer's Current"
 		held = _row(store, holder)
 		assert held["phase"] == "waiting" and held["ready"] == 0, \
@@ -160,7 +160,7 @@ def test_closed_work_refuses_every_mutation_but_keeps_reads_and_seen(world):
 		               parent=work)
 	with pytest.raises(bw.WorkError):
 		tr.add_dependency(store, work, blocker,
-		                  actor_team="lang", actor="ada")
+		                  actor_team="lang", actor="ada", rationale="test dependency")
 	assert store.events() == baseline, "a refusal mutated closed history"
 	# Reads and personal seen state remain.
 	assert pj.detail(store, work, viewer_team="lang",
@@ -265,7 +265,7 @@ def test_a_blocker_closing_mid_flight_refuses_in_the_lock(world):
 		rationale="closed mid-flight", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="only open Work"):
 		tr.add_dependency(store, dependent, blocker,
-		                  actor_team="lang", actor="ada")
+		                  actor_team="lang", actor="ada", rationale="test dependency")
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM edges").fetchone()["n"] == 0
 	other.close()
@@ -381,7 +381,7 @@ def test_dep_counts_only_live_dependents_and_the_drill_matches(world):
 	              for _ in range(3)]
 	for dependent in dependents:
 		tr.add_dependency(store, dependent, provider,
-		                  actor_team="push", actor="sl")
+		                  actor_team="push", actor="sl", rationale="test dependency")
 	view = pj.detail(store, provider, viewer_team="lang",
 	                 viewer_member="ada")
 	assert view["open_dependents"] == 3
@@ -411,7 +411,7 @@ def test_dep_counter_and_drill_share_one_detail_snapshot(world, monkeypatch):
 	provider = _create(store)
 	consumer = _create(store, team="push", member="sl")
 	tr.add_dependency(store, consumer, provider,
-	                  actor_team="push", actor="sl")
+	                  actor_team="push", actor="sl", rationale="test dependency")
 	other = bw.Authority(store.path)
 	original = pj._row_view
 	raced = False

@@ -58,11 +58,11 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	# The single labelled work is the eligible target; --on may be omitted.
 	requested = _run(path, "say", f"thread={thread}",
 	                 "body=is this your parser bug?",
-	                 "request=lang.rsrch", viewer="web.wren")["result"]
+	                 "request=lang.rsrch", "wait=false", viewer="web.wren")["result"]
 	pending = _run(path, "obligations", viewer="lang.ada")["result"]
 	assert [entry["seq"] for entry in pending] == [requested["seq"]]
 	assert _run(path, "detail", f"work={web1}",
-	            viewer="web.wren")["result"]["current"]["endpoint"] == \
+	            viewer="web.wren")["result"]["route"]["endpoint"] == \
 		"web.bug"
 
 	# 4. lang creates LANG-42, relates WEB-1 blocked_by LANG-42, responds.
@@ -72,7 +72,8 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	                 "body=deduplicating consumer reports",
 	                 viewer="lang.ada")["result"]
 	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
-	_run(path, "block", f"work={web1}", f"on={lang42}", viewer="web.wren")
+	_run(path, "block", f"work={web1}", f"on={lang42}",
+	     "rationale=compiler fix required", viewer="web.wren")
 	assert _run(path, "detail", f"work={web1}",
 	            viewer="web.wren")["result"]["ready"] is False
 	_run(path, "respond", f"obligation={requested["seq"]}",
@@ -87,14 +88,14 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
 	detail = _run(path, "detail", f"work={lang42}", viewer="lang.ada")["result"]
-	assert detail["current"]["endpoint"] == "lang.impl"
+	assert detail["route"]["endpoint"] == "lang.impl"
 	assert detail["next"]["endpoint"] == "lang.rev"
 	returned = _run(path, "pass", f"work={lang42}", "to=lang.rev",
 	                "comment=implementation complete",
 	                viewer="lang.ada")["result"]
 	assert returned["kind"] == "return"
 	detail = _run(path, "detail", f"work={lang42}", viewer="lang.ada")["result"]
-	assert detail["current"]["endpoint"] == "lang.rev"
+	assert detail["route"]["endpoint"] == "lang.rev"
 	assert detail["next"] is None
 
 	# 6. terminal close unblocks WEB-1, level-triggered.
@@ -143,7 +144,7 @@ def test_the_scenario_refuses_out_of_order_acts(tmp_path):
 	assert child in error["error"], "the refusal does not name the open child"
 
 	requested = _run(path, "say", f"thread={thread}", "body=your bug?",
-	                 "request=lang.bug", viewer="web.wren")["result"]
+	                 "request=lang.bug", "wait=false", viewer="web.wren")["result"]
 	error = _run(path, "respond", f"obligation={requested["seq"]}", "body=not mine",
 	             viewer="web.wren", expect_ok=False)
 	assert "cannot discharge" in error["error"]

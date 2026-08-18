@@ -106,7 +106,7 @@ def test_every_open_unclaimed_state_carries_the_marker(world):
 	tr.pass_work(store, blocked_id, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	tr.add_dependency(store, blocked_id, blocker, actor_team="rev",
-	                  actor="bee")
+	                  actor="bee", rationale="test dependency")
 	blocked = row_of(world, blocked_id)
 	assert blocked["ready"] is False
 	assert pickup_prefix(blocked, now) == ">", \
@@ -118,7 +118,7 @@ def test_every_open_unclaimed_state_carries_the_marker(world):
 	tr.pass_work(store, waiting_id, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	tr.add_dependency(store, waiting_id, waiting_blocker,
-	                  actor_team="rev", actor="bee")
+	                  actor_team="rev", actor="bee", rationale="test dependency")
 	tr.set_phase(store, waiting_id, actor_team="rev", actor="bee",
 	             phase="waiting", wait="gates")
 	waiting = row_of(world, waiting_id)
@@ -197,7 +197,7 @@ def test_overdue_never_describes_unclaimable_work(world):
 	# now block it: the claim becomes impossible, so the obligation ends
 	blocker = make(world, "blocker")
 	tr.add_dependency(store, work, blocker, actor_team="rev",
-	                  actor="bee")
+	                  actor="bee", rationale="test dependency")
 	blocked = at(SIX_MINUTES * 10)
 	assert blocked["ready"] is False
 	assert blocked["pickup"] == "pending", \
@@ -222,7 +222,7 @@ def test_json_carries_facts_and_no_glyph(world):
 	blob = _json.dumps(row)
 	assert ">" not in blob and "!" not in blob, \
 		"a display glyph reached canonical JSON"
-	for field in ("pickup", "handoff_at", "ready", "phase", "active"):
+	for field in ("pickup", "handoff_at", "ready", "phase", "current"):
 		assert field in row, f"{field} stopped being a structured fact"
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	tr.heartbeat(store, work, actor_team="rev", actor="bee")

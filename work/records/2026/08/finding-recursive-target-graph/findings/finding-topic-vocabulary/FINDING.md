@@ -40,6 +40,18 @@ blocked by W24, “Make v11 messaging sufficient to retire v10”. Closing W24 i
 the explicit gate that v11 messaging is usable and v10 can become obsolete;
 only then does this vocabulary change enter implementation.
 
+## Scheduling clarification — 2026-08-17
+
+**The last sentence above is superseded.** The fresh authority recreated the
+capability gate as W2 and this Topic change as W3. Closing W2 proves v11 can
+replace v10, but does not itself make v10 obsolete: the separately controlled
+retirement umbrella W99 still owns code, deployment/data, public-document, and
+EFFECTIVE-BATON cleanup.
+
+Slawomir's original operational boundary remains controlling: do not implement
+the vocabulary change while v10 exists as a fallback. W3 therefore waits on
+W99 and enters implementation only after W99 closes satisfying.
+
 ## Acceptance boundary
 
 - CLI, JSON, TUI, authority events/schema, readiness integrations,

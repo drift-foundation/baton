@@ -32,7 +32,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	                "body=500 at checkout, trace attached",
 	                viewer="push.sl")["work_id"]
 	asked = flow.post(push1, "body=parser recovery bug?",
-	                "request=lang.bug", viewer="push.sl")
+	                "request=lang.bug", "wait=false", viewer="push.sl")
 
 	# 2. Lang accepts intake: provider work, explicit edge, response with
 	# the provider id. Obligation and edge are DISTINCT records.
@@ -41,7 +41,8 @@ def test_wf04_one_consumer_one_provider(flow):
 	                 "origin=external-report", "classification=suspected-defect",
 	                 "body=accepted from push's report",
 	                 viewer="lang.ada")["work_id"]
-	flow.ok("block", f"work={push1}", f"on={lang42}", viewer="push.sl")
+	flow.ok("block", f"work={push1}", f"on={lang42}",
+	        "rationale=compiler defect gates push", viewer="push.sl")
 	flow.ok("respond", f"obligation={asked["seq"]}",
 	        f"body=ours; tracked as {lang42}", viewer="lang.ada")
 
@@ -50,7 +51,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	blocked = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert blocked["ready"] is False
 	assert blocked["open_blockers"] == 1
-	assert blocked["current"] == {"endpoint": "push.bug", "route": "main",
+	assert blocked["route"] == {"endpoint": "push.bug", "route": "main",
 	                              "role": "dev", "handlers": ["sl"]}, \
 		"intake moved the consumer's Current"
 
@@ -87,7 +88,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	flow.ok("pass", f"work={lang42}", "to=lang.impl", "set-next=lang.rev",
 	        "comment=approach approved; build it", viewer="lang.ada")
 	midway = flow.ok("detail", f"work={lang42}", viewer="lang.grace")
-	assert midway["current"] == {"endpoint": "lang.impl", "route": "build",
+	assert midway["route"] == {"endpoint": "lang.impl", "route": "build",
 	                             "role": "impl", "handlers": ["grace"]}
 	assert midway["next"]["endpoint"] == "lang.rev"
 	assert midway["phase"] == "active", \
@@ -129,7 +130,7 @@ def test_wf04_one_consumer_one_provider(flow):
 	assert wakes[0]["seq"] == closes[0]["seq"] + 1, \
 		"the wake did not commit atomically with the provider close"
 	assert flow.ok("summary", viewer="push.sl")["waiting"] == 0
-	assert resumed["current"]["endpoint"] == "push.bug", \
+	assert resumed["route"]["endpoint"] == "push.bug", \
 		"the provider close moved the consumer's Current"
 	flow.post(push1, "body=verified on staging",
 	        viewer="push.sl")

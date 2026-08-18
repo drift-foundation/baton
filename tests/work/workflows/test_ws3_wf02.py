@@ -52,11 +52,17 @@ def test_ws3_wf02_convergence_through_acceptance(flow):
 		               f"title={name} report",
 		               "origin=external-report", "classification=suspected-defect", "body=local report",
 		               viewer=f"{name}.{member}")["work_id"]
+		# W159: each consumer claims, then asks in ONE act that
+		# suspends it on exactly its own question.
+		flow.ok("claim", f"work={work}", viewer=f"{name}.{member}")
 		asked = flow.post(work, "body=drift: yours?",
 		                "request=drift.bug",
 		                viewer=f"{name}.{member}")
-		flow.ok("phase", f"work={work}", "to=waiting",
-		        f"wait={asked['seq']}", viewer=f"{name}.{member}")
+		suspended = flow.ok("detail", f"work={work}",
+		                    viewer=f"{name}.{member}")
+		assert suspended["phase"] == "waiting"
+		assert suspended["waiting_on"]["obligation"] == asked["seq"]
+		assert suspended["current"] is None
 		consumers[name], questions[name] = work, asked["seq"]
 
 	# The first acceptance creates DRIFT-1; the other two converge into it.

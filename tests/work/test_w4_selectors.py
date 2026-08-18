@@ -104,10 +104,12 @@ def test_short_and_canonical_are_one_spelling_of_one_identity(world):
 	short_c = consumer.rsplit("-", 1)[1]
 	short_b = blocker.rsplit("-", 1)[1]
 	first = ok(world, "block", f"work={short_c}", f"on={short_b}",
+	           "rationale=provider required",
 	           "op-id=edge-1")
 	assert first.get("operation") is None or \
 		first["operation"]["state"] != "replayed"
 	again = ok(world, "block", f"work={consumer}", f"on={blocker}",
+	           "rationale=provider required",
 	           "op-id=edge-1")
 	assert again["operation"]["state"] == "replayed", \
 		"the canonical respelling was treated as a second operation"
@@ -143,13 +145,13 @@ def test_every_work_valued_key_routes_through_the_resolver(world):
 	# resolver — including keys whose other conditions are unmet, since
 	# identity resolution precedes dispatch
 	for argv in (("claim", "work=w1"),
-	             ("block", "work=W1x", "on=W2"),
-	             ("block", f"work={short}", "on=0W"),
+	             ("block", "work=W1x", "on=W2", "rationale=gate"),
+	             ("block", f"work={short}", "on=0W", "rationale=gate"),
 	             ("close", "work=W-1", "rationale=r",
 	              "outcome=rejected"),
 	             ("close", f"work={short}", "rationale=r",
 	              "outcome=rejected", "duplicate-of=q9"),
-	             ("say", "thread=T1", "body=b", "request=lang.bug",
+	             ("say", "thread=T1", "body=b", "request=lang.bug", "wait=false",
 	              "on=Wx"),
 	             ("label", "thread=T1", "work=1W"),
 	             ("start-thread", "subject=s", "body=b", "label=ww"),
@@ -201,7 +203,8 @@ def test_a_refused_selector_leaves_no_residue(world):
 		refusal(world, "close", "work=deadbeef-W2", "rationale=r",
 		        "outcome=rejected")
 	assert "no work" in \
-		refusal(world, "block", f"work={work}", "on=W77")
+		refusal(world, "block", f"work={work}", "on=W77",
+		        "rationale=gate")
 	assert digest(world) == before, "a refused selector left residue"
 
 
@@ -289,6 +292,7 @@ def test_the_bar_and_detail_speak_the_short_selector(world):
 	console.execute(f"claim work={short}")
 	assert console.status.startswith("ok"), console.status
 	claimed = ok(world, "detail", f"work={short}")
-	assert claimed["active"] == {"team": "lang", "member": "ada"}
+	assert claimed["current"] == {"team": "lang", "member": "ada",
+	                   "participant": "lang.ada"}
 	header = console._detail_header(claimed)
 	assert header.startswith(f"{work} ({short}) ["), header

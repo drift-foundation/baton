@@ -1,0 +1,155 @@
+{
+  "config_version": 1,
+  "generation": 2,
+  "instance": {
+    "authority_uuid": "7104710471047104710471047104710b",
+    "database": "work.sqlite3",
+    "name": "guide"
+  },
+  "protocol_version": 11,
+  "roots": {
+    "product": {
+      "base": "/tmp/w104/repo",
+      "display": "Product checkout"
+    }
+  },
+  "teams": {
+    "app": {
+      "display": "Application",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "impl"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "impl"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rsrch"
+        },
+        "rview": {
+          "display": "Review",
+          "route": "rview"
+        }
+      },
+      "participants": {
+        "juno": {
+          "display": "Juno",
+          "roles": [
+            "rview"
+          ]
+        },
+        "mina": {
+          "display": "Mina",
+          "roles": [
+            "impl",
+            "rsrch"
+          ]
+        },
+        "nia": {
+          "display": "Nia",
+          "roles": [
+            "impl"
+          ]
+        },
+        "ops": {
+          "capabilities": [
+            "config"
+          ],
+          "display": "Ops",
+          "roles": [
+            "impl"
+          ]
+        }
+      },
+      "roles": {
+        "impl": {
+          "display": "Implementer"
+        },
+        "rsrch": {
+          "display": "Researcher"
+        },
+        "rview": {
+          "display": "Reviewer"
+        }
+      },
+      "routes": {
+        "impl": {
+          "handlers": [
+            "mina",
+            "ops",
+            "nia"
+          ],
+          "role": "impl"
+        },
+        "rsrch": {
+          "handlers": [
+            "mina"
+          ],
+          "role": "rsrch"
+        },
+        "rview": {
+          "handlers": [
+            "juno"
+          ],
+          "role": "rview"
+        }
+      }
+    },
+    "lib": {
+      "display": "Platform library",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "impl"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "impl"
+        },
+        "rview": {
+          "display": "Review",
+          "route": "rview"
+        }
+      },
+      "participants": {
+        "rai": {
+          "display": "Rai",
+          "roles": [
+            "impl"
+          ]
+        },
+        "tarq": {
+          "display": "Tarq",
+          "roles": [
+            "rview"
+          ]
+        }
+      },
+      "roles": {
+        "impl": {
+          "display": "Implementer"
+        },
+        "rview": {
+          "display": "Reviewer"
+        }
+      },
+      "routes": {
+        "impl": {
+          "handlers": [
+            "rai"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "tarq"
+          ],
+          "role": "rview"
+        }
+      }
+    }
+  }
+}

@@ -164,7 +164,7 @@ def test_an_empty_projected_page_keeps_honest_role_labels(tmp_path):
 		os.path.join(os.path.dirname(config_path), "work.sqlite3"))
 	console = Console(store, "lang", "ada", config_path=config_path)
 	console._cached = lambda _key, _read: {
-		"messages": [], "next_after": None,
+		"messages": [], "next_after": None, "next_before": None,
 		"subject": "must not leak into a pane heading"}
 	painted = []
 

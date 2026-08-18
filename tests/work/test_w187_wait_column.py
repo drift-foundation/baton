@@ -67,10 +67,10 @@ def test_zero_one_and_many_render_empty_wn_and_wn_plus_n(world):
 	gate_b = make(world, title="gate b")
 	gate_c = make(world, title="gate c")
 	tr.add_dependency(world["store"], single, gate_a,
-	                  actor_team="lang", actor="ada")
+	                  actor_team="lang", actor="ada", rationale="test dependency")
 	for gate in (gate_a, gate_b, gate_c):
 		tr.add_dependency(world["store"], multi, gate,
-		                  actor_team="lang", actor="ada")
+		                  actor_team="lang", actor="ada", rationale="test dependency")
 	rows = {row["id"]: row for row in __import__("baton_work").projection.tree(
 		world["store"], viewer_team="lang",
 		viewer_member="ada")["rows"]}
@@ -92,7 +92,7 @@ def test_narrow_tables_keep_wait_or_omit_it_whole(world):
 	gated = make(world, title="gated row")
 	gate = make(world, title="the gate")
 	tr.add_dependency(world["store"], gated, gate,
-	                  actor_team="lang", actor="ada")
+	                  actor_team="lang", actor="ada", rationale="test dependency")
 	local = gate.rsplit("-", 1)[1]
 	# A width where the cue still fits: Wait heading, arrowless cell.
 	for width in (110, 96):
@@ -116,7 +116,7 @@ def test_the_wait_heading_fits_the_allocated_cue_column(world):
 	gated = make(world, title="short cue")
 	gate = make(world, title="gate")
 	tr.add_dependency(world["store"], gated, gate,
-	                  actor_team="lang", actor="ada")
+	                  actor_team="lang", actor="ada", rationale="test dependency")
 	rows = __import__("baton_work").projection.tree(
 		world["store"], viewer_team="lang",
 		viewer_member="ada")["rows"]

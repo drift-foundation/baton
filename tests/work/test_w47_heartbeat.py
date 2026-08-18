@@ -277,7 +277,8 @@ def test_silence_is_never_a_lease_and_never_a_glyph(world):
 	silent_cell = field(row["claimed_at"], row["heartbeat_at"], late)
 	assert silent_cell.endswith(" ") and "!" not in silent_cell, \
 		f"protocol silence painted an alert: {silent_cell!r}"
-	assert row["active"] == {"team": "lang", "member": "ada"}, \
+	assert row["current"] == {"team": "lang", "member": "ada",
+	                   "participant": "lang.ada"}, \
 		"staleness altered the claim"
 	assert row["heartbeat_at"] is not None, \
 		"the structured heartbeat diagnostic was removed with the glyph"
@@ -420,8 +421,8 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	# shape; W179's honest-breaking major moved the projection to 5.0
 	# (no alias), so the CURRENT same-major demand is 5.x and a stale
 	# 4.x demand refuses.
-	assert jsonapi.PROJECTION_VERSION == "7.0"
-	jsonapi.require_version("7.0")
+	assert jsonapi.PROJECTION_VERSION == "8.0"
+	jsonapi.require_version("8.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.2")
 

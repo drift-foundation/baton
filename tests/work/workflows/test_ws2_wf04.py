@@ -32,7 +32,8 @@ def test_ws2_wf04_failed_candidate_replacement(flow):
 	                "title=checkout fails",
 	                "origin=external-report", "classification=suspected-defect", "body=blocked",
 	                viewer="push.sl")["work_id"]
-	flow.ok("block", f"work={push1}", f"on={lang42}", viewer="push.sl")
+	flow.ok("block", f"work={push1}", f"on={lang42}",
+	        "rationale=compiler defect gates push", viewer="push.sl")
 
 	# 1. Research first, then the EXPLICIT move to active — candidate
 	# driftc-A is cut from active work, not from research.

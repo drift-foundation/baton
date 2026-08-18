@@ -182,7 +182,7 @@ def test_discussion_obligation_follows_every_direct_thread_label(world):
 	a, b = rig["a"]["work_id"], rig["b"]["work_id"]
 	asked = tr.post_thread(
 		store, rig["shared"]["thread"], author_team="lang", author="ada",
-		body="please verify the shared symptom", request="lang.bug", on=a)
+		body="please verify the shared symptom", request="lang.bug", wait=False, on=a)
 	assert _detail(store, a, member="ada")["my_pending_obligations"] == 1
 	assert _detail(store, b, member="ada")["my_pending_obligations"] == 1, \
 		"the second direct view hid an obligation visible in its Thread"

@@ -59,7 +59,18 @@ from baton_work.authority import Authority, WorkError
 # work-threads expose `local_id` — the authority-local `T<sequence>`
 # spelling every Thread-valued command accepts — alongside canonical
 # identity. Additive.
-PROJECTION_VERSION = "7.0"
+# 8.0 (W245, finding-current-is-claimant): ROUTE and CURRENT are
+# separate published facts. The endpoint formerly published as
+# `current` is now `route`; `current` is the EXACT claiming
+# participant (team/member/participant) or null, replacing `active`
+# with no alias. Far-row link summaries carry both. The `current=`
+# filter selects the claimant and `route=` selects eligibility.
+# This REUSES an existing field name for a different meaning, which is
+# the most dangerous kind of change a pinned consumer can meet — a 7.x
+# client reading `current` would silently take an endpoint struct for a
+# claimant. So the major moves and a 7.x demand refuses cleanly, which
+# is exactly the stale-consumer refusal this finding asks for.
+PROJECTION_VERSION = "8.0"
 
 
 def require_version(requested: str | None) -> None:

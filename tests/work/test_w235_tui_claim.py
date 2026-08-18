@@ -37,7 +37,7 @@ def world(tmp_path):
 		          "kinds": ["bug"]},
 		 "push": {"members": {"sl": ["impl"]}, "kinds": ["bug"]}})
 	# A REAL shared route: the competing-claim case needs two resolved
-	# handlers of the same Current endpoint.
+	# handlers of the same Route endpoint.
 	document["teams"]["lang"]["routes"]["main"]["handlers"] = \
 		["ada", "grace"]
 	config = os.path.join(str(tmp_path), "baton.json")
@@ -74,9 +74,9 @@ def select(ui, work_id):
 
 def active(world, work_id):
 	row = world["store"].conn.execute(
-		"SELECT active_team, active_member FROM work WHERE id=?",
+		"SELECT current_team, current_member FROM work WHERE id=?",
 		(work_id,)).fetchone()
-	return (row["active_team"], row["active_member"])
+	return (row["current_team"], row["current_member"])
 
 
 def test_c_claims_the_selected_work_canonically(world):
@@ -136,7 +136,7 @@ def test_refusals_fail_closed_with_the_returned_diagnostic(world):
 	blocked = make(world, title="gated")
 	gate = make(world, title="the gate")
 	tr.add_dependency(store, blocked, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	ui = console(world)          # a fresh snapshot sees the new rows
 	select(ui, blocked)
 	ui.handle(ord("c"))

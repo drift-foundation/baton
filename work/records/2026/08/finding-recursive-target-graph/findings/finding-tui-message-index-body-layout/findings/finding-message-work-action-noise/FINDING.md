@@ -19,3 +19,17 @@ This does not remove `prioritize` from the protocol, JSON detail projection, com
 - The canonical JSON `available_transitions` value remains available to clients.
 - Source and packaged TUI behavior agree at wide and narrow widths.
 
+## Revalidation — 2026-08-17 after W76
+
+The defect remains present after the message-pane redesign.
+`src/baton_work/tui/app.py::_facts()` appends `available_transitions` as a
+`can: ...` fact, and `_render_detail()` paints that fact block immediately
+above Threads. `_facts()` is the only production renderer of that text; the
+canonical projection and command grammar need no change.
+
+The narrow implementation boundary is to stop the Messages/Work-detail facts
+from rendering Work transition capabilities while preserving outcome,
+claimant, binding, contract revision, duplicate, and follow-up facts. Focused
+tests should exercise `_facts()` for both an authorized and unauthorized
+viewer, then prove source and packaged wide/narrow screens omit `can:` without
+losing Threads, Messages, bindings, or terminal rationale.

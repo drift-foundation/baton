@@ -85,3 +85,24 @@ was alive while W27 became pickup-overdue and unclaimed. A bridge restart is an
 explicit trial workaround only; W2 remains open until an authority-derived
 assignment episode makes same-participant return handoffs deliverable and
 queued stale prompts are revalidated before entering an agent turn.
+
+## Current closure plan — 2026-08-17
+
+The earlier execution order is complete through the fallback-free three-person
+trial. Slawomir has ruled the v11 channel sufficient to replace v10.
+
+1. [done — superseded by terminal outcomes] W76, W81, and W90 all closed
+   satisfying before their edges were corrected. They are terminal graph
+   history, not live gates, and `unblock` correctly cannot rewrite them.
+2. [done — v11 seq 193] Claim W2 and close it satisfying with the live-trial
+   evidence.
+3. [done] Verify that W2's true dependents wake, including the separately
+   controlled v10-retirement umbrella. Closure authorizes that work to become
+   ready; it does not itself delete v10 artifacts. W3 and executable retirement
+   children W101–W104 became ready at seq 193. W99 intentionally remains
+   non-claimable while it contains those four open children; it has zero open
+   dependency blockers.
+
+The former implication that all message-pane refinements must finish before W2
+closes is superseded. Capability to coordinate is the gate; presentation polish
+continues on its own schedule.

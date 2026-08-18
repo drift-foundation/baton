@@ -182,11 +182,12 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
+		# W76: the reference-carrying message is the newest, so it is
+		# the entry selection
 		(b"\x17j", 0.4),              # W14: the Message index
-		(b"j", 0.5),                  # the reference-carrying message
 		(b"qy", 0.4),
 	])
-	flat = "\n".join(ptyharness.replay(steps[2]))
+	flat = "\n".join(ptyharness.replay(steps[1]))
 	assert f"binding {json_binding} r1" in flat, \
 		f"the console does not render the binding: {flat[:300]}"
 	assert "Refs:" in flat, "the Refs section is missing"
@@ -266,6 +267,7 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	live = tr.create_work(store, team="lang", kind="bug",
 	                      title="stays open", origin="external-report", classification="suspected-defect",
 	                      author="ada", body="live")
+	tr.claim_work(store, live["work_id"], actor_team="lang", actor="ada")
 	promoted = tr.post_thread(
 		store, live["thread"], author_team="lang", author="ada",
 		body="the complete revised contract")
@@ -283,7 +285,8 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	                         title="the gate", origin="external-report", classification="suspected-defect",
 	                         author="ada", body="prereq")["work_id"]
 	tr.add_dependency(store, live["work_id"], blocker,
-	                  actor_team="lang", actor="ada")
+	                  actor_team="lang", actor="ada",
+	                  rationale="test dependency")
 	tr.set_phase(store, live["work_id"], actor_team="lang", actor="ada",
 	             phase="waiting", reason=None, wait="gates")
 	store.close()
@@ -381,22 +384,40 @@ def test_selection_scrolls_so_the_row_enter_will_open_is_visible(tmp_path):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_the_focused_view_exposes_the_projection_declared_transitions(world):
-	"""Gate B B1 includes the transitions the JSON detail declares. A
-	human must not discover authority by attempting invisible operations."""
+def test_declared_transitions_stay_in_json_and_off_the_reading_surface(
+		world):
+	"""W90 supersedes the original form of this test.
+
+	The principle it protected — a human must not discover authority by
+	attempting invisible operations — survives in the canonical JSON,
+	which still declares every transition for every client. What changed
+	is WHERE the console renders it: `can: prioritize` sat directly above
+	the Threads list, where it read as something you might do to the
+	message you were looking at, when it is a capability of the Work open
+	to any configured member of its owning team.
+
+	There is no Work-actions surface in the console yet (the `o` view the
+	module prose describes was superseded by W71's Enter-to-detail), so
+	the reading surface simply omits it; that surface is where it should
+	reappear."""
 	from baton_work import lifecycle as lc
 	from baton_work import projection as pj
 	path, cast = world
 	with lc.open_bound(path) as store:
 		available = pj.detail(store, cast["lang42"], viewer_team="lang",
 		                      viewer_member="ada")["available_transitions"]
-	assert available
+	assert available, "the canonical projection stopped declaring authority"
+	assert "prioritize" in available
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
-	screen = "\n".join(ptyharness.replay(steps[1]))
-	for transition in available:
-		assert transition in screen, \
-			f"the TUI hid declared transition {transition!r}: {screen[:500]}"
+		(b"\r", 0.5), (b"qy", 0.4)])
+	screen = "\n".join(ptyharness.replay(steps[0]))
+	assert "can:" not in screen, \
+		f"the reading surface still renders Work capabilities: {screen[:500]}"
+	assert "prioritize" not in screen, \
+		f"a Work capability leaked onto the Messages surface: {screen[:500]}"
+	# and the reading context itself is intact
+	assert "Threads (" in screen and "Messages (" in screen, \
+		f"removing the capability line cost reading context: {screen[:500]}"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -557,9 +578,10 @@ def test_the_thread_set_pages_beyond_the_first_fifty(tmp_path):
 
 
 def test_thread_pages_are_bounded_and_navigable(tmp_path):
-	"""R105: a long thread is read in BOUNDED pages through the
-	canonical thread read — n moves past the painted page, p returns to
-	the start, and the seen mark stays bounded by the PAINTED page."""
+	"""R105 on W76's newest-first index: a long thread is read in
+	BOUNDED pages through the canonical thread read — n moves to the
+	OLDER page, p returns to the newest one, and the seen mark stays
+	bounded by the PAINTED page."""
 	import json as _json
 
 	import baton_work as bw
@@ -585,9 +607,9 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),                             # detail: first page
 		(b"\x17j", 0.4),                           # Ctrl-W j: Msgs pane
-		(b"n", 0.5),                               # second page
+		(b"n", 0.5),                               # the OLDER page
 		(b"s", 0.5),                               # seen: PAGE-bounded
-		(b"p", 0.5),                               # back to the start
+		(b"p", 0.5),                               # back to the newest
 		(b"qy", 0.4),
 	], lines=12)
 	import re as _re
@@ -596,25 +618,30 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 		return {int(match) for match in
 		        _re.findall(r"message number (\d+)", text)}
 
+	# W76: the FIRST page is the newest one, so the thread's opener is
+	# nowhere near it.
 	first = "\n".join(ptyharness.replay(steps[0], lines=12))
-	assert "opener" in first
-	assert "message number 20" not in first, \
+	assert "message number 24" in first, \
+		"the entry page is not the newest page"
+	assert "opener" not in first, \
+		"the newest page reached back to the thread's opener"
+	assert "message number 01" not in first, \
 		"the page is not bounded by the viewport"
 	second = "\n".join(ptyharness.replay(steps[2], lines=12))
-	assert "opener" not in second
-	assert "after #" not in second, \
+	assert "after #" not in second and "before #" not in second, \
 		"the internal projection cursor leaked into the TUI (W71)"
-	# Page two holds only messages BEYOND everything page one painted —
-	# derived from the painted pages, not a hardcoded window, so the
-	# bound survives formatting changes to lines-per-message.
+	# Page two holds only messages OLDER than everything page one
+	# painted — derived from the painted pages, not a hardcoded window,
+	# so the bound survives formatting changes to lines-per-message.
 	assert numbers(second), second[:400]
-	assert min(numbers(second)) > max(numbers(first) | {0}), \
-		"page two repeated a page-one message"
+	assert max(numbers(second)) < min(numbers(first)), \
+		"n did not page toward older messages"
 	back = "\n".join(ptyharness.replay(steps[4], lines=12))
-	assert "opener" in back, "p did not return to the first page"
+	assert "message number 24" in back, \
+		"p did not return to the newest page"
 
-	# The s pressed on page TWO marked only through that page's last
-	# painted message — later messages stay New.
+	# The s pressed on the OLDER page marked only through that page's
+	# selected message — newer messages stay New.
 	new = pj.new_count(store, born["work_id"], viewer_team="lang",
 	                   viewer_member="ada")["subtree_total"]
 	assert new > 0, "the page-bounded seen marked the whole thread"

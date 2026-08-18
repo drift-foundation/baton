@@ -161,8 +161,8 @@ def test_accept_into_gates_an_existing_provider(world):
 	accept = next(event for event in store.events()
 	              if event["kind"] == "accept")
 	assert accept["payload"]["created"] is False
-	assert accept["payload"]["provider_current"]["endpoint"] == \
-		"drift.rsrch", "the provider Current evidence is missing"
+	assert accept["payload"]["provider_route"]["endpoint"] == \
+		"drift.rsrch", "the provider Route evidence is missing"
 
 
 def test_accept_result_exposes_the_ruled_structured_edge(world):
@@ -277,7 +277,7 @@ def test_create_with_parent_needs_the_separate_parent_gate(world):
 	push1, asked = _report(store)
 	# grace holds the route after a gen-2 swap of the PARENT's current
 	# route? Simpler: ada is both the route handler and the parent's
-	# Current handler — allowed; grace is neither — already covered. The
+	# Route handler — allowed; grace is neither — already covered. The
 	# separate-gate case: make ada the obligation handler but NOT the
 	# parent handler by passing the parent's Current away.
 	fx.post(store, epic, author_team="drift", author="ada",
@@ -325,7 +325,7 @@ def test_accept_never_wakes_a_gates_waiter(world):
 	                            origin="external-report", classification="suspected-defect", author="wren",
 	                            body="b")["work_id"]
 	tr.add_dependency(store, push1, other_gate, actor_team="push",
-	                  actor="sl")
+	                  actor="sl", rationale="test dependency")
 	tr.set_phase(store, push1, actor_team="push", actor="sl",
 	             phase="waiting", wait="gates")
 	tr.accept_obligation(store, asked, actor_team="drift", actor="ada",
@@ -561,7 +561,7 @@ def test_the_new_relations_are_schema_bound(world):
 	                            origin="external-report", classification="suspected-defect", author="wren",
 	                            body="b")["work_id"]
 	tr.add_dependency(store, push1, other_gate, actor_team="push",
-	                  actor="sl")
+	                  actor="sl", rationale="test dependency")
 	assert store.conn.execute(
 		"SELECT via_obligation FROM edges WHERE work=? AND blocker=?",
 		(push1, other_gate)).fetchone()["via_obligation"] is None

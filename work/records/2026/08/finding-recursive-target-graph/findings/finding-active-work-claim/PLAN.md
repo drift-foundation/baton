@@ -71,3 +71,13 @@ focused tests green with a clean diff check; K reports the full v11 gate at
    changes continue through the separate authorized phase transition.
 5. Re-run the full v11 gate and independently review before the messaging
    cutover closes.
+
+## Follow-up — Current means the exact claimant
+
+**Status — 2026-08-17:** confirmed and queued in
+`findings/finding-current-is-claimant/`.
+
+Replace endpoint-valued `current` with `route`, project the exact live claimant
+as nullable `current`, update every authority/client/ACP/TUI consumer, and
+prove the distinction across transitions, races, restart, and a fresh trial
+authority. No implementation begins before the child record is revalidated.

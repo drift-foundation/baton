@@ -130,11 +130,11 @@ def build(path: str) -> dict:
 		origin="external-report", classification="suspected-defect", author="mo", body="hangs on insert")["work_id"]
 
 	tr.add_dependency(store, cast["pushcoin"], cast["lang42"],
-	                  actor_team="push", actor="sl")
+	                  actor_team="push", actor="sl", rationale="test dependency")
 	tr.add_dependency(store, cast["web"], cast["lang42"],
-	                  actor_team="web", actor="wren")
+	                  actor_team="web", actor="wren", rationale="test dependency")
 	tr.add_dependency(store, cast["mdb"], cast["lang42"],
-	                  actor_team="mdb", actor="mo")
+	                  actor_team="mdb", actor="mo", rationale="test dependency")
 
 	post(store, cast["lang42"], author_team="lang", author="ada",
 	     body="tracking the converged reports", include="*.bug")
@@ -192,6 +192,15 @@ def post(store, work_id: str, **kw):
 			refs=kw.get("refs", ()))
 	if kw.get("request"):
 		kw.setdefault("on", work_id)
+		# W159: a directed request now WAITS by default, which suspends
+		# the selected Work and requires the caller to hold its claim.
+		# Every call site here predates that rule and meant the
+		# ASYNCHRONOUS ask — they exercise obligation mechanics, not the
+		# blocking form — so the historical intent is stated explicitly
+		# rather than left to a default that has since changed under
+		# them. A caller that means the blocking form passes wait=True,
+		# and W159's own tests call `post_thread` directly.
+		kw.setdefault("wait", False)
 	return _tr.post_thread(store, born(store, work_id), **kw)
 
 

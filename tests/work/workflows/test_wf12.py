@@ -36,12 +36,12 @@ def test_wf12_effectively_once_retry(flow):
 	# 1. Lost response, exact retry: one obligation, one event, the
 	# replay carries the committed/replayed shapes and the original seq.
 	first = flow.ok("say", "op-id=ask-1", f"thread={thread}",
-	                "body=push: confirm", "request=push.bug",
+	                "body=push: confirm", "request=push.bug", "wait=false",
 	                viewer="lang.ada")
 	assert first["operation"] == {"id": "ask-1", "state": "committed"}
 	events_before = flow.ok("events", viewer="lang.ada")
 	retry = flow.ok("say", "op-id=ask-1", f"thread={thread}",
-	                "body=push: confirm", "request=push.bug",
+	                "body=push: confirm", "request=push.bug", "wait=false",
 	                viewer="lang.ada")
 	assert retry["operation"] == {"id": "ask-1", "state": "replayed"}
 	assert retry["seq"] == first["seq"]
@@ -164,6 +164,9 @@ def test_wf12_effectively_once_retry(flow):
 	fam = flow.ok("create", "team=push", "kind=bug",
 	              "title=family", "origin=self-initiated", "classification=suspected-defect",
 	              "body=family", viewer="push.sl")
+	# W288: the revise family below promotes a contract, which is the
+	# claimant's act — so this fixture Work is claimed.
+	flow.ok("claim", f"work={fam["work_id"]}", viewer="push.sl")
 	for label, argv, viewer in (
 			("create", ("create", "team=push", "kind=bug",
 			            "title=twin", "origin=self-initiated", "classification=suspected-defect",

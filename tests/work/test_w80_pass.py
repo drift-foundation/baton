@@ -91,10 +91,10 @@ def test_pass_is_one_indivisible_transfer(world):
 	assert passed["work"] == work
 	assert passed["destination_phase"] == "review"
 	detail = ok(world, "detail", f"work={work}")
-	assert detail["current"]["endpoint"] == "rev.bug"
+	assert detail["route"]["endpoint"] == "rev.bug"
 	assert detail["phase"] == "review"
 	assert detail["next"]["endpoint"] == "lang.bug"
-	assert detail["active"] is None, "the pass kept the sender's claim"
+	assert detail["current"] is None, "the pass kept the sender's claim"
 	page = ok(world, "thread", f"thread={thread}")
 	assert page["messages"] == before["messages"], \
 		"a threadless pass manufactured a discussion message"
@@ -131,7 +131,7 @@ def test_a_refused_pass_changes_nothing(world):
 	                "comment=nowhere")
 	assert "ghost" in error
 	after_detail = ok(world, "detail", f"work={work}")
-	for field in ("current", "phase", "next", "active", "status"):
+	for field in ("route", "phase", "next", "current", "status"):
 		assert after_detail[field] == before_detail[field], field
 	after_page = ok(world, "thread", f"thread={thread}")
 	assert len(after_page["messages"]) == len(before_page["messages"]), \
@@ -142,7 +142,7 @@ def test_a_refused_pass_changes_nothing(world):
 
 
 def test_authorization_and_retry(world):
-	"""Only a resolved Current handler passes; an exact op-id retry
+	"""Only a resolved Route handler passes; an exact op-id retry
 	replays the one committed transfer."""
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
@@ -178,7 +178,7 @@ def test_say_is_discussion_only_now(world):
 	assert "requires request=" in refusal(
 		world, "say", f"thread={thread}", "body=x", f"on={work}")
 	asked = ok(world, "say", f"thread={thread}", "body=push: confirm?",
-	           "request=rev.bug", f"on={work}")
+	           "request=rev.bug", "wait=false", f"on={work}")
 	assert asked["kind"] == "request"
 	obligations = ok(world, "obligations", viewer="rev.bee")
 	assert obligations, "the preserved @ operator raised no obligation"

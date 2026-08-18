@@ -93,7 +93,7 @@ def test_message_count_is_direct_distinct_and_seen_independent(world):
 
 def test_my_counts_only_my_eligible_pending_obligations(world):
 	store, _config = world
-	# sl's push-owned epic: as its Current handler he requests
+	# sl's push-owned epic: as its Route handler he requests
 	# lang.bug (handled by ada per the fixture route); grace is NOT an
 	# eligible handler of that route, and a + inclusion counts for
 	# nobody.
@@ -109,7 +109,7 @@ def test_my_counts_only_my_eligible_pending_obligations(world):
 	               include="lang.bug")
 	request = tr.post_thread(store, epic["thread"], author_team="push",
 	                         author="sl", body="confirm the defect?",
-	                         request="lang.bug", on=epic["work_id"])
+	                         request="lang.bug", wait=False, on=epic["work_id"])
 
 	ada = _row(store, epic["work_id"], viewer_member="ada")
 	grace = _row(store, epic["work_id"], viewer_member="grace")
@@ -138,7 +138,7 @@ def test_terminal_withdrawal_clears_my(world):
 	                      body="opener")
 	tr.post_thread(store, epic["thread"], author_team="push",
 	               author="sl", body="please retest",
-	               request="lang.bug", on=epic["work_id"])
+	               request="lang.bug", wait=False, on=epic["work_id"])
 	assert _row(store, epic["work_id"])["my_pending_obligations"] == 1
 	tr.close_work(store, epic["work_id"], actor_team="push",
 	              actor="sl", rationale="obsolete", outcome="cancelled")
@@ -156,7 +156,7 @@ def test_eligibility_follows_the_currently_accepted_routes(world):
 	                      origin="external-report", classification="suspected-defect", author="sl",
 	                      body="opener")
 	tr.post_thread(store, epic["thread"], author_team="push",
-	               author="sl", body="confirm?", request="lang.bug",
+	               author="sl", body="confirm?", request="lang.bug", wait=False,
 	               on=epic["work_id"])
 	assert _row(store, epic["work_id"],
 	            viewer_member="ada")["my_pending_obligations"] == 1
@@ -184,7 +184,7 @@ def test_reading_is_pure_and_counts_survive_reopen(world, tmp_path):
 	                      title="pure epic", origin="external-report", classification="suspected-defect",
 	                      author="sl", body="opener")
 	tr.post_thread(store, epic["thread"], author_team="push",
-	               author="sl", body="request", request="lang.bug",
+	               author="sl", body="request", request="lang.bug", wait=False,
 	               on=epic["work_id"])
 	before = store.events()
 	first = _row(store, epic["work_id"])

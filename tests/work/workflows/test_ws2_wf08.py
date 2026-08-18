@@ -71,8 +71,8 @@ def test_ws2_wf08_abandon_without_closing(flow):
 	reported = next(entry for entry in view["assignments"]
 	                if entry["state"] == "reported")
 	assert reported["observation"] == "passed"
-	assert (after["status"], after["phase"], after["current"]) == \
-		(before["status"], before["phase"], before["current"]), \
+	assert (after["status"], after["phase"], after["route"]) == \
+		(before["status"], before["phase"], before["route"]), \
 		"abandoning a trial moved the provider's lifecycle"
 	events = flow.ok("events", viewer="lang.ada")
 	notified = [event["payload"]["endpoint"] for event in events

@@ -112,7 +112,7 @@ def test_a_report_is_immutable_and_transitions_nothing(world):
 	consumer = tr.create_work(store, team="push", kind="verify",
 	                          title="PUSH-1", origin="external-report", classification="suspected-defect",
 	                          author="sl", body="blocked")["work_id"]
-	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl")
+	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl", rationale="test dependency")
 	tr.set_phase(store, consumer, actor_team="push", actor="sl",
 	             phase="waiting", wait="gates")
 	created = tr.create_trial(store, work, actor_team="lang", actor="ada",

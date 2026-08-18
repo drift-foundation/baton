@@ -47,10 +47,20 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	               "origin=external-report", "classification=suspected-defect", "body=500 at checkout",
 	               viewer="push.sl")
 	push1, thread_id = born["work_id"], born["thread"]
+	# W159: ONE act. The claim is what the blocking form suspends, and
+	# the request itself enters the exact-obligation wait and releases
+	# it — the retired two-command `say` then `phase to=waiting` is
+	# exactly the race this Work removed.
+	flow.ok("claim", f"work={push1}", viewer="push.sl")
 	asked = flow.post(push1, "body=drift: yours?",
 	                "request=drift.bug", viewer="push.sl")
-	flow.ok("phase", f"work={push1}", "to=waiting",
-	        f"wait={asked['seq']}", viewer="push.sl")
+	waiting = flow.ok("detail", f"work={push1}", viewer="push.sl")
+	assert waiting["phase"] == "waiting", waiting["phase"]
+	assert waiting["waiting_on"] == {"type": "obligation",
+	                                 "obligation": asked["seq"]}
+	assert waiting["current"] is None, "the blocking ask kept the claim"
+	assert waiting["route"]["endpoint"] == "push.bug", \
+		"asking for input moved Current"
 
 	# The actionable entry DECLARES acceptance to the owed route.
 	actionable = flow.ok("obligations", viewer="drift.ada")

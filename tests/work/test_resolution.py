@@ -127,7 +127,7 @@ def test_reassignment_changes_the_projection_not_the_history(world):
 
 	# THE LIVE VIEW MOVED: lang endpoints now resolve to grace.
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert detail["current"]["handlers"] == ["grace"]
+	assert detail["route"]["handlers"] == ["grace"]
 	obligations = pj.obligations(store, viewer_team="web")
 	assert obligations[0]["owed_by"]["handlers"] == ["wren"], \
 		"web.bug's live resolution changed but was not reassigned"

@@ -62,12 +62,14 @@ def test_wf06_recursive_release(flow):
 	                   "title=CI image rebuild",
 	                   "origin=external-report", "classification=suspected-defect", "body=lang needs the image",
 	                   viewer="mdb.mo")["work_id"]
-	flow.ok("block", f"work={blocked}", f"on={external}", viewer="lang.ada")
+	flow.ok("block", f"work={blocked}", f"on={external}",
+	        "rationale=external provider required", viewer="lang.ada")
 
 	# A union-graph cycle is refused through the public CLI — and the
 	# refusal changes not one authority byte.
 	error = assert_refusal_changes_nothing(
 		flow, "lang.ada", "block", f"work={external}", f"on={root}",
+		"rationale=would cycle",
 		as_viewer="mdb.mo")
 	assert "closes a loop" in error
 

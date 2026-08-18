@@ -71,13 +71,14 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	            "body=tab dies", viewer="web.wren")["result"]
 	web1, thread = born["work_id"], born["thread"]
 	requested = _run(archive, path, "say", f"thread={thread}", "body=yours?",
-	                 "request=lang.rsrch", viewer="web.wren")["result"]
+	                 "request=lang.rsrch", "wait=false", viewer="web.wren")["result"]
 	lang_born = _run(archive, path, "create", "team=lang",
 	                 "kind=rsrch", "title=parser recovery",
 	                 "origin=external-report", "classification=suspected-defect", "body=dedup",
 	                 viewer="lang.ada")["result"]
 	lang42, lang_thread = lang_born["work_id"], lang_born["thread"]
-	_run(archive, path, "block", f"work={web1}", f"on={lang42}", viewer="web.wren")
+	_run(archive, path, "block", f"work={web1}", f"on={lang42}",
+	     "rationale=compiler fix required", viewer="web.wren")
 	_run(archive, path, "respond", f"obligation={requested["seq"]}",
 	     "body=ours, tracked", viewer="lang.ada")
 	passed = _run(archive, path, "pass", f"work={lang42}",

@@ -1,10 +1,10 @@
 # Plan
 
-**Status:** approved as W310 and queued after v10 retirement; authority
-scheduling is blocked by W24. No implementation begins before that gate
-closes. W309 records the current child-dossier binding rejection; until it is
-fixed, W310 uses the canonical umbrella binding and its born message names this
-exact child record as the explicit stopgap.
+**Status — 2026-08-17:** approved and queued as fresh-authority W3 after v10
+retirement. W2 closed the messaging-capability gate, but W99 owns actual v10
+retirement; W3 waits on W99 and no implementation begins before W99 closes
+satisfying. Historical W310/W24/W309 references describe the retired trial
+authority and remain provenance only.
 
 1. Revalidate every discussion-grouping schema field, event/payload,
    transition, CLI operand, JSON projection, TUI label/key, readiness client,

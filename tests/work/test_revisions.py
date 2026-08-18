@@ -1,8 +1,10 @@
 """Append-only Work revisions: one promoted message IS the contract.
 
-Only the resolved Current handler of open Work commits a revision; the
-promoted message must live in a thread carrying that open Work's
-label; the write is compare-and-swap on the expected prior revision,
+W288: only the EXACT CURRENT CLAIMANT of open Work commits a revision,
+and they must still be eligible through the live Route — route
+eligibility alone let one handler rewrite scope underneath another who
+was executing it. The promoted message must live in a thread carrying
+that open Work's label; the write is compare-and-swap on the expected prior revision,
 rechecked in-lock; history is append-only and immutable; JSON exposes
 exactly one effective revision plus the ordered history with complete
 self-contained content — no fixed contract fields, no templates.
@@ -41,10 +43,16 @@ def world(tmp_path):
 	store.close()
 
 
-def _create(store, team="lang", member="ada", **kw):
-	return tr.create_work(store, team=team, kind="bug", title="w",
+def _create(store, team="lang", member="ada", claim=True, **kw):
+	"""W288: revision now requires the exact current claimant, so the
+	ordinary fixture CLAIMS. Cases that need unclaimed Work pass
+	claim=False and assert the refusal explicitly."""
+	born = tr.create_work(store, team=team, kind="bug", title="w",
 	                      origin="external-report", classification="suspected-defect", author=member,
 	                      body="the initial statement", **kw)
+	if claim:
+		tr.claim_work(store, born["work_id"], actor_team=team, actor=member)
+	return born
 
 
 def _say(store, thread, body, team="lang", member="ada"):
@@ -99,7 +107,7 @@ def test_a_promotion_records_the_complete_contract(world):
 	assert [entry["revision"] for entry in detail["revisions"]] == [1]
 	# The Work record itself did not move.
 	assert detail["status"] == "open" and detail["phase"] == "queued"
-	assert detail["current"]["endpoint"] == "lang.bug"
+	assert detail["route"]["endpoint"] == "lang.bug"
 
 
 def test_history_is_ordered_append_only_and_effective_is_the_last(world):
@@ -138,7 +146,10 @@ def test_only_the_live_current_handler_promotes(world):
 	tr.revise_work(store, work, actor_team="lang", actor="ada",
 	               message_seq=proposed, expected_revision=0,
 	               rationale="the handler agrees")
-	# Reassignment moves the authority with the accepted generation.
+	# Reassignment moves ELIGIBILITY with the accepted generation. W288:
+	# it does not hand over the revision authority by itself, because
+	# W245 deliberately preserves the identity a live claim captured —
+	# so the incoming handler must actually take the claim.
 	document = _json.loads(open(config_path).read())
 	document["generation"] = 2
 	document["teams"]["lang"]["routes"]["main"]["handlers"] = ["grace"]
@@ -147,10 +158,24 @@ def test_only_the_live_current_handler_promotes(world):
 	lc.accept_config(config_path, actor="lang.ada")
 	follow_up = _say(store, thread, "second replacement contract",
 	                 member="grace")
+	# ada kept the claim but LOST eligibility: refused on the route.
 	with pytest.raises(bw.WorkError, match="never grant"):
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
 		               message_seq=follow_up, expected_revision=1,
 		               rationale="former handler")
+	# grace is now the only eligible handler but holds NO claim: refused
+	# on the claim, which is the W288 boundary.
+	with pytest.raises(bw.WorkError, match="claimed by lang.ada"):
+		tr.revise_work(store, work, actor_team="lang", actor="grace",
+		               message_seq=follow_up, expected_revision=1,
+		               rationale="eligible but not executing")
+	assert pj.detail(store, work, viewer_team="lang",
+	                 viewer_member="grace")["revision"]["revision"] == 1, \
+		"a refused revision changed the contract"
+	# Recovering the claim is what actually transfers the authority.
+	tr.release_claim(store, work, actor_team="lang", actor="grace",
+	                 expect="lang.ada", reason="reassigned by generation 2")
+	tr.claim_work(store, work, actor_team="lang", actor="grace")
 	tr.revise_work(store, work, actor_team="lang", actor="grace",
 	               message_seq=follow_up, expected_revision=1,
 	               rationale="the new handler commits")
@@ -311,6 +336,7 @@ def test_child_work_revises_independently_of_its_parent(world):
 	                       title="independent proof",
 	                       origin="decomposition", classification="suspected-defect", author="ada",
 	                       body="child contract", parent=parent["work_id"])
+	tr.claim_work(store, child["work_id"], actor_team="lang", actor="ada")
 	proposed = _say(store, child["thread"], "child contract v2")
 	tr.revise_work(store, child["work_id"], actor_team="lang",
 	               actor="ada", message_seq=proposed,

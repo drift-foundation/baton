@@ -38,9 +38,11 @@ def test_ws2_wf05_non_satisfying_close(flow):
 		               viewer=f"{team}.{member}")["work_id"]
 		flow.ok("classify", f"work={work}", "as=suspected-defect",
 		        viewer=f"{team}.{member}")
-		flow.ok("block", f"work={work}", f"on={lang42}", viewer=f"{team}.{member}")
+		flow.ok("block", f"work={work}", f"on={lang42}",
+		        "rationale=shared provider required", viewer=f"{team}.{member}")
 		consumers[team] = work
-	flow.ok("block", f"work={consumers["mdb"]}", f"on={build7}", viewer="mdb.mo")
+	flow.ok("block", f"work={consumers["mdb"]}", f"on={build7}",
+	        "rationale=second provider required", viewer="mdb.mo")
 	for team, member in (("push", "sl"), ("web", "wren"), ("mdb", "mo")):
 		flow.ok("phase", f"work={consumers[team]}", "to=waiting",
 		        "wait=gates", viewer=f"{team}.{member}")
@@ -60,7 +62,7 @@ def test_ws2_wf05_non_satisfying_close(flow):
 		assert checkpoint["phase"] == phase, f"{team} phase wrong"
 		assert checkpoint["status"] == "open"
 		assert checkpoint["classification"] == "suspected-defect"
-		assert checkpoint["current"]["endpoint"] == f"{team}.bug", \
+		assert checkpoint["route"]["endpoint"] == f"{team}.bug", \
 			"the provider result moved a consumer's Current"
 
 		# 4. The non-satisfying result is VISIBLE where the dependency

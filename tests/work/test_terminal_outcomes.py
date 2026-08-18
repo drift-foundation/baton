@@ -66,17 +66,17 @@ def _rig(store):
 	born = _create(store)
 	work, thread = born["work_id"], born["thread"]
 	single = _create(store, team="push", member="sl")["work_id"]
-	tr.add_dependency(store, single, work, actor_team="push", actor="sl")
+	tr.add_dependency(store, single, work, actor_team="push", actor="sl", rationale="test dependency")
 	gated = _create(store, team="web", member="wren")["work_id"]
 	extra = _create(store, team="push", member="sl")["work_id"]
-	tr.add_dependency(store, gated, work, actor_team="web", actor="wren")
+	tr.add_dependency(store, gated, work, actor_team="web", actor="wren", rationale="test dependency")
 	tr.add_dependency(store, gated, extra, actor_team="web",
-	                  actor="wren")
+	                  actor="wren", rationale="test dependency")
 	tr.pass_work(store, work, actor_team="lang", actor="ada",
 	             to="lang.rsrch", comment="onward", set_next="lang.bug")
 	asked = tr.post_thread(store, thread, author_team="lang",
 	                           author="ada", body="push: confirm",
-	                           request="push.bug", on=work)["seq"]
+	                           request="push.bug", wait=False, on=work)["seq"]
 	assigned = tr.create_trial(store, work, actor_team="lang",
 	                           actor="ada", candidate="c1",
 	                           assign=["push.bug"])["assignments"][0]
@@ -103,7 +103,7 @@ def test_every_outcome_dismantles_the_same_machine(world, outcome):
 	row = _row(store, rig["work"])
 	assert row["status"] == "closed" and row["outcome"] == outcome
 	assert row["rationale"] == "the terminal basis"
-	assert row["current_team"] is None and row["next_team"] is None, \
+	assert row["route_team"] is None and row["next_team"] is None, \
 		"the close did not clear Current and the planned Next"
 	for seq in (rig["asked"], rig["assigned"]):
 		assert store.conn.execute(
@@ -245,7 +245,7 @@ def test_duplicate_link_rules_are_exact(world):
 		before_edges, "the duplicate link created a dependency edge"
 	survivor = _row(store, canonical)
 	assert survivor["status"] == "open" and bool(survivor["ready"]) \
-		is True and survivor["current_team"] == "lang"
+		is True and survivor["route_team"] == "lang"
 
 
 def test_ordinary_rejection_needs_no_link(world):
@@ -351,7 +351,7 @@ def test_close_races_serialize_into_one_history(world):
 	                       outcome="satisfying")
 	closing = next(event for event in store.events()
 	               if event["seq"] == result["seq"])
-	assert closing["payload"]["was_current_kind"] == "bug", \
+	assert closing["payload"]["was_route_kind"] == "bug", \
 		"the close audited a pre-race Current"
 
 

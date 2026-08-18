@@ -142,7 +142,7 @@ def test_dependency_and_child_unblock_mint(world):
 	work = make(world, "consumer")["work_id"]
 	blocker = make(world, "blocker")["work_id"]
 	tr.add_dependency(store, work, blocker, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	assert key(world, work) is None, "a blocked Work stayed actionable"
 	tr.close_work(store, blocker, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")

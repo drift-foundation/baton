@@ -29,7 +29,7 @@ from baton_work import jsonapi, lifecycle, projection, transitions
 # always has.
 MUTATIONS = frozenset({
 	"activate", "regen", "create", "accept", "respond", "dispose",
-	"close", "block", "mark-seen", "classify", "claim", "release",
+	"close", "block", "unblock", "mark-seen", "classify", "claim", "release",
 	"prioritize", "pass", "heartbeat",
 	"phase", "try",
 	"extend", "report", "assess", "abandon", "revise", "start-thread",
@@ -83,8 +83,12 @@ def _filter_keys():
 	        _key("phase", values=_PHASES,
 	             help="operational phase (closed selects through "
 	             "status=closed)"),
-	        _key("current", help="canonical TEAM.KIND endpoint, or "
-	             "me (the viewer resolves as a handler)"),
+	        _key("route", help="canonical TEAM.KIND endpoint whose "
+	             "handlers may claim, or me (the viewer resolves as a "
+	             "handler)"),
+	        _key("current", help="the exact TEAM.MEMBER holding the "
+	             "claim, or me (the viewer holds it); unclaimed work "
+	             "matches neither"),
 	        _key("category", values=_CLASSIFICATIONS,
 	             help="canonical classification (compact display "
 	             "labels are refused)"),
@@ -98,7 +102,7 @@ def _filter_keys():
 
 def _filter_operands(args):
 	active = {}
-	for name in ("team", "status", "phase", "current", "category",
+	for name in ("team", "status", "phase", "route", "current", "category",
 	             "ready", "new", "priority"):
 		value = getattr(args, name, None)
 		if value is not None:
@@ -245,7 +249,17 @@ GRAMMAR = {
 	          "keys": (_key("work", required=True,
 	                        help="the consumer Work"),
 	                   _key("on", required=True,
-	                        help="the blocker Work"))},
+	                        help="the blocker Work"),
+	                   _key("rationale", required=True,
+	                        help="durable reason this gate is required"))},
+	"unblock": {"help": "correct one live dependency edge without "
+	            "closing either Work",
+	            "keys": (_key("work", required=True,
+	                          help="the consumer Work"),
+	                     _key("on", required=True,
+	                          help="the blocker Work"),
+	                     _key("rationale", required=True,
+	                          help="durable reason the edge was wrong"))},
 	"mark-seen": {"help": "mark a thread page seen up to a message",
 	              "keys": (_key("thread", required=True,
 	                            help="the thread id"),
@@ -262,7 +276,7 @@ GRAMMAR = {
 	                        _key("as", dest="priority", required=True,
 	                             values=_PRIORITIES,
 	                             help="the canonical priority"))},
-	"classify": {"help": "reclassify Work (current handler authority)",
+	"classify": {"help": "reclassify Work (Route handler authority)",
 	             "keys": (_key("work", required=True,
 	                           help="the Work id"),
 	                      _key("as", dest="classification",
@@ -394,9 +408,17 @@ GRAMMAR = {
 	                           help="page after this revision"),
 	                      _key("limit", kind="int", default=100,
 	                           help="page size"))},
+	# W288: the precondition an operator cannot otherwise discover —
+	# eligibility through the route is NOT enough, because a peer would
+	# then rewrite scope underneath whoever is executing the Work.
 	"revise": {"help": "promote one durable message as the complete "
-	           "Work contract (compare-and-swap)",
-	           "keys": (_key("work", required=True, help="the Work id"),
+	           "Work contract (compare-and-swap); only the exact "
+	           "current claimant, still eligible through the Work's "
+	           "route, may promote it — claim first, and unclaimed "
+	           "Work refuses",
+	           "keys": (_key("work", required=True,
+	                         help="the Work id; you must hold its "
+	                              "current claim"),
 	                    _key("message", dest="message_seq",
 	                         required=True, kind="int",
 	                         help="the message promoted as the "
@@ -419,7 +441,10 @@ GRAMMAR = {
 	"say": {"help": "post one discussion message, optionally with an "
 	        "@ request",
 	        "conditions": (
-	            {"if-key": "on", "requires": ("request",)},),
+	            {"if-key": "on", "requires": ("request",)},
+	            # W159: `wait=` says whether a directed request blocks
+	            # the Work it acts on, so it is meaningless without one.
+	            {"if-key": "wait", "requires": ("request",)},),
 	        "keys": (_key("thread", required=True,
 	                      help="the thread id"),
 	                 _key("body", required=True,
@@ -429,9 +454,15 @@ GRAMMAR = {
 	                 _key("request", help="ONE endpoint owing a "
 	                      "response (acts on on=)"),
 	                 _key("on", help="the labelled open Work an @ "
-	                      "acts against"))},
+	                      "acts against"),
+	                 _key("wait", dest="say_wait", kind="boolean",
+	                      values=("true", "false"),
+	                      help="whether the directed request BLOCKS the "
+	                      "selected Work (default true with request=; "
+	                      "wait=false is the explicit asynchronous "
+	                      "override)"))},
 	"pass": {"help": "transfer the Work baton: handoff evidence, "
-	         "Current, and the ROUTE-DERIVED destination phase in ONE "
+	         "Route, and the ROUTE-DERIVED destination phase in ONE "
 	         "atomic THREADLESS Work event (W171: no thread, no "
 	         "message, no count moves; W73: the destination route "
 	         "decides the phase, so phase= is refused as unknown)",
@@ -462,6 +493,22 @@ GRAMMAR = {
 	                         help="page after this message seq"),
 	                    _key("limit", kind="int", default=500,
 	                         help="page size"))},
+	"work-events": {"help": "one Work's append-only operational "
+	                "journal — the play-by-play of what happened to it "
+	                "and why, with typed roles, related Work, and claim "
+	                "intervals",
+	                "keys": (_key("work", required=True,
+	                              help="the Work id"),
+	                         _key("after", kind="int", default=0,
+	                              help="page after this event seq"),
+	                         _key("before", kind="int",
+	                              help="page immediately OLDER than "
+	                              "this event seq"),
+	                         _key("newest", kind="bool",
+	                              help="open the newest page (value: "
+	                              "true)"),
+	                         _key("limit", kind="int", default=200,
+	                              help="page size"))},
 	"threads": {"help": "the viewer's paged thread listing",
 	            "keys": (_key("after", kind="int", default=0,
 	                          help="page after this seq"),
@@ -595,6 +642,15 @@ def _convert(verb, name, kind, value):
 			                f"takes exactly the value true; got "
 			                f"{value!r}")
 		return True
+	if kind == "boolean":
+		# W159: a genuine two-valued operand, distinct from the
+		# true-only FLAG above. `wait=false` has to be sayable, while
+		# `create=false` on accept must stay meaningless — so the two
+		# kinds are deliberately separate rather than one loosened one.
+		if value not in ("true", "false"):
+			raise WorkError(f"{verb}: {name}= takes exactly true or "
+			                f"false; got {value!r}")
+		return value == "true"
 	return value
 
 
@@ -992,8 +1048,19 @@ def analyze_partial(buffer: str) -> dict:
 	# satisfied on this form — the parser would refuse the
 	# combination, so the assist stops offering it.
 	for rule in info.get("conditions", ()):
-		if "if-key" in rule and \
-				set(rule.get("requires", ())) & forbidden:
+		if "if-key" not in rule:
+			continue
+		needs = set(rule.get("requires", ()))
+		if needs & forbidden:
+			forbidden.add(rule["if-key"])
+		elif needs and not needs <= display_supplied:
+			# W159 R4: a conditional key is not OFFERED until what it
+			# depends on is actually present. The documented promise is
+			# the effective remaining keys "with form conditions applied
+			# exactly as the parser enforces them", and suggesting a key
+			# the parser would refuse is worse than silence. This is the
+			# same declarative rule for `say`'s `on=` and `wait=`, so
+			# both now appear only in the request-bearing form.
 			forbidden.add(rule["if-key"])
 	remaining = sorted(
 		name + "=" for name in required - forbidden
@@ -1280,7 +1347,14 @@ def _dispatch(store: Authority, args):
 	if command == "block":
 		team, member = _need_participant(args)
 		return transitions.add_dependency(store, args.work, args.on,
-		                                  actor_team=team, actor=member, op_id=args.op_id,
+		                                  actor_team=team, actor=member,
+		                                  rationale=args.rationale, op_id=args.op_id,
+		                                  refs=args.refs or ())
+	if command == "unblock":
+		team, member = _need_participant(args)
+		return transitions.remove_dependency(
+			store, args.work, args.on, actor_team=team, actor=member,
+			rationale=args.rationale, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "operation-log":
 		team, member = _need_participant(args)
@@ -1368,12 +1442,12 @@ def _dispatch(store: Authority, args):
 		return transitions.post_thread(
 			store, args.thread, author_team=team, author=member,
 			body=args.body, include=args.include or (),
-			request=args.request, on=args.on, op_id=args.op_id,
-			refs=args.refs or ())
+			request=args.request, on=args.on, wait=args.say_wait,
+			op_id=args.op_id, refs=args.refs or ())
 	if command == "pass":
 		# W171 (finding-pass-is-work-event): pass is an authoritative
 		# THREADLESS Work transition — comment as durable evidence in
-		# the pass event, Current + destination phase + planned Next +
+		# the pass event, Route + destination phase + planned Next +
 		# claim release in one atomic act; no message, no thread, no
 		# cursor or count movement. A refusal leaves everything
 		# unchanged.
@@ -1400,6 +1474,13 @@ def _dispatch(store: Authority, args):
 		return projection.thread(store, args.thread,
 		                         viewer_team=team, viewer_member=member,
 		                         after=args.after, limit=args.limit)
+	if command == "work-events":
+		_need_participant(args)
+		return projection.work_events(store, args.work,
+		                              after=args.after,
+		                              before=args.before,
+		                              newest=bool(args.newest),
+		                              limit=args.limit)
 	if command == "threads":
 		team, member = _need_participant(args)
 		return projection.threads_for(store, viewer_team=team,

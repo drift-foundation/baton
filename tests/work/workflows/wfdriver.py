@@ -236,11 +236,11 @@ def assert_final_invariants(flow: Flow, viewer: str, work_ids) -> list[dict]:
 	for work_id in work_ids:
 		detail = flow.ok("detail", f"work={work_id}", viewer=viewer)
 		if detail["status"] == "open":
-			assert detail["current"] is not None and \
-				detail["current"]["endpoint"], \
-				f"open {work_id} has no Current endpoint"
+			assert detail["route"] is not None and \
+				detail["route"]["endpoint"], \
+				f"open {work_id} has no Route endpoint"
 		else:
-			assert detail["current"] is None and detail["next"] is None, \
+			assert detail["route"] is None and detail["next"] is None, \
 				f"terminal {work_id} retains an endpoint"
 	return events
 

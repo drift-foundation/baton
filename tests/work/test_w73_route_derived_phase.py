@@ -146,9 +146,9 @@ def test_an_unmapped_destination_refuses_inside_the_transaction(world):
 		             to="lang.odd", comment="over to ops")
 	assert store.last_seq() == before, "the refusal burned an event"
 	row = store.conn.execute(
-		"SELECT phase, current_kind FROM work WHERE id=?",
+		"SELECT phase, route_kind FROM work WHERE id=?",
 		(work,)).fetchone()
-	assert row["phase"] == "queued" and row["current_kind"] == "bug", \
+	assert row["phase"] == "queued" and row["route_kind"] == "bug", \
 		"the refused handoff moved Current or phase"
 
 
@@ -164,12 +164,12 @@ def test_the_derived_phase_commits_with_everything_else(world):
 	                      to="lang.impl", set_next="lang.rev",
 	                      comment="onward")
 	row = store.conn.execute(
-		"SELECT phase, current_kind, next_kind, active_team, episode_seq "
+		"SELECT phase, route_kind, next_kind, current_team, episode_seq "
 		"FROM work WHERE id=?", (work,)).fetchone()
 	assert row["phase"] == "active"
-	assert row["current_kind"] == "impl"
+	assert row["route_kind"] == "impl"
 	assert row["next_kind"] == "rev"
-	assert row["active_team"] is None, "the sender's claim survived"
+	assert row["current_team"] is None, "the sender's claim survived"
 	assert row["episode_seq"] > before_episode, "no new episode minted"
 	assert result["destination_phase"] == "active"
 	# one event carried all of it

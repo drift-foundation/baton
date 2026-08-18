@@ -2,7 +2,7 @@
 
 finding-v11-participant-readiness (first child of the messaging cutover
 gate): `participant_actions` owns the wake rules — routed Work
-(unclaimed wakes every resolved Current handler; the claim leaves only
+(unclaimed wakes every resolved Route handler; the claim leaves only
 the claimant, same Work action key), `@` obligations (eligible members
 of the owed endpoint; identity = seq), and due verification trials
 (eligible members of the Work's Current; identity includes the deadline
@@ -147,7 +147,7 @@ def test_routed_work_wakes_handlers_and_the_claim_narrows(world):
 	# blocked/waiting/parked/closed leave the unclaimed wake set
 	gate = make(world, "gate", team="push", author="sl")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	assert work_key(world, work) is None, "a blocked row still woke"
 	tr.close_work(store, gate, actor_team="push", actor="sl",
 	              rationale="done", outcome="satisfying")
@@ -169,7 +169,7 @@ def test_obligations_wake_eligible_members_and_reroute_follows(world):
 	born = make(world, "asked", team="push", author="sl")
 	asked = tr.post_thread(store, born["thread"], author_team="push",
 	                       author="sl", body="lang: confirm?",
-	                       request="lang.bug", on=born["work_id"])
+	                       request="lang.bug", wait=False, on=born["work_id"])
 	key = f"obligation:{asked['seq']}"
 	assert key in keys(world, "ada") and key in keys(world, "bee")
 	assert key not in keys(world, "grace")
@@ -234,7 +234,7 @@ def test_wait_is_member_relative_and_deterministic(world):
 	born = make(world, "asking", team="push", author="sl")
 	tr.post_thread(store, born["thread"], author_team="push",
 	               author="sl", body="lang: confirm?",
-	               request="lang.bug", on=born["work_id"])
+	               request="lang.bug", wait=False, on=born["work_id"])
 	woken = pj.wait_actionable(store, viewer_team="lang",
 	                           viewer_member="ada",
 	                           timeout_seconds=0.05)
@@ -277,7 +277,7 @@ def test_the_header_counts_are_the_viewers_not_the_teams(world):
 	born = make(world, "asked", team="push", author="sl")
 	tr.post_thread(store, born["thread"], author_team="push",
 	               author="sl", body="lang: confirm?",
-	               request="lang.bug", on=born["work_id"])
+	               request="lang.bug", wait=False, on=born["work_id"])
 	parked = make(world, "resting")["work_id"]
 	tr.set_phase(store, parked, actor_team="lang", actor="ada",
 	             phase="parked", reason="later")
@@ -337,10 +337,10 @@ def test_the_projection_version_names_the_wake_contract(world):
 	honest-breaking, no alias). Same-major demands succeed; a stale
 	4.x demand refuses."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "7.0"
-	jsonapi.require_version("7.0")
+	assert jsonapi.PROJECTION_VERSION == "8.0"
+	jsonapi.require_version("8.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
-		jsonapi.require_version("6.2")
+		jsonapi.require_version("7.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.3")
 	with pytest.raises(bw.WorkError, match="not compatible"):
@@ -365,7 +365,7 @@ def test_a_real_reroute_moves_eligibility_and_is_a_new_resolution_episode(world)
 	born = make(world, "asked", team="push", author="sl")
 	asked = tr.post_thread(store, born["thread"], author_team="push",
 	                       author="sl", body="lang: confirm?",
-	                       request="lang.bug", on=born["work_id"])
+	                       request="lang.bug", wait=False, on=born["work_id"])
 	store.clock = lambda: "2026-08-16T11:00:00Z"
 	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="cand-R", assign=["push.bug"],
@@ -502,7 +502,7 @@ def test_personal_headers_on_the_real_terminal(tmp_path):
 	                      author="sl", body="b")
 	tr.post_thread(store, born["thread"], author_team="push",
 	               author="sl", body="lang: confirm?",
-	               request="lang.bug", on=born["work_id"])
+	               request="lang.bug", wait=False, on=born["work_id"])
 	parked = tr.create_work(store, team="lang", kind="bug",
 	                        title="resting", origin="external-report",
 	                        classification="suspected-defect",

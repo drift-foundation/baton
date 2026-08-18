@@ -239,3 +239,15 @@ With more handlers, the atomic claim still prevents two winners, but clients
 would schedule from misleading state and repeatedly lose acquisition races.
 The authority must prevent the contradiction rather than relying on every
 caller to remember a phase convention.
+
+## Current names the claimant; route names eligibility — 2026-08-17
+
+**Confirmed by Slawomir.** The endpoint-valued meaning of `Current` in the
+earlier sections above is superseded. `route` now names the endpoint whose
+handlers may claim or act, while `current` names the exact participant holding
+the live claim and is null while unclaimed. The atomic handoff and
+route-derived-phase decisions remain unchanged: pass changes route and phase,
+clears current, and the recipient later claims explicitly.
+
+The complete ruling and acceptance boundary live in
+`findings/finding-current-is-claimant/FINDING.md`.

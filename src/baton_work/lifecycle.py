@@ -448,11 +448,11 @@ def _gate_checks(conn, document: dict) -> None:
 	                   for team_handle, team in document["teams"].items()
 	                   for kind in team["kinds"]}
 	for row in conn.execute(
-			"SELECT id, current_team, current_kind FROM work "
+			"SELECT id, route_team, route_kind FROM work "
 			"WHERE status='open'"):
-		if (row["current_team"], row["current_kind"]) not in surviving_kinds:
-			stranded.append(f"work {row['id']} current "
-			                f"{row['current_team']}.{row['current_kind']}")
+		if (row["route_team"], row["route_kind"]) not in surviving_kinds:
+			stranded.append(f"work {row['id']} route "
+			                f"{row['route_team']}.{row['route_kind']}")
 	for row in conn.execute(
 			"SELECT seq, team, kind FROM obligations WHERE status='pending'"):
 		if (row["team"], row["kind"]) not in surviving_kinds:
@@ -517,10 +517,10 @@ def accept_config(config_path: str, *, actor: str,
 		holds = store.conn.execute(
 			"SELECT 1 FROM member_capabilities WHERE team=? AND member=? "
 			"AND capability='config'", (actor_team, actor_member)).fetchone()
-		current_member = store.conn.execute(
+		live_member = store.conn.execute(
 			"SELECT 1 FROM members WHERE team=? AND handle=? AND removed=0",
 			(actor_team, actor_member)).fetchone()
-		if current_member is None or holds is None:
+		if live_member is None or holds is None:
 			raise WorkError(
 				f"{actor} does not hold the config capability in the "
 				f"currently accepted generation {accepted_generation}; a "

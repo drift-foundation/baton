@@ -48,7 +48,7 @@ def test_wf07_announcement(flow):
 	                    "ops.bat"):
 		assert flow.ok("obligations", viewer=team_viewer) == []
 	assert flow.ok("detail", f"work={ops1}",
-	               viewer="ops.bat")["current"]["endpoint"] == "ops.ops"
+	               viewer="ops.bat")["route"]["endpoint"] == "ops.ops"
 
 	# 4. One member marks seen; ONLY that member's New changes.
 	up_to = flow.ok("thread", f"thread={thread_id}", viewer="web.wren")["last_seq"]

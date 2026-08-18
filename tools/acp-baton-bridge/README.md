@@ -22,10 +22,13 @@ Pinned SDK: `@agentclientprotocol/sdk` 1.3.0 (official TypeScript ACP
 SDK; ACP v1, NDJSON over the agent subprocess's stdin/stdout). The
 schema and transport come from the SDK's exported types and
 `ndJsonStream` — no JSON-RPC field is hand-coded. The Baton envelope is
-validated by the SAME shared projection-5 gate as `codex-baton-bridge`
-(imported, not re-typed): protocol 11, projection major 5, participant
-match, snapshot token, typed action kinds — anything else refuses by
-name and nothing reaches the agent.
+validated by the SAME shared envelope gate as `codex-baton-bridge`
+(imported, not re-typed): protocol 11, the projection major that gate
+currently pins, participant match, snapshot token, and typed action
+kinds — anything else refuses by name and nothing reaches the agent.
+The major is deliberately NOT restated here; it moves with the
+canonical projection, and a number frozen in prose is a second source
+of truth that goes stale silently.
 
 ## Configuration
 
@@ -103,8 +106,11 @@ From a source checkout:
 tools/acp-baton-bridge/bin/acp-baton-bridge --config /path/to/config.json
 ```
 
-From a deployed v11 release (the bridge CO-DEPLOYS per the W163
-distribution ruling — `just deploy-v11 TARGET` publishes it ready):
+From a deployed v11 release. The bridge CO-DEPLOYS with the v11
+distribution — `just deploy-v11 TARGET` publishes it ready to run —
+while the agent adapter itself, its credentials, its session state, and
+the deployment's prohibition policy stay DEPLOYMENT-OWNED and are never
+packaged here:
 
 ```bash
 <TARGET>/bin/acp-baton-bridge --config /path/to/config.json

@@ -56,7 +56,7 @@ def row_of(world, work_id):
 
 def block(world, work, on):
 	tr.add_dependency(world["store"], work, on, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 
 
 class Screen:

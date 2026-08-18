@@ -58,7 +58,8 @@ def test_ws2_wf07_selected_verifier_subset(flow):
 		               f"title={name} report",
 		               "origin=external-report", "classification=suspected-defect", "body=blocked",
 		               viewer=f"{name}.{member}")["work_id"]
-		flow.ok("block", f"work={work}", f"on={lang42}", viewer=f"{name}.{member}")
+		flow.ok("block", f"work={work}", f"on={lang42}",
+		        "rationale=shared provider required", viewer=f"{name}.{member}")
 		consumers[name] = work
 	assert flow.ok("detail", f"work={lang42}", viewer="lang.ada")["open_dependents"] == 5
 

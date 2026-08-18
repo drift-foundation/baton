@@ -21,12 +21,22 @@ from wfdriver import (assert_dense_audit,                     # noqa: E402
 
 
 def _walk(flow, *argv, viewer, limit):
-	"""Page a collection to exhaustion, returning (pages, rows)."""
+	"""Page a collection to exhaustion, returning (pages, rows).
+
+	W130: an advertised cursor is a PROMISE, so the walk itself asserts
+	every page it is sent to is non-empty. Before the forward proof row
+	an exact-multiple collection ended by handing out a cursor whose
+	page was empty, and a walker that only counted rows could not tell.
+	"""
 	pages, rows, after = 0, [], 0
 	while True:
 		page = flow.ok(*argv, f"after={after}", f"limit={limit}",
 		               viewer=viewer)
-		rows += page["rows"] if "rows" in page else page["messages"]
+		got = page["rows"] if "rows" in page else page["messages"]
+		assert got, \
+			f"{argv} advertised a cursor ({after}) whose page is EMPTY"
+		assert len(got) <= limit, f"{argv} exceeded its own page limit"
+		rows += got
 		pages += 1
 		if page["next_after"] is None:
 			return pages, rows
@@ -86,6 +96,31 @@ def test_ws4_wf01_paging_and_ties(flow):
 	seqs = [message["seq"] for message in messages]
 	assert pages == 3 and seqs == sorted(set(seqs)) and len(seqs) == 5, \
 		"the message window skipped or repeated across pages"
+
+	# 5b. W130: the EXACT-MULTIPLE case, which is where a full final page
+	# used to advertise a cursor whose page was empty. Six messages in
+	# pages of two ends on a FULL page; that page must still close the
+	# chain. The walk above now refuses to be sent to an empty page, so
+	# this shape is what actually exercises the proof row.
+	flow.ok("say", f"thread={tie}", "body=reply 4", viewer="lang.grace")
+	pages, messages = _walk(flow, "thread", f"thread={tie}",
+	                        viewer="lang.ada", limit=2)
+	seqs = [message["seq"] for message in messages]
+	assert pages == 3 and len(seqs) == 6, \
+		f"the exact-multiple walk took {pages} pages for {len(seqs)}"
+	assert seqs == sorted(set(seqs)), \
+		"the exact-multiple walk repeated or reordered messages"
+	final = flow.ok("thread", f"thread={tie}", f"after={seqs[3]}",
+	                "limit=2", viewer="lang.ada")
+	assert [m["seq"] for m in final["messages"]] == seqs[4:], final
+	assert final["next_after"] is None, \
+		"an exact-multiple final page advertised an empty continuation"
+	# retry-stable against an unchanged snapshot
+	again = flow.ok("thread", f"thread={tie}", f"after={seqs[3]}",
+	                "limit=2", viewer="lang.ada")
+	assert [m["seq"] for m in again["messages"]] == \
+		[m["seq"] for m in final["messages"]]
+	assert again["next_after"] is None
 
 	# 6. The bounds are refusals, not clamps — and refuse changing
 	# nothing: negative cursor, zero and over-max limits, and a mark-seen

@@ -126,7 +126,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 					conn.execute(
 						"INSERT INTO work (id, team, title, origin, classification, "
 						"status, "
-						"current_team, current_kind, ready, created_seq, "
+						"route_team, route_kind, ready, created_seq, "
 						"last_change_seq, last_changed_at) "
 						"VALUES (?, ?, 'doomed', 'self-initiated', 'suspt-raw', 'open', "
 						"?, 'bug', 1, ?, ?, 'ts')",
@@ -170,7 +170,7 @@ def _worker(path: str, worker: int, report_path: str) -> None:
 						tr.add_dependency(
 							store, rng.choice(candidates),
 							rng.choice(candidates),
-							actor_team=team, actor=member)
+							actor_team=team, actor=member, rationale="test dependency")
 				elif choice < 0.90:
 					mine = my_open_participating()
 					if mine:
@@ -244,10 +244,10 @@ def test_the_adversarial_soak(tmp_path):
 	# 3. Open work has a responsible endpoint; closed work has none.
 	for row in store.conn.execute("SELECT * FROM work"):
 		if row["status"] == "open":
-			assert row["current_team"] and row["current_kind"], \
+			assert row["route_team"] and row["route_kind"], \
 				f"{row['id']} is open with nobody responsible"
 		else:
-			assert not row["current_team"] and not row["next_team"]
+			assert not row["route_team"] and not row["next_team"]
 
 	# 4. The union graph is acyclic (full check, from scratch).
 	waits: dict[str, set[str]] = {}

@@ -98,8 +98,12 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 			offset += 1 + col_width
 		assert cells["NEW"].isdigit(), \
 			f"unparseable row (NEW={cells.get('NEW')!r}): {line!r}"
+		# W245: ROUTE (eligible endpoint) and CURRENT (exact claimant)
+		# are separate columns, so parity checks them separately.
 		parsed = {"title": cells["title"], "depth": cells["depth"],
 		          "status": cells["ST"],
+		          "route": None if cells.get("ROUTE", "-") == "-"
+		          else cells["ROUTE"],
 		          "current": None if cells["CURRENT"] == "-"
 		          else cells["CURRENT"],
 		          "next": None if cells["NEXT"] == "-" else cells["NEXT"],
@@ -180,10 +184,16 @@ def test_home_rows_agree_value_by_value(world, capsys):
 				f"/{json_row['my_pending_obligations']}")
 			# W39: Ready is no longer painted — the dependency cue
 			# carries the gate's identity instead (own parity suite).
-			expected_current = (json_row["current"] or {}).get("endpoint")
+			expected_route = (json_row["route"] or {}).get("endpoint")
 			expected_next = (json_row["next"] or {}).get("endpoint")
-			assert drawn_row["current"] == expected_current
+			assert drawn_row["route"] == expected_route
 			assert drawn_row["next"] == expected_next
+			# W245: the claimant column is the one that must read `-`
+			# when nobody holds the Work — the whole point of the split.
+			expected_current = (json_row["current"] or {}).get("participant")
+			assert drawn_row["current"] == expected_current, \
+				f"TUI Current {drawn_row['current']!r} disagrees with " \
+				f"JSON {expected_current!r} on {json_row['title']!r}"
 			assert drawn_row["new"] == json_row["new"], \
 				f"{viewer} New disagrees on {json_row['title']!r}: " \
 				f"TUI {drawn_row['new']} vs JSON {json_row['new']}"
@@ -231,8 +241,9 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 		(b"o", 0.5),         # the focused view + thread set
 		(b"\r", 0.5),        # open the epic's own thread
 		(b"\x17j", 0.4),     # W14: the Message index
-		(b"j" * 12, 0.8),    # walk the selection to the LAST message
-		(b"s", 0.5),         # seen through the selected (last) message
+		# W76: newest-first entry already selects the LAST message, so
+		# no walk is needed to mark the whole thread seen.
+		(b"s", 0.5),         # seen through the selected (newest) message
 		(b"qy", 0.4),
 	], columns=WIDTH, lines=HEIGHT)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -338,7 +349,7 @@ def test_links_on_demand_agree_with_the_json_edges(world, capsys):
 	blocks = expected["blocks"]
 	assert len(drawn) == len(expected["blocked_by"]) + len(blocks)
 	for line, entry in zip(drawn[len(expected["blocked_by"]):], blocks):
-		endpoint = (entry["current"] or {}).get("endpoint") or "-"
+		endpoint = (entry["route"] or {}).get("endpoint") or "-"
 		assert line == (f"blocks {entry['id']} {entry['team']} "
 		                f"{entry['status']} {endpoint} "
 		                f"{entry['title']}"), \

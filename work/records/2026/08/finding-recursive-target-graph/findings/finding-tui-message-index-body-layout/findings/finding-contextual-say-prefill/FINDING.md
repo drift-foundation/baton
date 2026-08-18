@@ -35,3 +35,25 @@ changes no seen or authority state.
   where the next operand can be typed.
 - Refresh, resize, cancellation, and focus movement preserve read purity.
 - The eventual `say` posts only to the seeded canonical Thread.
+
+## Revalidation — 2026-08-17 after W76
+
+The decision remains current after the spatial/newest-first message-pane
+change. `src/baton_work/tui/app.py` still opens every `:` command with an empty
+buffer in `Console.handle`, while the selected row returned by `thread_rows()`
+already carries the authority-local `local_id` rendered in the Threads pane.
+No authority or schema change is required.
+
+The implementation should keep command entry centralized: derive an optional
+seed from the current detail-mode Thread selection only when the entered verb
+has become exact `say`, then leave ordinary typing, explicit operands, `::`
+batch entry, parsing, assistance, execution, and cancellation on their existing
+paths. The seed must use the selected row's `local_id`, never its ordinal or a
+canonical id reconstructed by the client.
+
+Focused regression ownership belongs in a dedicated W81 test module, with
+packaged PTY parity added to `tests/work/test_tui_packaged.py`. Tests must cover
+one and many Threads, no selection/no Thread, selection snapshotting, explicit
+typed and pasted `thread=`, duplicate prevention, caret/assist behavior,
+refresh and resize purity, cancellation, and final delivery to only the seeded
+Thread.

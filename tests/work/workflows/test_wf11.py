@@ -2,7 +2,7 @@
 (WORKFLOW-TESTS.md).
 
 A requester proposes complete contracts in the labelled thread but
-cannot revise assigned Work directly; the Current handler promotes each
+cannot revise assigned Work directly; the Route handler promotes each
 durable message as an append-only, compare-and-swap revision; transfer
 of Current transfers the authority; new independently accountable
 results become child Work; terminal history is immutable. JSON exposes
@@ -27,14 +27,17 @@ from ws2cast import verification_teams                        # noqa: E402
 def test_wf11_work_revisions(flow):
 	flow.init(document(verification_teams()))
 
-	# 1. Open Work with a Current handler and its labelled thread; a
-	# requester posts a COMPLETE proposed contract; Current promotes it
-	# as revision 1 naming expected revision 0 and a rationale.
+	# 1. Open Work its handler CLAIMS (W288: the contract is promoted by
+	# whoever is executing it, not by anyone the route makes eligible),
+	# and its labelled thread; a requester posts a COMPLETE proposed
+	# contract; the claimant promotes it as revision 1 naming expected
+	# revision 0 and a rationale.
 	born = flow.ok("create", "team=lang", "kind=rsrch",
 	               "title=parser recovery",
 	               "origin=external-report", "classification=suspected-defect", "body=initial statement",
 	               viewer="lang.ada")
 	work, thread = born["work_id"], born["thread"]
+	flow.ok("claim", f"work={work}", viewer="lang.ada")
 	proposed = flow.ok("say", f"thread={thread}",
 	                   "body=complete contract v1: recover the parser "
 	                   "without dropping state; acceptance: replay "
@@ -54,8 +57,8 @@ def test_wf11_work_revisions(flow):
 		"the effective contract is not readable without the thread"
 
 	# 2. The requester posts a replacement but CANNOT revise directly;
-	# Current evaluates and promotes revision 2, preserving identity,
-	# dependencies, phase, Current, and revision 1.
+	# the claimant evaluates and promotes revision 2, preserving
+	# identity, dependencies, phase, route, and revision 1.
 	replacement = flow.ok("say", f"thread={thread}",
 	                      "body=complete contract v2: also preserve the "
 	                      "recovery trace", viewer="push.sl")["seq"]
@@ -73,7 +76,7 @@ def test_wf11_work_revisions(flow):
 	assert detail["revisions"][0]["content"].startswith(
 		"complete contract v1"), "revision 1 was not preserved"
 	assert detail["status"] == "open" and \
-		detail["current"]["endpoint"] == "lang.rsrch"
+		detail["route"]["endpoint"] == "lang.rsrch"
 
 	# The refusal matrix on the live fixture: missing message, foreign
 	# provenance, empty rationale, wrong expectation — JSON refusals,
@@ -131,8 +134,10 @@ def test_wf11_work_revisions(flow):
 		"expect=2", "rationale=verbatim retry")
 	assert "is at revision" in error
 
-	# 4. Transfer Current: the prior handler loses the authority; the
-	# new handler promotes revision 4 with the expected revision.
+	# 4. Transfer the route: the prior handler loses the authority, and
+	# W288 makes the transfer take two steps — the pass moves
+	# eligibility and CLEARS current, so the incoming handler holds the
+	# authority only once it actually claims.
 	flow.ok("pass", f"work={work}", "to=push.bug", "comment=handing the contract to push", viewer="lang.ada")
 	next_contract = flow.ok("say", f"thread={thread}",
 	                        "body=complete contract v4: push owns delivery",
@@ -143,6 +148,14 @@ def test_wf11_work_revisions(flow):
 		"rationale=former handler")
 	assert "never grant" in error, \
 		"the former handler kept revision authority after the transfer"
+	# eligible now, but nobody is executing it yet
+	error = assert_refusal_changes_nothing(
+		flow, "push.sl", "revise", f"work={work}",
+		f"message={next_contract}", "expect=3",
+		"rationale=eligible but unclaimed")
+	assert "is unclaimed" in error, \
+		"a routed but unclaimed Work accepted a contract promotion"
+	flow.ok("claim", f"work={work}", viewer="push.sl")
 	flow.ok("revise", f"work={work}", f"message={next_contract}",
 	        "expect=3", "rationale=the new handler commits",
 	        viewer="push.sl")

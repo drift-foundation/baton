@@ -348,7 +348,7 @@ def test_compound_placement_is_explicit(world):
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
-	                           request="lang.bug")["seq"]
+	                           request="lang.bug", wait=False)["seq"]
 	result = tr.accept_obligation(
 		store, asked, actor_team="lang", actor="ada", body="ours",
 		create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"},

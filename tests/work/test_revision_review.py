@@ -31,6 +31,8 @@ def test_revision_history_is_a_bounded_paginated_json_list(tmp_path):
 		                      origin="external-report", classification="suspected-defect", author="ada",
 		                      body="initial statement")
 		work, thread = born["work_id"], born["thread"]
+		# W288: the contract is promoted by whoever is executing.
+		tr.claim_work(store, work, actor_team="lang", actor="ada")
 		for number in range(1, 54):
 			message = tr.post_thread(
 				store, thread, author_team="lang", author="ada",

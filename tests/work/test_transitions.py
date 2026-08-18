@@ -78,7 +78,7 @@ def test_create_is_work_plus_first_message_in_one_event(store):
 		("external-report", "suspected-defect", "open"), \
 		"the submitted classification is stored verbatim (fresh schema)"
 	assert row["phase"] == "queued", "new work defaults to queued (WS-1)"
-	assert (row["current_team"], row["current_kind"]) == ("lang", "bug")
+	assert (row["route_team"], row["route_kind"]) == ("lang", "bug")
 	assert _ready(store, work_id) == 1, "a fresh leaf is ready"
 
 
@@ -91,7 +91,7 @@ def test_a_failure_after_the_work_insert_leaves_neither_row(store):
 		conn.execute(
 			"INSERT INTO work (id, team, title, origin, classification, "
 			"status, "
-			"current_team, current_kind, ready, created_seq, "
+			"route_team, route_kind, ready, created_seq, "
 			"last_change_seq, last_changed_at) "
 			"VALUES (?, 'lang', 'orphan', 'external-report', 'suspt-raw', 'open', "
 			"'lang', 'bug', 0, ?, ?, 'ts')",
@@ -163,7 +163,7 @@ def test_close_clears_current_and_next_terminally(store):
 	              rationale="fixed and verified", outcome="satisfying")
 	row = store.conn.execute("SELECT * FROM work WHERE id=?", (work,)).fetchone()
 	assert row["status"] == "closed"
-	assert row["current_team"] is None and row["current_kind"] is None
+	assert row["route_team"] is None and row["route_kind"] is None
 	assert row["next_team"] is None and row["next_kind"] is None
 	assert row["ready"] == 0
 	assert row["closed_seq"] is not None
@@ -211,7 +211,7 @@ def test_closed_work_is_terminal_and_follow_up_is_the_only_new_reference(
 	row = store.conn.execute("SELECT * FROM work WHERE id=?",
 	                         (work,)).fetchone()
 	assert row["outcome"] == "satisfying"
-	assert (row["current_team"], row["current_kind"]) == (None, None)
+	assert (row["route_team"], row["route_kind"]) == (None, None)
 	# mark_seen mutates the VIEWER's cursor, not the record: allowed.
 	fx.mark_all_seen(store, work, team="lang", member="slaw",
 	             up_to_seq=store.last_seq())
@@ -298,10 +298,10 @@ def test_wf09_race2_a_pass_losing_to_a_terminal_close_refuses(tmp_path):
 		fx.post(racer, work, author_team="lang", author="ada",
 		                body="handing over", pass_to="lang.rev")
 	row = racer.conn.execute(
-		"SELECT status, current_team, current_kind FROM work WHERE id=?",
+		"SELECT status, route_team, route_kind FROM work WHERE id=?",
 		(work,)).fetchone()
 	assert row["status"] == "closed"
-	assert row["current_team"] is None and row["current_kind"] is None, \
+	assert row["route_team"] is None and row["route_kind"] is None, \
 		"the losing pass resurrected Current on a terminal work"
 
 
@@ -321,7 +321,7 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 	              rationale="done", outcome="satisfying")
 	closing = next(event for event in racer.events()
 	               if event["kind"] == "close_work")
-	assert closing["payload"]["was_current_kind"] == "rev", \
+	assert closing["payload"]["was_route_kind"] == "rev", \
 		"the close recorded the pre-race Current"
 
 

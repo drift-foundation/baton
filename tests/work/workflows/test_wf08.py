@@ -23,14 +23,14 @@ from wfdriver import assert_final_invariants, document, standard_teams  # noqa: 
 def test_wf08_reassignment_of_live_work(flow):
 	flow.init(document(standard_teams()))
 
-	# 1. Generation 1: an obligation and a provider Current both resolving
+	# 1. Generation 1: an obligation and a provider Route both resolving
 	# through intake → rsrch → ada.
 	push1 = flow.ok("create", "team=push", "kind=bug",
 	                "title=checkout fails",
 	                "origin=external-report", "classification=suspected-defect", "body=500 at checkout",
 	                viewer="push.sl")["work_id"]
 	asked = flow.post(push1, "body=lang: yours?",
-	                "request=lang.bug", viewer="push.sl")
+	                "request=lang.bug", "wait=false", viewer="push.sl")
 	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
 	                 "title=parser recovery",
 	                 "origin=external-report", "classification=suspected-defect", "body=accepted",
@@ -67,7 +67,7 @@ def test_wf08_reassignment_of_live_work(flow):
 	                               "route": "intake", "role": "rsrch",
 	                               "handlers": ["grace"]}
 	assert flow.ok("detail", f"work={lang42}",
-	               viewer="lang.grace")["current"]["handlers"] == ["grace"]
+	               viewer="lang.grace")["route"]["handlers"] == ["grace"]
 
 	# 5. Grace acts under generation 2; the NEW event records generation 2
 	# and nothing rewrites the earlier operations.

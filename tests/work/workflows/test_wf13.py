@@ -72,7 +72,7 @@ def test_wf13_portable_dossier_authority(flow):
 	reported = flow.ok("say", f"ref={push1}:repro/checkout-500.sh",
 	                   f"thread={push_thread}",
 	                   "body=repro attached; lang: yours?",
-	                   "request=lang.rsrch", viewer="push.sl")
+	                   "request=lang.rsrch", "wait=false", viewer="push.sl")
 	assert [ref["kind"] for ref in
 	        flow.ok("thread", f"thread={push_thread}",
 	                viewer="push.sl")["messages"][-1]["references"]] == \

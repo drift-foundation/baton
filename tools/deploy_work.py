@@ -23,6 +23,7 @@ release shape:
     <target>/lib/codex-event-bridge/src/  the shared projection-5
                                    envelope gate the bridge imports
     <target>/doc/BATON-WORK.md     the operator quickstart
+    <target>/doc/AGENTS-MAILBOX-PROTO.md  the agent protocol contract
     <target>/conf/baton.example.json  a complete valid config example
     <target>/conf/acp-bridge-*.example.json  non-secret bridge examples
                                    (explicit placeholders; cannot run
@@ -56,6 +57,15 @@ SOURCE_TEMPLATES = os.path.join(REPO, "tmpl")
 SOURCE_ASSETS = (
 	("docs/BATON-WORK.md", "doc/BATON-WORK.md"),
 	("docs/BATON-SETUP.md", "doc/BATON-SETUP.md"),
+	# W103: the agent protocol contract ships WITH the release, so a
+	# participating team bootstraps its agent policy from the same exact
+	# release as its CLI rather than from whatever the source checkout
+	# happens to say today.
+	("docs/AGENTS-MAILBOX-PROTO.md", "doc/AGENTS-MAILBOX-PROTO.md"),
+	# W104: the operating guide ships for the same reason — a
+	# participant learns how to work this release safely from
+	# THIS release, not from a checkout they may not have.
+	("docs/EFFECTIVE-BATON.md", "doc/EFFECTIVE-BATON.md"),
 	("conf/baton.example.json", "conf/baton.example.json"),
 	# W163: non-secret bridge example configurations — every value an
 	# explicit placeholder; nothing runnable as shipped.

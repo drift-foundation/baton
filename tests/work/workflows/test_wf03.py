@@ -31,9 +31,9 @@ def test_wf03_provider_rejects_honestly(flow):
 	               "body=crashes with the attached DOM",
 	               viewer="web.wren")["work_id"]
 	requested = flow.post(web1, "body=looks like a lang defect?",
-	                    "request=lang.bug", viewer="web.wren")
+	                    "request=lang.bug", "wait=false", viewer="web.wren")
 	assert flow.ok("detail", f"work={web1}",
-	               viewer="web.wren")["current"]["endpoint"] == "web.bug"
+	               viewer="web.wren")["route"]["endpoint"] == "web.bug"
 
 	# 2. Lang requests more evidence — a contribution, not a resolution;
 	# the obligation stays actionable the whole time.

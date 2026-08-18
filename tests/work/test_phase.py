@@ -194,7 +194,7 @@ def test_gates_waiting_wakes_only_at_the_last_gate(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	inner = tr.create_work(store, team="lang", kind="bug", title="c",
 	                       origin="decomposition", classification="suspected-defect", author="ada", body="b",
 	                       parent=work)["work_id"]
@@ -284,8 +284,8 @@ def test_the_wake_race_neither_loses_nor_duplicates(world):
 	work = _create(store)
 	first = _create(store, team="push", member="sl")
 	second = _create(store, team="push", member="sl")
-	tr.add_dependency(store, work, first, actor_team="lang", actor="ada")
-	tr.add_dependency(store, work, second, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, first, actor_team="lang", actor="ada", rationale="test dependency")
+	tr.add_dependency(store, work, second, actor_team="lang", actor="ada", rationale="test dependency")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="waiting", wait="gates")
 
@@ -314,7 +314,7 @@ def test_entering_waiting_races_the_satisfying_close(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 
 	other = bw.Authority(store.path)
 	original = store._write
@@ -339,7 +339,7 @@ def test_parking_needs_a_reason_keeps_current_and_never_wakes(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	with pytest.raises(bw.WorkError, match="reason"):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
 		             phase="parked")
@@ -347,7 +347,7 @@ def test_parking_needs_a_reason_keeps_current_and_never_wakes(world):
 	             phase="parked", reason="strategy review pending")
 	row = _row(store, work)
 	assert row["phase"] == "parked"
-	assert (row["current_team"], row["current_kind"]) == ("lang", "bug"), \
+	assert (row["route_team"], row["route_kind"]) == ("lang", "bug"), \
 		"parking dropped the one accountable Current"
 	# Closing every gate wakes NOTHING parked — no condition, no promise.
 	tr.close_work(store, blocker, actor_team="push", actor="sl",
@@ -380,7 +380,7 @@ def test_waiting_condition_is_visible_in_the_projection(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="waiting", wait="gates")
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
@@ -436,7 +436,7 @@ def test_detail_declares_handler_phase_and_classification_authority(world):
 
 def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 	"""Every workflow decision — @ creation, dependency changes, child
-	attachment, reopen — belongs to the live Current handler; participation,
+	attachment, reopen — belongs to the live Route handler; participation,
 	+ attention, and @ input never substitute for ownership."""
 	store, _config = world
 	work = _create(store)
@@ -449,7 +449,7 @@ def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 		with pytest.raises(bw.WorkError, match="never grant"):
 			tr.add_dependency(store, work, _create(store, team="push",
 			                                       member="sl"),
-			                  actor_team=team, actor=member)
+			                  actor_team=team, actor=member, rationale="test dependency")
 	# Attaching a child needs the PARENT's handler — a teammate who merely
 	# participates is refused (cross-team authors never even reach the
 	# gate: authoring for another team refuses first).
@@ -461,7 +461,7 @@ def test_the_full_authority_matrix_gates_every_workflow_decision(world):
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="asking", request="push.bug")
 	tr.add_dependency(store, work, _create(store, team="push", member="sl"),
-	                  actor_team="lang", actor="ada")
+	                  actor_team="lang", actor="ada", rationale="test dependency")
 	child = tr.create_work(store, team="lang", kind="bug", title="child",
 	                       origin="decomposition", classification="suspected-defect", author="ada", body="b",
 	                       parent=work)["work_id"]
@@ -562,7 +562,7 @@ def test_available_transitions_offer_close_over_an_open_blocker(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	assert "close" in pj.detail(
 		store, work, viewer_team="lang",
 		viewer_member="ada")["available_transitions"], \

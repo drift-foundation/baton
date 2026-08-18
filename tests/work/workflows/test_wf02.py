@@ -36,12 +36,12 @@ def test_wf02_request_without_transfer(flow):
 	assert flow.ok("obligations", viewer="lang.ada") == [], \
 		"+ created an obligation"
 	checkpoint = flow.ok("detail", f"work={push1}", viewer="push.sl")
-	assert checkpoint["current"]["endpoint"] == "push.rev", \
+	assert checkpoint["route"]["endpoint"] == "push.rev", \
 		"+ moved Current"
 
 	# 3. `@lang.bug` creates EXACTLY ONE obligation; ownership still push.
 	requested = flow.post(push1, "body=is this yours?",
-	                    "request=lang.bug", viewer="push.sl")
+	                    "request=lang.bug", "wait=false", viewer="push.sl")
 	assert requested["kind"] == "request"
 	actionable = flow.ok("obligations", viewer="lang.ada")
 	assert len(actionable) == 1
@@ -50,7 +50,7 @@ def test_wf02_request_without_transfer(flow):
 	                                    "route": "intake", "role": "rsrch",
 	                                    "handlers": ["ada"]}
 	assert flow.ok("detail", f"work={push1}",
-	               viewer="push.sl")["current"]["endpoint"] == "push.rev"
+	               viewer="push.sl")["route"]["endpoint"] == "push.rev"
 
 	# 4. A non-handler Lang member reads and contributes; the contribution
 	# does not silently discharge or take over the obligation.

@@ -77,7 +77,7 @@ def test_the_observed_refused_cutover_command_succeeds(world):
 	code, out, err = run_cli(
 		world, "say", "thread=T2",
 		"body=v11 cutover test: acknowledge through v11",
-		"request=lang.bug", "on=W2")
+		"request=lang.bug", "wait=false", "on=W2")
 	assert code == 0, err
 	posted = _json.loads(out)["result"]
 	canonical = f"{world['prefix']}-T2"

@@ -47,12 +47,12 @@ the document passes. A refusal leaves nothing behind.
 
 The active claim is its own authority state, orthogonal to phase: `claim
 work=WORK` records WHO is executing without touching WHAT stage the phase
-names. One eligible handler of the live Current endpoint acquires open,
+names. One eligible handler of the live Route endpoint acquires open,
 ready, non-waiting/non-parked Work — every condition rechecked inside the
 write transaction, so an earlier `ready` observation is advisory and a
 competing claim fails closed naming the recorded claimant. No execution
 begins before the claim succeeds. A pass atomically records the
-destination Current AND the destination phase through its own canonical
+destination Route AND the destination phase through its own canonical
 THREADLESS verb — `pass work=W to=team.kind comment="..."`
 (the DESTINATION ROUTE decides the phase from its stage role —
 research, implementation and reviewer/approver roles map to
@@ -94,21 +94,49 @@ list, and below it a compact Message index (`M<seq>` labels over the
 existing stable sequence, with author, time, and your personal
 new/seen state) beside a reader showing exactly ONE selected message
 — its metadata header, wrapped body, and references under a separate
-Refs section. The split-area headings identify pane ROLES —
+Refs section. Work detail carries TWO tabs — `Messages` and `Events`,
+with Messages the default and the active one shown in brackets. `]`
+selects the next tab and `[` the previous, from anywhere in the detail
+view, and the footer always advertises `[/] tabs`. Events is the Work's
+append-only operational play-by-play: creation, classification,
+priority, contract and binding changes, dependency additions and
+corrections, claims, heartbeats, releases, phase/Current/Next moves,
+passes, verification lifecycle, and terminal disposition — with `E<seq>`
+as the visible stable identifier, the typed roles explaining WHY each
+event belongs to this Work, the other Works it affected, and claim
+intervals giving the work-time. One dependency act appears in BOTH
+affected Works from the same authoritative event, with opposite roles.
+Pure discussion and personal seen-cursor movement stay in Messages and
+never inflate `Msg`/`My`/`New`; a workflow-bearing message act is
+discoverable in Events without duplicating its body. Each tab keeps its
+own focused pane, selection, page cursor and reader scroll, and `Ctrl-W`
+stays pane-local to the active tab. The same facts ride JSON as
+`work-events work=W [after=|before=|newest=|limit=]`, whose pages stay
+canonical ascending. The Message index reads NEWEST-FIRST: entering a Thread selects
+its newest Message, which is also its newest unseen one whenever
+anything is unseen (the seen cursor is a monotonic sequence), so
+screen-down selects older Messages and screen-up newer ones. Entry is
+one bounded page read; the console never walks a whole Thread to
+reach its tail. The split-area headings identify pane ROLES —
 `Messages (N)` over the index and `Message M<seq>` over the reader —
 never content already visible elsewhere: the Thread row alone owns the
 discussion subject, the reversed index row owns selection, and one
 blank separator row (spacing, not a border) divides the Thread list
 from the lower panes. At usable width the index sits left of the
 reader; at narrow width they stack, index above reader — never merged
-into a flat stream. Selecting a Thread opens its first personal-new message
-when one exists. u unfolds/re-roots the tree at the selected Work,
+into a flat stream. Selecting a Thread opens its newest Message, which
+is also its newest unseen one whenever anything is unseen. u
+unfolds/re-roots the tree at the selected Work,
 Esc goes back, Ctrl-W then h/j/k/l (or arrows, or w / another
-Ctrl-W) moves across the three regions (Threads, index, reader),
-j/k select within the focused region (in the reader they scroll a
-long body, tagged `M<seq> (cont.)`), n pages forward through the
-Message index or the Thread list while more exists, p returns to the
-start (not a previous-page step), s advances your seen cursor
+Ctrl-W) moves GEOMETRICALLY across the three regions — Threads sits
+above both Message panes, index and reader sit beside each other, so
+one upward move from the reader reaches Threads directly and an
+unmapped edge direction stays put; a second Ctrl-W (or w) keeps the
+three-pane cycle —
+j/k or the up/down cursor keys select within the focused region (in the reader they scroll a
+long body, tagged `M<seq> (cont.)`), n pages toward OLDER messages
+through the Message index (or forward through the Thread list) while
+more exists, p returns to the newest page (not a previous-page step), s advances your seen cursor
 through the SELECTED message and no later one, z reveals closed
 rows, [b] deps opens
 the blocking/dependent neighbor view, q asks Exit? y/N on one row (y exits; n or Esc returns to the unchanged view). `:` opens the command bar: everything typed there is
@@ -120,10 +148,10 @@ body="..."`), with the public refusals. As you type, the bar shows context-sensi
 
 Wakeups are PARTICIPANT-relative: `wait`
 returns the one canonical action projection for your exact identity —
-open ready unclaimed Work whose Current resolves to you (every eligible
+open ready unclaimed Work whose Route resolves to you (every eligible
 handler until one claims; the claimant alone after, under the same
 stable `work:` key), pending `@` obligations your endpoint owes
-(`obligation:` keyed by seq), and due verification trials your Current
+(`obligation:` keyed by seq), and due verification trials your Route
 answers for (`trial:` keyed per deadline generation, retired by
 extension). `+`, plain posts, and personal New are attention, never
 wakeups. The header's oblig/due counters are these same personal facts;
@@ -166,20 +194,32 @@ the committing transaction), the audited event journal is the record,
 and canonical JSON exposes `heartbeat_at` scoped to the current claim
 epoch so every client reaches the same conclusion.
 
+Required dependency edges are explicit, reviewable workflow decisions:
+`block work=WORK on=BLOCKER rationale="..."` records why Work must wait.
+If that live edge was itself a mistake, the consumer Work's Current handler
+uses `unblock work=WORK on=BLOCKER rationale="..."`; this corrects only the
+exact open edge, recomputes readiness atomically, and never closes or edits
+either Work. Both verbs require their rationale and support `op-id=`. The
+immutable event ledger retains the addition and correction even though the
+live graph no longer contains a corrected edge. Finished blockers leave
+historical edges and are never rewritten through `unblock`.
+
 Work lists filter composably over canonical
 facts — `home`, `tree`, and `tui` take the same optional operands
-(`team= status= phase= current= category= ready= new= priority=`, full
+(`team= status= phase= route= current= category= ready= new= priority=`, full
 canonical values only, AND composition, one value per field), and the
 console's `:filter` shares the exact grammar (bare `:filter` clears;
-state is client-local and restart-cold). `current=me` means you resolve
-as a handler; `new=true` means your personal New is nonzero. Filtering
+state is client-local and restart-cold). `route=me` means you resolve
+as a handler — eligibility; `current=me` means you HOLD the claim, and
+unclaimed Work matches neither. `new=true` means your personal New is
+nonzero. Filtering
 runs inside the canonical snapshot: a matching child keeps its
 nonmatching parent as `filter_match:false` context, the team summary
 stays global, and the active filter is always disclosed — `Filter:N`
 right-aligned on the header plus a dedicated clause line that viewports
 at narrow widths.
 
-Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Current resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Current, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). `>` marks every open Work with NO active claimant — a state marker, not an overdue assertion, independent of elapsed time — so an unclaimed row reads `>MM:SS` since the committed handoff, or `>-` when there is no handoff to time. Claiming removes the marker and resets the display to elapsed time since the canonical `claimed_at`; releasing, passing, or a readiness change that releases the claimant restores it while the Work stays open, and closed Work has no execution claim and no marker. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. The Phase cell carries the same `>` marker. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing (a non-null active claimant, any phase) and any open ready `review` Work awaiting its reviewer's claim. Blocked review, waiting, parked, and closed Work stay steady. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
+Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Current, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). `>` marks every open Work with NO active claimant — a state marker, not an overdue assertion, independent of elapsed time — so an unclaimed row reads `>MM:SS` since the committed handoff, or `>-` when there is no handoff to time. Claiming removes the marker and resets the display to elapsed time since the canonical `claimed_at`; releasing, passing, or a readiness change that releases the claimant restores it while the Work stays open, and closed Work has no execution claim and no marker. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. The Phase cell carries the same `>` marker. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing (a non-null active claimant, any phase) and any open ready `review` Work awaiting its reviewer's claim. Blocked review, waiting, parked, and closed Work stay steady. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
 `high`, `normal` (the default), `low` — an ordering signal only, never
 a lifecycle fact. `create priority=...` records it at birth;
 `prioritize work=... as=...` is the audited effectively-once revision,

@@ -166,7 +166,7 @@ def test_json_replaces_dep_with_explicit_graph_fields(world):
 	                          origin="external-report", classification="suspected-defect", author="sl",
 	                          body="waits")["work_id"]
 	tr.add_dependency(store, consumer, provider, actor_team="push",
-	                  actor="sl")
+	                  actor="sl", rationale="test dependency")
 	provider_row = pj.detail(store, provider, viewer_team="lang",
 	                         viewer_member="ada")
 	consumer_row = pj.detail(store, consumer, viewer_team="push",
@@ -201,10 +201,11 @@ def test_refs_render_under_a_separate_section(world):
 	store.close()
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"\r", 0.6),
+		# W76: the index reads newest-first, so the LAST posted message
+		# is the entry selection — no walk needed.
 		(b"\x17j", 0.4),              # W14: the Message index
-		(b"j" * 8, 0.8),              # walk to the LAST (posted) message
 		(b"qy", 0.4)])
-	screen = ptyharness.replay(steps[2])
+	screen = ptyharness.replay(steps[1])
 	flat = "\n".join(screen)
 	# W14: the selected message's block paints in the READER.
 	assert "  Refs:" in flat, f"the Refs heading is missing"

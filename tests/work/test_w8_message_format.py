@@ -71,13 +71,14 @@ def test_the_reader_renders_the_block_with_metadata_and_references(world):
 	"""The selected message paints as the SAME canonical block: header
 	with seq/author/ts, indented wrapped body, each reference on its own
 	line under Refs (narrow stack, so the block starts at column 0)."""
+	# W76: entry already selects the NEWEST Message — the long one —
+	# so reaching it needs no index movement at all.
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"\r", 0.6),
 		(b"\x17j", 0.4),              # Ctrl-W j: the Message index
-		(b"j", 0.5),                  # select the LONG message (last)
 		(b"qy", 0.4),
 	], columns=44, lines=24)
-	screen = ptyharness.replay(steps[2], columns=44, lines=24)
+	screen = ptyharness.replay(steps[1], columns=44, lines=24)
 	header = next((line for line in screen
 	               if re.match(r"^#3 lang\.ada \d{4}-\d{2}-\d{2}", line)),
 	              None)
@@ -125,11 +126,13 @@ def test_the_index_shows_stable_seqs_and_the_personal_new_state(world):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_new_first_autoselect_reaches_a_later_message_page(tmp_path):
-	"""W14's new-first promise is Thread-wide, not first-page-only.
-	When every message on page one is seen and the first unseen message is
-	on a later bounded page, opening details must page to and select that
-	message rather than opening an old seen body."""
+def test_entry_lands_on_the_newest_message_without_walking(tmp_path):
+	"""W76 supersedes W14's forward hunt. The seen cursor is a MONOTONIC
+	sequence, so whenever anything is unseen the NEWEST Message is
+	itself unseen — entering at the newest page therefore lands on new
+	mail without loading every page to find it. This test keeps W14's
+	real promise (an old seen body is never the default entry) and
+	drops only the walk."""
 	config_path = str(tmp_path / "baton.json")
 	document = fixtures.config_document(
 		{"lang": {"members": {"ada": ["dev"], "grace": ["dev"]},
@@ -148,11 +151,10 @@ def test_new_first_autoselect_reaches_a_later_message_page(tmp_path):
 		                        author_team="lang", author="ada",
 		                        body=f"message {index}")
 		seqs.append(posted["seq"])
-	# At 14 rows the first index page is bounded below this cursor; the
-	# first personal-new Message therefore lives on a later page.
 	tr.seen_thread(store, born["thread"], team="lang", member="grace",
 	               up_to_seq=seqs[5])
-	first_new = seqs[6]
+	newest = seqs[-1]
+	oldest_unseen = seqs[6]
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.grace", [
@@ -161,9 +163,22 @@ def test_new_first_autoselect_reaches_a_later_message_page(tmp_path):
 	], columns=44, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	opened = "\n".join(ptyharness.replay(steps[0], columns=44, lines=14))
-	assert f"M{first_new} " in opened and f"#{first_new} lang.ada" in opened, \
-		("opening the Thread did not seek to its first personal-new "
-		 f"Message M{first_new}: {opened}")
+	assert f"M{newest} " in opened and f"#{newest} lang.ada" in opened, \
+		f"entry did not open the newest Message M{newest}: {opened}"
+	# it is unseen, which is the whole reason the walk was unnecessary
+	assert "• new" in opened, \
+		"the newest Message was not personal-new despite unseen mail"
+	# and the index reads newest-first, so the newest is above the
+	# oldest unseen rather than pages below it
+	rows = [line for line in ptyharness.replay(steps[0], columns=44,
+	                                           lines=14)
+	        if line.startswith("M")]
+	labels = [row.split()[0] for row in rows]
+	assert labels and labels[0] == f"M{newest}", \
+		f"the index did not lead with the newest Message: {labels}"
+	assert labels == sorted(labels, key=lambda m: -int(m[1:])), \
+		f"the index is not in newest-first order: {labels}"
+	assert f"M{oldest_unseen}" not in labels[:1]
 
 
 def test_all_seen_autoselect_opens_the_thread_newest_message(tmp_path):
@@ -215,7 +230,9 @@ def test_seen_advances_through_the_selected_message_and_no_later(world):
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
 		(b"\r", 0.6),
 		(b"\x17j", 0.4),              # the index
-		(b"k", 0.4),                  # up to the OPENER (M2)
+		# W76: entry selects the NEWEST (M3); newest-first means the
+		# older opener sits BELOW it, so j reaches M2.
+		(b"j", 0.4),                  # down to the OPENER (M2)
 		(b"s", 0.5),                  # seen through M2 only
 		(b"qy", 0.4),
 	])
@@ -230,7 +247,8 @@ def test_seen_advances_through_the_selected_message_and_no_later(world):
 		"s did not stop at the selected message"
 	# selecting the later message and marking clears the rest
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
-		(b"\r", 0.6), (b"\x17j", 0.4), (b"j", 0.4), (b"s", 0.5),
+		# the later message is already the entry selection
+		(b"\r", 0.6), (b"\x17j", 0.4), (b"s", 0.5),
 		(b"qy", 0.4),
 	])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -277,10 +295,12 @@ def test_the_reader_scrolls_an_oversized_message(tmp_path):
 	assert "giant-line-00" not in tail, "scrolling did not advance"
 
 
-def test_the_index_pages_are_bounded_with_next(tmp_path):
-	"""Bounded paging survives the redesign: a thread longer than one
-	index page discloses `(n: more)`; `n` advances the window to later
-	seqs and `p` returns to the first page."""
+def test_the_index_pages_are_bounded_with_older_and_newest(tmp_path):
+	"""Bounded paging survives the newest-first redesign, and names its
+	direction honestly: a thread longer than one index page discloses
+	`(n: older)`, `n` advances toward OLDER seqs, and `p` returns to the
+	newest page (never a previous-page step). Every page is one bounded
+	read — nothing walks the whole Thread."""
 	config_path = str(tmp_path / "baton.json")
 	document = fixtures.config_document(
 		{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}})
@@ -291,28 +311,42 @@ def test_the_index_pages_are_bounded_with_next(tmp_path):
 	born = tr.create_work(store, team="lang", kind="bug", title="paged",
 	                      origin="external-report", classification="suspected-defect", author="ada",
 	                      body="opener")
+	last = born["seq"]
 	for index in range(30):
-		tr.post_thread(store, born["thread"], author_team="lang",
-		               author="ada", body=f"entry {index:02d}")
+		last = tr.post_thread(store, born["thread"], author_team="lang",
+		                      author="ada",
+		                      body=f"entry {index:02d}")["seq"]
 	store.close()
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.7),
 		(b"\x17j", 0.4),              # the index
-		(b"n", 0.6),                  # the next bounded page
-		(b"p", 0.6),                  # back to the first page
+		(b"n", 0.6),                  # the older bounded page
+		(b"p", 0.6),                  # back to the newest page
 		(b"qy", 0.4),
 	], columns=44, lines=14)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+
+	def labels(step):
+		return [line.split()[0] for line
+		        in ptyharness.replay(step, columns=44, lines=14)
+		        if re.match(r"^M\d+ ", line)]
+
 	first = ptyharness.replay(steps[1], columns=44, lines=14)
-	assert any("(n: more)" in line for line in first), first[:6]
-	assert any(line.startswith("M2 ") for line in first)
-	paged = ptyharness.replay(steps[2], columns=44, lines=14)
-	assert not any(line.startswith("M2 ") for line in paged), \
-		"n did not advance the index window"
-	assert any(re.match(r"^M\d+ ", line) for line in paged)
-	back = ptyharness.replay(steps[3], columns=44, lines=14)
-	assert any(line.startswith("M2 ") for line in back), \
-		"p did not return to the first page"
+	assert any("(n: older)" in line for line in first), first[:6]
+	newest_page = labels(steps[1])
+	assert newest_page[0] == f"M{last}", \
+		f"the newest page did not lead with M{last}: {newest_page}"
+	assert f"M{born['seq']}" not in newest_page, \
+		"the newest page still carried the thread's opener"
+	older_page = labels(steps[2])
+	assert older_page, "n produced no page"
+	assert not set(older_page) & set(newest_page), \
+		f"n did not move the window: {older_page} vs {newest_page}"
+	assert max(int(m[1:]) for m in older_page) < \
+		min(int(m[1:]) for m in newest_page), \
+		f"n paged toward newer messages: {older_page}"
+	assert labels(steps[3]) == newest_page, \
+		"p did not return to the newest page"
 
 
 def test_the_narrow_stack_keeps_two_regions_never_a_flat_stream(world):
@@ -369,9 +403,11 @@ def test_selection_is_stable_and_the_scroll_is_width_bound(tmp_path):
 	sentence = " ".join(f"pane-word-{index:02d}" for index in range(40))
 	born = tr.create_work(store, team="lang", kind="bug",
 	                      title="pane target", origin="external-report", classification="suspected-defect",
-	                      author="ada", body=sentence)
+	                      author="ada", body="the opener")
+	# W76: entry selects the NEWEST Message, so the long body — the one
+	# that makes the reader clip — belongs there.
 	tr.post_thread(store, born["thread"], author_team="lang",
-	               author="ada", body="the follow-up")
+	               author="ada", body=sentence)
 
 	class Screen:
 		def addnstr(self, *_args):
@@ -427,12 +463,13 @@ def test_a_long_reference_wraps_and_loses_nothing(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),
+		# W76: the reference-carrying message is the newest, so entry
+		# already selects it
 		(b"\x17j", 0.4),              # the index
-		(b"j", 0.5),                  # the reference-carrying message
 		(b"qy", 0.4),
 	], columns=44, lines=20)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	screen = ptyharness.replay(steps[2], columns=44, lines=20)
+	screen = ptyharness.replay(steps[1], columns=44, lines=20)
 	rebuilt = "".join(line.strip() for line in screen
 	                  if line.startswith("    "))
 	assert f"[pushcoin:{long_path}]" in rebuilt, \

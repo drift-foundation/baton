@@ -29,3 +29,13 @@ W99 contains four separately reviewable Work tracks:
 4. replace the protocol-10 `EFFECTIVE-BATON.md` operating instructions with the confirmed v11 workflow.
 
 Each child has a top-level permanent dossier because this record already occupies the repository policy's maximum finding depth. Their records explicitly link back to W99; the filesystem is not nested a third time.
+
+## Confirmed child ordering — 2026-08-17
+
+W102 is not parallel with W101 at execution time. Its live inventory found the
+old combined bridge/app-server stack still imports the repository monitor
+paths and deployed v10 CLI that W101 would remove. W102 must first replace that
+stack with standalone app-server plus v11-only readiness, verify all v10
+consumers stopped, and complete the approved deployment/data retirement. Only
+then may W101 remove executable runtime/source paths. W103 and W104 may remain
+independent where they do not modify the live cutover commands.

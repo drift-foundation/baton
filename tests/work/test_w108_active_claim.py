@@ -1,8 +1,8 @@
 """W108 (finding-active-work-claim): the ATOMIC, PHASE-ORTHOGONAL claim.
 
-`active_team`/`active_member` answer WHO is executing; `phase` answers WHAT
+`current_team`/`current_member` answer WHO is executing; `phase` answers WHAT
 stage is happening — claiming never rewrites phase, ordinary phase changes
-never release, and a pass atomically records the destination Current AND
+never release, and a pass atomically records the destination Route AND
 the destination phase (W73: derived from the destination route's stage
 role, never from the caller) while releasing the sender's claim and
 never claiming for the recipient. Blocked Work keeps its honest stage phase but cannot be claimed;
@@ -66,7 +66,7 @@ def _create(store, title="claimable", parent=None, kind="bug"):
 
 def _row(store, work):
 	return store.conn.execute(
-		"SELECT phase, ready, active_team, active_member, wait_type "
+		"SELECT phase, ready, current_team, current_member, wait_type "
 		"FROM work WHERE id=?", (work,)).fetchone()
 
 
@@ -75,10 +75,13 @@ def test_claiming_records_the_claimant_without_touching_phase(store):
 	before = _row(store, work)["phase"]
 	result = tr.claim_work(store, work, actor_team="lang", actor="ada")
 	row = _row(store, work)
-	assert (row["active_team"], row["active_member"]) == ("lang", "ada")
+	assert (row["current_team"], row["current_member"]) == ("lang", "ada")
 	assert row["phase"] == before, "the claim silently rewrote phase"
 	view = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert view["active"] == {"team": "lang", "member": "ada"}
+	# W245: `participant` mirrors the route struct's `endpoint`, so the
+	# composed identity is not re-derived by every consumer.
+	assert view["current"] == {"team": "lang", "member": "ada",
+	                           "participant": "lang.ada"}
 	event = [e for e in store.events() if e["seq"] == result["seq"]][0]
 	assert event["kind"] == "claim"
 	assert event["payload"]["claimant"] == "lang.ada"
@@ -91,7 +94,7 @@ def test_a_competing_claim_fails_closed_naming_the_claimant(store):
 	with pytest.raises(bw.WorkError, match="claimed by lang.ada"):
 		tr.claim_work(store, work, actor_team="lang", actor="bee")
 	assert store.last_seq() == before, "a refused claim burned an event"
-	assert _row(store, work)["active_team"] == "lang"
+	assert _row(store, work)["current_team"] == "lang"
 
 
 def test_an_exact_retry_replays_the_one_claim(store):
@@ -116,7 +119,7 @@ def test_claim_preconditions_are_decided_in_the_transaction(store):
 	assert pj.detail(store, work, viewer_team="lang",
 	                 viewer_member="ada")["ready"] is True
 	blocker = _create(store, "arrived-later")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	with pytest.raises(bw.WorkError, match="cannot be claimed"):
 		tr.claim_work(store, work, actor_team="lang", actor="ada")
 
@@ -147,9 +150,9 @@ def test_independent_work_carries_independent_claimants(store):
 	rows = {work: _row(store, work)
 	        for work in (reviewing, implementing)}
 	assert rows[reviewing]["phase"] == "review"
-	assert rows[reviewing]["active_member"] == "ada"
+	assert rows[reviewing]["current_member"] == "ada"
 	assert rows[implementing]["phase"] == "active"
-	assert rows[implementing]["active_member"] == "bee"
+	assert rows[implementing]["current_member"] == "bee"
 
 
 def test_ordinary_phase_changes_keep_the_claim(store):
@@ -157,7 +160,7 @@ def test_ordinary_phase_changes_keep_the_claim(store):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="research")
-	assert _row(store, work)["active_member"] == "ada", \
+	assert _row(store, work)["current_member"] == "ada", \
 		"an ordinary stage change released the claim"
 
 
@@ -174,7 +177,7 @@ def test_entering_waiting_releases_the_claim(store):
 	                        phase="waiting", wait=obligation)
 	row = _row(store, work)
 	assert row["phase"] == "waiting"
-	assert row["active_team"] is None, \
+	assert row["current_team"] is None, \
 		"entering waiting kept the execution claim"
 	event = [e for e in store.events() if e["seq"] == released["seq"]][0]
 	assert event["payload"]["released_claimant"] == "lang.ada", \
@@ -186,7 +189,7 @@ def test_entering_parked_releases_the_claim(store):
 	tr.claim_work(store, parked, actor_team="lang", actor="ada")
 	released = tr.set_phase(store, parked, actor_team="lang", actor="ada",
 	                        phase="parked", reason="later")
-	assert _row(store, parked)["active_team"] is None
+	assert _row(store, parked)["current_team"] is None
 	event = [e for e in store.events() if e["seq"] == released["seq"]][0]
 	assert event["payload"]["released_claimant"] == "lang.ada"
 
@@ -196,7 +199,7 @@ def test_terminal_close_releases_the_claim(store):
 	tr.claim_work(store, closed, actor_team="lang", actor="ada")
 	tr.close_work(store, closed, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
-	assert _row(store, closed)["active_team"] is None, \
+	assert _row(store, closed)["current_team"] is None, \
 		"terminal close did not release the claim"
 
 
@@ -212,18 +215,18 @@ def test_a_pass_records_the_destination_phase_atomically(store):
 	row = _row(store, work)
 	assert row["phase"] == "review", \
 		"the pass did not record the destination stage"
-	assert row["active_team"] is None, "the sender's claim survived"
+	assert row["current_team"] is None, "the sender's claim survived"
 	event = [e for e in store.events() if e["seq"] == result["seq"]][0]
 	assert event["payload"]["destination_phase"] == "review", \
 		"the destination phase is not part of the pass event"
 	view = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert view["active"] is None, "the recipient was claimed implicitly"
+	assert view["current"] is None, "the recipient was claimed implicitly"
 	# Reviewer→implementer records the implementation stage.
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	fx.post(store, work, author_team="lang", author="ada",
 	        body="changes requested", pass_to="lang.bug")
 	row = _row(store, work)
-	assert row["phase"] == "active" and row["active_team"] is None
+	assert row["phase"] == "active" and row["current_team"] is None
 
 
 def test_the_route_decides_the_phase_and_the_caller_cannot(store):
@@ -276,7 +279,7 @@ def test_waiting_and_parked_are_unreachable_through_a_handoff(store):
 def test_blocked_review_work_keeps_review_but_refuses_claim(store):
 	work = _create(store, "blocked-review")
 	blocker = _create(store, "the gate")
-	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada")
+	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	fx.post(store, work, author_team="lang", author="ada",
 	        body="review while blocked", pass_to="lang.rev")
 	row = _row(store, work)
@@ -288,7 +291,7 @@ def test_blocked_review_work_keeps_review_but_refuses_claim(store):
 	tr.close_work(store, blocker, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	assert _row(store, work)["active_member"] == "ada"
+	assert _row(store, work)["current_member"] == "ada"
 
 
 def test_the_tui_facts_name_the_claimant(store):
@@ -297,9 +300,9 @@ def test_the_tui_facts_name_the_claimant(store):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	console = Console(store, "lang", "ada")
 	view = pj.detail(store, work, viewer_team="lang", viewer_member="ada")
-	assert any(fact == "active: lang.ada"
+	assert any(fact == "current: lang.ada"
 	           for fact in console._facts(view)), \
-		"the detail facts do not name the active participant"
+		"the detail facts do not name the current participant"
 
 
 def test_a_late_gate_releases_the_claim_but_keeps_the_stage(store):
@@ -313,12 +316,12 @@ def test_a_late_gate_releases_the_claim_but_keeps_the_stage(store):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	blocker = _create(store, "late gate")
 	linked = tr.add_dependency(store, work, blocker, actor_team="lang",
-	                           actor="ada")
+	                           actor="ada", rationale="test dependency")
 	row = _row(store, work)
 	assert row["phase"] == "review", \
 		"the late gate rewrote the honest work stage"
 	assert row["ready"] == 0
-	assert row["active_team"] is None, \
+	assert row["current_team"] is None, \
 		"execution stayed claimed on unready work"
 	event = [e for e in store.events() if e["seq"] == linked["seq"]][0]
 	assert {"work": work, "claimant": "lang.ada"} in \

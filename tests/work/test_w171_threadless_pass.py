@@ -93,7 +93,7 @@ def test_thread_is_an_unknown_pass_operand(world):
 	                f"thread={thread}", "comment=old dialect")
 	assert "unknown key 'thread'" in error
 	detail = ok(world, "detail", f"work={work}")
-	assert detail["current"]["endpoint"] == "lang.bug", \
+	assert detail["route"]["endpoint"] == "lang.bug", \
 		"the refused old dialect moved the baton"
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",
 	            "comment=new dialect")
@@ -175,7 +175,7 @@ def test_a_pass_moves_no_message_cursor_or_count(world):
 		"a personal New count changed under a threadless pass"
 	detail = ok(world, "detail", f"work={work}")
 	assert detail["message_count"] == detail_before["message_count"]
-	assert detail["current"]["endpoint"] == "rev.bug", \
+	assert detail["route"]["endpoint"] == "rev.bug", \
 		"the immutability held but the baton did not move"
 	assert passed["kind"] == "pass"
 
@@ -192,7 +192,7 @@ def test_the_handoff_and_the_consuming_return(world):
 	            "comment=please review")
 	assert passed["kind"] == "pass"
 	detail = ok(world, "detail", f"work={work}")
-	assert detail["active"] is None, "the handoff kept the claim"
+	assert detail["current"] is None, "the handoff kept the claim"
 	assert detail["phase"] == "review"
 	woken = pj.wait_actionable(store, viewer_team="rev",
 	                           viewer_member="bee", timeout_seconds=0)
@@ -206,7 +206,7 @@ def test_the_handoff_and_the_consuming_return(world):
 		"the consuming pass is not audited as a return"
 	assert returned["consumed_next"] is True
 	detail = ok(world, "detail", f"work={work}")
-	assert detail["current"]["endpoint"] == "lang.bug"
+	assert detail["route"]["endpoint"] == "lang.bug"
 	assert detail["next"] is None
 
 
@@ -238,7 +238,7 @@ def test_another_route_handler_cannot_pass_the_claimants_work(world):
 	                "comment=steal the handoff", viewer="lang.grace")
 	assert "claim" in error and "lang.ada" in error, error
 	after = ok(world, "detail", f"work={work}")
-	for field in ("current", "phase", "next", "active", "status"):
+	for field in ("route", "phase", "next", "current", "status"):
 		assert after[field] == before[field], \
 			f"the losing non-claimant changed {field}"
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",

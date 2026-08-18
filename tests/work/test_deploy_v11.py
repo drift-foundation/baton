@@ -97,6 +97,30 @@ def test_the_deployed_layout_is_the_ruled_release_shape(dist):
 		"bin/ must contain exactly the two product entry points"
 	assert _read(os.path.join(target, "doc", "BATON-WORK.md")) == \
 		_read(os.path.join(REPO, "docs", "BATON-WORK.md"))
+	# W103: the AGENT POLICY ships with the release too, so a
+	# participating team bootstraps its agent contract from the same
+	# exact release as its CLI rather than from whatever the source
+	# checkout happens to say today.
+	deployed_policy = _read(os.path.join(target, "doc",
+	                                     "AGENTS-MAILBOX-PROTO.md"))
+	assert deployed_policy == \
+		_read(os.path.join(REPO, "docs", "AGENTS-MAILBOX-PROTO.md")), \
+		"the deployed agent policy drifted from source"
+	assert b"protocol 11" in deployed_policy, \
+		"the deployed agent policy does not name protocol 11"
+	# W104: the OPERATING GUIDE ships for the same reason, and the
+	# finding requires its examples to be executed against the release
+	# that carries them — a drifted copy would document a grammar the
+	# shipped executable does not have.
+	deployed_guide = _read(os.path.join(target, "doc",
+	                                    "EFFECTIVE-BATON.md"))
+	assert deployed_guide == \
+		_read(os.path.join(REPO, "docs", "EFFECTIVE-BATON.md")), \
+		"the deployed operating guide drifted from source"
+	assert b"protocol-11" in deployed_guide, \
+		"the deployed operating guide does not name protocol 11"
+	assert b"send-notice" not in deployed_guide, \
+		"the deployed operating guide still prescribes retired v10 tooling"
 	example = os.path.join(target, "conf", "baton.example.json")
 	assert _read(example) == _read(os.path.join(REPO, "conf",
 	                                            "baton.example.json"))

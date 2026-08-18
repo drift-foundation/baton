@@ -81,7 +81,7 @@ def test_hot_zone_state_matrix(world):
 		tr.set_phase(store, work, actor_team="lang", actor="ada",
 		             phase=phase)
 		claimed = row_of(store, work)
-		assert claimed["active"] is not None
+		assert claimed["current"] is not None
 		assert hot_work(claimed), phase
 	# released: cold again
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
@@ -92,7 +92,7 @@ def test_hot_zone_state_matrix(world):
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="review")
 	review = row_of(store, work)
-	assert review["active"] is None and review["ready"]
+	assert review["current"] is None and review["ready"]
 	assert hot_work(review)
 	# claimed review: still hot
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
@@ -102,7 +102,7 @@ def test_hot_zone_state_matrix(world):
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
 	                 expect="lang.ada", reason="blocked below")
 	tr.add_dependency(store, work, blocker, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	blocked = row_of(store, work)
 	assert not blocked["ready"] and blocked["phase"] == "review"
 	assert not hot_work(blocked)
@@ -126,11 +126,11 @@ def test_hot_zone_state_matrix(world):
 	# waiting row is honestly not ready)
 	second_gate = make(store, title="second-gate")
 	tr.add_dependency(store, work, second_gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="waiting", wait="gates")
 	waiting = row_of(store, work)
-	assert waiting["active"] is None
+	assert waiting["current"] is None
 	assert not hot_work(waiting)
 	# terminal: cold, and the closed blocker already proved it
 	closed = row_of(store, blocker)
@@ -155,7 +155,7 @@ def test_the_cue_reads_no_clock_and_writes_nothing(world):
 	with open(database, "rb") as handle:
 		assert hashlib.sha256(handle.read()).hexdigest() == before, \
 			"deriving the cue touched the authority"
-	minimal = {"status": "open", "active": None, "phase": "review",
+	minimal = {"status": "open", "current": None, "phase": "review",
 	           "ready": True}
 	assert hot_work(minimal), \
 		"the cue needed more than canonical row state"
@@ -178,7 +178,7 @@ def test_cold_tables_never_emit_blink(tmp_path):
 	tr.set_phase(store, blocked, actor_team="lang", actor="ada",
 	             phase="review")
 	tr.add_dependency(store, blocked, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	done = make(store, title="finished")
 	tr.close_work(store, done, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")

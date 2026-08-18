@@ -122,7 +122,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	consumer = _json_read(executable, path, "home",
 	                      viewer="push.sl")["rows"][0]["id"]
 	_console(executable, path, "push.sl",
-	         [f"block work={consumer} on={epic}"])
+	         [f"block work={consumer} on={epic} rationale=child-required"])
 	detail = _json_read(executable, path, "detail", f"work={consumer}",
 	                    viewer="push.sl")
 	assert detail["ready"] is False, "the edge did not gate readiness"
@@ -134,7 +134,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	_console(executable, path, "lang.ada", [
 		f'say thread={born} body="tracking the reports" include="*.bug"',
 		f'say thread={born} body="push: can you retest?" '
-		f'request=push.bug on={epic}'])
+		f'request=push.bug wait=false on={epic}'])
 	obligations = _json_read(executable, path, "obligations",
 	                         viewer="push.sl")
 	assert len(obligations) == 1
@@ -156,14 +156,14 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 		f'set-next=lang.bug comment="handing over"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
-	assert detail["current"]["endpoint"] == "push.bug"
+	assert detail["route"]["endpoint"] == "push.bug"
 	assert detail["next"]["endpoint"] == "lang.bug"
 	_console(executable, path, "push.sl", [
 		f'pass work={epic} to=lang.bug '
 		f'comment="returning with results"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",
 	                    viewer="lang.ada")
-	assert detail["current"]["endpoint"] == "lang.bug", \
+	assert detail["route"]["endpoint"] == "lang.bug", \
 		"the return did not bring Current back"
 	assert detail["next"] is None, \
 		"the consuming return did not consume the planned Next"
@@ -210,6 +210,96 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	flat = "\n".join(line for screen in screens for line in screen)
 	assert "rationale" in flat, \
 		"the public refusal did not reach the console status line"
+
+
+def test_the_packaged_console_seeds_say_from_the_selection(executable,
+		world):
+	"""W81 parity: the contextual seed is real in the DEPLOYED console,
+	not only in the in-process client. Both facts are read off the SAME
+	screen — the Threads pane's selector and the command bar's seed —
+	so the assertion cannot drift with which Work happens to sort
+	first."""
+	import re as _re
+	path = world
+	# a Work with its own born Thread, so the detail view opened below
+	# has an unambiguous selection to seed from
+	created = _console(executable, path, "lang.ada", [
+		'create team=lang kind=bug title="seeded reply" '
+		'origin=external-report classification=suspected-defect '
+		'body="the opener"'])
+	assert any("ok work_id=" in line
+	           for screen in created for line in screen), created[-1][:4]
+	text, status, steps = ptyharness.drive(
+		path, "lang.ada",
+		[(b"", 0.5), (b"\r", 0.7), (b":say", 0.7), (b"\x1b", 0.3),
+		 (b"qy", 0.4)],
+		columns=WIDTH, lines=HEIGHT, command=[executable])
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, \
+		text[-400:]
+	screen = ptyharness.replay(steps[2], columns=WIDTH, lines=HEIGHT)
+	flat = "\n".join(screen)
+	bar = next((line for line in screen if line.startswith(":say")), None)
+	assert bar is not None, f"the command bar is not visible: {flat[-400:]}"
+	seeded = _re.search(r"^:say thread=(T\d+)", bar)
+	assert seeded, f"the packaged console did not seed a selector: {bar!r}"
+	# the seeded selector is the one the Threads pane is showing as
+	# selected — not an ordinal, not a canonical id
+	pane = [line for line in screen
+	        if _re.match(r"^\s+T\d+ ", line)]
+	assert pane, f"no Threads pane rows painted: {flat[-400:]}"
+	assert any(line.split()[0] == seeded.group(1) for line in pane), \
+		f"the seed {seeded.group(1)} is not a visible Thread selector: " \
+		f"{pane}"
+	# the assistance stays contextual after the seed
+	assert "body=" in bar, f"the assist lost the remaining operand: {bar!r}"
+
+	# and the completed command delivers to exactly that Thread
+	selector = seeded.group(1)
+	_console(executable, path, "lang.ada",
+	         [f'say thread={selector} body="the seeded reply"'])
+	delivered = _json_read(executable, path, "thread",
+	                       f"thread={selector}", viewer="lang.ada")
+	assert any(message["body"] == "the seeded reply"
+	           for message in delivered["messages"]), \
+		"the seeded command did not reach its Thread"
+
+
+def test_the_packaged_console_shows_no_work_capabilities(executable,
+		world):
+	"""W90 parity at BOTH widths in the deployed console: the reading
+	surface carries no `can:` line, while the canonical JSON still
+	declares the same authority to every client."""
+	path = world
+	# a Work this viewer genuinely handles, so the projection really
+	# does declare authority that the screen must not repeat
+	created = _console(executable, path, "lang.ada", [
+		'create team=lang kind=bug title="capability noise" '
+		'origin=external-report classification=suspected-defect '
+		'body="the opener"'])
+	assert any("ok work_id=" in line
+	           for screen in created for line in screen), created[-1][:4]
+	rows = _json_read(executable, path, "home",
+	                  viewer="lang.ada")["rows"]
+	work = next(row["id"] for row in rows
+	            if row["title"] == "capability noise")
+	declared = _json_read(executable, path, "detail", f"work={work}",
+	                      viewer="lang.ada")["available_transitions"]
+	assert declared, "the packaged projection declares no authority"
+	assert "prioritize" in declared
+	for columns, lines in ((WIDTH, HEIGHT), (44, 24)):
+		text, status, steps = ptyharness.drive(
+			path, "lang.ada", [(b"", 0.5), (b"\r", 0.7), (b"qy", 0.4)],
+			columns=columns, lines=lines, command=[executable])
+		assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, \
+			text[-400:]
+		screen = "\n".join(ptyharness.replay(steps[1], columns=columns,
+		                                     lines=lines))
+		assert "can:" not in screen, \
+			f"at {columns} columns the deployed console still renders " \
+			f"Work capabilities: {screen[:400]}"
+		assert "Threads (" in screen, \
+			f"at {columns} columns the reading context was lost: " \
+			f"{screen[:400]}"
 
 
 def test_the_packaged_console_refuses_before_curses(executable, world):

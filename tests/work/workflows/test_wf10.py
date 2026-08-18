@@ -3,7 +3,7 @@
 
 Four sibling fixtures, each carrying an open dependent, a planned Next, a
 pending carried `@`, and a pending verification assignment before its
-Current handler closes it: `satisfying`, `non-satisfying`, `rejected`
+Route handler closes it: `satisfying`, `non-satisfying`, `rejected`
 (plus the duplicate rejection with its explicit `duplicate_of` link), and
 `cancelled` (proposer-versus-Current authority and the open-child
 refusal). One close transaction dismantles the machine identically for
@@ -34,7 +34,8 @@ def _rig(flow, tag):
 	                    f"title=consumer {tag}",
 	                    "origin=external-report", "classification=suspected-defect", "body=waits",
 	                    viewer="push.sl")["work_id"]
-	flow.ok("block", f"work={dependent}", f"on={work}", viewer="push.sl")
+	flow.ok("block", f"work={dependent}", f"on={work}",
+	        "rationale=provider required", viewer="push.sl")
 	gated = flow.ok("create", "team=web", "kind=bug",
 	                f"title=gated {tag}",
 	                "origin=external-report", "classification=suspected-defect", "body=two gates",
@@ -43,12 +44,14 @@ def _rig(flow, tag):
 	                f"title=extra {tag}",
 	                "origin=external-report", "classification=suspected-defect", "body=second gate",
 	                viewer="mdb.mo")["work_id"]
-	flow.ok("block", f"work={gated}", f"on={work}", viewer="web.wren")
-	flow.ok("block", f"work={gated}", f"on={extra}", viewer="web.wren")
+	flow.ok("block", f"work={gated}", f"on={work}",
+	        "rationale=first provider required", viewer="web.wren")
+	flow.ok("block", f"work={gated}", f"on={extra}",
+	        "rationale=second provider required", viewer="web.wren")
 	flow.ok("pass", f"work={work}", "to=lang.impl", "set-next=lang.rsrch",
 	        "comment=onward", viewer="lang.ada")
 	asked = flow.ok("say", f"thread={thread}", "body=push: confirm",
-	                "request=push.bug", f"on={work}",
+	                "request=push.bug", "wait=false", f"on={work}",
 	                viewer="lang.ada")["seq"]
 	assigned = flow.ok("try", f"work={work}", f"candidate=cand-{tag}",
 	                   "assign=push.verify",
@@ -66,7 +69,7 @@ def _assert_dismantled(flow, rig, outcome, rationale):
 	detail = flow.ok("detail", f"work={rig["work"]}", viewer="lang.ada")
 	assert detail["status"] == "closed" and detail["outcome"] == outcome
 	assert detail["rationale"] == rationale
-	assert detail["current"] is None and detail["next"] is None, \
+	assert detail["route"] is None and detail["next"] is None, \
 		"the close did not clear Current and the planned Next"
 	states = {entry["seq"]: entry["status"]
 	          for entry in detail["obligations"]}
@@ -300,7 +303,7 @@ def test_wf10_terminal_outcomes(flow):
 	expected = "rsrch" if passed and \
 		passed[-1]["payload"]["pass_resolution"]["endpoint"] \
 		== "lang.rsrch" else "impl"
-	assert closing["payload"]["was_current_kind"] == expected, \
+	assert closing["payload"]["was_route_kind"] == expected, \
 		"the close audited a Current the commit no longer had"
 
 	# close vs close: exactly one terminal act, one refusal.

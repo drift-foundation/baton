@@ -119,18 +119,19 @@ def test_every_field_selects_and_composes_with_and(world):
 	assert unfiltered["filter"] is None
 
 
-def test_current_me_new_and_endpoint_filters(world):
-	"""current=me needs the viewer among the RESOLVED handlers;
-	current=TEAM.KIND matches the canonical endpoint; new=true tracks
-	the viewer's personal New."""
+def test_route_me_new_and_endpoint_filters(world):
+	"""W245: route=me needs the viewer among the RESOLVED handlers;
+	route=TEAM.KIND matches the canonical endpoint; new=true tracks
+	the viewer's personal New. This is the ELIGIBILITY question, which
+	`current=` used to answer under the wrong name."""
 	store = world["store"]
 	mine = make(world, "current is lang")["work_id"]
-	assert titles(ok(world, "home", "current=lang.bug")) == \
+	assert titles(ok(world, "home", "route=lang.bug")) == \
 		["current is lang"]
-	assert titles(ok(world, "home", "current=me")) == \
+	assert titles(ok(world, "home", "route=me")) == \
 		["current is lang"]
 	# grace is configured but NOT a resolved handler: me excludes
-	assert titles(ok(world, "home", "current=me",
+	assert titles(ok(world, "home", "route=me",
 	                 viewer="lang.grace")) == []
 	# personal New: ada authored (sees own message as seen after
 	# mark? the born message is New until marked)
@@ -171,9 +172,17 @@ def test_refusals_come_before_any_partial_view(world):
 	assert "not a configured team" in refusal(world, "home",
 	                                          "team=ghost")
 	assert "neither a configured TEAM.KIND endpoint nor me" in \
-		refusal(world, "home", "current=ghost.bug")
+		refusal(world, "home", "route=ghost.bug")
 	assert "neither a configured TEAM.KIND endpoint nor me" in \
-		refusal(world, "home", "current=nonsense")
+		refusal(world, "home", "route=nonsense")
+	# W245: current is a PARTICIPANT. An unknown one refuses by name,
+	# and an ENDPOINT spelling refuses with the fix, because silently
+	# matching nothing is exactly the stale-consumer failure this
+	# finding removes.
+	assert "neither a configured TEAM.MEMBER participant nor me" in \
+		refusal(world, "home", "current=lang.ghost")
+	assert "filter eligibility with route= instead" in \
+		refusal(world, "home", "current=lang.bug")
 
 
 def test_parent_context_retention_in_the_tree(world):

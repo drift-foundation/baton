@@ -35,7 +35,8 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 		               f"title={team} report",
 		               "origin=external-report", "classification=suspected-defect", "body=blocked on lang",
 		               viewer=f"{team}.{member}")["work_id"]
-		flow.ok("block", f"work={work}", f"on={lang42}", viewer=f"{team}.{member}")
+		flow.ok("block", f"work={work}", f"on={lang42}",
+		        "rationale=shared provider required", viewer=f"{team}.{member}")
 		flow.ok("phase", f"work={work}", "to=waiting", "wait=gates",
 		        viewer=f"{team}.{member}")
 		consumers[team] = work
@@ -60,12 +61,14 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 	             ("phase", f"work={lang42}", "to=queued"),
 	             ("close", f"work={lang42}", "rationale=again",
 	              "outcome=satisfying"),
-	             ("block", f"work={lang42}", f"on={consumers['push']}")):
+	             ("block", f"work={lang42}", f"on={consumers['push']}",
+	              "rationale=would cycle")):
 		assert_refusal_changes_nothing(flow, "lang.ada", *argv)
 	# New blockers may target only OPEN work — the contradiction cannot
 	# silently re-block anyone through the closed record.
 	error = assert_refusal_changes_nothing(
-		flow, "push.sl", "block", f"work={consumers["push"]}", f"on={lang42}")
+		flow, "push.sl", "block", f"work={consumers["push"]}", f"on={lang42}",
+		"rationale=duplicate gate")
 	assert "only open Work" in error
 
 	# 3. Lang creates LANG-57 as the follow-up; the relationship is
@@ -86,7 +89,8 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 		[lang57]
 
 	# 4. Push gains its OWN new edge; Web and MariaDB are not re-blocked.
-	flow.ok("block", f"work={consumers["push"]}", f"on={lang57}", viewer="push.sl")
+	flow.ok("block", f"work={consumers["push"]}", f"on={lang57}",
+	        "rationale=follow-up provider required", viewer="push.sl")
 	assert flow.ok("detail", f"work={consumers["push"]}",
 	               viewer="push.sl")["ready"] is False
 	for team, member in (("web", "wren"), ("mdb", "mo")):
@@ -98,7 +102,8 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 
 	# 5. Web later proves affected and adds its own explicit edge; closing
 	# LANG-57 fans out only across the NEW edges. Old history unchanged.
-	flow.ok("block", f"work={consumers["web"]}", f"on={lang57}", viewer="web.wren")
+	flow.ok("block", f"work={consumers["web"]}", f"on={lang57}",
+	        "rationale=follow-up provider required", viewer="web.wren")
 	before = [event for event in flow.ok("events", viewer="lang.ada")
 	          if event["payload"].get("work") == lang42 or
 	          event["kind"] == "close_work" and

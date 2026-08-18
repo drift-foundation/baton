@@ -3,7 +3,7 @@
 The superseding ruling (finding-tui-hot-cue-live-visibility): bold
 answers "what am I supposed to handle?" — reserved for Work the CURRENT
 VIEWER can act on: they hold its active claim; or it is open, ready,
-unclaimed, not waiting/parked, and its Current endpoint resolves to
+unclaimed, not waiting/parked, and its Route endpoint resolves to
 them (every eligible handler of a multi-handler Current until one
 claims; only the winner after); or they carry an unresolved directed
 `@` obligation on it (independently actionable even while blocked).
@@ -38,7 +38,7 @@ import fixtures as fx                                         # noqa: E402
 def world(tmp_path):
 	# ada AND grace both hold the default role, but the fixture route
 	# resolves handlers=[ada] only — grace is a configured member who
-	# is NOT a resolved Current handler, exactly the contrast the
+	# is NOT a resolved Route handler, exactly the contrast the
 	# ruling distinguishes.
 	config, database = fx.build_instance(
 		str(tmp_path), {"lang": {"members": {"ada": ["dev"],
@@ -90,7 +90,7 @@ def test_the_actionability_matrix(world):
 	# blocked: ready=false — the arrow explains, bold does not
 	gate = make(world, "the gate")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	blocked = row_for(world, work)
 	assert not blocked["ready"]
 	assert not actionable_work(blocked, "lang", "ada")
@@ -99,7 +99,7 @@ def test_the_actionability_matrix(world):
 	# waiting and parked: not bold even though Current names the viewer
 	second_gate = make(world, "second gate")["work_id"]
 	tr.add_dependency(store, work, second_gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="waiting", wait="gates")
 	assert not actionable_work(row_for(world, work), "lang", "ada")
@@ -126,10 +126,10 @@ def test_a_directed_obligation_is_independently_actionable(world):
 	born = make(world, "asked", team="push", author="sl")
 	work, thread = born["work_id"], born["thread"]
 	gate = make(world, "asker gate", team="push", author="sl")["work_id"]
-	tr.add_dependency(store, work, gate, actor_team="push", actor="sl")
+	tr.add_dependency(store, work, gate, actor_team="push", actor="sl", rationale="test dependency")
 	asked = tr.post_thread(store, thread, author_team="push",
 	                       author="sl", body="lang: confirm?",
-	                       request="lang.bug", on=work)
+	                       request="lang.bug", wait=False, on=work)
 	blocked = row_for(world, work)
 	assert not blocked["ready"], "the block did not gate readiness"
 	assert blocked["my_pending_obligations"] > 0
@@ -188,7 +188,7 @@ def test_the_cue_is_a_pure_fact_projection(world):
 	make(world, "parity ready")
 	blocked = make(world, "parity blocked")["work_id"]
 	tr.add_dependency(store, blocked, claimed, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	rows = pj.tree(store, viewer_team="lang",
 	               viewer_member="ada")["rows"]
 	expected = {row["title"] for row in rows
@@ -234,7 +234,7 @@ def test_personal_bold_on_the_real_terminal_wide_and_narrow(tmp_path):
 	                       classification="suspected-defect",
 	                       author="ada", body="b")["work_id"]
 	tr.add_dependency(store, other, mine, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	store.close()
 	BOLD = (r"\x1b\[(?:\d+;)*0?1(?:;\d+)*m"
 	        r"(?:\x1b\[[0-9;?]*[A-Za-z])*")
@@ -295,7 +295,8 @@ def test_two_eligible_handlers_bold_until_one_claims(tmp_path):
 		# the loser still reads the activity: claimant + age facts live
 		view = pj.detail(store, work, viewer_team="lang",
 		                 viewer_member="ada")
-		assert view["active"] == {"team": "lang", "member": "bee"}
+		assert view["current"] == {"team": "lang", "member": "bee",
+	                   "participant": "lang.bee"}
 		assert view["claimed_at"] is not None
 	finally:
 		store.close()

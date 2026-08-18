@@ -39,7 +39,7 @@ def test_wf05_three_consumers_converge(flow):
 		# The one labelled work is the eligible target — @ rides the
 		# thread with the selection resolved and recorded.
 		flow.ok("say", f"thread={thread}", "body=lang: is this yours?",
-		        "request=lang.bug", viewer=f"{team}.{member}")
+		        "request=lang.bug", "wait=false", viewer=f"{team}.{member}")
 		consumers[team], threads[team] = work, thread
 
 	# 2. Lang relates all three to ONE provider record: each acceptance
@@ -95,7 +95,8 @@ def test_wf05_three_consumers_converge(flow):
 	                 "title=CI image rebuild",
 	                 "origin=self-initiated", "classification=suspected-defect", "body=blocks the driver fix",
 	                 viewer="mdb.mo")["work_id"]
-	flow.ok("block", f"work={consumers["mdb"]}", f"on={build7}", viewer="mdb.mo")
+	flow.ok("block", f"work={consumers["mdb"]}", f"on={build7}",
+	        "rationale=build fix also required", viewer="mdb.mo")
 
 	# 5. Closing LANG-42 unblocks Push and Web INDEPENDENTLY; MariaDB stays
 	# blocked by BUILD-7 (multiple-blocker conjunction).

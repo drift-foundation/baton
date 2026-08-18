@@ -37,7 +37,7 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -215,8 +215,11 @@ CREATE TABLE work (
 	wait_obligation INTEGER,
 	status         TEXT NOT NULL DEFAULT 'open',
 	parent         TEXT REFERENCES work(id),
-	current_team   TEXT,
-	current_kind   TEXT,
+	-- W245 (finding-current-is-claimant): the ROUTE is eligibility —
+	-- the endpoint whose resolved handlers may claim this Work.
+	-- Authorization resolves from here, never from a claimant's name.
+	route_team     TEXT,
+	route_kind     TEXT,
 	next_team      TEXT,
 	next_kind      TEXT,
 	ready          INTEGER NOT NULL DEFAULT 0,
@@ -230,19 +233,25 @@ CREATE TABLE work (
 		CHECK (priority IN ('high', 'normal', 'low')),
 	last_changed_at TEXT NOT NULL,
 	last_change_seq INTEGER NOT NULL,
-	-- finding-active-work-claim: `active` is an authority-backed atomic
-	-- participant claim, not only a descriptive phase. The claimant
-	-- identity lives here; the claim/release transition matrix is that
-	-- finding's own gated implementation (blocks W92's release).
-	active_team    TEXT,
-	active_member  TEXT,
+	-- finding-active-work-claim: an authority-backed atomic participant
+	-- claim, not only a descriptive phase. The claim/release transition
+	-- matrix is that finding's own gated implementation (blocks W92's
+	-- release).
+	-- W245 (finding-current-is-claimant): this IS Current. It names the
+	-- exact participant executing the Work and is NULL while nobody
+	-- holds the claim, so a routed handoff awaiting pickup can no
+	-- longer read as somebody working. Routing lives in route_* above;
+	-- the two were previously both called "current" in different
+	-- layers, which is the ambiguity this finding removes.
+	current_team   TEXT,
+	current_member TEXT,
 	-- W49 (finding-acp-same-key-redelivery-loss): the ASSIGNMENT EPISODE.
 	-- Deliberately NOT last_change_seq, which every visible edit touches:
 	-- a claim, a heartbeat, an ordinary phase move, a priority or
 	-- classification revision would each redeliver work nobody reassigned
 	-- — including prompting a claimant again immediately after their own
 	-- claim. This mints only when the Work BECOMES NEWLY ACTIONABLE for
-	-- whoever its Current resolves: creation, pass/return, explicit claim
+	-- whoever its Route resolves: creation, pass/return, explicit claim
 	-- release, a false-to-true readiness flip, a condition wake, and a
 	-- parked-to-queued resume. Consumers key delivery on it, so a Work
 	-- handed away and handed back BETWEEN two polls is a new episode even

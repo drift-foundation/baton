@@ -424,7 +424,7 @@ def test_the_atomic_close_rolls_back_whole_at_every_boundary(world):
 	consumer = tr.create_work(store, team="push", kind="verify",
 	                          title="PUSH-1", origin="external-report", classification="suspected-defect",
 	                          author="sl", body="blocked")["work_id"]
-	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl")
+	tr.add_dependency(store, consumer, work, actor_team="push", actor="sl", rationale="test dependency")
 	tr.set_phase(store, consumer, actor_team="push", actor="sl",
 	             phase="waiting", wait="gates")
 	tr.create_trial(store, work, actor_team="lang", actor="ada",
@@ -564,7 +564,7 @@ def test_wait_wakes_when_the_deadline_arrives(world):
 	                      classification="suspected-defect",
 	                      author="sl", body="g")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)
@@ -588,7 +588,7 @@ def test_wait_sees_a_competing_message_commit(world):
 	                      classification="suspected-defect",
 	                      author="sl", body="g")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 
 	def late_request():
 		import time as _time
@@ -619,7 +619,7 @@ def test_wait_reflects_extension_close_abandon_and_restart(world):
 	                      classification="suspected-defect",
 	                      author="sl", body="g")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	tr.create_trial(store, work, actor_team="lang", actor="ada",
 	                candidate="driftc-A", assign=["push.verify"],
 	                review_at=T1)

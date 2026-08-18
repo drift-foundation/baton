@@ -29,7 +29,8 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	                "title=checkout fails",
 	                "origin=external-report", "classification=suspected-defect", "body=blocked",
 	                viewer="push.sl")["work_id"]
-	flow.ok("block", f"work={push1}", f"on={lang42}", viewer="push.sl")
+	flow.ok("block", f"work={push1}", f"on={lang42}",
+	        "rationale=compiler defect gates push", viewer="push.sl")
 	flow.ok("phase", f"work={push1}", "to=waiting", "wait=gates",
 	        viewer="push.sl")
 
@@ -82,7 +83,7 @@ def test_ws2_wf01_one_verifier_satisfying(flow):
 	resumed = flow.ok("detail", f"work={push1}", viewer="push.sl")
 	assert resumed["phase"] == "queued" and resumed["ready"] is True
 	assert resumed["status"] == "open"
-	assert resumed["current"]["endpoint"] == "push.bug"
+	assert resumed["route"]["endpoint"] == "push.bug"
 	closing = next(event for event in
 	               flow.ok("events", viewer="lang.ada")
 	               if event["kind"] == "close_work")

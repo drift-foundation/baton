@@ -71,7 +71,7 @@ def test_omitted_on_resolves_the_single_eligible_and_echoes(world):
 	                    actor_team="push", actor="sl")
 	result = tr.post_thread(store, mine["thread"],
 	                            author_team="lang", author="ada",
-	                            body="push: confirm", request="push.bug")
+	                            body="push: confirm", request="push.bug", wait=False)
 	assert result["kind"] == "request" and result["work"] == mine["work_id"]
 	payload = _event(store, result["seq"])["payload"]
 	assert payload["work"] == mine["work_id"]
@@ -93,11 +93,11 @@ def test_two_eligible_refuse_and_explicit_on_selects(world):
 	with pytest.raises(bw.WorkError, match="exactly one labelled work"):
 		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="whose?",
-		                   request="push.bug")
+		                   request="push.bug", wait=False)
 	result = tr.post_thread(store, first["thread"],
 	                            author_team="lang", author="ada",
 	                            body="push: confirm on the second",
-	                            request="push.bug", on=second["work_id"])
+	                            request="push.bug", wait=False, on=second["work_id"])
 	obligation = store.conn.execute(
 		"SELECT work, thread FROM obligations WHERE seq=?",
 		(result["seq"],)).fetchone()
@@ -115,20 +115,20 @@ def test_selection_refusals_are_exact(world):
 	stranger = _create(store)
 	with pytest.raises(bw.WorkError, match="not among"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", request="push.bug",
+		                   author="ada", body="x", request="push.bug", wait=False,
 		                   on=stranger["work_id"])
 	with pytest.raises(bw.WorkError, match="carries none"):
 		tr.post_thread(store, first["thread"], author_team="lang",
 		                   author="ada", body="x", on=first["work_id"])
 	with pytest.raises(bw.WorkError, match="exactly one endpoint"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", request="*.bug",
+		                   author="ada", body="x", request="*.bug", wait=False,
 		                   on=first["work_id"])
 	# W171: the posting surface carries NO pass vocabulary at all — a
 	# baton transfer through a message is a type error, not a refusal.
 	with pytest.raises(TypeError):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", request="push.bug",
+		                   author="ada", body="x", request="push.bug", wait=False,
 		                   pass_to="lang.rsrch", on=first["work_id"])
 	with pytest.raises(TypeError):
 		tr.post_thread(store, first["thread"], author_team="lang",
@@ -138,7 +138,7 @@ def test_selection_refusals_are_exact(world):
 	# someone else's authority.
 	with pytest.raises(bw.WorkError, match="has 0"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="grace", body="x", request="push.bug")
+		                   author="grace", body="x", request="push.bug", wait=False)
 
 
 def test_closed_context_refuses_carrying_but_welcomes_commentary(world):
@@ -153,13 +153,13 @@ def test_closed_context_refuses_carrying_but_welcomes_commentary(world):
 	              rationale="finished", outcome="satisfying")
 	with pytest.raises(bw.WorkError, match="closed work refuses carrying"):
 		tr.post_thread(store, live["thread"], author_team="lang",
-		                   author="ada", body="x", request="push.bug",
+		                   author="ada", body="x", request="push.bug", wait=False,
 		                   on=done["work_id"])
 	# Omitted --on: the closed label is simply not eligible; the open one
 	# resolves.
 	result = tr.post_thread(store, live["thread"],
 	                            author_team="lang", author="ada",
-	                            body="push: confirm", request="push.bug")
+	                            body="push: confirm", request="push.bug", wait=False)
 	assert store.conn.execute(
 		"SELECT work FROM obligations WHERE seq=?",
 		(result["seq"],)).fetchone()["work"] == live["work_id"]
@@ -222,7 +222,7 @@ def test_respond_returns_to_the_originating_thread(world):
 	                    actor_team="lang", actor="ada")
 	asked = tr.post_thread(store, first["thread"],
 	                           author_team="lang", author="ada",
-	                           body="push: confirm", request="push.bug",
+	                           body="push: confirm", request="push.bug", wait=False,
 	                           on=second["work_id"])["seq"]
 	tr.unlabel_thread(store, first["thread"], second["work_id"],
 	                      actor_team="lang", actor="ada")
@@ -257,7 +257,7 @@ def test_accept_labels_the_originating_thread(world):
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
-	                           request="lang.bug")["seq"]
+	                           request="lang.bug", wait=False)["seq"]
 	provider = _create(store)
 	result = tr.accept_obligation(store, asked, actor_team="lang",
 	                              actor="ada", body="ours; tracked",
@@ -288,7 +288,7 @@ def test_accept_tolerates_the_preexisting_label_as_existing(world):
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
-	                           request="lang.bug")["seq"]
+	                           request="lang.bug", wait=False)["seq"]
 	result = tr.accept_obligation(store, asked, actor_team="lang",
 	                              actor="ada", body="already in context",
 	                              into=provider["work_id"])
@@ -309,7 +309,7 @@ def test_the_gate_is_the_edge_never_the_label(world):
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
-	                           request="lang.bug")["seq"]
+	                           request="lang.bug", wait=False)["seq"]
 	provider = _create(store)
 	tr.accept_obligation(store, asked, actor_team="lang", actor="ada",
 	                     body="ours", into=provider["work_id"])
@@ -334,7 +334,7 @@ def test_accept_create_labels_the_originating_thread_too(world):
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
-	                           request="lang.bug")["seq"]
+	                           request="lang.bug", wait=False)["seq"]
 	result = tr.accept_obligation(store, asked, actor_team="lang",
 	                              actor="ada", body="new provider work",
 	                              create={"kind": "rsrch", "classification": "suspected-defect", "title": "t"})
@@ -366,7 +366,7 @@ def test_a_mid_flight_unlabel_refuses_the_explicit_selection(world):
 		actor_team="lang", actor="ada"))
 	with pytest.raises(bw.WorkError, match="not among"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", request="push.bug",
+		                   author="ada", body="x", request="push.bug", wait=False,
 		                   on=second["work_id"])
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM messages").fetchone()["n"] == \
@@ -381,7 +381,7 @@ def test_a_mid_flight_close_refuses_the_carrying_operation(world):
 		rationale="closed underneath", outcome="satisfying"))
 	with pytest.raises(bw.WorkError, match="has 0|closed work refuses"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", request="push.bug")
+		                   author="ada", body="x", request="push.bug", wait=False)
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == 0
 
@@ -396,7 +396,7 @@ def test_a_mid_flight_second_eligible_makes_the_omission_ambiguous(world):
 	with pytest.raises(bw.WorkError,
 	                   match="exactly one labelled work|lost a concurrent"):
 		tr.post_thread(store, first["thread"], author_team="lang",
-		                   author="ada", body="x", request="push.bug")
+		                   author="ada", body="x", request="push.bug", wait=False)
 	assert store.conn.execute(
 		"SELECT COUNT(*) AS n FROM obligations").fetchone()["n"] == 0, \
 		"an ambiguous resolution still committed an obligation"
@@ -412,7 +412,7 @@ def test_accept_survives_a_racing_consumer_unlabel(world):
 	                    sibling["work_id"], actor_team="push", actor="sl")
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
-	                           body="lang: yours?", request="lang.bug",
+	                           body="lang: yours?", request="lang.bug", wait=False,
 	                           on=consumer["work_id"])["seq"]
 	provider = _create(store)
 	_interleave(store, lambda: tr.unlabel_thread(
@@ -437,7 +437,7 @@ def test_the_reverse_orders_commit_cleanly(world):
 	                    actor_team="lang", actor="ada")
 	asked = tr.post_thread(store, first["thread"],
 	                           author_team="lang", author="ada",
-	                           body="push: confirm", request="push.bug",
+	                           body="push: confirm", request="push.bug", wait=False,
 	                           on=second["work_id"])["seq"]
 	tr.unlabel_thread(store, first["thread"], second["work_id"],
 	                      actor_team="lang", actor="ada")
@@ -498,7 +498,7 @@ def test_a_carrying_post_commits_whole_or_not_at_all(world):
 	first = _create(store)
 	_exploding_sweep(store, lambda: tr.post_thread(
 		store, first["thread"], author_team="lang", author="ada",
-		body="push: confirm", request="push.bug"))
+		body="push: confirm", request="push.bug", wait=False))
 
 
 def test_the_labelling_acceptance_commits_whole_or_not_at_all(world):
@@ -507,7 +507,7 @@ def test_the_labelling_acceptance_commits_whole_or_not_at_all(world):
 	asked = tr.post_thread(store, consumer["thread"],
 	                           author_team="push", author="sl",
 	                           body="lang: yours?",
-	                           request="lang.bug")["seq"]
+	                           request="lang.bug", wait=False)["seq"]
 	provider = _create(store)
 	_exploding_sweep(store, lambda: tr.accept_obligation(
 		store, asked, actor_team="lang", actor="ada", body="ours",
@@ -520,7 +520,7 @@ def test_restart_reconstructs_the_binding_and_retry_refuses(world):
 	asked = tr.post_thread(store, first["thread"],
 	                           author_team="lang", author="ada",
 	                           body="push: confirm",
-	                           request="push.bug")["seq"]
+	                           request="push.bug", wait=False)["seq"]
 	tr.respond_obligation(store, asked, team="push", member="sl",
 	                      body="confirmed")
 	fresh = bw.Authority(store.path)

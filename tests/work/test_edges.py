@@ -46,7 +46,7 @@ def _ready(store, work_id):
 
 def _block(store, work, blocker, team="push", member="sl"):
 	return tr.add_dependency(store, work, blocker,
-	                         actor_team=team, actor=member)
+	                         actor_team=team, actor=member, rationale="test dependency")
 
 
 # -- the convergence scenario ------------------------------------------------

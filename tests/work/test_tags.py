@@ -90,10 +90,10 @@ def test_request_creates_one_obligation_and_current_stays(store, work):
 	before = _row(store, work)
 	result = fx.post(store, work, author_team="lang", author="ada",
 	                         body="please confirm the driver hang",
-	                         request="push.bug")
+	                         request="push.bug", wait=False)
 	after = _row(store, work)
-	assert (after["current_team"], after["current_kind"]) == \
-		(before["current_team"], before["current_kind"]), \
+	assert (after["route_team"], after["route_kind"]) == \
+		(before["route_team"], before["route_kind"]), \
 		"@ moved the baton; it must not"
 	obligation = store.conn.execute(
 		"SELECT * FROM obligations WHERE seq=?", (result["seq"],)).fetchone()
@@ -113,7 +113,7 @@ def test_request_refuses_every_fan_out_shape(store, work, target):
 
 def test_respond_discharges_the_obligation_with_the_answer(store, work):
 	seq = fx.post(store, work, author_team="lang", author="ada",
-	                      body="confirm?", request="push.bug")["seq"]
+	                      body="confirm?", request="push.bug", wait=False)["seq"]
 	with pytest.raises(bw.WorkError, match="cannot discharge"):
 		tr.respond_obligation(store, seq, team="web", member="wren",
 		                      body="not ours")
@@ -129,7 +129,7 @@ def test_respond_discharges_the_obligation_with_the_answer(store, work):
 
 def test_dispose_is_the_no_action_answer_with_words(store, work):
 	seq = fx.post(store, work, author_team="lang", author="ada",
-	                      body="fyi?", request="push.bug")["seq"]
+	                      body="fyi?", request="push.bug", wait=False)["seq"]
 	tr.dispose_obligation(store, seq, team="push", member="sl",
 	                      disposition="no action: known limitation")
 	obligation = store.conn.execute(
@@ -142,7 +142,7 @@ def test_a_message_cannot_carry_a_pass_at_all(store, work):
 	# tries to move the baton is a type error, not a workflow refusal.
 	with pytest.raises(TypeError):
 		tr.post_thread(store, fx.born(store, work), author_team="lang",
-		               author="ada", body="x", request="push.bug",
+		               author="ada", body="x", request="push.bug", wait=False,
 		               pass_to="lang.impl")
 
 
@@ -152,7 +152,7 @@ def test_pass_moves_the_one_current(store, work):
 	fx.post(store, work, author_team="lang", author="ada",
 	                body="confirmed defect", pass_to="lang.impl")
 	row = _row(store, work)
-	assert (row["current_team"], row["current_kind"]) == ("lang", "impl")
+	assert (row["route_team"], row["route_kind"]) == ("lang", "impl")
 
 
 def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
@@ -171,7 +171,7 @@ def test_pass_with_next_sets_it_and_the_return_consumes_it(store, work):
 	assert result["kind"] == "return", \
 		"the consuming pass is not audited as a return"
 	row = _row(store, work)
-	assert (row["current_team"], row["current_kind"]) == ("lang", "rev")
+	assert (row["route_team"], row["route_kind"]) == ("lang", "rev")
 	assert row["next_team"] is None and row["next_kind"] is None
 	event = store.events(after=result["seq"] - 1, limit=1)[0]
 	assert event["kind"] == "return"

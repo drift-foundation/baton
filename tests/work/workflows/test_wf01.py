@@ -6,7 +6,7 @@ with planned Next → evidence → consuming return → terminal close.
 WS-1 extension (authorized): public classification and the explicit
 research → active → review phases, including review → active rework, while
 proving a pass moves the baton WITHOUT touching phase — and that transition
-authority follows the baton to the new Current route's handlers.
+authority follows the baton to the new Route's handlers.
 """
 
 from __future__ import annotations
@@ -35,13 +35,13 @@ def test_wf01_straight_through_report(flow):
 	assert checkpoint["classification"] == "suspected-defect", \
 		"the submitted concrete classification did not arrive"
 	assert checkpoint["phase"] == "queued"
-	assert checkpoint["current"] == {"endpoint": "lang.rsrch",
+	assert checkpoint["route"] == {"endpoint": "lang.rsrch",
 	                                 "route": "intake", "role": "rsrch",
 	                                 "handlers": ["ada"]}
 	assert checkpoint["next"] is None
 
 	# WS-1: research classifies the report and moves into research phase —
-	# two EXPLICIT audited operations by the Current route's handler.
+	# two EXPLICIT audited operations by the Route's handler.
 	flow.ok("classify", f"work={work}", "as=confirmed-defect", viewer="lang.ada")
 	flow.ok("phase", f"work={work}", "to=research", viewer="lang.ada")
 	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
@@ -56,8 +56,8 @@ def test_wf01_straight_through_report(flow):
 	                 "comment=confirmed; implement", viewer="lang.ada")
 	assert passed["kind"] == "pass"
 	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.ada")
-	assert checkpoint["current"]["endpoint"] == "lang.impl"
-	assert checkpoint["current"]["handlers"] == ["grace"]
+	assert checkpoint["route"]["endpoint"] == "lang.impl"
+	assert checkpoint["route"]["handlers"] == ["grace"]
 	assert checkpoint["next"]["endpoint"] == "lang.rev", \
 		"the planned return is not visible while unconsumed"
 	assert checkpoint["origin"] == "external-report"
@@ -79,7 +79,7 @@ def test_wf01_straight_through_report(flow):
 	                   viewer="lang.grace")
 	assert returned["kind"] == "return"
 	checkpoint = flow.ok("detail", f"work={work}", viewer="lang.grace")
-	assert checkpoint["current"]["endpoint"] == "lang.rev"
+	assert checkpoint["route"]["endpoint"] == "lang.rev"
 	assert checkpoint["next"] is None, "the consumed Next is still set"
 	assert checkpoint["phase"] == "review", \
 		"the return did not record its destination phase (and release)"

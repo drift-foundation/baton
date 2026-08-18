@@ -37,8 +37,8 @@ def store(tmp_path):
 		yield authority
 
 
-def test_the_fresh_authority_is_schema_17(store):
-	assert store.meta()["schema_version"] == "17"
+def test_the_fresh_authority_is_schema_18(store):
+	assert store.meta()["schema_version"] == "18"
 
 
 def test_created_work_defaults_to_normal_priority(store):
@@ -127,12 +127,12 @@ def test_the_active_claim_state_is_present_and_unclaimed(store):
 	                         origin="external-report", classification="suspected-defect", author="ada",
 	                         body="b")
 	row = store.conn.execute(
-		"SELECT active_team, active_member FROM work WHERE id=?",
+		"SELECT current_team, current_member FROM work WHERE id=?",
 		(created["work_id"],)).fetchone()
-	assert (row["active_team"], row["active_member"]) == (None, None)
+	assert (row["current_team"], row["current_member"]) == (None, None)
 	view = pj.detail(store, created["work_id"], viewer_team="lang",
 	                 viewer_member="ada")
-	assert view["active"] is None
+	assert view["current"] is None
 
 
 def test_creation_requires_a_concrete_classification(store):

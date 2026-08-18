@@ -1,335 +1,465 @@
 # Using Baton effectively
 
-This is the short operating guide for teams coordinating humans and AI agents
-with Baton over protocol 10. It is written against the protocol rather than
-against a product version: `baton` and `baton-tui` are independently versioned
-products, so "Baton 1.0.0" no longer names one thing, while the protocol is
-what actually decides whether two participants can work together.
-The [README](../README.md) is the complete command and
-storage contract. [AGENTS-MAILBOX-PROTO.md](AGENTS-MAILBOX-PROTO.md) is the
-protocol-10 agent-channel contract and convention reference. A participating
-repository's own `AGENTS.md` binds its roles and workflow to concrete
-participant addresses.
+This is the practical operating guide for working inside a Baton
+**protocol-11** coordination authority. It assumes you can already run the
+executable; [BATON-SETUP.md](BATON-SETUP.md) covers creating a home and
+[BATON-WORK.md](BATON-WORK.md) is the exhaustive operator contract. When this
+guide and those documents disagree, they are the authority — this one explains
+how a participant works *safely*, and why each step matters.
 
-## Onboard a team
+Protocol 10's directed messages, notices, `send`/`reply`, and message claims
+are retired. They are not a fallback, and nothing here degrades to them.
 
-The local deployment supplies two absolute paths:
+Every command and every quoted result below was executed against the release
+candidate that ships this guide, in a throwaway coordination home. Where an
+error message appears, it is the real refusal text.
 
-    BATON_BIN=/absolute/path/to/bin/baton
-    BATON_CONFIG=/absolute/path/to/mailbox/baton.json
+## The one-paragraph model
 
-Do not infer either path from the current repository. The config and SQLite
-authority live outside participating product trees.
+**Work** is the unit of accountability. It has one owning team, one **Route**
+endpoint whose handlers owe the next decision, a **phase** that says what stage
+it is in, and a **Current** participant who is executing it right now — null
+while nobody holds the claim. Route and Current are different questions and
+Baton keeps them separate: who MAY act, and who IS acting. Discussion
+happens in **Threads** and **Messages**; what actually happened to the Work is
+its append-only **Events** journal. Nothing is inferred from your working
+directory, your shell history, or a wake-up prompt.
 
-Give each role one scoped participant address, such as `payments.implementer`
-or `payments.reviewer`, and record that mapping in the product's agent policy.
-The participant address is the identity; protocol 10 has no actor or seed.
+## Setup you only do once
 
-Before joining normal work, verify the released executable and authority:
+    mkdir -p ~/coord
+    baton init directory=~/coord          # scaffolds baton.json; creates no database
+    $EDITOR ~/coord/baton.json            # teams, roles, routes, kinds, roots
+    baton --participant app.ops activate directory=~/coord
 
-    "$BATON_BIN" --version
-    "$BATON_BIN" --config "$BATON_CONFIG" doctor
-
-Config changes take effect only through the audited `regen` ceremony. An
-administrator writes the proposed config at the same explicit path with
-`generation` exactly one greater than the authority's accepted generation,
-then a participant with the `config` capability runs
-`regen --participant <admin>`; Baton accepts or refuses the proposal in one
-transaction. Writing the proposal changes no authority state, but ordinary
-operations refuse while the file's generation or digest differs from the
-accepted state. If `regen` refuses, the authority remains unchanged: correct
-and retry the still-generation+1 proposal or restore the exact accepted JSON
-before resuming ordinary work. Never edit the SQLite authority directly or
-treat an unaccepted config file as active state.
-
-## Keep one active receive loop
+`init` refuses a directory that does not exist — it writes only into one you
+chose deliberately. `activate` is the single authoritative validation: it
+creates the SQLite authority only if the document passes, and a refusal leaves
+nothing behind, so edit and retry freely. Refusals are specific:
 
-While a participant is active, keep exactly one readiness path armed:
+    route handle 'research' is 8 display cells; the limit is 6.
+    Shorten the canonical handle and put the long form in the display name.
 
-    "$BATON_BIN" --config "$BATON_CONFIG" wait \
-      --participant payments.reviewer --timeout 60
+Thereafter every invocation names the config and your identity explicitly:
 
-`wait` is read-only. It claims no message and marks no notice seen. A timeout
-exit is idle, not failure; re-run it. A successful result must be consumed in
-the same live turn:
+    BATON="baton --config ~/coord/baton.json --participant app.mina"
 
-- For `"channel": "message"`, claim the exact reported id:
+There is no ambient configuration, no actor, and no seed. The participant
+address **is** the identity, and filesystem access to the instance is the trust
+boundary. This is cooperative coordination between trusted agents, not
+application-level authentication.
 
-      "$BATON_BIN" --config "$BATON_CONFIG" claim \
-        --participant payments.reviewer --message-id MESSAGE_ID
-
-- For `"channel": "notice"`, receive notices atomically:
-
-      "$BATON_BIN" --config "$BATON_CONFIG" see \
-        --participant payments.reviewer
-
-  `see` has no id: it marks every unseen notice for the participant seen and
-  returns them together.
-
-Resolve every claim immediately with `reply` or `close`. Never end a turn
-holding a claim, and never run two claimers under one participant identity.
-After resolution, re-arm `wait`.
-
-## Run the loop under your agent runner
-
-Baton defines readiness and consumption; it does not schedule model turns.
-Whether a background process can wake an agent, how long a command stays in
-the foreground, and how monitor events enter a conversation are runner
-behavior. Keep that behavior in local operating policy, not in the portable
-protocol.
-
-Every runner shares two rules: one active consumer path per participant, and
-no turn ends with an unanswered claim. A monitor is read-only and advisory; it
-must never claim, mark a notice seen, reply, or close on the model's behalf.
-
-### Claude Code monitor pattern observed here
-
-Long foreground waits may be detached when the turn ends. A detached protocol-
-10 `wait` is safe because it is read-only, but readiness can then sit with no
-live turn to consume it. Use waits short enough to remain inside the turn and
-treat idle exit 3 as "run it again." A separate runner monitor may wake or
-interrupt the agent when read-only mailbox state changes, if that runner
-supports such events.
-
-Monitor notifications can lag or repeat. Re-derive the current truth with
-`wait` or `scan`; never treat a notification as a consume step. If monitor
-events enter the same conversation channel as human input, they are not human
-instructions, approvals, or decisions.
-
-Assume a conversation can be compacted or restarted between checks. Decisions,
-evidence, rejected approaches, and current progress belong in Baton content
-and the finding folder, not only in the transcript.
-
-### Codex app-server event pattern
-
-Codex uses its app-server integration rather than relying on completion of a
-background terminal command to schedule another model turn. Claude Code keeps
-the runner-specific monitor pattern above; do not substitute the Codex
-app-server mechanism for Claude's own event integration.
-
-Create one machine-level bridge configuration that lists every Codex-backed
-participant, its target, and its persistent thread ID. It also records the
-deployment's explicit Baton executable and config paths. There is exactly one
-supervisor for that configuration: individual repositories and Codex sessions
-do not start their own bridge or Baton poller. Start the complete foreground
-stack once from the Baton repository:
-
-    just codex-baton /absolute/path/to/codex-event-bridge.json
-
-That single recipe starts every configured loopback app-server, waits for
-readiness, starts one shared multi-target bridge, requires successful initial
-resume of every configured thread, then starts one read-only Baton monitor for
-every configured participant and target. Duplicate participant assignments are
-refused. If any component exits, the supervisor stops the rest and exits
-visibly; Ctrl-C also stops the complete stack.
-
-For example, two independent reviewer sessions use two independent mappings:
-
-```text
-baton.reviewer -> target baton-reviewer -> thread T-baton
-lang.reviewer  -> target lang-reviewer  -> thread T-lang
-```
-
-The supervisor runs one `wait --participant baton.reviewer` child and one
-`wait --participant lang.reviewer` child. Readiness from the first starts a
-turn only on `T-baton`; readiness from the second starts a turn only on
-`T-lang`. The sessions share app-server infrastructure, but not identity,
-conversation context, queue, busy state, or mailbox head.
-
-The low-level `just codex-app-server` recipe starts only the backend and is for
-protocol development. It does not wire Baton. Do not expose the experimental
-app-server WebSocket on `0.0.0.0` or a public interface.
-
-Connect each normal Codex TUI to that backend:
-
-    codex resume --remote ws://127.0.0.1:4500 THREAD_ID
-
-Before the first shared launch, close any Codex TUI still running the configured
-thread through its old per-session backend. Codex permits only one active
-writer for a persistent thread. If a target still has an active writer, the
-supervisor names that unavailable target, starts no Baton monitors, and stops
-the partial stack. Start the shared stack first, then resume each TUI through
-the displayed remote endpoint.
-
-The normal startup order is therefore:
-
-1. Close old isolated Codex sessions that own configured threads.
-2. Start the one machine-level `just codex-baton SHARED_CONFIG` supervisor and
-   wait for its `ready` line.
-3. For each desired reviewer TUI, run `codex resume --remote ENDPOINT THREAD_ID`.
-4. Leave the supervisor running. TUIs may disconnect and reconnect without
-   stopping their participant's Baton monitor.
-
-Do not fall back to `codex resume THREAD_ID` after migration. Without
-`--remote`, Codex starts an isolated backend, takes the thread's writer lock,
-and prevents the shared bridge from resuming that target.
-
-Each logical agent owns one established persistent Codex thread. Its TUI and
-the event bridge are peer app-server clients operating on that thread ID. The
-bridge can manage many target/thread pairs concurrently; one busy agent does
-not block another. Configure those mappings as described in
-[CODEX-APP-SERVER-EVENT-CONNECTIVITY.md](CODEX-APP-SERVER-EVENT-CONNECTIVITY.md).
-
-Each supervised monitor is its participant's one active Baton readiness path.
-Do not run a second manual or background `wait` for the same participant. The monitor never
-claims a message, marks a notice seen, replies, or closes. It forwards only a
-readiness event through the local Unix socket:
-
-- a message event carries the exact `message_id` reported by `wait`;
-- a notice event reports that a batch is ready for `see`;
-- repeated readiness for the same unresolved head is suppressed;
-- if the bridge is unavailable, the monitor retains responsibility and retries.
-
-The app-server injects that event as a new turn in the configured agent thread.
-The event is external input, not a human instruction or approval. The awakened
-Codex agent follows the repository's standing policy: claim the exact message
-ID from the event, or call `see` for notices, process the content, resolve every
-claim with `reply` or `close`, and return. It does not invoke `wait`; the monitor
-already owns and re-arms that readiness path.
-
-This replaces the earlier Codex live-turn polling workaround, whose terminal
-completion could not itself schedule another turn. The old workaround remains
-useful only when Codex is not running through app-server.
-
-Other runners may offer stronger wakeup primitives. Record what the deployment
-actually observes rather than copying Claude- or Codex-specific ergonomics
-into an environment with different scheduling behavior.
-
-## Make the inbox useful
-
-Give substantive work a concise subject. When one line is the whole message,
-use `--tweet`; it publishes the line as the subject with no body:
-
-    "$BATON_BIN" --config "$BATON_CONFIG" send \
-      --participant payments.implementer --to payments.reviewer \
-      --kind status --tweet "Still testing; give me more time"
-
-Use a directed message when somebody owes an answer or acknowledgement. Use a
-finite-TTL notice for information that nobody claims. Scope a team notice with
-a quoted selector such as `--scope 'payments.*'`; quote it so the shell cannot
-expand it.
-
-When a message discusses repository files, include a references part. The
-references file contains one configured `ROOT_ID:relative/path` per line:
-
-    "$BATON_BIN" --config "$BATON_CONFIG" send \
-      --participant payments.implementer --to payments.reviewer \
-      --kind implementation_handoff \
-      --subject "Retry finding ready for review" \
-      --body work/records/2026/08/finding-retry/PROGRESS.md \
-      --references /tmp/retry-handoff.references
-
-References are navigation, not copied evidence. The body is copied into the
-authority. Use an external attachment only when you deliberately mean to pin
-an immutable file hash; do not attach a document that is still being edited.
-
-For a short acknowledgement, reply with `--tweet`. For a substantive review,
-reply with a nonempty body and references. If no response content is needed,
-`close` records the terminal disposition.
-
-## Preserve work in findings
-
-Baton messages are durable coordination evidence, but they should not be the
-only specification of a product or engineering decision. A recommended team
-workflow is one permanent record per independently schedulable item, created
-at its canonical path and never moved by lifecycle:
-
-    work/
-      open/
-        finding-short-slug -> ../records/YYYY/MM/finding-short-slug
-      records/
-        YYYY/
-          MM/
-            finding-short-slug/
-              FINDING.md
-              PLAN.md
-              PROGRESS.md
-              review-YYYY-MM-DDTHH-MM-SSZ.md
-
-The year/month is fixed at creation. `work/open/` is an optional human
-convenience index of relative symlinks for sweeping still-open records;
-removing a closed record's symlink is ordinary housekeeping, never a
-lifecycle transition, and messages always cite the canonical
-`work/records/...` path, never `work/open/...`.
-
-This layout is team policy, not protocol enforcement. A repository may adapt
-the names, but the responsibilities should remain distinct:
-
-- `FINDING.md` records observed behavior, evidence, confirmed decisions,
-  boundaries, and acceptance criteria.
-- `PLAN.md` says what is currently actionable and in what order.
-- `PROGRESS.md` is the implementer's account of what was actually changed,
-  rejected, tested, and learned.
-- Append-only review journals preserve each review outcome and correction
-  round instead of rewriting history.
-
-Before implementation, pin every confirmed product, UX, protocol, or
-operational ruling in the owning finding and update the plan. Label hypotheses
-as hypotheses; a reviewer or implementer message is evidence to verify, not
-authority. When work resumes after a crash or context reset, read the whole
-finding folder and revalidate it against the current tree.
-
-Handoffs should carry the explanation as a body and list every discussed file
-in a references part. That tells the reader which exact finding, plan,
-progress, review, source, and test files matter even when several unstaged
-changes coexist.
-
-Implement one finding serially to a reviewed terminal state. Reviewer research
-may enrich queued findings without interrupting the implementer. The record
-itself is permanent: closing its Work freezes decision history in place, and
-later corrections are explicit follow-up evidence, never a silent rewrite or a
-relocation. Durable tests, user documentation, and repository policy still
-stand on their own outside the record.
-
-## Recover content and diagnose safely
-
-`claim` and `see` print lossless typed content. To recover a durable part later,
-use the authorized public projection command:
-
-    "$BATON_BIN" --config "$BATON_CONFIG" materialize \
-      --participant payments.reviewer --dir /absolute/projection/directory \
-      --prefix review --part 0 MESSAGE_ID
-
-The projection is a cache; the authority remains canonical.
-
-Use `scan` for pending/claimed/damaged inventory and `doctor` for authority
-health. Do not query or repair SQLite directly. If Baton cannot express a
-needed recovery or diagnosis, file a Baton finding rather than inventing a
-private database workaround.
-
-## Keep released communication stable during development
-
-Normal users should continue invoking the canonical released `bin/baton` and
-`bin/baton-tui` against the live authority. Source work does not change those
-self-contained zipapps until they are rebuilt.
-
-During Baton development:
-
-- build candidate zipapps into a separate development distribution path;
-- test them against a separate development config and authority;
-- never migrate, regenerate, gate, or replace the live mailbox as a side
-  effect of feature work;
-- replace canonical artifacts or cut over protocol only after focused review,
-  human trial where applicable, the complete suite, deterministic rebuild,
-  packaged workflow smoke, live health check, and an announced release window.
-
-Communication stays available first. Historical messages can be ported later
-when a protocol cutover requires a fresh authority; do not keep every team
-offline while perfecting a migration.
-
-## A reliable handoff checklist
-
-Before sending:
-
-1. Pin confirmed decisions in the finding and update its plan.
-2. Revalidate the current source instead of trusting the original hypothesis.
-3. Run focused tests and record failures as well as successes.
-4. Give the message a useful subject and include exact repository references.
-5. Keep living documents in the body; attach only intentionally immutable
-   evidence.
-
-Before finishing a turn:
-
-1. Resolve every claim with `reply` or `close`.
-2. Record current implementation/review state in repository files.
-3. Re-arm exactly one `wait` for the participant.
+### How an endpoint resolves
+
+Configuration composes in one direction, and it is worth reading once:
+
+    kind  ->  route  ->  role  ->  phase
+    app.bug -> impl  -> impl   -> active
+    app.rview -> rview -> rview -> review
+
+An **endpoint** is `team.kind`. Each kind names a **route**; each route has a
+**role** and a handler list; the role decides the phase a handoff lands in.
+That chain is why you never supply a destination phase by hand.
+
+The Work's `route` is that endpoint — eligibility. Its `current` is the exact
+participant who claimed it, or null. Authorization always resolves from the
+route, never from a claimant's name, so a routed handoff nobody has picked up
+projects `current: null` rather than pretending somebody is on it.
+
+## The straight-through path
+
+Most Work never needs anything cleverer than this.
+
+    $BATON create team=app kind=bug \
+        title="nested escapes drop the destination" \
+        origin=external-report classification=suspected-defect \
+        body="reproduces on every consumer checkout"
+    # -> {"work_id": "…-W2", "thread": "…-T2", "seq": 2}
+
+Creation mints the Work and its born Thread in one act. `classification=` is
+required and `unknown` is refused: say what you actually think it is, and
+`classify` later when you know more.
+
+    $BATON claim work=W2
+    # -> {"claimant": "app.mina", "seq": 3}
+
+**Claim before you execute**, because only a successful claim populates
+Current. Not before you read, discuss, or plan — before
+you *do* the thing the route owns. The claim is atomic and rechecked inside the
+write transaction, so an earlier readiness observation is advisory and a
+competing claim fails closed:
+
+    W2 is already claimed by app.mina; conflicting claim attempts fail closed
+    (an exact retry replays through its operation id)
+
+Note what claiming does *not* do: the phase is still `queued`. A claim answers
+*who is executing*, never *what stage this is*. Move the stage deliberately:
+
+    $BATON phase work=W2 to=research
+    $BATON classify work=W2 as=confirmed-defect
+
+Research is visible work, not a gap in the record. Then hand it on:
+
+    $BATON pass work=W2 to=app.rview \
+        comment="reproduced; escape handling confirmed at the tokenizer"
+    # -> {"to": "app.rview", "destination_phase": "review"}
+
+`pass` is one atomic **threadless** event. It moves the route, clears
+Current, records the destination phase *derived from the destination route*,
+and stores `comment` as durable handoff evidence. It creates no message and
+moves no conversational count. You cannot supply `phase=` — it is refused as
+unknown — so a handoff can never advertise a stage nobody is in.
+
+Review may send the same Work back for another `active -> review` iteration.
+That is ordinary, not a failure state:
+
+    $BATON pass work=W2 to=app.bug set-next=app.rview \
+        comment="fix is right but the regression only covers the quoted form"
+    # -> destination_phase: active
+
+`set-next` records the planned return destination. **Next neither transfers nor
+claims anything** — it is a plan, and the route is still the only thing that
+owes a decision.
+
+    $BATON close work=W2 outcome=satisfying \
+        rationale="escape handling fixed and both forms regression-covered"
+
+Every close names exactly one outcome — `satisfying`, `non-satisfying`,
+`rejected`, or `cancelled` — and a non-empty rationale. **Closed Work never
+reopens:**
+
+    W2 is closed; a closed work refuses phase changes
+
+If later evidence contradicts a closed decision, that is new linked follow-up
+Work, not a reopening.
+
+## Saying why something is not moving
+
+Phase must tell the truth. Three states mean genuinely different things, and
+conflating them is the most common way a board becomes fiction.
+
+- **`waiting`** — blocked on something *named*: one exact obligation, or the
+  Work's dependency gates. Requires `wait=`.
+- **`parked`** — an explicit, un-gated deferral. Requires `reason=`. It stays a
+  visible loose end; it is not a quiet grave.
+- **A dependency edge** does not rewrite phase at all. Blocked Work keeps its
+  honest stage, reports `ready: false`, and refuses claims:
+
+      W23 has 1 unmet dependency/child gate(s); blocked work cannot be
+      claimed — readiness is decided here, in the write transaction
+
+Waiting and parked Work cannot be claimed either — suspending already released
+the claim:
+
+    W13 is waiting; waiting and parked work cannot be claimed
+
+## Discussion, attention, and directed requests
+
+Threads carry prose. Events carry acts. Keep them separate and both stay
+readable.
+
+**`include=` is attention only.** It fans a message out to endpoints who owe
+nothing:
+
+    $BATON say thread=T13 body="heads up, this will touch the shared lexer" \
+        include=lib.bug
+    # -> {"kind": "post_message", "included": ["lib.bug"]}
+
+The recipient's obligation list stays empty and no phase moves. Include takes
+*endpoint* selectors, not participant addresses; a selector matching nothing is
+refused at tag time rather than discovered later.
+
+**`request=` creates exactly one obligation**, and by default it blocks:
+
+    $BATON say thread=T13 body="lib: can the lexer expose spans?" \
+        request=lib.bug on=W13
+    # -> {"kind": "request", "work": "…-W13", "wait": true}
+
+In one transaction that publishes the message, creates the obligation owed by
+`lib.bug`, moves your Work to `waiting` on that exact obligation seq, and
+releases your claim.
+
+Two facts move differently here, and the difference is the point. **The route
+does not move** — your Work still belongs to the same eligible endpoint, and
+the answer is owed *to* that endpoint rather than instead of it. **Current
+does clear**, because entering the wait releases your claim: nobody is
+executing Work that is blocked on somebody else's answer.
+
+Because a blocking request suspends the Work *you* are executing, you must
+actually be executing it:
+
+    a blocking request suspends W16, which is unclaimed;
+    claim it first or send the request with wait=false
+
+    W16 is claimed by app.mina; a blocking request suspends the work its own
+    executor is doing, never somebody else's
+
+When the answer lands, the Work returns to the phase it left:
+
+    $BATON say ... # as lib.rai:
+    baton --participant lib.rai respond obligation=17 \
+        body="yes — spans are already tracked internally; exposing them is additive"
+    # W13: phase waiting -> queued, waiting_on -> null
+
+Use `wait=false` when you genuinely can proceed meanwhile. It is a deliberate
+statement, not a convenience:
+
+    $BATON say thread=T13 body="lib: confirm the span type when you can" \
+        request=lib.bug on=W13 wait=false
+    # -> {"wait": false}   — phase untouched, claim retained
+
+The result always reports which form committed, so you never have to read
+Events back to find out. A plain message with no request omits the key
+entirely rather than inventing a choice:
+
+    {"seq": 21, "kind": "post_message", "included": []}   # no "wait" key
+
+An obligation is answered with `respond`, `dispose` (no answer is owed, with a
+reason), or `accept`. Somebody else contributing to the thread does not
+silently discharge it.
+
+## Cross-team work: providers and consumers
+
+When a request turns out to be somebody else's deliverable, the receiving
+endpoint **accepts** it — creating the provider Work and the dependency edge in
+one transaction:
+
+    baton --participant lib.rai accept obligation=25 \
+        body="agreed — this is ours; opening the chunked writer" \
+        create=true kind=feat classification=design-choice \
+        title="chunked writer for large payloads"
+    # -> {"created": true, "provider": "…-W26", "work": "…-W23",
+    #     "edge": {"work": "…-W23", "blocker": "…-W26", "via_obligation": 25}}
+
+Read that result carefully: `work` is the **consumer**, `provider` is the newly
+created **provider**. Use `into=` instead of `create=true` to gate on provider
+Work that already exists — one provider may gate many consumers.
+
+The consumer's obligation wait is now resolved, but it is not ready, because
+the dependency replaced it. The two lanes are independent from here: the
+provider team claims, implements, reviews, and closes its own Work on its own
+schedule. When it closes, the gate ends — and that is *all* it does:
+
+    # provider closed satisfying -> consumer: ready true, blocked_by [(W26, closed)]
+
+**Closing a provider never decides or closes a consumer.** The consumer team
+claims its own Work and reaches its own conclusion. If a gate turns out to be
+wrong, `unblock work= on= rationale=` corrects the live edge without closing or
+rewriting either Work, and Events preserve both acts.
+
+## Containment versus dependency
+
+Parent/child containment organizes a deliverable; it is not an execution
+dependency. A parent may proceed while children are open, but it cannot close
+while any remain:
+
+    W71 has open children (W75); root closure while required descendants
+    remain open is refused
+
+Dependency edges are separate, explicit, many-to-many, and independently
+reviewable. Each one carries a durable rationale:
+
+    $BATON block work=W23 on=W26 rationale="export cannot stream without the chunked writer"
+
+Use a child when the requirement is *separately accountable*. Use a dependency
+when this Work simply cannot finish first.
+
+## Changing the contract of assigned Work
+
+Discussion may refine what assigned Work means, but outsiders **propose** —
+they do not edit scope underneath the person doing the work. Promotion is a
+compare-and-swap performed by the **exact current claimant**, who must also
+still be eligible through the live route:
+
+    $BATON revise work=W71 message=73 expect=0 \
+        rationale="agreed in discussion; backoff belongs in the same contract"
+    # -> {"revision": 1}
+
+Being *eligible* is not enough. A route peer who holds no claim may argue in
+the thread all day, but cannot rewrite the contract of Work somebody else is
+executing:
+
+    revise: W71 is claimed by app.mina; a route peer may propose in the
+    thread but never rewrites assigned scope underneath its executor
+
+Unclaimed Work refuses too — promotion waits for somebody to be accountable
+for it. Losing the claim ends the authority immediately, so a pass, a release,
+or a forced recovery all take it away mid-flight.
+
+The message stays the durable contract text; the revision records who promoted
+it and why. A stale expectation refuses rather than clobbering:
+
+    W71 is at revision 1, not 0; the edit is stale — re-read and retry
+    against the current state
+
+If the new requirement is separately accountable, create child Work instead.
+The test is whether it deserves its own close.
+
+## Verification trials
+
+A reviewer may put one **immutable candidate** in front of exact verifier
+endpoints:
+
+    baton --participant app.juno try work=W51 \
+        candidate=build-2026.08.18-a assign=app.bug assign=lib.bug
+    # -> {"trial": 1, "assignments": [56, 57]}
+
+Verifiers file a raw observation and where the evidence lives; the reviewer
+files a separate assessment. These are two immutable axes and both are audited:
+
+    baton --participant app.mina report obligation=56 observation=failed \
+        evidence=product:work/records/2026/08/finding-clock-drift/trial-1-app.md
+    baton --participant app.juno assess obligation=56 as=accepted \
+        rationale="reproduced above 5k/sec"
+
+Observations are `passed`, `failed`, or `unable`. Assessments are `accepted`,
+`rejected`, or `inconclusive` — a reviewer may accept a *failure* report, which
+is exactly what happened above. **Counts and elapsed time never decide
+anything.** A trial with every report in and every one assessed still sits
+`open` until a human acts.
+
+Opening a new trial supersedes the previous one rather than refusing, and the
+superseded trial and all its evidence remain in the record:
+
+    trials: [(1, "superseded", "build-…-a"), (2, "closed", "build-…-b")]
+
+`extend` moves an open trial's review instant; `abandon` ends one unresolved
+with a reason. Both are separate audited acts.
+
+## Readiness
+
+`wait` is a **read-only, participant-relative** projection. It claims nothing
+and writes nothing:
+
+    $BATON wait timeout=30
+    # -> {"timed_out": false, "actionable": [
+    #      {"kind": "work", "work": "…-W16", "local_id": "W16",
+    #       "action_key": "work:…-W16:16:g2", "claimed": false,
+    #       "episode_seq": 16, "config_generation": 2, "phase": "queued"}]}
+
+It returns open ready **unclaimed** Work whose route resolves to you, Work
+**you have already claimed** so you can continue after a restart,
+pending obligations your endpoint owes, and due trials you answer for. That
+second category matters: a runner that only looks for unclaimed Work walks past
+its own unfinished assignment.
+
+`action_key` is an **assignment episode** — Work id, episode sequence, and
+accepted config generation. Work handed away and handed back between two polls
+is a new episode even though nothing observed it absent. Key delivery on the
+whole string; never parse it to recover the Work id, which rides beside it as
+its own field.
+
+A readiness line is an **edge to re-evaluate, not authority to act.** By the
+time you see it the Work may have been claimed, passed, or closed. Re-read
+canonical state, and let the atomic claim be the final arbiter.
+
+`include=`, plain posts, and personal New are attention, never wakeups. A
+sender who needs action uses a request or passes the baton.
+
+External Codex/ACP adapters may wake a model runner, but they are outside the
+protocol: they never claim, answer, or complete Work for you. Recover your
+context from `wait`, `detail`, Messages, Events, and the bound dossier — not
+from the wake prompt's prose.
+
+**Never end a turn holding Work you have claimed and neither progressed nor
+handed back.** The teeth are on `claim`, not on `wait`: Work held by a process
+whose turn ended is stranded — invisible to its sender and blocking the queue
+until somebody recovers it explicitly.
+
+## Recovery
+
+Baton never auto-releases, transfers, or admits a second claimant on staleness.
+`heartbeat work=` is liveness evidence only; an agent mid-turn cannot beat, so
+silence is never treated as failure. Recovery is therefore explicit, and it is
+a compare-and-swap against the recorded claimant:
+
+    baton --participant app.ops release work=W76 expect=app.mina \
+        reason="runner died mid-turn; no heartbeat for 40 minutes and the
+                operator confirmed the host is gone"
+    # -> {"released_claimant": "app.mina"}
+
+A wrong guess refuses rather than guessing for you:
+
+    W76 is claimed by app.mina, not app.juno; the compare-and-swap refuses —
+    recovery never guesses whose execution it is interrupting
+
+Releasing does **not** stop the external agent that may still be running.
+Coordinate with its operator before forcing one.
+
+### Retry safely
+
+Mutating verbs take `op-id=`. An exact retry replays the one committed result;
+any mismatch fails closed without mutating:
+
+    $BATON claim work=W76 op-id=recover-1     # -> committed
+    $BATON claim work=W76 op-id=recover-1     # -> replayed, byte-identical
+    $BATON phase work=W76 to=parked reason=a op-id=recover-1
+    # op-id 'recover-1' was already used by app.ops for a different request;
+    # conflicting reuse refuses without mutation
+
+The comparison uses the **effective** operands, so a retry may spell a default
+explicitly but may not change it. An interrupted operation is retried through
+the public API. Authority state is never reconstructed by hand — and
+`home`, `tree`, `detail`, `thread`, `work-events`, `events`, `links`, and
+`search` are the read-only views. **If a question about coordination can only
+be answered by opening the SQLite file, that inability is the finding.**
+
+## Evidence lives in the repository
+
+Baton holds what is true *now*; the dossier holds *how it got that way*.
+Neither substitutes for the other, and a ruling that exists only in a
+discussion thread is one context loss away from being re-litigated.
+
+Work binds through a configured root to a canonical record path:
+
+    $BATON bind work=W76 root=product \
+        path=work/records/2026/08/finding-handle-leak expect=0 \
+        rationale="canonical record for the descriptor leak"
+    $BATON resolve locator=W76
+    # -> {"root": "product", "absolute": "/tmp/repo/work/records/2026/08/finding-handle-leak"}
+
+Bindings are compare-and-swap with append-only history. Never bind to
+`work/open`, a checkout-absolute path, or a remembered commit — those are not
+portable across the participants who must read them.
+
+Inside a dossier the roles are fixed, and they exist so two participants can
+write concurrently without fighting:
+
+- `FINDING.md` — confirmed decisions and the acceptance boundary.
+- `PLAN.md` — actionable state, kept truthful as steps land.
+- `PROGRESS.md` — **implementer-owned**, one writer.
+- `review-*.md` — append-only review evidence. Corrections append a dated
+  marker; they never rewrite what a reviewer already said.
+
+## Configuration changes
+
+A proposed generation is inert until an authorized participant accepts it:
+
+    # edit baton.json, bump "generation"
+    baton --participant app.nia home
+    # baton.json is edited but not accepted: its digest is bd47381e5f4d…
+    # and the accepted configuration is 10c3dd72606b…
+
+    baton --participant app.mina regen
+    # app.mina does not hold the config capability in the currently accepted
+    # generation 1; a proposal cannot authorize its own acceptor
+
+    baton --participant app.ops regen
+    # -> {"generation": 2, "changes": {"added": ["member:app.nia"],
+    #     "rerouted": ["app.impl"]}, "digest": "bd47381e5f4d…"}
+
+The acceptor is authorized by the **currently accepted** generation, so an
+edit cannot grant itself the capability to be accepted.
+
+## The short version
+
+1. Read canonical state before acting; a wake line is a hint, not authority.
+2. Claim before you execute. Never hold a claim you are not progressing.
+3. Let phase tell the truth — `waiting` names its blocker, `parked` names its
+   reason.
+4. Pass with real handoff evidence; the route decides the phase.
+5. Ask with a directed request, and let it block when you honestly cannot
+   proceed.
+6. Close with one outcome and a rationale that will still make sense in a year.
+7. Put the reasoning in the dossier, because the authority only remembers what
+   is true now.

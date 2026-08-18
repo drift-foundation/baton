@@ -23,7 +23,7 @@ respond AND dispose both committing against one obligation — every
 terminal-competition check ran only before the write lock. Extracted
 regressions: the four `test_wf09_*` tests in `test_transitions.py`; fix:
 in-lock rechecks across create/post/close/block/respond/dispose, with
-the close event's `was_current` recorded from the row at commit.
+the close event's `was_route` recorded from the row at commit.
 """
 
 from __future__ import annotations
@@ -52,12 +52,13 @@ def test_wf09_restart_and_races(flow):
 	                "origin=external-report", "classification=suspected-defect", "body=500 at checkout",
 	                viewer="push.sl")["work_id"]
 	asked = flow.post(push1, "body=lang: yours?",
-	                "request=lang.bug", viewer="push.sl")
+	                "request=lang.bug", "wait=false", viewer="push.sl")
 	lang42 = flow.ok("create", "team=lang", "kind=rsrch",
 	                 "title=parser recovery",
 	                 "origin=external-report", "classification=suspected-defect", "body=accepted",
 	                 viewer="lang.ada")["work_id"]
-	flow.ok("block", f"work={push1}", f"on={lang42}", viewer="push.sl")
+	flow.ok("block", f"work={push1}", f"on={lang42}",
+	        "rationale=compiler provider required", viewer="push.sl")
 
 	# RACE 1: respond and dispose compete for the ONE pending obligation.
 	seq = str(asked["seq"])
@@ -102,7 +103,7 @@ def test_wf09_restart_and_races(flow):
 			"a merged or duplicated race state committed"
 	closed = flow.ok("detail", f"work={lang42}", viewer="lang.ada")
 	assert closed["status"] == "closed"
-	assert closed["current"] is None and closed["next"] is None
+	assert closed["route"] is None and closed["next"] is None
 
 	# The consumer resumed either way — its blocker closed.
 	assert flow.ok("detail", f"work={push1}", viewer="push.sl")["ready"] is True
@@ -115,7 +116,7 @@ def test_wf09_restart_and_races(flow):
 	for work, viewer in ((push1, "push.sl"), (lang42, "lang.ada")):
 		rebuilt = flow.ok("detail", f"work={work}", viewer=viewer)
 		assert rebuilt["status"] == "closed"
-		assert rebuilt["current"] is None and rebuilt["next"] is None
+		assert rebuilt["route"] is None and rebuilt["next"] is None
 	assert flow.ok("obligations", viewer="lang.ada") == []
 	assert flow.ok("home", viewer="push.sl")["rows"][0]["status"] == "closed"
 	born = flow.ok("work-threads", f"work={push1}",

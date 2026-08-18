@@ -454,7 +454,12 @@ def test_partial_analysis_speaks_the_execution_tokenizer():
 	quoted = assist_text('say thread=T1 body="work=W9 on=Z" ')
 	assert "required:" not in quoted, quoted
 	assert "unknown" not in quoted
-	assert "on=" in quoted and "include=" in quoted
+	# W159: `on=` and `wait=` both require `request=`, so neither is
+	# OFFERED in the plain form — the assertion here is that the
+	# unconditional optional keys still are, which is what proves the
+	# quoted text invented nothing.
+	assert "include=" in quoted and "request=" in quoted, quoted
+	assert "on=" not in quoted and "wait=" not in quoted, quoted
 	# embedded '=' splits at the FIRST '=' only
 	embedded = assist_text("close work=X rationale=a=b ")
 	assert "required: outcome=" in embedded, embedded
@@ -491,6 +496,18 @@ def test_assist_applies_the_parsers_condition_model():
 	parked = assist_text("phase work=W1 to=parked ")
 	assert "reason=" in parked.split("optional:")[0]
 	assert "wait=" not in parked
+	# W159 R4: a conditional key is not offered until its requirement
+	# is actually present — the same declarative rule for say's `on=`
+	# and `wait=`, so the assistance never suggests what the parser
+	# would refuse.
+	plain_say = assist_text("say thread=T1 body=x ")
+	assert "on=" not in plain_say and "wait=" not in plain_say, plain_say
+	assert "request=" in plain_say, plain_say
+	carrying = assist_text("say thread=T1 body=x request=push.bug ")
+	assert "on=" in carrying and "wait=" in carrying, carrying
+	assert assist_text(
+		"say thread=T1 body=x request=push.bug wait=") == \
+		"wait=: true, false"
 	waiting = assist_text("phase work=W1 to=waiting ")
 	assert "wait=" in waiting.split("optional:")[0]
 	assert "wait=" not in assist_text("phase work=W1 "), \

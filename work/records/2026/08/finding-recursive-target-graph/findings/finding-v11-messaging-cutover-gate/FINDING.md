@@ -80,3 +80,45 @@ trial:
    consumption rules.
 3. This parent retains the TUI/CLI live-use and final retirement evidence. A
    green child does not close or authorize this gate.
+
+## Gate-boundary correction — 2026-08-17
+
+**Confirmed by Slawomir after successful v11-only operation.** W2 asks whether
+v11 is an effective communication channel that can replace v10. It is not an
+umbrella gate for every remaining messaging-interface refinement.
+
+The live Slawomir, Codex, and Claude trial has now proved the required channel:
+the participants discovered and read Work and messages, handed Work between
+routes, woke agents without v10, resumed persisted ACP state, and continued
+coordination without a v10 delivery fallback. That is sufficient to close W2
+satisfying once its graph reflects the true acceptance boundary.
+
+W76 (spatial/newest-first message panes), W81 (prefill `say` from the selected
+Thread), and W90 (remove Work actions from Messages view) are useful follow-up
+usability improvements. None prevents v11 from carrying effective operational
+communication, so none is a prerequisite for W2. Their dependency edges into
+W2 were added under an over-broad interpretation of this gate and are
+superseded by this ruling. The Work remains open independently and does not
+move, close, or lose its own acceptance contract merely because the mistaken
+edge is corrected.
+
+## Closure evidence — 2026-08-17
+
+The three-person v11-only interval remained effective through repeated real
+review cycles, including W81's two returns and final closure. Slawomir, Codex,
+and Claude discovered, claimed, discussed, handed off, corrected, re-reviewed,
+and closed Work through v11 without v10 delivery or wake-up fallback. ACP
+restart and same-key redelivery defects were corrected independently as W27
+and W49; both are closed satisfying.
+
+At final review W2 has zero open blockers and both contained children are
+closed satisfying. W76, W81, and W90 also reached satisfying terminal outcomes
+before their mistaken edges could be corrected. Those edges are consequently
+terminal graph history, not live gates: `unblock` correctly is unavailable and
+must not rewrite them. Their presence in historical links does not broaden the
+W2 acceptance contract again.
+
+The source tree concurrently contains W159's next request-default batch, whose
+fixture migration temporarily prevents attributing a whole-tree gate to this
+operational decision. That independent future protocol change does not negate
+the already deployed and live-proven v11 communication channel.

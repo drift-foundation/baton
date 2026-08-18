@@ -268,7 +268,7 @@ def _sweep_wakes(conn, actor: str) -> None:
 				"UPDATE work SET phase='queued', wait_type=NULL, "
 				"wait_obligation=NULL WHERE id=?", (row["id"],))
 			_touch_work(conn, row["id"])
-			# W49: the condition wake returns the Work to its Current
+			# W49: the condition wake returns the Work to its Route
 			# endpoint's queue — newly actionable, so a new episode.
 			_mint_episode(conn, row["id"])
 			_emit(conn, "wake", actor,
@@ -296,7 +296,7 @@ def _mint_episode(conn, work_id: str) -> None:
 
 	The neighbouring `_touch_work` stamps every visible edit; this stamps
 	only the ones that make the Work newly actionable for whoever its
-	Current resolves — creation, pass/return, explicit claim release, a
+	Route resolves — creation, pass/return, explicit claim release, a
 	false-to-true readiness flip, a condition wake, and a parked-to-queued
 	resume. Claim, heartbeat, ordinary phase moves, priority,
 	classification and descriptive edits deliberately do NOT mint: an
@@ -330,18 +330,18 @@ def _obligation_gate(conn, obligation, actor_team: str, actor: str,
 def _handler_gate(conn, work_id: str, actor_team: str, actor: str,
                   what: str) -> dict:
 	"""WS-1 direct transition authority, checked IN THE LOCK: the actor
-	must be a currently resolved handler of the Work's Current route under
+	must be a currently resolved handler of the Work's Route under
 	the accepted generation at commit. Returns the resolution snapshot for
 	the audit payload. `@` respondents and other teams get an explicit
 	refusal — input never grants mutation authority."""
 	row = conn.execute(
-		"SELECT current_team, current_kind FROM work WHERE id=?",
+		"SELECT route_team, route_kind FROM work WHERE id=?",
 		(work_id,)).fetchone()
-	if row["current_team"] is None or row["current_kind"] is None:
-		raise WorkError(f"{what}: {work_id} has no Current endpoint")
-	resolution = resolve_endpoint(conn, row["current_team"],
-	                              row["current_kind"], what)
-	if actor_team != row["current_team"] or \
+	if row["route_team"] is None or row["route_kind"] is None:
+		raise WorkError(f"{what}: {work_id} has no Route endpoint")
+	resolution = resolve_endpoint(conn, row["route_team"],
+	                              row["route_kind"], what)
+	if actor_team != row["route_team"] or \
 			actor not in resolution["handlers"]:
 		raise WorkError(
 			f"{what}: {actor_team}.{actor} is not a resolved handler of "
@@ -396,7 +396,7 @@ def _recompute_ready(conn, work_id: str, payload=None) -> None:
 		if ready == 1:
 			# W49: false-to-true readiness is the unblock wake — the last
 			# child closed, or the last blocker did. Nobody passed this
-			# Work, but it just became actionable for its Current, which
+			# Work, but it just became actionable for its Route, which
 			# is exactly what an episode names. The reverse flip is not
 			# an episode: it REMOVES actionability.
 			_mint_episode(conn, work_id)
@@ -407,17 +407,17 @@ def _recompute_ready(conn, work_id: str, payload=None) -> None:
 			# payload keeps the released claimant as recoverable
 			# evidence.
 			live = conn.execute(
-				"SELECT active_team, active_member FROM work WHERE id=?",
+				"SELECT current_team, current_member FROM work WHERE id=?",
 				(work_id,)).fetchone()
-			if live["active_team"] is not None:
+			if live["current_team"] is not None:
 				if payload is not None:
 					payload.setdefault("released_claims", []).append(
 						{"work": work_id,
-						 "claimant": f"{live['active_team']}."
-						             f"{live['active_member']}"})
+						 "claimant": f"{live['current_team']}."
+						             f"{live['current_member']}"})
 				conn.execute(
-					"UPDATE work SET active_team=NULL, "
-					"active_member=NULL WHERE id=?", (work_id,))
+					"UPDATE work SET current_team=NULL, "
+					"current_member=NULL WHERE id=?", (work_id,))
 		_touch_work(conn, work_id)
 
 
@@ -585,7 +585,7 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	"""A Work and its first message, atomically — creation must be cheap or
 	mandatory Work scope becomes authoring ceremony (confirmed behavior).
 
-	`author` is `member` within `team`. The new Work's `Current` is
+	`author` is `member` within `team`. The new Work's `route` is
 	`team.kind`, resolved and validated now, at creation."""
 	if not isinstance(title, str) or not title.strip():
 		raise WorkError("a work title must be non-empty")
@@ -601,14 +601,14 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 	# finding-active-work-claim clarification (fresh schema, 2026-08-16;
 	# reviewed under review-2026-08-16T09-27-05Z): the SUBMITTER chooses
 	# a concrete classification — omission and 'unknown' refuse at
-	# creation. The current handler may reclassify later; activation
+	# creation. The Route handler may reclassify later; activation
 	# never requires a redundant classify step.
 	if classification is None or classification == "unknown":
 		raise WorkError(
 			"work creation requires a concrete classification; "
 			"'unknown' (or omitting it) refuses — choose one of "
 			f"{tuple(c for c in CLASSIFICATIONS if c != 'unknown')}; "
-			"the current handler may reclassify later")
+			"the Route handler may reclassify later")
 	if classification not in CLASSIFICATIONS:
 		raise WorkError(f"classification {classification!r} is not one of "
 		                f"{CLASSIFICATIONS}")
@@ -695,7 +695,7 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 					f"work does not grow new children; create follow-up "
 					f"work instead")
 			# R1 matrix: attaching child Work is a workflow decision of the
-			# PARENT's Current handler; root creation stays with the team.
+			# PARENT's Route handler; root creation stays with the team.
 			payload["authorization"] = _handler_gate(
 				conn, parent, team, author, "attach child")
 		payload["resolution"] = resolve_endpoint(conn, team, kind, "create")
@@ -709,7 +709,7 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 					f"preserves the context of TERMINALLY CLOSED work")
 		conn.execute(
 			"INSERT INTO work (id, team, title, origin, classification, "
-			"phase, status, parent, current_team, current_kind, ready, "
+			"phase, status, parent, route_team, route_kind, ready, "
 			"priority, "
 			"follow_up_of, created_seq, last_change_seq, last_changed_at) "
 			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)",
@@ -771,14 +771,14 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
                duplicate_of: str | None = None,
                op_id: str | None = None, refs=()) -> dict:
 	"""Terminal close: IMMUTABLE (WS-2 ruling — there is no reopen; later
-	evidence becomes follow-up Work). No current and no next endpoint
+	evidence becomes follow-up Work). No route and no next endpoint
 	afterwards, and the ancestor gate recomputes: closure rolls UP through
 	recomputation, never down through force. Every terminal close names
 	exactly one of `satisfying`, `non-satisfying`, `rejected`, or
 	`cancelled` and records a non-empty rationale — terminal decisions
 	are durable review evidence, never reconstructed from thread
 	prose. Cancellation is ordinary accelerated close under the same
-	Current-only authority: no cascade, no child bypass. A duplicate is a
+	Route-only authority: no cascade, no child bypass. A duplicate is a
 	`rejected` close whose structured reason names the surviving Work
 	through the explicit non-gating `duplicate_of` relation; free text
 	alone is insufficient."""
@@ -834,16 +834,16 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 	# COMMITTED — a pass can land between the pre-read and this lock.
 	payload = {"work": work_id, "rationale": rationale,
 	           "outcome": outcome, "duplicate_of": duplicate_of,
-	           "was_current_team": row["current_team"],
-	           "was_current_kind": row["current_kind"]}
+	           "was_route_team": row["route_team"],
+	           "was_route_kind": row["route_kind"]}
 
 	def mutate(conn, seq):
 		# WF-09 race 2: status and children rechecked inside the lock — a
 		# competing close or late create can commit between the optimistic
 		# checks above and this transaction.
 		live = conn.execute(
-			"SELECT status, parent, classification, current_team, "
-			"current_kind FROM work WHERE id=?", (work_id,)).fetchone()
+			"SELECT status, parent, classification, route_team, "
+			"route_kind FROM work WHERE id=?", (work_id,)).fetchone()
 		if live["status"] == CLOSED:
 			raise WorkError(f"{work_id} is already closed")
 		# The duplicate-link discipline is rechecked against the
@@ -881,11 +881,11 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 				f"closure while required descendants remain open is refused")
 		# WS-1 review R1: terminal close is a workflow-state decision, so
 		# the same one ownership rule applies — a currently resolved
-		# handler of the Current route, in the lock, snapshot recorded.
+		# handler of the Route, in the lock, snapshot recorded.
 		payload["authorization"] = _handler_gate(
 			conn, work_id, actor_team, actor, "close")
-		payload["was_current_team"] = live["current_team"]
-		payload["was_current_kind"] = live["current_kind"]
+		payload["was_route_team"] = live["route_team"]
+		payload["was_route_kind"] = live["route_kind"]
 		# WS-2 group 2: trials end with their work — no assignment stays
 		# actionable. Group 3: the close AUDITS the concluded trial's
 		# evidence basis — candidate, receipt fraction, raw observation
@@ -930,8 +930,8 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		conn.execute(
 			"UPDATE work SET status=?, ready=0, outcome=?, rationale=?, "
 			"duplicate_of=?, "
-			"current_team=NULL, current_kind=NULL, next_team=NULL, "
-			"next_kind=NULL, active_team=NULL, active_member=NULL, "
+			"route_team=NULL, route_kind=NULL, next_team=NULL, "
+			"next_kind=NULL, current_team=NULL, current_member=NULL, "
 			"closed_seq=? WHERE id=?",
 			(CLOSED, outcome, rationale, duplicate_of, seq, work_id))
 		_touch_work(conn, work_id)
@@ -965,7 +965,7 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
                actor: str, op_id: str | None = None, refs=()) -> dict:
 	"""THE atomic active-work claim: records WHO is executing without
 	touching phase (orthogonal ruling). One eligible handler of the live
-	Current endpoint acquires open, ready, non-waiting/non-parked Work —
+	Route endpoint acquires open, ready, non-waiting/non-parked Work —
 	every condition rechecked inside the write transaction, so an earlier
 	`ready` observation is advisory and a competing claim fails closed
 	naming the recorded claimant. Release happens only through the ruled
@@ -981,7 +981,7 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 
 	def mutate(conn, seq):
 		live = conn.execute(
-			"SELECT status, phase, active_team, active_member "
+			"SELECT status, phase, current_team, current_member "
 			"FROM work WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; terminal "
@@ -997,15 +997,15 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 				f"{work_id} has {gates} unmet dependency/child gate(s); "
 				f"blocked work cannot be claimed — readiness is decided "
 				f"here, in the write transaction")
-		if live["active_team"] is not None:
+		if live["current_team"] is not None:
 			raise WorkError(
 				f"{work_id} is already claimed by "
-				f"{live['active_team']}.{live['active_member']}; "
+				f"{live['current_team']}.{live['current_member']}; "
 				f"conflicting claim attempts fail closed (an exact "
 				f"retry replays through its operation id)")
 		payload["claimant"] = f"{actor_team}.{actor}"
 		conn.execute(
-			"UPDATE work SET active_team=?, active_member=? WHERE id=?",
+			"UPDATE work SET current_team=?, current_member=? WHERE id=?",
 			(actor_team, actor, work_id))
 		_touch_work(conn, work_id)
 
@@ -1023,11 +1023,11 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
                   actor: str, expect: str, reason: str,
                   op_id: str | None = None, refs=()) -> dict:
 	"""Explicit claimant recovery (ruled): one honest operation for
-	self-release AND forced recovery. Authority is the live Current
+	self-release AND forced recovery. Authority is the live Route
 	endpoint's resolved handlers; expect= is a mandatory compare-and-swap
 	against the exact recorded claimant, decided inside the write
 	transaction; reason= is durable evidence. A successful release clears
-	ONLY the claimant — phase, Current, Next, readiness, dependencies,
+	ONLY the claimant — phase, Route, Next, readiness, dependencies,
 	waiting and discussion state are untouched."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
@@ -1051,17 +1051,17 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 
 	def mutate(conn, seq):
 		live = conn.execute(
-			"SELECT status, active_team, active_member FROM work "
+			"SELECT status, current_team, current_member FROM work "
 			"WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; terminal "
 			                f"work carries no claim to release")
 		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
 		                                      actor, "release")
-		if live["active_team"] is None:
+		if live["current_team"] is None:
 			raise WorkError(f"{work_id} is unclaimed; there is no "
 			                f"execution claim to release")
-		recorded = f"{live['active_team']}.{live['active_member']}"
+		recorded = f"{live['current_team']}.{live['current_member']}"
 		if recorded != expect:
 			raise WorkError(
 				f"{work_id} is claimed by {recorded}, not {expect}; "
@@ -1069,10 +1069,10 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 				f"guesses whose execution it is interrupting")
 		payload["released_claimant"] = recorded
 		conn.execute(
-			"UPDATE work SET active_team=NULL, active_member=NULL "
+			"UPDATE work SET current_team=NULL, current_member=NULL "
 			"WHERE id=?", (work_id,))
 		_touch_work(conn, work_id)
-		# W49: the Work becomes available to its Current endpoint again.
+		# W49: the Work becomes available to its Route endpoint again.
 		# Every eligible handler — including the released claimant, who
 		# may legitimately re-take it — needs a fresh wake.
 		_mint_episode(conn, work_id)
@@ -1108,10 +1108,10 @@ def heartbeat(store: Authority, work_id: str, *, actor_team: str,
 	if row["status"] != OPEN:
 		raise WorkError(f"{work_id} is {row['status']}; a closed work "
 		                f"has no claim to keep alive")
-	if row["active_team"] is None:
+	if row["current_team"] is None:
 		raise WorkError(f"{work_id} is unclaimed; a heartbeat asserts "
 		                f"the CURRENT claim and nothing else")
-	recorded = f"{row['active_team']}.{row['active_member']}"
+	recorded = f"{row['current_team']}.{row['current_member']}"
 	if recorded != claimant:
 		raise WorkError(
 			f"{work_id} is claimed by {recorded}; only the exact "
@@ -1122,13 +1122,13 @@ def heartbeat(store: Authority, work_id: str, *, actor_team: str,
 
 	def mutate(conn, seq):
 		live = conn.execute(
-			"SELECT status, active_team, active_member FROM work "
+			"SELECT status, current_team, current_member FROM work "
 			"WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; a closed "
 			                f"work has no claim to keep alive")
-		if live["active_team"] is None or \
-				f"{live['active_team']}.{live['active_member']}" \
+		if live["current_team"] is None or \
+				f"{live['current_team']}.{live['current_member']}" \
 				!= claimant:
 			raise WorkError(
 				f"{work_id} is no longer claimed by {claimant}; the "
@@ -1145,10 +1145,10 @@ def prioritize(store: Authority, work_id: str, *, actor_team: str,
                refs=()) -> dict:
 	"""W3: the audited, effectively-once priority revision. Priority is
 	OWNING-team authority: any configured member of the Work's owning
-	team may revise it, independent of the Current route, claimant,
+	team may revise it, independent of the Route, claimant,
 	phase, and readiness — and members of other teams may discuss
 	urgency in a Thread but never reprioritize here. An ordering signal
-	only: readiness, dependencies, Current/Next, phase, status, and
+	only: readiness, dependencies, Route/Next, phase, status, and
 	closure are untouched. Closed Work refuses; a same-value change
 	refuses (an exact op-id retry replays)."""
 	_member(store, actor_team, actor)
@@ -1196,7 +1196,7 @@ def prioritize(store: Authority, work_id: str, *, actor_team: str,
 def classify(store: Authority, work_id: str, *, actor_team: str, actor: str,
              classification: str, op_id: str | None = None, refs=()) -> dict:
 	"""An explicit, audited classification change by a currently resolved
-	handler of the Work's Current route. Canonical values only — compact
+	handler of the Work's Route. Canonical values only — compact
 	display vocabulary is never a mutation value. Origin is untouched."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
@@ -1244,10 +1244,10 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
               wait: str | int | None = None,
               op_id: str | None = None, refs=()) -> dict:
 	"""An explicit, audited operational-phase change by a currently
-	resolved handler of the Current route.
+	resolved handler of the Route.
 
 	The special rules, exactly as ruled: `parked` needs a non-empty reason,
-	keeps its one accountable Current, and leaves ONLY through explicit
+	keeps its one accountable Route, and leaves ONLY through explicit
 	parked→queued; `waiting` records exactly one typed wake condition
 	(`wait="gates"` for the aggregate required-Work gate, or an obligation
 	seq for one exact pending `@`), refuses an already-satisfied condition,
@@ -1351,15 +1351,15 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		# waiting or parked is a ruled release.
 		if phase in ("waiting", "parked"):
 			live_claim = conn.execute(
-				"SELECT active_team, active_member FROM work WHERE id=?",
+				"SELECT current_team, current_member FROM work WHERE id=?",
 				(work_id,)).fetchone()
-			if live_claim["active_team"] is not None:
+			if live_claim["current_team"] is not None:
 				payload["released_claimant"] = (
-					f"{live_claim['active_team']}."
-					f"{live_claim['active_member']}")
+					f"{live_claim['current_team']}."
+					f"{live_claim['current_member']}")
 				conn.execute(
-					"UPDATE work SET active_team=NULL, "
-					"active_member=NULL WHERE id=?", (work_id,))
+					"UPDATE work SET current_team=NULL, "
+					"current_member=NULL WHERE id=?", (work_id,))
 		conn.execute(
 			"UPDATE work SET phase=?, wait_type=?, wait_obligation=? "
 			"WHERE id=?", (phase, wait_type, wait_obligation, work_id))
@@ -1825,7 +1825,7 @@ def _would_cycle(conn, work_id: str, blocker_id: str) -> list[str] | None:
 
 
 def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
-                   actor_team: str, actor: str,
+                   actor_team: str, actor: str, rationale: str,
                    op_id: str | None = None, refs=()) -> dict:
 	"""`work_id` blocked_by `blocker_id` — the ONLY thing that gates
 	readiness across records (labels are inert, by clarification). Cross-team
@@ -1833,11 +1833,15 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
 	operation = _operation(store, actor_team, actor, "add_dependency",
-	                       op_id, {"work": work_id, "on": blocker_id, "refs": refs})
+	                       op_id, {"work": work_id, "on": blocker_id,
+	                               "rationale": rationale, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	row = _work(store, work_id)
 	blocker = _work(store, blocker_id)
+	if not isinstance(rationale, str) or not rationale.strip():
+		raise WorkError("block records why the dependency is required; "
+		                "rationale cannot be empty")
 	if work_id == blocker_id:
 		raise WorkError(f"{work_id} cannot block itself")
 	if blocker["status"] != OPEN:
@@ -1853,7 +1857,8 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		raise WorkError(f"{work_id} is already blocked by {blocker_id}")
 
 	payload = {"work": work_id, "blocker": blocker_id,
-	           "blocker_status": blocker["status"]}
+	           "blocker_status": blocker["status"],
+	           "rationale": rationale}
 
 	def mutate(conn, seq):
 		# In-lock recheck (WF-09 class): the closed-takes-no-blockers and
@@ -1864,7 +1869,7 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; a closed work "
 			                f"takes no new blockers; closure is terminal")
-		# R1 matrix: changing a Work's dependencies belongs to its Current
+		# R1 matrix: changing a Work's dependencies belongs to its Route
 		# handler.
 		payload["authorization"] = _handler_gate(
 			conn, work_id, actor_team, actor, "add_dependency")
@@ -1891,6 +1896,77 @@ def add_dependency(store: Authority, work_id: str, blocker_id: str, *,
 		_recompute_ready(conn, work_id, payload)
 
 	return store._write("add_dependency", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    references=refs)
+
+
+def remove_dependency(store: Authority, work_id: str, blocker_id: str, *,
+                      actor_team: str, actor: str, rationale: str,
+                      op_id: str | None = None, refs=()) -> dict:
+	"""Correct one mistaken LIVE dependency without falsifying either Work.
+
+	The current graph table loses the edge; the immutable add/remove events
+	preserve how the mistake arose and why it was corrected. Finished edges are
+	history, not live gates, and cannot be rewritten through this operation.
+	"""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "remove_dependency",
+	                       op_id, {"work": work_id, "on": blocker_id,
+	                               "rationale": rationale, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	row = _work(store, work_id)
+	blocker = _work(store, blocker_id)
+	if not isinstance(rationale, str) or not rationale.strip():
+		raise WorkError("unblock records why the live dependency was wrong; "
+		                "rationale cannot be empty")
+	if row["status"] != OPEN:
+		raise WorkError(f"{work_id} is {row['status']}; a terminal Work has "
+		                f"no live dependency to correct")
+	if blocker["status"] != OPEN:
+		raise WorkError(f"{blocker_id} is {blocker['status']}; its edge is "
+		                f"historical, not a live dependency")
+	edge = store.conn.execute(
+		"SELECT created_seq FROM edges WHERE work=? AND blocker=?",
+		(work_id, blocker_id)).fetchone()
+	if edge is None:
+		raise WorkError(f"{work_id} has no live dependency on {blocker_id}")
+
+	payload = {"work": work_id, "blocker": blocker_id,
+	           "rationale": rationale, "created_seq": edge["created_seq"]}
+
+	def mutate(conn, seq):
+		live = conn.execute("SELECT status FROM work WHERE id=?",
+		                    (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; a terminal Work "
+			                f"has no live dependency to correct")
+		payload["authorization"] = _handler_gate(
+			conn, work_id, actor_team, actor, "remove_dependency")
+		live_blocker = conn.execute(
+			"SELECT status FROM work WHERE id=?", (blocker_id,)).fetchone()
+		if live_blocker["status"] != OPEN:
+			raise WorkError(f"{blocker_id} is {live_blocker['status']}; its "
+			                f"edge is historical, not a live dependency")
+		live_edge = conn.execute(
+			"SELECT created_seq FROM edges WHERE work=? AND blocker=?",
+			(work_id, blocker_id)).fetchone()
+		if live_edge is None:
+			raise WorkError(
+				f"{work_id} has no live dependency on {blocker_id}")
+		payload["created_seq"] = live_edge["created_seq"]
+		conn.execute("DELETE FROM edges WHERE work=? AND blocker=?",
+		             (work_id, blocker_id))
+		_recompute_ready(conn, work_id, payload)
+		# Removing the final live gate satisfies the same recorded
+		# `waiting:gates` condition as closing that gate. Recompute marks
+		# readiness; the level-triggered sweep performs the audited phase
+		# release in THIS correction transaction rather than stranding the
+		# Work until some unrelated later writer happens to sweep it.
+		_sweep_wakes(conn, f"{actor_team}.{actor}")
+
+	return store._write("remove_dependency", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
 	                    references=refs)
 
@@ -2097,9 +2173,9 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 
 	Authority (ruled): the pending exact @ grants its LIVE route handler
 	this one narrow atomic authority over the requesting Work. `into=`
-	adds same-team + open checks on the provider Work; its Current is
+	adds same-team + open checks on the provider Work; its Route is
 	recorded as evidence, not a second gate. `create=true parent=` alone
-	adds the separate live parent-Current handler gate.
+	adds the separate live parent-Route handler gate.
 	"""
 	_member(store, actor_team, actor)
 	if create is not None:
@@ -2211,17 +2287,17 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 				raise WorkError(f"{into} is {live_provider['status']}; a "
 				                f"dependency on finished work gates "
 				                f"nothing")
-			# Provider Current: recorded EVIDENCE, never a gate — shown
+			# Provider Route: recorded EVIDENCE, never a gate — shown
 			# explicitly unresolved rather than refusing (disposition 2).
 			try:
-				payload["provider_current"] = resolve_endpoint(
-					conn, live_provider["current_team"],
-					live_provider["current_kind"], "accept evidence")
+				payload["provider_route"] = resolve_endpoint(
+					conn, live_provider["route_team"],
+					live_provider["route_kind"], "accept evidence")
 			except WorkError:
-				payload["provider_current"] = {
+				payload["provider_route"] = {
 					"endpoint":
-					f"{live_provider['current_team']}."
-					f"{live_provider['current_kind']}",
+					f"{live_provider['route_team']}."
+					f"{live_provider['route_kind']}",
 					"route": None, "role": None, "handlers": [],
 					"generation": None}
 		else:
@@ -2241,14 +2317,14 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 					raise WorkError(
 						f"parent {parent} is {live_parent['status']}; a "
 						f"closed work does not grow new children")
-				# Disposition 5: the SEPARATE parent-Current handler gate.
+				# Disposition 5: the SEPARATE parent-Route handler gate.
 				payload["parent_authorization"] = _handler_gate(
 					conn, parent, actor_team, actor,
 					"accept create=true parent=")
 			conn.execute(
 				"INSERT INTO work (id, team, title, origin, "
-				"classification, phase, status, parent, current_team, "
-				"current_kind, ready, created_seq, last_change_seq, "
+				"classification, phase, status, parent, route_team, "
+				"route_kind, ready, created_seq, last_change_seq, "
 				"last_changed_at) "
 				"VALUES (?, ?, ?, 'external-report', ?, ?, ?, ?, ?, ?, "
 				"0, ?, ?, ?)",
@@ -2707,7 +2783,7 @@ def _select_target(conn, thread_id: str, actor_team: str, actor: str,
 def post_thread(store: Authority, thread_id: str, *,
                     author_team: str, author: str, body: str,
                     include=(), request: str | None = None,
-                    on: str | None = None,
+                    on: str | None = None, wait: bool | None = None,
                     op_id: str | None = None, refs=()) -> dict:
 	"""THE public posting surface (Slice B): one message into one
 	thread, optionally carrying this operation's tags.
@@ -2715,29 +2791,62 @@ def post_thread(store: Authority, thread_id: str, *,
 	`+` (include) stays the ONLY fan-out: expanded against live
 	endpoints, the exact expansion recorded with the publication, each
 	reached team joining monotonic participation once — and no
-	obligation, Current, Next, readiness, phase, edge, or Work authority
+	obligation, Route, Next, readiness, phase, edge, or Work authority
 	changes. `@` (request) affects exactly one currently labelled,
 	eligible open Work: `on=` selects it; omitted, it resolves only at
 	eligible-cardinality one, and the resolution is recorded and echoed.
 	A plain message requires live context — at least one labelled open
 	Work — rechecked inside the committing transaction. The Work baton
 	NEVER moves through a message: pass is its own threadless Work
-	event (W171, finding-pass-is-work-event)."""
+	event (W171, finding-pass-is-work-event).
+
+	W159: a directed request WAITS BY DEFAULT. Asking another endpoint
+	for input while your own Work stays active and claimed advertises
+	progress that cannot happen, and doing it as two commands leaves a
+	window where an interruption strands the Work in a lie. So the
+	blocking form is ONE transaction: publish, create the obligation,
+	enter the exact-obligation wait, release the claim. `wait=false` is
+	the deliberate asynchronous override; `include=` remains the way to
+	give someone context they owe nothing for. the Route does NOT move —
+	the request is input owed to the requesting Work's Route, not a
+	transfer."""
 	_member(store, author_team, author)
 	if isinstance(include, str):
 		include = [part for part in include.split(",") if part]
 	include = list(include or [])
 	refs = _parse_refs(store, refs)
+	carrying = request is not None
+	if wait is not None and not isinstance(wait, bool):
+		raise WorkError("wait= is true or false")
+	# W159 R1: the CONDITIONAL GRAMMAR is validated BEFORE the replay
+	# lookup. For a plain post the effective wait collapses to false
+	# whether `wait` was absent or explicitly supplied, so an invalid
+	# `wait=` retry of a valid plain post would otherwise fingerprint
+	# identically and REPLAY instead of refusing — an invalid spelling
+	# accepted because its meaning happened to be unreachable.
+	# Omitted-versus-explicit-true equivalence still holds for an actual
+	# request, which is the equivalence the ruling asks for.
+	if wait is not None and not carrying:
+		raise WorkError("wait= says whether a directed request blocks "
+		                "the work it acts on; this message carries no "
+		                "request=")
+	# The EFFECTIVE value, which is what evidence and retry identity
+	# use: omitted and explicit true are the same operation.
+	blocking = bool(carrying and (True if wait is None else wait))
 	protected = _operation(store, author_team, author, "post", op_id,
 	                       {"thread": thread_id, "body": body,
 	                        "include": include, "request": request,
-	                        "on": on, "refs": refs})
+	                        "on": on,
+	                        # W159: the EFFECTIVE boolean, so an exact
+	                        # retry may spell the default explicitly
+	                        # while flipping it fails closed.
+	                        "wait": blocking,
+	                        "refs": refs})
 	if isinstance(protected, dict):
 		return protected
 	_thread(store, thread_id)
 	if not isinstance(body, str) or not body:
 		raise WorkError("a message body must be non-empty")
-	carrying = request is not None
 	if on is not None and not carrying:
 		raise WorkError("on= selects the work a carrying operator acts "
 		                "against; this message carries none")
@@ -2765,7 +2874,8 @@ def post_thread(store: Authority, thread_id: str, *,
 
 	payload = {"thread": thread_id,
 	           "body_bytes": len(body.encode("utf-8")),
-	           "include": [], "request": request, "on": on}
+	           "include": [], "request": request, "on": on,
+	           "wait": blocking if carrying else None}
 
 	def mutate(conn, seq):
 		_member_active(conn, author_team, author)
@@ -2819,6 +2929,50 @@ def post_thread(store: Authority, thread_id: str, *,
 				 _json.dumps(resolution["handlers"]),
 				 resolution["generation"], thread_id))
 			touched_teams.add(requested[0])
+			if blocking:
+				# W159, all inside the ONE transaction that published
+				# the message and created the obligation above.
+				#
+				# The blocking form is a WORKFLOW act, so it needs more
+				# than the carrying authorization `_select_target`
+				# already applied: only the participant actually
+				# EXECUTING the Work may suspend it. A handler who
+				# holds no claim, or somebody else's claim, would
+				# otherwise be able to park work out from under its
+				# executor.
+				# Entering waiting or parked already releases the
+				# claim, so the claim check below subsumes any phase
+				# test: a suspended Work is necessarily unclaimed and
+				# refuses there. Phase is read for the evidence only.
+				live = conn.execute(
+					"SELECT phase, current_team, current_member "
+					"FROM work WHERE id=?",
+					(payload["work"],)).fetchone()
+				if live["current_team"] is None:
+					raise WorkError(
+						f"a blocking request suspends {payload['work']}, "
+						f"which is unclaimed; claim it first or send the "
+						f"request with wait=false")
+				if (live["current_team"], live["current_member"]) != \
+						(author_team, author):
+					raise WorkError(
+						f"{payload['work']} is claimed by "
+						f"{live['current_team']}.{live['current_member']}; "
+						f"a blocking request suspends the work its own "
+						f"executor is doing, never somebody else's")
+				payload["released_claimant"] = \
+					f"{live['current_team']}.{live['current_member']}"
+				payload["from_phase"] = live["phase"]
+				# Enter the exact-obligation wait and release the
+				# claim. the Route is deliberately untouched: the answer
+				# is owed TO the requesting Work's Route, not
+				# instead of it.
+				conn.execute(
+					"UPDATE work SET phase='waiting', "
+					"wait_type='obligation', wait_obligation=?, "
+					"current_team=NULL, current_member=NULL WHERE id=?",
+					(seq, payload["work"]))
+				_touch_work(conn, payload["work"])
 		for team in sorted(touched_teams):
 			_join_thread(conn, thread_id, team, seq)
 
@@ -2827,6 +2981,14 @@ def post_thread(store: Authority, thread_id: str, *,
 		                      for entry in payload["include"]]
 		if carrying:
 			result["work"] = payload["work"]
+			# W159 R5: the immediate result reports WHICH semantic form
+			# committed. Both forms otherwise returned the same shape,
+			# so an operator had to read Events back to learn whether
+			# their Work was now suspended — inference from omission,
+			# which the acceptance boundary names separately from the
+			# Events evidence. A plain message invents no choice: it
+			# has no request to wait on, so the key is simply absent.
+			result["wait"] = blocking
 
 	return store._write(event_kind, f"{author_team}.{author}",
 	                    payload, mutate, operation=protected,
@@ -2839,7 +3001,7 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
               op_id: str | None = None, refs=()) -> dict:
 	"""W171 (finding-pass-is-work-event): pass is an authoritative
 	WORK transition, not a discussion message. One atomic act moves
-	Current to exactly one destination endpoint, records the honest
+	the Route to exactly one destination endpoint, records the honest
 	destination phase, releases the sender's claim, applies any planned
 	Next, and stores `comment` as durable handoff evidence in the pass
 	event itself. No Thread is involved: a pass creates no Message,
@@ -2868,7 +3030,7 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	if row["status"] != OPEN:
 		raise WorkError(f"{work_id} is {row['status']}; the baton of "
 		                f"terminal work never moves")
-	if (row["current_team"], row["current_kind"]) == passed:
+	if (row["route_team"], row["route_kind"]) == passed:
 		raise WorkError(f"{work_id} is already at "
 		                f"{passed[0]}.{passed[1]}; a pass moves the "
 		                f"baton")
@@ -2881,29 +3043,29 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	def mutate(conn, seq):
 		_member_active(conn, actor_team, actor)
 		live = conn.execute(
-			"SELECT status, current_team, current_kind, next_team, "
-			"next_kind, active_team, active_member FROM work "
+			"SELECT status, route_team, route_kind, next_team, "
+			"next_kind, current_team, current_member FROM work "
 			"WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; the baton "
 			                f"of terminal work never moves")
-		# WS-1 in the lock: only the resolved Current handler transfers.
+		# WS-1 in the lock: only the resolved Route handler transfers.
 		payload["authorization"] = _handler_gate(
 			conn, work_id, actor_team, actor, "pass")
 		# W171 R1: the active claim is EXECUTION ownership, not route
 		# membership — a second eligible handler must use the explicit
 		# recovery protocol, never transfer underneath the recorded
 		# claimant. Only the claimant's own pass releases the claim.
-		if live["active_team"] is not None and \
-				(live["active_team"], live["active_member"]) != \
+		if live["current_team"] is not None and \
+				(live["current_team"], live["current_member"]) != \
 				(actor_team, actor):
 			raise WorkError(
 				f"{work_id} is actively claimed by "
-				f"{live['active_team']}.{live['active_member']}; route "
+				f"{live['current_team']}.{live['current_member']}; route "
 				f"eligibility never moves work underneath its recorded "
 				f"executor — recover or release the claim explicitly "
 				f"first")
-		if (live["current_team"], live["current_kind"]) == passed:
+		if (live["route_team"], live["route_kind"]) == passed:
 			raise WorkError(f"{work_id} is already at "
 			                f"{passed[0]}.{passed[1]}; a pass moves "
 			                f"the baton")
@@ -2922,7 +3084,7 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 			# The consumed plan clears — but a NEW plan stated on this
 			# same return commits with it (W108 trial handoff ruling).
 			conn.execute(
-				"UPDATE work SET current_team=?, current_kind=?, "
+				"UPDATE work SET route_team=?, route_kind=?, "
 				"next_team=?, next_kind=? WHERE id=?",
 				(passed[0], passed[1],
 				 planned[0] if planned else None,
@@ -2931,7 +3093,7 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 			# An unconsumed planned Next stays VISIBLY set unless this
 			# pass plants a new one — never silently cleared.
 			conn.execute(
-				"UPDATE work SET current_team=?, current_kind=?, "
+				"UPDATE work SET route_team=?, route_kind=?, "
 				"next_team=COALESCE(?, next_team), "
 				"next_kind=COALESCE(?, next_kind) WHERE id=?",
 				(passed[0], passed[1],
@@ -2942,7 +3104,7 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 		# then actively worked, so the projection showed a claimed Work
 		# sitting in `queued` — exclusive, but an operationally false
 		# view that would misdirect scheduling as more agents share a
-		# route. Deriving it under the same lock that moves Current
+		# route. Deriving it under the same lock that moves the Route
 		# makes that state unrepresentable through the public handoff.
 		# An unmapped role refuses rather than guessing; a route
 		# transfer never produces `queued`; same-route stage changes
@@ -2958,11 +3120,11 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 				f"guessing one")
 		payload["destination_phase"] = destination_phase
 		conn.execute(
-			"UPDATE work SET active_team=NULL, active_member=NULL, "
+			"UPDATE work SET current_team=NULL, current_member=NULL, "
 			"phase=?, wait_type=NULL, wait_obligation=NULL "
 			"WHERE id=?", (destination_phase, work_id))
 		_touch_work(conn, work_id)
-		# W49: a pass/return hands the Work to a new Current and
+		# W49: a pass/return hands the Work to a new Route and
 		# releases the sender's claim — the canonical new episode. The
 		# recipient must be woken even if a previous episode of the SAME
 		# Work was delivered to them and never observed as absent.
@@ -2992,10 +3154,15 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
                 rationale: str | None = None,
                 op_id: str | None = None, refs=()) -> dict:
 	"""Append-only Work contract revision: PROMOTES one complete durable
-	thread message as the effective contract (pinned ruling). Only
-	the resolved Current handler of OPEN Work commits it; transfer of
-	Current transfers this authority. The promoted message must live in
-	a thread currently carrying this open Work's label. The write is
+	thread message as the effective contract (pinned ruling). Only the
+	EXACT CURRENT CLAIMANT of OPEN Work commits it, and they must still
+	be eligible through the live Route (W288): route eligibility alone
+	let one handler rewrite assigned scope underneath another handler
+	who was executing it, defeating the claim's single-executor
+	boundary. Unclaimed Work refuses — discussion stays open for
+	proposals, and promotion waits for somebody to be accountable for
+	it. The promoted message must live in a thread currently carrying
+	this open Work's label. The write is
 	compare-and-swap on the expected prior revision — a concurrent or
 	stale writer refuses whole without consuming a sequence — and every
 	decision is rechecked inside the committing transaction. The stored
@@ -3058,10 +3225,31 @@ def revise_work(store: Authority, work_id: str, *, actor_team: str,
 			raise WorkError(
 				f"{work_id} is {live['status']}; terminal work is "
 				f"immutable and never revised")
-		# The one revision authority: the LIVE resolved Current handler,
-		# in the lock, snapshot recorded (resolution facts).
+		# The one revision authority: the LIVE resolved Route handler
+		# who is ALSO the exact current claimant — both checked in the
+		# lock, snapshot recorded (resolution facts).
 		payload["authorization"] = _handler_gate(
 			conn, work_id, actor_team, actor, "revise")
+		# W288: route eligibility says who MAY claim; it never says who
+		# is executing. Deciding this here, under the same lock as the
+		# compare-and-swap below, is what makes a claim released or
+		# passed mid-revision fail closed rather than racing.
+		claim = conn.execute(
+			"SELECT current_team, current_member FROM work WHERE id=?",
+			(work_id,)).fetchone()
+		if claim["current_team"] is None:
+			raise WorkError(
+				f"revise: {work_id} is unclaimed; the Work contract is "
+				f"promoted by the participant executing it — claim it "
+				f"first, or keep proposing in the thread")
+		if (claim["current_team"], claim["current_member"]) != \
+				(actor_team, actor):
+			raise WorkError(
+				f"revise: {work_id} is claimed by "
+				f"{claim['current_team']}.{claim['current_member']}; "
+				f"a route peer may propose in the thread but never "
+				f"rewrites assigned scope underneath its executor")
+		payload["authorization"]["claimant"] = f"{actor_team}.{actor}"
 		if conn.execute(
 				"SELECT 1 FROM thread_labels WHERE thread=? "
 				"AND work=?",
@@ -3106,7 +3294,7 @@ def bind_work(store: Authority, work_id: str, *, actor_team: str,
               op_id: str | None = None, refs=()) -> dict:
 	"""WS-6: attach or correct a Work's canonical dossier binding —
 	append-only, compare-and-swap on the expected prior revision, by the
-	LIVE resolved Current handler of OPEN work only (transfer of Current
+	LIVE resolved Route handler of OPEN work only (transfer of the Route
 	transfers this authority; creation-time binding belongs to
 	create_work). Every post-creation change records a non-empty
 	rationale. New revisions require a LIVE configured root and the M4

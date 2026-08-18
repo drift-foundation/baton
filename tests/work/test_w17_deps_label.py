@@ -46,7 +46,7 @@ def build(tmp_path):
 	                         classification="suspected-defect",
 	                         author="ada", body="b")["work_id"]
 	tr.add_dependency(store, consumer, blocker, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	store.close()
 	return config
 

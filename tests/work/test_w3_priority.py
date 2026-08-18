@@ -149,13 +149,13 @@ def test_priority_never_touches_the_workflow_axes(world):
 	work = make(world, "isolated")
 	gate = make(world, "the gate")
 	tr.add_dependency(world["store"], work, gate, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	before = row_of(world, work)
 	tr.prioritize(world["store"], work, actor_team="lang", actor="ada",
 	              priority="high")
 	after = row_of(world, work)
-	untouched = ("phase", "status", "ready", "current", "next",
-	             "active", "open_blockers", "open_dependents",
+	untouched = ("phase", "status", "ready", "route", "next",
+	             "current", "open_blockers", "open_dependents",
 	             "first_open_blocker", "claimed_at")
 	for field in untouched:
 		assert after[field] == before[field], field

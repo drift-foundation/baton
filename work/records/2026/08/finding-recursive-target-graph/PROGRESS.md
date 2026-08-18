@@ -5345,3 +5345,117 @@ One trap closed on the way: with the parameter gone, a leftover
 `pass_phase=` in the test fixture would have been silently ignored and
 the assertion would have passed for the wrong reason. `fixtures.post`
 now raises on the retired kwarg instead.
+
+## Step 189 — W76: spatial panes, newest first
+
+Implemented finding-message-pane-navigation (claimed W76). Both
+defects reproduced as recorded: the Message index opened OLDEST first,
+so entering a conversation showed its beginning rather than what just
+happened, and `_handle_detail` treated the three panes as one linear
+tuple, so reaching Threads from the reader required stepping through
+the index.
+
+Projection. `projection.thread` pages in EITHER direction, always
+bounded: `after` walks forward as before, `newest=True` returns the
+last page, and `before=N` the page immediately older than N. Both
+directions return the page in canonical ascending order — display
+order is the client's business — and each carries its own
+continuation, `next_after` and `next_before`.
+
+Newest-first entry is also a PURITY fix, which is the part worth
+keeping in mind. The old path could walk forward through every bounded
+page hunting the first personal-new Message, loading an entire Thread
+merely to reach its tail. The plan's argument is that this walk was
+never necessary: the seen cursor is a MONOTONIC sequence, so whenever
+anything is unseen the newest Message is itself unseen. Entry is now
+one bounded read of the newest page, and a regression pins the read
+COUNT at exactly one so the walk cannot creep back.
+
+TUI. The index paints newest-first (only the display order reverses;
+the page stays canonical ascending everywhere else), so screen-down
+selects older Messages and screen-up newer ones. `n` reaches the older
+page, `p` returns to the newest — never a previous-page step — and the
+labels say so: `(n: older)` and `older msgs — n older · p newest`. The
+cursor state moved from `thread_after` to `thread_before` (None = the
+newest page), and the retired `msg_seek` flag went with the walk that
+armed it.
+
+Ctrl-W is now a geometric neighbour map rather than a linear index:
+up from EITHER Message pane reaches Threads, down goes Threads → index
+→ reader, left/right move between index and reader, unmapped edges
+stay put, and a second Ctrl-W keeps the three-pane cycle.
+
+Evidence: new tests/work/test_w76_message_pane_navigation.py (23) —
+newest-first order and entry selection; the one-bounded-read pin;
+entry landing on unseen mail with the monotonic-cursor argument tested
+rather than asserted; older/newest paging including disjoint,
+strictly-older pages; index movement following the VISIBLE order; the
+full twelve-case geometric neighbour matrix including every unmapped
+edge; the three-pane cycle; exactly one focus marker across all three
+panes and on an empty page; focus and selection surviving a
+wide-to-narrow resize with the same logical map; and purity — a long
+navigation sequence advances no seen cursor and writes no authority
+byte, while explicit `s` still bounds at the selected Message.
+Break-sweeps: restoring the linear reader-up reds 2; painting
+oldest-first reds 1; selecting the page's oldest on entry reds 4.
+
+DECLARED test edits, all from the ruled reversal. `test_w8`'s
+`test_new_first_autoselect_reaches_a_later_message_page` is replaced
+by `test_entry_lands_on_the_newest_message_without_walking`, which
+keeps W14's REAL promise (an old seen body is never the default entry)
+and drops only the walk; its bounded-paging test is rewritten for
+older/newest direction; several PTY scripts lost a `j` walk because
+the message they were walking to is now the entry selection; and one
+fixture moved its long body onto the newest Message so the
+width-bound reader scroll is still exercised. `test_tui`'s
+bounded-paging test keeps every claim — bounded pages, no cursor
+leak, disjoint pages, `p` returns, page-bounded seen — with the
+direction flipped. `test_parity`'s seen transition no longer walks.
+`test_w176`'s stubbed projection gained `next_before`.
+`docs/BATON-WORK.md` now states newest-first entry, the honest paging
+direction, and the geometric Ctrl-W map.
+
+## Step 190 — W76 R1: a full page is not proof of another page
+
+Round one found one real defect in my reverse pagination and pinned it
+with its own failing regression, which reproduced exactly as described:
+`next_before` was set whenever the returned page length equalled the
+limit, so a Thread of exactly `limit` Messages advertised `(n: older)`
+and following it opened an empty page. I had copied the convention
+from `next_after` without asking whether it was right.
+
+Corrected as ruled: the reverse read takes `limit + 1` rows, returns
+`limit`, and sets `next_before` only when that extra PROBE row proves
+an older page exists. The probe never reaches the payload, which stays
+exactly `limit` long and canonical ascending, and it is still ONE
+bounded query.
+
+Evidence beyond the reviewer's case: an exact-limit `before=` page
+ends the chain rather than advertising another; and a walk that
+follows every older cursor to exhaustion visits only non-empty pages
+while losing and repeating nothing, across four shapes including two
+where the Thread length is an exact multiple of the page size and one
+single-message Thread. A pin that the probe row never reaches the
+payload. Break-sweep: restoring the length-equals-limit rule reds 3.
+
+Observed and NOT changed, because the review explicitly said to
+preserve the forward contract: `next_after` has the identical flaw.
+A forward exact-limit page returns a cursor whose page is empty —
+reproduced directly on five Messages with `limit=5`, `next_after=6`,
+following it yields `[]`. Reported in the return for triage rather
+than fixed here.
+
+GATE STATUS, stated honestly. The full `just test-v11` cannot be run
+clean at this moment and the cause is not this change: `transitions.py`,
+`cli.py` and `projection.py` were all rewritten by a concurrent
+participant seconds before the run, adding a required `rationale=` to
+`block`/`add_dependency` for different Work whose tests have not been
+updated yet. The 92 failures and 36 errors are all that one signature
+change — fixture-level `TypeError: add_dependency() missing 1 required
+keyword-only argument: 'rationale'` and `block: missing required
+rationale=`. I did not touch that half-finished work. My own suites
+are green in isolation (W76 27, W8 11), the immediately preceding full
+gate on the same W76 implementation was 877 + 4 serial + acp 35/35,
+and the only delta since is this pagination correction plus its new
+tests. AGENTS.md asks for explicit file ownership before parallel
+edits; this is the case it exists for.

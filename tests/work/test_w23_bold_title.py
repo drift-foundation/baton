@@ -75,7 +75,7 @@ def test_only_hot_titles_render_bold_and_selection_composes(world):
 	# dependency-blocked (ready=false), so ada sees the arrow, not bold.
 	cold = make(world, title="cold queued")
 	tr.add_dependency(world["store"], cold, hot, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	console = Console(world["store"], "lang", "ada",
 	                  config_path=world["config"])
 	rows = console.rows()
@@ -157,7 +157,7 @@ def test_hot_titles_are_bold_on_the_real_terminal(tmp_path):
 	# W81: dependency-blocked — not actionable, so never bold; the
 	# viewer reads the arrow and the counters instead.
 	tr.add_dependency(store, cold, claimed, actor_team="lang",
-	                  actor="ada")
+	                  actor="ada", rationale="test dependency")
 	store.close()
 	text, status, steps = ptyharness.drive(config, "lang.ada", [
 		(b"", 0.6), (b"qy", 0.4)])
