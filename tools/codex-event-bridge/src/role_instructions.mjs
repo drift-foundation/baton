@@ -12,7 +12,11 @@ export function validateRoleInstructions(payload, identity) {
   const projection = payload?.projection_version;
   const match = typeof projection === "string" && /^([0-9]+)\.([0-9]+)$/.exec(projection);
   const major = match ? Number(match[1]) : null;
-  if (!match || ![9, 10, 11].includes(major)) {
+  // W5: projection 12 moved the major for the `poke` action kind; the
+  // role-instruction result itself did not change, so this consumer
+  // widens in the same candidate rather than refusing a shape it can
+  // still read.
+  if (!match || ![9, 10, 11, 12].includes(major)) {
     throw new Error(`projection ${JSON.stringify(payload?.projection_version)} does not carry the v11 role-instruction contract`);
   }
   if (payload?.participant !== identity.participant) {

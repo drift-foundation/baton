@@ -55,7 +55,10 @@ test("instruction envelopes fail closed on participant, role, text, generation, 
     [(payload) => { payload.result.instructions = ""; }, /non-empty instructions/],
     [(payload) => { payload.result.configuration_generation = 0; }, /positive configuration_generation/],
     [(payload) => { payload.projection_version = "8.9"; }, /role-instruction contract/],
-    [(payload) => { payload.projection_version = "12.0"; }, /role-instruction contract/],
+    // W5: projection 12 is SUPPORTED — the major moved for the poke
+    // action kind, and the role-instruction result itself did not
+    // change, so this consumer widened in the same candidate.
+    [(payload) => { payload.projection_version = "13.0"; }, /role-instruction contract/],
   ]) {
     const payload = envelope();
     change(payload);

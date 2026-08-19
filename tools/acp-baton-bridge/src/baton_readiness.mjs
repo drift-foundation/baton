@@ -29,6 +29,15 @@ export function promptText(envelope, action, roleInstructions = null) {
 		summary = `v11 Work ${name}${title} is ${state} for ${participant}. Act through the canonical v11 CLI (detail work=${name}).`;
 	} else if (action.kind === "obligation") {
 		summary = `v11 @ obligation #${action.seq} on ${action.work} awaits ${participant}. Act through the canonical v11 CLI (obligations, respond/accept/dispose).`;
+	} else if (action.kind === "poke") {
+		// W5 slice B. Deliberately ordinary wording, matching the Codex
+		// path word for word: the approved contract calls a poke a
+		// lightweight request for status between collaborators, and
+		// says it must not read as an alarm, an escalation, or an
+		// automated health verdict. So it names who asked, repeats
+		// their actual question, and points at the one verb that
+		// answers it.
+		summary = `${action.asker} asks ${participant}: ${action.request} Answer through the canonical v11 CLI (poke-answer poke=${action.poke} state=idle|working|waiting|needs-help explanation=…), reading your canonical Baton state first.`;
 	} else {
 		summary = `v11 trial ${action.trial} of ${action.work} is due (generation ${action.deadline_generation}) for ${participant}. Act through the canonical v11 CLI (detail work=${action.work}).`;
 	}

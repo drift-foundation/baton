@@ -37,8 +37,8 @@ def store(tmp_path):
 		yield authority
 
 
-def test_the_fresh_authority_is_schema_21(store):
-	assert store.meta()["schema_version"] == "21"
+def test_the_fresh_authority_is_schema_22(store):
+	assert store.meta()["schema_version"] == "22"
 
 
 def test_created_work_defaults_to_normal_priority(store):

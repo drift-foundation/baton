@@ -3819,3 +3819,377 @@ def bind_work(store: Authority, work_id: str, *, actor_team: str,
 	return store._write("bind_work", f"{actor_team}.{actor}", payload,
 	                    mutate, operation=operation, finish=finish,
 	                    references=refs)
+
+
+# -- W5: the conversational poke ---------------------------------------------
+#
+# An operator (or any participant) sees an apparently idle or stalled
+# agent and needs to ask the live session what is happening. The three
+# verbs below are OPERATIONAL CONVERSATION and carry no workflow
+# authority whatsoever: nothing here claims, releases, passes,
+# reprioritizes, re-phases, blocks, closes, or makes any Work
+# actionable, and no code path below writes to `work`, `obligations`,
+# `edges`, `messages` or `threads`. Creating a Work dependency or a
+# directed obligation merely to wake an agent falsifies the coordination
+# record, which is the defect this primitive removes.
+
+# The friendly default. The wording is deliberately ordinary: a poke is
+# a lightweight request for status between collaborators, never an
+# alarm, escalation, accusation or automated health verdict, and the
+# text an agent actually receives must not imply otherwise.
+DEFAULT_POKE_REQUEST = "what's up?"
+
+# The agent's own answer about itself.
+POKE_STATES = ("idle", "working", "waiting", "needs-help")
+# Layer 1 — runner/provider diagnostics, capability-based. `unknown` is
+# a first-class member of each vocabulary, not a fallback: an adapter
+# that cannot observe a fact says so rather than guessing, and a reader
+# can tell "the runner reports authentication is fine" apart from "the
+# runner cannot see authentication at all".
+POKE_SESSION_STATES = ("unknown", "live", "starting", "stopped", "failed")
+POKE_AUTH_STATES = ("unknown", "ok", "expired", "failed")
+POKE_LIMIT_STATES = ("unknown", "ok", "rate-limited", "overloaded")
+
+
+def _participant_pair(value, what: str) -> tuple[str, str]:
+	team, dot, member = str(value).partition(".")
+	if not dot or not team or not member:
+		raise WorkError(f"{what} {value!r} is not team.member shaped; a "
+		                f"poke names exactly one configured participant, "
+		                f"never a route or a wildcard")
+	return team, member
+
+
+def _poke_text(value, what: str, default: str | None = None) -> str:
+	if value is None:
+		if default is None:
+			raise WorkError(f"{what} is required")
+		return default
+	if not isinstance(value, str) or not value.strip():
+		raise WorkError(f"{what} must be a non-empty string")
+	if "\0" in value:
+		raise WorkError(f"{what} must not contain a NUL")
+	return value
+
+
+def _poke_choice(value, allowed, what: str) -> str:
+	if value is None:
+		return allowed[0]
+	if value not in allowed:
+		raise WorkError(f"{what} {value!r} is not one of "
+		                f"{', '.join(allowed)}")
+	return value
+
+
+def _poke_count(value, what: str):
+	"""An advisory telemetry scalar: a non-negative integer, or None
+	meaning UNKNOWN. Never a zero standing in for a fact nobody has."""
+	if value is None:
+		return None
+	if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+		raise WorkError(f"{what} must be a non-negative integer, or be "
+		                f"omitted entirely to report it as unknown")
+	return value
+
+
+def _live_poke(store: Authority, conn, poke_seq, now: str):
+	"""The poke row, refusing every state that is already terminal —
+	including the DERIVED one.
+
+	Expiry is not a stored status and nothing is watching the clock, so
+	`pending` in the row and `pending` in fact are different questions.
+	A poke past its `expires_at` reads as `timed-out` everywhere, and
+	the ruling is that a timed-out poke can never later be answered; if
+	that check lived only in the read path, an answer arriving after the
+	deadline would quietly resurrect it."""
+	row = conn.execute(
+		"SELECT * FROM pokes WHERE seq=?", (poke_seq,)).fetchone()
+	if row is None:
+		raise WorkError(f"poke {poke_seq} does not exist")
+	if row["status"] != "pending":
+		raise WorkError(f"poke {poke_seq} is already {row['status']}; a "
+		                f"poke is answered, cancelled or superseded once "
+		                f"and its record is not rewritten")
+	if row["expires_at"] is not None and row["expires_at"] <= now:
+		raise WorkError(
+			f"poke {poke_seq} timed out at {row['expires_at']} (now "
+			f"{now}); a timed-out poke is terminal and cannot be "
+			f"answered or cancelled")
+	return row
+
+
+def poke(store: Authority, *, actor_team: str, actor: str, target: str,
+         request: str | None = None, expires_at: str | None = None,
+         op_id: str | None = None, refs=()) -> dict:
+	"""Ask exactly one configured participant what is going on.
+
+	AUTHORIZATION is deliberately open: any configured participant may
+	poke any other, including ITSELF. Poke carries no workflow
+	authority, so the route-eligibility gate that protects mutations has
+	nothing to protect here — and requiring a capability would make the
+	friendly question harder to ask than the acts that actually change
+	state, which inverts the risk. The record names the asker, so misuse
+	is visible rather than prevented by refusal. Self-poke is the
+	end-to-end diagnostic "does my own wake-up bus work?" and exercises
+	the same persistent path another asker would use.
+
+	DEDUPLICATION keeps the NEWEST pending poke per (asker, target).
+	A deliberate re-ask supersedes that asker's earlier pending poke:
+	only the newer one stays actionable, its text is the current
+	question, and its optional `expires_at` starts the new wait window.
+	This is what a rate limit is actually for here — one asker cannot
+	pile up pokes — achieved without measuring time or adding the
+	authority's first background timer. The superseded row remains
+	operational history and is never rewritten or deleted. Different
+	askers keep their own independent pending pokes to one target,
+	because they are different people asking.
+
+	An exact `op-id` retry replays its committed result and therefore
+	does NOT renew expiry: a retry is the same question, not a new one.
+	"""
+	_member(store, actor_team, actor)
+	target_team, target_member = _participant_pair(target, "poke target")
+	_member(store, target_team, target_member)
+	request = _poke_text(request, "poke request", DEFAULT_POKE_REQUEST)
+	if expires_at is not None:
+		_canonical_instant(expires_at, "expires_at")
+		if expires_at <= store.clock():
+			raise WorkError(
+				f"expires_at {expires_at!r} is not later than now "
+				f"({store.clock()}); a poke that has already timed out "
+				f"would never be delivered")
+	operation = _operation(store, actor_team, actor, "poke", op_id,
+	                       {"target": f"{target_team}.{target_member}",
+	                        "request": request,
+	                        "expires_at": expires_at, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	refs = _parse_refs(store, refs)
+	asker = f"{actor_team}.{actor}"
+	payload = {"asker": asker,
+	           "target": f"{target_team}.{target_member}",
+	           "request": request, "expires_at": expires_at}
+	superseded: list = []
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		_member_active(conn, target_team, target_member)
+		now = store.clock()
+		# Only rows that are pending IN FACT are superseded. One already
+		# past its deadline reads as `timed-out`, and overwriting that
+		# derived terminal state with `superseded` would rewrite history
+		# the operator has already been shown.
+		for row in conn.execute(
+				"SELECT seq FROM pokes WHERE status='pending' AND "
+				"asker_team=? AND asker=? AND target_team=? AND "
+				"target=? AND (expires_at IS NULL OR expires_at > ?) "
+				"ORDER BY seq",
+				(actor_team, actor, target_team, target_member, now)):
+			superseded.append(row["seq"])
+		if superseded:
+			conn.executemany(
+				"UPDATE pokes SET status='superseded', resolved_seq=?, "
+				"resolved_ts=? WHERE seq=?",
+				[(seq, now, older) for older in superseded])
+		conn.execute(
+			"INSERT INTO pokes (seq, asker_team, asker, target_team, "
+			"target, request, expires_at, status, created_ts) "
+			"VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)",
+			(seq, actor_team, actor, target_team, target_member,
+			 request, expires_at, now))
+
+	def finish(result):
+		result["poke"] = result["seq"]
+		result["target"] = f"{target_team}.{target_member}"
+		result["superseded"] = list(superseded)
+
+	return store._write("poke", asker, payload, mutate,
+	                    operation=operation, finish=finish,
+	                    references=refs)
+
+
+def answer_poke(store: Authority, poke_seq: int, *, actor_team: str,
+                actor: str, state: str, explanation: str, work=(),
+                provider: str | None = None, model: str | None = None,
+                session_state: str | None = None,
+                auth_state: str | None = None,
+                limit_state: str | None = None,
+                retry_at: str | None = None,
+                context_limit=None, context_used=None,
+                context_remaining=None,
+                op_id: str | None = None, refs=()) -> dict:
+	"""The one terminal response, from the EXACT participant that was
+	asked.
+
+	Two independently observable layers land here together. The
+	runner/provider diagnostics can explain why the model itself could
+	not answer — a provider rate limiter, an expired credential, a dead
+	session — and the agent status is what the model said when it could.
+	Both are capability-based and advisory: what an adapter cannot
+	observe stays the explicit `unknown` member of its vocabulary, or
+	is omitted and stored NULL. Nothing is guessed and nothing opaque is
+	accepted, so no credential or unrestricted vendor payload has a
+	column to arrive in.
+
+	`work` is what the AGENT believes it is handling. It is recorded as
+	the agent's claim, and the projection reports canonical Work state
+	beside it rather than instead of it — a disagreement between the two
+	is the single most useful thing a poke can surface, and collapsing
+	them would hide exactly the case the operator poked to find. Naming
+	a Work that does not exist is a malformed answer and refuses; naming
+	one somebody else holds is a disagreement and is recorded.
+
+	This verb mutates no Work of any kind. Answering never claims,
+	releases, or makes anything actionable — an agent that discovers
+	actionable Work while answering reports the discovery and then acts
+	on it through the ordinary protocol, under the ordinary
+	eligibility, gate, and compare-and-swap checks."""
+	_member(store, actor_team, actor)
+	if not isinstance(poke_seq, int) or isinstance(poke_seq, bool) or \
+			poke_seq < 1:
+		raise WorkError("a poke is answered by its positive sequence")
+	state = _poke_text(state, "poke state")
+	if state not in POKE_STATES:
+		raise WorkError(f"poke state {state!r} is not one of "
+		                f"{', '.join(POKE_STATES)}")
+	explanation = _poke_text(explanation, "poke explanation")
+	provider = _poke_text(provider, "provider", "unknown")
+	model = _poke_text(model, "model", "unknown")
+	session_state = _poke_choice(session_state, POKE_SESSION_STATES,
+	                             "session_state")
+	auth_state = _poke_choice(auth_state, POKE_AUTH_STATES, "auth_state")
+	limit_state = _poke_choice(limit_state, POKE_LIMIT_STATES,
+	                           "limit_state")
+	if retry_at is not None:
+		_canonical_instant(retry_at, "retry_at")
+	context_limit = _poke_count(context_limit, "context_limit")
+	context_used = _poke_count(context_used, "context_used")
+	context_remaining = _poke_count(context_remaining, "context_remaining")
+	named = []
+	for entry in work or ():
+		work_id = _poke_text(entry, "answered work id")
+		if work_id in named:
+			raise WorkError(f"answered work {work_id} is named twice; a "
+			                f"claim is a set, not a tally")
+		_work(store, work_id)
+		named.append(work_id)
+	operation = _operation(store, actor_team, actor, "answer_poke", op_id,
+	                       {"poke": poke_seq, "state": state,
+	                        "explanation": explanation, "work": named,
+	                        "provider": provider, "model": model,
+	                        "session_state": session_state,
+	                        "auth_state": auth_state,
+	                        "limit_state": limit_state,
+	                        "retry_at": retry_at,
+	                        "context_limit": context_limit,
+	                        "context_used": context_used,
+	                        "context_remaining": context_remaining,
+	                        "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	refs = _parse_refs(store, refs)
+	answerer = f"{actor_team}.{actor}"
+	now = store.clock()
+	row = _live_poke(store, store.conn, poke_seq, now)
+	if (row["target_team"], row["target"]) != (actor_team, actor):
+		raise WorkError(
+			f"poke {poke_seq} asked "
+			f"{row['target_team']}.{row['target']}, not {answerer}; "
+			f"only the exact participant that was asked answers")
+	payload = {"poke": poke_seq, "answerer": answerer, "state": state,
+	           "work": named}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		now_in_lock = store.clock()
+		live = _live_poke(store, conn, poke_seq, now_in_lock)
+		if (live["target_team"], live["target"]) != (actor_team, actor):
+			raise WorkError(
+				f"poke {poke_seq} is no longer addressed to {answerer}")
+		conn.execute(
+			"INSERT INTO poke_answers (poke, seq, state, explanation, "
+			"provider, model, session_state, auth_state, limit_state, "
+			"retry_at, context_limit, context_used, context_remaining, "
+			"created_ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+			"?, ?)",
+			(poke_seq, seq, state, explanation, provider, model,
+			 session_state, auth_state, limit_state, retry_at,
+			 context_limit, context_used, context_remaining,
+			 now_in_lock))
+		for ordinal, work_id in enumerate(named, start=1):
+			conn.execute(
+				"INSERT INTO poke_answer_work (poke, ordinal, work) "
+				"VALUES (?, ?, ?)", (poke_seq, ordinal, work_id))
+		conn.execute(
+			"UPDATE pokes SET status='answered', resolved_seq=?, "
+			"resolved_ts=? WHERE seq=?",
+			(seq, now_in_lock, poke_seq))
+
+	def finish(result):
+		result["poke"] = poke_seq
+		result["state"] = state
+
+	return store._write("poke_answer", answerer, payload, mutate,
+	                    operation=operation, finish=finish,
+	                    references=refs)
+
+
+def cancel_poke(store: Authority, poke_seq: int, *, actor_team: str,
+                actor: str, reason: str | None = None,
+                op_id: str | None = None, refs=()) -> dict:
+	"""Withdraw an unanswered poke.
+
+	The ASKER owns the question and may take it back; a holder of the
+	`config` capability may clear one aimed at a participant that will
+	never return. Both are recorded with the actor and the reason, so
+	"why did this poke vanish" stays answerable. Cancelling an
+	already-terminal poke — answered, cancelled, superseded, or timed
+	out — refuses by name rather than rewriting history."""
+	_member(store, actor_team, actor)
+	if not isinstance(poke_seq, int) or isinstance(poke_seq, bool) or \
+			poke_seq < 1:
+		raise WorkError("a poke is cancelled by its positive sequence")
+	if reason is not None:
+		reason = _poke_text(reason, "cancellation reason")
+	operation = _operation(store, actor_team, actor, "cancel_poke", op_id,
+	                       {"poke": poke_seq, "reason": reason,
+	                        "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	refs = _parse_refs(store, refs)
+	canceller = f"{actor_team}.{actor}"
+	row = _live_poke(store, store.conn, poke_seq, store.clock())
+	authorized = (row["asker_team"], row["asker"]) == (actor_team, actor)
+	if not authorized:
+		authorized = store.conn.execute(
+			"SELECT 1 FROM member_capabilities WHERE team=? AND "
+			"member=? AND capability='config'",
+			(actor_team, actor)).fetchone() is not None
+	if not authorized:
+		raise WorkError(
+			f"poke {poke_seq} was asked by "
+			f"{row['asker_team']}.{row['asker']}; only that asker or a "
+			f"holder of the config capability withdraws it")
+	payload = {"poke": poke_seq, "canceller": canceller, "reason": reason}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		now = store.clock()
+		live = _live_poke(store, conn, poke_seq, now)
+		if (live["asker_team"], live["asker"]) != (actor_team, actor) \
+				and conn.execute(
+					"SELECT 1 FROM member_capabilities WHERE team=? AND "
+					"member=? AND capability='config'",
+					(actor_team, actor)).fetchone() is None:
+			raise WorkError(
+				f"poke {poke_seq} is not {canceller}'s to withdraw")
+		conn.execute(
+			"UPDATE pokes SET status='cancelled', resolved_seq=?, "
+			"resolved_ts=? WHERE seq=?", (seq, now, poke_seq))
+
+	def finish(result):
+		result["poke"] = poke_seq
+
+	return store._write("poke_cancel", canceller, payload, mutate,
+	                    operation=operation, finish=finish,
+	                    references=refs)

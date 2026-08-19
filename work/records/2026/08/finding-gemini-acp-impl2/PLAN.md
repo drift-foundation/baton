@@ -18,3 +18,11 @@ Claude's existing `impl` route remains the default.
    claim/reroute safety, projection/Event truth, and config regeneration.
 5. [operator-owned] Run the live Gemini canary acceptance and record certification or
    a concrete rejection.
+
+## Phased deployment coordination — approved 2026-08-18
+
+W6 joins W10's next immutable deployment rather than causing a separate
+restart. Prepare the Gemini member, `impl2` alternate, bridge/session/policy,
+and canary inputs in the new commit-named home while the current authority
+continues running. The final freeze stops the old home first, then moves the
+live symlink, starts the new complete set, and certifies all participants.

@@ -1,15 +1,17 @@
 # Plan
 
-**Status — proposed for product decision.** The live W5 → W6 → W101 stall
-demonstrates the scheduling gap; no implementation is authorized yet.
+**Status — first-cut rule confirmed 2026-08-18.** The live W5 → W6 → W101
+stall demonstrates the scheduling gap. Implementation is authorized only for
+the binary within-pool blocker preference pinned in `FINDING.md`; the broader
+effective-priority model remains deferred.
 
-1. [ready] Confirm the effective-urgency rules and the parked/containment
-   boundaries with Slawomir.
-2. [pending] Revalidate every canonical ordering surface and readiness
-   consumer against the confirmed model.
-3. [pending] Implement one canonical, overlap-safe derivation without changing
-   explicit priority.
-4. [pending] Add workflow tests for chains, diamonds, fan-out, closure, and a
-   saturated reviewer route, plus JSON/TUI/readiness parity.
-5. [pending] Run focused and complete v11 gates and return for independent
+1. [done] Confirm the first-cut within-pool blocker preference with Slawomir.
+2. [done] Revalidate every canonical ordering surface and readiness
+   consumer against the confirmed binary model.
+3. [done] Implement one canonical blocker predicate without changing
+   explicit priority or claimability.
+4. [done] Add workflow tests for one blocking versus one free-standing Job,
+   blocker removal, different explicit pools, parked/claimed exclusion, and
+   JSON/TUI/readiness parity.
+5. [done] Run focused and complete v11 gates and return for independent
    review.

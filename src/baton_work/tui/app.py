@@ -25,7 +25,10 @@ from __future__ import annotations
 import curses
 import os
 import shlex
+import subprocess
+import tempfile
 import time as _time
+import unicodedata
 import uuid
 
 from baton_work.authority import Authority, WorkError
@@ -42,7 +45,13 @@ from baton_work import transitions
 # separate questions — who MAY claim, and who IS executing. The single
 # old Current column showed the endpoint, so a routed handoff nobody had
 # picked up looked staffed. W38 renamed the claimant to HANDLER.
-COLUMNS = (("ST", 6), ("PR", 2), ("PHASE", 6), ("CLS", 5),
+# W73 (finding-hide-redundant-work-state): `St` is GONE from the default
+# table. The normal list hides terminal Work, so every visible row read
+# `open` — six cells repeating an invariant of the view instead of
+# telling two rows apart. In its place `Out` appears ONLY where terminal
+# Work can be seen, and carries the outcome rather than the word the
+# view already implies.
+COLUMNS = (("OUT", 5), ("PR", 2), ("PHASE", 6), ("CLS", 5),
            ("MSG/MY", 7), ("ROUTE", 13), ("HANDLER", 13), ("NEXT", 13),
            ("NEW", 4), ("HELD", 6))
 
@@ -50,7 +59,7 @@ COLUMNS = (("ST", 6), ("PR", 2), ("PHASE", 6), ("CLS", 5),
 # plus the ruled `Cat` display label for the classification column
 # (finding-tui-category-header): presentation only, the canonical value,
 # JSON field, and compact vocabulary stay `classification`/`defct`-style.
-HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat"}
+HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat", "OUT": "Out"}
 
 # Responsive omission (prototype-grade presentation under the ruling): at
 # narrow widths whole low-priority columns are OMITTED, never squeezed into
@@ -61,7 +70,12 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat"}
 # pressure, preserving every previously existing narrow layout.
 # W245: NEXT then ROUTE go before CURRENT — under width pressure the
 # question that survives longest is who is actually executing.
-DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "ROUTE")
+# W73: `Out` is last, so it survives longest. It is present only
+# because the operator asked to see terminal Work, and dropping the one
+# column that answers that question would leave the reveal pointless —
+# whereas Route and Next are least interesting on a closed row.
+DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "ROUTE",
+              "OUT")
 MIN_TITLE = 10
 
 # W26: the command-history bound. Session-local presentation state, so
@@ -184,14 +198,23 @@ def actionable_work(row: dict, viewer_team: str,
 	        and viewer_member in (route.get("handlers") or ()))
 
 
-def visible_columns(width: int, id_width: int = 0):
+def visible_columns(width: int, id_width: int = 0,
+                    terminal: bool = False):
 	"""The column set that fits `width`, dropping DROP_ORDER members until
 	the title keeps MIN_TITLE cells. Shared with the parity suite so the
 	two surfaces can never disagree about the layout. `id_width` is the
 	W4 leading Id column (plus its separator) the budget must carry —
-	the Id itself is identity and is never dropped or truncated."""
+	the Id itself is identity and is never dropped or truncated.
+
+	W73: `terminal` says whether this view CAN contain terminal Work —
+	closed rows revealed with `z`, or a closed-status filter. It is the
+	VIEW's question, not "does a closed row happen to be on screen right
+	now": deriving it from the rows would make the column appear and
+	vanish as ordinary work closed underneath the operator, and a table
+	whose columns move on their own is harder to read than one dash."""
 	lead = id_width + 1 if id_width else 0
-	columns = list(COLUMNS)
+	columns = [entry for entry in COLUMNS
+	           if terminal or entry[0] != "OUT"]
 	for name in DROP_ORDER:
 		fixed = sum(w for _n, w in columns) + len(columns)
 		if width - fixed - lead - 1 >= MIN_TITLE:
@@ -263,32 +286,40 @@ def held_field(row, now) -> str:
 	treating silence as execution failure manufactured false alarms.
 	Heartbeat instants remain structured JSON diagnostics.
 
-	W78 replaces the unclaimed-handoff origin. Held measures the two
-	intervals that are real operational time, and each is explainable
-	from its own row:
+	W78 replaced the unclaimed-handoff origin with two clocks: the
+	current claim, and the displayed gate's episode. **W12 supersedes the
+	second of those.** Held is the HANDLER-duration column and nothing
+	else:
 
 	ACTIVE: `MM:SS` since canonical `claimed_at` — time the current
 	Handler has actually held the Work, and `Handler` names them.
-	BLOCK: `MM:SS` since the displayed gate's episode start — time lost
-	to that gate, and `Wait` names it.
-	EVERYTHING ELSE — queued, parked, terminal: `-`.
+	EVERYTHING ELSE — queued, block, parked, terminal: `-`.
 
-	An unclaimed handoff no longer starts a visible clock. It was the
-	defect: two unclaimed rows in the same phase ran different clocks
-	because one happened to carry a historical `handoff_at`, and nothing
-	on either row explained the difference. `handoff_at` and `pickup`
-	remain structured history; they simply do not drive this cell.
+	A blocked row has no Handler; the gate released the claim to make it.
+	Running a clock there said a recipient was working, or late, on Work
+	that no participant could progress — the row read as somebody's
+	overdue task when it was nobody's. Blocked duration is not lost with
+	the cell: the gate keeps its typed identity and episode start, `Wait`
+	names it, and Events carry how long it lasted. It simply is not
+	Handler time and does not belong in the Handler column.
+
+	W78's other conclusion stands. An unclaimed handoff still starts no
+	clock: two unclaimed rows in the same phase once ran different clocks
+	because one carried a historical `handoff_at` and nothing on either
+	row explained the difference. `handoff_at` and `pickup` remain
+	structured history; they do not drive this cell.
 
 	The instant is always the authority's. The TUI never substitutes
 	`last_changed_at`, an edge's creation time, or its own observation
 	time for a start the authority did not commit."""
-	claimed_at = row.get("claimed_at")
-	if claimed_at is not None:
-		return held_cell(claimed_at, now)
-	gate = row.get("gate")
-	if gate and row.get("status") == "open":
-		return held_cell(gate.get("started_at"), now)
-	return "-"
+	# Stated as the ruling states it — no Handler, no Held. The
+	# projection already nulls `claimed_at` exactly when `handler` is
+	# null, so this reads as a second guard on one fact; it is written
+	# this way because the RULE is about the Handler, and a future change
+	# to that projection coupling should not silently start a clock here.
+	if row.get("handler") is None:
+		return "-"
+	return held_cell(row.get("claimed_at"), now)
 
 
 # W48: the sentinel that distinguishes an ABSENT Event payload from a
@@ -438,12 +469,13 @@ def id_column_width(rows) -> int:
 	return max(2, longest)
 
 
-def layout_fits(width: int, id_width: int = 0) -> bool:
+def layout_fits(width: int, id_width: int = 0,
+                terminal: bool = False) -> bool:
 	"""W4 R2: the fit judgment carries the VISIBLE Id column — identity
 	is never truncated, and its growth may never silently clip the
 	mandatory tail either; past the budget the table refuses whole."""
 	lead = id_width + 1 if id_width else 0
-	columns = visible_columns(width, id_width)
+	columns = visible_columns(width, id_width, terminal)
 	fixed = sum(w for _n, w in columns) + len(columns)
 	return width - fixed - lead - 1 >= MIN_TITLE
 
@@ -512,8 +544,12 @@ def compact_classification(value: str) -> str:
 
 # Terminal outcomes, compact — a CLOSED map like the others: the four ruled
 # outcomes and nothing else; an unmapped value fails visibly.
-OUTCOME_COMPACT = {"satisfying": "c/sat", "non-satisfying": "c/nsat",
-                   "rejected": "c/rej", "cancelled": "c/canc"}
+# W73 (ruled): the `c/` prefix is gone with the St column that needed
+# it. It encoded "closed", which the Out column's own presence already
+# says — and the operator only sees this column because they asked for
+# terminal Work.
+OUTCOME_COMPACT = {"satisfying": "sat", "non-satisfying": "nsat",
+                   "rejected": "rej", "cancelled": "cancl"}
 
 
 def compact_outcome(value: str) -> str:
@@ -522,11 +558,17 @@ def compact_outcome(value: str) -> str:
 	return OUTCOME_COMPACT[value]
 
 
-def status_cell(row: dict) -> str:
-	"""ST formats the projection's status plus, when closed, its outcome —
-	both canonical values, never a client-side judgement."""
+def outcome_cell(row: dict) -> str:
+	"""OUT formats the projection's canonical outcome, and `-` while the
+	Work is open.
+
+	W73 replaces `status_cell`, which formatted `open` for every row in
+	a view that could only contain open Work. The dash is not a
+	placeholder for a missing value: an open Work HAS no outcome, and
+	saying so beside a closed row's `rej` is what makes a mixed view
+	readable. Both values are canonical; nothing is judged here."""
 	if row["status"] == "open":
-		return "open"
+		return "-"
 	return compact_outcome(row["outcome"])
 
 
@@ -692,6 +734,18 @@ class Console:
 		self.tick_owed = False
 
 		self.command: str | None = None  # the `:` command-bar buffer
+		# W35: where the next insertion or deletion lands — an index
+		# into `command`'s CHARACTERS, 0..len, and the only thing that
+		# makes the bar an editable line rather than an append-only
+		# one. Every assignment to `command` goes through
+		# `_set_command`, so the two can never disagree about a buffer
+		# one of them has not seen.
+		self.command_caret: int = 0
+		# W36: a one-shot line shown where the assistance hint goes,
+		# for the case the ordinary status row cannot serve: the bar is
+		# REOPENED holding the intact draft, and the status row is
+		# hidden behind it. Cleared by the next keystroke.
+		self.command_note: str | None = None
 		# W26: bounded, session-local command history. Presentation
 		# state, not protocol state — it is never read from or written
 		# to the authority, and a second Console has its own.
@@ -701,8 +755,12 @@ class Console:
 		self.history_cursor: int | None = None
 		# The buffer as it was before history navigation began, so
 		# Down past the newest entry restores it BYTE-EXACTLY rather
-		# than approximately.
-		self.history_draft: str | None = None
+		# than approximately. W35: `(text, caret)` — restoring the
+		# characters but dropping the caret would be a different draft
+		# from the one the operator left, and carrying the pair means
+		# the existing `= None` resets cannot leave a stale caret
+		# behind a live draft.
+		self.history_draft: tuple[str, int] | None = None
 		# W26 reverse search: {"query", "match", "draft"} while active.
 		# `match` is an index into `history` or None when nothing
 		# matches; `draft` is the pre-search buffer Esc restores.
@@ -870,6 +928,16 @@ class Console:
 				self.phase_blink[work_id] = 3
 		self.phase_baseline.update(seen)
 
+	def terminal_visible(self) -> bool:
+		"""W73: can this view contain terminal Work?
+
+		The two triggers the ruling names — closed rows revealed with
+		`z`, or a closed-status filter — and it is deliberately the
+		same question `visible_rows` asks, factored so the column set
+		and the row set can never disagree about which view this is."""
+		return bool(self.show_closed or
+		            (self.work_filter or {}).get("status") == "closed")
+
 	def visible_rows(self, rows: list[dict]) -> tuple[list[dict], int]:
 		"""(rows to draw, hidden closed count) — the collapse is pure
 		presentation over the projection's own status values. W5 R1: an
@@ -877,8 +945,7 @@ class Console:
 		the default collapse would erase the filter's whole answer (and
 		its open context parents); the ordinary collapse applies
 		whenever no status filter requests closed Work."""
-		if self.show_closed or \
-				(self.work_filter or {}).get("status") == "closed":
+		if self.terminal_visible():
 			return rows, 0
 		visible = [row for row in rows if row["status"] == "open"]
 		return visible, len(rows) - len(visible)
@@ -1104,11 +1171,25 @@ class Console:
 			else:
 				typed = ":" + self.command
 				avail = width - 1
-				if len(typed) < avail:
-					screen.addnstr(height - 1, 0, typed, avail)
-					room = avail - len(typed) - 2
+				# W35: ONE caret-aware window serves both the fitting
+				# and the scrolled case. The old code had two branches
+				# and put the caret at the end of the buffer in each,
+				# which is the whole defect: the bar could only ever
+				# append.
+				visible, column = command_window(
+					typed, 1 + self.command_caret, avail)
+				screen.addnstr(height - 1, 0, visible, avail)
+				caret = (height - 1, min(column, max(0, width - 1)))
+				if visible == typed:
+					room = avail - _cells(typed) - 2
 					if room >= 8:
-						if self.command.strip() == "filter" and \
+						if self.command_note:
+							# W36: an editor that refused or cancelled
+							# has to say so BESIDE the draft it just
+							# handed back, because the status row is
+							# behind the reopened bar.
+							hint = self.command_note
+						elif self.command.strip() == "filter" and \
 								self.work_filter:
 							# W5 (ruled): command entry exposes the
 							# current clauses — SPACE seeds them into
@@ -1119,13 +1200,8 @@ class Console:
 							        + " · space edits · Enter clears")
 						else:
 							hint = assist_text(self.command)
-						screen.addnstr(height - 1, len(typed) + 2,
+						screen.addnstr(height - 1, _cells(typed) + 2,
 						               hint[:room], room, curses.A_DIM)
-					caret = (height - 1, len(typed))
-				else:
-					tail = typed[len(typed) - (avail - 2):]
-					screen.addnstr(height - 1, 0, "<" + tail, avail)
-					caret = (height - 1, 1 + len(tail))
 		elif self.status:
 			screen.addnstr(height - 1, 0, self.status, width - 1)
 		# The caret exists exactly while the bar is open: shown at the
@@ -1144,7 +1220,7 @@ class Console:
 		"""Every drawable cell for one projection row — canonical values
 		through the closed compact maps, nothing computed here."""
 		return {
-			"ST": status_cell(row),
+			"OUT": outcome_cell(row),
 			"PR": compact_priority(row["priority"]),
 			# W15: Phase is the operational stage alone. The claimant
 			# cue lives in Handler, which is blank when unclaimed.
@@ -1180,12 +1256,16 @@ class Console:
 		visible, hidden = self.visible_rows(rows)
 		id_width = id_column_width(visible)
 		cue_width = cue_column_width(visible)
+		# W73: the Out column is part of the budget exactly when the
+		# view can hold terminal Work, so every fit judgment below
+		# carries the same answer.
+		terminal = self.terminal_visible()
 		if cue_width and not layout_fits(
-				width, id_width + 1 + cue_width):
+				width, id_width + 1 + cue_width, terminal):
 			cue_width = 0
 		lead = id_width + ((1 + cue_width) if cue_width else 0)
-		if not layout_fits(width, lead):
-			columns = visible_columns(width, lead)
+		if not layout_fits(width, lead, terminal):
+			columns = visible_columns(width, lead, terminal)
 			need = sum(w for _n, w in columns) + len(columns) + \
 				MIN_TITLE + id_width + 2
 			# The explicit too-narrow REFUSAL (ruled): identities are
@@ -1199,7 +1279,7 @@ class Console:
 		# W4: the exact Id column LEADS the table and never truncates —
 		# it grows to the longest visible selector; the responsive drop
 		# budget carries it, and the title absorbs the remainder.
-		columns = visible_columns(width, lead)
+		columns = visible_columns(width, lead, terminal)
 		fixed = sum(w for _n, w in columns) + len(columns)
 		title_width = max(MIN_TITLE, width - fixed - lead - 2)
 		# Trial finding 26de18dd-W2: headers draw initial-capital LABELS
@@ -2186,6 +2266,129 @@ class Console:
 			error = (err.getvalue() or "refused").strip()[:200]
 		return code, "", error, False
 
+	def _prose_context(self, argv) -> list:
+		"""Whatever context the command and the current view supply —
+		the Work or Thread being acted on, with its title when the
+		cached window happens to know it. Never a read the operator did
+		not already cause: this uses the SAME cached projection the
+		screen is drawn from, so opening an editor cannot touch the
+		authority."""
+		context = []
+		operands = {}
+		for token in argv[1:]:
+			key, equals, value = token.partition("=")
+			if equals and key not in operands:
+				operands[key] = value
+		named = operands.get("work")
+		if named is None and self.detail_work is not None:
+			named = self.detail_work
+		if named is not None:
+			title = None
+			for row in self.rows():
+				if named in (row["id"], row["local_id"]):
+					title = row["title"]
+					break
+			context.append(f"Work {named}"
+			               + (f" — {title}" if title else ""))
+		if "thread" in operands:
+			context.append(f"Thread {operands['thread']}")
+		context.append(f"Participant {self.team}.{self.member}")
+		return context
+
+	def _prose_refused(self, line: str, note: str) -> None:
+		"""Hand the draft back INTACT and say why.
+
+		Every failure of the round trip lands here — no editor
+		configured, an unlaunchable one, a nonzero exit, an empty or
+		unchanged document. The operator gets the exact command they
+		pressed Enter on, in the bar, with the caret at its end, and
+		nothing was submitted."""
+		self._set_command(line)
+		self.command_note = note
+
+	def _author_prose(self, line: str, argv, key: str):
+		"""One external-editor round trip for one missing prose operand.
+
+		Returns the authored text, or None when it refused or cancelled
+		— in which case the draft is already back in the bar.
+
+		`EDITOR` ONLY, and split into an argument vector WITHOUT a
+		shell. Resolving `VISUAL` too, or falling back to a guess, would
+		mean Baton sometimes choosing an editor the operator did not
+		configure; passing the value to a shell would make the
+		environment a command-injection surface for a feature whose
+		whole job is to open a text file."""
+		spec = os.environ.get("EDITOR")
+		if not spec or not spec.strip():
+			self._prose_refused(
+				line, f"{key}= needs prose: set EDITOR to author it")
+			return None
+		try:
+			command = shlex.split(spec)
+		except ValueError:
+			command = []
+		if not command:
+			self._prose_refused(
+				line, "EDITOR is not a usable command; draft kept")
+			return None
+		document = prose_template(argv[0], key, self._prose_context(argv))
+		handle, path = tempfile.mkstemp(prefix="baton-prose-",
+		                                suffix=".txt")
+		try:
+			with os.fdopen(handle, "w", encoding="utf-8") as draft:
+				# Explicitly, not by relying on the default: the draft
+				# holds whatever the operator is about to say. Inside
+				# the `with`, so no path through here can leak the
+				# descriptor.
+				os.fchmod(draft.fileno(), 0o600)
+				draft.write(document)
+			try:
+				# Give the terminal back before the editor draws on it;
+				# the render that follows this key restores curses.
+				curses.endwin()
+			except curses.error:
+				pass
+			try:
+				done = subprocess.run(command + [path], check=False)
+			except OSError as broken:
+				self._prose_refused(
+					line, f"EDITOR could not run: {broken.strerror}")
+				return None
+			if done.returncode != 0:
+				self._prose_refused(
+					line, f"editor exited {done.returncode}; "
+					f"nothing submitted")
+				return None
+			with open(path, encoding="utf-8") as saved:
+				text = saved.read()
+		except KeyboardInterrupt:
+			# W36 review 2026-08-19: a terminal SIGINT reaches the whole
+			# FOREGROUND GROUP, so Baton receives it alongside the editor
+			# it is waiting on. Every other way this round trip can fail
+			# is already a safe cancellation, and an interrupt has to be
+			# one too — `_command_key` closed the bar before calling
+			# `execute`, so letting this propagate tears the console down
+			# and takes the operator's draft with it.
+			#
+			# The whole interaction is covered, not only the wait: an
+			# interrupt landing a moment later, while the authored text
+			# is being read back, would escape exactly the same way.
+			# `BaseException` does not reach the ordinary handlers, so
+			# it is named here or it is not caught at all.
+			self._prose_refused(
+				line, f"{key}= editing interrupted; nothing submitted")
+			return None
+		finally:
+			try:
+				os.unlink(path)
+			except OSError:
+				pass
+		value = strip_prose_template(text)
+		if not value.strip():
+			self._prose_refused(line, f"{key}= left empty; nothing submitted")
+			return None
+		return value
+
 	def execute(self, line: str) -> None:
 		"""The one-line `:` bar: feed the typed command through
 		`_run_line` and surface the brief or the refusal."""
@@ -2217,6 +2420,22 @@ class Console:
 		if guard:
 			self.status = guard
 			return
+		# W36: a REQUIRED prose operand the line does not carry opens
+		# the editor instead of returning a bare missing-operand
+		# refusal. The grammar decides which operand that is; a supplied
+		# one never gets here, and a missing non-prose operand still
+		# refuses normally through `_run_line` below.
+		#
+		# The authored value is APPENDED AS AN ARGV TOKEN rather than
+		# spliced into the command string. There is no second round of
+		# shell quoting to survive, so a body with quotes, newlines or
+		# Unicode reaches the canonical path exactly as it was written.
+		prose_key = _cli.missing_prose_operand(line)
+		if prose_key is not None:
+			authored = self._author_prose(line, argv, prose_key)
+			if authored is None:
+				return
+			argv = argv + [f"{prose_key}={authored}"]
 		code, brief, error, committed = self._run_line(argv)
 		# R7: only an ACTUAL storage change schedules a refresh.
 		if committed:
@@ -2671,7 +2890,17 @@ class Console:
 				# next to the space that preceded it would leave a gap
 				if head.endswith(" ") and rest.startswith(" "):
 					rest = rest[1:]
-				self.command = head + rest
+				# W35: the caret rides the splice. Text before the
+				# removed seed is untouched; a caret after it shifts
+				# left by exactly what vanished, and one that was
+				# INSIDE the seed lands where the seed was — the
+				# operator keeps editing the place they were looking
+				# at rather than being thrown to the end.
+				removed = len(self.command) - len(head + rest)
+				caret = self.command_caret
+				if caret > at:
+					caret = max(at, caret - removed)
+				self._set_command(head + rest, caret)
 				self.seeded_say = None
 			return
 		if self.command != "say":
@@ -2680,7 +2909,7 @@ class Console:
 		if selector is None:
 			return
 		self.seeded_say = f"thread={selector} "
-		self.command = f"say {self.seeded_say}"
+		self._set_command(f"say {self.seeded_say}")
 
 	def _remember(self, line: str) -> None:
 		"""W26: record one SUBMITTED command.
@@ -2707,7 +2936,7 @@ class Console:
 		if self.history_cursor is None:
 			if not older:
 				return
-			self.history_draft = self.command
+			self.history_draft = (self.command, self.command_caret)
 			self.history_cursor = len(self.history) - 1
 		elif older:
 			self.history_cursor = max(0, self.history_cursor - 1)
@@ -2716,11 +2945,15 @@ class Console:
 			if self.history_cursor >= len(self.history):
 				# past the newest: the draft, exactly as it was
 				self.history_cursor = None
-				self.command = self.history_draft or ""
+				draft, caret = self.history_draft or ("", 0)
+				self._set_command(draft, caret)
 				self.history_draft = None
 				self._reconcile_say_seed()
 				return
-		self.command = self.history[self.history_cursor]
+		# W35: a recalled entry arrives with the caret at its end. It is
+		# an independent DRAFT from that moment — editing it never
+		# reaches back into `history`, which stays immutable.
+		self._set_command(self.history[self.history_cursor])
 		self._reconcile_say_seed()
 
 	def _reverse_match(self, query: str, before: int | None) -> int | None:
@@ -2737,7 +2970,7 @@ class Console:
 		search. Nothing executes: this is the `recall, tweak, rerun`
 		path, and the tweak happens in the normal editor."""
 		if self.reverse is not None and self.reverse["match"] is not None:
-			self.command = self.history[self.reverse["match"]]
+			self._set_command(self.history[self.reverse["match"]])
 		self.reverse = None
 		self._reconcile_say_seed()
 
@@ -2756,14 +2989,17 @@ class Console:
 				# reading: Esc still restores that draft deliberately.
 				return
 			self._reverse_adopt()
-			line, self.command = self.command, None
+			line = self.command
+			self._set_command(None)
 			self.seeded_say = None
 			self.history_cursor = self.history_draft = None
 			self.execute(line)
 			return
 		if key == 27:
-			# cancel: the pre-search draft, byte for byte
-			self.command = state["draft"]
+			# cancel: the pre-search draft, byte for byte — and W35
+			# adds "caret for caret", because a draft restored with the
+			# caret moved is not the draft that was left
+			self._set_command(state["draft"], state["caret"])
 			self.reverse = None
 			self._reconcile_say_seed()
 			return
@@ -2796,11 +3032,16 @@ class Console:
 		state["match"] = self._reverse_match(state["query"], None)
 
 	def _command_key(self, key: int) -> None:
+		# W36: the note describes what the LAST key did, so the next one
+		# retires it — the same lifetime the status row has in
+		# navigation.
+		self.command_note = None
 		if self.reverse is not None:
 			self._reverse_key(key)
 			return
 		if key == 18 and self.history:      # Ctrl-R opens the search
 			self.reverse = {"query": "", "draft": self.command,
+			                "caret": self.command_caret,
 			                "match": len(self.history) - 1}
 			return
 		if key in (curses.KEY_UP, curses.KEY_DOWN):
@@ -2816,37 +3057,95 @@ class Console:
 			# operator edits one clause without retyping the rest,
 			# and Enter replaces atomically through the same parser.
 			# Bare `filter` + Enter still clears.
-			self.command = "filter " + self._filter_clauses()
+			self._set_command("filter " + self._filter_clauses())
 			return
 		if key == ord(":") and self.command == "":
 			# W19: `::` — a second colon on the EMPTY bar converts it
 			# into the multiline batch buffer. The one-line `:`
 			# interaction is otherwise untouched.
-			self.command = None
+			self._set_command(None)
 			self.batch = [self._batch_line("")]
 			self.batch_cursor = 0
 			self.batch_confirm = False
 			self.batch_status = ""
 			return
 		if key in (10, 13, curses.KEY_ENTER):
-			line, self.command = self.command, None
+			line = self.command
+			self._set_command(None)
 			self.seeded_say = None
 			self.history_cursor = self.history_draft = None
 			self.execute(line)
-		elif key == 27:
-			self.command = None
+			return
+		if key == 27:
+			self._set_command(None)
 			self.seeded_say = None
 			self.history_cursor = self.history_draft = None
-		elif key in (8, 127, curses.KEY_BACKSPACE):
-			self.command = self.command[:-1]
+			return
+		# W35 (ruled 2026-08-18, non-modal): movement and deletion at an
+		# explicit caret. Printable `h`, `l`, `i` and `a` stay literal
+		# command text — there is no hidden normal mode and no second
+		# cursor grammar — and Esc keeps the visible meaning it already
+		# had, which is why it is handled above rather than repurposed.
+		# Ctrl-A/Ctrl-E are the readline spellings of Home/End and are
+		# the terminal-proof ones: they are plain control bytes, where
+		# Home/End arrive as escape sequences a terminal may spell two
+		# ways (W25).
+		if key == curses.KEY_LEFT:
+			self.command_caret = max(0, self.command_caret - 1)
+			return
+		if key == curses.KEY_RIGHT:
+			self.command_caret = min(len(self.command),
+			                         self.command_caret + 1)
+			return
+		if key in (curses.KEY_HOME, 1):
+			self.command_caret = 0
+			return
+		if key in (curses.KEY_END, 5):
+			self.command_caret = len(self.command)
+			return
+		if key in (8, 127, curses.KEY_BACKSPACE):
+			at = self.command_caret
+			if at == 0:
+				# nothing before the caret: deleting the last character
+				# instead is exactly the append-only behaviour this Work
+				# exists to remove
+				return
+			self._set_command(self.command[:at - 1] + self.command[at:],
+			                  at - 1)
 			self._reconcile_say_seed()
-		elif 32 <= key <= 126:
+			return
+		if key == curses.KEY_DC:
+			at = self.command_caret
+			if at >= len(self.command):
+				return
+			self._set_command(self.command[:at] + self.command[at + 1:], at)
+			self._reconcile_say_seed()
+			return
+		if 32 <= key <= 126:
 			self._command_type(chr(key))
 
+	def _set_command(self, text: str | None, caret: int | None = None) -> None:
+		"""THE assignment to the command buffer.
+
+		W35: the caret is state that only means anything relative to a
+		particular buffer, so nothing sets one without the other.
+		`caret=None` means the end, which is what every whole-buffer
+		replacement wants — a recalled entry, an adopted search match, a
+		seeded draft — because the operator's next keystroke continues
+		the line before it edits inside it."""
+		self.command = text
+		if text is None:
+			self.command_caret = 0
+		else:
+			self.command_caret = len(text) if caret is None \
+				else max(0, min(caret, len(text)))
+
 	def _command_type(self, character: str) -> None:
-		"""One printable character into the bar, through the one path
-		that owns the buffer's side effects."""
-		self.command += character
+		"""One printable character into the bar AT THE CARET, through
+		the one path that owns the buffer's side effects."""
+		at = self.command_caret
+		self._set_command(self.command[:at] + character
+		                  + self.command[at:], at + 1)
 		self._reconcile_say_seed()
 
 	def _complete_command(self) -> None:
@@ -2873,6 +3172,16 @@ class Console:
 		candidate display, and a repeated Tab never chooses for the
 		operator."""
 		if self.command is None:
+			return
+		if self.command_caret != len(self.command):
+			# W35: `complete_partial` analyses the buffer's LAST token,
+			# which is not the token an interior caret is in. Typing
+			# its result at the caret would splice characters into a
+			# place the operator is not looking and rewrite a different
+			# operand — so Tab declines instead, exactly as it already
+			# declines an ambiguous candidate or an open quote. A
+			# repeated Tab never chooses for the operator, and that
+			# includes never choosing WHERE.
 			return
 		result = _cli.complete_partial(self.command)
 		if not result["progressed"]:
@@ -2928,7 +3237,7 @@ class Console:
 		if key == ord(":"):
 			# W26: one scratch draft per opening, positioned AFTER the
 			# newest entry — the first Up recalls the newest submission.
-			self.command = ""
+			self._set_command("")
 			self.history_cursor = None
 			self.history_draft = None
 			self.reverse = None
@@ -3224,13 +3533,170 @@ class Console:
 		               if result["advanced"] else "already seen")
 
 
+# W36 (finding-editor-backed-command-text): authoring durable prose in
+# the one-row `:` bar means quoting paragraphs into a single line, which
+# is exactly what an external editor is for. The two functions below are
+# the whole client-local contract, kept PURE and module level so the
+# byte-preservation rules can be asserted without a terminal, an editor,
+# or a store.
+PROSE_COMMENT = "#"
+
+
+def prose_template(verb: str, key: str, context) -> str:
+	"""The Git-commit-style document an operator opens.
+
+	It is never an unexplained empty file: it names the operation and
+	the field being authored, whatever Work or Thread context supplies,
+	and how to save and cancel — including the one rule a reader
+	otherwise has to guess, which is WHICH `#` lines disappear."""
+	lines = [f"{PROSE_COMMENT} Baton {verb} — authoring {key}="]
+	for note in context:
+		lines.append(f"{PROSE_COMMENT} {note}")
+	lines += [
+		PROSE_COMMENT,
+		f"{PROSE_COMMENT} Everything below the blank line becomes the "
+		f"value of {key}=.",
+		f"{PROSE_COMMENT} These leading '{PROSE_COMMENT}' lines are "
+		f"removed; a '{PROSE_COMMENT}' line further down is kept.",
+		f"{PROSE_COMMENT} Save and exit to run the command. Exit "
+		f"leaving this empty to cancel;",
+		f"{PROSE_COMMENT} the command draft stays intact either way.",
+	]
+	return "\n".join(lines) + "\n\n"
+
+
+def strip_prose_template(text: str) -> str:
+	"""The authored value, and NOTHING Baton wrote.
+
+	The rule is the leading contiguous run of comment lines, plus one
+	blank separator if it survived, plus one trailing newline. It is
+	deliberately positional rather than a match against the block that
+	was generated: a rule that only removed lines it still recognised
+	would leak instructional text the moment an operator edited one of
+	them, and `instructional text can never leak into the submitted
+	body` is the acceptance boundary that outranks every other
+	consideration here.
+
+	The cost is stated in the template itself — a `#` line the operator
+	puts at the very TOP goes with the block. Anywhere else it is
+	content, which is the ruling's own distinction.
+
+	Everything after that is preserved byte for byte: quotes, blank
+	lines inside the body, Unicode, and comment characters."""
+	lines = text.split("\n")
+	index = 0
+	while index < len(lines) and \
+			lines[index].lstrip().startswith(PROSE_COMMENT):
+		index += 1
+	if index < len(lines) and lines[index] == "":
+		index += 1
+	body = "\n".join(lines[index:])
+	# Editors append a final newline; one is the terminator, not content.
+	return body[:-1] if body.endswith("\n") else body
+
+
+# W35 (finding-command-buffer-cursor-editing): the caret is an index
+# into the buffer's CHARACTERS, but a terminal draws CELLS, so the two
+# have to be converted wherever they meet or a wide character silently
+# puts the visible caret somewhere the next keystroke will not land.
+#
+# These are the same wcwidth rules `authority.cell_width` applies to a
+# canonical handle. They are not that function: it answers a VALIDATION
+# question and returns -1 to refuse a control character, while rendering
+# has to produce a number for whatever is in the buffer. One of those
+# contracts cannot serve the other, so the rules are shared and the
+# answers are not.
+def _cell_width(character: str) -> int:
+	if unicodedata.combining(character) or \
+			unicodedata.category(character) in ("Mn", "Me", "Cf"):
+		return 0
+	return 2 if unicodedata.east_asian_width(character) in ("W", "F") else 1
+
+
+def _cells(text: str) -> int:
+	return sum(_cell_width(character) for character in text)
+
+
+def command_window(typed: str, caret: int, avail: int) -> tuple[str, int]:
+	"""The visible slice of the one-line `:` bar and the screen COLUMN
+	its caret lands on.
+
+	A PURE function of the buffer, the caret and the width — there is no
+	remembered scroll offset — so the same three inputs always produce
+	the same window, a narrow terminal is testable without a terminal,
+	and a resize cannot leave the caret stranded off screen: the next
+	render simply recomputes it.
+
+	`<` and `>` name text scrolled off each side and cost a cell each,
+	so a marker never covers the character it stands in for. One further
+	cell is always left free to the right of the caret when the line
+	scrolls: the caret sits AFTER the last visible character, where the
+	next typed one will land, and parking it in the terminal's final
+	column is the one place curses and auto-wrap disagree about what
+	happens next."""
+	if avail <= 0:
+		return "", 0
+	if _cells(typed) < avail:
+		return typed, _cells(typed[:caret])
+	# The caret is still inside the first screenful: stay anchored at the
+	# start — scrolling a buffer whose beginning the operator is editing
+	# would move text for no reason — and name the hidden tail.
+	end, used = 0, 0
+	while end < len(typed) and used + _cell_width(typed[end]) <= avail - 1:
+		used += _cell_width(typed[end])
+		end += 1
+	if caret <= end:
+		return typed[:end] + ">", _cells(typed[:caret])
+	# Otherwise the caret anchors the RIGHT edge: `<` names the hidden
+	# head, as much preceding context as fits follows, and any room left
+	# over shows what comes after the caret.
+	# Reserve before measuring: `<` always, one cell for the caret
+	# itself, and `>` too when text remains after it. Taking those cells
+	# afterwards is what a first cut did, and the `>` then landed
+	# exactly on the caret's own column — a marker covering the very
+	# character it was standing in for, which is the one thing the
+	# markers must not do.
+	reserved = 2 if caret >= len(typed) else 3
+	start, used = caret, 0
+	while start > 0 and \
+			used + _cell_width(typed[start - 1]) <= avail - reserved:
+		used += _cell_width(typed[start - 1])
+		start -= 1
+	text = "<" + typed[start:caret]
+	column = 1 + used
+	room = avail - column
+	tail = caret
+	while tail < len(typed) and _cell_width(typed[tail]) <= room - 1:
+		room -= _cell_width(typed[tail])
+		tail += 1
+	text += typed[caret:tail]
+	if tail < len(typed):
+		text += ">"
+	return text, column
+
+
 # W25: the normal-mode (DECCKM off) cursor spellings, which `smkx` asks
 # terminals not to use and some send anyway. The application-mode forms
 # (`ESC O A`…) are already translated by keypad, and `ESC [ A`… are what
 # reaches the loop as a bare escape.
 ESCAPE_PEEK_MS = 25
 _CURSOR_FINALS = {ord("A"): curses.KEY_UP, ord("B"): curses.KEY_DOWN,
-                  ord("C"): curses.KEY_RIGHT, ord("D"): curses.KEY_LEFT}
+                  ord("C"): curses.KEY_RIGHT, ord("D"): curses.KEY_LEFT,
+                  # W35: Home and End carry EXACTLY the skew W25
+                  # measured — `ESC O H`/`ESC O F` in application mode,
+                  # `ESC [ H`/`ESC [ F` in normal mode. Shipping the
+                  # ruled contract without them would leave two of its
+                  # keys reachable from one kind of terminal and
+                  # invisible from the other, which is the defect W25
+                  # exists to have found once.
+                  ord("H"): curses.KEY_HOME, ord("F"): curses.KEY_END}
+# W35: the tilde-terminated spellings. Delete has no control-byte
+# alternate the way Home and End have Ctrl-A and Ctrl-E, so `ESC [ 3 ~`
+# is the only way it arrives from a terminal whose terminfo the running
+# ncurses did not match.
+_TILDE_FINALS = {ord("1"): curses.KEY_HOME, ord("3"): curses.KEY_DC,
+                 ord("4"): curses.KEY_END, ord("7"): curses.KEY_HOME,
+                 ord("8"): curses.KEY_END}
 
 
 def _decode_normal_mode_cursor(screen) -> int:
@@ -3250,6 +3716,16 @@ def _decode_normal_mode_cursor(screen) -> int:
 	final = screen.getch()
 	if final in _CURSOR_FINALS:
 		return _CURSOR_FINALS[final]
+	if final in _TILDE_FINALS:
+		# One more byte, and only for a sequence that genuinely takes
+		# one: anything that is not the terminator is pushed back with
+		# everything before it, so a `ESC [ 3` introducing something
+		# else is still handed on exactly as it was.
+		terminator = screen.getch()
+		if terminator == ord("~"):
+			return _TILDE_FINALS[final]
+		if terminator != -1:
+			curses.ungetch(terminator)
 	if final != -1:
 		curses.ungetch(final)
 	curses.ungetch(introducer)

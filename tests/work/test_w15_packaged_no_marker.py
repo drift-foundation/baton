@@ -137,9 +137,10 @@ def test_the_packaged_console_paints_no_marker_anywhere(world):
 	regression could restore either one."""
 	executable, config_path = world
 	screen = _rows(executable, config_path)
+	# W73: rows no longer carry the word `open` — the default table
+	# holds nothing else — so the titles alone select them.
 	table = [line for line in screen
-	         if "open" in line and ("handed off" in line
-	                                or "being worked" in line)]
+	         if "handed off" in line or "being worked" in line]
 	assert len(table) == 2, screen
 	for line in table:
 		assert ">" not in line and "!" not in line, \

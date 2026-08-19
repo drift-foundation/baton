@@ -37,7 +37,7 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 21
+SCHEMA_VERSION = 22
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -433,6 +433,95 @@ CREATE TABLE messages (
 	author      TEXT NOT NULL,
 	body        TEXT NOT NULL,
 	ts          TEXT NOT NULL
+) STRICT;
+-- W5 (finding-conversational-agent-poke), schema 22: the CONVERSATIONAL
+-- POKE — one participant asking another "what's up?" and getting a state
+-- report back.
+--
+-- It is persistent authority state rather than a runner-control socket
+-- because it must survive an offline participant, reach Codex and ACP
+-- agents through the same participant-relative `wait`, and give the
+-- operator one vendor-neutral place to read the answer.
+--
+-- It has NO `work` column, and that absence is the design. The
+-- obligations table is the closest existing primitive and every column
+-- in it ties the row to a Work; a poke has none, which is exactly the
+-- point. Creating a Work dependency or a directed obligation merely to
+-- wake an agent falsifies the coordination record, and this table exists
+-- so nobody has to. Nothing here claims, releases, passes, re-phases,
+-- blocks, closes, or makes any Work actionable.
+CREATE TABLE pokes (
+	-- the creating event's sequence IS the poke's identity, so the
+	-- action key `poke:<seq>` is stable forever and never re-minted.
+	seq          INTEGER PRIMARY KEY,
+	asker_team   TEXT NOT NULL,
+	asker        TEXT NOT NULL,
+	-- exactly one configured participant, never a route and never a
+	-- wildcard. Self-poke is deliberately allowed: it is the end-to-end
+	-- question "does my wake-up bus work?".
+	target_team  TEXT NOT NULL,
+	target       TEXT NOT NULL,
+	request      TEXT NOT NULL,
+	-- OPTIONAL and explicit. Expiry needs no background scheduler and
+	-- has none: reads derive that the deadline has passed, drop the poke
+	-- from actionable delivery, and present it as `timed-out`. Stored
+	-- status therefore has no 'timed-out' value — a status column would
+	-- have to be written by somebody, and nothing is watching the clock.
+	expires_at   TEXT,
+	status       TEXT NOT NULL DEFAULT 'pending'
+		CHECK (status IN ('pending', 'answered', 'cancelled',
+		                  'superseded')),
+	created_ts   TEXT NOT NULL,
+	resolved_seq INTEGER,
+	resolved_ts  TEXT
+) STRICT;
+-- Exactly one response terminally answers a poke, hence the primary key.
+-- The two layers the approved contract names are BOTH here and stay
+-- separable: runner/provider diagnostics can explain why the model
+-- itself could not answer, and agent status is what the model said when
+-- it could.
+--
+-- Every diagnostic is a CLOSED vocabulary or a bounded scalar, never a
+-- pass-through blob. That is the rule "diagnostics must not expose
+-- credentials, account secrets, or unrestricted vendor payloads" made
+-- structural: an opaque column is precisely an unrestricted vendor
+-- payload, so there is no opaque column. Capability-based facts an
+-- adapter cannot supply stay the explicit `unknown` member of their
+-- vocabulary, or NULL for a scalar — never a guess, and never a zero
+-- standing in for a fact nobody has.
+CREATE TABLE poke_answers (
+	poke          INTEGER PRIMARY KEY REFERENCES pokes(seq),
+	seq           INTEGER NOT NULL,
+	state         TEXT NOT NULL
+		CHECK (state IN ('idle', 'working', 'waiting', 'needs-help')),
+	explanation   TEXT NOT NULL,
+	provider      TEXT NOT NULL DEFAULT 'unknown',
+	model         TEXT NOT NULL DEFAULT 'unknown',
+	session_state TEXT NOT NULL DEFAULT 'unknown'
+		CHECK (session_state IN ('unknown', 'live', 'starting',
+		                         'stopped', 'failed')),
+	auth_state    TEXT NOT NULL DEFAULT 'unknown'
+		CHECK (auth_state IN ('unknown', 'ok', 'expired', 'failed')),
+	limit_state   TEXT NOT NULL DEFAULT 'unknown'
+		CHECK (limit_state IN ('unknown', 'ok', 'rate-limited',
+		                       'overloaded')),
+	retry_at      TEXT,
+	context_limit     INTEGER,
+	context_used      INTEGER,
+	context_remaining INTEGER,
+	created_ts    TEXT NOT NULL
+) STRICT;
+-- What the AGENT believes it is handling, in the order it named it. The
+-- authority stores the claim and reports canonical Work state beside it
+-- rather than instead of it, because a disagreement between the two is
+-- the most useful thing a poke can surface. The foreign key keeps the
+-- claim addressable — an id naming no Work is a malformed answer, not a
+-- disagreement.
+CREATE TABLE poke_answer_work (
+	poke    INTEGER NOT NULL REFERENCES pokes(seq),
+	ordinal INTEGER NOT NULL,
+	work    TEXT NOT NULL REFERENCES work(id),
+	PRIMARY KEY (poke, ordinal)
 ) STRICT;
 """
 

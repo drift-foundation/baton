@@ -45,8 +45,14 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	# Trial finding 26de18dd-W2: initial-capital header labels.
 	# W71: Prog/Dep left the table — containment shows as indentation,
 	# graph counts live in details/links.
-	for column in ("St", "Handler", "Next", "New"):
+	# W73: `St` is GONE from the default open-only table — every row in
+	# it was `open`, which is a property of the view, not of a row.
+	for column in ("Handler", "Next", "New"):
 		assert column in header
+	assert "St" not in header, \
+		"the redundant State column survived in an open-only view"
+	assert "Out" not in header, \
+		"the terminal Outcome column appeared with no terminal rows in view"
 	assert "Prog" not in header and "Dep " not in header
 	assert "TITLE" not in header and "READY" not in header
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -215,7 +221,9 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	narrow = 68
 	columns = [name for name, _w in app.visible_columns(narrow)]
 	assert "CLS" not in columns, "the lowest-priority column survived"
-	assert {"ST", "HANDLER", "NEXT", "NEW"} <= set(columns)
+	# W73 freed the six cells `St` used, so more of the interesting
+	# columns survive this width than before; the property is unchanged.
+	assert {"ROUTE", "HANDLER", "NEXT", "NEW"} <= set(columns)
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],
 	                                        columns=narrow, lines=24)
@@ -310,15 +318,23 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	assert any("(1 closed hidden" in line for line in first), \
 		"the collapse hid work silently"
 	revealed = ptyharness.replay(steps[1])
-	assert any("already done" in line and "c/sat" in line
+	# W73: revealing terminal Work brings the Out column with it, and it
+	# carries the outcome rather than the word `closed` the reveal
+	# already implies.
+	assert any("Out" in line for line in revealed), \
+		"the Out column did not appear with the revealed closed row"
+	assert any("already done" in line and "sat" in line
 	           for line in revealed), \
 		"the revealed closed row does not show the canonical outcome"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 	# The focused view: contract revision on the open work; outcome and
 	# rationale on the closed one.
+	# W7: `the gate` is a ready unclaimed blocker and now leads the
+	# pool, so `j` reaches `stays open` — the revised Work this
+	# assertion has always been about.
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
+		(b"j\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
 	focused = "\n".join(ptyharness.replay(steps[1]))
 	assert "contract rev r1" in focused, focused[:400]
 	# W78: the focused row names the GATE, not the condition kind —
@@ -326,7 +342,8 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	assert re.search(r"wait W\d+", focused), \
 		f"the displayed gate is not stated: {focused[:400]}"
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"z", 0.4), (b"j", 0.3), (b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
+		(b"z", 0.4), (b"jj", 0.3), (b"\r", 0.5), (b"o", 0.5),
+		(b"qy", 0.4)])
 	closed_view = "\n".join(ptyharness.replay(steps[3]))
 	assert "closed satisfying — delivered before the checkpoint" \
 		in closed_view, closed_view[:400]
@@ -663,7 +680,10 @@ def test_below_the_minimum_the_table_refuses_explicitly(world):
 	never truncated into ambiguity to fake a fit."""
 	from baton_work.tui import app
 	path, _cast = world
-	narrow = 30
+	# W73: dropping the six-cell St column moved this boundary down —
+	# 30 now fits where it did not. The property under test is the
+	# REFUSAL, so the width follows the budget.
+	narrow = 28
 	assert not app.layout_fits(narrow)
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],

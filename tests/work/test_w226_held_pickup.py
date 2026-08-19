@@ -103,13 +103,13 @@ def test_json_exposes_structured_handoff_facts_without_glyphs(world):
 
 
 def test_the_held_field_walks_the_ruled_states(world):
-	"""W78 supersedes the handoff origin walked here before.
+	"""W78 superseded the handoff origin walked here before, and W12
+	then superseded W78's second clock.
 
-	Held now measures the two intervals that are real operational time,
-	and each is explainable from its own row: `active` since the claim,
-	with `Handler` naming who holds it; `block` since the displayed
-	gate's episode started, with `Wait` naming that gate. Everything
-	else is `-`.
+	Held measures ONE interval: `active` since the claim, with `Handler`
+	naming who holds it. Everything else — queued, block, parked,
+	terminal — is `-`. A blocked row has no Handler, so the time it
+	spends blocked is the gate's, recorded on the gate.
 
 	The retired rule ran a clock on an unclaimed handoff, which is the
 	defect this Work exists to remove: two unclaimed rows in the same
@@ -143,7 +143,11 @@ def test_the_held_field_walks_the_ruled_states(world):
 	# the handoff shows the claim interval, never the handoff one
 	synthetic = {"claimed_at": "2026-08-17T12:00:00Z",
 	             "handoff_at": "2026-08-17T10:00:00Z",
-	             "heartbeat_at": None}
+	             "heartbeat_at": None,
+	             # W12: a row carrying `claimed_at` carries a Handler —
+	             # the projection nulls them together — so a synthetic
+	             # row that omitted one was not a producible state.
+	             "handler": {"team": "rev", "member": "bee"}}
 	at = epoch("2026-08-17T12:00:30Z")
 	assert held_field(synthetic, at) == "00:30", \
 		"claim did not reset the displayed interval to claimed_at"
@@ -155,9 +159,12 @@ def test_the_held_field_walks_the_ruled_states(world):
 	blocked = row_of(world, work)
 	assert blocked["phase"] == "block"
 	started = epoch(blocked["gate"]["started_at"])
-	assert held_field(blocked, started + 45) == "00:45"
 	assert blocked["claimed_at"] is None, \
 		"the late gate did not release the claim"
+	# W12: the released claim is exactly why there is no timer. The
+	# episode start remains, on the gate, where the block's duration is.
+	assert held_field(blocked, started + 45) == "-"
+	assert blocked["gate"]["started_at"] is not None
 
 	# parked: no timer
 	tr.close_work(store, blocker, actor_team="lang", actor="ada",
@@ -176,24 +183,24 @@ def test_the_overflow_value_composes_like_any_other_base():
 	point. Padding is presentation only."""
 	at = epoch("2026-08-17T11:40:00Z")          # 100 minutes past 10:00
 	silent = {"claimed_at": "2026-08-17T10:00:00Z", "handoff_at": None,
-	          "heartbeat_at": "2026-08-17T10:00:00Z"}
+	          "heartbeat_at": "2026-08-17T10:00:00Z",
+	          "handler": {"team": "lang", "member": "ada"}}
 	assert held_field(silent, at) == "∞", \
 		"protocol silence still decorated the overflow value"
 	beating = dict(silent, heartbeat_at="2026-08-17T11:39:30Z")
 	assert held_field(beating, at) == "∞", \
 		"a fresh beat rendered differently from a silent one"
-	# a BLOCKED row old enough to overflow renders the SAME bare
-	# overflow as a claimed one: W65 removed the elapsed-time
-	# escalation, W15 removed the marker, and W78 made the blocked
-	# interval a first-class one — so `∞` is the one spelling, and
-	# `Handler`/`Wait` say which kind of interval it is.
-	# (An unclaimed handoff no longer runs a clock at all; that case is
-	# walked in the ruled-states test above.)
+	# W12: a BLOCKED row renders no value to overflow. However old the
+	# gate episode is, the cell is `-`, because the row has no Handler
+	# and Held is the Handler column. `Wait` names the gate and the
+	# episode start carries its age.
+	# (An unclaimed handoff runs no clock either; that case is walked in
+	# the ruled-states test above.)
 	blocked = {"claimed_at": None, "heartbeat_at": None,
 	           "handoff_at": "2026-08-17T09:00:00Z", "status": "open",
 	           "gate": {"kind": "work", "selector": "W4",
 	                    "started_at": "2026-08-17T10:00:00Z"}}
-	assert held_field(blocked, at) == "∞"
+	assert held_field(blocked, at) == "-"
 	# and the whole field still fits the six-cell budget it shares with
 	# every ordinary value
 	assert all(len(held_field(row, at)) <= 6

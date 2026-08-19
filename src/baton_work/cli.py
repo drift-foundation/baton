@@ -33,7 +33,19 @@ MUTATIONS = frozenset({
 	"prioritize", "pass", "heartbeat",
 	"phase", "try",
 	"extend", "report", "assess", "abandon", "revise", "start-thread",
-	"say", "label", "unlabel", "bind"})
+	"say", "label", "unlabel", "bind",
+	# W5: conversational, carrying no workflow authority — but they DO
+	# write, so the console must refresh after them like any mutation.
+	"poke", "poke-answer", "poke-cancel"})
+
+# W5: the closed answer vocabularies, shared by the generated help and
+# the transition layer. `unknown` leads each diagnostic vocabulary
+# because it is the honest default for an adapter that cannot observe
+# the fact, not a fallback for one that did not try.
+_POKE_STATES = ("idle", "working", "waiting", "needs-help")
+_POKE_SESSION_STATES = ("unknown", "live", "starting", "stopped", "failed")
+_POKE_AUTH_STATES = ("unknown", "ok", "expired", "failed")
+_POKE_LIMIT_STATES = ("unknown", "ok", "rate-limited", "overloaded")
 
 
 def _participant(value: str) -> tuple[str, str]:
@@ -115,10 +127,22 @@ _ASSESSMENTS = ("accepted", "rejected", "inconclusive")
 
 
 def _key(name, dest=None, *, required=False, repeat=False, kind="str",
-         default=None, values=None, help=""):
+         default=None, values=None, prose=False, help=""):
+	"""One operand of the ONE declarative grammar.
+
+	W36 adds `prose`: this operand carries durable human prose an
+	operator may want to author in a real editor rather than quote into
+	a single terminal row. It is GRAMMAR METADATA and nothing else —
+	the CLI's parsing, refusals and help are untouched by it, and no
+	caller is obliged to do anything with it. The TUI reads it to decide
+	when Enter opens an editor instead of returning a bare
+	missing-operand refusal; a separate hard-coded verb list would have
+	drifted from the grammar the parser actually executes, which is the
+	failure this flag exists to prevent."""
 	return {"name": name, "dest": dest or name.replace("-", "_"),
 	        "required": required, "repeat": repeat, "kind": kind,
-	        "default": default, "values": values, "help": help}
+	        "default": default, "values": values, "prose": prose,
+	        "help": help}
 
 
 # Universal operation operands — part of THE public grammar on every
@@ -173,7 +197,7 @@ GRAMMAR = {
 	                         help="the Work title (born thread subject)"),
 	                    _key("origin", required=True, values=_ORIGINS,
 	                         help="how this Work arose"),
-	                    _key("body", required=True,
+	                    _key("body", prose=True, required=True,
 	                         help="the first message body"),
 	                    _key("parent", help="containing open Work id"),
 	                    _key("classification", required=True,
@@ -200,7 +224,7 @@ GRAMMAR = {
 	                                         "parent")}},
 	           "keys": (_key("obligation", required=True, kind="int",
 	                         help="the pending @ obligation seq"),
-	                    _key("body", required=True,
+	                    _key("body", prose=True, required=True,
 	                         help="the acceptance rationale"),
 	                    _key("into", help="existing provider Work id"),
 	                    _key("create", kind="bool", default=False,
@@ -215,7 +239,7 @@ GRAMMAR = {
 	"respond": {"help": "answer an @ obligation with a message",
 	            "keys": (_key("obligation", required=True, kind="int",
 	                          help="the pending obligation seq"),
-	                     _key("body", required=True,
+	                     _key("body", prose=True, required=True,
 	                          help="the answer body"))},
 	"dispose": {"help": "close an @ obligation without an answer",
 	            "keys": (_key("obligation", required=True, kind="int",
@@ -227,7 +251,7 @@ GRAMMAR = {
 	              {"if-key": "duplicate-of",
 	               "requires-value": ("outcome", "rejected")},),
 	          "keys": (_key("work", required=True, help="the Work id"),
-	                   _key("rationale", required=True,
+	                   _key("rationale", prose=True, required=True,
 	                        help="durable terminal rationale"),
 	                   _key("outcome", required=True, values=_OUTCOMES,
 	                        help="the terminal outcome"),
@@ -244,7 +268,7 @@ GRAMMAR = {
 	                     _key("expect", required=True,
 	                          help="the exact recorded claimant "
 	                          "team.member"),
-	                     _key("reason", required=True,
+	                     _key("reason", prose=True, required=True,
 	                          help="durable reason the Work became "
 	                          "unclaimed"))},
 	"block": {"help": "record a dependency edge (work waits on blocker)",
@@ -252,7 +276,7 @@ GRAMMAR = {
 	                        help="the consumer Work"),
 	                   _key("on", required=True,
 	                        help="the blocker Work"),
-	                   _key("rationale", required=True,
+	                   _key("rationale", prose=True, required=True,
 	                        help="durable reason this gate is required"))},
 	"unblock": {"help": "correct one live dependency edge without "
 	            "closing either Work",
@@ -260,7 +284,7 @@ GRAMMAR = {
 	                          help="the consumer Work"),
 	                     _key("on", required=True,
 	                          help="the blocker Work"),
-	                     _key("rationale", required=True,
+	                     _key("rationale", prose=True, required=True,
 	                          help="durable reason the edge was wrong"))},
 	"mark-seen": {"help": "mark a thread page seen up to a message",
 	              "keys": (_key("thread", required=True,
@@ -271,6 +295,79 @@ GRAMMAR = {
 	              "beat (informational; never releases or transfers)",
 	              "keys": (_key("work", required=True,
 	                            help="the claimed Work"),)},
+	"poke": {"help": "ask exactly one participant what is going on "
+	         "(conversational; carries no workflow authority)",
+	         "keys": (_key("target", required=True,
+	                       help="the exact TEAM.MEMBER to ask; never a "
+	                       "route or a wildcard, and may be yourself"),
+	                  _key("request",
+	                       help="the friendly question (default: "
+	                       "\"what's up?\")"),
+	                  _key("expires-at",
+	                       help="optional canonical UTC instant after "
+	                       "which the poke is terminally timed-out; "
+	                       "omit to leave it pending until answered "
+	                       "or cancelled"))},
+	"poke-answer": {"help": "answer a poke addressed to you — the one "
+	                "terminal response",
+	                "keys": (_key("poke", required=True, kind="int",
+	                              help="the poke sequence"),
+	                         _key("state", required=True,
+	                              values=_POKE_STATES,
+	                              help="your own status"),
+	                         _key("explanation", required=True,
+	                              help="a short human explanation"),
+	                         _key("work", repeat=True,
+	                              help="a Work you believe you are "
+	                              "handling (repeatable); canonical "
+	                              "state is reported beside your "
+	                              "claim, never instead of it"),
+	                         _key("provider",
+	                              help="runner/provider name, or omit "
+	                              "for unknown"),
+	                         _key("model",
+	                              help="model name, or omit for "
+	                              "unknown"),
+	                         _key("session-state",
+	                              values=_POKE_SESSION_STATES,
+	                              help="runner session state"),
+	                         _key("auth-state",
+	                              values=_POKE_AUTH_STATES,
+	                              help="provider authentication state"),
+	                         _key("limit-state",
+	                              values=_POKE_LIMIT_STATES,
+	                              help="provider rate-limit/overload "
+	                              "state"),
+	                         _key("retry-at",
+	                              help="canonical UTC instant the "
+	                              "provider says to retry or reset"),
+	                         _key("context-limit", kind="int",
+	                              help="advisory context/token limit; "
+	                              "omit to report it unknown"),
+	                         _key("context-used", kind="int",
+	                              help="advisory context/token usage; "
+	                              "omit to report it unknown"),
+	                         _key("context-remaining", kind="int",
+	                              help="advisory context/token "
+	                              "remaining; omit to report it "
+	                              "unknown"))},
+	"poke-cancel": {"help": "withdraw an unanswered poke (the asker, or "
+	                "a config-capability holder)",
+	                "keys": (_key("poke", required=True, kind="int",
+	                              help="the poke sequence"),
+	                         _key("reason", prose=True,
+	                              help="durable reason it was "
+	                              "withdrawn"))},
+	"pokes": {"help": "conversational pokes and their answers, with "
+	          "canonical state beside every agent claim",
+	          "keys": (_key("asker", help="narrow to one asking "
+	                        "TEAM.MEMBER"),
+	                   _key("target", help="narrow to one asked "
+	                        "TEAM.MEMBER"),
+	                   _key("after", kind="int", default=0,
+	                        help="page after this poke sequence"),
+	                   _key("limit", kind="int", default=100,
+	                        help="page size"))},
 	"prioritize": {"help": "revise the owning team's Work priority "
 	               "(ordering signal only)",
 	               "keys": (_key("work", required=True,
@@ -296,7 +393,7 @@ GRAMMAR = {
 	                        values=_SETTABLE_PHASES,
 	                        help="the target phase; `active` is not "
 	                             "settable — claim the Work instead"),
-	                   _key("reason", help="required when parking"),
+	                   _key("reason", prose=True, help="required when parking"),
 	                   _key("wait", help="the gate: gates, or "
 	                        "one pending obligation seq (block "
 	                        "only)"))},
@@ -317,7 +414,7 @@ GRAMMAR = {
 	"report": {"help": "file a verification report",
 	           "keys": (_key("obligation", required=True, kind="int",
 	                         help="the verification assignment seq"),
-	                    _key("observation", required=True,
+	                    _key("observation", prose=True, required=True,
 	                         help="what was observed"),
 	                    _key("evidence", required=True,
 	                         help="where the evidence lives"))},
@@ -327,14 +424,14 @@ GRAMMAR = {
 	                    _key("as", dest="assessment", required=True,
 	                         values=_ASSESSMENTS,
 	                         help="the assessment"),
-	                    _key("rationale", required=True,
+	                    _key("rationale", prose=True, required=True,
 	                         help="why this assessment"))},
 	"abandon": {"help": "abandon an open verification trial",
 	            "keys": (_key("work", required=True,
 	                          help="the Work id"),
 	                     _key("trial", required=True, kind="int",
 	                          help="the trial number"),
-	                     _key("reason", required=True,
+	                     _key("reason", prose=True, required=True,
 	                          help="why the trial ends unresolved"))},
 	"home": {"help": "the team summary and root Work rows",
 	         "keys": _filter_keys()},
@@ -400,7 +497,7 @@ GRAMMAR = {
 	                  _key("expect", dest="expected_revision",
 	                       required=True, kind="int",
 	                       help="the expected prior binding revision"),
-	                  _key("rationale", required=True,
+	                  _key("rationale", prose=True, required=True,
 	                       help="why this correction/attachment is "
 	                       "right"),
 	                  _key("git", dest="git_provenance",
@@ -430,14 +527,14 @@ GRAMMAR = {
 	                    _key("expect", dest="expected_revision",
 	                         required=True, kind="int",
 	                         help="the expected prior revision"),
-	                    _key("rationale", required=True,
+	                    _key("rationale", prose=True, required=True,
 	                         help="why this promotion is the agreed "
 	                         "contract"))},
 	"start-thread": {"help": "open a labelled thread with its first "
 	                 "message",
 	                 "keys": (_key("subject", required=True,
 	                               help="the thread subject"),
-	                          _key("body", required=True,
+	                          _key("body", prose=True, required=True,
 	                               help="the first message body"),
 	                          _key("label", repeat=True, required=True,
 	                               help="Work id to label "
@@ -451,7 +548,7 @@ GRAMMAR = {
 	            {"if-key": "wait", "requires": ("request",)},),
 	        "keys": (_key("thread", required=True,
 	                      help="the thread id"),
-	                 _key("body", required=True,
+	                 _key("body", prose=True, required=True,
 	                      help="the message body"),
 	                 _key("include", help="attention fan-out list/"
 	                      "wildcards"),
@@ -474,7 +571,7 @@ GRAMMAR = {
 	                       help="the Work whose baton moves"),
 	                  _key("to", required=True,
 	                       help="ONE destination endpoint team.kind"),
-	                  _key("comment", required=True,
+	                  _key("comment", prose=True, required=True,
 	                       help="durable handoff evidence stored with "
 	                       "the authoritative pass event — never a "
 	                       "discussion message"),
@@ -1086,6 +1183,48 @@ def analyze_partial(buffer: str) -> dict:
 	        "notes": notes, "key_matches": key_matches}
 
 
+def missing_prose_operand(buffer: str) -> str | None:
+	"""W36: the REQUIRED editor-capable prose operand this line is still
+	missing, or None.
+
+	Asked of the GRAMMAR, through the same analyzer the assistance line
+	and Tab completion already consume — so form conditions apply
+	exactly as the parser enforces them. `phase work=W1 to=parked` needs
+	`reason=` only because it is parking, and this answers that
+	correctly without knowing anything about `phase`.
+
+	Pure: reads no authority state and converts nothing into effects. A
+	malformed or unknown line returns None, so the ordinary parser
+	refusal still speaks first — an editor is never opened for a command
+	that could not run anyway.
+
+	The trailing space is not a detail. `analyze_partial` is written for
+	a line still being TYPED, so its last token is live: `close work=W1
+	outcome=satisfying` reads as "the operator is part-way through
+	`outcome=`" and reports the accepted values, not the remaining
+	operands. On Enter that token is finished, and saying so is what
+	turns the same analyzer into an answer about a COMPLETE line."""
+	state = analyze_partial(buffer + " ")
+	if state["state"] != "operands":
+		return None
+	# The prose operand must be the ONLY thing left. The approved
+	# contract promises that saving "supplies that one missing value and
+	# resumes the same canonical command execution path" — a promise
+	# that cannot be kept when something else is missing too. Asking an
+	# operator to write a paragraph and THEN telling them the command
+	# also needs `outcome=` spends their prose on a line that was never
+	# going to run; the ordinary missing-operand refusal names
+	# everything at once and is the better answer.
+	#
+	# An unresolved form choice (`heading`) or an unmet conditional
+	# (`notes`) is the same situation wearing a different name.
+	if state["heading"] or state["notes"] or len(state["required"]) != 1:
+		return None
+	entry = _verb_spec(state["verb"]).get(state["required"][0][:-1])
+	return entry["name"] if entry is not None and entry.get("prose") \
+		else None
+
+
 def _common_prefix(candidates) -> str:
 	shared = os.path.commonprefix(list(candidates)) if candidates else ""
 	return shared
@@ -1648,6 +1787,30 @@ def _dispatch(store: Authority, args):
 		return transitions.heartbeat(
 			store, args.work, actor_team=team, actor=member,
 			op_id=args.op_id, refs=args.refs or ())
+	if command == "poke":
+		team, member = _need_participant(args)
+		return transitions.poke(
+			store, actor_team=team, actor=member, target=args.target,
+			request=args.request, expires_at=args.expires_at,
+			op_id=args.op_id, refs=args.refs or ())
+	if command == "poke-answer":
+		team, member = _need_participant(args)
+		return transitions.answer_poke(
+			store, args.poke, actor_team=team, actor=member,
+			state=args.state, explanation=args.explanation,
+			work=args.work or (), provider=args.provider,
+			model=args.model, session_state=args.session_state,
+			auth_state=args.auth_state, limit_state=args.limit_state,
+			retry_at=args.retry_at, context_limit=args.context_limit,
+			context_used=args.context_used,
+			context_remaining=args.context_remaining,
+			op_id=args.op_id, refs=args.refs or ())
+	if command == "poke-cancel":
+		team, member = _need_participant(args)
+		return transitions.cancel_poke(
+			store, args.poke, actor_team=team, actor=member,
+			reason=args.reason, op_id=args.op_id,
+			refs=args.refs or ())
 	if command == "prioritize":
 		team, member = _need_participant(args)
 		return transitions.prioritize(
@@ -1695,6 +1858,12 @@ def _dispatch(store: Authority, args):
 	if command == "obligations":
 		team, _member = _need_participant(args)
 		return projection.obligations(store, viewer_team=team)
+	if command == "pokes":
+		team, member = _need_participant(args)
+		return projection.pokes(store, viewer_team=team,
+		                        viewer_member=member, asker=args.asker,
+		                        target=args.target, after=args.after,
+		                        limit=args.limit)
 	if command == "summary":
 		team, _member = _need_participant(args)
 		return projection.team_summary(store, viewer_team=team)

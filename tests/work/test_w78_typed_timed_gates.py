@@ -77,10 +77,13 @@ def _epoch(value):
 
 # -- the acceptance boundary, clause by clause -----------------------------
 
-def test_a_first_dependency_blocks_releases_and_starts_the_clock(world):
+def test_a_first_dependency_blocks_and_releases_without_a_clock(world):
 	"""'A queued or active Work acquiring its first dependency enters
-	`block`, releases any claimant atomically, displays `W…`, and starts
-	Held at that transaction.'"""
+	`block`, releases any claimant atomically, displays `W…`' — and,
+	W12 superseding this Work's own ruling, does NOT start Held.
+
+	Everything the gate episode is for survives the change; only the
+	Handler column stops borrowing it."""
 	work, blocker = _make(world, "consumer"), _make(world, "blocker")
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	assert _row(world, work)["phase"] == "active"
@@ -92,8 +95,11 @@ def test_a_first_dependency_blocks_releases_and_starts_the_clock(world):
 	gate = row["gate"]
 	assert gate["kind"] == "work" and gate["work"] == blocker
 	assert gate["selector"] == blocker.rsplit("-", 1)[1]
-	assert gate["started_at"] is not None
-	assert held_field(row, _epoch(gate["started_at"]) + 45) == "00:45"
+	assert gate["started_at"] is not None, \
+		"the episode start is the evidence and must survive W12"
+	# W12: the released claim is precisely why there is no Held. The row
+	# has no Handler, so 45 seconds later it still shows nothing.
+	assert held_field(row, _epoch(gate["started_at"]) + 45) == "-"
 
 
 def test_a_non_displayed_dependency_does_not_reset_the_episode(world):
@@ -346,20 +352,25 @@ def test_two_unclaimed_rows_no_longer_run_unexplained_clocks(world):
 	now = _epoch(rows[0]["last_changed_at"]) + 600
 	assert [held_field(row, now) for row in rows] == ["-", "-"], \
 		"two equivalent unclaimed rows still disagree about their clocks"
-	# and when a clock IS running, the row says why
+	# W12 extends the same reasoning one row further. Blocking `fresh`
+	# gives it a visible cause in `Wait`, and it STILL runs no clock —
+	# because a cause is not a Handler, and Held measures a Handler.
 	blocker = _make(world, "blocker")
 	tr.add_dependency(world["store"], fresh, blocker, actor_team="lang",
 	                  actor="ada", rationale="r")
 	blocked = _row(world, fresh)
-	assert held_field(blocked, now) != "-"
+	assert blocked["handler"] is None
+	assert held_field(blocked, now) == "-", \
+		"a blocked row runs a clock nobody is spending"
 	assert blocker_cue(blocked), \
-		"a running clock with nothing on the row to explain it"
+		"the gate must still name what the row is waiting on"
 
 
 def test_every_row_with_a_clock_names_its_cause(world):
-	"""The invariant behind the finding, stated once: a visible timer
-	implies a visible cause. Handler for `active`, Wait for `block`, and
-	no other row runs one."""
+	"""The invariant behind the finding, stated once and then NARROWED
+	by W12: a visible timer implies a visible Handler. `Wait` explains
+	why a row cannot move, which is a different question from who is
+	holding it, and only the second one is Held."""
 	store = world["store"]
 	subjects = []
 	subjects.append(_make(world, "queued"))
@@ -385,7 +396,7 @@ def test_every_row_with_a_clock_names_its_cause(world):
 	for work in subjects:
 		row = _row(world, work)
 		running = held_field(row, now) != "-"
-		explained = row["handler"] is not None or bool(blocker_cue(row))
+		explained = row["handler"] is not None
 		assert running == explained, \
 			(f"{row['local_id']} phase={row['phase']} runs={running} "
 			 f"handler={row['handler']} wait={blocker_cue(row)!r}")
@@ -486,16 +497,20 @@ def test_a_child_gated_parent_names_the_child(world):
 	"""The ruling pins 'the oldest open blocker by permanent creation
 	order', which is the case it was written for. Open CHILDREN gate a
 	parent too — `_open_gates` counts them — so a child-gated parent is
-	`block` and runs a clock. Leaving children out of the selection
-	would have left exactly the unexplained timer this Work removes, so
-	the same order runs over both."""
+	`block` and names the child in `Wait`. Leaving children out of
+	the selection would have left a gated row with nothing explaining
+	it, so the same order runs over both.
+
+	W12: the parent runs no clock either. The gate SELECTION is what
+	this test is about, and it is unchanged."""
 	parent = _make(world, "epic")
 	child = _make(world, "part one", parent=parent)
 	row = _row(world, parent)
 	assert row["phase"] == "block"
 	assert row["gate"]["kind"] == "work" and row["gate"]["work"] == child
 	assert blocker_cue(row) == child.rsplit("-", 1)[1]
-	assert held_field(row, _epoch(row["gate"]["started_at"]) + 20) == "00:20"
+	assert row["gate"]["started_at"] is not None
+	assert held_field(row, _epoch(row["gate"]["started_at"]) + 20) == "-"
 
 
 def test_a_closing_child_moves_the_parent_gate_to_the_next(world):

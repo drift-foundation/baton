@@ -225,3 +225,18 @@ gate episode but not a fabricated phase transition.
   queued, parked, unclaimed handoff, and terminal states render `-`.
 - Work detail, list JSON, TUI `Wait`, TUI `Held`, Events phase duration, and
   JSON/TUI parity agree without parsing presentation strings.
+
+## Supersession — 2026-08-18: blocked time is not `Held`
+
+**Confirmed by Slawomir during the `7bea055` live cutover.** The earlier
+"Final Held-state clarification" is superseded only where it makes `block`
+advance the `Held` column. A Work with no Handler is not held by a recipient;
+showing an advancing Held clock beside W2 while it merely waits on W3 makes
+the column claim that somebody is executing or failing to pick up the Work.
+
+`Held` now measures only current Handler ownership, from `claimed_at`, and
+renders `-` for every unclaimed state including `block`. The structured gate
+and its episode timestamps remain authoritative and useful in `Wait` and the
+Events play-by-play; removing their compact Held rendering does not remove
+blocked-duration evidence. The corrective Work is recorded separately at
+`work/records/2026/08/finding-blocked-held-display/`.

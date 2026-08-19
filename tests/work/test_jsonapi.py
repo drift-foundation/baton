@@ -67,7 +67,12 @@ def test_an_incompatible_projection_version_fails_clearly(world, capsys):
 	             viewer="lang.ada", expect_ok=False)
 	assert "not compatible" in error["error"], \
 		"the honest-breaking 5.0 still satisfied a 4.x demand"
-	ok = _run(capsys, path, "--expect-projection", "11.0", "home",
+	# W5 moved the major to 12 for the `poke` action kind, so 11.x is now
+	# on the refusing side too — which is the point of the bump.
+	stale = _run(capsys, path, "--expect-projection", "11.0", "home",
+	             viewer="lang.ada", expect_ok=False)
+	assert "not compatible" in stale["error"]
+	ok = _run(capsys, path, "--expect-projection", "12.0", "home",
 	          viewer="lang.ada")
 	assert ok["result"], "a compatible minor was refused"
 

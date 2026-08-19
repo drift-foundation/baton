@@ -107,3 +107,61 @@ infrastructure status surface may report that the runner process is down.
 
 Slawomir approved this boundary on 2026-08-18. It is the actionable W197
 implementation contract and deliberately requires a schema/projection change.
+
+## 2026-08-18 protocol-proposal dispositions
+
+- **Self-poke is allowed.** Any configured participant may poke itself as well
+  as another exact configured participant. Self-poke carries no workflow
+  authority. Its canonical purpose is the end-to-end diagnostic question
+  "does my wake-up bus work?": it exercises that participant's readiness and
+  response path through the same persistent mechanism used by another asker.
+  The resulting operational record remains visible like any other poke.
+- **Timeout is optional and explicit.** A poke may carry `expires_at`; when it
+  does not, it remains pending until answered or cancelled and an offline
+  participant may answer after reconnecting. Expiry requires no background
+  scheduler: authority reads derive that the deadline has passed, remove the
+  poke from actionable delivery, and present its terminal state as
+  `timed-out`. A timed-out poke cannot later be answered.
+- **Pending pokes are deduplicated by keeping the newest per asker and
+  target.** A deliberate new poke to the same target supersedes that asker's
+  earlier pending poke: only the newer poke remains actionable, its request
+  text is current, and its optional `expires_at` starts the new wait window.
+  The superseded record remains operational history rather than being
+  silently rewritten. An exact retry with the same `op-id` only replays its
+  committed result and does not renew expiry. Different askers retain their
+  own independently pending pokes to the same target.
+
+- **Unknown-action tolerance and poke ship in one rollout.** Both readiness
+  bridges are widened to ignore an unknown action entry while retaining the
+  rest of its envelope and reporting a diagnostic, and the same candidate
+  adds and emits the `poke` action. Implementation and activation still order
+  the consumer widening before emission, but there is no separate release,
+  deployment soak, or postponed poke slice. This low-traffic development
+  environment favors delivering the complete feature promptly while the
+  tolerant-consumer rule protects this and future additive action kinds.
+
+These dispositions settle every ruler question raised by `PROPOSAL.md`.
+
+## 2026-08-19 slice-A review disposition
+
+Slice A's authority, CLI, projection, persistence, timeout, supersession,
+answer/cancel, diagnostic, and workflow-non-interference contract is accepted.
+Two release-gate corrections are required before W5 can close:
+
+- **Publish the next candidate under a new projection major.** A deployed
+  pre-widening readiness bridge refuses an envelope containing `poke`; widening
+  the bridge in the same release does not make the mixed old-runner/new-
+  authority interval compatible. This is exactly the existing rule that a
+  value a consumer would misread or refuse moves the major. The current
+  unreleased W5 and W7 projection changes may be aggregated as the next major
+  baseline; preserving compatibility with the trial deployment is not a
+  release constraint during this deliberate fresh-authority cutover.
+- **The same rollout must make Codex and generic ACP runners consume and answer
+  `poke`.** Tolerating and dropping the entry is the safe compatibility
+  prerequisite, not delivery of the conversational feature. A poke must wake
+  the named runner with the friendly status request and enough structured
+  identity to answer through `poke-answer`; repeat delivery remains idempotent
+  and does not displace ordinary Work or obligation actions.
+
+This is the review gate already ordered by PLAN steps 5 through 7, not a new
+feature expansion. TUI presentation remains later work.

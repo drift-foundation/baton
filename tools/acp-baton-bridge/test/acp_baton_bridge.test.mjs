@@ -27,6 +27,15 @@ function workAction(id, { title = "t", episode = 1, generation = 1 } = {}) {
 	         claimed: false };
 }
 
+// W5 slice B: `poke` is a consumed kind now, so it gets a fixture like
+// every other one. No `work` field — that absence is the point.
+function pokeAction(seq, { asker = "baton.slaw",
+                           request = "what's up?" } = {}) {
+	return { kind: "poke", action_key: `poke:${seq}`, poke: seq, asker,
+	         request, expires_at: null,
+	         asked_at: "2026-08-19T03:00:00Z" };
+}
+
 function envelope(actions, { timedOut = false,
                              participant = "baton.claude",
                              uuid = UUID } = {}) {
@@ -65,14 +74,18 @@ test("ACP readiness accepts projection 11 and still refuses an unsupported futur
 	// and this consumer moves with it in the SAME candidate. The
 	// participant-action envelope's own fields did not change.
 	const payload = envelope([]);
-	for (const supported of ["10.0", "11.0"]) {
+	// W5: projection 12 carries the `poke` action kind. A consumer built
+	// before the tolerance widening REFUSES an envelope containing it,
+	// which is the documented major-version condition — so the major
+	// moved and this consumer moves with it in the SAME candidate.
+	for (const supported of ["10.0", "11.0", "12.0"]) {
 		payload.projection_version = supported;
 		assert.equal(validateEnvelope(payload, "baton.claude").projection_version,
 		             supported);
 	}
-	payload.projection_version = "12.0";
+	payload.projection_version = "13.0";
 	assert.throws(() => validateEnvelope(payload, "baton.claude"),
-	              /projection-7\/8\/9\/10\/11 participant-action contract/);
+	              /projection-7\/8\/9\/10\/11\/12 participant-action contract/);
 });
 
 // W101: `role` is a required launch input, so the rig supplies one by
@@ -178,6 +191,87 @@ test("a readiness action prompts the configured session with the compact line", 
 		"the turn ran outside the configured mode");
 	assert.doesNotMatch(prompt.text, /body|EXTERNAL EVENT/);
 });
+
+test("an unreadable action kind is ignored and the known work still reaches the agent", async () => {
+	// W5 (finding-conversational-agent-poke), ruled 2026-08-18. Before
+	// this widening the shared validator threw on an unknown kind, which
+	// refused the WHOLE envelope — so the first authority to emit a
+	// fourth kind would have stopped this agent receiving its ordinary
+	// Work and obligation wakes too. The point of the test is the entry
+	// BESIDE the unreadable one: it must still be delivered.
+	const { log, config } = rig();
+	const warnings = [];
+	const { signal, runWait } = script([
+		envelope([{ kind: "some_future_kind", action_key: "future:7" },
+		          workAction("7ba67cb8-W163", { title: "acp client" })]),
+		// still pending on the next poll: the diagnostic is a BUILD-level
+		// skew and must not repeat once per poll
+		envelope([{ kind: "some_future_kind", action_key: "future:7" }]),
+	]);
+	await runBridge(config, { signal, runWait,
+		logger: { info() {}, warn(message) { warnings.push(message); } } });
+
+	const prompts = events(log).filter((entry) => entry.event === "prompt/start");
+	assert.equal(prompts.length, 1, "the known Work action was not delivered");
+	assert.match(prompts[0].text, /^\[BATON READY\] v11 Work W163/);
+	// nothing about the unreadable entry reached the agent
+	assert.doesNotMatch(prompts[0].text, /future_kind/);
+
+	const skew = warnings.filter((message) => /unknown to this build/.test(message));
+	assert.equal(skew.length, 1,
+		`expected exactly one skew diagnostic, got ${JSON.stringify(warnings)}`);
+	assert.match(skew[0], /"some_future_kind"/);
+	assert.match(skew[0], /future:7/);
+});
+
+test("a poke wakes the agent with the question and how to answer it", async () => {
+	// W5 slice B. Tolerating and dropping the entry was the compatibility
+	// prerequisite; this is the feature. The agent must receive the
+	// friendly question and enough structured identity to answer through
+	// `poke-answer` without re-reading the projection to find the seq.
+	const { log, config } = rig();
+	const { signal, runWait } = script([
+		envelope([pokeAction(7, { asker: "baton.slaw",
+		                          request: "still on W12?" })]),
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet });
+	const prompt = events(log).find((entry) => entry.event === "prompt/start");
+	assert.ok(prompt, "the poke never reached the agent");
+	assert.match(prompt.text, /baton\.slaw asks baton\.claude: still on W12\?/);
+	assert.match(prompt.text, /poke-answer poke=7/);
+	assert.match(prompt.text, /state=idle\|working\|waiting\|needs-help/);
+	assert.match(prompt.text, /reading your canonical Baton state first/);
+	// conversational, not an alarm: the contract says the wording must
+	// not read as an escalation or a health verdict
+	assert.doesNotMatch(prompt.text, /alert|alarm|escalat|fail|unhealthy/i);
+});
+
+
+test("a poke never displaces the Work and obligation wakes beside it", async () => {
+	// The ruling: repeat delivery stays idempotent and a poke does not
+	// displace ordinary actions. Both halves, on one screenful.
+	const { log, config } = rig();
+	const work = workAction("7ba67cb8-W163", { title: "acp client" });
+	const poke = pokeAction(9);
+	const { signal, runWait } = script([
+		envelope([work, poke]),
+		envelope([work, poke]),          // unchanged: nothing re-delivers
+		envelope([], { timedOut: true }),
+		envelope([work, poke]),          // returning keys deliver again
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet });
+	const prompts = events(log)
+		.filter((entry) => entry.event === "prompt/start")
+		.map((entry) => entry.text);
+	assert.equal(prompts.length, 4, prompts);
+	// the Work action is delivered first and is not swallowed by the
+	// poke sharing its envelope
+	assert.match(prompts[0], /^\[BATON READY\] v11 Work W163/);
+	assert.match(prompts[1], /asks baton\.claude/);
+	assert.match(prompts[2], /^\[BATON READY\] v11 Work W163/);
+	assert.match(prompts[3], /asks baton\.claude/);
+});
+
 
 test("a persistent set is level-triggered and a returning key re-delivers", async () => {
 	const { log, config } = rig();

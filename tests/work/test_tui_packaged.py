@@ -193,7 +193,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 		"the terminal close did not unblock the consumer"
 	screens = _console(executable, path, "lang.ada", [])
 	flat = "\n".join(line for screen in screens for line in screen)
-	assert "c/sat" not in flat, \
+	assert "sat" not in flat, \
 		"a closed row leaked into the default collapsed table"
 	text, status, steps = ptyharness.drive(
 		path, "lang.ada", [(b"z", 0.5), (b"qy", 0.4)],
@@ -201,12 +201,18 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	revealed = "\n".join(ptyharness.replay(steps[0], columns=WIDTH,
 	                                       lines=HEIGHT))
-	assert "c/sat" in revealed, \
+	assert "sat" in revealed, \
 		"the revealed closed provider does not show its outcome"
 
 	# 7. A refused command surfaces the PUBLIC refusal in the console.
+	# W36: `outcome=` is dropped so `rationale=` is no longer the LAST
+	# missing operand — this command still refuses at the parser, which
+	# is what the step is about, and the refusal still names rationale.
+	# With `outcome=satisfying` supplied, prose IS the only thing left
+	# and the console now offers the editor instead of a bare refusal;
+	# that path has its own suite.
 	screens = _console(executable, path, "push.sl", [
-		f'close work={consumer} outcome=satisfying'])
+		f'close work={consumer}'])
 	flat = "\n".join(line for screen in screens for line in screen)
 	assert "rationale" in flat, \
 		"the public refusal did not reach the console status line"

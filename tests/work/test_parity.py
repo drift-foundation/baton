@@ -59,7 +59,12 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 	the same source of truth the human reads."""
 	header = next(line for line in screen if "Title" in line)
 	id_width = header.index("Title") - 1
-	columns = app.visible_columns(width, id_width)
+	# W73: whether the Out column is in the budget is a property of the
+	# VIEW, and the painted header is where this parser already reads
+	# such facts from — the same source of truth the human uses, so the
+	# decode cannot drift from what was drawn.
+	terminal = "Out" in header
+	columns = app.visible_columns(width, id_width, terminal)
 	fixed = sum(col_width for _n, col_width in columns) + len(columns)
 	# W39/W187: the optional Wait (dependency-cue) field sits between
 	# Title and the fixed columns; its width falls out of the header
@@ -124,7 +129,10 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		          # surfaces row FOR row — only field by field in an
 		          # order both happened to agree on.
 		          "local_id": cells["local_id"],
-		          "status": cells["ST"],
+		          # W73: `-` for an open row, the compact outcome for a
+		          # terminal one, and ABSENT entirely in an open-only
+		          # view that has no such column.
+		          "outcome": cells.get("OUT"),
 		          "route": None if cells.get("ROUTE", "-") == "-"
 		          else cells["ROUTE"],
 		          "handler": None if cells["HANDLER"] == "-"
@@ -168,9 +176,14 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			# W71 R3: the indentation depth itself is projected, not
 			# reconstructed client-side.
 			assert drawn_row["depth"] == json_row["depth"]
-			# Gate B: ST formats the canonical status and, when closed,
-			# the canonical outcome — the same closed compact map.
-			assert drawn_row["status"] == app.status_cell(json_row)
+			# W73: Out formats the canonical outcome, and `-` while
+			# open. In an open-only view the column is not drawn at
+			# all, and parity is that BOTH surfaces agree it is absent
+			# — the projection's status is still `open` for every row.
+			if drawn_row["outcome"] is None:
+				assert json_row["status"] == "open", json_row
+			else:
+				assert drawn_row["outcome"] == app.outcome_cell(json_row)
 			# WS-1 parity: the TUI draws the approved COMPACT vocabulary
 			# for the canonical JSON values, presentation-only.
 			# HISTORY, not current behaviour: W226 painted a pickup
@@ -432,7 +445,12 @@ def test_collapsed_resolved_rows_agree_on_both_surfaces(tmp_path, capsys):
 	                    if row["title"] == "already done")
 	closed_json = next(row for row in expected
 	                   if row["title"] == "already done")
-	assert closed_drawn["status"] == app.status_cell(closed_json) == "c/sat"
+	assert closed_drawn["outcome"] == app.outcome_cell(closed_json) == "sat"
+	# and an open row in the SAME revealed view dashes its outcome
+	# rather than borrowing the closed row's column meaning
+	open_drawn = next(row for row in revealed
+	                  if row["title"] != "already done")
+	assert open_drawn["outcome"] == "-", open_drawn
 
 
 def test_three_levels_agree_between_json_and_the_tui(tmp_path_factory,

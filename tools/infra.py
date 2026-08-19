@@ -394,7 +394,8 @@ def _load_state(mailbox):
 	raw = _object(_read_json(path), "lifecycle state")
 	_keys(raw, {"version", "mailbox", "manifestDigest", "launchOrder",
 	            "services"}, "lifecycle state")
-	if raw.get("version") != 1 or raw.get("mailbox") != mailbox:
+	version = raw.get("version")
+	if version not in (1, 2) or raw.get("mailbox") != mailbox:
 		raise InfraError("lifecycle state has the wrong version or mailbox identity")
 	if not isinstance(raw.get("manifestDigest"), str) \
 			or not re.fullmatch(r"[0-9a-f]{64}", raw["manifestDigest"]):
@@ -405,7 +406,7 @@ def _load_state(mailbox):
 	if set(order) != set(services):
 		raise InfraError("lifecycle state launch order disagrees with its services")
 	allowed = {"name", "pid", "startTicks", "configuredArgv", "observedArgv",
-	           "log", "startedAt", "stopTimeoutSeconds"}
+	           "argvIdentity", "log", "startedAt", "stopTimeoutSeconds"}
 	for name, entry in services.items():
 		if not NAME_RE.fullmatch(name):
 			raise InfraError(f"lifecycle state has invalid service name {name!r}")
@@ -423,6 +424,28 @@ def _load_state(mailbox):
 		_absolute(entry.get("log"), f"lifecycle state.services.{name}.log")
 		_string(entry.get("startedAt"),
 		        f"lifecycle state.services.{name}.startedAt")
+		# W10: version 2 says, per service, whether its `observedArgv`
+		# was CERTIFIED at configured readiness or merely glimpsed while
+		# the launch was still arriving.
+		#
+		# A version-1 document has no such distinction, and that is
+		# exactly its problem: the controller that wrote it recorded the
+		# first readable `/proc` cmdline, which for any shebang or `env`
+		# launch is a stage the exec chain was passing through. Reading
+		# those entries as `final` would certify the one snapshot this
+		# Work proved was never verified, so they are read as what they
+		# actually are — provisional. They are never healthy, and they
+		# are rolled back by `stop` on the pid, start ticks, session and
+		# process group that are genuinely recorded in them.
+		if version == 1:
+			if "argvIdentity" in entry:
+				raise InfraError(f"lifecycle state service {name} is version 1 but records an argv identity")
+			entry["argvIdentity"] = "provisional"
+		elif entry.get("argvIdentity") not in ("provisional", "final"):
+			raise InfraError(f"lifecycle state service {name} has no valid argv identity")
+	# Upgraded in memory, so any rewrite of this document — a partial
+	# stop, a rollback — leaves a well-formed version 2 behind.
+	raw["version"] = 2
 	return raw
 
 
@@ -451,11 +474,34 @@ def _proc(pid):
 
 
 def _identity(entry):
+	"""Which of the recorded facts about this service still hold.
+
+	W10: a shebang or `/usr/bin/env` launch rewrites argv IN PLACE. The
+	pid, session, process group and start ticks stay exactly the ones the
+	controller created while `/proc/PID/cmdline` moves from
+	`/usr/bin/env node …` to `node …` — and, for a wrapper that execs a
+	different program, to an argv sharing no element with the one that
+	was launched. So the argv read at launch proves OWNERSHIP and nothing
+	about which program arrived.
+
+	`argvIdentity` is that difference: `final` means the snapshot was
+	captured at configured readiness, and only then does an argv change
+	mean a process substituting its own identity. A `provisional` entry
+	is a launch that was interrupted before readiness could certify it.
+	It is owned — it must be, or nothing could roll it back — but it is
+	never `owned` here, because that word is what `status` reports
+	healthy and what an unqualified `stop` acts on."""
 	observed = _proc(entry["pid"])
 	if observed is None or observed["state"] == "Z":
 		return "stopped", observed
 	if observed["startTicks"] != entry["startTicks"]:
 		return "pid-reused", observed
+	# The default is the STRICT side. An entry assembled in memory rather
+	# than loaded from lifecycle state carries no certification history,
+	# and requiring its argv to match exactly is the refusal, not the
+	# permission. Every entry `_load_state` returns says which it is.
+	if entry.get("argvIdentity", "final") != "final":
+		return "provisional", observed
 	if observed["argv"] != entry["observedArgv"]:
 		return "argv-mismatch", observed
 	return "owned", observed
@@ -665,7 +711,15 @@ def _terminate(entry):
 		identity, observed = _identity(entry)
 		if identity == "stopped":
 			return "stopped"
-		if identity != "owned":
+		# W10: a PROVISIONAL entry is a launch this controller made and
+		# never finished, and it is rolled back on the ownership it
+		# actually has — the pid and start ticks checked just above, and
+		# the session and process group checked just below. Demanding an
+		# argv match as well would strand the process the controller
+		# created, which is the orphan the provisional record exists to
+		# prevent. A finalized entry still requires its exact recorded
+		# argv, and that is where a substituted identity fails closed.
+		if identity not in ("owned", "provisional"):
 			return identity
 		pgid = observed.get("pgid")
 		own_group = (pgid == entry["pid"]
@@ -716,8 +770,43 @@ def _terminate(entry):
 		os.close(pidfd)
 
 
+def _finalize_identity(mailbox, state_doc, entry, log_path):
+	"""Certify the argv of a service whose configured readiness has just
+	succeeded, and mark its entry final.
+
+	W10: readiness is the manifest's OWN declaration that this service
+	finished starting. That makes it the authority boundary at which the
+	observed argv stops being a glimpse of an exec chain in motion and
+	becomes the identity every later `status` and `stop` must match
+	exactly.
+
+	The first attempt at this Work drew the boundary with a fixed 250 ms
+	quiet interval instead. The live smoke disproved it: a launcher
+	stayed in its own argv longer than the interval while the kernel and
+	runtime loaded the next executable, so the controller certified the
+	launcher and reported the very `argv-mismatch` this Work exists to
+	remove. Waiting longer would have moved that race, not closed it —
+	no interval can know that an exec chain is finished. Readiness
+	already carries that knowledge, declared per service by the operator,
+	so there is no second competing timer here.
+
+	Nothing below reads what the argv CONTAINS. No interpreter, launcher,
+	wrapper, Node path, or command shape is named anywhere."""
+	observed = _proc(entry["pid"])
+	if observed is None or observed["state"] == "Z" or not observed["argv"]:
+		raise InfraError(f"service {entry['name']} exited as its identity was recorded; see {log_path}")
+	if observed["startTicks"] != entry["startTicks"]:
+		raise InfraError(f"service {entry['name']} pid {entry['pid']} was reused before its identity could be recorded; see {log_path}")
+	# One atomic write moves the entry from provisional to final, so a
+	# controller interrupted here leaves a provisional entry with its
+	# ownership intact rather than a half-certified one.
+	entry["observedArgv"] = observed["argv"]
+	entry["argvIdentity"] = "final"
+	_write_state(mailbox, state_doc)
+
+
 def _empty_state(mailbox, manifest):
-	return {"version": 1, "mailbox": mailbox,
+	return {"version": 2, "mailbox": mailbox,
 	        "manifestDigest": manifest["digest"], "launchOrder": [],
 	        "services": {}}
 
@@ -775,17 +864,26 @@ def _start_guarded(mailbox, manifest, signals):
 				"name": name, "pid": process.pid,
 				"startTicks": observed["startTicks"],
 				"configuredArgv": service["command"],
-				"observedArgv": observed["argv"], "log": log_path,
+				"observedArgv": observed["argv"],
+				"argvIdentity": "provisional", "log": log_path,
 				"startedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
 				"stopTimeoutSeconds": service["stopTimeoutSeconds"],
 			}
 			state_doc["launchOrder"].append(name)
 			state_doc["services"][name] = entry
 			started.append(name)
+			# Recorded BEFORE readiness, and deliberately. The argv in it
+			# is provisional, but the pid and start ticks in it are
+			# already the whole ownership record — so a controller killed
+			# anywhere in the interval below leaves behind a service that
+			# `stop` can still prove it owns and roll back, rather than an
+			# orphan nothing accounts for.
 			_write_state(mailbox, state_doc)
 			signals.check()
 			if not _wait_ready(service, process.pid, signals):
 				raise InfraError(f"service {name} failed readiness within {service['startTimeoutSeconds']}s; see {log_path}")
+			_finalize_identity(mailbox, state_doc, entry, log_path)
+			signals.check()
 		signals.check()
 	except (InfraError, OSError, subprocess.SubprocessError) as error:
 		rollback_errors = []

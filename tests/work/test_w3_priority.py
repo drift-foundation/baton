@@ -262,8 +262,13 @@ def test_the_tui_renders_pr_and_drops_it_first(world):
 	# the first width that drops anything drops exactly PR
 	wide = [name for name, _w in visible_columns(110)]
 	assert "PR" in wide
+	# W73: COLUMNS now carries the conditional Out entry, which an
+	# open-only view never draws — so the baseline is what this view
+	# actually shows when nothing is under pressure, not the whole set.
+	full = len(visible_columns(110))
+	assert full < len(COLUMNS), "Out is not conditional after all"
 	narrower = next(width for width in range(110, 40, -1)
-	                if len(visible_columns(width)) < len(COLUMNS))
+	                if len(visible_columns(width)) < full)
 	dropped = [name for name, _w in visible_columns(narrower)]
 	assert "PR" not in dropped and "CLS" in dropped, \
 		"width pressure did not drop Pr first"

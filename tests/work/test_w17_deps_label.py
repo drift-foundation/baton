@@ -58,7 +58,10 @@ def test_the_footer_reads_deps_wide_and_the_key_still_works(tmp_path):
 	config = build(tmp_path)
 	text, status, steps = ptyharness.drive(config, "lang.ada", [
 		(b"", 0.6),
-		(b"b", 0.5),                  # the binding is untouched
+		# W7: `the blocker` is ready and unclaimed and now leads the
+		# pool, so `j` reaches `consumer` — whose neighbor view is what
+		# this test has always read.
+		(b"jb", 0.5),                 # the binding is untouched
 		(b"\x1b", 0.4),               # back to the table
 		(b"qy", 0.4),
 	])

@@ -337,8 +337,18 @@ def test_the_projection_version_names_the_wake_contract(world):
 	honest-breaking, no alias). Same-major demands succeed; a stale
 	4.x demand refuses."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "11.0"
-	jsonapi.require_version("11.0")
+	# W5 added the fourth `poke` action kind as an additive minor, so
+	# the live version moved to 11.1 while an 11.0 demand still
+	# succeeds — which is what "compatible within the major" means.
+	# W5: the `poke` action kind moved the MAJOR to 12. A consumer built
+	# before the tolerance widening refuses an envelope carrying it, and
+	# refusing is this file's documented major condition — so an 11.x
+	# demand now refuses cleanly rather than reading a wake set it
+	# cannot handle.
+	assert jsonapi.PROJECTION_VERSION == "12.0"
+	jsonapi.require_version("12.0")
+	with pytest.raises(bw.WorkError, match="not compatible"):
+		jsonapi.require_version("11.2")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("8.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):

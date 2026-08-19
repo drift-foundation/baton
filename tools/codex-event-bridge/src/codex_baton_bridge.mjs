@@ -71,6 +71,22 @@ function positiveInteger(value, fallback, name) {
 // its compact event needs and an action_key that AGREES with them.
 // Anything else refuses by name; nothing is emitted for refused
 // output (the v10 adapter's shape fails here by design).
+//
+// W5 (finding-conversational-agent-poke): an action KIND this build does
+// not know is the one exception, and it is ignored rather than fatal.
+// Until now the final `else` threw, which rejected the WHOLE envelope —
+// so the first authority to emit a fourth kind would stop this agent
+// receiving its ordinary Work and obligation wakes as well. That is a
+// live-outage shape, not a compatibility footnote: it forces the
+// authority and every runner to move in lockstep forever.
+//
+// Unknown entries are removed from `result.actionable` and returned in
+// `result.ignored_actions` so the caller can report the skew. Nothing
+// else relaxes: an entry still needs a unique non-empty `action_key`
+// whatever its kind (that is envelope structure, not kind semantics),
+// and every kind this build DOES know is validated exactly as strictly
+// as before. Ignoring what you cannot read is not the same as guessing
+// at it.
 export function validateEnvelope(payload, participant) {
   if (payload?.protocol_version !== 11) {
     throw new Error(`not a protocol-11 envelope (protocol_version=${payload?.protocol_version})`);
@@ -78,8 +94,8 @@ export function validateEnvelope(payload, participant) {
   const projection = payload?.projection_version;
   const match = typeof projection === "string" && /^([0-9]+)\.([0-9]+)$/.exec(projection);
   const major = match ? Number(match[1]) : null;
-  if (!match || ![7, 8, 9, 10, 11].includes(major)) {
-    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-7/8/9/10/11 participant-action contract`);
+  if (!match || ![7, 8, 9, 10, 11, 12].includes(major)) {
+    throw new Error(`projection ${JSON.stringify(projection)} does not carry the projection-7/8/9/10/11/12 participant-action contract`);
   }
   if (payload?.participant !== participant) {
     throw new Error(`envelope participant ${JSON.stringify(payload?.participant)} is not ${participant}`);
@@ -101,6 +117,8 @@ export function validateEnvelope(payload, participant) {
     throw new Error("a timed-out result carrying actions is contradictory");
   }
   const seen = new Set();
+  const kept = [];
+  const ignored = [];
   for (const action of result.actionable) {
     if (typeof action?.action_key !== "string" || !action.action_key) {
       throw new Error("an actionable entry has no stable action_key");
@@ -167,10 +185,45 @@ export function validateEnvelope(payload, participant) {
       if (action.review_at !== undefined && typeof action.review_at !== "string") {
         throw new Error(`due_trial action ${action.action_key} review_at is not a string`);
       }
+    } else if (action.kind === "poke") {
+      // W5 slice B: a poke is now CONSUMED, so it is typed like every
+      // other known kind. Tolerance stays below for kinds this build
+      // genuinely does not know — being liberal about the unreadable is
+      // not a reason to be liberal about what we do read.
+      if (!Number.isSafeInteger(action.poke) || action.poke < 1) {
+        throw new Error(`poke action ${action.action_key} has no positive poke sequence`);
+      }
+      if (action.action_key !== `poke:${action.poke}`) {
+        throw new Error(`poke action key ${action.action_key} disagrees with poke ${action.poke}`);
+      }
+      // The asker and the question are what make this conversational
+      // rather than an alarm, and the agent needs both to answer.
+      if (typeof action.asker !== "string" || !action.asker) {
+        throw new Error(`poke action ${action.action_key} names no asker`);
+      }
+      if (typeof action.request !== "string" || !action.request) {
+        throw new Error(`poke action ${action.action_key} carries no request text`);
+      }
+      // Optional and DERIVED: the authority emits null when the poke
+      // carries no deadline at all.
+      if (action.expires_at !== undefined && action.expires_at !== null &&
+          typeof action.expires_at !== "string") {
+        throw new Error(`poke action ${action.action_key} expires_at is not a string`);
+      }
+      // A poke belongs to no Work, and saying so is a real check: an
+      // envelope that attached one would be describing a different
+      // primitive from the one this contract approved.
+      if (action.work !== undefined) {
+        throw new Error(`poke action ${action.action_key} names a Work; a poke belongs to none`);
+      }
     } else {
-      throw new Error(`unknown action kind ${JSON.stringify(action?.kind)} (${action.action_key})`);
+      ignored.push({ kind: action.kind, action_key: action.action_key });
+      continue;
     }
+    kept.push(action);
   }
+  result.actionable = kept;
+  result.ignored_actions = ignored;
   return payload;
 }
 
@@ -188,6 +241,15 @@ export function actionLocator(action) {
     locator.deadline_generation = action.deadline_generation;
     locator.review_at = action.review_at;
   }
+  if (action.kind === "poke") {
+    // Exactly what `poke-answer poke=` needs, plus who is asking and
+    // what they asked — the agent should not have to re-read the
+    // projection to answer a one-line question.
+    locator.poke = action.poke;
+    locator.asker = action.asker;
+    locator.request = action.request;
+    if (action.expires_at !== undefined) locator.expires_at = action.expires_at;
+  }
   return locator;
 }
 
@@ -203,6 +265,14 @@ function summarize(action, participant) {
   }
   if (action.kind === "due_trial") {
     return `v11 trial ${action.trial} of ${action.work} is due (generation ${action.deadline_generation}) for ${participant}. Act through the canonical v11 CLI (detail work=${action.work}).`;
+  }
+  if (action.kind === "poke") {
+    // Deliberately ordinary wording. The approved contract calls this a
+    // lightweight request for status between collaborators and says it
+    // must not read as an alarm, an escalation, or a health verdict —
+    // so it names who asked, repeats their actual question, and points
+    // at the one verb that answers it.
+    return `${action.asker} asks ${participant}: ${action.request} Answer through the canonical v11 CLI (poke-answer poke=${action.poke} state=idle|working|waiting|needs-help explanation=…), reading your canonical Baton state first.`;
   }
   return `v11 action ${action.action_key} awaits ${participant}. Act through the canonical v11 CLI.`;
 }
@@ -248,6 +318,11 @@ export async function codexBatonBridge(options, { signal = new AbortController()
   // restart starts empty and rediscovers the current set. A key whose
   // forwarding failed stays undelivered and retries without loss.
   const delivered = new Map();
+  // W5: an unknown action kind is a BUILD-level skew, not a per-entry
+  // event, so it is reported once per kind. Level-triggered delivery
+  // would otherwise repeat the same diagnostic on every poll for as
+  // long as the unreadable entry stays actionable.
+  const reportedUnknown = new Set();
   while (!signal.aborted) {
     let payload;
     try {
@@ -268,6 +343,11 @@ export async function codexBatonBridge(options, { signal = new AbortController()
       logger.warn(`v11 wait failed: ${error.message}; retrying in ${retryMs}ms`);
       await delay(retryMs, signal);
       continue;
+    }
+    for (const entry of payload.result.ignored_actions) {
+      if (reportedUnknown.has(entry.kind)) continue;
+      reportedUnknown.add(entry.kind);
+      logger.warn(`v11 action kind ${JSON.stringify(entry.kind)} is unknown to this build (first seen at ${entry.action_key}); ignoring those entries and forwarding the rest of the envelope`);
     }
     const actions = payload.result.actionable;
     // W148 R2: memory carries the SAME identity the event does —

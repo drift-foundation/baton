@@ -50,3 +50,39 @@ decision.
 - Keep the computation bounded for the two-second TUI refresh and readiness
   polling paths.
 
+## Confirmed first-cut ruling — 2026-08-18
+
+The broader effective-priority proposal above is deferred. The first-cut goal
+is pipeline utilization, expressed by one deliberately narrow rule:
+
+1. Explicit `high | normal | low` remains the primary priority pool and is
+   never rewritten or inherited.
+2. Within one explicit-priority pool, ready unclaimed Work that currently
+   blocks another agent's progress sorts ahead of free-standing Work.
+3. This is a binary blocker preference for now. Do not introduce cross-pool
+   promotion, weighted fan-out, transitive scoring, or a second user-managed
+   priority axis.
+4. Stable creation order remains the tie-breaker within the blocker and
+   free-standing groups.
+5. The same ordering drives human Work lists and participant readiness, so an
+   agent and the TUI receive the same next item.
+6. Claimed, blocked, or parked Work is never preempted or made claimable by
+   this ordering rule; it only orders Work already eligible in its pool.
+
+The operational statement is: a Job holding another agent is a blocker and
+must be handled before an otherwise equal free-standing Job. More elaborate
+optimization may be added later only from new evidence.
+
+## 2026-08-19 review clarification
+
+For this first cut, "blocks" means one **direct live dependency edge**. Open
+children do not confer the preference merely because containment prevents a
+parent from closing, and the preference does not walk transitively. This is
+the narrow reading already used in the approved handoff: prioritize Work that
+directly unblocks another agent without turning most nested Work into derived
+blockers.
+
+The canonical JSON boolean `blocking` is sufficient for this scheduling
+slice. A compact TUI spelling may be designed later from usage evidence; its
+absence does not delay the ordering correction or the fresh-authority
+restart.

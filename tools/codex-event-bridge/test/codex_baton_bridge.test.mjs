@@ -33,6 +33,16 @@ function obligationAction(seq, work) {
   return { kind: "obligation", action_key: `obligation:${seq}`, seq, work, flavor: "response" };
 }
 
+// W5 slice B: a poke is a CONSUMED kind now, so it gets a fixture like
+// every other one. It deliberately carries no `work` — that absence is
+// the primitive's whole point.
+function pokeAction(seq, { asker = "baton.slaw", request = "what's up?",
+                           expiresAt = null } = {}) {
+  return { kind: "poke", action_key: `poke:${seq}`, poke: seq, asker,
+           request, expires_at: expiresAt,
+           asked_at: "2026-08-19T03:00:00Z" };
+}
+
 function trialAction(work, trial, generation) {
   return {
     kind: "due_trial",
@@ -258,22 +268,33 @@ test("an authority switch emits the new action while retiring the old set", asyn
 test("the typed contract refuses every inconsistent envelope by name", () => {
   const cases = [
     // incompatible projection (W207): pre-contract majors and missing
-    [envelope([], { projection: "4.3" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
-    [envelope([], { projection: "4.5" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
-    [envelope([], { projection: "5.0" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
-    [envelope([], { projection: "6.9" }), /projection-7\/8\/9\/10\/11 participant-action contract/],
-    [{ ...envelope([]), projection_version: undefined }, /projection-7\/8\/9\/10\/11 participant-action contract/],
+    [envelope([], { projection: "4.3" }), /projection-7\/8\/9\/10\/11\/12 participant-action contract/],
+    [envelope([], { projection: "4.5" }), /projection-7\/8\/9\/10\/11\/12 participant-action contract/],
+    [envelope([], { projection: "5.0" }), /projection-7\/8\/9\/10\/11\/12 participant-action contract/],
+    [envelope([], { projection: "6.9" }), /projection-7\/8\/9\/10\/11\/12 participant-action contract/],
+    [{ ...envelope([]), projection_version: undefined }, /projection-7\/8\/9\/10\/11\/12 participant-action contract/],
     // missing snapshot token / non-boolean timed_out
     [{ ...envelope([]), snapshot_seq: "42" }, /snapshot_seq/],
     [{ ...envelope([]), result: { actionable: [], timed_out: "no" } }, /timed_out is not a boolean/],
     // contradictory timeout: timed out yet carrying actions
     [envelope([workAction("7ba67cb8-W5")], { timedOut: true }), /contradictory/],
-    // unknown kind
-    [envelope([{ kind: "message", action_key: "message:9" }]), /unknown action kind "message"/],
+    // an unknown KIND is no longer here: W5's ruled disposition makes it
+    // tolerated (see the tolerance test below). What stays refused is
+    // envelope STRUCTURE, which every entry owes whatever its kind:
+    [envelope([{ kind: "message" }]), /no stable action_key/],
+    [envelope([{ kind: "message", action_key: "" }]), /no stable action_key/],
     // malformed per-kind payloads
     [envelope([{ kind: "work", action_key: "work:7ba67cb8-W5:1:g1" }]), /names no Work/],
     [envelope([{ kind: "obligation", action_key: "obligation:9", work: "7ba67cb8-W2" }]), /has no positive seq/],
     [envelope([{ kind: "due_trial", action_key: "trial:7ba67cb8-W3:1:1", work: "7ba67cb8-W3", trial: 1 }]), /lacks its positive work\/trial\/generation locator/],
+    // W5 slice B: consumed means TYPED. Tolerance is for kinds this
+    // build does not know, never for one it does.
+    [envelope([{ kind: "poke", action_key: "poke:7" }]), /no positive poke sequence/],
+    [envelope([{ ...pokeAction(7), action_key: "poke:9" }]), /disagrees with poke 7/],
+    [envelope([{ ...pokeAction(7), asker: "" }]), /names no asker/],
+    [envelope([{ ...pokeAction(7), request: "" }]), /carries no request text/],
+    [envelope([{ ...pokeAction(7), expires_at: 3 }]), /expires_at is not a string/],
+    [envelope([{ ...pokeAction(7), work: "7ba67cb8-W2" }]), /a poke belongs to none/],
     // key/field disagreement, one per kind
     [envelope([{ ...workAction("7ba67cb8-W5"), action_key: "work:7ba67cb8-W9:1:g1" }]), /disagrees with work/],
     [envelope([{ ...obligationAction(9, "7ba67cb8-W2"), action_key: "obligation:12" }]), /disagrees with seq/],
@@ -299,7 +320,89 @@ test("the typed contract refuses every inconsistent envelope by name", () => {
   // level added a value to the consumed `depth` domain, so the major
   // moved and this consumer moved with it. 12 is the unsupported future.
   assert.equal(validateEnvelope(envelope([], { projection: "11.0" }), "baton.codex").projection_version, "11.0");
-  assert.throws(() => validateEnvelope(envelope([], { projection: "12.0" }), "baton.codex"), /projection-7\/8\/9\/10\/11 participant-action contract/);
+  // W5: projection 12 carries the `poke` action kind. A consumer built
+  // before the tolerance widening REFUSES an envelope containing it —
+  // the whole envelope — which is the documented major-version
+  // condition, so the major moved and this consumer moved with it.
+  assert.equal(validateEnvelope(envelope([], { projection: "12.0" }), "baton.codex").projection_version, "12.0");
+  assert.throws(() => validateEnvelope(envelope([], { projection: "13.0" }), "baton.codex"), /projection-7\/8\/9\/10\/11\/12 participant-action contract/);
+});
+
+test("a poke is forwarded with the question and how to answer it", () => {
+  // W5 slice B: the compact event a Codex target receives. The summary
+  // is the friendly question; the locator carries exactly what
+  // `poke-answer` needs, so the agent does not re-read the projection
+  // to find a sequence it was already told.
+  const action = pokeAction(7, { asker: "baton.slaw",
+                                 request: "still on W12?" });
+  const event = actionEvent(envelope([action]), action,
+                            { target: "baton-reviewer" });
+  assert.equal(event.id,
+               `baton-v11:${UUID}:baton.codex:poke:7`);
+  assert.match(event.summary, /baton\.slaw asks baton\.codex: still on W12\?/);
+  assert.match(event.summary, /poke-answer poke=7/);
+  assert.doesNotMatch(event.summary, /alert|alarm|escalat|unhealthy/i);
+  const locator = JSON.parse(event.details);
+  assert.deepEqual(locator, {
+    kind: "poke", action_key: "poke:7", poke: 7, asker: "baton.slaw",
+    request: "still on W12?", expires_at: null,
+  });
+  // a poke names no Work, and the locator must not invent one
+  assert.equal(locator.work, undefined);
+});
+
+
+test("an unknown action kind is ignored and the rest of the envelope survives", () => {
+  // W5 (finding-conversational-agent-poke), ruled 2026-08-18: an action
+  // kind this build does not know is ignored with a diagnostic, and the
+  // rest of the envelope is retained. Before this the final `else` threw,
+  // so ONE unreadable entry rejected the whole wait result and the agent
+  // stopped receiving its ordinary Work and obligation wakes as well —
+  // an outage, not a missed feature. That is the assertion this replaces.
+  const work = workAction("7ba67cb8-W5");
+  const obligation = obligationAction(9, "7ba67cb8-W2");
+  // W5 slice B made `poke` a KNOWN kind, so this now uses a kind that
+  // is genuinely unreadable — which is what the test always meant. The
+  // point is the entry BESIDE the unreadable one, not which word is
+  // unreadable this week.
+  const payload = envelope([
+    obligation,
+    { kind: "some_future_kind", action_key: "future:7" },
+    work,
+  ]);
+  const validated = validateEnvelope(payload, "baton.codex");
+
+  // the KNOWN entries survive, in order, unchanged
+  assert.deepEqual(validated.result.actionable.map((a) => a.action_key),
+                   [obligation.action_key, work.action_key]);
+  // and the skew is reported rather than silently swallowed
+  assert.deepEqual(validated.result.ignored_actions,
+                   [{ kind: "some_future_kind", action_key: "future:7" }]);
+
+  // an envelope of NOTHING BUT unknown entries is still a valid empty
+  // wait result, not a refusal
+  const only = validateEnvelope(
+    envelope([{ kind: "some_future_kind", action_key: "future:8" }]),
+    "baton.codex");
+  assert.deepEqual(only.result.actionable, []);
+  assert.deepEqual(only.result.ignored_actions,
+                   [{ kind: "some_future_kind", action_key: "future:8" }]);
+
+  // tolerance is for the KIND alone: a known kind stays as strictly
+  // typed as it ever was, and duplicate keys still refuse across kinds
+  assert.throws(() => validateEnvelope(
+    envelope([{ kind: "work", action_key: "work:7ba67cb8-W5:1:g1" }]),
+    "baton.codex"), /names no Work/);
+  assert.throws(() => validateEnvelope(
+    envelope([{ kind: "some_future_kind", action_key: "future:7" },
+              { kind: "other_future_kind", action_key: "future:7" }]),
+    "baton.codex"), /duplicate action_key/);
+
+  // a well-formed envelope gains an EMPTY ignored list, so a caller can
+  // read it unconditionally
+  assert.deepEqual(
+    validateEnvelope(envelope([work]), "baton.codex").result.ignored_actions,
+    []);
 });
 
 test("the bridge accepts the repository's current projection", () => {

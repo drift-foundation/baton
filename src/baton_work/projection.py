@@ -326,6 +326,66 @@ def _gate_struct(store: Authority, row) -> dict | None:
 	return gate
 
 
+# W7 (finding-blocker-effective-priority), first-cut ruling 2026-08-18:
+# THE one blocker predicate, written once and shared by every ordering
+# surface and by the published row fact, so a bridge and a human can
+# never be told a different next Work.
+#
+# A Work BLOCKS when it is open, ready, unclaimed, and at least one OPEN
+# Work waits on it through a live dependency edge. Every clause earns
+# its place:
+#
+# - `ready`, unclaimed, and neither blocked nor parked, because the
+#   ruling scopes the preference to Work that can actually be picked up
+#   now. Sorting a claimed, gated, or deliberately parked blocker forward
+#   would advertise something nobody may take — the "never preempted or
+#   made claimable" boundary — and it is the same eligibility test
+#   `participant_actions` already applies to unclaimed Work, so the two
+#   surfaces cannot disagree about who is a candidate.
+# - the CONSUMER must be open. A satisfied, closed, or removed edge
+#   stops counting the instant it stops holding anybody — no automatic
+#   operation rewrites anything, the predicate simply stops being true.
+# - the consumer need NOT be claimed. The stall this Work exists to fix
+#   was an unclaimed Work sitting behind a ready blocker; requiring a
+#   claimant would make the preference flicker every time a consumer was
+#   claimed or released, which is the opposite of the stable ordering the
+#   ruling asks for.
+#
+# Deliberately NOT here, because the ruling pins a BINARY preference:
+# no transitive walk, no fan-out weight, no count, no cross-pool
+# promotion, no second priority axis. Containment is not here either —
+# an open child does gate its parent's readiness, but "holds another
+# agent" is a claim about a dependency somebody declared, and the
+# containment half is an open acceptance question in `FINDING.md`.
+_BLOCKING_PREDICATE = (
+	"work.status='open' AND work.ready=1 AND work.handler_team IS NULL "
+	"AND work.phase NOT IN ('block', 'parked') "
+	"AND EXISTS (SELECT 1 FROM edges JOIN work AS blocked "
+	"ON blocked.id = edges.work "
+	"WHERE edges.blocker = work.id AND blocked.status='open')")
+
+# The canonical Work ordering. Explicit priority is the PRIMARY pool and
+# is never rewritten or inherited (rule 1); the blocker preference orders
+# only WITHIN one pool (rule 2); stable creation order is the final
+# tie-break (rule 4). Every human Work list and the participant readiness
+# projection sort by exactly this, which is rule 5.
+WORK_ORDER = ("ORDER BY CASE priority WHEN 'high' THEN 0 "
+              "WHEN 'normal' THEN 1 ELSE 2 END, "
+              f"CASE WHEN {_BLOCKING_PREDICATE} THEN 0 ELSE 1 END, "
+              "created_seq")
+
+
+def _blocking(row: dict, open_dependents: int) -> bool:
+	"""The same predicate as `_BLOCKING_PREDICATE`, decided from facts a
+	row already carries rather than by asking the database twice.
+
+	`open_dependents` is exactly the EXISTS clause counted, and the row
+	supplies the rest, so there is no second definition to drift."""
+	return bool(open_dependents) and row["status"] == "open" \
+		and bool(row["ready"]) and row["handler_team"] is None \
+		and row["phase"] not in ("block", "parked")
+
+
 def _first_open_blockers(store: Authority, work_ids) -> dict:
 	"""W39 R1 (no-N+1): the deterministic first-open-blocker selectors
 	for a WHOLE window in one batch — growing the visible tree never
@@ -477,6 +537,11 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 	pickup = _pickup_state(row["handler_team"], handoff_at, now,
 	                       row["status"], ready=bool(row["ready"]),
 	                       phase=row["phase"])
+	open_dependents = store.conn.execute(
+		"SELECT COUNT(*) AS n FROM edges JOIN work "
+		"ON work.id = edges.work "
+		"WHERE edges.blocker=? AND work.status='open'",
+		(row["id"],)).fetchone()["n"]
 	return {
 		"id": row["id"],
 		# W4: the generated authority-local short selector — derived
@@ -535,11 +600,14 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		"first_open_blocker": (first_blockers if first_blockers
 		                       is not None else _first_open_blockers(
 		                           store, [row["id"]])).get(row["id"]),
-		"open_dependents": store.conn.execute(
-			"SELECT COUNT(*) AS n FROM edges JOIN work "
-			"ON work.id = edges.work "
-			"WHERE edges.blocker=? AND work.status='open'",
-			(row["id"],)).fetchone()["n"],
+		"open_dependents": open_dependents,
+		# W7: this row is holding somebody up and can be picked up right
+		# now, so it sorts ahead of free-standing Work in its own
+		# explicit-priority pool. Published as a canonical BOOLEAN
+		# because the ruled preference is binary — a client reads this
+		# fact rather than inferring a boost from a TUI glyph, and
+		# `links.blocks` already names exactly whom it is holding.
+		"blocking": _blocking(row, open_dependents),
 		# W179: the plain cell is the DIRECT count — the viewer's unseen
 		# messages in threads labelled directly to this row, the scope
 		# entering the row exposes. The recursive union stays available
@@ -598,7 +666,7 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str,
 	try:
 		rows = store.conn.execute(
 			"SELECT * FROM work WHERE parent IS NULL AND team=? "
-			"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq", (viewer_team,)).fetchall()
+			+ WORK_ORDER, (viewer_team,)).fetchall()
 		ids = [row["id"] for row in rows]
 		first = _first_open_blockers(store, ids)
 		claimed = _claimed_ats(store, ids)
@@ -709,8 +777,7 @@ def children(store: Authority, work_id: str, *, viewer_team: str,
 	with _read_snapshot(store):
 		_work(store, work_id)
 		rows = store.conn.execute(
-			"SELECT * FROM work WHERE parent=? "
-			"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq",
+			"SELECT * FROM work WHERE parent=? " + WORK_ORDER,
 			(work_id,)).fetchall()
 		ids = [row["id"] for row in rows]
 		first = _first_open_blockers(store, ids)
@@ -771,7 +838,7 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 			# below orders identically WITHOUT leaving its parent.
 			bases = [dict(row) for row in store.conn.execute(
 				"SELECT * FROM work WHERE parent IS NULL AND team=? "
-				"ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_seq", (viewer_team,))]
+				+ WORK_ORDER, (viewer_team,))]
 		else:
 			bases = [_work(store, root)]
 		# W39 R1: gather the WHOLE window first, then one batched
@@ -779,8 +846,7 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		# issues a per-row selector query.
 		# W3: sibling groups order identically at every level WITHOUT
 		# leaving their parent.
-		order = ("ORDER BY CASE priority WHEN 'high' THEN 0 "
-		         "WHEN 'normal' THEN 1 ELSE 2 END, created_seq")
+		order = WORK_ORDER
 
 		def children_by_parent(parent_ids):
 			"""One ordered statement for a WHOLE level, grouped by
@@ -1788,6 +1854,137 @@ def revisions(store: Authority, work_id: str, *, after: int = 0,
 	        "snapshot_seq": snapshot_seq}
 
 
+def _poke_state(row, now: str) -> str:
+	"""The one place a poke's state is decided, so `wait`, `pokes`, and
+	every refusal agree.
+
+	`timed-out` is DERIVED and is deliberately not a stored status. A
+	stored one would have to be written by somebody, and nothing in this
+	authority watches a clock — introducing the first background expiry
+	for a conversational primitive would be the largest change in this
+	feature and the least justified. So the row keeps saying `pending`
+	past its deadline and every reader calls it what it is."""
+	if row["status"] != "pending":
+		return row["status"]
+	if row["expires_at"] is not None and row["expires_at"] <= now:
+		return "timed-out"
+	return "pending"
+
+
+def _work_state(store: Authority, work_id: str) -> dict:
+	"""The CANONICAL facts about one Work, for reporting beside an
+	agent's claim about it rather than instead of it."""
+	row = store.conn.execute(
+		"SELECT id, title, status, phase, handler_team, handler_member "
+		"FROM work WHERE id=?", (work_id,)).fetchone()
+	if row is None:
+		return {"work": work_id, "exists": False}
+	handler = None if row["handler_team"] is None \
+		else f"{row['handler_team']}.{row['handler_member']}"
+	return {"work": row["id"], "exists": True, "title": row["title"],
+	        "status": row["status"],
+	        "phase": None if row["status"] != "open" else row["phase"],
+	        "handler": handler}
+
+
+def pokes(store: Authority, *, viewer_team: str, viewer_member: str,
+          asker: str | None = None, target: str | None = None,
+          after: int = 0, limit: int = 100,
+          now: str | None = None) -> dict:
+	"""W5: the ONE vendor-neutral place to retrieve a poke and its
+	answer, whatever runner family answered it.
+
+	Every poke in the authority is readable. A poke is operational
+	conversation with no Work attached and no confidentiality claim, and
+	the operator's whole reason for the primitive is being able to ask
+	"what is that participant doing" from one place — a per-viewer
+	filter would put the answer somewhere the operator has to guess at.
+	`asker=`/`target=` narrow it; paging is the ordinary ascending
+	`after`/`limit` this surface uses everywhere else.
+
+	Each row reports the AGENT's answer and the AUTHORITY's canonical
+	state as two separate facts. `answer.claimed_work` is what the agent
+	said it believes it is handling, each entry carrying the canonical
+	status/phase/handler of that Work; `canonical.handled_work` is what
+	the authority says the target actually holds right now. When those
+	disagree, the disagreement is the report — collapsing them would
+	hide exactly the case somebody poked to find."""
+	if now is None:
+		now = store.clock()
+	rows = []
+	with _read_snapshot(store):
+		snapshot_seq = store.last_seq()
+		clauses = ["seq > ?"]
+		params: list = [int(after)]
+		if asker is not None:
+			team, _dot, member = str(asker).partition(".")
+			clauses.append("asker_team=? AND asker=?")
+			params.extend([team, member])
+		if target is not None:
+			team, _dot, member = str(target).partition(".")
+			clauses.append("target_team=? AND target=?")
+			params.extend([team, member])
+		params.append(int(limit))
+		for row in store.conn.execute(
+				"SELECT * FROM pokes WHERE " + " AND ".join(clauses)
+				+ " ORDER BY seq LIMIT ?", params):
+			target_participant = f"{row['target_team']}.{row['target']}"
+			entry = {
+				"poke": row["seq"],
+				"asker": f"{row['asker_team']}.{row['asker']}",
+				"target": target_participant,
+				"request": row["request"],
+				"expires_at": row["expires_at"],
+				"asked_at": row["created_ts"],
+				"state": _poke_state(row, now),
+				"resolved_seq": row["resolved_seq"],
+				"resolved_at": row["resolved_ts"],
+				"answer": None,
+				# What the AUTHORITY says the target is executing, read
+				# fresh at this snapshot and owed by nobody's report.
+				"canonical": {"handled_work": [
+					_work_state(store, held["id"]) for held in
+					store.conn.execute(
+						"SELECT id FROM work WHERE status='open' AND "
+						"handler_team=? AND handler_member=? "
+						"ORDER BY created_seq",
+						(row["target_team"], row["target"]))]},
+			}
+			answer = store.conn.execute(
+				"SELECT * FROM poke_answers WHERE poke=?",
+				(row["seq"],)).fetchone()
+			if answer is not None:
+				entry["answer"] = {
+					"seq": answer["seq"],
+					"at": answer["created_ts"],
+					"state": answer["state"],
+					"explanation": answer["explanation"],
+					# Layer 1: what the RUNNER could observe. Each field
+					# is a closed vocabulary whose `unknown` member means
+					# "this adapter cannot see it", never "it is fine".
+					"runner": {
+						"provider": answer["provider"],
+						"model": answer["model"],
+						"session_state": answer["session_state"],
+						"auth_state": answer["auth_state"],
+						"limit_state": answer["limit_state"],
+						"retry_at": answer["retry_at"]},
+					# Layer 2, advisory: null is UNKNOWN, never zero.
+					"telemetry": {
+						"context_limit": answer["context_limit"],
+						"context_used": answer["context_used"],
+						"context_remaining": answer["context_remaining"]},
+					"claimed_work": [
+						_work_state(store, named["work"]) for named in
+						store.conn.execute(
+							"SELECT work FROM poke_answer_work "
+							"WHERE poke=? ORDER BY ordinal",
+							(row["seq"],))],
+				}
+			rows.append(entry)
+	return {"pokes": rows, "snapshot_seq": snapshot_seq}
+
+
 def obligations(store: Authority, *, viewer_team: str,
                 now: str | None = None) -> list[dict]:
 	"""The team's ACTIONABLE set — separate from unseen counts by ruling:
@@ -1912,10 +2109,23 @@ def participant_actions(store: Authority, *, viewer_team: str,
 	  Work's live Route endpoint resolves; identity includes work,
 	  trial, and deadline generation, so an extension retires the old
 	  alarm and a later due generation is new.
+	- W5 conversational pokes: actionable for the EXACT participant
+	  asked, and for nobody else — a poke names one configured
+	  `team.member`, never a route, so no endpoint resolution enters
+	  here at all. Identity = the poke seq, which is the creating
+	  event's sequence and never changes, so redelivery is inherently
+	  idempotent for a consumer keying on `action_key`. A poke wakes a
+	  participant that has no actionable Work at all, which is the
+	  whole point of it, and it carries no workflow authority: it
+	  appears here and changes nothing else.
 	- `+`, plain posts, and personal New are attention, never wakeups.
 
 	Deterministic order: obligations (seq), due trials (review_at,
-	work), then Work actions (creation order). One read snapshot; no
+	work), Work actions (W7's canonical explicit-priority pool, then
+	the ready-unclaimed blocker preference within it, then creation
+	order), then pokes (seq). Pokes come
+	LAST deliberately — a conversational question never displaces the
+	workflow a participant is being woken for. One read snapshot; no
 	write of any kind."""
 	if now is None:
 		now = store.clock()
@@ -1984,9 +2194,14 @@ def participant_actions(store: Authority, *, viewer_team: str,
 			"SELECT value FROM meta WHERE key='accepted_generation'"
 		).fetchone()
 		generation = int(generation_row["value"]) if generation_row else 0
+		# W7: THE SAME canonical ordering the human Work lists use, so
+		# an agent asking "what next" and an operator reading the board
+		# are told the same next Work — which is the ruling's rule 5 and
+		# the reason the order fragment is shared rather than repeated.
+		# Eligibility is unchanged: this reorders the wake set and
+		# admits nothing to it.
 		for row in store.conn.execute(
-				"SELECT * FROM work WHERE status='open' "
-				"ORDER BY created_seq"):
+				"SELECT * FROM work WHERE status='open' " + WORK_ORDER):
 			if row["handler_team"] is not None:
 				if (row["handler_team"], row["handler_member"]) != 						(viewer_team, viewer_member):
 					continue
@@ -2016,6 +2231,26 @@ def participant_actions(store: Authority, *, viewer_team: str,
 				"title": row["title"],
 				"phase": row["phase"],
 				"claimed": row["handler_team"] is not None})
+		# W5: expiry is DERIVED here and nowhere else. Nothing schedules
+		# a transition when `expires_at` arrives — this read simply
+		# stops offering the poke, which is what "removed from
+		# actionable delivery" means. The row keeps saying `pending`
+		# and every read of it, here and in `pokes`, agrees that it is
+		# `timed-out`.
+		for row in store.conn.execute(
+				"SELECT seq, asker_team, asker, request, expires_at, "
+				"created_ts FROM pokes WHERE status='pending' AND "
+				"target_team=? AND target=? AND (expires_at IS NULL OR "
+				"expires_at > ?) ORDER BY seq",
+				(viewer_team, viewer_member, now)):
+			actions.append({
+				"kind": "poke",
+				"action_key": f"poke:{row['seq']}",
+				"poke": row["seq"],
+				"asker": f"{row['asker_team']}.{row['asker']}",
+				"request": row["request"],
+				"expires_at": row["expires_at"],
+				"asked_at": row["created_ts"]})
 	return {"actions": actions, "snapshot_seq": snapshot_seq}
 
 

@@ -99,6 +99,9 @@ export async function runBridge(config, {
 	preflightSessionSelection(config, runSelection);
 
 	const memory = new DeliveryMemory();
+	// W5: reported once per unknown kind, not once per poll — see the
+	// same rule in the sibling Codex bridge.
+	const reportedUnknown = new Set();
 	let session = null;
 	let deliveredTotal = 0;
 
@@ -147,6 +150,14 @@ export async function runBridge(config, {
 				+ `${config.retryMs}ms`);
 			await delay(config.retryMs, signal);
 			continue;
+		}
+		for (const entry of envelope.result.ignored_actions) {
+			if (reportedUnknown.has(entry.kind)) continue;
+			reportedUnknown.add(entry.kind);
+			logger.warn(`v11 action kind ${JSON.stringify(entry.kind)} `
+				+ `is unknown to this build (first seen at `
+				+ `${entry.action_key}); ignoring those entries and `
+				+ `delivering the rest of the envelope`);
 		}
 		const fresh = memory.sync(envelope);
 		let deliveredNow = 0;

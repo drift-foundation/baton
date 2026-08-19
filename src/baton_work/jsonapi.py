@@ -123,7 +123,78 @@ from baton_work.authority import Authority, WorkError
 # Adding a value to a consumed domain breaks that rule whatever the
 # failure is called, so the major moves and the readiness and
 # role-instruction consumers are widened in the same candidate.
-PROJECTION_VERSION = "11.0"
+# 11.1 (W5, finding-conversational-agent-poke): a FOURTH participant
+# action kind, `poke` — a conversational "what's up?" addressed to one
+# exact configured participant — plus the `pokes` projection carrying
+# each poke, its one terminal answer, and canonical Work state beside
+# every claim the agent made. Nothing existing moved or changed meaning.
+#
+# This is published as a MINOR, and the reasoning deserves stating
+# because this file's own 11.0 note says a change a consumer would
+# "silently misread OR REFUSE" moves the major. Until this candidate an
+# unknown action kind DID refuse — the whole envelope, not the entry —
+# so on that rule alone the major would move. The same candidate widens
+# both readiness bridges to ignore an unreadable entry, keep the rest of
+# the envelope, and report the skew; the widening lands before the
+# authority can emit the kind, and every consumer in this repository
+# moves with it. Under a tolerant consumer this addition is genuinely
+# ignorable, which is what "compatible within the major" means, and
+# every FUTURE action kind is additive for the same reason.
+#
+# The exposure this leaves is real and bounded: a runner binary built
+# before the widening, met by an authority that emits a poke, refuses
+# that envelope by name rather than reading it wrongly. Both bridges and
+# the authority ship from one release directory, so they move together —
+# and a refusal that names the unknown kind is the failure the
+# tolerance permanently removes, not one it hides.
+# 11.2 (W7, finding-blocker-effective-priority): rows and details gain
+# the canonical boolean `blocking` — this Work is open, ready, unclaimed,
+# neither gated nor parked, and at least one OPEN Work waits on it
+# through a live dependency edge. The same predicate orders every Work
+# list (home, tree, children) and the participant-action wake set:
+# WITHIN one explicit-priority pool, a blocker sorts ahead of
+# free-standing Work, with stable creation order the final tie-break.
+#
+# Explicit `high | normal | low` is untouched and is never rewritten or
+# inherited; there is no cross-pool promotion, no fan-out weight, and no
+# second user-managed priority axis. Nothing became claimable that was
+# not already, and no field changed meaning.
+#
+# Additive, and deliberately so: the ORDER of a list is not a field a
+# client reads a value out of, and no consumer can misread `blocking` as
+# something it already had. A client that took row 0 as "what next" now
+# gets a better answer to the same question, which is the point. Compare
+# 11.1, where an unwidened consumer would have REFUSED an envelope — the
+# rule discriminates, and here it says minor.
+# 12.0 (W5 review 2026-08-19): the accumulated candidate — the `poke`
+# participant action and its `pokes` projection (W5), and the `blocking`
+# boolean with the blocker-first Work ordering (W7) — is published as a
+# MAJOR.
+#
+# I published the poke half as 11.1 and argued the case for a major in
+# the same breath; review ruled the major, and the reasoning is worth
+# keeping because it is the rule in this file finally being applied to
+# its own hardest case.
+#
+# A new ACTION KIND is not a new field. A consumer built before the
+# tolerance widening REFUSES an envelope containing `poke` — the whole
+# envelope, not the entry — so it stops receiving its ordinary Work and
+# obligation wakes too. Widening every consumer in the SAME candidate
+# does not repair that: it repairs the candidate, while the mixed
+# interval between a deployed old runner and a new authority is exactly
+# where the refusal lives. This file's rule says a change a consumer
+# would misread OR REFUSE moves the major, and refusing is the case.
+#
+# What the tolerance widening buys is the NEXT one: inside major 12
+# every consumer ignores an unreadable entry and keeps the rest, so a
+# fifth action kind really will be an additive minor. That is the
+# difference between this bump and a permanent tax.
+#
+# W7's `blocking` and ordering are genuinely additive and rode 11.2
+# briefly; they are aggregated here rather than published separately,
+# because nothing has been released between them and two majors for one
+# unreleased candidate would describe a history that never happened.
+PROJECTION_VERSION = "12.0"
 
 
 def require_version(requested: str | None) -> None:

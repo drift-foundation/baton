@@ -39,8 +39,15 @@ from baton_work.tui.app import (Console,  # noqa: E402
 
 
 def field(claimed, beat, now):
-	"""The W47-era three-argument spelling over the W226 row field."""
-	return held_field({"claimed_at": claimed, "heartbeat_at": beat}, now)
+	"""The W47-era three-argument spelling over the W226 row field.
+
+	W12: Held is the Handler column, so the row names a Handler whenever
+	it carries a claim. The projection nulls `claimed_at` and `handler`
+	together, and a row with one but not the other is not a state the
+	authority can produce — every assertion below is unchanged."""
+	return held_field({"claimed_at": claimed, "heartbeat_at": beat,
+	                   "handler": None if claimed is None
+	                   else {"team": "lang", "member": "ada"}}, now)
 import fixtures as fx                                         # noqa: E402
 
 
@@ -423,8 +430,8 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	# shape; W179's honest-breaking major moved the projection to 5.0
 	# (no alias), so the CURRENT same-major demand is 5.x and a stale
 	# 4.x demand refuses.
-	assert jsonapi.PROJECTION_VERSION == "11.0"
-	jsonapi.require_version("11.0")
+	assert jsonapi.PROJECTION_VERSION == "12.0"  # W5, the poke major
+	jsonapi.require_version("12.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.2")
 
