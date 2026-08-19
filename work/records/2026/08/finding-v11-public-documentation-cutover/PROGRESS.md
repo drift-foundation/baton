@@ -147,3 +147,78 @@ which is what a prose scan has to do.
 rather than the original queued list.
 
 Gate: 1025 passed + 4 serial + acp 35/35 on 32 cores; diff --check clean.
+
+## Step 3 — revalidation on the current tree (2026-08-19)
+
+Re-claimed as W3 after the projection-12 cutover renumbered the ledger.
+Every deferral this record carried was re-checked against the tree
+rather than trusted, and two of them are resolved by facts that changed
+while the record waited.
+
+**The W101 blocker is GONE, and the deferral with it.**
+`tools/codex-event-bridge/src/stack.mjs` and `src/baton_source.mjs` no
+longer exist; the v11 cutover removed them, and nothing on this host
+imports them any more. The constraint recorded above — twenty-one live
+processes holding those files open — was true when it was written and
+is now historical. `docs/CODEX-APP-SERVER-EVENT-CONNECTIVITY.md` and
+`tools/codex-event-bridge/README.md` were re-read against the shipped
+bridge: they describe the standalone app server, the generic event
+dispatcher and the separately launched `codex-baton-bridge`, the
+documented entry points all exist in `tools/codex-event-bridge/bin/`,
+and the retired stack vocabulary is absent. **Outcome: satisfied, not
+by me — the rewrite landed with the cutover.** The tracked child this
+record split them into (W233 in the old numbering) has no successor on
+the current ledger and needs none.
+
+**`docs/EFFECTIVE-BATON.md` is v11, so the parked link is back.** W104
+landed; the README's documentation table links it again, and the
+self-retiring regression stopped constraining exactly as designed.
+
+**R4's parked wording returns, because the behaviour is certified.**
+W159's wait-by-default is in the shipped grammar (`say`'s `wait=` help
+states the default) and in the accepted operating guide. The agent
+policy and the README now say that a directed request BLOCKS by
+default, suspends the Work you are executing on that exact obligation,
+releases your claim, refuses when you are not executing it, and takes
+`wait=false` as the explicit asynchronous override.
+
+**The agent contract was missing an entire wake class.** `wait` returns
+four action kinds; the shipped policy taught three. A poke addressed to
+this participant is a certified participant action — it rode the 12.0
+major — and an agent following the policy met an entry it had never
+been told about. This is R3's defect one level up, and it is the gap I
+reported as an operational finding while implementing W17: the poke
+primitive shipped with no operator documentation at all. It is closed
+here for the agent contract and the README:
+
+- the policy's `wait` list names pokes as the fourth kind and says they
+  come LAST, because a question never displaces the workflow you were
+  woken for;
+- a new bullet teaches `poke`/`poke-answer`: it names a participant and
+  never a route, carries no workflow authority, and its one terminal
+  answer reports runner facts whose vocabularies all lead with
+  `unknown` — meaning the adapter cannot see it, never that it is fine;
+- and that the authority reports canonical Work state BESIDE the
+  agent's claim rather than instead of it, because the disagreement is
+  the useful part;
+- the README gains the same fact at product level plus one grammar
+  example.
+
+**Standing checks, not prose promises.** Two regressions were added to
+`tests/work/test_w103_public_docs.py`. The first derives the wake kinds
+from `participant_actions` itself and requires the policy to teach each
+one, so a fifth kind fails on the day it ships rather than on the day
+somebody notices the prose is short — the generalization of R3. The
+second ties the blocking-default wording to the grammar's own help
+text, so if that default ever changes the documentation fails with it.
+
+**Deliberately NOT documented here.** `teams` and `inbox` (W25) are in
+review, not certified. R4's rule is this record's own: documentation
+describes the certified release, not the intended next patch. Their
+operator prose ships with that Work, in the same review.
+
+## Verification (2026-08-19)
+
+- `tests/work/test_w103_public_docs.py` — 10 passed (2 added).
+- The complete v11 gate, `just test-v11`, exits 0 on this tree: **1990
+  passed** (parallel), **40 passed** (serial), ACP acceptance green.

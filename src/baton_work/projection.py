@@ -630,6 +630,21 @@ def _row_view(store: Authority, row: dict, viewer_team: str,
 		"handler": None if row["handler_team"] is None else
 			{"team": row["handler_team"], "member": row["handler_member"],
 			 "participant": f"{row['handler_team']}.{row['handler_member']}"},
+		# W93 slice 5: what the HANDLER's runner is doing, beside the
+		# claim rather than inside it. Phase says the Work is being
+		# executed and Handler says by whom; neither can say that the
+		# held turn is sitting on an approval prompt, which is the
+		# incident this finding is named for.
+		#
+		# Null while UNCLAIMED — an absent runner state and "nobody has
+		# taken this" are different facts, and only the second one is
+		# true of unclaimed Work. It is the same `_runtime_view` the
+		# roster and the runtime projection use, so no surface can
+		# disagree with another about a participant's runner, and none
+		# of them infers it from Phase or Handler.
+		"agent": None if row["handler_team"] is None else _runtime_view(
+			store, row["handler_team"], row["handler_member"],
+			now or store.clock()),
 		# W33: when a current claimant exists, the timestamp its claim
 		# landed (the newest claim event) — canonical fact only; the
 		# changing age display is client-derived. Null while unclaimed,
@@ -952,8 +967,17 @@ def links(store: Authority, work_id: str) -> dict:
 		return {"id": other["id"], "title": other["title"],
 		        "team": other["team"], "status": other["status"],
 		        "outcome": other["outcome"],
+		        # W30/W128: the far row's route is the OTHER Work's own
+		        # route — its explicit selection when it has one. This
+		        # resolution dropped the selection, so `links` reported
+		        # the default while `detail` reported the alternate, and
+		        # the two views disagreed about which agent a neighbour
+		        # is offered to. W128's acceptance boundary requires the
+		        # direct and linked views to agree, which is why it is
+		        # corrected here; W30 is the record that named it first.
 		        "route": _endpoint_struct(store, other["route_team"],
-		                                  other["route_kind"]),
+		                                  other["route_kind"],
+		                                  _selected_route(other)),
 		        "handler": None if other["handler_team"] is None else
 		            {"team": other["handler_team"],
 		             "member": other["handler_member"],
@@ -1215,7 +1239,10 @@ def thread(store: Authority, thread_id: str, *, viewer_team: str,
 _EVENT_SUBJECT_KINDS = (
 	"close_work", "claim", "release", "heartbeat", "set_phase",
 	"prioritize", "classify", "bind_work", "revise_work", "wake",
-	"pass", "return", "create_trial", "report", "assess",
+	# W128: the owning team's route correction is a Work event, so it
+	# belongs in the Work's own play-by-play beside `pass` — an
+	# operator asking why this Work moved must find the answer here.
+	"pass", "return", "reroute", "create_trial", "report", "assess",
 	"abandon_trial", "extend_trial", "request", "respond", "dispose",
 	"label", "unlabel",
 )
@@ -2018,7 +2045,7 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
 	for row in store.conn.execute(
 			"SELECT trials.work, trials.trial, trials.candidate, "
 			"trials.review_at, trials.deadline_generation, "
-			"work.route_team, work.route_kind "
+			"work.route_team, work.route_kind, work.route_selected "
 			"FROM trials JOIN work ON work.id = trials.work "
 			"WHERE trials.status='open' AND trials.review_at IS NOT NULL "
 			"AND trials.review_at <= ? AND work.route_team=? "
@@ -2030,8 +2057,9 @@ def _collect_actionable(store: Authority, viewer_team: str, now: str,
 			"candidate": row["candidate"],
 			"review_at": row["review_at"],
 			"deadline_generation": row["deadline_generation"],
-			"owed_by": _endpoint_struct(store, row["route_team"],
-			                            row["route_kind"]),
+			"owed_by": _endpoint_struct(
+				store, row["route_team"], row["route_kind"],
+				_selected_route(dict(row))),
 		})
 
 
@@ -2138,10 +2166,10 @@ def participant_actions(store: Authority, *, viewer_team: str,
 		# actions sharing one endpoint.
 		memo: dict = {}
 
-		def resolve(team, kind):
-			key = (team, kind)
+		def owes(team, kind, selected: str | None = None):
+			key = (team, kind, selected)
 			if key not in memo:
-				memo[key] = _endpoint_struct(store, team, kind)
+				memo[key] = _endpoint_struct(store, team, kind, selected)
 			return memo[key]
 
 		for row in store.conn.execute(
@@ -2149,7 +2177,7 @@ def participant_actions(store: Authority, *, viewer_team: str,
 				"trial, thread, status FROM obligations "
 				"WHERE team=? AND status='pending' ORDER BY seq",
 				(viewer_team,)):
-			owed = resolve(row["team"], row["kind"])
+			owed = owes(row["team"], row["kind"])
 			if not owed or viewer_member not in (owed["handlers"]
 			                                     or ()):
 				continue
@@ -2163,15 +2191,16 @@ def participant_actions(store: Authority, *, viewer_team: str,
 		for row in store.conn.execute(
 				"SELECT trials.work, trials.trial, trials.candidate, "
 				"trials.review_at, trials.deadline_generation, "
-				"work.route_team, work.route_kind "
+				"work.route_team, work.route_kind, work.route_selected "
 				"FROM trials JOIN work ON work.id = trials.work "
 				"WHERE trials.status='open' "
 				"AND trials.review_at IS NOT NULL "
 				"AND trials.review_at <= ? AND work.route_team=? "
 				"ORDER BY trials.review_at, trials.work",
 				(now, viewer_team)):
-			responsible = resolve(row["route_team"],
-			                      row["route_kind"])
+			responsible = owes(row["route_team"],
+			                     row["route_kind"],
+			                     _selected_route(dict(row)))
 			if not responsible or viewer_member not in 					(responsible["handlers"] or ()):
 				continue
 			actions.append({
@@ -2210,8 +2239,9 @@ def participant_actions(store: Authority, *, viewer_team: str,
 					continue
 				if row["route_team"] != viewer_team:
 					continue
-				route = resolve(row["route_team"],
-				                row["route_kind"])
+				route = owes(row["route_team"],
+				             row["route_kind"],
+				             _selected_route(dict(row)))
 				if not route or viewer_member not in 						(route["handlers"] or ()):
 					continue
 			actions.append({
@@ -2231,6 +2261,38 @@ def participant_actions(store: Authority, *, viewer_team: str,
 				"title": row["title"],
 				"phase": row["phase"],
 				"claimed": row["handler_team"] is not None})
+		# W93 review R18: an outstanding refresh REQUEST is actionable
+		# for the exact participant whose adapter is being asked — the
+		# only way a level-triggered signal reaches a bridge that
+		# already polls this projection and nothing else. It is
+		# deliberately not a wake for the model: the adapter answers it
+		# from facts it is holding, which is why `poke` remains the
+		# separate path for what only the agent can say.
+		#
+		# Level-triggered by construction: the row is offered while
+		# `refresh_at` stands and disappears when a publication clears
+		# it, so a lost delivery is simply re-offered on the next poll.
+		for row in store.conn.execute(
+				"SELECT incarnation, refresh_at, refresh_seq FROM "
+				"runtime_leases WHERE team=? AND member=? AND "
+				"refresh_at IS NOT NULL AND ended_ts IS NULL",
+				(viewer_team, viewer_member)):
+			actions.append({
+				"kind": "runtime_refresh",
+				# W93 R25: the GENERATION identifies the request.
+				# Canonical instants are whole seconds, so two asks
+				# inside one second shared a key and the second was
+				# suppressed as already delivered — the instant stays
+				# beside it as what an operator reads, never as
+				# identity.
+				"action_key": f"runtime-refresh:{row['incarnation']}"
+				              f":{row['refresh_seq']}",
+				"incarnation": row["incarnation"],
+				"generation": row["refresh_seq"],
+				"requested_at": row["refresh_at"],
+				# The adapter answers this itself. Stated in the entry
+				# so a consumer cannot mistake it for work to forward.
+				"wakes_model": False})
 		# W5: expiry is DERIVED here and nowhere else. Nothing schedules
 		# a transition when `expires_at` arrives — this read simply
 		# stops offering the poke, which is what "removed from
@@ -2252,6 +2314,477 @@ def participant_actions(store: Authority, *, viewer_team: str,
 				"expires_at": row["expires_at"],
 				"asked_at": row["created_ts"]})
 	return {"actions": actions, "snapshot_seq": snapshot_seq}
+
+
+def _seen_floor(store: Authority, thread: str, viewer_team: str,
+                viewer_member: str) -> int:
+	"""This participant's personal cursor in one thread — the ONE seen
+	mechanism the authority has, read here rather than reinvented."""
+	row = store.conn.execute(
+		"SELECT seq FROM seen WHERE team=? AND member=? AND thread=?",
+		(viewer_team, viewer_member, thread)).fetchone()
+	return row["seq"] if row else 0
+
+
+def inbox(store: Authority, *, viewer_team: str, viewer_member: str,
+          now: str | None = None) -> dict:
+	"""W25: the participant-relative ACTION and ATTENTION surface.
+
+	Two axes, and they are never collapsed into one. OWED rows are the
+	things this participant is the blocker for, and they are EXACTLY
+	`participant_actions` — the one derivation `wait` consumes — so a
+	console and a runner reading the same identity can never disagree
+	about who owes what. Re-deriving "owed" here would be a second
+	opinion, and W39 is the finding that says what a second endpoint
+	resolution costs. ATTENTION rows are unseen discussion in threads
+	this participant's team has joined: they invite reading and oblige
+	nothing.
+
+	SEEN is reported only where the authority actually knows it. A
+	thread carries a per-participant cursor, so an attention row — and
+	any owed row born from a message — is seen exactly when that cursor
+	has passed the message. A poke and a due trial have no message and
+	no cursor, so they report `seen: false` until they resolve.
+	Presentation inventing a cursor for them would be a UI deciding a
+	fact the authority does not hold.
+
+	`owed_action` is therefore INDEPENDENT of seen state, which is the
+	ruled point: reading the message that asked you something does not
+	stop you being the person who owes the answer."""
+	if now is None:
+		now = store.clock()
+	rows: list[dict] = []
+	with _read_snapshot(store):
+		snapshot_seq = store.last_seq()
+		for action in participant_actions(
+				store, viewer_team=viewer_team,
+				viewer_member=viewer_member, now=now)["actions"]:
+			# Actionable WORK is not an Inbox row. Jobs is the Work
+			# surface and it shows the same rows with their tree,
+			# phase, route and claim; repeating them here would put one
+			# queue in two tabs and make "how much do I owe" a number
+			# nobody could act on. The Inbox is what is owed BESIDE the
+			# Work queue — and `wait` still returns both, because a
+			# runner has one attention span and no tabs.
+			if action["kind"] == "work":
+				continue
+			# W93 review R18: a refresh request is addressed to this
+			# participant's ADAPTER, not to the human reading their
+			# Inbox. It rides the wake projection because that is the
+			# one thing a bridge already polls; putting it in front of
+			# an operator would be asking them to do a machine's job.
+			if action["kind"] == "runtime_refresh":
+				continue
+			rows.append(_inbox_owed(store, action, viewer_team,
+			                        viewer_member))
+		# W93 slice 5: a runtime state the VIEWER must act on. The lease
+		# names its action owner explicitly — the finding forbids
+		# guessing one — so a `waiting-input` runner with no configured
+		# owner stays visible in Teams and the Jobs `Agent` cell and
+		# creates no obligation here. Ordinary `working` and `idle`
+		# transitions are not Inbox rows at all: an operator does not
+		# need notifying that an agent is working.
+		for lease in store.conn.execute(
+				"SELECT * FROM runtime_leases WHERE state='waiting-input' "
+				"AND ended_ts IS NULL AND action_owner=? "
+				"AND expires_at > ? ORDER BY changed_seq",
+				(f"{viewer_team}.{viewer_member}", now)):
+			participant = f"{lease['team']}.{lease['member']}"
+			rows.append({
+				"kind": "runtime", "owed": True, "seen": False,
+				"action_key": f"runtime:{participant}:"
+				              f"{lease['incarnation']}",
+				"selector": participant,
+				"summary": f"{participant} is waiting on "
+				           f"{lease['cause']}"
+				           + (f": {lease['detail']}" if lease["detail"]
+				              else ""),
+				"unseen_count": 0,
+				"thread": None, "message": None,
+				"work": lease["work"], "poke": None,
+				"obligation": None, "trial": None,
+				# The runner is waiting on a human, not on Baton: the
+				# answer happens in that session, and the state clears
+				# when the adapter reports what happened next.
+				"completes_by": []})
+		# Attention: the participating-thread surface, personal cursors
+		# and all. A thread with nothing unseen is not an Inbox row —
+		# the Inbox is what is waiting, not an archive of everything
+		# the team has ever joined.
+		for entry in store.conn.execute(
+				"SELECT thread, added_seq FROM thread_participants "
+				"WHERE team=? ORDER BY added_seq, thread",
+				(viewer_team,)):
+			floor = _seen_floor(store, entry["thread"], viewer_team,
+			                    viewer_member)
+			unseen = store.conn.execute(
+				"SELECT COUNT(*) AS n, MAX(seq) AS last FROM messages "
+				"WHERE thread=? AND seq>?",
+				(entry["thread"], floor)).fetchone()
+			if not unseen["n"]:
+				continue
+			born = store.conn.execute(
+				"SELECT subject FROM threads WHERE id=?",
+				(entry["thread"],)).fetchone()
+			labelled = store.conn.execute(
+				"SELECT work FROM thread_labels WHERE thread=? "
+				"ORDER BY added_seq LIMIT 1",
+				(entry["thread"],)).fetchone()
+			rows.append({
+				"kind": "message", "owed": False, "seen": False,
+				"action_key": None,
+				"selector": f"M{unseen['last']}",
+				"summary": born["subject"],
+				"unseen_count": unseen["n"],
+				"thread": entry["thread"], "message": unseen["last"],
+				"work": labelled["work"] if labelled else None,
+				"poke": None, "obligation": None, "trial": None,
+				"completes_by": []})
+	owed = [row for row in rows if row["owed"]]
+	return {"rows": rows, "total": len(rows),
+	        "unseen": len([row for row in rows if not row["seen"]]),
+	        "owed": len(owed),
+	        # The tab is bold on THIS, never on `unseen`: seen state must
+	        # not be able to hide that the viewer is the blocker.
+	        "owed_action": bool(owed),
+	        "snapshot_seq": snapshot_seq}
+
+
+def _inbox_owed(store: Authority, action: dict, viewer_team: str,
+                viewer_member: str) -> dict:
+	"""One actionable entry as an Inbox row — typed, with the canonical
+	context an operator navigates to and the verbs that satisfy it, so
+	no id is ever copied out of raw JSON."""
+	row = {"kind": action["kind"], "owed": True, "seen": False,
+	       "action_key": action["action_key"], "work": None,
+	       "thread": None, "message": None, "poke": None,
+	       "obligation": None, "trial": None, "unseen_count": 0,
+	       "completes_by": action.get("completes_by") or []}
+	if action["kind"] == "poke":
+		row.update({"selector": f"P{action['poke']}",
+		            "poke": action["poke"],
+		            "summary": f"{action['asker']}: "
+		                       f"{action['request']}",
+		            "completes_by": ["poke-answer"]})
+		return row
+	if action["kind"] == "due_trial":
+		row.update({"selector": f"{_local(action['work'])} "
+		                        f"trial {action['trial']}",
+		            "work": action["work"], "trial": action["trial"],
+		            "summary": f"candidate {action['candidate']} is due "
+		                       f"for review",
+		            "completes_by": ["assess", "extend", "abandon"]})
+		return row
+	# An obligation IS born from a message, so it is the one owed kind
+	# whose seen state the authority can answer.
+	row.update({"selector": f"@{action['seq']}",
+	            "obligation": action["seq"], "work": action["work"],
+	            "thread": action["thread"],
+	            "message": action["message_seq"],
+	            "summary": f"{action['owed_by']['endpoint']} owes "
+	                       f"{action['flavor']}"})
+	if action["thread"]:
+		row["seen"] = _seen_floor(store, action["thread"], viewer_team,
+		                          viewer_member) >= action["message_seq"]
+	return row
+
+
+def _local(work_id: str) -> str:
+	return work_id.rsplit("-", 1)[1]
+
+
+def _runtime_view(store: Authority, team: str, member: str,
+                  now: str) -> dict:
+	"""W93: what this participant's RUNNER is doing, or the honest
+	absence of that fact.
+
+	Three provenances, and they are never blurred. `reported` is an
+	explicit transition the adapter published. `derived` is what a read
+	concludes from silence — a lease past its deadline is `unknown`, and
+	one that never opened is `offline`. `configured` would be a fact
+	from `baton.json` and no runtime field has one yet.
+
+	Silence is never diagnosed. A quiet runner is `unknown`, never
+	`failed` and never `stuck`: Baton cannot tell a wedged process from a
+	long tool call, and a projection that guessed would send an operator
+	to kill a healthy turn. Expiry writes NOTHING — this read simply
+	stops reporting the last state as current, exactly as a timed-out
+	poke stops being offered."""
+	row = store.conn.execute(
+		"SELECT * FROM runtime_leases WHERE team=? AND member=?",
+		(team, member)).fetchone()
+	if row is None:
+		return {"state": "offline", "provenance": "derived",
+		        "refresh_requested": None, "facts": [],
+		        "cause": None, "detail": None, "adapter": None,
+		        "provider": None, "model": None, "session": None,
+		        "incarnation": None, "work": None, "episode": None,
+		        "action_owner": None, "since": None,
+		        "last_contact": None, "expires_at": None,
+		        "stale": False,
+		        "note": "no runner has ever opened a lease here"}
+	view = {"adapter": row["adapter"], "provider": row["provider"],
+	        "refresh_requested": row["refresh_at"],
+	        "refresh_generation": row["refresh_seq"],
+	        "model": row["model"], "session": row["session"],
+	        "incarnation": row["incarnation"], "work": row["work"],
+	        "episode": row["episode"],
+	        "action_owner": row["action_owner"],
+	        "since": row["changed_ts"],
+	        "last_contact": row["last_contact"],
+	        "expires_at": row["expires_at"], "note": None}
+	view["facts"] = _runtime_facts(store, team, member,
+	                               row["incarnation"], now)
+	if row["ended_ts"] is not None:
+		# An explicit goodbye. `reported`, because somebody said it.
+		view.update({"state": "offline", "provenance": "reported",
+		             "cause": row["ended_cause"],
+		             "detail": row["detail"], "stale": False,
+		             "note": f"runner exited at {row['ended_ts']}"})
+		return view
+	# The deadline is NOT NULL by schema, so this is the only question
+	# a read has to ask: has it passed?
+	expired = row["expires_at"] <= now
+	if expired:
+		# W93 review R15: the DISPLAYED state is `unknown`, and it began
+		# when the deadline passed — not when the last reported
+		# transition happened. `since` is the age of what a reader is
+		# being shown; the reported instant that preceded it is in the
+		# note and in the journal.
+		view.update({"state": "unknown", "provenance": "derived",
+		             "cause": None, "detail": None, "stale": True,
+		             "since": row["expires_at"],
+		             "note": f"lease deadline {row['expires_at']} "
+		                     f"passed; the last reported state was "
+		                     f"{row['state']} since {row['changed_ts']}"})
+		return view
+	view.update({"state": row["state"], "provenance": "reported",
+	             "cause": row["cause"], "detail": row["detail"],
+	             "stale": False})
+	return view
+
+
+def _elapsed_seconds(instant: str, now: str) -> int:
+	"""Whole seconds between two canonical instants, clamped at zero —
+	the age a reader needs, computed once here rather than by every
+	surface that shows it."""
+	import datetime as _dt
+
+	def moment(value):
+		return _dt.datetime.fromisoformat(
+			value.replace("Z", "+00:00").replace(" ", "T")).timestamp()
+
+	try:
+		return max(0, int(moment(now) - moment(instant)))
+	except ValueError:
+		return 0
+
+
+def _runtime_facts(store: Authority, team: str, member: str,
+                   incarnation, now: str) -> list[dict]:
+	"""W93 slice 6: this runner's safe operational inventory, each fact
+	with its own SOURCE and the instant it was observed.
+
+	They age separately on purpose. A dispatcher target read from the
+	deployment document at launch and a working directory observed at
+	the same moment are not equally current a day later, and a refresh
+	may update one and not the other — so a reader is shown which is
+	which rather than being asked to assume, and a stale fact stays
+	visibly stale rather than looking live."""
+	if incarnation is None:
+		return []
+	# W93 review R20: the instant and nothing else. A `stale` boolean
+	# derived from "older than now" is true of every fact the moment
+	# after it is written and therefore says nothing; a meaningful one
+	# needs a ruled per-field expiry that does not exist yet. The age is
+	# exposed and the reader — or a later ruling — decides what is old.
+	return [{"key": row["key"].replace("_", "-"), "value": row["value"],
+	         "source": row["source"], "observed_at": row["observed_ts"],
+	         "age_seconds": _elapsed_seconds(row["observed_ts"], now)}
+	        for row in store.conn.execute(
+		"SELECT key, value, source, observed_ts FROM runtime_facts "
+		"WHERE team=? AND member=? AND incarnation=? ORDER BY key",
+		(team, member, incarnation))]
+
+
+def runtime(store: Authority, *, viewer_team: str, viewer_member: str,
+            now: str | None = None) -> dict:
+	"""Every configured participant's runtime state, in one snapshot.
+
+	Beside each one, the CANONICAL Work facts: what the authority says
+	that participant holds. The runner's own `work` correlation rides
+	separately and the two are never merged — a runner reporting it is
+	serving Work nobody has claimed, or a claim held by a runner that
+	says it is idle, is exactly the disagreement an operator opened this
+	to find."""
+	if now is None:
+		now = store.clock()
+	rows = []
+	with _read_snapshot(store):
+		snapshot_seq = store.last_seq()
+		for member in store.conn.execute(
+				"SELECT team, handle FROM members WHERE removed=0 "
+				"ORDER BY team, handle"):
+			state = _runtime_view(store, member["team"],
+			                      member["handle"], now)
+			held = [_work_state(store, row["id"]) for row in
+			        store.conn.execute(
+				"SELECT id FROM work WHERE status='open' AND "
+				"handler_team=? AND handler_member=? ORDER BY "
+				"created_seq", (member["team"], member["handle"]))]
+			rows.append({
+				"participant": f"{member['team']}.{member['handle']}",
+				"team": member["team"], "member": member["handle"],
+				"runtime": state, "handled_work": held,
+				"mine": (member["team"], member["handle"])
+				        == (viewer_team, viewer_member)})
+	return {"participants": rows, "snapshot_seq": snapshot_seq}
+
+
+def runtime_history(store: Authority, *, participant: str,
+                    after: int = 0, limit: int = 100) -> dict:
+	"""One participant's append-only runtime journal.
+
+	The lease row is a projection aid that is overwritten in place; this
+	is what an incident is reconstructed from, and it keeps each
+	incarnation's timeline separate so a replacement does not swallow the
+	runner it replaced."""
+	after, limit = _page_bounds(after, limit)
+	team, _dot, member = str(participant).partition(".")
+	with _read_snapshot(store):
+		rows = [dict(row) for row in store.conn.execute(
+			"SELECT * FROM runtime_events WHERE team=? AND member=? "
+			"AND seq > ? ORDER BY seq LIMIT ?",
+			(team, member, after, limit))]
+		snapshot_seq = store.last_seq()
+	return {"participant": participant, "rows": rows,
+	        "next_after": rows[-1]["seq"] if len(rows) == limit else None,
+	        "snapshot_seq": snapshot_seq}
+
+
+def teams(store: Authority, *, viewer_team: str,
+          viewer_member: str) -> dict:
+	"""W25: the operational ROSTER — who is configured, what each of
+	them may take, and what the authority says they are doing.
+
+	Two kinds of fact ride every member row and they never merge.
+	WORKFLOW facts — roles, route coverage, the Work this member is
+	holding right now — come from the accepted configuration and the
+	Work table.
+
+	RUNNER facts have TWO sources and they are deliberately separate.
+	`runtime` is the participant's runtime lease (W93): what its adapter
+	OBSERVED — state, adapter family, provider, model, the live session
+	locator, freshness and provenance. `last_answer` is that
+	participant's own most recent poke answer: what the AGENT said about
+	itself when asked, including the auth and limit facts only it can
+	see, and the Work it believes it is handling. The two can disagree,
+	and that disagreement is a fact worth showing rather than one to
+	reconcile.
+
+	Nothing here reads a process table, a socket, a console session or a
+	file to guess whether somebody is alive: a member whose adapter has
+	published nothing reports an unopened lease, and one who has never
+	answered a poke reports `last_answer: null`. Both mean UNKNOWN and
+	neither means "fine".
+
+	Removed teams and members are absent. A roster is the set of people
+	who can be given work now; retired configuration is history, and
+	`events` is where history lives."""
+	roster = []
+	with _read_snapshot(store):
+		snapshot_seq = store.last_seq()
+		for team in store.conn.execute(
+				"SELECT handle, display FROM teams WHERE removed=0 "
+				"ORDER BY handle"):
+			members = [
+				_roster_member(store, team["handle"], row)
+				for row in store.conn.execute(
+					"SELECT handle, display FROM members WHERE team=? "
+					"AND removed=0 ORDER BY handle",
+					(team["handle"],))]
+			roster.append({"team": team["handle"],
+			               "display": team["display"],
+			               "mine": team["handle"] == viewer_team,
+			               "members": members})
+	return {"teams": roster, "viewer": f"{viewer_team}.{viewer_member}",
+	        "snapshot_seq": snapshot_seq}
+
+
+def _roster_member(store: Authority, team: str, row) -> dict:
+	"""One roster row. `routes` is COVERAGE — the routes this member
+	handles, each with its role and the endpoints that reach it,
+	including the alternates W230 added, because "which work can land on
+	this person" is the question a roster exists to answer."""
+	member = row["handle"]
+	routes = []
+	for entry in store.conn.execute(
+			"SELECT route_handlers.route AS route, routes.role AS role "
+			"FROM route_handlers JOIN routes "
+			"ON routes.team = route_handlers.team "
+			"AND routes.handle = route_handlers.route "
+			"WHERE route_handlers.team=? AND route_handlers.member=? "
+			"AND routes.removed=0 ORDER BY route_handlers.route",
+			(team, member)):
+		endpoints = [f"{team}.{kind['handle']}" for kind in
+		             store.conn.execute(
+			"SELECT handle FROM kinds WHERE team=? AND retired=0 "
+			"AND route=? ORDER BY handle", (team, entry["route"]))]
+		endpoints += [f"{team}.{kind['kind']}" for kind in
+		              store.conn.execute(
+			"SELECT kind_alternates.kind AS kind FROM kind_alternates "
+			"JOIN kinds ON kinds.team = kind_alternates.team "
+			"AND kinds.handle = kind_alternates.kind "
+			"WHERE kind_alternates.team=? AND kind_alternates.route=? "
+			"AND kinds.retired=0 ORDER BY kind_alternates.kind",
+			(team, entry["route"]))]
+		routes.append({"route": entry["route"], "role": entry["role"],
+		               "endpoints": sorted(set(endpoints))})
+	answered = store.conn.execute(
+		"SELECT poke_answers.*, pokes.seq AS poke_seq, "
+		"pokes.request AS request FROM poke_answers "
+		"JOIN pokes ON pokes.seq = poke_answers.poke "
+		"WHERE pokes.target_team=? AND pokes.target=? "
+		"ORDER BY poke_answers.seq DESC LIMIT 1",
+		(team, member)).fetchone()
+	return {
+		"team": team, "member": member,
+		"participant": f"{team}.{member}",
+		"display": row["display"],
+		# W93: the RUNNER's state, from the one helper Jobs and the
+		# runtime projection also use — Teams never derives it a second
+		# way. It sits beside `last_answer`, which is the agent's own
+		# on-demand report and a different kind of evidence entirely.
+		"runtime": _runtime_view(store, team, member, store.clock()),
+		"roles": [entry["role"] for entry in store.conn.execute(
+			"SELECT role FROM member_roles WHERE team=? AND member=? "
+			"ORDER BY role", (team, member))],
+		"routes": routes,
+		# CANONICAL activity: what this member holds, from the Work
+		# table — never what a poke answer claimed. `pokes` is where
+		# the agent's own claim is reported beside this.
+		"handled_work": [_work_state(store, held["id"]) for held in
+		                 store.conn.execute(
+			"SELECT id FROM work WHERE status='open' AND "
+			"handler_team=? AND handler_member=? ORDER BY created_seq",
+			(team, member))],
+		"last_answer": None if answered is None else {
+			"poke": answered["poke_seq"],
+			"request": answered["request"],
+			"at": answered["created_ts"],
+			"state": answered["state"],
+			"explanation": answered["explanation"],
+			"runner": {"provider": answered["provider"],
+			           "model": answered["model"],
+			           "session_state": answered["session_state"],
+			           "auth_state": answered["auth_state"],
+			           "limit_state": answered["limit_state"],
+			           "retry_at": answered["retry_at"]},
+			"telemetry": {
+				"context_limit": answered["context_limit"],
+				"context_used": answered["context_used"],
+				"context_remaining": answered["context_remaining"]}},
+	}
 
 
 def wait_actionable(store: Authority, *, viewer_team: str,
@@ -2466,7 +2999,8 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	handler = False
 	if row["route_team"] is not None and viewer_team == row["route_team"]:
 		resolved = _endpoint_struct(store, row["route_team"],
-		                            row["route_kind"])
+		                            row["route_kind"],
+		                            _selected_route(row))
 		handler = resolved is not None and \
 			viewer_member in resolved["handlers"]
 	available = []
@@ -2476,6 +3010,14 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		# every configured owning-team member while the Work is open.
 		if viewer_team == row["team"]:
 			available.append("prioritize")
+			# W128: correcting where UNCLAIMED Work is offered is
+			# owning-team authority, not route eligibility — the whole
+			# point being that an operator routing around a runner
+			# cannot be made to depend on that runner. It disappears
+			# the moment somebody claims, because claimed Work is never
+			# rerouted underneath its handler.
+			if row["handler_team"] is None:
+				available.append("reroute")
 		# R69: no Work-addressed posting/seen operation exists after the
 		# Slice B bridge removal — contribution and seen state are
 		# thread-addressed (say/mark-seen against a thread id),

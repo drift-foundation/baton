@@ -555,8 +555,13 @@ def test_available_transitions_mirror_the_full_matrix(world):
 	# W3: priority is OWNING-team authority — every configured member
 	# of the owning team is offered prioritize, handler or not; no
 	# OTHER ownership operation leaks into participation.
+	# W128 adds the second one by ruling: correcting where UNCLAIMED
+	# Work is offered is owning-team authority too, because an operator
+	# routing around a runner cannot be made to depend on that runner.
+	# It is offered only while nobody holds the Work, which is why the
+	# claimed case below still sees neither.
 	assert set(teammate["available_transitions"]) <= \
-		{"post_message", "mark_seen", "prioritize"}, \
+		{"post_message", "mark_seen", "prioritize", "reroute"}, \
 		"participation leaked an ownership operation into the projection"
 	assert "prioritize" in teammate["available_transitions"], \
 		"the owning-team member lost the ruled priority authority"

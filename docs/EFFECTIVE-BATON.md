@@ -86,6 +86,40 @@ route, never from a handler's name, so a routed handoff nobody has picked up
 projects `handler: null` and phase `queued` rather than pretending somebody is
 on it.
 
+## Basic command quick reference
+
+These are independent lookup forms, not one workflow to run in order. Replace
+the sample Work and Thread ids with the ones from your authority. `$BATON`
+keeps the explicit config and participant identity established above.
+
+    $BATON home
+    $BATON detail work=W2
+    $BATON create team=app kind=bug title="escape handling fails" \
+        origin=external-report classification=suspected-defect \
+        body="reproduces on every checkout"
+    $BATON claim work=W2
+    $BATON say thread=T2 body="the tokenizer drops the destination"
+    $BATON say thread=T2 body="please confirm the expected escape" \
+        request=app.rview on=W2
+    $BATON pass work=W2 to=app.rview \
+        comment="fix and regression are ready for review"
+    $BATON close work=W2 outcome=satisfying \
+        rationale="reviewed fix and regression both pass"
+    $BATON release work=W2 expect=app.mina \
+        reason="the original runner cannot continue"
+
+**Protocol 11 uses `say`, not retired `send`.** A plain `say` discusses the
+Work; adding `request=` and `on=` creates one directed obligation. `pass` is a
+threadless Work handoff, not a message.
+
+The three obligation dispositions are `respond`, `dispose`, and `accept`; see
+[Cross-team work: providers and consumers](#cross-team-work-providers-and-consumers)
+for the detailed choice and forms. The CLI help is the authoritative operand
+grammar:
+
+    baton --help
+    baton --help VERB
+
 ## The straight-through path
 
 Most Work never needs anything cleverer than this.

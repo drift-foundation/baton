@@ -81,8 +81,17 @@ export function validateConfig(raw) {
       // participant gaining a second role later silently changed the
       // persona of every session started for them.
       const role = nonempty(rawIdentity.role, `targets.${name}.identity.role`);
+      // W93 R9: the participant who owes this runner's interactive
+      // answers, when the deployment names one. The authority already
+      // accepts it; without it a `waiting-input` state can never become
+      // the ruled actionable Inbox entry. Optional, and never guessed.
+      let actionOwner;
+      if (rawIdentity.actionOwner !== undefined) {
+        actionOwner = nonempty(rawIdentity.actionOwner, `targets.${name}.identity.actionOwner`);
+        if (!/^[^.\s]+\.[^.\s]+$/.test(actionOwner)) throw new TypeError(`targets.${name}.identity.actionOwner must be team.member`);
+      }
       if (!/^[^.\s]+$/.test(role)) throw new TypeError(`targets.${name}.identity.role must be one role handle without whitespace or dots`);
-      identity = Object.freeze({ participant, role });
+      identity = Object.freeze({ participant, role, actionOwner });
     }
     targets[targetName] = Object.freeze({ server, threadId, identity });
   }

@@ -473,3 +473,97 @@ test("the real invocation is the documented argv through the executor boundary",
   ]);
   assert.equal(events.length, 1);
 });
+
+// -- W93 R21: the refresh reaches the dispatcher, never a model -------------
+
+function refreshAction(generation = 7, { incarnation = "run-1",
+                                        at = "2026-08-19T11:00:00Z" } = {}) {
+  // R25: the key is built from the GENERATION, never the instant.
+  return { kind: "runtime_refresh",
+           action_key: `runtime-refresh:${incarnation}:${generation}`,
+           incarnation, generation, requested_at: at, wakes_model: false };
+}
+
+test("a refresh is handed to the dispatcher as a control, not an event", async () => {
+  // The producer is the ONLY consumer that sees the request, and it
+  // does not own the lease. Dropping it here — the round-1 behaviour —
+  // removed the signal at the one place it arrived.
+  const { run, events } = harness([envelope([refreshAction()])]);
+  await run;
+  assert.equal(events.length, 1);
+  const [message] = events;
+  assert.equal(message.control, "runtime-refresh");
+  assert.equal(message.target, "baton");
+  assert.equal(message.participant, "baton.codex");
+  assert.equal(message.incarnation, "run-1");
+  assert.equal(message.generation, 7);
+  assert.equal(message.requested_at, "2026-08-19T11:00:00Z");
+  // Not an event: nothing here can become a queued message or a turn.
+  assert.equal(message.type, undefined);
+  assert.equal(message.summary, undefined);
+  assert.equal(message.source, undefined);
+});
+
+test("a refresh rides beside a real wake without displacing it", async () => {
+  const { run, events } = harness([
+    envelope([refreshAction(), workAction("7ba67cb8-W5")])]);
+  await run;
+  assert.deepEqual(events.map((entry) => entry.control ?? entry.type),
+    ["runtime-refresh", "v11-action-ready"]);
+});
+
+test("--once waits for a wake to forward, and a refresh is not one", async () => {
+  // Answering a diagnostic must not satisfy a run that exists to
+  // deliver one action: the producer would exit having woken nobody.
+  const { run, events } = harness(
+    [envelope([refreshAction()]), envelope([refreshAction(), workAction("7ba67cb8-W5")])],
+    { once: true });
+  await run;
+  assert.deepEqual(events.map((entry) => entry.control ?? entry.type),
+    ["runtime-refresh", "v11-action-ready"]);
+});
+
+test("a refresh the dispatcher could not answer is retried", async () => {
+  // The publication failed, so the request still stands. Retiring the
+  // key would spend the one retry the level-triggered signal gives us.
+  const asked = refreshAction(7);
+  let attempts = 0;
+  const { run, events } = harness([envelope([asked]), envelope([asked])], {
+    respond: (message) => {
+      if (message.control !== "runtime-refresh") return { accepted: true };
+      attempts += 1;
+      return attempts === 1
+        ? { accepted: false, reason: "runtime-refresh-failed" }
+        : { accepted: true, reason: "runtime-refresh" };
+    },
+  });
+  await run;
+  assert.equal(events.length, 2, "a failed refresh was not retried");
+  assert.equal(attempts, 2);
+});
+
+test("an answered refresh is not asked again while the same key stands", async () => {
+  const asked = refreshAction(7);
+  const { run, events } = harness([envelope([asked]), envelope([asked])]);
+  await run;
+  assert.equal(events.length, 1);
+});
+
+test("two asks inside ONE second are two requests, not one", async () => {
+  // R25: whole-second instants cannot identify ordered requests. Keyed
+  // on the timestamp, the second ask was suppressed as a delivered
+  // duplicate and the operator waited forever for an answer to it.
+  const { run, events } = harness([
+    envelope([refreshAction(7)]),
+    envelope([refreshAction(8)])]);
+  await run;
+  assert.deepEqual(events.map((entry) => entry.generation), [7, 8]);
+  assert.deepEqual(new Set(events.map((entry) => entry.requested_at)),
+    new Set(["2026-08-19T11:00:00Z"]), "the clock did not move");
+});
+
+test("an entry with no generation cannot be answered exactly", async () => {
+  const { generation, ...ungenerated } = refreshAction(7);
+  assert.throws(() => validateEnvelope(envelope([ungenerated]), "baton.codex"),
+    /no positive generation/);
+});

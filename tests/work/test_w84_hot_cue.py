@@ -190,7 +190,12 @@ def test_cold_tables_never_emit_blink(tmp_path):
 		(b"z", 0.6), (b"qy", 0.4)])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	screen = ptyharness.replay(steps[0])
-	assert any("blocked-review" in line for line in screen)
+	# The presence check only has to find the row. W35 split `Route`
+	# into Endpoint and Via, so at this width the Title — the one
+	# column the layout may truncate — carries the cost and the full
+	# title no longer fits. The blink assertion below is what this
+	# test is about and is untouched.
+	assert any("blocked-re" in line for line in screen), screen[:6]
 	assert not re.search(BLINK_BEFORE + r"[a-z-]+", text), \
 		"a cold table emitted a blink attribute"
 

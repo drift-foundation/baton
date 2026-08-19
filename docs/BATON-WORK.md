@@ -96,6 +96,146 @@ that timer is the ONLY background read: ordinary keystrokes operate
 on the cached projection and never poll the authority. A background
 refresh is read-only and keeps the selection on the same Work.
 
+The console has three top-level tabs, and they lead the header with
+the participant identity right-aligned on the same row:
+
+    [Jobs]   Teams    Inbox 3/1                              team.member
+
+`Tab` cycles them forward and `Shift-Tab` back; the selected tab is in
+brackets, which is a TEXT cue and survives a terminal that ignores
+bold. (`[`/`]` are unchanged and still belong to Work detail's
+Messages/Events tabs.) There are no `[oblig] [park] [due]` header
+counters any more: owed action is what Inbox is for, parked Work stays
+visible and filterable in Jobs, and repeating either in a global header
+was noise.
+
+**Jobs** is the Work tree and everything hanging off it, exactly as
+described below. **Teams** is an operational roster: every configured
+member, the roles they hold, the routes they handle with the endpoints
+those routes cover (W230 alternates included), the Work the authority
+says they are holding right now, and what their RUNNER is doing.
+
+Runner facts come from two sources and Teams keeps them apart, because
+they answer different questions and can honestly disagree. The runtime
+lease is what the member's ADAPTER observed — state, adapter family,
+provider, model, the live session locator, and how old each of those
+is. The last poke answer is what the AGENT said about itself when
+somebody asked, including the auth and limit facts only it can see. A
+disagreement between them is a fact worth showing, not one to
+reconcile. Teams never guesses liveness from a process table or a
+console session: a member with no lease reads "no lease" and one that
+has never answered a poke reads "never asked", both of which mean
+unknown and not "fine". It opens on the viewer's own team; `t` browses
+every configured team, `p` pokes the selected member (the request is
+authored in `EDITOR`), and `x` withdraws a poke this participant has
+outstanding to them.
+
+**Inbox** is participant-relative. It carries pending pokes addressed
+to you, `@` obligations owed through a route you handle, due
+verification trials your Route answers for, and unseen discussion in
+threads your team has joined. Actionable WORK is deliberately absent —
+that is Jobs, and one queue in two tabs makes "how much do I owe" a
+number nobody can act on. The tab label is `total/unseen`, and the
+whole label is bold whenever at least one row is an unresolved action
+you owe, even one you have already read: seen state never hides that
+you are the blocker. Rows name their type and say whether they are
+owed or attention only; `Enter` opens the row's Work in Jobs, `a`
+answers a poke or responds to an obligation (prose authored in
+`EDITOR`), and `s` advances the seen cursor through the public
+`mark-seen`. Seen state is reported only where the authority holds it:
+a thread has a per-participant cursor, so a message row and an
+obligation born from a message are seen exactly when that cursor has
+passed them, while a poke and a due trial have no cursor and read
+unseen until they resolve.
+
+### Agent runtime state
+
+Phase says which scheduler state a Work is in and Handler says who
+holds the claim. Neither can say what that participant's runner is
+DOING — so a turn parked on an interactive approval prompt looked
+exactly like a turn making progress, and the only evidence was a
+dispatcher log. The runtime lease is where that fact lives.
+
+One configured participant has at most one live lease. An adapter
+opens it, publishes transitions onto it, and ends it; every write names
+the lease it holds, so a superseded runner fails closed instead of
+restoring state its replacement has moved past.
+
+    $BW ... --participant team.member runtime
+    $BW ... --participant team.member runtime-history participant=team.member [after= limit=]
+
+`runtime` is the current picture for every participant the viewer can
+see; `runtime-history` is one participant's append-only journal, which
+is what an incident is reconstructed from and which keeps each
+incarnation's timeline separate. Both are read-only.
+
+The published states are `idle`, `working`, `waiting-input`,
+`retrying` and `failed`. `offline` and `unknown` are never published —
+they are DERIVED at read time from a lease that ended or went quiet,
+and every row says which it is through `provenance`
+(`reported`/`derived`). Silence is never diagnosed: a runner that
+stops renewing reads `unknown`, dated from the deadline it crossed,
+and never `failed` and never `stuck`. States an operator can act on
+carry a closed `cause` category — `approval`, `credential`, `input`,
+`limit`, `provider`, `transport`, `internal` — with prose in `detail`.
+
+These are the adapter's verbs, and a bridge normally issues them; they
+are documented because an operator reads them in `runtime-history` and
+may need to run one by hand:
+
+    runtime-start   incarnation= adapter= [provider= model= session=]
+                    [action-owner=] [rationale=] [expires-at=]
+    runtime-state   incarnation= state= [cause= detail=] [work= episode=]
+                    [session=] [expires-at=]
+    runtime-end     incarnation= [cause= detail=]
+    runtime-facts   incarnation= [source= observed-at= answers=] KEY=VALUE…
+    runtime-refresh target=team.member
+
+`session=` on a state report is how a RECONNECT lands: an adapter that
+resumed on a new session locator states it with the transition that
+observed it, so the member's live locator is never left pointing at a
+session that has gone. `expires-at=` is the explicit freshness
+boundary — omitted, every report renews the lease from the configured
+duration, which is what makes silence past the deadline mean something.
+
+None of it is workflow authority. No runtime write claims, releases,
+re-phases, passes, blocks or closes anything: `work=` on a state report
+CORRELATES the runner with the assignment it believes it is serving,
+and the Work table remains the only Handler. Recovery stays an explicit
+operator or Handler action — Baton never auto-releases a claim because
+a runner went quiet.
+
+Where it shows up: the Jobs `Agent` column beside `Handler` (`-` when
+the Work is unclaimed, which is a different fact from a runner nobody
+can see), the Teams `State` column and Member details, and — for
+`waiting-input` only — one owed row in the Inbox of the participant
+the lease names as its action owner. With no action owner named, the
+wait stays visible in Teams and Jobs and creates no guessed obligation.
+Ordinary `working`/`idle` transitions never reach an Inbox.
+
+`runtime-facts` publishes the safe operational inventory: `service`,
+`dispatcher`, `readiness`, `workdir`, `log`, `version`, `retry-at`.
+The key set is CLOSED and values that look like credentials are
+refused, so a launcher configuration full of secrets cannot leak one
+into a durable diagnostic — a signed URL is refused rather than stored
+and redacted later by a reader who may never run. Each fact carries its
+own `source` (`configured`, `reported`, `derived`) and the instant the
+ADAPTER observed it, so a member's state can be seconds old while its
+inventory is hours old and the screen says so.
+
+`runtime-refresh target=` asks that participant's ADAPTER to republish
+the inventory. It runs nothing, blocks nothing and never wakes the
+model: the adapter notices it on the polling loop it already has and
+answers from facts it holds. Each request carries a generation, and a
+publication clears the exact generation it answered — so an answer to
+an earlier question never retires a later one. When only the agent
+itself can answer, that is `poke`, not this.
+
+Both surfaces ride JSON as their own verbs — `teams` and `inbox`, no
+operands, participant-relative — so an agent derives the same counts,
+the same owed-action state, the same navigation targets and the same
+satisfying verbs from typed fields rather than from glyphs.
+
 The main screen is a three-level containment tree: top-level Work,
 each root's immediate `↳` children, and their `  ↳` children in turn.
 A `▸N` disclosure marks any visible row holding Work this window does
@@ -154,7 +294,8 @@ through the Message index (or forward through the Thread list) while
 more exists, p returns to the newest page (not a previous-page step), s advances your seen cursor
 through the SELECTED message and no later one, z reveals closed
 rows, [b] deps opens
-the blocking/dependent neighbor view, q asks Exit? y/N on one row (y exits; n or Esc returns to the unchanged view). `:` opens the command bar: everything typed there is
+the blocking/dependent neighbor view, p opens the poke view described
+below, q asks Exit? y/N on one row (y exits; n or Esc returns to the unchanged view). `:` opens the command bar: everything typed there is
 the PUBLIC CLI grammar run as you (for example
 `:create team=push kind=bug title="..." origin=self-initiated
 body="..."`), with the public refusals. As you type, the bar shows context-sensitive assistance on the right — matching verbs, then the effective remaining required and optional keys (form conditions applied exactly as the parser enforces them), then closed values narrowed by your prefix — derived through a shared partial-command analyzer that speaks the same quoting and first-`=` rules as execution; malformed, unknown, or duplicated input shows the diagnostic instead. The assistance is read-only and yields to your input when space runs out. The caret stays visible at the insertion point; input longer than the row scrolls in a horizontal viewport (`<` marks the clipped left) and is never cut.
@@ -166,11 +307,35 @@ returns the one canonical action projection for your exact identity —
 open ready unclaimed Work whose Route resolves to you (every eligible
 handler until one claims; the claimant alone after, under the same
 stable `work:` key), pending `@` obligations your endpoint owes
-(`obligation:` keyed by seq), and due verification trials your Route
+(`obligation:` keyed by seq), due verification trials your Route
 answers for (`trial:` keyed per deadline generation, retired by
-extension). `+`, plain posts, and personal New are attention, never
-wakeups. The header's oblig/due counters are these same personal facts;
-the parked count stays team-wide.
+extension), and conversational pokes addressed to your exact
+participant (`poke:` keyed by the poke's own sequence, offered last
+because a question never displaces the workflow you were woken for).
+`+`, plain posts, and personal New are attention, never
+wakeups. The console's Inbox tab is these same personal facts, minus
+the Work (which is Jobs), plus the unseen discussion `wait` never
+carried; the team-wide parked count lives in the canonical summary and
+in Jobs, not in a header counter.
+
+The console surfaces pokes in the Inbox, as rows that name their type:
+a poke is conversation addressed to one participant and carries no
+workflow authority, so the row says `poke` beside the obligations and
+attention rather than being folded into either. While one is waiting
+the bottom row says so and names where to go. `p` opens the poke
+record — the questions asked OF you, which you answer, and the ones
+you asked, which you may withdraw — owed ones first, each row carrying
+the action as text (`answer`, `withdraw`), the canonical state beside
+it, which end of the conversation you are on, and the question itself;
+the block beneath shows the chosen poke whole, with its deadline and
+its one terminal answer when it has them. `a` answers: a one-row
+chooser offers the grammar's own `state=` vocabulary and your editor
+takes the explanation, so no sequence is ever copied out of JSON. `x`
+withdraws a pending one. Answered, cancelled, superseded and timed-out
+pokes stop being owed and stay readable as history. The verbs are
+exactly the public `poke-answer` and `poke-cancel`, with the public
+refusals; the console adds presentation, not a second delivery path,
+and `pokes` remains the authoritative read.
 
 Work counters describe the DIRECT visible scope: a row's or detail
 header's `Msg`, `My`, and `New` cover exactly the threads labelled
@@ -234,7 +399,18 @@ stays global, and the active filter is always disclosed — `Filter:N`
 right-aligned on the header plus a dedicated clause line that viewports
 at narrow widths.
 
-Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Other people's activity reads through Phase, Handler, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). W15 removed the unclaimed `>` marker from both Phase and Held: the Handler column is blank when nobody holds the Work, so the marker restated a fact the row already carried. Held is a bare timer — since `claimed_at` while claimed, since the handoff while unclaimed, `-` with no origin — and Handler is what distinguishes the two intervals. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing — which under W38 is exactly `phase=active`. Unclaimed, waiting, parked and closed Work stay steady; the personal pickup cue for ready unclaimed Work whose Route resolves to you is the separate bold-Title rule above. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
+Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Eligibility is TWO columns, not one: `Endpoint` is the stable
+`team.kind` address a reader types, and `Via` is the selected internal
+route that decides who may claim it — with W230 alternates, one endpoint
+can be offered through two routes to two different agents, and a single
+column showing the address hid that. `Handler` remains the exact
+participant after a claim, so before a claim Endpoint plus Via say where
+the Work is offered and after one Handler says who took it. Under width
+pressure Via is dropped before Endpoint, and both before Handler; whole
+columns go rather than identities being truncated. Terminal Work reports
+no route at all — eligibility is a live question — so both cells read
+`-` there, exactly as Handler does. Other people's activity reads
+through Phase, Handler, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). W15 removed the unclaimed `>` marker from both Phase and Held: the Handler column is blank when nobody holds the Work, so the marker restated a fact the row already carried. Held is a bare timer — since `claimed_at` while claimed, since the handoff while unclaimed, `-` with no origin — and Handler is what distinguishes the two intervals. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing — which under W38 is exactly `phase=active`. Unclaimed, waiting, parked and closed Work stay steady; the personal pickup cue for ready unclaimed Work whose Route resolves to you is the separate bold-Title rule above. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
 `high`, `normal` (the default), `low` — an ordering signal only, never
 a lifecycle fact. `create priority=...` records it at birth;
 `prioritize work=... as=...` is the audited effectively-once revision,

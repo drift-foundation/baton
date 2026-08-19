@@ -94,6 +94,31 @@ automatically.
 This deliberately trades some duplicated work for single-writer safety and a
 reviewable integration boundary.
 
+## Claim-gated execution — confirmed 2026-08-19
+
+The W93 slice-4 return exposed the remaining v11 boundary directly:
+`baton.claude` received the complete Work, edited its dossier and source, and
+ran the full gate without ever claiming W93. The authority correctly continued
+to show the Work queued and unclaimed, but a shared writable checkout gave the
+protocol no mechanism to prevent execution outside that state.
+
+V12 does **not** hide Work details to address this. Inspection needs the full
+contract and evidence, and Baton's open collaboration model permits members to
+read and discuss linked Work without owning it. Visibility and execution are
+separate boundaries:
+
+- an eligible agent may inspect the complete Work through a read-only worker;
+- only a successful claim mints the participant/Work/assignment-generation
+  capability that unlocks a writable worker;
+- execution tools, candidate publication, and workflow revision require that
+  live capability; and
+- release, replacement, or claim revocation removes write and publication
+  authority even if the provider process later recovers.
+
+This is deliberately deferred to v12. V11 retains its documented
+claim-before-execution rule, but the shared checkout cannot enforce it and the
+project will not spend the stabilization cycle pretending otherwise.
+
 ## Security and reproducibility boundary
 
 - Credentials are least-privilege, assignment-scoped where possible, and are

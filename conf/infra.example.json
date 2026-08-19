@@ -64,6 +64,34 @@
       }
     },
     {
+      "name": "codex-tuner-readiness",
+      "participant": "baton.tuner",
+      "command": [
+        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/absolute/path/to/v11-release/bin/baton",
+        "--config",
+        "/absolute/path/to/mailbox/baton.json",
+        "--participant",
+        "baton.tuner",
+        "--target",
+        "baton-tuner",
+        "--socket",
+        "/absolute/path/to/runtime/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/absolute/path/to/v11-release/bin/baton",
+        "/absolute/path/to/mailbox/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
       "name": "claude-acp",
       "participant": "baton.claude",
       "command": [
@@ -72,7 +100,8 @@
         "/absolute/path/to/acp-bridge-claude.json"
       ],
       "after": [
-        "codex-readiness"
+        "codex-readiness",
+        "codex-tuner-readiness"
       ],
       "requires": [
         "/absolute/path/to/acp-bridge-claude.json"

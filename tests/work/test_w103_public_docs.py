@@ -16,8 +16,12 @@ import os
 import pathlib
 import re
 import subprocess
+import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "src"))
+
+from baton_work import cli as _cli                             # noqa: E402
 
 # The documents that give CURRENT guidance. Release notes, dossiers, and
 # review journals are history and are deliberately absent.
@@ -122,6 +126,52 @@ def test_the_agent_policy_states_both_halves_of_the_wait_contract():
 	assert "ALREADY CLAIMED" in body, \
 		"the policy omits the claimant-continuation half of `wait`"
 	assert "restart" in body
+
+
+def test_the_agent_policy_names_every_actionable_kind_wait_returns():
+	"""The R3 defect, generalized. A policy that lists all but one of the
+	kinds `wait` returns leaves an agent meeting an entry it was never
+	told about — which is how the claimant-continuation half was missed
+	in round one. The kinds are asked of the PROJECTION rather than
+	restated here, so a fifth kind fails this test on the day it ships
+	instead of on the day somebody notices the prose is short."""
+	body = _text("docs/AGENTS-MAILBOX-PROTO.md")
+	source = (REPO / "src" / "baton_work" / "projection.py").read_text()
+	start = source.index("def participant_actions")
+	# the NEXT top-level def ends the window: later projections build on
+	# this one and their own row kinds are not wake kinds.
+	window = source[start:start + source[start + 1:].index("\ndef ")]
+	kinds = set(re.findall(r'\["kind"\] = "(\w+)"', window))
+	kinds |= set(re.findall(r'"kind": "(\w+)"', window))
+	# The phrase each kind is taught under. Natural prose does not have
+	# to spell an internal identifier, but the MAP has to cover exactly
+	# the kinds the projection emits — so a fifth kind fails here until
+	# somebody writes both the phrase and the paragraph behind it.
+	taught = {"work": "UNCLAIMED Work",
+	          "obligation": "obligations your endpoint owes",
+	          "due_trial": "due verification trials",
+	          "poke": "pokes** addressed to your exact participant",
+	          "runtime_refresh": "refresh request is for your adapter"}
+	assert kinds == set(taught), (kinds, set(taught))
+	for kind, phrase in taught.items():
+		assert phrase in body, \
+			f"the shipped agent policy never teaches {kind!r}"
+
+
+def test_the_agent_policy_states_the_blocking_default():
+	"""W103 R4 parked this while W159 was in review: documentation
+	describes the CERTIFIED release. The behaviour is accepted now — the
+	grammar itself says the default — so the wording returns, and this
+	check ties it to the grammar rather than to a memory of the ruling."""
+	spec = {key["name"]: key
+	        for key in _cli.GRAMMAR["say"]["keys"]}
+	assert "default true with request=" in spec["wait"]["help"], \
+		"the grammar no longer defaults a directed request to blocking"
+	body = _text("docs/AGENTS-MAILBOX-PROTO.md")
+	assert "blocks by default" in body.lower(), \
+		"the agent policy does not state the certified blocking default"
+	assert "wait=false" in body, \
+		"the policy states the default without its explicit override"
 
 
 def test_the_agent_policy_names_protocol_eleven_and_the_stable_path():

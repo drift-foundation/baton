@@ -36,13 +36,22 @@ MUTATIONS = frozenset({
 	"say", "label", "unlabel", "bind",
 	# W5: conversational, carrying no workflow authority — but they DO
 	# write, so the console must refresh after them like any mutation.
-	"poke", "poke-answer", "poke-cancel"})
+	"poke", "poke-answer", "poke-cancel", "reroute",
+	# W93: runtime reports WRITE, so a console refreshes after them —
+	# but they carry no workflow authority whatsoever.
+	"runtime-start", "runtime-state", "runtime-end",
+	"runtime-facts", "runtime-refresh"})
 
 # W5: the closed answer vocabularies, shared by the generated help and
 # the transition layer. `unknown` leads each diagnostic vocabulary
 # because it is the honest default for an adapter that cannot observe
 # the fact, not a fallback for one that did not try.
 _POKE_STATES = ("idle", "working", "waiting", "needs-help")
+# W93: the runner vocabularies, shared with the transition layer so the
+# generated help and the refusals can never drift apart.
+from baton_work.transitions import (RUNTIME_CAUSES as _RUNTIME_CAUSES,
+                                    RUNTIME_SOURCES as _RUNTIME_SOURCES,
+                                    RUNTIME_STATES as _RUNTIME_STATES)
 _POKE_SESSION_STATES = ("unknown", "live", "starting", "stopped", "failed")
 _POKE_AUTH_STATES = ("unknown", "ok", "expired", "failed")
 _POKE_LIMIT_STATES = ("unknown", "ok", "rate-limited", "overloaded")
@@ -454,6 +463,163 @@ GRAMMAR = {
 	           "keys": _filter_keys()},
 	"obligations": {"help": "the team's pending @ obligations",
 	                "keys": ()},
+	# W25: the two participant-relative surfaces the console's Teams and
+	# Inbox tabs render. They are verbs rather than console-only reads
+	# because the TUI is ONE projection of the model and not its only
+	# interface — an agent derives the same counts, owed-action state and
+	# navigation targets from these, in typed fields rather than glyphs.
+	"teams": {"help": "the operational roster: configured members, their "
+	          "route coverage, the Work they hold, and the runner status "
+	          "each last reported",
+	          "keys": ()},
+	"inbox": {"help": "this participant's owed actions and unseen "
+	          "attention, with total/unseen/owed counters",
+	          "keys": ()},
+	# W93: the participant RUNTIME lease. A runner publishes about
+	# itself; the acting participant is always the subject, so no
+	# capability question arises and no participant can narrate
+	# another's runtime.
+	# W128: the owning team's correction for work nobody has taken.
+	"reroute": {"help": "move OPEN, UNCLAIMED Work to another endpoint "
+	            "or configured alternate route, on the owning team's "
+	            "authority rather than the resolved route handler's",
+	            "keys": (_key("work", required=True,
+	                          help="the unclaimed Work"),
+	                     _key("to", required=True,
+	                          help="ONE destination endpoint team.kind"),
+	                     _key("route",
+	                          help="explicitly select one of the "
+	                          "destination endpoint's configured "
+	                          "routes; omitted resolves to the "
+	                          "endpoint's default"),
+	                     _key("reason", prose=True, required=True,
+	                          help="durable reason the Work is being "
+	                          "moved"))},
+	"runtime-start": {"help": "open this participant's runtime lease, "
+	                  "superseding any previous incarnation",
+	                  "keys": (_key("incarnation", required=True,
+	                                help="the runner's opaque identity "
+	                                "for THIS launch"),
+	                           _key("adapter", required=True,
+	                                help="the runner family (codex, "
+	                                "acp, ...); never inferred from the "
+	                                "participant name"),
+	                           _key("provider", help="provider name"),
+	                           _key("model", help="model name"),
+	                           _key("session",
+	                                help="the exact session locator, in "
+	                                "full"),
+	                           _key("expires-at",
+	                                help="the lease deadline past which "
+	                                "reads derive `unknown`; omitted "
+	                                "takes the configured duration, "
+	                                "because a lease is always "
+	                                "bounded"),
+	                           _key("action-owner",
+	                                help="TEAM.MEMBER who owes this "
+	                                "runner's interactive answers"),
+	                           _key("rationale", prose=True,
+	                                help="why this launch replaces the "
+	                                "previous lease; required when one "
+	                                "exists, and read back through "
+	                                "runtime-history"))},
+	"runtime-state": {"help": "publish one explicit runtime transition "
+	                  "on this participant's live lease",
+	                  "keys": (_key("incarnation", required=True,
+	                                help="the lease this runner holds"),
+	                           _key("state", required=True,
+	                                values=_RUNTIME_STATES,
+	                                help="the semantic runner state; "
+	                                "`offline`/`unknown` are DERIVED "
+	                                "and never published"),
+	                           _key("cause", values=_RUNTIME_CAUSES,
+	                                help="closed machine category, "
+	                                "required for waiting-input; it is "
+	                                "not `reason=`, which is durable "
+	                                "human prose everywhere else"),
+	                           _key("detail",
+	                                help="a short safe explanation; "
+	                                "published by the adapter, so it is "
+	                                "not editor-authored prose"),
+	                           _key("work",
+	                                help="the Work this runner believes "
+	                                "it is serving; correlation only, "
+	                                "never a claim"),
+	                           _key("episode", kind="int",
+	                                help="the assignment episode"),
+	                           _key("session",
+	                                help="a new session locator, for a "
+	                                "reconnect"),
+	                           _key("expires-at",
+	                                help="a new lease deadline"))},
+	"runtime-end": {"help": "close this participant's runtime lease "
+	                "explicitly; reads then report offline as reported",
+	                "keys": (_key("incarnation", required=True,
+	                              help="the lease this runner holds"),
+	                         _key("cause", values=_RUNTIME_CAUSES,
+	                              help="closed machine category"),
+	                         _key("detail",
+	                              help="a short safe explanation; "
+	                              "published by the adapter, so it is "
+	                              "not editor-authored prose"))},
+	# W93 slice 6: the safe operational inventory, and the cheap ask for
+	# a fresh one. The key set is CLOSED — that is the redaction
+	# boundary made structural, not a convenience.
+	"runtime-facts": {"help": "publish this runner's safe operational "
+	                  "inventory; every fact carries its source and the "
+	                  "instant it was observed",
+	                  "keys": (_key("incarnation", required=True,
+	                                help="the lease this runner holds"),
+	                           _key("source", values=_RUNTIME_SOURCES,
+	                                default="reported",
+	                                help="configured, reported or "
+	                                "derived — a reader never guesses"),
+	                           _key("observed-at",
+	                                help="the ADAPTER's instant for "
+	                                "these facts; omitted means now, "
+	                                "and commit time is never used "
+	                                "because these writes queue"),
+	                           _key("answers", kind="int",
+	                                help="the refresh generation this "
+	                                "publication responds to; omitted "
+	                                "means it answers no request and "
+	                                "clears none"),
+	                           _key("service",
+	                                help="the process or service "
+	                                "identity running this runner"),
+	                           _key("dispatcher",
+	                                help="the dispatcher target this "
+	                                "runner is driven through"),
+	                           _key("readiness",
+	                                help="the readiness path it polls"),
+	                           _key("workdir",
+	                                help="the working directory or root "
+	                                "it operates in"),
+	                           _key("log",
+	                                help="the configured log locator"),
+	                           _key("version",
+	                                help="the adapter or runner "
+	                                "version"),
+	                           _key("retry-at",
+	                                help="the instant the provider says "
+	                                "to retry or reset"))},
+	"runtime-refresh": {"help": "ask one participant's ADAPTER for "
+	                    "fresh machine facts; runs nothing and never "
+	                    "wakes a model",
+	                    "keys": (_key("target", required=True,
+	                                  help="the exact TEAM.MEMBER whose "
+	                                  "adapter is asked"),)},
+	"runtime": {"help": "every configured participant's runtime state "
+	            "beside the Work the authority says they hold",
+	            "keys": ()},
+	"runtime-history": {"help": "one participant's append-only runtime "
+	                    "journal",
+	                    "keys": (_key("participant", required=True,
+	                                  help="the TEAM.MEMBER"),
+	                             _key("after", kind="int", default=0,
+	                                  help="page after this seq"),
+	                             _key("limit", kind="int", default=100,
+	                                  help="page size"))},
 	"summary": {"help": "the always-visible team counters", "keys": ()},
 	"wait": {"help": "block until actionable state or timeout",
 	         "keys": (_key("timeout", required=True, kind="float",
@@ -1864,6 +2030,71 @@ def _dispatch(store: Authority, args):
 		                        viewer_member=member, asker=args.asker,
 		                        target=args.target, after=args.after,
 		                        limit=args.limit)
+	if command == "reroute":
+		team, member = _need_participant(args)
+		return transitions.reroute_work(
+			store, args.work, actor_team=team, actor=member,
+			to=args.to, route=args.route, reason=args.reason,
+			op_id=args.op_id, refs=args.refs)
+	if command == "runtime-start":
+		team, member = _need_participant(args)
+		return transitions.runtime_start(
+			store, actor_team=team, actor=member,
+			incarnation=args.incarnation, adapter=args.adapter,
+			provider=args.provider, model=args.model,
+			session=args.session, expires_at=args.expires_at,
+			action_owner=args.action_owner, rationale=args.rationale,
+			op_id=args.op_id, refs=args.refs)
+	if command == "runtime-state":
+		team, member = _need_participant(args)
+		return transitions.runtime_state(
+			store, actor_team=team, actor=member,
+			incarnation=args.incarnation, state=args.state,
+			cause=args.cause, detail=args.detail, work=args.work,
+			episode=args.episode, session=args.session,
+			expires_at=args.expires_at, op_id=args.op_id,
+			refs=args.refs)
+	if command == "runtime-end":
+		team, member = _need_participant(args)
+		return transitions.runtime_end(
+			store, actor_team=team, actor=member,
+			incarnation=args.incarnation, cause=args.cause,
+			detail=args.detail, op_id=args.op_id, refs=args.refs)
+	if command == "runtime-facts":
+		team, member = _need_participant(args)
+		return transitions.runtime_facts(
+			store, actor_team=team, actor=member,
+			incarnation=args.incarnation, source=args.source,
+			observed_at=args.observed_at, answers=args.answers,
+			facts={"service": args.service,
+			       "dispatcher": args.dispatcher,
+			       "readiness": args.readiness,
+			       "workdir": args.workdir, "log": args.log,
+			       "version": args.version,
+			       "retry-at": args.retry_at},
+			op_id=args.op_id, refs=args.refs)
+	if command == "runtime-refresh":
+		team, member = _need_participant(args)
+		return transitions.runtime_refresh(
+			store, actor_team=team, actor=member, target=args.target,
+			op_id=args.op_id, refs=args.refs)
+	if command == "runtime":
+		team, member = _need_participant(args)
+		return projection.runtime(store, viewer_team=team,
+		                          viewer_member=member)
+	if command == "runtime-history":
+		_need_participant(args)
+		return projection.runtime_history(
+			store, participant=args.participant, after=args.after,
+			limit=args.limit)
+	if command == "teams":
+		team, member = _need_participant(args)
+		return projection.teams(store, viewer_team=team,
+		                        viewer_member=member)
+	if command == "inbox":
+		team, member = _need_participant(args)
+		return projection.inbox(store, viewer_team=team,
+		                        viewer_member=member)
 	if command == "summary":
 		team, _member = _need_participant(args)
 		return projection.team_summary(store, viewer_team=team)

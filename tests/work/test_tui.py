@@ -35,12 +35,23 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	path, cast = world
 	text, status, _steps = ptyharness.drive(path, "lang.ada", [(b"qy", 0.4)])
 	screen = ptyharness.replay(text)
-	# W74: the root header is identity + live summary only — the
-	# redundant "— top-level work" prose is gone.
-	assert screen[0].startswith("lang.ada"), screen[0]
+	# W74: the root header carries no redundant "— top-level work"
+	# prose. W25 (finding-tui-jobs-teams-inbox) superseded the rest of
+	# this line: the tabs lead the header, the participant identity is
+	# right-aligned, and the `[oblig] [park] [due]` counters are gone —
+	# owed action lives in Inbox and parked Work in Jobs.
+	assert screen[0].startswith("[Jobs]"), screen[0]
+	assert screen[0].rstrip().endswith("lang.ada"), screen[0]
 	assert "top-level work" not in screen[0]
-	assert "[oblig:" in screen[0], "the live summary left the header"
-	assert any("parser recovery" in line for line in screen), screen[:6]
+	assert "[oblig:" not in screen[0], \
+		"the retired header counter came back"
+	# W35 and W93 each added an eligibility/runtime column, and the
+	# Title — the one column the layout may truncate — absorbs the cost.
+	# These are row-presence checks, so they match the prefix that fits.
+	# The Id is identity and is never truncated; the Title is the one
+	# column the layout may cut, and W35/W93 each took cells from it.
+	# A row-presence check therefore anchors on the Id.
+	assert any(line.startswith("W2 ") for line in screen), screen[:6]
 	header = next(line for line in screen if "Title" in line)
 	# Trial finding 26de18dd-W2: initial-capital header labels.
 	# W71: Prog/Dep left the table — containment shows as indentation,
@@ -76,13 +87,13 @@ def test_the_tree_shows_children_inline_and_u_re_roots(world):
 	# remainder — takes the truncation, exactly as it does for any
 	# other cue. The ↳ containment marker is a different fact and is
 	# untouched, which is what this test is about.
-	assert any("↳ confirm the de" in line for line in tree), \
+	assert any("↳" in line and line.startswith("W3 ") for line in tree), \
 		"children are not inline ↳ rows"
-	assert any("↳ implement the" in line for line in tree)
+	assert any("↳" in line and line.startswith("W4 ") for line in tree)
 	rooted = ptyharness.replay(steps[1])
 	assert "parser recovery" in rooted[0], \
 		f"the re-rooted breadcrumb is missing: {rooted[0]!r}"
-	assert any("↳ confirm the de" in line for line in rooted)
+	assert any("↳" in line and line.startswith("W3 ") for line in rooted)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -96,7 +107,7 @@ def test_escape_climbs_back_up_the_drilled_path(world):
 	screen = ptyharness.replay(steps[1])
 	# W74: the root view is recognized by the identity-led header with
 	# no breadcrumb trail, not by the removed prose.
-	assert screen[0].startswith("lang.ada") and ">" not in screen[0], \
+	assert screen[0].startswith("[Jobs]") and ">" not in screen[0], \
 		"escape did not return to the home table"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -223,7 +234,16 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	assert "CLS" not in columns, "the lowest-priority column survived"
 	# W73 freed the six cells `St` used, so more of the interesting
 	# columns survive this width than before; the property is unchanged.
-	assert {"ROUTE", "HANDLER", "NEXT", "NEW"} <= set(columns)
+	# W35 split the old `Route` column into ENDPOINT (the stable
+	# team.kind address) and VIA (the selected route). The property is
+	# unchanged: the interesting columns survive this width.
+	# W93's Agent column is conditional on the window holding claimed
+	# Work, exactly as Out is conditional on it holding terminal Work,
+	# so the unclaimed default omits it. The property is unchanged:
+	# identities survive and whole columns are dropped.
+	assert {"ENDPOINT", "HANDLER", "NEXT", "NEW"} <= set(columns)
+	assert "AGENT" in [name for name, _w in
+	                   app.visible_columns(narrow, claimed=True)]
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],
 	                                        columns=narrow, lines=24)
@@ -323,9 +343,16 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	# already implies.
 	assert any("Out" in line for line in revealed), \
 		"the Out column did not appear with the revealed closed row"
-	assert any("already done" in line and "sat" in line
-	           for line in revealed), \
+	# W35 added the Via column, so at this width the TITLE — the one
+	# column the layout is allowed to truncate — absorbs the cost and
+	# `already done` no longer appears whole. The property this test is
+	# about is unchanged and is asserted on the cell that carries it:
+	# the revealed row shows the canonical compact outcome, and the
+	# collapse note is gone.
+	assert any("sat" in line for line in revealed), \
 		"the revealed closed row does not show the canonical outcome"
+	assert not any("closed hidden" in line for line in revealed), \
+		"the collapse note survived the reveal"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 	# The focused view: contract revision on the open work; outcome and
@@ -802,11 +829,14 @@ def test_the_category_header_reads_cat_when_present(world):
 	unchanged). At full width the header carries it; the narrow-width
 	story above proves it disappears WHOLE when the column is omitted."""
 	path, _cast = world
+	# W93 raised MIN_TITLE, so `Cat` yields at 110 now. The ruling this
+	# test holds is the LABEL, not the width at which the column
+	# survives, so it is read at a width that carries it.
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],
-	                                        columns=110, lines=24)
+	                                        columns=140, lines=24)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	screen = ptyharness.replay(text, columns=110, lines=24)
+	screen = ptyharness.replay(text, columns=140, lines=24)
 	header = next(line for line in screen if "Title" in line)
 	assert "Cat" in header, "the ruled Cat label is missing"
 	assert "Cls" not in header, "the superseded Cls label survived"
@@ -827,13 +857,21 @@ def test_a_confirmed_defect_renders_defct_on_the_real_console(world):
 	                       classification="confirmed-defect",
 	                       author="ada", body="b")["work_id"]
 	store.close()
+	# W93 raised MIN_TITLE, so `Cat` yields at 110. This test is about
+	# the compact LABEL, so it reads a width that carries the column.
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],
-	                                        columns=110, lines=24)
+	                                        columns=140, lines=24)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	screen = ptyharness.replay(text, columns=110, lines=24)
-	row = next(line for line in screen if "a confirmed one" in line)
+	screen = ptyharness.replay(text, columns=140, lines=24)
+	# The Title is truncated at this width (W35/W93 each took cells for
+	# an identity column), so the row is located by its Id — which is
+	# identity and is never cut — and the Cat cell is what this test is
+	# actually about.
+	local = work.rsplit("-", 1)[1]
+	row = next(line for line in screen if line.startswith(f"{local} "))
 	assert "defct" in row, row
+	assert "Cat" in next(line for line in screen if "Title" in line)
 	assert "cnfrm" not in row
 	from baton_work.tui.app import compact_classification
 	assert compact_classification("confirmed-defect") == "defct"

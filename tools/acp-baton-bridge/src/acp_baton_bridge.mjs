@@ -27,6 +27,8 @@ import {
 	preflightSessionSelection,
 } from "./acp_agent_session.mjs";
 import { readRoleInstructions } from "../../codex-event-bridge/src/role_instructions.mjs";
+import { classifyFailure, makeRuntimePublisher }
+	from "../../codex-event-bridge/src/runtime_publisher.mjs";
 
 function usage() {
 	return `usage: acp-baton-bridge --config PATH [options]
@@ -69,6 +71,15 @@ export async function runBridge(config, {
 	onUpdate,
 	revalidate,
 	loadInstructions = readRoleInstructions,
+	// W93 slice 4: the runtime lease publisher. Injectable so tests pin
+	// the exact transitions and argv, and defaulted so a deployment gets
+	// it without configuration.
+	runtime = makeRuntimePublisher(config.baton, {
+		adapter: "acp",
+		provider: config.runtime?.provider,
+		model: config.runtime?.model,
+		actionOwner: config.runtime?.actionOwner,
+		logger, signal }),
 } = {}) {
 	// W101: resolve the accepted role before session selection or process use.
 	// Missing and ambiguous configuration is a launch refusal, never a prompt
@@ -97,6 +108,23 @@ export async function runBridge(config, {
 	// state are launch mistakes no retry can repair, so they surface
 	// immediately instead of idling as a healthy-looking loop.
 	preflightSessionSelection(config, runSelection);
+
+	// W93: the lease opens BEFORE the first wait, so a runner that
+	// starts and then sits idle is visibly present rather than
+	// indistinguishable from one that never started. It closes in the
+	// `finally` below, so an operator shutdown says goodbye instead of
+	// leaving the lease to expire into `unknown`.
+	await runtime.start();
+	// W93 R17: publish what this bridge actually KNOWS, without
+	// inference — its own process identity, the working directory the
+	// deployment configured, the readiness path it polls, and the
+	// session policy's root. Anything it cannot observe stays absent
+	// rather than guessed, and none of it costs a provider call.
+	await runtime.facts({
+		service: `acp-baton-bridge pid ${process.pid}`,
+		workdir: config.agent.cwd,
+		readiness: config.baton.config,
+	}, { source: "configured" });
 
 	const memory = new DeliveryMemory();
 	// W5: reported once per unknown kind, not once per poll — see the
@@ -148,8 +176,31 @@ export async function runBridge(config, {
 			if (signal.aborted || error.name === "AbortError") break;
 			logger.warn(`v11 wait failed: ${error.message}; retrying in `
 				+ `${config.retryMs}ms`);
+			// An explicit transition, not a derivation: the adapter
+			// OBSERVED the readiness call fail and is about to retry.
+			// R8/R10: the message classifies the failure and is then
+			// discarded — a readiness error can carry a URL with
+			// credentials, and truncating it bounds the leak rather
+			// than preventing it.
+			await runtime.state("retrying", classifyFailure(error));
 			await delay(config.retryMs, signal);
 			continue;
+		}
+		// W93 R18: the level-triggered refresh signal. The adapter
+		// answers it from facts it is already holding — no model turn,
+		// no provider call — and the request clears when the
+		// publication lands. A lost delivery simply reappears on the
+		// next poll, which is what level-triggered means.
+		for (const action of envelope.result.actionable) {
+			if (action.kind !== "runtime_refresh") continue;
+			await runtime.facts({
+				service: `acp-baton-bridge pid ${process.pid}`,
+				workdir: config.agent.cwd,
+				readiness: config.baton.config,
+			}, { source: "configured",
+			     // R25: answer the exact generation asked. Two
+			     // requests inside one second are two questions.
+			     answers: action.generation });
 		}
 		for (const entry of envelope.result.ignored_actions) {
 			if (reportedUnknown.has(entry.kind)) continue;
@@ -159,6 +210,9 @@ export async function runBridge(config, {
 				+ `${entry.action_key}); ignoring those entries and `
 				+ `delivering the rest of the envelope`);
 		}
+		// A refresh is not work to forward: it never reaches the agent.
+		envelope.result.actionable = envelope.result.actionable.filter(
+			(action) => action.kind !== "runtime_refresh");
 		const fresh = memory.sync(envelope);
 		let deliveredNow = 0;
 		let failed = false;
@@ -178,8 +232,20 @@ export async function runBridge(config, {
 					continue;
 				}
 				const live = await ensureSession();
+				// The turn is starting, and this is the one moment the
+				// bridge knows WHICH assignment episode the runner is
+				// about to serve. Correlation only — the Work table
+				// still decides who holds the claim.
+				await runtime.state("working", {
+					work: action.work, episode: action.episode_seq,
+					session: live.sessionId ?? undefined });
 				await live.promptText(promptText(envelope, action,
 				                              role.instructions));
+				// The turn returned. `idle` is the honest state for a
+				// runner between turns; silence past the lease deadline
+				// is what becomes `unknown`, and only the authority
+				// derives that.
+				await runtime.state("idle");
 				memory.markDelivered(envelope, action);
 				deliveredNow += 1;
 				deliveredTotal += 1;
@@ -192,7 +258,19 @@ export async function runBridge(config, {
 				// bootstrap's session is already abandoned; looping
 				// would spawn agent after agent against a selection
 				// that belongs to the winner.
-				if (error instanceof SessionStateError) throw error;
+				if (error instanceof SessionStateError) {
+					await runtime.state("failed", { cause: "internal",
+						detail: "the configured ACP session selection "
+							+ "is unusable" });
+					throw error;
+				}
+				// A turn that could not be delivered is a FAILED turn,
+				// reported as what it is. R10: an operator cannot act on
+				// "transport" when the truth is an expired credential or
+				// a spent quota, so the failure is CLASSIFIED — and the
+				// upstream message is read to classify and then
+				// discarded, never persisted.
+				await runtime.state("failed", classifyDelivery(error));
 				// The key stays undelivered; readiness is never
 				// discarded by a failed turn, exit, or policy failure.
 				failed = true;
@@ -214,8 +292,31 @@ export async function runBridge(config, {
 	} finally {
 		signal.removeEventListener("abort", onAbort);
 		if (session) await session.stop();
+		// The explicit goodbye. An operator reading Teams sees a runner
+		// that exited, which is a different fact from one that stopped
+		// answering — and the authority keeps those apart by provenance
+		// exactly because the operator's next move differs.
+		// R10: a clean exit carries NO cause — a runner that exited
+		// cleanly did not fail, and `internal` is reserved for an
+		// observed internal failure.
+		await runtime.end({ detail: "acp bridge exited" });
 	}
 	return 0;
+}
+
+// The ACP permission boundary is a POLICY failure by ruling, and it is
+// the one thing a bridge can observe that an operator must act on: the
+// configured mode was supposed to make the request impossible. It maps
+// to `approval` so an Inbox row can group it; everything else is
+// classified by the shared helper, which reads the upstream message and
+// then discards it.
+function classifyDelivery(error) {
+	if (/permission request/i.test(error?.message ?? "")) {
+		return { cause: "approval",
+			detail: "the agent asked for a permission the configured "
+				+ "mode was supposed to make impossible" };
+	}
+	return classifyFailure(error);
 }
 
 export async function runAcpBatonBridge(argv = process.argv.slice(2)) {

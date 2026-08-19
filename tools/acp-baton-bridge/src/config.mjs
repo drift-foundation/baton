@@ -109,7 +109,45 @@ export function validateConfig(raw) {
 		fail("setupTimeoutMs must be a positive integer");
 	}
 
+	// W93 R9: the runtime IDENTITY metadata. Teams cannot tell a Claude
+	// runner from a Gemini one when every ACP lease publishes adapter
+	// `acp` and nothing else — and neither may be inferred from a
+	// participant name or an executable path, which is exactly how a
+	// roster starts lying. It is optional, validated, and carried
+	// through verbatim.
+	//
+	// `actionOwner` is the participant who owes this runner's
+	// interactive answers. The authority already accepts it; without it
+	// here, a `waiting-input` state can never become the ruled
+	// actionable Inbox entry. No owner is ever guessed.
+	let runtime = { provider: undefined, model: undefined,
+		actionOwner: undefined };
+	if (raw.runtime !== undefined) {
+		const source = raw.runtime;
+		if (typeof source !== "object" || source === null
+				|| Array.isArray(source)) {
+			fail("runtime must be an object");
+		}
+		for (const key of Object.keys(source)) {
+			if (!["provider", "model", "actionOwner"].includes(key)) {
+				fail(`runtime.${key} is not a runtime metadata field`);
+			}
+		}
+		for (const key of ["provider", "model", "actionOwner"]) {
+			if (source[key] === undefined) continue;
+			if (typeof source[key] !== "string" || !source[key].trim()) {
+				fail(`runtime.${key} must be a non-empty string`);
+			}
+			runtime[key] = source[key];
+		}
+		if (runtime.actionOwner !== undefined
+				&& !/^[^.\s]+\.[^.\s]+$/.test(runtime.actionOwner)) {
+			fail("runtime.actionOwner must be team.member");
+		}
+	}
+
 	return {
+		runtime,
 		baton: {
 			binary: baton.binary,
 			config: baton.config,

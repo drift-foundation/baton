@@ -254,20 +254,26 @@ def test_the_tui_renders_pr_and_drops_it_first(world):
 
 	console = Console(world["store"], "lang", "ada",
 	                  config_path=world["config"])
-	console._render_table(Screen(), 24, 110, console.rows())
+	# W93 raised MIN_TITLE, so `Pr` — the first column ruled to yield —
+	# now yields at 110. This test is about the column RENDERING and the
+	# drop ORDER, so it renders at a width that still carries it; the
+	# drop-order assertions below are unchanged.
+	console._render_table(Screen(), 24, 130, console.rows())
 	header = next(text for text in painted if "Title" in text)
 	assert " Pr " in header, header
 	row = next(text for text in painted if "ranked" in text)
 	assert " Hi " in row, row
-	# the first width that drops anything drops exactly PR
-	wide = [name for name, _w in visible_columns(110)]
+	# the first width that drops anything drops exactly PR. W93 raised
+	# MIN_TITLE, so that width is now above 110 — the ORDER is what this
+	# asserts, and it is unchanged.
+	wide = [name for name, _w in visible_columns(130)]
 	assert "PR" in wide
 	# W73: COLUMNS now carries the conditional Out entry, which an
 	# open-only view never draws — so the baseline is what this view
 	# actually shows when nothing is under pressure, not the whole set.
-	full = len(visible_columns(110))
+	full = len(visible_columns(130))
 	assert full < len(COLUMNS), "Out is not conditional after all"
-	narrower = next(width for width in range(110, 40, -1)
+	narrower = next(width for width in range(130, 40, -1)
 	                if len(visible_columns(width)) < full)
 	dropped = [name for name, _w in visible_columns(narrower)]
 	assert "PR" not in dropped and "CLS" in dropped, \

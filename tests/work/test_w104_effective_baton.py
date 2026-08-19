@@ -82,6 +82,27 @@ def test_the_guide_pins_the_claim_before_execute_rule():
 	assert "fail closed" in body or "fails closed" in body
 
 
+def test_the_basic_command_quick_reference_is_complete_and_v11_only():
+	body = _text()
+	start = body.index("## Basic command quick reference")
+	end = body.index("## The straight-through path", start)
+	quick = body[start:end]
+	flat = " ".join(quick.split())
+
+	for form in ("$BATON home", "$BATON detail work=", "$BATON create ",
+	             "$BATON claim work=", "$BATON say thread=",
+	             "request=app.rview on=", "$BATON pass work=",
+	             "$BATON close work=", "$BATON release work="):
+		assert form in quick, f"quick reference omits {form!r}"
+	for disposition in ("`respond`", "`dispose`", "`accept`"):
+		assert disposition in quick
+	assert "Protocol 11 uses `say`, not retired `send`" in quick
+	assert not re.search(r"\$BATON\s+send\b", quick)
+	assert "`pass` is a threadless Work handoff, not a message" in flat
+	assert "#cross-team-work-providers-and-consumers" in quick
+	assert "baton --help\n" in quick and "baton --help VERB" in quick
+
+
 def test_the_guide_states_both_halves_of_the_readiness_contract():
 	"""Same defect W103 R3 found in the agent policy: a runner that only
 	looks for unclaimed Work walks past its own restarted assignment."""

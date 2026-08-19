@@ -158,7 +158,7 @@ def test_actionable_projection_is_one_database_snapshot(world, monkeypatch):
 	original = pj._endpoint_struct
 	interleaved = False
 
-	def close_between_queries(reader, team, kind):
+	def close_between_queries(reader, team, kind, selected=None):
 		nonlocal interleaved
 		if not interleaved:
 			interleaved = True
@@ -167,7 +167,7 @@ def test_actionable_projection_is_one_database_snapshot(world, monkeypatch):
 				tr.close_work(writer, work, actor_team="lang", actor="ada",
 				              rationale="interleaving proof",
 				              outcome="satisfying")
-		return original(reader, team, kind)
+		return original(reader, team, kind, selected)
 
 	monkeypatch.setattr(pj, "_endpoint_struct", close_between_queries)
 	flavors = [entry["flavor"] for entry in
@@ -815,7 +815,7 @@ def test_obligations_envelope_token_names_its_snapshot(world, monkeypatch):
 	original = pj._endpoint_struct
 	interleaved = False
 
-	def close_between_queries(reader, team, kind):
+	def close_between_queries(reader, team, kind, selected=None):
 		nonlocal interleaved
 		if not interleaved:
 			interleaved = True
@@ -824,7 +824,7 @@ def test_obligations_envelope_token_names_its_snapshot(world, monkeypatch):
 				tr.close_work(writer, work, actor_team="lang",
 				              actor="ada", rationale="interleaved",
 				              outcome="satisfying")
-		return original(reader, team, kind)
+		return original(reader, team, kind, selected)
 
 	monkeypatch.setattr(pj, "_endpoint_struct", close_between_queries)
 	rows = pj.obligations(store, viewer_team="lang", now=T0)

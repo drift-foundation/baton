@@ -585,7 +585,39 @@ def test_checked_in_example_manifest_matches_the_controller_schema(tmp_path):
 	assert payload["healthy"] is False
 	assert [row["name"] for row in payload["services"]] == [
 		"codex-app-server", "codex-dispatcher", "codex-readiness",
-		"claude-acp"]
+		"codex-tuner-readiness", "claude-acp"]
+
+
+def test_example_owns_one_isolated_readiness_path_per_codex_participant(
+		tmp_path):
+	example = os.path.join(REPO, "conf", "infra.example.json")
+	document = json.loads(open(example, encoding="utf-8").read())
+	services = {service["name"]: service for service in document["services"]}
+	reviewer = services["codex-readiness"]
+	tuner = services["codex-tuner-readiness"]
+
+	def argument(service, option):
+		index = service["command"].index(option)
+		return service["command"][index + 1]
+
+	assert reviewer["participant"] == argument(reviewer, "--participant") \
+		== "baton.codex"
+	assert tuner["participant"] == argument(tuner, "--participant") \
+		== "baton.tuner"
+	assert argument(reviewer, "--target") == "baton-reviewer"
+	assert argument(tuner, "--target") == "baton-tuner"
+	assert argument(reviewer, "--socket") == argument(tuner, "--socket")
+	assert reviewer["after"] == tuner["after"] == ["codex-dispatcher"]
+
+	mailbox = tmp_path / "mailbox"
+	mailbox.mkdir(mode=0o700)
+	tuner["participant"] = "baton.codex"
+	(mailbox / "infra.json").write_text(
+		json.dumps(document), encoding="utf-8")
+	refused = _run("status", mailbox)
+	assert refused.returncode == 2
+	assert "participant baton.codex is assigned more than once" in \
+		_json(refused)["error"]
 
 
 # -- the log-containment boundary, beyond the one reviewed case -------------

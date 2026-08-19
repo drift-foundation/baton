@@ -102,7 +102,7 @@ def test_unfold_re_roots_and_esc_returns(world):
 		f"the re-rooted breadcrumb is wrong: {rooted[0]!r}"
 	assert any("↳ the grandchild" in line for line in rooted)
 	back = ptyharness.replay(steps[2])
-	assert back[0].startswith("lang.ada"), "Esc did not return upward"
+	assert back[0].startswith("[Jobs]"), "Esc did not return upward"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -120,7 +120,7 @@ def test_unfolding_the_current_root_is_idempotent(world):
 	assert "the root > the root" not in twice[0], \
 		f"the re-root stack duplicated its current Work: {twice[0]!r}"
 	back = ptyharness.replay(steps[2])
-	assert back[0].startswith("lang.ada") and " > " not in back[0], \
+	assert back[0].startswith("[Jobs]") and " > " not in back[0], \
 		f"one Esc did not return from one logical unfold: {back[0]!r}"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 

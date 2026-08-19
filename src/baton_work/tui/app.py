@@ -7,7 +7,10 @@ selected Work and a persistent breadcrumb names that path; Enter opens the
 focused Work's detail rather than drilling a level; `o` opens the focused Work view (facts, trials, and the selectable
 thread set); Enter there opens one thread's paged thread — never
 several merged into a false timeline. `b` shows blocking/dependent neighbors
-with stable ids and drills through on Enter. Column priorities, sorting and
+with stable ids and drills through on Enter. `p` shows the conversational
+pokes this participant is part of, which are addressed to a PARTICIPANT and
+not to Work — so that view hangs off the identity in the header rather than
+off any row (W17). Column priorities, sorting and
 keys are prototype-grade by ruling and carry no semantics of their own.
 
 EVERY VALUE ON SCREEN comes from the projection. The renderer never computes
@@ -45,6 +48,14 @@ from baton_work import transitions
 # separate questions — who MAY claim, and who IS executing. The single
 # old Current column showed the endpoint, so a routed handoff nobody had
 # picked up looked staffed. W38 renamed the claimant to HANDLER.
+# W35 (finding-tui-endpoint-via-columns): that eligibility half is TWO
+# facts, and one column labelled `Route` was showing the wrong one. The
+# cell rendered the ENDPOINT — the stable `team.kind` address — while
+# the label promised the route. Before W230 that was terminology; with
+# alternates it is operationally misleading, because `baton.impl` is the
+# same address whether the Work is offered through `impl` to Claude or
+# `impl2` to Gemini. Endpoint and Via are now separate columns, and Via
+# carries the selected route that actually decides claim eligibility.
 # W73 (finding-hide-redundant-work-state): `St` is GONE from the default
 # table. The normal list hides terminal Work, so every visible row read
 # `open` — six cells repeating an invariant of the view instead of
@@ -52,8 +63,8 @@ from baton_work import transitions
 # Work can be seen, and carries the outcome rather than the word the
 # view already implies.
 COLUMNS = (("OUT", 5), ("PR", 2), ("PHASE", 6), ("CLS", 5),
-           ("MSG/MY", 7), ("ROUTE", 13), ("HANDLER", 13), ("NEXT", 13),
-           ("NEW", 4), ("HELD", 6))
+           ("MSG/MY", 7), ("ENDPOINT", 13), ("VIA", 6), ("HANDLER", 13),
+           ("AGENT", 5), ("NEXT", 13), ("NEW", 4), ("HELD", 6))
 
 # Header LABELS where plain capitalize() would miscase a compound name —
 # plus the ruled `Cat` display label for the classification column
@@ -68,14 +79,38 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat", "OUT": "Out"}
 # with an explicit too-narrow line instead of truncating identities.
 # W3 (ruled): Pr is the FIRST whole column omitted under width
 # pressure, preserving every previously existing narrow layout.
-# W245: NEXT then ROUTE go before CURRENT — under width pressure the
-# question that survives longest is who is actually executing.
+# W245: NEXT then the eligibility columns go before HANDLER — under
+# width pressure the question that survives longest is who is actually
+# executing. W35: VIA drops before ENDPOINT, because a bare route handle
+# without its address is the more ambiguous of the two halves.
 # W73: `Out` is last, so it survives longest. It is present only
 # because the operator asked to see terminal Work, and dropping the one
 # column that answers that question would leave the reveal pointless —
 # whereas Route and Next are least interesting on a closed row.
-DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "ROUTE",
-              "OUT")
+# W93 slice 5: AGENT sits beside HANDLER by value and drops just before
+# it. The two answer adjacent questions — who is executing, and what
+# their runner is doing — and the second is worthless without the first.
+DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "VIA",
+              "ENDPOINT", "AGENT", "OUT")
+# W93 slice 5 measured this and deliberately LEFT IT ALONE. Three Works
+# have now added identity columns here — W35's Endpoint and Via, and
+# this slice's Agent — and the Title is the one column the layout may
+# truncate, so it has absorbed all of it: at the common 110 columns a
+# title is about fourteen cells, where it was roughly twenty-four
+# before W35.
+#
+# Raising this floor is the lever the layout already provides, and it
+# does not work, because the same constant also sets the width below
+# which the table REFUSES to draw. At 20 the 110-column title is healthy
+# again and a 40-column terminal loses its table entirely ("need 43
+# cells"); at 14 the narrow terminal survives and the wide one is back
+# where it started. The two ends are in direct tension and no value
+# satisfies both.
+#
+# That makes it a presentation ruling rather than an implementer's
+# choice, and it is written up in the dossier with the measurements.
+# Until it is ruled, the constant stays where W3 put it and row-location
+# assertions anchor on the Id, which is identity and is never truncated.
 MIN_TITLE = 10
 
 # W26: the command-history bound. Session-local presentation state, so
@@ -91,6 +126,39 @@ DISC_PAGE = 10
 # single-pane — the split never squeezes the Work table into
 # uselessness on a short terminal.
 MIN_SPLIT_HEIGHT = 14
+
+# W17 (finding-tui-poke-visibility): the bounded window of poke HISTORY
+# the view keeps, and the page size it reads to reach it.
+#
+# W17 review 2026-08-19 (R1): `pokes` pages in canonical ASCENDING
+# sequence, so reading one page from `after=0` returns the OLDEST rows.
+# Sorting that page backwards is not the newest window — it hid the most
+# recent answers and then said the oldest had been omitted, which was the
+# opposite of what happened. The console now reads FORWARD to the end and
+# keeps the tail, which is the newest window in fact rather than by
+# assumption. `POKE_FETCH` is deliberately larger than the kept window:
+# the walk's cost is the number of PAGES, and only while this view is
+# open — the rest of the console never reads this projection at all.
+#
+# The OWED set never comes from this window either way. It is the
+# participant projection's complete pending set, the same one the header
+# counts and `wait` consumes, so no bound here can hide an unanswered
+# question. The view states exactly how many older rows it left out.
+POKE_PAGE = 100
+POKE_FETCH = 500
+
+# W25 (finding-tui-jobs-teams-inbox): the three top-level tabs, in the
+# ruled order. Jobs is the Work tree and everything that hangs off it,
+# Teams is the operational roster, Inbox is what this participant owes
+# and has not seen. The order is the header's order and the `[`/`]`
+# cycle's order, from one list, so they cannot disagree.
+TABS = ("jobs", "teams", "inbox")
+
+# The gap between painted tab labels. One constant because the header is
+# drawn label by label — only Inbox carries the urgency weight — while
+# `top_tabs()` joins the same labels into one string; two spellings of
+# this spacing would put the text and the paint out of step.
+TAB_GAP = "  "
 
 
 def assist_text(buffer: str) -> str:
@@ -199,7 +267,7 @@ def actionable_work(row: dict, viewer_team: str,
 
 
 def visible_columns(width: int, id_width: int = 0,
-                    terminal: bool = False):
+                    terminal: bool = False, claimed: bool = False):
 	"""The column set that fits `width`, dropping DROP_ORDER members until
 	the title keeps MIN_TITLE cells. Shared with the parity suite so the
 	two surfaces can never disagree about the layout. `id_width` is the
@@ -211,10 +279,20 @@ def visible_columns(width: int, id_width: int = 0,
 	VIEW's question, not "does a closed row happen to be on screen right
 	now": deriving it from the rows would make the column appear and
 	vanish as ordinary work closed underneath the operator, and a table
-	whose columns move on their own is harder to read than one dash."""
+	whose columns move on their own is harder to read than one dash.
+
+	W93 applies the same rule to `Agent`, for the reason W73 removed
+	`St`: a column that reads `-` on every row is six cells repeating a
+	property of the VIEW rather than telling two rows apart. Agent
+	describes the HANDLER's runner, so a window in which nothing is
+	claimed has no runner to describe — and the cells it would cost come
+	straight out of the Title, which is the only column the layout may
+	truncate. `claimed` is the view's question, exactly as `terminal`
+	is: does this window contain claimed Work at all."""
 	lead = id_width + 1 if id_width else 0
 	columns = [entry for entry in COLUMNS
-	           if terminal or entry[0] != "OUT"]
+	           if (terminal or entry[0] != "OUT")
+	           and (claimed or entry[0] != "AGENT")]
 	for name in DROP_ORDER:
 		fixed = sum(w for _n, w in columns) + len(columns)
 		if width - fixed - lead - 1 >= MIN_TITLE:
@@ -497,6 +575,28 @@ PHASE_COMPACT = {"queued": "queue", "block": "block",
 PRIORITY_COMPACT = {"high": "Hi", "normal": "No", "low": "Lo"}
 
 
+# W93 slice 5: the compact runtime labels. Five cells, because the
+# canonical vocabulary is longer than any Work column can carry and an
+# operator scanning a table needs the distinction, not the spelling.
+# `unkn` is a DERIVED state and reads differently from `-`, which means
+# nobody holds the Work at all.
+AGENT_LABELS = {"idle": "idle", "working": "work",
+                "waiting-input": "input", "retrying": "retry",
+                "failed": "fail", "offline": "off", "unknown": "unkn"}
+
+
+def agent_cell(agent) -> str:
+	"""The Agent cell for one Work row.
+
+	`-` when the Work is UNCLAIMED: there is no runner to describe,
+	which is a different fact from a runner nobody can see. A claimed
+	Work whose handler has published nothing reads `off` or `unkn`,
+	exactly as the authority derived it."""
+	if not agent:
+		return "-"
+	return AGENT_LABELS.get(agent.get("state"), str(agent.get("state")))
+
+
 def compact_priority(value: str) -> str:
 	if value not in PRIORITY_COMPACT:
 		raise ValueError(f"priority {value!r} has no ruled compact "
@@ -601,6 +701,30 @@ def _completion_command(verb: str, owed: dict) -> str:
 	return " ".join(parts)
 
 
+def _local_selector(identity) -> str:
+	"""The local half of a canonical id — `W3`, `T12` — which is what an
+	operator types and what every other column already shows. The full
+	id stays in JSON; abbreviating it on screen is presentation, and
+	presentation is the only thing that ever does it."""
+	return "-" if not identity else str(identity).rsplit("-", 1)[-1]
+
+
+def poke_answer_states() -> tuple[str, ...]:
+	"""W17: the accepted `poke-answer state=` vocabulary, asked of the
+	ONE declarative grammar rather than restated here.
+
+	The console offers these as a chooser because `state=` is closed and
+	an operator cannot be expected to guess a closed vocabulary. A second
+	copy of it in this module would drift, and a drifted copy either
+	offers a state the authority refuses or hides one it accepts —
+	both worse than not offering the chooser at all."""
+	from baton_work.cli import GRAMMAR
+	for entry in GRAMMAR["poke-answer"]["keys"]:
+		if entry["name"] == "state":
+			return tuple(entry["values"] or ())
+	return ()
+
+
 def format_message(message: dict, width: int) -> list[str]:
 	"""W8: one message as a compact borderless BLOCK — a bold metadata
 	header (#seq author ts, with the viewer's personal new marker), the
@@ -649,6 +773,7 @@ class Console:
 		self.store = store
 		self.team = viewer_team
 		self.member = viewer_member
+		self.participant = f"{viewer_team}.{viewer_member}"
 		self.config_path = config_path
 		self.path: list[str] = []        # drilled Work ids, root-first
 		self.cursor = 0
@@ -771,6 +896,27 @@ class Console:
 		self.seeded_say: str | None = None
 		# W9: the one-row exit confirmation — q asks, y answers.
 		self.confirm_exit = False
+		# W17: the poke view's own selection, anchored on the poke's
+		# stable sequence so a background refresh cannot move the
+		# operator onto a different question. `poke_choice` holds the
+		# poke seq whose answer is waiting for its one state key, and
+		# is the only modal state this view keeps.
+		self.poke_cursor = 0
+		self.poke_seq: int | None = None
+		self.poke_choice: int | None = None
+		# W25: the three top-level tabs and each one's own selection.
+		# Every anchor is a CANONICAL identity — an action key, a
+		# selector, a participant address — never a row index, so a
+		# background refresh cannot move the operator onto a different
+		# row merely because the list changed underneath them.
+		self.tab = "jobs"
+		self.inbox_cursor = 0
+		self.inbox_key: str | None = None
+		self.team_cursor = 0
+		self.team_member: str | None = None
+		# Ruled default: the viewer's own team, with deliberate
+		# navigation into every configured team behind one key.
+		self.teams_own_only = True
 		# W19: the `::` batch buffer — a list of staged line entries
 		# ({text, state, note, op_id}), or None when closed. Pure view
 		# state until Ctrl-G; states are None (staged), "completed",
@@ -963,47 +1109,220 @@ class Console:
 		self.disc_next = page["next_after"]
 		return page["rows"]
 
-	def breadcrumb_text(self, summary: dict) -> str:
-		# W136: the header's oblig/due are the VIEWER'S actionable
-		# counts — from the same participant projection wait consumes,
-		# never the whole team's load (parity holds them equal to the
-		# JSON facts). The parked count stays deliberately TEAM-wide
-		# and always visible (WS-1 ruling): parked work has no wake
-		# condition, so it stays in the operators' faces.
+	def owed_pokes(self) -> list[dict]:
+		"""The pokes THIS participant owes an answer — the canonical
+		pending set, taken from the same participant projection the
+		header counts and `wait` consumes rather than from a second
+		derivation of "still owed". Answered, cancelled, superseded and
+		timed-out pokes are absent here by construction: the projection
+		stops offering them, so presentation never has to decide it."""
 		mine = self._cached(
 			("participant_actions",),
 			lambda: projection.participant_actions(
 				self.store, viewer_team=self.team,
 				viewer_member=self.member))["actions"]
-		pending = sum(1 for action in mine
-		              if action["kind"] == "obligation")
-		due = sum(1 for action in mine
-		          if action["kind"] == "due_trial")
-		suffix = (f"  [oblig:{pending}] [park:{summary['parked']}]"
-		          f" [due:{due}]")
-		# W71: the DETAIL view identifies its Work with the real
-		# containment breadcrumb.
+		return [action for action in mine if action["kind"] == "poke"]
+
+	def _poke_window(self, side: str) -> dict:
+		"""The NEWEST bounded window of one poke narrowing, with the
+		counts needed to say honestly what it left out.
+
+		`pokes` pages ascending from a sequence cursor, so the newest
+		window is reached by walking FORWARD to the end and keeping the
+		tail — there is no backwards operand to ask for, and inventing
+		the answer by reversing the first page is exactly the defect
+		this replaces. Only the tail is retained, so the walk's memory
+		is the window and not the history.
+
+		`self` counts the pokes this participant sent to itself, which
+		are the only rows appearing in BOTH narrowings — the correction
+		that makes a merged total a count of distinct pokes rather than
+		a double count."""
+		me = f"{self.team}.{self.member}"
+		narrow = {"target": me} if side == "target" else {"asker": me}
+		rows: list[dict] = []
+		total = mutual = after = 0
+		while True:
+			page = projection.pokes(
+				self.store, viewer_team=self.team,
+				viewer_member=self.member, after=after,
+				limit=POKE_FETCH, **narrow)["pokes"]
+			total += len(page)
+			mutual += sum(1 for entry in page
+			              if entry["asker"] == entry["target"] == me)
+			rows = (rows + list(page))[-POKE_PAGE:]
+			if len(page) < POKE_FETCH:
+				break
+			after = page[-1]["poke"]
+		return {"rows": rows, "total": total, "mutual": mutual}
+
+	def poke_rows(self) -> tuple[list[dict], int]:
+		"""(rows, older not shown) — every poke this participant is part
+		of: the ones asked OF them, which they answer, and the ones they
+		asked, which they may withdraw.
+
+		Owed pokes sort first and the rest follow newest-first, so the
+		question waiting on the operator is the one under the cursor
+		when the view opens. `owed` is the canonical pending set above,
+		which is complete and separately derived; everything else is the
+		newest bounded history window, and the count returned beside it
+		is exactly how many distinct older pokes it omitted."""
+		me = f"{self.team}.{self.member}"
+		asked_of_me = self._cached(("pokes", "target"),
+		                           lambda: self._poke_window("target"))
+		asked_by_me = self._cached(("pokes", "asker"),
+		                           lambda: self._poke_window("asker"))
+		merged: dict = {}
+		for entry in asked_of_me["rows"] + asked_by_me["rows"]:
+			merged[entry["poke"]] = dict(entry)
+		for action in self.owed_pokes():
+			# A poke older than the history window is still owed, and
+			# owed is the fact this view exists for — so the action
+			# supplies the row rather than it being dropped for falling
+			# off a page.
+			row = merged.setdefault(action["poke"], {
+				"poke": action["poke"], "asker": action["asker"],
+				"target": me, "request": action["request"],
+				"asked_at": action["asked_at"],
+				"expires_at": action["expires_at"],
+				"state": "pending", "answer": None})
+			row["owed"] = True
+		rows = []
+		for entry in sorted(merged.values(), key=lambda row: -row["poke"]):
+			entry.setdefault("owed", False)
+			entry["mine"] = entry["asker"] == me
+			rows.append(entry)
+		rows.sort(key=lambda row: not row["owed"])
+		distinct = (asked_of_me["total"] + asked_by_me["total"]
+		            - asked_of_me["mutual"])
+		return rows, max(0, distinct - len(rows))
+
+	def _poke_selected(self) -> dict | None:
+		rows, _older = self.poke_rows()
+		if not rows:
+			return None
+		for index, row in enumerate(rows):
+			if row["poke"] == self.poke_seq:
+				self.poke_cursor = index
+				return row
+		self.poke_cursor = min(self.poke_cursor, len(rows) - 1)
+		chosen = rows[self.poke_cursor]
+		self.poke_seq = chosen["poke"]
+		return chosen
+
+	def inbox_view(self) -> dict:
+		"""The participant's Inbox, through the ONE cached read path —
+		the tab label, the bold rule and the rows are all the same
+		canonical answer, so the count can never advertise a row the
+		list does not hold."""
+		return self._cached(("inbox",), lambda: projection.inbox(
+			self.store, viewer_team=self.team,
+			viewer_member=self.member))
+
+	def breadcrumb_text(self, summary: dict) -> str:
+		"""The Jobs location trail. W25 moved the identity and the
+		counters out of this string: identity is right-aligned by the
+		header painter and the old `[oblig] [park] [due]` counters are
+		gone, because Inbox owns owed action and Jobs owns parked Work.
+		What is left is what the name always promised — where in the
+		containment tree the operator is."""
 		if self.mode == "detail" and self.detail_work is not None:
 			trail = self._cached(("breadcrumb", self.detail_work),
 			                     lambda: projection.breadcrumb(
 				self.store, self.detail_work))
-			return " > ".join(entry["title"]
-			                  for entry in trail) + suffix
+			return " > ".join(entry["title"] for entry in trail)
 		if not self.path:
-			# W74: the root view has no breadcrumb, so the location is
-			# already unambiguous — identity plus the live summary only,
-			# no redundant prose.
-			return f"{self.team}.{self.member}{suffix}"
+			# W74: the root view has no breadcrumb — the tab bar already
+			# says where the operator is, so prose here would be noise.
+			return ""
 		trail = self._cached(("breadcrumb", self.path[-1]),
 		                     lambda: projection.breadcrumb(
 			self.store, self.path[-1]))
-		return " > ".join(entry["title"] for entry in trail) + suffix
+		return " > ".join(entry["title"] for entry in trail)
+
+	def top_tab_segments(self) -> list[tuple[str, str]]:
+		"""`(tab name, drawn label)` in order.
+
+		The painter needs the PIECES, not the joined line: only the
+		Inbox label carries the urgency weight, so a single string would
+		force it to bold all three tabs or none. `top_tabs()` joins
+		exactly these pieces, so the text and the paint cannot disagree
+		about where a label starts."""
+		box = self.inbox_view()
+		out = []
+		for name in TABS:
+			label = name.title()
+			if name == "inbox":
+				label += f" {box['total']}/{box['unseen']}"
+			out.append((name, f"[{label}]" if name == self.tab
+			            else f" {label} "))
+		return out
+
+	def top_tabs(self) -> str:
+		"""`[Jobs]   Teams    Inbox 3/1` — the selected tab in brackets.
+
+		The brackets are the selection cue and they are TEXT: a terminal
+		that ignores bold still shows which tab Enter acts in. Inbox
+		carries `total/unseen` from the same read its rows come from."""
+		return TAB_GAP.join(label for _name, label
+		                    in self.top_tab_segments())
+
+	def _render_header(self, screen, width: int, summary) -> None:
+		"""Row 0: tabs first, then the Jobs trail, with the participant
+		identity right-aligned. Identity is drawn LAST and overdraws, so
+		no width can clip away who the operator is signed in as."""
+		box = self.inbox_view()
+		tabs = self.top_tabs()
+		# W25 review R1: the urgency weight belongs to the INBOX label
+		# alone. Bolding the whole bar told the operator that something
+		# was owed and then hid which tab held it — the one question the
+		# cue exists to answer. Each label is painted at its own column
+		# so exactly one of them can carry it; the joined string is the
+		# same pieces, so the selected-tab brackets and the widths are
+		# unchanged. Seen state still cannot quiet this: it follows
+		# `owed_action`, not `unseen`.
+		column = 0
+		for name, label in self.top_tab_segments():
+			if column >= width - 1:
+				break
+			urgent = name == "inbox" and box["owed_action"]
+			screen.addnstr(0, column, label, width - 1 - column,
+			               curses.A_BOLD if urgent else 0)
+			column += len(label) + len(TAB_GAP)
+		trail = self.breadcrumb_text(summary) if self.tab == "jobs" \
+			else ""
+		if trail:
+			screen.addnstr(0, min(len(tabs) + 2, max(0, width - 1)),
+			               trail, max(0, width - 1 - len(tabs) - 2),
+			               curses.A_BOLD)
+		if self.work_filter and self.tab == "jobs":
+			# W5 (ruled): active filtering is ALWAYS disclosed. It now
+			# shares the right edge with the identity, so it sits just
+			# left of it rather than under it.
+			tag = f"Filter:{len(self.work_filter)}"
+			at = width - 2 - len(tag) - len(self.participant)
+			screen.addnstr(0, max(0, at), tag, width - 1, curses.A_BOLD)
+		screen.addnstr(0, max(0, width - 1 - len(self.participant)),
+		               self.participant, width - 1, curses.A_BOLD)
 
 	# -- rendering ------------------------------------------------------------
 
 	def render(self, screen) -> None:
 		screen.erase()
 		height, width = screen.getmaxyx()
+		if self.tab != "jobs":
+			# W25: Teams and Inbox are whole tabs, not modes inside the
+			# Work tree. They share the header, the command bar and the
+			# status row — everything an operator's hands already know —
+			# and nothing else: neither reads a Work window, so neither
+			# pays for one.
+			self._render_header(screen, width, None)
+			if self.tab == "teams":
+				self._render_teams(screen, height, width)
+			else:
+				self._render_inbox(screen, height, width)
+			self._render_bar(screen, height, width)
+			return
 		if self.mode == "table":
 			# W336: the LIVE render path drains the countdown too — the
 			# window comes through rows() (the countdown/observation
@@ -1022,15 +1341,7 @@ class Console:
 				("summary",),
 				lambda: projection.team_summary(
 					self.store, viewer_team=self.team))
-		screen.addnstr(0, 0, self.breadcrumb_text(summary), width - 1,
-		               curses.A_BOLD)
-		if self.work_filter:
-			# W5 (ruled): active filtering is ALWAYS disclosed — the
-			# clause count overdraws RIGHT-aligned so no narrow width
-			# can clip it away.
-			tag = f"Filter:{len(self.work_filter)}"
-			screen.addnstr(0, max(0, width - 1 - len(tag)), tag,
-			               width - 1, curses.A_BOLD)
+		self._render_header(screen, width, summary)
 		if self.mode == "detail":
 			# W71 (ruled, superseding the main-screen split): the Work
 			# detail view — Threads above, the selected Thread's
@@ -1038,6 +1349,10 @@ class Console:
 			self._render_detail(screen, height, width)
 		elif self.mode == "links":
 			self._render_links(screen, height, width)
+		elif self.mode == "pokes":
+			# W17: the conversational pokes this participant is part of
+			# — the ones owed an answer, and the ones they asked.
+			self._render_pokes(screen, height, width)
 		elif self.mode == "search":
 			# W6: the flat result table — ordinary row facts, the
 			# closed-visibility rule, and a footer naming the result
@@ -1075,10 +1390,404 @@ class Console:
 				table_top = 2
 			self._render_table(screen, height, width, rows,
 			                   top=table_top)
+		self._render_bar(screen, height, width)
+
+	# -- W25: the Inbox tab ----------------------------------------------
+
+	def inbox_rows(self) -> list[dict]:
+		"""Owed rows first, then attention — the Inbox is read top-down
+		by somebody deciding what to do next, and the things they are
+		the blocker for are what that decision is about."""
+		rows = list(self.inbox_view()["rows"])
+		rows.sort(key=lambda row: not row["owed"])
+		return rows
+
+	def _inbox_selected(self) -> dict | None:
+		rows = self.inbox_rows()
+		if not rows:
+			return None
+		# The `is not None` guard is load-bearing: an attention row has
+		# no action key, so a null ANCHOR would match the first such row
+		# and silently move the operator's selection onto it.
+		if self.inbox_key is not None:
+			for index, row in enumerate(rows):
+				if self.inbox_key in (row["action_key"],
+				                      row["selector"]):
+					self.inbox_cursor = index
+					return row
+		self.inbox_cursor = min(self.inbox_cursor, len(rows) - 1)
+		chosen = rows[self.inbox_cursor]
+		self.inbox_key = chosen["action_key"] or chosen["selector"]
+		return chosen
+
+	@staticmethod
+	def _inbox_cells(row: dict) -> dict:
+		"""One Inbox row's cells. `Do` is the action in WORDS and `Type`
+		is what the row IS — W228's ruling that an actionable row must
+		be legible without colour or weight, applied to a surface whose
+		whole job is telling those two apart."""
+		return {
+			# W93 slice 5: a runtime row is `attend` — the runner is
+			# waiting on a HUMAN in its own session and Baton has no
+			# verb that answers it. Saying `read` would advertise an
+			# action the operator cannot take here.
+			"Do": ("answer" if row["kind"] == "poke" else
+			       "respond" if row["kind"] == "obligation" else
+			       "assess" if row["kind"] == "due_trial" else
+			       "attend" if row["kind"] == "runtime" else "read"),
+			"Type": row["kind"].replace("_", " "),
+			"Seen": "seen" if row["seen"] else "new",
+			"Context": (_local_selector(row["work"]) if row["work"]
+			            else "-"),
+			"What": " ".join(str(row["summary"] or "").split()),
+		}
+
+	def _render_inbox(self, screen, height, width) -> None:
+		"""What this participant owes and has not seen.
+
+		Every value is the canonical projection's. Opening the tab
+		neither answers anything nor marks anything seen: `s` is the
+		only thing that moves a seen cursor, and it runs the public
+		verb."""
+		box = self.inbox_view()
+		rows = self.inbox_rows()
+		note = (f"inbox — {box['owed']} owed · {box['unseen']} unseen "
+		        f"· {box['total']} total")
+		screen.addnstr(1, 0, note, width - 1, curses.A_DIM)
+		footer = height - 2
+		if not rows:
+			screen.addnstr(3, 0, "(nothing owed and nothing unseen)",
+			               width - 1)
+			screen.addnstr(footer, 0, "Tab switches tab", width - 1)
+			return
+		selected = self._inbox_selected()
+		cells = {row["selector"]: self._inbox_cells(row)
+		         for row in rows}
+		id_width = max(len(row["selector"]) for row in rows)
+		columns = []
+		for name, floor in (("Do", 2), ("Type", 4), ("Seen", 4),
+		                    ("Context", 7)):
+			columns.append((name, max(floor, max(
+				len(cells[row["selector"]][name]) for row in rows))))
+		used = id_width + sum(size + 1 for _name, size in columns)
+		columns.append(("What", max(8, width - 2 - used)))
+		header = "Id".ljust(id_width)
+		for name, size in columns:
+			header += " " + name.ljust(size)
+		screen.addnstr(2, 0, header[:width - 1], width - 1,
+		               curses.A_UNDERLINE)
+		listing = max(1, footer - 5)
+		start = max(0, min(self.inbox_cursor - listing + 1,
+		                   len(rows) - listing))
+		start = max(0, start)
+		shown = rows[start:start + listing]
+		for offset, row in enumerate(shown):
+			text = row["selector"].ljust(id_width)
+			for name, size in columns:
+				text += " " + cells[row["selector"]][name][:size] \
+					.ljust(size)
+			attribute = 0
+			if start + offset == self.inbox_cursor:
+				attribute = curses.A_REVERSE
+			elif row["owed"]:
+				attribute = curses.A_BOLD
+			screen.addnstr(3 + offset, 0, text[:width - 1], width - 1,
+			               attribute)
+		if selected:
+			top = 3 + len(shown) + 1
+			for offset, line in enumerate(
+					self._inbox_detail(selected, width)):
+				if top + offset >= footer:
+					break
+				screen.addnstr(top + offset, 0, line, width - 1)
+		bits = ["j/k select"]
+		if selected and selected["kind"] == "poke":
+			bits.append("a answer")
+		elif selected and selected["kind"] == "obligation":
+			bits.append("a respond")
+		if selected and selected["work"]:
+			bits.append("Enter open in Jobs")
+		if selected and selected["thread"]:
+			bits.append("s mark seen")
+		bits.append("Tab switches tab")
+		screen.addnstr(footer, 0, " · ".join(bits), width - 1)
+
+	def _inbox_detail(self, row: dict, width: int) -> list[str]:
+		"""The chosen row in full, including the verbs that satisfy it —
+		an operator reads what would discharge this without going to the
+		grammar for it."""
+		lines = [f"{row['selector']} — {row['kind'].replace('_', ' ')}"
+		         + ("  (you owe this)" if row["owed"]
+		            else "  (attention only)")
+		         + ("" if row["seen"] else "  · unseen")]
+		for part in str(row["summary"] or "").splitlines():
+			lines.append(f"  {part}")
+		if row["unseen_count"]:
+			lines.append(f"  {row['unseen_count']} unseen message(s) "
+			             f"in {_local_selector(row['thread'])}")
+		if row["kind"] == "runtime":
+			lines.append("  the runner is waiting on a person in its own "
+			             "session; Baton has no verb that answers it, "
+			             "and the row clears when the adapter reports "
+			             "what happened next")
+		if row["completes_by"]:
+			lines.append("  satisfied by: "
+			             + ", ".join(row["completes_by"]))
+		out: list[str] = []
+		for line in lines:
+			out.extend(soft_wrap(line, max(8, width - 1)))
+		return out
+
+	# -- W25: the Teams tab ----------------------------------------------
+
+	def team_rows(self) -> list[dict]:
+		"""The roster, own team first (ruled default) and every other
+		configured team after it — deliberate navigation, not a wall of
+		strangers on open."""
+		roster = self._cached(("teams",), lambda: projection.teams(
+			self.store, viewer_team=self.team,
+			viewer_member=self.member))["teams"]
+		rows = []
+		for entry in sorted(roster, key=lambda team: not team["mine"]):
+			if self.teams_own_only and not entry["mine"]:
+				continue
+			for member in entry["members"]:
+				rows.append(member)
+		return rows
+
+	def _team_selected(self) -> dict | None:
+		rows = self.team_rows()
+		if not rows:
+			return None
+		for index, row in enumerate(rows):
+			if row["participant"] == self.team_member:
+				self.team_cursor = index
+				return row
+		self.team_cursor = min(self.team_cursor, len(rows) - 1)
+		chosen = rows[self.team_cursor]
+		self.team_member = chosen["participant"]
+		return chosen
+
+	@staticmethod
+	def _team_cells(row: dict) -> dict:
+		"""Workflow facts and RUNNER facts, side by side and never
+		merged.
+
+		W93 slice 5: `Agent` is the runner FAMILY and `State` is what
+		that runner is doing — both from the canonical runtime lease,
+		neither inferred from the participant's name or from the Work
+		it holds. `Work` is the authority's answer about what this
+		member is executing; `Session` is the exact locator, abbreviated
+		here and never in the record; `Since` is when the runner's state
+		last changed. `-` throughout means the authority holds no such
+		fact, which is never the same as a reassuring one."""
+		runtime = row.get("runtime") or {}
+		held = row["handled_work"]
+		return {
+			"Role": ",".join(row["roles"]) or "-",
+			"Agent": runtime.get("adapter") or "-",
+			"State": AGENT_LABELS.get(runtime.get("state"),
+			                          runtime.get("state") or "-"),
+			"Work": (_local_selector(held[0]["work"]) if held
+			         else "-"),
+			"Session": ((runtime.get("session") or "-")[:12]
+			            + ("…" if len(runtime.get("session") or "") > 12
+			               else "")),
+			# W93 review R15: ELAPSED time in the current state, in the
+			# one MM:SS/∞ vocabulary every other duration cell uses —
+			# not an absolute instant, which spent sixteen cells saying
+			# something the operator has to subtract. The absolute
+			# instants stay in the member detail block below.
+			"Since": held_cell(runtime.get("since"), _time.time()),
+		}
+
+	def _render_teams(self, screen, height, width) -> None:
+		rows = self.team_rows()
+		scope = "own team" if self.teams_own_only else "every team"
+		screen.addnstr(1, 0, f"teams — {len(rows)} member(s), {scope}",
+		               width - 1, curses.A_DIM)
+		footer = height - 2
+		if not rows:
+			screen.addnstr(3, 0, "(no configured members)", width - 1)
+			screen.addnstr(footer, 0, "t all teams · Tab switches tab",
+			               width - 1)
+			return
+		selected = self._team_selected()
+		cells = {row["participant"]: self._team_cells(row)
+		         for row in rows}
+		id_width = max([len("Participant")]
+		               + [len(row["participant"]) for row in rows])
+		columns = []
+		for name, floor in (("Role", 4), ("Agent", 5), ("State", 5),
+		                    ("Work", 4), ("Session", 7), ("Since", 16)):
+			columns.append((name, max(floor, max(
+				len(cells[row["participant"]][name])
+				for row in rows))))
+		used = id_width + sum(size + 1 for _name, size in columns)
+		header = "Participant".ljust(id_width)
+		for name, size in columns:
+			header += " " + name.ljust(size)
+		screen.addnstr(2, 0, header[:width - 1], width - 1,
+		               curses.A_UNDERLINE)
+		listing = max(1, min(len(rows), footer - 8))
+		start = max(0, min(self.team_cursor - listing + 1,
+		                   len(rows) - listing))
+		start = max(0, start)
+		shown = rows[start:start + listing]
+		for offset, row in enumerate(shown):
+			text = row["participant"].ljust(id_width)
+			for name, size in columns:
+				text += " " + cells[row["participant"]][name][:size] \
+					.ljust(size)
+			attribute = curses.A_REVERSE \
+				if start + offset == self.team_cursor else 0
+			if row["participant"] == self.participant and not attribute:
+				attribute = curses.A_BOLD
+			screen.addnstr(3 + offset, 0, text[:width - 1], width - 1,
+			               attribute)
+		if selected:
+			top = 3 + len(shown) + 1
+			for offset, line in enumerate(
+					self._team_detail(selected, width)):
+				if top + offset >= footer:
+					break
+				screen.addnstr(top + offset, 0, line, width - 1)
+		bits = ["j/k select", "p poke"]
+		if self._pending_poke_to(selected) is not None:
+			bits.append("x withdraw")
+		bits.append("t own/all teams")
+		bits.append("Tab switches tab")
+		screen.addnstr(footer, 0, " · ".join(bits), width - 1)
+
+	def _team_detail(self, row: dict, width: int) -> list[str]:
+		"""One member in full: what work may reach them, what they hold,
+		and the RAW structured answer they last gave — every closed
+		vocabulary field shown as reported, because `unknown` is a fact
+		about the adapter and not a blank to be tidied away."""
+		lines = [f"{row['participant']} — {row['display']}"]
+		lines.append("  roles: " + (", ".join(row["roles"]) or "none"))
+		for entry in row["routes"]:
+			lines.append(f"  route {entry['route']} ({entry['role']}): "
+			             + (", ".join(entry["endpoints"]) or "no live "
+			                "endpoint"))
+		if not row["routes"]:
+			lines.append("  routes: none — no Work can be routed here")
+		for held in row["handled_work"]:
+			lines.append(f"  holding {_local_selector(held['work'])} "
+			             f"[{held['phase']}] {held['title']}")
+		if not row["handled_work"]:
+			lines.append("  holding nothing")
+		# W93 slice 5: the RUNTIME lease first — what the runner is
+		# doing now, with the full session locator the compact table
+		# abbreviates and the provenance of every fact. `poke` follows
+		# it as a different kind of evidence: what the agent itself
+		# said, on demand, rather than what its adapter observed.
+		runtime = row.get("runtime") or {}
+		state = runtime.get("state")
+		if state in (None, "offline") and not runtime.get("incarnation"):
+			lines.append("  runner: no lease — this participant's "
+			             "adapter has never published runtime state")
+		else:
+			lines.append(f"  runner: {state} "
+			             f"({runtime.get('provenance')})"
+			             + (f" · {runtime.get('cause')}"
+			                if runtime.get("cause") else "")
+			             + (f" — {runtime.get('detail')}"
+			                if runtime.get("detail") else ""))
+			lines.append(f"  adapter {runtime.get('adapter') or '-'} "
+			             f"provider={runtime.get('provider') or '-'} "
+			             f"model={runtime.get('model') or '-'}")
+			lines.append(f"  session {runtime.get('session') or '-'}")
+			lines.append(f"  incarnation "
+			             f"{runtime.get('incarnation') or '-'} · since "
+			             f"{(runtime.get('since') or '-')[:19]} · last "
+			             f"contact "
+			             f"{(runtime.get('last_contact') or '-')[:19]}"
+			             + ("  · STALE" if runtime.get("stale") else ""))
+			if runtime.get("action_owner"):
+				lines.append(f"  interactive answers owed by "
+				             f"{runtime['action_owner']}")
+			if runtime.get("refresh_requested"):
+				lines.append(f"  refresh asked at "
+				             f"{runtime['refresh_requested'][:19]} — "
+				             f"awaiting the adapter's next poll")
+			if runtime.get("note"):
+				lines.append(f"  {runtime['note']}")
+		# W93 slice 6: the safe operational inventory, each fact with
+		# its own source and age. They are listed separately from the
+		# state above because they age separately: a locator read from
+		# the deployment document at launch is not as current as a
+		# state observed a second ago, and showing them together would
+		# make the older one look as live as the newer.
+		for fact in runtime.get("facts") or []:
+			lines.append(f"  {fact['key']}: {fact['value']}  "
+			             f"[{fact['source']} · "
+			             f"{held_cell(fact['observed_at'], _time.time())}"
+			             f" ago]")
+		answer = row["last_answer"]
+		if answer is None:
+			lines.append("  runner said: never asked — no poke has been "
+			             "answered by this participant")
+		else:
+			runner = answer["runner"]
+			lines.append(f"  said {answer['state']} at "
+			             f"{answer['at'][:16].replace('T', ' ')}: "
+			             f"{answer['explanation']}")
+			lines.append(f"  runner: provider={runner['provider']} "
+			             f"model={runner['model']} "
+			             f"session={runner['session_state']} "
+			             f"auth={runner['auth_state']} "
+			             f"limit={runner['limit_state']}"
+			             + (f" retry_at={runner['retry_at']}"
+			                if runner["retry_at"] else ""))
+			telemetry = answer["telemetry"]
+			if any(value is not None for value in telemetry.values()):
+				lines.append(f"  context: "
+				             f"used={telemetry['context_used']} "
+				             f"limit={telemetry['context_limit']} "
+				             f"remaining="
+				             f"{telemetry['context_remaining']}")
+		out: list[str] = []
+		for line in lines:
+			out.extend(soft_wrap(line, max(8, width - 1)))
+		return out
+
+	def _pending_poke_to(self, member) -> int | None:
+		"""The poke THIS participant has outstanding to that member, if
+		any — the one a withdrawal would act on."""
+		if member is None:
+			return None
+		rows, _older = self.poke_rows()
+		for row in rows:
+			if row["mine"] and row["target"] == member["participant"] \
+					and row["state"] == "pending":
+				return row["poke"]
+		return None
+
+	def _render_bar(self, screen, height: int, width: int) -> None:
+		"""The bottom row and the caret — the command bar, the batch
+		buffer, the search entry, the modal prompts, the status line
+		and the poke cue, in their ruled precedence.
+
+		W25 gave this its own painter because all three tabs end in
+		the same row: an operator's hands do not change tab, and a
+		second copy of this precedence would be a second set of
+		rules to keep in step."""
 		caret = None
 		if self.confirm_exit:
 			# One row, drawn whole at any width the console accepts.
 			screen.addnstr(height - 1, 0, "Exit? y/N", width - 1)
+		elif self.poke_choice is not None:
+			# W17: the one operand a human cannot be asked to guess.
+			# `state=` is a closed vocabulary and the grammar owns it,
+			# so the prompt enumerates whatever the grammar accepts and
+			# a later state appears here without a second list to edit.
+			offer = " · ".join(
+				f"{index + 1} {state}" for index, state
+				in enumerate(poke_answer_states()))
+			screen.addnstr(height - 1, 0,
+			               f"Answer poke {self.poke_choice} — state? "
+			               f"{offer} · Esc cancel", width - 1)
 		elif self.batch is not None:
 			caret = self._render_batch(screen, height, width)
 		elif self.search_input is not None:
@@ -1204,6 +1913,19 @@ class Console:
 						               hint[:room], room, curses.A_DIM)
 		elif self.status:
 			screen.addnstr(height - 1, 0, self.status, width - 1)
+		elif self.tab == "jobs" and self.mode != "pokes" \
+				and self.owed_pokes():
+			# W17: the counter says a poke is waiting; this says what to
+			# press. It is derived from the same cached pending set at
+			# paint time — nothing stores it — so answering the last
+			# poke removes it on the next refresh, and it never displaces
+			# the operator's own command feedback above.
+			owed = len(self.owed_pokes())
+			screen.addnstr(height - 1, 0,
+			               f"{owed} poke{'' if owed == 1 else 's'} "
+			               f"waiting for you — Tab to Inbox, or p for "
+			               f"the poke record", width - 1,
+			               curses.A_BOLD)
 		# The caret exists exactly while the bar is open: shown at the
 		# insertion point during entry, hidden again the moment the
 		# bar closes. (A terminal refusing cursor-visibility control
@@ -1234,13 +1956,25 @@ class Console:
 			# and the local clock at paint time — advanced by the ONE
 			# existing refresh cadence, no second scheduler.
 			"HELD": held_field(row, _time.time()),
-			"ROUTE": row["route"]["endpoint"] if row["route"] else "-",
+			# W35: two facts, two cells. ENDPOINT is the stable address
+			# a reader types; VIA is the selected route that decides who
+			# may claim it — and it comes from the SAME resolved route
+			# object the authorization uses, so the table can never show
+			# a route the claim would refuse.
+			"ENDPOINT": row["route"]["endpoint"] if row["route"] else "-",
+			"VIA": (row["route"]["route"] or "-") if row["route"]
+			       else "-",
 			# W245/W38: the exact claimant, or `-` when NOBODY holds
 			# it. Phase says whether the Work is running; this says who
 			# is running it.
 			"HANDLER": (f"{row['handler']['team']}."
 			            f"{row['handler']['member']}")
 			if row["handler"] else "-",
+			# W93 slice 5: what the HANDLER's runner is doing, never
+			# inferred from Phase or Handler — the canonical projection
+			# answers it, and `-` means nobody holds this Work rather
+			# than anything about a runner.
+			"AGENT": agent_cell(row.get("agent")),
 			"NEXT": row["next"]["endpoint"] if row["next"] else "-",
 			"NEW": str(row["new"]),
 		}
@@ -1279,7 +2013,8 @@ class Console:
 		# W4: the exact Id column LEADS the table and never truncates —
 		# it grows to the longest visible selector; the responsive drop
 		# budget carries it, and the title absorbs the remainder.
-		columns = visible_columns(width, lead, terminal)
+		claimed = any(row.get("handler") for row in rows)
+		columns = visible_columns(width, lead, terminal, claimed)
 		fixed = sum(w for _n, w in columns) + len(columns)
 		title_width = max(MIN_TITLE, width - fixed - lead - 2)
 		# Trial finding 26de18dd-W2: headers draw initial-capital LABELS
@@ -1454,6 +2189,168 @@ class Console:
 			attribute = curses.A_REVERSE \
 				if start + offset == self.links_cursor else 0
 			screen.addnstr(2 + offset, 0, text, width - 1, attribute)
+
+	# -- W17: the poke view ----------------------------------------------
+
+	@staticmethod
+	def _poke_stamp(value) -> str:
+		"""One canonical instant as the console shows instants: date and
+		minute, with the `T` and the zone marker spent on nothing a
+		reader of a live console needs. The canonical value stays in
+		JSON — this is the row's timestamp cell, not the record."""
+		text = (value or "").replace("T", " ")
+		return text[:16]
+
+	def _poke_cells(self, row: dict) -> dict:
+		"""Every drawable cell for one poke — canonical values only.
+
+		`Do` is the W228 cue restated for this view: the action is TEXT,
+		because the ruling there is that an actionable row must be
+		legible without relying on colour, blink or bold alone. `State`
+		stays the canonical vocabulary beside it and never borrows a
+		word of its own — `pending` and `answer` are two different
+		facts, and the row shows both.
+
+		`With` names the OTHER participant and the direction, because a
+		poke has exactly two ends and which end this participant is on
+		decides what they can do about it: answer the ones asked of
+		them, withdraw the ones they asked."""
+		other = row["target"] if row["mine"] else row["asker"]
+		return {
+			"Do": ("answer" if row["owed"] else
+			       "withdraw" if row["mine"]
+			       and row["state"] == "pending" else ""),
+			"State": row["state"],
+			"With": ("to " if row["mine"] else "from ") + str(other),
+			"Asked": self._poke_stamp(row.get("asked_at")),
+			"Request": " ".join(str(row["request"] or "").split()),
+		}
+
+	def _poke_detail_lines(self, row: dict, width: int) -> list[str]:
+		"""The selected poke in full: the friendly question as asked,
+		its deadline when it has one, and the one terminal answer when
+		it has been given — the agent's own words, beside the state it
+		reported. Nothing here is summarized away, which is the whole
+		point of a detail block under a truncating table."""
+		lines = [f"Poke {row['poke']} — {row['state']}"
+		         + ("  (owed by you)" if row["owed"] else "")]
+		lines.append(f"  asked by {row['asker']} → {row['target']}"
+		             f" at {self._poke_stamp(row.get('asked_at'))}")
+		if row.get("expires_at"):
+			lines.append(f"  times out at "
+			             f"{self._poke_stamp(row['expires_at'])}")
+		for part in str(row["request"] or "").splitlines() or [""]:
+			lines.append(f"  {part}")
+		answer = row.get("answer")
+		if answer:
+			lines.append(f"  answered {answer['state']} at "
+			             f"{self._poke_stamp(answer.get('at'))}")
+			for part in str(answer.get("explanation")
+			                or "").splitlines():
+				lines.append(f"    {part}")
+		out: list[str] = []
+		for line in lines:
+			out.extend(soft_wrap(line, max(8, width - 1)))
+		return out
+
+	def _render_pokes(self, screen, height, width) -> None:
+		"""The pokes this participant is part of, owed ones first.
+
+		Presentation only: every value is the canonical projection's,
+		the actions run the public verbs, and opening this view neither
+		answers, cancels nor marks anything seen."""
+		rows, older = self.poke_rows()
+		owed = sum(1 for row in rows if row["owed"])
+		mine = sum(1 for row in rows if row["mine"])
+		# W17 review R1: the disclosure names the rows ACTUALLY omitted
+		# — older history, counted — and says nothing at all when the
+		# window holds everything. A line describing the wrong end is
+		# worse than no line, because it is believed.
+		note = (f"pokes — {owed} owed you · {mine} you asked"
+		        + (f" · {older} older not shown" if older else ""))
+		screen.addnstr(1, 0, note, width - 1, curses.A_DIM)
+		footer = height - 2
+		if not rows:
+			screen.addnstr(3, 0,
+			               "(no pokes — nobody has asked you anything, "
+			               "and you have asked nobody)", width - 1)
+			screen.addnstr(footer, 0, "Esc back", width - 1)
+			return
+		selected = self._poke_selected()
+		detail = self._poke_detail_lines(selected, width) \
+			if selected else []
+		# The list keeps at least three rows whatever the detail block
+		# wants: a view showing one selectable row cannot be navigated,
+		# and the block below it is the part that can be scrolled off
+		# honestly — every fact in it is already in the record.
+		reserved = min(len(detail), max(3, (footer - 4) // 2))
+		listing = max(3, footer - 4 - reserved)
+		id_width = max(len(f"P{row['poke']}") for row in rows)
+		cells = {row["poke"]: self._poke_cells(row) for row in rows}
+		columns = []
+		for name, floor in (("Do", 2), ("State", 6), ("With", 12),
+		                    ("Asked", 16)):
+			columns.append((name, max(floor, max(
+				len(cells[row["poke"]][name]) for row in rows))))
+		# Whole columns are OMITTED under width pressure, never squeezed
+		# — the main table's rule, applied to the two facts whose loss
+		# costs least here. `Asked` goes first (a poke's age is context,
+		# not the question), then `State`, and the detail block below
+		# still carries both in full. `Do`, `With` and the question
+		# itself always survive: they are what the row is FOR.
+		for droppable in ("Asked", "State"):
+			used = id_width + sum(size + 1 for _name, size in columns)
+			if width - 2 - used >= 24:
+				break
+			columns = [entry for entry in columns
+			           if entry[0] != droppable]
+		used = id_width + sum(size + 1 for _name, size in columns)
+		columns.append(("Request", max(8, width - 2 - used)))
+		header = "Id".ljust(id_width)
+		for name, size in columns:
+			header += " " + name.ljust(size)
+		screen.addnstr(2, 0, header[:width - 1], width - 1,
+		               curses.A_UNDERLINE)
+		start = max(0, min(self.poke_cursor - listing + 1,
+		                   len(rows) - listing))
+		start = max(0, start)
+		shown = rows[start:start + listing]
+		for offset, row in enumerate(shown):
+			text = f"P{row['poke']}".ljust(id_width)
+			for name, size in columns:
+				text += " " + cells[row["poke"]][name][:size].ljust(size)
+			attribute = 0
+			if start + offset == self.poke_cursor:
+				attribute = curses.A_REVERSE
+			elif row["owed"]:
+				attribute = curses.A_BOLD
+			screen.addnstr(3 + offset, 0, text[:width - 1], width - 1,
+			               attribute)
+		# One blank separator row, then the chosen poke in full — the
+		# block sits UNDER the list it explains rather than floating at
+		# the bottom of a tall terminal.
+		detail_top = 3 + len(shown) + 1
+		budget = max(0, footer - detail_top)
+		if len(detail) > budget > 0:
+			# A short terminal clips the block; it never pretends to
+			# have shown the whole question. The canonical record is
+			# named, so the operator knows where the rest is.
+			hidden = len(detail) - (budget - 1)
+			detail = detail[:budget - 1] + [
+				f"  … {hidden} more line(s) — `pokes` has the record"]
+		for offset, line in enumerate(detail[:budget]):
+			screen.addnstr(detail_top + offset, 0, line, width - 1)
+		# The footer offers only what the chosen poke actually admits:
+		# a state key on somebody else's answered poke would be an
+		# invitation to a refusal.
+		bits = ["j/k select"]
+		if selected and selected["owed"]:
+			bits.append("a answer")
+		if selected and selected["mine"] \
+				and selected["state"] == "pending":
+			bits.append("x withdraw")
+		bits.append("Esc back")
+		screen.addnstr(footer, 0, " · ".join(bits), width - 1)
 
 	def _facts(self, detail: dict) -> list[str]:
 		"""The focused facts, EVERY one a canonical projection value: the
@@ -2721,6 +3618,198 @@ class Console:
 		self.selected_id = target
 		self.execute(f"claim work={target}")
 
+	# -- W17: the poke view's actions -------------------------------------
+
+	def _run_authored(self, line: str, key: str) -> None:
+		"""Run one CONSOLE-COMPOSED command whose durable prose the
+		operator authors in the editor.
+
+		Nothing composed here is guessed: the selector comes from the
+		selected row and any closed operand from the grammar's own
+		vocabulary, so the only thing left for a human is the prose. It
+		is the same public CLI entry, the same refusals and the same
+		committed-only refresh the typed bar uses — including the
+		refusal path, which hands the intact command back to the bar
+		rather than dropping it when there is no editor to author in.
+
+		W36's `missing_prose_operand` route is deliberately not reused:
+		that one answers "which REQUIRED prose operand is this typed
+		line still missing", and here the console already knows which
+		operand it is composing around."""
+		if self.config_path is None:
+			self.status = "no config path; the command bar is unavailable"
+			return
+		argv = shlex.split(line)
+		authored = self._author_prose(line, argv, key)
+		if authored is None:
+			return
+		self._remember(line)
+		code, brief, error, committed = self._run_line(
+			argv + [f"{key}={authored}"])
+		if committed:
+			self.schedule_refresh()
+		self.status = brief if code == 0 else error
+
+	def _open_pokes(self) -> None:
+		"""Enter the poke view on the row that wants an answer — owed
+		pokes sort first, so that is simply the first row."""
+		self.mode = "pokes"
+		self.poke_cursor = 0
+		self.poke_seq = None
+		rows, _older = self.poke_rows()
+		if rows:
+			self.poke_seq = rows[0]["poke"]
+
+	def _poke_choice_key(self, key: int) -> bool:
+		"""The one state key that turns the chosen poke into an answer.
+
+		Digits rather than initials: the vocabulary is the grammar's, so
+		two states sharing a first letter must not decide which one an
+		operator can reach — and a positional key stays correct when the
+		vocabulary grows. Esc cancels; every other key neither answers
+		nor cancels, exactly as the exit prompt behaves."""
+		states = poke_answer_states()
+		if key == 27:
+			self.poke_choice = None
+			return True
+		if ord("1") <= key <= ord("9"):
+			index = key - ord("1")
+			if index < len(states):
+				poke, self.poke_choice = self.poke_choice, None
+				self._run_authored(f"poke-answer poke={poke} "
+				                   f"state={states[index]}",
+				                   "explanation")
+		return True
+
+	def _handle_inbox(self, key: int) -> bool:
+		"""The Inbox tab's keys. Selection is view state; every action
+		runs a public verb and none of them infers authority."""
+		rows = self.inbox_rows()
+		selected = self._inbox_selected()
+		if key in (curses.KEY_DOWN, ord("j")):
+			self.inbox_cursor = min(self.inbox_cursor + 1,
+			                        max(0, len(rows) - 1))
+			self._inbox_anchor(rows)
+		elif key in (curses.KEY_UP, ord("k")):
+			self.inbox_cursor = max(0, self.inbox_cursor - 1)
+			self._inbox_anchor(rows)
+		elif key in (curses.KEY_ENTER, 10, 13) and selected:
+			if not selected["work"]:
+				self.status = (f"{selected['selector']} has no Work "
+				               f"context; a poke names a participant, "
+				               f"not Work")
+			else:
+				# The row LINKS to its context rather than reproducing
+				# it: Jobs owns Work, and this hands the operator over
+				# to it with the right row already open.
+				self.tab = "jobs"
+				self.mode = "detail"
+				self.detail_work = selected["work"]
+				self.detail_return = "table"
+				self.disc_cursor = None
+				self.disc_after = 0
+				self.focus = "threads"
+				self._reset_message_selection()
+		elif key == ord("a") and selected:
+			if selected["kind"] == "poke":
+				self.poke_choice = selected["poke"]
+			elif selected["kind"] == "obligation":
+				self._run_authored(
+					f"respond obligation={selected['obligation']}",
+					"body")
+			else:
+				self.status = (f"{selected['selector']} is answered "
+				               f"through {', '.join(selected['completes_by']) or 'no console action'}"
+				               f"; open it in Jobs")
+		elif key == ord("s") and selected:
+			if not selected["thread"]:
+				self.status = (f"{selected['selector']} has no thread; "
+				               f"there is no seen cursor to move")
+			else:
+				self.execute(f"mark-seen thread={selected['thread']} "
+				             f"up-to={selected['message']}")
+		return True
+
+	def _inbox_anchor(self, rows) -> None:
+		if rows:
+			chosen = rows[min(self.inbox_cursor, len(rows) - 1)]
+			self.inbox_key = chosen["action_key"] or chosen["selector"]
+
+	def _handle_teams(self, key: int) -> bool:
+		"""The Teams tab's keys. `p` asks a member what is going on —
+		the one wake that names a participant instead of resolving a
+		route — and `x` withdraws the one this participant has
+		outstanding to them."""
+		rows = self.team_rows()
+		selected = self._team_selected()
+		if key in (curses.KEY_DOWN, ord("j")):
+			self.team_cursor = min(self.team_cursor + 1,
+			                       max(0, len(rows) - 1))
+			if rows:
+				self.team_member = rows[self.team_cursor]["participant"]
+		elif key in (curses.KEY_UP, ord("k")):
+			self.team_cursor = max(0, self.team_cursor - 1)
+			if rows:
+				self.team_member = rows[self.team_cursor]["participant"]
+		elif key == ord("t"):
+			self.teams_own_only = not self.teams_own_only
+			self.team_cursor = 0
+		elif key == ord("p") and selected:
+			self._run_authored(
+				f"poke target={selected['participant']}", "request")
+		elif key == ord("x") and selected:
+			outstanding = self._pending_poke_to(selected)
+			if outstanding is None:
+				self.status = (f"you have no pending poke to "
+				               f"{selected['participant']}")
+			else:
+				self._run_authored(f"poke-cancel poke={outstanding}",
+				                   "reason")
+		return True
+
+	def _handle_pokes(self, key: int) -> bool:
+		"""The poke view's keys. Selection is view state; both actions
+		run public verbs and neither infers authority."""
+		rows, _older = self.poke_rows()
+		selected = self._poke_selected()
+		if key in (curses.KEY_DOWN, ord("j")):
+			self.poke_cursor = min(self.poke_cursor + 1,
+			                       max(0, len(rows) - 1))
+			self.poke_seq = rows[self.poke_cursor]["poke"] if rows \
+				else None
+		elif key in (curses.KEY_UP, ord("k")):
+			self.poke_cursor = max(0, self.poke_cursor - 1)
+			self.poke_seq = rows[self.poke_cursor]["poke"] if rows \
+				else None
+		elif key == ord("a") and selected is not None:
+			if selected["owed"]:
+				self.poke_choice = selected["poke"]
+			else:
+				# Locally certain and cheap to say: a poke names ONE
+				# participant, and this one is not it — or it is already
+				# terminal. Spending an editor round trip to reach the
+				# authority's refusal would ask for prose that could
+				# never be submitted.
+				self.status = (f"poke {selected['poke']} is "
+				               f"{selected['state']} and owed by "
+				               f"{selected['target']}; only the exact "
+				               f"participant a poke names answers it")
+		elif key == ord("x") and selected is not None:
+			if selected["state"] == "pending":
+				# Pending is the only part of eligibility presentation
+				# may decide — WHO may withdraw (the asker, or a
+				# config-capability holder) is the authority's answer,
+				# so the verb runs and its refusal speaks for itself.
+				self._run_authored(f"poke-cancel poke={selected['poke']}",
+				                   "reason")
+			else:
+				self.status = (f"poke {selected['poke']} is already "
+				               f"{selected['state']}; a terminal poke "
+				               f"cannot be withdrawn")
+		elif key in (27, curses.KEY_LEFT, ord("p")):
+			self.mode = "table"
+		return True
+
 	def _search_mode_key(self, key: int) -> bool:
 		"""The flat result mode: ordinary selection, ordinary detail
 		entry, replacement queries, bounded paging, and the exact Esc
@@ -3230,6 +4319,13 @@ class Console:
 			if key in (ord("n"), ord("N"), 27):
 				self.confirm_exit = False
 			return True
+		# W17: the state chooser is modal for the same reason the exit
+		# prompt is — it owns the bottom row and the next key answers
+		# it. It sits above `q` so a state key cannot double as an exit
+		# and an exit cannot double as an answer.
+		if self.poke_choice is not None:
+			self.status = ""
+			return self._poke_choice_key(key)
 		if key == ord("q"):
 			self.confirm_exit = True
 			return True
@@ -3242,12 +4338,28 @@ class Console:
 			self.history_draft = None
 			self.reverse = None
 			return True
+		# W25: Tab cycles the three top-level tabs from anywhere outside
+		# text entry, which the branches above have already claimed.
+		# NOT `[`/`]`: those are the Work detail's own Messages/Events
+		# tab keys (W123), documented and tested, and one pair of keys
+		# meaning two different tab sets at two different levels is the
+		# kind of thing an operator learns twice and confuses forever.
+		if key in (9, curses.KEY_BTAB):
+			step = -1 if key == curses.KEY_BTAB else 1
+			self.tab = TABS[(TABS.index(self.tab) + step) % len(TABS)]
+			return True
+		if self.tab == "inbox":
+			return self._handle_inbox(key)
+		if self.tab == "teams":
+			return self._handle_teams(key)
 		if key == ord("/") and self.mode in ("table", "search"):
 			# W6: open (or replace) the search query bar.
 			self.search_input = ""
 			return True
 		if self.mode == "search":
 			return self._search_mode_key(key)
+		if self.mode == "pokes":
+			return self._handle_pokes(key)
 		rows, _hidden = (self.visible_rows(self.rows())
 		                 if self.mode == "table" else ([], 0))
 
@@ -3306,6 +4418,11 @@ class Console:
 			self.mode = "links"
 		elif key == ord("c") and rows:
 			self._claim_selected(rows)
+		elif key == ord("p"):
+			# W17: the poke view opens with no Work selected and none
+			# needed — a poke is addressed to a participant, not to
+			# Work, so it is reachable from an empty table too.
+			self._open_pokes()
 		elif key == ord("z"):
 			self.show_closed = not self.show_closed
 			shown, _hidden = self.visible_rows(self.rows())

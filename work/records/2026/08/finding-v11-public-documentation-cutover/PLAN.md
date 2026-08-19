@@ -32,9 +32,13 @@ child (W233) because they cannot be written until W101 lands.
    describe the CERTIFIED release; the W159 wait-by-default wording was
    removed while that Work is still in review, and returns when it is
    accepted.
-8. [split to W233] The two Codex documents. They must describe the shape that
-   exists after W101 removes the v10 monitor stack, and W101 is itself held
-   until W102 completes the standalone cutover.
+8. [done — resolved 2026-08-19, not by this Work] The two Codex documents.
+   They were held until W101 removed the v10 monitor stack. That removal
+   landed with the v11 cutover: `stack.mjs` and `baton_source.mjs` are gone,
+   nothing imports them, and both documents already describe the standalone
+   app server, the generic dispatcher and the separately launched
+   `codex-baton-bridge` whose entry points exist. Re-read and verified rather
+   than rewritten; the split child needs no successor on the current ledger.
 9. [done 2026-08-18] Add the confirmed product one-liner, distinguish generic
    ACP-compatible agents from the separate Codex bridge, and explain provider
    resilience plus model/persona assignment as reasons to use Baton.
@@ -42,3 +46,14 @@ child (W233) because they cannot be written until W101 lands.
     its durable middle layer `Baton protocol authority`.
 11. [done 2026-08-18] Remove config, database, and `wait` mechanics from the
     product diagram; retain local dossiers and the Codex/ACP adapter boundary.
+12. [done 2026-08-19] Return the two parked items now that both are certified:
+    W159's blocking default for directed requests, and the EFFECTIVE-BATON
+    link (W104 landed, and its self-retiring check stopped constraining).
+13. [done 2026-08-19] Teach the FOURTH wake class. `wait` returns pokes and
+    the shipped agent contract taught three kinds; the policy and the README
+    now carry the poke primitive, and a standing check derives the kinds from
+    `participant_actions` so a fifth one fails on the day it ships.
+
+**Status — 2026-08-19:** the record's inventory is complete on the current
+tree. `teams` and `inbox` (W25) are deliberately absent from the certified
+documents while that Work is in review.

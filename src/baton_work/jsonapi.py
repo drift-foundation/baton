@@ -194,7 +194,52 @@ from baton_work.authority import Authority, WorkError
 # briefly; they are aggregated here rather than published separately,
 # because nothing has been released between them and two majors for one
 # unreleased candidate would describe a history that never happened.
-PROJECTION_VERSION = "12.0"
+# 12.1 (W25, finding-tui-jobs-teams-inbox): two NEW read projections,
+# `teams` and `inbox`. Teams is the operational roster — configured
+# members, their route coverage including W230 alternates, the Work each
+# one canonically holds, and the runner status each last reported through
+# a poke answer. Inbox is the participant-relative owed-action and
+# attention surface, with `total`, `unseen`, `owed` and the `owed_action`
+# boolean the console bolds its tab on.
+#
+# A MINOR by this file's own discriminator, and the case is easy for
+# once. No existing response gains, loses or redefines a field; no new
+# participant action kind exists, so no readiness consumer meets an entry
+# it cannot read. Inbox does not derive owed-ness a second time — it
+# reads `participant_actions`, the same derivation `wait` consumes — so
+# there is no second opinion to drift. A consumer built before this
+# simply never calls the two new verbs, which is exactly what
+# "ignorable" means and is the property 12.0 bought.
+#
+# `inbox` deliberately omits actionable WORK, which `participant_actions`
+# does return: Jobs is the Work surface and repeating its rows here would
+# put one queue in two places. The wake set is unchanged and still
+# carries both, because a runner has one attention span and no tabs.
+# 12.2 (W93 slice 6, finding-agent-runtime-state): a FIFTH participant
+# action kind, `runtime_refresh` — an operator's request that this
+# participant's ADAPTER republish its safe operational inventory. It
+# carries `wakes_model: false` because the adapter answers it from facts
+# it already holds; `poke` remains the path for what only the agent can
+# say.
+#
+# A MINOR, and this is the case 12.0's own note anticipated: that bump
+# went major because an unwidened consumer REFUSED a whole envelope
+# containing an unknown kind, and the same candidate taught every
+# consumer to ignore an unreadable entry and keep the rest. That
+# tolerance is what makes this one additive — a build that predates it
+# drops the entry and still receives its Work, its obligations and its
+# pokes.
+# 12.3 (W93 slice 6 review R25, finding-agent-runtime-state): a
+# `runtime_refresh` entry carries the request's `generation` — the
+# authority sequence that minted it — and its `action_key` is built
+# from that rather than from the request instant. Canonical instants
+# are whole seconds, so two asks inside one second produced the SAME
+# key and a level-triggered consumer suppressed the second as already
+# delivered. `requested_at` stays beside it as what an operator reads.
+#
+# A MINOR: the key is opaque to every consumer, which delivers on it
+# changing and never parses it, and the new field is additive.
+PROJECTION_VERSION = "12.3"
 
 
 def require_version(requested: str | None) -> None:

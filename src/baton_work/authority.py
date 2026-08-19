@@ -37,7 +37,7 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 22
+SCHEMA_VERSION = 24
 PROTOCOL_VERSION = 11
 
 HANDLE_MAX_CELLS = 6
@@ -522,6 +522,157 @@ CREATE TABLE poke_answer_work (
 	ordinal INTEGER NOT NULL,
 	work    TEXT NOT NULL REFERENCES work(id),
 	PRIMARY KEY (poke, ordinal)
+) STRICT;
+-- W93 (finding-agent-runtime-state), schema 23: what one participant's
+-- RUNNER is doing, which is a different question from what its Work is
+-- doing and is answered by a different party.
+--
+-- Phase is the Work's scheduler state and Handler is the participant
+-- holding the claim. Neither can say that the held turn is sitting on a
+-- command-approval prompt — the incident that produced this table, where
+-- W22 read `active` with a Handler while its Codex turn waited on input
+-- and the only evidence was a dispatcher log.
+--
+-- ONE CURRENT LEASE per participant. `incarnation` is the runner's
+-- opaque identity for one launch: a replacement supersedes the previous
+-- lease explicitly, and the superseded runner's later writes FAIL CLOSED
+-- rather than restoring a state its replacement has moved past. That is
+-- the whole reason the lease exists rather than a bare status column.
+--
+-- Nothing in here is workflow authority. A state report never claims,
+-- releases, passes, re-phases, blocks or closes Work; `work` correlates
+-- the runner with the episode it believes it is serving, and the Work
+-- table remains the only thing that decides who holds the claim. A
+-- disagreement between the two is shown, never reconciled by writing.
+CREATE TABLE runtime_leases (
+	team        TEXT NOT NULL,
+	member      TEXT NOT NULL,
+	-- the runner's opaque identity for ONE launch; a new one supersedes
+	incarnation TEXT NOT NULL,
+	-- the adapter family: `codex`, `acp`, or another configured runner.
+	-- Never inferred from a participant name (finding decision 9).
+	adapter     TEXT NOT NULL,
+	provider    TEXT,
+	model       TEXT,
+	-- the exact live session an operator would attach to, in full; the
+	-- console may abbreviate it, the record never does
+	session     TEXT,
+	state       TEXT NOT NULL
+		CHECK (state IN ('idle', 'working', 'waiting-input',
+		                 'retrying', 'failed')),
+	-- a closed category plus safe prose, for the states an operator can
+	-- act on. `unknown`/`offline` are DERIVED at read time and are
+	-- deliberately absent from the stored vocabulary above.
+	--
+	-- It is `cause` and not `reason` deliberately: across this grammar
+	-- `reason=` is durable human prose an operator may author in an
+	-- editor, and that consistency is enforced. This is a closed
+	-- machine category published by an adapter, so it takes its own
+	-- name rather than making one word mean two things.
+	cause       TEXT,
+	detail      TEXT,
+	work        TEXT REFERENCES work(id),
+	episode     INTEGER,
+	-- the participant who owes the interactive answer, when the runner
+	-- configuration names one. No owner means no guessed obligation.
+	action_owner TEXT,
+	-- freshness: the last explicit contact and the bounded deadline a
+	-- read derives `unknown`/`offline` past. Expiry writes NOTHING.
+	--
+	-- W93 review R1: the deadline is NOT NULL. An optional one let a
+	-- runner that omitted the operand report `working` forever, which
+	-- is the exact opposite of the freshness the finding requires —
+	-- every current runtime fact carries it or it is not a fact. Every
+	-- explicit report renews it; there is one configured default so an
+	-- adapter never has to compute an instant to be honest.
+	last_contact TEXT NOT NULL,
+	expires_at   TEXT NOT NULL,
+	started_ts   TEXT NOT NULL,
+	changed_ts   TEXT NOT NULL,
+	changed_seq  INTEGER NOT NULL,
+	-- W93 slice 6: an operator asking this runner's ADAPTER for fresh
+	-- machine facts. It is a request, not a command: nothing here runs
+	-- anything, wakes a model or blocks a read. The adapter notices it
+	-- on the polling loop it already has and republishes its
+	-- inventory, which is why the request carries the instant it was
+	-- made — an answer older than the ask is visibly not the answer.
+	refresh_at   TEXT,
+	-- W93 review R25: canonical instants are whole seconds, so the
+	-- instant cannot IDENTIFY the request — two asks inside one second
+	-- would share an action key and the second would be suppressed as
+	-- already delivered. The authority's own event sequence is
+	-- monotonic and already at hand, so it is the request's identity,
+	-- and an adapter clears the exact generation it answered rather
+	-- than whatever request happens to stand when its write commits.
+	refresh_seq  INTEGER,
+	-- an EXPLICIT exit, so a read can tell "this runner said goodbye"
+	-- from "this lease went quiet", which are different operational
+	-- facts and get different provenance.
+	ended_ts     TEXT,
+	ended_cause  TEXT,
+	PRIMARY KEY (team, member)
+) STRICT;
+-- The append-only journal of runtime transitions. The lease above is a
+-- projection aid — one row, overwritten — and this is the history the
+-- incident report is reconstructed from. Retained per participant and
+-- per incarnation, so a replacement's timeline does not swallow the
+-- runner it replaced.
+-- W93 slice 6: the SAFE operational inventory for one runner — the
+-- facts an operator needs to locate and diagnose a session without a
+-- vendor-specific command, and without any of them being a secret.
+--
+-- One row per fact rather than columns on the lease, because the
+-- finding requires every runtime field to carry its own FRESHNESS and
+-- SOURCE: a dispatcher target read from configuration at launch and a
+-- working directory observed at the same moment age differently, and a
+-- refresh may update one and not the other. A row that is stale stays
+-- visibly stale rather than looking current.
+--
+-- The key set is CLOSED, and that is the redaction boundary doing its
+-- job structurally. An open map would invite an adapter to publish its
+-- environment "just for debugging", which is exactly the leak the
+-- finding forbids; a closed set means a credential has nowhere to go.
+CREATE TABLE runtime_facts (
+	team        TEXT NOT NULL,
+	member      TEXT NOT NULL,
+	-- the launch these facts describe: a replacement's inventory never
+	-- masquerades as its predecessor's.
+	incarnation TEXT NOT NULL,
+	key         TEXT NOT NULL
+		CHECK (key IN ('service', 'dispatcher', 'readiness', 'workdir',
+		               'log', 'version', 'retry_at')),
+	value       TEXT NOT NULL,
+	-- `configured` came from the deployment document, `reported` was
+	-- observed by the adapter, `derived` was concluded. The finding
+	-- names all three and a reader must never have to guess which.
+	source      TEXT NOT NULL
+		CHECK (source IN ('configured', 'reported', 'derived')),
+	observed_ts TEXT NOT NULL,
+	observed_seq INTEGER NOT NULL,
+	PRIMARY KEY (team, member, incarnation, key)
+) STRICT;
+CREATE TABLE runtime_events (
+	-- the creating event's sequence IS this transition's identity, as
+	-- it is for a poke. No foreign key to `events`: the event row is
+	-- written by the same transaction AFTER the step's own rows, so an
+	-- immediate constraint would fail on a correct write.
+	seq         INTEGER PRIMARY KEY,
+	team        TEXT NOT NULL,
+	member      TEXT NOT NULL,
+	incarnation TEXT NOT NULL,
+	-- W93 review R3: replacement is EXPLICIT AND REASONED, and this is
+	-- the record it has to be explicit in. The lease row is overwritten
+	-- and the global event payload is not what an operator pages
+	-- through; without these two columns `runtime-history` showed two
+	-- timelines and no statement that one superseded the other, or why.
+	supersedes  TEXT,
+	state       TEXT NOT NULL,
+	cause       TEXT,
+	detail      TEXT,
+	work        TEXT REFERENCES work(id),
+	episode     INTEGER,
+	session     TEXT,
+	ts          TEXT NOT NULL
 ) STRICT;
 """
 

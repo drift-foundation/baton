@@ -64,7 +64,20 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 	# such facts from — the same source of truth the human uses, so the
 	# decode cannot drift from what was drawn.
 	terminal = "Out" in header
-	columns = app.visible_columns(width, id_width, terminal)
+	# W93: read the drawn columns from the PAINTED HEADER rather than
+	# recomputing them. The console's budget carries the Id column AND
+	# the optional Wait cue, and this parser was passing only the Id —
+	# a divergence that stayed invisible until a width where the two
+	# answers differed. The header is the same source of truth this
+	# parser already uses for `Out` and `Wait`, and it cannot drift from
+	# what the human saw.
+	drawn = {app.HEADER_LABELS.get(name, name.capitalize()): (name, size)
+	         for name, size in app.COLUMNS}
+	# COLUMNS order is the drawing order; the header decides membership.
+	painted_labels = set(header.split())
+	columns = [(name, size) for name, size in app.COLUMNS
+	           if app.HEADER_LABELS.get(name, name.capitalize())
+	           in painted_labels]
 	fixed = sum(col_width for _n, col_width in columns) + len(columns)
 	# W39/W187: the optional Wait (dependency-cue) field sits between
 	# Title and the fixed columns; its width falls out of the header
@@ -133,8 +146,8 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		          # terminal one, and ABSENT entirely in an open-only
 		          # view that has no such column.
 		          "outcome": cells.get("OUT"),
-		          "route": None if cells.get("ROUTE", "-") == "-"
-		          else cells["ROUTE"],
+		          "route": None if cells.get("ENDPOINT", "-") == "-"
+		          else cells["ENDPOINT"],
 		          "handler": None if cells["HANDLER"] == "-"
 		          else cells["HANDLER"],
 		          "next": None if cells["NEXT"] == "-" else cells["NEXT"],
@@ -197,14 +210,21 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			# check keeps working on the compact vocabulary alone and
 			# the assertion after it is what actually forbids a marker
 			# from coming back.
-			assert drawn_row["phase"].lstrip("> !") == app.phase_cell(
-				json_row["status"], json_row["phase"]).strip()
-			assert not drawn_row["phase"].startswith((">", "!")), \
-				(drawn_row["phase"], json_row.get("pickup"))
-			assert "!" not in drawn_row["phase"], \
-				(drawn_row["phase"], json_row.get("pickup"))
-			assert drawn_row["classification"] == \
-				app.compact_classification(json_row["classification"])
+			# W93: a column the layout omitted at this width has nothing
+			# to compare. Parity is between what was DRAWN and the JSON,
+			# so an absent column is skipped rather than asserted into a
+			# KeyError — the omission itself is the responsive-width
+			# suite's subject, not this one's.
+			if "phase" in drawn_row:
+				assert drawn_row["phase"].lstrip("> !") == app.phase_cell(
+					json_row["status"], json_row["phase"]).strip()
+				assert not drawn_row["phase"].startswith((">", "!")), \
+					(drawn_row["phase"], json_row.get("pickup"))
+				assert "!" not in drawn_row["phase"], \
+					(drawn_row["phase"], json_row.get("pickup"))
+			if "classification" in drawn_row:
+				assert drawn_row["classification"] == \
+					app.compact_classification(json_row["classification"])
 			# W71: Prog/Dep left the table; the canonical row still
 			# carries progress and the explicit live graph fields.
 			assert "progress" in json_row
@@ -259,16 +279,27 @@ def test_containment_children_agree_inline(world, capsys):
 
 
 def test_actionable_state_agrees(world, capsys):
-	"""The obligation count on the TUI's own header equals the JSON
-	actionable list — `@` is actionable, `+` never is, on both surfaces."""
+	"""The owed count on the TUI's own header equals the JSON — `@` is
+	actionable, `+` never is, on both surfaces.
+
+	W25 moved WHERE that count is painted: the retired `[oblig:N]`
+	counter became the Inbox tab's `total/unseen`, which aggregates
+	obligations with pokes and unseen attention. The parity question is
+	unchanged and is asked here against the `inbox` projection the tab
+	is drawn from, with the obligation half still checked against
+	`obligations` so the aggregate cannot hide a disagreement."""
 	path, _cast = world
 	for viewer, team in (("push.sl", "push"), ("web.wren", "web"),
 	                     ("mdb.mo", "mdb")):
 		expected = _json(capsys, path, "obligations", viewer=viewer)
+		box = _json(capsys, path, "inbox", viewer=viewer)
 		screen = _screen_rows(path, viewer)
 		header = screen[0]
-		assert f"[oblig:{len(expected)}]" in header, \
-			f"{viewer}: header {header!r} vs {len(expected)} obligations"
+		assert f"Inbox {box['total']}/{box['unseen']}" in header, \
+			f"{viewer}: header {header!r} vs {box}"
+		owed = [row for row in box["rows"]
+		        if row["kind"] == "obligation"]
+		assert len(owed) == len(expected), (viewer, owed, expected)
 
 
 def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
@@ -323,8 +354,14 @@ def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
 		home = _json(capsys, path, "home", viewer="push.sl")
 		assert home["summary"]["parked"] == 1
 		screen = _screen_rows(path, "push.sl")
-		assert "[park:1]" in screen[0], \
-			f"TUI header {screen[0]!r} disagrees with the JSON summary"
+		# W25 retired the header's parked counter: parked Work stays
+		# visible and filterable in Jobs, and duplicating it in a
+		# global header was ruled noise. The JSON summary above is
+		# still the canonical count, and the row itself is still on
+		# the Jobs table, which is what parity now means here.
+		assert "[park:" not in screen[0], \
+			f"the retired parked counter came back: {screen[0]!r}"
+		assert any("parkable leaf" in line for line in screen), screen
 	finally:
 		with bw.Authority(database) as store:
 			tr.set_phase(store, leaf, actor_team="push",

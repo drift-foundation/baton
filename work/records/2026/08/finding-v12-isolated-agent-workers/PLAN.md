@@ -3,9 +3,10 @@
 **Status — parked as Baton Work `W193`; roadmap only. No v12 implementation
 has started.**
 
-1. [pending] Model assignment generations, claim fencing, cancellation,
-   quiescence, stale-worker rejection, and integration dispositions as one
-   protocol state machine.
+1. [pending] Model assignment generations, read-only pre-claim inspection,
+   claim-capability-gated writable workers, cancellation, quiescence,
+   stale-worker rejection, and integration dispositions as one protocol state
+   machine.
 2. [pending] Specify the versioned worker input manifest and candidate output
    manifest, including base revision, role/policy/toolchain digests, tests,
    logs, and dossier evidence.

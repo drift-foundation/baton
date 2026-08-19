@@ -102,6 +102,7 @@ each split at its first `=`. There are no positional operands.
 
     $BW ... claim work=W11
     $BW ... say thread=T11 body="lang: is this yours?" request=lang.bug on=W11
+    $BW ... poke target=lang.mina request="still on the tokenizer?"
     $BW ... pass work=W11 to=lang.impl comment="reproduced; over to you"
     $BW ... close work=W11 outcome=satisfying rationale="fixed and verified"
 
@@ -121,9 +122,18 @@ values are accepted, and which combinations are refused.
   evidence. The destination route decides the destination phase, so a handoff
   cannot advertise a stage nobody is in.
 - **Directed requests** create one obligation owed by another endpoint,
-  without moving ownership: the answer is owed TO the current handler. Work
-  that cannot honestly proceed until the answer arrives suspends on that exact
-  obligation, so its stage stops advertising progress nobody is making.
+  without moving ownership: the answer is owed TO the current handler. They
+  block by default: the Work you are executing suspends on that exact
+  obligation, so its stage stops advertising progress nobody is making, and
+  `wait=false` is the explicit override for when you can honestly proceed
+  meanwhile.
+- **Pokes** ask one named participant what is going on, and carry no workflow
+  authority at all — no Work, no obligation, no claim, nothing moves. They
+  exist because waking an apparently quiet agent by manufacturing a
+  dependency would falsify the coordination record. The one terminal answer
+  reports that participant's own state and, where its runner can see them,
+  provider/model/session/auth/limit facts — with canonical Work state
+  reported beside whatever the agent claimed rather than instead of it.
 - **Threads and Messages** are the conversation; **Events** are the Work's
   append-only operational play-by-play. Workflow transitions never inflate
   conversational counts, and discussion never moves a baton.

@@ -1122,3 +1122,283 @@ test("W101: the ACP launch configuration must name an explicit role", () => {
 	// and the ordinary form survives
 	assert.equal(validateConfig(base()).baton.role, "impl");
 });
+
+// -- W93 slice 4: the runtime lease ------------------------------------------
+//
+// The ACP bridge drives turns directly, so it is the one adapter that
+// knows WHICH assignment episode a runner is serving. It publishes that
+// as correlation only: the Work table still decides who holds the
+// claim, and a runtime report never claims, answers or completes
+// anything.
+
+function runtimeSpy() {
+	const published = [];
+	return {
+		published,
+		runtime: {
+			incarnation: "run-1",
+			async start(options) { published.push(["start", options]); },
+			async state(state, options) {
+				published.push([state, options]);
+			},
+			async facts(supplied, options) {
+				published.push(["facts", { ...supplied, ...options }]);
+			},
+			async end(options) { published.push(["end", options]); },
+		},
+	};
+}
+
+test("the lease opens before the first wait and closes on the way out",
+	async () => {
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163")]),
+		]);
+		await runBridge(config, { signal, runWait, logger: quiet,
+			runtime: spy.runtime });
+		assert.equal(spy.published[0][0], "start",
+			JSON.stringify(spy.published));
+		assert.equal(spy.published.at(-1)[0], "end");
+	});
+
+test("a delivered turn is working then idle, correlated to its episode",
+	async () => {
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const action = workAction("7ba67cb8-W163");
+		const { signal, runWait } = script([envelope([action])]);
+		await runBridge(config, { signal, runWait, logger: quiet,
+			runtime: spy.runtime });
+		const states = spy.published.map(([state]) => state);
+		const working = states.indexOf("working");
+		assert.ok(working > 0, JSON.stringify(spy.published));
+		assert.equal(states.indexOf("idle") > working, true,
+			"idle did not follow the completed turn");
+		const [, options] = spy.published[working];
+		assert.equal(options.work, action.work);
+		assert.equal(options.episode, action.episode_seq);
+	});
+
+test("a failed readiness read is retrying, never offline", async () => {
+	const { config } = rig();
+	const spy = runtimeSpy();
+	let calls = 0;
+	const controller = new AbortController();
+	const runWait = async () => {
+		calls += 1;
+		// A realistic transport failure: the classification is honest,
+		// so the message has to be one.
+		if (calls === 1) throw new Error("connect ECONNREFUSED /run/baton.sock");
+		controller.abort();
+		const error = new Error("aborted");
+		error.name = "AbortError";
+		throw error;
+	};
+	await runBridge(config, { signal: controller.signal, runWait,
+		logger: quiet, runtime: spy.runtime });
+	const entry = spy.published.find(([state]) => state === "retrying");
+	assert.ok(entry, JSON.stringify(spy.published));
+	assert.equal(entry[1].cause, "transport");
+	assert.ok(!spy.published.some(([state]) =>
+		state === "offline" || state === "unknown"),
+	"the bridge published a state only the authority derives");
+});
+
+test("a runtime publisher that fails never stops a delivery", async () => {
+	// Diagnostics must not become an outage: the wake path is what the
+	// agent is for, and a status line that cannot publish is a warning.
+	const { log, config } = rig();
+	const angry = {
+		incarnation: null,
+		async start() { throw new Error("no baton binary"); },
+		async state() { throw new Error("no baton binary"); },
+		async end() { throw new Error("no baton binary"); },
+	};
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	await assert.rejects(() => runBridge(config, { signal, runWait,
+		logger: quiet, runtime: angry }));
+	// The production publisher swallows its own failures, which is the
+	// property that keeps the promise above; this proves the bridge
+	// relies on it rather than guarding every call site.
+	const { RuntimePublisher } = await import(
+		"../../codex-event-bridge/src/runtime_publisher.mjs");
+	const safe = new RuntimePublisher(
+		{ binary: "/nonexistent", config: "/nonexistent",
+		  participant: "lang.ada" },
+		{ adapter: "acp", logger: quiet });
+	assert.equal(await safe.start(), false);
+	const second = script([envelope([workAction("7ba67cb8-W163")])]);
+	await runBridge(config, { signal: second.signal,
+		runWait: second.runWait, logger: quiet, runtime: safe });
+	assert.ok(events(log).some((entry) => entry.event === "prompt/start"),
+		"a failing runtime publisher blocked the delivery");
+});
+
+test("the deployment configuration validates runtime identity metadata",
+	async () => {
+		// The validator reads the policy resource, so the fixture owns
+		// a real one — the point here is the runtime block, and the
+		// surrounding refusals stay exactly as they are.
+		const home = mkdtempSync(join(tmpdir(), "acp-runtime-config-"));
+		const policy = join(home, "policy.md");
+		writeFileSync(policy, "deployment-owned prohibitions\n");
+		const base = {
+			baton: { binary: "/opt/baton", config: "/opt/baton.json",
+				participant: "lang.ada", role: "impl" },
+			agent: { command: "/usr/bin/agent", cwd: home },
+			session: { mode: "new", cwd: home },
+			permissionMode: "bypassPermissions",
+			policyResources: [policy],
+			stateDir: join(home, "state"),
+		};
+		const ok = validateConfig({ ...base, runtime: {
+			provider: "Anthropic", model: "claude-opus-5",
+			actionOwner: "baton.slaw" } });
+		assert.deepEqual(ok.runtime, { provider: "Anthropic",
+			model: "claude-opus-5", actionOwner: "baton.slaw" });
+		// Absent is absent — nothing is inferred from the agent command
+		// or from the participant's name.
+		const bare = validateConfig(base);
+		assert.deepEqual(bare.runtime, { provider: undefined,
+			model: undefined, actionOwner: undefined });
+		assert.throws(() => validateConfig({ ...base,
+			runtime: { actionOwner: "slaw" } }), /team\.member/);
+		assert.throws(() => validateConfig({ ...base,
+			runtime: { provider: "" } }), /non-empty/);
+		assert.throws(() => validateConfig({ ...base,
+			runtime: { guessed: "x" } }), /not a runtime metadata field/);
+	});
+
+test("a delivery failure is classified rather than called transport",
+	async () => {
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163")]),
+		]);
+		await runBridge(config, {
+			signal, runWait, logger: quiet, runtime: spy.runtime,
+			sessionFactory: () => ({
+				alive: () => true,
+				sessionId: "sess-1",
+				async start() { return "sess-1"; },
+				async promptText() {
+					throw new Error("429 rate_limit_exceeded");
+				},
+				async stop() {},
+			}),
+		});
+		const failure = spy.published.find(([state]) => state === "failed");
+		assert.ok(failure, JSON.stringify(spy.published));
+		assert.equal(failure[1].cause, "limit");
+		assert.doesNotMatch(failure[1].detail, /429|rate_limit_exceeded/,
+			"the upstream message was persisted as runtime detail");
+	});
+
+test("a clean bridge exit carries no failure cause", async () => {
+	const { config } = rig();
+	const spy = runtimeSpy();
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet,
+		runtime: spy.runtime });
+	const [, options] = spy.published.at(-1);
+	assert.equal(options?.cause, undefined,
+		"a clean shutdown was reported as a failure");
+});
+
+// -- W93 slice 6: the inventory and the refresh signal ------------------------
+
+test("the production startup path publishes the facts it actually knows",
+	async () => {
+		// R17: not the publisher method called in isolation — the real
+		// runBridge startup, which is where a deployed runner either
+		// gets an inventory or does not.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163")]),
+		]);
+		await runBridge(config, { signal, runWait, logger: quiet,
+			runtime: spy.runtime });
+		const published = spy.published.find(([kind]) => kind === "facts");
+		assert.ok(published, JSON.stringify(spy.published));
+		const [, sent] = published;
+		assert.match(sent.service, /acp-baton-bridge pid \d+/);
+		assert.equal(sent.workdir, config.agent.cwd);
+		assert.equal(sent.readiness, config.baton.config);
+		assert.equal(sent.source, "configured");
+		// Nothing it cannot observe is guessed.
+		assert.equal(sent.version, undefined);
+		assert.equal(sent.dispatcher, undefined);
+	});
+
+test("a refresh request is answered from held facts and never delivered",
+	async () => {
+		// R18: level-triggered, adapter-visible, and NOT a model turn.
+		const { log, config } = rig();
+		const spy = runtimeSpy();
+		const refresh = {
+			kind: "runtime_refresh",
+			// R25: keyed on the GENERATION, which is also what the
+			// adapter answers.
+			action_key: "runtime-refresh:run-1:7",
+			incarnation: "run-1",
+			generation: 7,
+			requested_at: "2026-08-19T11:00:00Z",
+			wakes_model: false,
+		};
+		const { signal, runWait } = script([envelope([refresh])]);
+		await runBridge(config, { signal, runWait, logger: quiet,
+			runtime: spy.runtime });
+		const facts = spy.published.filter(([kind]) => kind === "facts");
+		assert.equal(facts.length, 2,
+			"the refresh did not produce a second publication");
+		assert.equal(facts.at(-1)[1].answers, 7,
+			"the publication answered no particular request");
+		assert.ok(!events(log).some((entry) =>
+			entry.event === "prompt/start"),
+		"a refresh request was forwarded to the agent");
+	});
+
+test("a redelivered refresh is answered again", async () => {
+	// Level-triggered: the request stands until a publication clears
+	// it, so a lost delivery simply reappears and is answered again.
+	const { config } = rig();
+	const spy = runtimeSpy();
+	const refresh = {
+		kind: "runtime_refresh",
+		action_key: "runtime-refresh:run-1:7",
+		incarnation: "run-1",
+		generation: 7,
+		requested_at: "2026-08-19T11:00:00Z",
+		wakes_model: false,
+	};
+	const { signal, runWait } = script([
+		envelope([refresh]), envelope([refresh]),
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet,
+		runtime: spy.runtime });
+	const facts = spy.published.filter(([kind]) => kind === "facts");
+	assert.equal(facts.length, 3, JSON.stringify(spy.published));
+});
+
+test("an envelope carrying a refresh must declare it wakes no model",
+	async () => {
+		const { validateEnvelope } = await import(
+			"../src/baton_readiness.mjs");
+		const bad = envelope([{
+			kind: "runtime_refresh",
+			action_key: "runtime-refresh:run-1:x",
+			incarnation: "run-1",
+			generation: 7,
+			wakes_model: true,
+		}]);
+		assert.throws(() => validateEnvelope(bad, "baton.claude"),
+			/wakes_model/);
+	});

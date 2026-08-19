@@ -58,8 +58,9 @@ bootstrap until it is relaunched through the configured path.
 ## Run the local v11 backend set
 
 The repository lifecycle recipes supervise the Codex app-server, generic
-dispatcher, v11 Codex readiness producer, and configured Claude ACP client as
-separate processes. Start with the strict example manifest:
+dispatcher, one v11 readiness producer for every configured Codex participant,
+and the configured ACP clients as separate processes. Start with the strict
+example manifest:
 
     cp conf/infra.example.json /absolute/path/to/mailbox/infra.json
 

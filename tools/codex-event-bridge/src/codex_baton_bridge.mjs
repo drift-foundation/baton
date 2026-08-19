@@ -216,6 +216,26 @@ export function validateEnvelope(payload, participant) {
       if (action.work !== undefined) {
         throw new Error(`poke action ${action.action_key} names a Work; a poke belongs to none`);
       }
+    } else if (action.kind === "runtime_refresh") {
+      // W93 R18: an operator asking this participant's ADAPTER to
+      // republish its safe inventory. It is validated and KEPT so a
+      // bridge can act on it, and every consumer must drop it before
+      // delivery: it is answered from facts the adapter already holds,
+      // so it never becomes a model turn. The authority states that
+      // explicitly rather than leaving it to convention.
+      if (typeof action.incarnation !== "string" || !action.incarnation) {
+        throw new Error(`runtime_refresh ${action.action_key} names no incarnation`);
+      }
+      if (action.wakes_model !== false) {
+        throw new Error(`runtime_refresh ${action.action_key} does not declare wakes_model:false`);
+      }
+      // W93 R25: the GENERATION is what an adapter answers, and the
+      // only thing that distinguishes two asks made inside one second.
+      // An entry without one cannot be answered exactly, so it is a
+      // refusal rather than a best effort.
+      if (!Number.isSafeInteger(action.generation) || action.generation < 1) {
+        throw new Error(`runtime_refresh ${action.action_key} has no positive generation`);
+      }
     } else {
       ignored.push({ kind: action.kind, action_key: action.action_key });
       continue;
@@ -284,6 +304,23 @@ function summarize(action, participant) {
 // re-emits the still-current set (rediscovery is a W148 feature); at
 // most the bridge's short fingerprint window suppresses a very recent
 // repeat.
+// W93 R21: the refresh handoff. It is deliberately NOT an event —
+// events become messages to a model, and this one must not. It rides
+// the same socket as a `control` request, names the dispatcher target
+// and the participant whose lease is being asked about, and carries
+// the request instant so the dispatcher can say what it answered.
+export function refreshRequest(envelope, action, options) {
+  return {
+    control: "runtime-refresh",
+    target: options.target,
+    participant: envelope.participant,
+    incarnation: action.incarnation,
+    generation: action.generation,
+    requested_at: action.requested_at ?? null,
+    action_key: action.action_key,
+  };
+}
+
 export function actionEvent(envelope, action, options) {
   return {
     id: `baton-v11:${envelope.authority_uuid}:${envelope.participant}:${action.action_key}`,
@@ -349,6 +386,14 @@ export async function codexBatonBridge(options, { signal = new AbortController()
       reportedUnknown.add(entry.kind);
       logger.warn(`v11 action kind ${JSON.stringify(entry.kind)} is unknown to this build (first seen at ${entry.action_key}); ignoring those entries and forwarding the rest of the envelope`);
     }
+    // W93 R18/R21: a refresh request is for the ADAPTER, never a wake
+    // to forward — but this producer is the only consumer that SEES
+    // it, and it does not own the lease. So it hands the request down
+    // the same socket the dispatcher already listens on, as a control
+    // message rather than an event: the dispatcher that runs the
+    // session republishes its held facts, and nothing is ever queued
+    // for a model. Dropping it here instead would remove the signal
+    // at the one place it arrives.
     const actions = payload.result.actionable;
     // W148 R2: memory carries the SAME identity the event does —
     // authority uuid + participant + action key. An authority switch
@@ -361,29 +406,43 @@ export async function codexBatonBridge(options, { signal = new AbortController()
       if (!currentKeys.has(key)) delivered.delete(key);
     }
     let emitted = 0;
+    let answered = 0;
     let failed = false;
     for (const action of actions) {
       if (delivered.get(`${scope}:${action.action_key}`)) continue;
-      const event = actionEvent(payload, action, options);
+      const refresh = action.kind === "runtime_refresh";
+      const message = refresh
+        ? refreshRequest(payload, action, options)
+        : actionEvent(payload, action, options);
       try {
-        const response = await emitEvent(socket, event);
+        const response = await emitEvent(socket, message);
         if (!response.accepted && response.reason !== "duplicate") {
-          throw new Error(`event rejected: ${JSON.stringify(response)}`);
+          throw new Error(`${refresh ? "refresh" : "event"} rejected: ${JSON.stringify(response)}`);
         }
+        // The same whole-set memory covers both: a request whose
+        // handoff failed stays undelivered and is retried, and one the
+        // dispatcher answered disappears from `wait` and is forgotten.
         delivered.set(`${scope}:${action.action_key}`, true);
-        emitted += 1;
-        logger.info(`v11 action forwarded: ${action.action_key} -> ${options.target}`);
+        if (refresh) {
+          answered += 1;
+          logger.info(`v11 runtime refresh handed to the dispatcher: ${action.action_key} -> ${options.target}`);
+        } else {
+          emitted += 1;
+          logger.info(`v11 action forwarded: ${action.action_key} -> ${options.target}`);
+        }
       } catch (error) {
         failed = true;
         logger.warn(`could not forward ${action.action_key}: ${error.message}; retrying in ${retryMs}ms`);
       }
     }
+    // `--once` waits for a wake to FORWARD. Answering a diagnostic is
+    // not that, so a refresh never satisfies it.
     if (options.once && emitted > 0) return 0;
     if (failed) {
       await delay(retryMs, signal);
       continue;
     }
-    if (!payload.result.timed_out && emitted === 0) {
+    if (!payload.result.timed_out && emitted === 0 && answered === 0) {
       // A persistent actionable set returns immediately and unchanged:
       // back off so level-triggered suppression cannot busy-loop.
       await delay(retryMs, signal);

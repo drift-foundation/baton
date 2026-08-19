@@ -1,7 +1,17 @@
 """W74: the root header drops the redundant '— top-level work' prose.
 
-Identity and the live summary stay; drilled views keep their real
-breadcrumbs; narrow behavior is unchanged. Presentation only.
+Identity stays; drilled views keep their real breadcrumbs; narrow
+behavior is unchanged. Presentation only.
+
+SUPERSEDED IN PART by W25 (finding-tui-jobs-teams-inbox), 2026-08-19:
+the "live summary" half of W74 is gone. The header now leads with the
+three top-level tabs and right-aligns the participant identity, and the
+`[oblig] [park] [due]` counters are retired — owed action is the Inbox
+tab's subject and parked Work is filterable in Jobs. W74's own
+question survives unchanged and is what these tests still ask: does the
+root header identify the operator without redundant prose, do drilled
+views keep their real trail, and does a narrow terminal still say who
+and where you are.
 """
 
 from __future__ import annotations
@@ -50,13 +60,14 @@ def test_the_root_header_is_identity_plus_summary_only(world):
 	                                        [(b"qy", 0.4)])
 	screen = ptyharness.replay(text)
 	header = screen[0]
-	assert header.startswith("lang.ada"), header
+	assert header.startswith("[Jobs]"), header
+	assert header.rstrip().endswith("lang.ada"), \
+		"the participant identity left the right edge"
 	assert "top-level work" not in header, \
 		"the redundant root prose survived"
-	assert "—" not in header.split("[")[0], \
-		"stray prose remains before the summary"
 	for token in ("[oblig:", "[park:", "[due:"):
-		assert token in header, f"the live summary lost {token}"
+		assert token not in header, \
+			f"the retired counter {token} came back"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -67,7 +78,9 @@ def test_drilled_views_keep_their_real_breadcrumb(world):
 	drilled = ptyharness.replay(steps[0])
 	assert "drill target" in drilled[0], \
 		"the drilled breadcrumb lost its trail"
-	assert "[oblig:" in drilled[0]
+	assert drilled[0].startswith("[Jobs]"), \
+		"the tabs left the drilled header"
+	assert drilled[0].rstrip().endswith("lang.ada")
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -79,6 +92,9 @@ def test_the_narrow_root_header_still_fits_and_identifies(world):
 		config_path, "lang.ada", [(b"qy", 0.4)], columns=44,
 		lines=narrow)
 	screen = ptyharness.replay(text, columns=44, lines=narrow)
-	assert screen[0].startswith("lang.ada"), screen[0]
+	# Identity overdraws LAST, so the one fact a narrow header can
+	# never lose is who the operator is signed in as.
+	assert screen[0].rstrip().endswith("lang.ada"), screen[0]
+	assert screen[0].startswith("[Jobs]"), screen[0]
 	assert "top-level work" not in "\n".join(screen)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

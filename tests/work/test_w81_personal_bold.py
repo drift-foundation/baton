@@ -203,10 +203,16 @@ def test_the_cue_is_a_pure_fact_projection(world):
 	console = Console(store, "lang", "ada",
 	                  config_path=world["config"])
 	screen = Screen()
+	# W93 added a conditional Agent column, so at 110 the Title — the
+	# one column the layout may truncate — is narrower whenever the
+	# window holds claimed Work, as this one does. The property under
+	# test is WHICH rows are bold, not how many characters of their
+	# titles fit, so the comparison is on the painted prefix.
 	console._render_table(screen, 24, 110, rows)
 	painted = {text.strip() for text, attr in screen.calls
 	           if attr & curses.A_BOLD}
-	assert painted == expected, (painted, expected)
+	assert {title[:10] for title in painted} == \
+		{title[:10] for title in expected}, (painted, expected)
 	assert "parity blocked" not in painted
 
 

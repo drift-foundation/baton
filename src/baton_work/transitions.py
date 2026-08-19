@@ -18,6 +18,7 @@ from __future__ import annotations
 import sqlite3
 
 import hashlib as _op_hashlib
+from urllib.parse import unquote as _fact_unquote
 import json as _op_json
 
 from baton_work.authority import (Authority, WorkError,
@@ -3571,6 +3572,126 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	                    finish=finish, references=refs)
 
 
+def reroute_work(store: Authority, work_id: str, *, actor_team: str,
+                 actor: str, to: str, reason: str,
+                 route: str | None = None,
+                 op_id: str | None = None, refs=()) -> dict:
+	"""W128: move UNCLAIMED Work to another endpoint or route, without
+	going through the runner that currently owes it.
+
+	`pass` is the baton changing hands and only its resolved handler may
+	do it. That is right while somebody owes the Work — and wrong when
+	nobody does. W30 sat open, queued and unclaimed on the `impl2`
+	alternate while the agent that route resolves to was not taking it,
+	and the only way to move it was to wake that very agent so it could
+	hand over Work it had never touched. An operator routing AROUND a
+	runner cannot be made to depend on that runner: it strands the Work
+	whenever the runner is offline, overloaded or broken, which is
+	precisely when rerouting is needed.
+
+	So the authority here is OWNERSHIP, not route eligibility: any
+	active member of the Work's owning team may correct where unclaimed
+	Work is offered. Route eligibility decides who EXECUTES; the owning
+	team decides where its own work is queued.
+
+	Claimed Work is never rerouted underneath its Handler — that
+	remains the claimant's pass, or an explicit `release` first. The
+	race between the two is decided under the write lock: exactly one
+	of a claim and a reroute commits against the observed unclaimed
+	state, and the loser refuses having changed nothing."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	protected = _operation(store, actor_team, actor, "reroute_work",
+	                       op_id, {"work": work_id, "to": to,
+	                               "reason": reason, "route": route,
+	                               "refs": refs})
+	if isinstance(protected, dict):
+		return protected
+	if not isinstance(reason, str) or not reason.strip():
+		raise WorkError("a reroute records why the Work is being moved; "
+		                "state reason=")
+	target = _one_endpoint(store, to, "reroute")
+	row = _work(store, work_id)
+	if row["status"] != OPEN:
+		raise WorkError(f"{work_id} is {row['status']}; terminal work "
+		                f"has no route to correct")
+	payload = {"work": work_id, "reason": reason, "to": to,
+	           "route_selected": route}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live = conn.execute(
+			"SELECT status, team, route_team, route_kind, "
+			"route_selected, handler_team, handler_member FROM work "
+			"WHERE id=?", (work_id,)).fetchone()
+		if live["status"] != OPEN:
+			raise WorkError(f"{work_id} is {live['status']}; terminal "
+			                f"work has no route to correct")
+		# OWNING TEAM, checked in the lock. Contribution and requests
+		# stay open across teams; workflow mutation does not become
+		# everybody's merely because nobody holds the Work.
+		if actor_team != live["team"]:
+			raise WorkError(
+				f"reroute: {work_id} is owned by {live['team']}, not "
+				f"{actor_team}; another team's unclaimed work is still "
+				f"theirs to route")
+		# The race, decided here: a claim that commits first makes this
+		# refuse, and a reroute that commits first is simply the state
+		# the claim then re-reads.
+		if live["handler_team"] is not None:
+			raise WorkError(
+				f"reroute: {work_id} is claimed by "
+				f"{live['handler_team']}.{live['handler_member']}; "
+				f"claimed work is never rerouted underneath its "
+				f"handler — it passes, or the claim is released first")
+		current = _current_route(conn, live)
+		destination = route or _default_route(conn, *target)
+		if (live["route_team"], live["route_kind"]) == target and \
+				current == destination:
+			raise WorkError(
+				f"{work_id} is already at {target[0]}.{target[1]} on "
+				f"route {current!r}; a reroute corrects where unclaimed "
+				f"work is offered")
+		# Resolved INSIDE the lock, exactly as a pass resolves it: a
+		# regen withdrawing the alternate between the operator's choice
+		# and the commit refuses rather than routing somewhere else.
+		payload["from"] = {"endpoint": f"{live['route_team']}."
+		                               f"{live['route_kind']}",
+		                   "route": current}
+		payload["resolution"] = resolve_endpoint(
+			conn, target[0], target[1], "reroute", selected=route)
+		conn.execute(
+			"UPDATE work SET route_team=?, route_kind=?, "
+			"route_selected=? WHERE id=?",
+			(target[0], target[1], route, work_id))
+		# Everything else is deliberately untouched: the claim is
+		# already absent, the gates and dependencies are unchanged, and
+		# the planned Next is a separate decision this correction does
+		# not get to make. The phase is re-derived only because a route
+		# change can change nothing about readiness — it is asserted,
+		# not moved.
+		payload["phase"] = _unclaimed_state(conn, work_id)
+		_phase_now(payload, work_id, payload["phase"])
+		conn.execute("UPDATE work SET phase=? WHERE id=?",
+		             (payload["phase"], work_id))
+		_touch_work(conn, work_id)
+		# W49: the Work is now offered to a different set of handlers,
+		# and they must be woken even if this Work was delivered to
+		# them before and never observed as absent.
+		_mint_episode(conn, work_id)
+
+	def finish(result):
+		result["work"] = work_id
+		result["to"] = payload["resolution"]["endpoint"]
+		result["route"] = payload["resolution"]["route"]
+		result["from"] = payload["from"]
+		result["phase"] = payload["phase"]
+
+	return store._write("reroute", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=protected, finish=finish,
+	                    references=refs)
+
+
 def _current_revision(conn, work_id: str) -> int:
 	row = conn.execute(
 		"SELECT MAX(revision) AS top FROM revisions WHERE work=?",
@@ -4193,3 +4314,692 @@ def cancel_poke(store: Authority, poke_seq: int, *, actor_team: str,
 	return store._write("poke_cancel", canceller, payload, mutate,
 	                    operation=operation, finish=finish,
 	                    references=refs)
+
+
+# -- W93: the participant runtime lease ---------------------------------------
+#
+# What a participant's RUNNER is doing is a different question from what
+# its Work is doing, and it is answered by a different party. The Work
+# table says who holds the claim; nothing in here may move it. A runner
+# publishes only about ITSELF: the acting participant is the subject, so
+# no participant can narrate another's runtime, and the authorization
+# question that would otherwise need a capability never arises.
+
+RUNTIME_STATES = ("idle", "working", "waiting-input", "retrying", "failed")
+
+# W93 review R1: the ONE configured lease duration. A deadline is
+# mandatory — an unbounded lease reports `working` forever after its
+# process has gone — but an adapter should not have to compute an
+# instant to be honest, so omitting `expires-at=` takes this and every
+# explicit report renews from it. Five minutes is longer than any
+# reasonable gap between transitions and short enough that a dead runner
+# stops claiming the screen quickly.
+RUNTIME_LEASE_SECONDS = 300
+
+# Closed CAUSE categories for the states an operator can act on. Prose
+# goes in `detail`; the category is what a projection can group and a
+# console can render without reading a sentence.
+RUNTIME_CAUSES = ("approval", "credential", "input", "limit", "provider",
+                   "transport", "internal")
+
+
+def _runtime_text(value, what: str, limit: int = 400) -> str | None:
+	if value is None:
+		return None
+	if not isinstance(value, str) or not value.strip():
+		raise WorkError(f"{what} must be non-empty text when supplied")
+	if len(value) > limit:
+		raise WorkError(f"{what} is {len(value)} characters; the limit is "
+		                f"{limit} — a runtime report is a locator and a "
+		                f"short explanation, never a log")
+	return value.strip()
+
+
+def _runtime_deadline(store: Authority, now: str,
+                      supplied: str | None) -> str:
+	"""The lease deadline this write commits: the operand when the
+	runner supplied one, otherwise the configured duration from now.
+
+	A deadline already in the past refuses. It is the same rule a trial
+	review instant follows, for the same reason — a bound born expired
+	is a loose end, and here it would publish a state that reads
+	`unknown` the instant it is written."""
+	if supplied is not None:
+		_canonical_instant(supplied, "expires_at")
+		if supplied <= now:
+			raise WorkError(
+				f"expires_at {supplied!r} is not later than now ({now}); "
+				f"a lease born expired would report `unknown` from the "
+				f"moment it committed")
+		return supplied
+	import calendar
+	import time as clock
+	moment = calendar.timegm(
+		clock.strptime(now[:19], "%Y-%m-%dT%H:%M:%S"))
+	return clock.strftime("%Y-%m-%dT%H:%M:%SZ",
+	                      clock.gmtime(moment + RUNTIME_LEASE_SECONDS))
+
+
+def _runtime_lease(conn, team: str, member: str):
+	return conn.execute(
+		"SELECT * FROM runtime_leases WHERE team=? AND member=?",
+		(team, member)).fetchone()
+
+
+def _runtime_gate(conn, team: str, member: str, incarnation: str,
+                  what: str):
+	"""The lease compare-and-swap. A SUPERSEDED runner's write fails
+	closed rather than restoring a state its replacement has moved past —
+	the whole reason the incarnation exists. An ended lease is terminal
+	for that incarnation: saying goodbye twice is not a transition."""
+	live = _runtime_lease(conn, team, member)
+	if live is None:
+		raise WorkError(
+			f"{what}: {team}.{member} has no runtime lease; a runner "
+			f"publishes state only after runtime-start opens one")
+	if live["incarnation"] != incarnation:
+		raise WorkError(
+			f"{what}: incarnation {incarnation!r} is not the current "
+			f"runtime lease for {team}.{member} "
+			f"({live['incarnation']!r}); a superseded runner never "
+			f"overwrites its replacement's state")
+	if live["ended_ts"] is not None:
+		raise WorkError(
+			f"{what}: the {incarnation!r} lease for {team}.{member} "
+			f"ended at {live['ended_ts']}; start a new incarnation")
+	return live
+
+
+def runtime_start(store: Authority, *, actor_team: str, actor: str,
+                  incarnation: str, adapter: str,
+                  provider: str | None = None, model: str | None = None,
+                  session: str | None = None,
+                  expires_at: str | None = None,
+                  action_owner: str | None = None,
+                  rationale: str | None = None,
+                  op_id: str | None = None, refs=()) -> dict:
+	"""Open this participant's runtime lease, superseding any previous
+	incarnation explicitly.
+
+	`adapter` names the runner FAMILY and is never inferred from the
+	participant's name: `baton.claude` may be driven by any conforming
+	adapter, and guessing from an identity is how a roster starts lying.
+	A fresh lease reports `idle` — a runner that has started is present
+	and not yet working, which is a different fact from `unknown`.
+
+	REPLACING an existing lease requires `rationale=`: the finding says
+	a replacement is explicit and reasoned, and `runtime-history` is
+	where that has to be readable. A first start needs none — there is
+	nothing to explain about a runner simply arriving."""
+	_member(store, actor_team, actor)
+	incarnation = _runtime_text(incarnation, "incarnation", 128)
+	adapter = _runtime_text(adapter, "adapter", 64)
+	rationale = _runtime_text(rationale, "rationale")
+	provider = _runtime_text(provider, "provider", 64)
+	model = _runtime_text(model, "model", 128)
+	session = _runtime_text(session, "session", 256)
+	owner_pair = None
+	if action_owner is not None:
+		owner_team, owner_member = _participant_pair(
+			action_owner, "runtime action owner")
+		_member(store, owner_team, owner_member)
+		owner_pair = f"{owner_team}.{owner_member}"
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "runtime_start",
+	                       op_id,
+	                       {"incarnation": incarnation,
+	                        "adapter": adapter, "provider": provider,
+	                        "model": model, "session": session,
+	                        "expires_at": expires_at,
+	                        "action_owner": owner_pair,
+	                        "rationale": rationale, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload = {"participant": f"{actor_team}.{actor}",
+	           "incarnation": incarnation, "adapter": adapter,
+	           "provider": provider, "model": model,
+	           "session": session, "action_owner": owner_pair,
+	           "rationale": rationale, "state": "idle"}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		now = store.clock()
+		# W93 review R2, second round: one incarnation names one launch
+		# for its whole JOURNAL lifetime, not only while it occupies the
+		# current-row projection. The lease row is overwritten by a
+		# replacement, so checking it alone let a superseded identity
+		# come back and displace the runner that replaced it. The
+		# journal is where "this launch already happened" is durable.
+		previous = _runtime_lease(conn, actor_team, actor)
+		if conn.execute(
+				"SELECT 1 FROM runtime_events WHERE team=? AND "
+				"member=? AND incarnation=? LIMIT 1",
+				(actor_team, actor, incarnation)).fetchone() is not None:
+			# The diagnostic distinguishes the three shapes an operator
+			# can be in, because the fix differs: a live lease is
+			# running, an ended one said goodbye, and a superseded one
+			# was replaced by something that is running now.
+			if previous is not None and \
+					previous["incarnation"] == incarnation:
+				where = ("ended" if previous["ended_ts"] else "live")
+				held = f"is already this participant's {where} lease"
+			else:
+				held = ("was already superseded and must not displace "
+				        + repr(previous["incarnation"])
+				        if previous is not None
+				        else "has already been this participant's "
+				             "launch")
+			raise WorkError(
+				f"runtime-start: {incarnation!r} {held}; an incarnation "
+				f"is one launch for the life of the journal, so a "
+				f"replacement names a new one (an exact retry is "
+				f"op-id=)")
+		superseded = None
+		if previous is not None:
+			# W93 review R2: an incarnation is ONE launch. Starting the
+			# same one again reset a live runner to `idle`, and starting
+			# it after `runtime-end` resurrected an explicitly ended
+			# launch — both bypassing the terminal gate the other two
+			# verbs go through. An exact transport retry is `op-id`'s
+			# job; a genuine replacement names a different launch.
+			if rationale is None:
+				raise WorkError(
+					"runtime-start: replacing the "
+					f"{previous['incarnation']!r} lease needs "
+					f"rationale=; a replacement is explicit and "
+					f"reasoned, and the journal is where that has to "
+					f"be readable")
+			superseded = previous["incarnation"]
+			payload["superseded"] = superseded
+		conn.execute("DELETE FROM runtime_leases WHERE team=? AND "
+		             "member=?", (actor_team, actor))
+		deadline = _runtime_deadline(store, now, expires_at)
+		payload["expires_at"] = deadline
+		conn.execute(
+			"INSERT INTO runtime_leases (team, member, incarnation, "
+			"adapter, provider, model, session, state, cause, detail, "
+			"work, episode, action_owner, last_contact, expires_at, "
+			"started_ts, changed_ts, changed_seq) VALUES "
+			"(?,?,?,?,?,?,?,'idle',NULL,NULL,NULL,NULL,?,?,?,?,?,?)",
+			(actor_team, actor, incarnation, adapter, provider, model,
+			 session, owner_pair, now, deadline, now, now, seq))
+		conn.execute(
+			"INSERT INTO runtime_events (seq, team, member, "
+			"incarnation, supersedes, state, cause, detail, work, "
+			"episode, session, ts) VALUES "
+			"(?,?,?,?,?,'idle',NULL,?,NULL,NULL,?,?)",
+			(seq, actor_team, actor, incarnation, superseded, rationale,
+			 session, now))
+
+	return store._write("runtime_start", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, references=refs)
+
+
+def runtime_state(store: Authority, *, actor_team: str, actor: str,
+                  incarnation: str, state: str,
+                  cause: str | None = None, detail: str | None = None,
+                  work: str | None = None, episode: int | None = None,
+                  session: str | None = None,
+                  expires_at: str | None = None,
+                  op_id: str | None = None, refs=()) -> dict:
+	"""Publish one explicit runtime transition on this participant's
+	live lease.
+
+	`work` CORRELATES the runner with the episode it believes it is
+	serving. It is not a claim and never becomes one: the Work table
+	decides who holds it, and a disagreement between the two is
+	something a reader is shown rather than something this write
+	resolves. Nothing here claims, releases, passes, re-phases, blocks
+	or closes anything."""
+	_member(store, actor_team, actor)
+	if state not in RUNTIME_STATES:
+		raise WorkError(
+			f"runtime state {state!r} is not one of "
+			f"{', '.join(RUNTIME_STATES)}; `offline` and `unknown` are "
+			f"DERIVED from silence at read time and are never published")
+	incarnation = _runtime_text(incarnation, "incarnation", 128)
+	detail = _runtime_text(detail, "detail")
+	session = _runtime_text(session, "session", 256)
+	if cause is not None and cause not in RUNTIME_CAUSES:
+		raise WorkError(
+			f"runtime cause {cause!r} is not one of "
+			f"{', '.join(RUNTIME_CAUSES)}; the category is closed so a "
+			f"reader can group it, and the prose belongs in detail=")
+	if state == "waiting-input" and cause is None:
+		raise WorkError(
+			"waiting-input requires cause=; an operator asked to act "
+			"needs to know what is being waited on")
+	if work is not None:
+		work = resolve_work_selector(store, work)
+	if episode is not None and not isinstance(episode, int):
+		raise WorkError("episode must be an integer assignment episode")
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "runtime_state",
+	                       op_id,
+	                       {"incarnation": incarnation, "state": state,
+	                        "cause": cause, "detail": detail,
+	                        "work": work, "episode": episode,
+	                        "session": session,
+	                        "expires_at": expires_at, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload = {"participant": f"{actor_team}.{actor}",
+	           "incarnation": incarnation, "state": state,
+	           "cause": cause, "detail": detail, "work": work,
+	           "episode": episode, "session": session,
+	           "expires_at": expires_at}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live = _runtime_gate(conn, actor_team, actor, incarnation,
+		                     "runtime-state")
+		now = store.clock()
+		payload["from_state"] = live["state"]
+		# W93 review R15: a byte-for-byte RENEWAL says the runner is
+		# still contactable; it does not claim that an unchanged state
+		# began again. `Since` is the age of the STATE — a continuously
+		# working runner has been working since it started, not since
+		# its last heartbeat — so an identical report advances
+		# last_contact and the deadline while leaving the transition
+		# instant alone. Any change in the reported state or in the
+		# correlation shown beside it starts a new interval.
+		identical = (live["state"] == state
+		             and live["cause"] == cause
+		             and live["detail"] == detail
+		             and live["work"] == work
+		             and live["episode"] == episode
+		             and (session is None
+		                  or live["session"] == session))
+		payload["renewal"] = identical
+		# W93 review R1: every explicit report RENEWS the deadline.
+		# Retaining the old one let a contactable runner keep reading
+		# `unknown` — freshness that a live report cannot refresh is
+		# not freshness. A report arriving after the deadline is
+		# accepted and renews: coming back from a long silence is what
+		# a slow tool call looks like, and refusing it would strand a
+		# runner that is demonstrably alive.
+		deadline = _runtime_deadline(store, now, expires_at)
+		payload["expires_at"] = deadline
+		payload["renewed_after_expiry"] = live["expires_at"] <= now
+		# A report that omits the session keeps the lease's own; a
+		# runner re-stating it is how a reconnect publishes a new one.
+		conn.execute(
+			"UPDATE runtime_leases SET state=?, cause=?, detail=?, "
+			"work=?, episode=?, session=COALESCE(?, session), "
+			"last_contact=?, expires_at=?, "
+			"changed_ts=?, changed_seq=? WHERE team=? AND member=?",
+			(state, cause, detail, work, episode, session, now,
+			 deadline,
+			 live["changed_ts"] if identical else now,
+			 live["changed_seq"] if identical else seq,
+			 actor_team, actor))
+		conn.execute(
+			"INSERT INTO runtime_events (seq, team, member, "
+			"incarnation, supersedes, state, cause, detail, work, "
+			"episode, session, ts) VALUES (?,?,?,?,NULL,?,?,?,?,?,?,?)",
+			(seq, actor_team, actor, incarnation, state, cause,
+			 detail, work, episode, session or live["session"], now))
+
+	def finish(result):
+		# The renewal fact rides the RESULT so an adapter learns it came
+		# back from silence without reading the projection again.
+		result["expires_at"] = payload["expires_at"]
+		result["renewed_after_expiry"] = payload["renewed_after_expiry"]
+
+	return store._write("runtime_state", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, finish=finish,
+	                    references=refs)
+
+
+def runtime_end(store: Authority, *, actor_team: str, actor: str,
+                incarnation: str, cause: str | None = None,
+                detail: str | None = None,
+                op_id: str | None = None, refs=()) -> dict:
+	"""Close this participant's runtime lease explicitly.
+
+	An ended lease reads `offline` with provenance `reported`, which is
+	a different operational fact from a lease that simply went quiet and
+	reads `offline` as `derived`. Baton never converts either into a
+	diagnosis: a runner that exited cleanly did not fail, and one that
+	stopped answering is not stuck."""
+	_member(store, actor_team, actor)
+	incarnation = _runtime_text(incarnation, "incarnation", 128)
+	detail = _runtime_text(detail, "detail")
+	if cause is not None and cause not in RUNTIME_CAUSES:
+		raise WorkError(
+			f"runtime cause {cause!r} is not one of "
+			f"{', '.join(RUNTIME_CAUSES)}")
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "runtime_end", op_id,
+	                       {"incarnation": incarnation,
+	                        "cause": cause, "detail": detail,
+	                        "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload = {"participant": f"{actor_team}.{actor}",
+	           "incarnation": incarnation, "cause": cause,
+	           "detail": detail, "state": "offline"}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live = _runtime_gate(conn, actor_team, actor, incarnation,
+		                     "runtime-end")
+		now = store.clock()
+		payload["from_state"] = live["state"]
+		conn.execute(
+			"UPDATE runtime_leases SET ended_ts=?, ended_cause=?, "
+			"detail=COALESCE(?, detail), last_contact=?, changed_ts=?, "
+			"changed_seq=? WHERE team=? AND member=?",
+			(now, cause, detail, now, now, seq, actor_team, actor))
+		conn.execute(
+			"INSERT INTO runtime_events (seq, team, member, "
+			"incarnation, supersedes, state, cause, detail, work, "
+			"episode, session, ts) VALUES "
+			"(?,?,?,?,NULL,'offline',?,?,NULL,NULL,?,?)",
+			(seq, actor_team, actor, incarnation, cause, detail,
+			 live["session"], now))
+
+	return store._write("runtime_end", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, references=refs)
+
+
+# -- W93 slice 6: the safe operational inventory ------------------------------
+
+# The CLOSED key set. Every one is a locator an operator needs to find or
+# diagnose a session, and none of them is a secret. The closure is the
+# redaction boundary expressed structurally: an open map would invite an
+# adapter to publish its environment "to help", and a credential would
+# have somewhere to go. Here it does not.
+RUNTIME_FACTS = {
+	"service": "the process or service identity running this runner",
+	"dispatcher": "the dispatcher target this runner is driven through",
+	"readiness": "the readiness path this runner polls",
+	"workdir": "the working directory or root the runner operates in",
+	"log": "the configured log locator for this runner",
+	"version": "the adapter or runner version",
+	"retry-at": "the instant the provider says to retry or reset",
+}
+
+RUNTIME_SOURCES = ("configured", "reported", "derived")
+
+# Anything that reads like a credential is REFUSED rather than stored.
+# The adapter scrubs too, and that is not a reason to trust it: this is
+# durable state, the boundary belongs where the durability is, and a
+# refusal tells the publisher it has a bug rather than silently
+# accepting a redacted string it believed was safe.
+#
+# W93 review R19: closing the KEY set does not make an allowed VALUE
+# safe. A signed log URL is a realistic deployment input and its
+# signature is a credential even though nothing in it is spelled
+# `token` — so the query half of a URI is examined on its own terms,
+# and a locator that carries authentication is refused rather than
+# stored forever in a form somebody might later redact.
+_CREDENTIAL_PARAMS = (
+	"signature", "sig", "credential", "token", "key", "secret",
+	"password", "passwd", "auth", "access_key", "accesskeyid",
+	"sas", "policy", "signedsignature", "awsaccesskeyid",
+)
+
+_SECRET_SHAPES = (
+	_sel_re.compile(r"\b(bearer|basic)\s+\S+", _sel_re.I),
+	_sel_re.compile(r"\b(authorization|x-api-key|api[-_]?key|token|"
+	                r"secret|password|passwd|credential)\b\s*[:=]",
+	                _sel_re.I),
+	_sel_re.compile(r"\b[a-z][a-z0-9+.-]*://[^\s/@]+:[^\s/@]+@",
+	                _sel_re.I),
+	_sel_re.compile(r"\b(sk|pk|ghp|xox[abps])[-_][A-Za-z0-9]{16,}\b"),
+)
+
+
+def _credential_parameters(part: str) -> bool:
+	"""Does any parameter in this `a=b&c=d` run NAME authentication?
+
+	Matched on the name's own words rather than a substring, so `key`
+	refuses and `monkey` does not, and percent-decoded first so an
+	encoded name is read the same way the server that receives it
+	would read one."""
+	for pair in _sel_re.split(r"[&;]", part):
+		name = _fact_unquote(pair.split("=", 1)[0]).strip().lower()
+		words = [word for word in _sel_re.split(r"[^a-z0-9]+", name)
+		         if word]
+		if any(word in _CREDENTIAL_PARAMS for word in words):
+			return True
+	return False
+
+
+def _locator_carries_credential(value: str) -> bool:
+	"""Does this locator authenticate the request that uses it?
+
+	Signed URLs are the case the shape patterns miss: every part of
+	`?X-Amz-Signature=…` is ordinary text, and the whole is a bearer
+	credential with an expiry. A locator an operator needs does not
+	need one, so a parameter whose NAME says authentication is enough
+	to refuse.
+
+	W93 review R24: the QUERY is not the only half that carries them.
+	The implicit-grant OAuth callback puts the bearer token after `#`
+	precisely so it never reaches a server log, and a locator pasted
+	from a browser bar carries it verbatim — so the fragment is read on
+	exactly the same terms. Where the credential sits in the URI is the
+	attacker's choice and cannot be the boundary."""
+	fragment = None
+	rest = value
+	if "#" in rest:
+		rest, fragment = rest.split("#", 1)
+	parts = []
+	if "?" in rest:
+		parts.append(rest.split("?", 1)[1])
+	elif "&" in rest:
+		parts.append(rest)
+	if fragment is not None:
+		parts.append(fragment)
+	return any(_credential_parameters(part) for part in parts)
+
+
+def _safe_fact(key: str, value: str) -> str:
+	value = _runtime_text(value, f"{key} value", 512)
+	if any(shape.search(value) for shape in _SECRET_SHAPES) \
+			or _locator_carries_credential(value):
+		raise WorkError(
+			f"runtime fact {key!r} looks like it carries a credential; "
+			f"the operational inventory is locators and versions, and a "
+			f"secret is refused here rather than stored and redacted "
+			f"later")
+	return value
+
+
+def runtime_facts(store: Authority, *, actor_team: str, actor: str,
+                  incarnation: str, source: str = "reported",
+                  observed_at: str | None = None,
+                  answers: int | None = None,
+                  facts: dict | None = None,
+                  op_id: str | None = None, refs=()) -> dict:
+	"""Publish this runner's safe operational inventory.
+
+	Every fact carries its own source and the instant it was observed,
+	because they age differently: a dispatcher target read from the
+	deployment document at launch and a working directory observed at
+	the same moment are not equally current a day later, and a refresh
+	may update one and not the other. A reader is shown which is which
+	rather than being asked to assume.
+
+	W93 review R20: `observed_at` is the ADAPTER's instant, not the
+	authority's commit time. These writes queue behind one another and
+	retry, so commit time can make an old observation look newer than
+	it is — and the whole point of the field is that a reader can trust
+	the age. It is bounded on both sides: an instant in the future is
+	refused because nothing has been observed yet, and one older than
+	the lease itself is refused because it cannot describe this launch.
+	Omitted, it defaults to now, which is honest for an adapter that
+	publishes what it just read.
+
+	W93 review R25: `answers` names the exact refresh GENERATION this
+	publication was made in response to, and only that one is cleared.
+	An ordinary or startup publication names none and therefore
+	acknowledges nothing — an adapter that never saw the question has
+	not answered it, however new its facts happen to be."""
+	_member(store, actor_team, actor)
+	incarnation = _runtime_text(incarnation, "incarnation", 128)
+	if source not in RUNTIME_SOURCES:
+		raise WorkError(
+			f"runtime fact source {source!r} is not one of "
+			f"{', '.join(RUNTIME_SOURCES)}")
+	supplied = {key: value for key, value in (facts or {}).items()
+	            if value is not None}
+	if not supplied:
+		raise WorkError(
+			"state at least one operational fact: "
+			+ ", ".join(sorted(RUNTIME_FACTS)))
+	for key in supplied:
+		if key not in RUNTIME_FACTS:
+			raise WorkError(
+				f"runtime fact {key!r} is not one of "
+				f"{', '.join(sorted(RUNTIME_FACTS))}; the inventory is a "
+				f"closed set so a credential has nowhere to go")
+	clean = {key: _safe_fact(key, value)
+	         for key, value in supplied.items()}
+	if observed_at is not None:
+		_canonical_instant(observed_at, "observed_at")
+	if answers is not None:
+		if not isinstance(answers, int) or isinstance(answers, bool) \
+				or answers < 1:
+			raise WorkError(
+				"answers names the positive generation of the refresh "
+				"request this publication responds to")
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "runtime_facts",
+	                       op_id, {"incarnation": incarnation,
+	                               "source": source,
+	                               "observed_at": observed_at,
+	                               "answers": answers,
+	                               "facts": clean, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload = {"participant": f"{actor_team}.{actor}",
+	           "incarnation": incarnation, "source": source,
+	           "observed_at": observed_at, "answers": answers,
+	           "answered": False, "facts": clean}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live = _runtime_gate(conn, actor_team, actor, incarnation,
+		                     "runtime-facts")
+		now = store.clock()
+		observed = observed_at or now
+		if observed > now:
+			raise WorkError(
+				f"observed_at {observed!r} is later than now ({now}); "
+				f"nothing has been observed yet")
+		if observed < live["started_ts"]:
+			raise WorkError(
+				f"observed_at {observed!r} precedes this lease, which "
+				f"opened at {live['started_ts']}; a fact older than the "
+				f"launch cannot describe it")
+		payload["observed_at"] = observed
+		for key, value in clean.items():
+			conn.execute(
+				"INSERT INTO runtime_facts (team, member, incarnation, "
+				"key, value, source, observed_ts, observed_seq) "
+				"VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(team, member, "
+				"incarnation, key) DO UPDATE SET value=excluded.value, "
+				"source=excluded.source, "
+				"observed_ts=excluded.observed_ts, "
+				"observed_seq=excluded.observed_seq",
+				(actor_team, actor, incarnation,
+				 key.replace("-", "_"), value, source, observed, seq))
+		# Publishing answers the ONE request it was made in response
+		# to, named by generation, and never anything else.
+		#
+		# W93 review R22/R25: these writes queue and retry, so a fact
+		# COLLECTED before an operator asked can COMMIT after, and two
+		# asks inside one second are indistinguishable by instant.
+		# Comparing times could therefore let a publication acknowledge
+		# a question it never heard — the operator would read a
+		# satisfied request while holding facts older than the ask.
+		# Generation equality has neither failure: an ordinary or
+		# startup publication names no generation and clears nothing,
+		# and a late answer to a superseded request leaves the current
+		# one standing for the adapter's next poll.
+		answered = answers is not None \
+			and live["refresh_seq"] == answers
+		if answered:
+			conn.execute(
+				"UPDATE runtime_leases SET refresh_at=NULL, "
+				"refresh_seq=NULL, last_contact=? WHERE team=? AND "
+				"member=? AND refresh_seq=?",
+				(now, actor_team, actor, answers))
+		else:
+			conn.execute(
+				"UPDATE runtime_leases SET last_contact=? WHERE "
+				"team=? AND member=?", (now, actor_team, actor))
+		payload["answered"] = answered
+
+	# The caller learns whether its answer LANDED, and an exact `op-id`
+	# replay says the same thing it said the first time.
+	def finish(result):
+		result["answered"] = payload["answered"]
+		result["answers"] = answers
+
+	return store._write("runtime_facts", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish, references=refs)
+
+
+def runtime_refresh(store: Authority, *, actor_team: str, actor: str,
+                    target: str, op_id: str | None = None,
+                    refs=()) -> dict:
+	"""Ask one participant's ADAPTER for fresh machine facts.
+
+	This is the cheap half of the finding's live-versus-requested split.
+	It runs nothing, wakes no model and blocks no read: it records that
+	an operator wants the inventory refreshed, and the adapter notices
+	it on the polling loop it already has. `poke` remains the path for
+	what only the agent itself can answer — this one deliberately never
+	reaches the model.
+
+	Any configured member may ask. Requesting a diagnostic is not
+	workflow authority and grants none: nothing about Work moves."""
+	_member(store, actor_team, actor)
+	target_team, target_member = _participant_pair(
+		target, "runtime refresh target")
+	_member(store, target_team, target_member)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "runtime_refresh",
+	                       op_id, {"target": target, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload = {"asker": f"{actor_team}.{actor}",
+	           "target": f"{target_team}.{target_member}"}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		live = _runtime_lease(conn, target_team, target_member)
+		if live is None or live["ended_ts"] is not None:
+			raise WorkError(
+				f"runtime-refresh: {target_team}.{target_member} has no "
+				f"live runtime lease to ask; a refresh reaches an "
+				f"ADAPTER, and there is no adapter here to hear it")
+		now = store.clock()
+		payload["incarnation"] = live["incarnation"]
+		# W93 review R25: the GENERATION is the identity, and the
+		# instant is only what an operator reads. Two asks inside one
+		# second are two requests, and a consumer that has delivered
+		# the first must see the second as new.
+		payload["generation"] = seq
+		payload["requested_at"] = now
+		conn.execute(
+			"UPDATE runtime_leases SET refresh_at=?, refresh_seq=? "
+			"WHERE team=? AND member=?",
+			(now, seq, target_team, target_member))
+
+	# R25: the minted generation IS the answer this verb gives, and an
+	# exact `op-id` replay returns the original rather than minting a
+	# second request from a retry.
+	def finish(result):
+		result["generation"] = payload["generation"]
+		result["requested_at"] = payload["requested_at"]
+		result["incarnation"] = payload["incarnation"]
+
+	return store._write("runtime_refresh", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish, references=refs)

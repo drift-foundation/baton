@@ -84,8 +84,12 @@ def test_only_hot_titles_render_bold_and_selection_composes(world):
 	        for row in rows].count(True) == 1
 	screen = Screen()
 	console._render_table(screen, 24, 110, rows)
+	# W93's conditional Agent column narrows the Title whenever the
+	# window holds claimed Work, so the painted cell carries a prefix of
+	# the title. The subject is the bold OVERDRAW and where it starts,
+	# not how much of the title fits.
 	bold_titles = [(x, text, attr) for _y, x, text, attr in screen.calls
-	               if attr & curses.A_BOLD and "hot executing" in text]
+	               if attr & curses.A_BOLD and "hot exec" in text]
 	assert len(bold_titles) == 1, screen.calls
 	x, text, attr = bold_titles[0]
 	assert x > 0, "the bold overdraw started at the Id column"
@@ -93,7 +97,7 @@ def test_only_hot_titles_render_bold_and_selection_composes(world):
 		"the bold overdraw spilled past the Title cell"
 	assert not any(attr & curses.A_BOLD
 	               for _y, _x, text, attr in screen.calls
-	               if "cold queued" in text), \
+	               if "cold queu" in text), \
 		"a cold row's title went bold"
 	# the SELECTED hot row: reverse AND bold together
 	console.cursor = next(index for index, row in enumerate(rows)
@@ -102,7 +106,7 @@ def test_only_hot_titles_render_bold_and_selection_composes(world):
 	composed = Screen()
 	console._render_table(composed, 24, 110, rows)
 	selected = next((attr for _y, x, text, attr in composed.calls
-	                 if "hot executing" in text
+	                 if "hot exec" in text
 	                 and attr & curses.A_BOLD), None)
 	assert selected is not None
 	assert selected & curses.A_REVERSE, \
@@ -163,10 +167,14 @@ def test_hot_titles_are_bold_on_the_real_terminal(tmp_path):
 	text, status, steps = ptyharness.drive(config, "lang.ada", [
 		(b"", 0.6), (b"qy", 0.4)])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
-	for title in ("claimed-title", "review-title"):
+	# W93's conditional Agent column appears whenever the window holds
+	# claimed Work, as this one does, and the Title absorbs its cells.
+	# The cue under test is the BOLD ATTRIBUTE on the hot rows, so the
+	# match is on the painted prefix rather than the whole title.
+	for title in ("claimed-t", "review-ti"):
 		assert re.search(BOLD_BEFORE + re.escape(title), steps[0]), \
 			f"no bold attribute before the hot title {title!r}"
-	assert not re.search(BOLD_BEFORE + "cold-title", steps[0]), \
+	assert not re.search(BOLD_BEFORE + "cold-titl", steps[0]), \
 		"a cold title rendered bold"
 	# W33 removed the indefinite hot-state blink: a fresh load blinks
 	# NOTHING — bold Title (+ Age) is the steady cue.

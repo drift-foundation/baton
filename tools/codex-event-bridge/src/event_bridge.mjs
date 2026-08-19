@@ -3,6 +3,7 @@ import { chmod, lstat, mkdir, unlink } from "node:fs/promises";
 import net from "node:net";
 import { dirname } from "node:path";
 import { CodexClient, CodexProtocolError } from "./codex_client.mjs";
+import { classifyFailure, makeRuntimePublisher, silentPublisher } from "./runtime_publisher.mjs";
 import { eventFingerprint, formatEventMessage, normalizeEvent } from "./event_types.mjs";
 
 function wait(ms, signal) {
@@ -59,7 +60,13 @@ async function prepareSocketPath(path) {
 }
 
 export class EventBridge extends EventEmitter {
-  constructor({ config, debug = false, logger = console, clientFactory }) {
+  // W93 slice 4: `runtimeFactory` builds one runtime-lease publisher
+  // per identified target. Injectable so tests pin the exact
+  // transitions; defaulted so a deployment that already configures
+  // `roleInstructions` plus a target identity gets it with no new
+  // configuration at all — those are precisely the three facts a
+  // publisher needs.
+  constructor({ config, debug = false, logger = console, clientFactory, runtimeFactory }) {
     super();
     this.config = config;
     this.logger = logger;
@@ -95,6 +102,13 @@ export class EventBridge extends EventEmitter {
         retryMs: config.reconnectMinMs,
         retryTimer: null,
         reconcileTimer: null,
+        // The runner state for the participant this target IS. A
+        // target with no configured identity has no participant to
+        // report as, so it gets the silent publisher rather than a
+        // guess.
+        runtime: (runtimeFactory ?? defaultRuntimeFactory)(config, target,
+                                                           logger),
+        identity: target.identity,
       };
       this.targetStates.set(name, state);
       this.serverStates.get(target.server).targets.push(state);
@@ -103,6 +117,22 @@ export class EventBridge extends EventEmitter {
   }
 
   async start({ listen = true } = {}) {
+    // W93: every identified target's lease opens here, so a configured
+    // participant whose runner is up but quiet is visibly present
+    // rather than indistinguishable from one that never started.
+    for (const state of this.targetStates.values()) {
+      void state.runtime.start({ session: state.threadId });
+      // W93 R17: what this dispatcher actually knows about the runner
+      // it drives, published without inference and without a provider
+      // call — its own process identity, the target it dispatches
+      // through, and the socket it listens on. Anything it cannot
+      // observe stays absent rather than guessed.
+      void state.runtime.facts({
+        service: `codex-event-bridge pid ${process.pid}`,
+        dispatcher: `${state.serverName}/${state.name}`,
+        readiness: this.config.eventSocket,
+      }, { source: "configured" });
+    }
     if (listen) {
       await mkdir(dirname(this.config.eventSocket), { recursive: true, mode: 0o700 });
       await prepareSocketPath(this.config.eventSocket);
@@ -176,12 +206,62 @@ export class EventBridge extends EventEmitter {
   }
 
   handleRequest(payload) {
-    return payload?.control === "status" ? this.statusSnapshot() : this.enqueue(payload);
+    if (payload?.control === "status") return this.statusSnapshot();
+    // W93 R21: the ONE path a refresh takes, and it stops here. It
+    // never reaches `enqueue`, so it cannot become a queued message,
+    // a turn, or a model wake — the difference between this control
+    // and an event is the whole point of the entry declaring
+    // `wakes_model: false`.
+    if (payload?.control === "runtime-refresh") return this.answerRefresh(payload);
+    return this.enqueue(payload);
+  }
+
+  // The lease owner republishes what it already holds: its own process
+  // identity, the target it dispatches through, and the socket it
+  // listens on. No provider call, no model turn, nothing inferred —
+  // the same three facts it published at startup, observed again now.
+  async answerRefresh(request) {
+    const state = this.targetStates.get(request.target);
+    if (!state) {
+      return { accepted: false, reason: "unknown-target", target: request.target ?? null };
+    }
+    // A dispatcher answers for the participant it IS. Publishing facts
+    // under somebody else's identity because a message asked would
+    // make the roster lie in exactly the way this slice exists to
+    // prevent.
+    const mine = state.identity?.participant ?? null;
+    if (!mine || (request.participant && request.participant !== mine)) {
+      this.logger.warn(`[${state.name}] refusing a runtime refresh addressed to ${request.participant ?? "nobody"}; this target reports as ${mine ?? "no participant"}`);
+      return { accepted: false, reason: "foreign-participant", target: state.name, participant: mine };
+    }
+    // R25: the exact generation is answered, so a publication cannot
+    // retire a question asked after the one it was made for.
+    const published = await state.runtime.facts({
+      service: `codex-event-bridge pid ${process.pid}`,
+      dispatcher: `${state.serverName}/${state.name}`,
+      readiness: this.config.eventSocket,
+    }, { source: "configured", answers: request.generation });
+    this.logger.info(`[${state.name}] runtime refresh answered from held facts${published ? "" : " (publication failed; the request stands)"}`);
+    // A failed publication is NOT accepted: the request is still
+    // outstanding, and telling the producer otherwise would retire the
+    // one retry the level-triggered signal gives us.
+    return { accepted: Boolean(published), reason: published ? "runtime-refresh" : "runtime-refresh-failed",
+             target: state.name, participant: mine,
+             generation: request.generation ?? null,
+             requested_at: request.requested_at ?? null };
   }
 
   async stop() {
     if (this.stopping) return;
     this.stopping = true;
+    // The explicit goodbye: `offline` by report rather than by expiry,
+    // which is a different operational fact and gets different
+    // provenance.
+    for (const state of this.targetStates.values()) {
+      // R10: a clean shutdown carries NO cause — a runner that exited
+      // cleanly did not fail.
+      void state.runtime.end({ detail: "codex dispatcher stopped" });
+    }
     this.stopController.abort();
     for (const state of this.targetStates.values()) {
       if (state.retryTimer) clearTimeout(state.retryTimer);
@@ -342,7 +422,23 @@ export class EventBridge extends EventEmitter {
     client.on("connected", () => this.logger.info(`[${serverState.name}] connected to Codex app-server`));
     client.on("disconnected", () => {
       this.logger.warn(`[${serverState.name}] Codex app-server disconnected; queued events retained`);
-      for (const target of serverState.targets) target.status = { type: "notLoaded" };
+      for (const target of serverState.targets) {
+        target.status = { type: "notLoaded" };
+        // A disconnect DURING shutdown is the shutdown, not a fault:
+        // `stop()` has already said goodbye, and reporting a transport
+        // retry after that would describe a reconnection nobody is
+        // going to attempt.
+        if (this.stopping) continue;
+        // OBSERVED, not inferred: the transport dropped and this
+        // dispatcher is about to reconnect. The runner itself may be
+        // perfectly healthy, which is why this is `retrying` and not
+        // `failed` — and why nothing here reports `offline`, a state
+        // only an expired lease derives.
+        void target.runtime.state("retrying", {
+          cause: "transport",
+          detail: `${serverState.name} app-server disconnected`,
+        });
+      }
     });
     client.on("status", ({ threadId, status }) => {
       const state = this.targetByThread.get(`${serverState.name}\u0000${threadId}`);
@@ -352,7 +448,9 @@ export class EventBridge extends EventEmitter {
     });
     client.on("turnStarted", ({ threadId, turn }) => {
       const state = this.targetByThread.get(`${serverState.name}\u0000${threadId}`);
-      if (state) this.logger.info(`[${state.name}] turn started: ${turn.id}`);
+      if (!state) return;
+      this.logger.info(`[${state.name}] turn started: ${turn.id}`);
+      void state.runtime.state("working", { session: threadId });
     });
     client.on("turnCompleted", (params) => void this.#turnCompleted(serverState, params));
     client.on("serverRequest", (request) => {
@@ -360,9 +458,27 @@ export class EventBridge extends EventEmitter {
       const state = threadId ? this.targetByThread.get(`${serverState.name}\u0000${threadId}`) : null;
       const scope = state ? `[${state.name}]` : `[${serverState.name}]`;
       this.logger.warn(`${scope} Codex requires interactive handling for ${request.method} (request ${request.id}); the bridge will not approve or answer it`);
+      // THE motivating incident. W22 read `active` with a Handler while
+      // its turn sat on exactly this request, and the only evidence was
+      // this log line. The dispatcher maps the request it already
+      // observes into `waiting-input` and STILL does not approve or
+      // answer it — publishing the state is not handling the request.
+      void state?.runtime.state("waiting-input", {
+        cause: "approval",
+        detail: `${request.method} requires interactive handling`,
+        session: threadId,
+      });
       this.emit("serverRequest", { server: serverState.name, target: state?.name ?? null, request });
     });
-    client.on("protocolError", (error) => this.logger.error(`[${serverState.name}] Codex protocol error: ${error.message}`));
+    client.on("protocolError", (error) => {
+      this.logger.error(`[${serverState.name}] Codex protocol error: ${error.message}`);
+      for (const target of serverState.targets) {
+        // R8/R10: the message classifies and is then discarded. A Codex
+        // protocol error can carry endpoint URLs and payload fragments,
+        // and truncating that bounds the leak rather than preventing it.
+        void target.runtime.state("failed", classifyFailure(error));
+      }
+    });
   }
 
   async #turnCompleted(serverState, params) {
@@ -370,6 +486,11 @@ export class EventBridge extends EventEmitter {
     if (!state) return;
     const isExternal = state.activeTurn?.id === params.turn.id;
     this.logger.info(`[${state.name}] turn completed: ${params.turn.id} (${params.turn.status})${isExternal ? "" : " [interactive]"}`);
+    // Between turns the runner is idle — the honest state, and one an
+    // adapter can only report because it OBSERVED the completion.
+    // Silence past the lease deadline is what becomes `unknown`, and
+    // only the authority derives that.
+    void state.runtime.state("idle", { session: params.threadId });
     if (isExternal) state.activeTurn = null;
     else {
       state.completedTurns.set(params.turn.id, params.turn);
@@ -419,6 +540,7 @@ export class EventBridge extends EventEmitter {
       answered = true;
       socket.end(`${JSON.stringify(payload)}\n`);
     };
+    const invalid = (error) => answer({ accepted: false, reason: "invalid-event", error: error.message, globalQueueDepth: this.globalQueueDepth });
     socket.on("data", (chunk) => {
       buffer += chunk;
       if (Buffer.byteLength(buffer, "utf8") > this.config.maxEventBytes) {
@@ -427,21 +549,43 @@ export class EventBridge extends EventEmitter {
       }
       const newline = buffer.indexOf("\n");
       if (newline === -1) return;
+      // `handleRequest` answers synchronously for events and returns
+      // a promise for a control that has to reach the authority; both
+      // answer on the same socket, once.
       try {
-        answer(this.handleRequest(JSON.parse(buffer.slice(0, newline))));
+        Promise.resolve(this.handleRequest(JSON.parse(buffer.slice(0, newline)))).then(answer, invalid);
       } catch (error) {
-        answer({ accepted: false, reason: "invalid-event", error: error.message, globalQueueDepth: this.globalQueueDepth });
+        invalid(error);
       }
     });
     socket.on("end", () => {
       if (!answered && buffer.trim()) {
         try {
-          answer(this.handleRequest(JSON.parse(buffer)));
+          Promise.resolve(this.handleRequest(JSON.parse(buffer))).then(answer, invalid);
         } catch (error) {
-          answer({ accepted: false, reason: "invalid-event", error: error.message, globalQueueDepth: this.globalQueueDepth });
+          invalid(error);
         }
       }
     });
     socket.on("error", (error) => this.logger.warn(`event socket client error: ${error.message}`));
   }
+}
+
+// W93: one publisher per IDENTIFIED target. `roleInstructions` already
+// carries the baton binary and config, and the target identity carries
+// the participant — the three facts a runtime lease needs and the same
+// three every other Baton invocation here names explicitly. A target
+// without an identity has no participant to report as, so it gets the
+// silent publisher rather than a guess: the adapter family is never
+// inferred, and neither is who a runner belongs to.
+function defaultRuntimeFactory(config, target, logger) {
+  if (!config.roleInstructions || !target.identity) return silentPublisher;
+  return makeRuntimePublisher({
+    binary: config.roleInstructions.binary,
+    config: config.roleInstructions.config,
+    participant: target.identity.participant,
+  }, { adapter: "codex", logger,
+       // R9: the owner is carried from the deployment configuration,
+       // never guessed from a participant or target name.
+       actionOwner: target.identity.actionOwner });
 }

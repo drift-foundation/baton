@@ -78,11 +78,46 @@ message count, and a discussion post never moves a baton.
     claimed Work is still yours to finish, and a runner that only looked for
     unclaimed Work would walk past it;
   - pending `@` obligations your endpoint owes;
-  - due verification trials your route answers for.
+  - due verification trials your route answers for;
+  - conversational **pokes** addressed to your exact participant;
+  - **runtime refresh requests** addressed to your ADAPTER, which
+    declare `wakes_model: false`.
 
   It claims nothing and writes nothing. `+`, plain posts, and personal New are
   attention, never wakeups: a sender who needs action uses `@` or passes the
   baton.
+- **A refresh request is for your adapter, not for you.** An entry of
+  kind `runtime_refresh` asks the program that RUNS you to republish its
+  safe operational inventory — process identity, dispatcher target,
+  readiness path, working directory, log locator, version — through
+  `runtime-facts`. It carries `wakes_model: false` and means it: an
+  adapter answers it from facts it already holds, and a model turn is
+  never spent on it. If you are reading readiness through a bridge, the
+  bridge handles this and drops it before anything reaches you; if you
+  meet one directly, ignore it. The inventory's key set is closed and
+  the authority refuses a value that looks like a credential, so a
+  signed URL or a bearer token is a refusal rather than durable state.
+- **Answer a poke.** `poke target=team.member request="…"` asks ONE named
+  participant what is going on. It names a participant and never a route, so
+  no endpoint resolution enters into it, and it carries no workflow authority
+  whatsoever: it creates no Work, no obligation, no message and no claim, and
+  it moves nothing. It exists because waking an apparently idle agent by
+  manufacturing a dependency or a directed obligation falsifies the
+  coordination record, and restarting the runner is too strong when the
+  session may be healthy but quiet.
+
+  A poke addressed to you appears in `wait` LAST — a question never displaces
+  the workflow you were woken for — and one terminal
+  `poke-answer poke=N state=idle|working|waiting|needs-help explanation="…"`
+  closes it. Report your runner facts on it when your adapter can see them
+  (`provider=`, `model=`, `session-state=`, `auth-state=`, `limit-state=`,
+  and the advisory context counters); every one of those vocabularies leads
+  with `unknown`, which means "this adapter cannot see it" and never "it is
+  fine". You may name the Work you believe you are handling with `work=`; the
+  authority reports its own canonical state BESIDE your claim rather than
+  instead of it, because a disagreement between the two is the most useful
+  thing a poke can surface. `pokes` is the one vendor-neutral place to read
+  any of this back.
 - **Each action carries a stable key.** The Work action key is an ASSIGNMENT
   EPISODE — Work id, its episode sequence, and the accepted configuration
   generation — so Work handed away and handed back between two polls is a new
@@ -105,9 +140,15 @@ message count, and a discussion post never moves a baton.
   context they owe nothing for. Answer with `respond`, `dispose`, or
   `accept`.
 
-  If your own Work cannot honestly proceed until that answer arrives, suspend
-  it on that exact obligation so the stage stops advertising progress nobody
-  is making.
+  A directed request **blocks by default**: in the same transaction it
+  suspends the Work you are executing on that exact obligation, so the stage
+  stops advertising progress nobody is making, and your claim is released
+  because nobody is executing Work that is waiting on somebody else's answer.
+  Because it suspends the Work YOU are executing, you must actually be
+  executing it — an unclaimed Work refuses, and so does somebody else's.
+  `wait=false` is the explicit asynchronous override for the case where you
+  can honestly proceed meanwhile; the result always reports which form
+  committed, so you never read Events back to find out.
 - **Recover an abandoned claim explicitly.** `release work=W expect=team.member
   reason="…"` is an exact compare-and-swap against the recorded claimant with
   a durable reason. Baton never auto-releases, transfers, or admits a second

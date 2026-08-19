@@ -283,17 +283,27 @@ def test_the_header_counts_are_the_viewers_not_the_teams(world):
 	             phase="parked", reason="later")
 	summary = pj.team_summary(store, viewer_team="lang")
 
-	def header(member):
+	def tabs(member):
+		# W25: the personal owed count is the Inbox tab's, drawn from
+		# the same participant projection. The team-wide parked fact
+		# left the header by ruling and is asserted where it now
+		# lives — the canonical summary — so this test still holds
+		# both halves of its question.
 		console = Console(store, "lang", member,
 		                  config_path=world["config"])
-		return console.breadcrumb_text(summary)
+		return console.top_tabs()
 
-	ada = header("ada")
-	assert "[oblig:1]" in ada and "[park:1]" in ada
-	grace = header("grace")
-	assert "[oblig:0]" in grace, \
-		"an unresolved member's header shows the team's load"
-	assert "[park:1]" in grace, "the team-wide parked fact vanished"
+	def owed(member):
+		return pj.inbox(store, viewer_team="lang",
+		                viewer_member=member)["owed"]
+
+	assert owed("ada") == 1 and owed("grace") == 0, \
+		"an unresolved member's Inbox shows the team's load"
+	for member in ("ada", "grace"):
+		box = pj.inbox(store, viewer_team="lang", viewer_member=member)
+		assert f"Inbox {box['total']}/{box['unseen']}" in tabs(member), \
+			(member, tabs(member), box)
+	assert summary["parked"] == 1, "the team-wide parked fact vanished"
 
 
 def test_cli_wait_reaches_the_participant_projection(world):
@@ -345,7 +355,7 @@ def test_the_projection_version_names_the_wake_contract(world):
 	# refusing is this file's documented major condition — so an 11.x
 	# demand now refuses cleanly rather than reading a wake set it
 	# cannot handle.
-	assert jsonapi.PROJECTION_VERSION == "12.0"
+	assert jsonapi.PROJECTION_VERSION == "12.3"
 	jsonapi.require_version("12.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("11.2")
@@ -440,7 +450,7 @@ def test_the_snapshot_is_never_mixed(world, monkeypatch):
 	original = pj._endpoint_struct
 	fired = {"done": False}
 
-	def interleaving(inner_store, team, kind):
+	def interleaving(inner_store, team, kind, selected=None):
 		if not fired["done"]:
 			fired["done"] = True
 			writer = bw.Authority(world["database"])
@@ -449,7 +459,7 @@ def test_the_snapshot_is_never_mixed(world, monkeypatch):
 				              actor="bee")
 			finally:
 				writer.close()
-		return original(inner_store, team, kind)
+		return original(inner_store, team, kind, selected)
 
 	monkeypatch.setattr(pj, "_endpoint_struct", interleaving)
 	window = pj.participant_actions(store, viewer_team="lang",
@@ -530,9 +540,15 @@ def test_personal_headers_on_the_real_terminal(tmp_path):
 				os.WEXITSTATUS(status) == 0
 			header = ptyharness.replay(steps[0], columns=columns,
 			                           lines=lines)[0]
-			assert f"[oblig:{oblig}]" in header, \
+			# W25: the personal count is the Inbox tab's, and the
+			# team-wide parked counter is retired from the header.
+			with bw.Authority(database) as store:
+				box = pj.inbox(store, viewer_team="lang",
+				               viewer_member=viewer.split(".")[1])
+			assert box["owed"] == oblig, (viewer, box)
+			assert f"Inbox {box['total']}/{box['unseen']}" in header, \
 				(viewer, columns, header)
-			assert "[park:1]" in header, (viewer, columns, header)
+			assert "[park:" not in header, (viewer, columns, header)
 
 
 def test_plus_and_new_are_attention_not_wakeups(world):

@@ -89,6 +89,11 @@ SOURCE_SHARED_GATE = (
 	"tools/codex-event-bridge/src/codex_baton_bridge.mjs",
 	"tools/codex-event-bridge/src/config.mjs",
 	"tools/codex-event-bridge/src/role_instructions.mjs",
+	# W93 slice 4: the ACP bridge imports the shared runtime-lease
+	# publisher from the same directory it already takes the role
+	# instructions from, so the deployed release carries it too. The
+	# W163 no-checkout test is what catches a miss here — it did.
+	"tools/codex-event-bridge/src/runtime_publisher.mjs",
 	"tools/codex-event-bridge/src/send_event.mjs",
 )
 BRIDGE_WRAPPER = """#!/usr/bin/env bash
