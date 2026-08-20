@@ -8,8 +8,10 @@ authorization to change the v11 runtime or its current shared-checkout rules.
 The original authoritative Baton Work was `W193` (`bec445ce-W193`), low
 priority and parked until the v11 cutover and stabilization work completed.
 That authority was retired. The record was recreated without message-history
-migration as current Work `W2` (`bcbb9dbf-W2`) on 2026-08-19; `W2` is the one
-current ledger authority for this dossier.
+migration as `W2` (`bcbb9dbf-W2`) on 2026-08-19. That authority was retired at
+the schema-25 rollover. The record was recreated again without message-history
+migration as current Work `W2` (`5f717eee-W2`) on 2026-08-20; that Work is the
+one current ledger authority for this dossier.
 
 On 2026-08-18, the project also confirmed the general invariant exposed by
 this record's initial omission: every finding dossier must have exactly one
@@ -61,6 +63,13 @@ Each Work assignment executes as a disposable, isolated worker:
   roots, and scoped credentials;
 - no ability to write the canonical checkout, canonical Git refs, or another
   worker's workspace.
+
+**Scope clarification and partial supersession — 2026-08-20:** the requirement
+that every assignment own a repository checkout is superseded by "Typed
+assignment input sources" below. Every assignment owns an isolated private
+workspace, but only a `git` source produces a repository checkout. Directory
+and later source types retain the same isolation, immutable-input, fencing and
+review boundaries without inventing Git state for non-Git Work.
 
 The worker does not "finish" by modifying production state. It publishes a
 candidate containing:
@@ -547,6 +556,91 @@ elapsed work or heartbeat deadline never silently discards an attempt.
 - Cache sharing without writable cross-worker state.
 - Network and credential profiles for different roles and repositories.
 
+## Typed assignment input sources — confirmed 2026-08-20
+
+The human Work description explains what result is wanted. A separate
+versioned assignment input manifest tells the trusted worker bootstrap what
+material exists and how to materialize it. The model never infers an
+acquisition operation from prose or from a URI scheme, and it does not choose
+between `git clone`, a native copy, archive extraction, or another provider.
+
+An assignment carries one or more named, ordered source descriptors. Every
+descriptor has a source `type`, an absolute normalized `uri`, a stable
+destination inside the private worker workspace, and type-specific immutable
+identity. URI schemes such as `file`, `ssh`, and `https` describe transport;
+they do not define source semantics. Supported schemes are runtime-adapter or
+source-provider capabilities rather than a closed Baton protocol list. Git's
+ambiguous scp-like `host:path` shorthand is not a durable locator. Credentials
+and bearer tokens never appear in a source URI or persisted manifest; the
+adapter supplies narrowly scoped ephemeral access outside the model session.
+
+The first two source types are:
+
+- `git`: carries a configured logical repository identity, uses the descriptor
+  URI as its clone source, and adds an optional full `source_ref`, mandatory
+  full immutable `base_revision`, and optional full `integration_ref`. The
+  bootstrap performs clone/fetch/checkout and verifies the exact base revision
+  before the agent starts. A branch may
+  locate handed-off Work or name its intended integration target, but branch
+  movement never silently changes an assignment. The immutable revision is
+  authoritative; movement requires a new assignment generation or makes a
+  later candidate stale at verification.
+- `directory`: carries a snapshot URI plus an immutable content-manifest
+  digest. The source provider materializes the exact file collection read-only
+  at its declared destination and verifies the digest before the agent starts.
+  A `file` URI does not imply `cp`, and an `https` or `ssh` URI does not imply
+  archive or transfer behavior; `type: directory` selects the provider
+  contract. The worker receives ordinary files and no synthetic Git repository.
+
+Only after every source is materialized and verified does the bootstrap start
+the agent with explicit stable input and output paths. Source destinations are
+read-only. A directory-transformation Work writes its result to a separately
+declared assignment-scoped writable output role; it never edits its input in
+place. Git Work writes only inside its certified private proposal clone. In
+both cases the output is untrusted, generation-bound material until the normal
+verification, review, approval, and integration or delivery gates accept it.
+
+Additional source types require their own versioned acquisition, immutable
+identity, validation, containment, credential, and conformance rules. They are
+never inferred as aliases for `git` or `directory`.
+
+## Named assignment outputs — confirmed 2026-08-20
+
+A complete Job combines two contracts. The human Work contract states what the
+inputs mean, the transformation or implementation required, and the acceptance
+criteria. The versioned machine manifest states how named inputs appear and how
+named results are exposed, constrained, frozen, validated and collected. Prose
+does not substitute for machine-readable IN/OUT roles, and the manifest does
+not substitute for the human specification of a correct result.
+
+Every output descriptor has a unique assignment-local name, a result `type`, a
+stable writable path inside the private worker, required/optional status, and
+applicable size, file-type, structure and validation constraints. Initial
+result types include an immutable Git change proposal, a directory result, and
+the separately validated record-output set. A Job may declare several outputs;
+an undeclared path is never collected merely because the agent wrote there.
+
+The worker receives local paths and result expectations, not an external
+publication or delivery destination. It does not upload, copy back, push, or
+choose where accepted material belongs. When the worker declares completion,
+the trusted manager ends or fences further writes, freezes each declared
+output, rejects path escape, links/reparse traversal, unsupported file types,
+limits violations and detected credential leakage, computes its manifest and
+digest, and binds the collected set to the exact Work and assignment
+generation. Missing or invalid required output prevents a successful result;
+an inability disposition may return evidence without pretending the requested
+result exists.
+
+The frozen output is untrusted candidate material. Verification and the
+applicable technical-review and approval gates bind its exact digest. A later
+change creates a new immutable result or proposal revision and repeats those
+gates. Only trusted delivery, record-materialization or integration tooling may
+write an approved result to an external destination or canonical repository.
+Thus a directory transformation reads a digest-bound read-only input path and
+writes a distinct declared output path, while Git Work writes a private clone
+and returns a Git proposal; neither agent participates in the outside file
+exchange or canonical publication mechanism.
+
 ## Confirmed local proposal and integration workflow — 2026-08-20
 
 The v12 reference workflow is local-first and must not depend on GitHub,
@@ -888,6 +982,13 @@ publication, clean verification, technical review, approval, and
 compare-and-swap integration. Verification, technical review, approval, and
 integration use four distinct accountable actors rather than collapsing the
 gates into one privileged process.
+
+Before manifest schemas freeze, the spike also runs one directory-only
+transformation with no Git source: the adapter materializes a digest-bound
+read-only file collection, the bootstrap verifies it before agent start, the
+agent writes only to the declared writable result output, and verification
+binds the exact input and output digests. This proves that repository lifecycle
+is a typed source capability rather than an assumption embedded in every Work.
 
 Its required scenarios include an expired token that fails closed followed by
 safe claim through a fresh token, `plan-rejected` gating until an accepted plan

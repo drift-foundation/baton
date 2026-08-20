@@ -1,10 +1,9 @@
 # Plan
 
-**Status — current Baton Work `W2` (`bcbb9dbf-W2`); roadmap only.
-The original `bec445ce-W193` authority is retired. No v12 implementation has
-started. The operational decisions and both review rounds' corrections are
-pinned. One final bounded consistency review is authorized; implementation
-remains forbidden. The approved order specifies the minimal state machine
+**Status — current Baton Work `W2` (`5f717eee-W2`); roadmap only.
+The original `bec445ce-W193` and later `bcbb9dbf-W2` authorities are retired.
+No v12 implementation has started. The operational decisions and review
+corrections are pinned. The approved order specifies the minimal state machine
 first, then a bounded real end-to-end spike before compatibility manifests or
 production implementation.**
 
@@ -213,29 +212,49 @@ production implementation.**
    hole, and no competing live rule remains. Recorded in
    `review-2026-08-20T16-58-40Z.md`.
 
+0ac. [done 2026-08-20] Replace the assumption that every assignment is Git
+   Work with typed source descriptors. Keep acquisition in the trusted worker
+   bootstrap, make URI scheme transport-only, and initially define `git` and
+   digest-bound read-only `directory` sources. Git carries repository identity,
+   source/integration refs and an immutable base revision; directory Work gets
+   an immutable file collection plus a separate writable output role and no
+   synthetic repository. Never persist credentials in source URIs.
+
+0ad. [done 2026-08-20] Define the matching named output contract. Separate the
+   human result/acceptance specification from machine-readable IN/OUT roles;
+   give the worker only stable local paths, never external delivery authority.
+   The trusted manager freezes, validates, hashes and collects declared Git,
+   directory and record outputs for the exact assignment generation. Missing
+   or invalid required results fail the result, later changes create a new
+   revision, and only trusted tooling may deliver or integrate accepted output.
+
 1. [pending] Model assignment generations, read-only pre-claim inspection,
    expiring single-use claim tokens, claim-capability-gated writable
    workers, cancellation, quiescence, stale-worker rejection, runtime-profile
    probation/disablement, typed plan rejection and revision, and integration
    dispositions as one protocol state machine.
-2. [pending] Specify the outer versioned Baton worker-control API plus input,
-   immutable local change-proposal, and verifier-result manifests, including
-   base/target/proposal identities, role/policy/toolchain/image digests, tests,
-   logs, and dossier evidence.
+2. [pending] Specify the outer versioned Baton worker-control API plus typed
+   input, immutable local change-proposal or non-Git result, and verifier-result
+   manifests. Include named source descriptors, source type/URI/destination,
+   Git base/target/proposal identities or directory content/output digests,
+   role/policy/toolchain/image digests, tests, logs, and dossier evidence.
 3. [pending] Specify ACP as the normalized inner agent endpoint without adding
    repository or container lifecycle to ACP: use a mediated ACP relay for
    native ACP agents and a narrow ACP adapter for non-ACP runtimes such as
    Codex App Server.
 4. [pending] Specify the runtime-neutral worker conformance suite covering
-   workspace and Git isolation, generation-gated publication, cancellation and
+   typed-source materialization and digest verification, read-only input,
+   declared-output containment, freeze/validation/collection, workspace and Git
+   isolation, generation-gated publication, cancellation and
    quiescence, pre-claim execution denial, claim-timeout reporting and explicit
    route-policy consequences, runtime-profile reliability policy, credential
    non-retention, explicit policy, untrusted outputs, normalized lifecycle,
    transport-partition fencing, proof-bound remote reattachment, and
    negative/race/crash/recovery behavior.
 5. [pending] Build one OCI reference worker, runnable by Docker or Podman, that
-   clones a configured read-only local canonical repository into private
-   writable storage. Preserve OS/agent sandboxing, prohibit nested container
+   supports both a configured read-only Git source cloned into private writable
+   storage and a digest-bound read-only directory source with separate writable
+   result output. Preserve OS/agent sandboxing, prohibit nested container
    runtimes, never expose the host container-runtime socket, and require it to
    pass the runtime conformance suite.
 6. [pending] Build the trusted host-side Worker Manager and OCI runtime adapter
