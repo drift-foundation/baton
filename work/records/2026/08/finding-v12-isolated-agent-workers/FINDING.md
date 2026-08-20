@@ -223,6 +223,12 @@ again before integration.
 
 ### Git-mutation boundary at v12 cutover — confirmed 2026-08-20
 
+**Scope clarified by "Gradual coexistence and rollout" below:** there is no
+single global cutover. This exception activates only for an assignment running
+under a certified isolated-worker profile. Participants still using the v11
+shared-checkout path remain under the blanket Git-mutation prohibition during
+the coexistence period.
+
 The current blanket prohibition on agent Git mutation remains in force until
 v12 isolation and capability enforcement are deployed. At that cutover the
 rule becomes workspace-aware, not path-aware: agents still cannot mutate Git
@@ -1022,6 +1028,73 @@ The spike explicitly does not settle production credential profiles,
 retention, cache sharing, candidate signing/attestation, or final local
 proposal-store layout. Those remain reviewed design and production-hardening
 Work; provisional spike choices create no compatibility promise.
+
+## Disposable proof-of-concept isolation — confirmed 2026-08-20
+
+The first single-agent Claude ACP proof of concept is an external black-box
+consumer of the deployed v11 interface, not an experimental modification of
+the existing Baton implementation. It may fail and be discarded without
+leaving partially adopted mechanisms in the working product.
+
+The PoC therefore owns a separate source root or repository, dependency lock,
+tests, fixtures, draft manifests, worker image and disposable runtime state. It
+does not modify or copy private implementation from `src/baton_work`, the
+existing ACP or Codex bridges, lifecycle controller, `justfile`, v11 tests,
+release templates, production coordination home, or current deployment. It
+may invoke the immutable deployed Baton executable as a black-box client of
+documented CLI/JSON behavior and may speak standard ACP, but it does not import
+Baton internals or open the authority database.
+
+The PoC uses its own disposable authority and harmless fixture inputs. The
+only material retained in the Baton repository during the experiment is the
+W2/child-Work decision record, observed traces and reviewed conclusions; no
+prototype runtime source lands in existing Baton paths. Failure closes or
+cancels the child Work and permits deleting the external prototype without a
+product rollback. Success still authorizes no direct copy into v12: adopting
+any mechanism requires a separately planned, reviewed implementation Work
+against the then-current contracts.
+
+This isolation does not weaken the walking-skeleton acceptance boundary. A
+successful PoC still begins with the minimum assignment state machine, accepts
+an ordinary dispatched Job through the public boundary, obtains an explicit
+claim through the trusted manager, runs Claude through ACP in an isolated
+worker, emits activity, and returns frozen declared output. A manually invoked
+Claude process or a prototype that reaches into Baton's source or SQLite store
+does not pass.
+
+## Gradual coexistence and rollout — confirmed 2026-08-20
+
+V12 isolated workers do not replace the v11 execution path in one deployment
+swap. Both modes coexist during a gradual rollout, and the migration unit is a
+configured participant/runtime profile rather than the Baton installation,
+team, repository or authority as a whole. This supersedes every reading of the
+earlier "v12 cutover" wording as one global switch.
+
+A participant is attached to exactly one execution mode at a time. A legacy
+shared-checkout readiness consumer and the Worker Manager never consume Work
+for the same participant identity concurrently. New isolated capacity uses a
+distinct configured participant and certified runtime profile; routes may make
+legacy and isolated participants available according to explicit policy, but
+one concrete offer and claim always names exactly one participant and one
+execution mode. One Work or assignment generation is never fanned out across
+both modes implicitly.
+
+Legacy participants keep the current v11 claim, filesystem and Git policy.
+Only a successfully claimed assignment under a certified isolated profile gets
+the v12 private-workspace, scoped Git exception, typed IN/OUT, proposal and
+generation-fencing capabilities. The same authority may coordinate both kinds
+of participant, but it must project their execution mode honestly and never
+represent a legacy claim as isolated merely because Worker Manager services
+are installed.
+
+Rollout proceeds by adding and certifying isolated participants, directing a
+small explicit Work subset to them, observing the complete lifecycle, and
+expanding route policy only after review. Rollback stops new offers to the
+isolated profile, fences or deliberately disposes its live assignments, and
+routes later Work to an eligible legacy participant; it does not require
+replacing the authority or undoing unrelated v11 Work. Removal of the legacy
+path is a later explicit adoption decision after no route depends on it, not a
+premise of the PoC or initial production use.
 
 ## Second implementer design review checkpoint — 2026-08-20
 

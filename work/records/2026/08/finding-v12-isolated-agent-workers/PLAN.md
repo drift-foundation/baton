@@ -44,6 +44,8 @@ production implementation.**
    Canonical, integration, verifier, reviewer, and ordinary host workspaces stay
    immutable to agents; publication and canonical integration remain trusted
    manager operations. Keep the blanket current rule until enforcement exists.
+   Scope clarified by 0af: activation is per isolated participant/profile, not
+   one global cutover.
 
 0f. [done 2026-08-20] Make committed findings and plans immutable assignment
    inputs. A worker owns only its record's `PROGRESS.md` and Work-scoped
@@ -228,11 +230,31 @@ production implementation.**
    or invalid required results fail the result, later changes create a new
    revision, and only trusted tooling may deliver or integrate accepted output.
 
+0ae. [done 2026-08-20] Isolate the first Claude ACP proof of concept from the
+   existing Baton product. Keep its source, dependencies, tests, fixtures,
+   manifests, image and runtime state in a disposable external root; consume
+   only the immutable deployed CLI/JSON boundary and standard ACP. Modify no
+   v11 application, bridge, lifecycle, test or deployment source, import no
+   private internals, and open no authority database. Retain only W2/child
+   records, traces and conclusions; successful adoption still requires new
+   reviewed implementation Work.
+
+0af. [done 2026-08-20] Make v11 and v12 execution coexist during gradual
+   rollout. Migrate one configured participant/runtime profile at a time; never
+   run legacy readiness and Worker Manager consumption for the same identity.
+   Route each concrete offer to one participant/mode, grant v12 capabilities
+   only to certified isolated claims, and retain legacy policy elsewhere.
+   Roll back by fencing the isolated profile and routing later Work to an
+   eligible legacy participant, without replacing the authority or undoing
+   unrelated v11 Work.
+
 1. [pending] Model assignment generations, read-only pre-claim inspection,
    expiring single-use claim tokens, claim-capability-gated writable
    workers, cancellation, quiescence, stale-worker rejection, runtime-profile
    probation/disablement, typed plan rejection and revision, and integration
-   dispositions as one protocol state machine.
+   dispositions as one protocol state machine. For the first PoC, implement
+   only its bounded walking-skeleton subset in the disposable external project;
+   do not alter existing Baton source.
 2. [pending] Specify the outer versioned Baton worker-control API plus typed
    input, immutable local change-proposal or non-Git result, and verifier-result
    manifests. Include named source descriptors, source type/URI/destination,
@@ -286,6 +308,7 @@ production implementation.**
    canonical checkout or another worker.
 12. [pending] Run a multi-agent trial with concurrent independent Work and
    verify that no worker can alter another worker or the canonical checkout.
-13. [pending] Define migration, deployment, local proposal storage, operating
-    documentation, retention, and observability before considering v12
-    production adoption.
+13. [pending] Define gradual per-participant/profile rollout and rollback,
+    mixed legacy/isolated deployment, local proposal storage, operating
+    documentation, retention, and observability before considering broader v12
+    production adoption. Removal of the legacy path is a later explicit gate.
