@@ -1038,12 +1038,26 @@ leaving partially adopted mechanisms in the working product.
 
 The PoC therefore owns a separate source root or repository, dependency lock,
 tests, fixtures, draft manifests, worker image and disposable runtime state. It
-does not modify or copy private implementation from `src/baton_work`, the
-existing ACP or Codex bridges, lifecycle controller, `justfile`, v11 tests,
-release templates, production coordination home, or current deployment. It
-may invoke the immutable deployed Baton executable as a black-box client of
-documented CLI/JSON behavior and may speak standard ACP, but it does not import
-Baton internals or open the authority database.
+does not modify `src/baton_work`, the existing ACP or Codex bridges, lifecycle
+controller, `justfile`, v11 tests, release templates, production coordination
+home, or current deployment. It may invoke the immutable deployed Baton
+executable as a black-box client of documented CLI/JSON behavior and may speak
+standard ACP, but it does not open the authority database.
+
+**Superseding reuse clarification — 2026-08-20:** the earlier prohibition on
+copying private implementation was too strong and is withdrawn. The PoC may
+snapshot or copy any useful v11 source, bridge, CLI, JSON, test, fixture or
+documentation material into its separate disposable root and modify that copy
+without limit. Every copied seed records provenance to release commit
+`8835cd5`; the prototype never imports through, symlinks to, or writes back to
+the live Baton checkout. Reuse creates no compatibility or adoption promise,
+and successful prototype code still enters Baton only through later reviewed
+implementation Work.
+
+The first proof concentrates on JSON contracts and command-line operation.
+TUI design and implementation are explicitly out of scope: natural dispatch
+is proven through ordinary Job creation/routing plus machine-readable state,
+traces and results, not by building another human console.
 
 The PoC uses its own disposable authority and harmless fixture inputs. The
 only material retained in the Baton repository during the experiment is the
