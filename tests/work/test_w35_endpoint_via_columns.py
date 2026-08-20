@@ -121,8 +121,12 @@ def cell(lines, column, row):
 	header = next(line for line in lines if "Endpoint" in line)
 	start = header.index(column)
 	following = [header.index(name) for name in
+	             # W137 renamed the runtime-state column `Agent` -> `Run`
+	             # (it holds a runner STATE; `Handler` names the
+	             # participant). This list is the header vocabulary this
+	             # helper slices by, so it moves with the header.
 	             ("Id", "Title", "Out", "Pr", "Phase", "Cat", "Msg/My",
-	              "Endpoint", "Via", "Handler", "Agent", "Next", "New",
+	              "Endpoint", "Via", "Handler", "Run", "Next", "New",
 	              "Held")
 	             if name in header and header.index(name) > start]
 	end = min(following) if following else len(row)

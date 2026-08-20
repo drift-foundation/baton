@@ -64,7 +64,7 @@ from baton_work import transitions
 # view already implies.
 COLUMNS = (("OUT", 5), ("PR", 2), ("PHASE", 6), ("CLS", 5),
            ("MSG/MY", 7), ("ENDPOINT", 13), ("VIA", 6), ("HANDLER", 13),
-           ("AGENT", 5), ("NEXT", 13), ("NEW", 4), ("HELD", 6))
+           ("RUN", 5), ("NEXT", 13), ("NEW", 4), ("HELD", 6))
 
 # Header LABELS where plain capitalize() would miscase a compound name —
 # plus the ruled `Cat` display label for the classification column
@@ -87,11 +87,19 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat", "OUT": "Out"}
 # because the operator asked to see terminal Work, and dropping the one
 # column that answers that question would leave the reveal pointless —
 # whereas Route and Next are least interesting on a closed row.
-# W93 slice 5: AGENT sits beside HANDLER by value and drops just before
-# it. The two answer adjacent questions — who is executing, and what
-# their runner is doing — and the second is worthless without the first.
+# W93 slice 5: the runtime-state column sits beside HANDLER by value and
+# drops just before it. The two answer adjacent questions — who is
+# executing, and what their runner is doing — and the second is
+# worthless without the first.
+# W137 (finding-responsive-teams-runtime-table) renamed it `Run`. It
+# never held an agent: `Handler` names the participant and these cells
+# say what that participant's RUNNER is doing (`work`, `input`,
+# `retry`, `off`). A header naming the wrong thing costs an operator a
+# lookup every time. Presentation only — the projection field is still
+# `agent` and Teams still has its own `Agent` column, which really does
+# name the adapter family.
 DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "VIA",
-              "ENDPOINT", "AGENT", "OUT")
+              "ENDPOINT", "RUN", "OUT")
 # W93 slice 5 measured this and deliberately LEFT IT ALONE. Three Works
 # have now added identity columns here — W35's Endpoint and Via, and
 # this slice's Agent — and the Title is the one column the layout may
@@ -159,6 +167,217 @@ TABS = ("jobs", "teams", "inbox")
 # `top_tabs()` joins the same labels into one string; two spellings of
 # this spacing would put the text and the paint out of step.
 TAB_GAP = "  "
+
+
+# W137 (finding-responsive-teams-runtime-table): the Members table's
+# column rules, in one place, because the layout is the whole finding.
+#
+# `floor` is the narrowest a column may be drawn; `cap` bounds the
+# categorical fields so a long role list cannot eat the row. `Session`
+# has NO cap: it is the diagnostic identifier an operator came for, and
+# surplus width belongs to it rather than to padding around fields whose
+# vocabulary is four characters wide.
+TEAM_COLUMNS = (("Role", 4, 14), ("Agent", 5, 8), ("State", 5, 6),
+                ("Work", 4, 8), ("Session", 7, None), ("Since", 5, 6))
+
+# Deterministic omission, narrowest first. `Session` goes first because
+# the member detail block below the table carries it in full, so it is
+# the one column whose loss costs nothing an operator cannot recover in
+# one keystroke — and it is by far the widest. `State` and the
+# participant identity are never dropped: who this is and what their
+# runner is doing is the entire reason the table exists.
+TEAM_DROP_ORDER = ("Session", "Role", "Since", "Work", "Agent")
+
+
+def _fit(value: str, size: int) -> str:
+	"""One value in one column, abbreviated VISIBLY when it cannot fit.
+
+	W137: an identifier that is silently cut reads as a different,
+	shorter identifier. The ellipsis is what makes a prefix say it is a
+	prefix."""
+	if len(value) <= size:
+		return value.ljust(size)
+	return (value[:size - 1] + "…") if size > 1 else value[:size]
+
+
+# The narrowest a participant identity may be drawn before the table
+# stops being about anybody. Below this the LAST column goes instead:
+# a row that cannot say who it describes says nothing.
+TEAM_ID_FLOOR = 3
+
+
+def team_layout(width: int, id_natural: int, natural: dict):
+	"""`(id_width, [(name, size)])` for one Members table.
+
+	Pure, and separate from the painting, because every acceptance case
+	in W137 is a statement about widths: a wide terminal shows the whole
+	session locator, an exact fit shows everything and nothing more, a
+	narrow one drops WHOLE columns in a fixed order, and a resize is
+	just this function called again with a new number.
+
+	`natural` is what each column's content actually needs, measured
+	AFTER the cells exist and never before — the defect this replaces
+	decided `Session` was twelve characters wide before the layout knew
+	whether it had eighty columns or two hundred.
+
+	Three passes, in this order and for this reason:
+
+	1. FIT AT FLOORS. Dropping is decided against the narrowest each
+	   column may be drawn, not against what it would like — otherwise
+	   one over-long session locator deletes the whole Session column
+	   from a terminal that could have shown a usable prefix.
+	2. KEEP SOMEBODY. If even the floors do not fit, the identity
+	   shrinks, and when it reaches `TEAM_ID_FLOOR` the remaining
+	   columns go rather than the name of the member.
+	3. SPEND THE SURPLUS. Categorical columns grow to their content up
+	   to their cap; everything left goes to `Session`, which is the
+	   only column with more to say when it is given room."""
+	budget = max(0, width - 1)
+	floors = {name: floor for name, floor, _cap in TEAM_COLUMNS}
+	caps = {name: cap for name, _floor, cap in TEAM_COLUMNS}
+	sizes = dict(floors)
+	present = [name for name, _floor, _cap in TEAM_COLUMNS]
+	id_width = max(len("Participant"), id_natural)
+
+	def spent(identity):
+		return identity + sum(sizes[name] + 1 for name in present)
+
+	for name in TEAM_DROP_ORDER:
+		if spent(id_width) <= budget:
+			break
+		present = [entry for entry in present if entry != name]
+	if spent(id_width) > budget:
+		id_width = budget - sum(sizes[name] + 1 for name in present)
+	while present and id_width < TEAM_ID_FLOOR:
+		present = present[:-1]
+		id_width = budget - sum(sizes[name] + 1 for name in present)
+	id_width = max(0, min(id_width, budget))
+
+	surplus = budget - spent(id_width)
+	for name in present:
+		if name == "Session" or surplus <= 0:
+			continue
+		want = min(natural.get(name, floors[name]), caps[name] or 0) \
+			- sizes[name]
+		grew = max(0, min(want, surplus))
+		sizes[name] += grew
+		surplus -= grew
+	if "Session" in present and surplus > 0:
+		sizes["Session"] += min(
+			surplus, max(0, natural.get("Session", 0) - sizes["Session"]))
+	return id_width, [(name, sizes[name]) for name in present]
+
+
+def fitted_tabs(segments, active, budget: int):
+	"""The labels that fit WHOLE in `budget`, always keeping `active`.
+
+	W110's narrow-layout contract, in one place because it is the same
+	contract at both view levels. Labels are dropped ENTIRE, from
+	whichever end is not the active tab, and if not even the active one
+	fits the bar is empty rather than a truncated `[Inbo` — a half
+	label reads as a different, shorter label.
+
+	Review R2: the detail bar had its own left-to-right loop that
+	stopped at the first label too wide, which at width 13 left the
+	INACTIVE `[Messages]` on screen while the operator was in Events.
+	Two copies of one rule is how the second copy ends up not being the
+	rule."""
+	visible = list(segments)
+
+	def fits(seq):
+		return sum(len(label) for _name, label in seq) \
+			+ len(TAB_GAP) * (len(seq) - 1) <= budget
+
+	while len(visible) > 1 and not fits(visible):
+		visible = visible[1:] if visible[-1][0] == active \
+			else visible[:-1]
+	return visible if fits(visible) else []
+
+
+# W184 (finding-teams-member-detail-table): Member detail is a
+# two-column table, not prose. The keys are stable and the value column
+# is aligned across the WHOLE block — including across sections, so an
+# operator's eye lands in one place and stays there.
+KEY_INDENT = "    "
+SECTION_INDENT = "  "
+KEY_GAP = 2
+
+
+def kv_lines(sections, width: int) -> list[str]:
+	"""Grouped key/value rows, one aligned value column.
+
+	`sections` is `[(title, [(key, value), ...]), ...]`; a section with
+	no rows is omitted entirely rather than left as a heading over
+	nothing.
+
+	Two rules the finding states and this enforces:
+
+	- a wrapped value continues AT the value column, never under its
+	  key, so a long locator still reads as one field's content;
+	- a long key may not eat the value column. The key column is capped
+	  at a third of the usable width, and a key past the cap keeps its
+	  whole text on its own line with the value beginning on the next —
+	  which is honest about both, rather than truncating a label into
+	  something that reads like a different one."""
+	rows = [pair for _title, pairs in sections for pair in pairs]
+	if not rows:
+		return []
+	usable = max(4, width)
+	cap = max(4, (usable - len(KEY_INDENT) - KEY_GAP) // 3)
+	key_width = min(cap, max(len(key) for key, _value in rows))
+	value_at = len(KEY_INDENT) + key_width + KEY_GAP
+	room = usable - value_at
+	# Below this the two columns stop being two columns: a value with
+	# four cells is not a value. The block STACKS instead — key on its
+	# own line, value indented under it — which is still every fact,
+	# still in order, and still inside the screen.
+	stacked = room < 8
+	out: list[str] = []
+	for title, pairs in sections:
+		if not pairs:
+			continue
+		# The heading obeys the same rule as everything else: it is
+		# wrapped, never painted past the edge.
+		out.extend(SECTION_INDENT + piece for piece in _wrap_value(
+			title, max(1, usable - len(SECTION_INDENT))))
+		for key, value in pairs:
+			text = "-" if value is None or value == "" else str(value)
+			if stacked:
+				out.extend(KEY_INDENT + piece for piece in _wrap_value(
+					key, max(1, usable - len(KEY_INDENT))))
+				out.extend(
+					KEY_INDENT + "  " + piece for piece in _wrap_value(
+						text, max(1, usable - len(KEY_INDENT) - 2)))
+				continue
+			pieces = _wrap_value(text, room)
+			if len(key) > key_width:
+				out.extend(KEY_INDENT + piece for piece in _wrap_value(
+					key, max(1, usable - len(KEY_INDENT))))
+				out.extend(" " * value_at + piece for piece in pieces)
+				continue
+			out.append(KEY_INDENT + key.ljust(key_width)
+			           + " " * KEY_GAP + pieces[0])
+			out.extend(" " * value_at + piece for piece in pieces[1:])
+	return out
+
+
+def _wrap_value(text: str, room: int) -> list[str]:
+	"""One value across as many visual lines as it needs.
+
+	Breaks on spaces where it can and mid-token only when a single
+	token is wider than the column — a session locator has no spaces
+	and must still be recoverable, so it wraps rather than being cut."""
+	out: list[str] = []
+	rest = text
+	while len(rest) > room:
+		cut = rest.rfind(" ", 0, room + 1)
+		if cut <= 0:
+			cut = room
+		out.append(rest[:cut].rstrip())
+		rest = rest[cut:].lstrip() if rest[cut:cut + 1] == " " \
+			else rest[cut:]
+	out.append(rest)
+	return out or [""]
 
 
 def assist_text(buffer: str) -> str:
@@ -281,18 +500,18 @@ def visible_columns(width: int, id_width: int = 0,
 	vanish as ordinary work closed underneath the operator, and a table
 	whose columns move on their own is harder to read than one dash.
 
-	W93 applies the same rule to `Agent`, for the reason W73 removed
-	`St`: a column that reads `-` on every row is six cells repeating a
-	property of the VIEW rather than telling two rows apart. Agent
-	describes the HANDLER's runner, so a window in which nothing is
-	claimed has no runner to describe — and the cells it would cost come
+	W93 applies the same rule to `Run` (W137's name for it), for the
+	reason W73 removed `St`: a column that reads `-` on every row is
+	cells repeating a property of the VIEW rather than telling two rows
+	apart. `Run` describes the HANDLER's runner, so a window in which
+	nothing is claimed has no runner to describe — and the cells it would cost come
 	straight out of the Title, which is the only column the layout may
 	truncate. `claimed` is the view's question, exactly as `terminal`
 	is: does this window contain claimed Work at all."""
 	lead = id_width + 1 if id_width else 0
 	columns = [entry for entry in COLUMNS
 	           if (terminal or entry[0] != "OUT")
-	           and (claimed or entry[0] != "AGENT")]
+	           and (claimed or entry[0] != "RUN")]
 	for name in DROP_ORDER:
 		fixed = sum(w for _n, w in columns) + len(columns)
 		if width - fixed - lead - 1 >= MIN_TITLE:
@@ -586,7 +805,9 @@ AGENT_LABELS = {"idle": "idle", "working": "work",
 
 
 def agent_cell(agent) -> str:
-	"""The Agent cell for one Work row.
+	"""The `Run` cell for one Work row — what the handler's runner is
+	doing. (W137 renamed the COLUMN; the projection field it reads is
+	still `agent`, and this function is named for that field.)
 
 	`-` when the Work is UNCLAIMED: there is no runner to describe,
 	which is a different fact from a runner nobody can see. A claimed
@@ -1241,31 +1462,72 @@ class Console:
 		return " > ".join(entry["title"] for entry in trail)
 
 	def top_tab_segments(self) -> list[tuple[str, str]]:
-		"""`(tab name, drawn label)` in order.
+		"""`(tab name, drawn label)` in order, every label bracketed.
 
-		The painter needs the PIECES, not the joined line: only the
-		Inbox label carries the urgency weight, so a single string would
-		force it to bold all three tabs or none. `top_tabs()` joins
-		exactly these pieces, so the text and the paint cannot disagree
-		about where a label starts."""
+		The painter needs the PIECES, not the joined line: the Inbox
+		label carries the urgency weight and the active label carries
+		the selection weight, so a single string would force both onto
+		all three tabs or none. `top_tabs()` joins exactly these
+		pieces, so the text and the paint cannot disagree about where a
+		label starts.
+
+		W110 (finding-consistent-tui-tab-grammar) supersedes W25's
+		rule that the brackets marked the ACTIVE tab. They now mark
+		what is a TAB — the same grammar Work detail uses for
+		Messages/Events — and the active one is highlighted instead. A
+		bracket that means "selected" here and "this is a tab" one
+		level down is a grammar an operator has to learn twice."""
 		box = self.inbox_view()
 		out = []
 		for name in TABS:
 			label = name.title()
-			if name == "inbox":
-				label += f" {box['total']}/{box['unseen']}"
-			out.append((name, f"[{label}]" if name == self.tab
-			            else f" {label} "))
+			if name == "inbox" and box["owed_action"]:
+				# W167 (finding-inbox-owed-marker) supersedes W25's
+				# `total/unseen` here. Those are genuinely independent
+				# projection fields, but most live row kinds are unseen
+				# for their whole life or vanish when resolved, so the
+				# label spent six cells reading `0/0` or `1/1` and
+				# emphasised UNREADNESS — while the question an
+				# operator has at a glance is whether they owe
+				# anything. One ASCII marker answers exactly that. It
+				# encodes no count, no severity and no unseen state,
+				# and it comes from canonical `owed_action` rather than
+				# from either counter: the numbers still exist, inside
+				# Inbox and in the JSON, where their meaning is visible
+				# beside the rows they describe.
+				label += " *"
+			out.append((name, f"[{label}]"))
 		return out
 
 	def top_tabs(self) -> str:
-		"""`[Jobs]   Teams    Inbox 3/1` — the selected tab in brackets.
+		"""`[Jobs]  [Teams]  [Inbox *]` — every tab, bracketed.
 
-		The brackets are the selection cue and they are TEXT: a terminal
-		that ignores bold still shows which tab Enter acts in. Inbox
-		carries `total/unseen` from the same read its rows come from."""
+		Which one is ACTIVE is the paint's job (W110); this is the text
+		of the bar. W167: Inbox carries one `*` when this participant
+		OWES something, and nothing when they do not — the counts live
+		inside the view and in the JSON."""
 		return TAB_GAP.join(label for _name, label
 		                    in self.top_tab_segments())
+
+	def visible_tab_segments(self, width: int) -> list[tuple[str, str]]:
+		"""The top-level segments that fit WHOLE, active one kept.
+
+		W110 review R1: the budget is the room the labels ACTUALLY
+		have, not `width - 1`. The participant identity is painted last
+		and deliberately overdraws — that is its own guarantee, that no
+		width can clip away who the operator is signed in as — so a
+		label this function accepted could still be half-erased by the
+		time the row was composed, leaving `[lang.ada` on screen. The
+		identity region is therefore reserved HERE, where the decision
+		is made, and the identity's own promise is untouched."""
+		return fitted_tabs(self.top_tab_segments(), self.tab,
+		                   self._tab_budget(width))
+
+	def _tab_budget(self, width: int) -> int:
+		"""The columns the tab bar may use before the right-aligned
+		identity begins. One space separates them, so a label and a
+		name never abut."""
+		return max(0, width - 1 - len(self.participant) - 1)
 
 	def _render_header(self, screen, width: int, summary) -> None:
 		"""Row 0: tabs first, then the Jobs trail, with the participant
@@ -1282,12 +1544,16 @@ class Console:
 		# unchanged. Seen state still cannot quiet this: it follows
 		# `owed_action`, not `unseen`.
 		column = 0
-		for name, label in self.top_tab_segments():
-			if column >= width - 1:
-				break
+		for name, label in self.visible_tab_segments(width):
 			urgent = name == "inbox" and box["owed_action"]
-			screen.addnstr(0, column, label, width - 1 - column,
-			               curses.A_BOLD if urgent else 0)
+			# W110: the two weights are independent facts and they
+			# compose. REVERSE says which tab the keys act in; BOLD
+			# still says only that Inbox is owed something, so an
+			# operator sitting in Teams can see both at once and a
+			# quiet Inbox never looks urgent for being selected.
+			attr = (curses.A_REVERSE if name == self.tab else 0) \
+				| (curses.A_BOLD if urgent else 0)
+			screen.addnstr(0, column, label, width - 1 - column, attr)
 			column += len(label) + len(TAB_GAP)
 		trail = self.breadcrumb_text(summary) if self.tab == "jobs" \
 			else ""
@@ -1458,7 +1724,7 @@ class Console:
 		if not rows:
 			screen.addnstr(3, 0, "(nothing owed and nothing unseen)",
 			               width - 1)
-			screen.addnstr(footer, 0, "Tab switches tab", width - 1)
+			screen.addnstr(footer, 0, "[/] tabs", width - 1)
 			return
 		selected = self._inbox_selected()
 		cells = {row["selector"]: self._inbox_cells(row)
@@ -1509,7 +1775,7 @@ class Console:
 			bits.append("Enter open in Jobs")
 		if selected and selected["thread"]:
 			bits.append("s mark seen")
-		bits.append("Tab switches tab")
+		bits.append("[/] tabs")
 		screen.addnstr(footer, 0, " · ".join(bits), width - 1)
 
 	def _inbox_detail(self, row: dict, width: int) -> list[str]:
@@ -1577,10 +1843,12 @@ class Console:
 		that runner is doing — both from the canonical runtime lease,
 		neither inferred from the participant's name or from the Work
 		it holds. `Work` is the authority's answer about what this
-		member is executing; `Session` is the exact locator, abbreviated
-		here and never in the record; `Since` is when the runner's state
-		last changed. `-` throughout means the authority holds no such
-		fact, which is never the same as a reassuring one."""
+		member is executing; `Session` is the exact locator, in FULL —
+		W137: fitting it is the layout's job, and pre-truncating here
+		decided the width before the layout knew what it had; `Since`
+		is when the runner's state last changed. `-` throughout means
+		the authority holds no such fact, which is never the same as a
+		reassuring one."""
 		runtime = row.get("runtime") or {}
 		held = row["handled_work"]
 		return {
@@ -1590,9 +1858,11 @@ class Console:
 			                          runtime.get("state") or "-"),
 			"Work": (_local_selector(held[0]["work"]) if held
 			         else "-"),
-			"Session": ((runtime.get("session") or "-")[:12]
-			            + ("…" if len(runtime.get("session") or "") > 12
-			               else "")),
+			# W137: the WHOLE locator. Pre-truncating here decided
+			# the width before the layout knew what it had, so a wide
+			# terminal could not recover a value the record held all
+			# along. Fitting is the layout's job and happens once.
+			"Session": runtime.get("session") or "-",
 			# W93 review R15: ELAPSED time in the current state, in the
 			# one MM:SS/∞ vocabulary every other duration cell uses —
 			# not an absolute instant, which spent sixteen cells saying
@@ -1609,36 +1879,43 @@ class Console:
 		footer = height - 2
 		if not rows:
 			screen.addnstr(3, 0, "(no configured members)", width - 1)
-			screen.addnstr(footer, 0, "t all teams · Tab switches tab",
+			screen.addnstr(footer, 0, "t all teams · [/] tabs",
 			               width - 1)
 			return
 		selected = self._team_selected()
 		cells = {row["participant"]: self._team_cells(row)
 		         for row in rows}
-		id_width = max([len("Participant")]
-		               + [len(row["participant"]) for row in rows])
-		columns = []
-		for name, floor in (("Role", 4), ("Agent", 5), ("State", 5),
-		                    ("Work", 4), ("Session", 7), ("Since", 16)):
-			columns.append((name, max(floor, max(
-				len(cells[row["participant"]][name])
-				for row in rows))))
-		used = id_width + sum(size + 1 for _name, size in columns)
+		# W137: the natural widths are measured from the cells that
+		# EXIST, and the fitting happens once, in one place. The old
+		# shape measured content, computed a `used` total, and then
+		# threw it away — so the table stayed as narrow as its floors
+		# no matter how much terminal it had been given.
+		natural = {name: max([len(name)] + [
+			len(cells[row["participant"]][name]) for row in rows])
+			for name, _floor, _cap in TEAM_COLUMNS}
+		id_width, columns = team_layout(
+			width, max(len(row["participant"]) for row in rows), natural)
 		header = "Participant".ljust(id_width)
 		for name, size in columns:
-			header += " " + name.ljust(size)
+			header += " " + _fit(name, size)
 		screen.addnstr(2, 0, header[:width - 1], width - 1,
 		               curses.A_UNDERLINE)
-		listing = max(1, min(len(rows), footer - 8))
+		# W184: the detail block is a table now and needs real room, so
+		# the LIST gives it a fair share instead of taking everything
+		# up to the old floor. The selected member is always visible
+		# because the window follows the cursor below.
+		listing = max(1, min(len(rows),
+		                     (footer - 4) // 2 if selected
+		                     else footer - 4))
 		start = max(0, min(self.team_cursor - listing + 1,
 		                   len(rows) - listing))
 		start = max(0, start)
 		shown = rows[start:start + listing]
 		for offset, row in enumerate(shown):
-			text = row["participant"].ljust(id_width)
+			text = _fit(row["participant"], id_width)
 			for name, size in columns:
-				text += " " + cells[row["participant"]][name][:size] \
-					.ljust(size)
+				text += " " + _fit(cells[row["participant"]][name],
+				                   size)
 			attribute = curses.A_REVERSE \
 				if start + offset == self.team_cursor else 0
 			if row["participant"] == self.participant and not attribute:
@@ -1647,8 +1924,20 @@ class Console:
 			               attribute)
 		if selected:
 			top = 3 + len(shown) + 1
-			for offset, line in enumerate(
-					self._team_detail(selected, width)):
+			detail = self._team_detail(selected, width)
+			budget = max(0, footer - top)
+			if len(detail) > budget:
+				# The pokes view's ruled shape: say how much is not on
+				# screen and name where the whole record is, rather
+				# than stopping mid-table and looking complete. W184
+				# made this block taller by giving every fact its own
+				# row, which is the point — so a short terminal has to
+				# be honest about what it cut.
+				hidden = len(detail) - max(0, budget - 1)
+				detail = detail[:max(0, budget - 1)] + [
+					f"  … {hidden} more row(s) — `teams` has the whole "
+					f"record"]
+			for offset, line in enumerate(detail):
 				if top + offset >= footer:
 					break
 				screen.addnstr(top + offset, 0, line, width - 1)
@@ -1656,101 +1945,157 @@ class Console:
 		if self._pending_poke_to(selected) is not None:
 			bits.append("x withdraw")
 		bits.append("t own/all teams")
-		bits.append("Tab switches tab")
+		bits.append("[/] tabs")
 		screen.addnstr(footer, 0, " · ".join(bits), width - 1)
 
 	def _team_detail(self, row: dict, width: int) -> list[str]:
-		"""One member in full: what work may reach them, what they hold,
-		and the RAW structured answer they last gave — every closed
-		vocabulary field shown as reported, because `unknown` is a fact
-		about the adapter and not a blank to be tidied away."""
-		lines = [f"{row['participant']} — {row['display']}"]
-		lines.append("  roles: " + (", ".join(row["roles"]) or "none"))
-		for entry in row["routes"]:
-			lines.append(f"  route {entry['route']} ({entry['role']}): "
-			             + (", ".join(entry["endpoints"]) or "no live "
-			                "endpoint"))
-		if not row["routes"]:
-			lines.append("  routes: none — no Work can be routed here")
-		for held in row["handled_work"]:
-			lines.append(f"  holding {_local_selector(held['work'])} "
-			             f"[{held['phase']}] {held['title']}")
-		if not row["handled_work"]:
-			lines.append("  holding nothing")
-		# W93 slice 5: the RUNTIME lease first — what the runner is
-		# doing now, with the full session locator the compact table
-		# abbreviates and the provenance of every fact. `poke` follows
-		# it as a different kind of evidence: what the agent itself
-		# said, on demand, rather than what its adapter observed.
+		"""One member in full, as a two-column table.
+
+		W184 (finding-teams-member-detail-table) supersedes the prose
+		form. The authority already exposes these as typed fields, and
+		flattening them into sentences threw away the one thing
+		structure gives an operator: somewhere to look. Labels started
+		at different columns and several facts shared a line, so
+		finding one field meant rereading the block.
+
+		Every fact keeps its OWN key — provider, model, session,
+		incarnation, state, cause, transition time, last contact and
+		each operational fact — because combining unrelated facts to
+		save a row is what made the old block unscannable. `unknown`,
+		`-` and "never published" stay visibly different from each
+		other: a renderer that tidies an absent fact into a reassuring
+		one is lying about what the authority holds."""
 		runtime = row.get("runtime") or {}
+		sections = [
+			("Identity and routing", self._detail_identity(row)),
+			("Workflow", self._detail_workflow(row)),
+			("Runner state", self._detail_runner(runtime)),
+			("Operational diagnostics", self._detail_facts(runtime)),
+			("Last poke answer", self._detail_answer(row)),
+		]
+		head = f"{row['participant']} — {row['display']}"
+		return soft_wrap(head, max(8, width - 1)) \
+			+ kv_lines(sections, max(8, width - 1))
+
+	@staticmethod
+	def _detail_identity(row: dict) -> list[tuple[str, str]]:
+		pairs = [("Participant", row["participant"]),
+		         ("Display", row["display"]),
+		         ("Roles", ", ".join(row["roles"]) or "none")]
+		for entry in row["routes"]:
+			pairs.append(("Route", f"{entry['route']} ({entry['role']}): "
+			              + (", ".join(entry["endpoints"])
+			                 or "no live endpoint")))
+		if not row["routes"]:
+			pairs.append(("Route", "none — no Work can be routed here"))
+		return pairs
+
+	@staticmethod
+	def _detail_workflow(row: dict) -> list[tuple[str, str]]:
+		if not row["handled_work"]:
+			return [("Holding", "nothing")]
+		return [("Holding", f"{_local_selector(held['work'])} "
+		         f"[{held['phase']}] {held['title']}")
+		        for held in row["handled_work"]]
+
+	@staticmethod
+	def _detail_runner(runtime: dict) -> list[tuple[str, str]]:
+		"""The runtime lease, one fact per row.
+
+		A participant whose adapter has never opened a lease gets ONE
+		row saying exactly that, rather than a dozen rows of `-` that
+		would read as a runner reporting nothing."""
 		state = runtime.get("state")
 		if state in (None, "offline") and not runtime.get("incarnation"):
-			lines.append("  runner: no lease — this participant's "
-			             "adapter has never published runtime state")
-		else:
-			lines.append(f"  runner: {state} "
-			             f"({runtime.get('provenance')})"
-			             + (f" · {runtime.get('cause')}"
-			                if runtime.get("cause") else "")
-			             + (f" — {runtime.get('detail')}"
-			                if runtime.get("detail") else ""))
-			lines.append(f"  adapter {runtime.get('adapter') or '-'} "
-			             f"provider={runtime.get('provider') or '-'} "
-			             f"model={runtime.get('model') or '-'}")
-			lines.append(f"  session {runtime.get('session') or '-'}")
-			lines.append(f"  incarnation "
-			             f"{runtime.get('incarnation') or '-'} · since "
-			             f"{(runtime.get('since') or '-')[:19]} · last "
-			             f"contact "
-			             f"{(runtime.get('last_contact') or '-')[:19]}"
-			             + ("  · STALE" if runtime.get("stale") else ""))
-			if runtime.get("action_owner"):
-				lines.append(f"  interactive answers owed by "
-				             f"{runtime['action_owner']}")
-			if runtime.get("refresh_requested"):
-				lines.append(f"  refresh asked at "
-				             f"{runtime['refresh_requested'][:19]} — "
-				             f"awaiting the adapter's next poll")
-			if runtime.get("note"):
-				lines.append(f"  {runtime['note']}")
-		# W93 slice 6: the safe operational inventory, each fact with
-		# its own source and age. They are listed separately from the
-		# state above because they age separately: a locator read from
-		# the deployment document at launch is not as current as a
-		# state observed a second ago, and showing them together would
-		# make the older one look as live as the newer.
-		for fact in runtime.get("facts") or []:
-			lines.append(f"  {fact['key']}: {fact['value']}  "
-			             f"[{fact['source']} · "
-			             f"{held_cell(fact['observed_at'], _time.time())}"
-			             f" ago]")
+			return [("Lease", "none — this participant's adapter has "
+			         "never published runtime state")]
+		pairs = [("State", f"{state} ({runtime.get('provenance')})"),
+		         ("Cause", runtime.get("cause") or "-"),
+		         ("Detail", runtime.get("detail") or "-"),
+		         ("Adapter", runtime.get("adapter") or "-"),
+		         ("Provider", runtime.get("provider") or "-"),
+		         ("Model", runtime.get("model") or "-"),
+		         ("Session", runtime.get("session") or "-"),
+		         ("Incarnation", runtime.get("incarnation") or "-"),
+		         ("Since", (runtime.get("since") or "-")[:19]),
+		         ("Last contact",
+		          (runtime.get("last_contact") or "-")[:19]),
+		         ("Lease expires",
+		          (runtime.get("expires_at") or "-")[:19]),
+		         # Its own row: the deadline and whether it has passed
+		         # are different facts, and a reader should not have to
+		         # subtract one from the clock to learn the other.
+		         ("Stale", "yes" if runtime.get("stale") else "no")]
+		if runtime.get("action_owner"):
+			pairs.append(("Action owner",
+			              f"interactive answers owed by "
+			              f"{runtime['action_owner']}"))
+		if runtime.get("refresh_requested"):
+			pairs.append(("Refresh",
+			              f"asked at "
+			              f"{runtime['refresh_requested'][:19]} — "
+			              f"awaiting the adapter's next poll"))
+		if runtime.get("note"):
+			pairs.append(("Note", runtime["note"]))
+		return pairs
+
+	@staticmethod
+	def _detail_facts(runtime: dict) -> list[tuple[str, str]]:
+		"""The safe operational inventory, each fact with its own
+		source and age — they age SEPARATELY from the state above, so
+		showing them together would make the older look as live as the
+		newer.
+
+		W184 rules `Log` explicitly present: an operator looking for
+		the log locator must be told it was never published rather than
+		left to guess a path from the deployment they hope is running.
+		"""
+		held = {fact["key"]: fact for fact in runtime.get("facts") or []}
+		pairs = []
+		for key, fact in held.items():
+			pairs.append((key.replace("-", " ").capitalize(),
+			              f"{fact['value']}  [{fact['source']} · "
+			              f"{held_cell(fact['observed_at'], _time.time())}"
+			              f" ago]"))
+		if "log" not in held:
+			pairs.append(("Log", "not published — this runner's adapter "
+			              "has published no log locator"))
+		return pairs
+
+	@staticmethod
+	def _detail_answer(row: dict) -> list[tuple[str, str]]:
+		"""What the AGENT said when it was last asked, which is a
+		different kind of evidence from what its adapter observed."""
 		answer = row["last_answer"]
 		if answer is None:
-			lines.append("  runner said: never asked — no poke has been "
-			             "answered by this participant")
-		else:
-			runner = answer["runner"]
-			lines.append(f"  said {answer['state']} at "
-			             f"{answer['at'][:16].replace('T', ' ')}: "
-			             f"{answer['explanation']}")
-			lines.append(f"  runner: provider={runner['provider']} "
-			             f"model={runner['model']} "
-			             f"session={runner['session_state']} "
-			             f"auth={runner['auth_state']} "
-			             f"limit={runner['limit_state']}"
-			             + (f" retry_at={runner['retry_at']}"
-			                if runner["retry_at"] else ""))
-			telemetry = answer["telemetry"]
-			if any(value is not None for value in telemetry.values()):
-				lines.append(f"  context: "
-				             f"used={telemetry['context_used']} "
-				             f"limit={telemetry['context_limit']} "
-				             f"remaining="
-				             f"{telemetry['context_remaining']}")
-		out: list[str] = []
-		for line in lines:
-			out.extend(soft_wrap(line, max(8, width - 1)))
-		return out
+			return [("Said", "never asked — no poke has been answered "
+			         "by this participant")]
+		runner = answer["runner"]
+		pairs = [("Said", answer["state"]),
+		         ("At", answer["at"][:16].replace("T", " ")),
+		         ("Explanation", answer["explanation"]),
+		         ("Provider", runner["provider"]),
+		         ("Model", runner["model"]),
+		         ("Session state", runner["session_state"]),
+		         ("Auth state", runner["auth_state"]),
+		         ("Limit state", runner["limit_state"])]
+		if runner["retry_at"]:
+			pairs.append(("Retry at", runner["retry_at"]))
+		telemetry = answer["telemetry"]
+		if any(value is not None for value in telemetry.values()):
+			# W184 review R1: the three counters are supplied
+			# INDEPENDENTLY, so a partial answer is ordinary rather
+			# than exceptional. Handing the raw value to `kv_lines`
+			# renders an absent one as this table's `-`; `str()` here
+			# printed Python's `None`, which is an implementation
+			# word and not Baton's absent-value vocabulary. The keys
+			# stay whatever arrives, so what the agent reported and
+			# what it left out remain separate facts.
+			pairs.append(("Context used", telemetry["context_used"]))
+			pairs.append(("Context limit", telemetry["context_limit"]))
+			pairs.append(("Context remaining",
+			              telemetry["context_remaining"]))
+		return pairs
 
 	def _pending_poke_to(self, member) -> int | None:
 		"""The poke THIS participant has outstanding to that member, if
@@ -1974,7 +2319,7 @@ class Console:
 			# inferred from Phase or Handler — the canonical projection
 			# answers it, and `-` means nobody holds this Work rather
 			# than anything about a runner.
-			"AGENT": agent_cell(row.get("agent")),
+			"RUN": agent_cell(row.get("agent")),
 			"NEXT": row["next"]["endpoint"] if row["next"] else "-",
 			"NEW": str(row["new"]),
 		}
@@ -2425,14 +2770,19 @@ class Console:
 
 	DETAIL_TABS = ("messages", "events")
 
+	def detail_tab_segments(self) -> list[tuple[str, str]]:
+		"""`(tab name, drawn label)`, every label bracketed.
+
+		W110: the same grammar the top level uses. The brackets say
+		"this is a tab"; the active one is highlighted by the painter."""
+		return [(name, f"[{name.title()}]")
+		        for name in self.DETAIL_TABS]
+
 	def _tab_bar(self) -> str:
-		"""W123: `Messages  Events` with the active tab distinguished.
-		The bar is presentation; the tab itself is client state and
-		touches no authority."""
-		return "  ".join(
-			f"[{name.title()}]" if name == self.detail_tab
-			else f" {name.title()} "
-			for name in self.DETAIL_TABS)
+		"""W123: `[Messages]  [Events]`. The bar is presentation; the
+		tab itself is client state and touches no authority."""
+		return TAB_GAP.join(label for _name, label
+		                    in self.detail_tab_segments())
 
 	def _switch_tab(self, step: int) -> None:
 		"""`]` next, `[` previous. Each tab's own focus, selection, page
@@ -2446,7 +2796,12 @@ class Console:
 	def _detail_footer(self, screen, height, width, bits) -> None:
 		"""The advertised controls. `[/] tabs` is ALWAYS present: the
 		ruling is that tab navigation must not be discoverable only by
-		prior knowledge."""
+		prior knowledge.
+
+		W1151 puts both pane gestures in ONE cell — `Tab/Ctrl-W panes`
+		— rather than spending a second row or a second bit on the
+		alternative. An operator who does not use Vim window commands
+		needs to see that Tab works; one who does needs nothing new."""
 		screen.addnstr(height - 2, 0,
 		               " · ".join(["[/] tabs", *bits]), width - 1)
 
@@ -2518,7 +2873,7 @@ class Console:
 			bits.append("older events — n older · p newest")
 		elif self.event_before is not None:
 			bits.append("newer events — p newest")
-		bits.extend(["Ctrl-W panes", "j/k select", "Esc back"])
+		bits.extend(["Tab/Ctrl-W panes", "j/k select", "Esc back"])
 		self._detail_footer(screen, height, width, bits)
 
 	# W47: the Event index is a fixed-column table. Concatenating the
@@ -2605,8 +2960,26 @@ class Console:
 		if payload is _ABSENT_PAYLOAD:
 			payload = {}
 		lines = [f"#{entry['seq']} {entry['kind']} {entry['actor']} "
-		         f"{entry['ts']}",
-		         f"  roles: {', '.join(entry['roles'])}"]
+		         f"{entry['ts']}"]
+		# W1217 (finding-event-relation-display): `subject` is why this
+		# Event is on the screen at all — every row in this Work's
+		# Events tab is here because it relates to this Work — so a row
+		# saying so restated the view and spent a line doing it, in
+		# vocabulary that reads like a member role.
+		#
+		# A MEANINGFUL relationship is different: `consumer`,
+		# `blocker`, `parent`, `provider` explain why an Event that
+		# primarily concerns another Work appears here, and that an
+		# operator cannot infer. Those are named, and `subject` is
+		# never shown beside them — it is the implicit baseline, not an
+		# extra fact. The canonical `roles` array is untouched; this is
+		# the reader deciding what to say, not the projection deciding
+		# what to hold.
+		meaningful = [role for role in entry["roles"] if role != "subject"]
+		if len(meaningful) == 1:
+			lines.append(f"  relation: {meaningful[0]}")
+		elif meaningful:
+			lines.append(f"  relations: {', '.join(meaningful)}")
 		for other in entry.get("related") or ():
 			lines.append(f"  related: {other['work']} "
 			             f"({other['role']})")
@@ -2648,6 +3021,18 @@ class Console:
 		# is presentation only. `ensure_ascii=False` keeps Unicode
 		# readable; `sort_keys=True` keeps the order deterministic.
 		import json as _payload_json
+		# W1207 (finding-event-payload-visual-separation): ONE blank
+		# row between the typed metadata and the audit record. The
+		# `payload:` label was already there, but with no vertical gap
+		# the JSON read as one more metadata field and the eye had to
+		# re-parse the block to find where the human summary ended.
+		#
+		# Spacing rather than a rule: a horizontal line would spend
+		# width the reader needs and would depend on glyphs some
+		# terminals draw badly. `soft_wrap` keeps an empty logical line
+		# as exactly one empty visual line, so a narrow pane neither
+		# multiplies nor erases the separator.
+		lines.append("")
 		lines.append("  payload:")
 		lines.extend(
 			"  " + text for text in
@@ -2710,9 +3095,24 @@ class Console:
 
 		# W123: the tab bar is ALWAYS painted, so both views are
 		# discoverable without prior knowledge, and the active one is
-		# distinguished rather than merely remembered.
-		screen.addnstr(offset_row, 0, self._tab_bar(), width - 1,
-		               curses.A_BOLD)
+		# distinguished rather than merely remembered. W110: painted
+		# label by label, because the active one carries REVERSE and a
+		# single string could only weight both or neither — the same
+		# reason the top-level header is painted in pieces.
+		column = 0
+		# W110 review R2: the SAME narrow-layout rule the top level
+		# uses. This loop used to stop at the first label too wide,
+		# which left the inactive `[Messages]` alone on a 13-column bar
+		# while the operator was in Events — advertising a tab the
+		# screen did not show, and losing the one it did.
+		for name, label in fitted_tabs(self.detail_tab_segments(),
+		                               self.detail_tab,
+		                               max(0, width - 1)):
+			screen.addnstr(offset_row, column, label, width - 1 - column,
+			               curses.A_BOLD | (curses.A_REVERSE
+			                                if name == self.detail_tab
+			                                else 0))
+			column += len(label) + len(TAB_GAP)
 		offset_row += 1
 		if self.detail_tab == "events":
 			self._render_events(screen, offset_row, height, width)
@@ -3075,7 +3475,7 @@ class Console:
 			bits.append("reader: j scrolls")
 		seen_label = f"M{self.msg_cursor}" if self.msg_cursor \
 			else "selected"
-		bits.extend(["Ctrl-W panes", "j/k select",
+		bits.extend(["Tab/Ctrl-W panes", "j/k select",
 		             f"s seen through {seen_label}", "Esc back"])
 		self._detail_footer(screen, height, width, bits)
 
@@ -4338,14 +4738,29 @@ class Console:
 			self.history_draft = None
 			self.reverse = None
 			return True
-		# W25: Tab cycles the three top-level tabs from anywhere outside
-		# text entry, which the branches above have already claimed.
-		# NOT `[`/`]`: those are the Work detail's own Messages/Events
-		# tab keys (W123), documented and tested, and one pair of keys
-		# meaning two different tab sets at two different levels is the
-		# kind of thing an operator learns twice and confuses forever.
-		if key in (9, curses.KEY_BTAB):
-			step = -1 if key == curses.KEY_BTAB else 1
+		# W110 (finding-consistent-tui-tab-grammar) supersedes W25's
+		# reasoning here. W25 kept `[`/`]` away from the top level
+		# because Work detail already used them for Messages/Events —
+		# but the keys perform the SAME operation at two levels, and
+		# "previous/next tab at the level you are in" is one rule, not
+		# two. What an operator would otherwise learn twice is which
+		# gesture each level wants.
+		#
+		# The guard is the whole of the context separation: inside Work
+		# detail this branch declines and `_handle_detail` takes the
+		# keys, so `]` there never escapes to the top level. Text entry
+		# — the command bar, the batch buffer, the search input — has
+		# already claimed every key above, so `[` and `]` stay literal
+		# where somebody is typing them.
+		#
+		# W1151 (finding-immediate-pane-focus-navigation) retires the
+		# `Tab`/`Shift-Tab` aliases W110 kept here. `[` and `]` are the
+		# EXCLUSIVE tab-switching keys now, because Tab has a better
+		# job: cycling pane focus for operators who do not reach for
+		# Vim window commands. One key cannot mean "next tab" and "next
+		# pane" without meaning neither.
+		if key in (ord("["), ord("]")) and self.mode != "detail":
+			step = -1 if key == ord("[") else 1
 			self.tab = TABS[(TABS.index(self.tab) + step) % len(TABS)]
 			return True
 		if self.tab == "inbox":
@@ -4456,6 +4871,32 @@ class Console:
 			"left": {"reader": "index"},
 			"right": {"index": "reader"},
 		}
+		# W1151: the discoverable alternative to the Vim chord. Tab
+		# cycles the VISIBLE regions forward and Shift-Tab backward,
+		# wrapping, over exactly the panes this tab paints — three in
+		# Messages, two in Events. It is a view move like the chord it
+		# sits beside: read-only, no selection, no seen state, no
+		# authority read.
+		if key in (9, curses.KEY_BTAB):
+			# W1151 review: a pane gesture CONSUMES a pending chord.
+			# The two are alternatives, so using one cannot leave the
+			# other half-entered — otherwise `Ctrl-W`, Tab, `j` makes
+			# that later `j` finish the OLD chord instead of acting in
+			# the pane Tab just selected. Vim answers `Ctrl-W Tab` by
+			# cycling, which is what this does either way.
+			self.ctrl_w_pending = False
+			step = -1 if key == curses.KEY_BTAB else 1
+			if self.detail_tab == "events":
+				order = ("index", "reader")
+				here = self.event_focus if self.event_focus in order \
+					else "index"
+				self.event_focus = order[(order.index(here) + step)
+				                         % len(order)]
+			else:
+				here = self.focus if self.focus in regions else "index"
+				self.focus = regions[(regions.index(here) + step)
+				                     % len(regions)]
+			return True
 		if self.ctrl_w_pending:
 			self.ctrl_w_pending = False
 			# W123: Ctrl-W stays PANE-LOCAL to the active tab. Events

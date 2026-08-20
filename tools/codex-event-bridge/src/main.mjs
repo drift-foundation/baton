@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { CodexClient } from "./codex_client.mjs";
@@ -111,21 +112,73 @@ async function injectOnce(config, options, log) {
   }
 }
 
-async function bootstrapThread(options, log) {
+// W424 (finding-codex-bootstrap-thread-durability): the text of the
+// one turn that makes a new thread durable. It is deliberately a
+// no-tool instruction — the turn exists to write a rollout, not to do
+// work, and a bootstrap that ran a command would be doing something
+// nobody asked for in a workspace nobody has checked yet.
+export const BOOTSTRAP_PROMPT =
+  "Baton bootstrap. This thread was just created and needs one "
+  + "recorded turn before it can be resumed. Reply with the single "
+  + "word `ready` and nothing else. Do not run any command, read any "
+  + "file, or use any tool.";
+
+export async function bootstrapThread(options, log, { clientFactory, read = readRoleInstructions, out = process.stdout } = {}) {
   for (const name of ["endpoint", "cwd", "baton", "baton-config", "participant"]) {
     if (!options[name]) throw new Error(`--start-thread requires --${name}`);
   }
   const identity = { participant: options.participant, ...(options.role === undefined ? {} : { role: options.role }) };
-  const resolved = await readRoleInstructions({ binary: options.baton, config: options["baton-config"] }, identity);
-  const client = new CodexClient({ name: "bootstrap", endpoint: options.endpoint, debug: options.debug, logger: log });
+  const resolved = await read({ binary: options.baton, config: options["baton-config"] }, identity);
+  const connect = clientFactory ?? ((name) => new CodexClient({ name, endpoint: options.endpoint, debug: options.debug, logger: log }));
+
+  // W424: `thread/start` alone returns an id with no rollout behind
+  // it. The bootstrap client then disconnected and the locator it had
+  // just printed could not be resumed — by the dispatcher, by a
+  // restarted app-server, or even by a second client one second
+  // later. The command reported success for something that did not
+  // exist yet.
+  //
+  // So the thread is MADE durable here, with one completed turn, and
+  // then PROVED durable on a second connection before a single byte
+  // of locator reaches stdout. Nothing about a bootstrap is urgent
+  // enough to justify printing an id that might not resolve.
+  const client = connect("bootstrap");
+  let threadId;
   await client.connectAndInitialize();
   try {
     const started = await client.startThread({ cwd: options.cwd, developerInstructions: resolved.instructions });
-    process.stdout.write(`${JSON.stringify({ threadId: started.thread.id, participant: resolved.participant, role: resolved.role, configurationGeneration: resolved.configurationGeneration })}\n`);
-    return 0;
+    threadId = started.thread.id;
+    log.info(`[bootstrap] thread ${threadId} created; recording its first turn`);
+    const turn = await client.startTurn(threadId, BOOTSTRAP_PROMPT, randomUUID());
+    const completed = await client.waitForTurnCompletion(threadId, turn.id);
+    if (completed.status !== "completed") {
+      throw new Error(`the bootstrap turn ended ${completed.status}; thread ${threadId} may not be resumable and is NOT reported as usable`);
+    }
+  } catch (error) {
+    throw new Error(`could not record a first turn for ${threadId ?? "the new thread"}: ${error.message}`);
   } finally {
     client.disconnect();
   }
+
+  // The proof is on a NEW connection, because that is exactly the
+  // thing that failed: a thread readable by the client that made it
+  // told the operator nothing about whether anybody else could
+  // resume it.
+  const verifier = connect("bootstrap-verify");
+  await verifier.connectAndInitialize();
+  try {
+    await verifier.resume(threadId);
+  } catch (error) {
+    throw new Error(`thread ${threadId} was created but a second connection could not resume it: ${error.message}; not reporting an unusable locator`);
+  } finally {
+    verifier.disconnect();
+  }
+  log.info(`[bootstrap] thread ${threadId} resumed on a second connection`);
+  // The one write, and it happens LAST — after the turn completed and
+  // after a second connection resumed the thread. Everything before
+  // this point can still refuse.
+  out.write(`${JSON.stringify({ threadId, participant: resolved.participant, role: resolved.role, configurationGeneration: resolved.configurationGeneration })}\n`);
+  return 0;
 }
 
 async function listThreads(endpoint, options, log) {

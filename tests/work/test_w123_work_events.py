@@ -36,10 +36,18 @@ class Screen:
 		self.calls = []
 
 	def addnstr(self, y, x, text, *rest):
-		self.calls.append((y, x, str(text)))
+		# W110: the attribute is recorded because the ACTIVE tab is now
+		# distinguished by weight rather than by brackets — brackets
+		# say "this is a tab" at both view levels.
+		self.calls.append((y, x, str(text),
+		                   rest[1] if len(rest) > 1 else 0))
 
 	def lines(self):
-		return [text for _y, _x, text in self.calls]
+		return [text for _y, _x, text, _attr in self.calls]
+
+	def attr_of(self, label):
+		return next((attr for _y, _x, text, attr in self.calls
+		             if text == label), None)
 
 
 @pytest.fixture()
@@ -538,12 +546,17 @@ def test_the_tab_bar_is_always_visible_and_messages_is_default(world):
 	make(world)
 	console = console_at(world)
 	assert console.detail_tab == "messages"
-	lines = painted(console)
-	bar = [line for line in lines
-	       if "Messages" in line and "Events" in line]
-	assert bar, "the tab bar is not painted"
-	assert "[Messages]" in bar[0] and "[Events]" not in bar[0], \
-		f"the active tab is not distinguished: {bar[0]!r}"
+	screen = Screen()
+	console._render_detail(screen, 24, 100)
+	lines = screen.lines()
+	# W110: BOTH tabs are bracketed — the brackets identify a tab, at
+	# this level and at the top level alike — and the active one is
+	# highlighted instead.
+	assert "[Messages]" in lines and "[Events]" in lines, lines
+	assert screen.attr_of("[Messages]") & curses.A_REVERSE, \
+		"the active tab is not distinguished"
+	assert not screen.attr_of("[Events]") & curses.A_REVERSE, \
+		"the inactive tab was highlighted too"
 	assert any("[/] tabs" in line for line in lines), \
 		"the footer does not advertise tab navigation"
 
@@ -558,10 +571,11 @@ def test_both_bracket_keys_reach_events_from_messages(world, key,
 	console = console_at(world)
 	console.handle(key)
 	assert console.detail_tab == expected
-	lines = painted(console)
-	bar = next(line for line in lines
-	           if "Messages" in line and "Events" in line)
-	assert "[Events]" in bar and "[Messages]" not in bar
+	screen = Screen()
+	console._render_detail(screen, 24, 100)
+	assert "[Events]" in screen.lines() and "[Messages]" in screen.lines()
+	assert screen.attr_of("[Events]") & curses.A_REVERSE
+	assert not screen.attr_of("[Messages]") & curses.A_REVERSE
 
 
 def test_tab_switching_works_from_every_pane(world):
@@ -673,7 +687,12 @@ def test_the_reader_shows_roles_related_and_the_whole_payload(world):
 	console.detail_tab = "events"
 	lines = painted(console)
 	flat = "\n".join(lines)
-	assert "roles: consumer" in flat, flat[-400:]
+	# W1217 (finding-event-relation-display) renamed this row and
+	# retired the redundant one. `consumer` is a MEANINGFUL relation —
+	# it says why an Event about the blocker appears in the consumer's
+	# history — and W123's point was always that the typed
+	# relationship is readable, not that it was spelled `roles:`.
+	assert "relation: consumer" in flat, flat[-400:]
 	assert f"related: {blocker} (blocker)" in flat
 	assert "the reviewed prerequisite" in flat, \
 		"the rationale is not readable in the Events reader"

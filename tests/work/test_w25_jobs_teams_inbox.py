@@ -51,6 +51,8 @@ import fixtures as fx                                          # noqa: E402
 import ptyharness                                              # noqa: E402
 
 TAB = 9
+NEXT_TAB = ord("]")   # W1151: `]` switches tabs; Tab moves panes
+PREV_TAB = ord("[")
 ESC = 27
 
 
@@ -146,11 +148,21 @@ class AttrScreen(Screen):
 		return cells
 
 	def bold_text(self, row=0):
+		return self._weighted(curses.A_BOLD, row)
+
+	def reverse_text(self, row=0):
+		"""W110: the ACTIVE tab's weight. Separate from bold on
+		purpose — an owed Inbox an operator is not sitting in must
+		still read as owed, and the tab they ARE sitting in must not
+		read as owed for being selected."""
+		return self._weighted(curses.A_REVERSE, row)
+
+	def _weighted(self, weight, row=0):
 		cells = self.header_cells() if row == 0 else {}
 		out = ""
 		for column in sorted(cells):
 			character, attr = cells[column]
-			out += character if attr & curses.A_BOLD else " "
+			out += character if attr & weight else " "
 		return out.strip()
 
 
@@ -164,7 +176,7 @@ def console(world, member="ada", team="lang", tab="jobs"):
 	view = Console(world["store"], team, member,
 	               config_path=world["config"])
 	while view.tab != tab:
-		view.handle(TAB)
+		view.handle(NEXT_TAB)
 	return view
 
 
@@ -263,40 +275,56 @@ def test_the_retired_header_counters_are_gone(world):
 		assert token not in header, f"{token} survived in the header"
 
 
-def test_the_selected_tab_is_distinct_without_colour(world):
-	"""The bracket is the selection cue and it is TEXT — a terminal that
-	ignores bold still says which tab Enter acts in."""
+def test_every_tab_is_bracketed_and_the_active_one_is_highlighted(world):
+	"""W110 supersedes W25's rule that the bracket marked the SELECTED
+	tab. Work detail already bracketed both of its tabs to say "these
+	are tabs", so the same bracket meaning "and this one is active" one
+	level up was a grammar an operator had to learn twice. Brackets now
+	mark tabs at both levels and the active one is highlighted.
+
+	The information W25 was protecting is not lost — it moved to the
+	paint, which this asserts rather than assuming."""
 	view = console(world)
-	assert "[Jobs]" in view.top_tabs() and "[Teams]" not in \
+	assert view.top_tabs() == "[Jobs]  [Teams]  [Inbox]", \
 		view.top_tabs()
-	view.handle(TAB)
-	assert "[Teams]" in view.top_tabs() and "[Jobs]" not in \
-		view.top_tabs()
+	screen = attr_painted(view)
+	assert screen.reverse_text() == "[Jobs]", screen.reverse_text()
+	view.handle(NEXT_TAB)
+	assert view.top_tabs() == "[Jobs]  [Teams]  [Inbox]", \
+		"the label text moved with the selection"
+	assert attr_painted(view).reverse_text() == "[Teams]"
 
 
-def test_tab_cycles_forward_and_shift_tab_back(world):
+def test_the_tab_cycle_runs_forward_and_backward(world):
+	"""W25 ruled the CYCLE — three tabs, in order, wrapping both ways.
+	W110 moved it onto `[`/`]` and W1151 retired the Tab aliases
+	entirely, because Tab now cycles pane focus one level down. The
+	cycle itself is what this case has always been about, and it is
+	unchanged."""
 	view = console(world)
 	seen = []
 	for _ in range(4):
 		seen.append(view.tab)
-		view.handle(TAB)
+		view.handle(NEXT_TAB)
 	assert seen == ["jobs", "teams", "inbox", "jobs"], seen
 	assert view.tab == "teams", view.tab
-	import curses
-	view.handle(curses.KEY_BTAB)
-	assert view.tab == "jobs", "shift-tab did not step backwards"
-	view.handle(curses.KEY_BTAB)
-	assert view.tab == "inbox", "shift-tab did not wrap"
+	view.handle(PREV_TAB)
+	assert view.tab == "jobs", "`[` did not step backwards"
+	view.handle(PREV_TAB)
+	assert view.tab == "inbox", "`[` did not wrap"
 
 
-def test_the_detail_tab_keys_are_not_the_top_level_ones(world):
-	"""`[`/`]` belong to Work detail's Messages/Events tabs (W123). One
-	pair of keys meaning two tab sets at two levels is learned twice and
-	confused forever, so the top level uses Tab."""
+def test_the_bracket_keys_move_the_top_level_tabs_too(world):
+	"""W110 supersedes W25's separation. The keys perform the SAME
+	operation at both levels — previous/next tab at the level you are
+	in — so one rule replaces two gestures. The separation that
+	survives is CONTEXTUAL and is pinned in `test_w110_tab_grammar`:
+	inside Work detail the same keys move Messages/Events and never
+	reach the top level."""
 	view = console(world)
-	view.handle(ord("["))
-	assert view.tab == "jobs", "a detail key switched the top-level tab"
 	view.handle(ord("]"))
+	assert view.tab == "teams"
+	view.handle(ord("["))
 	assert view.tab == "jobs"
 
 
@@ -372,14 +400,20 @@ def test_a_narrow_terminal_still_says_who_and_where(world):
 
 # -- Inbox -------------------------------------------------------------------
 
-def test_the_inbox_label_carries_total_and_unseen(world):
+def test_the_inbox_counts_stay_where_their_rows_are(world):
+	"""W167 supersedes the `total/unseen` TEXT in this label and
+	nothing else. The counters are still derived, still independent,
+	and still projected — they simply no longer spend six header cells
+	saying `3/3`, which is what they said almost always. The tab now
+	answers the question an operator actually has at a glance."""
 	born = make_work(world)
 	ask(world, born)
 	poke(world)
 	view = console(world)
 	box = view.inbox_view()
-	assert f"Inbox {box['total']}/{box['unseen']}" in view.top_tabs()
 	assert box["total"] == 3 and box["unseen"] == 3, box
+	assert "3/3" not in view.top_tabs(), view.top_tabs()
+	assert "[Inbox *]" in view.top_tabs(), view.top_tabs()
 
 
 def test_the_tab_stays_bold_while_something_is_owed_though_seen(world):
@@ -557,7 +591,7 @@ def test_a_member_row_shows_roles_routes_and_canonical_claims(world):
 	born = make_work(world)
 	tr.claim_work(world["store"], born["work_id"], actor_team="lang",
 	              actor="ada")
-	lines = painted(console(world, tab="teams"))
+	lines = painted(console(world, tab="teams"), height=40)
 	row = next(line for line in lines if line.startswith("lang.ada"))
 	# W93 slice 5 reshaped this table to the ruled vocabulary: Role,
 	# Agent, State, Work, Session, Since. Roles and the route coverage
@@ -565,8 +599,11 @@ def test_a_member_row_shows_roles_routes_and_canonical_claims(world):
 	# moved to the block below, which the next assertion reads.
 	assert "dev" in row, row
 	assert "W2" in row, row
-	assert any("holding W2" in line for line in lines), lines
-	assert any("route main (dev): lang.bug, lang.rsrch" in line
+	# W184: `Holding` is a key/value row now; the fact is unchanged.
+	assert any(line.strip().startswith("Holding") and "W2" in line
+	           for line in lines), lines
+	assert any(line.strip().startswith("Route")
+	           and "main (dev): lang.bug, lang.rsrch" in line
 	           for line in lines), lines
 
 
@@ -588,12 +625,20 @@ def test_the_raw_structured_answer_is_inspectable(world):
 	               context_used=90, context_limit=100)
 	view = console(world, tab="teams")
 	select(view, lambda row: row["member"] == "grace", "grace")
-	lines = painted(view)
-	assert any("said needs-help" in line and "editor keeps failing" in line
-	           for line in lines), lines
-	assert any("provider=Google" in line and "model=gemini-3" in line
-	           and "limit=rate-limited" in line for line in lines), lines
-	assert any("context: used=90" in line for line in lines), lines
+	lines = painted(view, height=40)
+	# W184 gave every one of these its own key. The raw structured
+	# answer is still inspectable — more so, in fact, which is the
+	# point of the ruling.
+	def has(key, value):
+		return any(line.strip().startswith(key) and value in line
+		           for line in lines), lines
+
+	assert has("Said", "needs-help")[0], lines
+	assert has("Explanation", "editor keeps failing")[0], lines
+	assert has("Provider", "Google")[0], lines
+	assert has("Model", "gemini-3")[0], lines
+	assert has("Limit state", "rate-limited")[0], lines
+	assert has("Context used", "90")[0], lines
 
 
 def test_poking_a_member_from_teams(world):
@@ -706,8 +751,8 @@ def test_a_real_terminal_shows_the_tabs_and_switches_them(tmp_path):
 	store.close()
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"", 0.5),
-		(b"\t", 0.5),
-		(b"\t", 0.5),
+		(b"]", 0.5),
+		(b"]", 0.5),
 		(b"qy", 0.4),
 	])
 	jobs = ptyharness.replay(steps[0])
@@ -717,6 +762,6 @@ def test_a_real_terminal_shows_the_tabs_and_switches_them(tmp_path):
 	assert "[Teams]" in teams[0], teams[0]
 	assert any("lang.grace" in line for line in teams), teams[:8]
 	inbox = ptyharness.replay(steps[2])
-	assert "[Inbox 1/1]" in inbox[0], inbox[0]
+	assert "[Inbox *]" in inbox[0], inbox[0]
 	assert any("are you awake?" in line for line in inbox), inbox[:8]
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

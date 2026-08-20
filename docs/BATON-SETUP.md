@@ -78,11 +78,139 @@ has a unique `name` and `command`, with optional `after`, `cwd`, `env`,
   remain alive for a stable interval;
 - `{"type": "http", "url": "http://127.0.0.1:PORT/PATH", "expectedStatus": 200}`
   for an explicit loopback probe; or
-- `{"type": "unix_socket", "path": "/absolute/path/to/socket"}`.
+- `{"type": "unix_socket", "path": "/absolute/path/to/socket"}`, which
+  proves a CONNECTION — and, with the optional pair below, an ANSWER.
+
+A connection is the complete health contract for some services and a
+half-truth for others. The Codex dispatcher starts listening before its
+configured targets resume and keeps listening when one cannot load at all,
+so a socket probe reported it healthy while Work queued behind a target
+nothing would drain. It already knows better, and can be asked:
+
+    "readiness": {
+      "type": "unix_socket",
+      "path": "/absolute/path/to/runtime/codex-events.sock",
+      "request": {"control": "status"},
+      "expect": {"ready": true}
+    }
+
+`request` and `expect` are configured together or not at all — a request with
+nothing to assert proves no more than the connection did. The controller
+sends one newline-delimited JSON line and reads one back, bounded; `expect`
+matches required TOP-LEVEL reply fields, and the reply may carry any number
+of diagnostic fields beside them. This version matches fields and grows no
+expression language.
+
+The dispatcher's own `ready` is true only when EVERY configured target is
+connected and loaded. That is the intended policy: a target configured in a
+managed dispatcher is required by that deployment, so there is no `any` or
+named-subset form. An optional target is omitted rather than tolerated.
+
+A malformed, oversized, truncated, late or mismatched reply is "not ready
+yet", exactly as an absent socket is. A target slow to resume therefore holds
+startup until the service's existing `startTimeoutSeconds` and then fails
+through the ordinary rollback; a target that becomes unloadable after a
+successful start makes later `just status` unhealthy, and Baton kills or
+restarts nothing on its own.
 
 Unknown keys, duplicate names or participants, dependency cycles, non-absolute
 paths, missing required files, and non-private lifecycle files refuse before
 launch.
+
+### Fresh agent contexts
+
+An agent's execution context — a Codex Thread, an ACP session — is
+replaceable runtime state, not deployment configuration. The stable identity
+is the Baton participant; the context behind it is minted by the start that
+uses it, and a later start mints another. Carrying one across a restart
+carries obsolete paths baked into its instructions, conversational
+assumptions that no longer match the tree, and possibly an old writer that
+still believes it holds work.
+
+So the manifest declares CONTEXTS beside its services:
+
+    "contexts": [
+      {
+        "name": "tuner",
+        "participant": "baton.tuner",
+        "after": ["codex-app-server"],
+        "command": ["/absolute/path/to/codex-event-bridge",
+                    "--start-thread", "--endpoint", "ws://127.0.0.1:4500",
+                    "--cwd", "/absolute/path/to/workspace",
+                    "--baton", "/absolute/path/to/bin/baton",
+                    "--baton-config", "/absolute/path/to/baton.json",
+                    "--participant", "baton.tuner", "--role", "tuner"],
+        "timeoutSeconds": 120
+      }
+    ]
+
+A context is not a service: it is a short-lived command that runs once its
+`after` services are ready, must exit 0, and must print one JSON object
+containing at least `threadId`. There is no pid to own and nothing to stop —
+what it leaves behind is a locator.
+
+Services reach that locator with `{{context.NAME.FIELD}}` in `command`,
+`cwd`, `env` values, or `requires`. `{{start.id}}` is this start's own
+identifier, available in the same places.
+
+Not every agent has a locator to mint. An ACP participant has a state
+DIRECTORY, and its bridge refuses a `new` session when a selection is already
+there and resumes one when configured to `load` — neither of which may be
+weakened. Giving each start its own `stateDir` through `{{start.id}}` gets a
+genuinely fresh session with both rules intact: absence is exactly what `new`
+requires, and the previous start's selection stays where it was, as history. A component that reads a config FILE
+renders one instead:
+
+    "renders": [{"name": "dispatcher",
+                 "template": "/absolute/path/to/dispatcher.json.tmpl"}]
+
+The template is the operator's and is never written to; the result is written
+under `MAILBOX/run/context/NAME.json` at mode 0600, with the same
+substitution applied, and the service names it with `{{render.NAME}}`.
+
+The rules the controller enforces:
+
+- a placeholder naming a context or render this start does not have refuses
+  at load, before anything launches — INCLUDING one inside a render
+  template, which is read and checked at load like any other part of the
+  service's configuration, and which the start then renders from the body it
+  validated rather than reading the file a second time;
+- a render cannot be built from another render;
+- a render nothing references refuses too — a file written for nobody is a
+  configuration mistake, not a feature;
+- every start begins with an EMPTY context map and clears what a previous
+  start rendered, so nothing can be inherited by accident;
+- a context that cannot mint — a non-zero exit, unreadable output, or no
+  `threadId` — fails the start rather than falling back on an older locator;
+- a failed start that rolls back completely removes its rendered files, so
+  the next start cannot read a locator this one abandoned.
+
+Minted locators are recorded in `MAILBOX/run/infra-state.json` under
+`contexts`. Operators do not edit durable deployment JSON to rotate them.
+
+### Proving a restart against real backends
+
+The repository's own tests prove this against stand-in agents. Against real
+ones, the check is two starts and four comparisons:
+
+    just start   /absolute/path/to/mailbox
+    jq -r '.startId, .contexts[].threadId' /absolute/path/to/mailbox/run/infra-state.json
+    "$BATON" --config .../baton.json --participant baton.tuner wait timeout=0
+    just stop    /absolute/path/to/mailbox
+
+    just start   /absolute/path/to/mailbox
+    jq -r '.startId, .contexts[].threadId' /absolute/path/to/mailbox/run/infra-state.json
+    "$BATON" --config .../baton.json --participant baton.tuner wait timeout=0
+
+What must CHANGE between the two: the start id, every minted `threadId`, and
+the `stateDir` in `MAILBOX/run/context/claude-acp.json`. What must NOT: the
+participant addresses, and the actionable Work each `wait` returns — an
+agent's position comes from Baton, not from the context it happens to be
+running in.
+
+What must still be THERE afterwards: the previous start's ACP selection, under
+its own start id. A restart replaces the context an agent works in; it does
+not erase what the last one did.
 
 From the repository root:
 

@@ -301,7 +301,11 @@ def test_the_header_counts_are_the_viewers_not_the_teams(world):
 		"an unresolved member's Inbox shows the team's load"
 	for member in ("ada", "grace"):
 		box = pj.inbox(store, viewer_team="lang", viewer_member=member)
-		assert f"Inbox {box['total']}/{box['unseen']}" in tabs(member), \
+		# W167 replaced the tab's `total/unseen` with one owed-action
+		# marker. The property this case defends is unchanged: the
+		# header is the VIEWER's own projection and not the team's.
+		marked = "[Inbox *]" in tabs(member)
+		assert marked is box["owed_action"], \
 			(member, tabs(member), box)
 	assert summary["parked"] == 1, "the team-wide parked fact vanished"
 
@@ -546,7 +550,9 @@ def test_personal_headers_on_the_real_terminal(tmp_path):
 				box = pj.inbox(store, viewer_team="lang",
 				               viewer_member=viewer.split(".")[1])
 			assert box["owed"] == oblig, (viewer, box)
-			assert f"Inbox {box['total']}/{box['unseen']}" in header, \
+			# W167: the tab carries the owed-action marker, not the
+			# counts; the personal-versus-team property is the same.
+			assert ("[Inbox *]" in header) is box["owed_action"], \
 				(viewer, columns, header)
 			assert "[park:" not in header, (viewer, columns, header)
 

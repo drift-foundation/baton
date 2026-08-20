@@ -105,8 +105,24 @@ bin/codex-event-bridge \
 
 The command resolves the participant's role instructions through the public
 Baton CLI before creating anything, starts the thread with those instructions,
-and prints JSON containing its thread ID, selected role, and accepted
-configuration generation. `--role` is required, even for a participant who
+records one no-tool bootstrap turn so the thread has a durable rollout, and
+then reopens a SECOND connection and resumes the thread to prove it. Only
+after that does it print JSON containing the thread ID, selected role, and
+accepted configuration generation.
+
+That order is the point. `thread/start` alone returns an id with no rollout
+behind it: the bootstrap client can read it, and nobody else can. A thread
+created without the first turn cannot be resumed by the dispatcher, or by any
+second client a moment later — so the command now refuses rather than printing
+a locator that a deployment would record and a dispatcher could never load.
+Any failure to persist or to resume is an error naming the thread id, and
+nothing is written to stdout.
+
+What this guarantees is the HANDOFF, within one app-server lifetime: the
+bootstrap client disconnects and the dispatcher resumes the same thread. It is
+deliberately not a promise that the id survives a restart of the stack —
+managed starts create fresh agent contexts, so treat a bootstrapped id as
+belonging to the start that produced it. `--role` is required, even for a participant who
 holds exactly one role: inferring it would mean that giving that participant a
 second role later silently changed the persona of every session started here.
 A missing or unheld role refuses before thread creation.
@@ -120,6 +136,12 @@ bin/codex-event-bridge \
 ```
 
 ## 4. Configure the dispatcher
+
+Under the lifecycle controller you do not maintain thread ids here at all:
+copy `../../conf/codex-event-bridge.template.json` instead, leave its
+`{{context.NAME.threadId}}` placeholders alone, and let `just start` render
+it — see "Fresh agent contexts" in `docs/BATON-SETUP.md`. The manual form
+below is for driving the dispatcher without the controller.
 
 Copy `config.example.json` and replace every placeholder. The relevant shape
 is:

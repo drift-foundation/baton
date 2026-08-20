@@ -21,6 +21,7 @@ snapshotted around each one and must come back unchanged.
 
 from __future__ import annotations
 
+NEXT_TAB = ord("]")   # W1151: `]` switches tabs; Tab moves panes
 import os
 import sys
 
@@ -144,12 +145,16 @@ class _Screen:
 		        for key in range(max(self.rows) + 1)] if self.rows else []
 
 
-def painted(world, member="ada", tab=None):
+def painted(world, member="ada", tab=None, height=40):
+	# W184 made Teams member detail a key/value table, which is taller
+	# than the prose block it replaced. These scenarios read its lower
+	# sections, so they paint a screen tall enough to hold it — the
+	# short-terminal behaviour is W184's own test's subject.
 	view = Console(world["store"], "lang", member,
 	               config_path=world["config"])
 	while tab is not None and view.tab != tab:
-		view.handle(9)
-	screen = _Screen()
+		view.handle(NEXT_TAB)
+	screen = _Screen(height=height)
 	view.render(screen)
 	return screen.lines()
 

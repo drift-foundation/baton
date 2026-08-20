@@ -237,13 +237,15 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	# W35 split the old `Route` column into ENDPOINT (the stable
 	# team.kind address) and VIA (the selected route). The property is
 	# unchanged: the interesting columns survive this width.
-	# W93's Agent column is conditional on the window holding claimed
-	# Work, exactly as Out is conditional on it holding terminal Work,
-	# so the unclaimed default omits it. The property is unchanged:
-	# identities survive and whole columns are dropped.
+	# W93's runtime-state column is conditional on the window holding
+	# claimed Work, exactly as Out is conditional on it holding
+	# terminal Work, so the unclaimed default omits it. W137 renamed it
+	# `RUN` — it never named an agent; Handler does that, and these
+	# cells say what that handler's RUNNER is doing. The property is
+	# unchanged: identities survive and whole columns are dropped.
 	assert {"ENDPOINT", "HANDLER", "NEXT", "NEW"} <= set(columns)
-	assert "AGENT" in [name for name, _w in
-	                   app.visible_columns(narrow, claimed=True)]
+	assert "RUN" in [name for name, _w in
+	                 app.visible_columns(narrow, claimed=True)]
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],
 	                                        columns=narrow, lines=24)

@@ -149,10 +149,18 @@ codex app-server --listen ws://127.0.0.1:4500
 The repository's `just codex-app-server` recipe is a low-level convenience for
 this one process. It does not start the dispatcher or readiness producers.
 
-### 2. Create a persistent participant thread
+### 2. Create this start's participant threads
 
-Create the thread through the bridge bootstrap so the accepted Baton role
-instructions are present from its first turn:
+Under `just start` this step is not manual: the manifest declares a CONTEXT
+per Codex participant, the controller runs the bootstrap once the app-server
+is ready, and the dispatcher's configuration is rendered from a template with
+the minted ids substituted in. See "Fresh agent contexts" in
+`docs/BATON-SETUP.md`; `conf/infra.example.json` and
+`conf/codex-event-bridge.template.json` are the shipped pair.
+
+Run it by hand only when you are driving the backend without the lifecycle
+controller. Either way the thread is created through the bridge bootstrap, so
+the accepted Baton role instructions are present from its first turn:
 
 ```bash
 tools/codex-event-bridge/bin/codex-event-bridge \
@@ -165,9 +173,21 @@ tools/codex-event-bridge/bin/codex-event-bridge \
     --role tuner
 ```
 
-The command prints JSON containing the thread ID, selected role, and accepted
-configuration generation. Put that ID and identity into the dispatcher
-configuration. Existing manually prompted threads are bootstrap compatibility
+The command records one no-tool bootstrap turn and then resumes the thread on
+a second connection before printing anything: `thread/start` alone leaves an
+id with no durable rollout, which only the creating client can read. It prints
+JSON containing the thread ID, selected role, and accepted configuration
+generation, and it FAILS — printing no locator — if the thread cannot be
+persisted or cannot be resumed.
+
+That covers the handoff this start needs: the bootstrap client disconnects and
+the dispatcher you launch next resumes the same thread. Put that ID and
+identity into the dispatcher configuration FOR THIS START — which the
+lifecycle controller does for you, into private `run/` state, when the
+manifest declares the context. A bootstrapped id
+belongs to the app-server lifetime that produced it — managed starts create
+fresh agent contexts, so bootstrap again rather than carrying an id across a
+restart. Existing manually prompted threads are bootstrap compatibility
 only; deliberately recreate or resume them through this path when durable role
 instructions become authoritative.
 

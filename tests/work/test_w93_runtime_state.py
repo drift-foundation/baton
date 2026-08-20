@@ -25,6 +25,7 @@ hold is the contract those slices will lean on:
 
 from __future__ import annotations
 
+NEXT_TAB = ord("]")   # W1151: `]` switches tabs; Tab moves panes
 import hashlib
 import json as _json
 import os
@@ -740,16 +741,23 @@ def test_a_claimed_work_whose_runner_never_published_says_so(world):
 	assert agent_cell(row["agent"]) == "off"
 
 
-def test_the_jobs_table_paints_agent_beside_handler(world):
-	"""The finding's own example: Handler says who is executing, Agent
-	says what their runner is doing."""
+def test_the_jobs_table_paints_the_runner_state_beside_handler(world):
+	"""The finding's own example: Handler says who is executing and the
+	column beside it says what their runner is doing.
+
+	W137 renamed that column `Run`. The header was the one thing about
+	it that was wrong — it said `Agent` while every cell held a runtime
+	STATE, and `Handler` already named the participant. The values, the
+	projection field and the placement are unchanged."""
 	work = _held(world)
 	start(world)
 	report(world, state="waiting-input", cause="approval", work=work)
 	lines = _painted(_console(world))
 	header = next(line for line in lines if "Handler" in line)
-	assert "Agent" in header
-	assert header.index("Handler") < header.index("Agent")
+	assert "Run" in header, header
+	assert "Agent" not in header, \
+		"the superseded header survived beside the new one"
+	assert header.index("Handler") < header.index("Run")
 	row = next(line for line in lines
 	           if line.startswith(work.rsplit("-", 1)[1] + " "))
 	assert "lang.ada" in row and "input" in row, row
@@ -777,7 +785,7 @@ def test_teams_members_show_the_ruled_columns(world):
 	report(world, state="working", work=work)
 	view = _console(world)
 	while view.tab != "teams":
-		view.handle(9)
+		view.handle(NEXT_TAB)
 	lines = _painted(view)
 	header = next(line for line in lines if "Session" in line)
 	for column in ("Role", "Agent", "State", "Work", "Session", "Since"):
@@ -835,13 +843,20 @@ def test_member_details_expose_the_full_session_and_provenance(world):
 	       detail="command approval required", work=work)
 	view = _console(world)
 	while view.tab != "teams":
-		view.handle(9)
-	lines = _painted(view)
+		view.handle(NEXT_TAB)
+	lines = _painted(view, height=40)
 	assert any("01a01552-9d3e-77bb-a2c1-and-longer" in line
 	           for line in lines), lines
-	assert any("waiting-input (reported)" in line and "approval" in line
+	# W184 made member detail a key/value table, so each of these is
+	# its own discoverable row instead of a packed sentence. The facts
+	# asserted are the same ones.
+	assert any("State" in line and "waiting-input (reported)" in line
 	           for line in lines), lines
-	assert any("provider=OpenAI" in line and "model=gpt-5.6" in line
+	assert any("Cause" in line and "approval" in line
+	           for line in lines), lines
+	assert any("Provider" in line and "OpenAI" in line
+	           for line in lines), lines
+	assert any("Model" in line and "gpt-5.6" in line
 	           for line in lines), lines
 	assert any("interactive answers owed by lang.grace" in line
 	           for line in lines), lines
@@ -850,9 +865,10 @@ def test_member_details_expose_the_full_session_and_provenance(world):
 def test_a_member_with_no_lease_says_so_rather_than_looking_fine(world):
 	view = _console(world, member="grace")
 	while view.tab != "teams":
-		view.handle(9)
-	assert any("no lease" in line for line in _painted(view)), \
-		_painted(view)
+		view.handle(NEXT_TAB)
+	# W184: the same fact, as the `Lease` row of the detail table.
+	assert any("Lease" in line and "never published runtime state" in line
+	           for line in _painted(view)), _painted(view)
 
 
 def test_waiting_input_reaches_the_owners_inbox_only(world):
@@ -918,7 +934,7 @@ def test_the_inbox_row_says_baton_cannot_answer_it(world):
 	report(world, state="waiting-input", cause="approval", work=work)
 	view = _console(world, member="grace")
 	while view.tab != "inbox":
-		view.handle(9)
+		view.handle(NEXT_TAB)
 	lines = _painted(view)
 	row = next(line for line in lines if line.startswith("lang.ada"))
 	assert "attend" in row, row
@@ -1005,8 +1021,8 @@ def test_the_teams_row_and_the_details_answer_different_questions(world):
 	report(world, state="working", work=work)
 	view = _console(world)
 	while view.tab != "teams":
-		view.handle(9)
-	lines = _painted(view)
+		view.handle(NEXT_TAB)
+	lines = _painted(view, height=40)
 	row = next(line for line in lines if line.startswith("lang.ada"))
 	# The elapsed vocabulary, not an instant: MM:SS, or ∞ past the
 	# hundred-minute overflow — which is what a frozen authority clock
@@ -1016,8 +1032,9 @@ def test_the_teams_row_and_the_details_answer_different_questions(world):
 	assert cell == "∞" or (len(cell) == 5 and cell[2] == ":"), row
 	assert "2026-08-19T10:00" not in row, \
 		"the compact row spent its cells on an absolute instant"
-	assert any("since 2026-08-19T10:00:00" in line for line in lines), \
-		lines
+	assert any(line.strip().startswith("Since")
+	           and "2026-08-19T10:00:00" in line
+	           for line in lines), lines
 
 
 # -- slice 6: the safe operational inventory ---------------------------------
@@ -1262,11 +1279,12 @@ def test_member_details_show_the_inventory_with_its_provenance(world):
 	      log="/var/log/bridge.log")
 	view = _console(world)
 	while view.tab != "teams":
-		view.handle(9)
-	lines = _painted(view)
-	assert any("workdir: /home/op/src/baton" in line and "configured"
-	           in line for line in lines), lines
-	assert any("log: /var/log/bridge.log" in line for line in lines)
+		view.handle(NEXT_TAB)
+	lines = _painted(view, height=40)
+	assert any("Workdir" in line and "/home/op/src/baton" in line
+	           and "configured" in line for line in lines), lines
+	assert any("Log" in line and "/var/log/bridge.log" in line
+	           for line in lines), lines
 
 
 def test_the_details_disclose_an_outstanding_refresh(world):
@@ -1275,9 +1293,10 @@ def test_the_details_disclose_an_outstanding_refresh(world):
 	                   target="lang.ada")
 	view = _console(world)
 	while view.tab != "teams":
-		view.handle(9)
-	assert any("refresh asked at" in line for line in _painted(view)), \
-		_painted(view)
+		view.handle(NEXT_TAB)
+	assert any(line.strip().startswith("Refresh") and "asked at" in line
+	           for line in _painted(view, height=40)), \
+		_painted(view, height=40)
 
 
 def test_the_ordinary_reads_stay_cheap(world):

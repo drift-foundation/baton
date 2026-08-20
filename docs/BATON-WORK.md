@@ -99,15 +99,34 @@ refresh is read-only and keeps the selection on the same Work.
 The console has three top-level tabs, and they lead the header with
 the participant identity right-aligned on the same row:
 
-    [Jobs]   Teams    Inbox 3/1                              team.member
+    [Jobs] [Teams] [Inbox *]                                 team.member
 
-`Tab` cycles them forward and `Shift-Tab` back; the selected tab is in
-brackets, which is a TEXT cue and survives a terminal that ignores
-bold. (`[`/`]` are unchanged and still belong to Work detail's
-Messages/Events tabs.) There are no `[oblig] [park] [due]` header
-counters any more: owed action is what Inbox is for, parked Work stays
-visible and filterable in Jobs, and repeating either in a global header
-was noise.
+`]` selects the next tab and `[` the previous one, with wrap-around —
+the SAME keys Work detail uses for its own Messages/Events tabs, doing
+the same thing at whichever level you are in. Inside Work detail they
+move that view's tabs and never reach the top level. They are the ONLY
+tab-switching keys: `Tab` and `Shift-Tab` used to be aliases here and
+are not any more, because Tab has a better job one level down. Where
+the console is taking text — the command bar, a batch buffer, the
+search line — `[` and `]` are typed characters like any other.
+
+Every tab label is bracketed and the active one is HIGHLIGHTED. The
+brackets say "this is a tab"; they do not say which tab you are in.
+
+The Inbox tab carries one `*` while this participant owes an
+unresolved action, and nothing at all when they do not. That is the
+whole vocabulary: it is not a count, a severity, an error, or an
+unseen marker, and unseen attention with nothing owed does not raise
+it. It is derived from the same `owed_action` the `inbox` verb
+projects, so the tab and the JSON cannot disagree; the `total` and
+`unseen` counts live inside the Inbox view and in that projection,
+beside the rows they describe.
+A narrow terminal drops whole labels rather than painting half of one,
+and the active tab is the last label it will drop.
+
+There are no `[oblig] [park] [due]` header counters any more: owed
+action is what Inbox is for, parked Work stays visible and filterable
+in Jobs, and repeating either in a global header was noise.
 
 **Jobs** is the Work tree and everything hanging off it, exactly as
 described below. **Teams** is an operational roster: every configured
@@ -130,15 +149,35 @@ every configured team, `p` pokes the selected member (the request is
 authored in `EDITOR`), and `x` withdraws a poke this participant has
 outstanding to them.
 
+Selecting a member opens its details as a two-column key/value table,
+grouped into **Identity and routing**, **Workflow**, **Runner state**,
+**Operational diagnostics** and **Last poke answer**. Every fact keeps
+its own key — provider, model, session, incarnation, state, cause,
+transition time, last contact and each operational fact — because
+packing unrelated facts into one sentence is what makes a block like
+this unreadable. Values share one column and a wrapped value continues
+at that column rather than under its key, so a long session locator
+still reads as one field's content and is recoverable in full on a
+wide enough terminal.
+
+`Log` is always present: it carries the published locator with its
+source and age, or says the adapter has published none. That is the
+same rule the whole block follows — missing, `unknown`, stale and
+absent stay visibly different from each other, and nothing is tidied
+into a value that reads as reassuring. A terminal too short to hold
+the block says how many rows it could not show and names `teams` as
+the verb holding the whole record.
+
 **Inbox** is participant-relative. It carries pending pokes addressed
 to you, `@` obligations owed through a route you handle, due
 verification trials your Route answers for, and unseen discussion in
 threads your team has joined. Actionable WORK is deliberately absent —
 that is Jobs, and one queue in two tabs makes "how much do I owe" a
-number nobody can act on. The tab label is `total/unseen`, and the
-whole label is bold whenever at least one row is an unresolved action
-you owe, even one you have already read: seen state never hides that
-you are the blocker. Rows name their type and say whether they are
+number nobody can act on. The tab label carries `*` — and the label is
+bold — whenever at least one row is an unresolved action you owe, even
+one you have already read: seen state never hides that you are the
+blocker. The `total` and `unseen` counts are in this view and in the
+`inbox` verb, where the rows they count are visible. Rows name their type and say whether they are
 owed or attention only; `Enter` opens the row's Work in Jobs, `a`
 answers a poke or responds to an obligation (prose authored in
 `EDITOR`), and `s` advances the seen cursor through the public
@@ -205,11 +244,24 @@ and the Work table remains the only Handler. Recovery stays an explicit
 operator or Handler action — Baton never auto-releases a claim because
 a runner went quiet.
 
-Where it shows up: the Jobs `Agent` column beside `Handler` (`-` when
+Where it shows up: the Jobs `Run` column beside `Handler` (`-` when
 the Work is unclaimed, which is a different fact from a runner nobody
 can see), the Teams `State` column and Member details, and — for
 `waiting-input` only — one owed row in the Inbox of the participant
-the lease names as its action owner. With no action owner named, the
+the lease names as its action owner.
+
+The two tables name different things and keep different columns.
+`Handler` names the participant, so the Jobs column beside it says
+only what that participant's runner is DOING and is headed `Run`. In
+Teams a member is the row, so `Agent` there names the adapter family
+(`codex`, `claude`, …) and `State` says what it is doing. The Members
+table sizes itself to the terminal: `Role`, `Agent`, `State`, `Work`
+and `Since` stay compact, and the room left over goes to the session
+locator, which is shown COMPLETE whenever it fits. A narrow terminal
+drops whole columns in a fixed order — `Session` first, because the
+Member detail block below carries it in full — and anything it does
+have to shorten ends in `…` rather than reading as a different,
+shorter identifier. With no action owner named, the
 wait stays visible in Teams and Jobs and creates no guessed obligation.
 Ordinary `working`/`idle` transitions never reach an Inbox.
 
@@ -249,10 +301,22 @@ list, and below it a compact Message index (`M<seq>` labels over the
 existing stable sequence, with author, time, and your personal
 new/seen state) beside a reader showing exactly ONE selected message
 — its metadata header, wrapped body, and references under a separate
-Refs section. Work detail carries TWO tabs — `Messages` and `Events`,
-with Messages the default and the active one shown in brackets. `]`
-selects the next tab and `[` the previous, from anywhere in the detail
-view, and the footer always advertises `[/] tabs`. Events is the Work's
+Inside Work detail, `Tab` cycles pane focus forward through the panes
+that view is painting and `Shift-Tab` cycles backward, wrapping — three
+in Messages, two in Events. It is the discoverable alternative to
+`Ctrl-W` plus `h`/`j`/`k`/`l`, which still moves geometrically and is
+unchanged; the footer advertises both as `Tab/Ctrl-W panes`. Focus
+movement is presentation only: it changes no selection, no seen state
+and nothing in the authority. Where the console is taking text, Tab
+keeps that surface's own contract — command-bar completion is still
+completion.
+
+Refs section. Work detail carries TWO tabs — `[Messages]` and
+`[Events]`, both bracketed like every other tab, with Messages the
+default and the active one highlighted. `]` selects the next tab and
+`[` the previous, from anywhere in the detail view — the same keys and
+the same wrap the top level uses — and the footer always advertises
+`[/] tabs`. Events is the Work's
 append-only operational play-by-play: creation, classification,
 priority, contract and binding changes, dependency additions and
 corrections, claims, heartbeats, releases, phase/Route/Next moves,

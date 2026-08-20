@@ -2787,6 +2787,26 @@ def _roster_member(store: Authority, team: str, row) -> dict:
 	}
 
 
+# W321 (finding-readiness-poll-interval): the idle cadence of the
+# blocking readiness surface. Every configured participant runs its own
+# bridge and its own `wait`, and at the previous 50 ms an idle
+# deployment re-derived the participant-action projection about twenty
+# times a second PER MEMBER — real database and CPU work to discover,
+# over and over, that nothing had happened.
+#
+# This is agent coordination, not a control loop: pickup and execution
+# happen on seconds-to-minutes timescales, so a second of latency is
+# invisible where twenty reads a second are not. Fixed, not
+# configurable — the ruling is one operating default for now, and a
+# knob would invite tuning a number nobody has evidence about.
+#
+# It is a FLOOR on responsiveness, never on the caller's deadline: the
+# sleep is always bounded by the remaining timeout, so `timeout=0` is
+# still one pure read and a sub-second timeout still returns at the
+# instant it asked for.
+READINESS_POLL_SECONDS = 1.0
+
+
 def wait_actionable(store: Authority, *, viewer_team: str,
                     viewer_member: str,
                     timeout_seconds: float) -> dict:
@@ -2811,7 +2831,7 @@ def wait_actionable(store: Authority, *, viewer_team: str,
 		if remaining <= 0:
 			return {"actionable": [], "timed_out": True,
 			        "snapshot_seq": window["snapshot_seq"]}
-		_time.sleep(min(0.05, remaining))
+		_time.sleep(min(READINESS_POLL_SECONDS, remaining))
 
 
 def team_summary(store: Authority, *, viewer_team: str,

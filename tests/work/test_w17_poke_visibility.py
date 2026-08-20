@@ -190,12 +190,15 @@ def inbox_label(world, member="ada", team="lang") -> str:
 
 def test_the_header_counts_pending_pokes_addressed_to_this_participant(world):
 	assert poke_cue(world) == 0
-	assert "Inbox 0/0" in inbox_label(world), \
-		"the tab counts 0 as visibly as it counts 3 — an absent " \
-		"counter and a zero one are different facts"
+	# W167 replaced the tab's `total/unseen` with one owed-action
+	# marker. The distinction this case was defending is unchanged and
+	# still asserted — an absent cue and a present one are different
+	# facts — but the cue is now `*`, which answers "do I owe
+	# anything" instead of "how much have I not read".
+	assert inbox_label(world).endswith("[Inbox]"), inbox_label(world)
 	poke(world)
 	assert poke_cue(world) == 1
-	assert "Inbox 1/1" in inbox_label(world)
+	assert inbox_label(world).endswith("[Inbox *]"), inbox_label(world)
 
 
 def test_the_counter_is_personal(world):
@@ -754,7 +757,7 @@ def test_a_real_terminal_shows_the_cue_and_opens_the_view(tmp_path):
 		(b"qy", 0.4),
 	])
 	table = ptyharness.replay(steps[0])
-	assert "Inbox 1/1" in table[0], table[0]
+	assert "[Inbox *]" in table[0], table[0]
 	assert any("Tab to Inbox" in line for line in table), table[-3:]
 	view = ptyharness.replay(steps[1])
 	assert any("are you awake?" in line for line in view), view[:8]

@@ -23,6 +23,7 @@ import stat
 import subprocess
 import sys
 import time
+import uuid
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -144,6 +145,37 @@ def _string_array(value, where, *, absolute=False, unique=False):
 	return result
 
 
+# W482: the readiness control exchange is ONE bounded newline-delimited
+# JSON line each way. Bounded because a probe must fail closed rather
+# than read forever from a service that is answering wrongly, and one
+# line because the reply is a status and not a stream.
+CONTROL_REPLY_LIMIT = 64 * 1024
+
+# The whole exchange's budget, connect included. Short on purpose: a
+# probe is asked again on the caller's retry loop, so the question a
+# single probe answers is "is it ready NOW", never "will it be".
+CONTROL_PROBE_SECONDS = 0.25
+
+
+def _control_object(value, where):
+	"""One JSON object of scalars for the readiness exchange.
+
+	Scalars only, and no nesting: `expect` matches required TOP-LEVEL
+	reply fields and this first version deliberately grows no
+	expression language. A request that cannot be written as one line
+	of JSON is not a readiness probe."""
+	value = _object(value, where)
+	for key, entry in value.items():
+		if not isinstance(key, str) or not key:
+			raise InfraError(f"{where} has an invalid field name {key!r}")
+		if isinstance(entry, bool) or entry is None:
+			continue
+		if not isinstance(entry, (str, int, float)):
+			raise InfraError(
+				f"{where}.{key} must be a string, number, boolean or null")
+	return dict(value)
+
+
 def _readiness(raw, where):
 	if raw is None:
 		return {"type": "process", "stableMilliseconds": 250}
@@ -155,9 +187,38 @@ def _readiness(raw, where):
 		                           f"{where}.stableMilliseconds")
 		return {"type": kind, "stableMilliseconds": stable}
 	if kind == "unix_socket":
-		_keys(raw, {"type", "path"}, where)
-		return {"type": kind, "path": _absolute(raw.get("path"),
-		                                             f"{where}.path")}
+		# W482 (finding-dispatcher-target-readiness): a connection is
+		# the complete health contract for some services and a
+		# half-truth for others. The Codex dispatcher begins listening
+		# before its configured targets resume and keeps listening when
+		# one is `notLoaded` — so during the 975af64 cutover `status`
+		# reported healthy while a target could not resume at all, and
+		# the readiness producer went on forwarding Work into a queue
+		# nothing would drain.
+		#
+		# `request`/`expect` ASK it instead. Both together or neither:
+		# a request with nothing to assert about the reply proves no
+		# more than the connection did, and an expectation with no
+		# request has nothing to read.
+		_keys(raw, {"type", "path", "request", "expect"}, where)
+		probe = {"type": kind, "path": _absolute(raw.get("path"),
+		                                         f"{where}.path"),
+		         "request": None, "expect": None}
+		if ("request" in raw) != ("expect" in raw):
+			raise InfraError(
+				f"{where}.request and {where}.expect are configured "
+				f"together or not at all")
+		if "request" in raw:
+			probe["request"] = _control_object(raw.get("request"),
+			                                   f"{where}.request")
+			probe["expect"] = _control_object(raw.get("expect"),
+			                                  f"{where}.expect")
+			if not probe["expect"]:
+				raise InfraError(
+					f"{where}.expect must assert at least one field; an "
+					f"empty expectation proves nothing the connection "
+					f"did not")
+		return probe
 	if kind == "http":
 		_keys(raw, {"type", "url", "expectedStatus"}, where)
 		url = _string(raw.get("url"), f"{where}.url")
@@ -192,7 +253,7 @@ def load_manifest(mailbox):
 		raise InfraError(f"cannot read {path}: {error}") from error
 	raw = _object(raw, "manifest")
 	_keys(raw, {"version", "startTimeoutSeconds", "stopTimeoutSeconds",
-	            "services"}, "manifest")
+	            "contexts", "services"}, "manifest")
 	if raw.get("version") != 1:
 		raise InfraError("manifest.version must be exactly 1")
 	start_timeout = _positive_integer(raw.get("startTimeoutSeconds", 15),
@@ -205,9 +266,10 @@ def load_manifest(mailbox):
 	services = {}
 	participants = set()
 	input_order = []
+	contexts, context_order = _contexts(raw.get("contexts", []))
 	allowed = {"name", "command", "after", "cwd", "env", "requires",
 	           "participant", "readiness", "startTimeoutSeconds",
-	           "stopTimeoutSeconds"}
+	           "stopTimeoutSeconds", "renders"}
 	for index, value in enumerate(services_raw):
 		where = f"manifest.services[{index}]"
 		value = _object(value, where)
@@ -256,6 +318,7 @@ def load_manifest(mailbox):
 		services[name] = {
 			"name": name, "command": command, "after": after, "cwd": cwd,
 			"env": env, "requires": requires, "participant": participant,
+			"renders": _renders(value.get("renders", []), where),
 			"readiness": _readiness(value.get("readiness"),
 			                        f"{where}.readiness"),
 			"startTimeoutSeconds": service_start,
@@ -279,14 +342,260 @@ def load_manifest(mailbox):
 		for name in ready:
 			order.append(name)
 			remaining.remove(name)
-	return {
+	manifest = {
 		"path": path,
 		"digest": hashlib.sha256(encoded).hexdigest(),
 		"startTimeoutSeconds": start_timeout,
 		"stopTimeoutSeconds": stop_timeout,
+		"contexts": contexts,
+		"contextOrder": context_order,
 		"services": services,
 		"order": order,
 	}
+	_check_references(manifest)
+	return manifest
+
+
+# W459 (finding-fresh-agent-context-per-start): a managed start MINTS
+# the execution contexts its agents run in — Codex Threads today — and
+# never inherits one from a previous start.
+#
+# The stable identity is the Baton participant; the Thread behind it is
+# replaceable runtime state. Carrying one across a restart carried
+# everything with it: obsolete binary and config paths baked into the
+# thread's instructions, a conversation whose assumptions no longer
+# match the tree, and an old writer that may still believe it holds
+# work. So the locator is minted here, recorded under the private
+# `run/` state, and referenced by the services that need it — an
+# operator never edits a durable JSON file to rotate one.
+#
+# `{{context.NAME.FIELD}}` in a service's command, cwd, env value or
+# requires resolves to a field of the context minted THIS START.
+#
+# `{{start.id}}` is this start's own identifier. Not every agent has a
+# locator to mint: an ACP participant has a state DIRECTORY, and W27
+# rules that a `new` run refuses when a selection is already there and
+# a `load` run resumes it. Neither may be weakened — but a start that
+# hands each participant its own fresh location gets a fresh session
+# with W27 untouched, because absence is what `new` requires and the
+# previous start's selection is left exactly where it was, as history.
+# `{{render.NAME}}` resolves to a file this start wrote from a template
+# with the same substitution applied — which is how a component that
+# reads a config FILE (the Codex dispatcher does) gets fresh locators
+# without learning a new argument.
+PLACEHOLDER_RE = re.compile(r"\{\{(context\.[a-z][a-z0-9-]*\.[a-zA-Z][a-zA-Z0-9_]*"
+                            r"|render\.[a-z][a-z0-9-]*"
+                            r"|start\.id)\}\}")
+CONTEXT_NAME_FIELD = "threadId"
+
+
+def _contexts(raw):
+	"""The per-start context declarations, in dependency order.
+
+	A context is NOT a service: it is a short-lived command that must
+	exit 0 and print one JSON object naming what it minted. It has no
+	readiness, no pid to own and nothing to stop — what it leaves
+	behind is a locator, and the process that uses the locator is the
+	service."""
+	if not isinstance(raw, list):
+		raise InfraError("manifest.contexts must be an array")
+	contexts = {}
+	order = []
+	participants = set()
+	for index, value in enumerate(raw):
+		where = f"manifest.contexts[{index}]"
+		value = _object(value, where)
+		_keys(value, {"name", "command", "after", "cwd", "env",
+		              "requires", "participant", "timeoutSeconds"}, where)
+		name = _string(value.get("name"), f"{where}.name")
+		if not NAME_RE.fullmatch(name):
+			raise InfraError(f"{where}.name must match {NAME_RE.pattern}")
+		if name in contexts:
+			raise InfraError(f"duplicate context name {name!r}")
+		command = _string_array(value.get("command"), f"{where}.command")
+		if not command:
+			raise InfraError(f"{where}.command must not be empty")
+		command[0] = _absolute(command[0], f"{where}.command[0]")
+		cwd = value.get("cwd")
+		if cwd is not None:
+			cwd = _absolute(cwd, f"{where}.cwd")
+		participant = value.get("participant")
+		if participant is not None:
+			participant = _string(participant, f"{where}.participant")
+			if not PARTICIPANT_RE.fullmatch(participant):
+				raise InfraError(f"{where}.participant must be team.member")
+			if participant in participants:
+				raise InfraError(
+					f"participant {participant} mints more than one context")
+			participants.add(participant)
+		env_raw = value.get("env", {})
+		if not isinstance(env_raw, dict):
+			raise InfraError(f"{where}.env must be an object")
+		for key, entry in env_raw.items():
+			if not isinstance(key, str) or not key or "=" in key \
+					or "\0" in key:
+				raise InfraError(f"{where}.env has invalid name {key!r}")
+			if not isinstance(entry, str) or "\0" in entry:
+				raise InfraError(f"{where}.env.{key} must be a string")
+		contexts[name] = {
+			"name": name, "command": command,
+			"after": _string_array(value.get("after", []),
+			                       f"{where}.after", unique=True),
+			"cwd": cwd, "env": dict(env_raw),
+			"requires": _string_array(value.get("requires", []),
+			                          f"{where}.requires", absolute=True,
+			                          unique=True),
+			"participant": participant,
+			"timeoutSeconds": _positive_integer(
+				value.get("timeoutSeconds", 120),
+				f"{where}.timeoutSeconds"),
+		}
+		order.append(name)
+	return contexts, order
+
+
+def _renders(raw, where):
+	"""Files this start writes from a template, with the minted context
+	substituted in. Always written under `run/`, never over the
+	operator's template."""
+	if not isinstance(raw, list):
+		raise InfraError(f"{where}.renders must be an array")
+	out = []
+	seen = set()
+	for index, value in enumerate(raw):
+		spot = f"{where}.renders[{index}]"
+		value = _object(value, spot)
+		_keys(value, {"name", "template"}, spot)
+		name = _string(value.get("name"), f"{spot}.name")
+		if not NAME_RE.fullmatch(name):
+			raise InfraError(f"{spot}.name must match {NAME_RE.pattern}")
+		if name in seen:
+			raise InfraError(f"duplicate render name {name!r} in {where}")
+		seen.add(name)
+		template = _absolute(value.get("template"), f"{spot}.template")
+		# W459 review round 2: read at LOAD, not at launch. A
+		# placeholder hidden in a template used to escape preflight
+		# entirely — the manifest passed, predecessor services
+		# launched, and substitution failed with processes already
+		# running. The body is kept so the render writes what was
+		# VALIDATED, rather than re-reading a file that may have
+		# changed in between.
+		try:
+			with open(template, "r", encoding="utf-8") as handle:
+				body = handle.read()
+		except (OSError, UnicodeDecodeError) as error:
+			raise InfraError(
+				f"cannot read render template {template}: {error}") from None
+		out.append({"name": name, "template": template, "body": body})
+	return out
+
+
+def _placeholders(value):
+	return set(PLACEHOLDER_RE.findall(value or ""))
+
+
+def _service_strings(service):
+	yield from service["command"]
+	yield from service["requires"]
+	yield from service["env"].values()
+	if service["cwd"]:
+		yield service["cwd"]
+
+
+def _check_references(manifest):
+	"""Every placeholder names something this start will actually have,
+	and names it only after the start has it.
+
+	Refusing at LOAD is the point: a manifest that would fail halfway
+	through a launch, with processes already running, is a worse
+	discovery than one that fails before anything starts."""
+	renders = {}
+	for service in manifest["services"].values():
+		for entry in service["renders"]:
+			if entry["name"] in renders:
+				raise InfraError(
+					f"duplicate render name {entry['name']!r} across services")
+			renders[entry["name"]] = service["name"]
+	for name in manifest["contextOrder"]:
+		for dependency in manifest["contexts"][name]["after"]:
+			if dependency not in manifest["services"]:
+				raise InfraError(
+					f"context {name} depends on unknown service {dependency}")
+	# W459 review: services and context availability are ONE ordering
+	# problem. Checking only that a context is declared let a manifest
+	# through in which the context waited on a service launched AFTER
+	# the one referencing it — preflight passed, the first service
+	# started, and the launch then failed at substitution with
+	# processes already running. That is precisely the
+	# fail-before-launch guarantee this slice exists to give.
+	#
+	# A context is minted once every service in its `after` set has
+	# started, so it is available to a service S if and only if all of
+	# them come strictly BEFORE S in the launch order. A cycle spanning
+	# both kinds of edge — S needs a context that waits on S, or on
+	# anything after S — fails exactly this test, which is why it is
+	# stated as ordering rather than as a separate cycle check.
+	position = {name: index for index, name in enumerate(manifest["order"])}
+	for name in manifest["order"]:
+		service = manifest["services"][name]
+		# W459 review round 2: template bodies are scanned with the
+		# service's own fields, under the same rules. A context hidden
+		# in a template is exactly as invalid as one named in an
+		# argument, and finding it later — after predecessors have
+		# launched — is the discovery this preflight exists to prevent.
+		# `(text, where)`: the same rules, but the refusal says which
+		# FILE to open when the placeholder came from a template.
+		texts = [(text, f"service {name}")
+		         for text in _service_strings(service)]
+		for entry in service["renders"]:
+			for token in _placeholders(entry["body"]):
+				if token.startswith("render."):
+					raise InfraError(
+						f"service {name} render {entry['name']!r} "
+						f"references {{{{{token}}}}}; a render cannot be "
+						f"built from another render")
+			texts.append((entry["body"],
+			              f"service {name} render {entry['name']!r} "
+			              f"({entry['template']})"))
+		for text, where in texts:
+			for token in _placeholders(text):
+				kind, _, rest = token.partition(".")
+				# `{{start.id}}` needs no check: it exists before
+				# anything launches and names nothing the manifest has
+				# to declare.
+				if kind == "start":
+					continue
+				if kind == "context":
+					context_name = rest.split(".", 1)[0]
+					context = manifest["contexts"].get(context_name)
+					if context is None:
+						raise InfraError(
+							f"{where} references unknown context "
+							f"{context_name!r}, which this start did not "
+							f"mint")
+					late = [dependency for dependency in context["after"]
+					        if position[dependency] >= position[name]]
+					if late:
+						raise InfraError(
+							f"{where} references context "
+							f"{context_name!r}, which waits for "
+							f"{', '.join(sorted(late))} — not started "
+							f"until {name} itself has, so the context "
+							f"cannot exist when {name} needs it")
+				elif rest not in renders:
+					raise InfraError(
+						f"service {name} references unknown render {rest!r}")
+				elif renders[rest] != name:
+					raise InfraError(
+						f"service {name} references render {rest!r} declared "
+						f"by service {renders[rest]}")
+		for entry in service["renders"]:
+			token = f"render.{entry['name']}"
+			if not any(token in _placeholders(text)
+			           for text in _service_strings(service)):
+				raise InfraError(
+					f"service {name} renders {entry['name']!r} and never "
+					f"references it")
 
 
 def _private_directory(path):
@@ -333,6 +642,169 @@ class MailboxLock:
 		if self.handle is not None:
 			fcntl.flock(self.handle, fcntl.LOCK_UN)
 			self.handle.close()
+
+
+def _context_dir(mailbox):
+	return os.path.join(mailbox, "run", "context")
+
+
+def _mint_context(mailbox, context, signals):
+	"""Run one context command and record what it minted.
+
+	It must exit 0 and print ONE JSON object. Anything else is a
+	refusal: a start that cannot mint a fresh context must not fall
+	back on an older one, which is the whole decision this implements.
+	"""
+	signals.check()
+	for path in context["requires"]:
+		if not os.path.exists(path):
+			raise InfraError(
+				f"context {context['name']} requires {path}, which does "
+				f"not exist")
+	env = os.environ.copy()
+	env.update(context["env"])
+	log_path = os.path.join(mailbox, "log", f"context-{context['name']}.log")
+	with _open_log(log_path) as log:
+		boundary = {"event": "mint", "at": dt.datetime.now(
+			dt.timezone.utc).isoformat(), "argv": context["command"]}
+		log.write(("\n=== " + json.dumps(boundary, sort_keys=True)
+		           + " ===\n").encode())
+		try:
+			done = subprocess.run(
+				context["command"], cwd=context["cwd"], env=env,
+				stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+				stderr=log, timeout=context["timeoutSeconds"],
+				close_fds=True)
+		except subprocess.TimeoutExpired as error:
+			raise InfraError(
+				f"context {context['name']} did not finish within "
+				f"{context['timeoutSeconds']}s; see {log_path}") from error
+		log.write(done.stdout)
+	if done.returncode != 0:
+		raise InfraError(
+			f"context {context['name']} exited {done.returncode} without "
+			f"minting anything; see {log_path}")
+	try:
+		minted = json.loads(done.stdout.decode("utf-8"),
+		                    object_pairs_hook=_strict_object)
+	except (UnicodeDecodeError, json.JSONDecodeError) as error:
+		raise InfraError(
+			f"context {context['name']} printed no readable JSON locator: "
+			f"{error}; see {log_path}") from error
+	minted = _object(minted, f"context {context['name']} output")
+	for key, value in minted.items():
+		if not isinstance(key, str) or not re.fullmatch(
+				r"[a-zA-Z][a-zA-Z0-9_]*", key):
+			raise InfraError(
+				f"context {context['name']} minted an unusable field name "
+				f"{key!r}")
+		if not isinstance(value, (str, int, float, bool)) or value is None:
+			raise InfraError(
+				f"context {context['name']}.{key} must be a scalar")
+	# W459 review: presence is not usability. An empty locator started
+	# the service and reported the stack healthy, while `_load_state`
+	# refused the very same document on the next read — a start that
+	# cannot be re-read is not a start.
+	if not str(minted.get(CONTEXT_NAME_FIELD, "")).strip():
+		raise InfraError(
+			f"context {context['name']} printed no usable "
+			f"{CONTEXT_NAME_FIELD}; see {log_path}")
+	record = {key: str(value) for key, value in minted.items()}
+	record["mintedAt"] = dt.datetime.now(dt.timezone.utc).isoformat()
+	if context["participant"]:
+		record["participant"] = context["participant"]
+	return record
+
+
+def _render_target(mailbox, name):
+	return os.path.join(_context_dir(mailbox), f"{name}.json")
+
+
+def _substitute(text, minted, rendered, where, start_id=None):
+	def replace(match):
+		token = match.group(1)
+		kind, _, rest = token.partition(".")
+		if kind == "start":
+			if not start_id:
+				raise InfraError(
+					f"{where} references {{{{start.id}}}}, which this "
+					f"start has not recorded")
+			return start_id
+		if kind == "render":
+			if rest not in rendered:
+				raise InfraError(
+					f"{where} references {{{{{token}}}}} before this start "
+					f"rendered it")
+			return rendered[rest]
+		name, field = rest.split(".", 1)
+		context = minted.get(name)
+		if context is None or field not in context:
+			raise InfraError(
+				f"{where} references {{{{{token}}}}}, which this start "
+				f"did not mint")
+		return context[field]
+	return PLACEHOLDER_RE.sub(replace, text)
+
+
+def _render_files(mailbox, service, minted, rendered, start_id):
+	"""Write this service's rendered files under `run/`, 0600.
+
+	The template is the operator's and is never written to; the result
+	is private runtime state that a later start overwrites."""
+	directory = _context_dir(mailbox)
+	_private_directory(directory)
+	for entry in service["renders"]:
+		target = _render_target(mailbox, entry["name"])
+		# The body validated at LOAD, not a second read: re-reading
+		# would reintroduce exactly the post-launch readability and
+		# content race preflight just removed.
+		text = _substitute(entry["body"], minted, rendered,
+		                   f"render template {entry['template']}",
+		                   start_id)
+		# W459 review: through the SAME containment boundary as the
+		# lock, the state and the logs. A private directory is not
+		# enough — the same user, a faulty context command, or a race
+		# can still plant a symlink here, and `O_CREAT|O_TRUNC` on a
+		# pathname would then truncate a file outside the mailbox
+		# entirely. `_open_owned` refuses the link, the hard link, the
+		# non-regular file and the group-readable one.
+		fd = _open_owned(target, os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+		                 "rendered context file")
+		with os.fdopen(fd, "w", encoding="utf-8") as handle:
+			handle.write(text)
+		rendered[entry["name"]] = target
+
+
+def _resolved_service(service, minted, rendered, start_id):
+	"""The service as it will actually be launched."""
+	where = f"service {service['name']}"
+	resolved = dict(service)
+	resolved["command"] = [_substitute(part, minted, rendered, where,
+	                                   start_id)
+	                       for part in service["command"]]
+	resolved["requires"] = [_substitute(part, minted, rendered, where,
+	                                    start_id)
+	                        for part in service["requires"]]
+	resolved["env"] = {key: _substitute(value, minted, rendered, where,
+	                                    start_id)
+	                   for key, value in service["env"].items()}
+	if service["cwd"]:
+		resolved["cwd"] = _substitute(service["cwd"], minted, rendered,
+		                              where, start_id)
+	return resolved
+
+
+def _clear_contexts(mailbox):
+	directory = _context_dir(mailbox)
+	try:
+		names = os.listdir(directory)
+	except FileNotFoundError:
+		return
+	for name in names:
+		try:
+			os.unlink(os.path.join(directory, name))
+		except (FileNotFoundError, IsADirectoryError):
+			pass
 
 
 def _state_path(mailbox):
@@ -393,7 +865,7 @@ def _load_state(mailbox):
 		raise InfraError(f"{path} is not private (mode {stat.S_IMODE(info.st_mode):04o})")
 	raw = _object(_read_json(path), "lifecycle state")
 	_keys(raw, {"version", "mailbox", "manifestDigest", "launchOrder",
-	            "services"}, "lifecycle state")
+	            "startId", "contexts", "services"}, "lifecycle state")
 	version = raw.get("version")
 	if version not in (1, 2) or raw.get("mailbox") != mailbox:
 		raise InfraError("lifecycle state has the wrong version or mailbox identity")
@@ -443,6 +915,25 @@ def _load_state(mailbox):
 			entry["argvIdentity"] = "provisional"
 		elif entry.get("argvIdentity") not in ("provisional", "final"):
 			raise InfraError(f"lifecycle state service {name} has no valid argv identity")
+	# W459: a document written before contexts existed simply has none,
+	# which is the truth about it — that start minted nothing.
+	minted = raw.get("contexts", {})
+	if not isinstance(minted, dict):
+		raise InfraError("lifecycle state.contexts must be an object")
+	for name, entry in minted.items():
+		if not NAME_RE.fullmatch(name):
+			raise InfraError(f"lifecycle state has invalid context name {name!r}")
+		entry = _object(entry, f"lifecycle state.contexts.{name}")
+		if not entry.get(CONTEXT_NAME_FIELD):
+			raise InfraError(
+				f"lifecycle state context {name} records no "
+				f"{CONTEXT_NAME_FIELD}")
+	raw["contexts"] = minted
+	start_id = raw.get("startId")
+	if start_id is not None and (not isinstance(start_id, str)
+	                             or not re.fullmatch(r"[0-9a-f]{32}",
+	                                                 start_id)):
+		raise InfraError("lifecycle state has an invalid start id")
 	# Upgraded in memory, so any rewrite of this document — a partial
 	# stop, a rollback — leaves a well-formed version 2 behind.
 	raw["version"] = 2
@@ -507,6 +998,75 @@ def _identity(entry):
 	return "owned", observed
 
 
+def _same_json(expected, actual):
+	"""Equality in JSON's type system, not Python's.
+
+	W482 review: Python defines `True == 1`, so a reply of
+	`{"ready": 1}` satisfied `expect: {"ready": true}` and marked a
+	dispatcher healthy. JSON booleans and numbers are different types
+	and must not match each other. Numbers stay ONE domain — `1` and
+	`1.0` are the same JSON number — because that distinction is an
+	encoding detail rather than a fact about the service."""
+	if isinstance(expected, bool) or isinstance(actual, bool):
+		return isinstance(expected, bool) and isinstance(actual, bool) \
+			and expected == actual
+	if isinstance(expected, (int, float)) \
+			and isinstance(actual, (int, float)):
+		return expected == actual
+	return type(expected) is type(actual) and expected == actual
+
+
+def _control_ready(probe, readiness, deadline):
+	"""Send one control line, read one reply, and match `expect`.
+
+	Every failure here is FALSE and never an exception the controller
+	reports as an inability to ask: a malformed, oversized, truncated,
+	late or mismatched reply is a service that is not ready, which is
+	a fact about the service rather than about the probe.
+
+	W482 review: the whole exchange lives inside ONE absolute deadline.
+	A per-operation inactivity timeout is not a bound — a peer sending
+	one byte every 200 ms resets it forever, and the probe then outlives
+	the service's own startup deadline because `_wait_ready` cannot
+	enforce anything while it is trapped in here. Each operation gets
+	what is LEFT of the budget, and nothing gets more."""
+	def remaining():
+		return deadline - time.monotonic()
+
+	line = (json.dumps(readiness["request"], sort_keys=True) + "\n").encode()
+	try:
+		if remaining() <= 0:
+			return False
+		probe.settimeout(remaining())
+		probe.sendall(line)
+		buffer = b""
+		while b"\n" not in buffer:
+			left = remaining()
+			if left <= 0:
+				return False
+			probe.settimeout(left)
+			chunk = probe.recv(4096)
+			if not chunk:
+				# The service closed without answering: a truncated
+				# reply is not a partial success.
+				return False
+			buffer += chunk
+			if len(buffer) > CONTROL_REPLY_LIMIT:
+				return False
+	except (OSError, TimeoutError):
+		return False
+	try:
+		reply = json.loads(buffer.split(b"\n", 1)[0].decode("utf-8"))
+	except (UnicodeDecodeError, json.JSONDecodeError):
+		return False
+	if not isinstance(reply, dict):
+		return False
+	# TOP-LEVEL required fields, and the reply may carry any number of
+	# diagnostic ones beside them.
+	return all(key in reply and _same_json(value, reply[key])
+	           for key, value in readiness["expect"].items())
+
+
 def _ready(readiness, pid=None):
 	kind = readiness["type"]
 	if kind == "process":
@@ -526,10 +1086,22 @@ def _ready(readiness, pid=None):
 		# makes a real request against a live service, so a connect and
 		# disconnect is the same kind of contact, not a new one.
 		probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+		# One budget for the whole probe — connect included — so a
+		# service that answers slowly cannot borrow time from the
+		# startup deadline the caller is enforcing.
+		deadline = time.monotonic() + CONTROL_PROBE_SECONDS
 		try:
-			probe.settimeout(0.25)
+			probe.settimeout(CONTROL_PROBE_SECONDS)
 			probe.connect(readiness["path"])
-			return True
+			if readiness.get("request") is None:
+				return True
+			# W482: connected is not loaded. The service is ASKED, and
+			# every way the answer can fail to arrive or fail to match
+			# is "not ready yet" — the caller's retry loop and the
+			# service's own startup timeout decide when that becomes a
+			# failure, exactly as they already do for a socket that is
+			# not there.
+			return _control_ready(probe, readiness, deadline)
 		except (ConnectionRefusedError, FileNotFoundError, TimeoutError):
 			# The two ANSWERS a probe can legitimately get: nothing is
 			# listening at the path, or there is no path. Both mean not
@@ -579,13 +1151,21 @@ def _wait_ready(service, pid, signals):
 	return False
 
 
-def _validate_launch(service):
+def _validate_launch(service, *, static_only=False):
+	def deferred(text):
+		return static_only and bool(_placeholders(text))
+
 	executable = service["command"][0]
-	if not os.path.isfile(executable) or not os.access(executable, os.X_OK):
+	if not deferred(executable) and (
+			not os.path.isfile(executable)
+			or not os.access(executable, os.X_OK)):
 		raise InfraError(f"service {service['name']} executable is missing or not executable: {executable}")
-	if service["cwd"] is not None and not os.path.isdir(service["cwd"]):
+	if service["cwd"] is not None and not deferred(service["cwd"]) \
+			and not os.path.isdir(service["cwd"]):
 		raise InfraError(f"service {service['name']} cwd is missing: {service['cwd']}")
 	for required in service["requires"]:
+		if deferred(required):
+			continue
 		if not os.path.exists(required):
 			raise InfraError(f"service {service['name']} required path is missing: {required}")
 
@@ -805,10 +1385,21 @@ def _finalize_identity(mailbox, state_doc, entry, log_path):
 	_write_state(mailbox, state_doc)
 
 
+def _new_start_id():
+	"""This start's identity. Random rather than a counter: two mailboxes
+	must not collide, and a controller killed between starts must not
+	reuse the identity of the one before it."""
+	return uuid.uuid4().hex
+
+
 def _empty_state(mailbox, manifest):
+	# W459: `contexts` records what THIS start minted. It is written
+	# before the services that reference it launch, so a controller
+	# killed mid-startup leaves the locators it created behind as
+	# evidence rather than as an untracked thread nobody can name.
 	return {"version": 2, "mailbox": mailbox,
 	        "manifestDigest": manifest["digest"], "launchOrder": [],
-	        "services": {}}
+	        "startId": _new_start_id(), "contexts": {}, "services": {}}
 
 
 def _report(command, healthy, services, **extra):
@@ -828,17 +1419,51 @@ def _start_guarded(mailbox, manifest, signals):
 		return 2
 	for name in manifest["order"]:
 		service = manifest["services"][name]
-		_validate_launch(service)
+		# W459: pre-flight can only judge what this start has not
+		# minted yet. A path naming a context or a render is checked
+		# for real in the launch loop, once it HAS a value; checking
+		# the literal `{{…}}` here would refuse every manifest that
+		# uses one.
+		_validate_launch(service, static_only=True)
 		if service["readiness"]["type"] != "process" \
 				and _ready(service["readiness"]):
 			raise InfraError(f"service {name} readiness is already satisfied without owned state; refusing to adopt it")
 	state_doc = _empty_state(mailbox, manifest)
 	_write_state(mailbox, state_doc)
 	started = []
+	# W459: nothing from a previous start is carried in. The map begins
+	# EMPTY on every start, and the files a previous start rendered are
+	# cleared before anything can read one by accident.
+	minted = {}
+	rendered = {}
+	_clear_contexts(mailbox)
 	try:
+		pending_contexts = list(manifest["contextOrder"])
 		for name in manifest["order"]:
 			signals.check()
-			service = manifest["services"][name]
+			# A context is minted once every service it waits on is
+			# ready — which is why it happens HERE rather than before
+			# the loop: `--start-thread` needs the app-server up.
+			for context_name in list(pending_contexts):
+				context = manifest["contexts"][context_name]
+				if any(dependency not in started
+				       for dependency in context["after"]):
+					continue
+				minted[context_name] = _mint_context(mailbox, context,
+				                                     signals)
+				pending_contexts.remove(context_name)
+				state_doc["contexts"] = minted
+				_write_state(mailbox, state_doc)
+			# Rendered first: a service may point at the file this
+			# start writes, so the file has to exist before its argv
+			# can name it.
+			if manifest["services"][name]["renders"]:
+				_render_files(mailbox, manifest["services"][name],
+				              minted, rendered, state_doc["startId"])
+			service = _resolved_service(manifest["services"][name],
+			                            minted, rendered,
+			                            state_doc["startId"])
+			_validate_launch(service)
 			log_path = os.path.join(mailbox, "log", f"{name}.log")
 			with _open_log(log_path) as log:
 				boundary = {"event": "launch", "at": dt.datetime.now(
@@ -884,6 +1509,11 @@ def _start_guarded(mailbox, manifest, signals):
 				raise InfraError(f"service {name} failed readiness within {service['startTimeoutSeconds']}s; see {log_path}")
 			_finalize_identity(mailbox, state_doc, entry, log_path)
 			signals.check()
+		for context_name in pending_contexts:
+			minted[context_name] = _mint_context(
+				mailbox, manifest["contexts"][context_name], signals)
+			state_doc["contexts"] = minted
+			_write_state(mailbox, state_doc)
 		signals.check()
 	except (InfraError, OSError, subprocess.SubprocessError) as error:
 		rollback_errors = []
@@ -897,6 +1527,10 @@ def _start_guarded(mailbox, manifest, signals):
 		if state_doc["services"]:
 			_write_state(mailbox, state_doc)
 		else:
+			# Nothing of this start survives, including the files it
+			# rendered: leaving them would let the NEXT start read a
+			# locator this one already abandoned.
+			_clear_contexts(mailbox)
 			_remove_state(mailbox)
 		suffix = "" if not rollback_errors else "; rollback refused: " \
 			+ ", ".join(rollback_errors)
@@ -909,6 +1543,30 @@ def _start_guarded(mailbox, manifest, signals):
 def start(mailbox, manifest):
 	with StartupSignalGuard() as signals:
 		return _start_guarded(mailbox, manifest, signals)
+
+
+def _expected_argv(mailbox, service, state_doc):
+	"""The argv this manifest would produce given the recorded start.
+
+	A manifest with no placeholders answers exactly what it always
+	did; one with placeholders is resolved against the contexts the
+	state says were minted, so `status` compares like with like. A
+	placeholder the state cannot resolve leaves the raw text, which
+	CANNOT match a launched argv — the honest answer for a service
+	whose configuration no longer describes what is running."""
+	minted = (state_doc or {}).get("contexts", {})
+	start_id = (state_doc or {}).get("startId")
+	rendered = {entry["name"]: _render_target(mailbox, entry["name"])
+	            for entry in service["renders"]}
+	out = []
+	for part in service["command"]:
+		try:
+			out.append(_substitute(part, minted, rendered,
+			                       f"service {service['name']}",
+			                       start_id))
+		except InfraError:
+			out.append(part)
+	return out
 
 
 def status_rows(mailbox, manifest, state_doc):
@@ -925,7 +1583,15 @@ def status_rows(mailbox, manifest, state_doc):
 			             "healthy": False, "log": log})
 			continue
 		identity, _observed = _identity(entry)
-		if not manifest_match or entry["configuredArgv"] != service["command"]:
+		# W459: the manifest's command may carry `{{context…}}`
+		# placeholders, so it is compared against the argv resolved
+		# with the contexts THIS start minted — which the state
+		# records. The check is unchanged in what it protects: an
+		# operator editing the manifest under a running set still
+		# reads as `configuration-changed`, and so does a service now
+		# pointed at a locator this start did not mint.
+		expected = _expected_argv(mailbox, service, state_doc)
+		if not manifest_match or entry["configuredArgv"] != expected:
 			state = "configuration-changed"
 		elif identity != "owned":
 			state = identity

@@ -28,6 +28,16 @@ export function tailUtf8(value, maxBytes) {
   return `[${omitted} earlier bytes omitted]\n${tail}`;
 }
 
+function normalizeAction(raw) {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    throw new TypeError("action must be an object");
+  }
+  const participant = requiredText(raw.participant, "action.participant");
+  const key = requiredText(raw.key, "action.key");
+  return Object.freeze({ participant, key });
+}
+
 export function normalizeEvent(raw, { maxDetailsBytes = DEFAULT_MAX_DETAILS_BYTES } = {}) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     throw new TypeError("event must be a JSON object");
@@ -46,6 +56,14 @@ export function normalizeEvent(raw, { maxDetailsBytes = DEFAULT_MAX_DETAILS_BYTE
   const details = optionalText(raw.details, "details");
   const project = optionalText(raw.project, "project");
 
+  // W1224 (finding-readiness-wrong-participant-after-pass): a v11
+  // readiness event carries WHOSE episode it is, structurally, so the
+  // dispatcher can revalidate it before spending a model turn on it.
+  // Structurally rather than by parsing the id: W148 rules that
+  // consumers key delivery on the whole action key and never take it
+  // apart, and a dispatcher that re-derived a participant from a
+  // string would be doing exactly that.
+  const action = normalizeAction(raw.action);
   return Object.freeze({
     id: optionalText(raw.id, "id") ?? randomUUID(),
     target,
@@ -55,6 +73,7 @@ export function normalizeEvent(raw, { maxDetailsBytes = DEFAULT_MAX_DETAILS_BYTE
     ...(project ? { project } : {}),
     summary: normalizeNewlines(summary),
     ...(details ? { details: tailUtf8(normalizeNewlines(details), maxDetailsBytes) } : {}),
+    ...(action ? { action } : {}),
   });
 }
 

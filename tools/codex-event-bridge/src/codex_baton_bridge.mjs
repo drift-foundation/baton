@@ -329,6 +329,12 @@ export function actionEvent(envelope, action, options) {
     type: "v11-action-ready",
     summary: summarize(action, envelope.participant),
     details: JSON.stringify(actionLocator(action), null, 2),
+    // W1224: whose episode this is, carried structurally so the
+    // dispatcher can revalidate it before it becomes a turn. The
+    // producer emits promptly after its own read; the dispatcher's
+    // queue is where an event can wait behind a running turn and
+    // arrive after a `pass` has moved the Work to somebody else.
+    action: { participant: envelope.participant, key: action.action_key },
   };
 }
 

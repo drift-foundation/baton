@@ -26,6 +26,8 @@ release shape:
     <target>/doc/AGENTS-MAILBOX-PROTO.md  the agent protocol contract
     <target>/conf/baton.example.json  a complete valid config example
     <target>/conf/infra.example.json  the strict repository lifecycle example
+    <target>/conf/codex-event-bridge.template.json  its rendered dispatcher config
+    <target>/conf/acp-bridge.template.json  its rendered per-start ACP config
     <target>/conf/acp-bridge-*.example.json  non-secret bridge examples
                                    (explicit placeholders; cannot run
                                    as shipped)
@@ -69,6 +71,12 @@ SOURCE_ASSETS = (
 	("docs/EFFECTIVE-BATON.md", "doc/EFFECTIVE-BATON.md"),
 	("conf/baton.example.json", "conf/baton.example.json"),
 	("conf/infra.example.json", "conf/infra.example.json"),
+	# W459: the example manifest renders the dispatcher's configuration
+	# from this template, so a release that shipped one without the
+	# other would ship a manifest that cannot load.
+	("conf/codex-event-bridge.template.json",
+	 "conf/codex-event-bridge.template.json"),
+	("conf/acp-bridge.template.json", "conf/acp-bridge.template.json"),
 	# W163: non-secret bridge example configurations — every value an
 	# explicit placeholder; nothing runnable as shipped.
 	("examples/acp-bridge-claude.json",

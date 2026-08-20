@@ -182,6 +182,44 @@ has not started yet:
 claims anything** — it is a plan, and the route is still the only thing that
 owes a decision.
 
+### Say it in the discussion before you hand it over
+
+The pass comment is durable, authoritative, and **not a message**. It lives in
+the Work's Events journal, where the transfer itself is audited. That is the
+right home for it — a workflow transition must not inflate a discussion count
+or make somebody choose a thread — and it has one consequence worth planning
+for: an operator reading Messages will not see it.
+
+So when continuity through the discussion matters, post the recap first and
+then hand over:
+
+    $BATON say thread=T2 body="tokenizer escape handling is fixed and both
+        forms are regression-covered. Left alone deliberately: the reader's
+        narrow-width wrapping, which is W48's and not this Work's. Next: a
+        review round on the two new cases."
+    $BATON pass work=W2 to=app.rview comment="fix and regressions ready for review"
+
+Two records, each doing its own job: the message carries the reasoning to
+whoever is reading the conversation, and the pass carries the authoritative
+transfer.
+
+**Handing Work to a human reviewer or approver, the message is not optional.**
+Before the pass, leave one concise discussion Message that states
+
+- the result or current status,
+- the decision or action now expected from the human, and
+- the recommended next step.
+
+A human must not have to reconstruct that instruction from a series of Work
+Events. Synthesising the journal into a clear handoff is the agent's job, and
+it is the whole difference between "here is a Work id" and "here is what I
+need from you". The `pass` that follows is still the authoritative transfer;
+Events still hold the complete audit.
+
+Baton requires the pass comment to be non-empty and cannot judge whether prose
+is a sufficient recap. This is an operating convention, kept because it works,
+not a rule the authority enforces.
+
     $BATON close work=W2 outcome=satisfying \
         rationale="escape handling fixed and both forms regression-covered"
 
@@ -417,6 +455,15 @@ its own field.
 A readiness line is an **edge to re-evaluate, not authority to act.** By the
 time you see it the Work may have been claimed, passed, or closed. Re-read
 canonical state, and let the atomic claim be the final arbiter.
+
+`timeout=` is your deadline and nothing else. While the wait is empty it
+re-derives the projection about **once a second**, so something committed
+while you are blocked reaches you within roughly a second rather than
+instantly — coordination happens on seconds-to-minutes timescales, and a
+poll per participant twenty times a second bought latency nobody could
+perceive at a cost the database could. The interval never extends your
+deadline: `timeout=0` is a single read, and a shorter timeout returns when
+you asked, not at the next interval.
 
 `include=`, plain posts, and personal New are attention, never wakeups. A
 sender who needs action uses a request or passes the baton.

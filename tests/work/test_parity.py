@@ -295,7 +295,10 @@ def test_actionable_state_agrees(world, capsys):
 		box = _json(capsys, path, "inbox", viewer=viewer)
 		screen = _screen_rows(path, viewer)
 		header = screen[0]
-		assert f"Inbox {box['total']}/{box['unseen']}" in header, \
+		# W167: the tab shows one owed-action marker instead of the
+		# counts. Parity is still parity — the console and the JSON
+		# must agree about whether this viewer owes anything.
+		assert ("[Inbox *]" in header) is box["owed_action"], \
 			f"{viewer}: header {header!r} vs {box}"
 		owed = [row for row in box["rows"]
 		        if row["kind"] == "obligation"]

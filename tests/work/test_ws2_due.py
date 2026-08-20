@@ -551,8 +551,15 @@ def test_wait_times_out_quietly_before_the_deadline(world):
 	assert store.events() == before, "the wait mutated the authority"
 
 
-def test_wait_wakes_when_the_deadline_arrives(world):
+def test_wait_wakes_when_the_deadline_arrives(world, monkeypatch):
 	import time as _time
+	# W321 raised the idle readiness cadence from 50 ms to one second.
+	# What this case is about is that the wait WAKES on the deadline
+	# rather than sleeping through it — not how long an idle poll
+	# lasts, which `test_w321_readiness_cadence` owns and pins without
+	# spending wall time. Polling faster here keeps the subject and
+	# keeps the gate honest about the seconds it spends.
+	monkeypatch.setattr(pj, "READINESS_POLL_SECONDS", 0.05)
 	store = world
 	work = _provider(store)
 	# W136: neutralize the routed-Work wake (a push-owned gate blocks
@@ -577,8 +584,12 @@ def test_wait_wakes_when_the_deadline_arrives(world):
 		"the wait slept past the deadline it should wake at"
 
 
-def test_wait_sees_a_competing_message_commit(world):
+def test_wait_sees_a_competing_message_commit(world, monkeypatch):
 	import threading
+	# W321: same reason as the deadline case above — the subject is
+	# that a commit from another connection is SEEN, not the interval
+	# it is seen within.
+	monkeypatch.setattr(pj, "READINESS_POLL_SECONDS", 0.05)
 	store = world
 	work = _provider(store)
 	gate = tr.create_work(store, team="push", kind="verify",

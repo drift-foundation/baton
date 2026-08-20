@@ -1,0 +1,37 @@
+{
+  "//": "acp-baton-bridge template rendered by the lifecycle controller.",
+  "//2": "EVERY value below except {{start.id}} is a placeholder the",
+  "//3": "operator must replace; nothing here can run as shipped. Agent",
+  "//4": "adapters, credentials, and prohibition policies are",
+  "//5": "deployment-owned and never bundled with Baton.",
+  "//6": "W459: `stateDir` carries {{start.id}}, so every managed start",
+  "//7": "gives this participant its own selection location. The session",
+  "//8": "is therefore genuinely new each start, W27's `new` refusal is",
+  "//9": "untouched (absence is what it requires), and the previous",
+  "//10": "start's selection is left where it was rather than deleted.",
+  "baton": {
+    "binary": "/absolute/path/to/v11-release/bin/baton",
+    "config": "/absolute/path/to/mailbox/baton.json",
+    "participant": "baton.claude",
+    "role": "impl",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "/absolute/path/to/sandbox-launcher-or-claude-agent-acp",
+    "args": [],
+    "env": {
+      "AGENT_REAL": "/absolute/path/to/claude-agent-acp"
+    },
+    "cwd": "/absolute/path/to/workspace"
+  },
+  "session": { "mode": "new", "cwd": "/absolute/path/to/workspace" },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "/absolute/path/to/workspace/.claude/settings.json",
+    "/absolute/path/to/blocking-pretooluse-hook",
+    "/absolute/path/to/protected-paths-list"
+  ],
+  "stateDir": "/absolute/path/to/mailbox/run/acp/{{start.id}}/baton.claude",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

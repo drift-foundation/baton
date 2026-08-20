@@ -573,12 +573,34 @@ def test_start_refuses_a_service_log_symlink_without_touching_its_target(
 			_run("stop", mailbox)
 
 
+# W459 slice 2: the example now mints its Codex Threads per start, so
+# the dispatcher's configuration is RENDERED from a shipped template
+# rather than maintained by hand. The controller reads that template at
+# load, so exercising the example means supplying it the way an
+# operator does — by replacing the placeholder path with a real one.
+TEMPLATE_PLACEHOLDER = "/absolute/path/to/codex-event-bridge.template.json"
+ACP_TEMPLATE_PLACEHOLDER = "/absolute/path/to/acp-bridge.template.json"
+
+
+def _example_document(tmp_path):
+	example = os.path.join(REPO, "conf", "infra.example.json")
+	body = open(example, encoding="utf-8").read()
+	for placeholder, name in (
+			(TEMPLATE_PLACEHOLDER, "codex-event-bridge.template.json"),
+			(ACP_TEMPLATE_PLACEHOLDER, "acp-bridge.template.json")):
+		template = tmp_path / name
+		template.write_text(
+			open(os.path.join(REPO, "conf", name),
+			     encoding="utf-8").read(), encoding="utf-8")
+		body = body.replace(placeholder, str(template))
+	return body
+
+
 def test_checked_in_example_manifest_matches_the_controller_schema(tmp_path):
 	mailbox = tmp_path / "mailbox"
 	mailbox.mkdir(mode=0o700)
-	example = os.path.join(REPO, "conf", "infra.example.json")
-	(mailbox / "infra.json").write_text(
-		open(example, encoding="utf-8").read(), encoding="utf-8")
+	(mailbox / "infra.json").write_text(_example_document(tmp_path),
+	                                    encoding="utf-8")
 	status = _run("status", mailbox)
 	assert status.returncode == 1
 	payload = _json(status)
@@ -590,8 +612,7 @@ def test_checked_in_example_manifest_matches_the_controller_schema(tmp_path):
 
 def test_example_owns_one_isolated_readiness_path_per_codex_participant(
 		tmp_path):
-	example = os.path.join(REPO, "conf", "infra.example.json")
-	document = json.loads(open(example, encoding="utf-8").read())
+	document = json.loads(_example_document(tmp_path))
 	services = {service["name"]: service for service in document["services"]}
 	reviewer = services["codex-readiness"]
 	tuner = services["codex-tuner-readiness"]

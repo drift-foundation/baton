@@ -1,3 +1,4 @@
+import { execFile } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { chmod, lstat, mkdir, unlink } from "node:fs/promises";
 import net from "node:net";
@@ -5,6 +6,9 @@ import { dirname } from "node:path";
 import { CodexClient, CodexProtocolError } from "./codex_client.mjs";
 import { classifyFailure, makeRuntimePublisher, silentPublisher } from "./runtime_publisher.mjs";
 import { eventFingerprint, formatEventMessage, normalizeEvent } from "./event_types.mjs";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
 
 function wait(ms, signal) {
   if (signal.aborted) return Promise.resolve();
@@ -66,10 +70,15 @@ export class EventBridge extends EventEmitter {
   // `roleInstructions` plus a target identity gets it with no new
   // configuration at all — those are precisely the three facts a
   // publisher needs.
-  constructor({ config, debug = false, logger = console, clientFactory, runtimeFactory }) {
+  constructor({ config, debug = false, logger = console, clientFactory, runtimeFactory, revalidate }) {
     super();
     this.config = config;
     this.logger = logger;
+    // W1224: the one read that revalidates a queued episode. Injected
+    // in tests, and the ordinary public CLI invocation otherwise —
+    // the same shape every other Baton call in this package uses.
+    this.revalidate = revalidate ?? ((file, args) => execFileAsync(
+      file, args, { encoding: "utf8", maxBuffer: 4 * 1024 * 1024 }));
     this.server = null;
     this.ownsSocket = false;
     this.stopping = false;
@@ -301,6 +310,26 @@ export class EventBridge extends EventEmitter {
         const delivered = await this.#reconcileAmbiguous(state, queued);
         if (delivered) return;
       }
+      // W1224: the LAST thing before a model turn is spent. A v11
+      // readiness event can sit in this queue behind a running turn,
+      // and by the time it drains the Work may have been passed to
+      // another endpoint — which is exactly how a reviewer was woken
+      // for an implementer's queued Work, with canonical `detail`
+      // disagreeing at the same instant.
+      //
+      // The check is a cheap read of the SAME participant's own
+      // projection, requiring this exact episode key to still be
+      // there. It narrows the window rather than closing it — a
+      // mutation can still land between the read and the turn — so
+      // the agent's atomic claim remains the final authority. What it
+      // removes is the misleading wake, not the refusal behind it.
+      if (await this.#episodeIsOver(state, queued.event)) {
+        this.#dequeue(state);
+        this.logger.info(`[${state.name}] ${queued.event.action.key} is no longer actionable for ${queued.event.action.participant}; dropped without spending a turn`);
+        this.emit("actionDropped", { target: state.name, event: queued.event });
+        if (state.queue.length > 0) this.#scheduleDrain(state, 0);
+        return;
+      }
       const turn = await serverState.client.startTurn(state.threadId, formatEventMessage(queued.event), queued.event.id);
       this.#dequeue(state);
       const completed = state.completedTurns.get(turn.id);
@@ -338,6 +367,53 @@ export class EventBridge extends EventEmitter {
       state.draining = false;
       if (!state.activeTurn && state.status.type === "idle" && state.queue.length > 0) this.#scheduleDrain(state, 0);
     }
+  }
+
+  /** W1224: is this queued readiness event's episode gone?
+   *
+   *  `false` for anything this dispatcher cannot check — an event
+   *  with no action block, a deployment with no `roleInstructions` to
+   *  reach Baton through, or a read that fails. A revalidation that
+   *  cannot run must not silently discard a wake; the event is
+   *  retained and the ordinary retry decides. Only a SUCCESSFUL read
+   *  that does not list the key drops it. */
+  async #episodeIsOver(state, event) {
+    const action = event.action;
+    if (!action) return false;
+    // W1224 review: the canonical read proves the episode is live for
+    // the participant the EVENT names — and says nothing about whether
+    // that participant is the identity this target runs as. A valid
+    // event addressed to the tuner target while naming `baton.codex`
+    // therefore passed, and woke the tuner session for somebody else's
+    // Work. The confirmed boundary is that a readiness action reaches
+    // only the participant eligible for that exact episode, so the two
+    // identities must AGREE before anything else is asked.
+    //
+    // Structural, and checked before the read: a mismatch is not a
+    // stale episode to re-examine, it is an event that was never for
+    // this target.
+    const mine = state.identity?.participant;
+    if (mine && action.participant !== mine) {
+      this.logger.warn(`[${state.name}] ${action.key} is addressed to ${action.participant}; this target runs as ${mine}. Dropped.`);
+      return true;
+    }
+    if (!this.config.roleInstructions) return false;
+    const argv = ["--config", this.config.roleInstructions.config,
+                  "--participant", action.participant, "wait", "timeout=0"];
+    let payload;
+    try {
+      const result = await this.revalidate(this.config.roleInstructions.binary, argv);
+      payload = JSON.parse(result.stdout);
+    } catch (error) {
+      this.logger.warn(`[${state.name}] could not revalidate ${action.key}: ${error.message}; the event is retained`);
+      return false;
+    }
+    const live = payload?.result?.actionable;
+    if (!Array.isArray(live)) {
+      this.logger.warn(`[${state.name}] revalidation of ${action.key} returned no actionable set; the event is retained`);
+      return false;
+    }
+    return !live.some((entry) => entry.action_key === action.key);
   }
 
   async #reconcileAmbiguous(state, queued) {

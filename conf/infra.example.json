@@ -2,6 +2,64 @@
   "version": 1,
   "startTimeoutSeconds": 15,
   "stopTimeoutSeconds": 10,
+  "contexts": [
+    {
+      "name": "reviewer",
+      "participant": "baton.codex",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/absolute/path/to/workspace",
+        "--baton",
+        "/absolute/path/to/v11-release/bin/baton",
+        "--baton-config",
+        "/absolute/path/to/mailbox/baton.json",
+        "--participant",
+        "baton.codex",
+        "--role",
+        "rview"
+      ],
+      "requires": [
+        "/absolute/path/to/v11-release/bin/baton",
+        "/absolute/path/to/mailbox/baton.json"
+      ],
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "tuner",
+      "participant": "baton.tuner",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/absolute/path/to/workspace",
+        "--baton",
+        "/absolute/path/to/v11-release/bin/baton",
+        "--baton-config",
+        "/absolute/path/to/mailbox/baton.json",
+        "--participant",
+        "baton.tuner",
+        "--role",
+        "tuner"
+      ],
+      "requires": [
+        "/absolute/path/to/v11-release/bin/baton",
+        "/absolute/path/to/mailbox/baton.json"
+      ],
+      "timeoutSeconds": 180
+    }
+  ],
   "services": [
     {
       "name": "codex-app-server",
@@ -22,18 +80,30 @@
       "command": [
         "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
         "--config",
-        "/absolute/path/to/codex-event-bridge.json"
+        "{{render.dispatcher}}"
       ],
       "after": [
         "codex-app-server"
       ],
       "requires": [
-        "/absolute/path/to/codex-event-bridge.json"
+        "/absolute/path/to/codex-event-bridge.template.json"
       ],
       "readiness": {
         "type": "unix_socket",
-        "path": "/absolute/path/to/runtime/codex-events.sock"
-      }
+        "path": "/absolute/path/to/runtime/codex-events.sock",
+        "request": {
+          "control": "status"
+        },
+        "expect": {
+          "ready": true
+        }
+      },
+      "renders": [
+        {
+          "name": "dispatcher",
+          "template": "/absolute/path/to/codex-event-bridge.template.json"
+        }
+      ]
     },
     {
       "name": "codex-readiness",
@@ -97,19 +167,25 @@
       "command": [
         "/absolute/path/to/v11-release/bin/acp-baton-bridge",
         "--config",
-        "/absolute/path/to/acp-bridge-claude.json"
+        "{{render.claude-acp}}"
       ],
       "after": [
         "codex-readiness",
         "codex-tuner-readiness"
       ],
       "requires": [
-        "/absolute/path/to/acp-bridge-claude.json"
+        "/absolute/path/to/acp-bridge.template.json"
       ],
       "readiness": {
         "type": "process",
         "stableMilliseconds": 1000
-      }
+      },
+      "renders": [
+        {
+          "name": "claude-acp",
+          "template": "/absolute/path/to/acp-bridge.template.json"
+        }
+      ]
     }
   ]
 }

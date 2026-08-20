@@ -93,3 +93,174 @@ test("creates and resumes threads with configured developer instructions", async
   assert.deepEqual(resume.params, { threadId: "thread-new", developerInstructions: "Tune packaging only." });
   client.disconnect();
 });
+
+// -- W484: a completion that arrives before its waiter -----------------------
+//
+// `work/records/2026/08/finding-codex-turn-completion-race/`. Every
+// production caller installs its wait AFTER awaiting `turn/start`. A
+// `turn/completed` delivered before that continuation runs was emitted
+// to nobody, and the wait — with no prior-state check and no timeout —
+// never settled. W424 added a second operator-visible caller of the
+// pattern, in a command where a hang is indistinguishable from a slow
+// model.
+
+class RacingWebSocket extends FakeWebSocket {
+	/** Completes the turn BEFORE resolving `turn/start`, which is the
+	 *  ordering the waiter cannot survive without retention. */
+	send(text) {
+		const message = JSON.parse(text);
+		this.sent.push(message);
+		queueMicrotask(() => {
+			if (message.method === "initialize") {
+				this.receive({ id: message.id, result: { userAgent: "fake" } });
+			} else if (message.method === "thread/resume") {
+				this.receive({ id: message.id, result: { thread: { id: message.params.threadId, status: { type: "idle" }, turns: [] } } });
+			} else if (message.method === "turn/start") {
+				const turn = { id: `turn-${message.params.threadId}`, status: "inProgress" };
+				this.receive({ method: "turn/completed",
+					params: { threadId: message.params.threadId,
+						turn: { ...turn, status: "completed" } } });
+				this.receive({ id: message.id, result: { turn } });
+			}
+		});
+	}
+}
+
+test("a completion that arrives before the waiter still resolves it", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "race", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: RacingWebSocket });
+	await client.connectAndInitialize();
+	await client.resume("thread-a");
+	const turn = await client.startTurn("thread-a", "hello", "event-1");
+	// Raced against a timer ON PURPOSE. The defect's symptom is a wait
+	// that never settles, and a regression whose failure mode is a
+	// hanging suite is not a regression anybody can read — so the
+	// unsettled case FAILS here instead of stopping the run.
+	const settled = await Promise.race([
+		client.waitForTurnCompletion("thread-a", turn.id),
+		new Promise((resolve) => setTimeout(() => resolve("never settled"), 250)),
+	]);
+	assert.notEqual(settled, "never settled",
+		"the completion arrived before the waiter and was discarded");
+	assert.equal(settled.id, turn.id);
+	assert.equal(settled.status, "completed");
+});
+
+test("a completion that arrives after the waiter behaves as before", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "ordered", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+	await client.connectAndInitialize();
+	await client.resume("thread-a");
+	const turn = await client.startTurn("thread-a", "hello", "event-1");
+	const waiting = client.waitForTurnCompletion("thread-a", turn.id);
+	FakeWebSocket.instances[0].receive({ method: "turn/completed",
+		params: { threadId: "thread-a", turn: { id: turn.id, status: "completed" } } });
+	assert.equal((await waiting).status, "completed");
+	// and nothing is left behind for a later wait to find
+	assert.equal(client.takeCompletion("thread-a", turn.id), null);
+});
+
+test("thread and turn identity both have to match", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "identity", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+	await client.connectAndInitialize();
+	const socket = FakeWebSocket.instances[0];
+	socket.receive({ method: "turn/completed",
+		params: { threadId: "thread-a", turn: { id: "turn-1", status: "completed" } } });
+	assert.equal(client.takeCompletion("thread-b", "turn-1"), null,
+		"another thread's completion satisfied this waiter");
+	assert.equal(client.takeCompletion("thread-a", "turn-2"), null,
+		"another turn's completion satisfied this waiter");
+	assert.equal(client.takeCompletion("thread-a", "turn-1").status, "completed");
+});
+
+test("one completion answers one wait", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "once", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+	await client.connectAndInitialize();
+	FakeWebSocket.instances[0].receive({ method: "turn/completed",
+		params: { threadId: "thread-a", turn: { id: "turn-1", status: "completed" } } });
+	// Timer-raced for the same reason as the case above: an unsettled
+	// wait must fail this file, not stall it.
+	const settled = await Promise.race([
+		client.waitForTurnCompletion("thread-a", "turn-1"),
+		new Promise((resolve) => setTimeout(() => resolve("never settled"), 250)),
+	]);
+	assert.notEqual(settled, "never settled");
+	assert.equal(settled.id, "turn-1");
+	assert.equal(client.takeCompletion("thread-a", "turn-1"), null,
+		"the record survived being consumed");
+});
+
+test("a duplicate completion does not accumulate", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "dupe", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+	await client.connectAndInitialize();
+	for (let index = 0; index < 5; index += 1) {
+		FakeWebSocket.instances[0].receive({ method: "turn/completed",
+			params: { threadId: "thread-a", turn: { id: "turn-1", status: "completed" } } });
+	}
+	assert.equal(client.completions.size, 1);
+	assert.ok(client.takeCompletion("thread-a", "turn-1"));
+	assert.equal(client.takeCompletion("thread-a", "turn-1"), null);
+});
+
+test("retention is bounded and evicts the oldest unconsumed record", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "bounded", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket, maxRetainedCompletions: 3 });
+	await client.connectAndInitialize();
+	for (const id of ["t1", "t2", "t3", "t4"]) {
+		FakeWebSocket.instances[0].receive({ method: "turn/completed",
+			params: { threadId: "thread-a", turn: { id, status: "completed" } } });
+	}
+	assert.equal(client.completions.size, 3);
+	assert.equal(client.takeCompletion("thread-a", "t1"), null,
+		"the oldest record was not the one evicted");
+	for (const id of ["t2", "t3", "t4"]) {
+		assert.ok(client.takeCompletion("thread-a", id), id);
+	}
+});
+
+test("a disconnect drops retained completions and fails waits closed",
+	async () => {
+		FakeWebSocket.instances = [];
+		const client = new CodexClient({ name: "closed", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+		await client.connectAndInitialize();
+		FakeWebSocket.instances[0].receive({ method: "turn/completed",
+			params: { threadId: "thread-a", turn: { id: "turn-1", status: "completed" } } });
+		const pending = client.waitForTurnCompletion("thread-a", "turn-2");
+		client.disconnect();
+		await assert.rejects(pending, /disconnected/);
+		assert.equal(client.completions.size, 0);
+		assert.equal(client.takeCompletion("thread-a", "turn-1"), null,
+			"a pre-disconnect completion survived the disconnect");
+	});
+
+test("a waiter installed just after disconnect also fails closed", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "closed-before-wait", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+	await client.connectAndInitialize();
+	client.disconnect();
+	let settled = false;
+	const pending = client.waitForTurnCompletion("thread-a", "turn-1")
+		.then((value) => { settled = true; return { value }; },
+			(error) => { settled = true; return { error }; });
+	await new Promise((resolve) => setTimeout(resolve, 25));
+	const settledBeforeCleanup = settled;
+	if (!settled) {
+		client.emit("disconnected");
+	}
+	const result = await pending;
+	assert.equal(settledBeforeCleanup, true,
+		"the waiter missed the earlier disconnect and hung");
+	assert.ok(result.error instanceof Error, result);
+});
+
+test("a completion with no turn id is not retained", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "malformed", endpoint: "ws://127.0.0.1:4500", WebSocketImpl: FakeWebSocket });
+	await client.connectAndInitialize();
+	FakeWebSocket.instances[0].receive({ method: "turn/completed",
+		params: { threadId: "thread-a" } });
+	assert.equal(client.completions.size, 0);
+});

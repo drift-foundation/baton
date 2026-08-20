@@ -13,7 +13,7 @@ export class CodexProtocolError extends Error {
 }
 
 export class CodexClient extends EventEmitter {
-  constructor({ name, endpoint, debug = false, logger = console, WebSocketImpl = globalThis.WebSocket, requestTimeoutMs = 30_000 }) {
+  constructor({ name, endpoint, debug = false, logger = console, WebSocketImpl = globalThis.WebSocket, requestTimeoutMs = 30_000, maxRetainedCompletions = 64 }) {
     super();
     if (typeof WebSocketImpl !== "function") throw new Error("this Node.js release does not provide WebSocket");
     this.name = name;
@@ -28,6 +28,18 @@ export class CodexClient extends EventEmitter {
     this.subscribedThreads = new Set();
     this.nextRequestId = 1;
     this.pending = new Map();
+    // W484 (finding-codex-turn-completion-race): completions that
+    // arrived with no waiter installed yet, newest last, keyed by
+    // thread and turn.
+    //
+    // Every caller installs its wait AFTER awaiting `turn/start`, so a
+    // `turn/completed` delivered before that continuation runs had
+    // nowhere to go: the listener was attached to an event that had
+    // already been emitted, and with no prior-state check and no
+    // timeout the wait simply never settled. Recording the completion
+    // first turns "did I see it yet" into a question with an answer.
+    this.completions = new Map();
+    this.maxRetainedCompletions = maxRetainedCompletions;
   }
 
   statusOf(threadId) {
@@ -109,10 +121,62 @@ export class CodexClient extends EventEmitter {
     }
   }
 
+  #completionKey(threadId, turnId) {
+    return `${threadId}\u0000${turnId}`;
+  }
+
+  #retainCompletion(params) {
+    const turnId = params?.turn?.id;
+    if (!turnId) return;
+    const key = this.#completionKey(params.threadId, turnId);
+    // Re-inserted rather than updated, so the eviction order below is
+    // genuinely least-recently-received.
+    this.completions.delete(key);
+    this.completions.set(key, params.turn);
+    // Bounded: a long-lived dispatcher completes turns forever, and a
+    // cache that only grows is a leak with a helpful name. The oldest
+    // unconsumed record is the one nobody came back for.
+    while (this.completions.size > this.maxRetainedCompletions) {
+      this.completions.delete(this.completions.keys().next().value);
+    }
+  }
+
+  /** W484: the completion this waiter is for, if it already arrived.
+   *  Consumed on read — one completion answers one wait, and a
+   *  duplicate or an unrelated turn answers neither. */
+  takeCompletion(threadId, turnId) {
+    const key = this.#completionKey(threadId, turnId);
+    const turn = this.completions.get(key);
+    if (turn === undefined) return null;
+    this.completions.delete(key);
+    return turn;
+  }
+
   waitForTurnCompletion(threadId, turnId) {
+    // W484 review: the ADJACENT window. Rejecting on the `disconnected`
+    // EVENT only covers a waiter that was already listening — a caller
+    // that installed its wait one tick after the socket dropped saw
+    // nothing, found an empty cache (disconnect clears it), and waited
+    // forever. That is the same missed-event class this Work exists to
+    // remove, so the connection is a state to CHECK and not only an
+    // event to hear.
+    //
+    // Checked before the cache deliberately: a disconnect clears
+    // retention, so there is nothing to find, and reading the state
+    // first says why rather than leaving a bare unresolved lookup.
+    if (!this.connected) {
+      return Promise.reject(new Error(
+        `Codex app-server disconnected before turn ${turnId} could be awaited`));
+    }
+    const already = this.takeCompletion(threadId, turnId);
+    if (already) return Promise.resolve(already);
     return new Promise((resolve, reject) => {
       const onCompleted = (params) => {
         if (params.threadId === threadId && params.turn?.id === turnId) {
+          // Consumed here too: a wait that was already listening must
+          // not leave a record behind for a later wait on the same
+          // turn to find.
+          this.takeCompletion(threadId, turnId);
           cleanup();
           resolve(params.turn);
         }
@@ -160,6 +224,12 @@ export class CodexClient extends EventEmitter {
     this.socket = null;
     this.connected = false;
     this.subscribedThreads.clear();
+    // W484: retained completions belong to the connection that
+    // delivered them. A wait installed after the socket died is
+    // unsettled, and unsettled waits fail closed — resolving one from
+    // a pre-disconnect record would report a turn as freshly complete
+    // to a caller that has no connection to act on it.
+    this.completions.clear();
     for (const threadId of this.threadStatuses.keys()) this.#setStatus(threadId, { type: "notLoaded" });
     if (socket && socket.readyState < 2) socket.close();
     this.#rejectPending(new Error("Codex app-server disconnected"));
@@ -231,6 +301,11 @@ export class CodexClient extends EventEmitter {
       this.#setStatus(threadId, { type: "active", activeFlags: [] });
       this.emit("turnStarted", params);
     } else if (method === "turn/completed" && threadId) {
+      // Recorded BEFORE the event is published, so a wait installed
+      // one microtask later still finds it. A listener already
+      // attached consumes it in the same tick and leaves nothing
+      // behind (see `waitForTurnCompletion`).
+      this.#retainCompletion(params);
       this.emit("turnCompleted", params);
     } else if (method === "item/started") {
       this.emit("itemStarted", params);
@@ -250,6 +325,7 @@ export class CodexClient extends EventEmitter {
     this.socket = null;
     this.connected = false;
     this.subscribedThreads.clear();
+    this.completions.clear();   // W484: see `disconnect`
     for (const threadId of this.threadStatuses.keys()) this.#setStatus(threadId, { type: "notLoaded" });
     this.#rejectPending(new Error("Codex app-server disconnected"));
     if (wasConnected) this.emit("disconnected");

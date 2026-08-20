@@ -1,0 +1,38 @@
+{
+  "roleInstructions": {
+    "binary": "/absolute/path/to/v11-release/bin/baton",
+    "config": "/absolute/path/to/mailbox/baton.json"
+  },
+  "servers": {
+    "local": {
+      "endpoint": "ws://127.0.0.1:4500"
+    }
+  },
+  "targets": {
+    "baton-reviewer": {
+      "server": "local",
+      "threadId": "{{context.reviewer.threadId}}",
+      "identity": {
+        "participant": "baton.codex",
+        "role": "rview"
+      }
+    },
+    "baton-tuner": {
+      "server": "local",
+      "threadId": "{{context.tuner.threadId}}",
+      "identity": {
+        "participant": "baton.tuner",
+        "role": "tuner"
+      }
+    }
+  },
+  "eventSocket": "/absolute/path/to/runtime/codex-events.sock",
+  "dedupWindowMs": 5000,
+  "maxEventBytes": 65536,
+  "maxDetailsBytes": 49152,
+  "maxQueuePerTarget": 100,
+  "maxQueueTotal": 1000,
+  "reconnectMinMs": 500,
+  "reconnectMaxMs": 15000,
+  "startupTimeoutMs": 15000
+}
