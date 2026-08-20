@@ -111,9 +111,12 @@ def test_the_destination_phase_is_the_scheduler_state_not_the_role(world):
 	whether anybody has started."""
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
+	# W2571: each direction is a claimant handing on what they held.
+	ok(world, "claim", f"work={work}")
 	ok(world, "pass", f"work={work}", "to=rev.bug",
 	   "comment=over to review")
 	assert ok(world, "detail", f"work={work}")["phase"] == "queued"
+	ok(world, "claim", f"work={work}", viewer="rev.bee")
 	ok(world, "pass", f"work={work}", "to=lang.bug",
 	   "comment=back to build",
 	   viewer="rev.bee")
@@ -154,6 +157,11 @@ def test_authorization_and_retry(world):
 	                "comment=not mine",
 	                viewer="rev.bee")
 	assert "rev.bee" in error
+	# W2571: the route gate above speaks first — bee is refused for not
+	# being a handler, not for the claim — and ada's own pass is now the
+	# release of a claim ada holds. The retry claims nothing: the replay
+	# is answered inside the write transaction, before the claim gate.
+	ok(world, "claim", f"work={work}")
 	first = ok(world, "pass", f"work={work}", "to=rev.bug",
 	           "comment=handing over", "op-id=xfer-1")
 	again = ok(world, "pass", f"work={work}", "to=rev.bug",

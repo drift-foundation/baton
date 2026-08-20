@@ -2,8 +2,8 @@
 
 Every assertion here traces to the confirmed rulings: never-null canonical
 classification, the closed FOUR-state scheduler axis (W38: queued, active,
-waiting, parked, with compact values kept presentation-only), Route-handler
-transition authority, the special rules (parked, waiting/wake, closed),
+block, parked, with compact values kept presentation-only), Route-handler
+transition authority, the special rules (parked, block/wake, closed),
 typed wake conditions with the atomic single `wake`, and the always-visible
 parked count.
 
@@ -196,9 +196,9 @@ def test_a_pass_records_the_destination_phase_and_closed_refuses(world):
 		            classification="duplicate")
 
 
-# -- waiting: typed conditions and the atomic wake ---------------------------
+# -- block: typed conditions and the atomic wake -----------------------------
 
-def test_gates_waiting_wakes_only_at_the_last_gate(world):
+def test_gates_block_wakes_only_at_the_last_gate(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
@@ -235,7 +235,7 @@ def test_gates_waiting_wakes_only_at_the_last_gate(world):
 		                 "obligation": None}}
 
 
-def test_waiting_with_no_open_gate_is_refused(world):
+def test_block_with_no_open_gate_is_refused(world):
 	store, _config = world
 	work = _create(store)
 	with pytest.raises(bw.WorkError, match="already-satisfied"):
@@ -243,7 +243,7 @@ def test_waiting_with_no_open_gate_is_refused(world):
 		             phase="block", wait="gates")
 
 
-def test_obligation_waiting_wakes_once_and_grants_nothing(world):
+def test_obligation_block_wakes_once_and_grants_nothing(world):
 	store, _config = world
 	work = _create(store)
 	asked = fx.post(store, work, author_team="lang", author="ada",
@@ -267,7 +267,7 @@ def test_obligation_waiting_wakes_once_and_grants_nothing(world):
 		tr.claim_work(store, work, actor_team="push", actor="sl")
 
 
-def test_obligation_waiting_refuses_wrong_or_completed_obligations(world):
+def test_obligation_block_refuses_wrong_or_completed_obligations(world):
 	store, _config = world
 	work = _create(store)
 	other = _create(store)
@@ -318,9 +318,9 @@ def test_the_wake_race_neither_loses_nor_duplicates(world):
 	other.close()
 
 
-def test_entering_waiting_races_the_satisfying_close(world):
+def test_entering_block_races_the_satisfying_close(world):
 	"""In-lock refusal: the last gate closes between set_phase's optimistic
-	check and its lock — committing `waiting` then would be the loose end
+	check and its lock — committing `block` then would be the loose end
 	the ruling forbids."""
 	store, _config = world
 	work = _create(store)
@@ -388,11 +388,11 @@ def test_the_parked_count_is_always_visible_in_the_summary(world):
 	assert detail["phase"] == "parked" and detail["gate"] is None
 
 
-def test_waiting_condition_is_visible_in_the_projection(world):
+def test_block_condition_is_visible_in_the_projection(world):
 	store, _config = world
 	work = _create(store)
 	blocker = _create(store, team="push", member="sl")
-	# W38 R1: the gate itself commits the waiting state and its
+	# W38 R1: the gate itself commits the `block` state and its
 	# condition — no separate phase act is needed or accepted.
 	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
 	detail = pj.detail(store, work, viewer_team="lang", viewer_member="ada")

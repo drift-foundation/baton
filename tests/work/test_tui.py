@@ -58,8 +58,16 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	# graph counts live in details/links.
 	# W73: `St` is GONE from the default open-only table — every row in
 	# it was `open`, which is a property of the view, not of a row.
-	for column in ("Handler", "Next", "New"):
+	# W2938 (finding-claim-overdue-cue) removed `New` from THIS list for
+	# horizontal-space priority and added NO replacement: pickup is a
+	# PARTICIPANT obligation and lives on Teams, so no cue annotates a
+	# Work row. Personal unseen state is unchanged everywhere it drives
+	# an action.
+	for column in ("Handler", "Next"):
 		assert column in header
+	for absent in ("New", "Claim"):
+		assert absent not in header, \
+			f"the Jobs list grew a {absent} column W2938 rules out"
 	assert "St" not in header, \
 		"the redundant State column survived in an open-only view"
 	assert "Out" not in header, \
@@ -117,7 +125,8 @@ def test_the_thread_view_shows_the_timeline_and_planned_next(world):
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
 		(b"j", 0.3), (b"j", 0.3),     # select ↳ step_fix in the tree
 		(b"\r", 0.6),                 # Enter opens its DETAIL (W71)
-		(b"\x17j", 0.4),              # W14: the Message index
+		(b"", 0.4),                   # W2597: entry already focuses the
+		                              # Message index — no chord needed
 		(b"j", 0.5),                  # W171: the pass left no message —
 		                              # selection stays on the born body
 		(b"qy", 0.4),
@@ -209,7 +218,7 @@ def test_the_binding_and_references_render_the_portable_facts(tmp_path):
 		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
 		# W76: the reference-carrying message is the newest, so it is
 		# the entry selection
-		(b"\x17j", 0.4),              # W14: the Message index
+		(b"", 0.4),                   # W2597: already in the index
 		(b"qy", 0.4),
 	])
 	flat = "\n".join(ptyharness.replay(steps[1]))
@@ -243,7 +252,7 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	# `RUN` — it never named an agent; Handler does that, and these
 	# cells say what that handler's RUNNER is doing. The property is
 	# unchanged: identities survive and whole columns are dropped.
-	assert {"ENDPOINT", "HANDLER", "NEXT", "NEW"} <= set(columns)
+	assert {"ENDPOINT", "HANDLER", "NEXT"} <= set(columns)
 	assert "RUN" in [name for name, _w in
 	                 app.visible_columns(narrow, claimed=True)]
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
@@ -253,7 +262,9 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 	header = next(line for line in screen if "Title" in line)
 	assert "Cat" not in header, \
 		"the omitted category column left its header behind"
-	assert "Handler" in header and "New" in header
+	# W2938: `New` is gone from this list and nothing replaced it, so at
+	# a narrow width the survivor is the claimant.
+	assert "Handler" in header
 	# The title keeps its working width (truncated, never squeezed away)
 	# and the 6/6 identities are drawn whole.
 	assert any("parser rec" in line for line in screen)
@@ -288,7 +299,7 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	"""Gate B: a closed Work leaves the default table (with an explicit
 	hidden count), `z` reveals it showing the canonical outcome, and the
 	focused view states outcome/rationale, the effective contract
-	revision, and the typed waiting condition — every value canonical."""
+	revision, and the typed gate condition — every value canonical."""
 	import json as _json
 
 	import baton_work as bw
@@ -577,7 +588,10 @@ def test_thread_selection_never_merges_timelines(tmp_path):
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.6),                 # Enter opens the DETAIL (W71)
+		(b"\r\x17k", 0.6),            # Enter opens the DETAIL (W71);
+		                              # W2597 lands in the Message index,
+		                              # so Ctrl-W k reaches the Threads
+		                              # list this test navigates
 		(b"j", 0.5),                  # Threads pane: select the SECOND
 		(b"qy", 0.4),
 	])
@@ -622,7 +636,8 @@ def test_the_thread_set_pages_beyond_the_first_fifty(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.4), (b"o", 0.4),
-		(b"n" * 60, 0.8),             # advance through every bounded page
+		(b"\x17k" + b"n" * 60, 0.8),  # W2597: up to Threads, then
+		                              # advance through every bounded page
 		(b"qy", 0.4),
 	], lines=14)
 	listing = "\n".join(ptyharness.replay(steps[2], lines=14))
@@ -660,7 +675,8 @@ def test_thread_pages_are_bounded_and_navigable(tmp_path):
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.6),                             # detail: first page
-		(b"\x17j", 0.4),                           # Ctrl-W j: Msgs pane
+		(b"", 0.4),                                # W2597: already in
+		                                           # the Message index
 		(b"n", 0.5),                               # the OLDER page
 		(b"s", 0.5),                               # seen: PAGE-bounded
 		(b"p", 0.5),                               # back to the newest
@@ -710,9 +726,12 @@ def test_below_the_minimum_the_table_refuses_explicitly(world):
 	from baton_work.tui import app
 	path, _cast = world
 	# W73: dropping the six-cell St column moved this boundary down —
-	# 30 now fits where it did not. The property under test is the
-	# REFUSAL, so the width follows the budget.
-	narrow = 28
+	# 30 now fits where it did not. W2938 moved it down again: the `New`
+	# it removed was in no drop order at all, so the narrowest layout
+	# lost four cells and a separator it could never shed before. The
+	# property under test is the REFUSAL, so the width follows the
+	# budget.
+	narrow = 24
 	assert not app.layout_fits(narrow)
 	text, status, _steps = ptyharness.drive(path, "lang.ada",
 	                                        [(b"qy", 0.4)],
@@ -756,7 +775,8 @@ def test_the_thread_set_pages_beyond_one_full_page(tmp_path):
 	beyond = extras[app.DISC_PAGE:]
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.6),                 # detail: page one of the set
+		(b"\r\x17k", 0.6),            # detail, then W2597: up to the
+		                              # Threads list this test pages
 		(b"n", 0.5),                  # the continuation page
 		(b"p", 0.5),                  # back to the start
 		(b"qy", 0.4),
@@ -805,7 +825,9 @@ def test_the_message_panes_are_role_labelled_not_content_repeating(tmp_path):
 	store.close()
 
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"\r", 0.6),                 # the detail: Threads + Msgs
+		(b"\r\x17k", 0.6),            # the detail: Threads + Msgs, and
+		                              # W2597 lands in the index, so
+		                              # Ctrl-W k reaches the Threads list
 		(b"j", 0.5),                  # select the SECOND thread
 		(b"qy", 0.4),
 	])

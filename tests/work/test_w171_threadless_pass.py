@@ -89,6 +89,9 @@ def test_thread_is_an_unknown_pass_operand(world):
 	an unknown key, and the same act without it commits."""
 	born = make(world)
 	work, thread = born["work_id"], born["thread"]
+	# W2571: a pass is the claimant's handoff, so the act this test
+	# compares the old dialect against has to be one ada may perform.
+	ok(world, "claim", f"work={work}")
 	error = refusal(world, "pass", f"work={work}", "to=rev.bug",
 	                f"thread={thread}", "comment=old dialect")
 	assert "unknown key 'thread'" in error
@@ -159,6 +162,9 @@ def test_a_pass_moves_no_message_cursor_or_count(world):
 				for viewer in ("lang.ada", "lang.grace", "rev.bee")},
 		}
 
+	# W2571: claimed BEFORE the snapshot, so the claim is not one of the
+	# changes this test is measuring — what it measures is the pass.
+	ok(world, "claim", f"work={work}")
 	before = snapshot()
 	detail_before = ok(world, "detail", f"work={work}")
 	passed = ok(world, "pass", f"work={work}", "to=rev.bug",
@@ -199,6 +205,9 @@ def test_the_handoff_and_the_consuming_return(world):
 	assert any(action["kind"] == "work" and action["work"] == work
 	           for action in woken["actionable"]), \
 		"the destination was not woken through Work readiness"
+	# W2571: bee reviewed it, so bee holds it — the return is the
+	# release of a claim bee actually took.
+	ok(world, "claim", f"work={work}", viewer="rev.bee")
 	returned = ok(world, "pass", f"work={work}", "to=lang.bug",
 	              "comment=approved",
 	              viewer="rev.bee")

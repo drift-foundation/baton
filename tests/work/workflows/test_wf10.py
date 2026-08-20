@@ -48,6 +48,8 @@ def _rig(flow, tag):
 	        "rationale=first provider required", viewer="web.wren")
 	flow.ok("block", f"work={gated}", f"on={extra}",
 	        "rationale=second provider required", viewer="web.wren")
+	# W2571: the rig's handoff is ada's own, so ada holds it first.
+	flow.ok("claim", f"work={work}", viewer="lang.ada")
 	flow.ok("pass", f"work={work}", "to=lang.impl", "set-next=lang.rsrch",
 	        "comment=onward", viewer="lang.ada")
 	asked = flow.ok("say", f"thread={thread}", "body=push: confirm",

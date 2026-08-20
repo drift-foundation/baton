@@ -6,10 +6,22 @@ final cue suite lives in test_w23_bold_title / test_w33_claim_age.)
 
 The ruled hot zone (finding-tui-recent-work-cue, superseding rule +
 presentation clarification): any open Work with a non-null active
-claimant, and any open ready review Work awaiting its reviewer's claim.
-Blocked (ready=false) review, waiting, parked, and terminal Work stay
-steady. Derived from canonical row state alone — no recency clock, no
-timestamps, no authority write; phase, readiness, Current, and claimant
+claimant.
+
+SUPERSEDED IN PART — W38, recorded here by W2780 on 2026-08-20. This
+paragraph also claimed "any open ready review Work awaiting its
+reviewer's claim", and the matrix below has said the opposite since W38
+retired the review phase: runnable UNCLAIMED Work is COLD, whatever its
+route's role, because nobody is executing it and the hot zone is
+execution heat. The two halves of this file disagreed, and the contract
+half was the wrong one.
+
+The other cue an operator sees on such a row is a different thing on a
+different axis: the personal BOLD TITLE, which asks whether YOU can act
+on it (`test_w23_bold_title`). Heat is "somebody is working on this";
+bold is "this is yours to pick up". Blocked, parked and terminal Work
+stay steady. Derived from canonical row state alone — no recency clock,
+no timestamps, no authority write; phase, readiness, Route, and claimant
 remain the authoritative textual facts for terminals that ignore blink.
 """
 
@@ -65,22 +77,29 @@ def row_of(store, work_id):
 
 
 def test_hot_zone_state_matrix(world):
-	"""The focused matrix, canonical state only: claimed Work in any
-	operational phase is hot; ready unclaimed review is hot; blocked
-	review, waiting, parked, unclaimed non-review, and terminal Work
-	are cold — and the ruled state changes flip the cue exactly."""
+	"""The focused matrix, canonical state only: claimed Work is hot;
+	queued unclaimed, blocked, parked and terminal Work are cold — and
+	the ruled state changes flip the cue exactly.
+
+	SUPERSEDED IN PART — W38, recorded here by W2780 on 2026-08-20.
+	The matrix used to enumerate an "operational phase" the claim left
+	untouched, and named `waiting`, the phase now called `block`. Under
+	W38 a
+	claim IS the phase: `active` means exactly that a Handler holds it,
+	so "hot in every executing phase" collapses to one state. The cue
+	itself is unchanged and every assertion below is the one this test
+	always made."""
 	store, _config, _database = world
 	work = make(store)
 	# open queued, unclaimed: cold
 	assert not hot_work(row_of(store, work))
-	# claimed (phase untouched by the orthogonal claim): hot
+	# claimed: hot — and the claim is what makes it `active`
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	assert hot_work(row_of(store, work))
-	# claimed research and active: hot in every executing phase
-	for _ in (1,):
-		claimed = row_of(store, work)
-		assert claimed["handler"] is not None
-		assert hot_work(claimed), phase
+	claimed = row_of(store, work)
+	assert claimed["handler"] is not None
+	assert claimed["phase"] == "active", \
+		"the claim did not establish the phase it means"
+	assert hot_work(claimed)
 	# released: cold again
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
 	                 expect="lang.ada", reason="handing back")
@@ -103,7 +122,7 @@ def test_hot_zone_state_matrix(world):
 	tr.add_dependency(store, work, blocker, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
 	blocked = row_of(store, work)
-	# W38 R1: a gate on unclaimed queued Work commits waiting.
+	# W38 R1: a gate on unclaimed queued Work commits `block`.
 	assert not blocked["ready"] and blocked["phase"] == "block"
 	assert not hot_work(blocked)
 	# the blocker itself: open queued unclaimed — cold
@@ -116,7 +135,9 @@ def test_hot_zone_state_matrix(world):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	assert hot_work(row_of(store, work)), \
 		"claiming runnable Work did not make it hot"
-	# parked is cold — and leaving the park restores the review cue
+	# parked is cold, and leaving the park does not warm it: W38
+	# retired the review cue this comment used to promise, so a resumed
+	# row is runnable and unclaimed, which is cold.
 	tr.set_phase(store, work, actor_team="lang", actor="ada",
 	             phase="parked", reason="later")
 	assert not hot_work(row_of(store, work))
@@ -125,16 +146,16 @@ def test_hot_zone_state_matrix(world):
 	             phase="queued")
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	assert hot_work(row_of(store, work))
-	# waiting is cold (waiting-on-gates needs an OPEN blocker, and the
-	# waiting row is honestly not ready)
+	# a blocked row is cold (the gate needs an OPEN blocker, and the
+	# blocked row is honestly not ready)
 	second_gate = make(store, title="second-gate")
-	# W38: the gate arriving on CLAIMED Work releases it into `waiting`
+	# W38: the gate arriving on CLAIMED Work releases it into `block`
 	# by itself — asking for the phase again would refuse as redundant.
 	tr.add_dependency(store, work, second_gate, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
-	waiting = row_of(store, work)
-	assert waiting["handler"] is None
-	assert not hot_work(waiting)
+	blocked_again = row_of(store, work)
+	assert blocked_again["handler"] is None
+	assert not hot_work(blocked_again)
 	# terminal: cold, and the closed blocker already proved it
 	closed = row_of(store, blocker)
 	assert closed["status"] == "closed" and not hot_work(closed)

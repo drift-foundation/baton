@@ -22,7 +22,7 @@ from urllib.parse import unquote as _fact_unquote
 import json as _op_json
 
 from baton_work.authority import (Authority, WorkError,
-                                  clock_ms_now, validate_op_id)
+                                  clock_ms_now, utc_now, validate_op_id)
 
 # The confirmed intake example's vocabulary. Additive growth is expected;
 # renames are not.
@@ -557,6 +557,85 @@ def _touch_work(conn, work_id: str) -> None:
 	conn.execute(
 		"UPDATE work SET last_change_seq=?, last_changed_at=? WHERE id=?",
 		(seq, clock_ms_now(), work_id))
+
+
+def _pickup_pool_members(conn):
+	"""Every active member with a NONEMPTY actionable pool, and whether
+	they are busy.
+
+	The pool is exactly the unclaimed half of the participant-relative
+	`wait` action set — open, ready, neither blocked nor parked, and the
+	member is a live handler of the Work's own route. It is computed
+	here rather than imported from the projection because the sweep runs
+	inside the write transaction that changed it, and a reader must
+	never be what decides canonical state.
+
+	Returns `{(team, member): has_pool}` for every active member."""
+	busy = {(row["handler_team"], row["handler_member"])
+	        for row in conn.execute(
+		        "SELECT handler_team, handler_member FROM work "
+		        "WHERE status=? AND handler_team IS NOT NULL", (OPEN,))}
+	pool = {}
+	for row in conn.execute(
+			"SELECT team, handle FROM members WHERE removed=0"):
+		pool[(row["team"], row["handle"])] = False
+	for row in conn.execute(
+			"SELECT id, route_team, route_kind, route_selected FROM work "
+			"WHERE status=? AND handler_team IS NULL AND ready=1 "
+			"AND phase NOT IN ('block','parked')", (OPEN,)):
+		try:
+			resolution = resolve_endpoint(conn, row["route_team"],
+			                              row["route_kind"], "pickup",
+			                              selected=row["route_selected"])
+		except WorkError:
+			# An unresolvable endpoint offers the Work to nobody, which
+			# is exactly what the projection reports for such a row.
+			continue
+		for member in resolution["handlers"] or ():
+			key = (row["route_team"], member)
+			if key in pool:
+				pool[key] = True
+	return busy, pool
+
+
+def _sweep_pickup(conn, seq: int) -> None:
+	"""W2938: keep every participant's open pickup interval true.
+
+	ONE obligation per participant, whatever the queue depth. A row
+	exists exactly while the member is idle AND has actionable Work, so:
+
+	- idle with a nonempty pool and no row -> the interval STARTS;
+	- busy, or an empty pool, or no longer eligible -> the interval is
+	  CLEARED, and a later return to idle-with-work starts a NEW one
+	  rather than resuming the old elapsed time;
+	- otherwise the row is left alone, which is what makes adding,
+	  removing, reprioritizing or reordering Work not reset it while the
+	  pool stays continuously nonempty.
+
+	Runs from the single mutation boundary in `Authority._write`, so it
+	cannot be forgotten by a transition that changes a pool — which is
+	most of them."""
+	busy, pool = _pickup_pool_members(conn)
+	open_rows = {(row["team"], row["member"]) for row in conn.execute(
+		"SELECT team, member FROM member_pickup")}
+	for key, has_pool in pool.items():
+		owed = has_pool and key not in busy
+		if owed and key not in open_rows:
+			conn.execute(
+				# The SECOND-precision instant every other stamp a
+				# reader compares against `store.clock()` uses. A
+				# millisecond start against a second-truncated now made
+				# the first second of every interval read as zero.
+				"INSERT INTO member_pickup (team, member, started_seq, "
+				"started_at) VALUES (?, ?, ?, ?)",
+				(key[0], key[1], seq, utc_now()))
+		elif not owed and key in open_rows:
+			conn.execute(
+				"DELETE FROM member_pickup WHERE team=? AND member=?", key)
+	# A member the roster no longer carries owes nothing.
+	for key in open_rows - set(pool):
+		conn.execute(
+			"DELETE FROM member_pickup WHERE team=? AND member=?", key)
 
 
 def _mint_episode(conn, work_id: str) -> None:
@@ -1278,7 +1357,11 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 	                    references=refs)
 
 
-# -- finding-active-work-claim: the atomic phase-orthogonal claim ------------
+# -- finding-active-work-claim: the atomic claim that IS the phase -----------
+#
+# W2780: this banner used to say "phase-orthogonal", three lines above a
+# docstring saying the opposite. W38 superseded the orthogonality — the
+# claim and `active` are one fact — and the heading did not follow.
 
 def claim_work(store: Authority, work_id: str, *, actor_team: str,
                actor: str, op_id: str | None = None, refs=()) -> dict:
@@ -1327,6 +1410,26 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 				f"{live['handler_team']}.{live['handler_member']}; "
 				f"conflicting claim attempts fail closed (an exact "
 				f"retry replays through its operation id)")
+		# W2938 (finding-claim-overdue-cue): ONE-SLOT CAPACITY. A
+		# participant holds exactly one active claim across all Routes;
+		# a second is refused while the first is live.
+		#
+		# This is what makes "free capacity" knowable, and the pickup
+		# obligation depends on it: an idle participant with actionable
+		# Work owes exactly one pickup, and a participant already
+		# holding something owes none. Without a defined capacity unit,
+		# "at least one eligible member has free capacity" is
+		# unanswerable and the overdue cue would be dishonest.
+		held = conn.execute(
+			"SELECT id FROM work WHERE handler_team=? AND "
+			"handler_member=? AND status=? AND id<>? ORDER BY id LIMIT 1",
+			(actor_team, actor, OPEN, work_id)).fetchone()
+		if held is not None:
+			raise WorkError(
+				f"{actor_team}.{actor} already holds {held['id']}; a "
+				f"participant holds ONE active claim at a time — finish "
+				f"it, pass it on, or release it before claiming "
+				f"{work_id}")
 		payload["claimant"] = f"{actor_team}.{actor}"
 		payload["from_phase"] = live["phase"]
 		payload["phase"] = "active"
@@ -3415,7 +3518,12 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	Next, and stores `comment` as durable handoff evidence in the pass
 	event itself. No Thread is involved: a pass creates no Message,
 	advances no cursor, and changes no Message/My/New/obligation count —
-	conversation stays explicit and separate through say."""
+	conversation stays explicit and separate through say.
+
+	W2571: the actor must be the Work's CURRENT CLAIMANT. Passing is
+	handing on what you hold, so there is nothing to hand on until you
+	hold it; `reroute` moves unclaimed Work on the owning team's
+	authority. See the claim gate in `mutate`."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
 	# W73: the destination phase is no longer typed input, so it is no
@@ -3461,9 +3569,9 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 	def mutate(conn, seq):
 		_member_active(conn, actor_team, actor)
 		live = conn.execute(
-			"SELECT status, route_team, route_kind, route_selected, "
-			"next_team, next_kind, handler_team, handler_member FROM work "
-			"WHERE id=?", (work_id,)).fetchone()
+			"SELECT status, phase, route_team, route_kind, "
+			"route_selected, next_team, next_kind, handler_team, "
+			"handler_member FROM work WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; the baton "
 			                f"of terminal work never moves")
@@ -3474,8 +3582,43 @@ def pass_work(store: Authority, work_id: str, *, actor_team: str,
 		# membership — a second eligible handler must use the explicit
 		# recovery protocol, never transfer underneath the recorded
 		# claimant. Only the claimant's own pass releases the claim.
-		if live["handler_team"] is not None and \
-				(live["handler_team"], live["handler_member"]) != \
+		#
+		# W2571 (finding-pass-requires-current-claim) closes the other
+		# half of the same rule, which W171 R1 deliberately left open.
+		# It corrected a peer passing UNDERNEATH a claimant but kept the
+		# older authority to pass work nobody had claimed — and that let
+		# `baton.gemini` review W1568, run the gate and hand the Work on
+		# without ever becoming its Handler. Canonical state said nobody
+		# had worked on it while the runtime log and the filesystem said
+		# otherwise, which is precisely the falsehood the active-work
+		# claim exists to make unrepresentable.
+		#
+		# So a pass is the CLAIMANT'S handoff, and both refusals below
+		# are the same sentence read from two sides: the actor releasing
+		# the claim must be the actor holding it. Route eligibility says
+		# who MAY claim; it was never a licence to hand on work one is
+		# not doing. Moving unclaimed Work has its own separately
+		# authorized operation — `reroute`, on the owning team's
+		# authority with its own durable `reason=` — so nothing is lost
+		# here except the ability to skip the claim.
+		if live["handler_team"] is None:
+			# Blocked and parked Work is unclaimed AND unclaimABLE, so
+			# "claim it first" would be an instruction that cannot be
+			# followed. Naming the phase makes the one operation that
+			# CAN move it the obvious next step, instead of sending the
+			# operator to a claim that refuses for a second reason.
+			if live["phase"] in ("block", "parked"):
+				raise WorkError(
+					f"{work_id} is unclaimed and {live['phase']}; a pass "
+					f"is the current claimant's handoff, and "
+					f"{live['phase']} work cannot be claimed — reroute it "
+					f"on the owning team's authority to move it")
+			raise WorkError(
+				f"{work_id} is unclaimed; a pass is the current "
+				f"claimant's handoff and releases the claim it holds — "
+				f"claim it first if you are executing it, or reroute it "
+				f"on the owning team's authority to move it unclaimed")
+		if (live["handler_team"], live["handler_member"]) != \
 				(actor_team, actor):
 			raise WorkError(
 				f"{work_id} is actively claimed by "
@@ -3621,7 +3764,7 @@ def reroute_work(store: Authority, work_id: str, *, actor_team: str,
 	def mutate(conn, seq):
 		_member_active(conn, actor_team, actor)
 		live = conn.execute(
-			"SELECT status, team, route_team, route_kind, "
+			"SELECT status, phase, team, route_team, route_kind, "
 			"route_selected, handler_team, handler_member FROM work "
 			"WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
@@ -3670,7 +3813,30 @@ def reroute_work(store: Authority, work_id: str, *, actor_team: str,
 		# not get to make. The phase is re-derived only because a route
 		# change can change nothing about readiness — it is asserted,
 		# not moved.
-		payload["phase"] = _unclaimed_state(conn, work_id)
+		#
+		# W2645 (finding-reroute-unparks-deferred-work): `parked` is the
+		# one phase that is not a readiness fact, so re-deriving it was
+		# not an assertion — it silently RESUMED Work somebody had
+		# deliberately deferred, and the reason they gave survived only
+		# in the earlier event. Route and scheduler phase answer
+		# separate questions; correcting where unclaimed Work is offered
+		# must not decide that it may now run. Only the explicit
+		# parked→queued transition resumes it.
+		#
+		# This is the same carve-out `_recompute_ready` already makes
+		# for the same reason — a gate arriving underneath a park does
+		# not revoke the park either (finding-active-work-claim R2) —
+		# which is also why parked Work may hold open gates and why the
+		# park has to win here rather than the gate derivation.
+		#
+		# The episode still mints and the phase is still recorded, so
+		# the event agrees with the committed row and a future explicit
+		# resume offers the Work to the corrected route. Nothing wakes:
+		# parked rows are not actionable, and the projection treats the
+		# same phase recorded again as one continuing interval rather
+		# than a new one.
+		payload["phase"] = ("parked" if live["phase"] == "parked"
+		                    else _unclaimed_state(conn, work_id))
 		_phase_now(payload, work_id, payload["phase"])
 		conn.execute("UPDATE work SET phase=? WHERE id=?",
 		             (payload["phase"], work_id))

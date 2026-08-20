@@ -295,8 +295,15 @@ def test_the_cue_precedes_the_title_on_a_real_terminal(world):
 	                                              lines=24)
 	           if "▸" in line)
 	assert "↳ ▸1 " in row, row
-	assert row.index("▸") < row.index("Rewrite"), \
-		"the disclosure is still trailing the title"
+	# W2938 removed the Jobs `New` column, which freed enough width for
+	# `Next` to survive at 70 columns — and the Title, the one column
+	# this layout may truncate, absorbed the difference. So the ordering
+	# is asserted STRUCTURALLY rather than against a fixed number of
+	# title characters: whatever fits after the cue must be a prefix of
+	# the live title, which says the disclosure precedes it at every
+	# width instead of at this one.
+	drawn = row.split("↳ ▸1 ", 1)[1].split()[0]
+	assert drawn and LIVE_TITLE.startswith(drawn), (drawn, row)
 
 
 # -- the cue's condition, and its coupling to W155 --------------------------

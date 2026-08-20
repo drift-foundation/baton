@@ -8,7 +8,7 @@ consumer verification and close.
 
 WS-1 extension (authorized): the provider's classification/phase legs, and
 the consumer parking itself behind its recorded gate — dependency-backed
-`waiting` whose atomic `wake` rides the very transaction that closes the
+`blocked` whose atomic `wake` rides the very transaction that closes the
 provider work.
 """
 
@@ -55,14 +55,14 @@ def test_wf04_one_consumer_one_provider(flow):
 	                              "role": "dev", "handlers": ["sl"]}, \
 		"intake moved the consumer's Current"
 
-	# WS-1: with the edge recorded, the consumer chooses honest WAITING —
+	# WS-1: with the edge recorded, the consumer chooses honest BLOCK —
 	# dependency-backed, refused if there were nothing to wait for.
-	waiting = flow.ok("detail", f"work={push1}", viewer="push.sl")
-	assert waiting["phase"] == "block"
+	blocked = flow.ok("detail", f"work={push1}", viewer="push.sl")
+	assert blocked["phase"] == "block"
 	# W78: the structured gate names WHAT holds the Work and since when.
-	assert waiting["gate"]["kind"] == "work"
-	assert waiting["gate"]["selector"].startswith("W")
-	assert waiting["gate"]["started_at"] is not None
+	assert blocked["gate"]["kind"] == "work"
+	assert blocked["gate"]["selector"].startswith("W")
+	assert blocked["gate"]["started_at"] is not None
 	assert flow.ok("summary", viewer="push.sl") == \
 		{"team": "push", "open": 1, "parked": 0, "blocked": 1, "due": 0}
 
@@ -79,12 +79,16 @@ def test_wf04_one_consumer_one_provider(flow):
 	flow.ok("classify", f"work={lang42}", "as=confirmed-defect",
 	        viewer="lang.ada")
 
+	# W2571: every pass below is its claimant's handoff, so each leg
+	# picks the Work up before handing it on.
+	flow.ok("claim", f"work={lang42}", viewer="lang.ada")
 	flow.ok("pass", f"work={lang42}", "to=lang.rev", "comment=analysis: recovery table clobbered",
 	        viewer="lang.ada")
 	assert flow.ok("detail", f"work={lang42}",
 	               viewer="lang.ada")["phase"] == "queued", \
 		"the pass did not record its destination phase atomically"
 
+	flow.ok("claim", f"work={lang42}", viewer="lang.ada")
 	flow.ok("pass", f"work={lang42}", "to=lang.impl", "set-next=lang.rev",
 	        "comment=approach approved; build it", viewer="lang.ada")
 	midway = flow.ok("detail", f"work={lang42}", viewer="lang.grace")

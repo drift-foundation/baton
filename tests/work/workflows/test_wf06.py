@@ -56,6 +56,8 @@ def test_wf06_recursive_release(flow):
 
 	# 2. One child runs WF-01 locally; the other waits on an external
 	# provider work (WF-04 pattern).
+	# W2571: the handoff is ada's, so ada holds it first.
+	flow.ok("claim", f"work={local}", viewer="lang.ada")
 	flow.ok("pass", f"work={local}", "to=lang.impl", "set-next=lang.rev",
 	        "comment=build it", viewer="lang.ada")
 	external = flow.ok("create", "team=mdb", "kind=build",
@@ -80,6 +82,7 @@ def test_wf06_recursive_release(flow):
 		"the refusal does not name the open children"
 
 	# 4. Readiness is the CONJUNCTION: the local child alone is not enough.
+	flow.ok("claim", f"work={local}", viewer="lang.grace")
 	returned = flow.ok("pass", f"work={local}", "to=lang.rev",
 	                   "comment=done", viewer="lang.grace")
 	assert returned["kind"] == "return"

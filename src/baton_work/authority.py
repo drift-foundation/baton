@@ -37,8 +37,14 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 24
+SCHEMA_VERSION = 25
 PROTOCOL_VERSION = 11
+
+# W2938 (finding-claim-overdue-cue): the default claim-pickup threshold.
+# A deployment may configure `instance.pickup_overdue_seconds`; the
+# ACCEPTED value is stored in `meta` so every client consumes the one
+# policy the authority holds rather than a private constant.
+PICKUP_OVERDUE_DEFAULT = 360
 
 HANDLE_MAX_CELLS = 6
 
@@ -120,6 +126,13 @@ def _utc_now() -> str:
 	return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
+def utc_now() -> str:
+	"""The SECOND-precision UTC instant, honouring the same injected
+	`BATON_WORK_NOW` the millisecond clock does — so a stamp written
+	here and a `store.clock()` read against it agree."""
+	return os.environ.get("BATON_WORK_NOW") or _utc_now()
+
+
 def clock_ms_now() -> str:
 	"""The module-level millisecond clock helpers share: the injected
 	BATON_WORK_NOW instant when present (deterministic subprocess stories),
@@ -156,6 +169,19 @@ CREATE TABLE members (
 	display TEXT NOT NULL,
 	removed INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY (team, handle)
+) STRICT;
+-- W2938 (finding-claim-overdue-cue): one participant's OPEN pickup
+-- opportunity interval. A row exists exactly while that participant is
+-- idle with a nonempty actionable pool; `pending` versus `overdue` is
+-- derived from the elapsed time at READ time, so no timeout event and
+-- no workflow mutation ever fires. Canonical, so it survives a client
+-- or runner restart — which a client-side timer could not.
+CREATE TABLE member_pickup (
+	team        TEXT NOT NULL,
+	member      TEXT NOT NULL,
+	started_seq INTEGER NOT NULL,
+	started_at  TEXT NOT NULL,
+	PRIMARY KEY (team, member)
 ) STRICT;
 CREATE TABLE roles (
 	team    TEXT NOT NULL,
@@ -903,6 +929,13 @@ class Authority:
 				"UPDATE sequence SET value = value + 1 WHERE id = 1 "
 				"RETURNING value").fetchone()["value"]
 			mutate(self.conn, seq)
+			# W2938: the participant pickup interval is maintained at
+			# the ONE mutation boundary, in the same transaction as the
+			# change that moved it. A transition that alters somebody's
+			# actionable pool or busy state cannot forget it, and no
+			# reader ever decides it.
+			from baton_work import transitions as _tr
+			_tr._sweep_pickup(self.conn, seq)
 			if references:
 				self._commit_references(self.conn, seq, references)
 			result = {"seq": seq, "kind": event_kind}

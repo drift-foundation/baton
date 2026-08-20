@@ -87,7 +87,7 @@ def test_json_exposes_structured_handoff_facts_without_glyphs(world):
 	row = row_of(world, work)
 	# born, never passed, unclaimed: no handoff responsibility yet
 	assert row["handoff_at"] is None and row["pickup"] is None
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	row = row_of(world, work)
 	assert row["handoff_at"] is not None
@@ -118,7 +118,7 @@ def test_the_held_field_walks_the_ruled_states(world):
 	difference."""
 	store = world["store"]
 	work = make(world)
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	row = row_of(world, work)
 	handed = epoch(row["handoff_at"])
@@ -210,7 +210,7 @@ def test_the_overflow_value_composes_like_any_other_base():
 def test_terminal_work_and_authority_are_untouched(world):
 	store = world["store"]
 	work = make(world)
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	before = store.last_seq()
 	# elapsed time and projections mutate NOTHING
@@ -263,7 +263,7 @@ def test_terminal_work_projects_no_pickup_alarm(world):
 	six-minute threshold — while handoff_at remains history."""
 	store = world["store"]
 	work = make(world)
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	tr.claim_work(store, work, actor_team="rev", actor="bee")
 	tr.close_work(store, work, actor_team="rev", actor="bee",

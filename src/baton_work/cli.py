@@ -268,7 +268,9 @@ GRAMMAR = {
 	                        help="surviving Work id for a duplicate "
 	                        "rejection"))},
 	"claim": {"help": "atomically claim open ready Work as its one "
-	          "active executor (phase untouched)",
+	          "active executor — the claim IS the phase: it records the "
+	          "Handler and moves the Work to `active` in the same "
+	          "transaction, and only claiming reaches that phase (W38)",
 	          "keys": (_key("work", required=True,
 	                        help="the Work to claim"),)},
 	"release": {"help": "release/recover the active claim (self or "
@@ -482,7 +484,12 @@ GRAMMAR = {
 	# W128: the owning team's correction for work nobody has taken.
 	"reroute": {"help": "move OPEN, UNCLAIMED Work to another endpoint "
 	            "or configured alternate route, on the owning team's "
-	            "authority rather than the resolved route handler's",
+	            "authority rather than the resolved route handler's — "
+	            "the one operation for work nobody holds, since W2571 "
+	            "requires a pass to release the actor's own claim; it "
+	            "corrects WHERE and never whether the Work may run, so "
+	            "a gated Work stays blocked and a parked one stays "
+	            "parked (W2645)",
 	            "keys": (_key("work", required=True,
 	                          help="the unclaimed Work"),
 	                     _key("to", required=True,
@@ -728,13 +735,17 @@ GRAMMAR = {
 	                      "selected Work (default true with request=; "
 	                      "wait=false is the explicit asynchronous "
 	                      "override)"))},
-	"pass": {"help": "transfer the Work baton: handoff evidence, "
-	         "Route, and the ROUTE-DERIVED destination phase in ONE "
-	         "atomic THREADLESS Work event (W171: no thread, no "
-	         "message, no count moves; W73: the destination route "
-	         "decides the phase, so phase= is refused as unknown)",
+	"pass": {"help": "hand on the Work baton YOU HOLD: handoff "
+	         "evidence, Route, and the ROUTE-DERIVED destination phase "
+	         "in ONE atomic THREADLESS Work event (W2571: the actor "
+	         "must be the current claimant — claim it first, or use "
+	         "reroute to move unclaimed Work on the owning team's "
+	         "authority; W171: no thread, no message, no count moves; "
+	         "W73: the destination route decides the phase, so phase= "
+	         "is refused as unknown)",
 	         "keys": (_key("work", required=True,
-	                       help="the Work whose baton moves"),
+	                       help="the Work whose baton moves; you must "
+	                       "be its current claimant"),
 	                  _key("to", required=True,
 	                       help="ONE destination endpoint team.kind"),
 	                  _key("comment", prose=True, required=True,

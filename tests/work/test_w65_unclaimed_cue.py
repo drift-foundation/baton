@@ -102,7 +102,7 @@ def test_no_open_state_carries_a_marker_any_more(world):
 
 	# passed / unclaimed
 	passed_id = make(world, "passed")
-	tr.pass_work(store, passed_id, actor_team="lang", actor="ada",
+	fx.hand_off(store, passed_id, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	passed = row_of(world, passed_id)
 	handed = epoch(passed["handoff_at"])
@@ -118,7 +118,7 @@ def test_no_open_state_carries_a_marker_any_more(world):
 	# blocked / unclaimed — the exact W2 shape
 	blocked_id = make(world, "blocked")
 	blocker = make(world, "blocker")
-	tr.pass_work(store, blocked_id, actor_team="lang", actor="ada",
+	fx.hand_off(store, blocked_id, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	tr.add_dependency(store, blocked_id, blocker, actor_team="rev",
 	                  actor="bee", rationale="test dependency")
@@ -127,18 +127,18 @@ def test_no_open_state_carries_a_marker_any_more(world):
 	assert ">" not in held_field(blocked, now), \
 		"dependency-blocked Work still carries the retired marker"
 
-	# waiting and parked stay unclaimed too
-	waiting_id = make(world, "block")
-	waiting_blocker = make(world, "waiting blocker")
-	tr.pass_work(store, waiting_id, actor_team="lang", actor="ada",
+	# blocked and parked stay unclaimed too
+	blocked_id = make(world, "block")
+	blocked_blocker = make(world, "the gate")
+	fx.hand_off(store, blocked_id, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
-	tr.add_dependency(store, waiting_id, waiting_blocker,
+	tr.add_dependency(store, blocked_id, blocked_blocker,
 	                  actor_team="rev", actor="bee", rationale="test dependency")
-	waiting = row_of(world, waiting_id)
-	assert waiting["phase"] == "block" and waiting["ready"] is False
-	assert ">" not in held_field(waiting, now)
-	assert waiting["pickup"] == "pending", \
-		"waiting Work with a real handoff claimed an overdue pickup"
+	blocked = row_of(world, blocked_id)
+	assert blocked["phase"] == "block" and blocked["ready"] is False
+	assert ">" not in held_field(blocked, now)
+	assert blocked["pickup"] == "pending", \
+		"blocked Work with a real handoff claimed an overdue pickup"
 	parked_id = make(world, "parked")
 	tr.set_phase(store, parked_id, actor_team="lang", actor="ada",
 	             phase="parked", reason="later")
@@ -172,7 +172,7 @@ def test_crossing_six_minutes_changes_nothing(world):
 	silence still never becomes an alert."""
 	store = world["store"]
 	work = make(world)
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	row = row_of(world, work)
 	handed = epoch(row["handoff_at"])
@@ -196,7 +196,7 @@ def test_overdue_never_describes_unclaimable_work(world):
 	made unclaimable."""
 	store = world["store"]
 	work = make(world)
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	handed = epoch(row_of(world, work)["handoff_at"])
 
@@ -222,7 +222,7 @@ def test_overdue_never_describes_unclaimable_work(world):
 	tr.close_work(store, blocker, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
 	assert at(SIX_MINUTES * 10)["pickup"] == "overdue"
-	# parked and waiting are unclaimable for the same reason
+	# parked and blocked are unclaimable for the same reason
 	tr.set_phase(store, work, actor_team="rev", actor="bee",
 	             phase="parked", reason="later")
 	assert at(SIX_MINUTES * 10)["pickup"] == "pending"
@@ -231,7 +231,7 @@ def test_overdue_never_describes_unclaimable_work(world):
 def test_json_carries_facts_and_no_glyph(world):
 	store = world["store"]
 	work = make(world)
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
 	row = row_of(world, work)
 	blob = _json.dumps(row)

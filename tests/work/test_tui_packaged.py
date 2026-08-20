@@ -151,7 +151,11 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	# the planned Next is consumed, and the audit distinguishes the
 	# outbound pass (pass + planted next) from the consuming return
 	# (pass, no new next).
+	# W2571: a pass is the claimant's handoff, and the console is not a
+	# way around that — each side claims through the command bar before
+	# handing on.
 	_console(executable, path, "lang.ada", [
+		f'claim work={epic}',
 		f'pass work={epic} to=push.bug '
 		f'set-next=lang.bug comment="handing over"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",
@@ -159,6 +163,7 @@ def test_the_ruled_scenario_through_the_deployed_console(executable,
 	assert detail["route"]["endpoint"] == "push.bug"
 	assert detail["next"]["endpoint"] == "lang.bug"
 	_console(executable, path, "push.sl", [
+		f'claim work={epic}',
 		f'pass work={epic} to=lang.bug '
 		f'comment="returning with results"'])
 	detail = _json_read(executable, path, "detail", f"work={epic}",

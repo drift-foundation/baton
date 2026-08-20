@@ -51,6 +51,20 @@ def test_wf01_straight_through_report(flow):
 		"classification changed origin"
 
 	# 2. research passes to implementation with planned Next lang.rev.
+	# W2571: a pass is the current claimant's handoff, so ada picks the
+	# Work up before handing it on — and a PARKED Work cannot be claimed
+	# at all, so the deliberate deferral above is lifted first. The two
+	# refusals are asserted rather than merely avoided: they are the
+	# contract this step now teaches.
+	error = flow.refuse("pass", f"work={work}", "to=lang.impl",
+	                    "comment=confirmed; implement", viewer="lang.ada")
+	assert "unclaimed and parked" in error, error
+	flow.ok("phase", f"work={work}", "to=queued",
+	        "reason=resuming", viewer="lang.ada")
+	error = flow.refuse("pass", f"work={work}", "to=lang.impl",
+	                    "comment=confirmed; implement", viewer="lang.ada")
+	assert "is unclaimed" in error, error
+	flow.ok("claim", f"work={work}", viewer="lang.ada")
 	passed = flow.ok("pass", f"work={work}", "to=lang.impl",
 	                 "set-next=lang.rev",
 	                 "comment=confirmed; implement", viewer="lang.ada")
@@ -100,23 +114,26 @@ def test_wf01_straight_through_report(flow):
 
 	# The trail: ordered, and every handoff carries its resolution snapshot.
 	events = assert_final_invariants(flow, "lang.ada", [work])
+	# W2571 adds two acts to this story, both of them the point: the
+	# resume that makes the parked Work claimable, and ada's own claim
+	# before handing it on.
 	assert [event["kind"] for event in events] == \
-		["accept_config", "create_work", "classify", "set_phase", "pass",
-		 "claim", "post_message", "return", "claim", "set_phase",
-		 "close_work"]
+		["accept_config", "create_work", "classify", "set_phase",
+		 "set_phase", "claim", "pass", "claim", "post_message", "return",
+		 "claim", "set_phase", "close_work"]
 	classified = events[2]
 	assert (classified["payload"]["from"],
 	        classified["payload"]["to"]) == ("suspected-defect", "confirmed-defect")
 	assert classified["payload"]["resolution"]["handlers"] == ["ada"]
 	phase_trail = [(event["payload"]["from"], event["payload"]["to"])
 	               for event in events if event["kind"] == "set_phase"]
-	# W38: the only explicit phase acts left in this story are the park
-	# and the resume that follows it.
-	# W38: the park and its resume, then the release the reviewer's own
-	# queued move performs after claiming.
-	assert phase_trail == [("queued", "parked"), ("active", "queued")]
-	created, handoff = events[1], events[4]
-	consumed, closing = events[7], events[10]
+	# W38: the park, W2571's resume that makes it claimable again, and
+	# the release the reviewer's own queued move performs after
+	# claiming.
+	assert phase_trail == [("queued", "parked"), ("parked", "queued"),
+	                       ("active", "queued")]
+	created, handoff = events[1], events[6]
+	consumed, closing = events[9], events[12]
 	assert created["payload"]["resolution"] == {
 		"endpoint": "lang.rsrch", "route": "intake", "role": "rsrch",
 		"handlers": ["ada"], "generation": 1}

@@ -189,7 +189,7 @@ def test_every_transition_is_one_audited_event(store):
 	                        follow_up_of=child)
 	kinds = [event["kind"] for event in store.events()]
 	# W38 R1: creating the child gates the parent, so the parent enters
-	# `waiting` — and closing that child is what wakes it again.
+	# `block` — and closing that child is what wakes it again.
 	assert kinds == ["accept_config", "accept_config",
 	                 "create_work", "create_work", "close_work",
 	                 "wake", "create_work"]

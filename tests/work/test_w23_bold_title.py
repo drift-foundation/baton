@@ -129,9 +129,17 @@ def test_the_cue_is_presentation_only(world):
 
 
 def test_hot_titles_are_bold_on_the_real_terminal(tmp_path):
-	"""PTY: the bold SGR lands immediately before the hot Title text —
-	for BOTH hot forms (claimed, ready review) — and never before a
-	cold title; the retained phase-cell blink still animates."""
+	"""PTY: the bold SGR lands immediately before a BOLD Title and never
+	before a cold one; the retained phase-cell blink still animates.
+
+	W2780: this said "BOTH hot forms (claimed, ready review)", which
+	conflates two different cues on two different axes. Heat is
+	EXECUTION — `phase=active`, somebody is working on it — and W38
+	retired the ready-review half of it. Bold is PERSONAL
+	ACTIONABILITY: you hold the claim, or the row is ready, unclaimed
+	and routed to you. A claimed row is bold for its claimant and a
+	ready unclaimed row is bold for every eligible handler, so both
+	appear here — as two forms of BOLD, not two forms of hot."""
 	import pty as _pty
 	if not hasattr(_pty, "fork"):
 		pytest.skip("no pty")
@@ -151,9 +159,11 @@ def test_hot_titles_are_bold_on_the_real_terminal(tmp_path):
 	                        origin="external-report",
 	                        classification="suspected-defect",
 	                        author="ada", body="b")["work_id"]
-	# W38: bold is personal actionability. A second claimed row is the
-	# hot case now — an unclaimed row of any role is nobody executing.
-	tr.claim_work(store, review, actor_team="lang", actor="ada")
+	# W38: bold is personal actionability, and W2938's one-slot capacity
+	# gives ada ONE claim — so the second bold form here is the OTHER
+	# one the rule names: ready, unclaimed, and routed to this viewer.
+	# Both forms of BOLD are still present, which is what this test is
+	# about.
 	cold = tr.create_work(store, team="lang", kind="bug",
 	                      title="cold-title",
 	                      origin="external-report",

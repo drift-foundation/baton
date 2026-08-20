@@ -107,6 +107,12 @@ export class EventBridge extends EventEmitter {
         status: { type: "notLoaded" },
         activeTurn: null,
         completedTurns: new Map(),
+        // W3243: the approval this target is wedged on, or null. Set
+        // when a server-initiated request arrives and cleared only when
+        // the turn actually ends — so "unhealthy" describes a live
+        // condition rather than a log line that scrolled past.
+        blocked: null,
+        blockedTimer: null,
         draining: false,
         retryMs: config.reconnectMinMs,
         retryTimer: null,
@@ -194,7 +200,10 @@ export class EventBridge extends EventEmitter {
     }
 
     state.recent.set(fingerprint, now);
-    state.queue.push({ event, ambiguous: false });
+    // W3243: `queuedAt` is what makes "how long has delivery been
+    // stuck" answerable. 24 events queued behind one turn was the
+    // incident, and the depth alone did not say for how long.
+    state.queue.push({ event, ambiguous: false, queuedAt: now });
     this.globalQueueDepth += 1;
     this.logger.info(`[${event.target}] event received: ${event.type}`);
     if (state.status.type !== "idle") this.logger.info(`[${event.target}] unavailable or active; queued (${state.queue.length})`);
@@ -205,11 +214,43 @@ export class EventBridge extends EventEmitter {
   statusSnapshot() {
     const targets = {};
     let ready = true;
+    const now = Date.now();
     for (const [name, state] of this.targetStates) {
       const connected = this.serverStates.get(state.serverName).client.connected;
       const loaded = connected && state.status.type !== "notLoaded";
-      if (!loaded) ready = false;
-      targets[name] = Object.freeze({ connected, loaded, status: state.status.type });
+      // W3243: LOADABLE-AND-IDLE and LOADED-BUT-UNABLE are different
+      // answers, and the incident is exactly the second one — the
+      // target was connected and loaded, so the stack reported it
+      // healthy while it could not accept a single delivery. A target
+      // wedged on an approval this bridge will never give is not
+      // ready, and neither is the stack.
+      const blocked = state.blocked;
+      if (!loaded || blocked) ready = false;
+      const oldest = state.queue.length ? state.queue[0].queuedAt : null;
+      targets[name] = Object.freeze({
+        connected,
+        loaded,
+        status: state.status.type,
+        // Everything an operator needs to act without reading a log:
+        // who this target is, which Thread and turn are stuck, why,
+        // how much is waiting behind it, and for how long.
+        deliverable: Boolean(loaded && !blocked),
+        participant: state.identity?.participant ?? null,
+        threadId: state.threadId,
+        queueDepth: state.queue.length,
+        oldestQueuedMs: oldest === null ? null : Math.max(0, now - oldest),
+        blocked: blocked
+          ? Object.freeze({
+            turnId: blocked.turnId,
+            cause: blocked.cause,
+            method: blocked.method,
+            since: blocked.since,
+            ageMs: Math.max(0, now - blocked.since),
+            denied: blocked.denied,
+            interrupted: blocked.interrupted,
+          })
+          : null,
+      });
     }
     return Object.freeze({ ready, targets: Object.freeze(targets), globalQueueDepth: this.globalQueueDepth });
   }
@@ -275,6 +316,15 @@ export class EventBridge extends EventEmitter {
     for (const state of this.targetStates.values()) {
       if (state.retryTimer) clearTimeout(state.retryTimer);
       if (state.reconcileTimer) clearTimeout(state.reconcileTimer);
+      // W3243 review P2: `stop()` owns EVERY timer this bridge starts.
+      // A recovery callback surviving shutdown would interrupt through
+      // a disconnected client and publish a failure caused by nothing
+      // but the shutdown that failed to cancel its own timer — after
+      // the runtime already reported a clean exit.
+      if (state.blockedTimer) {
+        clearTimeout(state.blockedTimer);
+        state.blockedTimer = null;
+      }
     }
     for (const serverState of this.serverStates.values()) serverState.client.disconnect();
     if (this.server) {
@@ -294,7 +344,7 @@ export class EventBridge extends EventEmitter {
   }
 
   async #drain(state) {
-    if (this.stopping || state.draining || state.activeTurn || state.queue.length === 0 || state.status.type !== "idle") return;
+    if (this.stopping || state.draining || state.activeTurn || state.blocked || state.queue.length === 0 || state.status.type !== "idle") return;
     const serverState = this.serverStates.get(state.serverName);
     if (!serverState.client.connected) return;
     const serverDelay = serverState.retryUntil - Date.now();
@@ -520,7 +570,12 @@ export class EventBridge extends EventEmitter {
       const state = this.targetByThread.get(`${serverState.name}\u0000${threadId}`);
       if (!state) return;
       state.status = status;
-      if (status.type === "idle") void this.#drain(state);
+      // W3243: an idle thread has no turn left to be blocked on, so the
+      // wedge is over and the retained events drain.
+      if (status.type === "idle") {
+        this.#clearBlocked(state);
+        void this.#drain(state);
+      }
     });
     client.on("turnStarted", ({ threadId, turn }) => {
       const state = this.targetByThread.get(`${serverState.name}\u0000${threadId}`);
@@ -533,17 +588,24 @@ export class EventBridge extends EventEmitter {
       const threadId = request.params?.threadId;
       const state = threadId ? this.targetByThread.get(`${serverState.name}\u0000${threadId}`) : null;
       const scope = state ? `[${state.name}]` : `[${serverState.name}]`;
-      this.logger.warn(`${scope} Codex requires interactive handling for ${request.method} (request ${request.id}); the bridge will not approve or answer it`);
+      this.logger.warn(`${scope} Codex requires interactive handling for ${request.method} (request ${request.id}); the bridge will not approve it`);
       // THE motivating incident. W22 read `active` with a Handler while
       // its turn sat on exactly this request, and the only evidence was
       // this log line. The dispatcher maps the request it already
-      // observes into `waiting-input` and STILL does not approve or
-      // answer it — publishing the state is not handling the request.
+      // observes into `waiting-input` and STILL does not approve it.
       void state?.runtime.state("waiting-input", {
         cause: "approval",
         detail: `${request.method} requires interactive handling`,
         session: threadId,
       });
+      // W3243: publishing the state was not enough. LEAVING THE REQUEST
+      // UNANSWERED is what wedged the turn — it waited for a human who
+      // was not in this conversation, and 24 later readiness events
+      // queued behind it. A dispatcher-owned turn is NON-INTERACTIVE
+      // execution, so the request is explicitly DENIED and the turn is
+      // ended within a bound. Denying is not approving, and it is not
+      // silence either.
+      if (state) this.#denyAndRecover(serverState, state, request);
       this.emit("serverRequest", { server: serverState.name, target: state?.name ?? null, request });
     });
     client.on("protocolError", (error) => {
@@ -557,6 +619,121 @@ export class EventBridge extends EventEmitter {
     });
   }
 
+  // W3243: the ruled non-interactive recovery, in order.
+  //
+  // 1. DENY the request explicitly, because an unanswered one is what
+  //    wedges the turn. A JSON-RPC error cannot be mistaken for an
+  //    approval and invents no result schema this bridge owns.
+  // 2. Mark the target UNDELIVERABLE, so the stack stops reporting a
+  //    target it cannot deliver to as healthy.
+  // 3. Give the app-server a BOUNDED grace to end the turn itself, and
+  //    interrupt it when that expires.
+  //
+  // What it never does is approve, answer with a decision, or start a
+  // replacement context. If the interrupt cannot end the turn either,
+  // the target stays visibly unhealthy and the operator restarts the
+  // managed stack — whose already-approved fresh-context-per-start
+  // policy supplies a clean target. V12's worker supervisor owns
+  // automatic replacement.
+  #denyAndRecover(serverState, state, request) {
+    const denied = serverState.client.respondError(
+      request.id, -32601,
+      "this Baton dispatcher runs non-interactive readiness turns and "
+      + "cannot approve commands; the turn will be ended");
+    this.logger.warn(
+      `[${state.name}] ${denied ? "denied" : "could not deny"} `
+      + `${request.method}; readiness delivery is blocked until the turn ends`);
+    const turnId = this.#blockedTurnId(state, request);
+    if (state.blocked) {
+      state.blocked.denied = state.blocked.denied || denied;
+      // A later request may carry the turn an earlier one lacked.
+      if (!state.blocked.turnId && turnId) state.blocked.turnId = turnId;
+      return;
+    }
+    state.blocked = {
+      turnId,
+      cause: "approval",
+      method: request.method,
+      since: Date.now(),
+      denied,
+      interrupted: false,
+    };
+    if (state.blockedTimer) clearTimeout(state.blockedTimer);
+    state.blockedTimer = setTimeout(() => {
+      state.blockedTimer = null;
+      void this.#interruptBlocked(serverState, state);
+    }, this.config.approvalRecoveryMs);
+    state.blockedTimer.unref?.();
+  }
+
+  // W3243 review P1: the REQUEST names the turn, and that is the
+  // authoritative locator.
+  //
+  // The app-server schema requires `params.turnId` on an approval
+  // request. `state.activeTurn` is this bridge's own record and can
+  // still be null when the server request races the continuation that
+  // sets it — which is exactly when recovery matters, and exactly when
+  // interrupting on local state would pass a null turn.
+  //
+  // So the request wins, and a disagreement is REPORTED rather than
+  // silently resolved in either direction: two different turn ids on
+  // one thread is a fact an operator needs, and picking one quietly
+  // would hide it.
+  #blockedTurnId(state, request) {
+    const fromRequest = request?.params?.turnId;
+    const named = typeof fromRequest === "string" && fromRequest
+      ? fromRequest : null;
+    const local = state.activeTurn?.id ?? null;
+    if (named && local && named !== local) {
+      this.logger.warn(
+        `[${state.name}] approval names turn ${named} while this bridge `
+        + `records ${local} active; recovering the turn the request names`);
+    }
+    if (!named && !local) {
+      this.logger.warn(
+        `[${state.name}] the approval request named no turn and none is `
+        + `recorded; recovery cannot target one`);
+    }
+    return named ?? local;
+  }
+
+  async #interruptBlocked(serverState, state) {
+    if (this.stopping || !state.blocked || state.blocked.interrupted) return;
+    state.blocked.interrupted = true;
+    const turnId = state.blocked.turnId;
+    try {
+      await serverState.client.interruptTurn(state.threadId, turnId);
+      this.logger.warn(
+        `[${state.name}] interrupted the blocked turn ${turnId ?? "(unknown)"}`);
+    } catch (error) {
+      // The turn could not be ended. The target stays unhealthy and
+      // says so; nothing here approves anything to get moving again.
+      this.logger.error(
+        `[${state.name}] could not end the blocked turn: ${error.message}. `
+        + `Readiness for this target is stuck (${state.queue.length} queued); `
+        + `restart the managed stack to get a fresh context.`);
+      void state.runtime.state("failed", {
+        cause: "approval",
+        detail: "a blocked turn could not be interrupted; restart the stack",
+      });
+    }
+  }
+
+  // W3243: the wedge is over only when the TURN is over. Called from
+  // every path that observes the turn ending, so the unhealthy report
+  // clears on the same fact that makes delivery possible again.
+  #clearBlocked(state) {
+    if (state.blockedTimer) {
+      clearTimeout(state.blockedTimer);
+      state.blockedTimer = null;
+    }
+    if (!state.blocked) return;
+    this.logger.info(
+      `[${state.name}] blocked turn ended; draining ${state.queue.length} `
+      + `retained readiness event(s)`);
+    state.blocked = null;
+  }
+
   async #turnCompleted(serverState, params) {
     const state = this.targetByThread.get(`${serverState.name}\u0000${params.threadId}`);
     if (!state) return;
@@ -567,6 +744,7 @@ export class EventBridge extends EventEmitter {
     // Silence past the lease deadline is what becomes `unknown`, and
     // only the authority derives that.
     void state.runtime.state("idle", { session: params.threadId });
+    this.#clearBlocked(state);
     if (isExternal) state.activeTurn = null;
     else {
       state.completedTurns.set(params.turn.id, params.turn);

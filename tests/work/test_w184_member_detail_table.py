@@ -12,6 +12,13 @@ column, wrapped continuations at the value column, every fact its own
 key, and a `Log` row that says "not published" rather than guessing a
 path.
 
+SUPERSEDED IN PART — W1578 (`finding-omit-unpublished-member-log`,
+2026-08-20): the missing-log row is retired. Every member in the live
+deployment painted the same wide `not published` sentence, so it
+disclosed nothing an absent inventory key does not already say. The
+PUBLISHED-log rule below is unchanged and still asserted here; the
+absent case moved to `test_w1578_omit_unpublished_log.py`.
+
 These tests hold the SHAPE (alignment, sections, wrapping, the key
 cap) and the CONTENT (every fact that was there before is still
 there, and missing/unknown/absent stay distinguishable from each
@@ -296,15 +303,23 @@ def test_the_log_row_carries_the_exact_locator(world):
 	assert "configured" in log and "ago" in log, log
 
 
-def test_an_unpublished_log_says_so_rather_than_guessing(world):
-	"""The ruling is explicit: an operator looking for the log must be
-	told it was never published, not handed a path from a deployment
-	they hope is running."""
+def test_an_unpublished_log_is_not_announced(world):
+	"""SUPERSEDES this suite's `test_an_unpublished_log_says_so_rather
+	_than_guessing`, retired by W1578 on 2026-08-20.
+
+	W184 ruled that an operator hunting for the log had to be told it
+	was never published rather than left to guess a path. What the live
+	deployment showed is that EVERY member said it, so the sentence
+	carried no information while costing a wide row each. The absent
+	key already says what the sentence said.
+
+	The half of the old rule that stands is asserted too: nothing
+	guesses a path."""
 	furnish(world, facts=False)
-	log = row_for(detail(world), "Log")
-	assert log is not None, "the Log row disappeared with the facts"
-	assert "not published" in log, log
-	assert "/var/log" not in log, log
+	lines = detail(world)
+	assert row_for(lines, "Log") is None, lines
+	assert "not published" not in "\n".join(lines), lines
+	assert "/var/log" not in "\n".join(lines), lines
 
 
 def test_the_last_poke_answer_keeps_every_field(world):

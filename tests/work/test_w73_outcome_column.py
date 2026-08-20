@@ -105,7 +105,25 @@ def header_of(lines):
 
 
 def row_for(lines, title):
-	return next(line for line in lines if title in line)
+	"""The row for one Work, located by the drawn TITLE CELL.
+
+	W2938 removed the Jobs `New` column with no replacement, which
+	changed which columns the responsive layout keeps — and the Title
+	is the one column it may truncate, so `title in line` stopped
+	matching. This reads the cell's real bounds off the header rather
+	than guessing an offset, and compares the drawn text as the prefix
+	it is, so it survives the next column too."""
+	header = next(line for line in lines if "Title" in line)
+	start = header.index("Title")
+	tail = header[start + len("Title"):]
+	end = start + len("Title") + (len(tail) - len(tail.lstrip())) - 1
+	for line in lines:
+		if line is header or len(line) < start:
+			continue
+		drawn = line[start:end].rstrip()
+		if drawn and title.startswith(drawn):
+			return line
+	raise AssertionError(f"no row drew a prefix of {title!r}: {lines}")
 
 
 # -- the default view --------------------------------------------------------

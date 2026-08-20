@@ -71,9 +71,12 @@ from baton_work.authority import Authority, WorkError
 # claimant. So the major moves and a 7.x demand refuses cleanly, which
 # is exactly the stale-consumer refusal this finding asks for.
 # 9.0 (W38, finding-phase-is-scheduler-state): PHASE is a closed
-# scheduler axis — queued | active | waiting | parked, terminal null
-# (`waiting` is renamed `block` at 10.0). The
-# role-shaped `research` and `review` values are gone, and a handoff no
+# scheduler axis — queued | active | waiting | parked, terminal null,
+# where `waiting` is renamed `block` at 10.0 below and is history here,
+# not the current axis. W2780 deliberately did NOT rewrite this line: a
+# pinned 9.x consumer needs the entry to keep saying what 9.0 actually
+# published.
+# The role-shaped `research` and `review` values are gone, and a handoff no
 # longer derives its phase from the destination role. `active` now means
 # exactly "a participant holds the claim". The claimant published as
 # `current` at 8.0 is renamed `handler`, and the `current=` filter

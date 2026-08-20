@@ -149,7 +149,10 @@ def test_focus_moves_onto_the_metadata_row(tmp_path):
 	COLUMN: the index owns column 0, the reader owns the column before
 	its metadata."""
 	config_path = _world(tmp_path)
-	steps = _screens(config_path, [(b"\r", 0.7), (b"\x17j", 0.5),
+	# W2597: entry now lands in the INDEX, so the walk starts by going
+	# up to the Threads list; the three focus states this test compares
+	# are the same three, reached in the same order.
+	steps = _screens(config_path, [(b"\r\x17k", 0.7), (b"\x17j", 0.5),
 	                               (b"\x17j", 0.6)])
 	shared = [next(line for line in rows if "Messages (" in line)
 	          for rows in steps]
@@ -171,7 +174,7 @@ def test_the_marker_column_does_not_eat_content(tmp_path):
 	visible unfocused is still visible focused, and it does not shift
 	the index heading beside it."""
 	config_path = _world(tmp_path)
-	steps = _screens(config_path, [(b"\r", 0.7), (b"\x17j", 0.5),
+	steps = _screens(config_path, [(b"\r\x17k", 0.7), (b"\x17j", 0.5),
 	                               (b"\x17j", 0.6)])
 
 	def reader(rows):
@@ -237,7 +240,7 @@ def test_the_reader_never_bleeds_past_its_cell(tmp_path, focused):
 		               author="alexfz", body="x" * 300)
 	script = [(b"\r", 0.8)]
 	if focused:
-		script += [(b"\x17j", 0.4), (b"\x17j", 0.6)]
+		script += [(b"", 0.4), (b"\x17j", 0.6)]
 	rows = _screens(config_path, script, columns=110, lines=24)[-1]
 	from baton_work.tui.app import Console
 	reader_x = Console.INDEX_WIDTH + 2
@@ -265,7 +268,7 @@ def test_the_scroll_tag_also_respects_the_reserved_column(tmp_path):
 			"SELECT thread FROM thread_labels LIMIT 1").fetchone()[0]
 		tr.post_thread(store, thread, author_team="lang", author="ada",
 		               body="\n".join(f"line {n}" for n in range(60)))
-	rows = _screens(config_path, [(b"\r", 0.8), (b"\x17j", 0.4),
+	rows = _screens(config_path, [(b"\r", 0.8), (b"", 0.4),
 	                              (b"\x17j", 0.4), (b"jjj", 0.6)])[-1]
 	from baton_work.tui.app import Console
 	reader_x = Console.INDEX_WIDTH + 2
@@ -294,7 +297,7 @@ def test_the_index_heading_and_selection_cue_survive(tmp_path):
 @pytest.mark.serial
 def test_selection_still_moves_the_reader(tmp_path):
 	config_path = _world(tmp_path, body="reply number")
-	steps = _screens(config_path, [(b"\r", 0.7), (b"\x17j", 0.4),
+	steps = _screens(config_path, [(b"\r", 0.7), (b"", 0.4),
 	                               (b"j", 0.6)])
 
 	def selected(rows):

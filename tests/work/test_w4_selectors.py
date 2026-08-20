@@ -276,8 +276,10 @@ def test_an_overwide_visible_id_refuses_before_columns_are_clipped(world):
 	console = Console(world["store"], "lang", "ada",
 	                  config_path=world["config"])
 	# W73 freed the six cells the St column held, so this refuses at a
-	# narrower width than it used to; the property is the REFUSAL.
-	console._render_table(Screen(), 24, 40, [row])
+	# narrower width than it used to, and W2938 freed the four `New`
+	# held on top of that; the property is the REFUSAL, so the width
+	# follows the budget.
+	console._render_table(Screen(), 24, 36, [row])
 	assert any("terminal too narrow" in text for text in painted), painted
 	assert not any("wide identity" in text for text in painted), \
 		"the renderer attempted a row whose mandatory tail would be clipped"

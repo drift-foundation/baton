@@ -73,6 +73,9 @@ def test_wf08_reassignment_of_live_work(flow):
 	# and nothing rewrites the earlier operations.
 	flow.ok("respond", f"obligation={asked["seq"]}",
 	        "body=taking over; tracked", viewer="lang.grace")
+	# W2571: grace is the generation-2 handler, so grace claims the Work
+	# before handing it on — the claim is generation-2 activity too.
+	flow.ok("claim", f"work={lang42}", viewer="lang.grace")
 	passed = flow.ok("pass", f"work={lang42}", "to=lang.impl",
 	                 "comment=researching", viewer="lang.grace")
 	events = flow.ok("events", viewer="lang.grace")

@@ -435,7 +435,7 @@ def test_a_pass_and_a_close_each_end_the_interval(world):
 	assert interval["end_kind"] == "close_work"
 
 
-def test_parking_and_waiting_both_end_the_interval(world):
+def test_parking_and_blocking_both_end_the_interval(world):
 	"""Entry into either non-executing phase ends the work-time
 	interval: the claim is released, so the elapsed time stops."""
 	store = world["store"]
@@ -450,18 +450,18 @@ def test_parking_and_waiting_both_end_the_interval(world):
 		"parking did not end the work-time interval"
 
 	born = make(world, "block")
-	waiting = born["work_id"]
+	blocked = born["work_id"]
 	asked = tr.post_thread(store, born["thread"], author_team="lang",
 	                       author="ada", body="blocking question",
-	                       request="lang.rev", wait=False, on=waiting)
-	tr.claim_work(store, waiting, actor_team="lang", actor="ada")
-	tr.set_phase(store, waiting, actor_team="lang", actor="ada",
+	                       request="lang.rev", wait=False, on=blocked)
+	tr.claim_work(store, blocked, actor_team="lang", actor="ada")
+	tr.set_phase(store, blocked, actor_team="lang", actor="ada",
 	             phase="block", wait=asked["seq"])
 	interval = next(e["claim_interval"]
-	                for e in read(world, waiting)["events"]
+	                for e in read(world, blocked)["events"]
 	                if e["kind"] == "claim")
 	assert interval["end_kind"] == "set_phase", \
-		"entering waiting did not end the work-time interval"
+		"entering block did not end the work-time interval"
 	assert interval["elapsed_seconds"] is not None
 
 

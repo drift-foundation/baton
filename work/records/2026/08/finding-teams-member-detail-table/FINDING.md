@@ -56,3 +56,17 @@ in the TUI throws away the scanability that structure provides.
 - Focused virtual-screen and real-terminal regressions cover full, missing,
   unknown, stale, long-value, narrow, resize, and multi-route members.
 - Operator documentation illustrates the same sections and key vocabulary.
+
+## Supersession — 2026-08-20
+
+Slawomir's live deployment review found the repeated absent-log sentence
+noisier than the uncertainty it was meant to disclose: every configured member
+currently paints `Log: not published — this runner's adapter has published no
+log locator`. The table is an inventory of facts the adapter actually
+published, so an absent optional fact does not need a synthetic row.
+
+This supersedes only the earlier rule that missing log data must render a
+`not published` row. A published runtime `log` fact still appears verbatim with
+its source and observation age; when no such fact exists, the `Log` row is
+omitted. The separate follow-up record is
+`work/records/2026/08/finding-omit-unpublished-member-log/`.

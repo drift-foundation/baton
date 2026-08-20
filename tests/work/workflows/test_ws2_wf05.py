@@ -49,7 +49,7 @@ def test_ws2_wf05_non_satisfying_close(flow):
 	        "rationale=cannot reproduce against current parser; insufficient evidence",
 	        "outcome=non-satisfying", viewer="lang.ada")
 
-	# 3. Push and Web become queued; MariaDB remains waiting; all three
+	# 3. Push and Web become queued; MariaDB remains blocked; all three
 	# retain Current and classification.
 	for team, member, phase in (("push", "sl", "queued"),
 	                            ("web", "wren", "queued"),

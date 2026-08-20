@@ -81,9 +81,9 @@ def test_pass_away_and_back_between_reads_is_a_new_episode(world):
 	before = key(world, work)
 	assert before is not None
 	# away to review and straight back, with no read in between
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="please review")
-	tr.pass_work(store, work, actor_team="rev", actor="cass",
+	fx.hand_off(store, work, actor_team="rev", actor="cass",
 	             to="lang.bug", comment="changes please")
 	after = key(world, work)
 	assert after is not None, "the returned handoff never became actionable"
@@ -180,9 +180,9 @@ def test_the_episode_is_authority_derived_and_survives_restart(world):
 	client across a restart — must agree on the episode identity."""
 	store = world["store"]
 	work = make(world, "shared")["work_id"]
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
+	fx.hand_off(store, work, actor_team="lang", actor="ada",
 	             to="rev.bug", comment="over")
-	tr.pass_work(store, work, actor_team="rev", actor="cass",
+	fx.hand_off(store, work, actor_team="rev", actor="cass",
 	             to="lang.bug", comment="back")
 	live = key(world, work)
 	fresh = bw.Authority(world["database"])

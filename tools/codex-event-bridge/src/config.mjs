@@ -126,6 +126,12 @@ export function validateConfig(raw) {
     reconnectMinMs: positiveInteger(raw.reconnectMinMs, 500, "reconnectMinMs"),
     reconnectMaxMs: positiveInteger(raw.reconnectMaxMs, 15_000, "reconnectMaxMs"),
     startupTimeoutMs: positiveInteger(raw.startupTimeoutMs, 15_000, "startupTimeoutMs"),
+    // W3243: how long a dispatcher-owned turn may stay blocked on an
+    // approval this bridge will never give before the turn is
+    // interrupted. Readiness delivery is non-interactive, so the wait
+    // is BOUNDED — the denial goes out immediately and this is only
+    // the grace the app-server gets to end the turn by itself.
+    approvalRecoveryMs: positiveInteger(raw.approvalRecoveryMs, 15_000, "approvalRecoveryMs"),
   };
   if (config.maxDetailsBytes >= config.maxEventBytes) throw new TypeError("maxDetailsBytes must be smaller than maxEventBytes");
   if (config.maxQueueTotal < config.maxQueuePerTarget) throw new TypeError("maxQueueTotal must be at least maxQueuePerTarget");

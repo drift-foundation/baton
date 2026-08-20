@@ -35,8 +35,8 @@ def test_ws2_wf06_immutable_close_and_follow_up(flow):
 		               f"title={team} report",
 		               "origin=external-report", "classification=suspected-defect", "body=blocked on lang",
 		               viewer=f"{team}.{member}")["work_id"]
-		# W38 R1: the block itself commits waiting/gates — a separate
-		# phase act would refuse as redundant.
+		# W38 R1: the block itself commits the `block` phase on its
+		# gates — a separate phase act would refuse as redundant.
 		flow.ok("block", f"work={work}", f"on={lang42}",
 		        "rationale=shared provider required", viewer=f"{team}.{member}")
 		consumers[team] = work

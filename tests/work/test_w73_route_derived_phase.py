@@ -96,7 +96,7 @@ def test_every_destination_role_lands_queued(world, kind):
 	the stageless route all produce the SAME scheduler state, because
 	none of them says anybody has started."""
 	work = make(world)
-	result = tr.pass_work(world["store"], work, actor_team="lang",
+	result = fx.hand_off(world["store"], work, actor_team="lang",
 	                      actor="ada", to=f"lang.{kind}",
 	                      comment="over")
 	assert result["destination_phase"] == "queued", result
@@ -108,24 +108,55 @@ def test_a_stageless_role_no_longer_refuses(world):
 	phase no longer derived from the role, there is nothing left to
 	refuse for: `ops` routes like any other."""
 	work = make(world)
-	result = tr.pass_work(world["store"], work, actor_team="lang",
+	result = fx.hand_off(world["store"], work, actor_team="lang",
 	                      actor="ada", to="lang.odd", comment="over")
 	assert result["destination_phase"] == "queued"
 	assert result["to"] == "lang.odd"
 
 
-def test_a_gated_handoff_lands_waiting(world):
+def test_a_gated_move_lands_waiting(world):
 	"""The other half of the derivation: the destination state comes
 	from the committed gates, so a blocked Work cannot land in a
-	runnable-looking phase nobody can claim."""
+	runnable-looking phase nobody can claim.
+
+	SUPERSEDED IN PART — W2571 (`finding-pass-requires-current-claim`,
+	2026-08-20). This was `test_a_gated_handoff_lands_waiting` and moved
+	the Work with `pass`. A pass now requires the actor to hold the
+	claim, and gated Work is unclaimable by construction — a gate
+	arriving on claimed Work releases the claimant — so `pass` can no
+	longer reach this state at all. The DERIVATION is unchanged and
+	still the thing under test: `reroute`, which W2571 names as the one
+	operation for moving unclaimed Work, derives the destination phase
+	through the same `_unclaimed_state`. Every assertion below is the
+	one this test always made."""
 	work = make(world)
 	blocker = make(world)
 	tr.add_dependency(world["store"], work, blocker, actor_team="lang",
 	                  actor="ada", rationale="gate")
-	result = tr.pass_work(world["store"], work, actor_team="lang",
-	                      actor="ada", to="lang.impl", comment="over")
-	assert result["destination_phase"] == "block"
+	result = tr.reroute_work(world["store"], work, actor_team="lang",
+	                         actor="ada", to="lang.impl",
+	                         reason="offered to implementation instead")
+	assert result["phase"] == "block"
 	assert phase_of(world, work) == "block"
+
+
+def test_a_gated_work_can_no_longer_be_passed_at_all(world):
+	"""The consequence stated directly, so it is a contract rather than
+	an accident of two rules meeting.
+
+	W2571 requires the claim; the active-work claim releases a claimant
+	the moment a gate arrives. Between them, gated Work has no claimant
+	and can acquire none, so the refusal names the phase and points at
+	the operation that CAN move it."""
+	work = make(world)
+	blocker = make(world)
+	tr.add_dependency(world["store"], work, blocker, actor_team="lang",
+	                  actor="ada", rationale="gate")
+	with pytest.raises(bw.WorkError, match="unclaimed and block"):
+		tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+		             to="lang.impl", comment="over")
+	with pytest.raises(bw.WorkError, match="cannot be claimed"):
+		tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 
 
 def test_pass_still_takes_no_phase_operand(world):
@@ -138,7 +169,7 @@ def test_pass_still_takes_no_phase_operand(world):
 def test_claiming_after_the_handoff_is_what_makes_it_active(world):
 	"""The whole point of the supersession, in one sequence."""
 	work = make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.impl", comment="over")
 	assert phase_of(world, work) == "queued"
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")

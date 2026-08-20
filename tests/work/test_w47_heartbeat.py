@@ -69,6 +69,22 @@ def make(world, title="w"):
 	                      author="ada", body="b")["work_id"]
 
 
+def _crew(world, count):
+	"""W2938: `count` members who can all claim, on a fresh authority.
+
+	Replaces this test's single-member world in place — the property
+	under test is a batched read across many CLAIMED rows, and one-slot
+	capacity means many claimants."""
+	import tempfile
+	directory = tempfile.mkdtemp(prefix="crew-")
+	members = ["ada"] + [f"m{index}" for index in range(1, count)]
+	config, database = fx.build_crew(directory, "lang", members)
+	world["store"].close()
+	world["config"], world["database"] = config, database
+	world["store"] = bw.Authority(database)
+	return members
+
+
 def row_of(world, work_id):
 	return pj.detail(world["store"], work_id, viewer_team="lang",
 	                 viewer_member="ada")
@@ -184,10 +200,14 @@ def test_the_window_resolves_in_one_batched_read(world):
 	"""The W39/W33 no-N+1 boundary holds: a full tree resolves claim
 	AND heartbeat facts in at most one journal statement."""
 	store = world["store"]
-	for index in range(5):
+	# W2938 one-slot capacity: one claimant can hold one row, and this
+	# property is about a batched read across MANY claimed rows.
+	crew = _crew(world, 5)
+	store = world["store"]            # _crew replaces the authority
+	for index, member in enumerate(crew):
 		work = make(world, title=f"row {index}")
-		tr.claim_work(store, work, actor_team="lang", actor="ada")
-		tr.heartbeat(store, work, actor_team="lang", actor="ada")
+		tr.claim_work(store, work, actor_team="lang", actor=member)
+		tr.heartbeat(store, work, actor_team="lang", actor=member)
 	statements = []
 	store.conn.set_trace_callback(statements.append)
 	try:
@@ -355,7 +375,12 @@ def test_discovery_advertises_heartbeat_to_the_exact_claimant(world):
 	                     viewer_member="grace")
 	assert "heartbeat" not in teammate["available_transitions"], \
 		"a non-claimant teammate was offered the beat"
+	# W2938 one-slot capacity: ada is still holding `work`, so the row
+	# that goes on to be CLOSED is released first. The closed-row
+	# property below is unchanged.
 	done = make(world, title="finished")
+	tr.release_claim(store, work, actor_team="lang", actor="ada",
+	                 expect="lang.ada", reason="taking the other one")
 	tr.claim_work(store, done, actor_team="lang", actor="ada")
 	tr.close_work(store, done, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")

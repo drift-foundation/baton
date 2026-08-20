@@ -25,7 +25,8 @@ from __future__ import annotations
 import contextlib
 import json as _json
 
-from baton_work.authority import Authority, WorkError
+from baton_work.authority import (Authority, PICKUP_OVERDUE_DEFAULT,
+                                  WorkError)
 
 
 class Snapshotted(list):
@@ -2694,11 +2695,21 @@ def teams(store: Authority, *, viewer_team: str,
 	roster = []
 	with _read_snapshot(store):
 		snapshot_seq = store.last_seq()
+		now = store.clock()
+		# W2938 review P1: ONE read of the accepted policy, inside the
+		# same snapshot the member states are derived in. Reading it
+		# before the snapshot and again for the response let a
+		# concurrent acceptance publish states derived with threshold A
+		# beside a response claiming its threshold was B — which
+		# contradicts both this feature's one-accepted-value contract
+		# and the projection's own one-snapshot rule.
+		threshold = pickup_threshold(store)
 		for team in store.conn.execute(
 				"SELECT handle, display FROM teams WHERE removed=0 "
 				"ORDER BY handle"):
 			members = [
-				_roster_member(store, team["handle"], row)
+				_roster_member(store, team["handle"], row,
+				               now=now, threshold=threshold)
 				for row in store.conn.execute(
 					"SELECT handle, display FROM members WHERE team=? "
 					"AND removed=0 ORDER BY handle",
@@ -2708,10 +2719,100 @@ def teams(store: Authority, *, viewer_team: str,
 			               "mine": team["handle"] == viewer_team,
 			               "members": members})
 	return {"teams": roster, "viewer": f"{viewer_team}.{viewer_member}",
+	        # W2938: the ACCEPTED policy value rides the read, so a JSON
+	        # client never parses TUI wording and never recomputes
+	        # `pending` versus `overdue` against a local guess.
+	        "pickup_overdue_seconds": threshold,
 	        "snapshot_seq": snapshot_seq}
 
 
-def _roster_member(store: Authority, team: str, row) -> dict:
+def _instant(value):
+	import datetime as _dt
+	return _dt.datetime.fromisoformat(
+		value.replace("Z", "+00:00").replace(" ", "T"))
+
+
+def pickup_threshold(store: Authority) -> int:
+	"""The ACCEPTED claim-pickup threshold in seconds (W2938).
+
+	Fails closed. Initialization and configuration acceptance always
+	store a validated positive value — including the 360-second default
+	when the document omits the field — so a missing, malformed, zero or
+	negative one does not mean "the operator did not choose": it means
+	the authority is invalid. Returning the compiled default there would
+	have this reader INVENT policy in exactly the place the contract
+	says the accepted value is the only source of truth, and every
+	client would then consume a number no acceptance ever agreed to.
+
+	The defaulting lives at acceptance, where omission legitimately
+	means 360 (W2938 review P2)."""
+	value = store.meta().get("pickup_overdue_seconds")
+	if value is None:
+		raise WorkError(
+			"this authority records no accepted pickup threshold; "
+			"every acceptance stores one, so its absence means the "
+			"meta table is invalid rather than that a deployment "
+			"declined to choose")
+	try:
+		seconds = int(value)
+	except (TypeError, ValueError):
+		seconds = None
+	if seconds is None or seconds < 1:
+		raise WorkError(
+			f"the accepted pickup threshold is {value!r}; acceptance "
+			f"validates it POSITIVE, so this authority's meta table is "
+			f"invalid — a client must not fall back to a local guess")
+	return seconds
+
+
+def member_pickup(store: Authority, team: str, member: str,
+                  now_iso: str, threshold: int) -> dict:
+	"""One participant's pickup obligation (W2938).
+
+	`state` is None when nothing is owed — busy, no actionable Work, or
+	not eligible — `pending` inside the accepted threshold and `overdue`
+	at or beyond it. Derived from the canonical open interval at READ
+	time; the read performs no write and no timeout.
+
+	`next_work` is the FIRST actionable Work in the same canonical order
+	`wait` offers, as a suggested next claim. It is diagnostic: the
+	obligation belongs to the participant, and that Work does not own
+	it. One idle participant owes one pickup however deep the queue."""
+	row = store.conn.execute(
+		"SELECT started_seq, started_at FROM member_pickup "
+		"WHERE team=? AND member=?", (team, member)).fetchone()
+	if row is None:
+		return {"state": None, "since": None, "elapsed_seconds": None,
+		        "next_work": None}
+	elapsed = max(0, int((_instant(now_iso)
+	                      - _instant(row["started_at"])).total_seconds()))
+	return {"state": "overdue" if elapsed >= threshold else "pending",
+	        "since": row["started_at"],
+	        "elapsed_seconds": elapsed,
+	        "next_work": _first_actionable(store, team, member)}
+
+
+def _first_actionable(store: Authority, team: str, member: str):
+	"""The canonical first actionable Work for one member, in the same
+	order `wait` offers — so the suggestion and the wake agree."""
+	for row in store.conn.execute(
+			"SELECT * FROM work WHERE status='open' AND handler_team IS "
+			"NULL AND ready=1 AND phase NOT IN ('block','parked') "
+			"AND route_team=? " + WORK_ORDER, (team,)):
+		resolution = _endpoint_struct(store, row["route_team"],
+		                              row["route_kind"],
+		                              _selected_route(dict(row)))
+		if resolution is None:
+			continue
+		if member in (resolution["handlers"] or ()):
+			return {"work": row["id"],
+			        "local_id": row["id"].rsplit("-", 1)[1],
+			        "title": row["title"]}
+	return None
+
+
+def _roster_member(store: Authority, team: str, row, *, now=None,
+                   threshold: int | None = None) -> dict:
 	"""One roster row. `routes` is COVERAGE — the routes this member
 	handles, each with its role and the endpoints that reach it,
 	including the alternates W230 added, because "which work can land on
@@ -2756,6 +2857,15 @@ def _roster_member(store: Authority, team: str, row) -> dict:
 		# way. It sits beside `last_answer`, which is the agent's own
 		# on-demand report and a different kind of evidence entirely.
 		"runtime": _runtime_view(store, team, member, store.clock()),
+		# W2938: the participant's ONE pickup obligation. A member is
+		# never overdue for N Jobs; the state, its start, the elapsed
+		# time and a diagnostic first actionable Work all describe one
+		# interval that a claim of ANY eligible Work clears.
+		"pickup": member_pickup(
+			store, team, member,
+			now if now is not None else store.clock(),
+			threshold if threshold is not None
+			else pickup_threshold(store)),
 		"roles": [entry["role"] for entry in store.conn.execute(
 			"SELECT role FROM member_roles WHERE team=? AND member=? "
 			"ORDER BY role", (team, member))],

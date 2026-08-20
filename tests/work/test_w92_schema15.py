@@ -38,7 +38,7 @@ def store(tmp_path):
 
 
 def test_the_fresh_authority_is_schema_24(store):
-	assert store.meta()["schema_version"] == "24"
+	assert store.meta()["schema_version"] == "25"
 
 
 def test_created_work_defaults_to_normal_priority(store):

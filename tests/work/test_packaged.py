@@ -81,10 +81,13 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	     "rationale=compiler fix required", viewer="web.wren")
 	_run(archive, path, "respond", f"obligation={requested["seq"]}",
 	     "body=ours, tracked", viewer="lang.ada")
+	# W2571: each handoff is the release of a claim its actor took.
+	_run(archive, path, "claim", f"work={lang42}", viewer="lang.ada")
 	passed = _run(archive, path, "pass", f"work={lang42}",
 	              "to=lang.impl", "set-next=lang.rev", "comment=implement",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
+	_run(archive, path, "claim", f"work={lang42}", viewer="lang.ada")
 	returned = _run(archive, path, "pass", f"work={lang42}",
 	                "to=lang.rev", "comment=done",
 	                viewer="lang.ada")["result"]
@@ -99,9 +102,9 @@ def test_the_gate_scenario_through_the_archive(archive, tmp_path):
 	seqs = [event["seq"] for event in events]
 	assert seqs == list(range(1, len(seqs) + 1))
 	# W38 R1: the gated dependent waits, so the final close wakes it.
-	assert [event["kind"] for event in events][-7:] == \
-		["create_work", "add_dependency", "respond", "pass", "return",
-		 "close_work", "wake"]
+	assert [event["kind"] for event in events][-9:] == \
+		["create_work", "add_dependency", "respond", "claim", "pass",
+		 "claim", "return", "close_work", "wake"]
 
 
 def test_a_refusal_exits_nonzero_through_the_archive(archive, tmp_path):

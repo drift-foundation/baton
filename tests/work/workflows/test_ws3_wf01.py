@@ -3,7 +3,7 @@ atomically (WS3-DESIGN.md D4).
 
 One commit: the provider Work exists (established AT the acceptance, R48),
 the consumer is gated with provenance, the obligation reads accepted→id,
-and the rationale answers into the consumer's thread. The waiting
+and the rationale answers into the consumer's thread. The blocked
 consumer wakes on its named obligation while the new gate holds readiness
 false (R47).
 """
@@ -54,16 +54,16 @@ def test_ws3_wf01_first_report_accepted_atomically(flow):
 	flow.ok("claim", f"work={push1}", viewer="push.sl")
 	asked = flow.post(push1, "body=drift: yours?",
 	                "request=drift.bug", viewer="push.sl")
-	waiting = flow.ok("detail", f"work={push1}", viewer="push.sl")
-	assert waiting["phase"] == "block", waiting["phase"]
+	blocked = flow.ok("detail", f"work={push1}", viewer="push.sl")
+	assert blocked["phase"] == "block", blocked["phase"]
 	# W78: the structured gate — kind, the operator-facing M… locator,
 	# and the pending obligation's own identity and state.
-	assert waiting["gate"]["kind"] == "message"
-	assert waiting["gate"]["obligation"]["seq"] == asked["seq"]
-	assert waiting["gate"]["selector"] == f"M{asked['seq']}"
-	assert waiting["gate"]["started_at"] is not None
-	assert waiting["handler"] is None, "the blocking ask kept the claim"
-	assert waiting["route"]["endpoint"] == "push.bug", \
+	assert blocked["gate"]["kind"] == "message"
+	assert blocked["gate"]["obligation"]["seq"] == asked["seq"]
+	assert blocked["gate"]["selector"] == f"M{asked['seq']}"
+	assert blocked["gate"]["started_at"] is not None
+	assert blocked["handler"] is None, "the blocking ask kept the claim"
+	assert blocked["route"]["endpoint"] == "push.bug", \
 		"asking for input moved Current"
 
 	# The actionable entry DECLARES acceptance to the owed route.

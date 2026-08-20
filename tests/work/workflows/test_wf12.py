@@ -99,6 +99,11 @@ def test_wf12_effectively_once_retry(flow):
 	# 6. Later-state replay across config generations: pass the baton
 	# with an id, reassign handlers by regen, close; the committed pass
 	# STILL replays; a fresh identical request under a new id refuses.
+	# W2571: ada holds the Work to hand it on. The REPLAY below acquires
+	# nothing — it is answered inside the write transaction before the
+	# claim gate — which is exactly why a committed pass still replays
+	# from unclaimed, reassigned and even closed state.
+	flow.ok("claim", f"work={work}", viewer="lang.ada")
 	passed = flow.ok("pass", "op-id=pass-1", f"work={work}",
 	                 "to=lang.impl", "comment=onward", viewer="lang.ada")
 	config = document(verification_teams())

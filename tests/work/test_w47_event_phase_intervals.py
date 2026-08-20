@@ -3,7 +3,7 @@
 The index concatenated `E<seq>`, an unbounded kind, a time and an actor
 into one string, so every field after the first started at a different
 cell and no column could be scanned. And `work-events` projected claim
-intervals but nothing about the queued/active/waiting/parked episodes
+intervals but nothing about the queued/active/block/parked episodes
 that make up the Work's scheduler history.
 
 The intervals are replayed from the ledger's own `phase_now` records,

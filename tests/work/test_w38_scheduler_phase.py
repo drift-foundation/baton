@@ -10,7 +10,7 @@ other than active work.
 
     queued   open, runnable, unclaimed
     active   open and CLAIMED
-    waiting  open, unclaimed, gated
+    block    open, unclaimed, gated
     parked   open, unclaimed, deliberately deferred
     terminal no phase at all
 
@@ -133,24 +133,32 @@ def test_claiming_and_releasing_move_phase_with_the_handler(store):
 def test_a_pass_lands_queued_whatever_the_destination_role(store):
 	work = _create(store)
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
-	result = tr.pass_work(store, work, actor_team="lang", actor="ada",
+	result = fx.hand_off(store, work, actor_team="lang", actor="ada",
 	                      to="lang.rev", comment="over to review")
 	assert result["destination_phase"] == "queued"
 	assert _row(store, work)["handler_team"] is None
 	_invariant(store)
 
 
-def test_a_gated_pass_lands_waiting_and_can_still_wake(store):
-	"""The bug this nearly shipped: deriving `waiting` without also
+def test_a_gated_move_lands_blocked_and_can_still_wake(store):
+	"""The bug this nearly shipped: deriving `block` without also
 	recording the wake condition produces Work that is gated forever,
 	because the sweep only reconsiders rows whose condition it can
-	evaluate."""
+	evaluate.
+
+	SUPERSEDED IN PART — W2571 (`finding-pass-requires-current-claim`,
+	2026-08-20). This was `test_a_gated_pass_lands_waiting_and_can_still
+	_wake`. A pass now requires the claim and a gate releases the
+	claimant, so gated Work moves by `reroute` — which derives its
+	destination phase through the same `_unclaimed_state`. The recorded
+	wake condition and the sweep are unchanged and are still what this
+	proves."""
 	work = _create(store)
 	blocker = _create(store, "gate")
 	tr.add_dependency(store, work, blocker, actor_team="lang",
 	                  actor="ada", rationale="gate")
-	tr.pass_work(store, work, actor_team="lang", actor="ada",
-	             to="lang.rev", comment="over while gated")
+	tr.reroute_work(store, work, actor_team="lang", actor="ada",
+	                to="lang.rev", reason="offered to review while gated")
 	row = _row(store, work)
 	assert row["phase"] == "block"
 	assert row["gate_kind"] == "work", \
@@ -162,7 +170,7 @@ def test_a_gated_pass_lands_waiting_and_can_still_wake(store):
 	_invariant(store)
 
 
-def test_a_late_gate_on_claimed_work_releases_into_waiting(store):
+def test_a_late_gate_on_claimed_work_releases_into_block(store):
 	"""The other bug: this path releases the claim WITHOUT being asked
 	to, so forgetting the phase here leaves `active` with nobody on it."""
 	work = _create(store)
@@ -175,7 +183,7 @@ def test_a_late_gate_on_claimed_work_releases_into_waiting(store):
 	_invariant(store)
 
 
-def test_a_gate_on_unclaimed_queued_work_moves_it_to_waiting(store):
+def test_a_gate_on_unclaimed_queued_work_moves_it_to_block(store):
 	"""Queued means runnable, not merely unclaimed. A dependency arriving
 	before pickup must therefore move the scheduler state even though there
 	is no Handler to release."""
@@ -189,7 +197,7 @@ def test_a_gate_on_unclaimed_queued_work_moves_it_to_waiting(store):
 	_invariant(store)
 
 
-def test_unparking_gated_work_reveals_waiting_not_queued(store):
+def test_unparking_gated_work_reveals_block_not_queued(store):
 	"""Removing the deliberate deferral does not make open gates vanish.
 	The resulting scheduler state is derived from those gates."""
 	work = _create(store)

@@ -75,7 +75,7 @@ def test_the_reader_renders_the_block_with_metadata_and_references(world):
 	# so reaching it needs no index movement at all.
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"\r", 0.6),
-		(b"\x17j", 0.4),              # Ctrl-W j: the Message index
+		(b"", 0.4),                   # W2597: already in the index
 		(b"qy", 0.4),
 	], columns=44, lines=24)
 	screen = ptyharness.replay(steps[1], columns=44, lines=24)
@@ -241,7 +241,7 @@ def test_seen_advances_through_the_selected_message_and_no_later(world):
 	store.close()
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
 		(b"\r", 0.6),
-		(b"\x17j", 0.4),              # the index
+		(b"", 0.4),                   # W2597: already in the index
 		# W76: entry selects the NEWEST (M3); newest-first means the
 		# older opener sits BELOW it, so j reaches M2.
 		(b"j", 0.4),                  # down to the OPENER (M2)
@@ -260,7 +260,7 @@ def test_seen_advances_through_the_selected_message_and_no_later(world):
 	# selecting the later message and marking clears the rest
 	text, status, steps = ptyharness.drive(world["config"], "lang.grace", [
 		# the later message is already the entry selection
-		(b"\r", 0.6), (b"\x17j", 0.4), (b"s", 0.5),
+		(b"\r", 0.6), (b"", 0.4), (b"s", 0.5),
 		(b"qy", 0.4),
 	])
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -291,7 +291,9 @@ def test_the_reader_scrolls_an_oversized_message(tmp_path):
 	store.close()
 	text, status, steps = ptyharness.drive(config_path, "lang.grace", [
 		(b"\r", 0.8),                              # reader page one
-		(b"\x17j\x17j", 0.5),                      # focus the reader
+		# W2597: entry is already the Message index, so ONE chord
+		# reaches the reader where two used to.
+		(b"\x17j", 0.5),                          # focus the reader
 		(b"j" * 40, 1.2),                          # scroll to the tail
 		(b"qy", 0.4),
 	], columns=44, lines=14)
@@ -331,7 +333,7 @@ def test_the_index_pages_are_bounded_with_older_and_newest(tmp_path):
 	store.close()
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.7),
-		(b"\x17j", 0.4),              # the index
+		(b"", 0.4),                   # W2597: already in the index
 		(b"n", 0.6),                  # the older bounded page
 		(b"p", 0.6),                  # back to the newest page
 		(b"qy", 0.4),
@@ -478,7 +480,7 @@ def test_a_long_reference_wraps_and_loses_nothing(tmp_path):
 		(b"\r", 0.6),
 		# W76: the reference-carrying message is the newest, so entry
 		# already selects it
-		(b"\x17j", 0.4),              # the index
+		(b"", 0.4),                   # W2597: already in the index
 		(b"qy", 0.4),
 	], columns=44, lines=20)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

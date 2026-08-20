@@ -53,7 +53,7 @@ def _make(world, title="selected"):
 
 
 def _select_alternate(world, work):
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="use the alternate", route="main2")
 
 

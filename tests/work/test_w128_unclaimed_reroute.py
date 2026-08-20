@@ -78,9 +78,16 @@ def make(world, kind="impl", title="the stranded work"):
 
 
 def onto_alternate(world, work):
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
-	             to="lang.impl", route="alt",
-	             comment="offered to the alternate route")
+	"""Put the Work where this record's whole premise starts: open,
+	queued and UNCLAIMED on the alternate route.
+
+	W2571 makes that arrival a claimant's handoff — ada claims it and
+	passes it, and the pass releases the claim on the way out, which is
+	exactly the stranded state W128 exists to correct. `fx.hand_off`
+	states the claim once and says why."""
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
+	            to="lang.impl", route="alt",
+	            comment="offered to the alternate route")
 
 
 def reroute(world, work, to="lang.impl", route=None,
@@ -174,9 +181,9 @@ def test_the_rerouted_work_keeps_everything_else(world):
 
 def test_a_planned_next_is_not_this_corrections_to_make(world):
 	work = make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
-	             to="lang.impl", route="alt", set_next="lang.rev",
-	             comment="over, and back to review after")
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
+	            to="lang.impl", route="alt", set_next="lang.rev",
+	            comment="over, and back to review after")
 	reroute(world, work, reason="taking it back")
 	detail = pj.detail(world["store"], work, viewer_team="lang",
 	                   viewer_member="ada")

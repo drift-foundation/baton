@@ -67,7 +67,8 @@ def test_init_writes_no_handshake_file(tmp_path):
 def test_meta_pins_protocol_and_uuid(authority):
 	meta = authority.meta()
 	assert meta["protocol_version"] == "11"
-	assert meta["schema_version"] == "24"  # W93: the participant runtime lease
+	# W2938: the participant pickup interval table.
+	assert meta["schema_version"] == "25"
 	assert len(meta["authority_uuid"]) == 32
 
 

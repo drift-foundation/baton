@@ -55,20 +55,32 @@ role is named rather than inferred so a later second role cannot silently
 change a session's persona. A missing or unheld role refuses before a launcher
 creates or resumes a session.
 
-The active claim is its own authority state, orthogonal to phase: `claim
-work=WORK` records WHO is executing without touching WHAT stage the phase
-names. One eligible handler of the live Route endpoint acquires open,
-ready, non-waiting/non-parked Work — every condition rechecked inside the
-write transaction, so an earlier `ready` observation is advisory and a
-competing claim fails closed naming the recorded claimant. No execution
-begins before the claim succeeds. A pass atomically records the
-destination Route AND the destination phase through its own canonical
-THREADLESS verb — `pass work=W to=team.kind comment="..."`
+The active claim and the scheduler phase are ONE fact seen twice, not
+two: `claim work=WORK` records WHO is executing and moves the Work to
+`active` in the same transaction, because `active` means exactly that a
+Handler holds it. So only `claim` reaches `active` — `phase to=active`
+is refused and names the claim instead — and Handler and phase move
+together here and in every releasing transition, which is what leaves
+the invariant `active iff Handler` no window in which it is false. What
+the phase does NOT say is what KIND of work this is: that is the
+route's role, on its own axis. One eligible handler of the live Route
+endpoint acquires open, ready, non-blocked/non-parked Work — every
+condition rechecked inside the write transaction, so an earlier `ready`
+observation is advisory and a competing claim fails closed naming the
+recorded claimant. No execution
+begins before the claim succeeds, and no HANDOFF happens without one
+either: a pass is the current claimant's act, refused atomically for
+any other actor including an eligible route peer, because handing Work
+on is releasing a claim you hold. Moving Work nobody holds is
+`reroute`, on the owning team's authority. A pass atomically records
+the destination Route AND the destination phase through its own
+canonical THREADLESS verb — `pass work=W to=team.kind comment="..."`
 (W38: phase is a closed SCHEDULER axis — `queued` runnable and
-unclaimed, `active` claimed, `waiting` gated, `parked` deferred, and
+unclaimed, `active` claimed, `block` gated, `parked` deferred, and
 absent once terminal. A handoff hands over responsibility, not
-activity, so it lands `queued` when the Work is runnable and `waiting`
-when a gate holds it, whatever the destination role. `phase=` is
+activity, so it lands `queued`, whatever the destination role — and it
+can land nothing else, since a claimant's Work is runnable by
+construction: a gate arriving releases the claim. `phase=` is
 refused as an unknown key. The route's role still says whether this is
 research, implementation or review — it just no longer masquerades as a
 scheduler state, and `active` is reachable only by claiming);
@@ -80,8 +92,10 @@ claim, and never claims for the recipient. A pass creates no Message,
 advances no cursor, and changes no Message/My/New/obligation count;
 conversation stays explicit through `say`. Plain `say` is discussion
 (plus the `@ request=` operator); it carries no transfer keys; entering
-waiting/parked and terminal close also release. Blocked Work keeps its
-honest stage phase but cannot be claimed. An abandoned or yielded claim
+block/parked and terminal close also release. `block` IS the phase such
+Work is in — not a flag beside some other stage — and blocked Work
+cannot be claimed, and therefore cannot be passed either; the refusal
+names the phase and points at `reroute`. An abandoned or yielded claim
 is recovered with `release work=WORK expect=team.member reason=TEXT` —
 live Route-handler authority, an exact compare-and-swap against the
 recorded claimant, and a durable reason; it clears the claimant and
@@ -160,11 +174,14 @@ at that column rather than under its key, so a long session locator
 still reads as one field's content and is recoverable in full on a
 wide enough terminal.
 
-`Log` is always present: it carries the published locator with its
-source and age, or says the adapter has published none. That is the
-same rule the whole block follows — missing, `unknown`, stale and
-absent stay visibly different from each other, and nothing is tidied
-into a value that reads as reassuring. A terminal too short to hold
+**Operational diagnostics** is an inventory of what the adapter actually
+published, so it holds exactly those facts and no row for one that is
+absent. A published `Log` appears verbatim with its source and age; an
+adapter that published none simply has no `Log` row, and a member that
+published nothing at all has no section. Everywhere a fact IS present
+the block follows the same rule — missing, `unknown`, stale and absent
+stay visibly different from each other, and nothing is tidied into a
+value that reads as reassuring. A terminal too short to hold
 the block says how many rows it could not show and names `teams` as
 the verb holding the whole record.
 
@@ -301,6 +318,15 @@ list, and below it a compact Message index (`M<seq>` labels over the
 existing stable sequence, with author, time, and your personal
 new/seen state) beside a reader showing exactly ONE selected message
 — its metadata header, wrapped body, and references under a separate
+Opening a Work puts the cursor in its MESSAGE INDEX. The Threads list
+above it still selects the Thread — by the same New-first rule — and
+still decides which Messages are shown; it simply is not where you
+start, because most Work has one Thread and reading it was costing a
+pane switch every time. `Shift-Tab` or `Ctrl-W k` reaches the Threads
+list whenever the Work has several. This is the default for a FRESH
+entry, from Jobs, from search results, or from an Inbox row's Work
+context; moving between the detail tabs keeps whatever pane you chose.
+
 Inside Work detail, `Tab` cycles pane focus forward through the panes
 that view is painting and `Shift-Tab` cycles backward, wrapping — three
 in Messages, two in Events. It is the discoverable alternative to
@@ -463,7 +489,7 @@ stays global, and the active filter is always disclosed — `Filter:N`
 right-aligned on the header plus a dedicated clause line that viewports
 at narrow widths.
 
-Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not waiting or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Eligibility is TWO columns, not one: `Endpoint` is the stable
+Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not blocked or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Eligibility is TWO columns, not one: `Endpoint` is the stable
 `team.kind` address a reader types, and `Via` is the selected internal
 route that decides who may claim it — with W230 alternates, one endpoint
 can be offered through two routes to two different agents, and a single
@@ -474,7 +500,9 @@ pressure Via is dropped before Endpoint, and both before Handler; whole
 columns go rather than identities being truncated. Terminal Work reports
 no route at all — eligibility is a live question — so both cells read
 `-` there, exactly as Handler does. Other people's activity reads
-through Phase, Handler, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). W15 removed the unclaimed `>` marker from both Phase and Held: the Handler column is blank when nobody holds the Work, so the marker restated a fact the row already carried. Held is a bare timer — since `claimed_at` while claimed, since the handoff while unclaimed, `-` with no origin — and Handler is what distinguishes the two intervals. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never dependency-blocked, waiting, parked, or terminal Work. Dependency readiness, waiting, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing — which under W38 is exactly `phase=active`. Unclaimed, waiting, parked and closed Work stay steady; the personal pickup cue for ready unclaimed Work whose Route resolves to you is the separate bold-Title rule above. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
+through Phase, Handler, and the final `Held` column — one MM:SS interpretation for every ordinary value (elapsed whole seconds, `00:00` through `99:59`, `∞` at 100 minutes and beyond). W15 removed the unclaimed `>` marker from both Phase and Held: the Handler column is blank when nobody holds the Work, so the marker restated a fact the row already carried. Held is a bare timer — since `claimed_at` while claimed, since the handoff while unclaimed, `-` with no origin — and Handler is what distinguishes the two intervals. The handoff instant stays in JSON as `handoff_at` beside the structured `pickup` state — claimed/pending/overdue — so agents read facts, never glyphs; `overdue` describes only a pickup that is actually possible, never blocked, parked, or terminal Work. W2938 removes the `New` column from this list for horizontal-space priority and adds NO replacement to it — personal unseen state is canonical JSON and stays visible everywhere it drives an action, in Inbox, Threads, Message indexes, Work detail and explicit `new` reads. A Job is queued and unclaimed; it is not the entity that owes a claim. The AGENT with free capacity owes pickup, one obligation per participant however many Jobs it could take, so that cue lives on **Teams** and never annotates a Work row.
+
+**Claim pickup is a participant obligation.** A participant holds exactly ONE active claim across all Routes; a second is refused, naming the Work already held. That capacity unit is what makes "free capacity" answerable, and the pickup cue depends on it. An idle participant whose actionable pool — the unclaimed half of their `wait` action set — is nonempty owes exactly one pickup: **claim one actionable Job**. Ten offered Jobs are one obligation, not ten. Adding, removing, reprioritizing or reordering Work neither multiplies nor resets it while that pool stays continuously nonempty, including when a competing handler takes one of them. Claiming ANY eligible Work clears it, because the participant becomes busy; an emptied pool or lost Route eligibility clears it too. A participant who later becomes idle with Work still waiting starts a NEW interval, and the earlier elapsed time never resumes. The interval and its start are canonical, so they survive a client or runner restart, and `pending` versus `overdue` is derived at read time — no timeout event, no workflow mutation. The default threshold is 360 seconds; a deployment may set a positive `instance.pickup_overdue_seconds`, and the accepted value rides the `teams` read as `pickup_overdue_seconds` — acquired once inside the same snapshot the member states are derived in, so a response never announces one policy beside states computed with another. A missing or invalid accepted value is an invalid authority and refuses; the defaulting lives at acceptance, where omission legitimately means 360, and no client falls back to a local guess. Teams member rows carry `Pickup` — `-`, `pend` or `late` — an overdue member's row is bold, and member detail spells out the state, the elapsed interval and the canonical first actionable Work as a suggested next claim. That locator is diagnostic; it does not own the obligation. The top-level tab renders `[Teams *]` when at least one participant is overdue and plain `[Teams]` otherwise, reusing the Inbox `*` vocabulary rather than inventing another glyph; pending alone never stars, and the star carries no count. On a shared Route every idle eligible participant evaluates its own single interval, and the atomic claim stays the arbiter. Dependency readiness, blocking, and parking stay separate table and JSON facts: they explain why unclaimed Work may not be claimable, and never hide that it is unclaimed. There is no elapsed-time escalation and no claimant liveness suffix — a claimed agent can be alive and busy inside one model turn with no opportunity to call `heartbeat`, so silence is not treated as failure. Advanced on the ordinary refresh; no timeout mutates workflow authority. There is no indefinite animation; the phase cell blinks only as a short change cue — three scheduled refresh ticks after the console observes a genuine Phase change (cold on load and reconnect; keystrokes, redraws, resize, and immediate mutation refreshes neither consume nor restart it). The hot zone itself: any open Work someone is executing — which under W38 is exactly `phase=active`. Unclaimed, blocked, parked and closed Work stay steady; the personal pickup cue for ready unclaimed Work whose Route resolves to you is the separate bold-Title rule above. The cue is presentation-only — it never moves selection, marks anything seen, or touches the authority — and the textual phase, readiness, and claimant facts remain authoritative on terminals that ignore blink. Work carries one team-local priority —
 `high`, `normal` (the default), `low` — an ordering signal only, never
 a lifecycle fact. `create priority=...` records it at birth;
 `prioritize work=... as=...` is the audited effectively-once revision,

@@ -132,8 +132,11 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		for name, col_width in columns:
 			cells[name] = rest[offset + 1:offset + 1 + col_width].strip()
 			offset += 1 + col_width
-		assert cells["NEW"].isdigit(), \
-			f"unparseable row (NEW={cells.get('NEW')!r}): {line!r}"
+		# W2938 removed the `New` column from Jobs and added no
+		# replacement, so the row-shape sanity check moves to a cell
+		# every row must carry: HANDLER is `-` or a participant, never
+		# blank, and it is the column this suite most cares about.
+		assert cells["HANDLER"], f"unparseable row: {line!r}"
 		# W245: ROUTE (eligible endpoint) and CURRENT (exact claimant)
 		# are separate columns, so parity checks them separately.
 		parsed = {"title": cells["title"], "depth": cells["depth"],
@@ -150,8 +153,7 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		          else cells["ENDPOINT"],
 		          "handler": None if cells["HANDLER"] == "-"
 		          else cells["HANDLER"],
-		          "next": None if cells["NEXT"] == "-" else cells["NEXT"],
-		          "new": int(cells["NEW"])}
+		          "next": None if cells["NEXT"] == "-" else cells["NEXT"]}
 		for key, name in (("phase", "PHASE"), ("classification", "CLS"),
 		                  ("msg_my", "MSG/MY")):
 			if name in cells:
@@ -249,9 +251,11 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			assert drawn_row["handler"] == expected_current, \
 				f"TUI Handler {drawn_row['handler']!r} disagrees with " \
 				f"JSON {expected_current!r} on {json_row['title']!r}"
-			assert drawn_row["new"] == json_row["new"], \
-				f"{viewer} New disagrees on {json_row['title']!r}: " \
-				f"TUI {drawn_row['new']} vs JSON {json_row['new']}"
+			# W2938: the Jobs list no longer paints personal New, and
+			# adds no per-Job pickup cue in its place — pickup is a
+			# PARTICIPANT obligation and lives on Teams. So there is no
+			# per-row field left here whose parity this loop can ask
+			# about beyond the identity and workflow cells above.
 
 
 def test_containment_children_agree_inline(world, capsys):
@@ -274,7 +278,6 @@ def test_containment_children_agree_inline(world, capsys):
 			f"{drawn_row['title']!r} is not a prefix of {json_row['title']!r}"
 	assert len(drawn) >= len(expected)
 	for drawn_row, json_row in zip(drawn, expected):
-		assert drawn_row["new"] == json_row["new"]
 		assert drawn_row["next"] == (json_row["next"] or {}).get("endpoint")
 
 
@@ -317,7 +320,7 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 		(b"\r", 0.5),        # drill: path = [lang42]
 		(b"o", 0.5),         # the focused view + thread set
 		(b"\r", 0.5),        # open the epic's own thread
-		(b"\x17j", 0.4),     # W14: the Message index
+		(b"", 0.4),          # W2597: entry already focuses the index
 		# W76: newest-first entry already selects the LAST message, so
 		# no walk is needed to mark the whole thread seen.
 		(b"s", 0.5),         # seen through the selected (newest) message
@@ -329,11 +332,16 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 	assert after["own"] == 0, "the console's s did not commit the cursor"
 	assert after["subtree_total"] == before["subtree_total"] - before["own"], \
 		"the decomposition moved by a different amount than own"
-	# ...and the TUI's home row shows the same reduced number — the
-	# W179 DIRECT cell, own scope only.
+	# ...and the canonical read agrees. W2938 removed the Jobs `New`
+	# cell, so this no longer has a list column to compare against; the
+	# personal count is still canonical and is still painted where it
+	# drives action, which the Inbox and thread suites assert.
 	screen = _screen_rows(path, "lang.grace")
-	drawn = _parse_rows(screen)
-	assert drawn[0]["new"] == after["own"]
+	assert _parse_rows(screen), "the table stopped painting rows"
+
+
+def _local(work_id):
+	return work_id.split("-")[-1]
 
 
 def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
@@ -344,8 +352,8 @@ def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
 	from baton_work import transitions as tr
 	database = os.path.join(os.path.dirname(path), "work.sqlite3")
 	with bw.Authority(database) as store:
-		# W38 R1: park a LEAF. Work with open children is `waiting`,
-		# and waiting leaves only through its condition-bound wake.
+		# W38 R1: park a LEAF. Work with open children is `block`,
+		# and block leaves only through its condition-bound wake.
 		leaf = tr.create_work(store, team="push", kind="bug",
 		                      title="parkable leaf",
 		                      origin="self-initiated",
@@ -364,7 +372,16 @@ def test_the_parked_summary_agrees_from_one_snapshot(world, capsys):
 		# the Jobs table, which is what parity now means here.
 		assert "[park:" not in screen[0], \
 			f"the retired parked counter came back: {screen[0]!r}"
-		assert any("parkable leaf" in line for line in screen), screen
+		# W2938 changed which columns the responsive layout keeps, and
+		# the Title is the one column it may truncate — so the row is
+		# located by the Id, which is identity and is never
+		# abbreviated, with the drawn title checked as the prefix it
+		# is. Same rule the containment parity above already follows.
+		row = next((line for line in screen
+		            if line.startswith(f"{_local(leaf)} ")), None)
+		assert row is not None, screen
+		drawn_title = row.split(None, 1)[1][:len("parkable leaf")].strip()
+		assert "parkable leaf".startswith(drawn_title), row
 	finally:
 		with bw.Authority(database) as store:
 			tr.set_phase(store, leaf, actor_team="push",

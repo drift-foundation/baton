@@ -172,7 +172,7 @@ def test_alternate_routed_work_shows_the_alternate(world):
 	different agents, indistinguishable before this change."""
 	default = make(world, title="through the default")
 	alternate = make(world, title="through the alternate")
-	tr.pass_work(world["store"], alternate["work_id"],
+	fx.hand_off(world["store"], alternate["work_id"],
 	             actor_team="lang", actor="ada", to="lang.impl",
 	             route="alt", comment="over to the alternate route")
 	lines = painted(world)
@@ -190,7 +190,7 @@ def test_a_claimed_alternate_shows_endpoint_via_and_handler(world):
 	"""The acceptance boundary's exact assertion: the address, the
 	route, and the participant who actually took it."""
 	born = make(world)
-	tr.pass_work(world["store"], born["work_id"], actor_team="lang",
+	fx.hand_off(world["store"], born["work_id"], actor_team="lang",
 	             actor="ada", to="lang.impl", route="alt",
 	             comment="to the alternate")
 	tr.claim_work(world["store"], born["work_id"], actor_team="lang",
@@ -208,7 +208,7 @@ def test_via_never_disagrees_with_the_route_that_authorizes(world):
 	route object, so the table cannot advertise a route the claim
 	would refuse."""
 	born = make(world)
-	tr.pass_work(world["store"], born["work_id"], actor_team="lang",
+	fx.hand_off(world["store"], born["work_id"], actor_team="lang",
 	             actor="ada", to="lang.impl", route="alt",
 	             comment="to the alternate")
 	lines = painted(world)
@@ -251,7 +251,7 @@ def test_a_terminal_row_reports_no_eligibility_in_either_cell(world):
 	Handler does. Via must not invent a route for Work that admits
 	nobody; the route it was executed through stays in Events."""
 	born = make(world)
-	tr.pass_work(world["store"], born["work_id"], actor_team="lang",
+	fx.hand_off(world["store"], born["work_id"], actor_team="lang",
 	             actor="ada", to="lang.impl", route="alt",
 	             comment="to the alternate")
 	tr.claim_work(world["store"], born["work_id"], actor_team="lang",
@@ -281,7 +281,10 @@ def test_a_terminal_row_reports_no_eligibility_in_either_cell(world):
 def test_whole_columns_are_dropped_and_handler_outlives_both(world):
 	"""'Responsive omission may drop Endpoint and Via before Handler,
 	but it must drop whole columns rather than truncate identities.'"""
-	widths = range(140, 40, -1)
+	# W2938: `Endpoint` outlives more of the budget than it used to —
+	# `Claim` yields to it and the removed `New` was undroppable — so
+	# the sweep reaches further down to find where it actually goes.
+	widths = range(140, 20, -1)
 	lost_via = lost_endpoint = lost_handler = None
 	for width in widths:
 		names = [name for name, _size in app.visible_columns(width)]
@@ -303,7 +306,7 @@ def test_a_narrow_table_never_truncates_an_identity(world):
 	"""The columns are dropped whole; the title is the only thing the
 	layout may cut, and identities are drawn complete or not at all."""
 	born = make(world)
-	tr.pass_work(world["store"], born["work_id"], actor_team="lang",
+	fx.hand_off(world["store"], born["work_id"], actor_team="lang",
 	             actor="ada", to="lang.impl", route="alt",
 	             comment="to the alternate")
 	tr.claim_work(world["store"], born["work_id"], actor_team="lang",
@@ -327,7 +330,7 @@ def test_json_encodes_the_distinction_structurally_and_not_by_label(world):
 	"""'JSON keeps the already explicit structured route object.' The
 	console reads the same two fields the authorization does."""
 	born = make(world)
-	tr.pass_work(world["store"], born["work_id"], actor_team="lang",
+	fx.hand_off(world["store"], born["work_id"], actor_team="lang",
 	             actor="ada", to="lang.impl", route="alt",
 	             comment="to the alternate")
 	rows = pj.tree(world["store"], None, viewer_team="lang",

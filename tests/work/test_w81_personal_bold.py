@@ -3,12 +3,12 @@
 The superseding ruling (finding-tui-hot-cue-live-visibility): bold
 answers "what am I supposed to handle?" — reserved for Work the CURRENT
 VIEWER can act on: they hold its active claim; or it is open, ready,
-unclaimed, not waiting/parked, and its Route endpoint resolves to
-them (every eligible handler of a multi-handler Current until one
+unclaimed, not blocked/parked, and its Route endpoint resolves to
+them (every eligible handler of a multi-handler Route until one
 claims; only the winner after); or they carry an unresolved directed
 `@` obligation on it (independently actionable even while blocked).
-Everyone else's activity stays visible through Phase, Current, and
-claim Age; the three-tick Phase-change blink stays an observed-change
+Everyone else's activity stays visible through Phase, Handler, and
+the Held timer; the three-tick Phase-change blink stays an observed-change
 cue, not an ownership cue. Presentation only — no authority mutation,
 no authorization change.
 """
@@ -68,8 +68,8 @@ def row_for(world, work_id, viewer_team="lang", viewer_member="ada"):
 def test_the_actionability_matrix(world):
 	"""Every ruled branch over real projections: claim ownership,
 	resolved-Current readiness, the directed @, and every exclusion
-	(blocked, waiting, parked, closed, foreign claimant, unresolved
-	member, other team)."""
+	(blocked, parked, closed, foreign claimant, unresolved member,
+	other team)."""
 	store = world["store"]
 	work = make(world, "the subject")["work_id"]
 	# open, ready, unclaimed, Current resolves to ada: actionable for
@@ -96,7 +96,7 @@ def test_the_actionability_matrix(world):
 	assert not actionable_work(blocked, "lang", "ada")
 	tr.close_work(store, gate, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
-	# waiting and parked: not bold even though Current names the viewer
+	# blocked and parked: not bold even though the Route names the viewer
 	second_gate = make(world, "second gate")["work_id"]
 	tr.add_dependency(store, work, second_gate, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
@@ -169,8 +169,14 @@ def test_two_viewers_see_two_bold_sets(world):
 		        if attr & curses.A_BOLD}
 
 	ada_bold = bold_titles("ada")
-	assert any("mine claimed" in text for text in ada_bold)
-	assert any("ready for ada" in text for text in ada_bold)
+	# W2938: the Title truncates three cells earlier, so the bold set
+	# carries drawn PREFIXES — the property is which rows are bold, not
+	# how many characters of their titles survive the layout.
+	def bolded(title):
+		return any(text and title.startswith(text) for text in ada_bold)
+
+	assert bolded("mine claimed")
+	assert bolded("ready for ada")
 	grace_bold = bold_titles("grace")
 	assert grace_bold == set(), \
 		f"grace inherited someone else's cue: {grace_bold}"

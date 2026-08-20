@@ -82,10 +82,18 @@ def make(world, title="a work", kind="impl", parent=None):
 
 def onto_alternate(world, work):
 	"""Send one Work to the alternate route, exactly as the incident's
-	W25 was."""
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
-	             to="lang.impl", route="alt",
-	             comment="offered to the alternate route")
+	W25 was: open, unclaimed, and offered somewhere its default route
+	does not point.
+
+	W2571 (`finding-pass-requires-current-claim`, 2026-08-20) makes
+	`reroute` the operation for that. A pass now requires the claim, and
+	several Works here are GATED — by an open child or an open blocker —
+	so they have no claimant and can acquire none. `reroute` is the
+	owning team's correction of where unclaimed Work is offered, which
+	is what this helper always meant."""
+	tr.reroute_work(world["store"], work, actor_team="lang", actor="ada",
+	                to="lang.impl", route="alt",
+	                reason="offered to the alternate route")
 	return work
 
 

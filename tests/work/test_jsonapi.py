@@ -147,10 +147,15 @@ def test_mutating_verbs_return_the_committed_state(tmp_path, capsys):
 	               "body=b", viewer="lang.ada")["result"]
 	assert created["work_id"].endswith(f"-W{created['seq']}")
 
+	# W2571: the handoff releases a claim, so it takes one first.
+	_run(capsys, path, "claim", f"work={created["work_id"]}",
+	     viewer="lang.ada")
 	passed = _run(capsys, path, "pass", f"work={created["work_id"]}",
 	              "to=lang.impl", "set-next=lang.rev", "comment=go",
 	              viewer="lang.ada")["result"]
 	assert passed["kind"] == "pass"
+	_run(capsys, path, "claim", f"work={created["work_id"]}",
+	     viewer="lang.ada")
 	returned = _run(capsys, path, "pass", f"work={created["work_id"]}",
 	                "to=lang.rev", "comment=done",
 	                viewer="lang.ada")["result"]

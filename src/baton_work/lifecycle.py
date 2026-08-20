@@ -31,8 +31,8 @@ import json
 import os
 import tempfile
 
-from baton_work.authority import (Authority, WorkError,
-                                  validate_op_id)
+from baton_work.authority import (Authority, PICKUP_OVERDUE_DEFAULT,
+                                  WorkError, validate_op_id)
 from baton_work import config as cfg
 
 DATABASE = cfg.DATABASE_NAME
@@ -251,6 +251,10 @@ def init_from_config(config_path: str, *, participant: str,
 					[("authority_uuid",
 					  document["instance"]["authority_uuid"]),
 					 ("accepted_digest", digest),
+					 ("pickup_overdue_seconds",
+					  str(document["instance"].get(
+						  "pickup_overdue_seconds",
+						  PICKUP_OVERDUE_DEFAULT))),
 					 ("accepted_generation",
 					  str(document["generation"]))])
 			def finish(result):
@@ -575,6 +579,10 @@ def accept_config(config_path: str, *, actor: str,
 			conn.executemany(
 				"INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
 				[("accepted_digest", digest),
+				 ("pickup_overdue_seconds",
+				  str(document["instance"].get(
+					  "pickup_overdue_seconds",
+					  PICKUP_OVERDUE_DEFAULT))),
 				 ("accepted_generation", str(document["generation"]))])
 
 		def finish(result):

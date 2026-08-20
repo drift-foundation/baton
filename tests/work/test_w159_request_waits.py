@@ -269,8 +269,8 @@ def test_somebody_elses_claim_cannot_be_blocked(world):
 
 
 def test_a_second_blocking_request_cannot_stack(world):
-	"""A Work already waiting is, by construction, unclaimed — entering
-	waiting released the claim — so the claim gate is what refuses. No
+	"""A Work already blocked is, by construction, unclaimed — entering
+	block released the claim — so the claim gate is what refuses. No
 	separate phase test is needed, and adding one would be unreachable
 	code."""
 	store = world["store"]
@@ -401,7 +401,7 @@ def test_the_blocking_request_serializes_against_a_claim_release(world):
 		               body="push: advise", request="push.bug", on=work)
 	assert store.last_seq() == before
 	assert state(world, work)["phase"] != "block", \
-		"a refused blocking request stranded the Work in waiting"
+		"a refused blocking request stranded the Work in block"
 
 
 def test_only_one_resolution_wakes_the_waiter(world):

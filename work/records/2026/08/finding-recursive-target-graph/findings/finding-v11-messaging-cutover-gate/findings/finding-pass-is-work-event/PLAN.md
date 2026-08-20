@@ -5,6 +5,12 @@
 not own the active claim, while preserving claimant and unclaimed transfers;
 the focused W171 suite and complete v11 gate are green.
 
+**Superseded in part — 2026-08-20:** preserving unclaimed transfers is no
+longer the current contract. The follow-up
+`finding-active-work-claim/findings/finding-pass-requires-current-claim`
+requires every `pass` actor to hold the exact current claim; threadless event
+semantics remain unchanged.
+
 1. Revalidate every `pass` authority, projection, CLI, TUI command-mode and
    workflow-test path against the decision in `FINDING.md`.
 2. Remove `thread=` from the pass grammar and stop creating a discussion

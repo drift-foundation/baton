@@ -339,6 +339,23 @@ class FakeClient extends EventEmitter {
 		super();
 		this.connected = true;
 		this.starts = [];
+		// W3243: what the bridge answered a server-initiated request
+		// with, and which turns it ended. Recorded because "it denied
+		// and never approved" is the assertion this Work exists for.
+		this.responses = [];
+		this.interrupts = [];
+		this.interruptFails = false;
+	}
+
+	respondError(id, code, message) {
+		this.responses.push({ id, code, message });
+		return true;
+	}
+
+	async interruptTurn(threadId, turnId) {
+		this.interrupts.push({ threadId, turnId });
+		if (this.interruptFails) throw new Error("interrupt refused");
+		return { ok: true };
 	}
 
 	async connectAndInitialize() {
@@ -439,9 +456,16 @@ test("the approval request that started all this becomes waiting-input",
 		await bridge.stop();
 	});
 
-test("publishing the state is not answering the request", async () => {
-	// The dispatcher's ruled boundary is unchanged: it reports what it
-	// saw and still refuses to approve or answer anything.
+test("the request is DENIED, never approved", async () => {
+	// SUPERSEDED IN PART — W3243. This was "publishing the state is not
+	// answering the request", and leaving it unanswered is precisely
+	// what wedged the target: the turn waited for a human who was not
+	// in that conversation while 24 readiness events queued behind it.
+	//
+	// The boundary that stands is the one that matters: the bridge
+	// never APPROVES. It now answers with an explicit denial, which no
+	// app-server can read as permission, and still forwards the
+	// observation for anyone watching.
 	const { bridge, fake } = dispatcherWithRuntime();
 	const forwarded = [];
 	bridge.on("serverRequest", (entry) => forwarded.push(entry));
@@ -452,6 +476,9 @@ test("publishing the state is not answering the request", async () => {
 	});
 	assert.equal(forwarded.length, 1);
 	assert.equal(forwarded[0].target, "tuner");
+	assert.equal(fake.responses.length, 1);
+	assert.equal(fake.responses[0].id, 7);
+	assert.match(fake.responses[0].message, /cannot approve/);
 	await bridge.stop();
 });
 

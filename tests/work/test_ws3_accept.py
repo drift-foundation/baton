@@ -317,7 +317,7 @@ def test_accept_wakes_the_exact_obligation_waiter_but_not_ready(world):
 	assert row["gate_kind"] == "work"
 	assert row["ready"] == 0, "the new gate did not hold readiness false"
 	# ...and it emits NO wake, because nothing woke. A `wake` event
-	# whose from and to are both `waiting` would put a false
+	# whose from and to are both `block` would put a false
 	# actionability signal into every trail that reads the journal.
 	wakes = [event for event in store.events() if event["kind"] == "wake"]
 	assert wakes == [], "a retarget was audited as a wake"

@@ -82,6 +82,8 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	assert _run(path, "obligations", viewer="lang.ada")["result"] == []
 
 	# 5. pass with planned Next, then the consuming return.
+	# W2571: a pass is the claimant's handoff, so ada holds it first.
+	_run(path, "claim", f"work={lang42}", viewer="lang.ada")
 	passed = _run(path, "pass", f"work={lang42}", "to=lang.impl",
 	              "set-next=lang.rev",
 	              "comment=confirmed, implement",
@@ -90,6 +92,7 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	detail = _run(path, "detail", f"work={lang42}", viewer="lang.ada")["result"]
 	assert detail["route"]["endpoint"] == "lang.impl"
 	assert detail["next"]["endpoint"] == "lang.rev"
+	_run(path, "claim", f"work={lang42}", viewer="lang.ada")
 	returned = _run(path, "pass", f"work={lang42}", "to=lang.rev",
 	                "comment=implementation complete",
 	                viewer="lang.ada")["result"]
@@ -108,10 +111,13 @@ def test_the_gate_scenario_end_to_end(tmp_path):
 	# The ordered audit trail: every step, one event, dense sequence.
 	events = _run(path, "events", viewer="lang.ada")["result"]
 	kinds = [event["kind"] for event in events]
-	# W38 R1: the gated dependent now sits in `waiting`, so closing the
+	# W38 R1: the gated dependent now sits in `block`, so closing the
 	# last blocker emits the wake that makes it actionable again.
-	assert kinds[-7:] == ["create_work", "add_dependency", "respond",
-	                      "pass", "return", "close_work", "wake"]
+	# W2571 puts a claim in front of each handoff: the pass and the
+	# consuming return are each the release of a claim their actor took.
+	assert kinds[-9:] == ["create_work", "add_dependency", "respond",
+	                      "claim", "pass", "claim", "return",
+	                      "close_work", "wake"]
 	seqs = [event["seq"] for event in events]
 	assert seqs == list(range(1, len(seqs) + 1)), "the trail has a hole"
 	# ...and the return step is the one that consumed the planned Next.

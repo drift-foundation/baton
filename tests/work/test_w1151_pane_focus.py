@@ -35,7 +35,8 @@ sys.path.insert(0, os.path.join(
 
 import baton_work as bw                                        # noqa: E402
 from baton_work import transitions as tr                       # noqa: E402
-from baton_work.tui.app import Console                          # noqa: E402
+from baton_work.tui.app import (Console,                        # noqa: E402
+                                DETAIL_ENTRY_FOCUS)
 import fixtures as fx                                          # noqa: E402
 
 TAB, BTAB = 9, curses.KEY_BTAB
@@ -111,12 +112,16 @@ def detail(world):
 # -- the cycle ---------------------------------------------------------------
 
 def test_tab_cycles_the_message_panes_forward(world):
+	"""W2597 moved where the cycle STARTS — fresh detail now opens in
+	the Message index — so the expected sequences below are rotated.
+	The contract this suite owns is unchanged: Tab visits all three
+	panes in one order and wraps."""
 	view = detail(world)
 	seen = []
 	for _ in range(4):
 		seen.append(view.focus)
 		view.handle(TAB)
-	assert seen == ["threads", "index", "reader", "threads"], seen
+	assert seen == ["index", "reader", "threads", "index"], seen
 
 
 def test_shift_tab_cycles_them_backward(world):
@@ -125,7 +130,7 @@ def test_shift_tab_cycles_them_backward(world):
 	for _ in range(4):
 		seen.append(view.focus)
 		view.handle(BTAB)
-	assert seen == ["threads", "reader", "index", "threads"], seen
+	assert seen == ["index", "threads", "reader", "index"], seen
 
 
 def test_the_two_directions_are_inverses(world):
@@ -156,16 +161,22 @@ def test_events_cycles_the_panes_it_actually_paints(world):
 
 
 def test_tab_and_the_chord_reach_the_same_states(world):
-	"""The two gestures are alternatives, not two different models."""
+	"""The two gestures are alternatives, not two different models.
+
+	W2597 rotated the starting pane, so the walk starts in the index
+	and the geometric keys follow the panes rather than the old order:
+	index is beside the reader (`l`), and the Threads list is above
+	them both (`k`). The property is the one this test always made —
+	the same two states, reached either way."""
 	by_tab, by_chord = detail(world), detail(world)
-	by_tab.handle(TAB)
-	by_chord.handle(CTRL_W)
-	by_chord.handle(ord("j"))
-	assert by_tab.focus == by_chord.focus == "index"
 	by_tab.handle(TAB)
 	by_chord.handle(CTRL_W)
 	by_chord.handle(ord("l"))
 	assert by_tab.focus == by_chord.focus == "reader"
+	by_tab.handle(TAB)
+	by_chord.handle(CTRL_W)
+	by_chord.handle(ord("k"))
+	assert by_tab.focus == by_chord.focus == "threads"
 
 
 @pytest.mark.parametrize("pane_key", [TAB, BTAB])
@@ -231,7 +242,8 @@ def test_the_command_bar_keeps_its_completion_tab(world):
 		view.handle(ord(character))
 	view.handle(TAB)
 	assert view.command and view.command.startswith("clos"), view.command
-	assert view.focus == "threads", "a completion moved the pane focus"
+	assert view.focus == DETAIL_ENTRY_FOCUS, \
+		"a completion moved the pane focus"
 
 
 def test_the_search_entry_is_not_pane_navigation(world):
@@ -281,7 +293,7 @@ def test_the_focus_states_are_the_same_at_every_width(world, width):
 		painted(view, width=width)
 		seen.append(view.focus)
 		view.handle(TAB)
-	assert seen == ["threads", "index", "reader"], (width, seen)
+	assert seen == ["index", "reader", "threads"], (width, seen)
 
 
 # -- what the console tells the operator --------------------------------------

@@ -123,7 +123,7 @@ def test_selection_moves_list_highlight_and_reader_together(tmp_path):
 	config_path, _born = _world(tmp_path, extra_messages=2)
 	screens = _screen(config_path, [
 		(b"\r", 0.6),
-		(b"\x17j", 0.4),              # focus the Message index
+		(b"", 0.4),                   # W2597: already in the index
 		(b"j", 0.5),                  # move the selection
 		(b"qy", 0.4)])
 	before = "\n".join(screens[1])

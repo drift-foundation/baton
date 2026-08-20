@@ -191,7 +191,9 @@ def test_provenance_must_carry_the_open_work_label(world):
 	store, _config = world
 	born = _create(store)
 	work = born["work_id"]
-	other = _create(store)
+	# W2938 one-slot capacity: the second Work is only a source of
+	# foreign provenance, so it needs no claim of its own.
+	other = _create(store, claim=False)
 	foreign_message = _say(store, other["thread"],
 	                       "written somewhere else")
 	with pytest.raises(bw.WorkError, match="does not carry"):
@@ -218,7 +220,7 @@ def test_a_mid_flight_unlabel_refuses_the_promotion_in_lock(world):
 	store, _config = world
 	born = _create(store)
 	work = born["work_id"]
-	other = _create(store)
+	other = _create(store, claim=False)   # W2938: only a thread source
 	tr.label_thread(store, other["thread"], work,
 	                    actor_team="lang", actor="ada")
 	proposed = _say(store, other["thread"], "complete contract")
@@ -332,7 +334,10 @@ def test_a_mid_flight_close_refuses_the_promotion_in_lock(world):
 
 def test_child_work_revises_independently_of_its_parent(world):
 	store, _config = world
-	parent = _create(store)
+	# W2938 one-slot capacity: the parent needs no claim here — this
+	# test revises the CHILD and then asserts the parent's contract was
+	# untouched, which is if anything a cleaner statement of that.
+	parent = _create(store, claim=False)
 	child = tr.create_work(store, team="lang", kind="bug",
 	                       title="independent proof",
 	                       origin="decomposition", classification="suspected-defect", author="ada",

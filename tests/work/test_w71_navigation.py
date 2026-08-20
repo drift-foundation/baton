@@ -78,7 +78,13 @@ def test_the_tree_is_three_levels_with_disclosure(world):
 	assert "the root" in flat
 	assert "↳ the child" in flat, \
 		f"the containment child is missing: {flat[:400]}"
-	assert "  ↳ the grandchi" in flat, \
+	# W2938 removed the Jobs `New` column with no replacement, which
+	# changed what the responsive layout keeps at this width — and the
+	# Title is the one column it may truncate, so the third level is
+	# asserted by the prefix that fits. The property is the DEPTH: two
+	# indent cells and the containment marker before a title that is
+	# still recognisably the grandchild's.
+	assert "  ↳ the grand" in flat, \
 		f"the third level does not paint: {flat[:400]}"
 	# the child's children are now INSIDE the window, so it discloses
 	# nothing; there is nothing hidden under it to disclose.
@@ -100,7 +106,7 @@ def test_unfold_re_roots_and_esc_returns(world):
 	rooted = ptyharness.replay(steps[1])
 	assert "the root > the child" in rooted[0], \
 		f"the re-rooted breadcrumb is wrong: {rooted[0]!r}"
-	assert any("↳ the grandchild" in line for line in rooted)
+	assert any("↳ the grandch" in line for line in rooted), rooted[:6]
 	back = ptyharness.replay(steps[2])
 	assert back[0].startswith("[Jobs]"), "Esc did not return upward"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
@@ -147,7 +153,10 @@ def test_ctrl_w_moves_panes_and_footer_advertises(world):
 	cycles; the footer advertises the controls; no after-cursor text
 	appears anywhere."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"\r", 0.6),
+		# W2597: entry now lands in the Message index, so the walk
+		# starts by going UP to Threads. The four focus states this
+		# test asserts are the same four, in the same order.
+		(b"\r\x17k", 0.6),            # detail, then Ctrl-W k → Threads
 		(b"\x17j", 0.5),              # Ctrl-W j → the Message index
 		(b"\x17j", 0.5),              # Ctrl-W j → the reader (W14)
 		(b"\x17\x17", 0.5),           # Ctrl-W Ctrl-W → cycle to Threads
@@ -219,7 +228,7 @@ def test_refs_render_under_a_separate_section(world):
 		(b"\r", 0.6),
 		# W76: the index reads newest-first, so the LAST posted message
 		# is the entry selection — no walk needed.
-		(b"\x17j", 0.4),              # W14: the Message index
+		(b"", 0.4),                   # W2597: already in the index
 		(b"qy", 0.4)])
 	screen = ptyharness.replay(steps[1])
 	flat = "\n".join(screen)
@@ -253,7 +262,7 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 				interleaved = True
 				with bw.Authority(database) as writer:
 					# W38 R1: the root has open children, so it is
-					# `waiting` and cannot be parked. The interloper is
+					# `block` and cannot be parked. The interloper is
 					# a leaf, and parking it is the same interleaving
 					# proof — a second visible commit mid-read.
 					interloper = tr.create_work(
@@ -278,7 +287,7 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 		root_row = next(row for row in window["rows"]
 		                if row["title"] == "the root")
 		# W38 R1: the root has open children, so its snapshot phase is
-		# `waiting` — the point is that it is the PRE-commit value.
+		# `block` — the point is that it is the PRE-commit value.
 		assert root_row["phase"] == "block", \
 			"the tree mixed a post-commit phase into pre-commit rows"
 		assert window["summary"]["parked"] == 0, \

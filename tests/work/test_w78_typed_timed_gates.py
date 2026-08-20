@@ -292,7 +292,7 @@ def test_claim_and_the_non_timing_states(world):
 	assert released["phase"] == "queued"
 	assert held_field(released, _epoch(released["last_changed_at"]) + 30) == "-"
 
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.rsrch", comment="over to you")
 	passed = _row(world, work)
 	assert passed["handoff_at"] is not None, "the handoff is still history"
@@ -346,7 +346,7 @@ def test_two_unclaimed_rows_no_longer_run_unexplained_clocks(world):
 	because one carried a historical handoff. Now a running clock always
 	has a visible cause on its own row."""
 	handed, fresh = _make(world, "handed"), _make(world, "fresh")
-	tr.pass_work(world["store"], handed, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], handed, actor_team="lang", actor="ada",
 	             to="lang.rsrch", comment="over")
 	rows = [_row(world, handed), _row(world, fresh)]
 	now = _epoch(rows[0]["last_changed_at"]) + 600
@@ -373,20 +373,24 @@ def test_every_row_with_a_clock_names_its_cause(world):
 	holding it, and only the second one is Held."""
 	store = world["store"]
 	subjects = []
+	# W2938 one-slot capacity: the row that merely passes THROUGH a
+	# claim is built before the one that stays claimed, so ada's single
+	# slot serves both. Ordering only — every subject below is the same
+	# subject it always was.
 	subjects.append(_make(world, "queued"))
-	claimed = _make(world, "claimed")
-	tr.claim_work(store, claimed, actor_team="lang", actor="ada")
-	subjects.append(claimed)
 	blocked = _make(world, "blocked")
 	tr.add_dependency(store, blocked, _make(world, "gate"),
 	                  actor_team="lang", actor="ada", rationale="r")
-	subjects.append(blocked)
 	asked_work = _make(world, "asked")
 	tr.claim_work(store, asked_work, actor_team="lang", actor="ada")
 	tr.post_thread(store, _thread(world, asked_work), author_team="lang",
 	               author="ada", body="advise", request="lang.rsrch",
 	               on=asked_work)
 	subjects.append(asked_work)
+	subjects.append(blocked)
+	claimed = _make(world, "claimed")
+	tr.claim_work(store, claimed, actor_team="lang", actor="ada")
+	subjects.append(claimed)
 	parked = _make(world, "parked")
 	tr.set_phase(store, parked, actor_team="lang", actor="ada",
 	             phase="parked", reason="deferred")

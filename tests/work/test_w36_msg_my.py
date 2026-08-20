@@ -250,7 +250,10 @@ def test_the_msg_my_column_drops_whole_at_narrow_widths(world):
 	                         for name, _w in app.visible_columns(width)))
 	kept = dict(app.visible_columns(narrow))
 	assert "MSG/MY" not in kept
-	for name in ("HANDLER", "NEW"):     # W73 retired ST
+	# W73 retired ST; W2938 retired NEW from this list and added no
+	# replacement, so HANDLER is what the retained-width property is
+	# asked about now.
+	for name in ("HANDLER",):
 		assert kept[name] == dict(app.COLUMNS)[name], \
 			f"{name} shrank to make room instead of a whole-column drop"
 	present = dict(app.visible_columns(wide))

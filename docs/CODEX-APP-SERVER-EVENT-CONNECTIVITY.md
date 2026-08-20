@@ -314,8 +314,23 @@ to other servers continue.
 - Debug logging may contain complete event and protocol payloads.
 - The bridge never changes sandboxing, approval policy, reviewer, or execution
   permissions.
-- Approval requests remain a human-action gate. The dispatcher logs
-  server-initiated requests but never approves them automatically.
+- Approval requests remain a human-action gate. The dispatcher never approves
+  one automatically — and, since W3243, never leaves one unanswered either.
+  Dispatcher-owned readiness turns are NON-INTERACTIVE execution: the request
+  is explicitly DENIED with a protocol error, which no app-server can read as
+  permission, and the turn is interrupted if it has not ended within
+  `approvalRecoveryMs` (default 15s). Until that turn actually ends the target
+  reports `deliverable: false` and the whole stack reports `ready: false`,
+  with the participant, thread, turn, cause, queue depth and oldest queued age
+  in `control: status`. Readiness events queued behind it are RETAINED and
+  drain when the turn ends.
+  Leaving the request unanswered was the defect: a target sat in
+  `waiting-input(approval)` for over ten hours while 24 later readiness events
+  queued behind it and the stack reported it healthy, because it was connected
+  and loaded. If denial and interrupt both fail, the target stays visibly
+  unhealthy and the operator restarts the managed stack, whose
+  fresh-context-per-start policy supplies a clean target; the dispatcher does
+  not create a replacement context, which is v12's worker supervisor's job.
 
 Approval ownership must be tested for bridge-originated and TUI-originated
 turns. If an approval is delivered only to the initiating connection, a

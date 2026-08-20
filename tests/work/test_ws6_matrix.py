@@ -349,7 +349,7 @@ def test_binding_races_in_both_orders(world):
 	# binding vs transfer — transfer first: the former handler refuses
 	# in-lock; bind first then transfer: both stand.
 	raced = _create(store)["work_id"]
-	_interleave(store, lambda: tr.pass_work(
+	_interleave(store, lambda: fx.hand_off(
 		store, raced, actor_team="lang", actor="ada",
 		to="push.bug", comment="handing over"))
 	with pytest.raises(bw.WorkError, match="never grant"):

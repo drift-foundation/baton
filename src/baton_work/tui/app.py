@@ -62,9 +62,21 @@ from baton_work import transitions
 # telling two rows apart. In its place `Out` appears ONLY where terminal
 # Work can be seen, and carries the outcome rather than the word the
 # view already implies.
+# W2938 (finding-claim-overdue-cue) removes `New` from THIS list for
+# horizontal-space priority: personal unseen state is unchanged
+# everywhere it drives an action — Inbox, Threads, Message indexes, Work
+# detail and `new` reads all still carry it, and the JSON field never
+# moved.
+#
+# It adds NO replacement. The ownership supersession in that record is
+# explicit: a Job is queued and unclaimed, and is not the entity that
+# owes a claim — the AGENT with free capacity owes pickup. A per-Job cue
+# would turn one idle participant into N duplicate overdue rows and
+# attach a member-level failure to Work records. The cue lives on Teams;
+# the persistent signal here is the `[Teams*]` tab.
 COLUMNS = (("OUT", 5), ("PR", 2), ("PHASE", 6), ("CLS", 5),
            ("MSG/MY", 7), ("ENDPOINT", 13), ("VIA", 6), ("HANDLER", 13),
-           ("RUN", 5), ("NEXT", 13), ("NEW", 4), ("HELD", 6))
+           ("RUN", 5), ("NEXT", 13), ("HELD", 6))
 
 # Header LABELS where plain capitalize() would miscase a compound name —
 # plus the ruled `Cat` display label for the classification column
@@ -98,6 +110,8 @@ HEADER_LABELS = {"MSG/MY": "Msg/My", "CLS": "Cat", "OUT": "Out"}
 # lookup every time. Presentation only — the projection field is still
 # `agent` and Teams still has its own `Agent` column, which really does
 # name the adapter family.
+# W2938: the removed `New` was in no drop order at all, so the narrowest
+# layout is four cells and a separator cheaper than it was.
 DROP_ORDER = ("PR", "CLS", "PHASE", "MSG/MY", "HELD", "NEXT", "VIA",
               "ENDPOINT", "RUN", "OUT")
 # W93 slice 5 measured this and deliberately LEFT IT ALONE. Three Works
@@ -129,6 +143,14 @@ HISTORY_LIMIT = 500
 # forward through the canonical continuation cursor, `p` returns to the
 # start — every thread is reachable, none is silently truncated.
 DISC_PAGE = 10
+
+# W2597 (finding-default-message-pane-focus): where the cursor lands
+# when Work detail opens FRESH. The Threads pane is where it used to
+# land, and most Work has exactly one thread — so the operator paid a
+# `Tab` before every reading session to reach the Messages the thread
+# was already selecting for them. Named once because three entry paths
+# (Jobs, search, Inbox) share it and must not drift apart.
+DETAIL_ENTRY_FOCUS = "index"
 
 # W7 split-pane (ruled): below this terminal height the console stays
 # single-pane — the split never squeezes the Work table into
@@ -162,6 +184,13 @@ POKE_FETCH = 500
 # cycle's order, from one list, so they cannot disagree.
 TABS = ("jobs", "teams", "inbox")
 
+# W2938: the compact Teams-cell vocabulary for the participant pickup
+# obligation. `late` rather than `overdue` because the column is four
+# cells wide and this is a table; member detail spells out the full
+# word beside the elapsed interval.
+PICKUP_LABELS = {"pending": "pend", "overdue": "late"}
+
+
 # The gap between painted tab labels. One constant because the header is
 # drawn label by label — only Inbox carries the urgency weight — while
 # `top_tabs()` joins the same labels into one string; two spellings of
@@ -177,8 +206,14 @@ TAB_GAP = "  "
 # has NO cap: it is the diagnostic identifier an operator came for, and
 # surplus width belongs to it rather than to padding around fields whose
 # vocabulary is four characters wide.
+# W2938 (finding-claim-overdue-cue): `Pickup` is the participant's ONE
+# claim obligation — `-`, `pend`, or `late`. It sits beside `Work`,
+# because the two answer the adjacent questions: what this member is
+# executing, and whether they owe a pickup they have not made. Four
+# cells, the width of its longest value.
 TEAM_COLUMNS = (("Role", 4, 14), ("Agent", 5, 8), ("State", 5, 6),
-                ("Work", 4, 8), ("Session", 7, None), ("Since", 5, 6))
+                ("Work", 4, 8), ("Pickup", 6, 6), ("Session", 7, None),
+                ("Since", 5, 6))
 
 # Deterministic omission, narrowest first. `Session` goes first because
 # the member detail block below the table carries it in full, so it is
@@ -186,7 +221,10 @@ TEAM_COLUMNS = (("Role", 4, 14), ("Agent", 5, 8), ("State", 5, 6),
 # one keystroke — and it is by far the widest. `State` and the
 # participant identity are never dropped: who this is and what their
 # runner is doing is the entire reason the table exists.
-TEAM_DROP_ORDER = ("Session", "Role", "Since", "Work", "Agent")
+# W2938: `Pickup` outlives every column except `State` and the identity
+# — a member who owes a pickup nobody has made is the reason an operator
+# opened Teams at all.
+TEAM_DROP_ORDER = ("Session", "Role", "Since", "Work", "Agent", "Pickup")
 
 
 def _fit(value: str, size: int) -> str:
@@ -1014,7 +1052,7 @@ class Console:
 		self.thread_total = 0
 		# W71: the detail view's pane focus (threads/msgs, moved with
 		# the Ctrl-W convention), its Work, and a pending Ctrl-W prefix.
-		self.focus = "threads"
+		self.focus = DETAIL_ENTRY_FOCUS
 		self.detail_work: str | None = None
 		self.ctrl_w_pending = False
 		# W76: the Message index reads NEWEST-FIRST, so its cursor pages
@@ -1496,8 +1534,32 @@ class Console:
 				# Inbox and in the JSON, where their meaning is visible
 				# beside the rows they describe.
 				label += " *"
+			if name == "teams" and self.teams_need_attention():
+				# W2938 (finding-claim-overdue-cue): the persistent cue
+				# while the operator is looking at Jobs. It uses the
+				# SAME `*` vocabulary W167 chose for Inbox rather than
+				# inventing a second alarm glyph, and it carries no
+				# count: one star means Teams needs attention, and it
+				# does not multiply with participants or Jobs. Pending
+				# alone never stars — a grace period nobody has missed
+				# yet is not attention.
+				label += " *"
 			out.append((name, f"[{label}]"))
 		return out
+
+	def teams_need_attention(self) -> bool:
+		"""W2938: is ANY participant claim-overdue?
+
+		Read through the same cached roster the Teams tab is drawn
+		from, so the star and the rows it sends the operator to can
+		never disagree — and so looking at Jobs costs no extra
+		authority read."""
+		roster = self._cached(("teams",), lambda: projection.teams(
+			self.store, viewer_team=self.team,
+			viewer_member=self.member))["teams"]
+		return any(
+			(member.get("pickup") or {}).get("state") == "overdue"
+			for team in roster for member in team["members"])
 
 	def top_tabs(self) -> str:
 		"""`[Jobs]  [Teams]  [Inbox *]` — every tab, bracketed.
@@ -1869,6 +1931,14 @@ class Console:
 			# something the operator has to subtract. The absolute
 			# instants stay in the member detail block below.
 			"Since": held_cell(runtime.get("since"), _time.time()),
+			# W2938: `-` owes nothing (busy, no actionable Work, or not
+			# eligible), `pend` is inside the accepted threshold, `late`
+			# is at or beyond it. Compact because this is a table cell
+			# and the member detail below spells it out; the STATE is
+			# canonical and the wording is presentation, which is why
+			# JSON clients read `pickup.state` and never this.
+			"Pickup": PICKUP_LABELS.get(
+				(row.get("pickup") or {}).get("state"), "-"),
 		}
 
 	def _render_teams(self, screen, height, width) -> None:
@@ -1918,7 +1988,14 @@ class Console:
 				                   size)
 			attribute = curses.A_REVERSE \
 				if start + offset == self.team_cursor else 0
-			if row["participant"] == self.participant and not attribute:
+			# W2938: an OVERDUE member's row is bold — the reason the
+			# `[Teams*]` star sent the operator here, so it has to be
+			# findable without reading every Pickup cell. It composes
+			# with the selection highlight rather than replacing it, so
+			# an overdue row the cursor is on stays visibly both.
+			if (row.get("pickup") or {}).get("state") == "overdue":
+				attribute |= curses.A_BOLD
+			elif row["participant"] == self.participant and not attribute:
 				attribute = curses.A_BOLD
 			screen.addnstr(3 + offset, 0, text[:width - 1], width - 1,
 			               attribute)
@@ -1969,6 +2046,7 @@ class Console:
 		sections = [
 			("Identity and routing", self._detail_identity(row)),
 			("Workflow", self._detail_workflow(row)),
+			("Claim pickup", self._detail_pickup(row)),
 			("Runner state", self._detail_runner(runtime)),
 			("Operational diagnostics", self._detail_facts(runtime)),
 			("Last poke answer", self._detail_answer(row)),
@@ -1997,6 +2075,33 @@ class Console:
 		return [("Holding", f"{_local_selector(held['work'])} "
 		         f"[{held['phase']}] {held['title']}")
 		        for held in row["handled_work"]]
+
+	@staticmethod
+	def _detail_pickup(row: dict) -> list[tuple[str, str]]:
+		"""W2938: the participant's ONE claim obligation, spelled out.
+
+		The table cell is four characters; here there is room for the
+		word, how long it has been owed, and what to do about it. The
+		suggested Work is DIAGNOSTIC — the obligation belongs to the
+		participant, and claiming ANY eligible Work discharges it, so
+		the row says `suggested next claim` rather than naming an owner.
+
+		Absent entirely when nothing is owed: a member who is busy, has
+		no actionable Work, or is not eligible has no pickup to report,
+		and a permanent `Pickup -` row would be a cell repeating that
+		the section does not apply."""
+		pickup = row.get("pickup") or {}
+		state = pickup.get("state")
+		if state is None:
+			return []
+		pairs = [("Pickup", state),
+		         ("Waiting", duration_cell(pickup.get("elapsed_seconds"))),
+		         ("Since", (pickup.get("since") or "-")[:19])]
+		suggested = pickup.get("next_work")
+		if suggested:
+			pairs.append(("Suggested next claim",
+			              f"{suggested['local_id']} {suggested['title']}"))
+		return pairs
 
 	@staticmethod
 	def _detail_runner(runtime: dict) -> list[tuple[str, str]]:
@@ -2046,21 +2151,26 @@ class Console:
 		showing them together would make the older look as live as the
 		newer.
 
-		W184 rules `Log` explicitly present: an operator looking for
-		the log locator must be told it was never published rather than
-		left to guess a path from the deployment they hope is running.
-		"""
+		This is an inventory of what an adapter ACTUALLY published, so
+		it holds exactly those facts and invents no row for one that is
+		absent — `log` included.
+
+		W1578 (finding-omit-unpublished-member-log, 2026-08-20)
+		supersedes W184's rule that a missing `log` must render a
+		`not published` row. W184's reasoning was that an operator
+		hunting for the log should be told it was never published
+		rather than left to guess a path — but in the live deployment
+		EVERY member said it, so the sentence disclosed nothing while
+		costing a wide row per participant. An absent key in an
+		inventory already means the adapter did not publish it, which
+		is the same fact the row was spelling out. W184's published-log
+		rule is unchanged: a locator that exists still appears verbatim
+		with its source and age."""
 		held = {fact["key"]: fact for fact in runtime.get("facts") or []}
-		pairs = []
-		for key, fact in held.items():
-			pairs.append((key.replace("-", " ").capitalize(),
-			              f"{fact['value']}  [{fact['source']} · "
-			              f"{held_cell(fact['observed_at'], _time.time())}"
-			              f" ago]"))
-		if "log" not in held:
-			pairs.append(("Log", "not published — this runner's adapter "
-			              "has published no log locator"))
-		return pairs
+		return [(key.replace("-", " ").capitalize(),
+		         f"{fact['value']}  [{fact['source']} · "
+		         f"{held_cell(fact['observed_at'], _time.time())} ago]")
+		        for key, fact in held.items()]
 
 	@staticmethod
 	def _detail_answer(row: dict) -> list[tuple[str, str]]:
@@ -2321,7 +2431,6 @@ class Console:
 			# than anything about a runner.
 			"RUN": agent_cell(row.get("agent")),
 			"NEXT": row["next"]["endpoint"] if row["next"] else "-",
-			"NEW": str(row["new"]),
 		}
 
 	def _render_table(self, screen, height, width, rows,
@@ -4103,13 +4212,7 @@ class Console:
 				# it: Jobs owns Work, and this hands the operator over
 				# to it with the right row already open.
 				self.tab = "jobs"
-				self.mode = "detail"
-				self.detail_work = selected["work"]
-				self.detail_return = "table"
-				self.disc_cursor = None
-				self.disc_after = 0
-				self.focus = "threads"
-				self._reset_message_selection()
+				self._enter_detail(selected["work"], came_from="table")
 		elif key == ord("a") and selected:
 			if selected["kind"] == "poke":
 				self.poke_choice = selected["poke"]
@@ -4222,14 +4325,9 @@ class Console:
 			self.cursor = max(0, self.cursor - 1)
 			self.selected_id = rows[self.cursor]["id"] if rows else None
 		elif key in (curses.KEY_ENTER, 10, 13) and rows:
-			self.detail_work = rows[min(self.cursor,
-			                            len(rows) - 1)]["id"]
-			self.disc_cursor = None
-			self.disc_after = 0
-			self.focus = "threads"
-			self._reset_message_selection()
-			self.detail_return = "search"
-			self.mode = "detail"
+			self._enter_detail(rows[min(self.cursor,
+			                            len(rows) - 1)]["id"],
+			                   came_from="search")
 		elif key == ord("n") and self.search_next is not None:
 			self.search_after = self.search_next
 			self.search_page += 1
@@ -4810,13 +4908,8 @@ class Console:
 		elif key in (curses.KEY_ENTER, 10, 13) and rows:
 			# W71: Enter has ONE meaning — open the selected Work's
 			# detail view. It never drills into children.
-			self.detail_work = rows[self.cursor]["id"]
-			self.disc_cursor = None      # the New-first default
-			self.disc_after = 0
-			self.focus = "threads"
-			self._reset_message_selection()
-			self.detail_return = "table"
-			self.mode = "detail"
+			self._enter_detail(rows[self.cursor]["id"],
+			                   came_from="table")
 		elif key == ord("u") and rows:
 			# W71/W155: the visible unfold — re-root the three-level
 			# window at the selected Work; breadcrumbs identify the
@@ -5063,6 +5156,51 @@ class Console:
 			self.event_skip = 0
 		return True
 
+	def _enter_detail(self, work_id: str, *, came_from: str) -> None:
+		"""Open Work detail FRESH on one Work — the one place the three
+		entry paths (Jobs, search, Inbox) agree about what a fresh entry
+		means.
+
+		W2597 (finding-default-message-pane-focus): focus lands in the
+		MESSAGE INDEX, not the Threads pane. Most Work has one thread,
+		which the autoselect below picks anyway, so opening in Threads
+		charged every operator a `Tab` before they could move through
+		the Messages they came to read.
+
+		The Threads pane keeps its job and its selection: the visible
+		thread still decides which Messages are shown, `Shift-Tab` and
+		`Ctrl-W k` still reach it, and the autoselect rule is untouched.
+		Only where the cursor STARTS changed.
+
+		Nothing here reads the authority or writes it. The thread and
+		Message selections are both deferred — `disc_cursor=None` lets
+		the New-first thread rule run at render, and
+		`_reset_message_selection` lets the newest-first Message rule
+		run — so entry cannot mark anything seen or invent a Message
+		that does not exist.
+
+		W2597 R1: a fresh entry also clears the view state that belonged
+		to the WORK BEFORE IT. `detail_tab` and the Events tab's cursor,
+		page and pane focus all survived `Esc`, so opening Work A,
+		switching to Events, leaving, and opening Work B put B on the
+		Events tab — against the ruling and the documentation — showing
+		A's event page. Per-tab state is preserved for a tab ROUND TRIP
+		inside one open detail view, which is `_switch_tab`'s job and is
+		untouched; it was never meant to follow the operator to a
+		different Work."""
+		self.detail_work = work_id
+		self.detail_tab = "messages"
+		self.disc_cursor = None      # the New-first default
+		self.disc_after = 0
+		self.focus = DETAIL_ENTRY_FOCUS
+		self._reset_message_selection()
+		self.event_cursor = None
+		self.event_before = None
+		self.event_focus = "index"
+		self.event_skip = 0
+		self.detail_return = came_from
+		self.mode = "detail"
+
 	def _reset_message_selection(self, keep_thread: bool = False) -> None:
 		"""Moving to another Thread (or another page) drops the message
 		selection so the newest-first default reapplies; the reader
@@ -5290,6 +5428,46 @@ def _decode_normal_mode_cursor(screen) -> int:
 	return 27
 
 
+def _absorb_paired_linefeed(screen) -> None:
+	"""Swallow the `LF` that completes a `CR LF` Return.
+
+	W1568: a terminal in NEW LINE mode (LNM) transmits `CR LF` for ONE
+	Return. Under ncurses' default `nl()` the `CR` is translated to `LF`
+	before the console reads it, so the pair arrives as two identical
+	Enter keys — byte-identical to two deliberate Returns, and no
+	handler can tell them apart. `run()` selects `nonl()` so the `CR`
+	survives, and this collapses the pair back into the one keystroke
+	the operator made.
+
+	It is a DECODE, not a debounce: only an `LF` arriving directly
+	behind a `CR` is absorbed. Two deliberate Returns arrive as `13 13`,
+	the peek sees a `13`, pushes it back, and both are delivered —
+	nothing is suppressed on the basis of how recently anything ran.
+	Anything else that follows is pushed back untouched, exactly as
+	`_decode_normal_mode_cursor` pushes back a non-cursor escape."""
+	screen.timeout(ESCAPE_PEEK_MS)
+	following = screen.getch()
+	if following not in (-1, 10):
+		curses.ungetch(following)
+
+
+def _read_key(screen) -> int:
+	"""One LOGICAL keystroke, or -1 when the read expired.
+
+	The whole terminal-spelling boundary lives here, so what the console
+	handles is what the operator DID rather than which bytes their
+	terminal chose to say it with. Both corrections it applies were
+	invisible to tests that call `Console.handle` with an already-decoded
+	key, which is why they shipped: W25's normal-mode cursor sequences,
+	and W1568's `CR LF` Return."""
+	key = screen.getch()
+	if key == 27:
+		return _decode_normal_mode_cursor(screen)
+	if key == 13:
+		_absorb_paired_linefeed(screen)
+	return key
+
+
 def run(screen, store: Authority, viewer_team: str, viewer_member: str,
         config_path: str | None = None, refresh: float = 2.0,
         work_filter: dict | None = None) -> None:
@@ -5299,6 +5477,15 @@ def run(screen, store: Authority, viewer_team: str, viewer_member: str,
 	Ordinary keystrokes operate on the cached projection."""
 	import time
 	curses.curs_set(0)
+	# W1568: `nonl()` keeps `CR` and `LF` distinct at the reader. The
+	# default `nl()` sets the tty's ICRNL, which folds the `CR LF` a
+	# NEW LINE mode terminal sends for one Return into two identical
+	# Enter keys — the second of them landing in Jobs navigation and
+	# opening Work detail nobody asked for. Every Enter branch in the
+	# console already accepts 10, 13 and `KEY_ENTER`, so keeping the
+	# `CR` costs no handler a change; `_absorb_paired_linefeed` below
+	# collapses the pair.
+	curses.nonl()
 	# W25: keypad translation is already on — `curses.wrapper` calls
 	# `keypad(1)` before this function runs — so the cursor keys are
 	# decoded, but only in ONE of the two spellings a terminal may send.
@@ -5335,11 +5522,9 @@ def run(screen, store: Authority, viewer_team: str, viewer_member: str,
 			deadline = time.monotonic() + refresh
 			continue
 		screen.timeout(max(1, int(remaining * 1000)))
-		key = screen.getch()
+		key = _read_key(screen)
 		if key == -1:
 			continue
-		if key == 27:
-			key = _decode_normal_mode_cursor(screen)
 		if not console.handle(key):
 			return
 		console.render(screen)

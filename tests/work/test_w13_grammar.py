@@ -303,7 +303,7 @@ def test_launcher_value_forms_and_help(world, capsys):
 
 
 def test_static_conditions_refuse_before_authority(world, monkeypatch):
-	"""R1 round 3: the declared conditional forms — phase parked/waiting,
+	"""R1 round 3: the declared conditional forms — phase parked/block,
 	say exclusivity and carriers, close duplicate-of — refuse at parse,
 	never opening the authority."""
 	from baton_work import lifecycle as lc
@@ -479,7 +479,7 @@ def test_partial_analysis_speaks_the_execution_tokenizer():
 def test_assist_applies_the_parsers_condition_model():
 	"""W14 R2: effective remaining required/optional keys derive from
 	the same exactly-one/when/conditions model `_parse_invocation`
-	enforces — accept's two forms, parked/waiting, say's exclusive
+	enforces — accept's two forms, parked/block, say's exclusive
 	carriers and pass fields, close's duplicate outcome."""
 	from baton_work.tui.app import assist_text
 	created = assist_text("accept create=true ")
@@ -508,8 +508,8 @@ def test_assist_applies_the_parsers_condition_model():
 	assert assist_text(
 		"say thread=T1 body=x request=push.bug wait=") == \
 		"wait=: true, false"
-	waiting = assist_text("phase work=W1 to=block ")
-	assert "wait=" in waiting.split("optional:")[0]
+	blocked = assist_text("phase work=W1 to=block ")
+	assert "wait=" in blocked.split("optional:")[0]
 	assert "wait=" not in assist_text("phase work=W1 "), \
 		"wait= offered outside to=block"
 	# W80: transfer left say entirely — the assist never offers the

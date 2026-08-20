@@ -146,11 +146,13 @@ def _every_phase(world):
 	store = world["store"]
 	rows = {}
 
+	# W2938 one-slot capacity: ada holds ONE claim at a time, so the
+	# rows that merely pass THROUGH a claim on their way somewhere else
+	# are built first and the one that STAYS claimed is built last.
+	# Ordering, not a second claimant: this fixture's route resolves to
+	# ada alone, and inventing a handler to keep the old order would be
+	# changing the world to suit the sequence.
 	rows["queued"] = _make(world, "queued")
-
-	claimed = _make(world, "claimed")
-	tr.claim_work(store, claimed, actor_team="lang", actor="ada")
-	rows["active"] = claimed
 
 	blocked = _make(world, "blocked")
 	tr.add_dependency(store, blocked, _make(world, "gate"),
@@ -160,7 +162,8 @@ def _every_phase(world):
 	asked = _make(world, "asked")
 	tr.claim_work(store, asked, actor_team="lang", actor="ada")
 	tr.post_thread(store, _thread(world, asked), author_team="lang",
-	               author="ada", body="advise", request="lang.rsrch", on=asked)
+	               author="ada", body="advise", request="lang.rsrch",
+	               on=asked)                       # the request releases it
 	rows["block-message"] = asked
 
 	parked = _make(world, "parked")
@@ -179,6 +182,10 @@ def _every_phase(world):
 	tr.release_claim(store, released, actor_team="lang", actor="ada",
 	                 expect="lang.ada", reason="handing it back")
 	rows["released"] = released
+
+	claimed = _make(world, "claimed")
+	tr.claim_work(store, claimed, actor_team="lang", actor="ada")
+	rows["active"] = claimed
 
 	return rows
 

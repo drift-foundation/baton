@@ -164,11 +164,28 @@ so there is no stage to move. Then hand it on:
     # -> {"to": "app.rview", "destination_phase": "queued"}
 
 `pass` is one atomic **threadless** event. It moves the route, clears the
-handler, records the destination phase — `queued` when the Work is runnable,
-`block` when a gate holds it,
-and stores `comment` as durable handoff evidence. It creates no message and
-moves no conversational count. You cannot supply `phase=` — it is refused as
-unknown — so a handoff can never advertise a stage nobody is in.
+handler, records the destination phase, and stores `comment` as durable handoff
+evidence. It creates no message and moves no conversational count. You cannot
+supply `phase=` — it is refused as unknown — so a handoff can never advertise a
+stage nobody is in.
+
+**Only the current claimant passes.** A pass hands on what you hold and
+releases the claim in the same act, so there is nothing to hand on until you
+hold it. Route eligibility says who MAY claim; it is not a licence to pass Work
+you are not doing:
+
+    W2 is unclaimed; a pass is the current claimant's handoff and releases the
+    claim it holds — claim it first if you are executing it, or reroute it on
+    the owning team's authority to move it unclaimed
+
+This is not ceremony. An eligible handler who could pass without claiming could
+review a Work, run its gate and hand it on having never been its Handler —
+canonical state saying nobody worked on it while the runtime log and the
+filesystem said otherwise. That happened, and it is why the rule exists.
+
+Blocked and parked Work is unclaimed AND unclaimable, so it cannot be passed at
+all; the refusal names the phase and points at `reroute`. Moving Work nobody
+holds is what [`reroute`](#reroute-moves-work-nobody-holds) is for.
 
 Review may send the same Work straight back for another round. That is
 ordinary, not a failure state — and it lands `queued`, because the recipient
@@ -181,6 +198,37 @@ has not started yet:
 `set-next` records the planned return destination. **Next neither transfers nor
 claims anything** — it is a plan, and the route is still the only thing that
 owes a decision.
+
+### Reroute moves Work nobody holds
+
+`pass` and `reroute` are not two spellings of the same act. A pass is the
+claimant's handoff; a reroute is the owning team correcting where UNCLAIMED
+Work is offered, and it takes the owning team's authority rather than the
+resolved route handler's:
+
+    $BATON reroute work=W2 to=app.impl route=impl2 \
+        reason="the default route's runner is not taking it"
+    # -> {"to": "app.impl", "route": "impl2", "phase": "queued"}
+
+Reach for it when nobody owes the Work yet: a queue sitting at the wrong
+endpoint, an alternate whose agent is offline, or Work whose gate or park makes
+it unclaimable. Requiring a pass there would mean waking the very runner you
+are routing around — which strands the Work exactly when moving it matters.
+
+**It corrects WHERE, never whether the Work may run.** The scheduler phase
+comes out the way it went in: a gated Work stays `block` with its wake
+condition, and a parked Work stays parked with the reason somebody recorded
+for deferring it. Route and phase answer separate questions, so correcting one
+does not get to decide the other, and a deferred Work resumes only through the
+explicit `phase to=queued` — at its corrected route:
+
+    $BATON reroute work=W9 to=app.rview reason="review owns this queue now"
+    # -> {"to": "app.rview", "phase": "parked"}   still deferred, now theirs
+
+It refuses claimed Work, and the race is decided under the write lock: a claim
+that commits first makes the reroute refuse, and a reroute that commits first
+is simply the state the claim then re-reads. Neither leaves a half-move behind.
+Do not fake a claim to redirect a queue; that is what this operation is.
 
 ### Say it in the discussion before you hand it over
 
@@ -244,14 +292,17 @@ conflating them is the most common way a board becomes fiction.
   `wait=` when you set it by hand.
 - **`parked`** — an explicit, un-gated deferral. Requires `reason=`. It stays a
   visible loose end; it is not a quiet grave.
-- **A dependency edge** does not rewrite phase at all. Blocked Work keeps its
-  honest stage, reports `ready: false`, and refuses claims:
+- **A dependency edge MOVES the phase.** A gate arriving puts the Work in
+  `block` and releases its Handler in the same transaction — an unmet gate
+  invalidates execution, so the claim cannot survive it. The row then reports
+  `ready: false` and refuses claims:
 
       W23 has 1 unmet dependency/child gate(s); blocked work cannot be
       claimed — readiness is decided here, in the write transaction
 
-Waiting and parked Work cannot be claimed either — suspending already released
-the claim:
+`block` is not a flag beside some other stage; it IS the phase such Work is
+in. Blocked and parked Work cannot be claimed at all, and cannot be passed
+either — a pass is the claimant's handoff and there is no claimant:
 
     W13 is blocked; blocked and parked work cannot be claimed
 

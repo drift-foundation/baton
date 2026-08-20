@@ -144,7 +144,7 @@ def test_routed_work_wakes_handlers_and_the_claim_narrows(world):
 		"release did not mint a new assignment episode"
 	assert released_key in keys(world, "ada") and \
 		released_key in keys(world, "bee")
-	# blocked/waiting/parked/closed leave the unclaimed wake set
+	# blocked/parked/closed leave the unclaimed wake set
 	gate = make(world, "gate", team="push", author="sl")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",
 	                  actor="ada", rationale="test dependency")

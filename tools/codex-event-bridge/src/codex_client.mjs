@@ -218,6 +218,31 @@ export class CodexClient extends EventEmitter {
     this.#send(params === undefined ? { method } : { method, params });
   }
 
+  // W3243: answer a SERVER-initiated request with a JSON-RPC error.
+  //
+  // This is the only response shape the bridge may send to an approval
+  // request, and the distinction matters: an error response DENIES —
+  // it cannot be mistaken for, or silently widened into, an approval,
+  // and it invents no result schema this bridge does not own. Leaving
+  // the request unanswered was the defect: the turn then waits for a
+  // human who is not in this conversation, and every later readiness
+  // event queues behind it forever.
+  respondError(id, code, message) {
+    if (id === undefined || id === null) return false;
+    if (!this.socket || this.socket.readyState !== OPEN) return false;
+    try {
+      this.#send({ id, error: { code, message } });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // W3243: end a turn this bridge started and can no longer complete.
+  async interruptTurn(threadId, turnId) {
+    return this.request("turn/interrupt", { threadId, turnId });
+  }
+
   disconnect() {
     const socket = this.socket;
     const wasConnected = this.connected;

@@ -107,7 +107,7 @@ def test_removing_one_of_two_live_gates_does_not_make_work_ready(world):
 		== second
 
 
-def test_correcting_the_last_gate_wakes_waiting_work_in_the_same_transaction(
+def test_correcting_the_last_gate_wakes_blocked_work_in_the_same_transaction(
 		world):
 	store, _config = world
 	work = _create(store)
@@ -140,7 +140,7 @@ def test_correcting_the_last_gate_wakes_waiting_work_in_the_same_transaction(
 		"the same-transaction wake minted no actionable episode"
 
 
-def test_correcting_a_nonfinal_gate_leaves_waiting_work_asleep(world):
+def test_correcting_a_nonfinal_gate_leaves_blocked_work_asleep(world):
 	store, _config = world
 	work = _create(store)
 	first = _create(store, team="push", member="sl", title="mistaken")

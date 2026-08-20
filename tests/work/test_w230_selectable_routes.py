@@ -131,10 +131,10 @@ def test_work_is_born_on_the_default_route(world):
 def test_a_handoff_with_no_selection_resolves_to_the_default(world):
 	"""'Handoff with no route selects `impl`.'"""
 	work = _make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="over", route="main2")
 	assert _route(world, work)["route"] == "main2"
-	tr.pass_work(world["store"], work, actor_team="lang", actor="gem",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="gem",
 	             to="lang.bug", comment="back")
 	assert _route(world, work)["route"] == "main", \
 		"an omitted selection did not return to the deterministic default"
@@ -159,7 +159,7 @@ def test_the_selection_survives_later_reads(world):
 	transaction and the next read would show — and route to — the
 	default."""
 	work = _make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="to the backup", route="main2")
 	for _repeat in range(3):
 		assert _route(world, work)["route"] == "main2"
@@ -172,7 +172,7 @@ def test_the_selected_route_is_the_only_one_projected(world):
 	"""'The selected route is … the only route projected for that
 	Work.' No list of candidates on the row."""
 	work = _make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="over", route="main2")
 	route = _route(world, work)
 	assert route["route"] == "main2"
@@ -184,7 +184,7 @@ def test_the_selected_route_is_the_only_one_projected(world):
 def test_the_event_records_the_selection(world):
 	"""'The selected route is recorded in authoritative Events.'"""
 	work = _make(world)
-	passed = tr.pass_work(world["store"], work, actor_team="lang",
+	passed = fx.hand_off(world["store"], work, actor_team="lang",
 	                      actor="ada", to="lang.bug", comment="over",
 	                      route="main2")
 	event = next(entry for entry in world["store"].events()
@@ -198,9 +198,9 @@ def test_an_unselected_handoff_records_no_selection(world):
 	work = _make(world)
 	# a handoff has to MOVE the baton, so reach the alternate first and
 	# come back with no selection — which is the case under test.
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="out", route="main2")
-	passed = tr.pass_work(world["store"], work, actor_team="lang",
+	passed = fx.hand_off(world["store"], work, actor_team="lang",
 	                      actor="gem", to="lang.bug", comment="back")
 	event = next(entry for entry in world["store"].events()
 	             if entry["seq"] == passed["seq"])
@@ -216,11 +216,11 @@ def test_the_selected_route_s_handler_can_act(world):
 	handler, so a Work sent to an alternate can never be claimed,
 	passed, or closed. The selection would strand it."""
 	work = _make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="over", route="main2")
 	tr.claim_work(world["store"], work, actor_team="lang", actor="gem")
 	assert _route(world, work, viewer="gem")["handlers"] == ["gem"]
-	tr.pass_work(world["store"], work, actor_team="lang", actor="gem",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="gem",
 	             to="lang.bug", comment="back")
 	assert _route(world, work)["route"] == "main"
 
@@ -230,7 +230,7 @@ def test_the_default_route_s_handler_cannot_act_on_a_selected_work(world):
 	own route, so the default's handler is not eligible while it sits on
 	an alternate."""
 	work = _make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="over", route="main2")
 	with pytest.raises(bw.WorkError, match="not a resolved handler"):
 		tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
@@ -240,6 +240,10 @@ def test_the_default_route_s_handler_cannot_act_on_a_selected_work(world):
 
 def test_an_unconfigured_route_refuses_atomically(world):
 	work = _make(world)
+	# W2571: the claim is part of the SETUP, so it is taken before the
+	# baseline — what this test measures is that the refused pass wrote
+	# nothing, not that a claim did.
+	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	before = world["store"].last_seq()
 	with pytest.raises(bw.WorkError, match="does not offer route"):
 		tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
@@ -255,15 +259,15 @@ def test_a_pass_that_moves_nothing_still_refuses(world):
 	the very operation this Work adds."""
 	work = _make(world)
 	with pytest.raises(bw.WorkError, match="already at"):
-		tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+		fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 		             to="lang.bug", comment="nowhere")
 	# but the same endpoint on a DIFFERENT route is a real move
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="over", route="main2")
 	assert _route(world, work)["route"] == "main2"
 	# and repeating THAT is a non-move again
 	with pytest.raises(bw.WorkError, match="already at"):
-		tr.pass_work(world["store"], work, actor_team="lang", actor="gem",
+		fx.hand_off(world["store"], work, actor_team="lang", actor="gem",
 		             to="lang.bug", comment="again", route="main2")
 
 
@@ -279,10 +283,10 @@ def test_claimed_work_never_moves_underneath_its_handler(world):
 	open(world["config"], "w", encoding="utf-8").write(json.dumps(document))
 	lc.accept_config(world["config"], actor="lang.ada")
 	with pytest.raises(bw.WorkError, match="actively claimed"):
-		tr.pass_work(world["store"], work, actor_team="lang", actor="gem",
+		fx.hand_off(world["store"], work, actor_team="lang", actor="gem",
 		             to="lang.bug", comment="mine now", route="main2")
 	# the claimant's own pass releases and reroutes in one act
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="handing over", route="main2")
 	assert _route(world, work)["route"] == "main2"
 	assert pj.detail(world["store"], work, viewer_team="lang",
@@ -301,7 +305,7 @@ def test_regeneration_carries_the_alternates(world):
 	lc.accept_config(world["config"], actor="lang.ada")
 	work = _make(world)
 	with pytest.raises(bw.WorkError, match="does not offer route"):
-		tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+		fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 		             to="lang.bug", comment="over", route="main2")
 
 
@@ -311,7 +315,7 @@ def test_a_work_on_a_withdrawn_alternate_projects_unresolved(world):
 	rather than silently reverting to the default and sending the
 	operator to a different agent than the record says."""
 	work = _make(world)
-	tr.pass_work(world["store"], work, actor_team="lang", actor="ada",
+	fx.hand_off(world["store"], work, actor_team="lang", actor="ada",
 	             to="lang.bug", comment="over", route="main2")
 	document = json.loads(open(world["config"], encoding="utf-8").read())
 	del document["teams"]["lang"]["kinds"]["bug"]["alternates"]
@@ -341,7 +345,7 @@ def test_an_endpoint_without_alternates_behaves_exactly_as_before(tmp_path):
 		assert pj.detail(store, work, viewer_team="lang",
 		                 viewer_member="ada")["route"]["route"] == "main"
 		with pytest.raises(bw.WorkError, match="does not offer route"):
-			tr.pass_work(store, work, actor_team="lang", actor="ada",
+			fx.hand_off(store, work, actor_team="lang", actor="ada",
 			             to="lang.bug", comment="over", route="main2")
 	finally:
 		store.close()

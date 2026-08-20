@@ -69,3 +69,14 @@ Work event journal.
   unchanged.
 - Workflow tests cover a normal implementation-to-review handoff, an
   approval-to-review return, and a pass on Work containing several Threads.
+
+## Supersession — 2026-08-20
+
+The W171 reviews intentionally preserved the pre-existing ability of an
+eligible route handler to pass unclaimed Work. That authorization is
+**superseded** by
+`finding-active-work-claim/findings/finding-pass-requires-current-claim` after
+live W1568 evidence showed `baton.gemini` executing and then passing Work it
+had never claimed. `pass` remains a threadless Work event, but it now requires
+the actor to be the exact current claimant. An owning-team actor that needs to
+move unclaimed Work uses the separately audited `reroute` operation.

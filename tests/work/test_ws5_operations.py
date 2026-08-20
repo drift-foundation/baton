@@ -181,21 +181,25 @@ def test_later_state_replay_returns_the_original_resolution(world):
 	a read of the committed fact, not a new act."""
 	store, _config = world
 	born = _create(store)
-	passed = tr.pass_work(store, born["work_id"],
+	passed = fx.hand_off(store, born["work_id"],
 	                      actor_team="lang", actor="ada",
 	                      to="lang.rsrch", comment="onward", op_id="pass-1")
 	tr.close_work(store, born["work_id"], actor_team="lang",
 	              actor="ada", rationale="done", outcome="satisfying")
-	replay = tr.pass_work(store, born["work_id"],
+	# W2571: a replay is a READ of a committed fact, so it acquires
+	# nothing — least of all a claim on Work that has since closed.
+	replay = fx.hand_off(store, born["work_id"],
 	                      actor_team="lang", actor="ada",
-	                      to="lang.rsrch", comment="onward", op_id="pass-1")
+	                      to="lang.rsrch", comment="onward", op_id="pass-1",
+	                      claim=False)
 	assert replay["seq"] == passed["seq"]
 	assert replay["operation"]["state"] == "replayed"
 	assert replay["work"] == born["work_id"]
 	with pytest.raises(bw.WorkError, match="terminal work never moves"):
-		tr.pass_work(store, born["work_id"],
+		fx.hand_off(store, born["work_id"],
 		             actor_team="lang", actor="ada",
-		             to="lang.rsrch", comment="onward again", op_id="pass-2")
+		             to="lang.rsrch", comment="onward again",
+		             op_id="pass-2", claim=False)
 
 
 def test_a_removed_identity_gets_no_replay_carve_out(world):

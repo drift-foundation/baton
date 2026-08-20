@@ -146,9 +146,22 @@ def loads(raw: str) -> dict:
 	if generation < 1:
 		raise WorkError(f"generation {generation!r} is not a positive integer")
 
+	# W2938: `pickup_overdue_seconds` is OPTIONAL deployment policy —
+	# the one accepted value every client consumes, so nobody carries a
+	# private threshold or recomputes against a local guess.
 	instance = _strict_object(document["instance"], "instance",
-	                          ("name", "authority_uuid", "database"),
+	                          ("name", "authority_uuid", "database",
+	                           "pickup_overdue_seconds"),
 	                          ("name", "authority_uuid", "database"))
+	if "pickup_overdue_seconds" in instance:
+		seconds = _exact_int(instance["pickup_overdue_seconds"],
+		                     "instance.pickup_overdue_seconds")
+		if seconds < 1:
+			raise WorkError(
+				f"instance.pickup_overdue_seconds is {seconds!r}; the "
+				f"claim-pickup threshold is a POSITIVE number of "
+				f"seconds — a zero or negative one would make every "
+				f"idle participant permanently overdue")
 	_display(instance["name"], "instance")
 	if not isinstance(instance["authority_uuid"], str) or \
 			not _UUID.match(instance["authority_uuid"]):

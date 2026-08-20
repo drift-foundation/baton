@@ -116,6 +116,9 @@ def test_wf13_portable_dossier_authority(flow):
 	            "references"][0]["binding_revision"] == 2
 	assert answer_event["references"][0]["binding_revision"] == 1, \
 		"the old proof was reinterpreted by the correction"
+	# W2571: the transfer that costs ada its binding authority is ada's
+	# own handoff, which means ada held the Work when making it.
+	flow.ok("claim", f"work={lang42}", viewer="lang.ada")
 	flow.ok("pass", f"work={lang42}", "to=push.bug", "comment=handing to push", viewer="lang.ada")
 	error = assert_refusal_changes_nothing(
 		flow, "lang.ada", "bind", f"work={lang42}", "root=drift",

@@ -52,6 +52,22 @@ def make(world, title="w"):
 	                      author="ada", body="b")["work_id"]
 
 
+def _crew(world, count):
+	"""W2938: `count` members who can all claim, on a fresh authority.
+
+	Replaces this test's single-member world in place — the property
+	under test is a batched read across many CLAIMED rows, and one-slot
+	capacity means many claimants."""
+	import tempfile
+	directory = tempfile.mkdtemp(prefix="crew-")
+	members = ["ada"] + [f"m{index}" for index in range(1, count)]
+	config, database = fx.build_crew(directory, "lang", members)
+	world["store"].close()
+	world["config"], world["database"] = config, database
+	world["store"] = bw.Authority(database)
+	return members
+
+
 def row_of(world, work_id):
 	rows = pj.tree(world["store"], viewer_team="lang",
 	               viewer_member="ada")["rows"]
@@ -129,10 +145,14 @@ def test_claimed_at_is_the_current_claim_event_timestamp(world):
 def test_claim_timestamps_fetch_in_one_batch(world):
 	"""The W39 no-N+1 boundary holds for the claim fact too: a full
 	tree performs at most ONE claim-timestamp query."""
-	for index in range(6):
+	# W2938 one-slot capacity: several rows claimed AT ONCE needs
+	# several claimants, which is what this property is about — a
+	# batched read across many claimed rows, not one.
+	crew = _crew(world, 6)
+	for index, member in enumerate(crew):
 		work = make(world, title=f"row {index}")
 		tr.claim_work(world["store"], work, actor_team="lang",
-		              actor="ada")
+		              actor=member)
 	statements = []
 	world["store"].conn.set_trace_callback(statements.append)
 	try:

@@ -1,12 +1,32 @@
-"""W108 (finding-active-work-claim): the ATOMIC, PHASE-ORTHOGONAL claim.
+"""W108 (finding-active-work-claim): the ATOMIC claim.
 
-`handler_team`/`handler_member` answer WHO is executing; `phase` answers WHAT
-stage is happening — claiming never rewrites phase, ordinary phase changes
-never release, and a pass atomically records the destination Route AND
-the destination phase (W73: derived from the destination route's stage
-role, never from the caller) while releasing the sender's claim and
-never claiming for the recipient. Blocked Work keeps its honest stage phase but cannot be claimed;
-every claim precondition is rechecked inside the write transaction.
+SUPERSEDED IN PART — W38, recorded here by W2780 on 2026-08-20. This
+docstring described the claim as PHASE-ORTHOGONAL and said "claiming
+never rewrites phase", which the suite below already contradicts: see
+`test_claiming_records_the_claimant_and_makes_the_work_active`, whose
+own note says phase and Handler are the same fact seen twice.
+
+The live contract. `handler_team`/`handler_member` answer WHO is
+executing, and `phase` answers whether the Work can run — a closed
+SCHEDULER axis, not a stage. The claim establishes both in one
+statement, because `active` means exactly that a Handler holds it; only
+`claim` reaches it.
+
+The release rule follows from that and NOT from which phase is asked
+for. W38 review R2: this docstring said "ordinary phase changes never
+release", which is false in the other direction too — `set_phase` cannot
+reach `active`, so every phase it CAN reach (`queued`, `block`,
+`parked`) is an unclaimed state, and each one releases the claim it
+finds. There is no ordinary phase change that keeps a claimant. A pass
+atomically records the destination Route AND the destination phase —
+derived from the destination's readiness, never from the caller — while
+releasing the sender's claim and never claiming for the recipient.
+`block` is the phase gated Work is IN, and blocked Work cannot be
+claimed. Every claim precondition is rechecked inside the write
+transaction.
+
+What the phase never said is what KIND of work this is; that is the
+route's role, on its own axis.
 """
 
 from __future__ import annotations
@@ -160,7 +180,7 @@ def test_independent_work_carries_independent_claimants(store):
 def test_every_reachable_phase_change_releases_the_claim(store):
 	"""W38: the phase verb reaches only UNCLAIMED states, so there is no
 	longer such a thing as an ordinary stage change that keeps the
-	claim. Moving to queued is a release, exactly as waiting and parked
+	claim. Moving to queued is a release, exactly as block and parked
 	already were."""
 	work = _create(store)
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
@@ -170,9 +190,9 @@ def test_every_reachable_phase_change_releases_the_claim(store):
 		"a phase change into an unclaimed state kept the claim"
 
 
-def test_entering_waiting_releases_the_claim(store):
-	"""The condition-bound waiting entry is its own release boundary: the
-	claimant clears and the waiting event's payload keeps the released
+def test_entering_block_releases_the_claim(store):
+	"""The condition-bound `block` entry is its own release boundary: the
+	claimant clears and the event's payload keeps the released
 	claimant as recoverable evidence."""
 	work = _create(store, "to-wait")
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
@@ -184,10 +204,10 @@ def test_entering_waiting_releases_the_claim(store):
 	row = _row(store, work)
 	assert row["phase"] == "block"
 	assert row["handler_team"] is None, \
-		"entering waiting kept the execution claim"
+		"entering block kept the execution claim"
 	event = [e for e in store.events() if e["seq"] == released["seq"]][0]
 	assert event["payload"]["released_claimant"] == "lang.ada", \
-		"the waiting release is not recoverable from the event"
+		"the block release is not recoverable from the event"
 
 
 def test_entering_parked_releases_the_claim(store):
@@ -264,7 +284,7 @@ def test_a_stageless_destination_role_now_routes_like_any_other(store):
 
 def test_parked_is_unreachable_through_a_handoff(store):
 	"""Parking is a deliberate deferral with a reason, so no handoff can
-	produce it. W38 does make `waiting` reachable — a gated handoff must
+	produce it. W38 does make `block` reachable — a gated handoff must
 	land there, or the Work would advertise as runnable when it is
 	not — which is asserted in the W38 suite."""
 	work = _create(store)
@@ -273,12 +293,20 @@ def test_parked_is_unreachable_through_a_handoff(store):
 	assert _row(store, work)["phase"] == "queued"
 
 
-def test_a_blocked_handoff_lands_waiting_and_refuses_claim(store):
+def test_a_blocked_move_lands_blocked_and_refuses_claim(store):
+	"""SUPERSEDED IN PART — W2571 (`finding-pass-requires-current-claim`,
+	2026-08-20). This was `test_a_blocked_handoff_lands_waiting_and
+	_refuses_claim` and moved the Work with `pass`; W2780 also retired
+	`waiting` from its name, since the phase is `block`. A pass now requires
+	the claim, and R3 of THIS record's parent releases the claimant the
+	moment a gate arrives — so gated Work has no claimant, can acquire
+	none, and moves by `reroute`, which derives the same phase. Every
+	assertion is the one this test always made."""
 	work = _create(store, "blocked-review")
 	blocker = _create(store, "the gate")
 	tr.add_dependency(store, work, blocker, actor_team="lang", actor="ada", rationale="test dependency")
-	fx.post(store, work, author_team="lang", author="ada",
-	        body="review while blocked", pass_to="lang.rev")
+	tr.reroute_work(store, work, actor_team="lang", actor="ada",
+	                to="lang.rev", reason="offered to review while gated")
 	row = _row(store, work)
 	assert row["phase"] == "block", \
 		"a gated handoff advertised itself as runnable"
@@ -302,7 +330,7 @@ def test_the_tui_facts_name_the_claimant(store):
 		"the detail facts do not name the handler"
 
 
-def test_a_late_gate_releases_the_claim_and_moves_to_waiting(store):
+def test_a_late_gate_releases_the_claim_and_moves_to_block(store):
 	"""R3: a dependency arriving on claimed Work invalidates execution —
 	the claimant is released atomically, and the causing event's payload
 	keeps the released claimant as recoverable evidence.
@@ -311,7 +339,7 @@ def test_a_late_gate_releases_the_claim_and_moves_to_waiting(store):
 	independent, so the row kept it; now `active` MEANS somebody is
 	executing, and releasing without moving the phase would leave the
 	exact contradiction the invariant forbids. The Work is gated, so it
-	lands `waiting` — which is what the gate says anyway."""
+	lands `block` — which is what the gate says anyway."""
 	work = _create(store, "invalidated")
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	assert _row(store, work)["phase"] == "active"
@@ -332,11 +360,18 @@ def test_a_late_gate_releases_the_claim_and_moves_to_waiting(store):
 
 
 def test_an_exact_pass_retry_replays_the_one_handoff(store):
+	"""W2571: the claim is stated ONCE and the retry states
+	`claim=False`, because the retry must change nothing — including
+	not re-acquiring the claim the first pass released. The replay is
+	answered inside the write transaction BEFORE the claim gate runs,
+	which is why an exact retry still replays from unclaimed state."""
 	work = _create(store)
+	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	first = fx.post(store, work, author_team="lang", author="ada",
 	                body="over", pass_to="lang.rev", op_id="pass-x")
 	again = fx.post(store, work, author_team="lang", author="ada",
-	                body="over", pass_to="lang.rev", op_id="pass-x")
+	                body="over", pass_to="lang.rev", op_id="pass-x",
+	                claim=False)
 	assert again["seq"] == first["seq"], "the retry created a second pass"
 	assert again["operation"]["state"] == "replayed"
 	assert _row(store, work)["phase"] == "queued"
@@ -378,15 +413,21 @@ def test_the_pass_retry_identity_is_the_destination_not_the_phase(store):
 	event, and a same-id retry naming a DIFFERENT destination is still
 	a conflict that changes nothing."""
 	work = _create(store)
+	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	first = fx.post(store, work, author_team="lang", author="ada",
 	                body="over", pass_to="lang.rev", op_id="pass-p")
+	# W2571: neither retry may claim — a retry that changes nothing must
+	# also acquire nothing, and `before` below would otherwise record a
+	# claim this test never asked for.
 	same = fx.post(store, work, author_team="lang", author="ada",
-	               body="over", pass_to="lang.rev", op_id="pass-p")
+	               body="over", pass_to="lang.rev", op_id="pass-p",
+	               claim=False)
 	assert same["seq"] == first["seq"]
 	assert same["operation"]["state"] == "replayed"
 	before = (store.last_seq(), _row(store, work)["phase"])
 	with pytest.raises(bw.WorkError):
 		fx.post(store, work, author_team="lang", author="ada",
-		        body="over", pass_to="lang.rsrch", op_id="pass-p")
+		        body="over", pass_to="lang.rsrch", op_id="pass-p",
+		        claim=False)
 	assert (store.last_seq(), _row(store, work)["phase"]) == before, \
 		"a conflicting destination retry replayed or committed"

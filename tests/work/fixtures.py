@@ -177,6 +177,85 @@ def born(store, work_id: str) -> str:
 		(work_id,)).fetchone()["id"]
 
 
+def crew_document(team: str, members, kinds=("bug",), uuid: str = UUID):
+	"""A config whose ROUTE resolves to every named member.
+
+	W2938 gave a participant one-slot capacity, so a test that needs
+	several rows claimed AT ONCE needs several claimants — the default
+	spec resolves a route to one member, which is right for almost
+	everything and wrong for exactly that shape. Building the crew here
+	keeps those tests asking their real question (a batched read across
+	many claimed rows) instead of asking it of one row."""
+	base = config_document({team: {"members": {name: ["dev"]
+	                                           for name in members},
+	                               "kinds": list(kinds)}}, uuid=uuid)
+	spec = base["teams"][team]
+	spec["routes"] = {"main": {"role": "dev", "handlers": list(members)}}
+	spec["kinds"] = {kind: {"display": kind.title(), "route": "main"}
+	                 for kind in kinds}
+	return base
+
+
+def build_crew(directory: str, team: str, members, kinds=("bug",)):
+	"""`crew_document` written and initialized; returns (config, db)."""
+	from baton_work import lifecycle as _lc
+	config_path = os.path.join(directory, "baton.json")
+	with open(config_path, "w", encoding="utf-8") as handle:
+		json.dump(crew_document(team, members, kinds), handle, indent=2,
+		          sort_keys=True)
+		handle.write("\n")
+	result = _lc.init_from_config(
+		config_path, participant=f"{team}.{list(members)[0]}")
+	return config_path, result["database"]
+
+
+def hand_off(store, work_id: str, *, actor_team: str, actor: str,
+             to: str, comment: str = "handoff", claim: bool = True, **kw):
+	"""TEST-ONLY: the W2571 handoff — claim it, then pass it.
+
+	`pass` requires the actor to be the Work's current claimant, because
+	handing something on means having held it
+	(`finding-recursive-target-graph/findings/finding-active-work-claim/
+	findings/finding-pass-requires-current-claim`, 2026-08-20). Suites
+	written before that rule call `pass_work` on freshly created Work to
+	MOVE it somewhere, as setup for the property they actually assert —
+	route selection, phase derivation, projection columns, episodes.
+
+	This states the claim those call sites always implied, in one place
+	that says why, instead of scattering the same two lines through
+	every suite that merely needed the Work somewhere else. It claims
+	only when the Work is UNCLAIMED, so an explicit claim in the test
+	stays the one that matters.
+
+	`claim=False` suppresses it for the two shapes where acquiring
+	anything would be wrong: an operation-id RETRY, which must change
+	nothing at all, and a replay against Work that has since closed.
+
+	Tests ABOUT pass authority — who may pass, and what an unclaimed or
+	underneath-a-claimant pass does — call `transitions.pass_work`
+	directly and never come through here. Routing them through a helper
+	that quietly claims first is exactly how a regression for this
+	defect would stop being able to fail."""
+	if claim and _unclaimed(store, work_id):
+		_transitions().claim_work(store, work_id, actor_team=actor_team,
+		                          actor=actor)
+	return _transitions().pass_work(store, work_id, actor_team=actor_team,
+	                                actor=actor, to=to, comment=comment,
+	                                **kw)
+
+
+def _transitions():
+	from baton_work import transitions as _tr
+	return _tr
+
+
+def _unclaimed(store, work_id: str) -> bool:
+	"""TEST-ONLY: whether the Work currently records no Handler."""
+	row = store.conn.execute(
+		"SELECT handler_team FROM work WHERE id=?", (work_id,)).fetchone()
+	return row is not None and row["handler_team"] is None
+
+
 def post(store, work_id: str, **kw):
 	"""TEST-ONLY adapter for WS-1-era call sites: post into the Work's
 	born thread, selecting the Work explicitly for carrying
@@ -194,6 +273,22 @@ def post(store, work_id: str, **kw):
 			"decides the handoff phase — route the destination kind at "
 			"a stage role instead")
 	if kw.get("pass_to"):
+		# W2571: a pass is the CURRENT CLAIMANT'S handoff, so there is
+		# nothing to hand on until the author holds the claim. Every
+		# call site here predates that rule and meant "this author hands
+		# the Work on" — which now includes holding it — so the claim is
+		# stated explicitly rather than left to a contract that has
+		# since changed under them. Exactly the shape of the `wait=False`
+		# note below, for exactly the same reason.
+		#
+		# Only when UNCLAIMED, and never behind `claim=False`: a test
+		# about the claim gate itself, or about an operation-id retry
+		# whose second call must change nothing, states that and does
+		# its own setup. The W2571 suite calls `pass_work` directly and
+		# never comes through here at all.
+		if kw.get("claim", True) and _unclaimed(store, work_id):
+			_tr.claim_work(store, work_id, actor_team=kw["author_team"],
+			               actor=kw["author"])
 		return _tr.pass_work(
 			store, work_id, actor_team=kw["author_team"],
 			actor=kw["author"], to=kw["pass_to"],
