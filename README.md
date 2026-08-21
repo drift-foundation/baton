@@ -6,6 +6,16 @@ Baton coordinates engineering work across repositories for teams of humans
 and agents. It answers three questions without anybody guessing: **what is
 being worked on, who is executing it right now, and why it got that way.**
 
+That matters most when informal coordination stops scaling: agents and teams
+working in parallel, Work crossing dependencies and handoffs, interrupted
+turns, incidents, and deployment changes. Baton keeps ownership and the next
+action explicit as execution moves.
+
+Claims, routes, dependencies, messages, and events form a durable ledger, so
+recovery does not depend on chat history or human memory. When execution stops
+or misbehaves, the team can reconstruct what happened from canonical state and
+resume from recorded truth.
+
 ![Baton TUI showing the live Work graph, routes, handlers, messages, and timing](assets/images/baton-tui.png)
 
 One SQLite authority per instance. One strict JSON configuration. A JSON CLI

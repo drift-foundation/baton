@@ -7,6 +7,7 @@ import { CodexClient, CodexProtocolError } from "./codex_client.mjs";
 import { classifyFailure, makeRuntimePublisher, silentPublisher } from "./runtime_publisher.mjs";
 import { eventFingerprint, formatEventMessage, normalizeEvent } from "./event_types.mjs";
 import { assertPolicyProvisioned } from "./exec_policy.mjs";
+import { QuarantineStore } from "./quarantine_store.mjs";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -89,6 +90,10 @@ export class EventBridge extends EventEmitter {
     this.targetByThread = new Map();
     this.targetStates = new Map();
     this.serverStates = new Map();
+    // W99 review P1: the fence outlives this process. Keyed by the
+    // managed context, so a dispatcher-only restart finds it and a full
+    // managed-stack start — which mints a new thread id — does not.
+    this.quarantines = new QuarantineStore(config.quarantineDir, logger);
 
     const createClient = clientFactory ?? ((name, server) => new CodexClient({ name, endpoint: server.endpoint, debug, logger }));
     for (const [name, server] of Object.entries(config.servers)) {
@@ -114,6 +119,28 @@ export class EventBridge extends EventEmitter {
         // condition rather than a log line that scrolled past.
         blocked: null,
         blockedTimer: null,
+        // W99: the sticky half of the same failure. `blocked` describes
+        // the LIVE turn and clears when that turn ends; `tainted`
+        // describes the CONTEXT and never clears while this process
+        // runs. An unexpected approval proves the persistent agent
+        // context holds intent this dispatcher denied, and a turn
+        // ending does not prove the context discarded it.
+        tainted: null,
+        // W99: the immutable delivery attempt. Recorded BEFORE
+        // `turn/start` so an approval that races the continuation still
+        // has an origin, and bound to its turn id afterwards without
+        // ever replacing the event or action it carries. `attempts`
+        // retains the recently bound ones so a late request selects by
+        // its own authoritative turn id rather than by whatever the
+        // dispatcher happens to be doing now.
+        attempt: null,
+        attempts: new Map(),
+        // W99 review P1: approval requests that arrived while
+        // `turn/start` was still in flight and named a turn nothing has
+        // bound yet. Their Work attribution is UNPROVEN until the start
+        // returns, so it waits; the quarantine, the denial and the
+        // bounded interrupt do not.
+        pendingOrigins: [],
         draining: false,
         retryMs: config.reconnectMinMs,
         retryTimer: null,
@@ -154,6 +181,13 @@ export class EventBridge extends EventEmitter {
         });
       }
     }
+    // W99 review P1: BEFORE any lease opens or any socket listens,
+    // restore the fence for every context this deployment already
+    // quarantined. A dispatcher that came back against the same
+    // rendered thread must come back fenced — otherwise stopping and
+    // relaunching this one process is a recovery the ruling explicitly
+    // says it is not.
+    for (const state of this.targetStates.values()) this.#restoreQuarantine(state);
     // W93: every identified target's lease opens here, so a configured
     // participant whose runner is up but quiet is visibly present
     // rather than indistinguishable from one that never started.
@@ -169,6 +203,13 @@ export class EventBridge extends EventEmitter {
         dispatcher: `${state.serverName}/${state.name}`,
         readiness: this.config.eventSocket,
       }, { source: "configured" });
+    }
+    // W99 review round 3: AFTER the leases open, because a runtime
+    // publisher serializes behind its own start — and only then can it
+    // accept the report. Restoring the fence had to happen before
+    // anything opened; publishing about it has to happen after.
+    for (const state of this.targetStates.values()) {
+      await this.#recoverQuarantineIncident(state);
     }
     if (listen) {
       await mkdir(dirname(this.config.eventSocket), { recursive: true, mode: 0o700 });
@@ -228,7 +269,8 @@ export class EventBridge extends EventEmitter {
     state.queue.push({ event, ambiguous: false, queuedAt: now });
     this.globalQueueDepth += 1;
     this.logger.info(`[${event.target}] event received: ${event.type}`);
-    if (state.status.type !== "idle") this.logger.info(`[${event.target}] unavailable or active; queued (${state.queue.length})`);
+    if (state.tainted) this.logger.warn(`[${event.target}] context is quarantined; retained (${state.queue.length}) for the fresh context a full managed-stack start mints`);
+    else if (state.status.type !== "idle") this.logger.info(`[${event.target}] unavailable or active; queued (${state.queue.length})`);
     void this.#drain(state);
     return { accepted: true, reason: "queued", target: event.target, eventId: event.id, queueDepth: state.queue.length, globalQueueDepth: this.globalQueueDepth };
   }
@@ -247,7 +289,11 @@ export class EventBridge extends EventEmitter {
       // wedged on an approval this bridge will never give is not
       // ready, and neither is the stack.
       const blocked = state.blocked;
-      if (!loaded || blocked) ready = false;
+      // W99: a quarantined context is loaded, idle, and connected — and
+      // must never be delivered to again. Reporting it healthy because
+      // its turn ended is the exact fiction this fence exists to stop.
+      const tainted = state.tainted;
+      if (!loaded || blocked || tainted) ready = false;
       const oldest = state.queue.length ? state.queue[0].queuedAt : null;
       targets[name] = Object.freeze({
         connected,
@@ -256,7 +302,7 @@ export class EventBridge extends EventEmitter {
         // Everything an operator needs to act without reading a log:
         // who this target is, which Thread and turn are stuck, why,
         // how much is waiting behind it, and for how long.
-        deliverable: Boolean(loaded && !blocked),
+        deliverable: Boolean(loaded && !blocked && !tainted),
         participant: state.identity?.participant ?? null,
         threadId: state.threadId,
         queueDepth: state.queue.length,
@@ -270,6 +316,33 @@ export class EventBridge extends EventEmitter {
             ageMs: Math.max(0, now - blocked.since),
             denied: blocked.denied,
             interrupted: blocked.interrupted,
+          })
+          : null,
+        // W99: separate from `blocked` on purpose. An operator reading
+        // one row has to be able to tell "a turn is being recovered"
+        // from "this context is finished until the stack restarts", and
+        // the row itself names the remedy so nobody has to know that a
+        // dispatcher-only restart resumes the same configured thread.
+        tainted: tainted
+          ? Object.freeze({
+            since: tainted.since,
+            ageMs: Math.max(0, now - tainted.since),
+            cause: tainted.cause,
+            category: tainted.category,
+            method: tainted.method,
+            turnId: tainted.turnId,
+            correlation: tainted.correlation,
+            work: tainted.work,
+            episode: tainted.episode,
+            actionKey: tainted.actionKey,
+            requests: tainted.requests,
+            // Whether the fence survives a dispatcher restart. False
+            // means the marker could not be written and the fence is
+            // this process only — an operator needs that distinction
+            // before deciding what to restart.
+            durable: Boolean(tainted.durable),
+            restored: Boolean(tainted.restored),
+            remedy: tainted.remedy,
           })
           : null,
       });
@@ -366,7 +439,11 @@ export class EventBridge extends EventEmitter {
   }
 
   async #drain(state) {
-    if (this.stopping || state.draining || state.activeTurn || state.blocked || state.queue.length === 0 || state.status.type !== "idle") return;
+    // W99: `tainted` is checked beside `blocked` and outlives it. The
+    // W30-to-W28 recurrence happened HERE: the turn ended, `blocked`
+    // cleared, and the next Work started on the same context, which
+    // then ran the previous Work's unfinished cleanup.
+    if (this.stopping || state.draining || state.activeTurn || state.blocked || state.tainted || state.queue.length === 0 || state.status.type !== "idle") return;
     const serverState = this.serverStates.get(state.serverName);
     if (!serverState.client.connected) return;
     const serverDelay = serverState.retryUntil - Date.now();
@@ -402,8 +479,16 @@ export class EventBridge extends EventEmitter {
         if (state.queue.length > 0) this.#scheduleDrain(state, 0);
         return;
       }
+      // W99 review P1: the attempt is recorded BEFORE the call that can
+      // race it. An approval request may arrive while `turn/start` is
+      // still in flight, and correlating from `activeTurn` then files a
+      // locator-less incident even though this dispatcher knows exactly
+      // which Work it just delivered. The attempt carries the action
+      // only — never the message text, argv, or any request payload.
+      const attempt = this.#openAttempt(state, queued.event);
       const turn = await serverState.client.startTurn(state.threadId, formatEventMessage(queued.event), queued.event.id);
       this.#dequeue(state);
+      this.#bindAttempt(state, attempt, turn.id);
       const completed = state.completedTurns.get(turn.id);
       if (completed) {
         state.completedTurns.delete(turn.id);
@@ -436,7 +521,12 @@ export class EventBridge extends EventEmitter {
         }
       }
     } finally {
+      // W99 review P1: the settlement bound. By here `turn/start` has
+      // either returned and bound its attempt or definitively has not,
+      // so no approval's attribution can hang — including on a target
+      // this same turn just quarantined, which will never drain again.
       state.draining = false;
+      this.#resolvePendingOrigins(state);
       if (!state.activeTurn && state.status.type === "idle" && state.queue.length > 0) this.#scheduleDrain(state, 0);
     }
   }
@@ -497,6 +587,9 @@ export class EventBridge extends EventEmitter {
       return false;
     }
     this.#dequeue(state);
+    // W99: an ambiguous delivery still HAPPENED, so its attempt learns
+    // the turn it turned out to be rather than staying unbound forever.
+    this.#bindDelivered(state, queued.event.id, delivered.turn.id);
     if (delivered.turn.status === "inProgress") state.activeTurn = { id: delivered.turn.id, event: queued.event };
     this.logger.warn(`[${state.name}] reconciled ambiguous turn/start as delivered: ${delivered.turn.id} (${delivered.turn.status})`);
     return true;
@@ -514,6 +607,7 @@ export class EventBridge extends EventEmitter {
       if (delivered) {
         const event = state.queue[0].event;
         this.#dequeue(state);
+        this.#bindDelivered(state, event.id, delivered.turn.id);
         state.activeTurn = delivered.turn.status === "inProgress" ? { id: delivered.turn.id, event } : null;
         this.logger.warn(`[${state.name}] reconciled ambiguous turn/start as delivered: ${delivered.turn.id} (${delivered.turn.status})`);
       }
@@ -536,6 +630,162 @@ export class EventBridge extends EventEmitter {
   #dequeue(state) {
     state.queue.shift();
     this.globalQueueDepth -= 1;
+  }
+
+  /** W99: open the immutable delivery attempt for one queued event.
+   *
+   *  `turnId` is the ONE field written after construction, and only
+   *  once. The action is captured here and never reassigned, so nothing
+   *  that happens afterwards — a completion, another delivery, a
+   *  reconnect — can rewrite which Work this attempt was. */
+  #openAttempt(state, event) {
+    const attempt = { action: event.action ?? null, eventId: event.id,
+                      turnId: null };
+    state.attempt = attempt;
+    return attempt;
+  }
+
+  #bindAttempt(state, attempt, turnId) {
+    const bound = EventBridge.#liveTurnId(turnId);
+    if (!attempt || bound === null) return;
+    if (attempt.turnId === null) attempt.turnId = bound;
+    state.attempts.set(bound, attempt);
+    this.#resolvePendingOrigins(state);
+    // Bounded like `completedTurns`: enough history that a late request
+    // still finds its origin, not a leak that grows with uptime.
+    while (state.attempts.size > 20) {
+      state.attempts.delete(state.attempts.keys().next().value);
+    }
+  }
+
+  /** W99: bind the open attempt for `eventId` once its turn is known.
+   *
+   *  Matched on the client message id rather than on "the latest
+   *  attempt", so a reconciliation that arrives after another delivery
+   *  cannot label the wrong Work. */
+  #bindDelivered(state, eventId, turnId) {
+    const attempt = state.attempt;
+    if (!attempt || attempt.eventId !== eventId || attempt.turnId !== null) return;
+    this.#bindAttempt(state, attempt, turnId);
+  }
+
+  /** W99 review P1: hold one approval's Work attribution until the
+   *  pending `turn/start` proves or refutes it.
+   *
+   *  Only the ATTRIBUTION waits. The context is already quarantined, the
+   *  request is already denied, and the bounded interrupt is already
+   *  armed by the time this is called. */
+  #deferOrigin(state, request, origin) {
+    state.pendingOrigins.push({
+      named: origin.turnId,
+      attempt: origin.pending,
+      session: request?.params?.threadId ?? null,
+      method: request?.method,
+    });
+    this.logger.info(
+      `[${state.name}] the approval names turn ${origin.turnId} while `
+      + `turn/start is still in flight; the incident's Work origin waits `
+      + `for the binding rather than assuming the pending delivery`);
+  }
+
+  /** Settle every waiter against what the attempt actually bound to.
+   *
+   *  Called when the attempt binds and again from `#drain`'s `finally`,
+   *  so a start that never bound settles too. That bound matters: a
+   *  quarantined target never drains again, so a waiter with no
+   *  settlement point would silently lose the operator's one durable
+   *  notice. */
+  #resolvePendingOrigins(state) {
+    if (state.pendingOrigins.length === 0) return;
+    const waiting = state.pendingOrigins;
+    state.pendingOrigins = [];
+    for (const waiter of waiting) {
+      const bound = waiter.attempt?.turnId ?? null;
+      const proven = bound !== null && bound === waiter.named;
+      if (!proven) {
+        this.logger.warn(
+          `[${state.name}] the approval named turn ${waiter.named} but the `
+          + `delivery it raced bound ${bound ?? "no turn at all"}; the `
+          + `incident is filed without a Work origin rather than attributed `
+          + `to that episode`);
+      }
+      const origin = proven
+        ? { attempt: waiter.attempt, correlation: "exact", turnId: waiter.named }
+        : { attempt: null, correlation: "unmatched", turnId: waiter.named };
+      this.#adoptOrigin(state, origin);
+      void this.#fileApprovalIncident(state, waiter.method, waiter.session, origin);
+    }
+  }
+
+  /** One-time upgrade of a quarantine that was minted before its origin
+   *  was known. The `since` instant and the request count never move —
+   *  this resolves an unknown, it does not re-mint the quarantine. */
+  #adoptOrigin(state, origin) {
+    const tainted = state.tainted;
+    if (!tainted || tainted.correlation !== "pending") return;
+    if (tainted.turnId !== origin.turnId) return;
+    const action = origin.attempt?.action ?? null;
+    tainted.correlation = origin.correlation;
+    tainted.work = action?.work ?? null;
+    tainted.episode = action?.episode ?? null;
+    tainted.actionKey = action?.key ?? null;
+    tainted.durable = this.quarantines.save(
+      state.serverName, state.threadId, this.#quarantineRecord(tainted));
+  }
+
+  /** W99 review P1: which delivery an approval request belongs to.
+   *
+   *  Selection is by the REQUEST's authoritative turn id, never by
+   *  mutable current state. Three honest answers and no guessing:
+   *
+   *  - `exact`     — the named turn is one this dispatcher delivered.
+   *  - `in-flight` — nothing is bound yet because `turn/start` has not
+   *                  returned. There is exactly one delivery in flight
+   *                  per target, so that attempt IS the origin; the
+   *                  race is the reason the attempt exists.
+   *  - `unmatched` — the request names a turn this dispatcher never
+   *                  delivered. It is reported and filed WITHOUT a Work
+   *                  origin, because attributing it to whatever ran
+   *                  last is exactly the misattribution W99 records. */
+  #approvalOrigin(state, request) {
+    const named = EventBridge.#liveTurnId(request?.params?.turnId);
+    const pending = state.attempt && state.attempt.turnId === null
+      ? state.attempt : null;
+    if (named) {
+      const exact = state.attempts.get(named);
+      if (exact) return { attempt: exact, correlation: "exact", turnId: named };
+      // W99 review P1: "there is exactly one delivery in flight" does NOT
+      // establish that this request's turn id is the one `turn/start` is
+      // about to bind to it. A request naming another turn — late, from a
+      // turn this dispatcher never started, or simply disagreeing — would
+      // acquire the pending Work merely by arriving during a start call,
+      // which is the guess the ruling forbids. So the attribution WAITS
+      // for the binding that can prove or refute it. Nothing else waits.
+      if (pending) return { attempt: null, correlation: "pending", turnId: named, pending };
+      this.logger.warn(
+        `[${state.name}] approval names turn ${named}, which matches no `
+        + `delivery this dispatcher recorded; the incident is filed without `
+        + `a Work origin rather than attributed to another episode`);
+      return { attempt: null, correlation: "unmatched", turnId: named };
+    }
+    if (pending) return { attempt: pending, correlation: "in-flight", turnId: null };
+    // The schema requires `turnId`, so this is a server that omitted
+    // it and there is nothing to select BY. The turn this dispatcher
+    // records as running is the one honest answer left, and it is the
+    // pre-W99 behaviour: it names the episode the running turn serves,
+    // never an older one. Anything older stays uncorrelated.
+    const active = state.activeTurn;
+    if (active) {
+      const bound = state.attempt?.turnId === active.id ? state.attempt : null;
+      return {
+        attempt: bound ?? { action: active.event?.action ?? null,
+                            eventId: active.event?.id ?? null,
+                            turnId: active.id },
+        correlation: "active",
+        turnId: active.id,
+      };
+    }
+    return { attempt: null, correlation: "unnamed", turnId: null };
   }
 
   #scheduleDrain(state, delayMs) {
@@ -594,8 +844,15 @@ export class EventBridge extends EventEmitter {
       state.status = status;
       // W3243: an idle thread has no turn left to be blocked on, so the
       // wedge is over and the retained events drain.
+      //
+      // W99 scoped supersession: that clause holds EXCEPT after an
+      // approval quarantine. `#drain` refuses on `tainted`, so idle
+      // here means "no turn is running", not "deliverable again" — and
+      // a target that reaches idle without a completion event still
+      // reports its terminal quarantined state.
       if (status.type === "idle") {
         this.#clearBlocked(state);
+        this.#reportQuarantined(state, threadId);
         void this.#drain(state);
       }
     });
@@ -611,6 +868,12 @@ export class EventBridge extends EventEmitter {
       const state = threadId ? this.targetByThread.get(`${serverState.name}\u0000${threadId}`) : null;
       const scope = state ? `[${state.name}]` : `[${serverState.name}]`;
       this.logger.warn(`${scope} Codex requires interactive handling for ${request.method} (request ${request.id}); the bridge will not approve it`);
+      // W99: the origin is selected FIRST, from the request's own turn
+      // id, and the context is quarantined SECOND — both before any
+      // denial, publication or interrupt. The fence has to exist before
+      // anything asynchronous can let another Work in.
+      const origin = state ? this.#approvalOrigin(state, request) : null;
+      if (state) this.#quarantine(state, request, origin);
       // THE motivating incident. W22 read `active` with a Handler while
       // its turn sat on exactly this request, and the only evidence was
       // this log line. The dispatcher maps the request it already
@@ -630,20 +893,13 @@ export class EventBridge extends EventEmitter {
       // Nothing about the request BODY is published: `#approvalCategory`
       // maps the method to a closed safe category and the detail names
       // the method only.
-      if (state) {
-        // The episode being served is the one whose turn is in flight.
-        const action = state.activeTurn?.event?.action ?? null;
-        void state.runtime.incident({
-          cause: "approval",
-          category: EventBridge.#approvalCategory(request.method),
-          detail: `${request.method} requested interactive approval; a `
-            + `dispatcher-owned readiness turn is non-interactive and `
-            + `denied it`,
-          work: action?.work ?? null,
-          episode: action?.episode ?? null,
-          actionKey: action?.key ?? null,
-          session: threadId,
-        });
+      // W99 review P1: an origin that is still `pending` has not been
+      // PROVEN to be this request's, so its incident waits for the
+      // binding. Everything else about the failure is immediate.
+      if (state && origin?.correlation === "pending") {
+        this.#deferOrigin(state, request, origin);
+      } else if (state) {
+        void this.#fileApprovalIncident(state, request.method, threadId, origin);
       }
       // W3243: publishing the state was not enough. LEAVING THE REQUEST
       // UNANSWERED is what wedged the turn — it waited for a human who
@@ -678,10 +934,13 @@ export class EventBridge extends EventEmitter {
   //
   // What it never does is approve, answer with a decision, or start a
   // replacement context. If the interrupt cannot end the turn either,
-  // the target stays visibly unhealthy and the operator restarts the
-  // managed stack — whose already-approved fresh-context-per-start
-  // policy supplies a clean target. V12's worker supervisor owns
-  // automatic replacement.
+  // the target stays visibly unhealthy and the operator stops and
+  // starts the managed stack — whose already-approved
+  // fresh-context-per-start policy supplies a clean target. V12's
+  // worker supervisor owns automatic replacement.
+  //
+  // W99: this recovers the TURN. Recovering the CONTEXT is not in its
+  // gift, so `#quarantine` runs first and outlives every step here.
   // W415: method -> SAFE category. The command body never leaves the
   // dispatcher, so what an operator gets is the kind of thing that was
   // refused. An unrecognised method is `other` rather than a guess.
@@ -702,6 +961,338 @@ export class EventBridge extends EventEmitter {
     if (flat.includes("permissionsrequestapproval")) return "file-write";
     if (flat.includes("mcp") || flat.includes("elicitation")) return "mcp";
     return "other";
+  }
+
+  // W415 + W99: the DURABLE half of an approval failure, filed from
+  // both the immediate path and the deferred one so they cannot drift.
+  //
+  // The episode named is the one the REQUEST's turn id names, taken
+  // from the immutable attempt. It used to be read from
+  // `state.activeTurn`, which is mutable current state and can be null,
+  // stale, or already the next Work — the misattribution the W30/W28
+  // incidents recorded. Nothing about the request BODY is published:
+  // the method maps to a closed safe category and the detail names the
+  // method only.
+  async #fileApprovalIncident(state, method, session, origin) {
+    const action = origin?.attempt?.action ?? null;
+    const filed = await state.runtime.incident({
+      cause: "approval",
+      category: EventBridge.#approvalCategory(method),
+      detail: `${method} requested interactive approval; a `
+        + `dispatcher-owned readiness turn is non-interactive and `
+        + `denied it. This managed context is quarantined until the `
+        + `managed stack is stopped and started`
+        + (action ? "" : ` (correlation ${origin?.correlation ?? "unnamed"}:`
+                         + ` no Work origin could be established)`),
+      work: action?.work ?? null,
+      episode: action?.episode ?? null,
+      actionKey: action?.key ?? null,
+      session,
+    });
+    if (filed) this.#acknowledgeIncident(state);
+    return filed;
+  }
+
+  // W99: the ruled cross-Work fence, confirmed 2026-08-21.
+  //
+  // W3243 recovered the LIVE TURN and let the retained events drain once
+  // the target went idle. That was right about the turn and wrong about
+  // the context: an interrupted turn leaves its semantic intent in the
+  // persistent agent context, and the next Work delivered there resumed
+  // it — W30's `rm -rf` fixture cleanup ran during W28's readiness
+  // episode, and the incident named W28 as its source.
+  //
+  // So an unexpected approval request permanently quarantines this
+  // context for the remainder of the managed-stack start. Ending or
+  // interrupting the turn clears `blocked` and nothing else. Queued
+  // readiness is RETAINED, never delivered here, and Baton's
+  // level-triggered readiness re-offers it to the fresh context a full
+  // stop/start mints. The dispatcher does not create a replacement
+  // context — that is the v12 worker supervisor's job — and a
+  // dispatcher-only restart is NOT the remedy, because it resumes the
+  // same configured thread.
+  #restoreQuarantine(state) {
+    const found = this.quarantines.load(state.serverName, state.threadId);
+    if (found.state === "absent") return;
+    if (found.state === "damaged") {
+      // W99 review round 3: fail CLOSED. The marker exists, so this
+      // context was quarantined; only the diagnostics are lost. The
+      // damaged bytes are copied aside and a well-formed
+      // unknown-but-tainted record takes their place, so the fence stays
+      // readable, the corruption stays inspectable, and the incident
+      // acknowledgement below has somewhere to live.
+      const kept = this.quarantines.preserveDamaged(state.serverName, state.threadId);
+      state.tainted = {
+        since: Date.now(),
+        cause: "approval",
+        category: "other",
+        method: null,
+        turnId: null,
+        correlation: "unknown",
+        work: null,
+        episode: null,
+        actionKey: null,
+        requests: 1,
+        damaged: true,
+        // Unknown, therefore not filed: a lost payload cannot vouch for
+        // a publication that may never have happened.
+        incidentFiled: false,
+        reported: false,
+        restored: true,
+        remedy: "stop and start the managed stack; a full start mints a fresh "
+          + "context, and a dispatcher-only restart resumes this same one",
+      };
+      state.tainted.durable = this.quarantines.save(
+        state.serverName, state.threadId, this.#quarantineRecord(state.tainted));
+      this.logger.error(
+        `[${state.name}] the quarantine marker for this managed context is `
+        + `damaged (${found.reason}). A marker at this exact context key is `
+        + `evidence that the context WAS quarantined, so it stays fenced with `
+        + `its diagnostics unknown rather than being read as clean`
+        + (kept ? `; the damaged bytes are kept at ${kept}` : "")
+        + `. Stop and start the managed stack to mint a fresh context.`);
+      return;
+    }
+    const record = found.record;
+    state.tainted = {
+      ...record,
+      // The runner state is republished once below, because THIS process
+      // has not said anything about this target yet.
+      reported: false,
+      restored: true,
+      durable: true,
+      incidentFiled: record.incidentFiled === true,
+    };
+    // W99 review round 3: a restored `pending` origin can NEVER become
+    // proven — the immutable attempt that could have proved it was
+    // process-local and died with the process that held it. Leaving it
+    // `pending` would advertise an attribution that is permanently
+    // undecidable.
+    if (state.tainted.correlation === "pending") {
+      state.tainted.correlation = "unmatched";
+      state.tainted.durable = this.quarantines.save(
+        state.serverName, state.threadId, this.#quarantineRecord(state.tainted));
+    }
+    this.logger.error(
+      `[${state.name}] this managed context was ALREADY quarantined at `
+      + `${new Date(record.since).toISOString()}`
+      + (record.actionKey ? ` during ${record.actionKey}` : "")
+      + ` and a dispatcher restart does not clear it — the thread is the `
+      + `same one. Nothing will be delivered here. Stop and start the `
+      + `managed stack to mint a fresh context.`);
+  }
+
+  /** W99 review round 3: recover an incident the dying process may never
+   *  have filed.
+   *
+   *  The marker is committed synchronously, before the denial; the
+   *  incident is a later asynchronous publication. A dispatcher can stop
+   *  in that window — and while an attribution is deferred, the window
+   *  is as long as `turn/start` takes. A restoring process cannot infer
+   *  that a fire-and-forget publication completed before its predecessor
+   *  died, so it files unless the marker carries a durable
+   *  acknowledgement that it already did.
+   *
+   *  W99 review round 4: whether it is CORRELATED depends on what the
+   *  marker proved, not on which process is doing the filing.
+   *
+   *  Round 3 filed every recovery uncorrelated, reasoning that "the
+   *  attempt that could prove this request belonged to it is gone".
+   *  That is true of a `pending` marker, where the proof was never made
+   *  — and false of an `exact` one, where it already was. An `exact`
+   *  marker is written only after the request's authoritative turn id
+   *  matched an immutable delivery attempt, and it durably carries the
+   *  Work, episode and action key that match produced. Throwing them
+   *  away because the publishing process died discards proof the
+   *  dispatcher still holds, and contradicts the confirmed boundary:
+   *  correlated when the origin is known, uncorrelated only when it
+   *  cannot be established.
+   *
+   *  Reconstructed from the marker's own closed field set. No request
+   *  body, argv or payload is involved, because none was ever stored. */
+  async #recoverQuarantineIncident(state) {
+    const tainted = state.tainted;
+    if (!tainted || tainted.incidentFiled) return;
+    const action = EventBridge.#provenAction(tainted);
+    this.logger.warn(
+      `[${state.name}] the restored quarantine carries no record that its `
+      + `durable incident was ever filed; filing it now`
+      + (action ? ` for ${action.key}, the origin its marker proved,` : `, uncorrelated,`)
+      + ` rather than assuming the process that observed the approval `
+      + `survived long enough to publish it`);
+    await this.#fileApprovalIncident(
+      state, tainted.method ?? "an approval request", state.threadId,
+      { attempt: action ? { action, eventId: null, turnId: tainted.turnId ?? null } : null,
+        correlation: tainted.correlation ?? "unknown",
+        turnId: tainted.turnId ?? null });
+  }
+
+  /** The Work origin a restored marker has already PROVEN, or null.
+   *
+   *  Only `exact` qualifies. `pending` was never settled, `unmatched`
+   *  was settled against the origin, `unknown` lost its payload, and a
+   *  marker whose locator is not fully well-formed is not proof of
+   *  anything — a partially written or hand-edited file must not inject
+   *  a locator the dispatcher never derived.
+   *
+   *  W99 review round 5: the record must also be INTERNALLY CONSISTENT.
+   *  `exact` means precisely that the approval request's authoritative
+   *  turn id matched an immutable delivery attempt, so a record claiming
+   *  `exact` without the turn id that match was made against cannot be
+   *  the durable result of making it. Reading its locator anyway
+   *  publishes W30's origin on the strength of a field that contradicts
+   *  itself. */
+  static #provenAction(tainted) {
+    if (tainted.correlation !== "exact") return null;
+    if (EventBridge.#liveTurnId(tainted.turnId) === null) return null;
+    const work = EventBridge.#provenText(tainted.work);
+    const actionKey = EventBridge.#provenText(tainted.actionKey);
+    if (work === null || actionKey === null) return null;
+    if (!Number.isSafeInteger(tainted.episode)) return null;
+    return { work, episode: tainted.episode, key: actionKey };
+  }
+
+  /** ACTION-LOCATOR text this dispatcher could have written, or null.
+   *
+   *  `normalizeAction` accepts only non-blank strings and stores the
+   *  TRIMMED form, so every locator the live path derives is already
+   *  trimmed and non-empty. Recovery therefore requires the stored text
+   *  to be in exactly that form rather than trimming it here: a value
+   *  needing repair did not come from the live path, and repairing it
+   *  is how a hand-edited marker gets its locator accepted. Blank text
+   *  is the case the review reproduced — the real publisher may refuse
+   *  the malformed selector, losing the durable notice the fence exists
+   *  to deliver, while a stub reports success.
+   *
+   *  This checks the SHAPE of the action key and never its content; the
+   *  key stays opaque, as W148 requires.
+   *
+   *  W99 review round 6: this contract belongs to `work` and `actionKey`
+   *  ONLY, because only they pass through `normalizeAction`. The turn id
+   *  is a separate opaque identity with its own predicate below. */
+  static #provenText(value) {
+    if (typeof value !== "string") return null;
+    if (value === "" || value !== value.trim()) return null;
+    return value;
+  }
+
+  /** The turn identity the LIVE path accepts, verbatim, or null.
+   *
+   *  W99 review round 6: recovery must not invent a contract the live
+   *  path does not enforce. The app-server schema types an approval
+   *  request's `turnId` as a plain string with no trimming, pattern or
+   *  length rule; `#bindAttempt` stores whatever non-empty string
+   *  `turn/start` returned; and `#approvalOrigin` proves the origin by
+   *  EXACT equality against that stored key. Padding is therefore part
+   *  of the identity, not damage to be repaired — and trimming an
+   *  opaque identifier is the parsing W148 forbids in the first place.
+   *
+   *  So this is the one predicate, shared by the binding, the selection
+   *  and the recovery, and the three cannot drift apart: a stricter
+   *  recovery rule would discard an origin the live path had already
+   *  proven, while a laxer one would accept a marker the live path could
+   *  never have written. Requiring the turn id to be PRESENT for an
+   *  `exact` marker is a separate rule and still holds — that record
+   *  claims a match was made, and a match needs something to match. */
+  static #liveTurnId(value) {
+    if (typeof value !== "string" || value === "") return null;
+    return value;
+  }
+
+  /** Durable proof that this quarantine's incident reached the
+   *  authority, so a restart neither loses it nor re-files it. */
+  #acknowledgeIncident(state) {
+    const tainted = state.tainted;
+    if (!tainted || tainted.incidentFiled) return;
+    tainted.incidentFiled = true;
+    tainted.durable = this.quarantines.save(
+      state.serverName, state.threadId, this.#quarantineRecord(tainted));
+  }
+
+  #quarantine(state, request, origin) {
+    if (state.tainted) {
+      state.tainted.requests += 1;
+      this.quarantines.save(state.serverName, state.threadId,
+                            this.#quarantineRecord(state.tainted));
+      return;
+    }
+    const action = origin?.attempt?.action ?? null;
+    state.tainted = {
+      since: Date.now(),
+      cause: "approval",
+      category: EventBridge.#approvalCategory(request?.method),
+      method: typeof request?.method === "string" ? request.method : null,
+      turnId: origin?.turnId ?? null,
+      correlation: origin?.correlation ?? "unnamed",
+      work: action?.work ?? null,
+      episode: action?.episode ?? null,
+      actionKey: action?.key ?? null,
+      requests: 1,
+      reported: false,
+      restored: false,
+      remedy: "stop and start the managed stack; a full start mints a fresh "
+        + "context, and a dispatcher-only restart resumes this same one",
+    };
+    // Durable BEFORE the denial goes out, so no asynchronous step can
+    // run between the fence existing in memory and existing on disk.
+    state.tainted.durable = this.quarantines.save(
+      state.serverName, state.threadId,
+      this.#quarantineRecord(state.tainted));
+    this.logger.error(
+      `[${state.name}] this managed context is QUARANTINED after an `
+      + `unexpected approval request`
+      + (action?.key ? ` during ${action.key}` : "")
+      + `. ${state.queue.length} readiness event(s) are retained and no `
+      + `further Work will be delivered on it, because an interrupted turn `
+      + `can leave its intent in the context. Stop and start the managed `
+      + `stack to mint a fresh context.`);
+  }
+
+  // W99: the marker's key set is CLOSED and matches what the status row
+  // already publishes. Live-only bookkeeping (`reported`, `restored`,
+  // `durable`) stays out, and so does anything derived from the request
+  // payload — a quarantine marker is no more entitled to a command body
+  // than an incident is.
+  #quarantineRecord(tainted) {
+    return {
+      since: tainted.since,
+      cause: tainted.cause,
+      category: tainted.category,
+      method: tainted.method,
+      turnId: tainted.turnId,
+      correlation: tainted.correlation,
+      work: tainted.work,
+      episode: tainted.episode,
+      actionKey: tainted.actionKey,
+      requests: tainted.requests,
+      // W99 review round 3: the one piece of live bookkeeping that MUST
+      // be durable. Without it a restore cannot tell "the incident was
+      // published" from "the process died before publishing", and the
+      // safe reading of that ambiguity — file it — would re-file on
+      // every restart forever.
+      incidentFiled: Boolean(tainted.incidentFiled),
+      // Present only when the previous marker could not be parsed, so an
+      // operator reading the record knows its fields are unknown rather
+      // than observed.
+      ...(tainted.damaged ? { damaged: true } : {}),
+      remedy: tainted.remedy,
+    };
+  }
+
+  // W99: after the turn ends, the honest runner state is `failed`, not
+  // `idle`. An idle-but-undeliverable target published as idle is what
+  // let the stack look healthy while nothing could reach it. Published
+  // once per quarantine: duplicate terminal events are ordinary and
+  // must not each mint a new report.
+  #reportQuarantined(state, session) {
+    if (!state.tainted || state.tainted.reported) return;
+    state.tainted.reported = true;
+    void state.runtime.state("failed", {
+      cause: "approval",
+      detail: "context quarantined after an unexpected approval request; "
+        + "stop and start the managed stack",
+      session,
+    });
   }
 
   #denyAndRecover(serverState, state, request) {
@@ -780,10 +1371,11 @@ export class EventBridge extends EventEmitter {
       this.logger.error(
         `[${state.name}] could not end the blocked turn: ${error.message}. `
         + `Readiness for this target is stuck (${state.queue.length} queued); `
-        + `restart the managed stack to get a fresh context.`);
+        + `stop and start the managed stack to mint a fresh context.`);
       void state.runtime.state("failed", {
         cause: "approval",
-        detail: "a blocked turn could not be interrupted; restart the stack",
+        detail: "a blocked turn could not be interrupted; stop and start "
+          + "the managed stack",
       });
     }
   }
@@ -797,9 +1389,19 @@ export class EventBridge extends EventEmitter {
       state.blockedTimer = null;
     }
     if (!state.blocked) return;
-    this.logger.info(
-      `[${state.name}] blocked turn ended; draining ${state.queue.length} `
-      + `retained readiness event(s)`);
+    // W99: the message has to say which of the two conditions ended.
+    // "Draining N retained events" after a quarantine would be a
+    // straightforward lie about what happens next.
+    if (state.tainted) {
+      this.logger.warn(
+        `[${state.name}] blocked turn ended, but this context stays `
+        + `quarantined; ${state.queue.length} retained readiness event(s) `
+        + `will NOT drain here. Stop and start the managed stack.`);
+    } else {
+      this.logger.info(
+        `[${state.name}] blocked turn ended; draining ${state.queue.length} `
+        + `retained readiness event(s)`);
+    }
     state.blocked = null;
   }
 
@@ -812,7 +1414,11 @@ export class EventBridge extends EventEmitter {
     // adapter can only report because it OBSERVED the completion.
     // Silence past the lease deadline is what becomes `unknown`, and
     // only the authority derives that.
-    void state.runtime.state("idle", { session: params.threadId });
+    // W99: unless this context is quarantined, in which case `idle`
+    // would advertise a runner that is up and will never be given
+    // anything again.
+    if (state.tainted) this.#reportQuarantined(state, params.threadId);
+    else void state.runtime.state("idle", { session: params.threadId });
     this.#clearBlocked(state);
     if (isExternal) state.activeTurn = null;
     else {

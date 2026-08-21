@@ -144,3 +144,18 @@ SQLite, and the `wait` operation. Those are implementation and operator
 details, not concepts that help a reader understand the product at a glance.
 The diagram names persistent local dossiers directly and shows readiness
 adapters leading to Codex or any ACP agent.
+
+## Coordination under pressure — 2026-08-21
+
+**Confirmed by Slawomir.** The README must explain Baton's purpose under the
+conditions where informal coordination stops being reliable: multiple agents
+and teams working in parallel, dependencies and handoffs, interrupted turns,
+incidents, and deployment changes. The product value is that ownership and
+the next action remain explicit throughout.
+
+The README must also state the recovery value of the durable ledger. Workflow
+truth must not depend on chat history or human memory; when execution is
+interrupted or misbehaves, the recorded claims, routes, dependencies,
+messages, and events let the team reconstruct what happened and resume from
+canonical state. This is product positioning, not commentary on early-product
+rough edges.

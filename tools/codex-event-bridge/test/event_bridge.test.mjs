@@ -3,6 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { validateConfig } from "../src/config.mjs";
 import { EventBridge } from "../src/event_bridge.mjs";
+import { freshQuarantineDir } from "./quarantine_fixture.mjs";
 
 class FakeClient extends EventEmitter {
   constructor() {
@@ -66,6 +67,7 @@ function config(overrides = {}) {
       c: { server: "local", threadId: "thread-c" },
     },
     eventSocket: "/tmp/codex-event-bridge-test-unused.sock",
+    quarantineDir: freshQuarantineDir(),
     ...overrides,
   });
 }
@@ -135,6 +137,9 @@ test("reports ready only after every configured target is loaded", () => {
     connected: true, loaded: true, status: "inProgress",
     deliverable: true, participant: null, threadId: "thread-b",
     queueDepth: 0, oldestQueuedMs: null, blocked: null,
+    // W99 added the sticky context condition beside the live one. A
+    // target nobody has ever asked for approval on is not quarantined.
+    tainted: null,
   });
 });
 
@@ -286,8 +291,20 @@ test("W3243: more than one readiness event is RETAINED, not lost",
     await bridge.stop();
   });
 
-test("W3243: the turn ending drains everything that queued behind it",
+test("W3243+W99: the turn ending clears the live block and NOTHING else",
   async () => {
+    // SUPERSEDED HALF, deliberately rewritten. This test used to assert
+    // that the target became deliverable again and redelivered the
+    // retained events once its turn ended. The approver's 2026-08-21
+    // ruling (see `finding-managed-turn-approval-incidents/FINDING.md`
+    // and the scoped supersession in
+    // `finding-readiness-target-wedged-turn/FINDING.md`) replaced that
+    // clause for the approval case: turn completion proves the turn
+    // stopped, not that the persistent context discarded its intent.
+    //
+    // What the original test was protecting is UNCHANGED and still
+    // asserted below: nothing is delivered while blocked, and not one
+    // retained readiness event is lost.
     const { bridge, fake } = bridgeWithFake();
     await bridge.start({ listen: false });
     fake.emit("status", { threadId: "thread-a", status: { type: "inProgress" } });
@@ -297,19 +314,15 @@ test("W3243: the turn ending drains everything that queued behind it",
     fake.emit("status", { threadId: "thread-a", status: { type: "idle" } });
     await new Promise((resolve) => setTimeout(resolve, 30));
     const status = bridge.handleRequest({ control: "status" });
-    // W3243 review P2: this line was `assert.equal(status.ready, false
-    // || status.ready)`, which is `status.ready === status.ready` and
-    // could never fail. The ruled post-recovery expectation is exact:
-    // the wedge is gone, the target takes deliveries again, and the
-    // events that queued behind it were redelivered rather than lost.
     assert.equal(status.targets.a.blocked, null,
-      "the target stayed unhealthy after its turn ended");
-    assert.equal(status.targets.a.deliverable, true,
-      "the target stayed undeliverable after its turn ended");
-    assert.ok(fake.starts.length >= 1,
-      "the retained readiness events were never redelivered");
-    assert.equal(status.targets.a.queueDepth + fake.starts.length, 3,
-      "a retained readiness event was lost rather than redelivered");
+      "the LIVE block outlived the turn it described");
+    assert.equal(status.targets.a.deliverable, false,
+      "the quarantined context became deliverable when its turn ended");
+    assert.equal(fake.starts.length, 0,
+      "a retained event was delivered onto the quarantined context");
+    assert.equal(status.targets.a.queueDepth, 3,
+      "a retained readiness event was lost rather than held for the "
+      + "fresh context a full managed-stack start mints");
     await bridge.stop();
   });
 

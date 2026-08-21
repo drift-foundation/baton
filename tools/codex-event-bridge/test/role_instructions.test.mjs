@@ -5,6 +5,7 @@ import { validateConfig } from "../src/config.mjs";
 import { EventBridge } from "../src/event_bridge.mjs";
 import { resolveTargetInstructions } from "../src/main.mjs";
 import { readRoleInstructions, validateRoleInstructions } from "../src/role_instructions.mjs";
+import { freshQuarantineDir } from "./quarantine_fixture.mjs";
 
 // W415: the dispatcher refuses to start unless the deployment-owned
 // execpolicy file authorizes each managed participant's canonical Baton
@@ -43,6 +44,7 @@ function rawConfig() {
       tuner: { server: "local", threadId: "thread-tuner", identity: { participant: "baton.tuner", role: "tuner", actionOwner: "ops.slaw" } },
     },
     eventSocket: "/tmp/codex-role-instructions-test.sock",
+    quarantineDir: freshQuarantineDir(),
   };
 }
 

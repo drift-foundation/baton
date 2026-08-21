@@ -17,8 +17,8 @@ import { EventEmitter } from "node:events";
 import { validateConfig } from "../src/config.mjs";
 import { EventBridge } from "../src/event_bridge.mjs";
 import { codexBatonBridge } from "../src/codex_baton_bridge.mjs";
+import { freshQuarantineDir } from "./quarantine_fixture.mjs";
 import {
-
 	RuntimePublisher,
 	classifyFailure,
 	makeRuntimePublisher,
@@ -413,6 +413,7 @@ function identifiedConfig(eventSocket =
 		roleInstructions: { binary: "/opt/baton/bin/baton", config: "/home/op/baton.json",
 			execPolicyFile: FIXTURE_POLICY },
 		eventSocket,
+		quarantineDir: freshQuarantineDir(),
 	});
 }
 
@@ -424,6 +425,7 @@ function anonymousConfig() {
 		servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
 		targets: { anon: { server: "local", threadId: "thread-b" } },
 		eventSocket: "/tmp/codex-event-bridge-runtime-unused.sock",
+		quarantineDir: freshQuarantineDir(),
 	});
 }
 
@@ -434,7 +436,7 @@ function dispatcherWithRuntime({ config = identifiedConfig(),
 		incarnation: "run-1",
 		async start(options) { published.push(["start", options]); },
 		async state(state, options) { published.push([state, options]); },
-		async incident(options) { published.push(["incident", options]); },
+		async incident(options) { published.push(["incident", options]); return true; },
 		async facts(supplied, options) {
 			published.push(["facts", { ...supplied, ...options }]);
 			// The real publisher answers whether the publication
@@ -1387,6 +1389,7 @@ test("W415: the dispatcher never suppresses the approval request it reports on",
 				identity: { participant: "baton.tuner", role: "tuner",
 					actionOwner: "ops.slaw" } } },
 			eventSocket: "/tmp/codex-event-bridge-w415-unused.sock",
+			quarantineDir: freshQuarantineDir(),
 		});
 		const { bridge, fake, published } = dispatcherWithRuntime({ config });
 		await bridge.start({ listen: false });
@@ -1416,6 +1419,7 @@ test("W415: a managed deployment must name an action owner to be startable",
 				identity: { participant: "baton.tuner", role: "tuner",
 					actionOwner: "ops.slaw" } } },
 			eventSocket: "/tmp/codex-event-bridge-w415-unused.sock",
+			quarantineDir: freshQuarantineDir(),
 		};
 		assert.doesNotThrow(() => validateConfig(base));
 		// The deployment that REPRODUCED this defect had no action owner,
@@ -1616,6 +1620,7 @@ test("W415: the dispatcher refuses to start without a provisioned policy",
 				identity: { participant: "baton.tuner", role: "tuner",
 					actionOwner: "ops.slaw" } } },
 			eventSocket: "/tmp/codex-event-bridge-w415-unused.sock",
+			quarantineDir: freshQuarantineDir(),
 		});
 		const { bridge } = dispatcherWithRuntime({ config });
 		await assert.rejects(() => bridge.start({ listen: false }),

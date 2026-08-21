@@ -136,3 +136,96 @@ deny and terminate an approval-blocked non-interactive turn rather than wedge
 the readiness queue. This finding preserves that ruling and adds the missing
 execution-policy correction and durable operator feedback; it does not reopen
 automatic approval or indefinite waiting.
+
+## Cross-Work continuation recurrence — observed 2026-08-21
+
+After the fresh schema-27 deployment, the managed `baton.codex` session began
+W30 and requested interactive approval to run the v12 test suite with Docker
+access. The dispatcher correctly denied and interrupted that non-interactive
+turn, producing incident I1 for W30. The next readiness turn was for W28, but
+before acting on W28 the same session attempted the unfinished W30 cleanup:
+`rm -rf /tmp/w30-fixture-audit.Lmr3aa`. The dispatcher again refused it and
+produced incident I2 correlated to W28 because W28 was the current readiness
+episode.
+
+**Confirmed defect.** A denied/interrupted managed turn may leave semantic
+intent in the persistent agent context. A later Work wake can therefore resume
+an operation belonging to the preceding Work, while incident correlation names
+the new readiness episode. The command refusal remains correct; broad shell,
+Docker, or destructive-command approval is not an acceptable correction.
+
+The managed dispatcher must establish a Work-scoped execution boundary after
+an interrupted turn. Before delivering another Work, it must either prove that
+the prior turn and its pending intent are settled, or replace/reset the managed
+context so no later Work can continue the prior Work's actions. Incident
+correlation must identify both the active readiness episode and, when known,
+the originating Work intent rather than presenting the later Work as the
+source. Regression coverage must reproduce an approval-blocked Work A followed
+by Work B and prove that no Work-A command is issued during Work B.
+
+## Reviewer revalidation — 2026-08-21
+
+**Observed.** `EventBridge.#denyAndRecover` records a live `blocked` condition,
+but both an `idle` status notification and `#turnCompleted` call
+`#clearBlocked`. That method discards the only delivery fence, and `#drain`
+then starts the next retained readiness event on the same configured
+`state.threadId`. The existing regression named "the turn ending drains
+everything that queued behind it" requires this exact transition.
+
+**Confirmed.** Turn termination proves that no command from that turn is still
+executing; it does not prove that the persistent agent context discarded the
+interrupted Work's intent. The W30-to-W28 recurrence is direct counterevidence.
+The v11 ruling in
+`work/records/2026/08/finding-readiness-target-wedged-turn/FINDING.md` currently
+requires retained events to drain when the target becomes idle, so it and this
+new boundary cannot both remain authoritative without a scoped supersession.
+
+**Observed.** Incident correlation is selected from
+`state.activeTurn?.event?.action` at request time. The approval request's
+authoritative `params.turnId` is used only later for interruption. A request
+that races the `turn/start` continuation can therefore file without the Work
+locator even though the dispatcher still holds the queued event, and a turn-id
+disagreement does not prevent attribution to the locally recorded action.
+
+**Proposed v11 boundary.** An unexpected approval request taints its configured
+managed context immediately. Denial and bounded interruption still end the
+live turn, but idle/completion clears only the live-turn blockage; it does not
+make the tainted context deliverable. Retain queued actions, report the target
+unhealthy with the failed Work/action locator, and require the documented full
+managed-stack stop/start that mints a fresh context. Do not create a replacement
+context inside the v11 dispatcher; automatic replacement remains owned by the
+v12 worker supervisor.
+
+Capture an immutable delivery attempt before awaiting `turn/start`, including
+the event/action and eventual turn id, and use the approval request's turn id
+to select that origin. If the request and local turn disagree, file the active
+request safely without guessing a Work origin. Command bodies remain outside
+all logs and incidents. Under the proposed fence there is no Work B turn in
+which Work A intent can run; any late request remains associated with the
+tainted attempt when that association is observed, rather than with a queued
+but undelivered Work B.
+
+**Open ruling.** Confirm that an approval-tainted v11 context remains
+undeliverable until a full managed-stack restart, and supersede only the
+same-thread drain clause of the earlier W3243 ruling for this case. The
+alternative is to add in-process context minting, durability, lifecycle-state
+replacement, and cwd/instruction ownership to v11, duplicating the worker
+supervisor already planned for v12.
+
+## Approval-tainted context ruling — confirmed 2026-08-21
+
+Slawomir approved the proposed v11 boundary above. An unexpected approval
+request permanently quarantines that managed context for the remainder of the
+current managed-stack start. Ending or interrupting the live turn clears only
+the live-turn blockage; it never makes that context deliverable and never
+drains queued Work onto it. Recovery requires a full managed-stack stop/start,
+which mints a fresh context. Automatic in-process context replacement remains
+v12 Worker Manager work.
+
+Incident attribution is bound to an immutable delivery attempt and the
+approval request's authoritative turn id. A turn-id mismatch is reported
+without guessing a Work origin. Command bodies, argv, environment values, and
+filesystem operands remain outside incidents and logs. This ruling authorizes
+the bounded v11 implementation and regression boundary in
+`review-2026-08-21T15-46-43Z.md`; it does not authorize Docker access, broad
+shell approval, destructive-command approval, or automatic v11 replacement.

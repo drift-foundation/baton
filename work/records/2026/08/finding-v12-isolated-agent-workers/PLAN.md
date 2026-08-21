@@ -1,12 +1,13 @@
 # Plan
 
-**Status — current Baton Work `W2` (`88990a87-W2`); roadmap with one signed-off
-external proof. The original `bec445ce-W193`, `bcbb9dbf-W2`, and
-`5f717eee-W2` authorities are retired. W76's bounded external PoC is
-independently reviewed clean; current child W126 is relocating that exact
-prototype into the self-contained top-level `v12/` subtree. The approved order
-keeps the bounded proof ahead of compatibility manifests or production
-implementation.**
+**Status — current Baton Work `W28` (`43c55d4b-W28`); roadmap with one
+signed-off proof now resident under `v12/`. The original `bec445ce-W193`,
+`bcbb9dbf-W2`, `5f717eee-W2`, and `88990a87-W2` authorities are retired. W76's
+bounded PoC and W126's in-repository relocation are independently complete.
+The protocol-owned assignment state machine and durable identity placement are
+independently signed off. The next design gate is the versioned worker-control
+API and its typed input, proposal, result, and verification manifests; no
+production implementation is authorized yet.**
 
 0. [done 2026-08-20] Claude independently reviewed the complete pinned design
    for contradictions, missing invariants, feasibility, and ordering risks,
@@ -286,13 +287,58 @@ implementation.**
    scheduled top-level W1478 now owns that non-blocking cleanup and does not
    reopen W1395 or gate W2.
 
-1. [pending] Model assignment generations, read-only pre-claim inspection,
+0aj. [done 2026-08-21; current Work `W28`] Revalidate the accepted in-repository
+   PoC against the pending roadmap before ordering production work. Confirmed
+   78/78 focused tests and recorded that the PoC's constant generation,
+   authority-local selectors and process-memory offer/token state are bounded
+   spike choices, not production contracts. Pin the next design gate and the
+   unresolved authoritative placement in `FINDING.md` and
+   `review-2026-08-21T15-29-46Z.md` without changing application code.
+
+0ak. [done 2026-08-21] Keep W28 as the durable v12 campaign umbrella rather
+   than executing the remaining roadmap as one oversized Work. Every
+   independently schedulable milestone and bounded slice gets its own Work.
+   W28 owns ordering, cross-slice rulings and the campaign index; it is not
+   claimed to perform a child's execution. Use an explicit dependency only
+   when a concrete W28 decision truly cannot proceed before another Work,
+   never merely because that Work is contained here.
+
+## Campaign milestones
+
+- **M0 — Foundation (done):** bounded PoC, in-repository relocation, and the
+  signed-off assignment state machine (items 0ah-1).
+- **M1 — Contract freeze (next):** worker-control API, typed manifests, ACP
+  boundary, and runtime-neutral conformance contract (items 2-4).
+- **M2 — Local execution:** OCI reference worker, trusted Worker Manager, and
+  one complete local isolated lifecycle (items 5-6, local portion).
+- **M3 — Proposal pipeline:** refresh, immutable proposal, clean verification,
+  technical review, approval, and trusted integration (items 7-9).
+- **M4 — Runtime certification:** Claude, Gemini, Codex, and a genuinely remote
+  adapter against the same contract (items 6 and 10).
+- **M5 — Resilience and scale:** failure/race recovery plus concurrent
+  multi-agent isolation trials (items 11-12).
+- **M6 — Rollout and adoption:** mixed v11/v12 operation, observability,
+  documentation, identity separation, and the production-adoption decision
+  (items 13-14).
+
+Each milestone becomes a direct child Work of W28 when scheduled. Its bounded
+implementation and verification slices become children of that milestone,
+preserving the two-child-level limit. Later milestones remain parked; only the
+current milestone is actionable.
+
+1. [done 2026-08-21; child Work `W151`] Model assignment generations, read-only pre-claim inspection,
    expiring single-use claim tokens, claim-capability-gated writable
    workers, cancellation, quiescence, stale-worker rejection, runtime-profile
    probation/disablement, typed plan rejection and revision, and integration
-   dispositions as one protocol state machine. For the first PoC, implement
-   only its bounded walking-skeleton subset in the disposable external project;
-   do not alter existing Baton source.
+   dispositions as one protocol state machine. The approver rules that the
+   monotonically increasing integer generation is minted and persisted by the
+   v12 authority's atomic claim transaction; the random single-use pre-claim
+   token remains a separate secret capability. The design deliverable must include a transition
+   table, invariants, restart/reconciliation behavior, full durable identity
+   shapes, and executable model tests. Five independent review rounds resolved
+   the restart and retirement races; the final 54/54 model gate passed and the
+   executable design contract was signed off without changing application,
+   protocol, runtime, schema, or dependency code.
 2. [pending] Specify the outer versioned Baton worker-control API plus typed
    input, immutable local change-proposal or non-Git result, and verifier-result
    manifests. Include named source descriptors, source type/URI/destination,

@@ -24,6 +24,7 @@ import { validateConfig } from "../src/config.mjs";
 import { EventBridge } from "../src/event_bridge.mjs";
 import { normalizeEvent } from "../src/event_types.mjs";
 import { actionEvent } from "../src/codex_baton_bridge.mjs";
+import { freshQuarantineDir } from "./quarantine_fixture.mjs";
 
 // W415: the dispatcher refuses to start unless the deployment-owned
 // execpolicy file authorizes each managed participant's canonical Baton
@@ -89,6 +90,7 @@ function config(socket = "/tmp/codex-w1224-unused.sock") {
 		roleInstructions: { binary: "/opt/baton/bin/baton", config: "/home/op/baton.json",
 			execPolicyFile: FIXTURE_POLICY },
 		eventSocket: socket,
+		quarantineDir: freshQuarantineDir(),
 	});
 }
 
@@ -329,6 +331,7 @@ test("a deployment with no roleInstructions cannot and does not check",
 				servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
 				targets: { tuner: { server: "local", threadId: "thread-a" } },
 				eventSocket: "/tmp/codex-w1224-unused.sock",
+				quarantineDir: freshQuarantineDir(),
 			}),
 			logger: quiet,
 			clientFactory: () => fake,

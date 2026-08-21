@@ -13,6 +13,12 @@ the schema-25 rollover. The record was recreated again without message-history
 migration as current Work `W2` (`5f717eee-W2`) on 2026-08-20; that Work is the
 one current ledger authority for this dossier.
 
+**Authority rollover clarification — 2026-08-21:** the preceding statement
+that `5f717eee-W2` is current is superseded. After the schema-27 fresh-authority
+cutover, this record is bound to Work `W28` (`43c55d4b-W28`). Prior message
+history and closed implementation children were intentionally not migrated;
+their canonical dossiers below remain the durable evidence.
+
 On 2026-08-18, the project also confirmed the general invariant exposed by
 this record's initial omission: every finding dossier must have exactly one
 corresponding Baton Work bound to its canonical record path. Roadmap findings
@@ -157,6 +163,14 @@ authoritative. V11 now enforces claim before `pass` or terminal `close`, so an
 unclaimed participant cannot complete Baton's authoritative execution
 lifecycle. That is the strongest useful correction within v11.
 
+**Superseded in part 2026-08-21 by the W151 terminal-close ruling.** The
+claim-before-`pass` statement remains true. The terminal-`close` statement does
+not: current v11 permits Route-authorized closure while Work is unclaimed. V12
+preserves that useful administrative closure, while a close that ends a live
+v12 assignment must compare its full exact assignment identity. The
+executable assignment-state contract and evidence are owned by
+`findings/finding-v12-assignment-state-machine/`.
+
 V11 still cannot prevent a process from reading the full Work contract,
 editing the shared writable checkout, or running tests before it claims. That
 filesystem boundary is an accepted v11 limitation, not another v11 work item.
@@ -193,6 +207,26 @@ otherwise it revokes the claim and requires a new claim and generation before
 starting a replacement. Runtime attempt IDs, immutable proposal IDs,
 `episode_seq`, participant runtime incarnation, and global configuration
 generation remain separate identities with no claim authority.
+
+**Narrowed 2026-08-21 by the W151 per-Work contract-progression ruling.** The
+opening sentence above — "the successful atomic `claim` action generates the
+assignment-generation ID" — was written before Work carried an explicit
+assignment contract, and read unqualified it says every claim in a coexisting
+deployment mints a generation. Ruling 3 of W151 scopes it: minting belongs to
+the v12 assignment contract. A claim under the `v11` contract mints none and
+behaves exactly as v11 does today; a Work's FIRST positive generation is
+minted by its first claim after it enters the v12 contract, and from there
+every claim mints the next one.
+
+Everything else in this ruling stands unchanged, including monotonicity,
+non-reuse, the full authority/Work/participant/generation identity, the
+one-fencing-boundary rule, and the separation from attempt, proposal,
+episode, incarnation and configuration identities. The consequence of the
+narrowing is deliberate and already recorded: under the `v11` contract two
+consecutive claims by the same participant remain indistinguishable, which is
+the defect contract progression exists to fix rather than an oversight. The
+executable contract is
+`findings/finding-v12-assignment-state-machine/SPEC.md` §1 and §5.
 
 ### Proposal review, approval, and integration — confirmed 2026-08-20
 
@@ -1228,3 +1262,94 @@ This is a deferred production-model requirement, not an acceptance condition
 for the current single-Claude walking-skeleton PoC or its repository migration.
 No separate Work is created yet; implementation is ordered only after the PoC
 has demonstrated the more fundamental isolated-worker lifecycle.
+
+## Post-PoC assignment-state revalidation — 2026-08-21
+
+**Confirmed.** The independently accepted prototype under `v12/` remains a
+bounded `0-spike`, not a production assignment contract. Its manager writes
+`generation: 1` after every successful claim, its envelopes carry authority-
+local `W…` selectors, and its offer/token registry and signing key exist only in
+one manager process. Those choices were valid for W76's disposable fresh-
+authority proof and are not defects in the accepted PoC.
+
+**Confirmed.** V11 has no assignment-generation primitive to reuse. Its
+`episode_seq` is minted when Work becomes actionable and deliberately does not
+move on claim. The claim event's `seq` identifies one global journal event but
+is not the confirmed monotonically increasing per-Work generation. Neither may
+silently become the v12 fencing identity.
+
+**Proposed design gate.** Before the prototype grows another runtime, proposal,
+or integration path, specify one versioned assignment state machine and its
+durable identities. The successful atomic claim must increment and return a
+per-Work generation and form the full assignment identity
+`(authority UUID, full Work ID, participant, generation)`. Offer, runtime
+attempt, assignment, proposal, readiness episode, runtime incarnation, and
+configuration generation remain separate identities. Releasing transitions
+invalidate the live assignment without reusing or decrementing its generation.
+
+**Proposed persistence boundary.** Pre-claim offers and post-claim assignments
+must survive or fail closed across a Worker Manager restart. Persist only a
+token verifier or digest, exact binding, expiry, consumption state, runtime
+attempt and policy/input digests—never the bearer token itself. A restart may
+expire an unconsumed offer. It may reattach to a claimed worker only with
+positive proof of the same runtime and full assignment identity; otherwise it
+fences publication and follows the recorded cancellation/recovery policy.
+
+**Proposed transition boundary.** Worker-attempt state must not become another
+spelling of Baton's Work phase. Work remains `queued`/`active`/`block`/`parked`;
+the manager separately records offer, claim, runtime, cancellation,
+quiescence, output, proposal and cleanup facts. Every activity, result,
+proposal and disposition carries the full assignment identity, and publication
+compares it with the one current live assignment before accepting material.
+
+**Open for approval.** Decide whether the per-Work assignment generation and
+live identity belong in the v12 authority schema/claim result (recommended) or
+in another explicitly authoritative component. A manager-local counter is not
+acceptable: two managers or a restart could reuse it, and the authority could
+not independently fence stale publication. Until this placement is ruled, the
+next slice is specification and executable transition tests only; no v11 or
+v12 application change is authorized by this revalidation.
+
+## Assignment-generation authority ruling — confirmed 2026-08-21
+
+The open placement question above is resolved. The v12 authority owns one
+monotonically increasing integer generation counter per Work. The same atomic
+transaction that successfully commits a claim increments and returns that
+generation and records it with the live assignment. Releasing transitions
+invalidate the live assignment without resetting, decrementing, or reusing the
+counter. The full authoritative assignment identity is `(authority UUID, full
+Work ID, participant, generation)`; compact Work labels remain presentation
+only.
+
+Neither a random UUID nor a hash replaces the generation integer: both would
+hide ordering and add no authority. The separate short-lived pre-claim bearer
+token remains cryptographically random, single-use, and secret; it is a
+capability to request the claim, not the durable assignment identity.
+
+The approver also authorizes one design-only child Work to specify the
+versioned state machine, transition table, restart and ambiguous-result
+reconciliation, invariants, and executable model tests described above. That
+child may update design records and tests but may not extend the accepted PoC
+runtime or change v11/v12 application behavior until its contract returns for
+separate approval.
+
+## Campaign decomposition — confirmed 2026-08-21
+
+V12 is a long-running campaign, not one executable Work. W28 remains its
+durable umbrella and owns the roadmap, milestone ordering, campaign-level
+decisions, and cross-slice status. It does not accumulate implementation,
+review, runtime, adapter, conformance, verification, integration, trial,
+rollout, and adoption as undifferentiated execution under one claim.
+
+The campaign is divided into foundation, contract-freeze, local-execution,
+proposal-pipeline, runtime-certification, resilience-and-scale, and
+rollout-and-adoption milestones. Each milestone receives a direct child Work
+of W28 when scheduled. Independently executable slices beneath a milestone
+receive their own child Work, preserving the repository's two-child-level
+limit. Future milestones remain parked while only the current milestone is
+actionable.
+
+Containment remains structural and prevents premature parent closure; it is
+not a scheduler dependency. Add a dependency edge only when one concrete W28
+decision or action genuinely cannot proceed until the named Work completes.
+W28 is never claimed merely to stand in for execution occurring in a child.

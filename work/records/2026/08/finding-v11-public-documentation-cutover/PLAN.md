@@ -53,6 +53,11 @@ child (W233) because they cannot be written until W101 lands.
     the shipped agent contract taught three kinds; the policy and the README
     now carry the poke primitive, and a standing check derives the kinds from
     `participant_actions` so a fifth one fails on the day it ships.
+14. [done 2026-08-21] Add concise product positioning to `README.md` for
+    coordination under parallel and interrupted execution, and for the
+    durable ledger as the source from which a team reconstructs truth without
+    relying on chat history or memory. Keep the copy product-focused and do
+    not describe early-product rough edges.
 
 **Status — 2026-08-19:** the record's inventory is complete on the current
 tree. `teams` and `inbox` (W25) are deliberately absent from the certified

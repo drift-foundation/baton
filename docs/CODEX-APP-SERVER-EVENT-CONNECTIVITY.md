@@ -337,17 +337,114 @@ to other servers continue.
   is explicitly DENIED with a protocol error, which no app-server can read as
   permission, and the turn is interrupted if it has not ended within
   `approvalRecoveryMs` (default 15s). Until that turn actually ends the target
-  reports `deliverable: false` and the whole stack reports `ready: false`,
-  with the participant, thread, turn, cause, queue depth and oldest queued age
-  in `control: status`. Readiness events queued behind it are RETAINED and
-  drain when the turn ends.
+  reports a live `blocked` condition with the participant, thread, turn,
+  cause, queue depth and oldest queued age in `control: status`.
   Leaving the request unanswered was the defect: a target sat in
   `waiting-input(approval)` for over ten hours while 24 later readiness events
   queued behind it and the stack reported it healthy, because it was connected
-  and loaded. If denial and interrupt both fail, the target stays visibly
-  unhealthy and the operator restarts the managed stack, whose
-  fresh-context-per-start policy supplies a clean target; the dispatcher does
-  not create a replacement context, which is v12's worker supervisor's job.
+  and loaded.
+- **An unexpected approval QUARANTINES that managed context** for the rest of
+  the managed-stack start (W99, ruled 2026-08-21). Ending or interrupting the
+  turn clears only the live `blocked` condition; it never makes the context
+  deliverable again. `control: status` reports a separate sticky `tainted`
+  row — cause, safe category, method, the approval's own turn id, the Work and
+  action key it was serving, how many requests were refused, and the remedy —
+  the target stays `deliverable: false`, the stack stays `ready: false`, and
+  the runner publishes `failed` rather than `idle` once its turn ends.
+  Readiness events queued behind it are RETAINED and are never delivered on
+  that context.
+
+  The remedy is a **full managed-stack stop/start**, which mints a fresh
+  context; a dispatcher-only restart resumes the same configured thread and is
+  not a remedy. Baton's level-triggered readiness re-offers the still-actionable
+  Work to the fresh context. The dispatcher does not create a replacement
+  context, which is v12's worker supervisor's job.
+
+  **The fence outlives the dispatcher process**, because otherwise relaunching
+  that one process would be exactly the recovery the rule denies. Each
+  quarantine is written to a marker under `quarantineDir` (default
+  `.codex-quarantine` beside the event socket), keyed by server and thread id
+  and restored before any lease opens or any socket listens. A dispatcher-only
+  restart resumes the same thread, finds the marker, and stays fenced; a full
+  start mints a new thread id, so the old marker is not that context's and the
+  fresh one is clean without anything being deleted. Markers hold only what the
+  status row publishes plus one durable acknowledgement (below) — never a
+  command body, argv, environment value or filesystem operand. If a marker
+  cannot be written the fence still holds in memory and the row reports
+  `tainted.durable: false`, which is the operator's cue that relaunching the
+  dispatcher would clear it.
+
+  A marker that exists but cannot be read or parsed **fails closed**. Only
+  `ENOENT` is a clean context: a marker at that exact key is evidence that the
+  context was quarantined, and losing its diagnostics destroys what was known
+  about why, not the fact that it happened. The damaged bytes are copied aside
+  for inspection and the context loads as unknown-but-tainted, so one corrupt
+  file fences its own context without stopping the dispatcher or affecting
+  another target. "Cannot be read" includes an instant the restore could not
+  format: a marker's `since` counts as present only when the same
+  `new Date(...).toISOString()` the restore uses accepts it, so a finite value
+  outside that range is damaged like any other corruption rather than throwing
+  during startup.
+
+  The marker also records whether the durable incident was ever published. The
+  fence is committed synchronously before the denial while the incident is a
+  later asynchronous report, so a dispatcher can stop in between — and while an
+  attribution is deferred, that window lasts as long as `turn/start`. A
+  restoring dispatcher cannot infer that a fire-and-forget publication
+  completed before its predecessor died, so it files the incident itself
+  unless the marker carries the acknowledgement.
+
+  Whether that recovery is Work-correlated depends on what the marker proved,
+  not on which process files it. An `exact` marker was written only after the
+  request's authoritative turn id matched an immutable delivery attempt, and it
+  durably carries the Work, episode and action key that match produced — so the
+  recovery keeps them. Every other restored marker files uncorrelated: a
+  `pending` attribution was never settled (the attempt that could have proven
+  it was process-local), an `unmatched` one was settled against the origin, and
+  a damaged one lost its payload.
+
+  Reconstruction also requires the record to be INTERNALLY CONSISTENT and its
+  locator text to satisfy the same contract the live event normalizer applies.
+  `exact` means the request's authoritative turn id matched an attempt, so a
+  record claiming `exact` without that turn id contradicts itself and proves
+  nothing. The work, episode and action key must all be well-formed, and their
+  text must already be in the trimmed, non-blank form the live path stores —
+  blank or padded text was never written by this dispatcher, and repairing it
+  here would accept a locator the dispatcher never derived. Anything short of
+  that files uncorrelated. The action key is checked for shape only and is
+  never parsed.
+
+  That text contract covers the Work and action key alone. The turn id is a
+  separate opaque identity: the app-server types it as a plain string, the
+  bridge binds whatever non-empty string `turn/start` returned, and the origin
+  is proven by exact equality against that stored value. Padding is therefore
+  part of the identity rather than damage to repair, and one shared predicate
+  is used by the binding, the selection and the recovery so the three cannot
+  drift apart — a stricter recovery rule would discard an origin the live path
+  had already proven.
+
+  This supersedes, for the approval case only, the earlier rule that retained
+  events drain once the target goes idle. Turn completion proves the turn
+  stopped; it does not prove the persistent agent context discarded the
+  interrupted Work's intent. The observed counterexample: an approval-blocked
+  W30 turn was interrupted, and the same context then attempted W30's
+  unfinished cleanup during the next Work's readiness episode.
+- **Incident correlation is selected by the approval request's own turn id**
+  against an immutable delivery attempt recorded before `turn/start`, not from
+  mutable current state. A request that races the `turn/start` continuation is
+  still attributed to the Work that was delivered; a request naming a turn this
+  dispatcher never delivered is reported and filed WITHOUT a Work origin rather
+  than attributed to another episode.
+
+  A request naming a turn that nothing has bound yet is UNPROVEN, not assumed:
+  one delivery being in flight does not establish that this request's turn id
+  is the one `turn/start` is about to bind. Its Work attribution waits for that
+  binding and is then either proven exact or filed uncorrelated. Only the
+  attribution waits — the quarantine, the denial and the bounded interrupt are
+  immediate — and the wait is bounded by the delivery attempt itself, so an
+  approval on a target that will never drain again still produces its durable
+  incident. Command bodies, argv, environment values and filesystem operands
+  stay out of every incident, marker, status row and log line.
 
 Approval ownership must be tested for bridge-originated and TUI-originated
 turns. If an approval is delivered only to the initiating connection, a

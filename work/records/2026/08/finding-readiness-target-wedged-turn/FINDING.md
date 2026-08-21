@@ -81,3 +81,15 @@ stack, whose already-approved fresh-context-per-start policy supplies a clean
 target. V12's worker supervisor owns automatic replacement. This boundary
 restores delivery without adding a second context-selection policy that will
 soon be discarded.
+
+## Scoped supersession for approval-tainted contexts — confirmed 2026-08-21
+
+Item 3 of the 2026-08-20 v11 ruling is superseded only when the managed turn
+requested unexpected interactive approval. Turn completion proves that the
+live turn ended but does not prove that its persistent agent context discarded
+the interrupted Work's intent. In that case the dispatcher retains queued
+events but must not drain them onto the same context after idle or completion.
+The context remains quarantined until a full managed-stack stop/start mints a
+fresh one. Other non-self-resolving turn failures retain the earlier ruling
+unless separately superseded. V11 still does not create replacement contexts
+inside the dispatcher; automatic replacement remains v12 scope.

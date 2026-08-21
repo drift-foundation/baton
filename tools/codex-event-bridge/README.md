@@ -385,3 +385,29 @@ test thread IDs afterward.
 `Turn waits for approval`
 : This is expected until approval ownership is validated. Do not weaken the
   sandbox or enable automatic approval as a workaround.
+
+`Target reports tainted / Work is retained but never delivered`
+: An unexpected approval request quarantines that managed context for the rest
+  of the managed-stack start, because an interrupted turn can leave its intent
+  in the persistent context and the next Work delivered there would resume it.
+  The `tainted` row in `control: status` names the cause, safe category, the
+  approval's turn id, and the Work it was serving. Repair the deployment or
+  execution-policy mismatch it reports, then **stop and start the managed
+  stack** — a full start mints a fresh context, and Baton's level-triggered
+  readiness re-offers the retained Work to it. Restarting the dispatcher alone
+  resumes the same configured thread and does not clear the quarantine: the
+  fence is persisted under `quarantineDir` (default `.codex-quarantine` beside
+  the event socket) and restored at startup. If the row reports
+  `tainted.durable: false` the marker could not be written, so the fence is
+  process-local — repair the directory and stop/start the stack rather than
+  relaunching the dispatcher. A marker that exists but cannot be parsed — or
+  whose recorded instant is one the restore could not format — fails closed:
+  its bytes are copied to a sibling `.damaged` file and the context loads
+  unknown-but-tainted rather than clean, and rather than aborting startup for
+  the healthy targets beside it. A restored marker's Work correlation is
+  republished only when the record proves one: `exact`, with the turn id whose
+  match made it exact, and with locator text already in the trimmed, non-blank
+  form the live path stores. Anything else is filed uncorrelated. The turn id
+  itself is opaque and is accepted exactly as the live binding accepts it —
+  any non-empty string, verbatim — because the origin was proven by equality
+  against that stored value.

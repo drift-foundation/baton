@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import os from "node:os";
-import { isAbsolute, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 
 function object(value, name) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new TypeError(`${name} must be an object`);
@@ -146,11 +146,23 @@ export function validateConfig(raw) {
 
   const eventSocket = nonempty(raw.eventSocket ?? defaultEventSocketPath(), "eventSocket");
   if (!isAbsolute(eventSocket)) throw new TypeError("eventSocket must be an absolute path");
+  // W99 review P1: where the RESTART-DURABLE approval quarantine lives.
+  //
+  // It defaults beside the event socket because that directory is already
+  // this dispatcher's own private runtime area — `start()` creates it 0700
+  // — so every existing deployment gets a fence that survives a
+  // dispatcher-only restart with no configuration change. It is not
+  // optional: a fence an operator can switch off is not a fence.
+  const quarantineDir = nonempty(
+    raw.quarantineDir ?? join(dirname(eventSocket), ".codex-quarantine"),
+    "quarantineDir");
+  if (!isAbsolute(quarantineDir)) throw new TypeError("quarantineDir must be an absolute path");
   const config = {
     servers: Object.freeze(servers),
     targets: Object.freeze(targets),
     roleInstructions,
     eventSocket,
+    quarantineDir,
     dedupWindowMs: positiveInteger(raw.dedupWindowMs, 5000, "dedupWindowMs"),
     maxEventBytes: positiveInteger(raw.maxEventBytes, 64 * 1024, "maxEventBytes", 1024),
     maxDetailsBytes: positiveInteger(raw.maxDetailsBytes, 48 * 1024, "maxDetailsBytes", 256),
