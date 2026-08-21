@@ -2408,6 +2408,51 @@ def inbox(store: Authority, *, viewer_team: str, viewer_member: str,
 				# answer happens in that session, and the state clears
 				# when the adapter reports what happened next.
 				"completes_by": []})
+		# W415: durable managed-turn incidents. These are the OTHER
+		# half of the pair above, and the difference is the whole
+		# finding: the `waiting-input` row is live state and vanishes
+		# the moment the runner returns to `idle`, which is exactly
+		# what erased the evidence three times running. An incident is
+		# what FAILED and still needs somebody — it survives the
+		# transition back to idle, a managed-stack restart, a console
+		# refresh, and marking discussion seen. Only its action owner's
+		# explicit dismissal removes it.
+		#
+		# No `Approve` completes it. The corrective action is to repair
+		# the deployment/rule mismatch or reroute the Work, and
+		# offering an approval here would rebuild the interactive path
+		# one console away from the dispatcher that refuses it.
+		for row in store.conn.execute(
+				"SELECT * FROM approval_incidents WHERE action_owner=? "
+				"AND dismissed_ts IS NULL ORDER BY opened_seq",
+				(f"{viewer_team}.{viewer_member}",)):
+			participant = f"{row['team']}.{row['member']}"
+			repeated = (f" ({row['occurrences']}x, latest "
+			            f"{row['latest_ts']})"
+			            if row["occurrences"] > 1 else "")
+			summary = (f"{participant} could not complete a managed "
+			           f"{row['category']} operation: {row['cause']}"
+			           + (f" — {row['detail']}" if row["detail"] else "")
+			           + repeated)
+			rows.append({
+				"kind": "incident", "owed": True, "seen": False,
+				"action_key": f"incident:{row['id']}",
+				"selector": f"I{row['id']}",
+				"summary": summary,
+				"unseen_count": 0,
+				"thread": None, "message": None,
+				"work": row["work"], "poke": None,
+				"obligation": None, "trial": None,
+				"incident": row["id"],
+				"occurrences": row["occurrences"],
+				"category": row["category"],
+				"cause": row["cause"],
+				"participant": participant,
+				"episode": row["episode"],
+				# The Work is NOT claimed by anybody and stays that
+				# way: an incident correlates with the assignment it
+				# interrupted and decides nothing about it.
+				"completes_by": [f"dismiss incident={row['id']}"]})
 		# Attention: the participating-thread surface, personal cursors
 		# and all. A thread with nothing unseen is not an Inbox row —
 		# the Inbox is what is waiting, not an archive of everything
@@ -2448,6 +2493,54 @@ def inbox(store: Authority, *, viewer_team: str, viewer_member: str,
 	        # The tab is bold on THIS, never on `unseen`: seen state must
 	        # not be able to hide that the viewer is the blocker.
 	        "owed_action": bool(owed),
+	        "snapshot_seq": snapshot_seq}
+
+
+def incidents(store: Authority, *, viewer_team: str, viewer_member: str,
+              include_dismissed: bool = False) -> dict:
+	"""W415: the durable managed-turn incident surface.
+
+	Open incidents first, then dismissed history when asked for. The
+	dismissed rows are kept and readable because "this was dismissed,
+	and then it happened again" is the sequence that tells an operator
+	their fix did not hold — a projection that only showed open rows
+	would make a recurring problem look like a series of unrelated
+	first occurrences."""
+	rows = []
+	with _read_snapshot(store):
+		snapshot_seq = store.last_seq()
+		query = ("SELECT * FROM approval_incidents"
+		         + ("" if include_dismissed
+		            else " WHERE dismissed_ts IS NULL")
+		         + " ORDER BY opened_seq")
+		for row in store.conn.execute(query):
+			rows.append({
+				"incident": row["id"],
+				"participant": f"{row['team']}.{row['member']}",
+				"incarnation": row["incarnation"],
+				"adapter": row["adapter"],
+				"session": row["session"],
+				"action_owner": row["action_owner"],
+				"mine": row["action_owner"] == f"{viewer_team}."
+				                               f"{viewer_member}",
+				"cause": row["cause"],
+				"category": row["category"],
+				"detail": row["detail"],
+				"work": row["work"],
+				"episode": row["episode"],
+				"action_key": row["action_key"],
+				"occurrences": row["occurrences"],
+				"first_ts": row["first_ts"],
+				"latest_ts": row["latest_ts"],
+				"open": row["dismissed_ts"] is None,
+				"dismissed_ts": row["dismissed_ts"],
+				"dismissed_by": row["dismissed_by"],
+				"dismissal_note": row["dismissal_note"]})
+	mine_open = [row for row in rows if row["open"] and row["mine"]]
+	return {"rows": rows, "total": len(rows),
+	        "open": len([row for row in rows if row["open"]]),
+	        "mine": len(mine_open),
+	        "owed_action": bool(mine_open),
 	        "snapshot_seq": snapshot_seq}
 
 

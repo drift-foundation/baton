@@ -230,7 +230,8 @@ production implementation.**
    or invalid required results fail the result, later changes create a new
    revision, and only trusted tooling may deliver or integrate accepted output.
 
-0ae. [done 2026-08-20; reuse restriction superseded by 0ag] Isolate the first
+0ae. [done 2026-08-20; repository placement superseded by 0ai, reuse
+   restriction superseded by 0ag] Isolate the first
    Claude ACP proof of concept from the existing Baton product. Keep its source,
    dependencies, tests, fixtures,
    manifests, image and runtime state in a disposable external root; consume
@@ -262,6 +263,19 @@ production implementation.**
    clean handoff, keep all prototype source in the separate disposable root,
    and return traces plus a go/revise/no-go conclusion before production design
    or implementation expands.
+
+0ai. [pending; approved 2026-08-20] After W76's current external implementation
+   passes independent review, relocate its source-controlled prototype into
+   this repository's self-contained top-level `v12/` subtree. Include its own
+   `justfile`, package/dependency manifests and lockfiles, source, tests,
+   scripts, fixtures, configuration and container definitions so it builds and
+   tests without root v11 recipes. Add no root-recipe delegation, packaging,
+   deployment or release integration while it is experimental. Preserve the
+   no-v11-edit boundary and provenance; exclude generated dependencies, images,
+   secrets, authorities, logs and runtime state. Do not delete the external
+   root before the in-repository gates pass; once they do, remove
+   `/home/sl/src/baton-v12-poc` as the final approved migration step so only
+   one canonical prototype tree remains.
 
 1. [pending] Model assignment generations, read-only pre-claim inspection,
    expiring single-use claim tokens, claim-capability-gated writable

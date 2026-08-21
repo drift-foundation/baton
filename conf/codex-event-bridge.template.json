@@ -1,7 +1,19 @@
 {
+  "//": "W415: execPolicyFile is the DEPLOYMENT-OWNED execpolicy file that",
+  "//2": "authorizes this participant's canonical Baton operations. Without",
+  "//3": "it a managed turn escalates for interactive approval on every",
+  "//4": "claim/say/pass/close and the Work sits unclaimed \u2014 the defect",
+  "//5": "finding-managed-turn-approval-incidents records. The dispatcher",
+  "//6": "READS and verifies that file and never writes it; generate the",
+  "//7": "exact rules with tools/codex-event-bridge/src/exec_policy.mjs.",
+  "//8": "A broad rule naming the executable alone is REFUSED: it would",
+  "//9": "authorize every verb the participant can reach.",
+  "//10": "identity.actionOwner is required on every target so a failed",
+  "//11": "turn raises a durable incident somebody owes.",
   "roleInstructions": {
     "binary": "/absolute/path/to/v11-release/bin/baton",
-    "config": "/absolute/path/to/mailbox/baton.json"
+    "config": "/absolute/path/to/mailbox/baton.json",
+    "execPolicyFile": "/absolute/path/to/codex-home/rules/baton.rules"
   },
   "servers": {
     "local": {
@@ -14,7 +26,8 @@
       "threadId": "{{context.reviewer.threadId}}",
       "identity": {
         "participant": "baton.codex",
-        "role": "rview"
+        "role": "rview",
+        "actionOwner": "baton.slaw"
       }
     },
     "baton-tuner": {
@@ -22,7 +35,8 @@
       "threadId": "{{context.tuner.threadId}}",
       "identity": {
         "participant": "baton.tuner",
-        "role": "tuner"
+        "role": "tuner",
+        "actionOwner": "baton.slaw"
       }
     }
   },

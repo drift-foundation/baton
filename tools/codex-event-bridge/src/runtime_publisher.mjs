@@ -494,6 +494,73 @@ export class RuntimePublisher {
 	// Review R10: a clean exit carries NO cause. The authority's own
 	// documentation says a runner that exited cleanly did not fail, and
 	// `internal` is reserved for an observed internal failure.
+	// W415: the DURABLE half of an approval failure.
+	//
+	// `state("waiting-input", {cause: "approval"})` is honest and
+	// transient — it says what the runner is doing right now, and it is
+	// correct for it to disappear when the runner returns to `idle`.
+	// That is exactly what erased the evidence three times: the turn
+	// ended, the lease moved on, the Inbox row went with it, and the
+	// Work sat unclaimed with the only explanation in a rollout nobody
+	// reads.
+	//
+	// So the adapter files a separate incident that OUTLIVES the
+	// transition. It is not a second copy of the state; it is the other
+	// question. Like every other report here it is best-effort and
+	// never breaks the wake path — but unlike a state report, failing
+	// to publish it loses an operator's only durable notice, so it says
+	// so loudly in the log.
+	//
+	// The COMMAND BODY IS NEVER SENT. An approval payload can carry
+	// credentials, environment values and file contents; what travels
+	// is the closed safe category and a scrubbed one-line detail.
+	async incident({ cause = "approval", category = "other", detail,
+	                 work, episode, actionKey, session } = {}) {
+		if (this.ended) return false;
+		if (!this.actionOwner) {
+			// The finding forbids guessing an owner, and the authority
+			// refuses an ownerless incident. Say why here rather than
+			// letting it look like a transport failure.
+			this.logger.warn(
+				`a managed-turn ${cause} incident could not be filed: `
+				+ `this runner has no configured action owner, so the `
+				+ `incident would be a loose end nobody is holding`);
+			return false;
+		}
+		// W415 review round 2: ONE operation id per OBSERVED occurrence,
+		// not per (cause, category, work, episode). The stable id made a
+		// second approval request in the same episode replay the first
+		// committed result — so it never reached the authority's
+		// coalescing update and `occurrences` never advanced past 1. The
+		// count is the whole point of coalescing: "this has happened
+		// three times" is what says the first repair did not hold.
+		//
+		// The id is minted HERE, before the queue, so every retry of
+		// THIS publication keeps it — transport retry and a newly
+		// observed occurrence stay distinguishable, which is the ruled
+		// model.
+		this.incidentSeq = (this.incidentSeq ?? 0) + 1;
+		const opId = `${this.incarnation}:incident:${this.incidentSeq}`;
+		return await this.#enqueue(async () => {
+			const ok = await this.#run("incident", {
+				incarnation: this.incarnation,
+				cause, category,
+				detail: safeDetail(detail),
+				work, episode,
+				"action-key": actionKey,
+				session,
+			}, "incident", opId);
+			if (!ok) {
+				this.logger.error(
+					`the managed-turn ${cause} incident for `
+					+ `${this.baton.participant} could NOT be recorded; `
+					+ `the operator has no durable notice that this turn `
+					+ `failed and the Work is still unclaimed`);
+			}
+			return ok;
+		});
+	}
+
 	async end({ cause, detail } = {}) {
 		if (!this.issued || this.ended) return false;
 		this.ended = true;
@@ -518,6 +585,7 @@ export const silentPublisher = {
 	async start() { return false; },
 	async state() { return false; },
 	async facts() { return false; },
+	async incident() { return false; },
 	async end() { return false; },
 };
 

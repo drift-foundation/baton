@@ -38,7 +38,8 @@ function parse(argv) {
     if (!arg.startsWith("--")) throw new Error(`unexpected argument: ${arg}`);
     const value = argv[++index];
     if (value === undefined) throw new Error(`${arg} requires a value`);
-    options[arg.slice(2)] = value;
+    const name = arg.slice(2);
+    options[name] = value;
   }
   return options;
 }
@@ -146,7 +147,9 @@ export async function bootstrapThread(options, log, { clientFactory, read = read
   let threadId;
   await client.connectAndInitialize();
   try {
-    const started = await client.startThread({ cwd: options.cwd, developerInstructions: resolved.instructions });
+    const started = await client.startThread({
+      cwd: options.cwd, developerInstructions: resolved.instructions,
+    });
     threadId = started.thread.id;
     log.info(`[bootstrap] thread ${threadId} created; recording its first turn`);
     const turn = await client.startTurn(threadId, BOOTSTRAP_PROMPT, randomUUID());

@@ -3,6 +3,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { CodexClient } from "../src/codex_client.mjs";
 
+// W415: the dispatcher refuses to start unless the deployment-owned
+// execpolicy file authorizes each managed participant's canonical Baton
+// operations. These fixtures therefore need a real one.
+import { mkdtempSync as _mkdtemp, writeFileSync as _write } from "node:fs";
+import { join as _join } from "node:path";
+import { rulesFor as _rulesFor } from "../src/exec_policy.mjs";
+const _policyDir = _mkdtemp("/tmp/w415-fixture-policy-");
+export const FIXTURE_POLICY = _join(_policyDir, "baton.rules");
+_write(FIXTURE_POLICY, ["/srv/baton/baton.json", "/home/op/baton.json"]
+	.flatMap((config) => ["baton.tuner", "baton.codex", "a.b"]
+		.flatMap((participant) => _rulesFor({
+			binary: "/opt/baton/bin/baton", config, participant })))
+	.join("\n") + "\n");
+
+
 class FakeWebSocket {
   static instances = [];
 
@@ -31,8 +46,8 @@ class FakeWebSocket {
     this.sent.push(message);
     queueMicrotask(() => {
       if (message.method === "initialize") this.receive({ id: message.id, result: { userAgent: "fake" } });
-      else if (message.method === "thread/start") this.receive({ id: message.id, result: { thread: { id: "thread-new", status: { type: "idle" }, turns: [] } } });
-      else if (message.method === "thread/resume") this.receive({ id: message.id, result: { thread: { id: message.params.threadId, status: { type: "idle" }, turns: [] } } });
+      else if (message.method === "thread/start") this.receive({ id: message.id, result: { sandbox: { type: "workspaceWrite", execPolicyFile: FIXTURE_POLICY }, thread: { id: "thread-new", status: { type: "idle" }, turns: [] } } });
+      else if (message.method === "thread/resume") this.receive({ id: message.id, result: { sandbox: { type: "workspaceWrite", execPolicyFile: FIXTURE_POLICY }, thread: { id: message.params.threadId, status: { type: "idle" }, turns: [] } } });
       else if (message.method === "turn/start") this.receive({ id: message.id, result: { turn: { id: `turn-${message.params.threadId}`, status: "inProgress" } } });
     });
   }
@@ -89,6 +104,12 @@ test("creates and resumes threads with configured developer instructions", async
   const sent = FakeWebSocket.instances[0].sent;
   const start = sent.find((message) => message.method === "thread/start");
   const resume = sent.find((message) => message.method === "thread/resume");
+  // W415: the exact operands are still pinned, and now include the
+  // non-interactive approval policy on BOTH paths. This assertion was
+  // extended rather than relaxed — the dispatcher declaring the policy
+  // is the behaviour change this Work makes.
+  // W415: a caller that declares no writable root sends no sandbox
+  // operands at all, so an ordinary thread is untouched by this.
   assert.deepEqual(start.params, { cwd: "/work", developerInstructions: "Tune packaging only." });
   assert.deepEqual(resume.params, { threadId: "thread-new", developerInstructions: "Tune packaging only." });
   client.disconnect();
@@ -114,7 +135,7 @@ class RacingWebSocket extends FakeWebSocket {
 			if (message.method === "initialize") {
 				this.receive({ id: message.id, result: { userAgent: "fake" } });
 			} else if (message.method === "thread/resume") {
-				this.receive({ id: message.id, result: { thread: { id: message.params.threadId, status: { type: "idle" }, turns: [] } } });
+				this.receive({ id: message.id, result: { sandbox: { type: "workspaceWrite", execPolicyFile: FIXTURE_POLICY }, thread: { id: message.params.threadId, status: { type: "idle" }, turns: [] } } });
 			} else if (message.method === "turn/start") {
 				const turn = { id: `turn-${message.params.threadId}`, status: "inProgress" };
 				this.receive({ method: "turn/completed",
@@ -263,4 +284,31 @@ test("a completion with no turn id is not retained", async () => {
 	FakeWebSocket.instances[0].receive({ method: "turn/completed",
 		params: { threadId: "thread-a" } });
 	assert.equal(client.completions.size, 0);
+});
+
+// -- W415: the managed thread declares NO overrides ----------------------
+//
+// Three shapes were rejected before this one: an approval policy, a
+// writable coordination-home root, and a narrowed version of that root.
+// The approver then ruled out arbitrary per-thread overrides entirely.
+// The capability now comes from a deployment-owned execpolicy file, so
+// what this client must do is send NOTHING extra.
+
+test("W415: neither thread path sends a sandbox or approval override", async () => {
+	FakeWebSocket.instances = [];
+	const client = new CodexClient({ name: "local", endpoint: "ws://127.0.0.1:4500",
+		WebSocketImpl: FakeWebSocket });
+	await client.connectAndInitialize();
+	const started = await client.startThread({ cwd: "/work",
+		developerInstructions: "review" });
+	await client.resume(started.thread.id, { developerInstructions: "review" });
+	const sent = FakeWebSocket.instances[0].sent;
+	for (const method of ["thread/start", "thread/resume"]) {
+		const message = sent.find((entry) => entry.method === method);
+		for (const forbidden of ["sandbox", "config", "approvalPolicy"]) {
+			assert.equal(message.params[forbidden], undefined,
+				`${method} must not send ${forbidden}`);
+		}
+	}
+	client.disconnect();
 });

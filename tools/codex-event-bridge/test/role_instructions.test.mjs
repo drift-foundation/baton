@@ -6,6 +6,21 @@ import { EventBridge } from "../src/event_bridge.mjs";
 import { resolveTargetInstructions } from "../src/main.mjs";
 import { readRoleInstructions, validateRoleInstructions } from "../src/role_instructions.mjs";
 
+// W415: the dispatcher refuses to start unless the deployment-owned
+// execpolicy file authorizes each managed participant's canonical Baton
+// operations. These fixtures therefore need a real one.
+import { mkdtempSync as _mkdtemp, writeFileSync as _write } from "node:fs";
+import { join as _join } from "node:path";
+import { rulesFor as _rulesFor } from "../src/exec_policy.mjs";
+const _policyDir = _mkdtemp("/tmp/w415-fixture-policy-");
+export const FIXTURE_POLICY = _join(_policyDir, "baton.rules");
+_write(FIXTURE_POLICY, ["/srv/baton/baton.json", "/home/op/baton.json"]
+	.flatMap((config) => ["baton.tuner", "baton.codex", "a.b"]
+		.flatMap((participant) => _rulesFor({
+			binary: "/opt/baton/bin/baton", config, participant })))
+	.join("\n") + "\n");
+
+
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
 
 function envelope({ participant = "baton.tuner", role = "tuner", instructions = "Tune packaging only." } = {}) {
@@ -21,10 +36,11 @@ function envelope({ participant = "baton.tuner", role = "tuner", instructions = 
 
 function rawConfig() {
   return {
-    roleInstructions: { binary: "/opt/baton/bin/baton", config: "/srv/baton/baton.json" },
+    roleInstructions: { binary: "/opt/baton/bin/baton", config: "/srv/baton/baton.json",
+			execPolicyFile: FIXTURE_POLICY },
     servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
     targets: {
-      tuner: { server: "local", threadId: "thread-tuner", identity: { participant: "baton.tuner", role: "tuner" } },
+      tuner: { server: "local", threadId: "thread-tuner", identity: { participant: "baton.tuner", role: "tuner", actionOwner: "ops.slaw" } },
     },
     eventSocket: "/tmp/codex-role-instructions-test.sock",
   };
@@ -92,7 +108,7 @@ test("Codex targets cannot assign one Baton participant to distinct threads", ()
   raw.targets.reviewer = {
     server: "local",
     threadId: "thread-reviewer",
-    identity: { participant: "baton.tuner", role: "review" },
+    identity: { participant: "baton.tuner", role: "review", actionOwner: "ops.slaw" },
   };
   assert.throws(() => validateConfig(raw), /participant baton\.tuner is assigned to more than one target/);
 });
@@ -117,7 +133,10 @@ test("every configured Codex resume receives the accepted developer instructions
     await bridge.start({ listen: false });
     const deadline = Date.now() + 1000;
     while (fake.resumes.length < 1 && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 5));
-    assert.deepEqual(fake.resumes, [{ threadId: "thread-tuner", options: { developerInstructions: "Tune packaging only." } }]);
+    // W415: back to instructions only — the capability now comes from a
+    // deployment-owned execpolicy file, so resume sends no overrides.
+    assert.deepEqual(fake.resumes, [{ threadId: "thread-tuner",
+      options: { developerInstructions: "Tune packaging only." } }]);
   } finally {
     await bridge.stop();
   }

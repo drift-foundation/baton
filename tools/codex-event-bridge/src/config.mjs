@@ -82,9 +82,10 @@ export function validateConfig(raw) {
       // persona of every session started for them.
       const role = nonempty(rawIdentity.role, `targets.${name}.identity.role`);
       // W93 R9: the participant who owes this runner's interactive
-      // answers, when the deployment names one. The authority already
-      // accepts it; without it a `waiting-input` state can never become
-      // the ruled actionable Inbox entry. Optional, and never guessed.
+      // answers. The authority accepts it here and REQUIRES it for a
+      // durable incident; without it a `waiting-input` state can never
+      // become the ruled actionable Inbox entry. Never guessed — and
+      // since W415, required on every managed target (below).
       let actionOwner;
       if (rawIdentity.actionOwner !== undefined) {
         actionOwner = nonempty(rawIdentity.actionOwner, `targets.${name}.identity.actionOwner`);
@@ -103,9 +104,41 @@ export function validateConfig(raw) {
     const batonConfig = nonempty(source.config, "roleInstructions.config");
     if (!isAbsolute(binary)) throw new TypeError("roleInstructions.binary must be an absolute path");
     if (!isAbsolute(batonConfig)) throw new TypeError("roleInstructions.config must be an absolute path");
-    roleInstructions = Object.freeze({ binary, config: batonConfig });
+    // W415: the DEPLOYMENT-OWNED exact command policy that authorizes a
+    // managed turn's canonical Baton operations.
+    //
+    // Three earlier shapes were rejected — an approval policy, a
+    // writable coordination-home root, and a narrowed version of that
+    // root — and the approver ruled out arbitrary per-thread overrides
+    // entirely. What remains is an execpolicy file the OPERATOR
+    // installs; this bridge only reads and verifies it. See
+    // `src/exec_policy.mjs` for why command policy is the only shape
+    // that can be narrow here.
+    const execPolicyFile = nonempty(source.execPolicyFile,
+      "roleInstructions.execPolicyFile");
+    if (!isAbsolute(execPolicyFile)) {
+      throw new TypeError("roleInstructions.execPolicyFile must be an absolute path");
+    }
+    roleInstructions = Object.freeze({ binary, config: batonConfig,
+      execPolicyFile });
     const missing = Object.entries(targets).filter(([, target]) => target.identity === null).map(([name]) => name);
     if (missing.length > 0) throw new TypeError(`roleInstructions requires an identity on every target; missing ${missing.join(", ")}`);
+    // W415: durable incidents are owed to a CONFIGURED action owner and
+    // the authority refuses an ownerless one. A deployment that runs
+    // managed turns without naming an owner cannot produce the sticky
+    // incident this Work exists to create — and the deployment that
+    // reproduced the defect was exactly that deployment. So it fails
+    // validation here rather than warning into a background log, which
+    // is the invisibility being fixed.
+    const ownerless = Object.entries(targets)
+      .filter(([, target]) => target.identity && !target.identity.actionOwner)
+      .map(([name]) => name);
+    if (ownerless.length > 0) {
+      throw new TypeError(
+        `every managed target needs identity.actionOwner so a failed turn `
+        + `can raise a durable incident somebody owes; missing on `
+        + `${ownerless.join(", ")}`);
+    }
   } else {
     const configured = Object.entries(targets).filter(([, target]) => target.identity !== null).map(([name]) => name);
     if (configured.length > 0) throw new TypeError(`target identities require roleInstructions; configured ${configured.join(", ")}`);

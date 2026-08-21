@@ -334,7 +334,18 @@ export function actionEvent(envelope, action, options) {
     // producer emits promptly after its own read; the dispatcher's
     // queue is where an event can wait behind a running turn and
     // arrive after a `pass` has moved the Work to somebody else.
-    action: { participant: envelope.participant, key: action.action_key },
+    // W415: the Work and episode ride BESIDE the key rather than being
+    // recovered from it. `docs/EFFECTIVE-BATON.md` is explicit that the
+    // action key is delivered whole and never parsed, so a consumer
+    // that needs to correlate a failure with the assignment it
+    // interrupted has to be given those fields — the readiness envelope
+    // already carries them here, and only here.
+    action: {
+      participant: envelope.participant, key: action.action_key,
+      ...(action.work ? { work: action.work } : {}),
+      ...(Number.isSafeInteger(action.episode_seq)
+        ? { episode: action.episode_seq } : {}),
+    },
   };
 }
 

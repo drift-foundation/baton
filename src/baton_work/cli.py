@@ -40,7 +40,10 @@ MUTATIONS = frozenset({
 	# W93: runtime reports WRITE, so a console refreshes after them —
 	# but they carry no workflow authority whatsoever.
 	"runtime-start", "runtime-state", "runtime-end",
-	"runtime-facts", "runtime-refresh"})
+	"runtime-facts", "runtime-refresh",
+	# W415: a durable managed-turn incident and its authoritative
+	# dismissal. Both WRITE; neither carries workflow authority.
+	"incident", "dismiss"})
 
 # W5: the closed answer vocabularies, shared by the generated help and
 # the transition layer. `unknown` leads each diagnostic vocabulary
@@ -49,7 +52,9 @@ MUTATIONS = frozenset({
 _POKE_STATES = ("idle", "working", "waiting", "needs-help")
 # W93: the runner vocabularies, shared with the transition layer so the
 # generated help and the refusals can never drift apart.
-from baton_work.transitions import (RUNTIME_CAUSES as _RUNTIME_CAUSES,
+from baton_work.transitions import (INCIDENT_CATEGORIES
+                                        as _INCIDENT_CATEGORIES,
+                                    RUNTIME_CAUSES as _RUNTIME_CAUSES,
                                     RUNTIME_SOURCES as _RUNTIME_SOURCES,
                                     RUNTIME_STATES as _RUNTIME_STATES)
 _POKE_SESSION_STATES = ("unknown", "live", "starting", "stopped", "failed")
@@ -477,6 +482,50 @@ GRAMMAR = {
 	"inbox": {"help": "this participant's owed actions and unseen "
 	          "attention, with total/unseen/owed counters",
 	          "keys": ()},
+	# W415: what FAILED and still needs an operator, which is a
+	# different question from what a runner is doing now. An incident
+	# survives the runner returning to idle, a restart, and a refresh.
+	"incidents": {"help": "durable managed-turn incidents awaiting an "
+	              "action owner; open by default",
+	              "keys": (_key("include-dismissed", kind="bool", default=False,
+	                            help="also show dismissed history, so a "
+	                                 "recurrence after a dismissal is "
+	                                 "visible as one"),)},
+	"incident": {"help": "file (or coalesce into) one durable incident "
+	             "for a managed turn that could not complete; owed to "
+	             "the runner's CONFIGURED action owner, and carrying no "
+	             "workflow authority",
+	             "keys": (_key("incarnation", required=True,
+	                           help="the lease this runner holds"),
+	                      _key("cause", required=True,
+	                           values=_RUNTIME_CAUSES,
+	                           help="closed machine category, shared "
+	                           "with the runtime vocabulary"),
+	                      _key("category", required=True,
+	                           values=_INCIDENT_CATEGORIES,
+	                           help="the SAFE command category; the "
+	                           "command body is never stored"),
+	                      _key("detail",
+	                           help="a short safe explanation, with no "
+	                           "command body, credential or environment "
+	                           "value in it"),
+	                      _key("work",
+	                           help="the Work this failure interrupted; "
+	                           "correlation only, never a claim"),
+	                      _key("episode", kind="int",
+	                           help="the assignment episode"),
+	                      _key("action-key",
+	                           help="the exact readiness episode key"),
+	                      _key("session",
+	                           help="the live session locator"))},
+	"dismiss": {"help": "the action owner's authoritative, journaled "
+	            "dismissal of one incident; it closes the incident and "
+	            "mutates no Work",
+	            "keys": (_key("incident", required=True, kind="int",
+	                          help="the incident id"),
+	                     _key("note",
+	                          help="what was done about it, for the "
+	                          "next reader"))},
 	# W93: the participant RUNTIME lease. A runner publishes about
 	# itself; the acting participant is always the subject, so no
 	# capability question arises and no participant can narrate
@@ -2056,6 +2105,20 @@ def _dispatch(store: Authority, args):
 			session=args.session, expires_at=args.expires_at,
 			action_owner=args.action_owner, rationale=args.rationale,
 			op_id=args.op_id, refs=args.refs)
+	if command == "incident":
+		team, member = _need_participant(args)
+		return transitions.incident_report(
+			store, actor_team=team, actor=member,
+			incarnation=args.incarnation, cause=args.cause,
+			category=args.category, detail=args.detail, work=args.work,
+			episode=args.episode, action_key=args.action_key,
+			session=args.session, op_id=args.op_id, refs=args.refs)
+	if command == "dismiss":
+		team, member = _need_participant(args)
+		return transitions.incident_dismiss(
+			store, actor_team=team, actor=member,
+			incident=args.incident, note=args.note,
+			op_id=args.op_id, refs=args.refs)
 	if command == "runtime-state":
 		team, member = _need_participant(args)
 		return transitions.runtime_state(
@@ -2102,6 +2165,11 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return projection.teams(store, viewer_team=team,
 		                        viewer_member=member)
+	if command == "incidents":
+		team, member = _need_participant(args)
+		return projection.incidents(
+			store, viewer_team=team, viewer_member=member,
+			include_dismissed=bool(args.include_dismissed))
 	if command == "inbox":
 		team, member = _need_participant(args)
 		return projection.inbox(store, viewer_team=team,

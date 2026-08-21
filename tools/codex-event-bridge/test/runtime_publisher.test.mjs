@@ -18,11 +18,26 @@ import { validateConfig } from "../src/config.mjs";
 import { EventBridge } from "../src/event_bridge.mjs";
 import { codexBatonBridge } from "../src/codex_baton_bridge.mjs";
 import {
+
 	RuntimePublisher,
 	classifyFailure,
 	makeRuntimePublisher,
 	silentPublisher,
 } from "../src/runtime_publisher.mjs";
+
+// W415: the dispatcher refuses to start unless the deployment-owned
+// execpolicy file authorizes each managed participant's canonical Baton
+// operations. These fixtures therefore need a real one.
+import { mkdtempSync as _mkdtemp, writeFileSync as _write } from "node:fs";
+import { join as _join } from "node:path";
+import { rulesFor as _rulesFor } from "../src/exec_policy.mjs";
+const _policyDir = _mkdtemp("/tmp/w415-fixture-policy-");
+export const FIXTURE_POLICY = _join(_policyDir, "baton.rules");
+_write(FIXTURE_POLICY, ["/srv/baton/baton.json", "/home/op/baton.json"]
+	.flatMap((config) => ["baton.tuner", "baton.codex", "a.b"]
+		.flatMap((participant) => _rulesFor({
+			binary: "/opt/baton/bin/baton", config, participant })))
+	.join("\n") + "\n");
 
 const BATON = {
 	binary: "/opt/baton/bin/baton",
@@ -393,10 +408,10 @@ function identifiedConfig(eventSocket =
 		servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
 		targets: {
 			tuner: { server: "local", threadId: "thread-a",
-				identity: { participant: "baton.tuner", role: "tuner" } },
+				identity: { participant: "baton.tuner", role: "tuner", actionOwner: "ops.slaw" } },
 		},
-		roleInstructions: { binary: "/opt/baton/bin/baton",
-			config: "/home/op/baton.json" },
+		roleInstructions: { binary: "/opt/baton/bin/baton", config: "/home/op/baton.json",
+			execPolicyFile: FIXTURE_POLICY },
 		eventSocket,
 	});
 }
@@ -419,6 +434,7 @@ function dispatcherWithRuntime({ config = identifiedConfig(),
 		incarnation: "run-1",
 		async start(options) { published.push(["start", options]); },
 		async state(state, options) { published.push([state, options]); },
+		async incident(options) { published.push(["incident", options]); },
 		async facts(supplied, options) {
 			published.push(["facts", { ...supplied, ...options }]);
 			// The real publisher answers whether the publication
@@ -1057,7 +1073,7 @@ test("a refresh whose publication failed is not called answered",
 		const { bridge } = dispatcherWithRuntime({
 			runtimeFactory: () => ({
 				incarnation: "run-1",
-				async start() {}, async state() {}, async end() {},
+				async start() {}, async state() {}, async incident() {}, async end() {},
 				async facts() { return false; },
 			}),
 		});
@@ -1229,5 +1245,467 @@ test("a refresh answered while the startup inventory is still queued",
 				`the queued publications reused ${identities.join(", ")}`);
 		} finally {
 			await bridge.stop();
+		}
+	});
+
+// -- W415: the denial also files a DURABLE incident -------------------------
+//
+// `work/records/2026/08/finding-managed-turn-approval-incidents/`. The
+// `waiting-input` state above is correct and TRANSIENT — it is supposed
+// to vanish when the runner returns to idle. That is exactly what erased
+// the evidence three times: the turn ended, the lease moved on, the
+// Inbox row went with it, and the Work sat unclaimed with the only
+// explanation in a rollout nobody reads. These pin the other half.
+
+test("W415: a denied approval files a durable incident beside the state",
+	async () => {
+		const { bridge, fake, published } = dispatcherWithRuntime();
+		await bridge.start({ listen: false });
+		fake.emit("serverRequest", {
+			id: 7, method: "item/commandExecution/requestApproval",
+			params: { threadId: "thread-a" },
+		});
+		// BOTH, not one or the other: they answer different questions.
+		assert.ok(published.some(([state]) => state === "waiting-input"),
+			"the transient runtime state is still published");
+		const filed = published.find(([kind]) => kind === "incident");
+		assert.ok(filed, `no incident filed: ${JSON.stringify(published)}`);
+		assert.equal(filed[1].cause, "approval");
+		assert.equal(filed[1].category, "shell");
+		assert.equal(filed[1].session, "thread-a");
+		assert.match(filed[1].detail, /non-interactive/);
+		await bridge.stop();
+	});
+
+test("W415: the incident carries no command body, argv or environment",
+	async () => {
+		// An approval payload can carry credentials, environment values
+		// and file contents. What travels is the closed safe category
+		// and a detail naming the METHOD only.
+		const { bridge, fake, published } = dispatcherWithRuntime();
+		await bridge.start({ listen: false });
+		fake.emit("serverRequest", {
+			id: 7, method: "item/commandExecution/requestApproval",
+			params: {
+				threadId: "thread-a",
+				command: ["/bin/bash", "-lc", "baton --config /secret claim"],
+				cwd: "/home/sl/src/baton",
+				env: { ANTHROPIC_API_KEY: "sk-ant-secret-value" },
+			},
+		});
+		const filed = published.find(([kind]) => kind === "incident");
+		const serialized = JSON.stringify(filed[1]);
+		for (const leaked of ["/bin/bash", "-lc", "sk-ant", "ANTHROPIC",
+		                      "/secret", "claim"]) {
+			assert.ok(!serialized.includes(leaked),
+				`the incident leaked ${leaked}: ${serialized}`);
+		}
+		await bridge.stop();
+	});
+
+test("W415: the incident correlates with the episode the turn was serving",
+	async () => {
+		const { bridge, fake, published } = dispatcherWithRuntime();
+		await bridge.start({ listen: false });
+		// A turn is in flight for a readiness episode. The Work and
+		// episode ride BESIDE the action key, because the key is
+		// delivered whole and never parsed.
+		fake.emit("turnStarted", { threadId: "thread-a", turn: { id: "turn-1" } });
+		bridge.targetByThread.get("local\u0000thread-a").activeTurn = {
+			id: "turn-1",
+			event: { action: { participant: "baton.tuner",
+				key: "work:5f7-W415:9:g1", work: "5f7-W415", episode: 9 } },
+		};
+		fake.emit("serverRequest", {
+			id: 8, method: "item/commandExecution/requestApproval",
+			params: { threadId: "thread-a" },
+		});
+		const filed = published.find(([kind]) => kind === "incident");
+		assert.equal(filed[1].work, "5f7-W415");
+		assert.equal(filed[1].episode, 9);
+		assert.equal(filed[1].actionKey, "work:5f7-W415:9:g1");
+		await bridge.stop();
+	});
+
+test("W415: with no turn in flight the incident still files, uncorrelated",
+	async () => {
+		// A locator-less incident is worth less than a correlated one and
+		// far more than none: the operator still learns the turn failed.
+		const { bridge, fake, published } = dispatcherWithRuntime();
+		await bridge.start({ listen: false });
+		fake.emit("serverRequest", {
+			id: 9, method: "item/commandExecution/requestApproval",
+			params: { threadId: "thread-a" },
+		});
+		const filed = published.find(([kind]) => kind === "incident");
+		assert.ok(filed);
+		assert.equal(filed[1].work, null);
+		assert.equal(filed[1].episode, null);
+		await bridge.stop();
+	});
+
+test("W415: the approval method maps to a closed safe category", async () => {
+	const cases = [
+		["item/commandExecution/requestApproval", "shell"],
+		["execCommandApproval", "shell"],
+		["applyPatchApproval", "patch"],
+		["item/fileChange/requestApproval", "patch"],
+		["permissionsRequestApproval", "file-write"],
+		["mcpServerElicitationRequest", "mcp"],
+		["something/entirely/new", "other"],
+	];
+	for (const [method, expected] of cases) {
+		const { bridge, fake, published } = dispatcherWithRuntime();
+		await bridge.start({ listen: false });
+		fake.emit("serverRequest", { id: 7, method,
+			params: { threadId: "thread-a" } });
+		const filed = published.find(([kind]) => kind === "incident");
+		assert.equal(filed[1].category, expected,
+			`${method} should map to ${expected}`);
+		await bridge.stop();
+	}
+});
+
+// -- W415 round 1: the incident trigger survives the real fix ---------------
+//
+// The review's sharpest point: `approvalPolicy: never` would have
+// removed the only trigger the durable incident has, leaving the Work
+// unclaimed and silent again — the exact original defect, differently
+// spelled. The narrow writable root fixes the cause instead, and the
+// approval path stays observable so an UNEXPECTED escalation still
+// produces both the transient state and the sticky incident.
+
+test("W415: the dispatcher never suppresses the approval request it reports on",
+	async () => {
+		const { validateConfig } = await import("../src/config.mjs");
+		const config = validateConfig({
+			roleInstructions: { binary: "/opt/baton/bin/baton",
+				config: "/srv/baton/baton.json",
+			execPolicyFile: FIXTURE_POLICY },
+			servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
+			targets: { tuner: { server: "local", threadId: "thread-a",
+				identity: { participant: "baton.tuner", role: "tuner",
+					actionOwner: "ops.slaw" } } },
+			eventSocket: "/tmp/codex-event-bridge-w415-unused.sock",
+		});
+		const { bridge, fake, published } = dispatcherWithRuntime({ config });
+		await bridge.start({ listen: false });
+		fake.emit("serverRequest", {
+			id: 7, method: "item/commandExecution/requestApproval",
+			params: { threadId: "thread-a" },
+		});
+		// Still both: the transient state AND the durable incident.
+		assert.ok(published.some(([state]) => state === "waiting-input"));
+		assert.ok(published.some(([kind]) => kind === "incident"),
+			`the incident trigger was lost: ${JSON.stringify(published)}`);
+		// Still denied, never approved.
+		assert.equal(fake.responses.length, 1);
+		assert.match(fake.responses[0].message, /cannot approve/);
+		await bridge.stop();
+	});
+
+test("W415: a managed deployment must name an action owner to be startable",
+	async () => {
+		const { validateConfig } = await import("../src/config.mjs");
+		const base = {
+			roleInstructions: { binary: "/opt/baton/bin/baton",
+				config: "/srv/baton/baton.json",
+			execPolicyFile: FIXTURE_POLICY },
+			servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
+			targets: { tuner: { server: "local", threadId: "thread-a",
+				identity: { participant: "baton.tuner", role: "tuner",
+					actionOwner: "ops.slaw" } } },
+			eventSocket: "/tmp/codex-event-bridge-w415-unused.sock",
+		};
+		assert.doesNotThrow(() => validateConfig(base));
+		// The deployment that REPRODUCED this defect had no action owner,
+		// so it could not have raised the incident this Work adds. That
+		// now fails validation rather than warning into a log nobody
+		// reads — which is the invisibility being fixed.
+		const ownerless = JSON.parse(JSON.stringify(base));
+		delete ownerless.targets.tuner.identity.actionOwner;
+		assert.throws(() => validateConfig(ownerless),
+			/needs identity.actionOwner so a failed turn can raise a durable incident/);
+		// And a managed deployment must name the policy that authorizes it.
+		const unpoliced = JSON.parse(JSON.stringify(base));
+		delete unpoliced.roleInstructions.execPolicyFile;
+		assert.throws(() => validateConfig(unpoliced),
+			/execPolicyFile must be a non-empty string/);
+	});
+
+test("W415: two observed approvals are two publications, not one replay",
+	async () => {
+		// Review round 2 P2: the operation id was derived from
+		// (cause, category, work, episode), so a SECOND approval request
+		// in the same episode replayed the first committed result. It
+		// never reached the authority's coalescing update and
+		// `occurrences` stayed at 1 — losing exactly the count that says
+		// a repair did not hold.
+		const { RuntimePublisher } = await import("../src/runtime_publisher.mjs");
+		const calls = [];
+		const publisher = new RuntimePublisher(
+			{ binary: "/opt/baton/bin/baton", config: "/srv/baton/baton.json",
+			  participant: "baton.tuner" },
+			{ incarnation: "run-1", adapter: "codex", actionOwner: "ops.slaw",
+			  logger: quiet,
+			  execute: async (_file, argv) => { calls.push(argv); return { stdout: "{}" }; } });
+
+		const observation = { cause: "approval", category: "shell",
+		                      work: "aaa-W2", episode: 4 };
+		await publisher.incident(observation);
+		await publisher.incident({ ...observation });
+
+		const incidents = calls.filter((argv) => argv.includes("incident"));
+		assert.equal(incidents.length, 2, "both observations must be published");
+		const ids = incidents.map((argv) =>
+			argv.find((operand) => operand.startsWith("op-id=")));
+		assert.notEqual(ids[0], ids[1],
+			`two observed approvals shared one operation id (${ids[0]}), so the `
+			+ `second would replay instead of incrementing the count`);
+		// Every operand except the identity is the same, which is what
+		// makes the authority coalesce them into one incident.
+		const withoutId = (argv) => argv.filter((o) => !o.startsWith("op-id="));
+		assert.deepEqual(withoutId(incidents[0]), withoutId(incidents[1]));
+	});
+
+// -- W415: the deployment-owned exact command policy ---------------------
+//
+// Measured against a live app-server on 2026-08-20, and the reason this
+// is command policy rather than a filesystem grant:
+//   - a DIRECTORY writable root lets any shell command in the turn
+//     rewrite or delete `work.sqlite3` AND `baton.json` (an unrelated
+//     `printf >> baton.json` succeeded, with no approval request);
+//   - a FILE or GLOB root is echoed back and grants nothing at all.
+// A prefix rule is command-aware: `rm work.sqlite3` matches nothing.
+
+test("W415: the generated rules name the executable, config, participant and verb",
+	async () => {
+		const { rulesFor, RULED_VERBS } = await import("../src/exec_policy.mjs");
+		const identity = { binary: "/opt/baton/bin/baton",
+			config: "/srv/baton/baton.json", participant: "baton.codex" };
+		// The APPROVED set, written out here rather than read from the
+		// implementation. Round-4 review: asserting that every member of
+		// the implementation's own list generated a rule cannot catch the
+		// implementation widening that list, which is exactly what
+		// happened when `mark-seen` was added on my judgement.
+		assert.deepEqual(RULED_VERBS, ["claim", "say", "pass", "close"],
+			"the ruled capability is exactly the four confirmed verbs; adding "
+			+ "one is a ruling to obtain, not an implementation decision");
+		const rules = rulesFor(identity);
+		assert.equal(rules.length, 4);
+		for (const verb of ["claim", "say", "pass", "close"]) {
+			assert.ok(rules.some((rule) => rule.includes(`"${verb}"`)),
+				`no rule for ${verb}`);
+		}
+		// And an unlisted mutating verb is authorized by none of them.
+		for (const unlisted of ["regen", "release", "mark-seen", "phase"]) {
+			assert.ok(!rules.some((rule) => rule.includes(`"${unlisted}"`)),
+				`${unlisted} is not in the approved set and must have no rule`);
+		}
+		for (const rule of rules) {
+			assert.ok(rule.includes(identity.binary));
+			assert.ok(rule.includes(identity.config));
+			assert.ok(rule.includes(identity.participant));
+			assert.ok(rule.endsWith('decision="allow")'));
+		}
+		// A relative executable matches a different command depending on
+		// where the turn happens to be running.
+		assert.throws(() => rulesFor({ ...identity, binary: "baton" }),
+			/ABSOLUTE installed executable/);
+	});
+
+test("W415: a BROAD rule is refused, not counted as coverage", async () => {
+	const { auditRules, assertPolicyProvisioned, rulesFor } =
+		await import("../src/exec_policy.mjs");
+	const { mkdtempSync, writeFileSync } = await import("node:fs");
+	const { join } = await import("node:path");
+	const identity = { binary: "/opt/baton/bin/baton",
+		config: "/srv/baton/baton.json", participant: "baton.codex" };
+
+	// The shape the LIVE deployment actually has: the executable alone.
+	// It authorizes every verb this participant can reach, including
+	// `regen` and `release`, so it is reported as broad rather than as
+	// coverage — the same substitution of a broad capability for a
+	// narrow one that this Work has rejected in three other forms.
+	const broad = auditRules(
+		`prefix_rule(pattern=["${identity.binary}"], decision="allow")\n`, identity);
+	assert.equal(broad.missing.length, 0, "it does technically cover them");
+	assert.equal(broad.satisfied, false, "but broad coverage is not satisfaction");
+	assert.equal(broad.broad.length, 4);
+
+	const dir = mkdtempSync("/tmp/w415-policy-test-");
+	const file = join(dir, "broad.rules");
+	writeFileSync(file, `prefix_rule(pattern=["${identity.binary}"], decision="allow")\n`);
+	assert.throws(() => assertPolicyProvisioned(file, identity),
+		/contains a BROADER rule/);
+
+	// The exact rules satisfy it.
+	const exact = join(dir, "exact.rules");
+	writeFileSync(exact, `${rulesFor(identity).join("\n")}\n`);
+	assert.equal(assertPolicyProvisioned(exact, identity).satisfied, true);
+
+	// A rule for a DIFFERENT participant or config does not cover this one.
+	const other = join(dir, "other.rules");
+	writeFileSync(other, `${rulesFor({ ...identity, participant: "baton.tuner" })
+		.join("\n")}\n`);
+	assert.throws(() => assertPolicyProvisioned(other, identity),
+		/does not authorize/);
+
+	// A deny rule is never coverage.
+	const denied = join(dir, "deny.rules");
+	writeFileSync(denied, `${rulesFor(identity).join("\n")
+		.replace(/allow/g, "deny")}\n`);
+	assert.throws(() => assertPolicyProvisioned(denied, identity),
+		/does not authorize/);
+
+	// An unreadable policy is a refusal, not an assumption of coverage.
+	assert.throws(() => assertPolicyProvisioned(join(dir, "absent.rules"), identity),
+		/is unreadable/);
+});
+
+test("W415: the dispatcher refuses to start without a provisioned policy",
+	async () => {
+		// A dispatcher whose turns escalate on every claim is the defect
+		// this Work records; it must not open leases and report itself
+		// healthy while in that state.
+		const { validateConfig } = await import("../src/config.mjs");
+		const { mkdtempSync, writeFileSync } = await import("node:fs");
+		const { join } = await import("node:path");
+		const dir = mkdtempSync("/tmp/w415-start-");
+		const broad = join(dir, "broad.rules");
+		writeFileSync(broad,
+			'prefix_rule(pattern=["/opt/baton/bin/baton"], decision="allow")\n');
+		const config = validateConfig({
+			roleInstructions: { binary: "/opt/baton/bin/baton",
+				config: "/srv/baton/baton.json", execPolicyFile: broad },
+			servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
+			targets: { tuner: { server: "local", threadId: "thread-a",
+				identity: { participant: "baton.tuner", role: "tuner",
+					actionOwner: "ops.slaw" } } },
+			eventSocket: "/tmp/codex-event-bridge-w415-unused.sock",
+		});
+		const { bridge } = dispatcherWithRuntime({ config });
+		await assert.rejects(() => bridge.start({ listen: false }),
+			/contains a BROADER rule/);
+	});
+test("W415: exact rules do not cancel a broad one that is still present",
+	async () => {
+		// Round-6 review. `broad` was only recorded when a ruled command
+		// had NO exact rule, so the four exact rules plus the retired
+		// executable-only rule audited as SATISFIED — and that is the most
+		// likely upgrade state: an operator adds the new rules and forgets
+		// to remove the old one. The dispatcher would have started while
+		// the participant could still invoke every Baton verb.
+		const { rulesFor, auditRules, assertPolicyProvisioned } =
+			await import("../src/exec_policy.mjs");
+		const { mkdtempSync, writeFileSync } = await import("node:fs");
+		const { join } = await import("node:path");
+		const identity = { binary: "/opt/baton/bin/baton",
+			config: "/srv/baton/baton.json", participant: "baton.codex" };
+		const exact = rulesFor(identity).join("\n");
+		const dir = mkdtempSync("/tmp/w415-mixed-test-");
+		const write = (name, text) => {
+			const file = join(dir, name);
+			writeFileSync(file, `${text}\n`);
+			return file;
+		};
+
+		// EXACT ONLY still succeeds — the correction must not make the
+		// approved state unreachable.
+		assert.equal(assertPolicyProvisioned(write("exact.rules", exact),
+			identity).satisfied, true);
+
+		// EXACT + BROAD executable: the reviewer's reproduction.
+		const mixed = auditRules(
+			`${exact}\nprefix_rule(pattern=["${identity.binary}"], decision="allow")`,
+			identity);
+		assert.deepEqual(mixed.missing, []);
+		assert.equal(mixed.broad.length, 4, "every ruled verb is still broadly covered");
+		assert.equal(mixed.satisfied, false,
+			"a narrow rule does not cancel a broad one; both are simply present");
+		assert.throws(() => assertPolicyProvisioned(
+			write("mixed.rules",
+				`${exact}\nprefix_rule(pattern=["${identity.binary}"], decision="allow")`),
+			identity), /half-finished upgrade state/);
+
+		// EXACT + a broad rule at the participant prefix — the other
+		// shape that covers every verb without naming one.
+		const prefix = `prefix_rule(pattern=["${identity.binary}", "--config", `
+			+ `"${identity.config}", "--participant", "${identity.participant}"], `
+			+ `decision="allow")`;
+		assert.throws(() => assertPolicyProvisioned(
+			write("prefix.rules", `${exact}\n${prefix}`), identity),
+			/BROADER rule/);
+
+		// BROAD ONLY still refuses, with the install instructions.
+		assert.throws(() => assertPolicyProvisioned(
+			write("broad.rules",
+				`prefix_rule(pattern=["${identity.binary}"], decision="allow")`),
+			identity), /install these rules and remove the broad one/);
+	});
+
+test("W415: an unruled verb for the same participant fails the preflight",
+	async () => {
+		// Exact-set clarification, pinned in FINDING.md 2026-08-20: the
+		// nominated participant policy IS the approved set, not merely a
+		// file that happens to contain it. I had left this advisory
+		// because refusing looked like it needed a mutating-verb list
+		// maintained here; the ruling dissolves that — read-only commands
+		// need no allow rule at all, so any verb outside the set is extra
+		// capability whatever it does.
+		const { rulesFor, auditRules, assertPolicyProvisioned, RULED_VERBS } =
+			await import("../src/exec_policy.mjs");
+		const { mkdtempSync, writeFileSync } = await import("node:fs");
+		const { join } = await import("node:path");
+		const identity = { binary: "/opt/baton/bin/baton",
+			config: "/srv/baton/baton.json", participant: "baton.codex" };
+		const other = { ...identity, participant: "baton.tuner" };
+		const exact = rulesFor(identity).join("\n");
+		const dir = mkdtempSync("/tmp/w415-exactset-test-");
+		const write = (name, text) => {
+			const file = join(dir, name);
+			writeFileSync(file, `${text}\n`);
+			return file;
+		};
+		const ruleFor = (who, verb) =>
+			`prefix_rule(pattern=["${identity.binary}", "--config", `
+			+ `"${identity.config}", "--participant", "${who}", "${verb}"], `
+			+ `decision="allow")`;
+
+		// Exact only still succeeds.
+		assert.equal(assertPolicyProvisioned(write("exact.rules", exact),
+			identity).satisfied, true);
+
+		// Any other verb for THIS participant refuses — mutating or not,
+		// because the set is the set.
+		for (const verb of ["regen", "mark-seen", "release", "phase", "detail"]) {
+			const policy = `${exact}\n${ruleFor(identity.participant, verb)}`;
+			const audit = auditRules(policy, identity);
+			assert.deepEqual(audit.extra, [verb]);
+			assert.equal(audit.satisfied, false, `${verb} must fail the preflight`);
+			assert.throws(() => assertPolicyProvisioned(
+				write(`${verb}.rules`, policy), identity),
+				/dedicated to the approved set/);
+		}
+
+		// OTHER participants' rules are independent and stay valid —
+		// including their unruled verbs, which are not this
+		// participant's capability.
+		assert.equal(assertPolicyProvisioned(
+			write("other-exact.rules", `${exact}\n${rulesFor(other).join("\n")}`),
+			identity).satisfied, true);
+		assert.equal(assertPolicyProvisioned(
+			write("other-extra.rules", `${exact}\n${ruleFor(other.participant, "regen")}`),
+			identity).satisfied, true);
+
+		// The refusal names the approved set, so an operator does not
+		// have to go looking for it.
+		try {
+			assertPolicyProvisioned(write("named.rules",
+				`${exact}\n${ruleFor(identity.participant, "regen")}`), identity);
+			assert.fail("should have refused");
+		} catch (error) {
+			for (const verb of RULED_VERBS) assert.match(error.message, new RegExp(verb));
+			assert.match(error.message, /read-only commands need no allow rule here/);
 		}
 	});

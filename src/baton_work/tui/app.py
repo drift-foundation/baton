@@ -1759,10 +1759,16 @@ class Console:
 			# waiting on a HUMAN in its own session and Baton has no
 			# verb that answers it. Saying `read` would advertise an
 			# action the operator cannot take here.
+			# W415: an incident is DISMISSED, and deliberately never
+			# `approve`. The corrective action is to repair the
+			# deployment/rule mismatch or reroute the Work; an approve
+			# here would rebuild the interactive path one console away
+			# from the dispatcher that refuses it.
 			"Do": ("answer" if row["kind"] == "poke" else
 			       "respond" if row["kind"] == "obligation" else
 			       "assess" if row["kind"] == "due_trial" else
-			       "attend" if row["kind"] == "runtime" else "read"),
+			       "attend" if row["kind"] == "runtime" else
+			       "dismiss" if row["kind"] == "incident" else "read"),
 			"Type": row["kind"].replace("_", " "),
 			"Seen": "seen" if row["seen"] else "new",
 			"Context": (_local_selector(row["work"]) if row["work"]
@@ -1858,6 +1864,24 @@ class Console:
 			             "session; Baton has no verb that answers it, "
 			             "and the row clears when the adapter reports "
 			             "what happened next")
+		if row["kind"] == "incident":
+			lines.append(f"  {row['participant']} · {row['category']} · "
+			             f"{row['cause']}"
+			             + (f" · episode {row['episode']}"
+			                if row["episode"] is not None else ""))
+			if row["occurrences"] > 1:
+				lines.append(f"  this has happened {row['occurrences']} "
+				             f"times; the first repair did not hold")
+			if row["work"]:
+				lines.append(f"  {_local_selector(row['work'])} was NOT "
+				             f"claimed and is still waiting; dismissing "
+				             f"this incident does not pick it up")
+			lines.append("  the fix is to repair the deployment/rule "
+			             "mismatch or reroute the Work — there is no "
+			             "approve, because a managed turn is "
+			             "non-interactive by ruling")
+			lines.append("  it stays here through idle transitions, "
+			             "refreshes and restarts until you dismiss it")
 		if row["completes_by"]:
 			lines.append("  satisfied by: "
 			             + ", ".join(row["completes_by"]))
@@ -4214,7 +4238,12 @@ class Console:
 				self.tab = "jobs"
 				self._enter_detail(selected["work"], came_from="table")
 		elif key == ord("a") and selected:
-			if selected["kind"] == "poke":
+			if selected["kind"] == "incident":
+				# W415: authored, because a dismissal that records why
+				# is what the next reader needs when it recurs.
+				self._run_authored(
+					f"dismiss incident={selected['incident']}", "note")
+			elif selected["kind"] == "poke":
 				self.poke_choice = selected["poke"]
 			elif selected["kind"] == "obligation":
 				self._run_authored(
@@ -4225,7 +4254,13 @@ class Console:
 				               f"through {', '.join(selected['completes_by']) or 'no console action'}"
 				               f"; open it in Jobs")
 		elif key == ord("s") and selected:
-			if not selected["thread"]:
+			if selected["kind"] == "incident":
+				# The ruled point, said out loud: marking discussion
+				# seen is not how an operational incident is answered.
+				self.status = (f"{selected['selector']} is an incident, "
+				               f"not a message; it stays until you "
+				               f"dismiss it with `a`")
+			elif not selected["thread"]:
 				self.status = (f"{selected['selector']} has no thread; "
 				               f"there is no seen cursor to move")
 			else:

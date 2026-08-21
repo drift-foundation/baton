@@ -35,7 +35,23 @@ function normalizeAction(raw) {
   }
   const participant = requiredText(raw.participant, "action.participant");
   const key = requiredText(raw.key, "action.key");
-  return Object.freeze({ participant, key });
+  // W415: optional correlation carried beside the key. Optional because
+  // a producer at an older build does not send them and its events must
+  // still deliver — an incident with no Work locator is worth less than
+  // one with it, and far more than a dropped readiness event.
+  const work = raw.work === undefined || raw.work === null
+    ? undefined : requiredText(raw.work, "action.work");
+  if (raw.episode !== undefined && raw.episode !== null
+      && !Number.isSafeInteger(raw.episode)) {
+    throw new TypeError("action.episode must be an integer episode sequence");
+  }
+  const episode = raw.episode === undefined || raw.episode === null
+    ? undefined : raw.episode;
+  return Object.freeze({
+    participant, key,
+    ...(work === undefined ? {} : { work }),
+    ...(episode === undefined ? {} : { episode }),
+  });
 }
 
 export function normalizeEvent(raw, { maxDetailsBytes = DEFAULT_MAX_DETAILS_BYTES } = {}) {

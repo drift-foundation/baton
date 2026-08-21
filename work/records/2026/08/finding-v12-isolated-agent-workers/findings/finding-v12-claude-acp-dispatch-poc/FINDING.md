@@ -24,6 +24,13 @@ answers an ACP prompt is not success.
 
 ## Isolation and source ownership
 
+**Superseded placement ruling — 2026-08-20:** the separate-root requirement
+below governed construction of the implementation now under review and remains
+its provenance. The approved durable home is now this Baton repository's
+self-contained top-level `v12/` subtree. Relocation follows independent review
+as a bounded follow-up and must not modify existing v11 paths or mix generated
+dependencies/runtime state into the repository.
+
 Prototype source lives in a separate disposable root, initially
 `/home/sl/src/baton-v12-poc`, with its own dependencies, tests, fixtures, draft
 manifests, worker image and runtime state. The operator establishes its clean

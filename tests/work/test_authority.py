@@ -68,7 +68,8 @@ def test_meta_pins_protocol_and_uuid(authority):
 	meta = authority.meta()
 	assert meta["protocol_version"] == "11"
 	# W2938: the participant pickup interval table.
-	assert meta["schema_version"] == "25"
+	# W415: durable managed-turn approval incidents.
+	assert meta["schema_version"] == "26"
 	assert len(meta["authority_uuid"]) == 32
 
 

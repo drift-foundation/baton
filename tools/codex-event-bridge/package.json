@@ -10,6 +10,7 @@
     "test": "node --test",
     "test:app-server": "node smoke/app_server.mjs",
     "test:dispatcher": "node smoke/dispatcher.mjs",
-    "test:unix-socket": "node smoke/unix_socket.mjs"
+    "test:unix-socket": "node smoke/unix_socket.mjs",
+    "test:managed-write": "node smoke/managed_baton_write.mjs"
   }
 }

@@ -71,6 +71,30 @@ export class CodexClient extends EventEmitter {
     }
   }
 
+  // W415: the managed thread declares NO sandbox or approval overrides.
+  //
+  // Round-2 review rejected `approvalPolicy: "never"` (it removes the
+  // prompt without making the operation possible, and suppresses the
+  // incident trigger). Round-3 review rejected the writable
+  // coordination-home root: measured against a live app-server, a
+  // DIRECTORY grant lets any shell command in the turn rewrite or
+  // delete `work.sqlite3` and `baton.json`, and a FILE or GLOB grant is
+  // echoed back and grants nothing at all. The approver then rejected
+  // arbitrary per-thread configuration overrides outright.
+  //
+  // The ruled route is a DEPLOYMENT-OWNED exact command policy: an
+  // execpolicy rule naming the installed executable, the accepted
+  // config, the participant and the ruled verbs. It is command-aware in
+  // a way no filesystem grant can be — `rm work.sqlite3` does not match
+  // a rule for `baton … claim` — and it is provisioned by the operator,
+  // not requested per turn by this bridge.
+  //
+  // Measured on 2026-08-20 against a live app-server: with such a rule
+  // present, a managed turn's Baton mutation against an authority
+  // outside both the workspace and `/tmp` committed with ZERO approval
+  // requests reaching the client and no overrides of any kind. See
+  // `src/exec_policy.mjs` for what the deployment must install and
+  // PROGRESS.md for the transcripts.
   async startThread({ cwd, developerInstructions }) {
     const result = await this.request("thread/start", { cwd, developerInstructions });
     if (!result?.thread?.id || !result.thread.status) throw new Error("thread/start returned an unexpected response");

@@ -1176,3 +1176,34 @@ Claude performed the final yes/no check in
 resolved, generation fencing remains intact, the superseded automatic-filing
 text is unambiguously historical, and no competing live rule remains. No v12
 implementation was authorized or performed by any design review pass.
+
+## Prototype repository placement supersession — 2026-08-20
+
+The requirement that the disposable v12 prototype remain in the separate
+top-level repository `/home/sl/src/baton-v12-poc` is superseded after the
+initial isolation proof. V12 remains isolated from the existing v11 product,
+but its durable development home is the self-contained top-level `v12/`
+subtree of this Baton repository.
+
+`v12/` owns its own `justfile`, package and lock metadata, `src/`, tests,
+scripts, fixtures, configuration, manifests and container definitions. It is
+independently buildable and testable without invoking a v11/root recipe. While
+v12 remains experimental, root recipes do not delegate into it and no root
+build, package, deployment or release surface includes it. Only a later
+explicit adoption Work may add that integration. Generated
+dependency trees, downloaded images, credentials, authorities, logs and
+runtime state remain excluded. Existing v11 paths, including
+`src/baton_work/`, v11 tests, bridges, recipes and deployment files, remain
+outside the prototype's edit boundary until a separately approved integration
+Work says otherwise. This keeps the original discardability and no-v11-change
+guarantee while avoiding a second product repository that would have to be
+folded back after success.
+
+The already-built external PoC remains the implementation reviewed by W76.
+Relocating it is a bounded follow-up after that review: preserve provenance,
+copy only source-controlled prototype material—including dependency manifests
+and lockfiles—into `v12/`, exclude generated dependencies and runtime state,
+verify the same gates there, and retire the
+external root only after the in-repository copy is verified. The approver has
+explicitly authorized removing `/home/sl/src/baton-v12-poc` at that point so
+there is one canonical prototype location; it is not retained as an archive.

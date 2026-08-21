@@ -22,7 +22,23 @@ import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import { validateConfig } from "../src/config.mjs";
 import { EventBridge } from "../src/event_bridge.mjs";
+import { normalizeEvent } from "../src/event_types.mjs";
 import { actionEvent } from "../src/codex_baton_bridge.mjs";
+
+// W415: the dispatcher refuses to start unless the deployment-owned
+// execpolicy file authorizes each managed participant's canonical Baton
+// operations. These fixtures therefore need a real one.
+import { mkdtempSync as _mkdtemp, writeFileSync as _write } from "node:fs";
+import { join as _join } from "node:path";
+import { rulesFor as _rulesFor } from "../src/exec_policy.mjs";
+const _policyDir = _mkdtemp("/tmp/w415-fixture-policy-");
+export const FIXTURE_POLICY = _join(_policyDir, "baton.rules");
+_write(FIXTURE_POLICY, ["/srv/baton/baton.json", "/home/op/baton.json"]
+	.flatMap((config) => ["baton.tuner", "baton.codex", "a.b"]
+		.flatMap((participant) => _rulesFor({
+			binary: "/opt/baton/bin/baton", config, participant })))
+	.join("\n") + "\n");
+
 
 const quiet = { info() {}, warn() {}, error() {}, debug() {} };
 const UUID = "7ba67cb8585dcfd250799fe0dc16e3fa";
@@ -68,10 +84,10 @@ function config(socket = "/tmp/codex-w1224-unused.sock") {
 		servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
 		targets: {
 			tuner: { server: "local", threadId: "thread-a",
-				identity: { participant: "baton.tuner", role: "tuner" } },
+				identity: { participant: "baton.tuner", role: "tuner", actionOwner: "ops.slaw" } },
 		},
-		roleInstructions: { binary: "/opt/baton/bin/baton",
-			config: "/home/op/baton.json" },
+		roleInstructions: { binary: "/opt/baton/bin/baton", config: "/home/op/baton.json",
+			execPolicyFile: FIXTURE_POLICY },
 		eventSocket: socket,
 	});
 }
@@ -95,6 +111,7 @@ function bridge({ revalidate, socket } = {}) {
 		clientFactory: () => fake,
 		runtimeFactory: () => ({
 			incarnation: "run-1", async start() {}, async state() {},
+			async incident() {},
 			async facts() { return true; }, async end() {},
 		}),
 		revalidate,
@@ -332,8 +349,39 @@ test("a deployment with no roleInstructions cannot and does not check",
 
 test("the producer's event names the participant and the key", () => {
 	const event = readinessEvent("work:A:2:g1", "baton.claude");
-	assert.deepEqual(event.action,
+	// W415 EXTENDS this block rather than relaxing it: the Work and
+	// episode now ride BESIDE the key, because a consumer correlating a
+	// failure with the assignment it interrupted may not parse the key
+	// (docs/EFFECTIVE-BATON.md) and had no other way to learn them.
+	assert.deepEqual(event.action, {
+		participant: "baton.claude", key: "work:A:2:g1",
+		work: "7ba67cb8-W1224", episode: 4 });
+});
+
+test("W415: an action block without the new correlation still delivers", () => {
+	// A producer at an older build sends neither field. An incident with
+	// no Work locator is worth less than one with it, and far more than
+	// a readiness event this bridge refused to normalize.
+	const bare = normalizeEvent({
+		target: "baton-reviewer", source: "baton-v11",
+		type: "v11-action-ready", summary: "ready",
+		action: { participant: "baton.claude", key: "work:A:2:g1" } });
+	assert.deepEqual(bare.action,
 		{ participant: "baton.claude", key: "work:A:2:g1" });
+	assert.equal(bare.action.work, undefined);
+	assert.equal(bare.action.episode, undefined);
+});
+
+test("W415: a malformed correlation is refused rather than carried", () => {
+	const build = (action) => () => normalizeEvent({
+		target: "baton-reviewer", source: "baton-v11",
+		type: "v11-action-ready", summary: "ready", action });
+	assert.throws(build({ participant: "baton.claude", key: "k", episode: "4" }),
+		/action.episode must be an integer episode sequence/);
+	assert.throws(build({ participant: "baton.claude", key: "k", episode: 1.5 }),
+		/action.episode must be an integer episode sequence/);
+	assert.throws(build({ participant: "baton.claude", key: "k", work: "" }),
+		/action.work/);
 });
 
 test("the dispatcher keeps the action block through normalization",

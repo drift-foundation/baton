@@ -5169,3 +5169,249 @@ def runtime_refresh(store: Authority, *, actor_team: str, actor: str,
 	return store._write("runtime_refresh", f"{actor_team}.{actor}",
 	                    payload, mutate, operation=operation,
 	                    finish=finish, references=refs)
+
+
+# -- W415: durable managed-turn approval incidents ---------------------
+#
+# `work/records/2026/08/finding-managed-turn-approval-incidents/`.
+#
+# The ruled separation, restated where it is implemented: live runtime
+# state answers what a runner is doing NOW and is meant to be
+# overwritten; an incident answers what FAILED and still needs an
+# operator, and nothing overwrites it. Returning to `idle`, restarting
+# the managed stack, refreshing a console, or marking discussion seen
+# all leave an open incident exactly where it is. Only the action
+# owner's explicit dismissal closes one.
+#
+# There is deliberately NO approve verb. The corrective action is to
+# repair the deployment/rule mismatch or reroute the Work; offering an
+# approval here would re-create the interactive path the finding
+# removes, one console away from the dispatcher that refuses it.
+
+# The SAFE command categories. An approval payload can carry
+# credentials, environment values, and file contents, so what is stored
+# is what KIND of thing was refused — never the command body. The
+# vocabulary is closed so a projection can group it and a console can
+# render it without parsing prose.
+INCIDENT_CATEGORIES = ("baton-cli", "shell", "file-write", "network",
+                       "mcp", "patch", "other")
+
+
+def _incident_owner(lease, team: str, member: str) -> str:
+	"""Who owes the corrective action: the CONFIGURED owner on the live
+	lease, and nothing else.
+
+	An earlier version accepted an `action-owner=` operand and let the
+	caller override this. That was wrong twice over. It let any
+	configured participant create a sticky owed action in any other
+	member's Inbox through a verb that carries no such authority, and it
+	contradicted the confirmed configured-action-owner boundary. An
+	administrative override may be worth having, but it needs its own
+	ruled authority model rather than riding the runner's own report.
+
+	A runner with no configured owner cannot file at all. That refusal
+	IS the finding — the deployment has to name who answers for this
+	runner — not a gap in it."""
+	configured = lease["action_owner"] if lease is not None else None
+	if not configured:
+		raise WorkError(
+			f"{team}.{member} has no configured action owner, so an "
+			f"incident it filed would be a loose end nobody is holding; "
+			f"configure the runner's action owner at runtime-start")
+	return configured
+
+
+def incident_report(store: Authority, *, actor_team: str, actor: str,
+                    incarnation: str, cause: str, category: str,
+                    detail: str | None = None,
+                    work: str | None = None, episode: int | None = None,
+                    action_key: str | None = None,
+                    session: str | None = None,
+                    op_id: str | None = None, refs=()) -> dict:
+	"""File — or coalesce into — one durable action-owner incident.
+
+	Repeated reports for the same participant, runner incarnation,
+	episode and cause COALESCE into the one open incident, keeping a
+	count and the latest instant. Three identical failures are one
+	problem an operator fixes once, not three rows to dismiss; but the
+	count is retained because "this has now happened three times" is
+	exactly what tells an operator the first fix did not work.
+
+	A new episode, or a recurrence after dismissal, opens a NEW
+	incident: a dismissed problem must never reappear inside a row the
+	operator has already answered."""
+	_member(store, actor_team, actor)
+	incarnation = _runtime_text(incarnation, "incarnation", 128)
+	detail = _runtime_text(detail, "detail")
+	session = _runtime_text(session, "session", 256)
+	action_key = _runtime_text(action_key, "action-key", 256)
+	if cause not in RUNTIME_CAUSES:
+		raise WorkError(
+			f"incident cause {cause!r} is not one of "
+			f"{', '.join(RUNTIME_CAUSES)}; the category is closed so a "
+			f"reader can group runtime state and incidents the same way")
+	if category not in INCIDENT_CATEGORIES:
+		raise WorkError(
+			f"incident category {category!r} is not one of "
+			f"{', '.join(INCIDENT_CATEGORIES)}; this is the SAFE command "
+			f"category, and the command body is deliberately never stored")
+	if work is not None:
+		work = resolve_work_selector(store, work)
+	if episode is not None and not isinstance(episode, int):
+		raise WorkError("episode must be an integer assignment episode")
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "incident_report",
+	                       op_id,
+	                       {"incarnation": incarnation, "cause": cause,
+	                        "category": category, "detail": detail,
+	                        "work": work,
+	                        "episode": episode, "action_key": action_key,
+	                        "session": session, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload = {"participant": f"{actor_team}.{actor}",
+	           "incarnation": incarnation, "cause": cause,
+	           "category": category, "detail": detail, "work": work,
+	           "episode": episode, "action_key": action_key}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		now = store.clock()
+		# Gated on the EXACT live incarnation, like every other runtime
+		# write. Without this a superseded runner could file with its
+		# stale incarnation while borrowing the current runner's
+		# adapter, session and owner — making a replaced publisher
+		# authoritative over the one that replaced it.
+		lease = _runtime_gate(conn, actor_team, actor, incarnation,
+		                      "incident")
+		owner = _incident_owner(lease, actor_team, actor)
+		adapter = lease["adapter"]
+		locator = session or lease["session"]
+		# The confirmed coalescing key: participant, Work episode, and
+		# approval cause. Incarnation and category are evidence carried
+		# ON the row, not part of its identity — a restart must
+		# increment the existing incident, not open a rival to it.
+		existing = conn.execute(
+			"SELECT * FROM approval_incidents WHERE team=? AND member=? "
+			"AND cause=? "
+			"AND IFNULL(work,'')=IFNULL(?,'') "
+			"AND IFNULL(episode,-1)=IFNULL(?,-1) "
+			"AND dismissed_ts IS NULL",
+			(actor_team, actor, cause, work, episode)).fetchone()
+		if existing is not None:
+			# The incarnation, adapter, session and OWNER advance to
+			# where the problem is happening now; the identity and the
+			# count do not move.
+			#
+			# Review round 2 asked for a ruling on the owner. It moves.
+			# `action_owner` is a CONFIGURATION fact about who answers
+			# for this runner, and if a redeployment changed it, an
+			# incident still owed to the former participant is owed to
+			# nobody who can act — which is the invisibility this whole
+			# Work exists to remove. Retaining the first owner would
+			# preserve a stale obligation for the sake of consistency
+			# with a configuration that no longer exists.
+			conn.execute(
+				"UPDATE approval_incidents SET occurrences=occurrences+1, "
+				"latest_ts=?, detail=COALESCE(?, detail), "
+				"incarnation=?, adapter=?, action_owner=?, "
+				"session=COALESCE(?, session), "
+				"category=?, "
+				"action_key=COALESCE(?, action_key) WHERE id=?",
+				(now, detail, incarnation, adapter, owner, locator,
+				 category, action_key, existing["id"]))
+			payload["incident"] = existing["id"]
+			payload["coalesced"] = True
+			payload["occurrences"] = existing["occurrences"] + 1
+			payload["action_owner"] = owner
+			payload["first_ts"] = existing["first_ts"]
+			return
+		cursor = conn.execute(
+			"INSERT INTO approval_incidents (team, member, incarnation, "
+			"adapter, session, action_owner, cause, category, detail, "
+			"work, episode, action_key, occurrences, first_ts, "
+			"latest_ts, opened_seq) "
+			"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,1,?,?,?)",
+			(actor_team, actor, incarnation, adapter, locator, owner,
+			 cause, category, detail, work, episode, action_key, now,
+			 now, seq))
+		payload["incident"] = cursor.lastrowid
+		payload["coalesced"] = False
+		payload["occurrences"] = 1
+		payload["action_owner"] = owner
+		payload["first_ts"] = now
+
+	def finish(result):
+		for field in ("incident", "coalesced", "occurrences",
+		              "action_owner"):
+			result[field] = payload[field]
+
+	return store._write("incident_report", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish, references=refs)
+
+
+def incident_dismiss(store: Authority, *, actor_team: str, actor: str,
+                     incident: int, note: str | None = None,
+                     op_id: str | None = None, refs=()) -> dict:
+	"""The action owner's authoritative, journaled dismissal.
+
+	It closes the incident and does NOTHING else. It does not claim,
+	reroute, close or otherwise mutate the affected Work — the operator
+	saying "I have seen this and dealt with it" is a statement about the
+	incident, never about the assignment it interrupted. Whether the
+	Work then gets picked up is a separate, explicit act."""
+	_member(store, actor_team, actor)
+	note = _runtime_text(note, "note", 400)
+	if not isinstance(incident, int):
+		raise WorkError("incident must be the integer incident id")
+	operation = _operation(store, actor_team, actor, "incident_dismiss",
+	                       op_id, {"incident": incident, "note": note,
+	                               "refs": _parse_refs(store, refs)})
+	if isinstance(operation, dict):
+		return operation
+	refs = _parse_refs(store, refs)
+	payload = {"incident": incident, "note": note}
+
+	def mutate(conn, seq):
+		_member_active(conn, actor_team, actor)
+		row = conn.execute(
+			"SELECT * FROM approval_incidents WHERE id=?",
+			(incident,)).fetchone()
+		if row is None:
+			raise WorkError(f"there is no incident {incident}")
+		if row["dismissed_ts"] is not None:
+			raise WorkError(
+				f"incident {incident} was already dismissed by "
+				f"{row['dismissed_by']} at {row['dismissed_ts']}; "
+				f"dismissing twice is not a transition")
+		# Only the ACTION OWNER dismisses. Anyone may read an incident,
+		# and a console peer may discuss it, but clearing somebody
+		# else's obligation is how a loose end gets lost quietly.
+		owner = f"{actor_team}.{actor}"
+		if row["action_owner"] != owner:
+			raise WorkError(
+				f"incident {incident} is owed by {row['action_owner']}, "
+				f"not {owner}; an incident is dismissed by the "
+				f"participant who owes its corrective action")
+		now = store.clock()
+		conn.execute(
+			"UPDATE approval_incidents SET dismissed_ts=?, "
+			"dismissed_by=?, dismissed_seq=?, dismissal_note=? "
+			"WHERE id=?", (now, owner, seq, note, incident))
+		payload["participant"] = f"{row['team']}.{row['member']}"
+		payload["work"] = row["work"]
+		payload["occurrences"] = row["occurrences"]
+		payload["dismissed_by"] = owner
+
+	def finish(result):
+		# `incident` rides the result too: a caller that retried through
+		# an op-id must be able to see WHICH incident it closed without
+		# reading the projection back.
+		for field in ("incident", "participant", "work", "occurrences",
+		              "dismissed_by"):
+			result[field] = payload[field]
+
+	return store._write("incident_dismiss", f"{actor_team}.{actor}",
+	                    payload, mutate, operation=operation,
+	                    finish=finish, references=refs)

@@ -6,6 +6,7 @@ import { dirname } from "node:path";
 import { CodexClient, CodexProtocolError } from "./codex_client.mjs";
 import { classifyFailure, makeRuntimePublisher, silentPublisher } from "./runtime_publisher.mjs";
 import { eventFingerprint, formatEventMessage, normalizeEvent } from "./event_types.mjs";
+import { assertPolicyProvisioned } from "./exec_policy.mjs";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -132,6 +133,27 @@ export class EventBridge extends EventEmitter {
   }
 
   async start({ listen = true } = {}) {
+    // W415: BEFORE anything opens, PREFLIGHT the nominated execution
+    // policy. A dispatcher whose turns escalate for approval on every
+    // claim is the defect this Work records, and it must not open leases
+    // and report itself healthy while in that state.
+    //
+    // This checks the file the deployment nominates. It is not a
+    // measurement of the policy the app-server actually loaded — Codex
+    // may read other sources — so a green preflight means "the
+    // deployment nominated a correct policy", not "the effective
+    // boundary is correct". The live matrix in
+    // `smoke/exact_policy_matrix.mjs` establishes the latter.
+    if (this.config.roleInstructions?.execPolicyFile) {
+      for (const state of this.targetStates.values()) {
+        if (!state.identity) continue;
+        assertPolicyProvisioned(this.config.roleInstructions.execPolicyFile, {
+          binary: this.config.roleInstructions.binary,
+          config: this.config.roleInstructions.config,
+          participant: state.identity.participant,
+        });
+      }
+    }
     // W93: every identified target's lease opens here, so a configured
     // participant whose runner is up but quiet is visibly present
     // rather than indistinguishable from one that never started.
@@ -598,6 +620,31 @@ export class EventBridge extends EventEmitter {
         detail: `${request.method} requires interactive handling`,
         session: threadId,
       });
+      // W415: the live state above is correct AND transient — it is
+      // supposed to vanish when the runner returns to `idle`. That is
+      // what made three of these disappear without anybody learning why
+      // the reviews were never picked up. The durable, Work-correlated
+      // incident is filed here, beside it, and stays until its action
+      // owner dismisses it. Neither substitutes for the other.
+      //
+      // Nothing about the request BODY is published: `#approvalCategory`
+      // maps the method to a closed safe category and the detail names
+      // the method only.
+      if (state) {
+        // The episode being served is the one whose turn is in flight.
+        const action = state.activeTurn?.event?.action ?? null;
+        void state.runtime.incident({
+          cause: "approval",
+          category: EventBridge.#approvalCategory(request.method),
+          detail: `${request.method} requested interactive approval; a `
+            + `dispatcher-owned readiness turn is non-interactive and `
+            + `denied it`,
+          work: action?.work ?? null,
+          episode: action?.episode ?? null,
+          actionKey: action?.key ?? null,
+          session: threadId,
+        });
+      }
       // W3243: publishing the state was not enough. LEAVING THE REQUEST
       // UNANSWERED is what wedged the turn — it waited for a human who
       // was not in this conversation, and 24 later readiness events
@@ -635,6 +682,28 @@ export class EventBridge extends EventEmitter {
   // managed stack — whose already-approved fresh-context-per-start
   // policy supplies a clean target. V12's worker supervisor owns
   // automatic replacement.
+  // W415: method -> SAFE category. The command body never leaves the
+  // dispatcher, so what an operator gets is the kind of thing that was
+  // refused. An unrecognised method is `other` rather than a guess.
+  static #approvalCategory(method) {
+    if (typeof method !== "string") return "other";
+    // The app-server spells the same request two ways — `execCommandApproval`
+    // and `item/commandExecution/requestApproval` — so separators are
+    // folded out before matching rather than matching each spelling.
+    const flat = method.replace(/[^a-z]/gi, "").toLowerCase();
+    if (flat.includes("execcommandapproval")
+        || flat.includes("commandexecutionrequestapproval")) {
+      return "shell";
+    }
+    if (flat.includes("applypatchapproval")
+        || flat.includes("filechangerequestapproval")) {
+      return "patch";
+    }
+    if (flat.includes("permissionsrequestapproval")) return "file-write";
+    if (flat.includes("mcp") || flat.includes("elicitation")) return "mcp";
+    return "other";
+  }
+
   #denyAndRecover(serverState, state, request) {
     const denied = serverState.client.respondError(
       request.id, -32601,

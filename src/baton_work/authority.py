@@ -37,7 +37,7 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 25
+SCHEMA_VERSION = 26
 PROTOCOL_VERSION = 11
 
 # W2938 (finding-claim-overdue-cue): the default claim-pickup threshold.
@@ -700,6 +700,93 @@ CREATE TABLE runtime_events (
 	session     TEXT,
 	ts          TEXT NOT NULL
 ) STRICT;
+-- W415 (finding-managed-turn-approval-incidents), schema 26: what
+-- FAILED and still needs an operator, which is a different question
+-- from what a runner is doing now.
+--
+-- The incident that produced this table: a managed reviewer turn asked
+-- for interactive command approval, the dispatcher correctly denied it,
+-- published `waiting-input(approval)`, ended the turn, and returned the
+-- runner to `idle`. Every one of those steps was right, and the net
+-- effect was that the failure ERASED ITS OWN EVIDENCE — the lease moved
+-- on, the Inbox row vanished with it, the Work sat unclaimed, and the
+-- only surviving explanation was in a background rollout nobody reads.
+-- It happened three times before anyone noticed why.
+--
+-- So live runtime state and durable incidents are separate tables on
+-- purpose. `runtime_leases` answers "what is this runner doing now" and
+-- is meant to be overwritten. This answers "what broke and still needs
+-- attention", and NOTHING overwrites it: not a later transition, not a
+-- restart, not marking discussion seen. Only the action owner's
+-- explicit dismissal closes one.
+--
+-- Nothing here is workflow authority. An incident never claims,
+-- releases, passes, re-phases, blocks or closes Work; `work` and
+-- `episode` CORRELATE the failure with the assignment it interrupted so
+-- an operator can navigate to it, and dismissing an incident leaves the
+-- Work exactly as it was.
+CREATE TABLE approval_incidents (
+	id           INTEGER PRIMARY KEY,
+	-- the participant whose managed turn failed
+	team         TEXT NOT NULL,
+	member       TEXT NOT NULL,
+	-- the runner launch and live session this was LAST seen in.
+	-- Evidence, not identity: a coalescing incident updates these to
+	-- the most recent report, so an operator sees where it is happening
+	-- now rather than where it started.
+	incarnation  TEXT NOT NULL,
+	adapter      TEXT NOT NULL,
+	session      TEXT,
+	-- who owes the corrective action. An incident with no owner would
+	-- be a loose end nobody is holding, so this is NOT NULL: a runner
+	-- with no configured action owner cannot file one.
+	action_owner TEXT NOT NULL,
+	-- closed category, shared with the runtime vocabulary so a reader
+	-- groups both surfaces the same way
+	cause        TEXT NOT NULL,
+	-- the SAFE command category — never the command body. An approval
+	-- payload can carry credentials, environment values and file
+	-- contents; this table stores what KIND of thing was refused and
+	-- nothing that could leak by being stored.
+	category     TEXT NOT NULL,
+	detail       TEXT,
+	-- correlation, never authority
+	work         TEXT REFERENCES work(id),
+	episode      INTEGER,
+	action_key   TEXT,
+	-- coalescing: repeated reports for the same participant, episode
+	-- and cause keep ONE open incident with a count and the latest
+	-- instant. A new episode, or a recurrence after dismissal, is a
+	-- NEW incident — otherwise a dismissed problem could reappear
+	-- inside a row the operator has already answered.
+	occurrences  INTEGER NOT NULL DEFAULT 1,
+	first_ts     TEXT NOT NULL,
+	latest_ts    TEXT NOT NULL,
+	opened_seq   INTEGER NOT NULL,
+	-- dismissal is authoritative, journaled, and the ONLY thing that
+	-- closes an incident
+	dismissed_ts   TEXT,
+	dismissed_by   TEXT,
+	dismissed_seq  INTEGER,
+	dismissal_note TEXT
+) STRICT;
+-- One OPEN incident per coalescing key. The partial index is what makes
+-- "repeated reports coalesce, a recurrence after dismissal does not"
+-- a database rule rather than a convention the writer has to remember.
+--
+-- The key is EXACTLY the confirmed decision's: participant, Work
+-- episode, and approval cause. It deliberately does NOT include
+-- `incarnation` or `category`. Including the incarnation made a
+-- managed-stack restart open a second incident for the same
+-- still-unclaimed episode instead of incrementing the first — which is
+-- the opposite of what an operator needs, because a problem surviving a
+-- restart is the same problem, harder. Incarnation, adapter and session
+-- stay on the row as EVIDENCE of where it was last seen; they are not
+-- part of its identity.
+CREATE UNIQUE INDEX approval_incidents_open
+	ON approval_incidents (team, member, cause,
+	                       IFNULL(work, ''), IFNULL(episode, -1))
+	WHERE dismissed_ts IS NULL;
 """
 
 
