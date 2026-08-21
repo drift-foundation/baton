@@ -579,7 +579,8 @@ def test_start_refuses_a_service_log_symlink_without_touching_its_target(
 # load, so exercising the example means supplying it the way an
 # operator does — by replacing the placeholder path with a real one.
 TEMPLATE_PLACEHOLDER = "/absolute/path/to/codex-event-bridge.template.json"
-ACP_TEMPLATE_PLACEHOLDER = "/absolute/path/to/acp-bridge.template.json"
+CLAUDE_TEMPLATE_PLACEHOLDER = "/absolute/path/to/acp-claude.template.json"
+GEMINI_TEMPLATE_PLACEHOLDER = "/absolute/path/to/acp-gemini.template.json"
 
 
 def _example_document(tmp_path):
@@ -587,7 +588,8 @@ def _example_document(tmp_path):
 	body = open(example, encoding="utf-8").read()
 	for placeholder, name in (
 			(TEMPLATE_PLACEHOLDER, "codex-event-bridge.template.json"),
-			(ACP_TEMPLATE_PLACEHOLDER, "acp-bridge.template.json")):
+			(CLAUDE_TEMPLATE_PLACEHOLDER, "acp-claude.template.json"),
+			(GEMINI_TEMPLATE_PLACEHOLDER, "acp-gemini.template.json")):
 		template = tmp_path / name
 		template.write_text(
 			open(os.path.join(REPO, "conf", name),
@@ -607,7 +609,7 @@ def test_checked_in_example_manifest_matches_the_controller_schema(tmp_path):
 	assert payload["healthy"] is False
 	assert [row["name"] for row in payload["services"]] == [
 		"codex-app-server", "codex-dispatcher", "codex-readiness",
-		"codex-tuner-readiness", "claude-acp"]
+		"codex-tuner-readiness", "claude-acp", "gemini-acp"]
 
 
 def test_example_owns_one_isolated_readiness_path_per_codex_participant(

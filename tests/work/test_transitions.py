@@ -133,18 +133,97 @@ def test_a_child_of_a_closed_parent_is_refused(store):
 
 # -- closure roll-up ---------------------------------------------------------
 
-def test_children_gate_the_parent_level_triggered(store):
+def _row(store, work_id):
+	return store.conn.execute("SELECT * FROM work WHERE id=?",
+	                          (work_id,)).fetchone()
+
+
+def test_children_do_not_gate_parent_execution(store):
+	"""W1477: containment is a CLOSURE gate, never a scheduler one.
+
+	This case asserted the opposite until W1477. Open children used to
+	be folded into readiness beside dependency blockers, so attaching a
+	part of a deliverable moved its parent to `block` and the closure
+	of the last part `wake`d it. The durable contract never said that —
+	`docs/EFFECTIVE-BATON.md` has always read "a parent may proceed
+	while children are open, but it cannot close while any remain" —
+	and the two halves are kept apart here so neither can drift back."""
 	parent = _create(store, "epic")["work_id"]
 	child_a = _create(store, "step a", parent=parent)["work_id"]
 	child_b = _create(store, "step b", parent=parent)["work_id"]
-	assert _ready(store, parent) == 0, "open children left the parent ready"
+	assert _ready(store, parent) == 1, "an open child unmade the parent's readiness"
+	assert _row(store, parent)["phase"] == "queued"
+	assert _row(store, parent)["gate_kind"] is None, \
+		"a child was displayed as the gate holding its parent"
+
+	# And it stays claimable, which is the whole point.
+	tr.claim_work(store, parent, actor_team="lang", actor="slaw")
+	assert _row(store, parent)["phase"] == "active"
 
 	tr.close_work(store, child_a, actor_team="lang", actor="slaw",
 	              rationale="done", outcome="satisfying")
-	assert _ready(store, parent) == 0, "one open child still gates"
+	assert _ready(store, parent) == 1
 	tr.close_work(store, child_b, actor_team="lang", actor="slaw",
 	              rationale="done", outcome="satisfying")
-	assert _ready(store, parent) == 1, "all children closed; parent not ready"
+	assert _ready(store, parent) == 1
+	# Closing the last child changed containment progress and nothing
+	# about who is executing the parent.
+	row = _row(store, parent)
+	assert row["phase"] == "active"
+	assert (row["handler_team"], row["handler_member"]) == ("lang", "slaw")
+
+
+def test_a_late_child_does_not_release_the_parent_claimant(store):
+	"""W1477 positive case 2, and the incident that produced the Work.
+
+	W2 was returned to `queued`, immediately moved to `block` with its
+	open child W1466 named as the gate, and the following claim was
+	refused. A late gate genuinely does invalidate execution — but
+	containment is not one, so growing a deliverable must not suspend
+	the agent already executing it."""
+	parent = _create(store, "epic")["work_id"]
+	tr.claim_work(store, parent, actor_team="lang", actor="slaw")
+	before = _row(store, parent)
+
+	child = _create(store, "late step", parent=parent)["work_id"]
+
+	after = _row(store, parent)
+	assert after["phase"] == "active", "attaching a child suspended the parent"
+	assert (after["handler_team"], after["handler_member"]) == ("lang", "slaw")
+	assert after["ready"] == 1
+	assert after["gate_kind"] is None
+	# The assignment episode is the recipient-facing identity of the
+	# claim; a child must not mint a new one or end the live one.
+	assert after["episode_seq"] == before["episode_seq"]
+	# Containment itself is entirely intact.
+	assert _row(store, child)["parent"] == parent
+
+
+def test_a_dependency_still_gates_a_parent_that_has_open_children(store):
+	"""W1477 composed case 4: the two axes coexist without merging."""
+	parent = _create(store, "epic")["work_id"]
+	_create(store, "step", parent=parent)
+	blocker = _create(store, "prerequisite")["work_id"]
+	tr.add_dependency(store, parent, blocker, actor_team="lang",
+	                  actor="slaw", rationale="cannot finish first")
+
+	row = _row(store, parent)
+	assert row["ready"] == 0 and row["phase"] == "block"
+	# The DEPENDENCY is what is displayed, never the child.
+	assert (row["gate_kind"], row["gate_work"]) == ("work", blocker)
+	with pytest.raises(bw.WorkError, match="blocked and parked work"):
+		tr.claim_work(store, parent, actor_team="lang", actor="slaw")
+
+	tr.close_work(store, blocker, actor_team="lang", actor="slaw",
+	              rationale="done", outcome="satisfying")
+	# The child is still open, and the parent is runnable anyway.
+	row = _row(store, parent)
+	assert row["ready"] == 1 and row["phase"] == "queued"
+	assert row["gate_kind"] is None
+	assert store.conn.execute(
+		"SELECT COUNT(*) AS n FROM work WHERE parent=? AND status='open'",
+		(parent,)).fetchone()["n"] == 1
+	tr.claim_work(store, parent, actor_team="lang", actor="slaw")
 
 
 def test_closing_over_open_children_is_refused_by_name(store):
@@ -188,11 +267,14 @@ def test_every_transition_is_one_audited_event(store):
 	                        author="slaw", body="late evidence",
 	                        follow_up_of=child)
 	kinds = [event["kind"] for event in store.events()]
-	# W38 R1: creating the child gates the parent, so the parent enters
-	# `block` — and closing that child is what wakes it again.
+	# W1477: one event per act, and containment adds none. This used to
+	# read `... close_work, wake, create_work`, because creating the
+	# child gated the parent and closing it woke the parent back up.
+	# Neither the gate nor the wake was ever real work being scheduled,
+	# and both are gone.
 	assert kinds == ["accept_config", "accept_config",
 	                 "create_work", "create_work", "close_work",
-	                 "wake", "create_work"]
+	                 "create_work"]
 	seqs = [event["seq"] for event in store.events()]
 	assert seqs == list(range(1, len(kinds) + 1))
 	assert follow["seq"] == seqs[-1]
@@ -325,6 +407,42 @@ def test_wf09_race2_close_records_the_current_that_committed(tmp_path):
 	               if event["kind"] == "close_work")
 	assert closing["payload"]["was_route_kind"] == "rev", \
 		"the close recorded the pre-race Current"
+
+
+def test_wf09_a_child_created_between_close_pre_read_and_lock_refuses(tmp_path):
+	"""WF-09 race 2, containment: the optimistic open-child check passes,
+	a child commits, and the close must still refuse INSIDE the lock —
+	naming the child that arrived.
+
+	W1477 made this the ONLY thing a late child does to its parent, so
+	the in-lock recheck is now the whole of containment's enforcement
+	rather than one of two places it was felt. It was already in the
+	code and had no case of its own; a rule with a single enforcement
+	point earns a race regression."""
+	racer, other = _race_pair(tmp_path)
+	parent = tr.create_work(racer, team="lang", kind="bug", title="epic",
+	                        origin="external-report",
+	                        classification="suspected-defect",
+	                        author="ada", body="b")["work_id"]
+	late = []
+	_interleave(racer, lambda: late.append(tr.create_work(
+		other, team="lang", kind="bug", title="late step",
+		origin="decomposition", classification="suspected-defect",
+		author="ada", body="b", parent=parent)["work_id"]))
+	with pytest.raises(bw.WorkError, match="has open children"):
+		tr.close_work(racer, parent, actor_team="lang", actor="ada",
+		              rationale="shipped", outcome="satisfying")
+	assert late, "the interleaved create never ran"
+	events = [event for event in racer.events()
+	          if event["kind"] == "close_work"]
+	assert events == [], "the refused close still committed an event"
+	row = racer.conn.execute(
+		"SELECT status, ready, phase FROM work WHERE id=?",
+		(parent,)).fetchone()
+	assert row["status"] == "open"
+	# And the late child left the parent runnable, which is the rest of
+	# the ruling: refused closure, untouched scheduler state.
+	assert row["ready"] == 1 and row["phase"] == "queued"
 
 
 def test_wf09_double_close_refuses_in_the_lock(tmp_path):

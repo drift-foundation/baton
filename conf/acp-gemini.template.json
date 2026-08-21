@@ -1,0 +1,43 @@
+{
+  "//": "Gemini native-ACP template rendered by the lifecycle controller.",
+  "//2": "EVERY value below except {{start.id}} is a placeholder the",
+  "//3": "operator must replace; nothing here can run as shipped. The",
+  "//4": "provider identity, CLI, approval mode, and prohibition policy",
+  "//5": "are deployment-owned and never bundled with Baton.",
+  "//6": "W459: stateDir carries {{start.id}}, so every managed start",
+  "//7": "gets a fresh selection location without weakening mode=new.",
+  "baton": {
+    "binary": "/absolute/path/to/v11-release/bin/baton",
+    "config": "/absolute/path/to/mailbox/baton.json",
+    "participant": "baton.gemini",
+    "role": "impl",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "/absolute/path/to/gemini",
+    "args": [
+      "--acp",
+      "--skip-trust",
+      "--approval-mode",
+      "yolo",
+      "--admin-policy",
+      "/absolute/path/to/gemini-policy/deny-git-mutations.toml"
+    ],
+    "env": {
+      "GOOGLE_CLOUD_PROJECT": "deployment-owned-google-cloud-project",
+      "GOOGLE_CLOUD_PROJECT_ID": "deployment-owned-google-cloud-project"
+    },
+    "cwd": "/absolute/path/to/workspace"
+  },
+  "session": {
+    "mode": "new",
+    "cwd": "/absolute/path/to/workspace"
+  },
+  "permissionMode": "yolo",
+  "policyResources": [
+    "/absolute/path/to/gemini-policy/deny-git-mutations.toml"
+  ],
+  "stateDir": "/absolute/path/to/runtime/acp/{{start.id}}/baton.gemini",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

@@ -23,12 +23,20 @@
 ## Coordination identities
 
 - Read `docs/AGENTS-MAILBOX-PROTO.md` in full before publishing or consuming Baton handoffs. The local deployment supplies the executable and explicit absolute config path; never infer or hard-code either in repository policy.
-- This project's coordination identities are `baton.codex` for the reviewer
-  (`rview`), `baton.claude` for the implementer (`impl`), `baton.slaw` for the
-  approver (`approv`), and `baton.tuner` for final polish (`tuner`). Resolve
-  role-only instructions to those identities; never substitute a participant
-  from another domain. Every agent launch names both its participant and one
-  explicit role it holds.
+- This project's coordination identities are `baton.prompt` for Slawomir's
+  human-attached interactive copilot (`prompt`), `baton.codex` for the managed
+  background reviewer (`rview`), `baton.claude` for the implementer (`impl`),
+  `baton.slaw` for the approver (`approv`), and `baton.tuner` for final polish
+  (`tuner`). Resolve role-only instructions to those identities; never
+  substitute a participant from another domain. Every agent launch names both
+  its participant and one explicit role it holds.
+- `baton.prompt` reads, discusses, creates and coordinates Work from the one
+  interactive context, but it is not a Route handler and never consumes Baton
+  readiness. Routed review, research and planning Work belongs to the one
+  managed `baton.codex` context. Never launch a hidden second context under
+  either address or use one participant for both foreground and background
+  execution. Each runtime publisher reports only the exact context mapped to
+  its participant; runtime visibility does not imply a readiness consumer.
 - Run exactly one active readiness path per participant — never two concurrent
   `wait`s for the same address. Two consumers need two participant addresses,
   not one shared identity. Act on every wake immediately: `claim` the Work

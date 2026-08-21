@@ -228,15 +228,16 @@ def test_the_adversarial_soak(tmp_path):
 	assert store.last_seq() == len(seqs)
 
 	# 2. Stored readiness equals readiness re-derived from nothing.
+	# W1477: open CHILDREN are deliberately not in this derivation.
+	# Containment gates terminal closure (invariant 5 below), never
+	# execution, so a parent with open children is ready — and the
+	# workers do decompose, so this is exercised rather than vacuous.
 	for row in store.conn.execute("SELECT * FROM work"):
-		open_children = store.conn.execute(
-			"SELECT COUNT(*) AS n FROM work WHERE parent=? AND status='open'",
-			(row["id"],)).fetchone()["n"]
 		open_blockers = store.conn.execute(
 			"SELECT COUNT(*) AS n FROM edges JOIN work w ON w.id=edges.blocker "
 			"WHERE edges.work=? AND w.status='open'",
 			(row["id"],)).fetchone()["n"]
-		expected = 1 if (row["status"] == "open" and open_children == 0
+		expected = 1 if (row["status"] == "open"
 		                 and open_blockers == 0) else 0
 		assert row["ready"] == expected, \
 			f"{row['id']}: stored ready {row['ready']} != derived {expected}"
@@ -273,14 +274,27 @@ def test_the_adversarial_soak(tmp_path):
 		if color.get(node, WHITE) == WHITE:
 			visit(node)
 
-	# 5. Obligation bookkeeping.
+	# 5. Containment is a CLOSURE gate, and after W1477 it is the only
+	# thing containment gates — so no closed Work may hold an open
+	# child. Enforcement narrowed to one refusal point, and this is the
+	# adversarial proof that concurrent closes and late children cannot
+	# slip past it.
+	for row in store.conn.execute(
+			"SELECT parent.id AS parent, child.id AS child "
+			"FROM work AS parent JOIN work AS child "
+			"ON child.parent = parent.id "
+			"WHERE parent.status='closed' AND child.status='open'"):
+		raise AssertionError(
+			f"{row['parent']} closed over open child {row['child']}")
+
+	# 6. Obligation bookkeeping.
 	for row in store.conn.execute("SELECT * FROM obligations"):
 		if row["status"] == "pending":
 			assert row["resolved_seq"] is None
 		else:
 			assert row["resolved_seq"] is not None
 
-	# 6. Purity checkpoint: sweep everything as everyone; no byte moves.
+	# 7. Purity checkpoint: sweep everything as everyone; no byte moves.
 	store.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 	before = hashlib.sha256(open(path, "rb").read()).hexdigest()
 	all_work = [row["id"] for row in

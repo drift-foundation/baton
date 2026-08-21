@@ -354,10 +354,11 @@ def _gate_struct(store: Authority, row) -> dict | None:
 #
 # Deliberately NOT here, because the ruling pins a BINARY preference:
 # no transitive walk, no fan-out weight, no count, no cross-pool
-# promotion, no second priority axis. Containment is not here either —
-# an open child does gate its parent's readiness, but "holds another
-# agent" is a claim about a dependency somebody declared, and the
-# containment half is an open acceptance question in `FINDING.md`.
+# promotion, no second priority axis. Containment is not here either,
+# and W1477 settled the acceptance question this comment used to leave
+# open: an open child does NOT gate its parent's readiness, so a parent
+# holds up nobody by having one. "Holds another agent" is a claim about
+# a dependency somebody declared, and only dependencies make it.
 _BLOCKING_PREDICATE = (
 	"work.status='open' AND work.ready=1 AND work.handler_team IS NULL "
 	"AND work.phase NOT IN ('block', 'parked') "

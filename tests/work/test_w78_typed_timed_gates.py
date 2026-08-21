@@ -495,55 +495,68 @@ def test_a_non_blocking_obligation_does_not_outlive_its_own_wake(world):
 		"the Work stayed blocked on an obligation that never blocked it"
 
 
-# -- a child gate is a gate --------------------------------------------------
+# -- a child is NOT a gate ---------------------------------------------------
 
-def test_a_child_gated_parent_names_the_child(world):
-	"""The ruling pins 'the oldest open blocker by permanent creation
-	order', which is the case it was written for. Open CHILDREN gate a
-	parent too — `_open_gates` counts them — so a child-gated parent is
-	`block` and names the child in `Wait`. Leaving children out of
-	the selection would have left a gated row with nothing explaining
-	it, so the same order runs over both.
+def test_an_open_child_holds_its_parent_back_from_nothing(world):
+	"""W1477 supersedes W78's extension of the selection rule.
 
-	W12: the parent runs no clock either. The gate SELECTION is what
-	this test is about, and it is unchanged."""
+	The pinned rule is 'the oldest open BLOCKER by permanent creation
+	order'. W78 also searched open children, reasoning that a
+	child-gated parent would otherwise sit blocked with an empty `Wait`
+	cell — the unexplained timer W78 existed to remove. W1477 removed
+	the premise instead: containment never gated execution, so the
+	parent is not blocked, and there is no unexplained row to explain.
+
+	The `Wait` cell is empty here because nothing is waiting."""
 	parent = _make(world, "epic")
-	child = _make(world, "part one", parent=parent)
+	_child = _make(world, "part one", parent=parent)
 	row = _row(world, parent)
-	assert row["phase"] == "block"
-	assert row["gate"]["kind"] == "work" and row["gate"]["work"] == child
-	assert blocker_cue(row) == child.rsplit("-", 1)[1]
-	assert row["gate"]["started_at"] is not None
-	assert held_field(row, _epoch(row["gate"]["started_at"]) + 20) == "-"
+	assert row["phase"] == "queued", "an open child blocked its parent"
+	assert row["gate"] is None, "a child was displayed as a gate"
+	assert blocker_cue(row) == ""
+	# No gate episode means no clock to run, which W12 already required
+	# of the child-gated parent this case used to build.
+	assert held_field(row, _epoch(row["last_changed_at"]) + 20) == "-"
 
 
-def test_a_closing_child_moves_the_parent_gate_to_the_next(world):
+def test_opening_and_closing_children_never_moves_the_parent_gate(world):
+	"""Containment traffic is invisible to the scheduler in both
+	directions: the second child does not queue behind the first, and
+	closing one does not retarget a gate the parent never had."""
 	parent = _make(world, "epic")
 	first = _make(world, "part one", parent=parent)
-	second = _make(world, "part two", parent=parent)
-	before = _gate(world, parent)
-	assert before["work"] == first
+	_second = _make(world, "part two", parent=parent)
+	assert _gate(world, parent) is None
 	tr.close_work(world["store"], first, actor_team="lang", actor="ada",
 	              outcome="satisfying", rationale="done")
-	after = _gate(world, parent)
-	assert after["work"] == second
-	assert after["started_seq"] > before["started_seq"]
+	assert _gate(world, parent) is None, \
+		"closing a child started a gate episode on its parent"
+	assert _row(world, parent)["phase"] == "queued"
 
 
-def test_the_oldest_gate_wins_across_children_and_blockers(world):
-	"""One order over both kinds, by permanent creation sequence — not
-	children-first or blockers-first, which would make the displayed
-	gate depend on a category rather than on age."""
-	blocker = _make(world, "older blocker")
+def test_the_oldest_open_blocker_wins_and_children_never_enter(world):
+	"""One order over blockers by permanent creation sequence. W1477
+	narrowed this from 'across children and blockers': a child cannot
+	outrank or succeed a blocker, because it is not a candidate at
+	all."""
+	older = _make(world, "older blocker")
 	parent = _make(world, "epic")
-	child = _make(world, "younger child", parent=parent)
-	tr.add_dependency(world["store"], parent, blocker, actor_team="lang",
-	                  actor="ada", rationale="r")
-	assert _gate(world, parent)["work"] == blocker, \
-		"a younger child outranked an older blocker"
-	tr.close_work(world["store"], blocker, actor_team="lang", actor="ada",
+	_child = _make(world, "younger child", parent=parent)
+	younger = _make(world, "younger blocker")
+	for blocker in (older, younger):
+		tr.add_dependency(world["store"], parent, blocker,
+		                  actor_team="lang", actor="ada", rationale="r")
+	assert _gate(world, parent)["work"] == older, \
+		"a younger blocker outranked an older one"
+	tr.close_work(world["store"], older, actor_team="lang", actor="ada",
 	              outcome="satisfying", rationale="done")
-	assert _gate(world, parent)["work"] == child
+	assert _gate(world, parent)["work"] == younger
+	tr.close_work(world["store"], younger, actor_team="lang", actor="ada",
+	              outcome="satisfying", rationale="done")
+	# The child is still open, and the parent is gate-free and runnable.
+	assert _gate(world, parent) is None, \
+		"the child inherited the cleared blocker's gate"
+	assert _row(world, parent)["phase"] == "queued"
 
 
 # -- the ledger stays honest -------------------------------------------------

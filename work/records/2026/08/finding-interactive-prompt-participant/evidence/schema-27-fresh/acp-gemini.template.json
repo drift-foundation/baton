@@ -1,0 +1,37 @@
+{
+  "//": "Fresh W1594 Gemini ACP input; deployment-owned values stay explicit.",
+  "baton": {
+    "binary": "{{release}}/bin/baton",
+    "config": "{{home}}/baton.json",
+    "participant": "baton.gemini",
+    "role": "impl",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "{{gemini}}",
+    "args": [
+      "--acp",
+      "--skip-trust",
+      "--approval-mode",
+      "yolo",
+      "--admin-policy",
+      "{{gemini-policy}}"
+    ],
+    "env": {
+      "GOOGLE_CLOUD_PROJECT": "{{gemini-project}}",
+      "GOOGLE_CLOUD_PROJECT_ID": "{{gemini-project}}"
+    },
+    "cwd": "{{workspace}}"
+  },
+  "session": {
+    "mode": "new",
+    "cwd": "{{workspace}}"
+  },
+  "permissionMode": "yolo",
+  "policyResources": [
+    "{{gemini-policy}}"
+  ],
+  "stateDir": "{{runtime}}/acp/{{start.id}}/baton.gemini",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

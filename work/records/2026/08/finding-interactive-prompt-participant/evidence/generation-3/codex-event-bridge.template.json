@@ -1,0 +1,61 @@
+{
+  "//": "W415: execPolicyFile is the DEPLOYMENT-OWNED execpolicy file that",
+  "//2": "authorizes this participant's canonical Baton operations. Without",
+  "//3": "it a managed turn escalates for interactive approval on every",
+  "//4": "claim/say/pass/close and the Work sits unclaimed \u2014 the defect",
+  "//5": "finding-managed-turn-approval-incidents records. The dispatcher",
+  "//6": "READS and verifies that file and never writes it; generate the",
+  "//7": "exact rules with tools/codex-event-bridge/src/exec_policy.mjs.",
+  "//8": "A broad rule naming the executable alone is REFUSED: it would",
+  "//9": "authorize every verb the participant can reach.",
+  "//10": "identity.actionOwner is required on every target so a failed",
+  "//11": "turn raises a durable incident somebody owes.",
+  "roleInstructions": {
+    "binary": "/home/sl/opt/baton/v11/5407d28/bin/baton",
+    "config": "/home/sl/baton-v11.d46ab1e/baton.json",
+    "execPolicyFile": "/home/sl/.codex/rules/baton.rules"
+  },
+  "servers": {
+    "local": {
+      "endpoint": "ws://127.0.0.1:4500"
+    }
+  },
+  "targets": {
+    "baton-prompt": {
+      "server": "local",
+      "threadId": "{{context.prompt.threadId}}",
+      "identity": {
+        "participant": "baton.prompt",
+        "role": "prompt",
+        "actionOwner": "baton.slaw"
+      }
+    },
+    "baton-reviewer": {
+      "server": "local",
+      "threadId": "{{context.reviewer.threadId}}",
+      "identity": {
+        "participant": "baton.codex",
+        "role": "rview",
+        "actionOwner": "baton.slaw"
+      }
+    },
+    "baton-tuner": {
+      "server": "local",
+      "threadId": "{{context.tuner.threadId}}",
+      "identity": {
+        "participant": "baton.tuner",
+        "role": "tuner",
+        "actionOwner": "baton.slaw"
+      }
+    }
+  },
+  "eventSocket": "/home/sl/.local/run/codex-events.sock",
+  "dedupWindowMs": 5000,
+  "maxEventBytes": 65536,
+  "maxDetailsBytes": 49152,
+  "maxQueuePerTarget": 100,
+  "maxQueueTotal": 1000,
+  "reconnectMinMs": 500,
+  "reconnectMaxMs": 15000,
+  "startupTimeoutMs": 15000
+}

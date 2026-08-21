@@ -288,17 +288,32 @@ def _emit(conn, kind: str, actor: str, payload: dict) -> int:
 	return seq
 
 
-def _open_gates(conn, work_id: str) -> int:
-	"""The aggregate wake condition's inputs: open required children plus
-	open explicit blockers."""
-	children = conn.execute(
-		"SELECT COUNT(*) AS n FROM work WHERE parent=? AND status=?",
-		(work_id, OPEN)).fetchone()["n"]
-	blockers = conn.execute(
+def _open_dependency_gates(conn, work_id: str) -> int:
+	"""The aggregate wake condition's inputs: open EXPLICIT blockers.
+
+	W1477 (finding-containment-parent-execution-gate) supersedes the
+	earlier aggregate, which added open required CHILDREN to this count.
+	That made containment a scheduler gate, and the durable contract has
+	always said it is not one: containment organizes a deliverable and
+	prevents terminal parent closure, but a parent may proceed while its
+	children are open. Counting children here moved a parent to `block`
+	the instant somebody attached a child to it, released whoever was
+	executing it, and then refused the reclaim — which is exactly what
+	happened to W2 behind W1466.
+
+	Containment did not become invisible; it moved to where it belongs.
+	It still refuses terminal closure in `close_work`, still fills the
+	containment tree and its roll-ups, and still counts in the
+	union-graph cycle walk. What it no longer does is decide whether
+	anybody may work.
+
+	Directed-obligation gates are deliberately not counted here either,
+	and never were: a blocking request sets its own typed gate through
+	`_enter_message_gate` and is satisfied through its own path."""
+	return conn.execute(
 		"SELECT COUNT(*) AS n FROM edges JOIN work ON work.id=edges.blocker "
 		"WHERE edges.work=? AND work.status=?",
 		(work_id, OPEN)).fetchone()["n"]
-	return children + blockers
 
 
 def _displayed_gate(conn, work_id: str, current) -> tuple | None:
@@ -317,15 +332,18 @@ def _displayed_gate(conn, work_id: str, current) -> tuple | None:
 	pending obligations that never blocked it — `request wait=false`
 	creates exactly that — and those must not capture the cue.
 
-	The Work gate is the oldest open gate by permanent creation order.
-	Two kinds count, because both are what `_open_gates` counts: an open
-	required CHILD and an open explicit BLOCKER. The pinned selection
-	rule names the oldest open blocker, which is the case it was written
-	for; extending the same order over children is the only way a
-	child-gated Work can name what holds it. The alternative — a `block`
-	row with an empty Wait cell and a running clock — is precisely the
-	unexplained timer this Work exists to remove, so leaving children
-	out would have reintroduced the defect in a new place."""
+	The Work gate is the oldest open explicit BLOCKER by permanent
+	creation order, which is the pinned selection rule W78 was written
+	for.
+
+	W1477 supersedes the extension W78 made to that rule. W78 also
+	searched open required CHILDREN here, on the reasoning that a
+	child-gated Work would otherwise sit in `block` with an empty Wait
+	cell and a running clock — the unexplained timer W78 existed to
+	remove. That reasoning was sound given the premise, and the premise
+	is what W1477 removed: containment is not a scheduler gate, so no
+	Work is child-gated and there is no such row to explain. Searching
+	children now would name a gate for Work that nothing is holding."""
 	if current is not None and current[0] == "message" \
 			and current[2] is not None:
 		live = conn.execute(
@@ -334,12 +352,10 @@ def _displayed_gate(conn, work_id: str, current) -> tuple | None:
 		if live is not None and live["status"] == "pending":
 			return current
 	gate = conn.execute(
-		"SELECT id, created_seq FROM work WHERE parent=? AND status=? "
-		"UNION "
 		"SELECT work.id, work.created_seq FROM edges JOIN work "
 		"ON work.id=edges.blocker WHERE edges.work=? AND work.status=? "
-		"ORDER BY created_seq LIMIT 1",
-		(work_id, OPEN, work_id, OPEN)).fetchone()
+		"ORDER BY work.created_seq LIMIT 1",
+		(work_id, OPEN)).fetchone()
 	if gate is not None:
 		return ("work", gate["id"], None)
 	return None
@@ -442,9 +458,14 @@ def _phase_now(payload, work_id: str, phase: str | None) -> None:
 	authority's decision.
 
 	A LIST, and each entry names its Work, because one event can move
-	more than one: creating a child gates its parent, so the child's
-	`create_work` event is where the PARENT enters `block`. A bare
-	phase string would attribute that to the wrong Work.
+	more than one: `accept create=true` mints the provider and gates the
+	consumer behind it, so that single event records a phase for both. A
+	bare phase string would attribute one of them to the wrong Work.
+
+	W1477 retired the example this docstring used to give — creating a
+	child gating its parent. Containment no longer moves the parent at
+	all, so a child's `create_work` event records a phase for the child
+	alone.
 
 	`None` means the Work has no phase at all, which is true of exactly
 	one transition: terminal close."""
@@ -466,7 +487,7 @@ def _unclaimed_state(conn, work_id: str) -> str:
 	now lives in the displayed-gate episode, which every caller commits
 	through `_retarget_gate` in the same transaction — so the phase and
 	the thing holding it can no longer be written apart."""
-	return "block" if _open_gates(conn, work_id) else "queued"
+	return "block" if _open_dependency_gates(conn, work_id) else "queued"
 
 
 def _sweep_wakes(conn, actor: str, payload=None) -> None:
@@ -493,8 +514,8 @@ def _sweep_wakes(conn, actor: str, payload=None) -> None:
 			# A Work gate is satisfied only when the AGGREGATE is: the
 			# displayed blocker closing does not release Work that other
 			# gates still hold.
-			satisfied = _open_gates(conn, row["id"]) == 0
-		if satisfied and _open_gates(conn, row["id"]):
+			satisfied = _open_dependency_gates(conn, row["id"]) == 0
+		if satisfied and _open_dependency_gates(conn, row["id"]):
 			# W38 R3: the recorded condition is satisfied, but the
 			# SCHEDULER condition is not. Work can wait on a directed
 			# obligation and independently acquire a dependency;
@@ -724,34 +745,42 @@ def _join_thread(conn, thread_id: str, team: str, seq: int) -> None:
 
 
 def _recompute_ready(conn, work_id: str, payload=None) -> None:
-	"""Readiness from CURRENT state: open, and no open children.
+	"""Readiness from CURRENT state: open, and no open explicit blockers.
 
-	(A3 adds open blockers to the conjunction.) This is the single place
-	readiness is computed, called by whichever transition changed an input —
-	never by a reader, because reads are pure."""
+	This is the single place readiness is computed, called by whichever
+	transition changed an input — never by a reader, because reads are
+	pure.
+
+	W1477 removed open CHILDREN from this conjunction. A3 had added
+	blockers beside them, so for a long time the two read as one idea;
+	they are not. A dependency says this Work cannot finish first, and
+	an unmet one invalidates execution, so it releases the claimant and
+	moves the phase. Containment says only that this Work is not
+	COMPLETE until its children are, which is a terminal-closure
+	question and is enforced as one in `close_work`. Folding the second
+	into readiness meant attaching a child suspended a parent somebody
+	was actively executing — a running agent losing its claim because
+	the deliverable grew a part."""
 	row = conn.execute("SELECT status, ready FROM work WHERE id=?",
 	                   (work_id,)).fetchone()
 	if row is None:
 		return
-	open_children = conn.execute(
-		"SELECT COUNT(*) AS n FROM work WHERE parent=? AND status=?",
-		(work_id, OPEN)).fetchone()["n"]
-	open_blockers = conn.execute(
-		"SELECT COUNT(*) AS n FROM edges JOIN work ON work.id = edges.blocker "
-		"WHERE edges.work=? AND work.status=?",
-		(work_id, OPEN)).fetchone()["n"]
-	ready = 1 if (row["status"] == OPEN and open_children == 0
-	              and open_blockers == 0) else 0
+	open_blockers = _open_dependency_gates(conn, work_id)
+	ready = 1 if (row["status"] == OPEN and open_blockers == 0) else 0
 	if ready != row["ready"]:
 		# A readiness flip is a visible row change; a same-value recompute
 		# is not and must not disturb the change identity (schema 15).
 		conn.execute("UPDATE work SET ready=? WHERE id=?", (ready, work_id))
 		if ready == 1:
-			# W49: false-to-true readiness is the unblock wake — the last
-			# child closed, or the last blocker did. Nobody passed this
-			# Work, but it just became actionable for its Route, which
-			# is exactly what an episode names. The reverse flip is not
-			# an episode: it REMOVES actionability.
+			# W49: false-to-true readiness is the unblock wake — the
+			# last blocker closed. Nobody passed this Work, but it just
+			# became actionable for its Route, which is exactly what an
+			# episode names. The reverse flip is not an episode: it
+			# REMOVES actionability.
+			#
+			# W1477: the last CHILD closing is no longer one of these.
+			# It never made the parent newly actionable, because the
+			# parent was runnable throughout.
 			_mint_episode(conn, work_id)
 		if ready == 0:
 			# finding-active-work-claim R3: a late-arriving gate
@@ -1135,8 +1164,15 @@ def create_work(store: Authority, *, team: str, kind: str, title: str,
 			payload["binding"] = {"root": binding_root,
 			                      "path": binding_path, "revision": 1}
 		_recompute_ready(conn, work_id, payload)
-		if parent is not None:
-			_recompute_ready(conn, parent, payload)
+		# W1477: creating a child recomputes NOTHING on the parent. It
+		# used to, and that recomputation is the whole defect: it moved
+		# a runnable parent to `block`, released its Handler, and named
+		# the new child as the gate. Containment is not an execution
+		# dependency, so attaching a part of a deliverable leaves the
+		# parent's readiness, phase, Handler, gate and assignment
+		# episode exactly as it found them. Leaving a harmless call here
+		# would only invite the next reader to believe children still
+		# feed the scheduler.
 		mutate.work_id = work_id
 		mutate.thread_id = thread_id
 
@@ -1226,7 +1262,7 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		# competing close or late create can commit between the optimistic
 		# checks above and this transaction.
 		live = conn.execute(
-			"SELECT status, parent, classification, route_team, "
+			"SELECT status, classification, route_team, "
 			"route_kind FROM work WHERE id=?", (work_id,)).fetchone()
 		if live["status"] == CLOSED:
 			raise WorkError(f"{work_id} is already closed")
@@ -1340,8 +1376,12 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 		# its own audited withdraw event.
 		_withdraw_pending(conn, work_id, f"{actor_team}.{actor}",
 		                  "the carrying work closed")
-		if live["parent"] is not None:
-			_recompute_ready(conn, live["parent"], payload)
+		# W1477: closing a child recomputes NOTHING on the parent
+		# either. The parent was runnable while the child was open, so
+		# the last child closing cannot flip its readiness, mint an
+		# assignment episode, or start or end a gate episode. What the
+		# closure DOES change is containment progress, which every
+		# reader derives from the child rows themselves.
 		# THE FAN-OUT, level-triggered: every dependent recomputes from its
 		# own current blocker set. No message is addressed to anyone; a
 		# dependent with other open blockers simply stays unready.
@@ -1398,10 +1438,10 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 			                f"parked work cannot be claimed")
 		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
 		                                      actor, "claim")
-		gates = _open_gates(conn, work_id)
+		gates = _open_dependency_gates(conn, work_id)
 		if gates:
 			raise WorkError(
-				f"{work_id} has {gates} unmet dependency/child gate(s); "
+				f"{work_id} has {gates} unmet dependency gate(s); "
 				f"blocked work cannot be claimed — readiness is decided "
 				f"here, in the write transaction")
 		if live["handler_team"] is not None:
@@ -1764,10 +1804,10 @@ def set_phase(store: Authority, work_id: str, *, actor_team: str, actor: str,
 		wait_type, wait_obligation = None, None
 		if phase == "block":
 			if wait == "gates":
-				if _open_gates(conn, work_id) == 0:
+				if _open_dependency_gates(conn, work_id) == 0:
 					raise WorkError(
-						f"{work_id} has no open required child or blocker; "
-						f"an already-satisfied wait condition is refused "
+						f"{work_id} has no open blocker; an "
+						f"already-satisfied wait condition is refused "
 						f"rather than creating a loose end")
 				wait_type = "gates"
 			else:
@@ -2270,12 +2310,20 @@ def extend_trial(store: Authority, work_id: str, trial_number: int, *,
 def _would_cycle(conn, work_id: str, blocker_id: str) -> list[str] | None:
 	"""Does `blocker` already wait on `work`, through the UNION graph?
 
-	"Waits on" is one relation with two sources: a parent waits on its
-	children (containment), and a work waits on its blockers (dependency).
-	A cycle in the union deadlocks even when each graph alone is acyclic —
-	so the walk follows both, and it runs INSIDE the write transaction,
-	because two concurrent inserts can each be acyclic alone and cyclic
-	together, and the IMMEDIATE lock is what serializes them."""
+	"Waits on" is one relation with two sources: a parent cannot CLOSE
+	until its children do (containment), and a work cannot FINISH before
+	its blockers do (dependency). A cycle in the union deadlocks even
+	when each graph alone is acyclic — so the walk follows both, and it
+	runs INSIDE the write transaction, because two concurrent inserts
+	can each be acyclic alone and cyclic together, and the IMMEDIATE
+	lock is what serializes them.
+
+	W1477 narrowed containment to terminal ordering and this walk still
+	follows it, deliberately. Containment stopped being an EXECUTION
+	gate, not an ordering constraint: a parent that can never close
+	while a child is open, and a child made to depend on that parent
+	closing, is a pair neither can complete — and the fact that both may
+	freely run in the meantime does not untangle it."""
 	stack, seen = [(blocker_id, [blocker_id])], set()
 	while stack:
 		node, path = stack.pop()
@@ -2827,8 +2875,8 @@ def accept_obligation(store: Authority, obligation_seq: int, *,
 			# takes the last entry per event, which is that later truth.
 			_phase_now(payload, provider_id, create["phase"])
 			_recompute_ready(conn, provider_id, payload)
-			if parent is not None:
-				_recompute_ready(conn, parent, payload)
+			# W1477: the second creation path makes the same omission
+			# for the same reason — a new child never moves its parent.
 		payload["provider"] = provider_id
 
 		# The dependency edge, with the existing in-lock protections and

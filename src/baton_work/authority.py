@@ -37,7 +37,23 @@ import unicodedata
 # Schema 16 (W202): the candidate-verification object is a TRIAL —
 # table `trials`, column `trial`, obligations.trial — created by the
 # `try` command. Fresh-authority evolution: no alias, no migration.
-SCHEMA_VERSION = 26
+#
+# Schema 27 (W1477, finding-containment-parent-execution-gate): no
+# table and no column moved, and the rollover is still required. The
+# version guard exists so a build never GUESSES across versions, and
+# `work.ready`, `work.phase` and the `gate_*` episode are persisted
+# DERIVED values — every one of them computed under the rule W1477
+# replaced. An authority written by a schema-26 build holds `ready=0`
+# on every parent with an open child; nothing in the new code
+# recomputes those rows, because the child-driven parent recomputation
+# is exactly what W1477 removed. The global wake sweep would queue such
+# a row while leaving `ready=0`, and `wait` filters on `ready=1` — so
+# the Work would be claimable by id and invisible to every readiness
+# projection, permanently. A behaviour change that invalidates
+# persisted derived state is a version change even when the shape is
+# untouched; refusing the old file is the fail-closed answer, and it is
+# the same fresh-authority evolution every earlier schema took.
+SCHEMA_VERSION = 27
 PROTOCOL_VERSION = 11
 
 # W2938 (finding-claim-overdue-cue): the default claim-pickup threshold.
@@ -255,8 +271,10 @@ CREATE TABLE work (
 	-- exists to remove. A client reads this instead of combining
 	-- `waiting_on`, `first_open_blocker` and journal timestamps.
 	--
-	-- `gate_kind` is 'work' (an open required child or explicit
-	-- blocker) or 'message' (a pending directed obligation), and NULL
+	-- `gate_kind` is 'work' (an open explicit blocker; W1477 removed
+	-- open required children, which are containment and never a
+	-- scheduler gate) or 'message' (a pending directed obligation),
+	-- and NULL
 	-- exactly when this Work is not blocked — which includes every
 	-- CLOSED row. The `phase` column cannot be the test for that,
 	-- because it is NOT NULL and keeps its last value forever: a Work

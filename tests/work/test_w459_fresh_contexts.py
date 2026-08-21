@@ -590,14 +590,15 @@ def test_the_example_manifest_mints_a_context_per_codex_participant():
 	                                       "infra.example.json"),
 	                          encoding="utf-8").read())
 	contexts = {entry["name"]: entry for entry in example["contexts"]}
-	assert set(contexts) == {"reviewer", "tuner"}, sorted(contexts)
+	assert set(contexts) == {"prompt", "reviewer", "tuner"}, sorted(contexts)
 	assert {entry["participant"] for entry in contexts.values()} == \
-		{"baton.codex", "baton.tuner"}
+		{"baton.prompt", "baton.codex", "baton.tuner"}
 	for entry in contexts.values():
 		assert "--start-thread" in entry["command"], entry["name"]
 		assert entry["after"] == ["codex-app-server"], entry["name"]
 		# the role is named, never inferred
 		assert "--role" in entry["command"], entry["name"]
+	assert contexts["prompt"]["command"][-1] == "prompt"
 
 
 def test_the_example_dispatcher_reads_a_rendered_config():
@@ -615,11 +616,18 @@ def test_the_shipped_template_carries_placeholders_not_locators():
 	body = open(os.path.join(REPO, "conf",
 	                         "codex-event-bridge.template.json"),
 	            encoding="utf-8").read()
-	document = json.loads(body.replace("{{context.reviewer.threadId}}", "a")
+	document = json.loads(body.replace("{{context.prompt.threadId}}", "p")
+	                      .replace("{{context.reviewer.threadId}}", "a")
 	                      .replace("{{context.tuner.threadId}}", "b"))
 	targets = document["targets"]
+	assert targets["baton-prompt"]["threadId"] == "p"
 	assert targets["baton-reviewer"]["threadId"] == "a"
 	assert targets["baton-tuner"]["threadId"] == "b"
+	assert targets["baton-prompt"]["identity"] == {
+		"participant": "baton.prompt",
+		"role": "prompt",
+		"actionOwner": "baton.slaw",
+	}
 	assert targets["baton-reviewer"]["identity"]["participant"] == \
 		"baton.codex"
 	assert targets["baton-tuner"]["identity"]["participant"] == \
@@ -641,6 +649,34 @@ def test_the_example_and_the_template_agree_on_context_names():
 	declared = {entry["name"] for entry in example["contexts"]}
 	referenced = set(re.findall(r"\{\{context\.([a-z-]+)\.", body))
 	assert referenced == declared, (referenced, declared)
+
+
+def test_prompt_is_a_dispatcher_target_without_a_readiness_producer():
+	"""The human-attached Prompt thread is addressable, but it never
+	competes with the managed reviewer's readiness consumer."""
+	example = json.loads(open(os.path.join(REPO, "conf",
+	                                       "infra.example.json"),
+	                          encoding="utf-8").read())
+	body = open(os.path.join(REPO, "conf",
+	                         "codex-event-bridge.template.json"),
+	            encoding="utf-8").read()
+	document = json.loads(body.replace("{{context.prompt.threadId}}", "p")
+	                      .replace("{{context.reviewer.threadId}}", "a")
+	                      .replace("{{context.tuner.threadId}}", "b"))
+	assert document["targets"]["baton-prompt"]["identity"]["participant"] == \
+		"baton.prompt"
+	producers = [service for service in example["services"]
+	             if service.get("participant")]
+	assert [service["participant"] for service in producers].count(
+		"baton.prompt") == 0
+	assert [service["participant"] for service in producers].count(
+		"baton.codex") == 1
+	assert [service["participant"] for service in producers].count(
+		"baton.tuner") == 1
+	assert [service["participant"] for service in producers].count(
+		"baton.claude") == 1
+	assert [service["participant"] for service in producers].count(
+		"baton.gemini") == 1
 
 
 def test_the_release_ships_the_template_beside_the_manifest():
@@ -707,27 +743,74 @@ def test_the_start_id_reaches_a_render_template(rig):
 		_run("stop", rig)
 
 
-def test_the_example_renders_a_per_start_acp_configuration():
+def test_the_example_preserves_both_per_start_acp_configurations():
 	example = json.loads(open(os.path.join(REPO, "conf",
 	                                       "infra.example.json"),
 	                          encoding="utf-8").read())
-	acp = next(service for service in example["services"]
-	           if service["name"] == "claude-acp")
-	assert "{{render.claude-acp}}" in acp["command"]
-	body = open(os.path.join(REPO, "conf", "acp-bridge.template.json"),
-	            encoding="utf-8").read()
-	document = json.loads(body.replace("{{start.id}}", "S"))
-	assert "/S/" in document["stateDir"], document["stateDir"]
-	# W27 is not weakened: the mode stays `new`, and it is the LOCATION
-	# that is fresh rather than the refusal that is removed.
-	assert document["session"]["mode"] == "new"
+	services = {service["name"]: service for service in example["services"]}
+	for agent in ("claude", "gemini"):
+		name = f"{agent}-acp"
+		service = services[name]
+		assert service["participant"] == f"baton.{agent}"
+		assert f"{{{{render.{name}}}}}" in service["command"]
+		template = f"acp-{agent}.template.json"
+		assert service["requires"] == [f"/absolute/path/to/{template}"]
+		body = open(os.path.join(REPO, "conf", template),
+		            encoding="utf-8").read()
+		document = json.loads(body.replace("{{start.id}}", "S"))
+		assert document["baton"]["participant"] == f"baton.{agent}"
+		assert "/S/" in document["stateDir"], document["stateDir"]
+		# W27 is not weakened: the mode stays `new`, and it is the LOCATION
+		# that is fresh rather than the refusal that is removed.
+		assert document["session"]["mode"] == "new"
 
 
-def test_the_release_ships_both_templates():
+def test_the_fresh_rollout_preserves_both_deployment_owned_acp_inputs():
+	root = os.path.join(
+		REPO, "work", "records", "2026", "08",
+		"finding-interactive-prompt-participant", "evidence",
+		"schema-27-fresh")
+	infra = json.loads(open(os.path.join(root, "infra.template.json"),
+	                        encoding="utf-8").read())
+	services = {service["name"]: service for service in infra["services"]}
+	for agent in ("claude", "gemini"):
+		name = f"{agent}-acp"
+		service = services[name]
+		assert service["participant"] == f"baton.{agent}"
+		assert service["requires"] == [
+			f"{{{{home}}}}/acp-{agent}.template.json"]
+		assert service["renders"] == [{
+			"name": name,
+			"template": f"{{{{home}}}}/acp-{agent}.template.json",
+		}]
+		document = json.loads(open(
+			os.path.join(root, f"acp-{agent}.template.json"),
+			encoding="utf-8").read())
+		assert document["baton"]["participant"] == f"baton.{agent}"
+		assert document["stateDir"] == \
+			f"{{{{runtime}}}}/acp/{{{{start.id}}}}/baton.{agent}"
+		assert document["session"]["mode"] == "new"
+	claude = json.loads(open(os.path.join(root, "acp-claude.template.json"),
+	                         encoding="utf-8").read())
+	assert set(claude["agent"]["env"]) == {
+		"AGENT_REAL", "PROTECTED_PATHS_FILE", "CLAUDE_CONFIG_DIR"}
+	assert len(claude["policyResources"]) == 5
+	assert claude["permissionMode"] == "bypassPermissions"
+	gemini = json.loads(open(os.path.join(root, "acp-gemini.template.json"),
+	                         encoding="utf-8").read())
+	assert "--admin-policy" in gemini["agent"]["args"]
+	assert set(gemini["agent"]["env"]) == {
+		"GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_PROJECT_ID"}
+	assert gemini["policyResources"] == ["{{gemini-policy}}"]
+	assert gemini["permissionMode"] == "yolo"
+
+
+def test_the_release_ships_every_lifecycle_template():
 	body = open(os.path.join(REPO, "tools", "deploy_work.py"),
 	            encoding="utf-8").read()
 	for name in ("conf/codex-event-bridge.template.json",
-	             "conf/acp-bridge.template.json"):
+	             "conf/acp-claude.template.json",
+	             "conf/acp-gemini.template.json"):
 		assert name in body, name
 
 

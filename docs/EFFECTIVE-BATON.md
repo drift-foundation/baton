@@ -297,7 +297,7 @@ conflating them is the most common way a board becomes fiction.
   invalidates execution, so the claim cannot survive it. The row then reports
   `ready: false` and refuses claims:
 
-      W23 has 1 unmet dependency/child gate(s); blocked work cannot be
+      W23 has 1 unmet dependency gate(s); blocked work cannot be
       claimed — readiness is decided here, in the write transaction
 
 `block` is not a flag beside some other stage; it IS the phase such Work is
@@ -409,6 +409,15 @@ while any remain:
 
     W71 has open children (W75); root closure while required descendants
     remain open is refused
+
+"May proceed" is the whole of it, and it is worth being exact about: an open
+child does not touch its parent's readiness, phase, Handler or displayed gate.
+Attaching a child to Work somebody is executing leaves them executing it, and
+closing the last child neither wakes the parent nor mints it a new assignment
+episode, because the parent was runnable throughout. A parent that cannot run
+is blocked by a dependency or an obligation — never by its own decomposition.
+Containment shows up in the tree, in the roll-ups, in the closure refusal
+above, and in the union-graph cycle check; it never shows up in `Wait`.
 
 Dependency edges are separate, explicit, many-to-many, and independently
 reviewable. Each one carries a durable rationale:

@@ -1,0 +1,41 @@
+{
+  "//": "Claude ACP template rendered by the lifecycle controller.",
+  "//2": "EVERY value below except {{start.id}} is a placeholder the",
+  "//3": "operator must replace; nothing here can run as shipped. The",
+  "//4": "adapter, sandbox launcher, config directory, and prohibition",
+  "//5": "policy are deployment-owned and never bundled with Baton.",
+  "//6": "W459: stateDir carries {{start.id}}, so every managed start",
+  "//7": "gets a fresh selection location without weakening mode=new.",
+  "baton": {
+    "binary": "/absolute/path/to/v11-release/bin/baton",
+    "config": "/absolute/path/to/mailbox/baton.json",
+    "participant": "baton.claude",
+    "role": "impl",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "/absolute/path/to/claude-policy/launch-agent-sandboxed.sh",
+    "args": [],
+    "env": {
+      "AGENT_REAL": "/absolute/path/to/claude-agent-acp",
+      "PROTECTED_PATHS_FILE": "/absolute/path/to/claude-policy/protected-paths.txt",
+      "CLAUDE_CONFIG_DIR": "/absolute/path/to/claude-config-directory"
+    },
+    "cwd": "/absolute/path/to/workspace"
+  },
+  "session": {
+    "mode": "new",
+    "cwd": "/absolute/path/to/workspace"
+  },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "/absolute/path/to/claude-policy/claude/settings.json",
+    "/absolute/path/to/claude-policy/block-git-commit.sh",
+    "/absolute/path/to/claude-policy/git_guard.py",
+    "/absolute/path/to/claude-policy/launch-agent-sandboxed.sh",
+    "/absolute/path/to/claude-policy/protected-paths.txt"
+  ],
+  "stateDir": "/absolute/path/to/runtime/acp/{{start.id}}/baton.claude",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

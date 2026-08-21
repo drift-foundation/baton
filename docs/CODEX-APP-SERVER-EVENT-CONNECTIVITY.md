@@ -21,23 +21,22 @@ TUI. App-server and its WebSocket transport remain experimental.
 ## Post-v10 topology
 
 ```text
-                         codex --remote ENDPOINT
-                                  │
-                                  ▼
-Other local producers ─┐    Codex app-server
-                       │      │    │    │
-Baton wait, participant A     A    B    C persistent threads
-  │                    │      ▲    ▲    ▲
-  └─ codex-baton-bridge│      │    │    │
-                       ▼      └────┬────┘
-Baton wait, participant B   app-server protocol
-  │                    │           ▲
-  └─ codex-baton-bridge┴─> Unix socket 0600
-                                  │
-                                  ▼
-                         codex-event-bridge
-                      validate / dedupe / route
-                       one queue per target
+Human TUI ───────────────> prompt thread (`baton.prompt`, no readiness)
+                                  ▲
+Other local producers ─┐          │
+                       ▼          │
+                    Codex app-server
+                       │       ▲
+                       ▼       │
+                 codex-event-bridge
+              validate / dedupe / route
+               one queue and runtime
+               publisher per target
+                       ▲
+                       │ Unix socket 0600
+Baton wait (`baton.codex`) ─ codex-baton-bridge
+                       │
+                       └────> reviewer thread (`baton.codex`)
 ```
 
 The processes have deliberately separate responsibilities:
@@ -50,8 +49,9 @@ The processes have deliberately separate responsibilities:
 - One `codex-baton-bridge` process owns the sole readiness path for one Baton
   participant. It reads `wait` and emits events; it never claims Work, answers
   obligations, marks messages seen, or changes authority state.
-- A remote Codex TUI is an interactive peer on the same persistent thread. It
-  is not driven through keystrokes or terminal automation.
+- A remote Codex TUI is the interactive peer on a dedicated prompt thread. It
+  is not driven through keystrokes or terminal automation, and it never
+  shares the managed background participant or thread.
 
 No backend process starts or silently restarts another. The lifecycle
 controller starts them in declared dependency order and stops only the exact
@@ -60,10 +60,13 @@ does not imply that the others stopped.
 
 ## Normal lifecycle
 
-Copy `conf/infra.example.json` to `MAILBOX/infra.json`, then replace every
-placeholder with an absolute deployment path. The manifest is strict JSON and
-is the entire launch contract; the recipes infer no release, authority,
-participant, thread, socket, credential, or policy path.
+Copy `conf/infra.example.json` to `MAILBOX/infra.json`, and copy its dispatcher,
+Claude ACP, and Gemini ACP templates from `conf/` beside it. Replace every
+deployment placeholder with an absolute path or explicit provider setting,
+leaving lifecycle-owned context, render, and start-id references intact. The
+manifest is strict JSON and is the entire launch contract; the recipes infer
+no release, authority, participant, thread, socket, credential, or policy
+path.
 
 ```bash
 just start /absolute/path/to/mailbox
@@ -115,9 +118,12 @@ The dispatcher uses the post-v10 schema in
 
 A target name is a local routing identifier, not a Codex or Baton identity.
 Each server/thread pair belongs to one target. Each Baton participant also
-belongs to one target, preserving one readiness consumer and one deterministic
+belongs to one target, preserving one runtime publisher and one deterministic
 thread destination. Selecting different roles does not make duplicate
-participant assignments safe.
+participant assignments safe. A target does not imply a readiness producer:
+the dedicated interactive participant has a target for role instructions and
+runtime reporting, while only managed background participants have readiness
+services.
 
 `roleInstructions` identifies the canonical Baton CLI and accepted
 configuration. The dispatcher does not read `baton.json` directly. Before it
@@ -151,10 +157,11 @@ this one process. It does not start the dispatcher or readiness producers.
 
 ### 2. Create this start's participant threads
 
-Under `just start` this step is not manual: the manifest declares a CONTEXT
-per Codex participant, the controller runs the bootstrap once the app-server
-is ready, and the dispatcher's configuration is rendered from a template with
-the minted ids substituted in. See "Fresh agent contexts" in
+Under `just start` this step is not manual: the manifest declares exactly one
+CONTEXT per Codex participant, the controller runs the bootstrap once the
+app-server is ready, and the dispatcher's configuration is rendered from a
+template with the minted ids substituted in. The interactive prompt and each
+managed background participant are separate contexts. See "Fresh agent contexts" in
 `docs/BATON-SETUP.md`; `conf/infra.example.json` and
 `conf/codex-event-bridge.template.json` are the shipped pair.
 
@@ -214,19 +221,29 @@ tools/codex-event-bridge/bin/codex-baton-bridge \
 ```
 
 The target and socket must exactly match the dispatcher configuration. Start
-one process for every configured participant and exactly one process for each
-participant. A second producer sees the same level-triggered action set and
-can manufacture duplicate Codex turns.
+exactly one process for each managed participant that consumes routed Work. A
+second producer sees the same level-triggered action set and can manufacture
+duplicate Codex turns. Start no readiness producer for the interactive prompt:
+its dispatcher target exists for its dedicated thread, accepted role
+instructions and runtime publisher, not for background Work delivery.
 
-### 5. Attach the interactive TUI
+### 5. Attach the interactive TUI to the prompt context
 
 ```bash
-codex resume --remote ws://127.0.0.1:4500 THREAD_ID
+codex resume --remote ws://127.0.0.1:4500 PROMPT_THREAD_ID
 ```
 
-The endpoint selects app-server; the thread ID selects the logical agent.
-Attaching the TUI neither starts nor owns the dispatcher or readiness
-producer.
+The endpoint selects app-server; the thread ID selects the logical agent. Read
+`PROMPT_THREAD_ID` from the lifecycle state's context whose participant is the
+dedicated interactive identity, never from a managed reviewer's context:
+
+```bash
+jq -r '.contexts.prompt.threadId' /absolute/path/to/mailbox/run/infra-state.json
+```
+
+Attaching the TUI neither starts nor owns the dispatcher. The prompt target
+has no readiness producer; closing the TUI leaves its runtime target visible
+and does not affect the managed background reviewer.
 
 ## Baton readiness flow
 
@@ -349,6 +366,10 @@ five TUIs, one dispatcher, and the required readiness producers:
 5. Verify reconnect reconciliation and ambiguous-delivery handling do not
    create duplicate turns.
 6. Verify both approval ownership directions remain human-actionable.
+7. Verify every participant maps to one thread and every thread to one
+   participant; the interactive prompt has runtime state but no readiness
+   process, and a background Handler's `Run` comes from that same background
+   thread.
 
 Passing this gate establishes that the local app-server can support the
 configured isolated agents. It does not turn the experimental transport into

@@ -133,10 +133,14 @@ def test_an_exact_retry_replays_the_one_claim(store):
 
 
 def test_claim_preconditions_are_decided_in_the_transaction(store):
+	# W1477: an open CHILD is not one of the preconditions. This case
+	# used to open with an epic gaining a child and the claim being
+	# refused; containment gates terminal closure, not execution, so
+	# the parent stays claimable with its part still open.
 	epic = _create(store, "epic")
 	_child = _create(store, "step", parent=epic)
-	with pytest.raises(bw.WorkError, match="cannot be claimed"):
-		tr.claim_work(store, epic, actor_team="lang", actor="ada")
+	tr.claim_work(store, epic, actor_team="lang", actor="ada")
+	assert _row(store, epic)["phase"] == "active"
 
 	# The advisory-observation race: ready observed true, then a
 	# dependency commits, then the claim runs — and loses.

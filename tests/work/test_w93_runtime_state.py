@@ -110,7 +110,7 @@ def test_the_fresh_authority_carries_the_runtime_tables(world):
 	this Work."""
 	# W2938 added `member_pickup` at 25; W415 added
 	# `approval_incidents` at 26.
-	assert au.SCHEMA_VERSION == 26
+	assert au.SCHEMA_VERSION == 27
 	names = {row["name"] for row in world["store"].conn.execute(
 		"SELECT name FROM sqlite_master WHERE type='table'")}
 	assert {"runtime_leases", "runtime_events"} <= names

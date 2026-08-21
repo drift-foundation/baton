@@ -39,9 +39,9 @@
   "//38": "identity.actionOwner is required on every target so a failed",
   "//39": "turn raises a durable incident somebody owes.",
   "roleInstructions": {
-    "binary": "/absolute/path/to/v11-release/bin/baton",
-    "config": "/absolute/path/to/mailbox/baton.json",
-    "execPolicyFile": "/absolute/path/to/codex-home/rules/baton.rules"
+    "binary": "{{release}}/bin/baton",
+    "config": "{{home}}/baton.json",
+    "execPolicyFile": "{{codex-home}}/rules/baton.rules"
   },
   "servers": {
     "local": {
@@ -77,7 +77,7 @@
       }
     }
   },
-  "eventSocket": "/absolute/path/to/runtime/codex-events.sock",
+  "eventSocket": "{{runtime}}/codex-events.sock",
   "dedupWindowMs": 5000,
   "maxEventBytes": 65536,
   "maxDetailsBytes": 49152,

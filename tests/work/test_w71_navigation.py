@@ -281,17 +281,23 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 			if not interleaved:
 				interleaved = True
 				with bw.Authority(database) as writer:
-					# W38 R1: the root has open children, so it is
-					# `block` and cannot be parked. The interloper is
-					# a leaf, and parking it is the same interleaving
-					# proof — a second visible commit mid-read.
-					interloper = tr.create_work(
+					# Two visible commits mid-read: a new root, and a
+					# phase change on a row the window is painting.
+					#
+					# W1477: the root is `queued` despite its open
+					# children, so parking THE ROOT is now the sharper
+					# proof and this case takes it. It used to park the
+					# interloper instead, because a root with open
+					# children was `block` and blocked Work cannot be
+					# parked — the phase assertion below then rested on
+					# a value that never moved.
+					tr.create_work(
 						writer, team="lang", kind="bug",
 						title="the interloper",
 						origin="external-report", classification="suspected-defect", author="ada",
-						body="committed mid-read")["work_id"]
+						body="committed mid-read")
 					tr.set_phase(
-						writer, interloper,
+						writer, world["root"]["work_id"],
 						actor_team="lang", actor="ada",
 						phase="parked",
 						reason="interleaving proof")
@@ -306,9 +312,9 @@ def test_a_mid_read_commit_cannot_produce_a_mixed_tree(world, monkeypatch):
 			"a mid-read commit leaked a new root into the tree"
 		root_row = next(row for row in window["rows"]
 		                if row["title"] == "the root")
-		# W38 R1: the root has open children, so its snapshot phase is
-		# `block` — the point is that it is the PRE-commit value.
-		assert root_row["phase"] == "block", \
+		# The root was parked mid-read; the painted row must still be
+		# the PRE-commit value.
+		assert root_row["phase"] == "queued", \
 			"the tree mixed a post-commit phase into pre-commit rows"
 		assert window["summary"]["parked"] == 0, \
 			"the summary came from a later snapshot than the rows"

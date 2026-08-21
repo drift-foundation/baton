@@ -1,0 +1,58 @@
+W1594 schema-27 fresh-authority candidate validation
+2026-08-21
+
+Retained deployment contract
+----------------------------
+- tests/work/test_w459_fresh_contexts.py: 41 passed.
+- The example manifest declares prompt, reviewer, and tuner contexts mapped
+  respectively to baton.prompt, baton.codex, and baton.tuner.
+- The dispatcher template carries an explicit baton-prompt target with prompt
+  identity and a lifecycle-rendered thread locator.
+- No service carries participant baton.prompt. Exactly one service carries
+  baton.codex and exactly one carries baton.tuner.
+- Exactly one Claude ACP service and one Gemini ACP service remain, each bound
+  to its own participant and agent-specific rendered template.
+
+Fresh candidate structure
+-------------------------
+- baton.template.json parses as JSON, stays at generation 1, declares the
+  prompt role/member, preserves the prior kinds and Routes, and contains no
+  Route handler named prompt.
+- The lifecycle, dispatcher, Claude ACP, and Gemini ACP templates parse as
+  JSON and carry only named fresh-deployment inputs plus lifecycle-owned
+  render/context/start references.
+- The Claude candidate preserves its sandbox launcher, adapter, config-dir,
+  bypass mode, and five explicit policy resources. The Gemini candidate
+  preserves native ACP/yolo arguments, both provider variables, and its
+  explicit admin-policy resource. Both derive binary, config, workspace, and
+  per-start state from the fresh rollout.
+- CUTOVER.md and schema-27-fresh/ contain no old authority UUID, old release
+  locator, old coordination-home locator, or user-specific absolute path.
+- generation-3/SUPERSEDED.md explicitly prohibits installing the historical
+  schema-26 in-place candidate.
+
+Focused gates
+-------------
+- Codex event bridge: 172 passed.
+- Release packaging: tests/work/test_deploy_v11.py, 18 passed.
+- Corrected manifest-schema fixtures: 2 passed.
+- JSON structural assertions and exact Claude/Gemini rendering probes: passed.
+- Old-locator scan of CUTOVER.md and schema-27-fresh/: passed (no matches).
+
+Complete gate
+-------------
+- just test-v11:
+  - main Python suite: 2815 passed;
+  - stress/terminal tranche: 52 passed;
+  - ACP bridge suite: 55 passed.
+- The first round-two complete run found one stale schema-test fixture that
+  still provisioned only the retired generic ACP template; the fixture was
+  corrected to provision both agent-specific templates before this final
+  green run.
+- git diff --check: passed; no dossier file has trailing whitespace.
+
+Deployment boundary
+-------------------
+- No live authority, release, policy, lifecycle, runtime, or interactive TUI
+  was changed. The approver performs the combined W1477/W1594 rollout only
+  after review, using a new immutable release and fresh coordination home.

@@ -1,0 +1,48 @@
+W1594 generation-3 candidate validation
+2026-08-21
+
+Pure configuration validation
+-----------------------------
+- baton_work.config.load accepted the candidate as generation 3.
+- Participants: claude, codex, gemini, prompt, slaw, tuner.
+- Roles: approv, impl, prompt, rview, tuner.
+- Routes: approv, impl, impl2, rview, tuner.
+- The candidate kinds and routes are byte-for-byte equal as normalized JSON
+  to accepted generation 2.
+- baton.prompt holds only prompt; no route handler list contains prompt.
+
+Lifecycle and dispatcher validation
+-----------------------------------
+- tools.infra.load_manifest accepted context order:
+  prompt, reviewer, tuner.
+- Service order remained:
+  codex-app-server, codex-dispatcher, codex-readiness,
+  codex-tuner-readiness, claude-acp, gemini-acp.
+- No service carries participant baton.prompt.
+- Exactly one service carries participant baton.codex: codex-readiness.
+- codex-event-bridge validateConfig accepted targets:
+  baton-prompt, baton-reviewer, baton-tuner.
+
+Execution-policy validation
+---------------------------
+- The installed generation helper produced 30 exact managed-work-workflow
+  rules for each of baton.prompt, baton.codex, and baton.tuner.
+- auditRulesFile for each participant reported:
+  satisfied=true, present=30, missing=0, broad=0, extra=0.
+
+Focused gates
+-------------
+- JSON parsing: passed for both shipped templates and all candidate JSON.
+- git diff --check: passed.
+- Python configuration/deployment/lifecycle gates: 130 passed.
+- Codex event bridge suite: 172 passed.
+
+Live cutover gate
+-----------------
+- At snapshot 1624, W2 remained active with Handler baton.codex while the
+  managed baton.codex runtime publisher reported its own reviewer thread idle
+  with no Work. This is the exact old-identity mismatch W1594 corrects.
+- The candidates were therefore not installed and generation 3 was not
+  accepted. CUTOVER.md requires W2's foreground owner to complete or release
+  that claim and stop acting as baton.codex before the approver performs the
+  cutover.

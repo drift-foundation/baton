@@ -136,8 +136,15 @@ def test_release_mints_so_the_endpoint_is_woken_again(world):
 	assert key(world, work, member="bee") == freed
 
 
-def test_dependency_and_child_unblock_mint(world):
-	"""A false-to-true readiness flip is a wake nobody passed."""
+def test_dependency_unblock_mints_and_containment_does_not(world):
+	"""A false-to-true readiness flip is a wake nobody passed.
+
+	W1477 removed the containment half this case used to assert. A
+	child was a readiness gate, so attaching one un-minted the parent's
+	episode and closing the last one minted a fresh episode — a wake
+	telling a handler that Work became actionable when it had been
+	actionable the whole time. Only the dependency half was ever a real
+	unblock, and only it mints."""
 	store = world["store"]
 	work = make(world, "consumer")["work_id"]
 	blocker = make(world, "blocker")["work_id"]
@@ -153,12 +160,12 @@ def test_dependency_and_child_unblock_mint(world):
 	                       classification="suspected-defect",
 	                       author="ada", body="b",
 	                       parent=work)["work_id"]
-	assert key(world, work) is None, "an open child left the parent ready"
+	assert key(world, work) == unblocked, \
+		"attaching a child disturbed the parent's assignment episode"
 	tr.close_work(store, child, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
-	after_child = key(world, work)
-	assert after_child is not None and after_child != unblocked, \
-		"the child-gate unblock did not mint a new episode"
+	assert key(world, work) == unblocked, \
+		"closing the last child minted a parent episode nothing earned"
 
 
 def test_parked_resume_mints_but_parking_does_not(world):

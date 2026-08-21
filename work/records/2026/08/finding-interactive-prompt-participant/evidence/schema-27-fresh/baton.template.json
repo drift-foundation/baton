@@ -1,0 +1,149 @@
+{
+  "config_version": 1,
+  "generation": 1,
+  "instance": {
+    "authority_uuid": "{{fresh-authority-uuid}}",
+    "database": "work.sqlite3",
+    "name": "baton-v11-schema-27"
+  },
+  "protocol_version": 11,
+  "roots": {
+    "baton": {
+      "base": "{{repository-root}}",
+      "display": "Baton repository"
+    }
+  },
+  "teams": {
+    "baton": {
+      "display": "Baton",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "alternates": [
+            "impl2"
+          ],
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "claude": {
+          "display": "Claude",
+          "roles": [
+            "impl"
+          ]
+        },
+        "codex": {
+          "display": "Codex",
+          "roles": [
+            "rview"
+          ]
+        },
+        "gemini": {
+          "display": "Gemini",
+          "roles": [
+            "impl"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "config"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are a Baton approver. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, and destructive deployment gates. Do not represent unreviewed implementation as complete. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies {{release}}/bin/baton with the explicit config {{home}}/baton.json; every invocation names --participant baton.slaw."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are a Baton implementer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own only the implementation you have claimed and the tests that go with it. Revalidate every pinned decision against the current tree before acting on it, keep implementer progress in the dossier, and preserve independent review by passing your work back rather than closing it. Never perform mutating Git operations. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies {{release}}/bin/baton with the explicit config {{home}}/baton.json; every invocation names the participant identity supplied by its launcher: baton.claude for the primary impl route or baton.gemini for the impl2 backup route."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are baton.prompt, Slawomir's human-attached interactive Baton copilot. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and any relevant Work dossier. Own interactive collaboration with Slawomir and translate confirmed decisions into durable findings and coordination requests. You may read, discuss, and create Work as a trusted Baton team member, but you are not a routable Handler: do not consume Baton readiness, claim routed background Work, or act as the managed reviewer. Leave actions requiring a live Route Handler to the configured background participant. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies {{release}}/bin/baton with the explicit config {{home}}/baton.json; every invocation names --participant baton.prompt."
+        },
+        "rview": {
+          "display": "Reviewer",
+          "instructions": "You are a Baton reviewer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own research, durable findings and plans, coordination, and independent review. Do not implement protocol or application changes unless explicitly reassigned. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies {{release}}/bin/baton with the explicit config {{home}}/baton.json; every invocation names --participant baton.codex."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are baton.tuner. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and other explicitly assigned final polish. Do not modify Baton protocol or application code unless explicitly reassigned. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies {{release}}/bin/baton with the explicit config {{home}}/baton.json; every invocation names --participant baton.tuner."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl"
+        },
+        "impl2": {
+          "handlers": [
+            "gemini"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    }
+  }
+}

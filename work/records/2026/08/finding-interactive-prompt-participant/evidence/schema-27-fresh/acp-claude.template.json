@@ -1,0 +1,35 @@
+{
+  "//": "Fresh W1594 Claude ACP input; deployment-owned values stay explicit.",
+  "baton": {
+    "binary": "{{release}}/bin/baton",
+    "config": "{{home}}/baton.json",
+    "participant": "baton.claude",
+    "role": "impl",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "{{claude-policy}}/launch-agent-sandboxed.sh",
+    "args": [],
+    "env": {
+      "AGENT_REAL": "{{claude-agent}}",
+      "PROTECTED_PATHS_FILE": "{{claude-policy}}/protected-paths.txt",
+      "CLAUDE_CONFIG_DIR": "{{claude-config-dir}}"
+    },
+    "cwd": "{{workspace}}"
+  },
+  "session": {
+    "mode": "new",
+    "cwd": "{{workspace}}"
+  },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "{{claude-policy}}/claude/settings.json",
+    "{{claude-policy}}/block-git-commit.sh",
+    "{{claude-policy}}/git_guard.py",
+    "{{claude-policy}}/launch-agent-sandboxed.sh",
+    "{{claude-policy}}/protected-paths.txt"
+  ],
+  "stateDir": "{{runtime}}/acp/{{start.id}}/baton.claude",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

@@ -29,7 +29,8 @@ release shape:
     <target>/conf/baton.example.json  a complete valid config example
     <target>/conf/infra.example.json  the strict repository lifecycle example
     <target>/conf/codex-event-bridge.template.json  its rendered dispatcher config
-    <target>/conf/acp-bridge.template.json  its rendered per-start ACP config
+    <target>/conf/acp-{claude,gemini}.template.json  agent-specific ACP configs
+    <target>/conf/acp-bridge.template.json  generic ACP configuration example
     <target>/conf/acp-bridge-*.example.json  non-secret bridge examples
                                    (explicit placeholders; cannot run
                                    as shipped)
@@ -79,6 +80,8 @@ SOURCE_ASSETS = (
 	("conf/codex-event-bridge.template.json",
 	 "conf/codex-event-bridge.template.json"),
 	("conf/acp-bridge.template.json", "conf/acp-bridge.template.json"),
+	("conf/acp-claude.template.json", "conf/acp-claude.template.json"),
+	("conf/acp-gemini.template.json", "conf/acp-gemini.template.json"),
 	# W163: non-secret bridge example configurations — every value an
 	# explicit placeholder; nothing runnable as shipped.
 	("examples/acp-bridge-claude.json",

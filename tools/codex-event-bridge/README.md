@@ -25,9 +25,11 @@ supervise this configured backend set:
 
 1. one loopback Codex app-server;
 2. one generic `codex-event-bridge` dispatcher for its configuration;
-3. one `codex-baton-bridge` readiness producer per Baton participant;
+3. one `codex-baton-bridge` readiness producer per managed Baton participant
+   that consumes routed Work;
 4. one configured ACP readiness client and agent session;
-5. any number of remote TUI clients attached to the configured threads.
+5. remote TUI clients attached only to dedicated interactive contexts, never
+   to a managed background participant's thread.
 
 The dispatcher does not spawn readiness producers, and readiness producers do
 not spawn app-server or the dispatcher. Their target and socket arguments are
@@ -212,7 +214,8 @@ event contents and other sensitive payloads may appear in debug logs.
 
 ## 7. Start Baton readiness producers
 
-Start exactly one producer for each participant:
+Start exactly one producer for each managed participant that consumes routed
+Work:
 
 ```bash
 bin/codex-baton-bridge \
@@ -241,15 +244,21 @@ and delivered again when a new assignment episode makes it actionable.
 
 Run one readiness path per participant. Two producers see the same action set
 and can create duplicate turns; they do not divide work between themselves.
+An interactive prompt participant still has a dispatcher target so its exact
+context receives role instructions and publishes runtime state, but it has no
+readiness producer and is not a routable handler.
 
-## 8. Attach TUIs
+## 8. Attach TUIs to dedicated interactive contexts
 
 ```bash
-codex resume --remote ws://127.0.0.1:4500 <BATON_TUNER_THREAD_ID>
+codex resume --remote ws://127.0.0.1:4500 <PROMPT_THREAD_ID>
 ```
 
-The TUI is an interactive peer on the same thread. It does not own the
-dispatcher or readiness producer. Closing it does not stop those processes.
+The TUI is the interactive peer on its prompt thread. Do not attach it to a
+managed background participant's thread: two execution contexts would then
+share one participant identity while only the managed target publishes
+runtime. The prompt context has no readiness producer. Closing the TUI does
+not stop the dispatcher or any managed readiness producer.
 
 ## Send generic events
 

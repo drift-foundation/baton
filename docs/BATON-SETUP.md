@@ -58,16 +58,23 @@ bootstrap until it is relaunched through the configured path.
 ## Run the local v11 backend set
 
 The repository lifecycle recipes supervise the Codex app-server, generic
-dispatcher, one v11 readiness producer for every configured Codex participant,
-and the configured ACP clients as separate processes. Start with the strict
+dispatcher, one isolated context and runtime publisher for every configured
+Codex participant, v11 readiness producers for the background participants
+that consume routed Work, and the configured ACP clients as separate
+processes. A human-attached prompt context is a dispatcher target so its
+runtime is visible, but it has no readiness producer. Start with the strict
 example manifest:
 
     cp conf/infra.example.json /absolute/path/to/mailbox/infra.json
+    cp conf/codex-event-bridge.template.json /absolute/path/to/mailbox/
+    cp conf/acp-{claude,gemini}.template.json /absolute/path/to/mailbox/
 
-Replace every placeholder. Commands are argument arrays rather than shell
-strings, paths are absolute, dependencies are explicit, and each readiness
-consumer has a unique participant. Nothing is inferred from the checkout,
-current release, running processes, or `baton.json`.
+Replace every deployment placeholder in the manifest and three templates;
+leave lifecycle-owned `{{context.*}}`, `{{render.*}}`, and `{{start.id}}`
+references intact. Commands are argument arrays rather than shell strings,
+paths are absolute, dependencies are explicit, and each readiness consumer
+has a unique participant. Nothing is inferred from the checkout, current
+release, running processes, or `baton.json`.
 
 The version-1 manifest accepts global `startTimeoutSeconds` and
 `stopTimeoutSeconds` defaults plus a non-empty `services` array. Each service
@@ -126,6 +133,16 @@ uses it, and a later start mints another. Carrying one across a restart
 carries obsolete paths baked into its instructions, conversational
 assumptions that no longer match the tree, and possibly an old writer that
 still believes it holds work.
+
+The mapping is one-to-one in both directions. One participant names one live
+execution context, and one context runs as one participant. Do not attach a
+human TUI to a managed background participant's thread: the foreground and
+background contexts would then share claims and runtime identity even though
+only the managed context publishes `Run`. Give the interactive context its
+own participant, role, lifecycle context and dispatcher target. The dispatcher
+then publishes runtime for that exact target, while omission of a readiness
+service keeps routed Work away from it. `conf/infra.example.json` demonstrates
+this with `baton.prompt` beside the managed `baton.codex` reviewer.
 
 So the manifest declares CONTEXTS beside its services:
 
@@ -203,10 +220,17 @@ ones, the check is two starts and four comparisons:
     "$BATON" --config .../baton.json --participant baton.tuner wait timeout=0
 
 What must CHANGE between the two: the start id, every minted `threadId`, and
-the `stateDir` in `MAILBOX/run/context/claude-acp.json`. What must NOT: the
-participant addresses, and the actionable Work each `wait` returns — an
-agent's position comes from Baton, not from the context it happens to be
-running in.
+the `stateDir` in both `MAILBOX/run/context/claude-acp.json` and
+`MAILBOX/run/context/gemini-acp.json`. What must NOT: the participant
+addresses, and the actionable Work each `wait` returns — an agent's position
+comes from Baton, not from the context it happens to be running in.
+
+Also compare `baton runtime` with `infra-state.json`: every configured context
+must have a unique participant and thread id, and each participant's runtime
+session must name that same thread. A dedicated interactive prompt appears in
+both inventories but has no readiness service and no routed Work. If either a
+participant names two contexts or one context is published for two
+participants, stop the deployment rather than offering more Work.
 
 What must still be THERE afterwards: the previous start's ACP selection, under
 its own start id. A restart replaces the context an agent works in; it does

@@ -10,24 +10,24 @@
         "codex-app-server"
       ],
       "command": [
-        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "{{repository}}/tools/codex-event-bridge/bin/codex-event-bridge",
         "--start-thread",
         "--endpoint",
         "ws://127.0.0.1:4500",
         "--cwd",
-        "/absolute/path/to/workspace",
+        "{{workspace}}",
         "--baton",
-        "/absolute/path/to/v11-release/bin/baton",
+        "{{release}}/bin/baton",
         "--baton-config",
-        "/absolute/path/to/mailbox/baton.json",
+        "{{home}}/baton.json",
         "--participant",
         "baton.prompt",
         "--role",
         "prompt"
       ],
       "requires": [
-        "/absolute/path/to/v11-release/bin/baton",
-        "/absolute/path/to/mailbox/baton.json"
+        "{{release}}/bin/baton",
+        "{{home}}/baton.json"
       ],
       "timeoutSeconds": 180
     },
@@ -38,24 +38,24 @@
         "codex-app-server"
       ],
       "command": [
-        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "{{repository}}/tools/codex-event-bridge/bin/codex-event-bridge",
         "--start-thread",
         "--endpoint",
         "ws://127.0.0.1:4500",
         "--cwd",
-        "/absolute/path/to/workspace",
+        "{{workspace}}",
         "--baton",
-        "/absolute/path/to/v11-release/bin/baton",
+        "{{release}}/bin/baton",
         "--baton-config",
-        "/absolute/path/to/mailbox/baton.json",
+        "{{home}}/baton.json",
         "--participant",
         "baton.codex",
         "--role",
         "rview"
       ],
       "requires": [
-        "/absolute/path/to/v11-release/bin/baton",
-        "/absolute/path/to/mailbox/baton.json"
+        "{{release}}/bin/baton",
+        "{{home}}/baton.json"
       ],
       "timeoutSeconds": 180
     },
@@ -66,24 +66,24 @@
         "codex-app-server"
       ],
       "command": [
-        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "{{repository}}/tools/codex-event-bridge/bin/codex-event-bridge",
         "--start-thread",
         "--endpoint",
         "ws://127.0.0.1:4500",
         "--cwd",
-        "/absolute/path/to/workspace",
+        "{{workspace}}",
         "--baton",
-        "/absolute/path/to/v11-release/bin/baton",
+        "{{release}}/bin/baton",
         "--baton-config",
-        "/absolute/path/to/mailbox/baton.json",
+        "{{home}}/baton.json",
         "--participant",
         "baton.tuner",
         "--role",
         "tuner"
       ],
       "requires": [
-        "/absolute/path/to/v11-release/bin/baton",
-        "/absolute/path/to/mailbox/baton.json"
+        "{{release}}/bin/baton",
+        "{{home}}/baton.json"
       ],
       "timeoutSeconds": 180
     }
@@ -92,7 +92,7 @@
     {
       "name": "codex-app-server",
       "command": [
-        "/absolute/path/to/codex",
+        "{{codex}}",
         "app-server",
         "--listen",
         "ws://127.0.0.1:4500"
@@ -106,7 +106,7 @@
     {
       "name": "codex-dispatcher",
       "command": [
-        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "{{repository}}/tools/codex-event-bridge/bin/codex-event-bridge",
         "--config",
         "{{render.dispatcher}}"
       ],
@@ -114,11 +114,11 @@
         "codex-app-server"
       ],
       "requires": [
-        "/absolute/path/to/codex-event-bridge.template.json"
+        "{{home}}/codex-event-bridge.template.json"
       ],
       "readiness": {
         "type": "unix_socket",
-        "path": "/absolute/path/to/runtime/codex-events.sock",
+        "path": "{{runtime}}/codex-events.sock",
         "request": {
           "control": "status"
         },
@@ -129,7 +129,7 @@
       "renders": [
         {
           "name": "dispatcher",
-          "template": "/absolute/path/to/codex-event-bridge.template.json"
+          "template": "{{home}}/codex-event-bridge.template.json"
         }
       ]
     },
@@ -137,24 +137,24 @@
       "name": "codex-readiness",
       "participant": "baton.codex",
       "command": [
-        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "{{repository}}/tools/codex-event-bridge/bin/codex-baton-bridge",
         "--baton",
-        "/absolute/path/to/v11-release/bin/baton",
+        "{{release}}/bin/baton",
         "--config",
-        "/absolute/path/to/mailbox/baton.json",
+        "{{home}}/baton.json",
         "--participant",
         "baton.codex",
         "--target",
         "baton-reviewer",
         "--socket",
-        "/absolute/path/to/runtime/codex-events.sock"
+        "{{runtime}}/codex-events.sock"
       ],
       "after": [
         "codex-dispatcher"
       ],
       "requires": [
-        "/absolute/path/to/v11-release/bin/baton",
-        "/absolute/path/to/mailbox/baton.json"
+        "{{release}}/bin/baton",
+        "{{home}}/baton.json"
       ],
       "readiness": {
         "type": "process",
@@ -165,24 +165,24 @@
       "name": "codex-tuner-readiness",
       "participant": "baton.tuner",
       "command": [
-        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "{{repository}}/tools/codex-event-bridge/bin/codex-baton-bridge",
         "--baton",
-        "/absolute/path/to/v11-release/bin/baton",
+        "{{release}}/bin/baton",
         "--config",
-        "/absolute/path/to/mailbox/baton.json",
+        "{{home}}/baton.json",
         "--participant",
         "baton.tuner",
         "--target",
         "baton-tuner",
         "--socket",
-        "/absolute/path/to/runtime/codex-events.sock"
+        "{{runtime}}/codex-events.sock"
       ],
       "after": [
         "codex-dispatcher"
       ],
       "requires": [
-        "/absolute/path/to/v11-release/bin/baton",
-        "/absolute/path/to/mailbox/baton.json"
+        "{{release}}/bin/baton",
+        "{{home}}/baton.json"
       ],
       "readiness": {
         "type": "process",
@@ -193,7 +193,7 @@
       "name": "claude-acp",
       "participant": "baton.claude",
       "command": [
-        "/absolute/path/to/v11-release/bin/acp-baton-bridge",
+        "{{release}}/bin/acp-baton-bridge",
         "--config",
         "{{render.claude-acp}}"
       ],
@@ -202,7 +202,7 @@
         "codex-tuner-readiness"
       ],
       "requires": [
-        "/absolute/path/to/acp-claude.template.json"
+        "{{home}}/acp-claude.template.json"
       ],
       "readiness": {
         "type": "process",
@@ -211,7 +211,7 @@
       "renders": [
         {
           "name": "claude-acp",
-          "template": "/absolute/path/to/acp-claude.template.json"
+          "template": "{{home}}/acp-claude.template.json"
         }
       ]
     },
@@ -219,7 +219,7 @@
       "name": "gemini-acp",
       "participant": "baton.gemini",
       "command": [
-        "/absolute/path/to/v11-release/bin/acp-baton-bridge",
+        "{{release}}/bin/acp-baton-bridge",
         "--config",
         "{{render.gemini-acp}}"
       ],
@@ -228,7 +228,7 @@
         "codex-tuner-readiness"
       ],
       "requires": [
-        "/absolute/path/to/acp-gemini.template.json"
+        "{{home}}/acp-gemini.template.json"
       ],
       "readiness": {
         "type": "process",
@@ -237,7 +237,7 @@
       "renders": [
         {
           "name": "gemini-acp",
-          "template": "/absolute/path/to/acp-gemini.template.json"
+          "template": "{{home}}/acp-gemini.template.json"
         }
       ]
     }
