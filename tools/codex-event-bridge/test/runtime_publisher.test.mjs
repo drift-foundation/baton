@@ -1470,6 +1470,33 @@ test("W415: two observed approvals are two publications, not one replay",
 
 // -- W415: the deployment-owned exact command policy ---------------------
 //
+// W220 (`finding-managed-turn-workflow-policy`, 2026-08-21) superseded
+// the four-verb ruling AS TO THE VERB SET ONLY. Everything W415
+// established about HOW the policy works — deployment-owned generation,
+// exact binary/config/participant matching, broad-rule refusal,
+// extra-verb refusal, no raw store access — is unchanged and still
+// asserted below.
+//
+// The expected capability is written out HERE rather than read from the
+// implementation. Round-4 review: asserting that every member of the
+// implementation's own list generated a rule cannot catch the
+// implementation WIDENING that list, which is exactly what happened
+// when `mark-seen` was added on an implementer's judgement. That lesson
+// survives the ruling that later added `mark-seen` deliberately.
+const MANAGED_WORKFLOW = [
+	"create", "accept", "respond", "dispose", "close", "block", "unblock",
+	"mark-seen", "classify", "claim", "release", "prioritize", "pass",
+	"heartbeat", "phase", "try", "extend", "report", "assess", "abandon",
+	"revise", "start-thread", "say", "label", "unlabel", "bind", "poke",
+	"poke-answer", "poke-cancel", "reroute",
+];
+// The public mutations the profile deliberately excludes. Written out
+// here for the same reason as the profile itself.
+const EXCLUDED = ["activate", "regen", "runtime-start", "runtime-state",
+                  "runtime-end", "runtime-facts", "runtime-refresh",
+                  "incident", "dismiss"];
+
+//
 // Measured against a live app-server on 2026-08-20, and the reason this
 // is command policy rather than a filesystem grant:
 //   - a DIRECTORY writable root lets any shell command in the turn
@@ -1483,24 +1510,30 @@ test("W415: the generated rules name the executable, config, participant and ver
 		const { rulesFor, RULED_VERBS } = await import("../src/exec_policy.mjs");
 		const identity = { binary: "/opt/baton/bin/baton",
 			config: "/srv/baton/baton.json", participant: "baton.codex" };
-		// The APPROVED set, written out here rather than read from the
-		// implementation. Round-4 review: asserting that every member of
-		// the implementation's own list generated a rule cannot catch the
-		// implementation widening that list, which is exactly what
-		// happened when `mark-seen` was added on my judgement.
-		assert.deepEqual(RULED_VERBS, ["claim", "say", "pass", "close"],
-			"the ruled capability is exactly the four confirmed verbs; adding "
-			+ "one is a ruling to obtain, not an implementation decision");
+		// The APPROVED set, in the ruled order, compared against the
+		// literal above rather than against the implementation's own list.
+		assert.deepEqual(RULED_VERBS, MANAGED_WORKFLOW,
+			"the ruled capability is exactly the confirmed managed-workflow "
+			+ "profile; adding one verb is a ruling to obtain, not an "
+			+ "implementation decision");
 		const rules = rulesFor(identity);
-		assert.equal(rules.length, 4);
-		for (const verb of ["claim", "say", "pass", "close"]) {
+		assert.equal(rules.length, MANAGED_WORKFLOW.length);
+		for (const verb of MANAGED_WORKFLOW) {
 			assert.ok(rules.some((rule) => rule.includes(`"${verb}"`)),
 				`no rule for ${verb}`);
 		}
-		// And an unlisted mutating verb is authorized by none of them.
-		for (const unlisted of ["regen", "release", "mark-seen", "phase"]) {
+		// W220: the operation whose absence stranded a claimed Work is in
+		// the set now, and the workflow that follows it is complete.
+		for (const verb of ["mark-seen", "respond", "release", "heartbeat"]) {
+			assert.ok(rules.some((rule) => rule.includes(`"${verb}"`)),
+				`the managed workflow cannot complete without ${verb}`);
+		}
+		// And every deliberately EXCLUDED mutation is authorized by none
+		// of them: deployment, adapter-owned runtime publication, and
+		// dispatcher-owned incident publication stay outside the profile.
+		for (const unlisted of EXCLUDED) {
 			assert.ok(!rules.some((rule) => rule.includes(`"${unlisted}"`)),
-				`${unlisted} is not in the approved set and must have no rule`);
+				`${unlisted} is excluded from the profile and must have no rule`);
 		}
 		for (const rule of rules) {
 			assert.ok(rule.includes(identity.binary));
@@ -1531,7 +1564,7 @@ test("W415: a BROAD rule is refused, not counted as coverage", async () => {
 		`prefix_rule(pattern=["${identity.binary}"], decision="allow")\n`, identity);
 	assert.equal(broad.missing.length, 0, "it does technically cover them");
 	assert.equal(broad.satisfied, false, "but broad coverage is not satisfaction");
-	assert.equal(broad.broad.length, 4);
+	assert.equal(broad.broad.length, MANAGED_WORKFLOW.length);
 
 	const dir = mkdtempSync("/tmp/w415-policy-test-");
 	const file = join(dir, "broad.rules");
@@ -1620,7 +1653,8 @@ test("W415: exact rules do not cancel a broad one that is still present",
 			`${exact}\nprefix_rule(pattern=["${identity.binary}"], decision="allow")`,
 			identity);
 		assert.deepEqual(mixed.missing, []);
-		assert.equal(mixed.broad.length, 4, "every ruled verb is still broadly covered");
+		assert.equal(mixed.broad.length, MANAGED_WORKFLOW.length,
+			"every ruled verb is still broadly covered");
 		assert.equal(mixed.satisfied, false,
 			"a narrow rule does not cancel a broad one; both are simply present");
 		assert.throws(() => assertPolicyProvisioned(
@@ -1677,15 +1711,17 @@ test("W415: an unruled verb for the same participant fails the preflight",
 			identity).satisfied, true);
 
 		// Any other verb for THIS participant refuses — mutating or not,
-		// because the set is the set.
-		for (const verb of ["regen", "mark-seen", "release", "phase", "detail"]) {
+		// because the set is the set. W220: the deliberately excluded
+		// deployment, runtime and incident mutations are exactly the
+		// verbs this must keep refusing, alongside a pure read.
+		for (const verb of [...EXCLUDED, "detail", "wait"]) {
 			const policy = `${exact}\n${ruleFor(identity.participant, verb)}`;
 			const audit = auditRules(policy, identity);
 			assert.deepEqual(audit.extra, [verb]);
 			assert.equal(audit.satisfied, false, `${verb} must fail the preflight`);
 			assert.throws(() => assertPolicyProvisioned(
 				write(`${verb}.rules`, policy), identity),
-				/dedicated to the approved set/);
+				/dedicated to the approved 'managed-work-workflow' set/);
 		}
 
 		// OTHER participants' rules are independent and stay valid —
@@ -1696,6 +1732,54 @@ test("W415: an unruled verb for the same participant fails the preflight",
 			identity).satisfied, true);
 		assert.equal(assertPolicyProvisioned(
 			write("other-extra.rules", `${exact}\n${ruleFor(other.participant, "regen")}`),
+			identity).satisfied, true);
+
+		// W220 round 1: a prefix rule may carry OPERANDS, and the
+		// same-identity test used to require a pattern exactly one
+		// element longer than the participant prefix. So an excluded
+		// verb with any operand slipped through and audited as
+		// satisfied. Narrower than a rule the ruling never granted is
+		// still capability the ruling never granted.
+		const qualified = (who, verb, ...rest) =>
+			`prefix_rule(pattern=["${identity.binary}", "--config", `
+			+ `"${identity.config}", "--participant", "${who}", "${verb}"`
+			+ rest.map((operand) => `, "${operand}"`).join("")
+			+ `], decision="allow")`;
+		for (const [verb, ...operands] of [
+				["regen", "op-id=authorized-extra"],
+				["activate", "directory=/srv/baton"],
+				["runtime-state", "incarnation=x", "state=working"],
+				["dismiss", "incident=3"],
+				// An unknown or future verb, and an operand sitting
+				// where a verb should be: both are capability the
+				// profile never granted, so both fail closed.
+				["teleport", "a=b"],
+				["op-id=sneaky"]]) {
+			const policy = `${exact}\n${qualified(identity.participant, verb,
+			                                      ...operands)}`;
+			const audit = auditRules(policy, identity);
+			assert.deepEqual(audit.extra, [verb],
+				`${verb} with operands was not seen as extra capability`);
+			assert.equal(audit.satisfied, false, verb);
+			assert.throws(() => assertPolicyProvisioned(
+				write(`qualified-${verb.replace(/[^a-z-]/g, "")}.rules`, policy),
+				identity), /dedicated to the approved 'managed-work-workflow' set/);
+		}
+		// A RULED verb carrying operands authorizes a SUBSET of a
+		// capability the profile already grants, so it is not extra —
+		// the test is on the verb slot, which is what the ruling is
+		// about.
+		assert.equal(assertPolicyProvisioned(
+			write("ruled-qualified.rules",
+				`${exact}\n${qualified(identity.participant, "claim", "work=W1")}`),
+			identity).satisfied, true);
+		// And the exact thirty are still accepted on their own.
+		assert.equal(assertPolicyProvisioned(write("still-exact.rules", exact),
+			identity).satisfied, true);
+		// Another participant's operand-qualified rule stays theirs.
+		assert.equal(assertPolicyProvisioned(
+			write("other-qualified.rules",
+				`${exact}\n${qualified(other.participant, "regen", "op-id=x")}`),
 			identity).satisfied, true);
 
 		// The refusal names the approved set, so an operator does not

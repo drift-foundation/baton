@@ -96,19 +96,37 @@ def test_the_tree_is_three_levels_with_disclosure(world):
 
 def test_unfold_re_roots_and_esc_returns(world):
 	"""u on the ↳ child re-roots the window (child + grandchild) with a
-	real breadcrumb; Esc returns upward to the root view."""
+	real breadcrumb; Esc walks the recorded path outward.
+
+	W292 (finding-work-detail-breadcrumb-navigation) refines this. The
+	breadcrumb now starts at the top-level PAGE and the global tab row
+	is not repeated inside a drilled view, and Back pops exactly ONE
+	segment: from the child window it reveals the parent Work scope,
+	and the Esc after that reaches the top-level Jobs view. Painting
+	`the root` in the trail and then skipping it on the way out was the
+	ambiguity this ruling removes."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"j", 0.4),                  # select ↳ the child
 		(b"u", 0.5),                  # re-root
-		(b"\x1b", 0.5),               # back up
+		(b"\x1b", 0.5),               # one segment out: the parent scope
+		(b"\x1b", 0.5),               # and out to the top level
 		(b"qy", 0.4),
 	])
 	rooted = ptyharness.replay(steps[1])
 	assert "the root > the child" in rooted[0], \
 		f"the re-rooted breadcrumb is wrong: {rooted[0]!r}"
+	assert rooted[0].startswith("Jobs > "), \
+		f"the trail does not start at the top-level page: {rooted[0]!r}"
+	assert "[Jobs]" not in rooted[0], \
+		f"the global tab row survived the drill-in: {rooted[0]!r}"
 	assert any("↳ the grandch" in line for line in rooted), rooted[:6]
-	back = ptyharness.replay(steps[2])
-	assert back[0].startswith("[Jobs]"), "Esc did not return upward"
+	parent = ptyharness.replay(steps[2])
+	assert parent[0].startswith("Jobs > the root"), \
+		f"one Esc did not reveal the parent scope: {parent[0]!r}"
+	assert "the child" not in parent[0], parent[0]
+	back = ptyharness.replay(steps[3])
+	assert back[0].startswith("[Jobs]"), \
+		f"the last Esc did not reach the top level: {back[0]!r}"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -125,6 +143,8 @@ def test_unfolding_the_current_root_is_idempotent(world):
 	twice = ptyharness.replay(steps[1])
 	assert "the root > the root" not in twice[0], \
 		f"the re-root stack duplicated its current Work: {twice[0]!r}"
+	assert "[Jobs]" not in twice[0], \
+		f"the global tab row survived the drill-in: {twice[0]!r}"
 	back = ptyharness.replay(steps[2])
 	assert back[0].startswith("[Jobs]") and " > " not in back[0], \
 		f"one Esc did not return from one logical unfold: {back[0]!r}"

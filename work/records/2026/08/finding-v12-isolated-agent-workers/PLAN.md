@@ -1,11 +1,12 @@
 # Plan
 
-**Status — current Baton Work `W2` (`5f717eee-W2`); roadmap only.
-The original `bec445ce-W193` and later `bcbb9dbf-W2` authorities are retired.
-No v12 implementation has started. The operational decisions and review
-corrections are pinned. The approved order specifies the minimal state machine
-first, then a bounded real end-to-end spike before compatibility manifests or
-production implementation.**
+**Status — current Baton Work `W2` (`88990a87-W2`); roadmap with one signed-off
+external proof. The original `bec445ce-W193`, `bcbb9dbf-W2`, and
+`5f717eee-W2` authorities are retired. W76's bounded external PoC is
+independently reviewed clean; current child W126 is relocating that exact
+prototype into the self-contained top-level `v12/` subtree. The approved order
+keeps the bounded proof ahead of compatibility manifests or production
+implementation.**
 
 0. [done 2026-08-20] Claude independently reviewed the complete pinned design
    for contradictions, missing invariants, feasibility, and ordering risks,
@@ -257,14 +258,14 @@ production implementation.**
    to the live checkout. Start with JSON and CLI natural dispatch and defer all
    TUI work.
 
-0ah. [pending; child Work `W76`] Prove natural dispatch to one Claude ACP
+0ah. [done 2026-08-21; retired-authority child Work `W76`] Prove natural dispatch to one Claude ACP
    worker under
    `findings/finding-v12-claude-acp-dispatch-poc/`. Start only from the committed
    clean handoff, keep all prototype source in the separate disposable root,
    and return traces plus a go/revise/no-go conclusion before production design
    or implementation expands.
 
-0ai. [pending; approved 2026-08-20] After W76's current external implementation
+0ai. [in progress; current child Work `W126`] After W76's external implementation
    passes independent review, relocate its source-controlled prototype into
    this repository's self-contained top-level `v12/` subtree. Include its own
    `justfile`, package/dependency manifests and lockfiles, source, tests,
@@ -341,3 +342,9 @@ production implementation.**
     mixed legacy/isolated deployment, local proposal storage, operating
     documentation, retention, and observability before considering broader v12
     production adoption. Removal of the legacy path is a later explicit gate.
+14. [deferred] Separate the one human-attached interactive copilot from managed
+    background workers so every participant identity has exactly one live
+    execution context. Treat conversation threads as non-authoritative session
+    detail, use distinct participants or attempts for parallel execution, and
+    make participant runtime state unambiguous. This is not part of the current
+    single-Claude PoC and does not receive a child Work until later ordering.

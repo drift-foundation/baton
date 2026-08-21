@@ -35,17 +35,76 @@
 import { readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-// The operations the confirmed execution-policy clarification names, and
-// nothing else.
+// The one named profile. Everything in this module — the generator, the
+// auditor, the refusals, and every regression — reads the capability
+// from here, so there is exactly one place a capability decision lives.
+export const POLICY_PROFILE = "managed-work-workflow";
+
+// THE MANAGED WORK WORKFLOW PROFILE
+// (`work/records/2026/08/finding-managed-turn-workflow-policy/`,
+// confirmed 2026-08-21). One exact command rule for every public Work
+// WORKFLOW mutation a managed agent may need while following repository
+// and Baton policy.
 //
-// An earlier version of this list also carried `mark-seen`, on my
-// judgement that a reviewer turn cannot discharge its reading obligation
-// without it. Review round 4 was right to reject that: it is a new
-// mutating capability, the record's boundary is "only the ruled mutating
-// verbs", and an implementer does not widen a ruled capability while
-// implementing it. If `mark-seen` should be in the set, that is a ruling
-// to obtain and pin, not a convenience to add here.
-export const RULED_VERBS = ["claim", "say", "pass", "close"];
+// HOW THIS SET GOT HERE, because the history is the argument.
+//
+// The original ruling
+// (`work/records/2026/08/finding-managed-turn-approval-incidents/`) was
+// `claim`, `say`, `pass`, `close`. An earlier implementation of this
+// list also carried `mark-seen`, on my judgement that a reviewer turn
+// cannot discharge its reading obligation without it, and review round 4
+// was RIGHT to reject that: an implementer does not widen a ruled
+// capability while implementing it. That rejection said what to do
+// instead — obtain and pin a ruling — and this is that ruling. The
+// four-verb set is superseded AS TO THE VERB SET ONLY. Everything else
+// it established stands unchanged and is implemented below:
+// deployment-owned generation, exact binary/config/participant matching,
+// broad-rule refusal, extra-verb refusal, and no raw access to
+// `work.sqlite3`, `baton.json` or the coordination home.
+//
+// The concrete failure this profile corrects: a managed reviewer claimed
+// W126, finished its review, and could not `mark-seen` its own
+// discussion. The turn escalated for interactive approval, the
+// non-interactive dispatcher refused, and the Work stayed
+// authoritatively claimed by a runner whose turn was over — the exact
+// stranding the claim boundary exists to prevent. A policy that permits
+// enough mutation to TAKE Work but not enough to FINISH it is worse than
+// one that permits neither.
+//
+// THIS IS AN EXPLICIT REVIEWED SET, NOT A DERIVED ONE. It is written out
+// here rather than computed from the CLI's mutation registry, so a newly
+// added public mutation is unauthorized until somebody deliberately adds
+// it to this profile. `tests/work/test_w220_managed_workflow_policy.py`
+// fails loudly when the registry and this profile drift apart; that is a
+// prompt to make a decision, never an instruction to widen automatically.
+export const RULED_VERBS = [
+	"create", "accept", "respond", "dispose", "close", "block", "unblock",
+	"mark-seen", "classify", "claim", "release", "prioritize", "pass",
+	"heartbeat", "phase", "try", "extend", "report", "assess", "abandon",
+	"revise", "start-thread", "say", "label", "unlabel", "bind", "poke",
+	"poke-answer", "poke-cancel", "reroute",
+];
+
+// The public mutations this profile DELIBERATELY excludes, and why. A
+// rule for any of these against the same executable, config and
+// participant fails the preflight exactly like any other unruled verb;
+// they are named here so the exclusion is a recorded decision rather
+// than an omission somebody has to reconstruct.
+export const EXCLUDED_VERBS = {
+	// Deployment and configuration authority. A managed turn does not
+	// get to accept a configuration generation or create an authority.
+	deployment: ["activate", "regen"],
+	// Runtime publication is the ADAPTER's, not the model's. These carry
+	// no workflow authority, and a turn that could publish its own
+	// runtime state could describe a runner that is not there.
+	runtime: ["runtime-start", "runtime-state", "runtime-end",
+	          "runtime-facts", "runtime-refresh"],
+	// Incident publication is the DISPATCHER's and dismissal is the
+	// action owner's. A managed turn that could file or dismiss its own
+	// approval incident could erase the evidence of its own failure —
+	// which is precisely how this defect surfaced.
+	incident: ["incident", "dismiss"],
+};
 
 class ExecPolicyError extends Error {}
 
@@ -135,9 +194,10 @@ export function auditRules(text, identity) {
 		// EVERY broader covering rule is reported, even when an exact one
 		// covers the same command.
 		//
-		// Round-6 review: this used to record `broad` only when a ruled
-		// command had NO exact rule, so the four exact rules plus the
-		// retired executable-only rule audited as satisfied — and that is
+		// Round-6 review (of W415, when the ruled set was four verbs):
+		// this used to record `broad` only when a ruled command had NO
+		// exact rule, so that set's exact rules plus the retired
+		// executable-only rule audited as satisfied — and that is
 		// the most likely upgrade state, an operator adding the new rules
 		// and forgetting to remove the old one. The dispatcher would have
 		// started while the participant could still invoke every Baton
@@ -149,29 +209,60 @@ export function auditRules(text, identity) {
 		}
 	}
 	// REFUSED, per the Exact-set clarification pinned in FINDING.md
-	// (2026-08-20): the nominated participant policy IS the exact
-	// approved set, not merely a file that happens to contain it. An
-	// allow rule for the same executable, config and participant naming
-	// any other Baton verb fails the preflight.
+	// (2026-08-20), which the managed-workflow profile leaves in force:
+	// the nominated participant policy IS the exact approved set, not
+	// merely a file that happens to contain it. An allow rule for the
+	// same executable, config and participant naming any other Baton
+	// verb fails the preflight — including every verb the profile
+	// deliberately excludes.
 	//
 	// I had left this advisory because refusing seemed to require a
 	// second list of Baton's mutating verbs maintained here, which would
 	// drift from the real grammar. The ruling dissolves that: no such
 	// list is needed, because read-only commands need no
 	// sandbox-crossing allow rule at all, and this policy file is
-	// deliberately dedicated to the four managed mutations. So any verb
-	// outside the set is extra capability, whatever it does.
+	// deliberately dedicated to the approved `managed-work-workflow`
+	// profile — the thirty public Work WORKFLOW mutations in
+	// `RULED_VERBS` and nothing else. So any verb outside that profile
+	// is extra capability, whatever it does.
+	//
+	// The count matters here because this is the in-source explanation
+	// of a security boundary. It said "the four managed mutations" until
+	// W220 replaced that scope, and a maintainer reading the old
+	// sentence could reasonably have concluded the other twenty-six
+	// generated rules were unintended.
 	//
 	// Rules for OTHER configured participants are independent and stay
 	// valid; this only ever looks at this participant's own prefix.
 	const prefix = [identity.binary, "--config", identity.config,
 	                "--participant", identity.participant];
-	const extra = rules
+	// Every allow rule that names a VERB after this participant's
+	// prefix, whatever else it names after that.
+	//
+	// Round-1 W220 review: this used to require the pattern to be
+	// EXACTLY one element longer than the prefix, and a prefix rule may
+	// carry operands. So the thirty exact rules plus
+	//
+	//   prefix_rule(pattern=[…, "baton.codex", "regen",
+	//                        "op-id=authorized-extra"], decision="allow")
+	//
+	// audited as satisfied while authorizing an excluded deployment
+	// mutation — and the same hole admitted unknown and future verbs,
+	// and operand-qualified reads. Narrower than a rule the ruling
+	// never granted is still capability the ruling never granted.
+	//
+	// The test is on the VERB SLOT alone, because that is what the
+	// ruling is about: a rule for a RULED verb carrying extra operands
+	// authorizes a subset of a capability the profile already grants,
+	// and an element in the verb slot that is not a ruled verb — an
+	// excluded verb, an unknown one, or an operand where a verb should
+	// be — is extra capability whatever follows it.
+	const extra = [...new Set(rules
 		.filter((rule) => rule.decision === "allow"
-			&& rule.argv.length === prefix.length + 1
+			&& rule.argv.length > prefix.length
 			&& prefix.every((entry, index) => entry === rule.argv[index])
 			&& !RULED_VERBS.includes(rule.argv[prefix.length]))
-		.map((rule) => rule.argv[prefix.length]);
+		.map((rule) => rule.argv[prefix.length]))];
 	const present = [...exact].filter((line) => text.includes(line));
 	// Broad coverage is NOT satisfaction. A rule naming the executable
 	// alone authorizes every verb this participant can reach — `regen`,
@@ -230,11 +321,12 @@ export function assertPolicyProvisioned(path, identity) {
 		throw new ExecPolicyError(
 			`the nominated execution policy at ${path} also authorizes `
 			+ `[${audit.extra.join(", ")}] for ${identity.participant}. This file is `
-			+ `dedicated to the approved set — exactly `
+			+ `dedicated to the approved '${POLICY_PROFILE}' set — exactly `
 			+ `${RULED_VERBS.join(", ")} — and any other Baton verb for the same `
-			+ `executable, config and participant is extra capability. Remove `
-			+ `those rules; read-only commands need no allow rule here. Rules for `
-			+ `other participants are unaffected.`);
+			+ `executable, config and participant is extra capability, including `
+			+ `the deliberately excluded ${Object.values(EXCLUDED_VERBS).flat().join(", ")}. `
+			+ `Remove those rules; read-only commands need no allow rule here. Rules `
+			+ `for other participants are unaffected.`);
 	}
 	return audit;
 }

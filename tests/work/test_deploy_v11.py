@@ -340,6 +340,23 @@ def test_installed_init_scaffolds_from_the_release_assets(dist, tmp_path):
 
 SOURCE_EXEC_POLICY = os.path.join(
 	REPO, "tools", "codex-event-bridge", "src", "exec_policy.mjs")
+# The confirmed managed-workflow profile
+# (`work/records/2026/08/finding-managed-turn-workflow-policy/`,
+# 2026-08-21), and the public mutations it deliberately excludes. Both
+# are written out here: a deployed artifact that authorized something the
+# ruling did not name must fail these cases, and a check that read the
+# artifact's own list could never notice.
+MANAGED_WORKFLOW = (
+	"create", "accept", "respond", "dispose", "close", "block", "unblock",
+	"mark-seen", "classify", "claim", "release", "prioritize", "pass",
+	"heartbeat", "phase", "try", "extend", "report", "assess", "abandon",
+	"revise", "start-thread", "say", "label", "unlabel", "bind", "poke",
+	"poke-answer", "poke-cancel", "reroute",
+)
+EXCLUDED_MUTATIONS = (
+	"activate", "regen", "runtime-start", "runtime-state", "runtime-end",
+	"runtime-facts", "runtime-refresh", "incident", "dismiss",
+)
 DEPLOYED_EXEC_POLICY = os.path.join(
 	"lib", "codex-event-bridge", "src", "exec_policy.mjs")
 POLICY_IDENTITY = ("binary=/opt/baton/bin/baton",
@@ -361,8 +378,17 @@ const { rulesFor, auditRules, assertPolicyProvisioned, RULED_VERBS } =
 const identity = { binary: "/opt/baton/bin/baton",
 	config: "/srv/baton/baton.json", participant: "baton.codex" };
 const other = { ...identity, participant: "baton.tuner" };
-assert.deepEqual(RULED_VERBS, ["claim", "say", "pass", "close"],
-	"the deployed ruled capability is not the four confirmed verbs");
+// The confirmed managed-workflow profile, written out here rather than
+// read from the deployed module: a copy that authorized a verb the
+// ruling did not name must fail this, and comparing the module with
+// itself never could.
+assert.deepEqual(RULED_VERBS, [
+	"create", "accept", "respond", "dispose", "close", "block", "unblock",
+	"mark-seen", "classify", "claim", "release", "prioritize", "pass",
+	"heartbeat", "phase", "try", "extend", "report", "assess", "abandon",
+	"revise", "start-thread", "say", "label", "unlabel", "bind", "poke",
+	"poke-answer", "poke-cancel", "reroute",
+], "the deployed ruled capability is not the confirmed managed-workflow profile");
 const exact = rulesFor(identity).join("\n");
 const dir = mkdtempSync("/tmp/deployed-exec-policy-");
 const write = (name, text) => {
@@ -389,13 +415,37 @@ assert.throws(() => assertPolicyProvisioned(
 assert.throws(() => assertPolicyProvisioned(write("broad.rules", broadRule),
 	identity), /install these rules and remove the broad one/);
 
-// Any other verb for THIS participant is extra capability.
-for (const verb of ["regen", "mark-seen", "release", "phase", "detail"]) {
+// Any other verb for THIS participant is extra capability — the
+// deliberately excluded deployment, runtime and incident mutations
+// especially, plus a pure read.
+for (const verb of ["activate", "regen", "runtime-start", "runtime-state",
+                    "runtime-end", "runtime-facts", "runtime-refresh",
+                    "incident", "dismiss", "detail"]) {
 	const policy = `${exact}\n${ruleFor(identity.participant, verb)}`;
 	assert.deepEqual(auditRules(policy, identity).extra, [verb]);
 	assert.throws(() => assertPolicyProvisioned(write(`${verb}.rules`, policy),
-		identity), /dedicated to the approved set/);
+		identity), /dedicated to the approved 'managed-work-workflow' set/);
 }
+
+// W220 round 1: a prefix rule may carry OPERANDS, and an
+// excluded verb with one used to audit as satisfied. The deployed
+// artifact must refuse it too.
+for (const verb of ["regen", "activate", "runtime-state", "dismiss",
+                    "teleport"]) {
+	const qualified = `prefix_rule(pattern=["${identity.binary}", "--config", `
+		+ `"${identity.config}", "--participant", "${identity.participant}", `
+		+ `"${verb}", "op-id=authorized-extra"], decision="allow")`;
+	const policy = `${exact}\n${qualified}`;
+	assert.deepEqual(auditRules(policy, identity).extra, [verb]);
+	assert.throws(() => assertPolicyProvisioned(
+		write(`qualified-${verb}.rules`, policy), identity),
+		/dedicated to the approved 'managed-work-workflow' set/);
+}
+// A RULED verb with operands is a subset of a granted capability.
+assert.equal(assertPolicyProvisioned(write("ruled-qualified.rules",
+	`${exact}\nprefix_rule(pattern=["${identity.binary}", "--config", `
+	+ `"${identity.config}", "--participant", "${identity.participant}", `
+	+ `"claim", "work=W1"], decision="allow")`), identity).satisfied, true);
 
 // Other participants' rules are independent and stay valid.
 assert.equal(assertPolicyProvisioned(
@@ -524,16 +574,29 @@ def test_the_deployed_generator_emits_the_approved_rules_standalone(dist):
 	assert deployed.stdout == source.stdout, \
 		"the deployed generator's output drifted from the reviewed helper"
 	assert deployed.stderr == "", "the generator wrote to stderr on success"
-	# Independently of that parity: the approved four verbs, in order,
-	# each naming the exact executable, config and participant.
+	# Independently of that parity: the approved profile, in the ruled
+	# order, each rule naming the exact executable, config and
+	# participant. The expected verbs are listed here rather than read
+	# from the artifact under test.
 	lines = deployed.stdout.split("\n")
-	assert lines[-1] == "" and len(lines) == 5, \
-		"the generator did not print exactly four rules and a final newline"
-	for verb, rule in zip(["claim", "say", "pass", "close"], lines):
+	assert lines[-1] == "", "the generator did not end with a final newline"
+	assert lines[:-1] and len(lines) == len(MANAGED_WORKFLOW) + 1, \
+		f"the generator printed {len(lines) - 1} rules, not " \
+		f"{len(MANAGED_WORKFLOW)}"
+	for verb, rule in zip(MANAGED_WORKFLOW, lines):
 		assert rule == (
 			'prefix_rule(pattern=["/opt/baton/bin/baton", "--config", '
 			'"/srv/baton/baton.json", "--participant", "baton.codex", '
 			f'"{verb}"], decision="allow")')
+	# W220: the operation whose absence stranded a claimed Work, and the
+	# rest of the workflow that has to follow it.
+	for verb in ("mark-seen", "respond", "release", "heartbeat", "pass"):
+		assert verb in MANAGED_WORKFLOW
+		assert f'"{verb}"], decision="allow")' in deployed.stdout
+	# And nothing the profile excludes.
+	for verb in EXCLUDED_MUTATIONS:
+		assert f'"{verb}"], decision="allow")' not in deployed.stdout, \
+			f"the deployed generator emitted a rule for excluded {verb}"
 	# It PRINTS and never installs: a generator that could write the
 	# policy file could grant itself authority.
 	assert not os.path.exists(os.path.join(target, "baton.rules"))
@@ -624,7 +687,8 @@ def test_the_shipped_instruction_provisions_every_template_identity(dist,
 			handle.write(proc.stdout)
 	installed = tmp_path / "baton.rules"
 	os.rename(staged, installed)
-	assert len(_read(installed).splitlines()) == 4 * len(participants)
+	assert len(_read(installed).splitlines()) == \
+		len(MANAGED_WORKFLOW) * len(participants)
 
 	# And the single-run form the release used to document.
 	partial = tmp_path / "one-participant.rules"

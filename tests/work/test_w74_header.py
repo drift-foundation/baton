@@ -72,14 +72,25 @@ def test_the_root_header_is_identity_plus_summary_only(world):
 
 
 def test_drilled_views_keep_their_real_breadcrumb(world):
+	"""W292 supersedes this test's tab expectation, and only that.
+
+	A drilled view still shows its real location and still keeps the
+	participant identity at the right edge. What changed is that the
+	location is now the whole navigation path starting at the top-level
+	page, and the global tab row is NOT repeated beneath it — two tab
+	rows on one screen implied two peer navigation surfaces when one of
+	them is a drill-down inside the other."""
 	config_path, epic = world
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
 		(b"\r", 0.5), (b"qy", 0.4)])
 	drilled = ptyharness.replay(steps[0])
 	assert "drill target" in drilled[0], \
 		"the drilled breadcrumb lost its trail"
-	assert drilled[0].startswith("[Jobs]"), \
-		"the tabs left the drilled header"
+	assert drilled[0].startswith("Jobs > "), \
+		f"the drilled trail does not start at its page: {drilled[0]!r}"
+	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+		assert label not in drilled[0], \
+			f"the global tab row survived the drill-in: {drilled[0]!r}"
 	assert drilled[0].rstrip().endswith("lang.ada")
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 

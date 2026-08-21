@@ -1,0 +1,23 @@
+isolated policy: 30 exact 'managed-work-workflow' rules, no broad rule
+isolated app-server up on ws://127.0.0.1:4599 with CODEX_HOME=/home/sl/w415-matrix-codex-yAm5y9
+
+PASS  exact ruled claim commits — handler=poc.ops approvals=[]
+PASS  ruled mark-seen commits — new 2 -> 0 approvals=[]
+PASS  ruled release recovers the claim — handler=null approvals=[]
+PASS  ruled respond discharges the obligation — phase block -> queued approvals=[]
+PASS  shell wrapper does not commit — handler=null
+PASS  wrong participant does not commit — handler=null
+PASS  wrong config does not commit — handler=null
+PASS  excluded deployment verb does not take effect — sneaked participant present=false
+PASS  excluded runtime verb does not take effect — poc.ops state idle -> idle
+PASS  excluded incident verb does not take effect — incidents 0 -> 0
+PASS  direct authority write is refused — bytes=294912
+PASS  direct config write is refused — bytes=1627
+PASS  unrelated command is refused — created=false
+
+approved 'managed-work-workflow' verbs (30): ["create","accept","respond","dispose","close","block","unblock","mark-seen","classify","claim","release","prioritize","pass","heartbeat","phase","try","extend","report","assess","abandon","revise","start-thread","say","label","unlabel","bind","poke","poke-answer","poke-cancel","reroute"]
+excluded: {"deployment":["activate","regen"],"runtime":["runtime-start","runtime-state","runtime-end","runtime-facts","runtime-refresh"],"incident":["incident","dismiss"]}
+
+MATRIX PASS — 13 cases. The exact ruled operation committed and every other shape failed closed, under a policy containing ONLY the generated exact rules.
+staged Codex credential disposed: true
+staging directories removed: true

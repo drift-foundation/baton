@@ -19,8 +19,8 @@ import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { rulesFor, identityFromOperands, generate, USAGE, ExecPolicyError }
-	from "../src/exec_policy.mjs";
+import { rulesFor, identityFromOperands, generate, USAGE, RULED_VERBS,
+         ExecPolicyError } from "../src/exec_policy.mjs";
 
 const MODULE = join(dirname(fileURLToPath(import.meta.url)),
                     "..", "src", "exec_policy.mjs");
@@ -42,7 +42,12 @@ test("W415 packaging: direct invocation prints exactly the approved rules",
 		// front door onto `rulesFor`, never a second implementation of it.
 		assert.equal(proc.stdout, `${rulesFor(IDENTITY).join("\n")}\n`);
 		assert.equal(proc.stderr, "");
-		assert.equal(proc.stdout.trimEnd().split("\n").length, 4);
+		// One rule per verb in the ruled profile, and nothing else on
+		// stdout. W220 widened that profile from four verbs to the
+		// managed Work workflow; the count still comes from the profile
+		// rather than from a number written here twice.
+		assert.equal(proc.stdout.trimEnd().split("\n").length, RULED_VERBS.length);
+		assert.ok(RULED_VERBS.length > 1);
 		// Operand ORDER is not part of the identity; the rule order is
 		// the approved verb order either way.
 		const shuffled = run([OPERANDS[2], OPERANDS[0], OPERANDS[1]]);

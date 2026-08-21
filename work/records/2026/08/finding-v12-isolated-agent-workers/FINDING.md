@@ -1207,3 +1207,24 @@ verify the same gates there, and retire the
 external root only after the in-repository copy is verified. The approver has
 explicitly authorized removing `/home/sl/src/baton-v12-poc` at that point so
 there is one canonical prototype location; it is not retained as an archive.
+
+## Interactive and managed execution identities — confirmed 2026-08-21
+
+V12 distinguishes the one human-attached interactive copilot from managed
+background workers. One participant identity is bound to exactly one live
+execution context: an interactive and a managed context never share the same
+participant merely because they use the same model, role, or provider.
+
+The interactive copilot has one user-attached session. Each background
+participant has one Worker Manager-owned execution context. Internal
+conversation threads are not participant identities and do not independently
+claim or schedule Work. Parallel execution uses distinct participants or
+assignment attempts, and delegation by the copilot routes Work to a background
+participant instead of creating a hidden second context under the copilot's
+identity. Runtime state such as `Run` therefore describes the participant's
+sole execution context without pretending to aggregate unrelated threads.
+
+This is a deferred production-model requirement, not an acceptance condition
+for the current single-Claude walking-skeleton PoC or its repository migration.
+No separate Work is created yet; implementation is ordered only after the PoC
+has demonstrated the more fundamental isolated-worker lifecycle.

@@ -1,0 +1,586 @@
+"""W292: one breadcrumb-scoped navigation model for the whole console.
+
+`work/records/2026/08/finding-work-detail-breadcrumb-navigation/`.
+
+The console used to paint the global `[Jobs] [Teams] [Inbox]` row and a
+drilled page's own `[Messages] [Events]` row at the same time. Two tab
+rows on one screen imply two peer navigation surfaces, when one of them
+is a drill-down INSIDE the other — so the operator could not tell where
+they were or what Back would do.
+
+The confirmed model is universal, not Work-specific: a top-level page
+shows its tabs; entering anything replaces that row with the breadcrumb
+for the whole path plus that page's own local tabs; Back/Esc pops
+exactly one segment and restores the level it reveals. These cases pin
+the model itself and the two drillable surfaces that exist today — Work
+detail and the Jobs table re-root — plus the search and Inbox entry
+paths, which must reach the same model without losing what they already
+promised.
+"""
+
+from __future__ import annotations
+
+import curses
+import json as _json
+import os
+import pty as _pty
+import sys
+
+import pytest
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(
+	os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+	"src"))
+
+import baton_work as bw                                       # noqa: E402
+from baton_work import lifecycle as lc                        # noqa: E402
+from baton_work import transitions as tr                      # noqa: E402
+from baton_work.tui.app import Console                        # noqa: E402
+import fixtures as fx                                         # noqa: E402
+import ptyharness                                             # noqa: E402
+
+
+class Screen:
+	def __init__(self, height=24, width=100):
+		self.calls = []
+		self._size = (height, width)
+
+	def erase(self):
+		self.calls = []
+
+	def getmaxyx(self):
+		return self._size
+
+	def refresh(self):
+		pass
+
+	def move(self, *_args):
+		pass
+
+	def clrtoeol(self):
+		pass
+
+	def addnstr(self, y, x, text, *rest):
+		self.calls.append((y, x, str(text),
+		                   rest[1] if len(rest) > 1 else 0))
+
+	def lines(self):
+		return [text for _y, _x, text, _attr in self.calls]
+
+	def row(self, y):
+		"""One painted row, composed in paint order — the header
+		overdraws, so the last write at a column wins, exactly as a real
+		terminal resolves it."""
+		width = self._size[1]
+		cells = [" "] * width
+		for at_y, x, text, _attr in self.calls:
+			if at_y != y:
+				continue
+			for offset, char in enumerate(text):
+				if 0 <= x + offset < width:
+					cells[x + offset] = char
+		return "".join(cells).rstrip()
+
+	def attr_of(self, label):
+		return next((attr for _y, _x, text, attr in self.calls
+		             if text == label), None)
+
+
+@pytest.fixture()
+def world(tmp_path):
+	document = fx.config_document(
+		{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}})
+	config = os.path.join(str(tmp_path), "baton.json")
+	with open(config, "w", encoding="utf-8") as handle:
+		_json.dump(document, handle, indent=2, sort_keys=True)
+	database = lc.init_from_config(config,
+	                               participant="lang.ada")["database"]
+	store = bw.Authority(database)
+	root = tr.create_work(store, team="lang", kind="bug", title="the root",
+	                      origin="external-report",
+	                      classification="suspected-defect", author="ada",
+	                      body="root opener")
+	child = tr.create_work(store, team="lang", kind="bug", title="the child",
+	                       origin="decomposition",
+	                       classification="suspected-defect", author="ada",
+	                       body="child opener", parent=root["work_id"])
+	grand = tr.create_work(store, team="lang", kind="bug",
+	                       title="the grandchild", origin="decomposition",
+	                       classification="suspected-defect", author="ada",
+	                       body="grand opener", parent=child["work_id"])
+	other = tr.create_work(store, team="lang", kind="bug",
+	                       title="a second root", origin="external-report",
+	                       classification="suspected-defect", author="ada",
+	                       body="second opener")
+	# A dependency reaching INTO the deep tree, so the neighbour view has
+	# a far Work whose real ancestry is more than one level.
+	tr.add_dependency(store, other["work_id"], grand["work_id"],
+	                  actor_team="lang", actor="ada",
+	                  rationale="the second root waits on the grandchild")
+	yield {"config": config, "store": store, "root": root, "child": child,
+	       "grand": grand, "other": other}
+	store.close()
+
+
+def console(world, work_filter=None):
+	return Console(world["store"], "lang", "ada",
+	               config_path=world["config"], work_filter=work_filter)
+
+
+def header(view, height=24, width=100):
+	screen = Screen(height, width)
+	view.render(screen)
+	return screen.row(0)
+
+
+def painted(view, height=24, width=100):
+	screen = Screen(height, width)
+	view.render(screen)
+	return screen
+
+
+def local(id_):
+	return id_.rsplit("-", 1)[-1]
+
+
+# -- the model -----------------------------------------------------------
+
+def test_the_global_tab_row_is_the_top_level_only(world):
+	view = console(world)
+	assert view.nav == [] and view.nav_segments() == []
+	assert header(view).startswith("[Jobs]  [Teams]  [Inbox")
+
+	view.handle(curses.KEY_ENTER)
+	row = header(view)
+	assert view.nav, "entering Work detail recorded no navigation path"
+	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+		assert label not in row, row
+	assert row.startswith("Jobs > "), row
+	# The drilled page's OWN tabs are still there, and exactly one is
+	# active — the local row is not what this ruling removed.
+	labels = [label for _name, label in view.detail_tab_segments()]
+	assert labels == ["[Messages]", "[Events]"], labels
+	# The painter writes each label at its own column so exactly one can
+	# carry the active weight, so the two labels are two calls.
+	drawn = painted(view).lines()
+	for label in labels:
+		assert label in drawn, (label, drawn[:8])
+	screen = painted(view)
+	assert screen.attr_of("[Messages]") != screen.attr_of("[Events]"), \
+		"the local row does not distinguish its active tab"
+
+
+def test_the_trail_names_the_whole_path_and_ends_where_it_is(world):
+	view = console(world)
+	view.handle(curses.KEY_ENTER)              # the root's detail
+	assert view.nav_segments() == ["Jobs", "the root"]
+	assert view.nav_text() == "Jobs > the root"
+	# Identity keeps the right edge whatever the location says.
+	assert header(view).rstrip().endswith("lang.ada")
+
+
+def test_direct_grandchild_entry_pops_one_work_segment_per_back(world):
+	"""The finding's rule: do not paint ancestry that one Back skips."""
+	view = console(world)
+	view._enter_detail(world["grand"]["work_id"], came_from="table")
+	assert view.nav_segments() == ["Jobs", "the root", "the child",
+	                               "the grandchild"]
+	assert view.detail_work == world["grand"]["work_id"]
+
+	view.handle(27)
+	assert view.nav_segments() == ["Jobs", "the root", "the child"]
+	assert view.mode == "detail"
+	assert view.detail_work == world["child"]["work_id"], \
+		"Back skipped the parent Work scope the trail named"
+
+	view.handle(27)
+	assert view.detail_work == world["root"]["work_id"]
+	assert view.nav_segments() == ["Jobs", "the root"]
+
+	view.handle(27)
+	assert view.nav == [] and view.mode == "table"
+	assert header(view).startswith("[Jobs]"), "the last Back left the top level"
+
+
+def test_back_from_detail_restores_the_caller_selection(world):
+	view = console(world)
+	rows, _hidden = view.visible_rows(view.rows())
+	assert len(rows) > 1
+	view.handle(ord("j"))
+	chosen = view.selected_id
+	assert chosen is not None
+	view.handle(curses.KEY_ENTER)
+	assert view.mode == "detail"
+	while view.nav:
+		view.handle(27)
+	assert view.mode == "table"
+	assert view.selected_id == chosen, \
+		"Back reset the caller's stable selection"
+	assert view.cursor == 1
+
+
+def test_table_re_root_is_a_drill_that_restores_its_opener(world):
+	view = console(world)
+	view.handle(ord("j"))
+	opened_at = (view.cursor, view.selected_id)
+	view.handle(ord("u"))
+	assert view.nav_segments()[0] == "Jobs"
+	assert view.nav_segments()[-1] in ("the child", "a second root",
+	                                   "the root")
+	assert "[Jobs]" not in header(view)
+	while view.nav:
+		view.handle(27)
+	assert (view.cursor, view.selected_id) == opened_at, \
+		"the re-root Back did not restore the row that opened it"
+	assert view.path == []
+	assert header(view).startswith("[Jobs]")
+
+
+def select(view, title):
+	"""Put the table cursor on the row with this title, by identity."""
+	rows, _hidden = view.visible_rows(view.rows())
+	view.cursor = next(index for index, row in enumerate(rows)
+	                   if row["title"] == title)
+	view.selected_id = rows[view.cursor]["id"]
+	return rows[view.cursor]["id"]
+
+
+def test_a_nested_re_root_appends_one_segment_not_the_whole_ancestry(world):
+	"""Round-1 review, [P1].
+
+	`u` on a Work and then `u` on its child used to seed the FULL
+	ancestry both times, producing `Jobs > root > root > child` — a
+	duplicated segment that is not a containment level, and two Backs
+	that revealed visually identical scopes."""
+	view = console(world)
+	select(view, "the root")
+	view.handle(ord("u"))
+	assert view.nav_segments() == ["Jobs", "the root"]
+
+	select(view, "the child")
+	view.handle(ord("u"))
+	assert view.nav_segments() == ["Jobs", "the root", "the child"], \
+		"the nested re-root repeated ancestry the stack already had"
+	assert view.path == [world["root"]["work_id"], world["child"]["work_id"]]
+
+	view.handle(27)
+	assert view.nav_segments() == ["Jobs", "the root"], \
+		"one Back did not reveal exactly one level"
+	assert view.path == [world["root"]["work_id"]]
+
+	view.handle(27)
+	assert view.nav == [] and view.mode == "table"
+	assert view.path == [], "the last Back did not reach the Jobs root"
+	assert header(view).startswith("[Jobs]")
+
+
+def test_opening_a_re_rooted_works_detail_is_a_distinguishable_level(world):
+	"""A re-rooted subtree and that Work's detail page are two different
+	pages of the same Work, so they are two levels — and two segments
+	reading the same title would not say which is which."""
+	view = console(world)
+	select(view, "the root")
+	view.handle(ord("u"))
+	view.handle(curses.KEY_ENTER)
+	assert view.mode == "detail"
+	assert view.nav_segments() == ["Jobs", "the root", "the root · detail"], \
+		view.nav_segments()
+	view.handle(27)
+	assert view.mode == "table" and view.nav_segments() == ["Jobs", "the root"]
+
+
+def test_a_linked_drill_through_rebuilds_the_far_works_own_ancestry(world):
+	"""Round-1 review, [P1].
+
+	The neighbour view's Enter re-roots at a Work somewhere else. It used
+	to pop the links frame and push one title, so a dependency pointing
+	at a grandchild gave `Jobs > grand` and Back skipped the parent
+	scopes; opened from an already re-rooted caller it also left that
+	caller's ancestry prefixing an unrelated Work."""
+	view = console(world)
+	select(view, "a second root")
+	view.handle(ord("b"))
+	assert view.mode == "links"
+	assert view.nav_segments() == ["Jobs", "a second root · links"], \
+		view.nav_segments()
+
+	view.handle(curses.KEY_ENTER)
+	assert view.mode == "table"
+	assert view.nav_segments() == ["Jobs", "the root", "the child",
+	                               "the grandchild"], view.nav_segments()
+	assert view.path == [world["root"]["work_id"], world["child"]["work_id"],
+	                     world["grand"]["work_id"]]
+	assert "a second root" not in view.nav_text(), \
+		"the caller's ancestry survived a cross-tree drill-through"
+
+	for expected in (["Jobs", "the root", "the child"], ["Jobs", "the root"]):
+		view.handle(27)
+		assert view.nav_segments() == expected, view.nav_segments()
+	view.handle(27)
+	assert view.nav == [] and view.mode == "table"
+	assert header(view).startswith("[Jobs]")
+
+
+def test_a_drill_through_from_a_re_rooted_caller_carries_no_caller_ancestry(
+		world):
+	view = console(world)
+	select(view, "the root")
+	view.handle(ord("u"))
+	# The re-rooted window shows the root's subtree; open the neighbour
+	# view of the grandchild, whose dependent is outside that subtree.
+	select(view, "the grandchild")
+	view.handle(ord("b"))
+	assert view.mode == "links"
+	entries = view._links_rows()
+	assert entries, "the fixture dependency did not reach the neighbour view"
+	view.handle(curses.KEY_ENTER)
+	assert view.nav_segments() == ["Jobs", "a second root"], \
+		view.nav_segments()
+	assert view.path == [world["other"]["work_id"]]
+	view.handle(27)
+	assert view.nav == [] and view.mode == "table" and view.path == []
+
+
+def test_local_tab_keys_never_reach_the_global_row(world):
+	view = console(world)
+	view.handle(curses.KEY_ENTER)
+	before = (view.tab, view.focus, view.selected_id, view.nav_segments())
+	last = view.store.last_seq()
+	for key in (ord("]"), ord("]"), ord("["), ord("[")):
+		view.handle(key)
+		assert view.tab == "jobs", "a local tab key moved the global tab"
+	assert view.detail_tab in ("messages", "events")
+	assert (view.tab, view.focus, view.selected_id, view.nav_segments()) \
+		== before, "a local tab key disturbed the level around it"
+	assert view.store.last_seq() == last, "tab movement wrote to the authority"
+
+
+def test_brackets_still_move_the_global_tabs_at_the_top_level(world):
+	"""W110's grammar is refined, not retired."""
+	view = console(world)
+	view.handle(ord("]"))
+	assert view.tab == "teams"
+	view.handle(ord("]"))
+	assert view.tab == "inbox"
+	view.handle(ord("["))
+	assert view.tab == "teams"
+	assert header(view).startswith("[Jobs]  [Teams]  [Inbox")
+
+
+# -- the other entry paths ------------------------------------------------
+
+def test_search_is_a_segment_and_keeps_its_exact_restoration(world):
+	view = console(world)
+	view.handle(ord("j"))
+	table_at = (view.cursor, view.selected_id)
+	view.handle(ord("/"))
+	for char in "root":
+		view.handle(ord(char))
+	view.handle(10)
+	assert view.mode == "search"
+	assert view.nav_segments() == ["Jobs", "search: root"], view.nav_segments()
+	assert "[Jobs]" not in header(view)
+
+	rows, _hidden = view.visible_rows(view.search_rows())
+	assert rows, "the fixture search matched nothing"
+	view.handle(curses.KEY_ENTER)
+	assert view.mode == "detail"
+	assert view.nav_segments()[:2] == ["Jobs", "search: root"], \
+		"the Work scope did not nest under the search that opened it"
+
+	while view.mode == "detail":
+		view.handle(27)
+	assert view.mode == "search", \
+		"Back from a search result skipped the results page"
+	view.handle(27)
+	assert view.mode == "table" and view.nav == []
+	assert (view.cursor, view.selected_id) == table_at, \
+		"search lost its exact prior-table restoration"
+
+
+def test_a_replacement_query_relabels_one_segment(world):
+	view = console(world)
+	view.handle(ord("/"))
+	for char in "root":
+		view.handle(ord(char))
+	view.handle(10)
+	view.handle(ord("/"))
+	for char in "child":
+		view.handle(ord(char))
+	view.handle(10)
+	assert view.nav_segments() == ["Jobs", "search: child"], \
+		"a replacement query nested a second search inside the first"
+	view.handle(27)
+	assert view.nav == [] and view.mode == "table"
+
+
+def test_the_inbox_handoff_lands_in_jobs_and_backs_out_there(world):
+	"""The ruled exception, stated: an Inbox row LINKS into Jobs. Back
+	returns to Jobs, which is where the operator now is — not to the
+	Inbox they were handed over from."""
+	view = console(world)
+	view.tab = "inbox"
+	view._enter_detail(world["root"]["work_id"], came_from="table")
+	view.tab = "jobs"
+	assert view.nav_segments() == ["Jobs", "the root"]
+	view.handle(27)
+	assert view.nav == [] and view.tab == "jobs" and view.mode == "table"
+	assert header(view).startswith("[Jobs]")
+
+
+def test_the_links_page_is_a_segment_too(world):
+	view = console(world)
+	view.handle(ord("b"))
+	assert view.mode == "links"
+	assert view.nav_segments()[0] == "Jobs"
+	assert "links" in view.nav_segments()[-1]
+	assert "[Jobs]" not in header(view)
+	view.handle(27)
+	assert view.mode == "table" and view.nav == []
+
+
+# -- the active-filter disclosure -----------------------------------------
+
+def test_a_drilled_header_still_discloses_an_active_filter(world):
+	"""Round-2 review, [P1].
+
+	W292 supersedes the global TAB ROW inside a drill. It does not
+	supersede W5's ruling that an active filter is always disclosed in
+	the header — and search results are themselves narrowed by that
+	filter, so a drilled page with no disclosure would show a reduced
+	result set with nothing saying why."""
+	active = {"status": "open"}
+	tag = f"Filter:{len(active)}"
+
+	# Top level: unchanged, and the baseline for the rest.
+	view = console(world, work_filter=active)
+	assert tag in header(view), header(view)
+
+	# Direct Work detail.
+	view = console(world, work_filter=active)
+	view.handle(curses.KEY_ENTER)
+	row = header(view)
+	assert row.startswith("Jobs > "), row
+	assert tag in row, f"the drilled header dropped the filter tag: {row!r}"
+	assert row.rstrip().endswith("lang.ada"), row
+	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+		assert label not in row, row
+
+	# A re-rooted table keeps BOTH the header tag and the separately
+	# ruled normalized-clause line.
+	view = console(world, work_filter=active)
+	select(view, "the root")
+	view.handle(ord("u"))
+	row = header(view)
+	assert tag in row and row.rstrip().endswith("lang.ada"), row
+	drawn = painted(view).lines()
+	assert any(line.startswith("filter: ") for line in drawn), drawn[:6]
+
+	# Search results, the case the review called out by name.
+	view = console(world, work_filter=active)
+	view.handle(ord("/"))
+	for char in "root":
+		view.handle(ord(char))
+	view.handle(10)
+	assert view.mode == "search"
+	row = header(view)
+	assert row.startswith("Jobs > search: root"), row
+	assert tag in row, f"a filtered search hid its filter: {row!r}"
+	assert row.rstrip().endswith("lang.ada"), row
+
+
+def test_the_drilled_filter_tag_and_identity_survive_a_narrow_header(world):
+	"""Both right-edge units are reserved where the trail's room is
+	decided, so neither can be half-erased by the other."""
+	active = {"status": "open", "priority": "high"}
+	tag = f"Filter:{len(active)}"
+	view = console(world, work_filter=active)
+	view._enter_detail(world["grand"]["work_id"], came_from="table")
+	for width in (100, 72, 56, 44):
+		row = header(view, width=width)
+		assert row.rstrip().endswith("lang.ada"), (width, row)
+		assert tag in row, (width, row)
+		# The trail is shortened around them rather than overrunning
+		# them, and a shortened trail says so.
+		location = row[:row.index(tag)].rstrip()
+		assert location, (width, row)
+		if not location.startswith("Jobs > "):
+			assert location.startswith("…"), (width, row)
+		for label in ("[Jobs]", "[Teams]", "[Inbox"):
+			assert label not in row, (width, row)
+
+
+def test_no_filter_means_no_tag_on_a_drilled_header(world):
+	"""The disclosure is a fact about the filter, not decoration."""
+	view = console(world)
+	view.handle(curses.KEY_ENTER)
+	row = header(view)
+	assert "Filter:" not in row, row
+	assert row.startswith("Jobs > ") and row.rstrip().endswith("lang.ada")
+
+
+# -- narrow and resized ---------------------------------------------------
+
+def test_a_narrow_header_keeps_where_you_are_and_who_you_are(world):
+	view = console(world)
+	view._enter_detail(world["grand"]["work_id"], came_from="table")
+	for width in (100, 60, 44, 32):
+		row = header(view, width=width)
+		assert row.rstrip().endswith("lang.ada"), (width, row)
+		if width < 60:
+			assert row.startswith("…"), (width, row)
+			assert "the grandchild" in row or "grandchild" in row \
+				or "child" in row, (width, row)
+		else:
+			assert "the grandchild" in row, (width, row)
+		for label in ("[Jobs]", "[Teams]", "[Inbox"):
+			assert label not in row, (width, row)
+	# The local tab row survives every one of those widths, and the
+	# active tab is still exactly one.
+	for width in (100, 60, 44, 32):
+		drawn = painted(view, width=width).lines()
+		assert any("[Messages]" in line for line in drawn), (width, drawn[:6])
+
+
+def test_resizing_does_not_move_the_operator(world):
+	view = console(world)
+	view._enter_detail(world["child"]["work_id"], came_from="table")
+	view.handle(ord("]"))
+	before = (view.nav_segments(), view.detail_tab, view.detail_work)
+	for width in (100, 40, 120, 52):
+		header(view, width=width)
+	assert (view.nav_segments(), view.detail_tab, view.detail_work) == before
+
+
+# -- a real terminal ------------------------------------------------------
+
+@pytest.mark.skipif(not hasattr(_pty, "fork"), reason="no pty support")
+def test_a_real_terminal_walks_in_and_out_one_segment_at_a_time(world):
+	"""Bare Esc and the decoded Left key are the same Back, and the whole
+	walk is read-only."""
+	before = world["store"].last_seq()
+	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
+		(b"", 0.5),                # 0: the top level
+		(b"u", 0.5),               # 1: re-root — a drilled page
+		(b"\r", 0.6),              # 2: its detail — another segment
+		(b"]", 0.5),               # 3: local tab move, same location
+		(b"\x1b", 0.5),            # 4: one segment out
+		(b"\x1b[D", 0.5),          # 5: decoded Left, one more
+		(b"qy", 0.4),
+	])
+	top, rooted, detail, events, out_one, out_two = (
+		ptyharness.replay(step) for step in steps[:6])
+	assert top[0].startswith("[Jobs]  [Teams]  [Inbox"), top[0]
+	for screen in (rooted, detail, events, out_one):
+		for label in ("[Jobs]", "[Teams]", "[Inbox"):
+			assert label not in screen[0], screen[0]
+		assert screen[0].startswith("Jobs > "), screen[0]
+		assert screen[0].rstrip().endswith("lang.ada"), screen[0]
+	assert detail[0] == events[0], \
+		"the local tab move changed the location row"
+	assert any("[Messages]  [Events]" in line for line in events), events[:12]
+	assert out_two[0].startswith("[Jobs]  [Teams]  [Inbox"), out_two[0]
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, text[-600:]
+	assert world["store"].last_seq() == before, \
+		"the navigation walk wrote to the authority"

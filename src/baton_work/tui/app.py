@@ -227,6 +227,25 @@ TEAM_COLUMNS = (("Role", 4, 14), ("Agent", 5, 8), ("State", 5, 6),
 TEAM_DROP_ORDER = ("Session", "Role", "Since", "Work", "Agent", "Pickup")
 
 
+# W292: the fields that describe "where the operator is and what they
+# were looking at" — captured whole on every drill-in and restored whole
+# on every Back.
+NAV_STATE_FIELDS = (
+	"mode", "path", "cursor", "selected_id", "show_closed",
+	"search_query", "search_after", "search_page", "search_next",
+	"detail_work", "detail_tab", "focus", "disc_cursor", "disc_after",
+	"viewed_thread", "thread_before", "msg_cursor", "reader_skip",
+	"event_cursor", "event_before", "event_focus", "event_skip",
+	"links_work", "links_cursor", "poke_cursor", "poke_seq",
+)
+# The separator between breadcrumb segments. One spelling, so the painter
+# and every test read the same trail.
+NAV_SEPARATOR = " > "
+# What a frame kind is CALLED when a segment has to say which page of a
+# Work it is — only when the same Work already owns the segment above it.
+PAGE_NAMES = {"work": "detail", "root": "subtree"}
+
+
 def _fit(value: str, size: int) -> str:
 	"""One value in one column, abbreviated VISIBLY when it cannot fit.
 
@@ -1035,6 +1054,22 @@ class Console:
 		self.participant = f"{viewer_team}.{viewer_member}"
 		self.config_path = config_path
 		self.path: list[str] = []        # drilled Work ids, root-first
+		# W292 (finding-work-detail-breadcrumb-navigation): the ONE
+		# universal navigation stack. Empty means the operator is on a
+		# top-level page, which is the only place the global
+		# `[Jobs] [Teams] [Inbox]` row is painted. Every drill-in — a
+		# table re-root, a search, a Work detail, a links view, the
+		# poke view — pushes exactly one frame, the header shows the
+		# breadcrumb for the whole path instead of the global tabs, and
+		# Back/Esc pops exactly one frame and restores the level it
+		# reveals.
+		#
+		# It is deliberately NOT a Work-only mechanism: the frame kind
+		# is a label, and every drillable surface uses the same push,
+		# the same pop and the same captured view state. A later
+		# drillable page joins by pushing a frame, not by growing a
+		# special case here.
+		self.nav: list[dict] = []
 		self.cursor = 0
 		self.mode = "table"       # table / links / thread / thread
 		self.status = ""
@@ -1200,6 +1235,139 @@ class Console:
 		# must never move the cursor to a different Work merely
 		# because rows changed.
 		self.selected_id: str | None = None
+
+	# -- W292: the universal navigation stack ----------------------------
+
+	def _nav_capture(self) -> dict:
+		"""Everything that makes the CURRENT level look the way it does.
+
+		One fixed field list rather than a per-mode capture: a
+		mode-specific snapshot is one forgotten attribute away from
+		restoring a frame that is subtly not the one the operator left,
+		and the forgotten attribute is invisible until somebody
+		navigates the exact path that used it."""
+		state = {}
+		for name in NAV_STATE_FIELDS:
+			value = getattr(self, name)
+			state[name] = list(value) if isinstance(value, list) else value
+		return state
+
+	def _nav_restore(self, state: dict) -> None:
+		for name, value in state.items():
+			setattr(self, name, list(value) if isinstance(value, list)
+			        else value)
+
+	def _nav_push(self, kind: str, label: str, *,
+	              restore: dict | None = None,
+	              work: str | None = None) -> None:
+		"""Drill in one level. `restore` is the state of the level being
+		LEFT, captured before the caller changed anything; omitting it
+		captures the live state, which is right whenever the push
+		happens first.
+
+		A Work frame carries the Work's ID, not only its title. Two
+		siblings may share a title, and deciding what is already on the
+		stack by comparing prose would put the operator in a scope they
+		did not open."""
+		self.nav.append({"kind": kind, "label": label, "work": work,
+		                 "restore": self._nav_capture() if restore is None
+		                            else restore})
+
+	def _nav_pop(self) -> bool:
+		"""Back/Esc: pop EXACTLY one segment and restore the level it
+		reveals. False when there is nothing to pop, which is how a
+		top-level page keeps its own Esc semantics."""
+		if not self.nav:
+			return False
+		self._nav_restore(self.nav.pop()["restore"])
+		return True
+
+	def nav_segments(self) -> list[str]:
+		"""The complete location path, root-first, or empty at the top
+		level. The first segment is the top-level PAGE the drill started
+		from, because that is the level the last Back returns to."""
+		if not self.nav:
+			return []
+		return [self.tab.title()] + [frame["label"] for frame in self.nav]
+
+	def nav_text(self) -> str:
+		return NAV_SEPARATOR.join(self.nav_segments())
+
+	def _work_ancestry(self, work_id: str) -> list[dict]:
+		"""The canonical root-first containment trail, ending at
+		`work_id`. One cached read, shared by every drill that seeds
+		Work frames."""
+		trail = self._cached(("breadcrumb", work_id),
+		                     lambda: projection.breadcrumb(self.store, work_id))
+		return list(trail) or [{"id": work_id, "title": work_id}]
+
+	def _open_work_scopes(self, kind: str) -> list[str]:
+		"""The Work ids this path already has scopes of ONE kind for, in
+		order — the trailing run of such frames on the stack.
+
+		The kind matters. A re-rooted subtree and a Work's detail page
+		are two different pages of the same Work, so one does not stand
+		in for the other; only a drill of the same kind continues a
+		recorded containment path."""
+		open_scopes = []
+		for frame in self.nav:
+			if frame["kind"] != kind:
+				open_scopes = []
+				continue
+			open_scopes.append(frame["work"])
+		return open_scopes
+
+	def _seed_work_frames(self, work_id: str, caller: dict, level, *,
+	                      kind: str = "work") -> None:
+		"""Record the Work scopes for `work_id` that are not already
+		recorded, root-first.
+
+		The rule this implements is the finding's: do not paint ancestry
+		that one Back immediately skips. A drill straight into a
+		grandchild therefore records the parent scopes too, and each
+		Back reveals one of them — `level(work)` says what that revealed
+		scope looks like, which is the only thing the two drillable
+		surfaces disagree about.
+
+		Round-1 review: this used to push the WHOLE ancestry every time.
+		Re-rooting at a Work and then at its child produced
+		`Jobs > root > root > child`, where the duplicated segment is
+		not a containment level and the first two Backs revealed
+		identical scopes. So a drill DEEPER inside a path the stack
+		already records adds only the missing descendants; only a drill
+		into an unrelated tree seeds the whole ancestry, and it seeds it
+		from the caller as before."""
+		ancestry = self._work_ancestry(work_id)
+		ids = [entry["id"] for entry in ancestry]
+		open_scopes = self._open_work_scopes(kind)
+		# A genuine descent CONTINUES the recorded path; anything else
+		# is a different tree and starts fresh from the caller.
+		already = len(open_scopes) \
+			if open_scopes and ids[:len(open_scopes)] == open_scopes else 0
+		for depth in range(already, len(ancestry)):
+			if depth == already:
+				restore = caller
+			else:
+				restore = dict(caller)
+				restore.update(level(ids[depth - 1]))
+			label = ancestry[depth]["title"]
+			if self.nav and self.nav[-1].get("work") == ids[depth]:
+				# The same Work, a different page of it — opening a
+				# re-rooted Work's detail is a real second level and
+				# gets a real second segment, but two segments reading
+				# the same title would not say which is which.
+				label = f"{label} · {PAGE_NAMES.get(kind, kind)}"
+			self._nav_push(kind, label, restore=restore, work=ids[depth])
+
+	def _work_title(self, work_id: str) -> str:
+		"""A Work's own title from the cached breadcrumb — the same read
+		the trail uses, so a segment and the path it sits in can never
+		name the Work differently."""
+		trail = self._cached(("breadcrumb", work_id),
+		                     lambda: projection.breadcrumb(self.store, work_id))
+		if trail:
+			return trail[-1]["title"]
+		return work_id.rsplit("-", 1)[-1]
 
 	# -- data: cached canonical reads (W5) --------------------------------
 
@@ -1484,20 +1652,21 @@ class Console:
 		header painter and the old `[oblig] [park] [due]` counters are
 		gone, because Inbox owns owed action and Jobs owns parked Work.
 		What is left is what the name always promised — where in the
-		containment tree the operator is."""
-		if self.mode == "detail" and self.detail_work is not None:
-			trail = self._cached(("breadcrumb", self.detail_work),
-			                     lambda: projection.breadcrumb(
-				self.store, self.detail_work))
-			return " > ".join(entry["title"] for entry in trail)
-		if not self.path:
-			# W74: the root view has no breadcrumb — the tab bar already
-			# says where the operator is, so prose here would be noise.
-			return ""
-		trail = self._cached(("breadcrumb", self.path[-1]),
-		                     lambda: projection.breadcrumb(
-			self.store, self.path[-1]))
-		return " > ".join(entry["title"] for entry in trail)
+		containment tree the operator is.
+
+		W292 supersedes the ancestry re-read this used to do. The
+		location is now the NAVIGATION path the operator actually walked
+		— it starts at the top-level page and names one segment per
+		drill-in — because a trail and a Back that describe different
+		things is the ambiguity this Work exists to remove. The
+		canonical Work ancestry still decides the SEGMENTS, at entry:
+		`_enter_detail` seeds one Work frame per ancestor, so the two
+		can never disagree.
+
+		Empty at the top level: W74's rule that the root view has no
+		breadcrumb is unchanged, and there the tab bar says where the
+		operator is."""
+		return self.nav_text()
 
 	def top_tab_segments(self) -> list[tuple[str, str]]:
 		"""`(tab name, drawn label)` in order, every label bracketed.
@@ -1592,9 +1761,21 @@ class Console:
 		return max(0, width - 1 - len(self.participant) - 1)
 
 	def _render_header(self, screen, width: int, summary) -> None:
-		"""Row 0: tabs first, then the Jobs trail, with the participant
-		identity right-aligned. Identity is drawn LAST and overdraws, so
-		no width can clip away who the operator is signed in as."""
+		"""Row 0: the location, with the participant identity
+		right-aligned. Identity is drawn LAST and overdraws, so no width
+		can clip away who the operator is signed in as.
+
+		W292: WHICH location depends on the one thing that decides it —
+		whether the operator has drilled in. At a top-level page this is
+		the global tab row, exactly as W25/W74/W110 built it. Inside any
+		drilled page it is the breadcrumb for the whole path and the
+		global row is ABSENT, because two tab rows on one screen imply
+		two peer navigation surfaces when one of them is a drill-down
+		inside the other. The local tabs of the drilled page are painted
+		by that page, beneath this row."""
+		if self.nav:
+			self._render_breadcrumb(screen, width)
+			return
 		box = self.inbox_view()
 		tabs = self.top_tabs()
 		# W25 review R1: the urgency weight belongs to the INBOX label
@@ -1623,11 +1804,61 @@ class Console:
 			screen.addnstr(0, min(len(tabs) + 2, max(0, width - 1)),
 			               trail, max(0, width - 1 - len(tabs) - 2),
 			               curses.A_BOLD)
-		if self.work_filter and self.tab == "jobs":
+		tag = self._filter_tag()
+		if tag:
 			# W5 (ruled): active filtering is ALWAYS disclosed. It now
 			# shares the right edge with the identity, so it sits just
-			# left of it rather than under it.
-			tag = f"Filter:{len(self.work_filter)}"
+			# left of it rather than under it. W292: the drilled header
+			# paints the same tag from the same definition.
+			at = width - 2 - len(tag) - len(self.participant)
+			screen.addnstr(0, max(0, at), tag, width - 1, curses.A_BOLD)
+		screen.addnstr(0, max(0, width - 1 - len(self.participant)),
+		               self.participant, width - 1, curses.A_BOLD)
+
+	def _filter_tag(self) -> str:
+		"""W5's header disclosure, or empty. ONE definition, because the
+		top-level header and every drilled header owe the operator the
+		same fact and must not be able to disagree about when."""
+		return f"Filter:{len(self.work_filter)}" \
+			if self.work_filter and self.tab == "jobs" else ""
+
+	def _render_breadcrumb(self, screen, width: int) -> None:
+		"""The drilled location row: the complete path, then the right
+		edge — an active filter's disclosure, then identity.
+
+		Narrow terminals lose the OLDEST segments rather than the
+		newest: where the operator is now is the fact they cannot
+		afford to lose, and an elided head is announced with a leading
+		`…` so a shortened trail never reads as a complete one. The
+		identity keeps its own promise and overdraws last.
+
+		W292 round-2 review: this used to paint the trail and identity
+		and return, so `Filter:N` was reachable only at the top level.
+		W292 supersedes the global TAB ROW inside a drill; it does not
+		supersede W5's ruling that an active filter is ALWAYS disclosed
+		in the header — and search results are themselves narrowed by
+		that filter, so a drilled page with no disclosure showed a
+		reduced result set with nothing saying why. Both right-edge
+		units are reserved here, where the trail's room is decided, so
+		neither can be half-erased by the other."""
+		tag = self._filter_tag()
+		room = max(0, self._tab_budget(width)
+		           - (len(tag) + 1 if tag else 0))
+		segments = self.nav_segments()
+		trail = NAV_SEPARATOR.join(segments)
+		if len(trail) > room:
+			kept = list(segments)
+			while len(kept) > 1 and \
+					len("… " + NAV_SEPARATOR.join(kept)) > room:
+				kept.pop(0)
+			trail = "… " + NAV_SEPARATOR.join(kept)
+			if len(trail) > room:
+				# One segment that still does not fit: keep its TAIL,
+				# because the end of a title distinguishes siblings more
+				# often than its beginning.
+				trail = "… " + kept[-1][-max(0, room - 2):]
+		screen.addnstr(0, 0, trail, max(1, width - 1), curses.A_BOLD)
+		if tag:
 			at = width - 2 - len(tag) - len(self.participant)
 			screen.addnstr(0, max(0, at), tag, width - 1, curses.A_BOLD)
 		screen.addnstr(0, max(0, width - 1 - len(self.participant)),
@@ -4120,10 +4351,22 @@ class Console:
 			if self.mode != "search":
 				# entering search: remember the EXACT prior table
 				# state — including closed visibility (R2) — for the
-				# Esc restoration
+				# Esc restoration.
+				#
+				# W292: results are a page the operator drilled INTO,
+				# so the same navigation frame carries that state and
+				# the breadcrumb names the query. `search_saved` stays
+				# as the frame's payload rather than a second mechanism
+				# beside it.
 				self.search_saved = (list(self.path), self.cursor,
 				                     self.selected_id,
 				                     self.show_closed)
+				self._nav_push("search", f"search: {query}")
+			elif self.nav and self.nav[-1]["kind"] == "search":
+				# A replacement query is the SAME level, relabelled —
+				# `/` from results does not nest a second search inside
+				# the first, and one Esc still reaches the table.
+				self.nav[-1]["label"] = f"search: {query}"
 			self.search_query = query
 			self.search_after = 0
 			self.search_page = 1
@@ -4183,9 +4426,17 @@ class Console:
 			self.schedule_refresh()
 		self.status = brief if code == 0 else error
 
+	def _open_pokes_nav(self) -> None:
+		"""W292: the poke view is reached from Jobs and returns to it,
+		so it is a drilled page and takes a breadcrumb segment. It has
+		no local tabs, which is a property of this page rather than an
+		exception to the model."""
+		self._nav_push("pokes", "pokes")
+
 	def _open_pokes(self) -> None:
 		"""Enter the poke view on the row that wants an answer — owed
 		pokes sort first, so that is simply the first row."""
+		self._open_pokes_nav()
 		self.mode = "pokes"
 		self.poke_cursor = 0
 		self.poke_seq = None
@@ -4345,7 +4596,10 @@ class Console:
 				               f"{selected['state']}; a terminal poke "
 				               f"cannot be withdrawn")
 		elif key in (27, curses.KEY_LEFT, ord("p")):
-			self.mode = "table"
+			# W292: one segment out, restoring the table the poke view
+			# was opened from.
+			if not self._nav_pop():
+				self.mode = "table"
 		return True
 
 	def _search_mode_key(self, key: int) -> bool:
@@ -4388,16 +4642,22 @@ class Console:
 		elif key == 27:
 			# the exact prior table state returns — path, cursor,
 			# selection, AND closed visibility (R2); the filter was
-			# never search's to change
-			path, cursor, selected, shown = \
-				self.search_saved or ([], 0, None, self.show_closed)
-			self.path = path
-			self.cursor = cursor
-			self.selected_id = selected
-			self.show_closed = shown
+			# never search's to change.
+			#
+			# W292: one Back pops the search segment. The frame carries
+			# the same state `search_saved` did, so the restoration is
+			# unchanged; what changed is that it is now the SAME
+			# mechanism every other drilled page uses.
+			if not self._nav_pop():
+				path, cursor, selected, shown = \
+					self.search_saved or ([], 0, None, self.show_closed)
+				self.path = path
+				self.cursor = cursor
+				self.selected_id = selected
+				self.show_closed = shown
+				self.mode = "table"
 			self.search_query = None
 			self.search_saved = None
-			self.mode = "table"
 		return True
 
 	def _set_filter(self, tokens) -> None:
@@ -4892,7 +5152,21 @@ class Console:
 		# job: cycling pane focus for operators who do not reach for
 		# Vim window commands. One key cannot mean "next tab" and "next
 		# pane" without meaning neither.
-		if key in (ord("["), ord("]")) and self.mode != "detail":
+		# W292 generalizes the guard from "not in Work detail" to "not
+		# drilled in at all". `[`/`]` move among the tabs at the CURRENT
+		# level, and the global tabs are only the current level at the
+		# top — so inside any drilled page these keys belong to that
+		# page and can never move the operator to Teams or Inbox behind
+		# their back. A drilled page with no local tabs simply ignores
+		# them.
+		#
+		# BOTH conditions, deliberately. `nav` is the recorded path and
+		# is what the breadcrumb paints; the mode is what the operator
+		# is actually looking at. A view constructed straight into a
+		# detail mode has no recorded path, and its brackets must still
+		# not reach the global row.
+		if key in (ord("["), ord("]")) \
+				and not self.nav and self.mode == "table":
 			step = -1 if key == ord("[") else 1
 			self.tab = TABS[(TABS.index(self.tab) + step) % len(TABS)]
 			return True
@@ -4922,14 +5196,35 @@ class Console:
 				# The deliberate cross-team drill-through (ruled): the
 				# far Work re-roots the tree; the breadcrumb
 				# reconstructs its real ancestry.
-				self.path = [entries[self.links_cursor][0]]
+				#
+				# W292: this LEAVES the links page and RE-ROOTS at a
+				# Work that is somewhere else entirely, so the whole
+				# recorded path is unwound first — the caller's
+				# ancestry belongs to a different tree and prefixing
+				# the far Work with it would paint a containment path
+				# that does not exist.
+				#
+				# Round-1 review: this used to pop only the links frame
+				# and push one title, so a dependency pointing at a
+				# grandchild gave `Jobs > grand` and Back skipped the
+				# parent scopes. The far Work's own canonical ancestry
+				# is seeded through the SAME model every other drill
+				# uses, so its trail and its Back agree.
+				far = entries[self.links_cursor][0]
+				while self._nav_pop():
+					pass
+				self._seed_work_frames(far, self._nav_capture(),
+				                       self._rooted_table_state,
+				                       kind="root")
+				self.path = self._work_ids(far)
 				self.cursor = 0
 				self.selected_id = None
 				self.mode = "table"
 				self.links_work = None
 			elif key in (27, curses.KEY_LEFT, ord("i")):
-				self.mode = "table"
-				self.links_work = None
+				if not self._nav_pop():
+					self.mode = "table"
+					self.links_work = None
 			return True
 		if self.mode == "detail":
 			return self._handle_detail(key)
@@ -4952,11 +5247,24 @@ class Console:
 			# idempotent: one logical unfold, one Back (R2).
 			target = rows[self.cursor]["id"]
 			if not (self.path and self.path[-1] == target):
-				self.path.append(target)
+				# W292: a re-root is a drill-in like any other, and it
+				# records the SAME ancestry a Work-detail entry does —
+				# so the trail names the containment path and each Back
+				# reveals one level of it, ending at the table the
+				# operator left with its row and view state intact
+				# (refining W71's reset-to-row-zero).
+				self._seed_work_frames(
+					target, self._nav_capture(), self._rooted_table_state,
+					kind="root")
+				self.path = self._work_ids(target)
 				self.cursor = 0
 				self.selected_id = None
 		elif key == ord("b") and rows:
-			self.links_work = rows[self.cursor]["id"]
+			# W292: the links page is a drill into the chosen Work,
+			# so it is a breadcrumb segment like any other.
+			target = rows[self.cursor]["id"]
+			self._nav_push("links", f"{self._work_title(target)} · links")
+			self.links_work = target
 			self.links_cursor = 0
 			self.mode = "links"
 		elif key == ord("c") and rows:
@@ -4972,10 +5280,10 @@ class Console:
 			self.cursor = min(self.cursor, max(0, len(shown) - 1))
 			self.selected_id = shown[self.cursor]["id"] if shown \
 				else None
-		elif key in (27, curses.KEY_LEFT) and self.path:
-			self.path.pop()
-			self.cursor = 0
-			self.selected_id = None
+		elif key in (27, curses.KEY_LEFT) and self.nav:
+			# W292: one segment per Back, and the revealed level comes
+			# back as it was.
+			self._nav_pop()
 		return True
 
 	def _handle_detail(self, key: int) -> bool:
@@ -5071,8 +5379,14 @@ class Console:
 			self._switch_tab(-1)
 			return True
 		if key in (27, curses.KEY_LEFT):
-			# W6: leaving detail returns to the view that opened it —
-			# the search results when the result row was entered.
+			# W292: Back pops exactly ONE breadcrumb segment. Inside a
+			# nested Work that is the parent Work scope, not the caller
+			# — the trail names those scopes, so a Back that skipped
+			# them would be describing a path nobody can walk. The last
+			# pop restores the view that opened the drill, which is
+			# what W6's search restoration always promised.
+			if self._nav_pop():
+				return True
 			self.mode = self.detail_return
 			self.detail_return = "table"
 			return True
@@ -5221,20 +5535,43 @@ class Console:
 		Events tab — against the ruling and the documentation — showing
 		A's event page. Per-tab state is preserved for a tab ROUND TRIP
 		inside one open detail view, which is `_switch_tab`'s job and is
-		untouched; it was never meant to follow the operator to a
-		different Work."""
-		self.detail_work = work_id
-		self.detail_tab = "messages"
-		self.disc_cursor = None      # the New-first default
-		self.disc_after = 0
-		self.focus = DETAIL_ENTRY_FOCUS
-		self._reset_message_selection()
-		self.event_cursor = None
-		self.event_before = None
-		self.event_focus = "index"
-		self.event_skip = 0
+		it was never meant to follow the operator to a different Work.
+
+		W292: entry also records the NAVIGATION path. One frame is
+		pushed per Work in the canonical ancestry, root-first, so
+		repeated Back walks out through the parent Works one segment at
+		a time instead of jumping to the caller — and so a segment the
+		breadcrumb paints is a segment one Back actually visits. The
+		ancestors the operator never opened get the ordinary fresh-entry
+		defaults; only the frame the caller came from restores the
+		caller's own view."""
+		caller = self._nav_capture()
+		self._seed_work_frames(work_id, caller, self._fresh_detail_state,
+		                       kind="work")
+		self._nav_restore(self._fresh_detail_state(work_id))
 		self.detail_return = came_from
-		self.mode = "detail"
+
+	def _work_ids(self, work_id: str) -> list[str]:
+		"""The re-rooted window's path: the ancestry as Work ids."""
+		return [entry["id"] for entry in self._work_ancestry(work_id)]
+
+	def _rooted_table_state(self, work_id: str) -> dict:
+		"""The Jobs table re-rooted at one ancestor — what a Back into a
+		parent Work scope reveals when the drill was a re-root."""
+		return {"mode": "table", "path": self._work_ids(work_id),
+		        "cursor": 0, "selected_id": None}
+
+	def _fresh_detail_state(self, work_id: str) -> dict:
+		"""What a FRESH Work-detail entry looks like — the one
+		definition, so a synthesized ancestor frame and a real entry
+		cannot drift apart."""
+		return {"mode": "detail", "detail_work": work_id,
+		        "detail_tab": "messages", "disc_cursor": None,
+		        "disc_after": 0, "focus": DETAIL_ENTRY_FOCUS,
+		        "thread_before": None, "msg_cursor": None,
+		        "reader_skip": 0, "event_cursor": None,
+		        "event_before": None, "event_focus": "index",
+		        "event_skip": 0}
 
 	def _reset_message_selection(self, keep_thread: bool = False) -> None:
 		"""Moving to another Thread (or another page) drops the message

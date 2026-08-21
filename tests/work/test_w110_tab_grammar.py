@@ -462,7 +462,17 @@ def test_a_real_terminal_moves_both_tab_levels_with_brackets(world):
 	assert any("[Messages]  [Events]" in line for line in events), \
 		events[:12]
 	# the ] inside detail moved the DETAIL tab and left the top level
-	# alone: the Events view names the Work's journal, and the top bar
-	# is still the one Jobs painted.
-	assert events[0].startswith("[Jobs]  [Teams]  [Inbox"), events[0]
+	# alone: the Events view names the Work's journal, and the global
+	# tab row is not painted at all.
+	#
+	# W292 supersedes the old expectation that the global row stayed
+	# visible here. What the ruling keeps is the property this case
+	# exists for: `]` inside a drilled page moves that page's LOCAL tab
+	# and nothing else — and it is now provable from the header, which
+	# names the drilled location rather than the top level.
+	assert events[0].startswith("Jobs > "), events[0]
+	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+		assert label not in events[0], events[0]
+	assert detail[0] == events[0], \
+		"the local tab move changed the location row"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, text[-600:]

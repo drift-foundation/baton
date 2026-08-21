@@ -115,14 +115,41 @@ the participant identity right-aligned on the same row:
 
     [Jobs] [Teams] [Inbox *]                                 team.member
 
-`]` selects the next tab and `[` the previous one, with wrap-around —
-the SAME keys Work detail uses for its own Messages/Events tabs, doing
-the same thing at whichever level you are in. Inside Work detail they
-move that view's tabs and never reach the top level. They are the ONLY
+That row appears at the TOP LEVEL and nowhere else. The moment you
+drill into something — a Work's detail, a re-rooted tree, a search, a
+neighbour view — it is replaced by a breadcrumb naming the whole path
+you walked, and the page you are on shows only its own tabs beneath
+it:
+
+    Jobs > the root > the child                              team.member
+    [Messages] [Events]
+
+Two tab rows on one screen would say you are in two places at once,
+and one of them is a drill-down inside the other.
+
+`]` selects the next tab and `[` the previous one, with wrap-around.
+They always act at the level you are ON: at the top level they move
+between Jobs, Teams and Inbox; inside a drilled page they move that
+page's own tabs and can never reach the top level. A drilled page with
+no tabs of its own simply ignores them. They are the ONLY
 tab-switching keys: `Tab` and `Shift-Tab` used to be aliases here and
 are not any more, because Tab has a better job one level down. Where
 the console is taking text — the command bar, a batch buffer, the
 search line — `[` and `]` are typed characters like any other.
+
+**Esc (or Left) goes back exactly one segment**, never straight to the
+top. From a grandchild's detail it reveals the child's, then the
+root's, then the Jobs table — and each level comes back the way you
+left it: the same row selected, the same local tab, the same pane. A
+search you drilled a result out of is still there when you come back,
+and one more Esc returns the table it was run from. Opening a Work
+from Inbox is a HANDOFF into Jobs, so Back from there leaves you in
+Jobs rather than returning to the Inbox row.
+
+Narrow terminals drop the OLDEST breadcrumb segments and mark the
+shortened trail with a leading `…`, because where you are now is the
+part you cannot afford to lose. The participant identity keeps the
+right edge at every width.
 
 Every tab label is bracketed and the active one is HIGHLIGHTED. The
 brackets say "this is a tab"; they do not say which tab you are in.
@@ -371,8 +398,9 @@ from the lower panes. At usable width the index sits left of the
 reader; at narrow width they stack, index above reader — never merged
 into a flat stream. Selecting a Thread opens its newest Message, which
 is also its newest unseen one whenever anything is unseen. u
-unfolds/re-roots the tree at the selected Work,
-Esc goes back, Ctrl-W then h/j/k/l (or arrows, or w / another
+unfolds/re-roots the tree at the selected Work (adding breadcrumb
+segments for its containment path, one per Esc on the way out),
+Esc goes back one segment, Ctrl-W then h/j/k/l (or arrows, or w / another
 Ctrl-W) moves GEOMETRICALLY across the three regions — Threads sits
 above both Message panes, index and reader sit beside each other, so
 one upward move from the reader reaches Threads directly and an
@@ -487,7 +515,11 @@ runs inside the canonical snapshot: a matching child keeps its
 nonmatching parent as `filter_match:false` context, the team summary
 stays global, and the active filter is always disclosed — `Filter:N`
 right-aligned on the header plus a dedicated clause line that viewports
-at narrow widths.
+at narrow widths. "Always" includes every drilled page: a breadcrumb
+header carries the same tag beside the identity, and the trail is
+shortened around both rather than over them. Search results are
+themselves narrowed by the active filter, so that is exactly where the
+disclosure has to survive.
 
 Bold Titles are PERSONAL: a row is bold exactly when YOU can act on it — you hold its claim, or it is open/ready/unclaimed (not blocked or parked) with its Route resolving to you (every eligible handler until one claims; only the winner after), or you owe it an unresolved directed `@` (actionable even while blocked). Eligibility is TWO columns, not one: `Endpoint` is the stable
 `team.kind` address a reader types, and `Via` is the selected internal
