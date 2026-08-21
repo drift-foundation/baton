@@ -323,6 +323,324 @@ def test_installed_init_scaffolds_from_the_release_assets(dist, tmp_path):
 		example["instance"]["authority_uuid"]
 
 
+# -- The INSTALLED execution-policy generator ------------------------------
+#
+# `work/records/2026/08/finding-deployed-exec-policy-helper/`. Release
+# d46ab1e shipped a dispatcher template instructing the operator to
+# generate the exact W415 rules with
+# `tools/codex-event-bridge/src/exec_policy.mjs` — a path that exists
+# only in the source checkout — and shipped no equivalent installed
+# command. A standalone deployment could not follow its own
+# instructions, which leaves somebody hand-authoring the
+# security-sensitive rules the module exists to get right.
+#
+# These cases run against the ACTUAL deployer's output rather than a
+# synthetic copy list, because the defect was in what the deployer
+# copied.
+
+SOURCE_EXEC_POLICY = os.path.join(
+	REPO, "tools", "codex-event-bridge", "src", "exec_policy.mjs")
+DEPLOYED_EXEC_POLICY = os.path.join(
+	"lib", "codex-event-bridge", "src", "exec_policy.mjs")
+POLICY_IDENTITY = ("binary=/opt/baton/bin/baton",
+                   "config=/srv/baton/baton.json",
+                   "participant=baton.codex")
+
+# The deployed artifact must keep every W415 property, so the matrix is
+# driven through the DEPLOYED module's own exports. It asserts and exits
+# nonzero rather than reporting, so a regression fails the Python case.
+DEPLOYED_POLICY_MATRIX = r"""
+import assert from "node:assert/strict";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const { rulesFor, auditRules, assertPolicyProvisioned, RULED_VERBS } =
+	await import(pathToFileURL(process.argv[2]).href);
+
+const identity = { binary: "/opt/baton/bin/baton",
+	config: "/srv/baton/baton.json", participant: "baton.codex" };
+const other = { ...identity, participant: "baton.tuner" };
+assert.deepEqual(RULED_VERBS, ["claim", "say", "pass", "close"],
+	"the deployed ruled capability is not the four confirmed verbs");
+const exact = rulesFor(identity).join("\n");
+const dir = mkdtempSync("/tmp/deployed-exec-policy-");
+const write = (name, text) => {
+	const file = join(dir, name);
+	writeFileSync(file, `${text}\n`);
+	return file;
+};
+const broadRule = `prefix_rule(pattern=["${identity.binary}"], decision="allow")`;
+const ruleFor = (who, verb) =>
+	`prefix_rule(pattern=["${identity.binary}", "--config", `
+	+ `"${identity.config}", "--participant", "${who}", "${verb}"], `
+	+ `decision="allow")`;
+
+// EXACT ONLY is the approved state and still succeeds.
+assert.equal(assertPolicyProvisioned(write("exact.rules", exact),
+	identity).satisfied, true);
+
+// EXACT + BROAD: the half-finished upgrade an operator most likely has.
+assert.throws(() => assertPolicyProvisioned(
+	write("mixed.rules", `${exact}\n${broadRule}`), identity),
+	/half-finished upgrade state/);
+
+// BROAD ONLY refuses, with the install instructions.
+assert.throws(() => assertPolicyProvisioned(write("broad.rules", broadRule),
+	identity), /install these rules and remove the broad one/);
+
+// Any other verb for THIS participant is extra capability.
+for (const verb of ["regen", "mark-seen", "release", "phase", "detail"]) {
+	const policy = `${exact}\n${ruleFor(identity.participant, verb)}`;
+	assert.deepEqual(auditRules(policy, identity).extra, [verb]);
+	assert.throws(() => assertPolicyProvisioned(write(`${verb}.rules`, policy),
+		identity), /dedicated to the approved set/);
+}
+
+// Other participants' rules are independent and stay valid.
+assert.equal(assertPolicyProvisioned(
+	write("other-extra.rules", `${exact}\n${ruleFor(other.participant, "regen")}`),
+	identity).satisfied, true);
+
+process.stdout.write("matrix ok\n");
+"""
+
+
+# The shipped template configures MORE THAN ONE target identity and
+# `EventBridge.start()` preflights every one of them against the single
+# nominated `execPolicyFile`, so provisioning is only complete when that
+# one file carries the exact rules for ALL of them. This drives the
+# DEPLOYED auditor over both the combined file and a one-participant
+# file, because the one-participant file is what the previous
+# instruction produced.
+TEMPLATE_PROVISIONING_CHECK = r"""
+import assert from "node:assert/strict";
+import { pathToFileURL } from "node:url";
+
+const [modulePath, combined, partial, binary, config, ...participants] =
+	process.argv.slice(2);
+const { assertPolicyProvisioned } =
+	await import(pathToFileURL(modulePath).href);
+
+assert.ok(participants.length > 1,
+	"the shipped template configures only one identity; this case is about "
+	+ "the several-identity provisioning path");
+
+// The documented combined file authorizes every configured identity.
+for (const participant of participants) {
+	assert.equal(
+		assertPolicyProvisioned(combined, { binary, config, participant }).satisfied,
+		true, `the combined policy does not authorize ${participant}`);
+}
+
+// And following the instruction for ONE participant leaves the others
+// unauthorized — which is why the instruction must say "once per
+// participant, appended". The dispatcher refuses to start in this state.
+assert.equal(
+	assertPolicyProvisioned(partial, { binary, config, participant: participants[0] })
+		.satisfied, true);
+for (const participant of participants.slice(1)) {
+	assert.throws(
+		() => assertPolicyProvisioned(partial, { binary, config, participant }),
+		/does not authorize/,
+		`a one-participant policy still authorized ${participant}`);
+}
+
+process.stdout.write("provisioning ok\n");
+"""
+
+
+def _node(*argv, **kwargs):
+	return subprocess.run(["node", *argv], capture_output=True, text=True,
+	                      timeout=120, env=_env(), **kwargs)
+
+
+def test_the_release_carries_the_generator_its_template_names(dist):
+	"""The release carries a BYTE-EQUAL IMMUTABLE COPY of the reviewed
+	source helper. It is not the same filesystem artifact the dispatcher
+	imports — the canonical dispatcher runs from a source checkout and
+	this release ships no bin/codex-event-bridge — so byte parity is the
+	whole guarantee that the operator's generator and the dispatcher's
+	auditor are one implementation."""
+	target, _summary = dist
+	deployed = os.path.join(target, DEPLOYED_EXEC_POLICY)
+	assert os.path.isfile(deployed), \
+		"the release ships no execution-policy generator"
+	assert _read(deployed) == _read(SOURCE_EXEC_POLICY), \
+		"the deployed generator drifted from the reviewed source module"
+	# The W163 distribution ruling's two product entry points are
+	# UNCHANGED: the generator ships in the private lib/ location the
+	# shared bridge modules already use, not as a third bin/ command.
+	assert sorted(os.listdir(os.path.join(target, "bin"))) == \
+		["acp-baton-bridge", "baton"], \
+		"the generator was smuggled in as a third product entry point"
+
+
+def test_the_shipped_template_names_only_installed_resources(dist):
+	"""A standalone deployment must be able to follow its own
+	instructions; the checkout locator it used to print is not a
+	resource the operator has."""
+	target, _summary = dist
+	shipped = os.path.join(target, "conf",
+	                       "codex-event-bridge.template.json")
+	document = json.loads(_read(shipped))
+	comment = "\n".join(value for key, value in document.items()
+	                    if key.startswith("//"))
+	assert "lib/codex-event-bridge/src/exec_policy.mjs" in comment, \
+		"the template does not name the installed generator"
+	assert "tools/codex-event-bridge" not in comment, \
+		"the template still instructs the operator to use a checkout path"
+	# The instruction is a runnable invocation, in the operand grammar
+	# the generator actually accepts.
+	for operand in ("binary=", "config=", "participant="):
+		assert operand in comment, f"the instruction omits {operand}"
+	# It provisions EVERY configured identity, because the dispatcher
+	# preflights each of them against this one nominated file. A single
+	# run leaves the rest unauthorized, and a second `>` would drop the
+	# first, so the documented form appends into a staged file.
+	for entry in document["targets"].values():
+		participant = entry["identity"]["participant"]
+		assert participant in comment, \
+			f"the instruction never provisions {participant}"
+	assert ">>" in comment, \
+		"the instruction does not append each participant's rules"
+	assert "staged" in comment, \
+		"the instruction redirects onto the live policy file"
+	# It ships byte-equal to source, so the two cannot drift.
+	assert _read(shipped) == _read(os.path.join(
+		REPO, "conf", "codex-event-bridge.template.json"))
+
+
+def test_the_deployed_generator_emits_the_approved_rules_standalone(dist):
+	"""Run from the immutable target with no checkout on the path — the
+	release is what an operator has, and it must produce byte-identical
+	output to the reviewed helper."""
+	target, _summary = dist
+	deployed = _node(os.path.join(target, DEPLOYED_EXEC_POLICY),
+	                 *POLICY_IDENTITY, cwd=target)
+	assert deployed.returncode == 0, deployed.stderr
+	source = _node(SOURCE_EXEC_POLICY, *POLICY_IDENTITY)
+	assert source.returncode == 0, source.stderr
+	assert deployed.stdout == source.stdout, \
+		"the deployed generator's output drifted from the reviewed helper"
+	assert deployed.stderr == "", "the generator wrote to stderr on success"
+	# Independently of that parity: the approved four verbs, in order,
+	# each naming the exact executable, config and participant.
+	lines = deployed.stdout.split("\n")
+	assert lines[-1] == "" and len(lines) == 5, \
+		"the generator did not print exactly four rules and a final newline"
+	for verb, rule in zip(["claim", "say", "pass", "close"], lines):
+		assert rule == (
+			'prefix_rule(pattern=["/opt/baton/bin/baton", "--config", '
+			'"/srv/baton/baton.json", "--participant", "baton.codex", '
+			f'"{verb}"], decision="allow")')
+	# It PRINTS and never installs: a generator that could write the
+	# policy file could grant itself authority.
+	assert not os.path.exists(os.path.join(target, "baton.rules"))
+
+
+def test_the_deployed_generator_refuses_every_malformed_invocation(dist):
+	"""Strict operands, from the installed artifact. A generator that
+	guessed would emit rules authorizing a command nobody asked for."""
+	target, _summary = dist
+	deployed = os.path.join(target, DEPLOYED_EXEC_POLICY)
+	refusals = (
+		((), "missing operand(s): binary, config, participant"),
+		(POLICY_IDENTITY[:2], "missing operand(s): participant"),
+		(POLICY_IDENTITY + ("verbs=claim",), 'unknown operand "verbs=claim"'),
+		(POLICY_IDENTITY + (POLICY_IDENTITY[0],),
+		 "operand binary was given more than once"),
+		(("binary",) + POLICY_IDENTITY[1:], "operand binary needs a value"),
+		(("binary=bin/baton",) + POLICY_IDENTITY[1:],
+		 "ABSOLUTE installed executable"),
+		((POLICY_IDENTITY[0], "config=baton.json", POLICY_IDENTITY[2]),
+		 "ABSOLUTE installed executable"),
+		((POLICY_IDENTITY[0], POLICY_IDENTITY[1], "participant="),
+		 "non-empty participant"),
+	)
+	for argv, expected in refusals:
+		proc = _node(deployed, *argv, cwd=target)
+		assert proc.returncode != 0, f"{argv} was not refused"
+		assert expected in proc.stderr, f"{argv}: {proc.stderr}"
+		assert proc.stdout == "", \
+			f"{argv} still wrote policy text to stdout"
+
+
+def test_importing_the_deployed_generator_emits_nothing(dist):
+	"""This module is IMPORTED as well as run — the bridge's startup
+	preflight imports the source original — so the direct invocation
+	must stay inert on import in the shipped copy too."""
+	target, _summary = dist
+	# The path is EMBEDDED in the script rather than passed as an
+	# operand: `node -e` puts extra arguments at argv[1], which is
+	# exactly where a directly-invoked module sees its own path.
+	deployed = os.path.join(target, DEPLOYED_EXEC_POLICY)
+	proc = _node("--input-type=module", "-e",
+	             f"await import({json.dumps(deployed)});", cwd=target)
+	assert proc.returncode == 0, proc.stderr
+	assert proc.stdout == "" and proc.stderr == "", \
+		"importing the generator produced output"
+
+
+def test_the_deployed_artifact_keeps_the_exact_policy_boundary(dist,
+		tmp_path):
+	"""W415's exact/broad/extra matrix, driven through the DEPLOYED
+	module. Shipping the generator must not ship a weaker auditor."""
+	target, _summary = dist
+	script = tmp_path / "deployed_policy_matrix.mjs"
+	script.write_text(DEPLOYED_POLICY_MATRIX, encoding="utf-8")
+	proc = _node(str(script), os.path.join(target, DEPLOYED_EXEC_POLICY),
+	             cwd=target)
+	assert proc.returncode == 0, proc.stderr[-2000:]
+	assert proc.stdout.strip() == "matrix ok"
+
+
+def test_the_shipped_instruction_provisions_every_template_identity(dist,
+		tmp_path):
+	"""P1: the template nominates ONE execPolicyFile and configures more
+	than one target identity, and `EventBridge.start()` preflights every
+	one of them against that file. Running the generator once — the
+	instruction this release used to ship — leaves the rest
+	unauthorized and the dispatcher refusing to start."""
+	target, _summary = dist
+	template = json.loads(_read(os.path.join(
+		target, "conf", "codex-event-bridge.template.json")))
+	participants = sorted({entry["identity"]["participant"]
+	                       for entry in template["targets"].values()})
+	assert len(participants) > 1, \
+		"the template no longer exercises the several-identity path"
+	binary = template["roleInstructions"]["binary"]
+	config = template["roleInstructions"]["config"]
+	deployed = os.path.join(target, DEPLOYED_EXEC_POLICY)
+
+	# Exactly the documented procedure: once per participant, APPENDED
+	# into a staged file, and only then installed.
+	staged = tmp_path / "baton.rules.staged"
+	with open(staged, "w", encoding="utf-8") as handle:
+		for participant in participants:
+			proc = _node(deployed, f"binary={binary}", f"config={config}",
+			             f"participant={participant}", cwd=target)
+			assert proc.returncode == 0, proc.stderr
+			handle.write(proc.stdout)
+	installed = tmp_path / "baton.rules"
+	os.rename(staged, installed)
+	assert len(_read(installed).splitlines()) == 4 * len(participants)
+
+	# And the single-run form the release used to document.
+	partial = tmp_path / "one-participant.rules"
+	proc = _node(deployed, f"binary={binary}", f"config={config}",
+	             f"participant={participants[0]}", cwd=target)
+	assert proc.returncode == 0, proc.stderr
+	partial.write_text(proc.stdout, encoding="utf-8")
+
+	script = tmp_path / "template_provisioning.mjs"
+	script.write_text(TEMPLATE_PROVISIONING_CHECK, encoding="utf-8")
+	proc = _node(str(script), deployed, str(installed), str(partial),
+	             binary, config, *participants, cwd=target)
+	assert proc.returncode == 0, proc.stderr[-2000:]
+	assert proc.stdout.strip() == "provisioning ok"
+
+
 def test_the_recreation_script_instructs_the_renamed_executable():
 	"""W2 R1: the W92 recreation script is CURRENT operator instruction,
 	not frozen history — it must name bin/baton and never the retired

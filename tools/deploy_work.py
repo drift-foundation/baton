@@ -21,7 +21,9 @@ release shape:
                                    release runs without the source
                                    checkout, npm, or network
     <target>/lib/codex-event-bridge/src/  the shared projection-5
-                                   envelope gate the bridge imports
+                                   envelope gate the bridge imports, and
+                                   the execution-policy generator the
+                                   shipped dispatcher template names
     <target>/doc/BATON-WORK.md     the operator quickstart
     <target>/doc/AGENTS-MAILBOX-PROTO.md  the agent protocol contract
     <target>/conf/baton.example.json  a complete valid config example
@@ -96,6 +98,21 @@ SOURCE_BRIDGE = os.path.join(REPO, "tools", "acp-baton-bridge")
 SOURCE_SHARED_GATE = (
 	"tools/codex-event-bridge/src/codex_baton_bridge.mjs",
 	"tools/codex-event-bridge/src/config.mjs",
+	# finding-deployed-exec-policy-helper: the shipped dispatcher
+	# template tells the operator to generate the exact execution-policy
+	# rules with this module, and d46ab1e shipped that instruction
+	# without the module — a standalone deployment could not follow its
+	# own instructions and would leave somebody hand-authoring
+	# security-sensitive rules. What ships is a BYTE-EQUAL IMMUTABLE
+	# COPY of the reviewed source helper, pinned by the deployer test —
+	# not the same filesystem artifact the dispatcher imports, because
+	# the canonical dispatcher still runs from a source checkout
+	# (`conf/infra.example.json`) and this release ships no
+	# `bin/codex-event-bridge`. Byte parity is therefore the whole
+	# guarantee: it is what keeps the rules an operator generates and
+	# the rules a dispatcher audits from being produced by two
+	# different implementations.
+	"tools/codex-event-bridge/src/exec_policy.mjs",
 	"tools/codex-event-bridge/src/role_instructions.mjs",
 	# W93 slice 4: the ACP bridge imports the shared runtime-lease
 	# publisher from the same directory it already takes the role

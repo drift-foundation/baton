@@ -32,7 +32,8 @@
 //      form — the executable alone — is explicitly refused below, and
 //      the live deployment currently has exactly that broad form.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 // The operations the confirmed execution-policy clarification names, and
 // nothing else.
@@ -239,3 +240,89 @@ export function assertPolicyProvisioned(path, identity) {
 }
 
 export { ExecPolicyError };
+
+// -- The INSTALLED generator: direct invocation -------------------------
+//
+// `work/records/2026/08/finding-deployed-exec-policy-helper/`. The
+// d46ab1e release shipped a dispatcher template telling the operator to
+// generate these rules with a path that exists only in the source
+// checkout, and shipped no equivalent command. A standalone deployment
+// could not follow its own instructions, which leaves an operator
+// hand-authoring the security-sensitive rules this module exists to get
+// right.
+//
+// The generator is THIS module rather than a second one beside it, so
+// in any one checkout the code that emits the rules and the code that
+// audits them is the same code. The release carries a byte-equal copy
+// of this file, which is a DIFFERENT filesystem artifact from the
+// module a source-run dispatcher imports; the deployer's byte-parity
+// regression is what keeps the two from diverging.
+//
+// It PRINTS and nothing else — no file is created, overwritten, or
+// installed. That is the same deployment-owned boundary property
+// `assertPolicyProvisioned` depends on: a process that could grant
+// itself authority has no boundary. Redirecting this output into the
+// nominated policy file stays the operator's deliberate act.
+
+export const USAGE =
+	"usage: node exec_policy.mjs binary=/absolute/path/to/bin/baton "
+	+ "config=/absolute/path/to/baton.json participant=team.member\n"
+	+ "It prints the exact allow rules on stdout and installs nothing; "
+	+ "redirect it into the deployment-owned policy file yourself.";
+
+const OPERANDS = ["binary", "config", "participant"];
+
+// Strict operands, because a generator that guessed would emit rules
+// authorizing a command nobody asked for. Everything unrecognised,
+// repeated, or absent is refused rather than defaulted, and the path
+// and participant validation is `rulesFor`'s — this parses, it does not
+// re-decide what a valid identity is.
+export function identityFromOperands(argv) {
+	const identity = {};
+	for (const operand of argv) {
+		const split = operand.indexOf("=");
+		const name = split < 0 ? operand : operand.slice(0, split);
+		if (!OPERANDS.includes(name)) {
+			throw new ExecPolicyError(
+				`unknown operand ${quoted(operand)}; this generator takes exactly `
+				+ `${OPERANDS.join(", ")}`);
+		}
+		if (split < 0) {
+			throw new ExecPolicyError(`operand ${name} needs a value: ${name}=...`);
+		}
+		if (Object.hasOwn(identity, name)) {
+			throw new ExecPolicyError(
+				`operand ${name} was given more than once; one generated policy `
+				+ `names one executable, one accepted config and one participant`);
+		}
+		identity[name] = operand.slice(split + 1);
+	}
+	const missing = OPERANDS.filter((name) => !Object.hasOwn(identity, name));
+	if (missing.length) {
+		throw new ExecPolicyError(`missing operand(s): ${missing.join(", ")}`);
+	}
+	return identity;
+}
+
+export function generate(argv) {
+	return `${rulesFor(identityFromOperands(argv)).join("\n")}\n`;
+}
+
+// Importing this module must stay side-effect-free: the dispatcher
+// imports it during startup preflight, and a module that wrote to
+// stdout on import would corrupt every consumer of that stream.
+function invokedDirectly(entry) {
+	if (!entry) return false;
+	try { return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url)); }
+	catch { return false; }
+}
+
+if (invokedDirectly(process.argv[1])) {
+	try {
+		process.stdout.write(generate(process.argv.slice(2)));
+	} catch (error) {
+		if (!(error instanceof ExecPolicyError)) throw error;
+		process.stderr.write(`${error.message}\n${USAGE}\n`);
+		process.exitCode = 1;
+	}
+}
