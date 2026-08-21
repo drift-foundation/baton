@@ -1,0 +1,8 @@
+{
+  "work": "W14",
+  "thread": "T14",
+  "record": "work/records/2026/08/job-neg-postclaim",
+  "input_digest": "4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb",
+  "route": "poc.job",
+  "phase": "queued"
+}

@@ -1,0 +1,10 @@
+{
+  "work": "W2",
+  "phase": "queued",
+  "handler": null,
+  "route": "poc.rview",
+  "ready": true,
+  "status": "open",
+  "binding": "work/records/2026/08/job-happy",
+  "last_change_seq": 7
+}

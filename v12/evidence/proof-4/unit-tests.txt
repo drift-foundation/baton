@@ -1,0 +1,12 @@
+✔ a token mismatch is described structurally, without either token (0.16661ms)
+✔ the agent-visible token is a short opaque handle, not a signed payload (0.131535ms)
+✔ a handle that is correct but padded with whitespace still consents (0.122969ms)
+✔ a handle whose tag is altered by one character is refused (0.093795ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.768917

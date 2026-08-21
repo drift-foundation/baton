@@ -285,3 +285,12 @@ the normalized clause line remains intact. The combined W292/W71/W74/W110/W5
 set passed 73/73, direct filtered rendering retained both right-edge units at
 100, 72, 56, 44, and 32 columns, and `git diff --check` was clean. No further
 acceptance-boundary defect was found.
+
+## Post-deployment terminal verification — 2026-08-21
+
+Release `5407d28` was deployed and tested through the canonical TUI. The
+top-level global tabs remain visible; entering a Work removes those global
+tabs and shows the breadcrumb with only the local `[Messages] [Events]` tabs;
+and Back/Esc follows the breadcrumb outward. The operator reports the visual
+acceptance check PASS. W292's deployment and terminal-verification boundary
+is satisfied.

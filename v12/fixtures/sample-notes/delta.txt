@@ -1,0 +1,2 @@
+plain text with no heading at all
+second line

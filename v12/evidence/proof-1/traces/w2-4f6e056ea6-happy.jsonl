@@ -1,0 +1,114 @@
+{"seq":1,"ts":"2026-08-20T18:30:38.976Z","step":"attempt.start","detail":{"work":"2fe278d9-W2","local_id":"W2","action_key":"work:2fe278d9-W2:4:g1","participant":"poc.claude","token_fault":null}}
+{"seq":2,"ts":"2026-08-20T18:30:39.054Z","step":"baton.detail.before","detail":{"phase":"queued","handler":null,"route":"poc.job","ready":true,"binding":"work/records/2026/08/job-happy"}}
+{"seq":3,"ts":"2026-08-20T18:30:39.137Z","step":"job.in.read","detail":{"path":"/home/sl/src/baton-v12-poc/work/records/2026/08/job-happy/job.in.json","root":"poc","record":"work/records/2026/08/job-happy","input_name":"notes","source":"input"}}
+{"seq":4,"ts":"2026-08-20T18:30:39.138Z","step":"input.materialized","detail":{"path":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/in","entries":4,"digest":"4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb"}}
+{"seq":5,"ts":"2026-08-20T18:30:39.138Z","step":"credential.staged","detail":{"expires_at":"2026-08-20T20:09:06.824Z","remaining_seconds":5908}}
+{"seq":6,"ts":"2026-08-20T18:30:39.138Z","step":"offer.minted","detail":{"jti":"f4be4e69cfc2a058ea9ee82a","expires_at":"2026-08-20T18:33:39.138Z","ttl_ms":180000,"declared_outputs":[{"name":"note-index","type":"file","path":"/out/index.json"}]}}
+{"seq":7,"ts":"2026-08-20T18:30:39.889Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":8,"ts":"2026-08-20T18:30:39.890Z","step":"preclaim.activity","detail":{"channel":"meta","text":"config_option_update"}}
+{"seq":9,"ts":"2026-08-20T18:30:39.897Z","step":"preclaim.container","detail":{"name":"v12poc-preclaim-w2-4f6e056ea6","id":"4a1989fa5f4a8a6152f8af3dc8f0d0bac9c353888c220a57777ed7f2b726df25","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","user":"1000:1000","network_mode":"bridge","session":"25198dc9-eb45-4ccd-a9b1-eff7b22ed66d","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/offer","target":"/offer","rw":false}],"mode":"bypassPermissions"}}
+{"seq":10,"ts":"2026-08-20T18:30:39.911Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":11,"ts":"2026-08-20T18:30:40.972Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":12,"ts":"2026-08-20T18:30:41.136Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":13,"ts":"2026-08-20T18:30:43.818Z","step":"preclaim.activity","detail":{"channel":"message","text":"```json\n{\n  \"envelope\": \"claim-intent\",\n  \"version\": \"0-spike\",\n  \"decision\": \"accept\",\n  \"token\": \"eyJq"}}
+{"seq":14,"ts":"2026-08-20T18:30:44.518Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 23 chars]"}}
+{"seq":15,"ts":"2026-08-20T18:30:45.224Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 21 chars]"}}
+{"seq":16,"ts":"2026-08-20T18:30:45.926Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 26 chars]"}}
+{"seq":17,"ts":"2026-08-20T18:30:46.625Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 21 chars]"}}
+{"seq":18,"ts":"2026-08-20T18:30:47.325Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 28 chars]"}}
+{"seq":19,"ts":"2026-08-20T18:30:48.146Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 23 chars]"}}
+{"seq":20,"ts":"2026-08-20T18:30:48.903Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 27 chars]"}}
+{"seq":21,"ts":"2026-08-20T18:30:49.610Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 22 chars]"}}
+{"seq":22,"ts":"2026-08-20T18:30:50.326Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 17 chars]"}}
+{"seq":23,"ts":"2026-08-20T18:30:51.077Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 19 chars]"}}
+{"seq":24,"ts":"2026-08-20T18:30:51.799Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 18 chars]"}}
+{"seq":25,"ts":"2026-08-20T18:30:52.495Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 30 chars]"}}
+{"seq":26,"ts":"2026-08-20T18:30:53.195Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 19 chars]"}}
+{"seq":27,"ts":"2026-08-20T18:30:53.899Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 24 chars]"}}
+{"seq":28,"ts":"2026-08-20T18:30:54.610Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 19 chars]"}}
+{"seq":29,"ts":"2026-08-20T18:30:55.308Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 22 chars]"}}
+{"seq":30,"ts":"2026-08-20T18:30:56.011Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 28 chars]"}}
+{"seq":31,"ts":"2026-08-20T18:30:56.786Z","step":"preclaim.activity","detail":{"channel":"message","text":"QOuO6hi8XSo\",\n  \"work\": \"W2\",\n  \"runtime_attempt\": \"w2-4f6e056ea6\",\n  \"reason\": \""}}
+{"seq":32,"ts":"2026-08-20T18:30:57.483Z","step":"preclaim.activity","detail":{"channel":"message","text":"The selection, sorting, heading extraction, newline counting, and output schema are each fully specified and deterministic, and the read-only /in mount plus the /out/index"}}
+{"seq":33,"ts":"2026-08-20T18:30:57.683Z","step":"preclaim.activity","detail":{"channel":"message","text":".json output path are sufficient to produce the result.\"\n}\n```"}}
+{"seq":34,"ts":"2026-08-20T18:30:57.700Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":35,"ts":"2026-08-20T18:30:57.703Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":36,"ts":"2026-08-20T18:30:57.703Z","step":"preclaim.turn","detail":{"stop_reason":"end_turn"}}
+{"seq":37,"ts":"2026-08-20T18:30:57.704Z","step":"preclaim.activity","detail":{"channel":"meta","text":"session_info_update"}}
+{"seq":38,"ts":"2026-08-20T18:30:57.832Z","step":"preclaim.quiesced","detail":{"id":"4a1989fa5f4a8a6152f8af3dc8f0d0bac9c353888c220a57777ed7f2b726df25","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","image_ref":"node:24-slim","running":false,"exit_code":0,"oom_killed":false,"started_at":"2026-08-20T18:30:39.15722068Z","finished_at":"2026-08-20T18:30:57.718408452Z","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/offer","target":"/offer","rw":false}],"network_mode":"bridge","user":"1000:1000","stopped_by":"self"}}
+{"seq":39,"ts":"2026-08-20T18:30:57.832Z","step":"preclaim.intent","detail":{"decision":"accept","reason":"The selection, sorting, heading extraction, newline counting, and output schema are each fully specified and deterministic, and the read-only /in mount plus the /out/index.json output path are sufficient to produce the result.","carried_token":true}}
+{"seq":40,"ts":"2026-08-20T18:30:57.832Z","step":"token.validated","detail":{"jti":"f4be4e69cfc2a058ea9ee82a","decision":"accept"}}
+{"seq":41,"ts":"2026-08-20T18:30:57.997Z","step":"baton.claim","detail":{"claimant":"poc.claude","phase":"active","seq":5}}
+{"seq":42,"ts":"2026-08-20T18:30:58.075Z","step":"baton.detail.claimed","detail":{"phase":"active","handler":"poc.claude","route":"poc.job","ready":true}}
+{"seq":43,"ts":"2026-08-20T18:30:58.076Z","step":"assignment.minted","detail":{"generation":1,"claim_seq":5}}
+{"seq":44,"ts":"2026-08-20T18:30:58.462Z","step":"worker.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":45,"ts":"2026-08-20T18:30:58.469Z","step":"worker.activity","detail":{"channel":"meta","text":"config_option_update"}}
+{"seq":46,"ts":"2026-08-20T18:30:58.476Z","step":"worker.container","detail":{"name":"v12poc-worker-w2-4f6e056ea6","id":"13e2b11254eb024d17fda68674f0cbcb87a17f148fbeaa7b07eb147caae3f46e","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","user":"1000:1000","network_mode":"bridge","session":"15aea8e8-4780-4dbe-9e1d-734733cc7761","mounts":[{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/out","target":"/out","rw":true},{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/in","target":"/in","rw":false}],"mode":"bypassPermissions"}}
+{"seq":47,"ts":"2026-08-20T18:30:58.489Z","step":"worker.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":48,"ts":"2026-08-20T18:30:59.897Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":49,"ts":"2026-08-20T18:30:59.899Z","step":"worker.activity","detail":{"channel":"message","text":"I"}}
+{"seq":50,"ts":"2026-08-20T18:30:59.944Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":51,"ts":"2026-08-20T18:31:00.645Z","step":"worker.activity","detail":{"channel":"message","text":"'ll start by listing the input directory."}}
+{"seq":52,"ts":"2026-08-20T18:31:00.649Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call Terminal pending"}}
+{"seq":53,"ts":"2026-08-20T18:31:00.650Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update ls -la /in"}}
+{"seq":54,"ts":"2026-08-20T18:31:01.140Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update ls -la /in"}}
+{"seq":55,"ts":"2026-08-20T18:31:01.146Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":56,"ts":"2026-08-20T18:31:01.160Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update"}}
+{"seq":57,"ts":"2026-08-20T18:31:01.162Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update  completed"}}
+{"seq":58,"ts":"2026-08-20T18:31:02.196Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":59,"ts":"2026-08-20T18:31:02.196Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call Terminal pending"}}
+{"seq":60,"ts":"2026-08-20T18:31:03.553Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update for f in /in/alpha.md /in/beta.txt /in/delta.txt /in/gamma.md; do echo \"===== $f =====\"; cat -A \"$f\"; echo \"--- newline count: $(tr -dc '\\n' < \"$f\" | wc -c)\"; done"}}
+{"seq":61,"ts":"2026-08-20T18:31:03.555Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update for f in /in/alpha.md /in/beta.txt /in/delta.txt /in/gamma.md; do echo \"===== $f =====\"; cat -A \"$f\"; echo \"--- newline count: $(tr -dc '\\n' < \"$f\" | wc -c)\"; done"}}
+{"seq":62,"ts":"2026-08-20T18:31:03.567Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update"}}
+{"seq":63,"ts":"2026-08-20T18:31:03.568Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update  completed"}}
+{"seq":64,"ts":"2026-08-20T18:31:03.579Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":65,"ts":"2026-08-20T18:31:04.663Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":66,"ts":"2026-08-20T18:31:07.628Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call Terminal pending"}}
+{"seq":67,"ts":"2026-08-20T18:31:10.383Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update python3 - <<'EOF'\nimport json, os, re\nd='/in'\nnames=sorted([n for n in os.listdir(d) if (n.endswith('.md') or n.endswith('.txt')) and os.path.isfile(os.path.join(d,n)) and not os.path.islink(os.path.join(d,n))], key=lambda s: s.encode())\nentries=[]\nfor n in names:\n    data=open(os.path.join(d,n),'rb').read()\n    text=data.decode('utf-8')\n    heading=None\n    for line in text.split"}}
+{"seq":68,"ts":"2026-08-20T18:31:10.383Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update python3 - <<'EOF'\nimport json, os, re\nd='/in'\nnames=sorted([n for n in os.listdir(d) if (n.endswith('.md') or n.endswith('.txt')) and os.path.isfile(os.path.join(d,n)) and not os.path.islink(os.path.join(d,n))], key=lambda s: s.encode())\nentries=[]\nfor n in names:\n    data=open(os.path.join(d,n),'rb').read()\n    text=data.decode('utf-8')\n    heading=None\n    for line in text.split"}}
+{"seq":69,"ts":"2026-08-20T18:31:10.390Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update  failed"}}
+{"seq":70,"ts":"2026-08-20T18:31:10.391Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":71,"ts":"2026-08-20T18:31:11.519Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":72,"ts":"2026-08-20T18:31:12.942Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call Terminal pending"}}
+{"seq":73,"ts":"2026-08-20T18:31:12.942Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update command -v node jq perl awk 2>/dev/null; echo \"---\""}}
+{"seq":74,"ts":"2026-08-20T18:31:12.978Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update command -v node jq perl awk 2>/dev/null; echo \"---\""}}
+{"seq":75,"ts":"2026-08-20T18:31:12.986Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update"}}
+{"seq":76,"ts":"2026-08-20T18:31:12.987Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update  completed"}}
+{"seq":77,"ts":"2026-08-20T18:31:13.000Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":78,"ts":"2026-08-20T18:31:14.051Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":79,"ts":"2026-08-20T18:31:14.051Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call Terminal pending"}}
+{"seq":80,"ts":"2026-08-20T18:31:17.576Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update cat > /tmp/build.js <<'EOF'\nconst fs = require('fs');\nconst path = require('path');\nconst d = '/in';\nconst names = fs.readdirSync(d)\n  .filter(n => (n.endsWith('.md') || n.endsWith('.txt')) && fs.lstatSync(path.join(d, n)).isFile())\n  .sort((a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b)));\nconst entries = names.map(n => {\n  const buf = fs.readFileSync(path.join(d, n));\n  "}}
+{"seq":81,"ts":"2026-08-20T18:31:17.746Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update cat > /tmp/build.js <<'EOF'\nconst fs = require('fs');\nconst path = require('path');\nconst d = '/in';\nconst names = fs.readdirSync(d)\n  .filter(n => (n.endsWith('.md') || n.endsWith('.txt')) && fs.lstatSync(path.join(d, n)).isFile())\n  .sort((a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b)));\nconst entries = names.map(n => {\n  const buf = fs.readFileSync(path.join(d, n));\n  "}}
+{"seq":82,"ts":"2026-08-20T18:31:17.762Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":83,"ts":"2026-08-20T18:31:17.764Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update"}}
+{"seq":84,"ts":"2026-08-20T18:31:17.765Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update  completed"}}
+{"seq":85,"ts":"2026-08-20T18:31:18.902Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":86,"ts":"2026-08-20T18:31:21.151Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call Terminal pending"}}
+{"seq":87,"ts":"2026-08-20T18:31:21.869Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update ls -l /out/index.json; node -e \"const o=require('/out/index.json'); console.log('parsed OK, keys:', Object.keys(o).join(','), 'entries:', o.entries.length)\""}}
+{"seq":88,"ts":"2026-08-20T18:31:21.959Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update ls -l /out/index.json; node -e \"const o=require('/out/index.json'); console.log('parsed OK, keys:', Object.keys(o).join(','), 'entries:', o.entries.length)\""}}
+{"seq":89,"ts":"2026-08-20T18:31:21.970Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":90,"ts":"2026-08-20T18:31:21.979Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update"}}
+{"seq":91,"ts":"2026-08-20T18:31:21.980Z","step":"worker.activity","detail":{"channel":"tool","text":"tool_call_update  completed"}}
+{"seq":92,"ts":"2026-08-20T18:31:23.110Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":93,"ts":"2026-08-20T18:31:23.110Z","step":"worker.activity","detail":{"channel":"message","text":"**"}}
+{"seq":94,"ts":"2026-08-20T18:31:23.858Z","step":"worker.activity","detail":{"channel":"message","text":"What I found in `/in`:** four regular files, all matching the `.md`/`.txt` filter, no subdirectories and no other entries.\n\n- `alpha.md"}}
+{"seq":95,"ts":"2026-08-20T18:31:24.583Z","step":"worker.activity","detail":{"channel":"message","text":"` (95 B, 4 newlines) — starts with `# Alpha release notes`, heading `Alpha release notes`.\n- `beta.txt` (54 B, 3 newlines) — first line is `   # Beta scratch"}}
+{"seq":96,"ts":"2026-08-20T18:31:25.274Z","step":"worker.activity","detail":{"channel":"message","text":" notes`, indented with three spaces; the `#` is still the first non-whitespace character, so it counts → heading `Beta scratch notes`.\n- `delta.txt` (46 B, 2 newlines) — plain prose, no `#` line"}}
+{"seq":97,"ts":"2026-08-20T18:31:25.987Z","step":"worker.activity","detail":{"channel":"message","text":" anywhere → heading `null`.\n- `gamma.md` (103 B, 5 newlines) — first line is a preamble with no `#`; the first qualifying line is `## Gamma deferred items`, both h"}}
+{"seq":98,"ts":"2026-08-20T18:31:26.695Z","step":"worker.activity","detail":{"channel":"message","text":"ashes stripped → heading `Gamma deferred items`.\n\nByte-order sort is `alpha.md, beta.txt, delta.txt, gamma.md`. Line counts are literal `\\n` byte counts (every"}}
+{"seq":99,"ts":"2026-08-20T18:31:27.389Z","step":"worker.activity","detail":{"channel":"message","text":" file ends with a trailing newline, so these equal the visible line counts). Written to `/out/index.json` and re-parsed to confirm it's valid JSON.\n\n```json\n{\n  \"envelope\": \"job.out\",\n  \"version\":"}}
+{"seq":100,"ts":"2026-08-20T18:31:28.226Z","step":"worker.activity","detail":{"channel":"message","text":" \"0-spike\",\n  \"work\": \"W2\",\n  \"results\": [{ \"name\": \"note-index\", \"type\": \"file\", \"path\": \"/out/index.json\" }],\n  \"summary\": \"Indexed the four .md/.txt files directly in /in,"}}
+{"seq":101,"ts":"2026-08-20T18:31:28.798Z","step":"worker.activity","detail":{"channel":"message","text":" extracting each one's first #-prefixed heading (null for delta.txt) and newline count, into a byte-sorted 0-spike JSON index at /out/index.json.\""}}
+{"seq":102,"ts":"2026-08-20T18:31:28.850Z","step":"worker.activity","detail":{"channel":"message","text":"\n}\n```"}}
+{"seq":103,"ts":"2026-08-20T18:31:28.862Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":104,"ts":"2026-08-20T18:31:28.869Z","step":"worker.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":105,"ts":"2026-08-20T18:31:28.869Z","step":"worker.turn","detail":{"stop_reason":"end_turn"}}
+{"seq":106,"ts":"2026-08-20T18:31:28.979Z","step":"worker.fenced","detail":{"id":"13e2b11254eb024d17fda68674f0cbcb87a17f148fbeaa7b07eb147caae3f46e","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","image_ref":"node:24-slim","running":false,"exit_code":0,"oom_killed":false,"started_at":"2026-08-20T18:30:58.094222574Z","finished_at":"2026-08-20T18:31:28.88744875Z","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/in","target":"/in","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/out","target":"/out","rw":true}],"network_mode":"bridge","user":"1000:1000","stopped_by":"self"}}
+{"seq":107,"ts":"2026-08-20T18:31:28.979Z","step":"input.reverified","detail":{"digest":"4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb"}}
+{"seq":108,"ts":"2026-08-20T18:31:28.979Z","step":"worker.declared","detail":{"summary":"Indexed the four .md/.txt files directly in /in, extracting each one's first #-prefixed heading (null for delta.txt) and newline count, into a byte-sorted 0-spike JSON index at /out/index.json.","results":[{"name":"note-index","type":"file","path":"/out/index.json"}]}}
+{"seq":109,"ts":"2026-08-20T18:31:28.980Z","step":"result.frozen","detail":{"path":"/home/sl/src/baton-v12-poc/run/attempts/w2-4f6e056ea6/frozen","entries":[{"path":"index.json","bytes":420,"sha256":"dc0b370d69b2b07ba6ebaadbd052bad7ae1e3e9e6c38bcf39082eb4245b15f5c"}],"digest":"c3b7d7dcd6f2858f517ca45629c45fd492d1d73d6f9d10a439e409b7e6a32b1c"}}
+{"seq":110,"ts":"2026-08-20T18:31:28.980Z","step":"result.checked","detail":{"independent":true,"problems":[]}}
+{"seq":111,"ts":"2026-08-20T18:31:29.060Z","step":"baton.say","detail":{"thread":"2fe278d9-T2","chars":495}}
+{"seq":112,"ts":"2026-08-20T18:31:29.142Z","step":"baton.pass","detail":{"to":"poc.rview","destination_phase":"queued"}}
+{"seq":113,"ts":"2026-08-20T18:31:29.224Z","step":"baton.detail.after","detail":{"phase":"queued","handler":null,"route":"poc.rview"}}
+{"seq":114,"ts":"2026-08-20T18:31:29.241Z","step":"attempt.end","detail":{"status":"returned"}}

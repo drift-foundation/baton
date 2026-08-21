@@ -1,0 +1,13 @@
+{
+  "projection_version": "12.3",
+  "result": {
+    "authority_uuid": "d3176daef819457cb0bbfb6e1bd53f8f",
+    "database": "/home/sl/src/baton-v12-poc/run/authority/work.sqlite3",
+    "digest": "e4836a88547158b72112479d498bbddcc2c830c11491a3540dfedc452fe1ed41",
+    "generation": 1,
+    "kind": "accept_config",
+    "operation": null,
+    "seq": 1
+  }
+}
+disposable authority ready: /home/sl/src/baton-v12-poc/run/authority/baton.json

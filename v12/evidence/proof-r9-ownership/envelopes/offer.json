@@ -1,0 +1,37 @@
+{
+  "envelope": "offer",
+  "version": "0-spike",
+  "work": "W2",
+  "participant": "poc.claude",
+  "runtime_attempt": "w2-1172d12429",
+  "contract_human": "Consider every regular file DIRECTLY inside the input directory whose name ends in \".md\" or \".txt\". Ignore everything else, and do not descend into subdirectories. Sort those filenames in ascending byte order. For each one produce an object with exactly these three fields:\n  \"path\"    - the filename alone, with no directory part.\n  \"heading\" - the first line of the file whose first non-whitespace character is \"#\", with all leading \"#\" characters and all surrounding whitespace removed. If the file has no such line, use null.\n  \"lines\"   - the number of newline characters in the file, as an integer.\nThe result is a single JSON object with exactly two fields: \"index_version\", whose value is the string \"0-spike\", and \"entries\", whose value is the array of those objects in the sorted order.",
+  "inputs": [
+    {
+      "name": "notes",
+      "type": "directory",
+      "mount": "/in",
+      "digest": "4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb",
+      "entries": 4,
+      "bytes": 298
+    }
+  ],
+  "declared_outputs": [
+    {
+      "name": "note-index",
+      "type": "directory",
+      "path": "/out",
+      "entries": [
+        "index.json"
+      ]
+    }
+  ],
+  "reply_format": {
+    "envelope": "claim-intent",
+    "version": "0-spike"
+  },
+  "token": {
+    "jti": "85e2649f7596d20240",
+    "expires_at": "2026-08-21T06:02:00.851Z",
+    "value": "[redacted 39 chars]"
+  }
+}

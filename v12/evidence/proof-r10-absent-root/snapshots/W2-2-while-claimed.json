@@ -1,0 +1,6 @@
+{
+  "phase": "active",
+  "handler": "poc.claude",
+  "route": "poc.job",
+  "ready": true
+}

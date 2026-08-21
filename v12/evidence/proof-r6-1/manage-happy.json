@@ -1,0 +1,16 @@
+[
+  {
+    "work": "W2",
+    "runtime_attempt": "w2-3a8411e7e5",
+    "status": "returned",
+    "reason": null,
+    "error": null,
+    "trace": "/home/sl/src/baton-v12-poc/run/attempts/w2-3a8411e7e5/trace.jsonl",
+    "output_digest": "c3b7d7dcd6f2858f517ca45629c45fd492d1d73d6f9d10a439e409b7e6a32b1c",
+    "claim_committed": true,
+    "stranded_by": null,
+    "credentials_disposed": true,
+    "retained_secret": null,
+    "unclean_reason": null
+  }
+]

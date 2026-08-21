@@ -1,0 +1,528 @@
+{
+  "envelope": "result",
+  "version": "0-spike",
+  "work": "W2",
+  "assignment": {
+    "envelope": "assignment",
+    "version": "0-spike",
+    "work": "W2",
+    "participant": "poc.claude",
+    "runtime_attempt": "w2-06c1e8d0f7",
+    "generation": 1,
+    "claim_seq": 5,
+    "claimed_at": "2026-08-21T00:43:57.430Z"
+  },
+  "outputs": [
+    {
+      "name": "note-index",
+      "type": "directory",
+      "path": "/out",
+      "entries": [
+        "index.json"
+      ],
+      "digest": "c3b7d7dcd6f2858f517ca45629c45fd492d1d73d6f9d10a439e409b7e6a32b1c",
+      "manifest": [
+        {
+          "path": "index.json",
+          "bytes": 420,
+          "sha256": "dc0b370d69b2b07ba6ebaadbd052bad7ae1e3e9e6c38bcf39082eb4245b15f5c"
+        }
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "name": "notes",
+      "digest": "4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb",
+      "manifest": [
+        {
+          "path": "alpha.md",
+          "bytes": 95,
+          "sha256": "9b4fc5dc100dfb20bc36068815a183c929a433f196b919a45b10073a62cc7ef1"
+        },
+        {
+          "path": "beta.txt",
+          "bytes": 54,
+          "sha256": "462d41dcc80210b3292bb6390f5d56a864c400302b2c61bf255463d7dc177d75"
+        },
+        {
+          "path": "delta.txt",
+          "bytes": 46,
+          "sha256": "494294e4fcecb8e7b2f0f6567b2cb6140ec94bb8156fcdfa18f93cb9c1e85f5c"
+        },
+        {
+          "path": "gamma.md",
+          "bytes": 103,
+          "sha256": "1b08e0d8efa6a3c7dcf6d153f31291f1a17669ee6c106dbc6963cc0a284d6618"
+        }
+      ]
+    }
+  ],
+  "container": {
+    "id": "7316de1dc425ac395aa1a958f453f4401f9f6a6d9516e2ac1c03769402ab35a0",
+    "image": "sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd",
+    "user": "1000:1000",
+    "network_mode": "bridge",
+    "termination": {
+      "id": "7316de1dc425ac395aa1a958f453f4401f9f6a6d9516e2ac1c03769402ab35a0",
+      "image": "sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd",
+      "image_ref": "node:24-slim",
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-08-21T00:43:57.448807739Z",
+      "finished_at": "2026-08-21T00:44:40.934838226Z",
+      "mounts": [
+        {
+          "source": "/home/sl/src/baton-v12-poc/run/attempts/w2-06c1e8d0f7/out",
+          "target": "/out",
+          "rw": true
+        },
+        {
+          "source": "/home/sl/opt/acp/claude-agent-acp/0.69.0",
+          "target": "/opt/acp",
+          "rw": false
+        },
+        {
+          "source": "/home/sl/src/baton-v12-poc/run/attempts/w2-06c1e8d0f7/claude-config",
+          "target": "/run/claude-config",
+          "rw": true
+        },
+        {
+          "source": "/home/sl/src/baton-v12-poc/run/attempts/w2-06c1e8d0f7/in",
+          "target": "/in",
+          "rw": false
+        }
+      ],
+      "network_mode": "bridge",
+      "user": "1000:1000",
+      "readonly_rootfs": false,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,size=64m"
+      },
+      "stopped_by": "self"
+    }
+  },
+  "activity": [
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:57.815Z",
+      "channel": "meta",
+      "text": "available_commands_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:57.822Z",
+      "channel": "meta",
+      "text": "config_option_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:57.842Z",
+      "channel": "meta",
+      "text": "available_commands_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:58.987Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:58.999Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:59.142Z",
+      "channel": "message",
+      "text": "I"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:59.743Z",
+      "channel": "message",
+      "text": "'ll start by looking at what's in the input directory."
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:43:59.747Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:00.304Z",
+      "channel": "tool",
+      "text": "tool_call_update ls -la /in/ && echo \"---OUT---\" && ls -la /out/"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:00.304Z",
+      "channel": "tool",
+      "text": "tool_call_update ls -la /in/ && echo \"---OUT---\" && ls -la /out/"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:00.320Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:00.334Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:00.337Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:01.180Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:01.967Z",
+      "channel": "message",
+      "text": "Four candidate files. Let me read them exactly."
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:01.970Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:03.262Z",
+      "channel": "tool",
+      "text": "tool_call_update for f in /in/alpha.md /in/beta.txt /in/delta.txt /in/gamma.md; do echo \"=== $f ===\"; cat -A \"$f\"; echo \"--- newline count: $(tr -dc '\\n' < \"$f\" | wc -c)\"; done"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:03.265Z",
+      "channel": "tool",
+      "text": "tool_call_update for f in /in/alpha.md /in/beta.txt /in/delta.txt /in/gamma.md; do echo \"=== $f ===\"; cat -A \"$f\"; echo \"--- newline count: $(tr -dc '\\n' < \"$f\" | wc -c)\"; done"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:03.274Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:03.275Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:03.278Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:04.628Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:08.278Z",
+      "channel": "message",
+      "text": "Now I'll generate the index programmatically from the actual file contents:"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:08.930Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:11.758Z",
+      "channel": "tool",
+      "text": "tool_call_update python3 - <<'EOF'\nimport os, json, re\nd=\"/in\"\nnames=sorted([n for n in os.listdir(d) if (n.endswith(\".md\") or n.endswith(\".txt\")) and os.path.isfile(os.path.join(d,n)) and not os.path.islink(os.path.join(d,n))], key=lambda s: s.encode())\nentries=[]\nfor n in names:\n    data=open(os.path.join(d,n),\"rb\").read()\n    lines=data.count(b\"\\n\")\n    heading=None\n    for line in data.decode("
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:11.979Z",
+      "channel": "tool",
+      "text": "tool_call_update python3 - <<'EOF'\nimport os, json, re\nd=\"/in\"\nnames=sorted([n for n in os.listdir(d) if (n.endswith(\".md\") or n.endswith(\".txt\")) and os.path.isfile(os.path.join(d,n)) and not os.path.islink(os.path.join(d,n))], key=lambda s: s.encode())\nentries=[]\nfor n in names:\n    data=open(os.path.join(d,n),\"rb\").read()\n    lines=data.count(b\"\\n\")\n    heading=None\n    for line in data.decode("
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:11.986Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:11.987Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:11.990Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:13.007Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:20.837Z",
+      "channel": "message",
+      "text": "No python in this container — I'll do it with awk/shell:"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:20.838Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:27.271Z",
+      "channel": "tool",
+      "text": "tool_call_update set -eu\nesc() { sed -e 's/\\\\/\\\\\\\\/g' -e 's/\"/\\\\\"/g'; }\ntmp=/tmp/entries.json\n: > \"$tmp\"\nfirst=1\nwhile IFS= read -r f; do\n  n=$(basename \"$f\")\n  lines=$(tr -dc '\\n' < \"$f\" | wc -c | tr -d ' ')\n  raw=$(awk '{ l=$0; gsub(/\\r$/,\"\",l); sub(/^[ \\t\\v\\f]+/,\"\",l);\n               if (substr(l,1,1)==\"#\") { sub(/^#+/,\"\",l);\n                 gsub(/^[ \\t\\v\\f]+|[ \\t\\v\\f]+$/,\"\",l); print \"H\" l; e"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:27.290Z",
+      "channel": "tool",
+      "text": "tool_call_update set -eu\nesc() { sed -e 's/\\\\/\\\\\\\\/g' -e 's/\"/\\\\\"/g'; }\ntmp=/tmp/entries.json\n: > \"$tmp\"\nfirst=1\nwhile IFS= read -r f; do\n  n=$(basename \"$f\")\n  lines=$(tr -dc '\\n' < \"$f\" | wc -c | tr -d ' ')\n  raw=$(awk '{ l=$0; gsub(/\\r$/,\"\",l); sub(/^[ \\t\\v\\f]+/,\"\",l);\n               if (substr(l,1,1)==\"#\") { sub(/^#+/,\"\",l);\n                 gsub(/^[ \\t\\v\\f]+|[ \\t\\v\\f]+$/,\"\",l); print \"H\" l; e"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:27.339Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:27.340Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:27.419Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:28.503Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:30.639Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:32.447Z",
+      "channel": "tool",
+      "text": "tool_call_update command -v node >/dev/null && node -e '\nconst o=JSON.parse(require(\"fs\").readFileSync(\"/out/index.json\",\"utf8\"));\nconsole.log(\"parsed OK; version:\", o.index_version, \"keys:\", Object.keys(o).join(\",\"));\nconsole.log(\"entries:\", o.entries.length, \"order:\", o.entries.map(e=>e.path).join(\" \"));\no.entries.forEach(e=>console.log(\" \", Object.keys(e).join(\",\"), JSON.stringify(e.heading), t"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:32.450Z",
+      "channel": "tool",
+      "text": "tool_call_update command -v node >/dev/null && node -e '\nconst o=JSON.parse(require(\"fs\").readFileSync(\"/out/index.json\",\"utf8\"));\nconsole.log(\"parsed OK; version:\", o.index_version, \"keys:\", Object.keys(o).join(\",\"));\nconsole.log(\"entries:\", o.entries.length, \"order:\", o.entries.map(e=>e.path).join(\" \"));\no.entries.forEach(e=>console.log(\" \", Object.keys(e).join(\",\"), JSON.stringify(e.heading), t"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:32.459Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:32.468Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:32.469Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:33.272Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:33.272Z",
+      "channel": "message",
+      "text": "**"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:34.019Z",
+      "channel": "message",
+      "text": "What I found in the input:** `/in` holds exactly four regular files, all matching the `.md`/`.txt` filter, no subdirectories and nothing sk"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:34.730Z",
+      "channel": "message",
+      "text": "ipped. In byte order:\n\n- **alpha.md** (4 newlines) — opens with `# Alpha release notes`, then a"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:35.430Z",
+      "channel": "message",
+      "text": " blank line and two prose lines about tokenizer spans and quoted-form regressions.\n- **beta.txt** (3 newlines) — first line is `   # Beta scratch notes`, indented by three spaces,"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:36.134Z",
+      "channel": "message",
+      "text": " so the `#` is still the first non-whitespace character and it counts as a heading → `Beta scratch notes`. Its body then says \"no headings below this point\".\n- **delta.txt"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:36.842Z",
+      "channel": "message",
+      "text": "** (2 newlines) — plain prose, no `#` line anywhere → `heading` is `null`.\n- **gamma.md** (5 newlines) — starts with a non-heading preamble line"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:37.550Z",
+      "channel": "message",
+      "text": "; the heading appears on line 3 as `## Gamma deferred items`, a level-2 heading, so both `#` characters are stripped → `Gamma deferred items`.\n\nAll four files end with a trailing newline, so the newline coun"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:38.255Z",
+      "channel": "message",
+      "text": "ts equal the visible line counts. I wrote `/out/index.json` by deriving each field from the bytes on disk (`tr`"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:39.038Z",
+      "channel": "message",
+      "text": "/`wc` for newline counts, `awk` for the heading scan, `LC_ALL=C sort` for byte-order sorting), then re-parsed the"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:39.666Z",
+      "channel": "message",
+      "text": " result with node to confirm it is valid JSON with the exact two top-level fields and three per-entry fields. `/out` contains only `index.json`.\n\n```json\n{\n  \"envelope\": \"job.out\",\n  \"version\":"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:40.407Z",
+      "channel": "message",
+      "text": " \"0-spike\",\n  \"work\": \"W2\",\n  \"results\": [{ \"name\": \"note-index\", \"type\": \"directory\", \"path\": \"/out\" }],\n  \"summary\": \"Wrote /out/index.json indexing the four .md/.txt files directly in /in ("
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:40.894Z",
+      "channel": "message",
+      "text": "alpha.md, beta.txt, delta.txt, gamma.md) in byte order, with each file's extracted heading (null for delta.txt) and newline count.\"\n}\n```"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:40.910Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T00:44:40.913Z",
+      "channel": "meta",
+      "text": "usage_update"
+    }
+  ],
+  "status": "accepted"
+}

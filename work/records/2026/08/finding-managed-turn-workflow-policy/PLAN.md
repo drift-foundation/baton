@@ -27,8 +27,8 @@ accepted release is deployed and its policy file regenerated.
    other-participant points, and date the one remaining historical mention.
 9. [done] Independent review round three accepts the source change
    (`review-2026-08-21T07-09-12Z.md`).
-10. [pending] After deployment, REGENERATE the deployment-owned policy file for
+10. [done] After deployment, REGENERATE the deployment-owned policy file for
     every configured participant. The dispatcher fails closed until then, and
     that refusal names the missing verbs.
-11. [pending] Verify the deployed generator/auditor and effective managed
+11. [done] Verify the deployed generator/auditor and effective managed
     workflow boundary, then make the terminal decision.

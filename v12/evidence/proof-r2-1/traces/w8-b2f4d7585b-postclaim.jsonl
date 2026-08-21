@@ -1,0 +1,36 @@
+{"seq":1,"ts":"2026-08-20T20:08:04.193Z","step":"attempt.start","detail":{"work":"41a4722c-W8","local_id":"W8","action_key":"work:41a4722c-W8:10:g1","participant":"poc.claude","token_fault":null,"injected_fault":"post-claim"}}
+{"seq":2,"ts":"2026-08-20T20:08:04.272Z","step":"baton.detail.before","detail":{"phase":"queued","handler":null,"route":"poc.job","ready":true,"binding":"work/records/2026/08/job-neg-expired"}}
+{"seq":3,"ts":"2026-08-20T20:08:04.356Z","step":"job.in.read","detail":{"path":"/home/sl/src/baton-v12-poc/work/records/2026/08/job-neg-expired/job.in.json","root":"poc","record":"work/records/2026/08/job-neg-expired","input_name":"notes","source":"input"}}
+{"seq":4,"ts":"2026-08-20T20:08:04.357Z","step":"input.materialized","detail":{"path":"/home/sl/src/baton-v12-poc/run/attempts/w8-b2f4d7585b/in","entries":4,"bytes":298,"digest":"4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb","followed_links":false}}
+{"seq":5,"ts":"2026-08-20T20:08:04.357Z","step":"credential.staged","detail":{"expires_at":"2026-08-21T04:05:03.467Z","remaining_seconds":28619}}
+{"seq":6,"ts":"2026-08-20T20:08:04.358Z","step":"offer.minted","detail":{"jti":"[redacted 18 chars]","expires_at":"2026-08-20T20:11:04.357Z","ttl_ms":180000,"declared_outputs":[{"name":"note-index","type":"file","path":"/out/index.json"}]}}
+{"seq":7,"ts":"2026-08-20T20:08:05.162Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":8,"ts":"2026-08-20T20:08:05.164Z","step":"preclaim.activity","detail":{"channel":"meta","text":"config_option_update"}}
+{"seq":9,"ts":"2026-08-20T20:08:05.171Z","step":"preclaim.container","detail":{"name":"v12poc-preclaim-w8-b2f4d7585b","id":"36b49df639ace6dd9e86d1b39f2482a4b88052fd0e2620e15112069ef8f31797","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","user":"1000:1000","network_mode":"bridge","session":"90c08b81-5170-49e9-9cef-7bfa408fe953","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-b2f4d7585b/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-b2f4d7585b/offer","target":"/offer","rw":false}],"mode":"plan","readonly_rootfs":true,"cap_drop":["ALL"],"security_opt":["no-new-privileges"]}}
+{"seq":10,"ts":"2026-08-20T20:08:05.188Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":11,"ts":"2026-08-20T20:08:06.858Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":12,"ts":"2026-08-20T20:08:06.858Z","step":"preclaim.activity","detail":{"channel":"message","text":"```"}}
+{"seq":13,"ts":"2026-08-20T20:08:06.927Z","step":"preclaim.activity","detail":{"channel":"message","text":"json\n{\n  \"env"}}
+{"seq":14,"ts":"2026-08-20T20:08:06.993Z","step":"preclaim.activity","detail":{"channel":"message","text":"elope\": \"cla"}}
+{"seq":15,"ts":"2026-08-20T20:08:07.067Z","step":"preclaim.activity","detail":{"channel":"message","text":"im-intent\",\n  \""}}
+{"seq":16,"ts":"2026-08-20T20:08:07.808Z","step":"preclaim.activity","detail":{"channel":"message","text":"version\": \"0-spike\",\n  \"decision\": \"accept\",\n  \"token\": \"[redacted 16 chars]"}}
+{"seq":17,"ts":"2026-08-20T20:08:08.547Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 18 chars]"}}
+{"seq":18,"ts":"2026-08-20T20:08:08.839Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":19,"ts":"2026-08-20T20:08:09.228Z","step":"preclaim.activity","detail":{"channel":"message","text":"hU5yi\",\n  \"work\": \"W8\",\n  \"runtime_attempt\": \"w8-b2"}}
+{"seq":20,"ts":"2026-08-20T20:08:09.860Z","step":"preclaim.activity","detail":{"channel":"message","text":"f4d7585b\",\n  \"reason\": \"The spec is deterministic and self-contained — filtering, by"}}
+{"seq":21,"ts":"2026-08-20T20:08:10.574Z","step":"preclaim.activity","detail":{"channel":"message","text":"te-order sorting, heading extraction, and newline counting are all fully specified, and the read-only /in mount plus the declared /out/index.json output are sufficient to produce the result"}}
+{"seq":22,"ts":"2026-08-20T20:08:10.701Z","step":"preclaim.activity","detail":{"channel":"message","text":".\"\n}\n```"}}
+{"seq":23,"ts":"2026-08-20T20:08:10.714Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":24,"ts":"2026-08-20T20:08:10.717Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":25,"ts":"2026-08-20T20:08:10.717Z","step":"preclaim.turn","detail":{"stop_reason":"end_turn"}}
+{"seq":26,"ts":"2026-08-20T20:08:10.718Z","step":"preclaim.activity","detail":{"channel":"meta","text":"session_info_update"}}
+{"seq":27,"ts":"2026-08-20T20:08:10.824Z","step":"preclaim.quiesced","detail":{"id":"36b49df639ace6dd9e86d1b39f2482a4b88052fd0e2620e15112069ef8f31797","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","image_ref":"node:24-slim","running":false,"exit_code":0,"oom_killed":false,"started_at":"2026-08-20T20:08:04.374649724Z","finished_at":"2026-08-20T20:08:10.732552014Z","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-b2f4d7585b/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-b2f4d7585b/offer","target":"/offer","rw":false}],"network_mode":"bridge","user":"1000:1000","readonly_rootfs":true,"cap_drop":["ALL"],"security_opt":["no-new-privileges"],"tmpfs":{"/tmp":"rw,size=64m"},"stopped_by":"self"}}
+{"seq":28,"ts":"2026-08-20T20:08:10.824Z","step":"preclaim.intent","detail":{"decision":"accept","reason":"The spec is deterministic and self-contained — filtering, byte-order sorting, heading extraction, and newline counting are all fully specified, and the read-only /in mount plus the declared /out/index.json output are sufficient to produce the result.","carried_token":true}}
+{"seq":29,"ts":"2026-08-20T20:08:10.824Z","step":"token.validated","detail":{"jti":"[redacted 18 chars]","decision":"accept"}}
+{"seq":30,"ts":"2026-08-20T20:08:10.990Z","step":"baton.claim","detail":{"claimant":"poc.claude","phase":"active","seq":17}}
+{"seq":31,"ts":"2026-08-20T20:08:11.073Z","step":"baton.detail.claimed","detail":{"phase":"active","handler":"poc.claude","route":"poc.job","ready":true}}
+{"seq":32,"ts":"2026-08-20T20:08:11.073Z","step":"assignment.minted","detail":{"generation":1,"claim_seq":17}}
+{"seq":33,"ts":"2026-08-20T20:08:11.073Z","step":"attempt.error","detail":{"reason":"fault","message":"injected post-claim fault (--fault post-claim)","claim_committed":true}}
+{"seq":34,"ts":"2026-08-20T20:08:11.160Z","step":"baton.release","detail":{"released_claimant":"poc.claude","note":"post-claim failure; the Job is available again for a fresh offer"}}
+{"seq":35,"ts":"2026-08-20T20:08:11.245Z","step":"baton.detail.compensated","detail":{"phase":"queued","handler":null,"route":"poc.job","ready":true}}
+{"seq":36,"ts":"2026-08-20T20:08:11.259Z","step":"attempt.end","detail":{"status":"compensated"}}

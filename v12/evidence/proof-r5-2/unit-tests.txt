@@ -1,0 +1,12 @@
+✔ R4-1: reap reports worker absence and cleanliness as separate facts (26.954467ms)
+✔ R4-2: an ambiguous committed release is reconciled, not called stranded (0.718587ms)
+✔ R4-2: every manager mutation carries an operation identity (0.262709ms)
+✔ R4-3: the capability fence refuses the live checkout and coordination alias (0.447282ms)
+ℹ tests 55
+ℹ suites 0
+ℹ pass 55
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 209.835031

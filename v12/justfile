@@ -1,0 +1,53 @@
+set shell := ["bash", "-lc"]
+set quiet
+
+# The prototype's OWN recipes. `v12/` is a self-contained subtree of this
+# repository and nothing in the root justfile delegates to it: the v11
+# gate must not start depending on a disposable proof of concept, and
+# this proof must not start depending on the v11 gate.
+#
+# Run these from `v12/`:  just -f v12/justfile test   (or `cd v12 && just`)
+
+default: test
+
+# Resolve the pinned runtime from the committed lockfile. Nothing else
+# is fetched, and the prototype's dependencies never enter the v11 tree.
+install:
+	npm ci --no-fund --no-audit
+
+# The fast gate: the fail-closed boundary unit tests and the placement
+# regressions. No Docker, no authority, no network.
+test:
+	npm test
+
+# The whole live proof, from a fresh disposable authority, with every
+# assertion. It needs Docker, the deployed v11 executable, the ACP
+# adapter tree and a readable Claude credential — the runner prints and
+# checks its own prerequisites. Evidence lands under the external state
+# root; retain a pack by copying it into `evidence/<label>`.
+proof LABEL="run":
+	./scripts/run-proof.sh "{{LABEL}}"
+
+# Where the disposable state actually is, read from poc.json rather than
+# assumed. Everything below this one directory is recreated by a proof
+# run; nothing under it is evidence until somebody copies it here.
+state:
+	node src/placement.mjs state --config poc.json
+
+# Remove all of it.
+#
+# Round-1 review: this read the raw `state_root` and excluded only `/`,
+# `$HOME` and this directory. Round-2 review: path shape cannot prove a
+# directory is ours — `/var/log` and `/usr/local` pass any denylist and
+# any depth rule. So `placement.mjs state` now demands POSITIVE ownership
+# evidence: an existing root reaches `chmod -R` and `rm -rf` only when it
+# carries this prototype's marker naming that exact root, which only the
+# recipe that CREATED the root writes. There is no local denylist here to
+# drift from the one authority.
+state-clean:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	STATE="$(node src/placement.mjs state --config poc.json)"
+	chmod -R u+w "$STATE" 2>/dev/null || true
+	rm -rf "$STATE"
+	echo "removed $STATE"

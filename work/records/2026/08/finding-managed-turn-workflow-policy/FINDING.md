@@ -235,3 +235,18 @@ The acceptance is for deployment, not terminal closure: the running policy
 still has four rules. W220 remains open until the accepted release is deployed,
 the deployment-owned policy is regenerated for every configured participant,
 and the effective boundary is verified.
+
+## Post-deployment verification — 2026-08-21
+
+Release `5407d28` was deployed over the existing authority. The dispatcher
+first refused the retired four-rule policy and named the missing capabilities,
+then started successfully after the deployment-owned policy was regenerated
+with the exact 30-rule profile for each configured Codex participant
+(`baton.codex` and `baton.tuner`). All six managed services reported healthy.
+
+The live managed reviewer claimed W1395 at `2026-08-21T13:29:25Z` without an
+interactive approval, proving that the deployed exact Baton mutation boundary
+is effective. Its later attempt to run an unrelated `node --test` command was
+correctly refused: repository shell commands are outside W220's managed Baton
+workflow profile. Together with the accepted 13/13 effective-policy matrix,
+the post-deployment audit and live claim satisfy W220's terminal boundary.

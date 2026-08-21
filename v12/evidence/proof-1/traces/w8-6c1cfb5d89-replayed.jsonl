@@ -1,0 +1,44 @@
+{"seq":1,"ts":"2026-08-20T18:31:49.339Z","step":"attempt.start","detail":{"work":"2fe278d9-W8","local_id":"W8","action_key":"work:2fe278d9-W8:10:g1","participant":"poc.claude","token_fault":"replayed"}}
+{"seq":2,"ts":"2026-08-20T18:31:49.418Z","step":"baton.detail.before","detail":{"phase":"queued","handler":null,"route":"poc.job","ready":true,"binding":"work/records/2026/08/job-neg-expired"}}
+{"seq":3,"ts":"2026-08-20T18:31:49.501Z","step":"job.in.read","detail":{"path":"/home/sl/src/baton-v12-poc/work/records/2026/08/job-neg-expired/job.in.json","root":"poc","record":"work/records/2026/08/job-neg-expired","input_name":"notes","source":"input"}}
+{"seq":4,"ts":"2026-08-20T18:31:49.502Z","step":"input.materialized","detail":{"path":"/home/sl/src/baton-v12-poc/run/attempts/w8-6c1cfb5d89/in","entries":4,"digest":"4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb"}}
+{"seq":5,"ts":"2026-08-20T18:31:49.502Z","step":"credential.staged","detail":{"expires_at":"2026-08-20T20:09:06.824Z","remaining_seconds":5837}}
+{"seq":6,"ts":"2026-08-20T18:31:49.502Z","step":"offer.minted","detail":{"jti":"546a7b9a526315c87a938274","expires_at":"2026-08-20T18:34:49.502Z","ttl_ms":180000,"declared_outputs":[{"name":"note-index","type":"file","path":"/out/index.json"}]}}
+{"seq":7,"ts":"2026-08-20T18:31:49.502Z","step":"token.pre-spent","detail":{"jti":"546a7b9a526315c87a938274","note":"negative case: this token has already been used once"}}
+{"seq":8,"ts":"2026-08-20T18:31:50.261Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":9,"ts":"2026-08-20T18:31:50.262Z","step":"preclaim.activity","detail":{"channel":"meta","text":"config_option_update"}}
+{"seq":10,"ts":"2026-08-20T18:31:50.269Z","step":"preclaim.container","detail":{"name":"v12poc-preclaim-w8-6c1cfb5d89","id":"3537cfef4667da039d0647641d6375df15c2ff9009a0898cf45d2447bef3488c","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","user":"1000:1000","network_mode":"bridge","session":"06f57a9a-1db2-400c-8d54-85cf11a3e1db","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-6c1cfb5d89/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-6c1cfb5d89/offer","target":"/offer","rw":false}],"mode":"bypassPermissions"}}
+{"seq":11,"ts":"2026-08-20T18:31:50.284Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":12,"ts":"2026-08-20T18:31:51.655Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":13,"ts":"2026-08-20T18:31:51.888Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":14,"ts":"2026-08-20T18:31:55.207Z","step":"preclaim.activity","detail":{"channel":"message","text":"```json"}}
+{"seq":15,"ts":"2026-08-20T18:31:55.914Z","step":"preclaim.activity","detail":{"channel":"message","text":"\n{\n  \"envelope\": \"claim-intent\",\n  \"version\": \"0-spike\",\n  \"decision\": \"accept\",\n  \"token\": \"[redacted 13 chars]"}}
+{"seq":16,"ts":"2026-08-20T18:31:56.613Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 23 chars]"}}
+{"seq":17,"ts":"2026-08-20T18:31:57.322Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 29 chars]"}}
+{"seq":18,"ts":"2026-08-20T18:31:58.023Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 21 chars]"}}
+{"seq":19,"ts":"2026-08-20T18:31:58.726Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 25 chars]"}}
+{"seq":20,"ts":"2026-08-20T18:31:59.433Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 22 chars]"}}
+{"seq":21,"ts":"2026-08-20T18:32:00.194Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 23 chars]"}}
+{"seq":22,"ts":"2026-08-20T18:32:00.898Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 20 chars]"}}
+{"seq":23,"ts":"2026-08-20T18:32:01.603Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 19 chars]"}}
+{"seq":24,"ts":"2026-08-20T18:32:02.367Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 17 chars]"}}
+{"seq":25,"ts":"2026-08-20T18:32:03.134Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 19 chars]"}}
+{"seq":26,"ts":"2026-08-20T18:32:03.837Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 19 chars]"}}
+{"seq":27,"ts":"2026-08-20T18:32:04.538Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 29 chars]"}}
+{"seq":28,"ts":"2026-08-20T18:32:05.266Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 18 chars]"}}
+{"seq":29,"ts":"2026-08-20T18:32:05.951Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 27 chars]"}}
+{"seq":30,"ts":"2026-08-20T18:32:06.654Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 18 chars]"}}
+{"seq":31,"ts":"2026-08-20T18:32:07.370Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 32 chars]"}}
+{"seq":32,"ts":"2026-08-20T18:32:08.070Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 22 chars]"}}
+{"seq":33,"ts":"2026-08-20T18:32:08.774Z","step":"preclaim.activity","detail":{"channel":"message","text":"4XNTXE\",\n  \"work\": \"W8\",\n  \"runtime_attempt\": \"w8-6c1cfb5d89\",\n  \"reason\": \""}}
+{"seq":34,"ts":"2026-08-20T18:32:09.574Z","step":"preclaim.activity","detail":{"channel":"message","text":"The selection rule, sort order, per-field semantics (including the null and newline-count cases), and output shape are all fully spec"}}
+{"seq":35,"ts":"2026-08-20T18:32:10.070Z","step":"preclaim.activity","detail":{"channel":"message","text":"ified, and the read-only /in mount plus the /out/index.json target are sufficient to produce the result deterministically.\"\n}\n```"}}
+{"seq":36,"ts":"2026-08-20T18:32:10.080Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":37,"ts":"2026-08-20T18:32:10.082Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":38,"ts":"2026-08-20T18:32:10.082Z","step":"preclaim.turn","detail":{"stop_reason":"end_turn"}}
+{"seq":39,"ts":"2026-08-20T18:32:10.084Z","step":"preclaim.activity","detail":{"channel":"meta","text":"session_info_update"}}
+{"seq":40,"ts":"2026-08-20T18:32:10.218Z","step":"preclaim.quiesced","detail":{"id":"3537cfef4667da039d0647641d6375df15c2ff9009a0898cf45d2447bef3488c","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","image_ref":"node:24-slim","running":false,"exit_code":0,"oom_killed":false,"started_at":"2026-08-20T18:31:49.521497449Z","finished_at":"2026-08-20T18:32:10.097801849Z","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-6c1cfb5d89/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-6c1cfb5d89/offer","target":"/offer","rw":false}],"network_mode":"bridge","user":"1000:1000","stopped_by":"self"}}
+{"seq":41,"ts":"2026-08-20T18:32:10.218Z","step":"preclaim.intent","detail":{"decision":"accept","reason":"The selection rule, sort order, per-field semantics (including the null and newline-count cases), and output shape are all fully specified, and the read-only /in mount plus the /out/index.json target are sufficient to produce the result deterministically.","carried_token":true}}
+{"seq":42,"ts":"2026-08-20T18:32:10.218Z","step":"token.refused","detail":{"reason":"replayed","message":"claim token 546a7b9a526315c87a938274 was already used for W8; a replay grants nothing"}}
+{"seq":43,"ts":"2026-08-20T18:32:10.218Z","step":"fence.held","detail":{"reason":"replayed","message":"claim token 546a7b9a526315c87a938274 was already used for W8; a replay grants nothing"}}
+{"seq":44,"ts":"2026-08-20T18:32:10.232Z","step":"attempt.end","detail":{"status":"fenced"}}

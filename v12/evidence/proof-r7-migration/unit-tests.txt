@@ -1,0 +1,12 @@
+✔ R5-1: a committed recap is replayed, not re-executed as new Work (0.376871ms)
+✔ R5-1: a recap that never committed does not silently pass as sent (0.268229ms)
+✔ R5-2: an immediate successor claim does not make a committed pass look failed (0.367073ms)
+✔ R5-2: an immediate successor claim does not make a committed release look failed (0.389124ms)
+ℹ tests 69
+ℹ suites 0
+ℹ pass 69
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 215.479711

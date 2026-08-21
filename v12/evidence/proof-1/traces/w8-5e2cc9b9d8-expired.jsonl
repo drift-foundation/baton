@@ -1,0 +1,42 @@
+{"seq":1,"ts":"2026-08-20T18:31:29.925Z","step":"attempt.start","detail":{"work":"2fe278d9-W8","local_id":"W8","action_key":"work:2fe278d9-W8:10:g1","participant":"poc.claude","token_fault":"expired"}}
+{"seq":2,"ts":"2026-08-20T18:31:30.006Z","step":"baton.detail.before","detail":{"phase":"queued","handler":null,"route":"poc.job","ready":true,"binding":"work/records/2026/08/job-neg-expired"}}
+{"seq":3,"ts":"2026-08-20T18:31:30.088Z","step":"job.in.read","detail":{"path":"/home/sl/src/baton-v12-poc/work/records/2026/08/job-neg-expired/job.in.json","root":"poc","record":"work/records/2026/08/job-neg-expired","input_name":"notes","source":"input"}}
+{"seq":4,"ts":"2026-08-20T18:31:30.089Z","step":"input.materialized","detail":{"path":"/home/sl/src/baton-v12-poc/run/attempts/w8-5e2cc9b9d8/in","entries":4,"digest":"4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb"}}
+{"seq":5,"ts":"2026-08-20T18:31:30.090Z","step":"credential.staged","detail":{"expires_at":"2026-08-20T20:09:06.824Z","remaining_seconds":5857}}
+{"seq":6,"ts":"2026-08-20T18:31:30.090Z","step":"offer.minted","detail":{"jti":"38a57288b7c65377cf6cfc26","expires_at":"2026-08-20T18:31:30.091Z","ttl_ms":1,"declared_outputs":[{"name":"note-index","type":"file","path":"/out/index.json"}]}}
+{"seq":7,"ts":"2026-08-20T18:31:31.003Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":8,"ts":"2026-08-20T18:31:31.004Z","step":"preclaim.activity","detail":{"channel":"meta","text":"config_option_update"}}
+{"seq":9,"ts":"2026-08-20T18:31:31.011Z","step":"preclaim.container","detail":{"name":"v12poc-preclaim-w8-5e2cc9b9d8","id":"a133cf00113facec3a54e6ec70f32c48cdba8187ba3c19254dc27d765ed0575a","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","user":"1000:1000","network_mode":"bridge","session":"39a11222-982e-49a9-bd61-aad58e302e63","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-5e2cc9b9d8/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-5e2cc9b9d8/offer","target":"/offer","rw":false}],"mode":"bypassPermissions"}}
+{"seq":10,"ts":"2026-08-20T18:31:31.027Z","step":"preclaim.activity","detail":{"channel":"meta","text":"available_commands_update"}}
+{"seq":11,"ts":"2026-08-20T18:31:32.420Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":12,"ts":"2026-08-20T18:31:33.956Z","step":"preclaim.activity","detail":{"channel":"message","text":"```json\n{\n  \""}}
+{"seq":13,"ts":"2026-08-20T18:31:34.627Z","step":"preclaim.activity","detail":{"channel":"message","text":"envelope\": \"claim-intent\",\n  \"version\": \"0-spike\",\n  \"decision\": \"accept\",\n  \"token\": \"[redacted 14 chars]"}}
+{"seq":14,"ts":"2026-08-20T18:31:35.389Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 22 chars]"}}
+{"seq":15,"ts":"2026-08-20T18:31:36.091Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 28 chars]"}}
+{"seq":16,"ts":"2026-08-20T18:31:36.887Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 27 chars]"}}
+{"seq":17,"ts":"2026-08-20T18:31:37.555Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 25 chars]"}}
+{"seq":18,"ts":"2026-08-20T18:31:38.327Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 24 chars]"}}
+{"seq":19,"ts":"2026-08-20T18:31:39.085Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 26 chars]"}}
+{"seq":20,"ts":"2026-08-20T18:31:39.786Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 20 chars]"}}
+{"seq":21,"ts":"2026-08-20T18:31:40.493Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 18 chars]"}}
+{"seq":22,"ts":"2026-08-20T18:31:41.263Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 22 chars]"}}
+{"seq":23,"ts":"2026-08-20T18:31:42.072Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 19 chars]"}}
+{"seq":24,"ts":"2026-08-20T18:31:42.666Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 30 chars]"}}
+{"seq":25,"ts":"2026-08-20T18:31:43.370Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 21 chars]"}}
+{"seq":26,"ts":"2026-08-20T18:31:44.074Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 28 chars]"}}
+{"seq":27,"ts":"2026-08-20T18:31:44.778Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 17 chars]"}}
+{"seq":28,"ts":"2026-08-20T18:31:45.496Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 18 chars]"}}
+{"seq":29,"ts":"2026-08-20T18:31:46.192Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 23 chars]"}}
+{"seq":30,"ts":"2026-08-20T18:31:46.933Z","step":"preclaim.activity","detail":{"channel":"message","text":"[redacted 20 chars]"}}
+{"seq":31,"ts":"2026-08-20T18:31:47.605Z","step":"preclaim.activity","detail":{"channel":"message","text":"\",\n  \"work\": \"W8\",\n  \"runtime_attempt\": \"w8-5e2cc9b9d8\",\n  \"reason\": \"The file selection,"}}
+{"seq":32,"ts":"2026-08-20T18:31:48.387Z","step":"preclaim.activity","detail":{"channel":"message","text":" sorting, heading extraction, and line-count rules are all deterministic and fully specified, and the read-only /in directory plus the single /out/index.json output"}}
+{"seq":33,"ts":"2026-08-20T18:31:48.565Z","step":"preclaim.activity","detail":{"channel":"message","text":" are sufficient to produce the result.\"\n}\n```"}}
+{"seq":34,"ts":"2026-08-20T18:31:48.582Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":35,"ts":"2026-08-20T18:31:48.585Z","step":"preclaim.activity","detail":{"channel":"meta","text":"usage_update"}}
+{"seq":36,"ts":"2026-08-20T18:31:48.585Z","step":"preclaim.turn","detail":{"stop_reason":"end_turn"}}
+{"seq":37,"ts":"2026-08-20T18:31:48.587Z","step":"preclaim.activity","detail":{"channel":"meta","text":"session_info_update"}}
+{"seq":38,"ts":"2026-08-20T18:31:48.678Z","step":"preclaim.quiesced","detail":{"id":"a133cf00113facec3a54e6ec70f32c48cdba8187ba3c19254dc27d765ed0575a","image":"sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd","image_ref":"node:24-slim","running":false,"exit_code":0,"oom_killed":false,"started_at":"2026-08-20T18:31:30.108662396Z","finished_at":"2026-08-20T18:31:48.599957871Z","mounts":[{"source":"/home/sl/opt/acp/claude-agent-acp/0.69.0","target":"/opt/acp","rw":false},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-5e2cc9b9d8/claude-config","target":"/run/claude-config","rw":true},{"source":"/home/sl/src/baton-v12-poc/run/attempts/w8-5e2cc9b9d8/offer","target":"/offer","rw":false}],"network_mode":"bridge","user":"1000:1000","stopped_by":"self"}}
+{"seq":39,"ts":"2026-08-20T18:31:48.679Z","step":"preclaim.intent","detail":{"decision":"accept","reason":"The file selection, sorting, heading extraction, and line-count rules are all deterministic and fully specified, and the read-only /in directory plus the single /out/index.json output are sufficient to produce the result.","carried_token":true}}
+{"seq":40,"ts":"2026-08-20T18:31:48.679Z","step":"token.refused","detail":{"reason":"expired","message":"claim token 38a57288b7c65377cf6cfc26 expired at 2026-08-20T18:31:30.091Z"}}
+{"seq":41,"ts":"2026-08-20T18:31:48.679Z","step":"fence.held","detail":{"reason":"expired","message":"claim token 38a57288b7c65377cf6cfc26 expired at 2026-08-20T18:31:30.091Z"}}
+{"seq":42,"ts":"2026-08-20T18:31:48.693Z","step":"attempt.end","detail":{"status":"fenced"}}

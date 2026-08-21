@@ -1,0 +1,4 @@
+ M work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md
+?? v12/
+?? work/open/finding-deployed-exec-policy-helper
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-in-repository-migration/

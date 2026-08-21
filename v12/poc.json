@@ -1,0 +1,41 @@
+{
+  "//": "Disposable v12 proof-of-concept configuration (Baton W76). Every",
+  "//2": "path is explicit. The Baton binary is the deployed v11 release,",
+  "//3": "used only as a black-box CLI/JSON client against the DISPOSABLE",
+  "//4": "authority named below. It is never mounted into a container.",
+  "//5": "state_root is the ONE external root holding everything disposable:",
+  "//6": "the authority, the Job records, per-attempt state, staged",
+  "//7": "credentials and generated proof output. It is deliberately outside",
+  "//8": "this checkout — the runtime fence refuses to mount any path inside",
+  "//9": "the Baton source tree into a worker, and that fence is a W76",
+  "//10": "boundary rather than something to relax now that the prototype",
+  "//11": "lives here. Removing this one directory removes all of it.",
+  "state_root": "/tmp/baton-v12-poc",
+  "record_base": "/tmp/baton-v12-poc/records",
+  "baton": {
+    "binary": "/home/sl/opt/baton/v11/8835cd5/bin/baton",
+    "config": "/tmp/baton-v12-poc/authority/baton.json",
+    "participant": "poc.claude",
+    "waitTimeoutSeconds": 5
+  },
+  "operator": "poc.ops",
+  "review_endpoint": "poc.rview",
+  "record_root": "poc",
+  "record_path": "work/records/2026/08",
+  "runtime": {
+    "image": "node:24-slim",
+    "user": "1000:1000",
+    "network": "bridge",
+    "memory": "2g",
+    "acp_adapter": "/home/sl/opt/acp/claude-agent-acp/0.69.0",
+    "acp_entrypoint": "node_modules/@agentclientprotocol/claude-agent-acp/dist/index.js",
+    "credential_source": "/home/sl/.local/state/acp-baton-bridge/baton.claude/claude/.credentials.json",
+    "credential_min_remaining_ms": 900000,
+    "preclaim_turn_timeout_ms": 300000,
+    "execution_turn_timeout_ms": 900000,
+    "preclaim_permission_mode": "plan",
+    "execution_permission_mode": "bypassPermissions",
+    "state_dir": "/tmp/baton-v12-poc/attempts"
+  },
+  "token": { "ttl_ms": 180000 }
+}

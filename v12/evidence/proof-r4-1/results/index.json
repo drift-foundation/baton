@@ -1,0 +1,9 @@
+{
+  "index_version": "0-spike",
+  "entries": [
+    {"path": "alpha.md", "heading": "Alpha release notes", "lines": 4},
+    {"path": "beta.txt", "heading": "Beta scratch notes", "lines": 3},
+    {"path": "delta.txt", "heading": null, "lines": 2},
+    {"path": "gamma.md", "heading": "Gamma deferred items", "lines": 5}
+  ]
+}

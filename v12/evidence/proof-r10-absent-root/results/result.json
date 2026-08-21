@@ -1,0 +1,479 @@
+{
+  "envelope": "result",
+  "version": "0-spike",
+  "work": "W2",
+  "assignment": {
+    "envelope": "assignment",
+    "version": "0-spike",
+    "work": "W2",
+    "participant": "poc.claude",
+    "runtime_attempt": "w2-92635f47df",
+    "generation": 1,
+    "claim_seq": 5,
+    "claimed_at": "2026-08-21T06:26:29.245Z"
+  },
+  "outputs": [
+    {
+      "name": "note-index",
+      "type": "directory",
+      "path": "/out",
+      "entries": [
+        "index.json"
+      ],
+      "digest": "c3b7d7dcd6f2858f517ca45629c45fd492d1d73d6f9d10a439e409b7e6a32b1c",
+      "manifest": [
+        {
+          "path": "index.json",
+          "bytes": 420,
+          "sha256": "dc0b370d69b2b07ba6ebaadbd052bad7ae1e3e9e6c38bcf39082eb4245b15f5c"
+        }
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "name": "notes",
+      "digest": "4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb",
+      "manifest": [
+        {
+          "path": "alpha.md",
+          "bytes": 95,
+          "sha256": "9b4fc5dc100dfb20bc36068815a183c929a433f196b919a45b10073a62cc7ef1"
+        },
+        {
+          "path": "beta.txt",
+          "bytes": 54,
+          "sha256": "462d41dcc80210b3292bb6390f5d56a864c400302b2c61bf255463d7dc177d75"
+        },
+        {
+          "path": "delta.txt",
+          "bytes": 46,
+          "sha256": "494294e4fcecb8e7b2f0f6567b2cb6140ec94bb8156fcdfa18f93cb9c1e85f5c"
+        },
+        {
+          "path": "gamma.md",
+          "bytes": 103,
+          "sha256": "1b08e0d8efa6a3c7dcf6d153f31291f1a17669ee6c106dbc6963cc0a284d6618"
+        }
+      ]
+    }
+  ],
+  "container": {
+    "id": "bfd715568ad03a4ab1adf1f332639d4202894bb6c03b62bf9b3525ba00e22f26",
+    "image": "sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd",
+    "user": "1000:1000",
+    "network_mode": "bridge",
+    "termination": {
+      "id": "bfd715568ad03a4ab1adf1f332639d4202894bb6c03b62bf9b3525ba00e22f26",
+      "image": "sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd",
+      "image_ref": "node:24-slim",
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-08-21T06:26:29.266155406Z",
+      "finished_at": "2026-08-21T06:26:55.191281137Z",
+      "mounts": [
+        {
+          "source": "/home/sl/opt/acp/claude-agent-acp/0.69.0",
+          "target": "/opt/acp",
+          "rw": false
+        },
+        {
+          "source": "/tmp/baton-v12-poc/attempts/w2-92635f47df/claude-config",
+          "target": "/run/claude-config",
+          "rw": true
+        },
+        {
+          "source": "/tmp/baton-v12-poc/attempts/w2-92635f47df/in",
+          "target": "/in",
+          "rw": false
+        },
+        {
+          "source": "/tmp/baton-v12-poc/attempts/w2-92635f47df/out",
+          "target": "/out",
+          "rw": true
+        }
+      ],
+      "network_mode": "bridge",
+      "user": "1000:1000",
+      "readonly_rootfs": false,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,size=64m"
+      },
+      "stopped_by": "self"
+    }
+  },
+  "activity": [
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:29.960Z",
+      "channel": "meta",
+      "text": "available_commands_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:29.961Z",
+      "channel": "meta",
+      "text": "config_option_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:29.986Z",
+      "channel": "meta",
+      "text": "available_commands_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:31.046Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:31.046Z",
+      "channel": "message",
+      "text": "I'll start by loo"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:31.102Z",
+      "channel": "message",
+      "text": "king at what's in the input"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:31.166Z",
+      "channel": "message",
+      "text": " directory."
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:31.503Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:31.871Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:31.876Z",
+      "channel": "tool",
+      "text": "tool_call_update ls -la /in"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:32.219Z",
+      "channel": "tool",
+      "text": "tool_call_update ls -la /in"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:32.239Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:32.240Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:32.244Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:33.302Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:34.107Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:34.828Z",
+      "channel": "tool",
+      "text": "tool_call_update for f in /in/alpha.md /in/beta.txt /in/delta.txt /in/gamma.md; do echo \"=== $f ===\"; cat -A \"$f\"; echo \"--- newlines: $(tr -dc '\\n' < \"$f\" | wc -c)\"; done"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:35.084Z",
+      "channel": "tool",
+      "text": "tool_call_update for f in /in/alpha.md /in/beta.txt /in/delta.txt /in/gamma.md; do echo \"=== $f ===\"; cat -A \"$f\"; echo \"--- newlines: $(tr -dc '\\n' < \"$f\" | wc -c)\"; done"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:35.096Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:35.097Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:35.108Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:36.016Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:39.572Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:42.401Z",
+      "channel": "tool",
+      "text": "tool_call_update python3 - <<'EOF'\nimport json, os\nd='/in'\nnames=sorted([n for n in os.listdir(d) if (n.endswith('.md') or n.endswith('.txt')) and os.path.isfile(os.path.join(d,n)) and not os.path.islink(os.path.join(d,n))], key=lambda s: s.encode())\nentries=[]\nfor n in names:\n    data=open(os.path.join(d,n),'rb').read()\n    text=data.decode('utf-8')\n    heading=None\n    for line in text.split('\\n"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:42.562Z",
+      "channel": "tool",
+      "text": "tool_call_update python3 - <<'EOF'\nimport json, os\nd='/in'\nnames=sorted([n for n in os.listdir(d) if (n.endswith('.md') or n.endswith('.txt')) and os.path.isfile(os.path.join(d,n)) and not os.path.islink(os.path.join(d,n))], key=lambda s: s.encode())\nentries=[]\nfor n in names:\n    data=open(os.path.join(d,n),'rb').read()\n    text=data.decode('utf-8')\n    heading=None\n    for line in text.split('\\n"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:42.568Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:42.569Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:42.574Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:43.446Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:44.194Z",
+      "channel": "tool",
+      "text": "tool_call Terminal pending"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:47.649Z",
+      "channel": "tool",
+      "text": "tool_call_update node -e '\nconst fs=require(\"fs\"),p=require(\"path\"),d=\"/in\";\nconst names=fs.readdirSync(d).filter(n=>{\n  if(!(n.endsWith(\".md\")||n.endsWith(\".txt\")))return false;\n  const st=fs.lstatSync(p.join(d,n));\n  return st.isFile();\n}).sort((a,b)=>Buffer.compare(Buffer.from(a),Buffer.from(b)));\nconst entries=names.map(n=>{\n  const buf=fs.readFileSync(p.join(d,n));\n  const text=buf.toString(\""
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:47.650Z",
+      "channel": "tool",
+      "text": "tool_call_update node -e '\nconst fs=require(\"fs\"),p=require(\"path\"),d=\"/in\";\nconst names=fs.readdirSync(d).filter(n=>{\n  if(!(n.endsWith(\".md\")||n.endsWith(\".txt\")))return false;\n  const st=fs.lstatSync(p.join(d,n));\n  return st.isFile();\n}).sort((a,b)=>Buffer.compare(Buffer.from(a),Buffer.from(b)));\nconst entries=names.map(n=>{\n  const buf=fs.readFileSync(p.join(d,n));\n  const text=buf.toString(\""
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:47.662Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:47.674Z",
+      "channel": "tool",
+      "text": "tool_call_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:47.675Z",
+      "channel": "tool",
+      "text": "tool_call_update  completed"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:49.670Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:49.670Z",
+      "channel": "message",
+      "text": "What"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:49.788Z",
+      "channel": "message",
+      "text": " I"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:49.813Z",
+      "channel": "message",
+      "text": " found in the input:"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:49.889Z",
+      "channel": "message",
+      "text": " `/in` contains"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:50.005Z",
+      "channel": "message",
+      "text": " exactly four reg"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:50.053Z",
+      "channel": "message",
+      "text": "ular files, no subdirect"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:50.876Z",
+      "channel": "message",
+      "text": "ories and no non-matching files — `alpha.md`, `beta.txt`, `delta.txt`, `gamma.md`. All four match the `.md`/`.txt` filter, and their byte-order sort is the same as the list"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:51.486Z",
+      "channel": "message",
+      "text": "ing order.\n\nPer file, read directly:\n- **alpha.md** — 4 newlines; first heading line"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:52.098Z",
+      "channel": "message",
+      "text": " is `# Alpha release notes` → `Alpha release notes`.\n- **beta.txt** — 3 newlines; heading line is indented (`   # Beta scratch notes`), so the first non-whitespace character is `#` and"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:52.808Z",
+      "channel": "message",
+      "text": " it counts → `Beta scratch notes`.\n- **delta.txt** — 2 newlines; no line begins with `#` → heading is `null`.\n- **gamma.md** — 5 newlines; the first two lines are preamble and bl"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:53.513Z",
+      "channel": "message",
+      "text": "ank, so the heading comes from `## Gamma deferred items` → `Gamma deferred items` (both `#` characters stripped).\n\n`/out` now contains only `index.json`, holding the object with `index_version: \"0"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:54.225Z",
+      "channel": "message",
+      "text": "-spike\"` and the four entries in sorted order.\n\n```json\n{\n  \"envelope\": \"job.out\",\n  \"version\": \"0-spike\",\n  \"work\": \"W2\",\n  \"results\": [{ \"name\": \"note-index\", \"type\": \"directory\", \"path\": \"/out\" }],\n  "
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:55.018Z",
+      "channel": "message",
+      "text": "\"summary\": \"Wrote /out/index.json indexing the four .md/.txt files directly in /in (alpha.md, beta.txt, delta.txt, gamma.md) with their extracted headings and newline counts in"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:55.137Z",
+      "channel": "message",
+      "text": " byte-sorted order.\"\n}\n```"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:55.170Z",
+      "channel": "meta",
+      "text": "usage_update"
+    },
+    {
+      "envelope": "activity",
+      "version": "0-spike",
+      "ts": "2026-08-21T06:26:55.173Z",
+      "channel": "meta",
+      "text": "usage_update"
+    }
+  ],
+  "status": "accepted"
+}

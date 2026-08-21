@@ -28,5 +28,5 @@ deployment.
 11. [done] Independently review before deployment
     (`review-2026-08-21T07-16-52Z.md`): accepted, with the combined focused
     set passing 73/73 and direct narrow-header verification clean.
-12. [pending] Approve and deploy the accepted source change, then perform
+12. [done] Approve and deploy the accepted source change, then perform
     terminal verification against the canonical distribution.

@@ -1,0 +1,146 @@
+#!/usr/bin/env node
+// Disposable v12 proof-of-concept CLI (Baton W76).
+//
+//   v12-poc submit  --config <poc.json> --name <job> [--fixture <dir>]
+//   v12-poc manage  --config <poc.json> [--token-fault expired|replayed]
+//   v12-poc snapshot --config <poc.json> --work <W..>
+//
+// `submit` acts as the OPERATOR: it creates an ordinary Baton Job and
+// binds its typed input. `manage` acts as the trusted Worker Manager.
+// They are separate commands because they are separate authorities.
+
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { BatonClient, handlerAddress } from "../src/baton_cli.mjs";
+import { validateConfig } from "../src/config.mjs";
+import { envelope } from "../src/envelopes.mjs";
+import { INDEX_RULE } from "../src/fixture_check.mjs";
+import { manifestOf } from "../src/manifest.mjs";
+import { Manager } from "../src/manager.mjs";
+
+function flags(argv) {
+	const out = {};
+	for (let index = 0; index < argv.length; index += 1) {
+		const arg = argv[index];
+		if (!arg.startsWith("--")) continue;
+		const [key, inline] = arg.slice(2).split("=");
+		out[key] = inline ?? (argv[index + 1]?.startsWith("--") ? true : argv[++index] ?? true);
+	}
+	return out;
+}
+
+function loadConfig(path) {
+	if (!path || path === true) throw new Error("--config <poc.json> is required");
+	return validateConfig(JSON.parse(readFileSync(resolve(path), "utf8")));
+}
+
+const [verb, ...rest] = process.argv.slice(2);
+const options = flags(rest);
+
+if (verb === "submit") {
+	const config = loadConfig(options.config);
+	const name = options.name === undefined || options.name === true
+		? (() => { throw new Error("--name <job> is required"); })() : options.name;
+	const fixture = resolve(options.fixture ?? join(import.meta.dirname, "..", "fixtures", "sample-notes"));
+	// Baton enforces the canonical permanent-record shape for every
+	// binding, including this disposable authority's. The prototype
+	// obeys it rather than routing around it.
+	const relative = `${config.record_path}/job-${name}`;
+	// `record_base` is required and validated as an external, disposable
+	// path: this used to fall back to the prototype root, which now means
+	// writing Job records into the Baton checkout.
+	const recordDir = join(config.record_base, relative);
+	rmSync(recordDir, { recursive: true, force: true });
+	mkdirSync(join(recordDir, "input"), { recursive: true });
+	cpSync(fixture, join(recordDir, "input"), { recursive: true });
+	const digest = manifestOf(join(recordDir, "input")).digest;
+
+	// The OPERATOR is a different participant from the worker: a Job is
+	// submitted by whoever owns the queue, never by the runner.
+	const operator = new BatonClient({ ...config.baton, participant: config.operator });
+	// The operator submits at its OWN endpoint, binds the typed input
+	// there (binding is the resolved handler's authority, and the
+	// operator is that handler for intake), then reroutes the unclaimed
+	// Job onto the worker queue. That is the documented move for
+	// offering Work at a different endpoint, and it keeps the operator
+	// from having to impersonate the runner to prepare its input.
+	const created = await operator.create([
+		"team=poc", "kind=intake", `title=Index the ${name} note directory`,
+		"origin=external-report", "classification=design-choice",
+		`body=Produce a deterministic JSON index of the supplied note directory. `
+		+ `The typed input and the exact rule live in the bound record.`]);
+	const work = created.result.work_id.split("-").pop();
+	const document = envelope("job.in", {
+		work,
+		contract: { human: INDEX_RULE, result_name: "note-index" },
+		inputs: [{ name: "notes", type: "directory", source: "input", digest }],
+	});
+	writeFileSync(join(recordDir, "job.in.json"), `${JSON.stringify(document, null, 2)}\n`);
+	await operator.bind(work, config.record_root, relative, 0,
+		"typed input and human contract for this prototype Job");
+	const routed = await operator.run("reroute", [`work=${work}`, "to=poc.job",
+		"reason=typed input is bound; offering the Job on the isolated worker queue"]);
+	console.log(JSON.stringify({
+		work, thread: created.result.thread.split("-").pop(),
+		record: relative, input_digest: digest,
+		route: routed.result.to, phase: routed.result.phase,
+	}, null, 2));
+} else if (verb === "manage") {
+	const config = loadConfig(options.config);
+	const manager = new Manager(config);
+	const fault = options["token-fault"] === true ? null : options["token-fault"] ?? null;
+	if (fault && !["expired", "replayed"].includes(fault)) {
+		throw new Error(`--token-fault must be 'expired' or 'replayed', got ${fault}`);
+	}
+	const injected = options.fault === true ? null : options.fault ?? null;
+	if (injected && injected !== "post-claim") {
+		throw new Error(`--fault must be 'post-claim', got ${injected}`);
+	}
+	const { actionable } = await manager.observeOnce();
+	if (!actionable.length) {
+		console.log(JSON.stringify({ actionable: 0, note: "nothing ready for this participant" }));
+		process.exit(0);
+	}
+	const results = [];
+	for (const action of actionable) {
+		const attempt = await manager.dispatch(action, { tokenFault: fault, fault: injected });
+		results.push({
+			work: attempt.work, runtime_attempt: attempt.runtime_attempt,
+			status: attempt.status, reason: attempt.reason ?? null,
+			error: attempt.error ?? null, trace: attempt.paths.trace,
+			output_digest: attempt.result?.outputs?.[0]?.digest ?? null,
+			claim_committed: Boolean(attempt.claimCommitted),
+			stranded_by: attempt.strandedBy ?? null,
+			// Round-4 review: these were absent from the operator-facing
+			// result, so a retained credential was visible only inside
+			// the attempt trace.
+			credentials_disposed: Boolean(attempt.credentialsDisposed),
+			retained_secret: attempt.retainedSecret ?? null,
+			unclean_reason: attempt.uncleanReason ?? null,
+		});
+		if (fault || injected) break;      // one negative case per invocation
+	}
+	console.log(JSON.stringify(results, null, 2));
+	// `stranded` is never a success: it means the canonical Handler is
+	// still held by a runner whose turn is over.
+	// `returned-unclean` is deliberately NOT acceptable: the Job reached
+	// review, and the attempt still left an operator credential behind.
+	const acceptable = new Set(["returned"]);
+	if (fault) acceptable.add("fenced");
+	if (injected) acceptable.add("compensated");
+	process.exit(results.every((r) => acceptable.has(r.status)) ? 0 : 1);
+} else if (verb === "snapshot") {
+	const config = loadConfig(options.config);
+	const client = new BatonClient({ ...config.baton, participant: config.operator });
+	const detail = await client.detail(options.work);
+	console.log(JSON.stringify({
+		work: detail.result.local_id, phase: detail.result.phase,
+		handler: handlerAddress(detail.result), route: detail.result.route.endpoint,
+		ready: detail.result.ready, status: detail.result.status,
+		binding: detail.result.binding?.path ?? null,
+		last_change_seq: detail.result.last_change_seq,
+	}, null, 2));
+} else {
+	console.error("usage: v12-poc submit|manage|snapshot --config <poc.json> ...");
+	process.exit(2);
+}

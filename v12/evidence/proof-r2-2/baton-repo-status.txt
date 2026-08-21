@@ -1,0 +1,3 @@
+ M work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/PLAN.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/PROGRESS.md
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/review-2026-08-20T19-57-54Z.md

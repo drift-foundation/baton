@@ -1,0 +1,13 @@
+[
+  {
+    "work": "W8",
+    "runtime_attempt": "w8-800247e1e8",
+    "status": "fenced",
+    "reason": "replayed",
+    "error": "claim token 8877613adcbe3952ec was already used for W8; a replay grants nothing",
+    "trace": "/home/sl/src/baton-v12-poc/run/attempts/w8-800247e1e8/trace.jsonl",
+    "output_digest": null,
+    "claim_committed": false,
+    "stranded_by": null
+  }
+]

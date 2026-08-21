@@ -1,0 +1,10 @@
+{
+  "work": "W8",
+  "phase": "queued",
+  "handler": null,
+  "route": "poc.job",
+  "ready": true,
+  "status": "open",
+  "binding": "work/records/2026/08/job-neg-expired",
+  "last_change_seq": 18
+}

@@ -1,0 +1,12 @@
+✔ R3-2: the guard refuses the live alias and links into production (0.281844ms)
+✔ R3-3: a committed mutation whose result was lost is reconciled (0.504318ms)
+✔ R3-3: a committed pass whose result was lost is not called stranded (0.357054ms)
+✔ R3-4: the container is launched with the canonical source, not the alias (0.198459ms)
+ℹ tests 50
+ℹ suites 0
+ℹ pass 50
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 175.719112

@@ -265,7 +265,7 @@ implementation.**
    and return traces plus a go/revise/no-go conclusion before production design
    or implementation expands.
 
-0ai. [in progress; current child Work `W126`] After W76's external implementation
+0ai. [done 2026-08-21; child Work `W126`] After W76's external implementation
    passes independent review, relocate its source-controlled prototype into
    this repository's self-contained top-level `v12/` subtree. Include its own
    `justfile`, package/dependency manifests and lockfiles, source, tests,
@@ -276,7 +276,15 @@ implementation.**
    secrets, authorities, logs and runtime state. Do not delete the external
    root before the in-repository gates pass; once they do, remove
    `/home/sl/src/baton-v12-poc` as the final approved migration step so only
-   one canonical prototype tree remains.
+   one canonical prototype tree remains. W126 closed satisfying after five
+   review rounds, external-root removal, the 78/78 gate, and standalone proof.
+   Child `W1395` records the post-reboot placement-test fixture defect. Its
+   test-only isolation correction is independently accepted; the in-repository
+   gate is 78/78 again, and now holds whether the sample root is absent,
+   existing-unmarked or existing-owned. Cancelled child `W1466` records the
+   discovery of pre-existing temporary-fixture leakage; independently
+   scheduled top-level W1478 now owns that non-blocking cleanup and does not
+   reopen W1395 or gate W2.
 
 1. [pending] Model assignment generations, read-only pre-claim inspection,
    expiring single-use claim tokens, claim-capability-gated writable

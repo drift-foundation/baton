@@ -1,0 +1,21 @@
+ M conf/codex-event-bridge.template.json
+ M docs/BATON-WORK.md
+ M src/baton_work/tui/app.py
+ M tests/work/test_deploy_v11.py
+ M tests/work/test_w110_tab_grammar.py
+ M tests/work/test_w71_navigation.py
+ M tests/work/test_w74_header.py
+ M tools/codex-event-bridge/smoke/exact_policy_matrix.mjs
+ M tools/codex-event-bridge/src/exec_policy.mjs
+ M tools/codex-event-bridge/test/exec_policy_cli.test.mjs
+ M tools/codex-event-bridge/test/runtime_publisher.test.mjs
+ M work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md
+?? tests/work/test_w220_managed_workflow_policy.py
+?? tests/work/test_w292_breadcrumb_navigation.py
+?? v12/
+?? work/open/finding-deployed-exec-policy-helper
+?? work/open/finding-managed-turn-workflow-policy
+?? work/records/2026/08/finding-managed-turn-workflow-policy/
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-in-repository-migration/
+?? work/records/2026/08/finding-work-detail-breadcrumb-navigation/

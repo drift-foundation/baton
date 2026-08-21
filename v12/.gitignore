@@ -1,0 +1,9 @@
+# The pinned runtime, resolved from the committed lockfile.
+node_modules/
+
+# NOTHING ELSE IS IGNORED HERE, deliberately. `run/` and `work/` used to
+# be, back when the disposable authority, Job records and attempt state
+# sat beside the code in an external root. They now live under the
+# external `state_root` in `poc.json`, and a proof run asserts that this
+# subtree holds none of it. Ignoring those names again would hide
+# exactly the regression that assertion exists to catch.

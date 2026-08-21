@@ -1,0 +1,13 @@
+[
+  {
+    "work": "W8",
+    "runtime_attempt": "w8-b2f4d7585b",
+    "status": "compensated",
+    "reason": "fault",
+    "error": "injected post-claim fault (--fault post-claim)",
+    "trace": "/home/sl/src/baton-v12-poc/run/attempts/w8-b2f4d7585b/trace.jsonl",
+    "output_digest": null,
+    "claim_committed": true,
+    "stranded_by": null
+  }
+]

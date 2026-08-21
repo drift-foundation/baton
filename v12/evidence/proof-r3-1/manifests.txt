@@ -1,0 +1,12 @@
+input notes  digest 4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb
+    9b4fc5dc100dfb20bc36068815a183c929a433f196b919a45b10073a62cc7ef1       95  alpha.md
+    462d41dcc80210b3292bb6390f5d56a864c400302b2c61bf255463d7dc177d75       54  beta.txt
+    494294e4fcecb8e7b2f0f6567b2cb6140ec94bb8156fcdfa18f93cb9c1e85f5c       46  delta.txt
+    1b08e0d8efa6a3c7dcf6d153f31291f1a17669ee6c106dbc6963cc0a284d6618      103  gamma.md
+output note-index  digest c3b7d7dcd6f2858f517ca45629c45fd492d1d73d6f9d10a439e409b7e6a32b1c
+    dc0b370d69b2b07ba6ebaadbd052bad7ae1e3e9e6c38bcf39082eb4245b15f5c      420  index.json
+result type directory at /out  declared entries ['index.json']
+container 16e3c895cc7e  image sha256:9da0264deb61
+          user 1000:1000  network bridge
+          stopped_by self  exit 0  oom False
+          started 2026-08-20T21:16:13.032697789Z  finished 2026-08-20T21:16:45.840614374Z

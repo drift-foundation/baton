@@ -1,0 +1,12 @@
+✔ the Baton client refuses to attach to a production coordination home (0.124061ms)
+✔ a readiness envelope is revalidated rather than trusted (0.13446ms)
+✔ a streamed secret is scrubbed fragment by fragment (0.19887ms)
+✔ the Handler is read as a participant address, not as an object (0.119773ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.170163

@@ -1,0 +1,40 @@
+ M conf/codex-event-bridge.template.json
+ M src/baton_work/authority.py
+ M src/baton_work/cli.py
+ M src/baton_work/projection.py
+ M src/baton_work/transitions.py
+ M src/baton_work/tui/app.py
+ M tests/work/test_authority.py
+ M tests/work/test_w92_schema15.py
+ M tests/work/test_w93_runtime_state.py
+ M tools/codex-event-bridge/config.example.json
+ M tools/codex-event-bridge/package.json
+ M tools/codex-event-bridge/src/codex_baton_bridge.mjs
+ M tools/codex-event-bridge/src/codex_client.mjs
+ M tools/codex-event-bridge/src/config.mjs
+ M tools/codex-event-bridge/src/event_bridge.mjs
+ M tools/codex-event-bridge/src/event_types.mjs
+ M tools/codex-event-bridge/src/main.mjs
+ M tools/codex-event-bridge/src/runtime_publisher.mjs
+ M tools/codex-event-bridge/test/codex_client.test.mjs
+ M tools/codex-event-bridge/test/role_instructions.test.mjs
+ M tools/codex-event-bridge/test/runtime_publisher.test.mjs
+ M tools/codex-event-bridge/test/stale_episode.test.mjs
+ M work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/FINDING.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/PLAN.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/PROGRESS.md
+?? tests/work/test_w415_approval_incidents.py
+?? tools/codex-event-bridge/smoke/exact_policy_matrix.mjs
+?? tools/codex-event-bridge/smoke/managed_baton_write.mjs
+?? tools/codex-event-bridge/src/exec_policy.mjs
+?? work/open/finding-managed-turn-approval-incidents
+?? work/open/finding-manual-handler-runtime-visibility
+?? work/records/2026/08/finding-managed-turn-approval-incidents/
+?? work/records/2026/08/finding-manual-handler-runtime-visibility/
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/review-2026-08-20T19-57-54Z.md
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/review-2026-08-20T21-07-20Z.md
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/review-2026-08-20T23-30-47Z.md
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/review-2026-08-20T23-56-14Z.md
+?? work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc/review-2026-08-21T00-38-29Z.md

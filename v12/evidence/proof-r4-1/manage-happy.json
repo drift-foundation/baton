@@ -1,0 +1,13 @@
+[
+  {
+    "work": "W2",
+    "runtime_attempt": "w2-a12923e0b2",
+    "status": "returned",
+    "reason": null,
+    "error": null,
+    "trace": "/home/sl/src/baton-v12-poc/run/attempts/w2-a12923e0b2/trace.jsonl",
+    "output_digest": "27b4188118d0680cd17f650a82e94f12a7f381c7e79e416dedce630062ceafd6",
+    "claim_committed": true,
+    "stranded_by": null
+  }
+]

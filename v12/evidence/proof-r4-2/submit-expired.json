@@ -1,0 +1,8 @@
+{
+  "work": "W8",
+  "thread": "T8",
+  "record": "work/records/2026/08/job-neg-expired",
+  "input_digest": "4ce540a1c45ebb5a0efde26e3dfe0c0d4546b9806f8e1ff75c8d505c19c093cb",
+  "route": "poc.job",
+  "phase": "queued"
+}

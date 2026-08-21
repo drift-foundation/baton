@@ -1,0 +1,12 @@
+✔ R2-2: a proven reap releases, and reaping happens first (0.273208ms)
+✔ R2-3: a mount source that is a symlink to Baton state is refused (0.302142ms)
+✔ R2-4: the declared result is the pinned DIRECTORY, with declared entries (0.158745ms)
+✔ R2-4: an undeclared file inside the result directory is refused (0.256197ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145.668819

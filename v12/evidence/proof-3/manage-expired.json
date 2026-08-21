@@ -1,0 +1,11 @@
+[
+  {
+    "work": "W8",
+    "runtime_attempt": "w8-9832a7677a",
+    "status": "fenced",
+    "reason": "expired",
+    "error": "claim token 57680a58900618bd50 expired at 2026-08-20T18:36:22.021Z",
+    "trace": "/home/sl/src/baton-v12-poc/run/attempts/w8-9832a7677a/trace.jsonl",
+    "output_digest": null
+  }
+]

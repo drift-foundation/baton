@@ -1,0 +1,12 @@
+✔ R3: a declaration must name this assignment and exactly the offered outputs (39.644162ms)
+✔ R3b: an undeclared TOP-LEVEL result field is a mismatch too (0.083405ms)
+✔ R5: a post-claim failure releases the claim, and says so when it cannot (0.583515ms)
+✔ R4b: consent and execution may not share a permission posture (0.667482ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 85.074789

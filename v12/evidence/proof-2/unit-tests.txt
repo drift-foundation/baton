@@ -1,0 +1,12 @@
+✔ a readiness envelope is revalidated rather than trusted (0.140862ms)
+✔ a streamed secret is scrubbed fragment by fragment (0.19921ms)
+✔ the Handler is read as a participant address, not as an object (0.111297ms)
+✔ a token mismatch is described structurally, without either token (0.162853ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.900241

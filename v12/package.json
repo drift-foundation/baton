@@ -1,0 +1,13 @@
+{
+  "name": "baton-v12-poc",
+  "private": true,
+  "type": "module",
+  "description": "Disposable external proof of concept for Baton v12 natural Job dispatch to one isolated Claude ACP worker (Baton W76). Not Baton product source.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@agentclientprotocol/sdk": "1.3.0"
+  },
+  "engines": { "node": ">=20.0.0" }
+}
