@@ -22,7 +22,9 @@ from urllib.parse import unquote as _fact_unquote
 import json as _op_json
 
 from baton_work.authority import (Authority, WorkError,
-                                  clock_ms_now, utc_now, validate_op_id)
+                                  clock_ms_now, dispatch_row,
+                                  live_claim_rows, utc_now,
+                                  validate_op_id)
 
 # The confirmed intake example's vocabulary. Additive growth is expected;
 # renames are not.
@@ -1403,6 +1405,181 @@ def close_work(store: Authority, work_id: str, *, actor_team: str,
 # docstring saying the opposite. W38 superseded the orthogonality — the
 # claim and `active` are one fact — and the heading did not follow.
 
+# ==========================================================================
+# W4615: deployment-global managed dispatch
+# ==========================================================================
+#
+# Drain is LIFECYCLE state, not a Work phase and not an instruction to an
+# agent. Nothing about any Work changes when the deployment drains: the
+# rows keep their phase, their Route and their Handler, and the only
+# difference is that no NEW claim is admitted. That distinction is the
+# reason it lives in its own singleton rather than as a phase value —
+# `parked` says something about one Work, and this says something about
+# the deployment.
+
+
+def _dispatch_authorized(conn, actor_team: str, actor: str,
+                         verb: str) -> None:
+	"""The `dispatch` capability, checked in the WRITE transaction.
+
+	Ruled 2026-08-22 (obligation 4845). Every inferred substitute is
+	explicitly rejected: a Work Route or held role is local scheduling
+	responsibility rather than deployment-global maintenance authority;
+	a runtime `actionOwner` is transient adapter state a participant
+	writes about itself; `recover` authorizes one narrow orphan-claim
+	correction; and broad `config` authorship of the roster does not
+	implicitly include suspending the whole stack.
+
+	Checked HERE rather than at the CLI edge so that a configuration
+	generation which revokes the capability takes effect against
+	in-flight callers: stale process memory never preserves authority
+	across an accepted change. An exact operation REPLAY still resolves
+	by its committed operation identity, because that answer was already
+	given."""
+	held = conn.execute(
+		"SELECT 1 FROM member_capabilities WHERE team=? AND member=? "
+		"AND capability='dispatch'", (actor_team, actor)).fetchone()
+	if held is None:
+		raise WorkError(
+			f"{verb}: {actor_team}.{actor} does not hold the `dispatch` "
+			f"capability. Suspending or resuming managed dispatch is a "
+			f"deployment-global maintenance authority granted in the "
+			f"accepted configuration; a Route, a held role, a runtime "
+			f"action owner, `recover` and `config` do not imply it")
+
+
+def drain_dispatch(store: Authority, *, actor_team: str, actor: str,
+                   reason: str | None = None,
+                   op_id: str | None = None, refs=()) -> dict:
+	"""Suppress new claim admission deployment-wide; let live claims end.
+
+	The mutation records its OWN sequence as the drain boundary, so
+	"after the boundary" is decided by the same monotonic counter that
+	orders every other act. A claim committing before it is in the
+	finishing round; one arriving after is refused by `claim_work` in
+	its own transaction. There is no third outcome, because both run
+	under the one writer.
+
+	Draining with nothing live reaches `paused` in this same commit —
+	`_settle_dispatch` runs after every mutation including this one, so
+	the empty case needs no special path and cannot report `draining`
+	for an instant that has nothing to drain."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "drain", op_id,
+	                       {"reason": reason, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload: dict = {}
+
+	def mutate(conn, seq):
+		_dispatch_authorized(conn, actor_team, actor, "drain")
+		row = conn.execute(
+			"SELECT mode, generation FROM dispatch_control "
+			"WHERE id=1").fetchone()
+		if row["mode"] != "running":
+			# Not an error of degree: re-draining an already draining
+			# deployment would move the boundary forward and silently
+			# adopt claims taken since the first request into a new
+			# finishing round. The operator asked for a boundary; they
+			# already have one.
+			raise WorkError(
+				f"drain: managed dispatch is already {row['mode']}; the "
+				f"drain boundary is not moved by a second request "
+				f"(an exact retry of the same operation id replays)")
+		generation = row["generation"] + 1
+		live = [dict(entry) for entry in live_claim_rows(conn)]
+		# `instant()`, NOT `clock()`. An empty drain settles to `paused`
+		# in this same commit, so `drain_requested` and `pause_reached`
+		# are written at one sequence — and a second reading of the same
+		# clock would still give them two timestamps the moment it
+		# advanced between the calls. The write samples once; both read
+		# that sample.
+		now = store.instant()
+		conn.execute(
+			"UPDATE dispatch_control SET mode='draining', generation=?, "
+			"boundary_seq=?, actor_team=?, actor_member=?, "
+			"transitioned_ts=? WHERE id=1",
+			(generation, seq, actor_team, actor, now))
+		conn.execute(
+			"INSERT INTO dispatch_events (seq, kind, mode, generation, "
+			"boundary_seq, actor_team, actor_member, live_claims, reason, "
+			"ts) VALUES (?, 'drain_requested', 'draining', ?, ?, ?, ?, ?, "
+			"?, ?)",
+			(seq, generation, seq, actor_team, actor, len(live), reason,
+			 now))
+		payload.update({"mode": "draining", "generation": generation,
+		                "boundary_seq": seq,
+		                "live_claims": len(live),
+		                "blockers": [f"{entry['handler_team']}."
+		                             f"{entry['handler_member']} holds "
+		                             f"{entry['id']}" for entry in live]})
+
+	def finish(result):
+		result.update(payload)
+		# The mode AFTER the commit, which is `paused` rather than
+		# `draining` when the finishing round was already empty.
+		result["mode"] = dispatch_row(store.conn)["mode"]
+
+	return store._write("dispatch_drain", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, finish=finish,
+	                    references=refs)
+
+
+def resume_dispatch(store: Authority, *, actor_team: str, actor: str,
+                    reason: str | None = None,
+                    op_id: str | None = None, refs=()) -> dict:
+	"""Return the deployment to ordinary dispatch, explicitly.
+
+	Resume advances the control generation. A consumer that remembers a
+	generation therefore knows the difference between "still the drain I
+	was told about" and "resumed and drained again", without comparing
+	wall-clock times across hosts."""
+	_member(store, actor_team, actor)
+	refs = _parse_refs(store, refs)
+	operation = _operation(store, actor_team, actor, "resume", op_id,
+	                       {"reason": reason, "refs": refs})
+	if isinstance(operation, dict):
+		return operation
+	payload: dict = {}
+
+	def mutate(conn, seq):
+		_dispatch_authorized(conn, actor_team, actor, "resume")
+		row = conn.execute(
+			"SELECT mode, generation FROM dispatch_control "
+			"WHERE id=1").fetchone()
+		if row["mode"] == "running":
+			raise WorkError(
+				"resume: managed dispatch is already running; there is "
+				"nothing to resume (an exact retry of the same operation "
+				"id replays)")
+		generation = row["generation"] + 1
+		# The act's one instant, for the same reason as `drain`: a resume
+		# writes the singleton and its event together and they are one
+		# transition, not two that happen to be close.
+		now = store.instant()
+		conn.execute(
+			"UPDATE dispatch_control SET mode='running', generation=?, "
+			"boundary_seq=?, actor_team=?, actor_member=?, "
+			"transitioned_ts=? WHERE id=1",
+			(generation, seq, actor_team, actor, now))
+		conn.execute(
+			"INSERT INTO dispatch_events (seq, kind, mode, generation, "
+			"boundary_seq, actor_team, actor_member, live_claims, reason, "
+			"ts) VALUES (?, 'resumed', 'running', ?, ?, ?, ?, 0, ?, ?)",
+			(seq, generation, seq, actor_team, actor, reason, now))
+		payload.update({"mode": "running", "generation": generation,
+		                "boundary_seq": seq,
+		                "from_mode": row["mode"]})
+
+	def finish(result):
+		result.update(payload)
+
+	return store._write("dispatch_resume", f"{actor_team}.{actor}", payload,
+	                    mutate, operation=operation, finish=finish,
+	                    references=refs)
+
+
 def claim_work(store: Authority, work_id: str, *, actor_team: str,
                actor: str, op_id: str | None = None, refs=()) -> dict:
 	"""THE atomic claim: records WHO is executing, and with it the
@@ -1436,6 +1613,25 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 		if live["phase"] in ("block", "parked"):
 			raise WorkError(f"{work_id} is {live['phase']}; blocked and "
 			                f"parked work cannot be claimed")
+		# W4615: THE DRAIN BOUNDARY, decided here rather than in a CLI
+		# wrapper or a readiness producer.
+		#
+		# Claim admission is the one act drain has to stop, and it is
+		# the one act that must be refused inside the write transaction:
+		# a readiness filter narrows what a managed model is woken FOR,
+		# but a direct CLI claim, a retry, or a claim already in flight
+		# when drain committed reaches this line without ever consulting
+		# a projection. Refusing here is what makes "no claim is
+		# admitted after the boundary" a property of the database rather
+		# than of every caller remembering to ask.
+		mode = conn.execute(
+			"SELECT mode FROM dispatch_control WHERE id=1").fetchone()
+		if mode is not None and mode["mode"] != "running":
+			raise WorkError(
+				f"managed dispatch is {mode['mode']}; no new claim is "
+				f"admitted until an authorized `resume`. Work already "
+				f"claimed at the drain boundary finishes normally — this "
+				f"refusal is the boundary, not a Work-level gate")
 		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
 		                                      actor, "claim")
 		gates = _open_dependency_gates(conn, work_id)
@@ -1490,16 +1686,84 @@ def claim_work(store: Authority, work_id: str, *, actor_team: str,
 	                    references=refs)
 
 
+def _release_authority(conn, work_id: str, actor_team: str, actor: str,
+                       owning_team: str) -> tuple[str, dict | None]:
+	"""W4303: WHO may release this claim, and under which branch.
+
+	Two authorizations, kept apart on purpose and journaled by name.
+
+	`handler` is the ordinary one and is unchanged: a currently
+	resolved handler of the Work's own Route releases what that
+	endpoint owes, self-release included.
+
+	`recover` is the narrow operator branch the finding exists for.
+	W2907's claim was orphaned by a managed turn that failed one second
+	after taking it, and the only route handler was the failed
+	participant itself — so the documented "self or forced" recovery had
+	nobody left who could perform it, and the participant's one claim
+	slot deadlocked for five hours. The approver could not help, because
+	authority resolved from the Route and the approver is not one of its
+	handlers.
+
+	The ruling (2026-08-22, obligation 4379) is that the fix is a
+	capability, not a route membership: granting the recovery operator
+	`impl` handler rights would have made it a normal executor of every
+	implementation Work in order to unwedge one. It is also NOT the
+	existing `config` capability, which is far broader than releasing one
+	claim, and NOT the runtime lease's `actionOwner`, which is
+	participant-authored telemetry and must never become workflow power.
+
+	The recovery branch is still bounded by OWNERSHIP — the same
+	boundary `reroute` draws. A capability says what kind of act a
+	member may perform; it does not make another team's work theirs."""
+	row = conn.execute(
+		"SELECT route_team, route_kind, route_selected FROM work "
+		"WHERE id=?", (work_id,)).fetchone()
+	if row["route_team"] is None or row["route_kind"] is None:
+		raise WorkError(f"release: {work_id} has no Route endpoint")
+	resolution = resolve_endpoint(conn, row["route_team"],
+	                              row["route_kind"], "release",
+	                              selected=row["route_selected"])
+	if actor_team == row["route_team"] and \
+			actor in (resolution["handlers"] or ()):
+		return "handler", resolution
+	held = conn.execute(
+		"SELECT 1 FROM member_capabilities WHERE team=? AND member=? "
+		"AND capability='recover'", (actor_team, actor)).fetchone()
+	if held is not None and actor_team == owning_team:
+		return "recover", resolution
+	raise WorkError(
+		f"release: {actor_team}.{actor} is neither a resolved handler of "
+		f"{resolution['endpoint']} (route {resolution['route']!r}, "
+		f"handlers {resolution['handlers']}) nor a member of "
+		f"{owning_team} holding the `recover` capability; recovering a "
+		f"claim its own route handlers cannot reach is a configured "
+		f"operator capability, and contribution never grants it")
+
+
 def release_claim(store: Authority, work_id: str, *, actor_team: str,
-                  actor: str, expect: str, reason: str,
+                  actor: str, expect: str, episode: int, reason: str,
                   op_id: str | None = None, refs=()) -> dict:
 	"""Explicit claimant recovery (ruled): one honest operation for
 	self-release AND forced recovery. Authority is the live Route
-	endpoint's resolved handlers; expect= is a mandatory compare-and-swap
-	against the exact recorded claimant, decided inside the write
-	transaction; reason= is durable evidence. A successful release clears
-	ONLY the claimant — phase, Route, Next, readiness, dependencies,
-	gate and discussion state are untouched."""
+	endpoint's resolved handlers OR a configured `recover` operator of
+	the owning team (W4303); `expect=` and `episode=` are a mandatory
+	compare-and-swap against the exact recorded claimant AND the exact
+	assignment episode that claimant was offered, both decided inside
+	the write transaction; `reason=` is durable evidence. A successful
+	release clears ONLY the claimant — phase, Route, Next, readiness,
+	dependencies, gate and discussion state are untouched.
+
+	W4303: `expect=` ALONE was not a fence. It compares a participant
+	string, so a recovery request written against one claim would
+	release a LATER claim by the same participant — exactly the shape a
+	dispatcher retrying a stale failed-turn settlement produces. The
+	assignment episode closes it: a claim deliberately does not mint an
+	episode, while every release, pass and re-offer does, so the episode
+	the failed attempt observed identifies that claim and no successor
+	to it. It is mandatory for BOTH branches and for self-release, so
+	there is exactly one release contract to reason about rather than a
+	fenced path and an unfenced one sitting beside it."""
 	_member(store, actor_team, actor)
 	refs = _parse_refs(store, refs)
 	if not isinstance(reason, str) or not reason.strip():
@@ -1512,23 +1776,40 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 		raise WorkError(f"expect= {expect!r} is not team.member shaped; "
 		                f"recovery never guesses whose execution it is "
 		                f"interrupting")
+	if type(episode) is not int or episode < 0:
+		raise WorkError(
+			f"episode= must be the non-negative assignment episode the "
+			f"released claim was offered under; {episode!r} is not. The "
+			f"claimant string alone cannot tell one claim from a later "
+			f"one by the same participant, so every release — including "
+			f"self-release — names the exact episode it is ending")
 	operation = _operation(store, actor_team, actor, "release", op_id,
 	                       {"work": work_id, "expect": expect,
+	                        "episode": episode,
 	                        "reason": reason, "refs": refs})
 	if isinstance(operation, dict):
 		return operation
 	_work(store, work_id)
-	payload = {"work": work_id, "expect": expect, "reason": reason}
+	payload = {"work": work_id, "expect": expect, "episode": episode,
+	           "reason": reason}
 
 	def mutate(conn, seq):
 		live = conn.execute(
-			"SELECT status, handler_team, handler_member FROM work "
-			"WHERE id=?", (work_id,)).fetchone()
+			"SELECT status, team, episode_seq, handler_team, "
+			"handler_member FROM work WHERE id=?", (work_id,)).fetchone()
 		if live["status"] != OPEN:
 			raise WorkError(f"{work_id} is {live['status']}; terminal "
 			                f"work carries no claim to release")
-		payload["resolution"] = _handler_gate(conn, work_id, actor_team,
-		                                      actor, "release")
+		branch, resolution = _release_authority(conn, work_id, actor_team,
+		                                        actor, live["team"])
+		payload["resolution"] = resolution
+		# Journaled by NAME, because "who was allowed to do this and
+		# why" is the question an audit of a recovered claim asks first.
+		# A release that went through the operator capability is a
+		# different operational event from a handler releasing its own
+		# claim, and reading it back out of the participant string would
+		# be a guess.
+		payload["authorization"] = branch
 		if live["handler_team"] is None:
 			raise WorkError(f"{work_id} is unclaimed; there is no "
 			                f"execution claim to release")
@@ -1538,6 +1819,18 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 				f"{work_id} is claimed by {recorded}, not {expect}; "
 				f"the compare-and-swap refuses — recovery never "
 				f"guesses whose execution it is interrupting")
+		# W4303: the SECOND half of the same compare-and-swap. The
+		# claimant matching is not proof that this is the claim the
+		# caller observed: the participant may have released and
+		# re-taken it in between, and releasing that one would abort
+		# execution nobody asked to interrupt.
+		if live["episode_seq"] != episode:
+			raise WorkError(
+				f"{work_id} is claimed under assignment episode "
+				f"{live['episode_seq']}, not {episode}; the "
+				f"compare-and-swap refuses — a release aimed at one "
+				f"assignment never ends a later one, even when the "
+				f"same participant holds both")
 		payload["released_claimant"] = recorded
 		landing = _unclaimed_state(conn, work_id)
 		_phase_now(payload, work_id, landing)
@@ -1555,10 +1848,17 @@ def release_claim(store: Authority, work_id: str, *, actor_team: str,
 		# W49: the Work becomes available to its Route endpoint again.
 		# Every eligible handler — including the released claimant, who
 		# may legitimately re-take it — needs a fresh wake.
+		#
+		# W4303: this is also what makes the fence above single-use. The
+		# released episode is now spent, so an exact retry of a stale
+		# recovery request refuses rather than releasing whatever claim
+		# happens to be live when it lands.
 		_mint_episode(conn, work_id)
 
 	def finish(result):
 		result["released_claimant"] = payload["released_claimant"]
+		result["episode"] = episode
+		result["authorization"] = payload["authorization"]
 
 	return store._write("release", f"{actor_team}.{actor}", payload,
 	                    mutate, operation=operation, finish=finish,
@@ -1997,7 +2297,12 @@ def create_trial(store: Authority, work_id: str, *, actor_team: str,
 		# R42: ONE transaction-local instant — the deadline is rechecked
 		# against it inside the committing write (it may have passed since
 		# the optimistic check), and it becomes the trial's created_ts.
-		now = store.clock()
+		#
+		# W4615: which is now the WRITE's one sample rather than a reading
+		# taken here. R42 already asked for one transaction-local instant;
+		# `instant()` is that, and it is sampled after BEGIN IMMEDIATE, so
+		# the recheck still happens strictly inside the lock.
+		now = store.instant()
 		if review_at is not None and review_at <= now:
 			raise WorkError(
 				f"review_at {review_at!r} is not later than now ({now}); "

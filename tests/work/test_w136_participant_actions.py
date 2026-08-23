@@ -135,7 +135,8 @@ def test_routed_work_wakes_handlers_and_the_claim_narrows(world):
 	finally:
 		fresh.close()
 	tr.release_claim(store, work, actor_team="lang", actor="bee",
-	                 expect="lang.bee", reason="cycling")
+	                 expect="lang.bee", episode=fx.episode_of(store, work),
+	                 reason="cycling")
 	# W49: release hands the Work back to the endpoint — a NEW episode,
 	# so every eligible handler (the released claimant included) wakes
 	# again even though the Work id never changed.
@@ -247,8 +248,13 @@ def test_wait_is_member_relative_and_deterministic(world):
 	quiet = pj.wait_actionable(store, viewer_team="lang",
 	                           viewer_member="grace",
 	                           timeout_seconds=0.05)
+	# W4615: the wake contract gained the deployment-global `dispatch`
+	# object — additively, which is what the 12.4 minor above declares.
+	# A client that ignores it reads exactly what it read at 12.3.
 	assert quiet == {"actionable": [], "timed_out": True,
-	                 "snapshot_seq": quiet["snapshot_seq"]}
+	                 "snapshot_seq": quiet["snapshot_seq"],
+	                 "dispatch": quiet["dispatch"]}
+	assert quiet["dispatch"]["mode"] == "running"
 
 
 def test_the_read_creates_no_write(world):
@@ -359,7 +365,7 @@ def test_the_projection_version_names_the_wake_contract(world):
 	# refusing is this file's documented major condition — so an 11.x
 	# demand now refuses cleanly rather than reading a wake set it
 	# cannot handle.
-	assert jsonapi.PROJECTION_VERSION == "12.3"
+	assert jsonapi.PROJECTION_VERSION == "12.4"
 	jsonapi.require_version("12.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("11.2")

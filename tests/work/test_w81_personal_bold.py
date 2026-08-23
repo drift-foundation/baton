@@ -86,7 +86,8 @@ def test_the_actionability_matrix(world):
 	assert not actionable_work(
 		row_for(world, work, viewer_member="grace"), "lang", "grace")
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="cycling")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="cycling")
 	# blocked: ready=false — the arrow explains, bold does not
 	gate = make(world, "the gate")["work_id"]
 	tr.add_dependency(store, work, gate, actor_team="lang",

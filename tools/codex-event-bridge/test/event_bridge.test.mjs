@@ -140,6 +140,10 @@ test("reports ready only after every configured target is loaded", () => {
     // W99 added the sticky context condition beside the live one. A
     // target nobody has ever asked for approval on is not quarantined.
     tainted: null,
+    // W4303 added the third undeliverable condition on the same rule: a
+    // target whose participant is holding a claim orphaned by a failed
+    // turn. Nothing has failed here, so there is none.
+    orphan: null,
   });
 });
 

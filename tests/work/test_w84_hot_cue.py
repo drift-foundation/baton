@@ -102,7 +102,8 @@ def test_hot_zone_state_matrix(world):
 	assert hot_work(claimed)
 	# released: cold again
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="handing back")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="handing back")
 	assert not hot_work(row_of(store, work))
 	# ready unclaimed review: hot — the interval before the reviewer
 	# claims is exactly the zone the cue exists for
@@ -118,7 +119,8 @@ def test_hot_zone_state_matrix(world):
 	# BLOCKED review is cold: the blocker gates readiness
 	blocker = make(store, title="gate")
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="blocked below")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="blocked below")
 	tr.add_dependency(store, work, blocker, actor_team="lang",
 	                  actor="ada", rationale="test dependency")
 	blocked = row_of(store, work)

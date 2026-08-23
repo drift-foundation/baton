@@ -49,7 +49,13 @@ def test_ws2_wf03_due_extension_withdrawal(flow):
 	# (W136: the wait is participant-relative — grace resolves nothing,
 	# so ada's routed-Work wake does not mask the deadline mechanics.)
 	early = flow.ok("wait", "timeout=0.15", viewer="lang.grace")
-	assert early == {"actionable": [], "timed_out": True}
+	# W4615: `wait` also carries the deployment-global dispatch state, so
+	# a managed client can tell a drained stack from an idle one. It is
+	# `running` throughout this flow; the deadline mechanics below are
+	# unchanged by it.
+	assert early["dispatch"]["mode"] == "running"
+	assert {key: early[key] for key in ("actionable", "timed_out")} == \
+		{"actionable": [], "timed_out": True}
 
 	# 2. At T, the trial is due for exactly the responsible provider
 	# endpoint — and NOTHING transitioned.

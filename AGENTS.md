@@ -173,6 +173,35 @@ The working process is unchanged by the layout:
   claim and derives the destination phase from the destination Route
   atomically; the recipient claims explicitly once the Work is ready.
 
+## Non-interactive managed turns
+
+- Every canonical Baton operation is
+  ONE standalone direct execution request.
+  This binds `claim` above all, because it is the mandatory first act. Issue
+  it alone —
+  never combined with `detail` or another read, another mutation, a shell
+  wrapper, or shell control syntax such as `&&`, `;`, a pipe or a
+  newline-separated batch. The deployment authorizes an EXACT canonical
+  invocation, so a batch containing one is a different command and is not
+  authorized: the read succeeds, the mutation is refused as a read-only
+  database, and the Work stays unclaimed. An exact operation that still fails
+  when issued alone is a deployment or policy incident — report it through
+  Baton as one, and
+  never retry it inside a broader command.
+- A Codex context launched by readiness is non-interactive. It never requests
+  escalation and never retries a denied command with
+  `sandbox_permissions=require_escalated`; either act within its installed
+  policy or report the exact blocker through Baton.
+- Optional cleanup is never worth quarantining the participant. In particular,
+  a managed reviewer leaves its exact temporary reproduction path for the
+  operator instead of issuing a destructive shell command merely to remove
+  it. Tests and repository helpers should clean up resources they own through
+  their already-authorized execution boundary.
+- If required verification cannot run without new authority, stop before the
+  prohibited act, preserve the evidence, and relinquish or block the Work with
+  an actionable explanation. Do not turn a permission refusal into a stronger
+  command or an unattended approval request.
+
 ## Baton defects and workarounds
 
 - Never work around a Baton defect without logging a finding for it first. Log the finding, then a short-term workaround is acceptable — but only as a stated stopgap, never as the fix, and the finding is what carries the real correction.

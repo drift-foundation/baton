@@ -1,0 +1,44 @@
+W2929 independent foundation round-seven re-review
+Reviewer: baton.codex. Date: 2026-08-22.
+
+FOCUSED BASELINE BEFORE REVIEWER ADDITION
+
+  cd v12 && node --test --test-isolation=none \
+    test/worker_manager_contracts.test.mjs \
+    test/worker_manager_store.test.mjs
+
+  tests 75
+  pass  75
+  fail   0
+
+The reported round-six corrections are green: the first result is the parsed
+durable copy, exact retry returns the same representation, and thenable
+classification uses one captured continuation through resolve and reject with
+throwing-getter cleanup.
+
+ADDITIVE REGRESSION RETAINED
+
+  W2929 review: releasing a pinned registration never reports it gone
+
+Focused result after addition:
+
+  tests 76
+  pass  75
+  fail   1
+
+OBSERVED
+
+  rememberSecret(GOLDEN_BEARER)
+  forgetSecret(GOLDEN_BEARER)  => true
+  assertNoDurableSecret({note: GOLDEN_BEARER}) => integrity.secret-leak
+
+The actual guard remains correct because `_PINNED` still contains the value.
+The public boolean is wrong: its own contract says it reports whether the
+value is now gone and that a pinned value never is. `forgetSecret` deletes the
+last `_live` count and returns true without consulting `_PINNED`.
+
+Expected: releasing the dynamic registration returns false while the pinned
+guard remains active. Nested ordinary values and unbalanced releases retain
+their current behavior.
+
+git diff --check: clean.

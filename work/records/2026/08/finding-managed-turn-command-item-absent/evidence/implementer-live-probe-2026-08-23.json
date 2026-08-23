@@ -1,0 +1,197 @@
+{
+  "threadId": "01a02ede-cdcf-7882-ac1b-c7a03697a549",
+  "turnId": "01a02ede-cdd7-7520-b72c-c69f2f8ff2fc",
+  "notificationCounts": {
+    "configWarning": 1,
+    "remoteControl/status/changed": 1,
+    "thread/started": 1,
+    "mcpServer/startupStatus/updated": 3,
+    "thread/status/changed": 2,
+    "turn/started": 1,
+    "item/started": 5,
+    "item/completed": 5,
+    "thread/tokenUsage/updated": 2,
+    "account/rateLimits/updated": 2,
+    "turn/completed": 1
+  },
+  "serverRequestMethods": [],
+  "rawResponseItemTypeCounts": {},
+  "customItems": [],
+  "liveItems": [
+    {
+      "event": "item/started",
+      "type": "userMessage",
+      "id": "01a02ede-d5cc-7693-9567-48778fbe9f18",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "clientId",
+        "content"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/completed",
+      "type": "userMessage",
+      "id": "01a02ede-d5cc-7693-9567-48778fbe9f18",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "clientId",
+        "content"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/started",
+      "type": "reasoning",
+      "id": "rs_09ad1920c368b09b016a8af98fb48487d0a140f87920d5a38c",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "summary",
+        "content"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/completed",
+      "type": "reasoning",
+      "id": "rs_09ad1920c368b09b016a8af98fb48487d0a140f87920d5a38c",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "summary",
+        "content"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/started",
+      "type": "commandExecution",
+      "id": "exec-528733bf-3cb9-456a-aafc-bec44cee7c96",
+      "status": "inProgress",
+      "keys": [
+        "type",
+        "id",
+        "pluginId",
+        "scriptPath",
+        "command",
+        "cwd",
+        "processId",
+        "source",
+        "status",
+        "commandActions",
+        "aggregatedOutput",
+        "exitCode"
+      ],
+      "command": "/bin/bash -lc 'date +%s%N'",
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/completed",
+      "type": "commandExecution",
+      "id": "exec-528733bf-3cb9-456a-aafc-bec44cee7c96",
+      "status": "failed",
+      "keys": [
+        "type",
+        "id",
+        "pluginId",
+        "scriptPath",
+        "command",
+        "cwd",
+        "processId",
+        "source",
+        "status",
+        "commandActions",
+        "aggregatedOutput",
+        "exitCode"
+      ],
+      "command": "/bin/bash -lc 'date +%s%N'",
+      "name": null,
+      "exitCode": 1
+    },
+    {
+      "event": "item/started",
+      "type": "reasoning",
+      "id": "rs_09ad1920c368b09b016a8af99200e887d0a4b5a4d757211858",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "summary",
+        "content"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/completed",
+      "type": "reasoning",
+      "id": "rs_09ad1920c368b09b016a8af99200e887d0a4b5a4d757211858",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "summary",
+        "content"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/started",
+      "type": "agentMessage",
+      "id": "msg_09ad1920c368b09b016a8af992f5e087d0a3f9da626fd8d9cf",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "text",
+        "phase",
+        "memoryCitation",
+        "delivery"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    },
+    {
+      "event": "item/completed",
+      "type": "agentMessage",
+      "id": "msg_09ad1920c368b09b016a8af992f5e087d0a3f9da626fd8d9cf",
+      "status": null,
+      "keys": [
+        "type",
+        "id",
+        "text",
+        "phase",
+        "memoryCitation",
+        "delivery"
+      ],
+      "command": null,
+      "name": null,
+      "exitCode": null
+    }
+  ],
+  "storedTurnStatus": "completed",
+  "storedThreadItemTypes": [
+    "userMessage",
+    "agentMessage"
+  ]
+}

@@ -1,0 +1,134 @@
+W2929 — item 3, SECOND SLICE: activation and runtime start
+Signed off before it: review-2026-08-22T22-21-52Z.md (item 3a).
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. THE NON-BLOCKING NOTE FIRST
+
+The re-review is right that my case titled "a SEQUENTIAL exact reissue is
+refused by the same marker" is intercepted by the optimistic `store.replay`
+precheck and never reaches the closure marker's branch. The title claimed
+branch evidence the case does not provide.
+
+Retitled and rewritten to say exactly what it pins — the public refusal, with
+the same bearer so nothing in the payload distinguishes the calls — and to
+name which cases DO exercise the marker: the same-bearer concurrent case on
+the replay side, the first-issue case on the commit side. Citing a case for
+work another case does is a quiet way to overstate coverage.
+
+
+1. WHAT THIS SLICE IS
+
+`v12/src/worker_manager/attempts.mjs` — the dossier's "Runtime" bullets one
+and two, plus the observation-axis rule. The ordering is the whole content:
+
+  1. `assignment.activate` fixes and validates the assignment manifest
+     BEFORE the first writable adapter call;
+  2. runtime start commits `start-requested` BEFORE the adapter is called;
+  3. reconciliation identifies by OPAQUE ID plus the full assignment/profile
+     labels — zero permits a retry only after proven absence, one reattaches,
+     mismatch or multiplicity cancels rather than starting another;
+  4. observations advance only through the frozen axes, and `uncertain`
+     never becomes `destroyed`.
+
+STILL NOT IMPLEMENTED, and named rather than implied: cancellation ordering
+(`session.cancel` first, then agent and runtime), output freeze, intake,
+cleanup — the rest of item 3 — and ALL of item 4, the provider-neutral
+agent-session profile, session/turn/event normalization and the adapter
+CONTRACTS. The adapter here is an injected object with two methods; what a
+conforming adapter must BE is item 4's to pin, and this slice does not
+pretend to have pinned it.
+
+
+2. THE FOUR RULES, AND WHY EACH IS ORDERED THAT WAY
+
+ACTIVATION FIRST. The authority's live assignment is read and compared field
+by field with the one the claim recorded. A stale, ended, refenced or
+differently-participanted assignment is refused HERE, where nothing has been
+started — after one writable call the same refusal would leave a runtime
+nobody is authorized to own. The manifest is fixed ONCE: a second activation
+naming a different assignment does not silently re-point the attempt.
+
+RECORD BEFORE CALLING. `start-requested` is durable before the adapter is
+touched. A manager that called first and recorded afterwards could crash in
+between and restart with no trace that a runtime may exist — and the next
+incarnation would start a second one. Recording first can only over-report,
+which reconciliation resolves by LOOKING.
+
+ZERO IS NOT ABSENCE. "The adapter reports nothing" and "nothing exists" are
+different facts. A retry is permitted only when absence has been positively
+proven; otherwise the attempt goes `uncertain` and waits. Starting a second
+runtime for one assignment is the failure this entire ordering exists to
+prevent, so the ambiguous case must cost a wait rather than a duplicate.
+
+IDENTIFICATION IS BY LABELS. An id the adapter minted proves only that
+something answers to it. A runtime carrying another assignment's labels is
+somebody else's, and attaching to it would put two managers on one runtime.
+Mismatch or multiplicity CANCELS: two runtimes under one assignment's labels
+means something already went wrong, and a third would compound it.
+
+UNCERTAINTY IS NOT AN OUTCOME. `uncertain` never becomes `destroyed`.
+Destruction is a fact about the world, and inferring it from a failure to
+look would let a manager report a cleaned-up runtime that is still executing
+somebody's code. An axis does not go backwards either, and the ONE reset is
+narrow and explicit — only reconciliation that has proven absence may take an
+axis back, because only it knows nothing is owed.
+
+
+3. MUTATION CHECK — seven
+
+  M1  the adapter is called before the intent is recorded   1 failed
+  M2  zero runtimes retries without proven absence          2 failed
+  M3  multiplicity attaches to the first                    1 failed
+  M4  labels ignored, the adapter's id is enough            1 failed
+  M5  uncertain may become destroyed                        1 failed
+  M6  activation does not read the live assignment          1 failed
+  M7  an unactivated attempt may start                      1 failed
+
+Restored: 13/13 focused, 295/295 for the whole gate.
+
+
+4. A CASE OF MINE HAD TO BE CORRECTED, AND IT IS THE INTERESTING ONE
+
+"Every declared value is reachable" walked the whole `execution_runtime` enum
+in order — and that walk passes through `uncertain` straight into
+`destroyed`, which the rule forbids. The case now skips that one step, says
+WHY, and reaches `destroyed` from a state that is not uncertainty.
+
+Writing the reachability case and the refusal case separately would have hid
+this: the two rules meet exactly at that transition, and only walking the
+enum found it.
+
+
+5. REGRESSIONS — 13 new (295 total, 282 before)
+
+Activation fixing the assignment; four stale/ended shapes each refused before
+the adapter is reached with the attempt left unfixed; the manifest fixed
+once. Start recorded before the adapter is called, observed from INSIDE the
+adapter call; an unactivated attempt never reaching the adapter at all.
+Exactly one matching runtime reattaching; zero waiting and only proven
+absence retrying; multiplicity cancelling without attaching to either;
+a mismatched id cancelling; three runtimes with wrong labels all ignored.
+The frozen axes and values; `uncertain` never becoming `destroyed` on both
+runtime axes; no backwards step, an inert repeat, and the narrow reset.
+
+
+6. GATES
+
+  cd v12 && npm test                       295 tests, 295 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/attempts.mjs        new
+  v12/test/worker_manager_attempts.test.mjs  new, 13 cases
+  v12/test/worker_manager_offers.test.mjs    one case retitled and its claim
+                                             corrected

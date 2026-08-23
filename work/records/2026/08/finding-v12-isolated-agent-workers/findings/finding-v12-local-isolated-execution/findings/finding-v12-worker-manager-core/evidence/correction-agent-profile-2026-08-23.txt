@@ -1,0 +1,118 @@
+W2929 — the agent-profile slice, corrected
+Review: review-2026-08-23T02-12-31Z.md, two [P1] and one [P2].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    441 tests, 439 passed, 2 failed
+
+The two additive review regressions are the only failures. Both findings
+correct, and both are the same mistake: I BUILT A NEW DOOR AND LEFT THE OLD
+ONE OPEN.
+
+
+2. THE TWO
+
+[P1] THE GENERIC WRITER BYPASSED THE ONE CERTIFICATION ROUTE. `certifyProfile`
+took `kind` as an operand, accepted `agent-session`, and wrote a
+caller-authored digest straight into the same table. So the shape, seal,
+posture-policy and secret checks I had just built were avoidable by not
+calling the entry point that performs them, and `isAgentSessionProfileCertified`
+then reported that digest certified.
+
+A composing entry point that a caller may decline to call is a suggestion.
+
+[P1] AN AGENT-SESSION PROFILE CERTIFIED THE RUNTIME AXIS. `certifiedProfile`
+asked only for the digest and `withdrawn_at`, so a genuinely certified
+AGENT-SESSION profile satisfied `issueOffer`'s RUNTIME check. The two are
+separate contract axes with separate schemas, seals and policies. A digest
+certified under one is not certification under the other EVEN WHEN THE BYTES
+ARE GENUINE — and "certified" without a kind is a question that does not have
+one answer.
+
+Both consumers name their kind now and fail closed on a cross-kind row.
+
+[P2] The schema byte-identity regression the review added is retained.
+
+
+3. ONE PLACE I DID NOT DO WHAT THE CASE IMPLIED, AND WHY
+
+The review's forge case calls the generic writer and then asserts the lookup
+reports false — which reads as "drop the operand silently". I refused the
+operand instead, and kept the review's assertion underneath a `throws`.
+
+THE REASON IS A HAZARD IN THE OTHER READING. Silently dropping a supplied
+`agent-session` would satisfy the case while writing the caller-authored
+digest as a certified RUNTIME profile — turning an attempted agent-session
+forgery into a SUCCESSFUL one on the axis the caller never named. The case
+would pass and the store would be worse.
+
+So the writer takes no `kind` at all and says so when one is supplied, which
+is the rule the authority's sessions already apply to `participant`: an
+operand that looks authoritative and is not is worse than no operand. A case
+of mine also asserts that a refused kind certifies NOTHING, on either axis.
+
+If the reviewer reads the acceptance differently I would rather be overruled
+than have quietly reinterpreted their case.
+
+
+4. MUTATION CHECK — four, all four witnessed
+
+  Z1  the runtime lookup is not scoped to its kind    1 failed
+  Z2  the generic writer takes a kind again           1 failed
+  Z3  the writer certifies the agent-session kind     2 failed
+  Z4  withdrawal is ignored on the runtime axis       1 failed
+
+Z3 is the one worth reading: it closes the cross-axis hole in the other
+direction and immediately breaks the axis itself, which is why a case of mine
+drives a runtime profile certifying a runtime offer rather than only checking
+that an agent one cannot.
+
+Restored: 14/14 focused, 443/443 for the whole gate.
+
+
+5. REGRESSIONS — 14 (12 before, including the reviewer's three)
+
+Plus two of mine: a runtime profile still certifying its own axis, and a
+WITHDRAWN runtime profile certifying nothing — because closing a cross-axis
+hole must not close the axis.
+
+
+6. GATES
+
+  cd v12 && npm test                       443 tests, 443 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+The rest of item 4: the separate consent and execution sessions with their
+per-posture epochs, turns and deadlines, event normalization, and the
+runtime/agent adapter CONTRACTS. Plus the four things this manager still
+refuses to decide.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/offers.mjs                  `certifyProfile` ->
+                                                     `certifyRuntimeProfile`,
+                                                     which takes no kind; the
+                                                     runtime lookup scoped to
+                                                     its own axis
+  v12/test/worker_manager_agent_profile.test.mjs     +2 cases; the review's
+                                                     forge case wrapped in a
+                                                     `throws` with its
+                                                     assertion kept

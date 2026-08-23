@@ -1,0 +1,61 @@
+W2928 third independent-review reproduction, 2026-08-22T07:12:45Z
+
+The reproduction imported only the advertised boundary and test fixture:
+
+  v12/src/authority/index.mjs
+  v12/test/authority_fixture.mjs
+
+It created two v12 Works, claimed full-W2 as poc.gemini, and used a
+poc.claude session to call end against this expect object:
+
+  let reads = 0
+  const expect = {
+    authorityUuid: foreign.authorityUuid,
+    workId: foreign.workId,
+    generation: foreign.generation,
+    get participant() {
+      reads += 1
+      return reads <= 2 ? "poc.claude" : "poc.gemini"
+    }
+  }
+
+V12Session's wrapper read participant twice and accepted the object as its own.
+Core then read the same caller-owned object again, saw poc.gemini, matched the
+foreign live assignment, and committed its end.
+
+Observed output:
+
+  {"reads":9,
+   "ended":{"cause":"release",
+    "assignment":{"authorityUuid":"authority-uuid","workId":"full-W2",
+     "generation":1,"participant":"poc.gemini"},
+    "phase":"queued","gate":null,"fenced":false},
+   "foreignAfter":null,
+   "ignored":{"authorityUuid":"authority-uuid","workId":"full-W1",
+    "participant":"poc.claude","generation":1}}
+
+The final `ignored` value came from a second boundary check:
+
+  claudeSession.claim({
+    workId: "full-W1",
+    participant: "poc.gemini",
+    operationId: "claim:ignored-participant"
+  })
+
+The claim succeeded as poc.claude instead of refusing the caller-supplied
+identity operand. This does not impersonate, but contradicts the corrected
+strict-operand boundary and can make a caller believe an operand was honored.
+
+Verification:
+
+  cd v12 && npm test
+    153 pass, 0 fail
+
+  W151 executable model
+    54 pass
+
+  six isolated authority race runs
+    all pass
+
+  git diff --check -- v12
+    clean

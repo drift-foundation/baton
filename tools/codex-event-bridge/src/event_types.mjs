@@ -47,10 +47,25 @@ function normalizeAction(raw) {
   }
   const episode = raw.episode === undefined || raw.episode === null
     ? undefined : raw.episode;
+  // W4303: whether the authority already records this participant as the
+  // Work's Handler. It rides here as a BOOLEAN rather than being read
+  // back out of the summary prose, because the dispatcher schedules on
+  // it: a surviving claim is the participant's one occupied lane, and
+  // an unclaimed action queued in front of it cannot be claimed at all
+  // until the claim is reconciled. A non-boolean is a refusal, not a
+  // coercion — `"false"` is truthy, and that would invert the ordering
+  // in exactly the deadlock this exists to break.
+  if (raw.claimed !== undefined && raw.claimed !== null
+      && typeof raw.claimed !== "boolean") {
+    throw new TypeError("action.claimed must be a boolean when supplied");
+  }
+  const claimed = raw.claimed === undefined || raw.claimed === null
+    ? undefined : raw.claimed;
   return Object.freeze({
     participant, key,
     ...(work === undefined ? {} : { work }),
     ...(episode === undefined ? {} : { episode }),
+    ...(claimed === undefined ? {} : { claimed }),
   });
 }
 

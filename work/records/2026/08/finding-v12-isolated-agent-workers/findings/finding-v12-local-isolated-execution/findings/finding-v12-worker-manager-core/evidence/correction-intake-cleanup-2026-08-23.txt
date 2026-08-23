@@ -1,0 +1,124 @@
+W2929 — the intake/cleanup slice, corrected
+Review: review-2026-08-23T01-29-05Z.md, three [P1] and one [P2].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    419 tests, 415 passed, 4 failed
+
+The four additive review regressions are the only failures. All four findings
+correct.
+
+
+2. THE ONE THAT INVALIDATED MY OWN FIXTURE
+
+[P1] INTAKE COULD DECIDE WITH NO SEALED MATERIAL, AND RECORDED NO MATERIAL
+IDENTITY. `recordIntake` required only a fixed assignment and stored an
+unbound locator, and the `intake` row carried no result digest. So THE
+SLICE'S OWN `ended()` FIXTURE — which created no output row and no retained
+result manifest — accepted, rejected, retained and quarantined material THAT
+DID NOT EXIST. Every positive case in the suite was about nothing.
+
+A LOCATOR IS WHERE SOMETHING IS. It is not which immutable result was judged,
+and a restart holding only a locator cannot say what the decision concerned.
+
+CORRECTED both ways: intake requires a sealed output for the attempt and binds
+the decision to that output's result-manifest digest, with a foreign key to
+the retained bytes. And the fixture drives the REAL freeze path now — a real
+declaration, a real sealed result, `requestFreeze` — so the positive cases
+decide the fate of material this manager actually sealed.
+
+The quarantine manifest for material with NO frozen result is not
+implemented, and the refusal says so rather than pretending the sealed path
+covers it.
+
+
+3. THE OTHER THREE
+
+[P1] INTAKE PROSE BYPASSED THE DURABLE-SECRET BOUNDARY. `reason` went straight
+into SQLite. The shared transaction guard scans the serialized RESULT, and my
+result deliberately omitted `reason` — so a live bearer passed as prose
+committed verbatim. A SUMMARY THAT OMITS A COLUMN IS NOT A GUARD OVER THAT
+COLUMN. The exact durable record is assembled and scanned before any of it is
+written.
+
+[P1] POSITIVE RUNTIME ABSENCE BYPASSED THE INTAKE GATE. `settleCleanup` asked
+only whether the runtime was `destroyed`, so a caller could complete cleanup
+with no intake decision at all. ABSENCE DOES NOT DECIDE POLICY: an observation
+proves the runtime is gone and says nothing about whether the ended
+assignment's material was retained or quarantined. The policy gate is checked
+first, and the destroyed observation is still what makes cleanup complete —
+two gates, not one gate doing two jobs.
+
+[P2] THE RETENTION DEADLINE ACCEPTED ARBITRARY TEXT. The interface and the
+contract both call it a deadline and the STRICT column constrained only the
+storage class, so the literal `tomorrow` was durable scheduling state. It is
+validated against the contract's canonical timestamp form. No expiry policy is
+decided here; a deadline is simply a deadline or it is not one.
+
+
+4. MUTATION CHECK — five, all five witnessed
+
+  W1  intake decides without sealed material          1 failed
+  W2  the decision does not name the result          15 failed
+  W3  the durable record is not scanned for secrets   2 failed
+  W4  the deadline is not validated                   1 failed
+  W5  absence bypasses the intake gate again          1 failed
+
+W2 IS BLUNT AND IS RECORDED AS SUCH. Writing a nonexistent digest is refused
+by the FOREIGN KEY, which is the deciding guard and takes most of the suite
+with it. The narrower claim — that the recorded digest is the one this manager
+sealed — is pinned by a case of mine that compares it against the `outputs`
+row and checks the bytes are still retrievable.
+
+
+5. REGRESSIONS — 24 (20 before, including the reviewer's four)
+
+Plus four of mine: the decision naming the exact result it judged, with the
+named bytes still readable; a bearer refused in ANY durable column, not just
+the one the review drove; a well-formed deadline kept verbatim, so refusing
+prose does not also refuse a deadline; and absence and policy shown to be TWO
+gates, by completing cleanup once intake has decided.
+
+THE REVIEWER'S NEGATIVE CASE KEEPS ITS ASSERTIONS VERBATIM and only its
+fixture call moved, to the no-material variant — which is the fixture change
+the same finding asked for.
+
+
+6. GATES
+
+  cd v12 && npm test                       423 tests, 423 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+All of item 4, and the two things this manager deliberately refuses to decide:
+certified evidence of runtime absence, and what a conforming agent or runtime
+adapter must be. A pinned discard policy is a third, and the quarantine
+manifest for material with no frozen result is a fourth.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs          version 7; `intake.result_digest`
+  v12/src/worker_manager/intake.mjs          sealed material required and
+                                             named; the exact durable record
+                                             scanned; the deadline validated;
+                                             the policy gate before absence
+  v12/test/worker_manager_intake.test.mjs    the fixture freezes real
+                                             material; +4 cases
+  v12/test/worker_manager_store.test.mjs     the pinned version

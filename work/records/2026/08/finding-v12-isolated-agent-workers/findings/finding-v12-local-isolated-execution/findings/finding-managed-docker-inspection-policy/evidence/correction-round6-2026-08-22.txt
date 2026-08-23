@@ -1,0 +1,140 @@
+W2845 round-6 correction — a tab-only blank line, 2026-08-22
+
+Answering `review-2026-08-22T15-10-46Z.md` [P2]. No Docker command was
+executed; mutable Docker was evaluated through `codex execpolicy check` only.
+Oracle: codex-cli 0.149.0.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  candidate                     evaluator loads   audit satisfied   unaccounted
+  tab-only blank line           true (allow)      false            ["\t"]
+
+The reviewer's exact case. This is the OPPOSITE direction from rounds 1-5:
+nothing is hidden, the evaluator authorizes the ruled inspection, and the
+preflight refuses to start on a valid operator file while demanding a
+regeneration that cannot change what Codex authorizes.
+
+It also contradicts this record's own round-3 measurement, which already
+listed "blank lines, including ones holding a tab" as accepted. The table was
+right and the code did not implement it — the same shape as round 5, where the
+comment stated the rule and the `filter` did something else.
+
+
+2. MEASURED AGAIN, ONE CHARACTER PER OTHERWISE-BLANK LINE
+
+  line contains        evaluator   note
+  TAB                  loads       and returns allow
+  SPACE + TAB mixed    loads
+  TAB at end of file   loads       with or without a final newline
+  vertical tab         REFUSES     invalid input; whole file unloadable
+  form feed            REFUSES
+  U+00A0 NBSP          REFUSES
+  U+1680               REFUSES
+  U+2000               REFUSES
+  U+2028 / U+2029      REFUSES
+  U+202F / U+205F      REFUSES
+  U+3000               REFUSES
+  U+FEFF               REFUSES
+  carriage return      loads       see the stated limitation below
+
+So the blank-line tolerance is exactly SPACE and TAB. It is a property of the
+LINE, not of the character: the same tab elsewhere is still refused, which the
+next table shows.
+
+
+3. THE WIDENING DOES NOT REOPEN ROUND 3
+
+  candidate                        evaluator   audit
+  tab BEFORE a rule                refuses     unaccounted
+  tab between operands             refuses     unaccounted
+  tab before the paren             refuses     unaccounted
+  TRAILING tab after a rule        refuses     unaccounted
+  space-indented rule              refuses     unaccounted
+  form feed on its own line        refuses     unaccounted
+  NBSP on its own line             refuses     unaccounted
+
+The trailing-tab row is worth naming: it is the same character on the same
+line as a rule, and the evaluator refuses it, so the audit must too. A
+line-level rule gets that right for free; a character-level exemption would
+not have.
+
+
+4. AFTER THE CORRECTION
+
+Every row of section 2 and section 3 now has the audit agreeing with the
+evaluator, with ONE deliberate exception recorded below.
+
+
+5. STATED LIMITATION, NARROWED AND RE-MEASURED
+
+A blank line consisting of a lone CARRIAGE RETURN loads in the evaluator and
+is still refused here. That is the existing CRLF limitation this module has
+carried since round 3, not a new one: a lone CR on a line is a whole-file line
+-ending property, and this generator emits LF. A TAB is different in kind —
+it arrives from an operator pressing Tab on an empty line while hand-editing
+the ruled file, which is exactly the case the accepted-spelling boundary
+exists for.
+
+Recorded so the next reader knows the narrowing is deliberate and measured
+rather than an oversight of the same class.
+
+
+6. MUTATION CHECK
+
+Restoring `if (OTHER_WHITESPACE.test(character)) { refuseLine(at); continue; }`
+fails exactly the new coverage and nothing else:
+
+  node --test test/policy_syntax.test.mjs
+    FAIL W2845 R6: a tab-only blank line is accounted for, not refused
+    PASS W2845 R6: widening it does not reopen round 3
+    PASS W2845 R6: the installed evaluator agrees about every blank-line fixture
+    tests 22  pass 21  fail 1
+
+  pytest test_w2845_docker_inspection_policy.py test_deploy_v11.py
+    FAILED test_the_audit_accounts_for_a_tab_only_blank_line
+    FAILED test_the_deployed_artifact_keeps_the_exact_policy_boundary
+    2 failed, 34 passed
+
+Restored: 22 Node, 36 pytest, all passing.
+
+
+7. FAIL-CLOSED IS NOT FAIL-BLIND — THE LIVE POLICY
+
+  /home/sl/.codex/rules/baton.rules
+    rules read: 95   unaccounted: 0
+    inspection profile: satisfied=true  missing=0 broad=0 extra=0
+    baton.codex   satisfied=true  missing=0  unaccounted=0
+    baton.tuner   satisfied=true  missing=0  unaccounted=0
+    baton.prompt  satisfied=true  missing=0  unaccounted=0
+
+  (baton.claude and baton.gemini are ACP-launched rather than dispatched
+  through this Codex stack, so the file carries no rules for them.)
+
+Unchanged from every previous round: 95 rules, 0 unaccounted. This round only
+ADDS accepted spellings, so no file that audited exact before it can fail now.
+
+
+8. VERIFICATION
+
+  tools/codex-event-bridge npm test    283 tests, 282 pass, 1 fail
+      The failure is `failed_turn_settlement.test.mjs`, "a reconnect
+      settlement racing late turn/completed files one incident", asserting
+      2 !== 1 on "concurrent settlement observers filed the same incident
+      twice". It is W4303's, not this Work's: a reviewer-added regression for
+      that Work's current review round, in an untracked file that imports no
+      policy module, and it fails IDENTICALLY with this round's change
+      reverted — checked, not asserted.
+  pytest -n auto -m "not serial" tests/work   2853 passed
+  pytest -m serial tests/work                   52 passed
+  tools/acp-baton-bridge npm test               55 passed
+  v12 npm test                                 161 passed
+  whitespace-damage check                     clean
+
+
+9. WHAT WAS NOT DONE
+
+The live exact-policy matrix remains the operator gate and was not run from
+this turn. The reviewer's condition for it — that the preflight accept every
+evaluator-valid spelling in its declared boundary — is met for the blank-line
+case, with the CR limitation above stated rather than silently carried.

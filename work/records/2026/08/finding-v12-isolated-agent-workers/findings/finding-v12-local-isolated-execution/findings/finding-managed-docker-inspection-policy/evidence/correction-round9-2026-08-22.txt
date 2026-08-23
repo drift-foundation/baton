@@ -1,0 +1,173 @@
+W2845 — round 9 correction
+Review: review-2026-08-22T17-42-34Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+The reviewer's own reproduction is in
+evidence/ninth-review-astral-comment-mask-2026-08-22.txt. I re-ran it against
+the tree as it stood, before touching exec_policy.mjs:
+
+  candidate                              evaluator   readPolicy      audit
+  emoji in a TOP-LEVEL comment, later    loads       1 unaccounted   refused
+  emoji in an IN-RULE comment            loads       1 unaccounted   refused
+
+Both policies loaded under the installed `codex execpolicy check` and returned
+decision="allow" for the ruled `docker version`. The audit refused both. The
+review is correct, and it is the rounds 6-8 direction again: no capability is
+hidden, but dispatcher startup refuses a policy Codex honours and asks for a
+regeneration that cannot change what Codex authorizes.
+
+
+2. THE DEFECT
+
+`maskComments` built its output with `[...text]`. That is a code-POINT array.
+The masking loop, `matchingParen`, the whitespace accounting, the operand
+reader and every offset this module takes into `text` are UTF-16 code UNITS.
+The two index spaces agree only while every character is in the BMP; after
+one astral character they differ by one element per astral character.
+
+So an emoji in a comment made every later mask write land one element late.
+The joined mask was then shorter than the source AND misaligned with it, and
+the structural scanners — which index the mask and quote the source — read a
+later valid rule at the wrong offsets and reported it unaccounted.
+
+I introduced this in round 8, in the change that added masking. Rounds 6 and 7
+had no mask and no index space to get wrong.
+
+
+3. THE CORRECTION
+
+  const out = [...text];        ->    const out = text.split("");
+
+`split("")` yields one element per code unit, which is the index space every
+scanner below already uses. An astral character becomes its two surrogate
+halves; neither is `#` or a quote, so the walk is unaffected by the split and
+the mask stays the source's exact length.
+
+The review also asks for the length invariant to be asserted. It is, in
+product code rather than only in a test:
+
+  const masked = out.join("");
+  if (masked.length !== text.length) throw new Error(...);
+
+RECORDED HONESTLY: that throw is NOT witnessed by any regression and cannot be
+from outside the module — it is unreachable while the mask is built correctly,
+and the only way to reach it is to reintroduce the defect the split fixes.
+What the suite witnesses is the property the review actually asked about: the
+audit agrees with the evaluator about astral text. The throw stays as a guard
+for a future scanner change, named as unwitnessed rather than counted as
+covered.
+
+Quote/comment boundaries are unchanged: the same escape rule, the same quote
+tracking, the same `#`-to-newline span, the same whitespace treatment. This
+round changes the REPRESENTATION of the mask and nothing about what it masks.
+
+
+4. MEASURED AGAINST THE EVALUATOR, NOT AGAINST A READING
+
+  candidate                                  loads  audit-sat unacc rules
+  emoji in a TOP-LEVEL comment, later rule   true   true      0     5
+  emoji in an IN-RULE comment                true   true      0     5
+  trailing comment on an operand line        true   true      0     5
+  several astral chars, at both levels       true   true      0     5
+  astral in a STRING operand                 true   true      0     5
+
+Every fixture carries a LATER rule, which is the only reason drift is
+observable at all: a policy whose astral character sits after the last
+construct would pass a broken mask. The operand case is included because
+astral text outside a comment is ordinary data and must be read as itself —
+`readPolicy(...).rules.at(-1).argv` is `["not-docker\u{1F600}"]`, unshifted.
+
+`codex execpolicy check` evaluated only; it did not execute Docker.
+
+
+5. REGRESSIONS
+
+tools/codex-event-bridge/test/policy_syntax.test.mjs — 32 tests (30 before).
+The reviewer's two additive cases are retained unchanged. Added:
+  - "astral text does not shift the mask off the source": all five fixtures
+    through readPolicy, auditInspectionRules and assertInspectionProvisioned,
+    plus the managed-workflow profile through auditRules — one reader serves
+    both shared profiles, so both carry the mask.
+  - "the installed evaluator agrees about every astral fixture": the oracle.
+
+tests/work/test_w2845_docker_inspection_policy.py — the `_astral_comments()`
+fixture family, a pure-audit case and an evaluator-oracle case.
+
+tests/work/test_deploy_v11.py — the same fixtures in the DEPLOYED-ARTIFACT
+lane, driven through the deployed module's own exports, on both shared
+profiles: the inspection audit and `assertInspectionProvisioned`, plus
+`auditRules`/`assertPolicyProvisioned` for managed-work-workflow.
+
+
+6. MUTATION CHECK
+
+Reverting `text.split("")` to `[...text]` — and removing the length throw with
+it, because the throw would otherwise mask the mutation and the original code
+had neither:
+
+  tools/codex-event-bridge npm test    32 -> 30 pass, 2 fail
+      X W2845 R9: astral text in a comment does not shift the policy mask
+        (the reviewer's)
+      X W2845 R9: astral text does not shift the mask off the source (mine)
+  pytest test_w2845_docker_inspection_policy.py + test_deploy_v11.py
+      2 failed, 42 passed
+      X test_astral_text_does_not_shift_the_comment_mask
+      X test_the_deployed_artifact_keeps_the_exact_policy_boundary
+
+Restored: 32/32 and 44/44. Each lane fails the case that names it.
+
+
+7. EVERY EARLIER ROUND'S NEGATIVE RE-ASSERTED
+
+The full syntax suite is green, so rounds 2-8 still hold: the broad rule, the
+extra verb, the qualified extra verb, the escaped literal, tabs between
+operands and before the paren, the space-indented rule, lone CR, form feed,
+vertical tab, the literal NBSP, a newline inside a string literal, the empty
+comma fields, and rounds 6/7's blank-line and comment-indentation boundaries.
+This correction changes an index space; it widens nothing.
+
+
+8. FAIL-CLOSED IS NOT FAIL-BLIND — THE LIVE POLICY
+
+  /home/sl/.codex/rules/baton.rules
+    rules read: 95   unaccounted: 0
+    inspection profile: satisfied=true  missing=0 broad=0 extra=0
+    baton.codex   satisfied=true  missing=0  unaccounted=0
+    baton.tuner   satisfied=true  missing=0  unaccounted=0
+    baton.prompt  satisfied=true  missing=0  unaccounted=0
+
+Unchanged from every previous round. The nominated file was read, never
+written.
+
+
+9. GATES
+
+  tools/codex-event-bridge npm test   297 tests, 297 pass, 0 fail
+  pytest -n auto -m "not serial" tests/work   2916 passed, 5 failed
+  pytest -m serial tests/work                52 passed
+  tools/acp-baton-bridge npm test            55 pass, 0 fail
+  v12 npm test                               202 tests, 200 pass, 2 fail
+  whitespace-damage check                    clean
+
+THE SEVEN FAILURES ARE NOT THIS WORK'S, and none was touched from here:
+  - test_w4615_dispatch_drain.py::test_one_drain_instant_samples_the_authority
+    _clock_once — a W4615 reviewer case against my own correction there.
+  - four W4996 reviewer cases against src/baton_work/tui/graph.py and the
+    dependency projection.
+  - two W2929 reviewer cases in v12 (unowned-database initialization, and a
+    bearer reaching the operation journal's result).
+All three Works are queued on baton.impl awaiting their own turns.
+
+
+10. FILES CHANGED
+
+  tools/codex-event-bridge/src/exec_policy.mjs   maskComments: index space
+                                                 plus the length invariant
+  tools/codex-event-bridge/test/policy_syntax.test.mjs   +2 cases, +fixtures
+  tests/work/test_w2845_docker_inspection_policy.py      +2 cases, +fixtures
+  tests/work/test_deploy_v11.py                          +1 block, 2 profiles
+
+No generated policy file was written. No live configuration was edited.

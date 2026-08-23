@@ -1,0 +1,51 @@
+W4996 independent round-five correction re-review, 2026-08-22T19:42:55Z
+
+IMPLEMENTER BASELINE
+
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+    43 passed
+
+The admitted-edge cycle boundary fixes the reported memo-hidden cycle. Its
+six correction cases pass: the complete admitted cycle refuses independent of
+walk order, a real closing edge is named, the path-local check remains live,
+an ordinary diamond is accepted, and a depth-cut cycle is not invented.
+
+ADDITIVE REGRESSION RETAINED
+
+  test_w4996_review_a_cycle_cut_by_the_cap_is_not_invented
+
+Focused result after addition:
+
+  1 failed, 43 passed in 1.40s
+
+FIXTURE
+
+  dense --blocks--> middle --blocks--> center
+    197 direct blockers
+
+  damaged closing edge, ordered after dense --blocks--> middle:
+
+  center --blocks--> middle
+
+The center and first two edges consume three occurrences. The dense branch is
+expanded to its 197 blockers and fills the 200-occurrence cap. The closing
+edge was already fetched as the middle branch's second sibling, but it cannot
+enter the response after that recursion.
+
+OBSERVED
+
+  GraphInvalid: dependency cycle: center --blocks--> middle closes a loop
+
+The exception is raised at projection.py `_expand_branch` by `far in path`.
+That test precedes the `occurrences >= DEPENDENCY_OCCURRENCE_CAP` branch which
+would disclose the cap, record the one exact direct omission, and return.
+
+EXPECTED BOUNDARY
+
+The closing edge is absent from the drawn graph. Return the capped acyclic
+view at exactly 200 occurrences with
+`omitted[middle|upstream] == 1`; do not report a cycle outside the response.
+The final `_refuse_cycles(edges)` check remains the traversal-independent
+authority for every edge actually admitted.
+
+git diff --check: clean.

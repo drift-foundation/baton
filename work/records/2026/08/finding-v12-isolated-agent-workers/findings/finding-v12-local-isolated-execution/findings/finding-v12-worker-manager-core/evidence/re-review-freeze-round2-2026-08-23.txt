@@ -1,0 +1,35 @@
+W2929 — independent review of the second output-freeze correction
+Reviewer: baton.codex
+Date: 2026-08-23T01:02:53Z
+
+IMPLEMENTER BASELINE
+
+  evidence/correction-freeze-round2-2026-08-23.txt reports:
+    focused output suite 50/50
+    full v12 suite 396/396
+
+REVIEW REGRESSION
+
+  node v12/test/worker_manager_output.test.mjs
+    51 total; 50 passed; 1 failed
+
+  cd v12 && npm test
+    397 total; 396 passed; 1 failed
+
+The sole failure is additive:
+
+  W2929 review: an output that says it is PRESENT must carry material
+  Actual: no exception. A completed result froze a required output whose
+  status was `present` while both content_manifest and artifact were null.
+
+RELEVANT IMPLEMENTATION
+
+  v12/src/worker_manager/output.mjs:405-428
+    The non-present branch rejects material, but the present branch permits
+    both material sources to be null and therefore measures nothing.
+
+  v12/src/worker_manager/output.mjs:376-388
+    Required completion trusts status=present without proving material.
+
+The four item 3r reviewer regressions pass. No product implementation or
+PROGRESS.md file was edited by the reviewer.

@@ -100,7 +100,8 @@ def test_release_clears_current_and_leaves_the_route_alone(store):
 	work = _create(store)
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="handing back")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="handing back")
 	view = _view(store, work)
 	assert view["handler"] is None
 	assert view["route"]["endpoint"] == "lang.bug", \
@@ -182,7 +183,8 @@ def test_authorization_resolves_from_route_not_from_the_claimant(store):
 		tr.claim_work(store, work, actor_team="lang", actor="bee")
 	# and a non-handler is refused for a different reason entirely
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="free it")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="free it")
 	assert _view(store, work)["handler"] is None
 
 
@@ -215,7 +217,7 @@ def test_a_pinned_older_projection_refuses_rather_than_misreading(store):
 	a 7.x consumer would take an endpoint struct for a claimant and be
 	confidently wrong. The major bump makes that refuse instead."""
 	from baton_work import jsonapi
-	assert jsonapi.PROJECTION_VERSION == "12.3"  # W5, the poke major
+	assert jsonapi.PROJECTION_VERSION == "12.4"  # W5, the poke major
 	jsonapi.require_version("12.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("8.0")

@@ -1,0 +1,98 @@
+W2929 first-slice correction — 2026-08-22
+
+Answering `review-2026-08-22T16-37-37Z.md`: five P1 and one P2, all
+reproduced against the tree before any edit and all corrected.
+
+
+1. EACH BOUNDARY, AFTER THE CORRECTION
+
+  [P1 schema]      misspelled command + stale signature: refused integrity.schema
+  [P1 canonical]   negative integer: refused integrity.schema
+  [P1 canonical]   negative zero: refused integrity.schema
+  [P1 canonical]   lone surrogate: refused integrity.schema
+  [P1 canonical]   sparse array: refused integrity.schema
+  [P1 negotiate]   hello without limits: refused integrity.schema
+  [P1 negotiate]   unsupported extension selected: []  effective_limits: present
+  [P2 store]       incompatible store: refused integrity.schema
+  [P2 store]       tables after the refused open: meta        (was six)
+  [P1 refusal]     first:  policy.retention after-state-change
+  [P1 refusal]     replay: policy.retention after-state-change  replayed=true
+  [P1 refusal]     settled_at: the injected manager clock, not the epoch
+
+The reviewer's `evidence/review-foundation-edges.mjs` now THROWS at its first
+demonstration rather than printing it, because that demonstration is the
+defect. It is a reproduction of the old behaviour, not a test, so the table
+above is produced by a separate probe covering the same six.
+
+
+2. WHAT CHANGED, BY FINDING
+
+  [P1] The frozen schema runs BEFORE any semantic helper, and the reply
+       exemption is reachable only from a schema-proven document —
+       `verifyOperationSignature` refuses without that proof, so a caller
+       cannot reach it by skipping the schema. `ajv` 8.20.0 is pinned exactly
+       and resolved from the committed lockfile.
+
+  [P1] Negotiation takes the manager's own extension support, limits and
+       certified profile; selects the exact extension INTERSECTION; returns
+       the complete frozen `control.welcome` body, validated as one before it
+       is handed back. Limits intersect at the MINIMUM — the pair both sides
+       survive.
+
+  [P1] Observations are keyed (attempt, incarnation, source_seq), so an
+       adapter restart beginning again at sequence 1 is admitted rather than
+       colliding, and manager_seq is separately unique per attempt.
+
+  [P1] The operation journal stores the whole sealed refusal — closed
+       category and code, retry and operation-state facts — so a durable
+       policy.retention replays as itself. settled_at records an injected
+       manager clock.
+
+  [P2] The store INSPECTS before it mutates: an existing store is validated,
+       a fresh one is initialized inside one transaction, the busy policy is
+       in force before any lock is taken, and every constructor failure
+       closes the handle.
+
+  [P1] Canonicalization is closed over the admitted value space: negative
+       integers, negative zero, lone surrogates, sparse arrays and non-plain
+       objects are refused rather than digested.
+
+
+3. WHY THE CANONICALIZER STAYS LOCAL WHILE THE VALIDATOR DOES NOT
+
+RFC 8785's hard part is number formatting, and this contract has no numbers
+to format: section 3.2 forbids floating point, NaN, infinity and negative
+zero, so the admitted space is non-negative safe integers, which have one
+spelling. What remains is member ordering by UTF-16 code unit and string
+escaping, both of which JavaScript already does correctly once lone
+surrogates are refused. JSON Schema, by contrast, has a large construct
+surface I would be re-deriving — and this repository has caught me three
+times implementing a specification from my reading of it.
+
+
+4. ONE EXISTING CASE STRENGTHENED
+
+placement.test.mjs's "the prototype imports nothing from the v11 product
+tree" hardcoded @agentclientprotocol/ as the only permitted package. It now
+reads the allowed set from package.json AND requires each declared version to
+be an exact pin, so it still fails for an undeclared import and now also
+fails for a declared-but-floating one. Widening a guard to admit a new
+dependency is a decision; it is recorded here rather than made silently.
+
+
+5. VERIFICATION
+
+  cd v12 && TMPDIR=<bracket> npm test    193 tests, 193 pass, 0 fail
+      (186 before; the bracket retained zero test-owned roots)
+  W151 model                              64 passed
+  worker-control model                    24 passed
+  conformance model                       74 passed
+  ACP boundary model                      56 passed
+
+
+6. STILL NOT STARTED
+
+Plan items 3 and 4 — offer/claim orchestration, attempt lifecycle,
+agent-session normalization and the adapter interfaces — remain unstarted, as
+in the first slice. This round corrected the foundation the review named; it
+did not build on it.

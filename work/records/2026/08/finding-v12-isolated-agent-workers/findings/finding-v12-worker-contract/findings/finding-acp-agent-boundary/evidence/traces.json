@@ -1,0 +1,2181 @@
+{
+ "format": "baton.agent-session/traces-4",
+ "profiles": [
+  {
+   "session_family": "baton.agent-session",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "profile",
+   "profile_id": "profile-acp-worker-1",
+   "created_at": "2026-08-21T22:00:00.000Z",
+   "wire_protocol": "acp",
+   "pinned_wire_version": 1,
+   "provider_binding": null,
+   "adapter": {
+    "name": "native-acp-relay",
+    "version": "1.0-design",
+    "build_digest": "sha256:b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1"
+   },
+   "client_capabilities": {
+    "fs": {
+     "read_text_file": false,
+     "write_text_file": false
+    },
+    "terminal": false
+   },
+   "session_capabilities": [
+    "session.cancel",
+    "session.fresh",
+    "session.mode-pin",
+    "session.permission-refusal",
+    "session.prompt",
+    "session.update-normalization"
+   ],
+   "postures": {
+    "consent": {
+     "policy": {
+      "kind": "acp",
+      "session_mode_id": "plan"
+     },
+     "workspace": false,
+     "declared_output": false
+    },
+    "execution": {
+     "policy": {
+      "kind": "acp",
+      "session_mode_id": "acceptEdits"
+     },
+     "workspace": true,
+     "declared_output": true
+    }
+   },
+   "mcp_servers": [],
+   "limits": {
+    "setup_deadline_ms": 120000,
+    "turn_deadline_ms": 900000,
+    "cancel_drain_deadline_ms": 30000,
+    "max_event_bytes": 16000,
+    "max_queue_events": 1024,
+    "max_queue_bytes": 4194304
+   },
+   "agent_policy_digest": "sha256:c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+   "document_digest": "sha256:22a2eacfe57c7c3a9766b827b1aa9e07c7d715a62b2e8a53965192d73fde6059"
+  },
+  {
+   "session_family": "baton.agent-session",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "profile",
+   "profile_id": "profile-codex-app-server-1",
+   "created_at": "2026-08-21T22:00:00.000Z",
+   "wire_protocol": "codex-app-server",
+   "pinned_wire_version": null,
+   "provider_binding": {
+    "provider": "codex-app-server",
+    "server_build_id": "codex-cli-0.149.0",
+    "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0",
+    "certified_at": "2026-08-21T23:20:00.000Z",
+    "experimental_api": false
+   },
+   "adapter": {
+    "name": "codex-app-server-adapter",
+    "version": "1.0-design",
+    "build_digest": "sha256:d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4"
+   },
+   "client_capabilities": null,
+   "session_capabilities": [
+    "session.cancel",
+    "session.fresh",
+    "session.mode-pin",
+    "session.permission-refusal",
+    "session.prompt",
+    "session.update-normalization"
+   ],
+   "postures": {
+    "consent": {
+     "policy": {
+      "kind": "codex-app-server",
+      "thread_start": {
+       "approval_policy": "never",
+       "sandbox": "readOnly",
+       "cwd_role": "scratch",
+       "model": "gpt-5-codex"
+      },
+      "turn_start": {
+       "approval_policy": "never",
+       "sandbox_policy": {
+        "type": "readOnly"
+       },
+       "cwd_role": "scratch",
+       "model": "gpt-5-codex"
+      }
+     },
+     "workspace": false,
+     "declared_output": false
+    },
+    "execution": {
+     "policy": {
+      "kind": "codex-app-server",
+      "thread_start": {
+       "approval_policy": "never",
+       "sandbox": "workspaceWrite",
+       "cwd_role": "workspace",
+       "model": "gpt-5-codex"
+      },
+      "turn_start": {
+       "approval_policy": "never",
+       "sandbox_policy": {
+        "type": "workspaceWrite",
+        "network_access": false
+       },
+       "cwd_role": "workspace",
+       "model": "gpt-5-codex"
+      }
+     },
+     "workspace": true,
+     "declared_output": true
+    }
+   },
+   "mcp_servers": [],
+   "limits": {
+    "setup_deadline_ms": 120000,
+    "turn_deadline_ms": 900000,
+    "cancel_drain_deadline_ms": 30000,
+    "max_event_bytes": 16000,
+    "max_queue_events": 1024,
+    "max_queue_bytes": 4194304
+   },
+   "agent_policy_digest": "sha256:c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7",
+   "document_digest": "sha256:6696d638003763c781532cc8010d1109958d13952c79a34db71a4ae3d195a71d"
+  }
+ ],
+ "traces": [
+  {
+   "name": "normal-completion",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "update",
+     "source_seq": 1,
+     "update": {
+      "sessionUpdate": "agent_message_chunk",
+      "content": {
+       "type": "text",
+       "text": "reading the contract"
+      }
+     }
+    },
+    {
+     "step": "update",
+     "source_seq": 2,
+     "update": {
+      "sessionUpdate": "tool_call",
+      "toolCallId": "tc-1",
+      "status": "in_progress"
+     }
+    },
+    {
+     "step": "update",
+     "source_seq": 3,
+     "update": {
+      "sessionUpdate": "tool_call_update",
+      "toolCallId": "tc-1",
+      "status": "completed"
+     }
+    },
+    {
+     "step": "acp_stop_reason",
+     "value": "end_turn"
+    },
+    {
+     "step": "declare_result",
+     "disposition": "completed"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "completed",
+    "conclusive": true,
+    "session_state": "turn-ended",
+    "permitted_dispositions": [
+     "completed",
+     "plan-rejected",
+     "unable"
+    ],
+    "accepted_disposition": "completed",
+    "event_kinds": [
+     "agent-message",
+     "tool-call",
+     "tool-call-update"
+    ],
+    "persisted_events_sealed": true,
+    "session_record_valid": true
+   }
+  },
+  {
+   "name": "consent-then-execution",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "open_session",
+     "posture": "consent"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ],
+     "posture": "consent"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "acp_stop_reason",
+     "value": "end_turn"
+    },
+    {
+     "step": "assert_no_promotion"
+    },
+    {
+     "step": "end_session",
+     "posture": "consent"
+    },
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "acp_stop_reason",
+     "value": "end_turn"
+    },
+    {
+     "step": "declare_result",
+     "disposition": "completed"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "completed",
+    "conclusive": true,
+    "session_state": "turn-ended",
+    "accepted_disposition": "completed",
+    "same_runtime_attempt": true,
+    "consent_epoch": 1,
+    "execution_epoch": 1,
+    "consent_assignment_is_null": true,
+    "execution_assignment_generation": 7,
+    "consent_record_valid": true,
+    "session_record_valid": true,
+    "promotion_refused": {
+     "category": "refused",
+     "code": "precondition"
+    }
+   }
+  },
+  {
+   "name": "agent-refusal",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "acceptEdits",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "acp_stop_reason",
+     "value": "refusal"
+    },
+    {
+     "step": "declare_result",
+     "disposition": "unable"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "refused",
+    "conclusive": true,
+    "session_state": "turn-ended",
+    "permitted_dispositions": [
+     "unable"
+    ],
+    "accepted_disposition": "unable",
+    "refused_dispositions": [
+     "completed",
+     "plan-rejected"
+    ]
+   }
+  },
+  {
+   "name": "ordered-cancellation",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "fence_and_end"
+    },
+    {
+     "step": "order_cancel"
+    },
+    {
+     "step": "observe_terminal_fact",
+     "stop_reason": "cancelled"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "cancelled",
+    "conclusive": true,
+    "session_state": "agent-quiescent",
+    "cancellation_observed": "agent-turn-cancelled",
+    "permitted_dispositions": []
+   }
+  },
+  {
+   "name": "cancel-drain-timeout",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "fence_and_end"
+    },
+    {
+     "step": "order_cancel"
+    },
+    {
+     "step": "observe_terminal_fact",
+     "stop_reason": null
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "timeout",
+    "conclusive": false,
+    "session_state": "unknown",
+    "cancellation_observed": "agent-quiescence-unknown",
+    "permitted_dispositions": [],
+    "reported_as": {
+     "category": "runtime-observation",
+     "code": "quiescence-unknown"
+    }
+   }
+  },
+  {
+   "name": "transport-loss-midturn",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "transport_loss",
+     "turn_in_flight": true
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "transport-lost",
+    "conclusive": false,
+    "session_state": "unknown",
+    "resume": false,
+    "reprompt": false,
+    "permitted_dispositions": []
+   }
+  },
+  {
+   "name": "duplicate-and-late-events",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "update",
+     "source_seq": 1,
+     "update": {
+      "sessionUpdate": "agent_message_chunk",
+      "content": {
+       "type": "text",
+       "text": "first"
+      }
+     }
+    },
+    {
+     "step": "update",
+     "source_seq": 1,
+     "expect_replay": true,
+     "update": {
+      "sessionUpdate": "agent_message_chunk",
+      "content": {
+       "type": "text",
+       "text": "first"
+      }
+     }
+    },
+    {
+     "step": "acp_stop_reason",
+     "value": "end_turn"
+    },
+    {
+     "step": "update",
+     "source_seq": 2,
+     "expect_late": true,
+     "update": {
+      "sessionUpdate": "agent_message_chunk",
+      "content": {
+       "type": "text",
+       "text": "after the turn ended"
+      }
+     }
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "completed",
+    "conclusive": true,
+    "session_state": "turn-ended",
+    "persisted_event_count": 2,
+    "late_event_count": 1,
+    "persisted_events_sealed": true,
+    "conflicting_duplicate_refuses": {
+     "category": "integrity",
+     "code": "digest"
+    }
+   }
+  },
+  {
+   "name": "policy-refusal",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "permission_request",
+     "request": {
+      "toolCall": {
+       "title": "run the release script"
+      },
+      "options": [
+       {
+        "optionId": "o1",
+        "kind": "allow_once"
+       },
+       {
+        "optionId": "o2",
+        "kind": "reject_once"
+       }
+      ]
+     }
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "permission_answer": {
+     "outcome": {
+      "outcome": "cancelled"
+     }
+    },
+    "granted": false,
+    "turn_outcome": "policy-failed",
+    "conclusive": true,
+    "permitted_dispositions": [],
+    "reported_as": {
+     "category": "policy",
+     "code": "denied"
+    }
+   }
+  },
+  {
+   "name": "approval-race",
+   "profile": "profile-acp-worker-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "negotiate",
+     "agent_wire_version": 1
+    },
+    {
+     "step": "enforce_mode",
+     "current_mode_id": "default",
+     "available_modes": [
+      "default",
+      "plan",
+      "acceptEdits"
+     ]
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "fence_and_end"
+    },
+    {
+     "step": "order_cancel"
+    },
+    {
+     "step": "permission_request",
+     "request": {
+      "toolCall": {
+       "title": "write the result"
+      },
+      "options": [
+       {
+        "optionId": "o1",
+        "kind": "allow_always"
+       }
+      ]
+     }
+    },
+    {
+     "step": "observe_terminal_fact",
+     "stop_reason": "cancelled"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "permission_answer": {
+     "outcome": {
+      "outcome": "cancelled"
+     }
+    },
+    "granted": false,
+    "answer_identical_to_unraced": true,
+    "cancellation_observed": "agent-turn-cancelled",
+    "session_state": "agent-quiescent",
+    "permitted_dispositions": []
+   }
+  },
+  {
+   "name": "codex-normal-completion",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_item",
+     "item_type": "agentMessage"
+    },
+    {
+     "step": "codex_item",
+     "item_type": "commandExecution"
+    },
+    {
+     "step": "codex_turn_completed",
+     "status": "completed"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "experimental_api": false,
+    "negotiated_wire_version": null,
+    "turn_outcome": "completed",
+    "event_kinds": [
+     "agent-message",
+     "tool-call"
+    ],
+    "thread_start_operands": {
+     "model": "gpt-5-codex",
+     "cwd": "/workspace",
+     "approvalPolicy": "never",
+     "sandbox": "workspaceWrite"
+    },
+    "turn_start_operands": {
+     "threadId": "thread-1",
+     "input": [
+      {
+       "type": "text",
+       "text": "do the work"
+      }
+     ],
+     "model": "gpt-5-codex",
+     "cwd": "/workspace",
+     "approvalPolicy": "never",
+     "sandboxPolicy": {
+      "type": "workspaceWrite",
+      "networkAccess": false
+     }
+    },
+    "session_record_valid": true,
+    "negotiated_session_capabilities": [
+     "session.cancel",
+     "session.fresh",
+     "session.mode-pin",
+     "session.permission-refusal",
+     "session.prompt",
+     "session.update-normalization"
+    ]
+   }
+  },
+  {
+   "name": "codex-policy-drift",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "observe_codex_policy",
+     "approval_policy": "onRequest",
+     "sandbox_policy": {
+      "type": "workspaceWrite",
+      "network_access": false
+     }
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "policy-failed",
+    "reported_as": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "permitted_dispositions": []
+   }
+  },
+  {
+   "name": "codex-interrupted-turn",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "fence_and_end"
+    },
+    {
+     "step": "codex_turn_interrupt"
+    },
+    {
+     "step": "codex_turn_completed",
+     "status": "interrupted"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "cancelled",
+    "interrupt_reply_is_not_an_outcome": true,
+    "cancellation_observed": "agent-turn-cancelled"
+   }
+  },
+  {
+   "name": "codex-context-window-exceeded",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_turn_completed",
+     "status": "failed",
+     "error_info": "ContextWindowExceeded"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "truncated",
+    "reported_as": {
+     "category": "unavailable",
+     "code": "source-provider"
+    },
+    "permitted_dispositions": [
+     "unable"
+    ]
+   }
+  },
+  {
+   "name": "codex-unauthorized-turn",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_turn_completed",
+     "status": "failed",
+     "error_info": "Unauthorized"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "agent-failed",
+    "reported_as": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "permitted_dispositions": [
+     "unable"
+    ]
+   }
+  },
+  {
+   "name": "codex-unrecognized-error-info",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_turn_completed",
+     "status": "failed",
+     "error_info": "SomethingNobodyHasSeenYet"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "turn_outcome": "agent-failed",
+    "reported_as": {
+     "category": "unavailable",
+     "code": "source-provider"
+    },
+    "permitted_dispositions": [
+     "unable"
+    ]
+   }
+  },
+  {
+   "name": "codex-command-approval-declined",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_approval",
+     "method": "item/commandExecution/requestApproval"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "answer": {
+     "decision": "decline"
+    },
+    "granted": false,
+    "turn_outcome": "policy-failed",
+    "reported_as": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "answer_valid_against_provider_schema": true
+   }
+  },
+  {
+   "name": "codex-file-change-approval-declined",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_approval",
+     "method": "item/fileChange/requestApproval"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "answer": {
+     "decision": "decline"
+    },
+    "granted": false,
+    "turn_outcome": "policy-failed",
+    "reported_as": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "answer_valid_against_provider_schema": true
+   }
+  },
+  {
+   "name": "codex-permissions-approval-denied",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_approval",
+     "method": "item/permissions/requestApproval"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "answer": {
+     "permissions": {},
+     "scope": "turn"
+    },
+    "granted": false,
+    "turn_outcome": "policy-failed",
+    "reported_as": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "answer_valid_against_provider_schema": true
+   }
+  },
+  {
+   "name": "codex-mcp-elicitation-declined",
+   "profile": "profile-codex-app-server-1",
+   "posture": "execution",
+   "steps": [
+    {
+     "step": "settle_claim",
+     "generation": 7
+    },
+    {
+     "step": "open_session",
+     "posture": "execution"
+    },
+    {
+     "step": "bind_provider",
+     "server_build_id": "codex-cli-0.149.0",
+     "interface_digest": "sha256:70ff479c2fe907c9146af7d4653bc9cd86f89a470cace6a78a76e5e1fb82b7e0"
+    },
+    {
+     "step": "pin_codex_policy"
+    },
+    {
+     "step": "prompt"
+    },
+    {
+     "step": "codex_approval",
+     "method": "mcpServer/elicitation/request"
+    }
+   ],
+   "expect": {
+    "satisfies_runtime_quiescence_gate": false,
+    "answer": {
+     "action": "decline",
+     "content": null
+    },
+    "granted": false,
+    "turn_outcome": "policy-failed",
+    "reported_as": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "answer_valid_against_provider_schema": true
+   }
+  }
+ ],
+ "negative": [
+  {
+   "name": "downgraded-wire-version",
+   "action": {
+    "kind": "negotiate",
+    "agent_wire_version": 0
+   },
+   "expect": {
+    "category": "refused",
+    "code": "unsupported-version"
+   }
+  },
+  {
+   "name": "missing-required-agent-method",
+   "action": {
+    "kind": "negotiate",
+    "agent_wire_version": 1,
+    "omit_method": "session/cancel"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "capability"
+   }
+  },
+  {
+   "name": "acp-negotiation-against-a-provider-profile",
+   "action": {
+    "kind": "negotiate_codex_profile"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "unsupported-version"
+   }
+  },
+  {
+   "name": "provider-binding-against-an-acp-profile",
+   "action": {
+    "kind": "bind_acp_profile"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "unsupported-version"
+   }
+  },
+  {
+   "name": "uncertified-provider-build",
+   "action": {
+    "kind": "bind_provider",
+    "server_build_id": "codex-app-server-2026.09.01"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "uncertified-provider-interface-digest",
+   "action": {
+    "kind": "bind_provider",
+    "interface_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "provider-binding-enabling-experimental-api",
+   "action": {
+    "kind": "bind_provider",
+    "experimental_api": true
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "advertised-terminal-capability",
+   "action": {
+    "kind": "client_capabilities",
+    "advertised": {
+     "fs": {
+      "read_text_file": false,
+      "write_text_file": false
+     },
+     "terminal": true
+    }
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "advertised-fs-read-capability",
+   "action": {
+    "kind": "client_capabilities",
+    "advertised": {
+     "fs": {
+      "read_text_file": true,
+      "write_text_file": false
+     },
+     "terminal": false
+    }
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "refused-session-resume",
+   "action": {
+    "kind": "outbound_method",
+    "method": "session/resume"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "capability"
+   }
+  },
+  {
+   "name": "unadvertised-client-method-served",
+   "action": {
+    "kind": "client_method",
+    "method": "fs/write_text_file"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "pinned-mode-absent",
+   "action": {
+    "kind": "enforce_mode",
+    "modes": null
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "pinned-mode-unavailable",
+   "action": {
+    "kind": "enforce_mode",
+    "available_modes": [
+     "default",
+     "plan"
+    ]
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "mode-drift",
+   "action": {
+    "kind": "mode_drift",
+    "observed_mode_id": "default"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "identical-consent-and-execution-postures",
+   "action": {
+    "kind": "postures",
+    "same_policy": true,
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "consent-posture-with-workspace",
+   "action": {
+    "kind": "postures",
+    "consent_workspace": true,
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "codex-approval-policy-drift",
+   "action": {
+    "kind": "codex_policy_drift",
+    "stage": "turn_start",
+    "approval_policy": "unlessTrusted",
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "codex-sandbox-drift-to-danger-full-access",
+   "action": {
+    "kind": "codex_policy_drift",
+    "stage": "turn_start",
+    "sandbox_type": "dangerFullAccess"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "codex-thread-sandbox-drift",
+   "action": {
+    "kind": "codex_policy_drift",
+    "stage": "thread_start",
+    "sandbox": "dangerFullAccess"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "selected-reject-option-is-still-a-selection",
+   "action": {
+    "kind": "permission_selected",
+    "option_id": "o2",
+    "option_kind": "reject_once"
+   },
+   "expect": {
+    "granted": true,
+    "forbidden": true
+   }
+  },
+  {
+   "name": "codex-nonempty-permissions-grant",
+   "action": {
+    "kind": "codex_granting_answer",
+    "method": "item/permissions/requestApproval",
+    "answer": {
+     "permissions": {
+      "network": true
+     },
+     "scope": "session"
+    }
+   },
+   "expect": {
+    "granted": true,
+    "forbidden": true
+   }
+  },
+  {
+   "name": "codex-elicitation-accept",
+   "action": {
+    "kind": "codex_granting_answer",
+    "method": "mcpServer/elicitation/request",
+    "answer": {
+     "action": "accept",
+     "content": {
+      "token": "x"
+     }
+    }
+   },
+   "expect": {
+    "granted": true,
+    "forbidden": true
+   }
+  },
+  {
+   "name": "completed-disposition-after-refusal",
+   "action": {
+    "kind": "declare_result",
+    "outcome": "refused",
+    "disposition": "completed"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "any-disposition-after-cancellation",
+   "action": {
+    "kind": "declare_result",
+    "outcome": "cancelled",
+    "disposition": "unable"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "cancel-ordered-before-authority-fence",
+   "action": {
+    "kind": "cancel_without_fence"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "agent-quiescent-cited-for-runtime-gate",
+   "action": {
+    "kind": "quiescence_gate",
+    "agent_session_state": "agent-quiescent"
+   },
+   "expect": {
+    "satisfies": false
+   }
+  },
+  {
+   "name": "session-axis-regression",
+   "action": {
+    "kind": "session_axis",
+    "from": "agent-quiescent",
+    "to": "prompting"
+   },
+   "expect": {
+    "category": "runtime-observation",
+    "code": "state-regression"
+   }
+  },
+  {
+   "name": "unknown-is-terminal",
+   "action": {
+    "kind": "session_axis",
+    "from": "unknown",
+    "to": "closed"
+   },
+   "expect": {
+    "category": "runtime-observation",
+    "code": "state-regression"
+   }
+  },
+  {
+   "name": "conflicting-duplicate-sequence",
+   "action": {
+    "kind": "duplicate_conflict",
+    "source_seq": 1
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "digest"
+   }
+  },
+  {
+   "name": "zero-source-seq",
+   "action": {
+    "kind": "bad_source_seq",
+    "source_seq": 0
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "event-from-another-epoch",
+   "action": {
+    "kind": "event_other_epoch"
+   },
+   "expect": {
+    "category": "runtime-observation",
+    "code": "identity-mismatch"
+   }
+  },
+  {
+   "name": "unredacted-event",
+   "action": {
+    "kind": "unredacted_event"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "tampered-event-seal",
+   "action": {
+    "kind": "tampered_event"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "digest"
+   }
+  },
+  {
+   "name": "event-over-byte-limit",
+   "action": {
+    "kind": "oversized_event",
+    "max_event_bytes": 128
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "limit"
+   }
+  },
+  {
+   "name": "execution-session-without-assignment",
+   "action": {
+    "kind": "session_binding",
+    "posture": "execution",
+    "assignment": null
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "consent-session-with-assignment",
+   "action": {
+    "kind": "session_binding",
+    "posture": "consent",
+    "assignment": "own"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "cross-work-assignment-binding",
+   "action": {
+    "kind": "session_binding",
+    "posture": "execution",
+    "assignment": "other-work"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "posture-mismatch-between-ref-and-record",
+   "action": {
+    "kind": "session_binding",
+    "posture": "execution",
+    "ref_posture": "consent"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "work-id-authority-prefix-mismatch",
+   "action": {
+    "kind": "session_binding",
+    "posture": "execution",
+    "work_id": "ffffffff-W1440"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "consent-session-promoted-to-execution",
+   "action": {
+    "kind": "promote_consent"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "second-concurrent-session-for-one-posture",
+   "action": {
+    "kind": "second_session",
+    "posture": "execution"
+   },
+   "expect": {
+    "category": "runtime-observation",
+    "code": "duplicate-runtime"
+   }
+  },
+  {
+   "name": "provider-session-id-as-participant",
+   "action": {
+    "kind": "participant_from_session",
+    "provider_session_id": "thread_01ABC"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "session-ref-carrying-generation",
+   "action": {
+    "kind": "session_ref",
+    "ref": {
+     "runtime_attempt_id": "attempt-1",
+     "posture": "execution",
+     "session_epoch": 1,
+     "provider_session_id": "s-1",
+     "generation": 7
+    }
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "session-ref-without-posture",
+   "action": {
+    "kind": "session_ref",
+    "ref": {
+     "runtime_attempt_id": "attempt-1",
+     "session_epoch": 1,
+     "provider_session_id": "s-1"
+    }
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "reprompt-after-transport-loss",
+   "action": {
+    "kind": "reprompt"
+   },
+   "expect": {
+    "category": "ambiguous",
+    "code": "operation"
+   }
+  },
+  {
+   "name": "outcome-inferred-from-silence",
+   "action": {
+    "kind": "infer_outcome",
+    "evidence": "silence"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "outcome-inferred-from-agent-prose",
+   "action": {
+    "kind": "infer_outcome",
+    "evidence": "agent prose"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "outcome-inferred-from-tool-call-status",
+   "action": {
+    "kind": "infer_outcome",
+    "evidence": "a tool call reaching status completed"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "precondition"
+   }
+  },
+  {
+   "name": "codex-experimental-process-spawn",
+   "action": {
+    "kind": "codex_call",
+    "method": "process/spawn"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "capability"
+   }
+  },
+  {
+   "name": "codex-host-capability-command-exec",
+   "action": {
+    "kind": "codex_call",
+    "method": "command/exec"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "capability"
+   }
+  },
+  {
+   "name": "codex-thread-resume",
+   "action": {
+    "kind": "codex_call",
+    "method": "thread/resume"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "capability"
+   }
+  },
+  {
+   "name": "codex-dynamic-tool-call-item",
+   "action": {
+    "kind": "codex_item",
+    "item_type": "dynamicToolCall"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "capability"
+   }
+  },
+  {
+   "name": "codex-user-input-request-is-unanswerable",
+   "action": {
+    "kind": "codex_deny_approval",
+    "method": "tool/requestUserInput"
+   },
+   "expect": {
+    "category": "refused",
+    "code": "capability"
+   }
+  },
+  {
+   "name": "codex-idle-is-not-quiescence",
+   "action": {
+    "kind": "codex_thread_status",
+    "status": "idle"
+   },
+   "expect": {
+    "satisfies": false
+   }
+  },
+  {
+   "name": "codex-accept-for-session-decision",
+   "action": {
+    "kind": "codex_granting_answer",
+    "method": "item/fileChange/requestApproval",
+    "answer": {
+     "decision": "acceptForSession"
+    }
+   },
+   "expect": {
+    "granted": true,
+    "forbidden": true
+   }
+  },
+  {
+   "name": "codex-execpolicy-amendment-decision",
+   "action": {
+    "kind": "codex_granting_answer",
+    "method": "item/commandExecution/requestApproval",
+    "answer": {
+     "decision": {
+      "acceptWithExecpolicyAmendment": {
+       "execpolicy_amendment": [
+        "rm"
+       ]
+      }
+     }
+    }
+   },
+   "expect": {
+    "granted": true,
+    "forbidden": true
+   }
+  },
+  {
+   "name": "bare-decision-member-is-not-a-response",
+   "action": {
+    "kind": "provider_response_shape",
+    "method": "item/commandExecution/requestApproval",
+    "answer": "decline"
+   },
+   "expect": {
+    "provider_schema_valid": false
+   }
+  },
+  {
+   "name": "bare-cancel-member-is-not-a-response",
+   "action": {
+    "kind": "provider_response_shape",
+    "method": "item/fileChange/requestApproval",
+    "answer": "cancel"
+   },
+   "expect": {
+    "provider_schema_valid": false
+   }
+  },
+  {
+   "name": "swapped-codex-posture-policies",
+   "action": {
+    "kind": "swap_codex_posture_policies",
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "consent-posture-pinning-workspace-write",
+   "action": {
+    "kind": "codex_posture_operand",
+    "posture": "consent",
+    "stage": "thread_start",
+    "member": "sandbox",
+    "value": "workspaceWrite",
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "execution-posture-pinning-scratch-cwd",
+   "action": {
+    "kind": "codex_posture_operand",
+    "posture": "execution",
+    "stage": "turn_start",
+    "member": "cwd_role",
+    "value": "scratch",
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "profile-declaring-narrow-session-capabilities",
+   "action": {
+    "kind": "profile_capabilities",
+    "capabilities": [
+     "session.prompt"
+    ],
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "consent-posture-declaring-a-workspace",
+   "action": {
+    "kind": "profile_posture_flag",
+    "posture": "consent",
+    "member": "workspace",
+    "value": true,
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "execution-posture-declaring-no-output",
+   "action": {
+    "kind": "profile_posture_flag",
+    "posture": "execution",
+    "member": "declared_output",
+    "value": false,
+    "via": "fields"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "arbitrary-cwd-injected-into-a-request",
+   "action": {
+    "kind": "cwd_injection",
+    "posture": "consent",
+    "cwd_by_role": {
+     "workspace": "/workspace"
+    }
+   },
+   "expect": {
+    "category": "policy",
+    "code": "denied"
+   }
+  },
+  {
+   "name": "unsealed-event-into-the-ledger",
+   "action": {
+    "kind": "unsealed_event"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "sealed-event-tampered-with-a-valid-kind",
+   "action": {
+    "kind": "tampered_sealed_event"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "digest"
+   }
+  },
+  {
+   "name": "schema-invalid-profile-reaching-negotiation",
+   "action": {
+    "kind": "certify_profile",
+    "entry": "negotiate",
+    "mutation": "extra-member"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "schema-invalid-profile-at-certification",
+   "action": {
+    "kind": "certify_profile",
+    "entry": "validate",
+    "mutation": "extra-member"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "stale-seal-profile-reaching-provider-binding",
+   "action": {
+    "kind": "certify_profile",
+    "entry": "bind",
+    "mutation": "stale-seal"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "digest"
+   }
+  },
+  {
+   "name": "stale-seal-profile-at-certification",
+   "action": {
+    "kind": "certify_profile",
+    "entry": "validate",
+    "mutation": "stale-seal"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "digest"
+   }
+  },
+  {
+   "name": "session-record-naming-a-different-profile",
+   "action": {
+    "kind": "session_record",
+    "mutation": "profile-digest"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "digest"
+   }
+  },
+  {
+   "name": "session-record-running-an-uncertified-policy",
+   "action": {
+    "kind": "session_record",
+    "mutation": "pinned-policy"
+   },
+   "expect": {
+    "category": "policy",
+    "code": "profile-uncertified"
+   }
+  },
+  {
+   "name": "session-record-with-a-stale-seal",
+   "action": {
+    "kind": "session_record",
+    "mutation": "stale-seal"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "digest"
+   }
+  },
+  {
+   "name": "session-record-with-an-extra-member",
+   "action": {
+    "kind": "session_record",
+    "mutation": "extra-member"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "session-record-validated-without-its-profile",
+   "action": {
+    "kind": "session_record_without_profile"
+   },
+   "expect": {
+    "raises": "TypeError"
+   }
+  },
+  {
+   "name": "swapped-posture-policies-at-the-entry-point",
+   "action": {
+    "kind": "swap_codex_posture_policies",
+    "via": "entry"
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  },
+  {
+   "name": "narrow-capabilities-at-the-entry-point",
+   "action": {
+    "kind": "profile_capabilities",
+    "via": "entry",
+    "capabilities": [
+     "session.prompt"
+    ]
+   },
+   "expect": {
+    "category": "integrity",
+    "code": "schema"
+   }
+  }
+ ],
+ "invalid_policy_failure_documents": {
+  "invented-error-code": {
+   "condition": "mode-drift",
+   "error": {
+    "category": "policy",
+    "code": "agent-said-no"
+   },
+   "observed_at": "2026-08-21T22:05:02.000Z",
+   "granted": false
+  },
+  "real-code-wrong-category": {
+   "condition": "mode-drift",
+   "error": {
+    "category": "policy",
+    "code": "state-regression"
+   },
+   "observed_at": "2026-08-21T22:05:02.000Z",
+   "granted": false
+  },
+  "policy-failure-claiming-a-grant": {
+   "condition": "unexpected-approval",
+   "error": {
+    "category": "policy",
+    "code": "denied"
+   },
+   "observed_at": "2026-08-21T22:05:02.000Z",
+   "granted": true
+  }
+ }
+}

@@ -1,0 +1,27 @@
+W2929 item 4 profile-certification correction sign-off — 2026-08-23
+
+Inspected boundaries:
+  v12/src/worker_manager/agent_profile.mjs
+  v12/src/worker_manager/offers.mjs
+  v12/test/worker_manager_agent_profile.test.mjs
+
+Focused command:
+  cd v12 && node test/worker_manager_agent_profile.test.mjs
+Result:
+  14 tests; 14 passed; 0 failed.
+
+Full command:
+  cd v12 && npm test
+Result:
+  443 tests; 443 passed; 0 failed.
+
+Independently confirmed:
+  - a supplied kind is refused and writes no profile row;
+  - runtime certification cannot satisfy the agent-session query;
+  - agent-session certification cannot satisfy runtime offer issue;
+  - runtime certification still satisfies runtime offer issue;
+  - withdrawn runtime certification satisfies nothing;
+  - product/frozen agent-session schema bytes remain identical.
+
+Disposition:
+  Both P1 findings closed. No remaining finding in the bounded first slice.

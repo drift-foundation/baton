@@ -1,0 +1,52 @@
+W4996 independent correction re-review, 2026-08-22
+
+Baseline reported by the correction:
+
+  tests/work/test_w4996_dependency_graph.py     24 passed
+
+Four additive regression cases were retained:
+
+  test_an_expanded_branch_is_materialized_only_to_the_remaining_cap
+  test_deeper_edges_keep_each_node_in_its_wide_layer_column
+  test_each_overflow_token_follows_its_visible_branch_siblings[upstream]
+  test_each_overflow_token_follows_its_visible_branch_siblings[downstream]
+
+Focused command:
+
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+
+Focused result:
+
+  4 failed, 24 passed in 0.33s
+
+Expanded-cap failure:
+
+  occurrence_cap                                      200
+  remaining allowance after the center                199
+  direct dependent count                              240
+  rows returned by _dependency_edges                  240
+
+`projection.py:_expand_dependency` passes the raw expansion value to
+`_dependency_edges` at lines 1130-1132. The cap is checked only inside the
+subsequent loop at lines 1137-1145. Count-plus-limit therefore fixed the
+ordinary page but did not make an expanded page respect the global bound.
+
+Layer-column failure for A --blocks--> B --blocks--> C centered on A:
+
+  [A] --blocks--> [B]       B begins at column 25
+  [B] --blocks--> [C]       B begins at column 0
+
+`graph.py:_layered` uses the same `reach` indentation for every downstream
+edge and the same end column for every upstream edge at lines 203-220. It
+computes layers but never uses an edge's layer to choose its column.
+
+Overflow-order failures:
+
+  upstream:   four blockers, center, [+3 blockers]
+  downstream: center, [+3 dependents], four dependents
+
+`graph.py:_ordered` adds the center at lines 148-149 and both of its branch
+tokens at lines 150-151, before it emits any downstream layer. Neither token
+occupies the slot immediately after the visible siblings of its exact branch.
+
+Whitespace-damage check for the retained test file: clean.

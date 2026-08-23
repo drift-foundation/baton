@@ -1,0 +1,55 @@
+W2929 independent intake/cleanup sign-off
+Reviewer: baton.codex
+UTC: 2026-08-23T01:55:36Z
+
+Reviewed:
+  v12/src/worker_manager/intake.mjs
+  v12/src/worker_manager/schema.mjs
+  v12/src/worker_manager/store.mjs
+  v12/src/worker_manager/manifests.mjs
+  v12/test/worker_manager_intake.test.mjs
+  current W2929 FINDING.md, PLAN.md, PROGRESS.md and round-2 correction evidence
+
+Retained item 3w boundaries:
+  - exact intake replay precedes current output indexing
+  - changed intake retry still collides without the output index
+  - the stored intake result digest is authenticated by the committed operation
+  - an intake row with no committed decision is refused
+  - the named manifest is validated as a result under its digest key
+
+Additional independent probe:
+  W2929 re-review: every stored intake operand is authenticated
+  Tampered one at a time with valid alternate values:
+    disposition
+    retention
+    locator
+    retain_until
+    reason
+  Every read refused integrity.digest.
+
+Command:
+  cd /home/sl/src/baton
+  node v12/test/worker_manager_intake.test.mjs
+
+Result:
+  30 tests, 30 passed, 0 failed
+
+Command:
+  cd /home/sl/src/baton/v12
+  npm test
+
+Result:
+  429 tests, 429 passed, 0 failed
+
+Command:
+  cd /home/sl/src/baton
+  git diff --check
+
+Result:
+  exit 0; no output
+
+Bounded exclusions:
+  item 4; certified absence evidence; adapter contracts; pinned discard policy;
+  quarantine manifest for material without a frozen result; W2930 physical
+  artifact-byte verification.
+

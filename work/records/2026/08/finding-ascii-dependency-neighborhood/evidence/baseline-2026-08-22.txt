@@ -1,0 +1,55 @@
+W4996 reviewer baseline, 2026-08-22
+
+CURRENT CODE PATHS
+
+  src/baton_work/tui/app.py
+    NAV_STATE_FIELDS                         links_work + links_cursor only
+    Console._links_rows                      flattens one projection.links read
+    Console._render_links                    scrollable text rows, no width model
+    Console.handle, mode == "links"          j/k, Enter re-roots Jobs, Esc back
+    Console.handle, key == "b"               opens selected Work at cursor 0
+
+  src/baton_work/projection.py
+    links                                    one-hop typed relationships
+      blocked_by                             every edge, created_seq order
+      blocks                                 open consumers only, created_seq order
+      parent/contains                        currently returned but out of W4996 scope
+      duplicate/follow-up                    currently returned; duplicates alone
+                                                 are painted by the old TUI page
+
+  docs/BATON-WORK.md
+    console grammar                          says [b] is the full neighbor view
+    Wait field                               depends on [b] for full dependency detail
+
+LIVE CANONICAL BASELINE (snapshot_seq 5004)
+
+  links work=W2929
+    blocked_by:
+      W2928  closed  outcome=satisfying
+      W4487  open
+    blocks:
+      W2930  open
+    parent:
+      W1425  open                     (outside the clarified graph scope)
+
+  links work=W4487
+    blocked_by: []
+    blocks:
+      W2929  open
+
+This confirms the existing dependency direction and asymmetry:
+
+  W2928 --blocks--> W2929 --blocks--> W2930
+  W4487 --blocks--> W2929
+
+The closed W2928 edge remains visible from its consumer. A closed consumer
+would not remain in its blocker's `blocks` drill. The graph must either preserve
+that exact canonical projection or receive an explicit superseding ruling; a
+TUI renderer must not choose new edge lifetime semantics.
+
+IMPLEMENTATION CONSTRAINT FOUND
+
+`projection.links` does not own a read snapshot. A depth-N TUI crawl made from
+N cached calls can mix commits and has no bound under fan-out. The recommended
+patch adds a dedicated bounded `dependency_neighborhood` projection under
+`_read_snapshot` and leaves the existing public `links work=` shape compatible.

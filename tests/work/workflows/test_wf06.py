@@ -94,9 +94,10 @@ def test_wf06_recursive_release(flow):
 		"open children unmade the root's readiness"
 	assert root_view["phase"] == "queued" and root_view["gate"] is None
 	flow.ok("claim", f"work={root}", viewer="lang.ada")
-	assert flow.ok("detail", f"work={root}",
-	               viewer="lang.ada")["phase"] == "active"
+	held = flow.ok("detail", f"work={root}", viewer="lang.ada")
+	assert held["phase"] == "active"
 	flow.ok("release", f"work={root}", "expect=lang.ada",
+	        f"episode={held['episode_seq']}",
 	        "reason=back to the legs", viewer="lang.ada")
 
 	# 4. The DEPENDENCY conjunction is the externally blocked child's

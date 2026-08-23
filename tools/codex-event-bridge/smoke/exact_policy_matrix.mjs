@@ -27,6 +27,13 @@
 // incident mutations still fail closed. The `mark-seen` case is the one
 // the defect was found on.
 //
+// W2845 (`finding-managed-docker-inspection-policy`): the isolated
+// policy now also carries the four read-only Docker inspection rules,
+// and the matrix drives them through the same boundary — each ruled
+// inspection must run without an approval request, and unrestricted or
+// mutable Docker must still fail closed. `docker version` is the
+// command whose approval request quarantined two managed review turns.
+//
 //   node smoke/exact_policy_matrix.mjs <absolute-path-to-candidate-baton>
 
 import assert from "node:assert/strict";
@@ -37,8 +44,12 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { CodexClient } from "../src/codex_client.mjs";
-import { rulesFor, EXCLUDED_VERBS, POLICY_PROFILE, RULED_VERBS }
+import { inspectionRules, rulesFor, DOCKER_INSPECTIONS, EXCLUDED_VERBS,
+         INSPECTION_PROFILE, POLICY_PROFILE, RULED_VERBS }
 	from "../src/exec_policy.mjs";
+import { missingAttemptDiagnostic, ruledInspectionOutcome,
+         unruledRefusalOutcome }
+	from "../src/command_oracle.mjs";
 
 const baton = process.argv[2] ?? process.env.W415_CANDIDATE_BATON;
 if (!baton || !baton.startsWith("/")) {
@@ -107,7 +118,10 @@ function newJob(cfg, title) {
 // authority and participant. No broad rule, for any executable.
 function stagePolicy() {
 	mkdirSync(join(codexHome, "rules"), { recursive: true });
-	const rules = rulesFor({ binary: baton, config, participant: "poc.ops" });
+	// W2845: BOTH generated profiles, because the deployment installs
+	// both into this one file and the dispatcher preflights both.
+	const rules = [...rulesFor({ binary: baton, config, participant: "poc.ops" }),
+	               ...inspectionRules()];
 	writeFileSync(join(codexHome, "rules", "baton.rules"), `${rules.join("\n")}\n`);
 	writeFileSync(join(codexHome, "config.toml"),
 		'model = "gpt-5.6-sol"\nmodel_reasoning_effort = "low"\n');
@@ -125,8 +139,9 @@ function stagePolicy() {
 	}
 	assert.equal(new Set(installed.split("\n").filter((e) => e.trim())).size,
 		rules.length, "the isolated policy is not exactly the generated set");
-	console.log(`isolated policy: ${rules.length} exact '${POLICY_PROFILE}' rules, `
-		+ `no broad rule`);
+	console.log(`isolated policy: ${RULED_VERBS.length} exact `
+		+ `'${POLICY_PROFILE}' rules and ${DOCKER_INSPECTIONS.length} exact `
+		+ `'${INSPECTION_PROFILE}' rules, no broad rule`);
 	return rules;
 }
 
@@ -143,37 +158,76 @@ async function startServer() {
 	}
 }
 
-// One case: run one command in a fresh thread and report what the
-// authority and the filesystem say afterwards. Approval requests are
-// DENIED exactly as the dispatcher denies them.
+// One case: run one command in a fresh thread and report EVERYTHING the
+// verdict needs — the exact turn the app-server recorded, and the approval
+// requests with their parameters. Approval requests are DENIED exactly as
+// the dispatcher denies them.
+//
+// W2845 operator-oracle review [P1]: this used to return only the METHOD
+// names of server requests. A Docker positive passed when that list was
+// empty and a negative passed when it was not — and the operator run
+// produced an empty list for all eight cases, so one body of evidence read
+// as PASS on one side and FAIL on the other. An empty list proves no
+// approval RPC arrived; it says nothing about whether the command ran.
+//
+// The turn's own `commandExecution` items are the boundary: the exact
+// command, its terminal status, its exit code, and an id an approval
+// request can be correlated to. `thread/read` with `includeTurns` is where
+// they live, so the case reads the exact turn back after it completes.
 async function runCase(name, command) {
 	const approvals = [];
 	const client = new CodexClient({ name, endpoint, logger: quiet });
 	client.on("serverRequest", (request) => {
-		approvals.push(request.method);
-		client.respondError(request.id, -32601,
+		// The DENIAL'S OWN RESULT is recorded. Re-review [P1]:
+		// `respondError` returns false when it cannot send — a closed
+		// socket, a missing id — and ignoring that let an observed request
+		// the client never answered stand as proof that policy refused.
+		const denied = client.respondError(request.id, -32601,
 			"this proof denies commands, exactly like the dispatcher");
+		approvals.push({ method: request.method, params: request.params,
+		                 denied });
 	});
 	await client.connectAndInitialize();
+	let threadId = null;
+	let turnId = null;
+	let turn = null;
 	try {
 		const started = await client.startThread({
 			cwd: workspace,
 			developerInstructions: "You are running a policy matrix case. Run exactly "
 				+ "the one command you are given and report its exact outcome.",
 		});
-		const turn = await client.startTurn(started.thread.id,
+		threadId = started.thread.id;
+		const startedTurn = await client.startTurn(threadId,
 			`Run exactly this command and report its exact outcome, then reply DONE:\n\n`
 			+ `  ${command}\n\nDo not run anything else.`, randomUUID());
-		await client.waitForTurnCompletion(started.thread.id, turn.id, 180_000)
+		turnId = startedTurn.id;
+		await client.waitForTurnCompletion(threadId, turnId, 180_000)
 			.catch((error) => console.log(`  (turn ended: ${error.message})`));
+		// AFTER completion and BY EXACT ID: the recorded turn is what the
+		// verdict reads, not whatever streamed past while it ran.
+		const thread = await client.readThread(threadId, { includeTurns: true })
+			.catch((error) => {
+				console.log(`  (thread/read failed: ${error.message})`);
+				return null;
+			});
+		turn = (thread?.turns ?? []).find((entry) => entry.id === turnId) ?? null;
 	} finally {
 		client.disconnect();
 	}
-	return approvals;
+	return { approvals: approvals.map((entry) => entry.method),
+	         observed: approvals, threadId, turnId, turn };
 }
 
 function handlerOf(work) {
 	return cli(config, "poc.ops", "detail", `work=${work}`).result.handler?.participant ?? null;
+}
+
+// W4303: every release compare-and-swaps the exact assignment episode
+// the claim was offered under, so the matrix reads it from the canonical
+// projection exactly as an operator would.
+function episodeOf(work) {
+	return cli(config, "poc.ops", "detail", `work=${work}`).result.episode_seq;
 }
 
 // A participant holds ONE active claim at a time, so a case that leaves
@@ -182,7 +236,7 @@ function handlerOf(work) {
 function releaseIfHeld(work, who = "poc.ops") {
 	if (handlerOf(work) !== who) return;
 	cli(config, who, "release", `work=${work}`, `expect=${who}`,
-		"reason=matrix case finished");
+		`episode=${episodeOf(work)}`, "reason=matrix case finished");
 }
 
 // The born thread, with the authority-local selector derived from the
@@ -201,15 +255,28 @@ async function main() {
 	console.log(`isolated app-server up on ${endpoint} with CODEX_HOME=${codexHome}\n`);
 
 	const results = [];
-	const record = (name, expectation, ok, detail) => {
+	// W2845 review 2026-08-23 item 3: a FAILED verdict says what the turn
+	// actually did. The operator run rejected eight cases fail-closed and
+	// retained no transcript, so the reason was not recoverable afterwards —
+	// which turns a correct rejection into an un-diagnosable one. The account
+	// is bounded by `missingAttemptDiagnostic` and decides nothing.
+	const record = (name, expectation, ok, detail, observed = null) => {
 		results.push({ name, expectation, ok, detail });
 		console.log(`${ok ? "PASS" : "FAIL"}  ${name} — ${detail}`);
+		if (!ok && observed !== null) {
+			const seen = missingAttemptDiagnostic({ turn: observed.turn,
+				turnId: observed.turnId });
+			console.log(`      ${seen.summary}`);
+			for (const message of seen.agentMessages) {
+				console.log(`      agent: ${JSON.stringify(message)}`);
+			}
+		}
 	};
 
 	// 1. POSITIVE: the exact ruled operation commits, with no approval.
 	{
 		const work = newJob(config, "positive: exact ruled claim");
-		const approvals = await runCase("positive",
+		const { approvals } = await runCase("positive",
 			`${baton} --config ${config} --participant poc.ops claim work=${work} `
 			+ `op-id=matrix-${randomUUID()}`);
 		const handler = handlerOf(work);
@@ -229,7 +296,7 @@ async function main() {
 			"body=matrix: a message poc.ops has not read");
 		const before = threadOf(work).new;
 		const seq = threadOf(work).last_seq;
-		const approvals = await runCase("positive-mark-seen",
+		const { approvals } = await runCase("positive-mark-seen",
 			`${baton} --config ${config} --participant poc.ops mark-seen `
 			+ `thread=${threadOf(work).local_id} up-to=${seq} `
 			+ `op-id=matrix-${randomUUID()}`);
@@ -244,10 +311,10 @@ async function main() {
 	{
 		const work = newJob(config, "positive: release recovers a claim");
 		cli(config, "poc.ops", "claim", `work=${work}`);
-		const approvals = await runCase("positive-release",
+		const { approvals } = await runCase("positive-release",
 			`${baton} --config ${config} --participant poc.ops release `
-			+ `work=${work} expect=poc.ops reason=matrix-case `
-			+ `op-id=matrix-${randomUUID()}`);
+			+ `work=${work} expect=poc.ops episode=${episodeOf(work)} `
+			+ `reason=matrix-case op-id=matrix-${randomUUID()}`);
 		const handler = handlerOf(work);
 		record("ruled release recovers the claim", "handler=null, no approval",
 			handler === null && approvals.length === 0,
@@ -276,7 +343,7 @@ async function main() {
 			"the matrix expects exactly one pending obligation at this point");
 		const obligation = rows[0].seq;
 		const blocked = cli(config, "poc.ops", "detail", `work=${work}`).result.phase;
-		const approvals = await runCase("positive-respond",
+		const { approvals } = await runCase("positive-respond",
 			`${baton} --config ${config} --participant poc.ops respond `
 			+ `obligation=${obligation} body=confirmed `
 			+ `op-id=matrix-${randomUUID()}`);
@@ -443,6 +510,65 @@ async function main() {
 			!existsSync(marker), `created=${existsSync(marker)}`);
 	}
 
+	// 9. W2845: the DOCKER INSPECTION boundary.
+	//
+	// `work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+	// finding-v12-local-isolated-execution/findings/
+	// finding-managed-docker-inspection-policy/`. Two managed review
+	// turns were quarantined asking for approval to run
+	// `docker version --format '{{json .}}'`.
+	//
+	// WHAT THESE CASES MEASURE, and it is deliberately not what the
+	// Baton cases measure. Those check the authority afterwards, because
+	// a committed mutation is the evidence. Docker inspection commits
+	// nothing — so the evidence is the TURN'S OWN COMMAND ITEM: the exact
+	// command, whether it ran, how it ended, and whether anything asked
+	// permission for it.
+	//
+	// Operator-oracle review [P1]: counting approval requests was not
+	// that. It could not tell a declined command from one the model never
+	// attempted, and the operator run hit exactly that — an empty list on
+	// all eight cases, read as PASS on one side and FAIL on the other.
+	// `command_oracle.mjs` holds the rules and its own deterministic
+	// cases; the negatives are still chosen so that nothing is created,
+	// pulled or destroyed even if the boundary were wrong.
+	for (const command of ["docker version --format '{{json .}}'",
+	                       "docker info --format '{{json .}}'",
+	                       "docker inspect --help",
+	                       "docker image inspect --help"]) {
+		const observed = await runCase(`inspection-${command.split(" ")[1]}`,
+			command);
+		const verdict = ruledInspectionOutcome({ ...observed, command });
+		record(`ruled inspection '${command}' runs without approval`,
+			"the exact command completed, exit 0, no approval",
+			verdict.ok, verdict.why, observed);
+	}
+	for (const command of ["docker ps -a",
+	                       "docker rm -f w2845-matrix-absent",
+	                       "docker image rm w2845-matrix-absent:latest",
+	                       "docker network create w2845-matrix-absent"]) {
+		const observed = await runCase(`unruled-${command.split(" ")[1]}`,
+			command);
+		const verdict = unruledRefusalOutcome({ ...observed, command });
+		record(`unruled '${command}' fails closed`,
+			"the exact command was declined, or denied through an approval",
+			verdict.ok, verdict.why, observed);
+	}
+	// Nothing the negatives named exists afterwards. `docker network
+	// create` is the one that WOULD have succeeded had the boundary let
+	// it through, so it is the case worth probing directly.
+	{
+		const listed = execFileSync("docker",
+			["network", "ls", "--format", "{{.Name}}"], { encoding: "utf8" });
+		record("no negative case mutated the runtime",
+			"the network the denied command named does not exist",
+			!listed.split("\n").includes("w2845-matrix-absent"),
+			`networks=${JSON.stringify(listed.split("\n").filter(Boolean))}`);
+	}
+
+	console.log(`approved '${INSPECTION_PROFILE}' prefixes `
+		+ `(${DOCKER_INSPECTIONS.length}): `
+		+ `${JSON.stringify(DOCKER_INSPECTIONS.map((c) => c.join(" ")))}`);
 	console.log(`\napproved '${POLICY_PROFILE}' verbs (${RULED_VERBS.length}): `
 		+ `${JSON.stringify(RULED_VERBS)}`);
 	console.log(`excluded: ${JSON.stringify(EXCLUDED_VERBS)}`);

@@ -1,0 +1,136 @@
+W2929 — item 4, FIRST SLICE: certifying one agent-session profile
+Implementer: baton.claude. Date: 2026-08-23.
+Entered after `review-2026-08-23T01-55-36Z.md` signed off intake/cleanup
+through plan item 3w, completing item 3.
+
+
+0. THE SIGN-OFF'S CLARIFICATION, CLOSED IN CODE
+
+The sign-off recorded that my wording — "writer and reader build the record in
+one place" — was NOT LITERAL: the writer assembled its own operand object
+beside `intakeRecord`, and the invariant was true of the signature FORMULA
+rather than of the code.
+
+The reviewer was right to record it rather than let the stronger claim stand,
+and the honest response is to make the claim true rather than to weaken it.
+`recordIntake` now builds its operands THROUGH `intakeRecord`, so adding a
+column changes both sides or neither. A claim that is only true of the formula
+is one an edit can quietly falsify.
+
+
+1. WHAT THIS SLICE IS
+
+  "The core certifies one exact profile by composing shape, document seal and
+   policy checks IN THAT ORDER."
+
+SHAPE FIRST, because every later rule reads members, and reading a member the
+schema has not established is how the worker-control entry's round-2 bypass
+happened. SEAL SECOND, because a policy decision about a document whose bytes
+do not match its own digest is a decision about something nobody agreed to.
+POLICY LAST, and only the rules the schema CANNOT state.
+
+The frozen `agent-session-1.0.schema.json` is placed under
+`src/worker_manager/schema/`, for the same reason the worker-control schema
+is: a manager that read a schema out of another Work's dossier at run time
+would be certifying against a document somebody else may edit.
+
+
+2. THE FIXTURES ARE THE DESIGN MODEL'S OWN, AND THAT WAS MEASURED
+
+The two profiles in the suite are copied verbatim from the ACP boundary's
+`evidence/traces.json`, INCLUDING their `document_digest`. Those digests were
+computed by that Work's model, and both RECOMPUTE EXACTLY under this manager's
+RFC 8785 canonicalization — measured before the suite was written, not assumed.
+
+So the seal these cases check is not a number this suite produced and then
+agreed with. It is the design's, and two independently written boundaries
+arrive at it. They are embedded rather than read, because `v12/` is
+self-contained and a test reaching into another Work's dossier at run time
+would be the same mistake the module refuses.
+
+
+3. WHERE THE DECIDING GUARD ACTUALLY IS, MEASURED
+
+The policy rule I added is that the two postures carry DIFFERENT pinned
+policies — a profile in which they are equal is refused at certification
+rather than at run time.
+
+MEASURED: THE TWO FAMILIES ARE REFUSED BY DIFFERENT GUARDS. The codex branch
+of the schema pins consent and execution to two different policy DEFINITIONS,
+so equal policies are already unrepresentable and the SHAPE check answers
+first. The ACP branch pins both to one definition with a free-form
+`session_mode_id`, which the schema cannot compare — and that is exactly the
+gap the policy rule exists to close.
+
+My first version of that case asserted `policy.profile-uncertified` for BOTH
+and failed on the codex half. The case now asserts what actually decides for
+each family, and says why. A rule is needed where the schema cannot state it,
+and claiming it decides where the schema already did would have been a claim
+about my own code that the schema was quietly satisfying.
+
+
+4. MUTATION CHECK — six, all six witnessed
+
+  Y1  no shape check                                 2 failed
+  Y2  no seal check                                  1 failed
+  Y3  the seal is checked AFTER the policy rule      1 failed
+  Y4  the two postures may share one policy          1 failed
+  Y5  no durable-secret scan                         1 failed
+  Y6  certified by NAME rather than digest           1 failed
+
+Y3 is the ordering itself: moving the seal past the policy rule keeps every
+individual check and still fails, because a document that breaks both must
+report the seal.
+
+Restored: 8/8 focused, 437/437 for the whole gate.
+
+
+5. REGRESSIONS — 8, in a new suite
+
+The design model's own profiles certifying unchanged, with the recomputed seal
+compared against the one the design sealed them with; shape refused before the
+seal; the seal refused before policy; two postures with one policy refused,
+per family, by whichever guard decides; a live bearer never certified;
+certification BY DIGEST, so a re-edited profile under the same `profile_id` is
+a new profile and the superseded bytes stop being certified; a withdrawn
+profile not certified; and member order not being identity.
+
+
+6. GATES
+
+  cd v12 && npm test                       437 tests, 437 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+The rest of item 4: opening the separate consent and execution sessions with
+their per-posture epochs, turns and their deadlines, event normalization, and
+the runtime/agent adapter CONTRACTS. And the four things this manager still
+refuses to decide — certified evidence of runtime absence, what a conforming
+adapter must be, a pinned discard policy, and the quarantine manifest for
+material with no frozen result.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/intake.mjs                  the writer builds its
+                                                     operands through the
+                                                     reader's builder
+  v12/src/worker_manager/schema/
+      agent-session-1.0.schema.json                  NEW, placed from the ACP
+                                                     boundary dossier
+  v12/src/worker_manager/agent_profile.mjs           NEW
+  v12/test/worker_manager_agent_profile.test.mjs     NEW, 8 cases

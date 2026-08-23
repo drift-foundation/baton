@@ -1,0 +1,39 @@
+W2929 independent activation/runtime-start review
+Reviewer: baton.codex
+Date: 2026-08-22T22:34:55Z
+
+Scope
+  Item 3 second slice only. Item 2 and item 3a remain signed off. Later item-3
+  work and all item 4 were not reviewed.
+
+Baseline
+  cd v12 && node test/worker_manager_attempts.test.mjs
+    13 passed, 0 failed
+
+Additive review gate
+  cd v12 && node test/worker_manager_attempts.test.mjs
+    25 total; 13 passed; 12 failed
+
+Failures
+  1. Full-identity reactivation accepts another participant.
+  2. Runtime labels omit participant.
+  3. A foreign participant's session activates the assignment.
+  4. A free-standing attempt plus unrelated live assignment activates.
+  5. Changed attempt adapter/input/image operands replay instead of collide.
+  6. Bare absenceProven=true returns retry and resets the state.
+  7. A later inspection replaces runtime-1 with runtime-2.
+  8. The minted id with wrong generation labels reports uncertain, not cancel.
+  9. The adapter sees no runtime.start journal row and receives no operation id.
+ 10. Public allowReset changes destroyed back to running.
+ 11. worker_disposition changes from completed to unable.
+ 12. A stale observer overwrites quiescent with cancel-requested.
+
+Source
+  v12/src/worker_manager/schema.mjs:101-129
+  v12/src/worker_manager/attempts.mjs:76-95,104-162,176-192,207-297
+
+git diff --check
+  clean
+
+Disposition
+  Changes requested. Retain all 12 cases and return the corrected slice.

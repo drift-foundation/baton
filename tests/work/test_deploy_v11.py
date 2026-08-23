@@ -357,6 +357,19 @@ EXCLUDED_MUTATIONS = (
 	"activate", "regen", "runtime-start", "runtime-state", "runtime-end",
 	"runtime-facts", "runtime-refresh", "incident", "dismiss",
 )
+# W2845's confirmed read-only Docker inspection profile
+# (`work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+# finding-v12-local-isolated-execution/findings/
+# finding-managed-docker-inspection-policy/`, approved 2026-08-22), and
+# representative Docker capability the ruling withholds. Written out
+# here for the same reason: a deployed artifact that emitted or accepted
+# an unrestricted `docker` rule must fail these cases.
+DOCKER_INSPECTION = (
+	'prefix_rule(pattern=["docker", "version"], decision="allow")',
+	'prefix_rule(pattern=["docker", "info"], decision="allow")',
+	'prefix_rule(pattern=["docker", "inspect"], decision="allow")',
+	'prefix_rule(pattern=["docker", "image", "inspect"], decision="allow")',
+)
 DEPLOYED_EXEC_POLICY = os.path.join(
 	"lib", "codex-event-bridge", "src", "exec_policy.mjs")
 POLICY_IDENTITY = ("binary=/opt/baton/bin/baton",
@@ -372,8 +385,9 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const { rulesFor, auditRules, assertPolicyProvisioned, RULED_VERBS } =
-	await import(pathToFileURL(process.argv[2]).href);
+const { rulesFor, auditRules, assertPolicyProvisioned, RULED_VERBS,
+        inspectionRules, auditInspectionRules, assertInspectionProvisioned,
+        readPolicy } = await import(pathToFileURL(process.argv[2]).href);
 
 const identity = { binary: "/opt/baton/bin/baton",
 	config: "/srv/baton/baton.json", participant: "baton.codex" };
@@ -452,6 +466,448 @@ assert.equal(assertPolicyProvisioned(
 	write("other-extra.rules", `${exact}\n${ruleFor(other.participant, "regen")}`),
 	identity).satisfied, true);
 
+// W2845: the SECOND profile, through the same deployed module. The
+// four ruled read-only prefixes are written out here rather than read
+// from the artifact under test.
+const inspection = [
+	'prefix_rule(pattern=["docker", "version"], decision="allow")',
+	'prefix_rule(pattern=["docker", "info"], decision="allow")',
+	'prefix_rule(pattern=["docker", "inspect"], decision="allow")',
+	'prefix_rule(pattern=["docker", "image", "inspect"], decision="allow")',
+];
+assert.deepEqual(inspectionRules(), inspection,
+	"the deployed inspection profile is not the confirmed four prefixes");
+
+// EXACT ONLY satisfies it, and satisfies it beside the Baton rules —
+// the dispatcher preflights BOTH profiles on this one nominated file.
+const both = `${exact}\n${inspection.join("\n")}`;
+assert.equal(assertInspectionProvisioned(
+	write("inspection.rules", inspection.join("\n"))).satisfied, true);
+assert.equal(assertInspectionProvisioned(write("both.rules", both)).satisfied,
+	true);
+assert.equal(assertPolicyProvisioned(write("both-baton.rules", both),
+	identity).satisfied, true);
+
+// A Baton-only policy is the state that quarantined two managed review
+// turns: the research command escalates for interactive approval.
+assert.throws(() => assertInspectionProvisioned(write("no-docker.rules", exact)),
+	/does not authorize \[docker version/);
+
+// UNRESTRICTED docker is refused, alone and beside the exact four.
+for (const name of ["broad-docker", "mixed-docker"]) {
+	const text = name === "broad-docker"
+		? 'prefix_rule(pattern=["docker"], decision="allow")'
+		: `${both}\nprefix_rule(pattern=["docker"], decision="allow")`;
+	assert.throws(() => assertInspectionProvisioned(write(`${name}.rules`, text)),
+		/BROADER Docker rule/);
+}
+
+// And every mutable or otherwise unruled Docker command is extra.
+for (const argv of [["docker", "run", "--privileged", "alpine"],
+                    ["docker", "rm", "-f", "worker"],
+                    ["docker", "image", "rm", "worker"],
+                    ["docker", "volume", "prune", "-f"],
+                    ["docker", "ps", "-a"],
+                    ["/usr/bin/docker", "exec", "worker", "sh"]]) {
+	const rule = `prefix_rule(pattern=[${argv.map((entry) =>
+		JSON.stringify(entry)).join(", ")}], decision="allow")`;
+	const text = `${both}\n${rule}`;
+	assert.deepEqual(auditInspectionRules(text).extra, [argv.join(" ")]);
+	assert.throws(() => assertInspectionProvisioned(
+		write(`extra-${argv[1]}.rules`, text)),
+		/dedicated to the approved 'managed-docker-inspection' set/);
+	// The Baton audit stays clean: two profiles, two separately
+	// actionable refusals on one file.
+	assert.equal(auditRules(text, identity).satisfied, true);
+}
+
+// W2845 round 1: the DEPLOYED auditor must fail closed over every valid
+// policy spelling, not just the one the generator emits. The review showed
+// the installed evaluator authorizing unrestricted Docker for a reversed
+// keyword order and for single-quoted strings while the audit reported
+// satisfied; the policy language is Starlark, so a variable or a loop does
+// the same. A release shipping the old parser ships that hole.
+for (const spelling of [
+		'prefix_rule(decision="allow", pattern=["docker"])',
+		"prefix_rule(pattern=[\'docker\'], decision=\'allow\')",
+		'prefix_rule(["docker"], "allow")',
+		'D = ["docker"]\nprefix_rule(pattern=D, decision="allow")',
+		'prefix_rule(pattern=["doc" + "ker"], decision="allow")']) {
+	const text = `${inspection.join("\n")}\n${spelling}\n`;
+	assert.equal(auditInspectionRules(text).satisfied, false,
+		`the deployed audit accepted an unrestricted Docker rule: ${spelling}`);
+	assert.throws(() => assertInspectionProvisioned(
+		write(`spelling-${spelling.length}.rules`, text)),
+		/BROADER Docker rule|cannot account for/, spelling);
+}
+// The same hole existed for the BATON profile, because the parser is
+// shared. A reversed-keyword executable-only rule was invisible there too.
+for (const spelling of [
+		`prefix_rule(decision="allow", pattern=["${identity.binary}"])`,
+		`prefix_rule(["${identity.binary}"], "allow")`,
+		`B = ["${identity.binary}"]\nprefix_rule(pattern=B, decision="allow")`]) {
+	const text = `${exact}\n${spelling}\n`;
+	assert.equal(auditRules(text, identity).satisfied, false,
+		`the deployed audit accepted a broad Baton rule: ${spelling}`);
+}
+// W2845 round 2: ordinary Starlark string ESCAPES. The old decoder dropped
+// the backslash and copied the next character, so an escaped executable read
+// as a rule for nothing while the evaluator decoded it as the real one. A
+// release shipping that decoder ships the hole.
+for (const spelling of [
+		'prefix_rule(pattern=["\\x64ocker"], decision="allow")',
+		'prefix_rule(pattern=["\\u0064ocker"], decision="allow")',
+		'prefix_rule(pattern=["\\144ocker"], decision="allow")',
+		'prefix_rule(pattern=[r"docker"], decision="allow")']) {
+	const text = `${inspection.join("\n")}\n${spelling}\n`;
+	const audit = auditInspectionRules(text);
+	assert.equal(audit.satisfied, false,
+		`the deployed audit accepted an escaped Docker rule: ${spelling}`);
+	assert.ok(audit.unaccounted.length > 0, spelling);
+}
+assert.equal(auditRules(
+	`${exact}\nprefix_rule(pattern=["\\x2fopt/baton/bin/baton"], decision="allow")\n`,
+	identity).satisfied, false,
+	"the deployed audit accepted an escaped Baton executable");
+
+// W2845 round 3: WHITESPACE the installed evaluator refuses. A TAB before
+// one exact rule made the audit report the file exact while Codex refused
+// to parse it at all — so the dispatcher advertised inspection as
+// provisioned with none of the four rules loaded, and the next managed
+// inspection escalates for approval and is quarantined. A release
+// shipping the old scanner ships that, on the denial side.
+for (const [name, text] of [
+		["tab before a rule",
+		 `${inspection.slice(0, 3).join("\n")}\n\t${inspection[3]}\n`],
+		["tab between operands",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(pattern=[\t"docker", "image", "inspect"], decision="allow")\n'],
+		["space-indented rule",
+		 `${inspection.slice(0, 3).join("\n")}\n  ${inspection[3]}\n`],
+		["lone carriage return",
+		 `${inspection.slice(0, 3).join("\n")}\r${inspection[3]}\n`]]) {
+	const audit = auditInspectionRules(text);
+	assert.equal(audit.satisfied, false,
+		`the deployed audit accepted evaluator-invalid whitespace: ${name}`);
+	assert.ok(audit.unaccounted.length > 0, name);
+	assert.throws(() => assertInspectionProvisioned(
+		write(`whitespace-${name.replace(/ /g, "-")}.rules`, text)),
+		/cannot account for/, name);
+}
+// The reader is shared, so the BATON profile carried the same hole.
+{
+	const lines = exact.split("\n");
+	const tabbed = `${lines.slice(0, -1).join("\n")}\n\t${lines[lines.length - 1]}\n`;
+	assert.equal(auditRules(tabbed, identity).satisfied, false,
+		"the deployed audit accepted a tab-indented Baton rule");
+	assert.throws(() => assertPolicyProvisioned(
+		write("whitespace-baton.rules", tabbed), identity),
+		/cannot account for/);
+}
+
+// W2845 round 4: the OPERAND LITERALS. `prefix_rule` calls built entirely
+// from string literals, in shapes the scanner fully decomposes, that the
+// installed evaluator refuses to load: a repeated named operand (silently
+// overwritten), an empty pattern, and a decision outside the evaluator's
+// measured `allow`/`prompt`/`forbidden` domain. Each one made the audit
+// report the file exact while Codex loaded NO rule from it — round 3's
+// false-ready failure one semantic layer in. A release shipping the old
+// `decompose` ships it.
+for (const [name, text] of [
+		["duplicate pattern operand",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(pattern=["docker"],\n'
+		 + '            pattern=["docker", "image", "inspect"], decision="allow")\n'],
+		["duplicate decision operand",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(pattern=["docker", "image", "inspect"], '
+		 + 'decision="allow", decision="allow")\n'],
+		["empty pattern",
+		 `${inspection.join("\n")}\nprefix_rule(pattern=[], decision="allow")\n`],
+		["empty pattern, positional",
+		 `${inspection.join("\n")}\nprefix_rule([], "allow")\n`],
+		["invalid decision",
+		 `${inspection.join("\n")}\n`
+		 + 'prefix_rule(pattern=["not-docker"], decision="deny")\n'],
+		["invalid decision, positional",
+		 `${inspection.join("\n")}\nprefix_rule(["not-docker"], "deny")\n`]]) {
+	const audit = auditInspectionRules(text);
+	assert.equal(audit.satisfied, false,
+		`the deployed audit accepted an evaluator-invalid call: ${name}`);
+	assert.ok(audit.unaccounted.length > 0, name);
+	assert.throws(() => assertInspectionProvisioned(
+		write(`literal-${name.replace(/[ ,]+/g, "-")}.rules`, text)),
+		/cannot account for/, name);
+}
+// The scanner is shared, so the BATON profile carried the same hole.
+for (const [name, text] of [
+		["empty pattern",
+		 `${exact}\nprefix_rule(pattern=[], decision="allow")\n`],
+		["invalid decision",
+		 `${exact}\nprefix_rule(pattern=["/bin/true"], decision="deny")\n`]]) {
+	assert.equal(auditRules(text, identity).satisfied, false,
+		`the deployed audit accepted an evaluator-invalid Baton call: ${name}`);
+	assert.throws(() => assertPolicyProvisioned(
+		write(`literal-baton-${name.replace(/ /g, "-")}.rules`, text), identity),
+		/cannot account for/, name);
+}
+// And the two decisions the evaluator accepts beside `allow` are READ, not
+// refused: an operator's valid restriction must never be reported as a
+// file to regenerate.
+for (const decision of ["prompt", "forbidden"]) {
+	const text = `${inspection.join("\n")}\n`
+		+ `prefix_rule(pattern=["not-docker"], decision="${decision}")\n`;
+	assert.equal(auditInspectionRules(text).satisfied, true,
+		`the deployed audit refused a valid decision: ${decision}`);
+	assert.deepEqual(auditInspectionRules(text).unaccounted, [], decision);
+}
+
+// W2845 round 5: EMPTY COMMA FIELDS. The scanner dropped every empty field
+// after splitting on top-level commas; only one empty tail is the valid
+// trailing comma. An empty head or middle field, or a second trailing
+// comma, reached the rest of the scanner as a well-formed rule while the
+// evaluator refused the whole file with `unexpected symbol ','` and loaded
+// none of it. A release shipping the old `splitTopLevel` ships that.
+for (const [name, text] of [
+		["empty element mid list",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(pattern=["docker",, "image", "inspect"], decision="allow")\n'],
+		["empty operand head call",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(, pattern=["docker", "image", "inspect"], decision="allow")\n'],
+		["empty operand mid call",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(pattern=["docker", "image", "inspect"],, decision="allow")\n'],
+		["double trailing comma call",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(pattern=["docker", "image", "inspect"], decision="allow",,)\n'],
+		["double trailing comma list",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(pattern=["docker", "image", "inspect",,], decision="allow")\n'],
+		["empty operand mid, positional",
+		 `${inspection.slice(0, 3).join("\n")}\n`
+		 + 'prefix_rule(["docker", "image", "inspect"],, "allow")\n']]) {
+	const audit = auditInspectionRules(text);
+	assert.equal(audit.satisfied, false,
+		`the deployed audit accepted an evaluator-invalid comma field: ${name}`);
+	assert.ok(audit.unaccounted.length > 0, name);
+	assert.throws(() => assertInspectionProvisioned(
+		write(`comma-${name.replace(/[ ,]+/g, "-")}.rules`, text)),
+		/cannot account for/, name);
+}
+// The scanner is shared, so the BATON profile carried the same hole.
+for (const [name, text] of [
+		["empty operand head call",
+		 `${exact}\nprefix_rule(, pattern=["${identity.binary}"], decision="allow")\n`],
+		["double trailing comma call",
+		 `${exact}\nprefix_rule(pattern=["${identity.binary}"], decision="allow",,)\n`]]) {
+	assert.equal(auditRules(text, identity).satisfied, false,
+		`the deployed audit accepted an evaluator-invalid Baton comma: ${name}`);
+	assert.throws(() => assertPolicyProvisioned(
+		write(`comma-baton-${name.replace(/[ ,]+/g, "-")}.rules`, text), identity),
+		/cannot account for/, name);
+}
+// And the ONE valid trailing comma is read, in every place it can appear.
+for (const [name, rule] of [
+		["call", 'prefix_rule(pattern=["docker", "image", "inspect"], decision="allow",)'],
+		["pattern list",
+		 'prefix_rule(pattern=["docker", "image", "inspect",], decision="allow")'],
+		["positional", 'prefix_rule(["docker", "image", "inspect"], "allow",)']]) {
+	const text = `${inspection.slice(0, 3).join("\n")}\n${rule}\n`;
+	assert.equal(auditInspectionRules(text).satisfied, true,
+		`the deployed audit refused a valid trailing comma: ${name}`);
+	assert.deepEqual(auditInspectionRules(text).unaccounted, [], name);
+}
+
+// W2845 round 6: a TAB on an otherwise BLANK line. The scanner refused
+// every `OTHER_WHITESPACE` character wherever it sat, so an exact generated
+// policy carrying one tab-only blank line failed preflight while the
+// installed evaluator loaded that same file and returned `allow`. Nothing
+// hidden — a valid operator file rejected, and a regeneration demanded that
+// could not change what Codex authorizes. A release shipping that refuses to
+// start on a policy it should accept.
+for (const [name, text] of [
+		["tab-only blank line",
+		 `${inspection.slice(0, 3).join("\n")}\n\t\n${inspection[3]}\n`],
+		["space and tab mixed",
+		 `${inspection.slice(0, 3).join("\n")}\n \t \n${inspection[3]}\n`],
+		["tab-only line at end of file", `${inspection.join("\n")}\n\t\n`],
+		["tab-only last line, no final newline", `${inspection.join("\n")}\n\t`]]) {
+	const audit = auditInspectionRules(text);
+	assert.deepEqual(audit.unaccounted, [],
+		`the deployed audit refused a valid blank line: ${name}`);
+	assert.equal(audit.satisfied, true, name);
+	assert.equal(assertInspectionProvisioned(
+		write(`blank-${name.replace(/[ ,]+/g, "-")}.rules`, text)).satisfied, true, name);
+}
+// The Baton profile reads the same file through the same scanner.
+assert.equal(auditRules(`${exact}\n\t\n`, identity).satisfied, true,
+	"the deployed workflow audit refused a tab-only blank line");
+// And the widening does not reopen round 3: a tab is tolerated by the LINE
+// being blank, never by being a tab.
+for (const [name, text] of [
+		["trailing tab after a rule",
+		 `${inspection.slice(0, 3).join("\n")}\n${inspection[3]}\t\n`],
+		["form feed on its own line",
+		 `${inspection.slice(0, 3).join("\n")}\n\f\n${inspection[3]}\n`],
+		["non-breaking space on its own line",
+		 `${inspection.slice(0, 3).join("\n")}\n\u00a0\n${inspection[3]}\n`]]) {
+	const audit = auditInspectionRules(text);
+	assert.equal(audit.satisfied, false,
+		`the deployed audit accepted evaluator-invalid whitespace: ${name}`);
+	assert.ok(audit.unaccounted.length > 0, name);
+	assert.throws(() => assertInspectionProvisioned(
+		write(`blank-refused-${name.replace(/[ ,]+/g, "-")}.rules`, text)),
+		/cannot account for/, name);
+}
+
+// W2845 round 7: SPACE/TAB INDENTATION BEFORE A COMMENT. `readPolicy`
+// handled OTHER_WHITESPACE before `#`, so a tab-indented comment made an
+// exact operator policy fail preflight although the evaluator loads it and
+// authorizes the ruled inspections. A release shipping that refuses to start
+// on a policy it should accept — and it contradicts the round-3 boundary
+// that a comment is accounted for wherever it sits.
+for (const [name, text] of [
+		["tab-indented comment",
+		 `${inspection.slice(0, 2).join("\n")}\n\t# operator note\n`
+		 + `${inspection.slice(2).join("\n")}\n`],
+		["two tabs then comment",
+		 `${inspection.slice(0, 2).join("\n")}\n\t\t# operator note\n`
+		 + `${inspection.slice(2).join("\n")}\n`],
+		["space and tab mixed then comment",
+		 `${inspection.slice(0, 2).join("\n")}\n \t # operator note\n`
+		 + `${inspection.slice(2).join("\n")}\n`],
+		["tab-indented comment at end of file",
+		 `${inspection.join("\n")}\n\t# note\n`]]) {
+	const audit = auditInspectionRules(text);
+	assert.deepEqual(audit.unaccounted, [],
+		`the deployed audit refused a valid indented comment: ${name}`);
+	assert.equal(audit.satisfied, true, name);
+	assert.equal(assertInspectionProvisioned(
+		write(`indent-${name.replace(/[ ,]+/g, "-")}.rules`, text)).satisfied,
+		true, name);
+}
+// The reader is shared, so the BATON profile carried the same hole.
+assert.equal(auditRules(`${exact}\n\t# installed by the operator\n`,
+	identity).satisfied, true,
+	"the deployed workflow audit refused an indented comment");
+// Indentation is tolerated before a COMMENT and never before code. The last
+// case is what makes that a LINE rule: a tab sharing a line with a rule is a
+// tab in code however the line ends.
+for (const [name, text] of [
+		["form feed before a comment",
+		 `${inspection.slice(0, 2).join("\n")}\n\f# note\n`
+		 + `${inspection.slice(2).join("\n")}\n`],
+		["non-breaking space before a comment",
+		 `${inspection.slice(0, 2).join("\n")}\n\u00a0# note\n`
+		 + `${inspection.slice(2).join("\n")}\n`],
+		["tab-indented comment sharing a line with a rule",
+		 `${inspection.slice(0, 3).join("\n")}\n${inspection[3]}\t# note\n`]]) {
+	const audit = auditInspectionRules(text);
+	assert.equal(audit.satisfied, false,
+		`the deployed audit accepted evaluator-invalid whitespace: ${name}`);
+	assert.ok(audit.unaccounted.length > 0, name);
+	assert.throws(() => assertInspectionProvisioned(
+		write(`indent-refused-${name.replace(/[ ,]+/g, "-")}.rules`, text)),
+		/cannot account for/, name);
+}
+
+// W2845 round 8: a COMMENT INSIDE the rule. The scanner kept it through
+// `matchingParen` and handed it to the operand reader, so an exact rule the
+// evaluator loads and honours became unaccounted and its prefix was reported
+// MISSING. A release shipping that refuses to start on a policy it should
+// accept. The correction MASKS comment spans, so comment punctuation never
+// reaches the splitter.
+for (const [name, inner] of [
+		["after the open paren",
+		 'prefix_rule(\n    # operator note inside the call\n'
+		 + '    pattern=["docker", "image", "inspect"],\n    decision="allow",\n)'],
+		["carrying quotes, commas, brackets and parens",
+		 'prefix_rule(\n    # it\'s "fine", [really], (yes)\n'
+		 + '    pattern=["docker", "image", "inspect"],\n    decision="allow",\n)'],
+		["trailing an operand line",
+		 'prefix_rule(\n    pattern=["docker", "image", "inspect"],  # prefix\n'
+		 + '    decision="allow",\n)']]) {
+	const text = `${inspection.slice(0, 3).join("\n")}\n${inner}\n`;
+	const audit = auditInspectionRules(text);
+	assert.deepEqual(audit.unaccounted, [],
+		`the deployed audit refused a valid in-rule comment: ${name}`);
+	assert.deepEqual(audit.missing, [], name);
+	assert.equal(audit.satisfied, true, name);
+	assert.equal(assertInspectionProvisioned(
+		write(`inrule-${name.replace(/[ ,']+/g, "-")}.rules`, text)).satisfied,
+		true, name);
+}
+// A TAB before the `#` is a tab in CODE and still refused, and a hash inside
+// a STRING is still data.
+{
+	const tabbed = `${inspection.slice(0, 3).join("\n")}\n`
+		+ 'prefix_rule(\n\t# operator note\n'
+		+ '    pattern=["docker", "image", "inspect"],\n    decision="allow",\n)\n';
+	assert.equal(auditInspectionRules(tabbed).satisfied, false,
+		"the deployed audit accepted a tab-indented comment inside a rule");
+	const data = `${inspection.join("\n")}\n`
+		+ 'prefix_rule(pattern=["not#docker"], decision="allow")\n';
+	assert.deepEqual(auditInspectionRules(data).unaccounted, []);
+	assert.equal(auditInspectionRules(data).satisfied, true);
+}
+
+// W2845 round 9: ASTRAL TEXT IN A COMMENT. The round-8 mask was built from a
+// code-POINT spread while every scanner indexes by UTF-16 code UNITS, so one
+// emoji shifted the mask and a LATER valid rule was misclassified. A release
+// shipping that refuses to start on a policy the evaluator loads.
+{
+	const later = 'prefix_rule(pattern=["not-docker", "later"], decision="allow")';
+	for (const [name, text] of [
+			["top-level comment",
+			 `${inspection.join("\n")}\n# note \u{1F600} here\n${later}\n`],
+			["in-rule comment",
+			 `${inspection.slice(0, 3).join("\n")}\nprefix_rule(\n`
+			 + `    # note \u{1F600} here\n`
+			 + `    pattern=["docker", "image", "inspect"],\n`
+			 + `    decision="allow",\n)\n${later}\n`],
+			["astral inside a string operand",
+			 `${inspection.join("\n")}\n`
+			 + `prefix_rule(pattern=["not-docker\u{1F600}"], decision="allow")\n`]]) {
+		const read = readPolicy(text);
+		assert.deepEqual(read.unaccounted, [],
+			`the deployed audit refused valid astral text: ${name}`);
+		assert.equal(read.rules.length, 5, name);
+		const audit = auditInspectionRules(text);
+		assert.deepEqual(audit.missing, [], name);
+		assert.equal(audit.satisfied, true, name);
+		assert.equal(assertInspectionProvisioned(
+			write(`astral-${read.rules.length}-${name.length}.rules`, text)
+		).satisfied, true, name);
+	}
+	// BOTH shared profiles: one reader serves them, so the managed-workflow
+	// audit carries the same mask and must read the same way.
+	const noted = `${exact}\n# operator note \u{1F600}\n`;
+	assert.deepEqual(auditRules(noted, identity).unaccounted, []);
+	assert.equal(auditRules(noted, identity).satisfied, true);
+	assert.equal(assertPolicyProvisioned(
+		write("astral-workflow.rules", noted), identity).satisfied, true);
+}
+
+// Fail-closed must not become fail-blind: the approved rules written in
+// another valid spelling are still the approved rules.
+assert.equal(auditInspectionRules(
+	`${inspection.join("\n").replace(/"/g, "\'")}\n`).satisfied, true,
+	"the deployed audit cannot read its own rules in single quotes");
+// And an operator note beside them is ordinary.
+assert.equal(assertInspectionProvisioned(write("annotated.rules",
+	`# installed by the operator\n\n${inspection.join("\n")}\n`)).satisfied, true);
+// Trailing spaces, blank lines and a missing final newline are ordinary
+// too: every one of them loads in the installed evaluator, so refusing
+// them would be fail-blind in the other direction.
+for (const [name, text] of [
+		["no trailing newline", inspection.join("\n")],
+		["trailing spaces", `${inspection.join("  \n")}  \n`],
+		["blank lines", `\n${inspection.join("\n\n")}\n\n`]]) {
+	assert.equal(auditInspectionRules(text).satisfied, true,
+		`the deployed audit refused a valid spelling: ${name}`);
+}
+
 process.stdout.write("matrix ok\n");
 """
 
@@ -469,7 +925,7 @@ import { pathToFileURL } from "node:url";
 
 const [modulePath, combined, partial, binary, config, ...participants] =
 	process.argv.slice(2);
-const { assertPolicyProvisioned } =
+const { assertPolicyProvisioned, assertInspectionProvisioned } =
 	await import(pathToFileURL(modulePath).href);
 
 assert.ok(participants.length > 1,
@@ -495,6 +951,17 @@ for (const participant of participants.slice(1)) {
 		/does not authorize/,
 		`a one-participant policy still authorized ${participant}`);
 }
+
+// W2845: the documented procedure also provisions the Docker
+// inspection profile, on the SAME file — the dispatcher preflights both
+// and a file satisfying only one does not start it.
+assert.equal(assertInspectionProvisioned(combined).satisfied, true,
+	"the documented procedure does not provision the Docker inspection profile");
+// Following only the per-participant runs leaves it unprovisioned, and
+// that is the state that quarantined two managed review turns.
+assert.throws(() => assertInspectionProvisioned(partial),
+	/does not authorize \[docker version/,
+	"a participants-only policy still satisfied the inspection preflight");
 
 process.stdout.write("provisioning ok\n");
 """
@@ -556,6 +1023,15 @@ def test_the_shipped_template_names_only_installed_resources(dist):
 		"the instruction does not append each participant's rules"
 	assert "staged" in comment, \
 		"the instruction redirects onto the live policy file"
+	# W2845: and the deployment-wide Docker inspection profile, which is
+	# preflighted on the same nominated file. A release that documented
+	# only the per-participant runs would leave the operator hand-adding
+	# the four rules, which is exactly what happened on 2026-08-22.
+	assert "profile=managed-docker-inspection" in comment, \
+		"the instruction never provisions the Docker inspection profile"
+	for prefix in ("docker version", "docker info", "docker inspect",
+	               "docker image inspect"):
+		assert prefix in comment, f"the template does not name {prefix}"
 	# It ships byte-equal to source, so the two cannot drift.
 	assert _read(shipped) == _read(os.path.join(
 		REPO, "conf", "codex-event-bridge.template.json"))
@@ -600,6 +1076,63 @@ def test_the_deployed_generator_emits_the_approved_rules_standalone(dist):
 	# It PRINTS and never installs: a generator that could write the
 	# policy file could grant itself authority.
 	assert not os.path.exists(os.path.join(target, "baton.rules"))
+
+
+def test_the_deployed_generator_emits_the_inspection_profile(dist):
+	"""W2845: the release must be able to print the four read-only
+	Docker inspection rules. It could not, so the operator hand-added
+	them to the live policy on 2026-08-22 — hand editing the
+	security-sensitive rules this module exists to get right."""
+	target, _summary = dist
+	deployed = _node(os.path.join(target, DEPLOYED_EXEC_POLICY),
+	                 "profile=managed-docker-inspection", cwd=target)
+	assert deployed.returncode == 0, deployed.stderr
+	assert deployed.stderr == "", "the generator wrote to stderr on success"
+	# The approved set, in the ruled order, and nothing else.
+	assert deployed.stdout == "".join(f"{rule}\n" for rule in DOCKER_INSPECTION)
+	# It ships byte-identical to the reviewed source helper.
+	source = _node(SOURCE_EXEC_POLICY, "profile=managed-docker-inspection")
+	assert source.returncode == 0, source.stderr
+	assert deployed.stdout == source.stdout, \
+		"the deployed inspection profile drifted from the reviewed helper"
+	# It names no participant: the capability is the deployment host's,
+	# so the operator runs this ONCE rather than once per identity.
+	assert "--participant" not in deployed.stdout
+	# Unrestricted Docker is never emitted, and neither is any mutable
+	# lifecycle command — those belong behind the Worker Manager adapter.
+	assert 'pattern=["docker"]' not in deployed.stdout
+	for verb in ("run", "exec", "rm", "rmi", "build", "pull", "push", "stop",
+	             "kill", "cp", "commit", "volume", "network", "system",
+	             "login", "ps", "logs"):
+		assert f'"docker", "{verb}"' not in deployed.stdout, \
+			f"the deployed generator emitted a rule for mutable docker {verb}"
+	# And it PRINTS: a generator that could write the policy file could
+	# grant itself authority.
+	assert not os.path.exists(os.path.join(target, "baton.rules"))
+
+
+def test_the_deployed_generator_refuses_a_misapplied_profile(dist):
+	"""W2845: the inspection profile names no identity and the workflow
+	profile requires one. A generator that guessed between them would
+	print one profile's rules to an operator who asked for the other's,
+	and that output is a boundary somebody then installs."""
+	target, _summary = dist
+	deployed = os.path.join(target, DEPLOYED_EXEC_POLICY)
+	refusals = (
+		(("profile=nonsense",), 'unknown profile "nonsense"'),
+		(("profile",), "operand profile needs a value"),
+		(("profile=managed-docker-inspection",) + POLICY_IDENTITY,
+		 "takes no other operand"),
+		(("profile=managed-docker-inspection", "profile=managed-work-workflow"),
+		 "operand profile was given more than once"),
+		(("profile=managed-work-workflow",),
+		 "missing operand(s): binary, config, participant"),
+	)
+	for argv, expected in refusals:
+		proc = _node(deployed, *argv, cwd=target)
+		assert proc.returncode != 0, f"{argv} was not refused"
+		assert expected in proc.stderr, f"{argv}: {proc.stderr}"
+		assert proc.stdout == "", f"{argv} still wrote policy text to stdout"
 
 
 def test_the_deployed_generator_refuses_every_malformed_invocation(dist):
@@ -685,10 +1218,20 @@ def test_the_shipped_instruction_provisions_every_template_identity(dist,
 			             f"participant={participant}", cwd=target)
 			assert proc.returncode == 0, proc.stderr
 			handle.write(proc.stdout)
+		# W2845: then ONCE for the deployment-wide Docker inspection
+		# profile, appended into the same staged file.
+		proc = _node(deployed, "profile=managed-docker-inspection", cwd=target)
+		assert proc.returncode == 0, proc.stderr
+		handle.write(proc.stdout)
 	installed = tmp_path / "baton.rules"
 	os.rename(staged, installed)
 	assert len(_read(installed).splitlines()) == \
-		len(MANAGED_WORKFLOW) * len(participants)
+		len(MANAGED_WORKFLOW) * len(participants) + len(DOCKER_INSPECTION)
+	# Every ruled inspection is there exactly once: it names no
+	# participant, so running it per identity would triple it.
+	text = _read(installed).decode("utf-8")
+	for rule in DOCKER_INSPECTION:
+		assert text.count(rule) == 1
 
 	# And the single-run form the release used to document.
 	partial = tmp_path / "one-participant.rules"

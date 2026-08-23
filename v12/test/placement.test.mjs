@@ -14,10 +14,10 @@
 // These cases pin that separation. They deliberately do not re-test the
 // assignment lifecycle, which the migration did not touch.
 
-import { test } from "node:test";
+import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync,
+import { existsSync, mkdirSync, readFileSync,
          symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -28,6 +28,8 @@ import { CHECKOUT_ROOT, MARKER_NAME, assertLabel, assertOwnedStateRoot,
          assertStateRoot, assertUnderStateRoot, markerContent, markerPath,
          ownershipOf, planPlacement, PlacementError } from "../src/placement.mjs";
 import { assertNoBatonCapability } from "../src/runtime.mjs";
+import { ownedTemp, removeOwnedRoot, removeOwnedRoots }
+	from "./owned_roots.mjs";
 
 const PLACEMENT = join(POC_ROOT, "src", "placement.mjs");
 const CONFIG = join(POC_ROOT, "poc.json");
@@ -50,7 +52,13 @@ function firstCommand(text, needle) {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(POC_ROOT, "..");
 const SAMPLE = JSON.parse(readFileSync(join(POC_ROOT, "poc.json"), "utf8"));
-const scratch = () => mkdtempSync(join(tmpdir(), "v12poc-placement-"));
+// W2907: as in `unit.test.mjs` — the registry records each root at
+// creation and one `after` hook removes exactly those. The five families
+// below kept their in-test removals, which run on the SUCCESSFUL tail of
+// each case; the W30 failure left an absent-parent root and a
+// CLI-stranger root behind, which is the gap this closes.
+const scratch = () => ownedTemp("v12poc-placement-");
+after(removeOwnedRoots);
 
 // Every case that points a real entry point at its OWN root rebases the
 // same four disposable paths onto it. Written out once per case, one
@@ -119,7 +127,7 @@ test("the state root must be external to the WHOLE checkout", () => {
 // A disposable root that IS ours: created here, marked here, removed
 // here. Nothing in this file deletes anything the prototype did not make.
 function ownedRoot() {
-	const root = mkdtempSync(join(tmpdir(), "v12poc-owned-"));
+	const root = ownedTemp("v12poc-owned-");
 	writeFileSync(markerPath(root), markerContent(root));
 	return root;
 }
@@ -137,7 +145,7 @@ test("root deletion needs positive ownership evidence, not path shape", () => {
 	}
 	// An existing directory with no marker is refused BY NAME, and the
 	// refusal says what to do instead.
-	const stranger = mkdtempSync(join(tmpdir(), "v12poc-stranger-"));
+	const stranger = ownedTemp("v12poc-stranger-");
 	assert.throws(() => ownershipOf(stranger),
 		new RegExp(`carries no ${MARKER_NAME}`));
 	// A marker COPIED from another root authorizes nothing: it names the
@@ -146,7 +154,7 @@ test("root deletion needs positive ownership evidence, not path shape", () => {
 	writeFileSync(markerPath(stranger), readFileSync(markerPath(owned), "utf8"));
 	assert.throws(() => ownershipOf(stranger), /names root .*, not/);
 	// A marker that is not ours, and one that is not readable JSON.
-	const impostor = mkdtempSync(join(tmpdir(), "v12poc-impostor-"));
+	const impostor = ownedTemp("v12poc-impostor-");
 	writeFileSync(markerPath(impostor),
 		JSON.stringify({ owner: "something-else", root: impostor }));
 	assert.throws(() => ownershipOf(impostor), /names owner/);
@@ -157,7 +165,10 @@ test("root deletion needs positive ownership evidence, not path shape", () => {
 	assert.equal(ownershipOf(owned), "owned");
 	assert.equal(assertOwnedStateRoot(owned, { forDeletion: true }).state, "owned");
 	assert.equal(ownershipOf(join(tmpdir(), "v12poc-absent-root-xyz")), "fresh");
-	for (const path of [stranger, owned, impostor]) rmSync(path, { recursive: true, force: true });
+	// W2907 R1: remove AND forget, as one action. `rmSync` alone left these
+	// three pathnames armed in the registry, so anything that recreated one
+	// before the suite hook was deleted with it.
+	for (const path of [stranger, owned, impostor]) removeOwnedRoot(path);
 });
 
 test("the cleanup path refuses an ABSENT root and offers no path to remove",
@@ -177,7 +188,7 @@ test("the cleanup path refuses an ABSENT root and offers no path to remove",
 		// parent THIS test created and that has never been created, so
 		// its absence is a fact rather than something deleted into
 		// being. Nothing is removed but the parent, at the end.
-		const owned = mkdtempSync(join(tmpdir(), "v12poc-absent-parent-"));
+		const owned = ownedTemp("v12poc-absent-parent-");
 		const absent = join(owned, "never-created");
 		assert.equal(existsSync(absent), false,
 			"the fixture child was created by something");
@@ -196,7 +207,7 @@ test("the cleanup path refuses an ABSENT root and offers no path to remove",
 		// And through the CLI verb `state-clean` actually consumes.
 		// The document cannot live in the root here: the root's absence
 		// is the precondition. It lands in the parent instead of a
-		// second temporary directory, so the one `rmSync` below still
+		// second temporary directory, so the one removal below still
 		// removes every path this case created.
 		const config = rebasedConfig(absent, owned);
 		const refused = placement("state", "--config", config);
@@ -215,13 +226,13 @@ test("the cleanup path refuses an ABSENT root and offers no path to remove",
 		assert.equal(existsSync(absent), false,
 			"asking about ownership created the root");
 		// Only the parent this test made, and only at the end.
-		rmSync(owned, { recursive: true, force: true });
+		removeOwnedRoot(owned);
 	});
 
 test("the cleanup entry point refuses an existing root that is not ours", () => {
 	// End to end through the CLI, without deleting anything: `state` is
 	// the only verb `state-clean` consumes.
-	const stranger = mkdtempSync(join(tmpdir(), "v12poc-cli-stranger-"));
+	const stranger = ownedTemp("v12poc-cli-stranger-");
 	mkdirSync(join(stranger, "someone-elses-data"), { recursive: true });
 	const config = rebasedConfig(stranger);
 	const refused = placement("state", "--config", config);
@@ -235,7 +246,7 @@ test("the cleanup entry point refuses an existing root that is not ours", () => 
 	const allowed = placement("state", "--config", config);
 	assert.equal(allowed.status, 0, allowed.stderr);
 	assert.equal(allowed.stdout.trim(), stranger);
-	rmSync(stranger, { recursive: true, force: true });
+	removeOwnedRoot(stranger);
 });
 
 test("a filesystem-wide or top-level state root is refused", () => {
@@ -360,7 +371,7 @@ test("the shell entry points get their paths from that one authority", () => {
 	// The condition it names is now constructed — a root this test
 	// created, existing and deliberately unmarked — and the sample root
 	// is neither read nor created nor removed.
-	const unowned = mkdtempSync(join(tmpdir(), "v12poc-entry-unowned-"));
+	const unowned = ownedTemp("v12poc-entry-unowned-");
 	try {
 		const state = placement("state", "--config", rebasedConfig(unowned));
 		assert.equal(state.status, 2, state.stdout);
@@ -373,7 +384,7 @@ test("the shell entry points get their paths from that one authority", () => {
 			"the refused deletion check established ownership");
 	} finally {
 		// Only this test's own fixture, and even if an assertion above threw.
-		rmSync(unowned, { recursive: true, force: true });
+		removeOwnedRoot(unowned);
 	}
 
 	assert.equal(placement("plan", "--config", CONFIG).status, 2);
@@ -578,6 +589,8 @@ test("the prototype imports nothing from the v11 product tree", () => {
 		+ `\\( -name '*.mjs' -o -name 'v12-poc' \\) -type f -print`],
 		{ encoding: "utf8" }).trim().split("\n").filter(Boolean);
 	assert.ok(sources.length > 10, sources);
+	const DEPENDENCIES = JSON.parse(readFileSync(
+		join(POC_ROOT, "package.json"), "utf8")).dependencies ?? {};
 	let pinned = 0;
 	for (const file of sources) {
 		// A module specifier never contains whitespace, which is what
@@ -591,8 +604,20 @@ test("the prototype imports nothing from the v11 product tree", () => {
 					`${file} imports ${specifier} from outside the prototype`);
 				continue;
 			}
-			assert.ok(specifier.startsWith("@agentclientprotocol/"),
+			// W2929: the allowed set is READ from `package.json` rather than
+			// hardcoded, and "pinned" is checked rather than assumed — the
+			// name must be a declared dependency AND its version must be an
+			// exact pin, so a caret range cannot enter by being declared.
+			// The guard therefore still fails for an undeclared import, and
+			// now also for a declared-but-floating one.
+			const name = specifier.startsWith("@")
+				? specifier.split("/").slice(0, 2).join("/")
+				: specifier.split("/")[0];
+			assert.ok(Object.hasOwn(DEPENDENCIES, name),
 				`${file} imports an unpinned package ${specifier}`);
+			assert.match(DEPENDENCIES[name], /^\d+\.\d+\.\d+$/,
+				`${name} is declared as ${DEPENDENCIES[name]}, which is a range `
+				+ `rather than an exact pin`);
 			pinned += 1;
 		}
 	}

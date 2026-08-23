@@ -1,0 +1,102 @@
+W4996 first-slice correction — 2026-08-22
+
+Answering `review-2026-08-22T17-07-39Z.md`: two P1 and one P2, all
+reproduced against the tree before any edit and all corrected.
+
+
+1. [P1] THE RENDERERS DREW EDGES THE AUTHORITY NEVER HELD
+
+`_ordered` emitted one entry per unique NODE and every renderer paired that
+node with the CENTER. For the canonical chain A --blocks--> B --blocks--> C
+centered on A at depth 2 the wide form drew
+
+  [A]
+  [A] --blocks--> [B]
+  [A] --blocks--> [C]        <- invented
+                             <- and B --blocks--> C was dropped
+
+That contradicts the one guarantee this view is built on. Rows now carry
+their REAL endpoints — one entry per canonical edge, plus the center — and
+`work` still names the far node so selection identity is unchanged. The same
+chain now renders
+
+  [A]
+  [A] --blocks--> [B]
+  [B] --blocks--> [C]
+
+A new regression compares the DRAWN edge set against the projection's own
+edge set, at three centers, three depths and three widths, including a shared
+DAG node.
+
+
+2. [P1] A STACKED ROW SELECTED A DIFFERENT WORK THAN IT SHOWED
+
+For a downstream edge `_stacked` attached the consumer's `work` to a row that
+painted the CENTER token, with the real consumer on a non-selectable
+presentation row. A console would have highlighted one Work and recentered on
+another.
+
+Every selectable row now displays the selector for its own `work`. The
+relationship still reads in its true direction: a downstream edge shows the
+source and arrow as presentation and the selectable TARGET last; an upstream
+edge shows the selectable SOURCE first. A new regression asserts the property
+in every renderer, not only the one the review found.
+
+
+3. [P2] THE CAP DID NOT BOUND MATERIALIZATION
+
+`_dependency_edges` returned every direct edge as a Python list and the
+caller sliced it afterwards, so an adversarial fan-out allocated memory
+proportional to the whole branch while the response claimed a bounded view.
+It is a `COUNT(*)` plus an ordered `LIMIT` now — the exact direct count
+without the rows.
+
+Two regressions, because the two halves are observable differently:
+
+  - the cap is CROSSED: a branch of 240 is expanded past the page, the
+    response reports `capped=true`, draws fewer than the branch, and the
+    omission is exact for everything not drawn;
+  - the materialization is BOUNDED: the edge helper is watched, and the rows
+    it returns never exceed the page while the total it reports is the whole
+    fan-out. Memory has no visible result, so asserting the outcome alone
+    would have left this correction unwitnessed — and the first mutation
+    proved that, passing green until the watch was added.
+
+
+4. MUTATION CHECK — each correction reverted independently
+
+  reverted                          result
+  edges paired with the center      23 pass / 1 fail
+                                      every rendered edge is a canonical edge
+  stacked selectable row            22 pass / 2 fail
+                                      every selectable stacked row displays its own work
+                                      every selectable row shows the token for its own work
+  fetch-then-slice                  23 pass / 1 fail
+                                      the branch is read with a bound
+
+Restored: 24 pass, 0 fail (21 before, including the reviewer's two).
+
+
+5. VERIFICATION
+
+  tests/work/test_w4996_dependency_graph.py     24 passed
+  pytest -n auto -m "not serial" tests/work   2914 passed, 1 FAILED
+  pytest -m serial tests/work                   52 passed
+  whitespace-damage check                      clean
+
+The one failure is W4615's: `test_one_drain_instant_samples_the_authority_clock_once`,
+a reviewer-added case against my own W4615 correction — passing the clock into
+settlement samples it a SECOND time, so a clock that advances per call gives
+the two events at one instant different timestamps. It is a real defect in
+that Work, which is queued on baton.impl awaiting its own turn and was not
+touched from here.
+
+
+6. STILL NOT STARTED
+
+The console is still not wired: `[b]` opens the old flat page,
+`NAV_STATE_FIELDS` is unchanged, and Enter-recenter, `+`/`-`, overflow Enter
+and Back restoration do not exist. `ROW_DEEPER` remains defined and unused —
+depth-frontier tokens need the projection to report what the DEPTH BOUND cut
+off, which it still does not. Both were named in the first slice and the
+review does not treat either as landed.

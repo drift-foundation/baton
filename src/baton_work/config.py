@@ -35,7 +35,25 @@ from baton_work.authority import (
 
 CONFIG_VERSION = 1
 DATABASE_NAME = "work.sqlite3"
-CAPABILITIES = ("config",)
+# W4303: `recover` is DELIBERATELY separate from `config`. Releasing a
+# claim orphaned by a failed managed turn is a narrow workflow act aimed
+# at one Work; accepting a new configuration generation rewrites who may
+# act on everything. Folding recovery into `config` would have made the
+# one operator who can unwedge a lane also the one who can rewrite the
+# roster, and the ruling (2026-08-22, obligation 4379) says the two are
+# different powers held for different reasons.
+#
+# W4615: `dispatch` is the third, and it is separate from both for the
+# same reason they are separate from each other. Draining the deployment
+# suppresses every managed wake until an explicit resume; that is a
+# maintenance power over the whole stack, not a correction aimed at one
+# Work like `recover` and not roster authorship like `config`. The
+# ruling (2026-08-22, obligation 4845) names it explicitly and rejects
+# every inferred substitute: a Route or held role is local scheduling
+# responsibility, a runtime `actionOwner` is transient adapter state,
+# `recover` is one narrow orphan-claim correction, and broad `config`
+# does not implicitly include it.
+CAPABILITIES = ("config", "dispatch", "recover")
 
 _UUID = re.compile(r"\A[0-9a-f]{32}\Z")
 

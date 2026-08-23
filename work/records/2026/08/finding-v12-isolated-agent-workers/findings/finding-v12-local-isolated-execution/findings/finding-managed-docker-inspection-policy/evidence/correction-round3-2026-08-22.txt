@@ -1,0 +1,127 @@
+W2845 round-3 correction evidence — 2026-08-22, baton.claude
+Answering review-2026-08-22T12-51-09Z.md [P1]: whitespace accounting.
+
+No Docker command was executed anywhere in this file. Every evaluator
+answer below comes from `codex execpolicy check`, which evaluates a policy
+against an argv and does not run it. Oracle: codex-cli 0.149.0.
+
+== The measurement that had to come first ==
+
+Rounds 1 and 2 were both cases of this module reading the language instead
+of accounting for the file, so the accepted whitespace set was measured
+against the installed evaluator rather than derived from a grammar:
+
+  ACCEPTS   LF; spaces between tokens; trailing spaces; blank lines,
+            including one holding a tab; CRLF; comment lines, indented or
+            not; a missing final newline
+  REFUSES   a TAB anywhere in code — line start, between operands, even
+            between `prefix_rule` and its `(`; a statement indented by
+            SPACES; a lone CR, form feed, vertical tab or NBSP; a line
+            terminator inside a string literal
+
+The second row is the defect. `readPolicy` skipped every character
+JavaScript calls `\s`, so all of it was silently accounted for.
+
+== Every candidate, against both oracles ==
+
+  candidate                       evaluator                                    audit
+  docker tab before rule          REFUSED: tabs are not allowed                satisfied=false UNACCOUNTED
+  docker tab between operands     REFUSED: tabs are not allowed                satisfied=false UNACCOUNTED
+  docker tab before paren         REFUSED: tabs are not allowed                satisfied=false UNACCOUNTED
+  docker space indent             REFUSED: unexpected new indentation block    satisfied=false UNACCOUNTED
+  docker lone CR                  REFUSED: invalid input                       satisfied=false UNACCOUNTED
+  docker form feed                REFUSED: invalid input                       satisfied=false UNACCOUNTED
+  docker vertical tab             REFUSED: invalid input                       satisfied=false UNACCOUNTED
+  docker NBSP                     REFUSED: invalid input                       satisfied=false UNACCOUNTED
+  docker newline in string        REFUSED: unfinished string literal           satisfied=false UNACCOUNTED
+  baton  tab before rule          REFUSED: tabs are not allowed                satisfied=false UNACCOUNTED
+  baton  space indent             REFUSED: unexpected new indentation block    satisfied=false UNACCOUNTED
+
+  The reviewer's recorded BEFORE for the first row was
+  {"missing":[],"broad":[],"extra":[],"unaccounted":[],"satisfied":true}.
+
+  Note the second column. This round differs from rounds 1 and 2: the
+  evaluator does not AUTHORIZE these files, it cannot LOAD them. Nothing
+  is in force, including the four rules the operator did install, while
+  the preflight reported the deployment ready.
+
+== Fail-closed is not fail-blind ==
+
+  spelling                evaluator     audit
+  exact generated         loads/allow   satisfied=true unaccounted=0
+  no trailing newline     loads/allow   satisfied=true unaccounted=0
+  trailing spaces         loads/allow   satisfied=true unaccounted=0
+  blank lines             loads/allow   satisfied=true unaccounted=0
+  blank line of spaces    loads/allow   satisfied=true unaccounted=0
+  comment line            loads/allow   satisfied=true unaccounted=0
+  spaces inside a rule    loads/allow   satisfied=true unaccounted=0
+  rule across lines       loads/allow   satisfied=true unaccounted=0
+
+  A comment is accounted for wherever it sits — own line, indented, or
+  trailing the rule it explains. All three load; refusing an operator's
+  note beside a rule would be fail-blind.
+
+  One spelling the evaluator accepts is refused DELIBERATELY: CRLF line
+  endings, which this generator never emits. It is named in FINDING.md as
+  a stated limitation rather than left to be discovered.
+
+== The refusal an operator sees, for the reviewer's exact candidate ==
+
+  the nominated execution policy at <path> contains policy this preflight
+  cannot account for:
+    \tprefix_rule(pattern=["docker", "image", "inspect"], decision="allow")
+  This file is DEPLOYMENT-OWNED and generated: in the approved state it
+  holds exactly the generated rules, blank lines and '#' comments. The
+  policy language is a full one — a variable, a string concatenation or a
+  loop can authorize anything — so a construct this preflight cannot read
+  fails closed rather than being treated as absent. REGENERATE the file
+  rather than editing it.
+  WHITESPACE COUNTS: the evaluator refuses a TAB anywhere in a rule and
+  refuses an indented statement, so only the spaces and newlines this
+  generator emits are accounted for. A refused character is shown above as
+  an escape.
+
+  The tab is rendered `\t` rather than swallowed by the terminal, and an
+  indented rule is rendered `\x20\x20prefix_rule(...)`. Without that the
+  quoted fragment is indistinguishable from the approved rule.
+
+  UNACCOUNTED is now reported BEFORE missing/broad/extra. The reviewer's
+  candidate otherwise refuses with "does not authorize [docker image
+  inspect]" and an instruction to install a rule the file already holds —
+  the wrong correction, and misleading where the evaluator has refused the
+  whole file and every rule is inert.
+
+== Verification ==
+
+$ npm test --prefix tools/codex-event-bridge
+  ℹ tests 227
+  ℹ pass 227
+  ℹ fail 0
+  ℹ skipped 0
+  227, up from 223. Four new cases: the refused-whitespace table on the
+  Docker profile, the same on the Baton profile, the accepted spellings,
+  and the oracle case asserting the evaluator cannot load any of them.
+
+$ full pytest
+  2824 passed (parallel) + 52 passed (serial) = 2876, 0 failed
+  2876, up from 2873: three new cases in
+  tests/work/test_w2845_docker_inspection_policy.py. The deployed-artifact
+  matrix in tests/work/test_deploy_v11.py carries the same refusals.
+
+$ the live nominated policy /home/sl/.codex/rules/baton.rules
+  workflow baton.prompt  satisfied=true
+  workflow baton.codex   satisfied=true
+  workflow baton.tuner   satisfied=true
+  inspection             satisfied=true  unaccounted=[]
+  95 rules read, 0 unaccounted.
+
+  NOTE, not this Work's change: the live file gained one rule during this
+  turn — prefix_rule(pattern=["node",
+  "tools/codex-event-bridge/test/runtime_publisher.test.mjs"],
+  decision="allow"), appended by the operator. It is outside both audited
+  profiles (it names neither the installed Baton executable prefix nor a
+  Docker executable), so both audits stay satisfied and neither reports it.
+  Recorded because the earlier evidence in this record says 94.
+
+  Read-only throughout: nothing installed, nothing restarted, no Docker
+  command executed.

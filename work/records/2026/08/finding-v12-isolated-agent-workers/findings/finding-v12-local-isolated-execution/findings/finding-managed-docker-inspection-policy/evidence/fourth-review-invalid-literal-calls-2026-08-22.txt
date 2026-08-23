@@ -1,0 +1,60 @@
+W2845 fourth independent-review reproduction, 2026-08-22T13:29:42Z
+
+No Docker command was executed. Each result below came from the installed
+`codex execpolicy check`, which loads a candidate policy and evaluates
+`docker version` without executing it. Oracle: codex-cli 0.149.0.
+
+The corrected whole-file scanner still treats these evaluator-invalid calls
+as fully accounted:
+
+  duplicate named argument
+    prefix_rule(pattern=["docker"],
+                pattern=["docker", "version"], decision="allow")
+    followed by the other three exact inspection rules
+
+    auditInspectionRules:
+      missing=[] broad=[] extra=[] unaccounted=[] satisfied=true
+    evaluator: exit 1
+      starlark error: error: repeated named argument
+
+  empty pattern
+    the exact four inspection rules followed by
+    prefix_rule(pattern=[], decision="allow")
+
+    auditInspectionRules:
+      missing=[] broad=[] extra=[] unaccounted=[] satisfied=true
+    evaluator: exit 1
+      error: invalid pattern element: pattern cannot be empty
+
+  invalid decision literal
+    the exact four inspection rules followed by
+    prefix_rule(pattern=["not-docker"], decision="deny")
+
+    auditInspectionRules:
+      missing=[] broad=[] extra=[] unaccounted=[] satisfied=true
+    evaluator: exit 1
+      error: invalid decision: deny
+
+The same invalid-decision result was observed for `forbid`, `ask`, and
+`bogus`. The evaluator loaded `allow`, `prompt`, and `forbidden`. This record
+does not propose widening the deployment-owned generated policy to those
+other decisions; it establishes that a literal decision the scanner elects
+to account for must at least be one the evaluator accepts.
+
+The duplicate case is caused by `decompose` overwriting an earlier named
+operand. The empty-pattern and invalid-decision cases are returned as parsed
+rules without validating the evaluator's literal domain. In all three cases
+the preflight advertises the nominated file as ready although Codex cannot
+load any rule in it. This is the same false-ready availability failure as the
+round-3 tab finding.
+
+Surrounding verification:
+
+  npm test --prefix tools/codex-event-bridge: 227 passed, 0 failed
+  focused W2845/deployed pytest:                27 passed, 0 failed
+  git diff --check:                             clean
+
+The existing Node and Python suites have no evaluator-equivalence case for
+duplicate keywords, an empty pattern, or an invalid decision. The existing
+`W2845: a deny rule is never inspection coverage` test uses `decision="deny"`
+without asking the installed evaluator whether that decision is valid.

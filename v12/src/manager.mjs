@@ -91,6 +91,12 @@ export class Manager {
 		mkdirSync(paths.root, { recursive: true });
 		const trace = new Trace(paths.trace);
 		const attempt = { runtime_attempt: runtimeAttempt, runtimeAttempt, work: action.local_id,
+		                  // v11 W4303: the assignment episode this offer was
+		                  // made under, carried from the readiness action so
+		                  // the compensating release can fence on it. A claim
+		                  // does not mint an episode, so this is still the
+		                  // exact one the claim was taken under.
+		                  episode: action.episode_seq,
 		                  paths, trace, status: "started", tokenFault, fault,
 		                  claimCommitted: false, handedOff: false };
 		trace.record("attempt.start", {
@@ -265,7 +271,7 @@ export class Manager {
 			// claim/pass correction removed everywhere else.
 			const released = await this.committed(
 				() => this.baton.release(
-					attempt.work, this.config.baton.participant,
+					attempt.work, this.config.baton.participant, attempt.episode,
 					`prototype worker manager could not complete runtime attempt `
 					+ `${attempt.runtime_attempt} after claiming: ${cause.message}`,
 					`v12poc-release-${attempt.runtime_attempt}`),

@@ -1,0 +1,102 @@
+W2928 verification — 2026-08-22, baton.claude
+
+== 1. The v12 assignment-authority regressions ==
+
+$ cd v12 && node --test test/authority_*.test.mjs
+✔ W2928: a v12 claim returns the full four-part assignment identity (2.22535ms)
+✔ W2928: a v11 claim mints NO generation (0.783738ms)
+✔ W2928: the generation counter is monotonic and never reused (1.251709ms)
+✔ W2928: a participant holds ONE live claim across the whole deployment (1.016782ms)
+✔ W2928: a competing claim loses atomically and the winner is unaffected (1.011893ms)
+✔ W2928: the route decides who may claim, not the caller (0.735379ms)
+✔ W2928: every assignment-owned act compare-and-swaps the FULL identity (1.229387ms)
+✔ W2928: an ended generation can never act again, even for the same participant (1.140071ms)
+✔ W2928: cancellation fences the generation and ends the assignment together (1.124031ms)
+✔ W2928: cancellation frees the participant's one global claim slot (1.099716ms)
+✔ W2928: no successor claims while the quiescence gate holds (0.847466ms)
+✔ W2928: an unreachable runtime is not a dead one (1.217435ms)
+✔ W2928: positive absence satisfies the gate and must name the runtime (1.015218ms)
+✔ W2928: only the gate actually holding the Work can be satisfied (0.830856ms)
+✔ W2928: a plan rejection installs its gate atomically with the end (19.072913ms)
+✔ W2928: EVERY Handler-clear path goes through the one ending helper (5.80022ms)
+✔ W2928: a gate arrival on claimed Work needs the exact assignment (0.898592ms)
+✔ W2928: Work phase carries only scheduler meaning (0.790581ms)
+✔ W2928: every import is a Node builtin or a sibling in this subtree (0.994721ms)
+✔ W2928: nothing here names the v11 product tree, store or executable (0.488519ms)
+✔ W2928: the authority creates exactly the one file it was given (2.126677ms)
+✔ W2928: the public boundary is the module the next slice consumes (0.731341ms)
+✔ W2928: contract progression keeps the Work and mints its first generation (2.704582ms)
+✔ W2928: an uncertified target contract blocks on a typed gate (1.304888ms)
+✔ W2928: a contract transition refuses stale or unpermitted operands (0.947543ms)
+✔ W2928: an authorized close of unclaimed Work needs no assignment (0.899072ms)
+✔ W2928: a close that ends a live assignment needs the exact identity (1.210212ms)
+✔ W2928: a close after cancellation refuses the fenced generation (1.003447ms)
+✔ W2928: publication binds the exact assignment and immutable bytes (0.916906ms)
+✔ W2928: the four workflow receipts are distinct, ordered and immutable (1.42468ms)
+✔ W2928: publication requires a LIVE assignment, not merely a past one (1.055634ms)
+✔ W2928: an exact replay returns the committed result and mints nothing (2.293978ms)
+✔ W2928: one operation id with different operands is refused, not replayed (0.972138ms)
+✔ W2928: every durable operand rides the signature, including the prose (2.785883ms)
+✔ W2928: an ordinary refusal writes nothing and stays retryable (0.901578ms)
+✔ W2928: a refusal that WROTE something replays that refusal (1.492176ms)
+✔ W2928: an unanswerable lookup settles nothing (0.858306ms)
+✔ W2928: settlement without authority to retire may only observe (0.81712ms)
+✔ W2928: a committed claim WINS a settlement, whatever the caller intended (0.824013ms)
+✔ W2928: a settlement cannot race a claim that commits after its lookup (0.825836ms)
+✔ W2928: a retired identity stays dead for every later submitter (1.006142ms)
+✔ W2928: the retirement decides the disposition; a later path replays it (1.320647ms)
+✔ W2928: a replayed retirement reports the reason its identity died of (17.924417ms)
+✔ W2928: a colliding operation identity fails closed and changes no record (0.878966ms)
+✔ W2928: settlement compares operands even when it may retire (0.688471ms)
+✔ W2928: the journal distinguishes all four operation states (1.132678ms)
+✔ W2928: a mutating operation without an operation id is refused (0.660278ms)
+✔ W2928: concurrent processes claiming one Work — exactly one wins (513.267076ms)
+✔ W2928: concurrent processes replaying ONE fixed claim mint once (512.865659ms)
+✔ W2928: cancellation refuses an assignment that has no generation (1.315137ms)
+✔ W2928: restart BEFORE the claim commits the fixed operation once (2.732333ms)
+✔ W2928: restart AFTER an ambiguous claim replays the same generation (1.119172ms)
+✔ W2928: a fence, a gate and a contract survive the restart (1.549543ms)
+✔ W2928: a retired identity is still dead after a restart (1.08592ms)
+✔ W2928: a durable refusal is still a refusal after a restart (1.618622ms)
+✔ W2928: a transaction that refuses leaves nothing behind (1.244154ms)
+✔ W2928: the authority UUID is durable and is never reassigned (1.16635ms)
+✔ W2928: two Works over one durable store keep separate generations (1.312352ms)
+✔ W2928: the whole assignment history is readable after a restart (1.570712ms)
+ℹ tests 59
+ℹ suites 0
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1064.059045
+
+== 2. The whole v12 gate, new work beside the existing proof ==
+
+$ cd v12 && npm test
+ℹ tests 137
+ℹ suites 0
+ℹ pass 137
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1061.237816
+
+== 3. W151's executable design model is still green ==
+
+$ cd <W151 record>/evidence && python3 -m unittest test_assignment_state_model
+Ran 54 tests in 0.002s
+
+OK
+
+== 4. Self-containment ==
+
+The boundary is a regression, not a claim: test/authority_boundary.test.mjs
+scans every module under v12/src/authority/ and refuses any import that is
+not a Node builtin or a sibling, any dynamic import or require, and any
+mention in CODE of baton_work, work.sqlite3, a spawned process, or a path
+escaping the subtree. The existing v12 gate in test/placement.test.mjs
+independently scans the whole subtree for unpinned or escaping imports.
+
+no reference to the v11 product package or store in v12/src/ (comments aside)

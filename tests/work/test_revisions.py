@@ -175,7 +175,8 @@ def test_only_the_live_current_handler_promotes(world):
 		"a refused revision changed the contract"
 	# Recovering the claim is what actually transfers the authority.
 	tr.release_claim(store, work, actor_team="lang", actor="grace",
-	                 expect="lang.ada", reason="reassigned by generation 2")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="reassigned by generation 2")
 	tr.claim_work(store, work, actor_team="lang", actor="grace")
 	tr.revise_work(store, work, actor_team="lang", actor="grace",
 	               message_seq=follow_up, expected_revision=1,

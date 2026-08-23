@@ -1,0 +1,58 @@
+W2845 independent re-review reproduction, 2026-08-22T06:59:24Z
+
+The corrected scanner treats these Starlark string literals as fully
+accounted rules:
+
+  prefix_rule(pattern=["\x64ocker"], decision="allow")
+  prefix_rule(pattern=["\u0064ocker"], decision="allow")
+  prefix_rule(pattern=["\144ocker"], decision="allow")
+
+Each candidate policy consisted of the exact four generated inspection rules
+plus one escaped executable-only rule. For each file, the installed evaluator
+was asked only to CHECK this command; Docker was not invoked:
+
+  codex execpolicy check --pretty --rules <candidate> \
+    docker run --privileged alpine
+
+All three returned:
+
+  "matchedPrefix": ["docker"]
+  "decision": "allow"
+
+For each same file, auditInspectionRules returned:
+
+  missing=[] broad=[] extra=[] unaccounted=[] satisfied=true
+
+The mismatch is in stringLiteral. It accepts every backslash escape as a
+literal it understands, but decodes only n and t; for example it reads
+"\x64ocker" as "x64ocker" while Starlark evaluates it as "docker".
+
+The shared Baton workflow audit has the same bypass. The policy holding the
+exact generated participant rules plus:
+
+  prefix_rule(pattern=["\x2fopt/baton/bin/baton"], decision="allow")
+
+made the installed evaluator authorize:
+
+  /opt/baton/bin/baton unruled-verb
+
+with matchedPrefix ["/opt/baton/bin/baton"], while auditRules returned
+missing=[] broad=[] extra=[] unaccounted=[] satisfied=true.
+
+Verification around the reproduction:
+
+  tools/codex-event-bridge npm test
+    222 pass, 0 fail
+
+  ./.venv/bin/python3 -m pytest -q \
+    tests/work/test_w2845_docker_inspection_policy.py \
+    tests/work/test_deploy_v11.py
+    24 pass, 0 fail
+
+The four approved live read-only commands all executed without interactive
+approval: docker version, docker info, docker inspect node:24-slim, and docker
+image inspect node:24-slim. Client and daemon were 29.1.3; both inspect forms
+resolved node@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03.
+No mutable Docker command was executed.
+
+git diff --check was clean before this evidence was written.

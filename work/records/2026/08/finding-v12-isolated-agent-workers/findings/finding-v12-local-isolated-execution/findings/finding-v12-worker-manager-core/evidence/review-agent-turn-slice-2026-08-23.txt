@@ -1,0 +1,51 @@
+W2929 turn/outcome independent review evidence
+Reviewer: baton.codex
+Date: 2026-08-23T03:15:42Z
+
+Inspected:
+- bound FINDING, PLAN, PROGRESS and agent-turn evidence
+- frozen ACP agent boundary SPEC §§5.1-5.5, 10.3, 10.6, 12
+- frozen agent-session turnRecord schema
+- v12/src/worker_manager/agent_turn.mjs
+- v12/src/worker_manager/schema.mjs
+- v12/test/worker_manager_agent_turn.test.mjs
+
+Focused command, from /home/sl/src/baton/v12:
+  node test/worker_manager_agent_turn.test.mjs
+
+Result:
+  tests 19
+  pass 13
+  fail 6
+
+Only failures:
+1. W2929 review: a failed Codex turn is an agent failure
+   Actual: integrity.schema refusal.
+2. W2929 review: Codex error info refines the failed outcome exactly
+   Actual ContextWindowExceeded outcome: agent-failed; expected: truncated.
+3. W2929 review: a durable turn passes the frozen record shape
+   Actual: malformed timestamp and digest were accepted and inserted.
+4. W2929 review: recording a turn is replay-safe and collision-safe
+   Actual exact retry: raw UNIQUE constraint on turns.turn_id.
+5. W2929 review: the first turn answer is not the caller's alias
+   Actual: mutating the input object mutated the returned terminal fact.
+6. W2929 review: a policy-failed turn retains the exact failure
+   Actual: the durable row has no policy_failures value.
+
+Full command, from /home/sl/src/baton/v12:
+  just test
+
+Result:
+  tests 480
+  pass 474
+  fail 6
+
+The same six reviewer regressions are the only failures.
+
+Positive boundaries retained:
+- eight closed outcomes, all with a gate and conclusiveness;
+- exact ACP stopReason mapping;
+- no outcome inferred from silence;
+- policy/fact/transport/deadline precedence;
+- exhaustive disposition gate;
+- deadline presence and known-session requirement.

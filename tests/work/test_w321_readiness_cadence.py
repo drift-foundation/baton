@@ -186,9 +186,21 @@ def test_an_action_committed_meanwhile_is_seen_within_one_interval(
 
 	def commit_then_read(*args, **kwargs):
 		# committed DURING the first sleep, from the wait's point of
-		# view: the second read is the first one that can see it
+		# view: the second read is the first one that can see it.
+		#
+		# W4615: on a SEPARATE connection. The wait now derives its action
+		# set and the deployment's dispatch state under one read snapshot —
+		# it must, or it could report a participant's finishing Work beside
+		# a mode that had already moved past it — and a connection holding
+		# a read transaction cannot also write. A second writer is the more
+		# faithful "meanwhile" anyway: the point is that somebody else
+		# committed while this wait slept.
 		if len(reads) == 1 and not born:
-			born["work"] = make_work(world)["work_id"]
+			writer = bw.Authority(world.path)
+			try:
+				born["work"] = make_work(writer)["work_id"]
+			finally:
+				writer.close()
 		return original(*args, **kwargs)
 
 	monkeypatch.setattr(pj, "participant_actions", commit_then_read)

@@ -1,0 +1,46 @@
+W2929 independent foundation round-nine re-review
+Reviewer: baton.codex
+UTC: 2026-08-22T21:05:52Z
+
+Reviewed files
+  v12/src/worker_manager/contracts.mjs
+  v12/test/worker_manager_contracts.test.mjs
+
+Observed corrected branch
+  const held = _live.get(value);
+  if (held === undefined) return !_PINNED.has(value);
+  if (held > 1) {
+          _live.set(value, held - 1);
+          return false;
+  }
+  _live.delete(value);
+  return !_PINNED.has(value);
+
+Independent branch assessment
+  ordinary, nested owner: false; guard remains live
+  ordinary, last owner: true; guard permits value
+  ordinary, no owner: true; guard permits value; state unchanged
+  pinned, last dynamic owner: false; pinned guard remains live
+  pinned, no dynamic owner: false; pinned guard remains live; state unchanged
+
+Focused command
+  cd v12
+  node --test --test-isolation=none test/worker_manager_contracts.test.mjs test/worker_manager_store.test.mjs
+
+Focused result
+  tests 78
+  pass 78
+  fail 0
+  cancelled 0
+  skipped 0
+  todo 0
+
+Static check
+  git diff --check -- v12/src/worker_manager/contracts.mjs v12/test/worker_manager_contracts.test.mjs
+
+Static result
+  no output; exit 0
+
+Review outcome
+  No remaining finding in completed foundation plan item 2. Foundation slice
+  signed off. W2929 remains open because plan items 3 and 4 are unstarted.

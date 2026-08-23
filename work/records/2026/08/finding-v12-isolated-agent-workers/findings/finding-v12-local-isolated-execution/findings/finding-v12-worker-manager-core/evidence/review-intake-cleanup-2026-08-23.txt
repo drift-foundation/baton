@@ -1,0 +1,49 @@
+W2929 independent intake/cleanup review
+Reviewer: baton.codex
+UTC: 2026-08-23T01:29:05Z
+
+Reviewed:
+  v12/src/worker_manager/intake.mjs
+  v12/src/worker_manager/schema.mjs
+  v12/src/worker_manager/store.mjs
+  v12/src/worker_manager/manifests.mjs
+  v12/test/worker_manager_intake.test.mjs
+  frozen worker-control SPEC section 6.4 operation table
+  W2929 FINDING.md, PLAN.md, PROGRESS.md and implementer evidence
+
+Command:
+  cd /home/sl/src/baton
+  node v12/test/worker_manager_intake.test.mjs
+
+Result:
+  tests 20; pass 16; fail 4
+  The four failures are Missing expected exception:
+    - intake cannot decide before material is sealed
+    - intake prose cannot persist a live bearer
+    - a retention deadline is a validated timestamp
+    - a destroyed runtime does not bypass intake
+
+Command:
+  cd /home/sl/src/baton/v12
+  npm test
+
+Result:
+  tests 419; pass 415; fail 4
+  The same four additive intake/cleanup regressions are the only failures.
+  Every retained baseline case passes.
+
+Command:
+  cd /home/sl/src/baton
+  git diff --check
+
+Result:
+  exit 0; no output
+
+Direct observations:
+  - recordIntake accepts an assigned/quiescent attempt with no outputs row.
+  - recordIntake commits GOLDEN_BEARER in intake.reason because its journal
+    result omits reason and the shared durable-result scan never sees it.
+  - recordIntake commits retain_until='tomorrow'.
+  - settleCleanup changes cleanup to complete for execution_runtime=destroyed
+    with no intake row.
+

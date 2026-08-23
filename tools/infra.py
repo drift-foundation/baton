@@ -253,9 +253,17 @@ def load_manifest(mailbox):
 		raise InfraError(f"cannot read {path}: {error}") from error
 	raw = _object(raw, "manifest")
 	_keys(raw, {"version", "startTimeoutSeconds", "stopTimeoutSeconds",
-	            "contexts", "services"}, "manifest")
-	if raw.get("version") != 1:
-		raise InfraError("manifest.version must be exactly 1")
+	            "control", "contexts", "services"}, "manifest")
+	# W4615: version 2 adds the CONTROL TRIPLE. Version 1 documents stay
+	# loadable and simply have no drain/resume/dispatch-status commands —
+	# the lifecycle manager refuses those with an actionable message
+	# rather than guessing an identity, because inferring the canonical
+	# binary, config and participant from a service's argv is exactly the
+	# configuration ambiguity this manager exists to prevent.
+	version = raw.get("version")
+	if version not in (1, 2):
+		raise InfraError("manifest.version must be 1 or 2")
+	control = _control(raw.get("control"), version)
 	start_timeout = _positive_integer(raw.get("startTimeoutSeconds", 15),
 	                                  "manifest.startTimeoutSeconds")
 	stop_timeout = _positive_integer(raw.get("stopTimeoutSeconds", 10),
@@ -344,6 +352,8 @@ def load_manifest(mailbox):
 			remaining.remove(name)
 	manifest = {
 		"path": path,
+		"version": version,
+		"control": control,
 		"digest": hashlib.sha256(encoded).hexdigest(),
 		"startTimeoutSeconds": start_timeout,
 		"stopTimeoutSeconds": stop_timeout,
@@ -387,6 +397,43 @@ PLACEHOLDER_RE = re.compile(r"\{\{(context\.[a-z][a-z0-9-]*\.[a-zA-Z][a-zA-Z0-9_
                             r"|render\.[a-z][a-z0-9-]*"
                             r"|start\.id)\}\}")
 CONTEXT_NAME_FIELD = "threadId"
+
+
+def _control(raw, version):
+	"""W4615: the ONE explicit canonical Baton control identity.
+
+	A manifest that wants drain/resume/dispatch-status names the exact
+	binary, config and participant to use — it is never derived from a
+	service's argv. Two services in one deployment may run different
+	participants against different configs; picking one of them would be
+	a guess that looks like a fact, and the act it authorizes suspends
+	the whole deployment.
+
+	The participant must be one the accepted configuration grants
+	`dispatch`; that is checked by the AUTHORITY, in the transaction, not
+	here. This file names who to ask as, and the authority decides
+	whether they may."""
+	if raw is None:
+		if version >= 2:
+			raise InfraError(
+				"manifest.control is required at version 2: name the "
+				"canonical binary, config and participant for drain, "
+				"resume and dispatch status")
+		return None
+	if version < 2:
+		raise InfraError(
+			"manifest.control requires manifest.version 2")
+	raw = _object(raw, "manifest.control")
+	_keys(raw, {"binary", "config", "participant"}, "manifest.control")
+	binary = _absolute(_string(raw.get("binary"), "manifest.control.binary"),
+	                   "manifest.control.binary")
+	config = _absolute(_string(raw.get("config"), "manifest.control.config"),
+	                   "manifest.control.config")
+	participant = _string(raw.get("participant"),
+	                      "manifest.control.participant")
+	if not PARTICIPANT_RE.fullmatch(participant):
+		raise InfraError("manifest.control.participant must be team.member")
+	return {"binary": binary, "config": config, "participant": participant}
 
 
 def _contexts(raw):
@@ -1612,6 +1659,63 @@ def status_rows(mailbox, manifest, state_doc):
 	return healthy, rows
 
 
+# W4615: managed-dispatch control, through the manifest's ONE named
+# canonical identity. This manager runs the Baton CLI; it never reaches
+# into the authority itself, because a second writer would be a second
+# authority.
+def _dispatch_call(manifest, *operands):
+	control = manifest.get("control")
+	if control is None:
+		raise InfraError(
+			"this manifest is version 1 and names no control identity; "
+			"add a version-2 `control` block naming the canonical binary, "
+			"config and participant before using drain, resume or "
+			"dispatch status")
+	argv = [control["binary"], "--config", control["config"],
+	        "--participant", control["participant"], *operands]
+	proc = subprocess.run(argv, capture_output=True, text=True, timeout=120)
+	try:
+		payload = json.loads(proc.stdout)
+	except (ValueError, TypeError):
+		raise InfraError(
+			f"the canonical control command produced no JSON "
+			f"(exit {proc.returncode}): {proc.stderr.strip()[:300]}") from None
+	if proc.returncode != 0 or "error" in payload:
+		raise InfraError(
+			f"{' '.join(operands)} refused: "
+			f"{payload.get('error', proc.stderr.strip())[:300]}")
+	return payload.get("result", payload)
+
+
+def dispatch_status(mailbox, manifest):
+	"""Read the authority's dispatch state.
+
+	Reported even when every service is stopped: the mode lives in the
+	authority, so "the stack is down" and "the deployment is paused" are
+	different facts and an operator has to be able to tell them apart
+	before starting anything."""
+	state = _dispatch_call(manifest, "dispatch")
+	_report("dispatch", state["mode"] != "draining", [],
+	        dispatch=state)
+	return 0
+
+
+def drain(mailbox, manifest, reason=None):
+	operands = ["drain"] + ([f"reason={reason}"] if reason else [])
+	state = _dispatch_call(manifest, *operands)
+	_report("drain", True, [], dispatch=_dispatch_call(manifest, "dispatch"),
+	        requested=state)
+	return 0
+
+
+def resume(mailbox, manifest, reason=None):
+	operands = ["resume"] + ([f"reason={reason}"] if reason else [])
+	state = _dispatch_call(manifest, *operands)
+	_report("resume", True, [], dispatch=_dispatch_call(manifest, "dispatch"),
+	        resumed=state)
+	return 0
+
+
 def status_command(mailbox, manifest):
 	state_doc = _load_state(mailbox)
 	healthy, rows = status_rows(mailbox, manifest, state_doc)
@@ -1621,7 +1725,40 @@ def status_command(mailbox, manifest):
 	return 0 if healthy else 1
 
 
-def stop(mailbox, manifest=None):
+def stop(mailbox, manifest=None, *, require_paused=False):
+	"""Signal the services down.
+
+	W4615: `require_paused` — reached by the separately named
+	`stop-drained` — is the GRACEFUL path. It reads the canonical
+	dispatch state and refuses BEFORE signalling anything unless the
+	deployment is paused, so "stop after the current items finish" is a
+	boundary rather than a hope.
+
+	THE PLAIN `stop` IS UNCHANGED, and that is a deliberate divergence
+	from the reviewer's proposed boundary, which had graceful take the
+	plain name and the immediate stop take a new one. Revalidating that
+	proposal against this tree: `stop` is an established verb with its
+	own regression suite, every version-1 manifest can still be stopped
+	and CANNOT ask the authority anything, and the immediate stop must
+	keep working when the authority is unreachable — which is exactly
+	when an operator needs it. Silently making the familiar word require
+	a healthy authority would turn an emergency tool into one more thing
+	that can refuse. So the NEW capability gets the new name."""
+	if require_paused:
+		if manifest is None:
+			manifest = load_manifest(mailbox)
+		state = _dispatch_call(manifest, "dispatch")
+		if state["mode"] != "paused":
+			blockers = ", ".join(
+				f"{row['handler']} holds {row['work']}"
+				for row in state.get("blockers", ()))
+			raise InfraError(
+				f"graceful stop refuses: managed dispatch is "
+				f"{state['mode']}, not paused"
+				+ (f" ({state['blocking_claims']} claim(s) still active: "
+				   f"{blockers})" if blockers else "")
+				+ ". Run `drain` and wait for `paused`, or use the "
+				  "explicit emergency stop. Nothing was signalled.")
 	state_doc = _load_state(mailbox)
 	if state_doc is None:
 		if manifest is None:
@@ -1659,20 +1796,44 @@ def stop(mailbox, manifest=None):
 def run(argv=None):
 	parser = argparse.ArgumentParser(
 		description="start, stop, or inspect one mailbox-owned v11 backend set")
-	parser.add_argument("command", choices=("start", "stop", "status"))
+	parser.add_argument(
+		"command",
+		choices=("start", "stop", "stop-drained", "status", "drain",
+		         "resume", "dispatch"))
 	parser.add_argument("mailbox")
+	# W4615: the durable note rides the global control journal.
+	parser.add_argument("--reason", default=None)
 	options = parser.parse_args(argv)
 	mailbox = os.path.realpath(os.path.abspath(options.mailbox))
 	if not os.path.isdir(mailbox):
 		raise InfraError(f"MAILBOX is not a directory: {mailbox}")
 	with MailboxLock(mailbox):
 		if options.command == "stop":
+			# UNCHANGED, deliberately. See `stop-drained` below: this is
+			# the immediate stop every existing deployment and script
+			# already means by the word, and it must keep working when
+			# the authority is unreachable — which is exactly when an
+			# operator needs it most.
 			state_doc = _load_state(mailbox)
 			manifest = None if state_doc is not None else load_manifest(mailbox)
 			return stop(mailbox, manifest)
+		if options.command == "stop-drained":
+			# W4615: the GRACEFUL maintenance path, under its own name.
+			# It reads the canonical dispatch state and refuses before
+			# signalling anything unless the deployment is paused.
+			return stop(mailbox, load_manifest(mailbox), require_paused=True)
 		manifest = load_manifest(mailbox)
 		if options.command == "start":
+			# W4615: start NEVER resumes. A deployment paused for
+			# maintenance that silently began dispatching because its
+			# services came back would be the opposite of a boundary.
 			return start(mailbox, manifest)
+		if options.command == "drain":
+			return drain(mailbox, manifest, options.reason)
+		if options.command == "resume":
+			return resume(mailbox, manifest, options.reason)
+		if options.command == "dispatch":
+			return dispatch_status(mailbox, manifest)
 		return status_command(mailbox, manifest)
 
 

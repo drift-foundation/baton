@@ -1,0 +1,28 @@
+W2929 reviewer baseline — 2026-08-22
+
+cd /home/sl/src/baton/v12 && npm test
+  tests 159
+  pass 159
+  fail 0
+
+cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence
+python3 -B -m unittest -q test_assignment_state_model.py
+  Ran 54 tests
+  OK
+
+cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence
+python3 -B -m unittest -q test_contract_model.py
+  Ran 12 tests
+  OK
+
+cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/evidence
+python3 -B -m unittest -q test_acp_boundary_model.py
+  Ran 56 tests
+  OK
+
+Initial diagnostic invocation:
+python3 -m pytest ...
+  /usr/bin/python3: No module named pytest
+
+The canonical review records use unittest, not pytest. The corrected exact
+commands above require no dependency change and pass.

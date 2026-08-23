@@ -1,0 +1,179 @@
+W2929 — item 3, FOURTH SLICE: the output freeze
+Implementer: baton.claude. Date: 2026-08-23.
+Entered after `review-2026-08-23T00-13-56Z.md` signed off the
+cancellation-ordering slice through plan item 3n.
+
+
+1. WHAT THIS SLICE IS
+
+The pinned acceptance, verbatim:
+
+  "Freeze requires the exact live assignment, terminal agent-turn handling
+   compatible with the declared disposition, and a positive writer-quiescence
+   observation. The same digest replays; changed bytes under the same identity
+   refuse. W2930 owns filesystem/OCI collection, while W2929 owns the
+   immutable store transition and validation of the adapter's sealed
+   observation."
+
+So: the store transition and the validation. Nothing about how bytes are
+gathered.
+
+Schema 3 -> 4: `outputs` (one row per attempt, PRIMARY KEY says so) and
+`output_artifacts` (one row per declared output). The version comment now
+carries a per-version history, because an incompatible binary refuses on that
+number and the reason it moved is what tells a reader whether their store is
+behind.
+
+
+2. THE PRECONDITIONS, AND WHERE EACH IS DECIDED
+
+  1. a fixed four-part assignment                          the attempt row
+  2. the session is bound to that participant              the API
+  3. `worker_disposition` already TERMINAL and equal to
+     the one being declared                                the attempt row
+  4. `execution_runtime` positively `quiescent`            the attempt row
+  5. the assignment still live at the authority            a READ
+
+POSITIVE QUIESCENCE, AND NOTHING WEAKER. A seal describes a tree that has
+stopped changing. `uncertain` is a failure to look. `destroyed` is not
+quiescence either, and this is the case worth stating: GONE IS NOT FINISHED. A
+writer nobody watched stop never produced an observation that its tree had
+stopped changing. The pinned refusal code for exactly this question already
+exists — `runtime-observation.quiescence-unknown` — and it names what is
+missing rather than blaming the request.
+
+THE DISPOSITION IS COMPARED, NOT ACCEPTED. The pinned text says a turn's
+outcome GATES the worker disposition and never chooses it, and turn records
+are item 4's (store surface item 8). What item 3 can decide is that a terminal
+disposition was RECORDED before the freeze and that the freeze declares that
+same one. That is a comparison against durable state rather than a caller's
+assertion about a turn nobody here can see — the `absenceProven` shape,
+avoided by construction this time.
+
+AND THE LIVENESS READ IS ONLY A READ, said plainly in the code rather than
+dressed up. The authority is a different store; nothing this manager does can
+make "still live" and "recorded frozen" one atomic fact. The read is inside
+the freeze transaction so the window is as small as it can be, and the DESIGN
+does not depend on the window being zero — material from an assignment that
+ended anyway is quarantined at INTAKE, which is the next slice.
+
+
+3. VALIDATING THE ADAPTER'S SEALED OBSERVATION
+
+The sealed observation is a real `baton.worker-manifest/result` document, and
+`validateManifest` from the foundation slice already carries every portable
+rule: schema first, the manifest digest recomputed over its own canonical
+bytes, no durable secret, well-formed work and assignment refs, artifact
+locators with no credential, and each content manifest's bytewise-sorted
+unique paths, entry count, byte total and tree digest.
+
+What that entry CANNOT know is whether the document belongs to THIS attempt.
+That is the whole of what this slice adds, and it is four comparisons:
+
+  - the sealed `assignment_ref` against the attempt's fixed assignment, all
+    four parts;
+  - `input_manifest_digest` and `policy_digest` against what the attempt was
+    recorded with — a result naming a different input is a result for a
+    different job wearing this assignment's reference;
+  - `disposition` against the recorded axis, so THREE places must agree and
+    two agreeing is how the third gets in;
+  - `freeze_operation.operation_id` against this attempt's derived freeze.
+
+
+4. THE SAME DIGEST REPLAYS; CHANGED BYTES REFUSE
+
+The record operation identity is FIXED PER ATTEMPT, not per digest, and this
+is the whole mechanism. If the identity varied with the bytes, two different
+results would be two different operations and BOTH would commit — the
+opposite of what an immutable record means. The identity is the act; the
+signature carries the bytes; the journal decides.
+
+`recordFrozenResult` therefore admits `frozen` as well as `freeze-requested`
+on purpose: a manager that crashed after recording must be able to replay the
+whole act, and an axis check refusing there would turn a replay into a
+precondition failure and hide the collision the identity exists to raise.
+
+
+5. MUTATION CHECK — twelve, eleven witnessed
+
+  R1  quiescence not required                      2 failed
+  R2  destroyed counts as quiescent                1 failed
+  R3  the declared disposition is accepted         1 failed
+  R4  no recorded disposition is fine              1 failed
+  R5  no liveness read at all                      2 failed
+  R6  the record identity varies with the bytes    1 failed
+  R7  the sealed assignment is not compared        1 failed
+  R8  input and policy digests are not compared    1 failed
+  R9  the sealed disposition is not compared       1 failed
+  R10 the settled freeze operation is not compared 1 failed
+  R12 the sealed document is not validated at all  4 failed
+
+  R11 the declared digest is trusted rather than
+      recomputed                                   0 failed
+
+R11 IS EQUIVALENT, NOT UNCOVERED. `validateManifest` has already refused any
+document whose declared digest does not recompute, so by that line the two
+values are equal and swapping them changes nothing. The recomputation stays
+for PROVENANCE — the number stored beside the result is derived from bytes
+rather than lifted from a field the document filled in about itself — and the
+comment now says exactly that instead of implying a guard. Recorded rather
+than counted.
+
+
+6. REGRESSIONS — 24 new, in a new suite
+
+Including: the sealed result recorded immutably with its artifact reference;
+the adapter told which act it is sealing; the same result replayed with
+nothing written twice; changed bytes colliding; the record identity not moving
+with the bytes; each of four unquiesced states and destroyed; a missing and a
+mismatched disposition; a dead, newer, foreign-participant and foreign-
+authority assignment; a foreign session; an unactivated attempt; an adapter
+with no `seal()`; a result for another assignment, another input, another
+policy, another freeze and another disposition; a tampered tree; an unsorted
+content manifest; a credential-bearing locator; nothing recorded when
+validation refuses; a record against an unrequested freeze; and TWO REAL-
+AUTHORITY cases — the whole freeze against a real `V12Authority` leaving the
+authority untouched, and a freeze refused after the real assignment was
+cancelled.
+
+ONE FIXTURE DEFECT CAUGHT BEFORE IT HID ANYTHING. The first `quiesced(...)`
+drove the execution axis "until it matches", which silently reached a
+different state for `uncertain` and asserted about that one. It walks a
+declared route per target now.
+
+
+7. GATES
+
+  cd v12 && npm test                       370 tests, 370 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. STILL NOT IMPLEMENTED
+
+Intake and cleanup — the rest of item 3 — and all of item 4. The quarantine
+half of "ended-assignment material is sealed/quarantined" belongs to intake
+and is NOT here: this slice refuses to freeze on a dead generation, and what
+happens to material whose generation died between the read and the record is
+intake's to decide.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs          version 4; `outputs` and
+                                             `output_artifacts`; a per-version
+                                             history comment
+  v12/src/worker_manager/output.mjs          NEW
+  v12/test/worker_manager_output.test.mjs    NEW, 24 cases
+  v12/test/worker_manager_store.test.mjs     the pinned version and tables

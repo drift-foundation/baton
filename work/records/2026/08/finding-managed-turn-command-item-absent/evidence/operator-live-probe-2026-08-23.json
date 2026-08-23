@@ -1,0 +1,25 @@
+{
+  "threadId": "01a02eda-959f-7892-9852-b3821bd5d643",
+  "turnId": "01a02eda-95a5-73a1-a9e4-888892e40d4f",
+  "notificationCounts": {
+    "configWarning": 1,
+    "remoteControl/status/changed": 1,
+    "mcpServer/startupStatus/updated": 3,
+    "thread/started": 1,
+    "thread/status/changed": 2,
+    "turn/started": 1,
+    "item/started": 3,
+    "item/completed": 3,
+    "thread/tokenUsage/updated": 2,
+    "account/rateLimits/updated": 2,
+    "turn/completed": 1
+  },
+  "serverRequestMethods": [],
+  "rawResponseItemTypeCounts": {},
+  "customItems": [],
+  "storedTurnStatus": "completed",
+  "storedThreadItemTypes": [
+    "userMessage",
+    "agentMessage"
+  ]
+}

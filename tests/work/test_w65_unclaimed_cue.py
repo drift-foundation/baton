@@ -152,7 +152,8 @@ def test_no_open_state_carries_a_marker_any_more(world):
 	# tells them apart, which is the whole point of the supersession.
 	assert held_field(claimed, epoch(claimed["claimed_at"]) + 5) == "00:05"
 	tr.release_claim(store, claimed_id, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="cycling")
+	                 expect="lang.ada", episode=fx.episode_of(store, claimed_id),
+	                 reason="cycling")
 	released = row_of(world, claimed_id)
 	assert released["handler"] is None, \
 		"the claimant fact that now carries the cue is missing"

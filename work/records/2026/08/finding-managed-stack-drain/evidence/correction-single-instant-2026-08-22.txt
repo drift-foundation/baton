@@ -1,0 +1,145 @@
+W4615 — round 3 correction
+Review: review-2026-08-22T17-57-11Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  .venv/bin/python3 -m pytest tests/work/test_w4615_dispatch_drain.py -q
+    32 tests, 31 passed, 1 failed
+    X test_one_drain_instant_samples_the_authority_clock_once
+
+The reviewer's ticking clock returns 2099-01-02T03:04:05Z then ...06Z. The
+empty drain wrote `drain_requested` at 05 and `pause_reached` at 06 — one
+sequence, two timestamps — and the singleton ended at 06. The review is
+correct, and it is a correction of my own round-2 correction: I fixed the
+clock SOURCE and left the number of SAMPLES at two.
+
+
+2. THE DEFECT
+
+`drain_dispatch` sampled `store.clock()` inside its mutation for the
+`drain_requested` row and the singleton's draining transition. `_write` then
+called `self.clock()` AGAIN and passed that second reading into
+`_settle_dispatch` for `pause_reached` and the paused transition.
+
+Both readings come from the same clock. That is what my round-2 regression
+asserted, and with `BATON_WORK_NOW` fixed to one constant it could not tell
+"same source" from "same instant" — every sample is identical when the clock
+never moves. The property that actually matters is the second one: an empty
+drain writes both control events at ONE authority sequence because they are
+one indivisible committed act, and an act has one instant.
+
+
+3. THE CORRECTION — ONE SAMPLE PER WRITE
+
+`Authority.instant()` is the sampled instant of the write in progress.
+`_write` takes it ONCE, inside the transaction and after the operation-replay
+check (a replay performs nothing and has no instant of its own), and clears it
+in a `finally` however the write ends. Every writer that needs the act's time
+reads it back:
+
+  authority.py   _write:            self._instant = self.clock()   (once)
+                 _settle_dispatch(self.conn, seq, self.instant())
+  transitions.py drain_dispatch:    now = store.instant()
+                 resume_dispatch:   now = store.instant()
+
+`instant()` REFUSES outside a write rather than falling back to `clock()`. A
+caller with no open transaction is asking for wall time, not for this act's
+instant; answering quietly with a fresh reading is exactly how the two drifted
+apart in the first place. The refusal is witnessed by a regression.
+
+Clearing in `finally` is not decoration. A leaked instant would be read by the
+NEXT act as its own — the same defect with a longer window — and a write that
+RAISED would leak it most easily. That is also witnessed.
+
+
+4. ONE CALL SITE OUTSIDE THIS WORK CHANGED, AND IT IS RECORDED
+
+`create_trial`'s in-lock deadline recheck read `store.clock()`. With `_write`
+now taking a sample of its own, `tests/work/test_ws2_due.py::
+test_a_round_rechecks_deadline_after_entering_the_write` — which injects
+exactly two moments — ran out of them and raised StopIteration.
+
+The fixture is not wrong; my change consumed a sample it had budgeted. The
+recheck now reads `store.instant()`, which is what R42's own comment above it
+already asked for in words: "ONE transaction-local instant". `_write` samples
+after BEGIN IMMEDIATE, so the recheck still happens strictly inside the lock
+and the WS-2 property — a deadline that passes between optimistic validation
+and the write lock is refused — is unchanged. The test's assertion was not
+touched.
+
+DELIBERATELY NOT CHANGED: the other in-mutation `store.clock()` call sites in
+`transitions.py`. Each is one act sampling once for its own fields, which is
+not the reported defect, and converting them is other Works' code. `instant()`
+is there for them, and refuses outside a write, so adopting it later is safe.
+Named here rather than done quietly in a Work that was not asked for it.
+
+
+5. REGRESSIONS — 34 (32 before, including the reviewer's)
+
+The reviewer's ticking-clock case is retained unchanged. Added two, because
+the reported case covers only the immediate empty drain:
+
+  test_a_later_final_release_carries_ITS_act_instant
+      The other half of the same invariant, and the one a fixed clock cannot
+      see. When the finishing round ends at a LATER act, the pause belongs to
+      THAT act: `pause_reached` and the singleton carry the release's instant,
+      not the drain's, and the two events correctly DIFFER because they are
+      two authority instants rather than one. A ticking clock also counts the
+      samples — one write, one instant, in order.
+
+  test_the_sampled_instant_does_not_outlive_its_write
+      A refused mutation (draining twice) samples and then raises; `instant()`
+      afterwards refuses rather than answering with the leaked value, and the
+      next act gets its own sample.
+
+The round-2 fixed-instant case is also retained. It is weaker than the
+reviewer's, but it is not redundant: it is the one that pins the SOURCE, and
+under BATON_WORK_NOW it exercises the subprocess path.
+
+
+6. MUTATION CHECK — four, each independently
+
+  M1  _settle_dispatch reads self.clock() again (the reported defect)
+        3 failed: the reviewer's case, the later-release case, the leak case
+  M2  drain_dispatch reads store.clock() inside its own mutate
+        3 failed: the same three
+  M3  the `finally` that clears the instant removed
+        1 failed: test_the_sampled_instant_does_not_outlive_its_write
+  M4  instant() falls back to clock() outside a write instead of refusing
+        1 failed: test_the_sampled_instant_does_not_outlive_its_write
+
+Restored: 34/34. Each half fails exactly the case that names it. M3 and M4
+are witnessed only by the leak case, which is why that case exists — without
+it the `finally` and the refusal would both be unwitnessed guards, and an
+unwitnessed guard is one the next correction deletes.
+
+
+7. GATES
+
+  pytest -n auto -m "not serial" tests/work   2919 passed, 4 failed
+  pytest -m serial tests/work                52 passed
+  tools/codex-event-bridge npm test          297 tests, 297 pass, 0 fail
+  tools/acp-baton-bridge npm test            55 pass, 0 fail
+  v12 npm test                               202 tests, 200 pass, 2 fail
+  whitespace-damage check                    clean
+
+THE SIX FAILURES ARE NOT THIS WORK'S, and none was touched from here:
+  - four W4996 reviewer cases against src/baton_work/tui/graph.py and the
+    dependency projection;
+  - two W2929 reviewer cases in v12/src/worker_manager/.
+Both Works are queued on baton.impl awaiting their own turns. W4303 and W2845
+are both clean this round.
+
+No projection version change: `instant()` is internal and no response shape
+moved. No live configuration was edited; plan item 8 remains the operator act.
+
+
+8. FILES CHANGED
+
+  src/baton_work/authority.py      instant(), the one sample in _write, the
+                                   finally that clears it, _settle_dispatch
+  src/baton_work/transitions.py    drain_dispatch, resume_dispatch, and
+                                   create_trial's R42 recheck
+  tests/work/test_w4615_dispatch_drain.py   +2 cases (34 total)

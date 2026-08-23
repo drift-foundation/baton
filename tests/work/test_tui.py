@@ -284,11 +284,15 @@ def test_links_are_on_demand_and_escape_returns(world):
 	])
 	screen = ptyharness.replay(steps[0])
 	joined = "\n".join(screen)
-	assert f"blocks {cast['pushcoin']} push open" in joined and \
-		"checkout fails" in joined, \
-		f"the dependent consumers are not drawn: {screen[2:8]}"
-	assert f"blocks {cast['web']} web open" in joined
-	assert f"blocks {cast['mdb']} mdb open" in joined
+	# W4996 replaced the flat `blocked-by`/`blocks` list with the
+	# dependency NEIGHBOURHOOD graph. The property this case has always
+	# held is unchanged — `b` draws the far rows from the canonical
+	# dependency projection — and it is now spelled with the ruled
+	# selector and an explicit direction on every edge.
+	for far in (cast["pushcoin"], cast["web"], cast["mdb"]):
+		local = far.split("-", 1)[1]
+		assert f"--blocks--> [{local} " in joined, \
+			f"the dependent consumers are not drawn: {screen[2:8]}"
 	back = ptyharness.replay(steps[1])
 	assert any("Title" in line for line in back), \
 		"escape did not return to the table"
@@ -543,19 +547,32 @@ def test_the_command_bar_cannot_abbreviate_a_participant_override(tmp_path):
 
 
 def test_links_drill_through_to_the_far_work(world):
-	"""R105: the links view is NAVIGABLE — j selects among the far rows
-	and Enter performs the deliberate cross-team drill-through, with the
-	breadcrumb reconstructing the far Work's real position."""
+	"""R105: the dependency view is NAVIGABLE — `j` selects among the far
+	rows and Enter acts on the selected one, with the breadcrumb naming
+	where the operator now is.
+
+	W4996 REPLACED WHAT ENTER DOES, and the approved contract says so
+	explicitly: Enter RECENTERS the graph on the selected Work and pushes
+	one navigation frame, rather than unwinding the stack and re-rooting
+	the Jobs tree at the far Work. The navigability this case protects is
+	unchanged; the destination is the neighbour's own neighbourhood.
+	"""
 	path, cast = world
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"b", 0.5),                  # links of the selected epic
-		(b"j", 0.4),                  # select the second dependent (web)
-		(b"\r", 0.5),                 # drill through
+		(b"b", 0.5),                  # the neighbourhood of the selected epic
+		(b"j", 0.4),                  # select the first dependent edge
+		(b"\r", 0.5),                 # recenter on it
 		(b"qy", 0.4),
 	])
 	screen = ptyharness.replay(steps[2])
-	assert any("render crash" in line for line in screen[:1]), \
-		f"the drill-through did not land on the far work: {screen[:3]}"
+	trail = screen[0]
+	assert "deps > " in trail and trail.count("deps") == 2, \
+		f"Enter did not push a second graph frame: {screen[:3]}"
+	# And it did NOT leave the graph for the Jobs table.
+	assert any("--blocks-->" in line or line.startswith("[")
+	           for line in screen[1:6]), screen[:6]
+	assert not any("Title" in line for line in screen[:6]), \
+		"Enter jumped to the Jobs table instead of recentering"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 

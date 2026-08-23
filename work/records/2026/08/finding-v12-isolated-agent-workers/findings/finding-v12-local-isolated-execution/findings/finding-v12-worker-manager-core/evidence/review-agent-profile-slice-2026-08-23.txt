@@ -1,0 +1,36 @@
+W2929 item 4 first-slice independent review — 2026-08-23
+
+Focused command:
+  cd v12 && node test/worker_manager_agent_profile.test.mjs
+
+Result:
+  12 tests; 10 passed; 2 failed.
+  FAIL: W2929 review: no generic writer can forge agent-session certification
+        actual true, expected false.
+  FAIL: W2929 review: agent-session certification cannot satisfy runtime offer
+        missing expected policy.profile-uncertified exception.
+
+Full command:
+  cd v12 && npm test
+
+Result:
+  441 tests; 439 passed; 2 failed.
+  The same two additive reviewer regressions were the only failures.
+
+Independent schema comparison:
+  product:
+    v12/src/worker_manager/schema/agent-session-1.0.schema.json
+  frozen:
+    work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+    finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/
+    agent-session-1.0.schema.json
+  cmp: identical
+  SHA-256, both:
+    af9ab5b3887a1302af8adeba7015e3e4825929984ab41d196abdec1413a1d37b
+
+Added regressions:
+  v12/test/worker_manager_agent_profile.test.mjs
+  - frozen/product schema byte identity (passes)
+  - generic agent-session certification bypass (fails)
+  - runtime certification cannot satisfy agent-session (passes)
+  - agent-session certification cannot satisfy runtime offer (fails)

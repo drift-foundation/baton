@@ -1,0 +1,48 @@
+W2929 output-freeze independent review — 2026-08-23T00:30:49Z
+
+Accepted boundaries:
+- only execution_runtime=quiescent admits freeze
+- recorded terminal disposition is compared rather than caller-attested
+- authority liveness read is inside the manager freeze transaction and is
+  explicitly not cross-store atomic proof
+- fixed freeze/record identities and manifest digest collision behavior
+- shared manifest shape/digest/path/URI/secret validation
+
+Static findings:
+1. requestFreeze computes and journals the output.freeze signature but gives
+   adapter.seal only operationId.
+2. recordFrozenResult compares freeze_operation.operation_id but never
+   freeze_operation.signature_digest.
+3. recordFrozenResult checks the current output axis before consulting the
+   fixed output.record operation; output=sealed therefore hides exact replay.
+4. attempts retain input_digest but no input manifest/declaration, and the
+   freeze APIs receive no trusted declaration to compare against result outputs.
+5. outputs retains result_id, disposition, manifest_digest,
+   freeze_operation_id and frozen_at. output_artifacts retains only non-null
+   artifact references. Neither table nor the operation result retains the
+   complete validated result manifest, content-manifest tree facts, missing
+   outputs or evidence references.
+
+Additive test-fixture strengthening:
+- successful result fixtures now compute the actual output.freeze signature
+  from kind and effective operands instead of using digest("freeze").
+- all 24 pre-review output cases continue to pass.
+
+Added regressions:
+- W2929 review: an exact result replays after the output axis advances
+- W2929 review: a sealed result must echo the freeze signature
+
+Focused command:
+  node v12/test/worker_manager_output.test.mjs
+
+Focused result:
+  tests 26; pass 24; fail 2
+
+Full command (cwd v12):
+  npm test
+
+Full result:
+  tests 372; pass 370; fail 2
+
+The two additive regressions are the only failures. Whitespace check for the
+additive test is clean. No implementation file was changed by the reviewer.

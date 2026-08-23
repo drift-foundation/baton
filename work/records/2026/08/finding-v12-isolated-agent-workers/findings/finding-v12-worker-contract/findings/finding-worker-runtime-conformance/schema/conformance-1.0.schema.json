@@ -1,0 +1,1231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:baton:worker-conformance:1.0",
+  "title": "Baton worker-conformance 1.0 design documents",
+  "description": "Shape contract for the runtime-neutral conformance suite over baton.worker-control 1.0 and baton.agent-session 1.0. An observation carries FACTS and no verdict; the assessor derives passed/failed/unable from those facts and the case's executable expectation. The identity, artifact and evidence definitions are reproduced VERBATIM from urn:baton:worker-control:1.0 and a test asserts they stay byte-for-byte identical.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/conformanceFixture"
+    },
+    {
+      "$ref": "#/$defs/conformanceCase"
+    },
+    {
+      "$ref": "#/$defs/conformanceObservation"
+    },
+    {
+      "$ref": "#/$defs/conformanceRun"
+    },
+    {
+      "$ref": "#/$defs/conformanceReport"
+    }
+  ],
+  "$defs": {
+    "version": {
+      "type": "object",
+      "properties": {
+        "major": {
+          "const": 1
+        },
+        "minor": {
+          "const": 0
+        }
+      },
+      "required": [
+        "major",
+        "minor"
+      ],
+      "additionalProperties": false
+    },
+    "suiteFamily": {
+      "const": "baton.worker-conformance"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "opaqueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "participant": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*$"
+    },
+    "workRef": {
+      "type": "object",
+      "properties": {
+        "authority_uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "work_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-W[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "authority_uuid",
+        "work_id"
+      ],
+      "additionalProperties": false
+    },
+    "artifactRef": {
+      "type": "object",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*/[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "content_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 2048,
+          "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^?#]*$"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "media_type",
+        "bytes",
+        "content_digest",
+        "locator"
+      ],
+      "additionalProperties": false
+    },
+    "evidenceRef": {
+      "type": "object",
+      "properties": {
+        "purpose": {
+          "enum": [
+            "log",
+            "test-output",
+            "manifest",
+            "trace",
+            "dossier",
+            "reproduction",
+            "diff",
+            "bundle",
+            "candidate-tree",
+            "attestation"
+          ]
+        },
+        "artifact": {
+          "$ref": "#/$defs/artifactRef"
+        }
+      },
+      "required": [
+        "purpose",
+        "artifact"
+      ],
+      "additionalProperties": false
+    },
+    "nonNegativeInt": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "positiveInt": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "boundedText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "factName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "profileId": {
+      "enum": [
+        "local-oci",
+        "remote"
+      ]
+    },
+    "locality": {
+      "enum": [
+        "local",
+        "remote"
+      ]
+    },
+    "family": {
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "description": "A source and output; B isolation; C claim and authority; D cancellation and quiescence; E restart, retry and partition; F credentials and leakage; G policy and integrity; H agent session."
+    },
+    "scope": {
+      "enum": [
+        "portable-core",
+        "runtime-supplemental"
+      ],
+      "description": "Only portable-core decides certification."
+    },
+    "assessment": {
+      "enum": [
+        "passed",
+        "failed",
+        "unable"
+      ],
+      "description": "W151's verification vocabulary. DERIVED by the assessor from observed facts; never declared by the observer."
+    },
+    "evidencePurpose": {
+      "enum": [
+        "log",
+        "test-output",
+        "manifest",
+        "trace",
+        "dossier",
+        "reproduction",
+        "diff",
+        "bundle",
+        "candidate-tree",
+        "attestation"
+      ]
+    },
+    "faultCapability": {
+      "enum": [
+        "process-kill",
+        "transport-drop",
+        "transport-partition",
+        "frame-duplicate",
+        "frame-delay",
+        "clock-advance",
+        "manager-restart",
+        "adapter-restart",
+        "host-restart",
+        "network-deny",
+        "credential-expire",
+        "credential-reuse",
+        "authority-unavailable",
+        "artifact-store-unavailable",
+        "source-provider-unavailable",
+        "canary-plant",
+        "concurrent-assignment",
+        "canonical-target-move",
+        "duplicate-runtime-start",
+        "output-suppress",
+        "plan-reject",
+        "profile-decertify"
+      ],
+      "description": "A fault the harness can ORDER. A case whose required faults are unavailable is 'unable', never 'passed'."
+    },
+    "canarySurface": {
+      "enum": [
+        "workspace",
+        "declared-output",
+        "git-objects",
+        "proposal",
+        "manifests",
+        "events",
+        "evidence",
+        "retained-logs",
+        "caches",
+        "retained-runtime-layers"
+      ]
+    },
+    "errorPair": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "enum": [
+            "refused",
+            "ambiguous",
+            "unavailable",
+            "policy",
+            "integrity",
+            "stale-assignment",
+            "runtime-observation"
+          ]
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "category",
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "factValue": {
+      "description": "A machine-readable observed fact. Prose belongs in 'reason'; it decides nothing.",
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 2048
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "$ref": "#/$defs/nonNegativeInt"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "maxItems": 512,
+          "items": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        {
+          "$ref": "#/$defs/errorPair"
+        }
+      ]
+    },
+    "factMap": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/factName"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/factValue"
+      }
+    },
+    "predicate": {
+      "type": "object",
+      "description": "One clause of a case's executable expectation, applied by the assessor to the observed facts.",
+      "properties": {
+        "fact": {
+          "$ref": "#/$defs/factName"
+        },
+        "op": {
+          "enum": [
+            "equals",
+            "not-equals",
+            "is-true",
+            "is-false",
+            "present",
+            "absent",
+            "subset-of",
+            "disjoint-from",
+            "empty",
+            "non-empty"
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/factValue"
+        }
+      },
+      "required": [
+        "fact",
+        "op"
+      ],
+      "additionalProperties": false
+    },
+    "expectation": {
+      "type": "object",
+      "description": "How the ASSESSOR decides this case. 'control-refusal' is for a refused control operation, where an upstream contract defines the exact pair. 'invariant' is for a probe or authority observation, which no contract requires to synthesize a control frame.",
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "control-refusal"
+            },
+            "expected_refusal": {
+              "$ref": "#/$defs/errorPair"
+            },
+            "requires": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/predicate"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "expected_refusal",
+            "requires"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "control-success"
+            },
+            "requires": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/predicate"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "requires"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "invariant"
+            },
+            "requires": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/predicate"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "requires"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "stimulus": {
+      "type": "object",
+      "description": "What the DRIVER orders. Portable and machine-readable: no host command, no vendor API.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "control-operation",
+            "in-runtime-probe",
+            "authority-read",
+            "agent-script",
+            "workflow-receipt"
+          ]
+        },
+        "control_kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "faults": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/faultCapability"
+          }
+        },
+        "detail": {
+          "$ref": "#/$defs/boundedText"
+        }
+      },
+      "required": [
+        "kind",
+        "control_kinds",
+        "faults",
+        "detail"
+      ],
+      "additionalProperties": false
+    },
+    "scriptedAgent": {
+      "type": "object",
+      "description": "The core gate runs against a scripted endpoint, never a model provider.",
+      "properties": {
+        "script_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "speaks": {
+          "enum": [
+            "acp",
+            "codex-app-server"
+          ]
+        },
+        "model_provider_required": {
+          "const": false
+        }
+      },
+      "required": [
+        "script_digest",
+        "speaks",
+        "model_provider_required"
+      ],
+      "additionalProperties": false
+    },
+    "hostIdentity": {
+      "type": "object",
+      "description": "Machine-readable locality facts. SPEC 8.2's remote assertions are decided from these, never from the 'locality' label.",
+      "properties": {
+        "manager_host_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "runtime_host_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "workspace_path_resolves_on_manager": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "manager_host_id",
+        "runtime_host_id",
+        "workspace_path_resolves_on_manager"
+      ],
+      "additionalProperties": false
+    },
+    "canaryPlan": {
+      "type": "object",
+      "properties": {
+        "surface": {
+          "$ref": "#/$defs/canarySurface"
+        },
+        "canary_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "value_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "surface",
+        "canary_id",
+        "value_digest"
+      ],
+      "additionalProperties": false
+    },
+    "conformanceFixture": {
+      "type": "object",
+      "properties": {
+        "suite_family": {
+          "$ref": "#/$defs/suiteFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "fixture"
+        },
+        "fixture_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "profile": {
+          "$ref": "#/$defs/profileId"
+        },
+        "locality": {
+          "$ref": "#/$defs/locality"
+        },
+        "host_identity": {
+          "$ref": "#/$defs/hostIdentity"
+        },
+        "work_ref": {
+          "$ref": "#/$defs/workRef"
+        },
+        "input_manifest_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "policy_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "runtime_profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "agent_session_profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "adapter_build_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "scripted_agent": {
+          "$ref": "#/$defs/scriptedAgent"
+        },
+        "fault_capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/faultCapability"
+          }
+        },
+        "canaries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/canaryPlan"
+          }
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "suite_family",
+        "version",
+        "document",
+        "fixture_id",
+        "created_at",
+        "profile",
+        "locality",
+        "host_identity",
+        "work_ref",
+        "input_manifest_digest",
+        "policy_digest",
+        "runtime_profile_digest",
+        "agent_session_profile_digest",
+        "adapter_build_digest",
+        "scripted_agent",
+        "fault_capabilities",
+        "canaries",
+        "document_digest"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "profile": {
+                "const": "local-oci"
+              }
+            },
+            "required": [
+              "profile"
+            ]
+          },
+          "then": {
+            "properties": {
+              "locality": {
+                "const": "local"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "profile": {
+                "const": "remote"
+              }
+            },
+            "required": [
+              "profile"
+            ]
+          },
+          "then": {
+            "properties": {
+              "locality": {
+                "const": "remote"
+              },
+              "host_identity": {
+                "properties": {
+                  "workspace_path_resolves_on_manager": {
+                    "const": false
+                  }
+                }
+              },
+              "fault_capabilities": {
+                "allOf": [
+                  {
+                    "contains": {
+                      "const": "transport-partition"
+                    }
+                  },
+                  {
+                    "contains": {
+                      "const": "host-restart"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "conformanceCase": {
+      "type": "object",
+      "properties": {
+        "suite_family": {
+          "$ref": "#/$defs/suiteFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "case"
+        },
+        "case_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[A-H]-[a-z0-9][a-z0-9-]*$"
+        },
+        "family": {
+          "$ref": "#/$defs/family"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "obligations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-H]-[0-9]{2}$"
+          },
+          "description": "The register obligations this case decides. A portable core case names at least one and every one must name it back; a supplemental case names none, because the register is fixed and cannot backlink a case it has never seen."
+        },
+        "required_faults": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/faultCapability"
+          }
+        },
+        "stimulus": {
+          "$ref": "#/$defs/stimulus"
+        },
+        "expectation": {
+          "$ref": "#/$defs/expectation"
+        },
+        "required_facts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/factName"
+          }
+        },
+        "deciding_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/evidencePurpose"
+          }
+        },
+        "statement": {
+          "$ref": "#/$defs/boundedText"
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "applies_to": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/profileId"
+          },
+          "description": "The profiles whose portable core contains this case. Almost every case applies to both; a case may be scoped to one profile ONLY when the fault it requires cannot exist on the other, which the model enforces so that a profile cannot narrow its own contract."
+        },
+        "supplemental_source": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/supplementalSource"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "suite_family",
+        "version",
+        "document",
+        "case_id",
+        "family",
+        "scope",
+        "obligations",
+        "required_faults",
+        "stimulus",
+        "expectation",
+        "required_facts",
+        "deciding_evidence",
+        "statement",
+        "document_digest",
+        "applies_to",
+        "supplemental_source"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "portable-core"
+              }
+            },
+            "required": [
+              "scope"
+            ]
+          },
+          "then": {
+            "properties": {
+              "obligations": {
+                "minItems": 1
+              },
+              "supplemental_source": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "runtime-supplemental"
+              }
+            },
+            "required": [
+              "scope"
+            ]
+          },
+          "then": {
+            "properties": {
+              "obligations": {
+                "maxItems": 0
+              },
+              "supplemental_source": {
+                "$ref": "#/$defs/supplementalSource"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "conformanceObservation": {
+      "type": "object",
+      "description": "What the OBSERVER saw. It reports facts and carries no verdict: a component that both causes and judges an outcome can arrange to see what it expected.",
+      "properties": {
+        "suite_family": {
+          "$ref": "#/$defs/suiteFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "observation"
+        },
+        "observation_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "case_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96
+        },
+        "fixture_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "case_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "status": {
+          "enum": [
+            "observed",
+            "blocked"
+          ]
+        },
+        "facts": {
+          "$ref": "#/$defs/factMap"
+        },
+        "blocked_by": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/boundedText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/boundedText"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidenceRef"
+          }
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "suite_family",
+        "version",
+        "document",
+        "observation_id",
+        "case_id",
+        "fixture_digest",
+        "case_digest",
+        "status",
+        "facts",
+        "blocked_by",
+        "reason",
+        "evidence",
+        "observed_at",
+        "document_digest"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "blocked"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "blocked_by": {
+                "$ref": "#/$defs/boundedText"
+              },
+              "facts": {
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "observed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "blocked_by": {
+                "type": "null"
+              },
+              "facts": {
+                "minProperties": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "assessedCase": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96
+        },
+        "assessment": {
+          "$ref": "#/$defs/assessment"
+        },
+        "rationale": {
+          "$ref": "#/$defs/boundedText"
+        }
+      },
+      "required": [
+        "case_id",
+        "assessment",
+        "rationale"
+      ],
+      "additionalProperties": false
+    },
+    "profileSignal": {
+      "type": "object",
+      "description": "What a failing run EMITS for a route-policy consumer. The suite emits the signal; it never chooses the policy.",
+      "properties": {
+        "signal": {
+          "enum": [
+            "none",
+            "probation",
+            "disablement"
+          ]
+        },
+        "runtime_profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "adapter_build_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "failed_cases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96
+          }
+        },
+        "undecided_cases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96
+          }
+        },
+        "consumer": {
+          "const": "route-policy"
+        }
+      },
+      "required": [
+        "signal",
+        "runtime_profile_digest",
+        "adapter_build_digest",
+        "failed_cases",
+        "undecided_cases",
+        "consumer"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "signal": {
+                "const": "none"
+              }
+            },
+            "required": [
+              "signal"
+            ]
+          },
+          "then": {
+            "properties": {
+              "failed_cases": {
+                "maxItems": 0
+              },
+              "undecided_cases": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "residualRisk": {
+      "type": "object",
+      "description": "Redaction is not proof of absence. A run states what it scanned and what it did not.",
+      "properties": {
+        "surfaces_scanned": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/canarySurface"
+          }
+        },
+        "surfaces_not_scanned": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/canarySurface"
+          }
+        },
+        "unproven": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/boundedText"
+          }
+        }
+      },
+      "required": [
+        "surfaces_scanned",
+        "surfaces_not_scanned",
+        "unproven"
+      ],
+      "additionalProperties": false
+    },
+    "conformanceRun": {
+      "type": "object",
+      "properties": {
+        "suite_family": {
+          "$ref": "#/$defs/suiteFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "run"
+        },
+        "run_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "profile": {
+          "$ref": "#/$defs/profileId"
+        },
+        "fixture_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "obligations_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "observations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/conformanceObservation"
+          }
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "supplemental_cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/conformanceCase"
+          },
+          "description": "Runtime-specific case definitions this run brings with it, sealed like any other case. The portable core is fixed by the register; a supplemental case has nowhere else to come from, which is why an earlier revision made them schema-valid and unassessable."
+        }
+      },
+      "required": [
+        "suite_family",
+        "version",
+        "document",
+        "run_id",
+        "created_at",
+        "profile",
+        "fixture_digest",
+        "obligations_digest",
+        "observations",
+        "document_digest",
+        "supplemental_cases"
+      ],
+      "additionalProperties": false
+    },
+    "conformanceReport": {
+      "type": "object",
+      "description": "What the ASSESSOR produces. It is derived from a run; a run cannot contain one, because a document that carried its own verdict would be trusted for it.",
+      "properties": {
+        "suite_family": {
+          "$ref": "#/$defs/suiteFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "report"
+        },
+        "report_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "run_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "fixture_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "obligations_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "assessed": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/assessedCase"
+          }
+        },
+        "verdict": {
+          "enum": [
+            "certified",
+            "not-certified"
+          ]
+        },
+        "verdict_rationale": {
+          "$ref": "#/$defs/boundedText"
+        },
+        "profile_signal": {
+          "$ref": "#/$defs/profileSignal"
+        },
+        "residual_risk": {
+          "$ref": "#/$defs/residualRisk"
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "supplemental": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assessedCase"
+          },
+          "description": "Reported separately from `assessed`; never an input to the verdict."
+        }
+      },
+      "required": [
+        "suite_family",
+        "version",
+        "document",
+        "report_id",
+        "created_at",
+        "run_digest",
+        "fixture_digest",
+        "obligations_digest",
+        "assessed",
+        "verdict",
+        "verdict_rationale",
+        "profile_signal",
+        "residual_risk",
+        "document_digest",
+        "supplemental"
+      ],
+      "additionalProperties": false
+    },
+    "supplementalSource": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+/[0-9]+$",
+      "description": "Where a runtime-specific case comes from: a reverse-DNS namespace with an explicit version, deliberately unable to look like a portable obligation identifier. An additional property need not implement one of this contract's obligations, and should not have to claim it does."
+    }
+  }
+}

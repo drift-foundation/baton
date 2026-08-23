@@ -124,8 +124,11 @@ def test_every_work_valued_key_routes_through_the_resolver(world):
 	work = make(world, title="routed")
 	short = work.rsplit("-", 1)[1]
 	ok(world, "claim", f"work={short}")
+	# W4303: the mandatory episode fence is read off the same short
+	# selector — which is the point of exercising it here.
+	episode = ok(world, "detail", f"work={short}")["episode_seq"]
 	ok(world, "release", f"work={short}", "expect=lang.ada",
-	   "reason=cycling")
+	   f"episode={episode}", "reason=cycling")
 	child = ok(world, "create", "team=lang", "kind=bug", "title=child",
 	           "origin=external-report",
 	           "classification=suspected-defect", "body=b",

@@ -1,0 +1,225 @@
+W4996 — the CONSOLE slice
+Signed off before it: review-2026-08-22T19-57-01Z.md (first slice).
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. WHAT THIS TURN IS
+
+The first slice — the bounded projection and the pure renderer — was signed
+off. The review named the next slice exactly: console wiring, `[b]`,
+navigation, resize/Back behaviour, PTY coverage, and the `ROW_DEEPER`
+depth-frontier. This turn implements them.
+
+The signed-off model and renderer were revalidated before anything was built
+on them: 47 focused cases green against the tree as it stood.
+
+
+1. THE DEPTH FRONTIER — `ROW_DEEPER` NOW HAS SOMETHING TO REPORT
+
+It was defined and unused since the first slice, and I named that gap myself
+rather than leaving it to be found: depth-frontier tokens need the projection
+to report what the DEPTH bound cut off, and it reported only what a BRANCH
+PAGE cut off.
+
+`dependency_neighborhood` gains `frontier`, a per-branch-key exact direct
+count of the edges the depth bound did not walk. It is taken at the exact
+point the walk declines to expand — `remaining <= 0` — with the same bounded
+reader at limit zero, so it is a COUNT and no rows: naming what the bound cut
+off materializes nothing.
+
+It is SEPARATE from `omitted` because the two absences are opened by
+different keys. A dense branch is widened with Enter; the depth bound is
+lifted with `+`. One token for both would make the key that opens it a guess,
+which is the reason the contract names two token shapes.
+
+`graph.py` emits `[+N deeper blockers]` / `[+N deeper dependents]` through the
+same branch anchor, and when a branch has both, the dense page comes first —
+deterministically, so a reader who sees both always sees them in one order.
+
+
+2. THE CONSOLE
+
+`[b]` opens the dependency NEIGHBOURHOOD. The flat blocked-by/blocks page it
+replaced is deleted rather than left behind a flag.
+
+STATE. `graph_center`, `graph_depth`, `graph_anchor` and `graph_expanded`
+join `NAV_STATE_FIELDS`, so Esc restores the exact prior graph — center,
+depth, selection and branch pages together. Selection is an IDENTITY: a Work
+id for a Work row, and a branch key for a token, because two branches of one
+Work are two different things to open. Storing a row index would repeat the
+selection drift the Jobs table already forbids, and a regression separates
+the two answers by deepening UPSTREAM, which inserts rows above the
+selection.
+
+KEYS. `j`/`k` move by row and set the anchor from the row they land on.
+Enter recenters on a Work — pushing one navigation frame, keeping the depth,
+resetting branch pages, and making the selection the new center — or widens
+exactly one branch page on an overflow token. On a depth-frontier token Enter
+does NOT quietly widen a page: the console says `+` is the key, because a
+plausible action on the wrong token is worse than none. `+`/`-` move depth
+inside 1..3.
+
+RE-ANCHORING happens after the act as well as before it. A depth REDUCTION
+can remove the selected Work, and the ruling says selection returns to the
+center when it does; waiting for the next key or the next paint would leave
+the console briefly pointing at a Work it is not showing.
+
+ROWS ARE DERIVED, NEVER STORED. Keys act on the graph rather than on the last
+paint — a handler reading a cached row list would do nothing before the first
+render and something stale after a resize. Width is passed only because the
+renderer needs one: the row order and every row's identity are
+width-independent, which is a property the first slice already asserts, and
+that is what makes this sound.
+
+REFUSALS ARE VISIBLE. A damaged store's `GraphInvalid` and a terminal too
+narrow for one complete selector are both painted rather than raised through
+the console.
+
+EMPTY IS AN ANSWER. W17's `(no blocking or dependent neighbors)` is kept
+verbatim: a lone token with nothing beside it reads as a view that failed to
+load.
+
+
+3. ONE PIECE OF SHARED MACHINERY CHANGED, AND IT IS RECORDED
+
+`_nav_capture`/`_nav_restore` copied lists and not dicts. That was harmless
+while no navigation state was a dict; branch expansions are one, and a shared
+dict would let widening a branch after Back rewrite the frame the operator
+came from.
+
+RECORDED HONESTLY: the dict copy is currently UNWITNESSED and I could not
+witness it. Every path that captures the expansion map also replaces it with
+a fresh one — `_open_graph` and the recenter both assign `{}` rather than
+mutating — so no reachable sequence lets a live mutation reach a frame that
+is still on the stack. It is defence for the paths the next slice will add,
+named as unwitnessed rather than counted as covered, and the mutation result
+that says so is in section 5.
+
+
+4. NINE EXISTING CASES MOVED, EACH INSPECTED
+
+None was bulk-edited. Each is another Work's, so each says in its own words
+what the approved contract changed and why its own subject survives.
+
+  test_w17_deps_label (2)   The empty state is UNCHANGED — that is why the
+                            console keeps the text. The other assertion read
+                            a far Work's TITLE; the ruled presentation is the
+                            stable selector, so it asserts the drawn edge and
+                            the footer instead. W17's subject is the label
+                            and the label is untouched.
+  test_tui (2)              The on-demand case asserted flat
+                            `blocks <id> <team> <status>` lines; it asserts
+                            the same edges in the ruled spelling. The
+                            drill-through case asserted Enter re-roots the
+                            Jobs tree — see the removal below.
+  test_parity (1)           Gate B compared row COUNT and per-line text. It
+                            compares the exact edge set both surfaces name,
+                            which is the parity the gate exists for.
+  test_w292 (3)             Breadcrumb label `· links` -> `· deps`; and two
+                            cross-tree drill cases — see below.
+  test_w30 (1)              Read the corrected route out of the flat line.
+                            The graph draws selectors, so it asserts the
+                            route through the projection the console reads
+                            and the far node's presence in the drawn graph.
+
+A CAPABILITY IS GONE AND THE APPROVER SHOULD SEE IT NAMED. The old page's
+Enter performed a deliberate cross-team drill-through: it unwound the whole
+navigation stack and re-rooted the Jobs tree at the far Work, rebuilding that
+Work's own ancestry (W292 round-1 [P1], R105). The approved W4996 contract
+replaces Enter with recentering and says explicitly that it "does not jump to
+the Jobs table", so that jump is no longer reachable from `[b]` at all. The
+contract authorizes the change; it does not obviously intend the capability
+to vanish, and no other key was invented for it here because inventing one is
+not mine to do. If it should survive, it needs a key and a line in the
+contract, and I would rather ask than choose.
+
+
+5. MUTATION CHECK — six
+
+  M1  selection is a stored ROW INDEX
+        5 failed, led by the identity case. Getting there took two goes:
+        the first fixture was downstream-only, where deepening APPENDS rows
+        and an index and an identity agree, and the second still agreed
+        because the depth-frontier token happened to occupy the slot its own
+        edge would take. Two upstream parents separate them. The assertion
+        also moved to what is DRAWN, because a console that kept the field
+        and painted from an index would satisfy an attribute check.
+  M2  a recenter keeps the branch expansions
+        1 failed
+  M3  Enter widens a depth-frontier token
+        1 failed
+  M5  no depth-frontier reporting
+        1 failed
+  M6  the re-anchor after the act removed
+        1 failed: the depth-reduction case
+
+  M4  the dict copy removed from `_nav_capture`
+        0 failed — and see section 3. This is the unwitnessed guard, not a
+        gap the suite missed: no reachable sequence mutates a captured map
+        in place today.
+
+Restored: 58/58.
+
+
+6. REGRESSIONS — 58 (47 before)
+
+Eleven console cases: `[b]` opening and Esc restoring the caller's exact
+table row; identity-anchored selection across a depth change, asserted on
+what is drawn; every appearance of the selected Work drawn selected; Enter
+recentering with depth kept, pages reset and one frame pushed, and Esc
+restoring the exact prior graph; Enter widening exactly one branch and no
+other; depth bounded at both ends; selection returning to the center when a
+depth reduction removes it; a resize moving nothing — center, depth, pages,
+selection and row order identical at four widths in both directions; a
+too-narrow terminal refusing visibly; the depth-frontier token naming its
+exact count and its key, and being lifted by `+`; and a captured frame owning
+its expansion map.
+
+
+7. GATES
+
+  tests/work/test_w4996_dependency_graph.py   58 passed (47 before)
+  pytest -n auto -m "not serial" tests/work   2953 passed, 0 failed
+  pytest -m serial tests/work                 52 passed
+  tools/codex-event-bridge npm test           297 pass, 0 fail
+  tools/acp-baton-bridge npm test             55 pass, 0 fail
+  whitespace-damage check                     clean
+
+  v12 npm test                                239 tests, 238 pass, 1 fail
+
+THAT ONE IS NOT THIS WORK'S. A W2929 reviewer case from
+`review-2026-08-22T20-00-37Z.md`, which landed while this turn was running,
+against the release-answer correction I made there earlier today. W2929 is
+queued on `baton.impl` for its own turn.
+
+PROJECTION VERSION: unchanged. `frontier` is additive and a client that
+ignores it reads exactly what it read before.
+
+
+8. WHAT IS STILL NOT DONE
+
+- Plan item 4: the TUI operating guide.
+- PTY coverage BEYOND what the existing suites already drive. The two W17
+  cases and the two `test_tui` cases exercise the new page through a real
+  pty — opening it, drawing edges, the footer, the empty state at 60
+  columns, and Enter recentering — but the contract's full PTY list
+  (many-to-one, one-to-many, simultaneous both sides, resize in both
+  directions on a real terminal) is not written yet. Said plainly rather
+  than implied by a green count.
+- Opening the graph from the SEARCH results page. `[b]` is wired from the
+  table; the search-mode handler returns before reaching it, so the contract's
+  "open from table and search" is half done.
+
+
+9. FILES CHANGED
+
+  src/baton_work/projection.py    `frontier`, threaded through the walk
+  src/baton_work/tui/graph.py     `ROW_DEEPER` tokens and their ordering
+  src/baton_work/tui/app.py       the graph page: state, render, keys;
+                                  `_nav_copy`; the flat page removed
+  tests/work/test_w4996_dependency_graph.py   +11 cases and a Screen double
+  tests/work/test_w17_deps_label.py           1 assertion
+  tests/work/test_tui.py                      2 cases
+  tests/work/test_parity.py                   1 case
+  tests/work/test_w292_breadcrumb_navigation.py   3 cases and a helper
+  tests/work/test_w30_linked_route_parity.py      1 case

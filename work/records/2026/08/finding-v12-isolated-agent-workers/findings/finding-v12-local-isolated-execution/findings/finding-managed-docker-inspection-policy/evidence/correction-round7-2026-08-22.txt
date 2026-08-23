@@ -1,0 +1,118 @@
+W2845 round-7 correction — an indented comment, 2026-08-22
+
+Answering `review-2026-08-22T15-47-35Z.md` [P2]. No Docker command was
+executed; mutable Docker was evaluated through `codex execpolicy check` only.
+Oracle: codex-cli 0.149.0.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  candidate                     evaluator loads   audit satisfied   unaccounted
+  tab-indented comment          true (allow)      false            ["\t# operator note"]
+
+The reviewer's exact case. Same availability direction as round 6: nothing is
+hidden, the evaluator authorizes the ruled inspections, and the preflight
+refuses to start on a correct operator file.
+
+It also contradicts a rule this record pinned in ROUND 3 — "a comment is
+accounted for wherever it sits, indented or trailing a rule". The
+SPACE-indented spelling only ever worked because a space is accepted
+whitespace and fell through to the comment branch by accident; the rule was
+never implemented, only satisfied.
+
+
+2. MEASURED, ONE FORM AT A TIME
+
+  candidate                                evaluator   note
+  tab-indented comment                     loads       returns allow
+  two tabs then comment                    loads
+  space and tab mixed then comment         loads
+  space-indented comment                   loads       worked before, by accident
+  tab-indented comment at end of file      loads       with or without a final newline
+  tab AFTER the hash                       loads       round 6 already had this one
+  form feed before a comment               REFUSES
+  vertical tab before a comment            REFUSES
+  NBSP before a comment                    REFUSES
+  carriage return before a comment         loads       see the stated limitation
+  tab before a RULE                        REFUSES
+  trailing tab after a rule                REFUSES
+  tab-indented comment SHARING a line
+    with a rule (`rule<TAB># note`)        REFUSES
+
+The last row is why this stays a LINE rule rather than a character
+exemption: a tab that appears after a statement is a tab in code however the
+line ends. `blankLineEnd` already refused it, and `commentLineEnd` scans from
+the line start so it refuses it too.
+
+
+3. AFTER THE CORRECTION
+
+Every row of section 2 has the audit agreeing with the evaluator, with the
+one deliberate exception below.
+
+
+4. THE WIDENING DOES NOT REOPEN ROUNDS 3 OR 6
+
+Both earlier negative sets are re-asserted rather than trusted, on both
+profiles: tab before a rule, tab between operands, tab before the paren,
+space-indented rule, lone CR, form feed, vertical tab, NBSP, newline inside a
+string literal, and round 6's blank-line refusals. This correction widens
+what a COMMENT line may hold and nothing else.
+
+
+5. STATED LIMITATION, UNCHANGED
+
+A carriage return before a comment loads in the evaluator and is still
+refused here, under the CRLF limitation this module has carried since round
+3. Unchanged by this round and re-measured with it.
+
+
+6. MUTATION CHECK
+
+Dropping the `commentLineEnd` branch fails exactly the new coverage:
+
+  node --test test/policy_syntax.test.mjs
+    FAIL W2845 R7: an indented comment is accounted for, not refused
+    PASS W2845 R7: indentation is tolerated before a COMMENT, never before code
+    PASS W2845 R7: the installed evaluator agrees about every indent fixture
+    tests 25  pass 24  fail 1
+
+  pytest test_w2845_docker_inspection_policy.py test_deploy_v11.py
+    FAILED test_the_audit_accounts_for_an_indented_comment
+    FAILED test_the_deployed_artifact_keeps_the_exact_policy_boundary
+    2 failed, 37 passed
+
+Restored: 25 Node, 39 pytest, all passing.
+
+
+7. FAIL-CLOSED IS NOT FAIL-BLIND — THE LIVE POLICY
+
+  /home/sl/.codex/rules/baton.rules
+    rules read: 95   unaccounted: 0
+    inspection profile: satisfied=true  missing=0 broad=0 extra=0
+    baton.codex   satisfied=true  missing=0  unaccounted=0
+    baton.tuner   satisfied=true  missing=0  unaccounted=0
+    baton.prompt  satisfied=true  missing=0  unaccounted=0
+
+Unchanged from every previous round: 95 rules, 0 unaccounted. This round only
+ADDS accepted spellings, so no file that audited exact before it can fail now.
+
+
+8. VERIFICATION
+
+  tools/codex-event-bridge npm test    286 tests, 285 pass, 1 fail
+      The failure is W4303's reviewer regression, "a reconnect settlement
+      racing late turn/completed files one incident". It imports no policy
+      module. Disclosed by the reviewer in this same round.
+  pytest -n auto -m "not serial" tests/work   2883 passed
+  pytest -m serial tests/work                   52 passed
+  tools/acp-baton-bridge npm test               55 passed
+  v12 npm test                                 186 passed
+  whitespace-damage check                     clean
+
+
+9. WHAT WAS NOT DONE
+
+The live exact-policy matrix remains the operator gate and was not run from
+this turn. The reviewer's condition for it — that this valid comment
+spelling agree at the nominated-file preflight — is now met.

@@ -1,0 +1,77 @@
+W2845 operator acceptance attempt — 2026-08-22
+
+1. Deployed-c529 attempt
+
+Candidate:
+  /home/sl/opt/baton/v11/c529b28/bin/baton
+
+The first positive committed, then harness cleanup failed because the matrix
+now invokes:
+
+  release ... episode=<assignment episode>
+
+and deployed c529b28 reports:
+
+  release: unknown key 'episode'; accepted keys: answer-ref, expect, op-id,
+  reason, ref, work
+
+Cleanup assertions:
+  staged Codex credential disposed: true
+  staging directories removed: true
+
+2. Compatible current-tree attempt
+
+Candidate:
+  /tmp/w2845-candidate.6Ugnui/release/bin/baton
+
+Passed before the Docker section:
+  exact ruled claim commits
+  ruled mark-seen commits
+  ruled release recovers the claim
+  ruled respond discharges the obligation
+  shell wrapper does not commit
+  wrong participant does not commit
+  wrong config does not commit
+  excluded deployment verb does not take effect
+  excluded runtime verb does not take effect
+  excluded incident verb does not take effect
+  direct authority write is refused
+  direct config write is refused
+  unrelated command is refused
+
+Docker positives, all PASS with approvals=[]:
+  docker version --format '{{json .}}'
+  docker info --format '{{json .}}'
+  docker inspect --help
+  docker image inspect --help
+
+Docker negatives, all FAIL because approvals=[]:
+  docker ps -a
+  docker rm -f w2845-matrix-absent
+  docker image rm w2845-matrix-absent:latest
+  docker network create w2845-matrix-absent
+
+The runtime-mutation check passed. Existing networks remained exactly:
+  bridge, config_default, host, none
+
+Cleanup assertions:
+  staged Codex credential disposed: true
+  staging directories removed: true
+
+3. Installed-evaluator checks
+
+Against /home/sl/.codex/rules/baton.rules:
+
+  docker version
+    matchedPrefix: ["docker", "version"]
+    decision: allow
+
+  docker ps -a
+    matchedRules: []
+
+  docker rm -f w2845-matrix-absent
+    matchedRules: []
+
+The exact rule shape is therefore narrow. The live matrix still does not
+prove whether an unruled command was attempted and denied by policy or never
+attempted for another reason, so operator acceptance remains incomplete.

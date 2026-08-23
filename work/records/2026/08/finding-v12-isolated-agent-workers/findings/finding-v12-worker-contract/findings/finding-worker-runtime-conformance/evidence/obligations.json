@@ -1,0 +1,1630 @@
+{
+ "format": "baton.worker-conformance/obligations-1",
+ "obligations": [
+  {
+   "id": "A-01",
+   "source": "worker-control 1.0 §7.2",
+   "statement": "A Git source materializes the exact immutable base_revision; a branch never silently replaces it.",
+   "observable": "The input manifest's git source, and the object id the workspace tree actually resolves to.",
+   "verdict": {
+    "passed": "the materialized object id equals the manifest base_revision",
+    "failed": "the materialized object id differs, or a ref was resolved in its place",
+    "unable": "the harness cannot read the materialized object id"
+   },
+   "cases": [
+    "A-git-exact-base",
+    "A-git-moved-ref-refused"
+   ],
+   "covers": {
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "manifests": [
+     "baton.worker-manifest/input"
+    ]
+   }
+  },
+  {
+   "id": "A-02",
+   "source": "worker-control 1.0 §7.3",
+   "statement": "A directory source materializes exactly its sorted content manifest, read-only.",
+   "observable": "The collected tree digest, entry count and total bytes against the declared content manifest.",
+   "verdict": {
+    "passed": "tree digest, count and bytes all match and every entry is read-only to the worker",
+    "failed": "any entry differs, is missing, is extra, or is writable",
+    "unable": "the harness cannot enumerate the materialized tree"
+   },
+   "cases": [
+    "A-directory-exact-tree",
+    "A-input-readonly"
+   ],
+   "covers": {
+    "manifests": [
+     "baton.worker-manifest/input"
+    ]
+   }
+  },
+  {
+   "id": "A-03",
+   "source": "worker-control 1.0 §3.3, §7.4",
+   "statement": "Declared output paths are normalized POSIX-relative, non-overlapping, and links are forbidden.",
+   "observable": "The freeze refusal category/code for each malformed or overlapping declaration.",
+   "verdict": {
+    "passed": "each malformed declaration is refused with integrity.path or integrity.file-type",
+    "failed": "a malformed declaration is accepted, or refused with a different pair",
+    "unable": "the harness cannot submit a malformed declaration"
+   },
+   "cases": [
+    "A-output-traversal-refused",
+    "A-output-symlink-refused",
+    "A-output-overlap-refused"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "integrity",
+      "path"
+     ],
+     [
+      "integrity",
+      "file-type"
+     ]
+    ],
+    "control_kinds": [
+     "output.freeze"
+    ]
+   }
+  },
+  {
+   "id": "A-04",
+   "source": "worker-control 1.0 §6.4",
+   "statement": "Freeze reads only sealed bytes after the writer is quiescent and produces an immutable manifest.",
+   "observable": "The frozen-result manifest, its digest, and the runtime observation preceding the freeze.",
+   "verdict": {
+    "passed": "the freeze followed a quiescent observation and the manifest digest recomputes over the collected bytes",
+    "failed": "a freeze committed while the writer was still running, or the digest does not recompute",
+    "unable": "the harness cannot establish writer quiescence"
+   },
+   "cases": [
+    "A-freeze-after-quiescence",
+    "A-freeze-digest-recomputes"
+   ],
+   "covers": {
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "manifests": [
+     "baton.worker-manifest/result"
+    ]
+   }
+  },
+  {
+   "id": "A-05",
+   "source": "worker-control 1.0 §6.4",
+   "statement": "The same freeze operation replays with the same digest; a different digest refuses.",
+   "observable": "The reply to an exact freeze retry and to a freeze of changed bytes under the same operation id.",
+   "verdict": {
+    "passed": "the exact retry replays byte-for-byte and the changed-bytes attempt is refused",
+    "failed": "a second differing freeze commits, or an exact retry returns something else",
+    "unable": "the harness cannot retry a freeze operation"
+   },
+   "cases": [
+    "A-freeze-exact-replay",
+    "A-freeze-changed-bytes-refused"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "refused",
+      "operation-collision"
+     ]
+    ],
+    "control_kinds": [
+     "output.freeze"
+    ]
+   }
+  },
+  {
+   "id": "A-06",
+   "source": "worker-control 1.0 §6.4",
+   "statement": "Collection reads only declared outputs; an undeclared path is never collected.",
+   "observable": "The collected artifact set against the declared output descriptors.",
+   "verdict": {
+    "passed": "every collected artifact maps to a declared output and no other path appears",
+    "failed": "an undeclared path is collected",
+    "unable": "the harness cannot enumerate collected artifacts"
+   },
+   "cases": [
+    "A-undeclared-not-collected"
+   ],
+   "covers": {
+    "control_kinds": [
+     "output.collect"
+    ]
+   }
+  },
+  {
+   "id": "A-07",
+   "source": "worker-control 1.0 §6.4, §7.4",
+   "statement": "A missing REQUIRED output prevents a successful result; unable may still carry bounded evidence.",
+   "observable": "The declared disposition and the frozen-result manifest's per-output records.",
+   "verdict": {
+    "passed": "a missing required output yields unable, with the absence recorded explicitly",
+    "failed": "a missing required output yields completed, or the absence is unrecorded",
+    "unable": "the harness cannot suppress a required output"
+   },
+   "cases": [
+    "A-missing-required-output"
+   ],
+   "covers": {
+    "control_kinds": [
+     "result.declare"
+    ]
+   }
+  },
+  {
+   "id": "A-08",
+   "source": "worker-control 1.0 §7.4",
+   "statement": "A git-change-proposal is a bundle or equivalent object transport, never a push or canonical ref update.",
+   "observable": "The proposal manifest's artifact and the canonical target's revision before and after.",
+   "verdict": {
+    "passed": "the proposal is an immutable artifact and the canonical target revision is unchanged",
+    "failed": "the canonical target advanced, or a remote ref was written",
+    "unable": "the harness cannot observe the canonical target"
+   },
+   "cases": [
+    "A-proposal-is-not-a-push"
+   ],
+   "covers": {
+    "manifests": [
+     "baton.worker-manifest/proposal"
+    ],
+    "control_kinds": [
+     "proposal.publish"
+    ]
+   }
+  },
+  {
+   "id": "A-09",
+   "source": "worker-control 1.0 §6.4, §10.3",
+   "statement": "An ambiguous collection is reconciled against the sealed store; it never collects from a still-writable mount.",
+   "observable": "The collect operation record and the writability of the source at collection time.",
+   "verdict": {
+    "passed": "the ambiguity is resolved by repeating the exact operation against sealed bytes",
+    "failed": "collection reads a still-writable mount, or a second differing collection commits",
+    "unable": "the harness cannot interrupt a collection"
+   },
+   "cases": [
+    "A-collection-ambiguous"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "ambiguous",
+      "collection"
+     ]
+    ],
+    "control_kinds": [
+     "output.collect"
+    ]
+   }
+  },
+  {
+   "id": "B-01",
+   "source": "worker-control 1.0 §13",
+   "statement": "The authority database, configuration and executable are never exposed to a worker.",
+   "observable": "The workspace tree, the runtime's declared mounts, and any path the worker can enumerate.",
+   "verdict": {
+    "passed": "no path resolving into the authority home or the Baton executable is reachable from the runtime",
+    "failed": "any such path is reachable, by direct mount or through a link",
+    "unable": "the harness cannot enumerate what the runtime can reach"
+   },
+   "cases": [
+    "B-no-authority-capability",
+    "B-no-baton-executable"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "B-02",
+   "source": "worker-control 1.0 §13",
+   "statement": "The canonical repository is never mounted into a worker; only the private materialized copy is.",
+   "observable": "The workspace's Git metadata and the identity of the object store it resolves against.",
+   "verdict": {
+    "passed": "the workspace resolves only against its private copy",
+    "failed": "the workspace resolves against the canonical repository or its object store",
+    "unable": "the harness cannot identify the object store"
+   },
+   "cases": [
+    "B-no-canonical-repository",
+    "B-git-metadata-private"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "B-03",
+   "source": "W151 §10.2",
+   "statement": "One runtime never reaches another assignment's workspace or output.",
+   "observable": "Two concurrent assignments, each probing for the other's declared paths.",
+   "verdict": {
+    "passed": "neither runtime can read or write the other's workspace or declared output",
+    "failed": "either runtime reaches the other's paths",
+    "unable": "the harness cannot run two concurrent assignments"
+   },
+   "cases": [
+    "B-cross-worker-isolation"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "B-04",
+   "source": "worker-control 1.0 §8.1",
+   "statement": "Network, resource, mount and tool policy come from the pinned profile, not from a runtime default.",
+   "observable": "The runtime-attempt manifest's pinned policy digests and the runtime's observed egress and limits.",
+   "verdict": {
+    "passed": "observed egress, limits and tool set match the pinned policy digests",
+    "failed": "any observed capability exceeds the pinned policy",
+    "unable": "the harness cannot observe egress or limits"
+   },
+   "cases": [
+    "B-network-policy-enforced",
+    "B-resource-policy-enforced",
+    "B-tool-policy-enforced"
+   ],
+   "covers": {
+    "manifests": [
+     "baton.worker-manifest/runtime-attempt"
+    ]
+   }
+  },
+  {
+   "id": "C-01",
+   "source": "worker-control 1.0 §6.1, §13",
+   "statement": "A pre-claim offer exposes inspection metadata only: no input bytes, no writable output, no tools.",
+   "observable": "What the offer frame carries and what the consent runtime can reach.",
+   "verdict": {
+    "passed": "the offer carries metadata and digests only, and the consent runtime reaches no input or output",
+    "failed": "the offer carries input bytes, or the consent runtime reaches a workspace",
+    "unable": "the harness cannot inspect the consent runtime"
+   },
+   "cases": [
+    "C-preclaim-metadata-only",
+    "C-preclaim-no-execution"
+   ],
+   "covers": {
+    "control_kinds": [
+     "offer.issue",
+     "offer.decide"
+    ]
+   }
+  },
+  {
+   "id": "C-02",
+   "source": "W151 §7, §12 ruling 2",
+   "statement": "A claim token is single use, expiry-bound and binding-bound; a replay or a wrong binding refuses.",
+   "observable": "The offer decision reply for an expired, replayed and mis-bound token, and the authority's Handler.",
+   "verdict": {
+    "passed": "each refuses with no claim committed and the Work left unclaimed and offerable",
+    "failed": "any of the three commits a claim, or the Work is left stranded",
+    "unable": "the harness cannot control token expiry or replay"
+   },
+   "cases": [
+    "C-token-expired",
+    "C-token-replayed",
+    "C-token-wrong-binding"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "refused",
+      "precondition"
+     ]
+    ],
+    "control_kinds": [
+     "offer.decide"
+    ]
+   }
+  },
+  {
+   "id": "C-03",
+   "source": "W151 §8",
+   "statement": "An ambiguous claim grants no capability; settlement is by exact operation replay, never by Handler identity.",
+   "observable": "The control store and authority operation records after an interrupted claim.",
+   "verdict": {
+    "passed": "no writable runtime started while the operation was unsettled, and settlement used the exact operation",
+    "failed": "a writable runtime started while ambiguous, or the Handler alone settled it",
+    "unable": "the harness cannot interrupt the claim"
+   },
+   "cases": [
+    "C-claim-ambiguous-no-execution",
+    "C-claim-settled-by-operation"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "ambiguous",
+      "operation"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "C-04",
+   "source": "worker-control 1.0 §6.2, §13",
+   "statement": "No writable workspace, tool or publication capability exists before exact claim settlement and activation.",
+   "observable": "The runtime's writability and tool set before and after assignment.activate.",
+   "verdict": {
+    "passed": "nothing writable exists before activation and the workspace appears only after it",
+    "failed": "a writable path or tool exists before activation",
+    "unable": "the harness cannot observe the pre-activation runtime"
+   },
+   "cases": [
+    "C-no-write-before-activate"
+   ],
+   "covers": {
+    "control_kinds": [
+     "assignment.activate"
+    ]
+   }
+  },
+  {
+   "id": "C-05",
+   "source": "W151 §10.4",
+   "statement": "Every assignment-owned act compares the full assignment; a stale generation refuses.",
+   "observable": "The reply to activity, result and proposal submitted under a superseded generation.",
+   "verdict": {
+    "passed": "each refuses with stale-assignment.generation and changes nothing",
+    "failed": "any is accepted, or refused with a different pair",
+    "unable": "the harness cannot mint a successor generation"
+   },
+   "cases": [
+    "C-stale-activity",
+    "C-stale-result",
+    "C-stale-proposal"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "stale-assignment",
+      "generation"
+     ],
+     [
+      "stale-assignment",
+      "ended"
+     ]
+    ],
+    "control_kinds": [
+     "activity.emit",
+     "result.declare",
+     "proposal.publish"
+    ]
+   }
+  },
+  {
+   "id": "C-06",
+   "source": "worker-control 1.0 §6.2",
+   "statement": "Activity is neither a heartbeat nor a phase change; it never alters Handler, phase or generation.",
+   "observable": "The authority projection before and after a burst of activity.",
+   "verdict": {
+    "passed": "phase, Handler, contract and generation are unchanged by activity",
+    "failed": "any of them changes because activity was emitted",
+    "unable": "the harness cannot read the authority projection"
+   },
+   "cases": [
+    "C-activity-changes-no-state"
+   ],
+   "covers": {
+    "control_kinds": [
+     "activity.emit"
+    ]
+   }
+  },
+  {
+   "id": "C-07",
+   "source": "worker-control 1.0 §8.2",
+   "statement": "The assignment manifest is minted only after claim success and binds the authority claim receipt and the current live generation.",
+   "observable": "The assignment manifest against the authority's claim event and live generation.",
+   "verdict": {
+    "passed": "the manifest exists only after the claim committed and its generation equals the live one",
+    "failed": "a manifest exists before the claim, or its generation is not the live one",
+    "unable": "the harness cannot read the authority claim event"
+   },
+   "cases": [
+    "C-assignment-manifest-after-claim"
+   ],
+   "covers": {
+    "manifests": [
+     "baton.worker-manifest/assignment"
+    ],
+    "control_kinds": [
+     "assignment.activate"
+    ]
+   }
+  },
+  {
+   "id": "C-08",
+   "source": "W151 §6, §7 as superseded by W4487; worker-control 1.0 §6.1, §12 rule 14, §13",
+   "statement": "A decline carries no bearer, is authorized by its exact offer binding, consumes the verifier and terminates only the offer it names.",
+   "observable": "The decline frame, the offer record afterwards, the authority Handler, and what a differently bound or bearer-carrying decline does.",
+   "verdict": {
+    "passed": "the decline carries claim_token null and terminates its own offer with the verifier spent and no claim committed, while a bearer-carrying decline and a differently bound one both refuse and terminate nothing",
+    "failed": "a decline transmits the bearer, terminates an offer it is not bound to, leaves the verifier spendable, or commits a claim",
+    "unable": "the harness cannot issue two concurrent offers or inspect the offer record"
+   },
+   "cases": [
+    "C-decline-without-bearer",
+    "C-decline-carrying-bearer-refused",
+    "C-decline-wrong-binding-refused"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "refused",
+      "precondition"
+     ],
+     [
+      "integrity",
+      "schema"
+     ]
+    ],
+    "control_kinds": [
+     "offer.decide"
+    ]
+   }
+  },
+  {
+   "id": "D-01",
+   "source": "W151 §7 ruling 1; agent-session 1.0 §7.1",
+   "statement": "Cancellation fences the generation and ends the assignment BEFORE anything is asked to stop.",
+   "observable": "The ordered event journal: authority transaction, then agent cancel, then runtime stop.",
+   "verdict": {
+    "passed": "the fence-and-end transaction precedes every stop order",
+    "failed": "any stop order precedes the fence, or the two authority facts commit separately",
+    "unable": "the harness cannot order the observations"
+   },
+   "cases": [
+    "D-fence-before-stop"
+   ],
+   "covers": {
+    "control_kinds": [
+     "runtime.cancel"
+    ]
+   }
+  },
+  {
+   "id": "D-02",
+   "source": "worker-control 1.0 §6.3",
+   "statement": "A successful cancel reply is not proof of process death.",
+   "observable": "The cancel reply and the subsequent runtime inspection.",
+   "verdict": {
+    "passed": "the reply alone never satisfies the quiescence gate; an inspection decides",
+    "failed": "the gate is satisfied by the reply",
+    "unable": "the harness cannot inspect the runtime after cancel"
+   },
+   "cases": [
+    "D-cancel-reply-is-not-death"
+   ],
+   "covers": {
+    "control_kinds": [
+     "runtime.cancel",
+     "runtime.inspect"
+    ]
+   }
+  },
+  {
+   "id": "D-03",
+   "source": "W151 §6, §10.8",
+   "statement": "quiescent and destroyed are different observations; only destroyed is positive proof of absence.",
+   "observable": "The inspection results and which of them clears runtime-quiescence:<generation>.",
+   "verdict": {
+    "passed": "only positive absence or the pinned certified-isolation clause clears the gate",
+    "failed": "a quiescent observation clears the gate",
+    "unable": "the harness cannot reach a destroyed observation"
+   },
+   "cases": [
+    "D-quiescent-is-not-destroyed",
+    "D-destroyed-clears-gate"
+   ],
+   "covers": {
+    "control_kinds": [
+     "runtime.inspect",
+     "runtime.destroy"
+    ],
+    "gates": [
+     "runtime-quiescence"
+    ]
+   }
+  },
+  {
+   "id": "D-04",
+   "source": "W151 §9, §10.8",
+   "statement": "An unreachable runtime is uncertain, not dead; the replacement waits behind a visibly held gate.",
+   "observable": "The attempt's runtime axis and the Work's displayed gate after an unreachable cancel.",
+   "verdict": {
+    "passed": "the attempt records uncertain and the gate stays visibly held",
+    "failed": "the attempt records destroyed, or the gate clears without positive absence",
+    "unable": "the harness cannot make the runtime unreachable"
+   },
+   "cases": [
+    "D-uncertain-quiescence",
+    "D-replacement-gated"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "runtime-observation",
+      "quiescence-unknown"
+     ]
+    ],
+    "gates": [
+     "runtime-quiescence"
+    ]
+   }
+  },
+  {
+   "id": "D-05",
+   "source": "W151 §10.5",
+   "statement": "No ended generation can publish. Every late publication attempt refuses.",
+   "observable": "The reply to proposal.publish, result.declare and activity.emit issued after cancellation.",
+   "verdict": {
+    "passed": "all three refuse with a stale-assignment pair",
+    "failed": "any is accepted after the fence",
+    "unable": "the harness cannot issue a late attempt"
+   },
+   "cases": [
+    "D-late-publication-refused"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "stale-assignment",
+      "ended"
+     ]
+    ],
+    "control_kinds": [
+     "proposal.publish"
+    ]
+   }
+  },
+  {
+   "id": "D-06",
+   "source": "W151 §10.9",
+   "statement": "Cancellation never silently deletes recoverable declared output; sealing is the default.",
+   "observable": "The quarantine record and its intake disposition after a cancellation with partial output.",
+   "verdict": {
+    "passed": "the material is sealed or quarantined with its Work, generation, reason and policy provenance",
+    "failed": "recoverable output is discarded without a pinned disposable-attempt policy",
+    "unable": "the harness cannot produce partial output before cancelling"
+   },
+   "cases": [
+    "D-cancelled-output-sealed",
+    "D-discard-requires-policy"
+   ],
+   "covers": {
+    "control_kinds": [
+     "output.collect",
+     "output.retain"
+    ]
+   }
+  },
+  {
+   "id": "D-07",
+   "source": "W151 §7",
+   "statement": "Cancellation frees the participant's claim slot immediately; only the replacement waits.",
+   "observable": "The participant's capacity for an unrelated Work while the cancelled Work stays gated.",
+   "verdict": {
+    "passed": "the same participant may claim an unrelated Work while the cancelled Work is gated",
+    "failed": "the participant remains at capacity",
+    "unable": "the harness cannot offer an unrelated Work"
+   },
+   "cases": [
+    "D-slot-freed-immediately"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "D-08",
+   "source": "agent-session 1.0 §7.4",
+   "statement": "Agent quiescence never satisfies runtime-quiescence.",
+   "observable": "The gate-satisfaction evidence and its source observation.",
+   "verdict": {
+    "passed": "no gate clearance cites an agent-session observation",
+    "failed": "a gate is cleared by a turn ending or a session state",
+    "unable": "the harness cannot read gate-satisfaction evidence"
+   },
+   "cases": [
+    "D-agent-quiescence-not-runtime"
+   ],
+   "covers": {
+    "gates": [
+     "runtime-quiescence"
+    ]
+   }
+  },
+  {
+   "id": "D-09",
+   "source": "W151 §7, §10.9",
+   "statement": "Retention and discard follow the pinned policy; retention is not acceptance and an over-retention refuses.",
+   "observable": "The retain reply and the retained locator's deadline against the pinned retention policy.",
+   "verdict": {
+    "passed": "retention within policy succeeds with a deadline and an over-retention refuses with policy.retention",
+    "failed": "material is retained past policy, or retention is treated as acceptance",
+    "unable": "the harness cannot vary the retention policy"
+   },
+   "cases": [
+    "D-retention-policy"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "policy",
+      "retention"
+     ]
+    ],
+    "control_kinds": [
+     "output.retain"
+    ]
+   }
+  },
+  {
+   "id": "E-01",
+   "source": "worker-control 1.0 §10.3, W151 §9",
+   "statement": "After a manager restart, an ambiguous operation is settled by exact replay, never by inference.",
+   "observable": "The manager's control-store operation record and the authority operation record after restart.",
+   "verdict": {
+    "passed": "the exact operation is replayed or queried and both records are reconciled",
+    "failed": "the outcome is inferred from Handler, reachability or output presence",
+    "unable": "the harness cannot restart the manager mid-operation"
+   },
+   "cases": [
+    "E-manager-restart-reconciles"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "ambiguous",
+      "operation"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "E-02",
+   "source": "worker-control 1.0 §10.1, §10.2",
+   "statement": "An exact operation retry replays byte-for-byte; the same id with a different signature refuses.",
+   "observable": "The two replies under one operation id.",
+   "verdict": {
+    "passed": "the exact retry replays and the differing signature refuses with refused.operation-collision",
+    "failed": "the differing signature commits, or the exact retry produces a new result",
+    "unable": "the harness cannot reissue an operation"
+   },
+   "cases": [
+    "E-exact-replay",
+    "E-operation-collision"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "refused",
+      "operation-collision"
+     ]
+    ],
+    "control_kinds": [
+     "operation.reply"
+    ]
+   }
+  },
+  {
+   "id": "E-03",
+   "source": "worker-control 1.0 §10.5",
+   "statement": "Duplicate runtime observations replay; a lower or contradictory state refuses.",
+   "observable": "The attempt's observation axis after a duplicate and after a regressive report.",
+   "verdict": {
+    "passed": "the duplicate replays and the regression refuses with runtime-observation.state-regression",
+    "failed": "a regression is accepted, or the axis walks backwards",
+    "unable": "the harness cannot inject a regressive observation"
+   },
+   "cases": [
+    "E-duplicate-observation",
+    "E-observation-regression"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "runtime-observation",
+      "state-regression"
+     ]
+    ],
+    "control_kinds": [
+     "runtime.inspect"
+    ]
+   }
+  },
+  {
+   "id": "E-04",
+   "source": "worker-control 1.0 §3.1",
+   "statement": "A duplicated or delayed frame changes nothing; meaning comes from the operation, not the transport.",
+   "observable": "The durable effect of a replayed frame carrying the same message id.",
+   "verdict": {
+    "passed": "no second durable effect occurs",
+    "failed": "the replayed frame produces a second effect",
+    "unable": "the harness cannot duplicate a frame"
+   },
+   "cases": [
+    "E-duplicate-frame"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "E-05",
+   "source": "W151 §9",
+   "statement": "After a transport partition, reattachment requires positive proof of the same runtime and assignment.",
+   "observable": "The identity evidence the manager accepted before resuming control of the runtime.",
+   "verdict": {
+    "passed": "reattachment cites an exact runtime identity and the full assignment",
+    "failed": "reachability alone is treated as identity",
+    "unable": "the harness cannot partition the transport"
+   },
+   "cases": [
+    "E-partition-reattach-proof",
+    "E-reachability-is-not-identity"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "runtime-observation",
+      "identity-mismatch"
+     ],
+     [
+      "unavailable",
+      "transport"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "E-06",
+   "source": "W151 §9",
+   "statement": "Ambiguous or duplicated runtime start cancels the assignment rather than adopting a runtime.",
+   "observable": "The number of runtimes observed for one attempt and the manager's response.",
+   "verdict": {
+    "passed": "a mismatch or multiplicity cancels the assignment",
+    "failed": "a second runtime is adopted, or two run concurrently",
+    "unable": "the harness cannot produce a duplicate start"
+   },
+   "cases": [
+    "E-duplicate-runtime-start"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "ambiguous",
+      "runtime-start"
+     ],
+     [
+      "runtime-observation",
+      "duplicate-runtime"
+     ]
+    ],
+    "control_kinds": [
+     "runtime.start"
+    ]
+   }
+  },
+  {
+   "id": "E-07",
+   "source": "agent-session 1.0 §8.4",
+   "statement": "A lost agent transport ends the epoch: no resume, no re-prompt, and no new epoch without re-identification.",
+   "observable": "The session record's terminal state and whether a second prompt was issued.",
+   "verdict": {
+    "passed": "the epoch ends unknown and no re-prompt occurs",
+    "failed": "the turn is re-prompted, or a session is resumed",
+    "unable": "the harness cannot drop the agent transport mid-turn"
+   },
+   "cases": [
+    "E-agent-transport-lost"
+   ],
+   "covers": {
+    "session_states": [
+     "unknown"
+    ],
+    "turn_outcomes": [
+     "transport-lost"
+    ]
+   }
+  },
+  {
+   "id": "E-08",
+   "source": "W151 §9",
+   "statement": "Cleanup never changes authority state and reports blocked-on-intake rather than deleting.",
+   "observable": "The cleanup result while a sealed record is still pending intake.",
+   "verdict": {
+    "passed": "cleanup reports blocked-on-intake and the authority projection is unchanged",
+    "failed": "cleanup deletes pending material or alters authority state",
+    "unable": "the harness cannot leave a pending sealed record"
+   },
+   "cases": [
+    "E-cleanup-blocked-on-intake"
+   ],
+   "covers": {
+    "control_kinds": [
+     "runtime.destroy"
+    ]
+   }
+  },
+  {
+   "id": "E-09",
+   "source": "W151 §9; worker-control 1.0 §10.3",
+   "statement": "After an adapter restart the same runtime is re-identified from proof, and no second runtime starts.",
+   "observable": "The adapter's post-restart reattachment evidence and the number of runtimes for the attempt.",
+   "verdict": {
+    "passed": "the same runtime is re-identified and exactly one durable effect exists",
+    "failed": "a second runtime starts, or reattachment proceeds without identity proof",
+    "unable": "the harness cannot restart the adapter"
+   },
+   "cases": [
+    "E-adapter-restart-reconciles"
+   ],
+   "covers": {
+    "control_kinds": [
+     "runtime.inspect"
+    ]
+   }
+  },
+  {
+   "id": "E-10",
+   "source": "W151 §9, §10.8",
+   "statement": "A restarted runtime host leaves the runtime uncertain and the replacement gated.",
+   "observable": "The runtime observation and the Work's gate after the host restarts.",
+   "verdict": {
+    "passed": "the observation is uncertain and no replacement claim commits",
+    "failed": "the observation is destroyed, or a replacement claims while the gate holds",
+    "unable": "the harness cannot restart the runtime host"
+   },
+   "cases": [
+    "E-remote-host-restart"
+   ],
+   "covers": {
+    "gates": [
+     "runtime-quiescence"
+    ]
+   }
+  },
+  {
+   "id": "E-11",
+   "source": "worker-control 1.0 §4.2, §12 rule 9",
+   "statement": "A mutating command's operation signature recomputes over the operation kind and every durable operand; a signature that does not describe the request refuses and changes nothing.",
+   "observable": "The frame's operation signature recomputed by the receiver, and the durable operation record afterwards.",
+   "verdict": {
+    "passed": "a command whose signature does not recompute is refused with nothing durable written, and one operation id reused across two kinds with identical operands collides instead of replaying",
+    "failed": "a stale or wrong signature is journalled, or a second kind under one id replays the first kind's committed result",
+    "unable": "the harness cannot compose a frame whose operation signature it controls independently of the body"
+   },
+   "cases": [
+    "E-operation-signature-mismatch-refused",
+    "E-operation-signature-covers-kind"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "integrity",
+      "digest"
+     ],
+     [
+      "refused",
+      "operation-collision"
+     ]
+    ],
+    "control_kinds": [
+     "offer.decide",
+     "output.freeze",
+     "output.collect"
+    ]
+   }
+  },
+  {
+   "id": "F-01",
+   "source": "worker-control 1.0 §13",
+   "statement": "Credentials never appear on a durable surface; delivery scope itself is F-06.",
+   "observable": "Every durable manifest, event, error and artifact locator produced by the run.",
+   "verdict": {
+    "passed": "no credential, token or bearer appears in any durable surface",
+    "failed": "any durable surface carries one",
+    "unable": "the harness cannot enumerate durable surfaces"
+   },
+   "cases": [
+    "F-no-credential-in-manifests",
+    "F-no-credential-in-events"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "F-02",
+   "source": "worker-control 1.0 §9",
+   "statement": "Exact canary scans cover workspace, outputs, Git objects, proposal, manifests, evidence, logs, caches and retained layers.",
+   "observable": "A planted canary value and the scan result over each named surface.",
+   "verdict": {
+    "passed": "every named surface is scanned and the planted canary is found in each",
+    "failed": "any named surface is unscanned, or a planted canary is missed",
+    "unable": "the harness cannot plant a canary in a surface"
+   },
+   "cases": [
+    "F-canary-each-surface"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "integrity",
+      "secret-leak"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "F-03",
+   "source": "worker-control 1.0 §9",
+   "statement": "A detected leak refuses publication.",
+   "observable": "The publication reply for a result containing a planted canary.",
+   "verdict": {
+    "passed": "publication refuses with integrity.secret-leak",
+    "failed": "publication commits, or refuses with a different pair",
+    "unable": "the harness cannot plant a canary in the output"
+   },
+   "cases": [
+    "F-leak-refuses-publication"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "integrity",
+      "secret-leak"
+     ]
+    ],
+    "control_kinds": [
+     "proposal.publish"
+    ]
+   }
+  },
+  {
+   "id": "F-04",
+   "source": "worker-control 1.0 §9",
+   "statement": "Redaction is not proof of absence; residual risk is reported explicitly.",
+   "observable": "The certification report's residual-risk section.",
+   "verdict": {
+    "passed": "the report states which surfaces were scanned, with which canaries, and what remains unproven",
+    "failed": "the report claims absence of secrets without qualification",
+    "unable": "no report is produced"
+   },
+   "cases": [
+    "F-residual-risk-reported"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "F-05",
+   "source": "worker-control 1.0 §13; W151 §7",
+   "statement": "Credential lifetime is enforced; an expired or over-long credential refuses before execution.",
+   "observable": "The activation reply for a credential below the pinned remaining-lifetime floor.",
+   "verdict": {
+    "passed": "activation refuses with policy.credential-lifetime",
+    "failed": "activation proceeds",
+    "unable": "the harness cannot control credential lifetime"
+   },
+   "cases": [
+    "F-credential-lifetime"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "policy",
+      "credential-lifetime"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "F-06",
+   "source": "worker-control 1.0 §13; W151 §7",
+   "statement": "Credentials are delivered out of band, scoped to the exact assignment, not persisted, and useless elsewhere or after expiry.",
+   "observable": "The delivery path, the credential's scope, its persistence, and its behaviour from another assignment and after expiry.",
+   "verdict": {
+    "passed": "delivery is out of band and assignment-scoped, nothing is persisted, and cross-assignment or expired use is denied",
+    "failed": "the credential persists, works from another assignment, or works after expiry",
+    "unable": "the harness cannot deliver, reuse or expire a credential"
+   },
+   "cases": [
+    "F-credential-scoped-to-assignment",
+    "F-credential-not-reusable-cross-assignment",
+    "F-credential-expiry-mid-run"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "policy",
+      "denied"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "G-01",
+   "source": "agent-session 1.0 §4.1",
+   "statement": "An unavailable or drifted pinned policy fails visibly and grants nothing.",
+   "observable": "The session setup result when the pinned mode or provider operands are unavailable.",
+   "verdict": {
+    "passed": "setup refuses with policy.denied and no turn begins",
+    "failed": "setup falls back to another mode or proceeds under an unpinned policy",
+    "unable": "the harness cannot withhold the pinned mode"
+   },
+   "cases": [
+    "G-mode-unavailable",
+    "G-policy-drift"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "policy",
+      "denied"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "G-02",
+   "source": "agent-session 1.0 §4.3, §10.5",
+   "statement": "An unexpected approval request grants nothing and is answered in the family's own response shape.",
+   "observable": "The exact response payload sent, validated against the provider's response schema.",
+   "verdict": {
+    "passed": "the response is schema-valid for its family and grants nothing",
+    "failed": "any option is selected, any scope granted, or the payload is not schema-valid",
+    "unable": "the harness cannot provoke an approval request"
+   },
+   "cases": [
+    "G-approval-refused",
+    "G-approval-race",
+    "G-approval-payload-valid"
+   ],
+   "covers": {
+    "approval_families": [
+     "item/commandExecution/requestApproval",
+     "item/fileChange/requestApproval",
+     "item/permissions/requestApproval",
+     "mcpServer/elicitation/request"
+    ],
+    "error_codes": [
+     [
+      "policy",
+      "denied"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "G-03",
+   "source": "worker-control 1.0 §6.5, §13",
+   "statement": "Worker output remains untrusted even when schema-valid; provider text never selects portable semantics.",
+   "observable": "The mapping from a hostile agent transcript to portable state.",
+   "verdict": {
+    "passed": "no portable state is derived from agent prose, tool status or diagnostics",
+    "failed": "any portable state is derived from them",
+    "unable": "the harness cannot script a hostile transcript"
+   },
+   "cases": [
+    "G-untrusted-output",
+    "G-prose-decides-nothing"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "G-04",
+   "source": "worker-control 1.0 §8.5, W151 §10.11",
+   "statement": "A proposal binds the exact assignment, input, policy, output, candidate and target digests.",
+   "observable": "The proposal manifest's bound digests against the run's actual inputs and output.",
+   "verdict": {
+    "passed": "every bound digest matches what the run actually used",
+    "failed": "any bound digest does not match, or a required binding is absent",
+    "unable": "the harness cannot recompute a bound digest"
+   },
+   "cases": [
+    "G-proposal-integrity"
+   ],
+   "covers": {
+    "manifests": [
+     "baton.worker-manifest/proposal"
+    ],
+    "control_kinds": [
+     "proposal.publish"
+    ]
+   }
+  },
+  {
+   "id": "G-05",
+   "source": "W151 §10.12",
+   "statement": "Verification, technical review, approval and integration are four immutable receipts; a second differing write refuses.",
+   "observable": "The reply to a second differing write against each receipt id.",
+   "verdict": {
+    "passed": "each refuses and the committed receipt is unchanged; an exact replay returns it",
+    "failed": "any receipt is overwritten",
+    "unable": "the harness cannot issue a second write"
+   },
+   "cases": [
+    "G-receipt-immutability"
+   ],
+   "covers": {
+    "manifests": [
+     "baton.worker-manifest/verification",
+     "baton.worker-manifest/verification-assessment",
+     "baton.worker-manifest/technical-review",
+     "baton.worker-manifest/approval",
+     "baton.worker-manifest/integration"
+    ],
+    "error_codes": [
+     [
+      "refused",
+      "already-terminal"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "G-06",
+   "source": "worker-control 1.0 §2.2, §2.3",
+   "statement": "An unsupported version, an unselected capability or an unnegotiated extension refuses before side effects.",
+   "observable": "The refusal category/code and whether any durable state changed.",
+   "verdict": {
+    "passed": "each refuses with its exact pair and nothing durable changed",
+    "failed": "any is accepted, or a side effect precedes the refusal",
+    "unable": "the harness cannot offer an unsupported version"
+   },
+   "cases": [
+    "G-version-refused",
+    "G-capability-refused",
+    "G-extension-refused"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "refused",
+      "unsupported-version"
+     ],
+     [
+      "refused",
+      "capability"
+     ],
+     [
+      "refused",
+      "extension"
+     ]
+    ],
+    "control_kinds": [
+     "control.hello",
+     "control.welcome"
+    ]
+   }
+  },
+  {
+   "id": "G-07",
+   "source": "W151 §7",
+   "statement": "An uncertified runtime profile cannot execute a contract; the Work waits behind contract-runtime.",
+   "observable": "The Work's gate when no certified profile executes its contract.",
+   "verdict": {
+    "passed": "the Work is blocked on contract-runtime:<contract> with no Handler",
+    "failed": "the Work runs under an uncertified profile",
+    "unable": "the harness cannot withdraw certification"
+   },
+   "cases": [
+    "G-uncertified-profile"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "policy",
+      "profile-uncertified"
+     ]
+    ],
+    "gates": [
+     "contract-runtime"
+    ]
+   }
+  },
+  {
+   "id": "G-08",
+   "source": "W151 §7",
+   "statement": "A rejected plan installs plan-revision atomically with the assignment end; the unchanged plan cannot be reoffered.",
+   "observable": "The gate and the reply to an offer carrying the same plan digest.",
+   "verdict": {
+    "passed": "the gate holds and the identical plan is refused",
+    "failed": "the same plan is reoffered",
+    "unable": "the harness cannot reject a plan"
+   },
+   "cases": [
+    "G-plan-rejected"
+   ],
+   "covers": {
+    "gates": [
+     "plan-revision"
+    ],
+    "control_kinds": [
+     "result.declare"
+    ]
+   }
+  },
+  {
+   "id": "G-09",
+   "source": "this contract §6.5",
+   "statement": "The suite reports a verdict and emits a signal; it never chooses or mutates route policy or profile certification.",
+   "observable": "The certification report's verdict and the separate policy record.",
+   "verdict": {
+    "passed": "the report states the failed case and does not itself disable anything",
+    "failed": "the suite mutates route policy or profile certification",
+    "unable": "no report is produced"
+   },
+   "cases": [
+    "G-verdict-is-not-policy"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "G-10",
+   "source": "worker-control 1.0 §6.5, §11",
+   "statement": "Every refused CONTROL OPERATION is reported as control.error carrying a category/code pair from the closed taxonomy, with retry and operation_state set. Probe and authority invariants are decided from their own observed facts and synthesize no control frame.",
+   "observable": "The error frame for each control-refusal case, and the absence of any synthesized frame for invariant cases.",
+   "verdict": {
+    "passed": "every negative case yields control.error with its expected pair, a retry class and an operation_state",
+    "failed": "a refusal is silent, untyped, or carries a pair outside the taxonomy",
+    "unable": "the harness cannot capture the error frame"
+   },
+   "cases": [
+    "G-error-frames-typed"
+   ],
+   "covers": {
+    "control_kinds": [
+     "control.error"
+    ]
+   }
+  },
+  {
+   "id": "G-11",
+   "source": "worker-control 1.0 §11",
+   "statement": "An unavailable dependency is reported as unavailable with the right subject and never as a refusal or a success.",
+   "observable": "The error frame when the authority, the artifact store or the source provider is made unreachable.",
+   "verdict": {
+    "passed": "each yields its exact unavailable pair with operation_state unknown and retry reconcile or exact",
+    "failed": "any is reported as refused, as committed, or with operation_state unsubmitted",
+    "unable": "the harness cannot make the dependency unreachable"
+   },
+   "cases": [
+    "G-authority-unavailable",
+    "G-artifact-store-unavailable",
+    "G-source-provider-unavailable"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "unavailable",
+      "authority"
+     ],
+     [
+      "unavailable",
+      "artifact-store"
+     ],
+     [
+      "unavailable",
+      "source-provider"
+     ]
+    ],
+    "control_kinds": [
+     "control.error"
+    ]
+   }
+  },
+  {
+   "id": "G-12",
+   "source": "W151 §7 ruling 3",
+   "statement": "A contract transition ends the assignment atomically; a stale contract expectation refuses.",
+   "observable": "The reply to an act submitted under the superseded contract selector.",
+   "verdict": {
+    "passed": "the stale contract refuses with stale-assignment.contract and changes nothing",
+    "failed": "the act is accepted under the old contract",
+    "unable": "the harness cannot advance the contract"
+   },
+   "cases": [
+    "G-stale-contract"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "stale-assignment",
+      "contract"
+     ]
+    ],
+    "gates": [
+     "contract-runtime"
+    ]
+   }
+  },
+  {
+   "id": "G-13",
+   "source": "W151 §7, §10.11",
+   "statement": "Integration compares the exact reviewed target; a moved canonical target refuses and journals one attempt.",
+   "observable": "The integration receipt or the journalled refusal, and the canonical target revision.",
+   "verdict": {
+    "passed": "a moved target refuses with stale-assignment.target and journals exactly one attempt",
+    "failed": "integration proceeds against a different target, or journals more than one attempt",
+    "unable": "the harness cannot move the canonical target"
+   },
+   "cases": [
+    "G-stale-target"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "stale-assignment",
+      "target"
+     ]
+    ],
+    "manifests": [
+     "baton.worker-manifest/integration"
+    ]
+   }
+  },
+  {
+   "id": "G-14",
+   "source": "this contract §6.5",
+   "statement": "A run whose portable core did not pass emits a profile signal bound to the runtime-profile and adapter digests, for a route-policy consumer to act on.",
+   "observable": "The emitted signal, the cases it names, and the digests it binds.",
+   "verdict": {
+    "passed": "a failing run emits probation or disablement naming its failed and undecided cases and binding both digests",
+    "failed": "a failing run emits no signal, or emits one that names nothing",
+    "unable": "no report is produced"
+   },
+   "cases": [
+    "G-profile-failure-signal"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "H-01",
+   "source": "agent-session 1.0 §2.2",
+   "statement": "The relay withholds filesystem and terminal capability structurally.",
+   "observable": "The advertised client capabilities and the reply to an agent calling one.",
+   "verdict": {
+    "passed": "nothing is advertised and every such call is refused with policy.denied",
+    "failed": "any capability is advertised, or such a call is served",
+    "unable": "the harness cannot script the call"
+   },
+   "cases": [
+    "H-capability-withheld",
+    "H-unadvertised-method-refused"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "H-02",
+   "source": "agent-session 1.0 §2.3, §3.2",
+   "statement": "History-bearing session methods are refused and every session is fresh.",
+   "observable": "The methods sent during setup and the provider session identity per epoch.",
+   "verdict": {
+    "passed": "no load, resume or fork is sent and each epoch opens a new provider session",
+    "failed": "any is sent, or a session is reused",
+    "unable": "the harness cannot observe the methods sent"
+   },
+   "cases": [
+    "H-fresh-session",
+    "H-history-methods-refused"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "refused",
+      "capability"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "H-03",
+   "source": "agent-session 1.0 §3.2, §4.2",
+   "statement": "Consent and execution are separate sessions under one attempt and are never interchangeable.",
+   "observable": "The two session records: their postures, epochs, assignments and policies.",
+   "verdict": {
+    "passed": "the consent record carries no assignment and the execution record carries the exact one, under one attempt id",
+    "failed": "one session serves both postures, or a consent session carries an assignment",
+    "unable": "the harness cannot run a consent posture"
+   },
+   "cases": [
+    "H-consent-then-execution"
+   ],
+   "covers": {}
+  },
+  {
+   "id": "H-04",
+   "source": "agent-session 1.0 §5.2, §5.3",
+   "statement": "Every turn ends in exactly one closed outcome, derived only from a terminal provider fact, a policy failure, the manager deadline, or transport death.",
+   "observable": "The turn record's outcome and the terminal fact it names.",
+   "verdict": {
+    "passed": "each scripted ending produces its mapped outcome and names its evidence",
+    "failed": "an outcome is derived from prose, tool status, silence or reachability",
+    "unable": "the harness cannot script the ending"
+   },
+   "cases": [
+    "H-turn-outcomes"
+   ],
+   "covers": {
+    "turn_outcomes": [
+     "agent-failed",
+     "cancelled",
+     "completed",
+     "policy-failed",
+     "refused",
+     "timeout",
+     "transport-lost",
+     "truncated"
+    ]
+   }
+  },
+  {
+   "id": "H-05",
+   "source": "agent-session 1.0 §5.5",
+   "statement": "The turn outcome gates which disposition may be accepted and never decides one.",
+   "observable": "The accepted disposition against the observed turn outcome.",
+   "verdict": {
+    "passed": "only the permitted dispositions are accepted for each outcome",
+    "failed": "a disposition outside the permitted set is accepted",
+    "unable": "the harness cannot submit a disposition"
+   },
+   "cases": [
+    "H-disposition-gating"
+   ],
+   "covers": {
+    "control_kinds": [
+     "result.declare"
+    ]
+   }
+  },
+  {
+   "id": "H-06",
+   "source": "agent-session 1.0 §6.1, §6.2",
+   "statement": "Every provider update normalizes into the closed event set; an unmapped kind is counted as other.",
+   "observable": "The normalized event kinds against the scripted provider updates.",
+   "verdict": {
+    "passed": "each scripted update maps to its declared kind and unmapped kinds become other",
+    "failed": "an update is dropped silently or mapped outside the closed set",
+    "unable": "the harness cannot script the update"
+   },
+   "cases": [
+    "H-event-normalization"
+   ],
+   "covers": {
+    "event_kinds": [
+     "agent-message",
+     "agent-reasoning",
+     "commands-changed",
+     "mode-change",
+     "other",
+     "plan",
+     "session-info",
+     "tool-call",
+     "tool-call-update",
+     "usage"
+    ]
+   }
+  },
+  {
+   "id": "H-07",
+   "source": "agent-session 1.0 §6.3, §6.4, §6.5",
+   "statement": "Events are sealed, bounded, redacted, per-epoch sequenced; duplicates replay, conflicts refuse, drops are counted.",
+   "observable": "The persisted events, their seals, and the ledger's drop and late counters.",
+   "verdict": {
+    "passed": "every persisted event verifies, duplicates replay, a conflict refuses, and every drop is counted",
+    "failed": "an event is unsealed, a conflict is merged, or a drop is silent",
+    "unable": "the harness cannot overflow the queue"
+   },
+   "cases": [
+    "H-event-integrity",
+    "H-event-overflow-counted"
+   ],
+   "covers": {
+    "error_codes": [
+     [
+      "integrity",
+      "digest"
+     ],
+     [
+      "integrity",
+      "limit"
+     ],
+     [
+      "integrity",
+      "schema"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "H-08",
+   "source": "agent-session 1.0 §7.2, §7.3",
+   "statement": "Cancellation is ordered intent plus observed quiescence; the session axis never regresses.",
+   "observable": "The session record's cancellation block and state history.",
+   "verdict": {
+    "passed": "the order is recorded, the observation is whichever occurred, and the axis is monotonic",
+    "failed": "the order is treated as an observation, or the axis regresses",
+    "unable": "the harness cannot order cancellation"
+   },
+   "cases": [
+    "H-cancel-observed",
+    "H-cancel-drain-unknown",
+    "H-axis-monotonic"
+   ],
+   "covers": {
+    "session_states": [
+     "agent-quiescent",
+     "cancel-requested",
+     "closed",
+     "initializing",
+     "not-started",
+     "prompting",
+     "ready",
+     "turn-ended",
+     "unknown"
+    ],
+    "error_codes": [
+     [
+      "runtime-observation",
+      "state-regression"
+     ],
+     [
+      "runtime-observation",
+      "quiescence-unknown"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "H-09",
+   "source": "agent-session 1.0 §3.1, §8.1",
+   "statement": "A provider session id is never a participant, Handler or assignment, and the agent holds no Baton capability.",
+   "observable": "The durable records and everything the agent endpoint received.",
+   "verdict": {
+    "passed": "no Baton identity is derived from a provider id and no Baton capability reached the agent",
+    "failed": "either occurs",
+    "unable": "the harness cannot enumerate what the agent received"
+   },
+   "cases": [
+    "H-provider-id-is-not-identity",
+    "H-agent-holds-no-capability"
+   ],
+   "covers": {}
+  }
+ ],
+ "profiles": [
+  {
+   "id": "local-oci",
+   "locality": "local",
+   "requires": [
+    "an OCI runtime reachable from the manager host",
+    "fault injection for process kill, transport drop and clock advance",
+    "a scripted agent endpoint with no model provider"
+   ],
+   "asserted_by": [
+    "the runtime-attempt manifest names an OCI adapter",
+    "the manager and runtime share a host"
+   ]
+  },
+  {
+   "id": "remote",
+   "locality": "remote",
+   "requires": [
+    "a runtime host that is NOT the manager host",
+    "fault injection for network partition and remote-host restart",
+    "a scripted agent endpoint with no model provider"
+   ],
+   "asserted_by": [
+    "host_identity.runtime_host_id differs from host_identity.manager_host_id",
+    "host_identity.workspace_path_resolves_on_manager is false",
+    "an injected partition changes the manager's observations (E-partition-reattach-proof)",
+    "an injected host restart leaves the runtime uncertain (E-remote-host-restart)"
+   ]
+  }
+ ]
+}

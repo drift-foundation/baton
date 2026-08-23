@@ -1,0 +1,72 @@
+W2928 correction evidence — 2026-08-22, baton.claude
+Answering review-2026-08-22T06-15-15Z.md (changes requested: four P1, one P2).
+
+== 1. The reviewer's own reproductions, re-run through the public boundary ==
+
+Same script shape as evidence/review-reproductions-2026-08-22.txt, importing
+only v12/src/authority/index.mjs:
+
+  1 store escape: CLOSED (TypeError: Cannot read properties of undefined (reading 'run'))
+  1 minted generation: 1 (a chosen counter would show 42)
+  2 pre-approval integrate: refused: integration requires passed verification
+  2 attempts written: 0
+  2 operation record: null
+  3 createWork active: refused: a Work is created unclaimed, so its phase is one of queued, block, par
+  3 end phase=active: refused: end does not take phase; a release derives its own phase and gate; use
+  3 end derived: phase=queued gate=null
+  3 invariants: hold
+  4 settle without mayRetire: {"kind":"live","record":null}
+  4 journal: null
+  P1b self-verify: refused: poc.claude does not hold the verify capability; a verification is written by the
+  P1b self-close: refused: poc.claude does not hold the close capability; a close is written by the configu
+
+  P1a: there is no store getter, so the escape is a TypeError on undefined,
+       and the generation the authority mints is 1 rather than the 42 that
+       followed a caller-chosen counter.
+  P1b: the publisher cannot verify or close its own candidate.
+  P1c: the pre-approval integration wrote no attempt row AND no operation
+       record, so the identity stays retryable; settlement without explicit
+       authority reports live and retires nothing.
+  P1d: createWork refuses phase=active, end refuses a supplied phase, and the
+       derived outcome is queued with no gate.
+
+== 2. P2: the race proof, repeated in isolation ==
+
+$ for i in 1..8; do node --test test/authority_race.test.mjs; done
+  ℹ pass 3 ℹ fail 0   run 1
+  ℹ pass 3 ℹ fail 0   run 2
+  ℹ pass 3 ℹ fail 0   run 3
+  ℹ pass 3 ℹ fail 0   run 4
+  ℹ pass 3 ℹ fail 0   run 5
+  ℹ pass 3 ℹ fail 0   run 6
+  ℹ pass 3 ℹ fail 0   run 7
+  ℹ pass 3 ℹ fail 0   run 8
+
+  Root cause: the racers reported through stdout, and a pipe's flush races
+  process exit. Four children under a spin-wait barrier are exactly the load
+  that loses it, and the parent then parsed an empty string. They now write
+  their result to a file synchronously; the harness reports spawn failure,
+  exit status, signal, stderr, a missing report and a malformed report as
+  distinct named outcomes, and asserts every racer reached an authority
+  DECISION before it asserts anything about the decision.
+
+== 3. The complete v12 gate ==
+
+$ cd v12 && npm test
+  ℹ tests 150
+  ℹ suites 0
+  ℹ pass 150
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1562.926332
+
+  150 cases, up from 137: nine new regressions for the four P1s plus the
+  P2 harness rewrite.
+
+== 4. W151's executable design model ==
+
+  Ran 54 tests in 0.002s
+  
+  OK

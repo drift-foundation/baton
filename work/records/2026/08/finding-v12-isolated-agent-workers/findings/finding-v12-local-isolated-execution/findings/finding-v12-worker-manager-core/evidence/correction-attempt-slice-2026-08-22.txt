@@ -1,0 +1,166 @@
+W2929 — the activation/runtime-start slice, corrected
+Review: review-2026-08-22T22-34-55Z.md, seven [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    307 tests, 295 passed, 12 failed
+
+All seven findings correct. The slice I passed was loose in several places at
+once, and the common thread is worth naming before the list: I wrote checks
+that were ABOUT the right thing without being BOUND to it. An assignment that
+is live somewhere. An axis order that looks like a sequence. A boolean that
+says a proof happened.
+
+
+2. THE SEVEN
+
+[P1] ACTIVATION WAS NOT BOUND TO THIS ATTEMPT'S CLAIM OR TO ITS SESSION. It
+accepted any free-standing attempt beside any currently live assignment,
+ignored the session's participant, stored no assignment participant, compared
+only Work and generation on the fixed path, and left the participant out of
+the runtime labels.
+
+Three separate things must now agree: the session's binding, THIS attempt's
+own committed claim, and the authority's live assignment. Any two agreeing is
+not enough — that is exactly how a foreign session or a replayed activation
+gets in. All four assignment fields are persisted, compared, and labelled.
+The offer records the generation its claim COMMITTED (schema 1 -> 2), because
+without that the attempt has nothing to compare against.
+
+[P1] ATTEMPT REPLAY SIGNED THREE OF EIGHT OPERANDS. A changed adapter name or
+input digest replayed instead of colliding. Every durable operand now rides
+the signature.
+
+[P1] RUNTIME START HAD NO DURABLE OPERATION IDENTITY. A state label is not an
+effectively-once act: a journalled operation is what a restart replays and
+what the adapter can be asked about. One fixed, fully signed `runtime.start`
+operation commits before the call, and its identity goes to the adapter so
+both sides settle the same act rather than two adjacent ones.
+
+[P1] POSITIVE ABSENCE WAS A CALLER-AUTHORED BOOLEAN. This is the rejected
+`schemaProven: true` shape a third time, and the review is right to name it
+as such: a proof the caller writes is not a proof. Certified evidence of
+absence is item 4's to define, so THE RETRY PATH IS CLOSED and the refusal
+says which slice owns it.
+
+[P1] ATTACHMENT WAS MUTABLE, AND A MINTED MISMATCH WAS FILTERED AWAY. The
+first positive attachment now compare-and-swaps null-or-identical; a
+different id cancels without rewriting what is recorded. And a runtime THIS
+CALL started, carrying labels for another assignment, is checked BEFORE the
+label filter — it is not absent, it is wrong, and this call caused it.
+
+[P1] ENUM ORDER IS NOT A TRANSITION ORDER. Treating the vocabulary's array
+order as a sequence let `worker_disposition=completed` advance to `unable` —
+a different terminal ANSWER, not a later stage of the same one. There is an
+explicit per-axis transition map now, terminal alternatives are immutable,
+and the exported `allowReset` bypass is gone: a monotonicity a caller can
+switch off is not one.
+
+[P1] MONOTONICITY WAS A READ/CHECK/WRITE RACE. The transition is decided
+INSIDE the write now, against the exact value the UPDATE compares, within a
+savepoint — a savepoint rather than a transaction because `observe` is also
+called from inside a journalled operation, and a nested BEGIN would refuse.
+Observations are journalled with adapter incarnation, source sequence and
+observed digest, so an exact duplicate replays and a conflicting one refuses.
+
+A concurrent writer surfaced as a raw `ERR_SQLITE_ERROR`; it is translated to
+a typed `runtime-observation` refusal. A caller that must handle a raw SQLite
+error beside contract refusals will eventually handle neither, and the
+meaning here is exactly one thing: this observation did not land.
+
+
+3. TWO MODEL CHANGES THE REVIEW'S OWN CASES REQUIRED
+
+A COLD START CAN DISCOVER ANYTHING. My first transition map allowed only
+`not-started -> start-requested`, and the retained cases observe `running`
+and `destroyed` directly. They are right: at restart the local axis is
+`not-started` while a runtime may already exist, so reconciliation must record
+what it FINDS rather than inventing an intermediate state nobody observed.
+
+RECONCILIATION IS LEGITIMATE FROM A COLD START too, so the precondition I
+added refusing it was wrong and is gone.
+
+
+4. MUTATION CHECK — nine, five of them independently witnessed
+
+  M1  activation ignores this attempt's claim        1 failed
+  M4  labels drop the participant                    1 failed
+  M5  attempt.record signs three operands            1 failed
+  M6  start is an unjournalled axis write            1 failed
+  M8  terminal alternatives follow one another       1 failed
+
+  M2  activation ignores the session binding         0 failed AT FIRST
+  M3  reactivation compares only Work and generation 0 failed
+  M7  attachment overwrites unconditionally          0 failed
+  M9  the update does not compare its expected state 0 failed
+
+M2 WAS WITNESSABLE AND IS NOW WITNESSED. The retained case is refused by the
+CLAIM guard first, because its fixture has no claim at all. With a claim
+present, the binding is what must refuse — and it is a different rule: the
+claim says which assignment this attempt won, the binding says who is asking.
+A case of mine drives exactly that, plus a session with no binding.
+
+M7 AND M9 ARE BACKED BY THE DECIDING GUARD, and the JavaScript check is the
+redundant one — which is the offer slice's lesson again, in the other
+direction. For M7 the SQL compare-and-swap refuses; for M9 the concurrent
+writer is refused by the lock. A case of mine now drives the attachment CAS
+directly from a second connection, so the DATABASE's answer is what is
+asserted rather than the read's.
+
+M3 IS UNWITNESSABLE BY CONSTRUCTION and is recorded as such: an attempt has
+exactly one claimed offer, and the activation compares `expect` against that
+claim before it ever reaches the fixed-path comparison. No reachable sequence
+presents an `expect` that matches the claim and differs from the fixed value.
+It stays as defence — the two comparisons answer different questions — named
+rather than counted as covered.
+
+Restored: 27/27 focused, 309/309 for the whole gate.
+
+
+5. REGRESSIONS — 27 (13 before; the reviewer's twelve retained)
+
+Plus two of mine: a foreign session refused with the claim present, and a
+session with no binding at all; and the attachment CAS driven from a second
+connection.
+
+Four of my own earlier cases needed correcting, all recorded: three drove
+axes from `not-started` along steps the per-axis map does not declare, and
+the enum-walk case walked the vocabulary in array order — which is precisely
+what the review rejected. It walks the TRANSITIONS now and asserts every
+declared value is reachable along them, which is the property that actually
+matters.
+
+The store suite's pinned `schema_version` moved 1 -> 2 with its reason.
+
+
+6. GATES
+
+  cd v12 && npm test                       309 tests, 309 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Cancellation ordering, output freeze, intake and cleanup — the rest of item 3
+— and all of item 4, including the certified-adapter evidence that would
+reopen the retry path.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs          version 2; `claim_generation`
+                                             on offers, `assignment_participant`
+                                             on attempts
+  v12/src/worker_manager/offers.mjs          the claim records its generation
+  v12/src/worker_manager/attempts.mjs        all seven corrections
+  v12/test/worker_manager_attempts.test.mjs  +2 cases, 4 corrected
+  v12/test/worker_manager_store.test.mjs     the pinned schema version

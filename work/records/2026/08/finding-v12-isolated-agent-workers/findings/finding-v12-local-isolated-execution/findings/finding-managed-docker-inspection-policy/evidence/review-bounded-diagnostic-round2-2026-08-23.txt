@@ -1,0 +1,48 @@
+W2845 review evidence — bounded diagnostic correction, round 2
+UTC: 2026-08-23T05:04:02Z
+
+Reviewed:
+  tools/codex-event-bridge/src/command_oracle.mjs
+  tools/codex-event-bridge/test/command_oracle.test.mjs
+
+Focused baseline:
+  node --test tools/codex-event-bridge/test/command_oracle.test.mjs
+  PASS
+
+Independent reproduction:
+
+  import { missingAttemptDiagnostic as d } from
+    "./tools/codex-event-bridge/src/command_oracle.mjs";
+  const long = "x".repeat(1000000);
+  const nan = d({
+    turn: { id: "t", status: "completed", items: [
+      { type: "agentMessage", text: long },
+      { type: "commandExecution", source: "agent", status: "failed",
+        command: long },
+    ] },
+    turnId: "t",
+    limit: NaN,
+  });
+  const type = d({
+    turn: { id: "t", status: "completed", items: [{ type: long }] },
+    turnId: "t",
+  });
+
+Observed:
+  {"nanMessage":1000000,"nanCommand":1000009,"nanSummary":1000088,
+   "longType":1000000,"longTypeSummary":1000051}
+
+Cause:
+  - Math.min(NaN, hardMaximum) is NaN; `value.length > NaN` is false, so
+    clip returns the complete value.
+  - item type count is capped, but each type string is retained verbatim and
+    copied into the summary.
+  - turn id/status and command status are likewise externally supplied strings
+    without length caps.
+
+Conclusion:
+The ordinary schema-shaped 1,000-command case is corrected, but the exported
+helper still has no hard output bound. Normalize invalid limits and bound all
+retained external strings (or the complete result), then add whole-result
+regressions for both paths. The diagnostic remains non-decisional; the strict
+oracle is not implicated.

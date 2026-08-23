@@ -73,6 +73,19 @@ def config_document(spec_teams=None, uuid: str = UUID) -> dict:
 	        "teams": teams}
 
 
+def episode_of(store, work_id: str) -> int:
+	"""TEST-ONLY: the Work's live assignment episode.
+
+	W4303 made `episode=` a mandatory compare-and-swap operand on every
+	release, so a suite that releases a claim has to name the episode
+	that claim was offered under. Reading it here keeps the suites
+	asserting what release DOES rather than restating how episodes are
+	minted at every call site."""
+	return store.conn.execute(
+		"SELECT episode_seq FROM work WHERE id=?",
+		(work_id,)).fetchone()["episode_seq"]
+
+
 def first_participant(config_path: str) -> str:
 	"""TEST-ONLY: the first config-capable member of the document (or the
 	first member at all) — init's required committing identity."""

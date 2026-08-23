@@ -76,6 +76,30 @@ paths are absolute, dependencies are explicit, and each readiness consumer
 has a unique participant. Nothing is inferred from the checkout, current
 release, running processes, or `baton.json`.
 
+**Manifest version 2 adds the control identity.** A version-2 document
+carries one `control` block naming the canonical Baton binary, config and
+participant the lifecycle manager uses for `drain`, `resume` and `dispatch`:
+
+    "version": 2,
+    "control": {
+      "binary": "/absolute/path/to/v11-release/bin/baton",
+      "config": "/absolute/path/to/mailbox/baton.json",
+      "participant": "baton.slaw"
+    }
+
+The identity is NAMED, never inferred from a service's argv: two services may
+run different participants against different configs, and the act this
+authorizes suspends the whole deployment. The named participant must hold the
+accepted-configuration `dispatch` capability — the authority checks that in
+its own transaction, so granting it is a configuration change with its own
+accepted generation, not a manifest edit. A version-1 manifest stays valid and
+simply has no drain, resume or dispatch-status commands; the manager refuses
+them with an actionable message rather than guessing an identity.
+
+See "Maintenance: draining managed dispatch" in `docs/EFFECTIVE-BATON.md` for
+the operator sequence, including why plain `stop` is unchanged and
+`stop-drained` is the graceful one.
+
 The version-1 manifest accepts global `startTimeoutSeconds` and
 `stopTimeoutSeconds` defaults plus a non-empty `services` array. Each service
 has a unique `name` and `command`, with optional `after`, `cwd`, `env`,

@@ -42,6 +42,10 @@ EXCLUDED = {
 	"runtime": ("runtime-start", "runtime-state", "runtime-end",
 	            "runtime-facts", "runtime-refresh"),
 	"incident": ("incident", "dismiss"),
+	# W4615: draining is deployment-global maintenance authority, ruled
+	# to `baton.slaw` alone. A managed turn that could drain would
+	# suspend the stack it is running in.
+	"dispatch": ("drain", "resume"),
 }
 
 pytestmark = pytest.mark.skipif(

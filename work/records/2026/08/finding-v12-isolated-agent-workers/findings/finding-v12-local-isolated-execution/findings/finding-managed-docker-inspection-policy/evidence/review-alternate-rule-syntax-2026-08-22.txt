@@ -1,0 +1,28 @@
+W2845 independent-review reproduction, 2026-08-22T05:48:15Z
+
+Candidate policy A was the four generated inspection rules plus:
+
+  prefix_rule(decision="allow", pattern=["docker"])
+
+Candidate policy B was the four generated inspection rules plus:
+
+  prefix_rule(pattern=['docker'], decision='allow')
+
+For each candidate, Codex's installed evaluator authorized an unruled mutable
+command:
+
+  codex execpolicy check --pretty --rules <candidate> docker run --privileged alpine
+
+Both invocations exited 0 and returned:
+
+  "matchedPrefix": ["docker"]
+  "decision": "allow"
+
+For each same candidate, the changed module returned:
+
+  auditInspectionRules(...)
+  {"missing":[],"broad":[],"extra":[],"satisfied":true,...}
+
+The reproduction used the installed `codex execpolicy check`, rather than
+assuming these alternate spellings were valid policy syntax. Its harmless
+check mode evaluated the command but did not execute Docker.

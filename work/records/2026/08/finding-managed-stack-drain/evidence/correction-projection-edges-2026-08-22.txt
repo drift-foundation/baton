@@ -1,0 +1,111 @@
+W4615 review correction — three read and audit edges, 2026-08-22
+
+Answering `review-2026-08-22T16-25-29Z.md`: three P2s, all reproduced against
+the tree before any edit and all corrected.
+
+
+1. [P2] THE HISTORY CURSOR DROPPED A CONTROL EVENT
+
+An empty drain writes `drain_requested` and `pause_reached` at ONE authority
+sequence — deliberately, because they are one commit. The reader ordered by
+`seq` alone, limited ROWS, returned that sequence as `next_before` and resumed
+with `seq < ?`, so a page size that bisected the pair made the second event
+unreachable.
+
+`limit` now counts INSTANTS: the page's sequences are chosen first, then every
+event at those sequences is returned together, and the cursor names the last
+INSTANT so the next page starts strictly below it. Sibling order inside one
+instant is written out — `pause_reached` above the `drain_requested` that
+caused it — rather than left to storage order, which is not an order.
+
+An authority instant is indivisible for the reader for exactly the reason it
+is indivisible in the writer.
+
+
+2. [P2] DISPATCH STATUS READ TWO SNAPSHOTS
+
+`dispatch_view` read the singleton and the live Handler rows as independent
+SELECTs, so a final pass committing between them returned
+`mode=draining, blocking_claims=0` — a tuple the authority never held, since
+that same commit made it `paused`.
+
+It is self-snapshotting now, and `wait_actionable` derives the action set and
+the dispatch state under ONE outer reentrant snapshot. The regression
+interposes the writer INSIDE the read, from a second connection, at the
+blocker query — a sequential test cannot reach this.
+
+
+3. [P2] AUTOMATIC PAUSE BYPASSED THE AUTHORITY CLOCK
+
+`_settle_dispatch` called the private wall clock, so under an injected instant
+the two same-sequence events disagreed: `drain_requested` at the injected time
+and `pause_reached` at the host's, with the singleton inheriting the latter.
+The writer now passes its own clock into settlement. Covered for the immediate
+empty drain AND for a later final release, both under an injected instant.
+
+
+4. MUTATION CHECK — each correction reverted independently
+
+  reverted                              result
+  the authority clock in settlement     30 pass / 1 fail
+                                          automatic pause uses the AUTHORITY clock
+  the dispatch_view snapshot            30 pass / 1 fail
+                                          the dispatch view reads ONE authority snapshot
+  the row-limit history cursor          30 pass / 1 fail
+                                          the control journal is traversable one instant at a time
+
+The first attempt at the second and third mutations left the suite green — my
+mutations were too weak to reproduce the defects — so they were redone against
+the exact original code paths. A mutation that does not fail is not evidence
+about the test.
+
+Restored: 31 pass, 0 fail.
+
+
+5. ONE EXISTING TEST'S FIXTURE MOVED, AND WHY
+
+`test_w321_readiness_cadence.py::test_an_action_committed_meanwhile_is_seen_within_one_interval`
+committed its "meanwhile" Work on the SAME connection, from inside a patched
+`participant_actions`. With `wait` now holding one read snapshot across both
+reads, a connection in a read transaction cannot also write, so that fixture
+raised rather than asserting. The commit moved to a second connection.
+
+The assertion is unchanged — the very next read returns the new Work — and a
+second writer is the more faithful "meanwhile" in any case: the point is that
+somebody ELSE committed while this wait slept. The alternative would have been
+to drop the one-snapshot boundary the review requires, which is not a trade
+worth making for a fixture mechanism.
+
+
+6. VERIFICATION
+
+  tests/work/test_w4615_dispatch_drain.py    31 passed (27 before)
+  pytest -n auto -m "not serial" tests/work  2909 passed, 2 FAILED
+  pytest -m serial tests/work                  52 passed
+  tools/codex-event-bridge npm test           295 tests, 294 pass, 1 FAILED
+  tools/acp-baton-bridge npm test              55 passed
+  whitespace-damage check                     clean
+
+The three failures are not this Work's:
+
+  test_w4996_dependency_graph.py (2)   W4996's reviewer cases against
+                                       src/baton_work/tui/graph.py
+  policy_syntax.test.mjs (1)           W2845's round-9 reviewer case against
+                                       tools/codex-event-bridge/src/exec_policy.mjs
+                                       ("astral text in a comment does not
+                                       shift the policy mask" — a real defect
+                                       in my round-8 masking there)
+
+Both Works are queued on baton.impl awaiting their own turns and neither was
+touched from here.
+
+The reviewer's `evidence/repro_projection_edges.py` now fails at its own
+`assert len(paged_kinds) == 1`, because a `limit=1` page correctly returns the
+whole instant. It reproduces the old behaviour rather than testing the new.
+
+
+7. UNCHANGED
+
+No live configuration was edited: the deployment grants `dispatch` to nobody
+and its `infra.json` is version 1, so it reads `running` and correctly refuses
+drain and resume. Plan item 8 remains the operator act.

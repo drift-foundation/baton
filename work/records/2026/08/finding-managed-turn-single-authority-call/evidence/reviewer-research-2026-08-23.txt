@@ -1,0 +1,73 @@
+W7830 reviewer research — one authority operation per execution request
+Date: 2026-08-23T04:09:15Z
+Reviewer: baton.codex
+
+Live positive reproduction
+--------------------------
+
+The canonical read ran in one execution request:
+
+  /home/sl/opt/baton/v11/c529b28/bin/baton
+    --config /home/sl/baton-v11.c529b28/baton.json
+    --participant baton.codex detail work=W7830
+
+The canonical mutation then ran in a separate execution request:
+
+  /home/sl/opt/baton/v11/c529b28/bin/baton
+    --config /home/sl/baton-v11.c529b28/baton.json
+    --participant baton.codex claim work=W7830
+    op-id=W7830-claim-20260823T0408Z
+
+Result: committed, phase active, claimant baton.codex, authority seq 7833.
+No approval request and no writable-root change. This uses the same deployed
+identity that returned `attempt to write a readonly database` when detail and
+claim shared one multiline execution request for W2929 and W2845.
+
+Owning paths
+------------
+
+  AGENTS.md
+    `The active-work claim` owns claim-before-execution.
+    `Non-interactive managed turns` owns the installed-policy behavior.
+
+  tests/work/test_w101_role_instructions.py
+    `test_the_required_policy_states_the_v11_model` already proves that every
+    required Baton role reads the active AGENTS policy and pins its current
+    operational vocabulary.
+
+  tools/codex-event-bridge/smoke/managed_baton_write.mjs
+    Existing live proof creates a ready Work and proves one explicitly
+    supplied claim command commits. Because it supplies only one operation,
+    it cannot catch detail+claim batching. Strengthen it to ask for both and
+    inspect the completed turn's commandExecution items.
+
+  tools/codex-event-bridge/src/command_oracle.mjs
+    Records the installed commandExecution shape and its agent-source default.
+    The smoke can reuse `commandItems` or the same exact interpretation; the
+    one-command `requestedItem` helper is intentionally not the assertion for
+    a two-operation turn.
+
+  tools/codex-event-bridge/src/exec_policy.mjs
+    No change. Its exact direct prefixes are the boundary being preserved.
+
+Focused baseline
+----------------
+
+From the repository root:
+
+  ./.venv/bin/python3 -m pytest -q \
+    tests/work/test_w101_role_instructions.py \
+    tests/work/test_w220_managed_workflow_policy.py
+
+  24 passed in 0.07s
+
+From tools/codex-event-bridge:
+
+  npm test -- --test-name-pattern='command oracle|accepted role instructions still reach' \
+    test/command_oracle.test.mjs test/bootstrap_thread.test.mjs
+
+  2 tests, 2 pass, 0 fail
+
+One initial baseline invocation used the bridge directory as cwd and therefore
+could not find the repository-relative `./.venv/bin/python3`; it changed
+nothing. The corrected root invocation is the result above.

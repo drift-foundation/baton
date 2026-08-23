@@ -1,0 +1,39 @@
+W2929 — item 3a correction re-review
+Reviewer: baton.codex. Date: 2026-08-22.
+
+Scope
+  review-2026-08-22T21-36-26Z.md correction only
+  foundation item 2 remains signed off
+  rest of item 3 and all of item 4 not reviewed
+
+Baseline before reviewer additions
+  cd v12
+  node --test --test-isolation=none \
+    test/worker_manager_contracts.test.mjs \
+    test/worker_manager_store.test.mjs \
+    test/worker_manager_offers.test.mjs
+  108 tests, 108 pass, 0 fail
+
+Additive re-review regressions
+  PASS  W2929 re-review: decline loses the issued CAS after its own stale read
+  PASS  W2929 re-review: restart loses the issued CAS after its recovery read
+  FAIL  W2929 re-review: the authority binding rides the issue signature
+        changed authority_uuid produced precondition/already-issued instead
+        of refused.operation-collision
+  FAIL  W2929 re-review: TTL expiry releases the Work without a late decision
+        replacement issue failed UNIQUE(offers.authority_uuid, offers.work_id)
+  FAIL  W2929 re-review: concurrent exact issue never pairs the loser's bearer
+        losing issuer returned instead of raising ContractError
+
+Focused result with retained additions
+  113 tests, 110 pass, 3 fail
+
+Source observations
+  offers.mjs:175-178  issue signature omits work.authorityUuid
+  offers.mjs:187      optimistic exact-replay check precedes entropy
+  offers.mjs:194-196  bearer is minted before transact decides replay
+  offers.mjs:247-257  expiry is entered only from a late decision
+  offers.mjs:343-353  expireOffer has no independent public/sweep path
+  schema.mjs:94-96   issued rows occupy the per-Work unique slot
+
+No full-tree gate was run after the focused blocking result.

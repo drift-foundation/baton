@@ -340,13 +340,49 @@ export function actionEvent(envelope, action, options) {
     // that needs to correlate a failure with the assignment it
     // interrupted has to be given those fields — the readiness envelope
     // already carries them here, and only here.
+    // W4303: `claimed` rides here too, for the same reason and by the
+    // same rule. The dispatcher must be able to tell a surviving claim
+    // from an ordinary offer WITHOUT parsing `details` or the summary
+    // sentence — those are prose for a model, and scheduling on them
+    // would be exactly the key-parsing W148 forbids.
     action: {
       participant: envelope.participant, key: action.action_key,
       ...(action.work ? { work: action.work } : {}),
       ...(Number.isSafeInteger(action.episode_seq)
         ? { episode: action.episode_seq } : {}),
+      ...(typeof action.claimed === "boolean"
+        ? { claimed: action.claimed } : {}),
     },
   };
+}
+
+// W4303: claimed Work FIRST, authority order preserved inside both
+// partitions.
+//
+// The authority returns a participant's actionable set in canonical
+// Work-list order, which is the right answer for a human board and the
+// wrong one for a restarting managed lane. After the W2907 orphan, the
+// restored envelope carried W2928, W2845 and W4303 ahead of the claimed
+// W2907; the dispatcher delivered W2928 first, its claim correctly
+// refused on the participant's occupied slot, and a whole model turn
+// was spent before anything looked at the claim that was blocking it.
+//
+// A participant holds at most one claim, so this promotes at most one
+// action and reorders nothing else. It is a MANAGED delivery policy and
+// deliberately does not touch Baton's canonical ordering: the board and
+// the agent still read the same list, this producer just refuses to
+// hand a runner work it provably cannot take yet.
+export function claimedFirst(actions) {
+  const claimed = [];
+  const rest = [];
+  for (const action of actions) {
+    // Only Work carries a claim. Obligations, trials, pokes and refresh
+    // requests keep their relative position in `rest` rather than being
+    // reasoned about here.
+    if (action.kind === "work" && action.claimed === true) claimed.push(action);
+    else rest.push(action);
+  }
+  return claimed.length === 0 ? actions : [...claimed, ...rest];
 }
 
 function delay(ms, signal) {
@@ -411,7 +447,7 @@ export async function codexBatonBridge(options, { signal = new AbortController()
     // session republishes its held facts, and nothing is ever queued
     // for a model. Dropping it here instead would remove the signal
     // at the one place it arrives.
-    const actions = payload.result.actionable;
+    const actions = claimedFirst(payload.result.actionable);
     // W148 R2: memory carries the SAME identity the event does —
     // authority uuid + participant + action key. An authority switch
     // therefore retires the old set atomically (its identities no

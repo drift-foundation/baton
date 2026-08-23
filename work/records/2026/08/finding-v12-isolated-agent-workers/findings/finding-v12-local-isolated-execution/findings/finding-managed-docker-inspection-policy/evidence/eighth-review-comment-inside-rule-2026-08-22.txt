@@ -1,0 +1,48 @@
+W2845 eighth independent-review reproduction — 2026-08-22
+
+No Docker command was executed. The candidate held the first three exact
+inspection rules and the fourth in the already-supported multi-line spelling,
+with one ordinary comment after the opening parenthesis:
+
+  prefix_rule(pattern=["docker", "version"], decision="allow")
+  prefix_rule(pattern=["docker", "info"], decision="allow")
+  prefix_rule(pattern=["docker", "inspect"], decision="allow")
+  prefix_rule(
+      # operator note inside the call
+      pattern=["docker", "image", "inspect"],
+      decision="allow",
+  )
+
+The installed evaluator was asked only to CHECK the ruled inspection:
+
+  codex execpolicy check --pretty --rules <candidate> \
+    docker image inspect node:24-slim
+
+It exited 0, matched `["docker", "image", "inspect"]`, and returned
+`decision="allow"`. The same candidate passed to `auditInspectionRules`
+returned:
+
+  missing=["docker image inspect"] broad=[] extra=[]
+  unaccounted=["prefix_rule(\n    # operator note inside the call\n ... )"]
+  satisfied=false
+
+`readPolicy` correctly recognises a comment at the top level, indented at the
+start of a line, or after a complete rule. Inside a construct, however,
+`matchingParen` retains the comment and `splitTopLevel` sends it into
+`decompose` as part of the next operand. The operand is therefore unreadable
+even though the evaluator discards the comment and loads the exact rule.
+
+This is the same availability direction as rounds 6 and 7: no capability is
+hidden, but dispatcher startup rejects a correct policy and asks the operator
+to regenerate evaluator-valid text. It also narrows the record's promise that
+a comment is accounted for “wherever it sits” without recording that narrower
+boundary.
+
+Surrounding verification:
+
+  tools/codex-event-bridge npm test                 286 passed
+  focused W2845/deployed pytest                      39 passed
+  git diff --check                                  clean
+
+The temporary candidate remains at `/tmp/w2845-r8-comment-inside.rules` per
+managed-turn policy; no destructive cleanup was attempted.

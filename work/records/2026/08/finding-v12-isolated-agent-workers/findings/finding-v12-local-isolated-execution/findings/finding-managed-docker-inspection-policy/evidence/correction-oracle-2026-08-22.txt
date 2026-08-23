@@ -1,0 +1,158 @@
+W2845 — the MATRIX ORACLE correction
+Review: review-2026-08-22T20-31-27Z.md (operator-acceptance oracle), one [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. WHAT IS AND IS NOT UNDER REVIEW
+
+The policy generator, the auditor and the parser correction stayed signed off
+(review-2026-08-22T18-25-27Z.md). This finding is about the LIVE MATRIX's
+oracle, and nothing in `exec_policy.mjs` changed this turn.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+`smoke/exact_policy_matrix.mjs::runCase` returned only the METHOD names of
+server requests received during a turn. A Docker positive passed when that
+array was empty; a negative passed when it was not. The compatible operator
+run produced an empty array for ALL EIGHT cases — so one body of evidence read
+as PASS on four cases and FAIL on four others.
+
+The review is right, and right that the defect is shared rather than a
+disagreement about expected approval behaviour. "No approval arrived" is not
+"the inspection ran", and it is not "the command was refused" either. A matrix
+that cannot tell an allowed command from an unattempted one is not measuring
+the boundary at all.
+
+
+2. WHAT REPLACES IT
+
+`src/command_oracle.mjs` — a PURE module: one turn, one requested command, the
+approvals observed, and a verdict. Purity is the point; it is what lets every
+item shape be driven deterministically instead of waited for.
+
+  ruled inspection passes when
+      exactly one agent commandExecution item, command equal to the request
+      status completed, exitCode 0
+      NO approval correlated to that thread/turn/item
+
+  unruled command is refused when
+      exactly one agent item for the request, and either
+        status declined with no approval, or
+        an approval correlated by threadId/turnId/itemId, denied, and the
+        item terminal but not completed
+
+  and it FAILS when
+      there is no agent command item        (the model never attempted it)
+      the command is a different one        (not this case's evidence)
+      the same command ran twice            (one case is one command)
+      another command ran alongside it      ("nothing else" was the instruction)
+      an unruled command COMPLETED          (the boundary let it through)
+      an unruled command merely FAILED      (see below)
+
+A BARE `failed` IS NOT A REFUSAL. The review names this and it is the trap
+worth stating twice: an attempted Docker command can fail on its own merits —
+a stopped daemon, an absent object — and reading that as the boundary would
+make the matrix pass while the boundary was wide open.
+
+APPROVALS ARE CORRELATED, NEVER COUNTED. An approval raised by something else
+in the same run says nothing about this command, and counting it was half of
+the original defect.
+
+`runCase` now reads the exact turn back with `thread/read` +
+`includeTurns: true` AFTER completion and selects it by the id `turn/start`
+returned, so the verdict reads the recorded turn rather than whatever streamed
+past while it ran. It records approvals with their params. Every non-Docker
+case still receives the method list it always used.
+
+
+3. MEASURED AGAINST THE INSTALLED SCHEMA, NOT THE PROSE
+
+The reviewer left the generated schema at
+`/tmp/w2845-app-schema-20260822-2032`. I read the field names and enums out of
+it rather than from the review's summary, and that caught a defect of my own:
+
+  CommandExecutionThreadItem
+    required   command, commandActions, cwd, id, status, type
+    source     "default": "agent"  — and NOT required
+    status     enum inProgress | completed | failed | declined
+    exitCode   integer | null
+
+My first filter required `item.source === "agent"`. An item that OMITS the
+field is the ordinary agent case by the schema's own default, and dropping it
+would have reported a ruled inspection that ran perfectly as "the model never
+attempted the command" — reintroducing the exact ambiguity this correction
+exists to remove, through the fix. It reads `item.source ?? "agent"` now, and
+that has its own case.
+
+Also confirmed against the schema: `CommandExecutionRequestApprovalParams`
+carries `threadId`, `turnId` and `itemId` (plus `approvalId`, `command`), and
+`Turn` requires `id`, `items`, `status`. `ThreadReadParams.includeTurns`
+"include[s] turns and their items from rollout history".
+
+
+4. REGRESSIONS — 14 synthetic-turn cases
+
+`test/command_oracle.test.mjs`, covering exactly the shapes the review names:
+absent, wrong, duplicate, an extra command alongside the right one, completed,
+failed, declined and inProgress items; correlated and unrelated approval
+requests; approvals with no params at all and a request that is not an
+approval; a ruled inspection that asked; an unruled command that completed;
+a denied approval leaving a non-terminal item; and the schema-default source.
+
+
+5. MUTATION CHECK — five, each independently
+
+  M1  an absent command item passes           1 failed
+  M2  a bare `failed` counts as a refusal     2 failed
+  M3  approvals counted instead of correlated 1 failed
+  M4  a missing `source` is not the agent     1 failed
+  M5  the exit code is not checked            1 failed
+
+Restored: 14/14, and 311/311 for the whole bridge suite.
+
+
+6. GATES
+
+  tools/codex-event-bridge npm test           311 tests, 311 pass, 0 fail
+                                              (297 before; +14 oracle)
+  pytest -n auto -m "not serial" tests/work    2953 passed, 3 failed
+  tools/acp-baton-bridge npm test              55 pass, 0 fail
+  whitespace-damage check                      clean
+  v12 npm test                                 239 tests, 238 pass, 1 fail
+
+NONE OF THE FOUR FAILURES IS THIS WORK'S. Three are W4996 reviewer cases from
+`review-2026-08-22T20-51-17Z.md` and one is a W2929 reviewer case, both
+reviews having landed while this turn was running. Both Works are queued on
+`baton.impl` for their own turns and neither shares a module with
+`exec_policy.mjs` or the matrix.
+
+
+7. WHAT THIS TURN DELIBERATELY DID NOT DO
+
+THE CREDENTIAL-BEARING MATRIX RERUN. The review requires the complete matrix
+to be rerun against the compatible candidate before installation and the
+managed-stack restart, and that run needs live provider credentials and a
+running app-server. It has been the operator gate throughout this Work and it
+stays one; running it is not an implementer act, and claiming a boundary
+verified without it would be exactly the kind of inference the finding is
+about.
+
+What CAN be said without it: the oracle's rules are now driven deterministically
+over every item shape the installed schema admits, and the live run will
+produce a verdict with a reason rather than a bare count.
+
+The reviewer's generated schema directory at
+`/tmp/w2845-app-schema-20260822-2032` was READ and left in place, per the
+standing managed-review cleanup policy.
+
+
+8. FILES CHANGED
+
+  tools/codex-event-bridge/src/command_oracle.mjs        new, pure
+  tools/codex-event-bridge/test/command_oracle.test.mjs  new, 14 cases
+  tools/codex-event-bridge/smoke/exact_policy_matrix.mjs `runCase` returns the
+                                                         recorded turn and the
+                                                         approval params; the
+                                                         eight Docker cases
+                                                         read the oracle

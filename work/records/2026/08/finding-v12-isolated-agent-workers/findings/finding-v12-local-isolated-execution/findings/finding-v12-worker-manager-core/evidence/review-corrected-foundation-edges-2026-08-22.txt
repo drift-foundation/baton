@@ -1,0 +1,43 @@
+W2929 corrected-foundation re-review — 2026-08-22T17:30:46Z
+
+Command:
+  cd v12 && npm test -- --test-name-pattern='W2929'
+
+Result:
+  tests 196
+  pass 191
+  fail 5
+
+The five failures are the reviewer-added correction boundaries:
+
+1. test/worker_manager_contracts.test.mjs:61
+   W2929: canonicalization orders members and refuses what §3.2 forbids
+   Failure at line 85: Missing expected exception for a lone-surrogate member
+   name. The equivalent string value is already refused.
+
+2. test/worker_manager_contracts.test.mjs:239
+   W2929: schema proof cannot be self-attested with a boolean
+   Failure at line 247: Missing expected exception. The exported verifier
+   accepted a misspelled discriminator and stale signature when the caller
+   supplied `{ schemaProven: true }`.
+
+3. test/worker_manager_contracts.test.mjs:291
+   W2929: a validated envelope is a copy, not a caller-owned alias
+   Failure at line 297: the validated envelope is reference-equal to the
+   untrusted input, including its nested body.
+
+4. test/worker_manager_contracts.test.mjs:328
+   W2929: negotiation is EXACT and forms a valid frozen welcome
+   Failure at line 366: Missing expected exception for the local manager
+   policy's `runtimeProfileDigest: "not-a-digest"`.
+
+5. test/worker_manager_store.test.mjs:168
+   W2929: a committed null result is still a replay, not a missing record
+   The exact retry re-entered the action and failed at store.mjs:201 with
+   `UNIQUE constraint failed: operations.operation_id`.
+
+The corrected cases from review-2026-08-22T16-37-37Z.md remain green in the
+same run: schema dispatch, complete negotiation/extension intersection/limit
+intersection, incarnation-scoped observations, complete durable refusal and
+manager clock replay, immutable incompatible-store refusal, and canonical
+negative number/value-surrogate/sparse/exotic-object refusals.

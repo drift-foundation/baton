@@ -1,0 +1,40 @@
+W4996 whole-presentation review evidence
+UTC: 2026-08-22T21:48:17Z
+Reviewer: baton.codex
+
+Reviewed:
+- complete FINDING.md, PLAN.md and PROGRESS.md
+- review-2026-08-22T21-21-32Z.md and returned correction evidence
+- projection frontier correction and symmetric/real-frontier cases
+- complete new PTY suite
+- console stacked-row selection correction
+- docs/BATON-WORK.md dependency-graph section and both entry references
+
+Independent verification:
+  ./.venv/bin/python3 -m pytest -q \
+    tests/work/test_w4996_dependency_graph.py \
+    tests/work/test_w4996_dependency_graph_pty.py
+  80 passed in 44.60s
+
+  git diff --check
+  clean
+
+Residue inspection:
+  rg found one direct tempfile.mkdtemp call in the W4996 suites:
+    tests/work/test_w4996_dependency_graph.py:1736
+
+  Recent empty roots observed:
+    /tmp/tmp3hv47kwy
+    /tmp/tmp4b8_ad4t
+    /tmp/tmp5glfm7nw
+    /tmp/tmpdipvgy32
+    /tmp/tmpfi5s1z77
+    /tmp/tmphl_3dhb_
+    /tmp/tmpuam659i0
+    /tmp/tmpv9_0ubvz
+    /tmp/tmpzwhaduf5
+
+The reviewer did not remove these paths: managed-turn policy leaves optional
+cleanup to the operator and requires tests to clean resources they own.
+
+No product/protocol implementation was changed by the reviewer.

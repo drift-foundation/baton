@@ -26,7 +26,7 @@ import contextlib
 import json as _json
 
 from baton_work.authority import (Authority, PICKUP_OVERDUE_DEFAULT,
-                                  WorkError)
+                                  WorkError, dispatch_row, live_claim_rows)
 
 
 class Snapshotted(list):
@@ -704,6 +704,11 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str,
 			                            viewer_member)]
 		summary = team_summary(store, viewer_team=viewer_team,
 		                       now=store.clock())
+		# W4615: the deployment-global dispatch state, from the SAME
+		# read snapshot as the rows and the summary. An operator who
+		# sees `PAUSED` beside a board full of queued Work is reading
+		# one instant, not two.
+		dispatch = dispatch_view(store)
 		snapshot_seq = store.last_seq()
 	finally:
 		# A read transaction, rolled back: purity intact, and rows,
@@ -712,6 +717,7 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str,
 		store.conn.execute("ROLLBACK")
 	return {"summary": summary, "rows": views,
 	        "filter": active,
+	        "dispatch": dispatch,
 	        "snapshot_seq": snapshot_seq}
 
 
@@ -956,6 +962,402 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		snapshot_seq = store.last_seq()
 	return {"rows": rows, "summary": summary, "filter": active,
 	        "snapshot_seq": snapshot_seq}
+
+
+# W4996: the ONE bounded dependency neighborhood, read under one snapshot.
+#
+# `work/records/2026/08/finding-ascii-dependency-neighborhood/`, contract
+# approved 2026-08-22 without amendment.
+#
+# WHY THIS EXISTS RATHER THAN A CLIENT-SIDE CRAWL. `links` is a one-hop
+# public response and is not itself wrapped in `_read_snapshot`. A console
+# calling it recursively would be unbounded in fan-out AND could combine
+# different authority states if a writer committed between hops — so the
+# drawn graph would be of a database that never existed at any instant.
+# One bounded read here answers both.
+#
+# WHAT IT DOES NOT CHANGE. The dependency semantics are exactly `links`':
+# `blocked_by` is EVERY recorded upstream edge, including one whose blocker
+# is closed, and `blocks` is only the LIVE downstream consumers. That
+# asymmetry is ruled, and a presentation read is not the place to redefine
+# it — a renderer that quietly widened it would be inventing edge lifetime.
+DEPENDENCY_DEPTH_MIN = 1
+DEPENDENCY_DEPTH_MAX = 3
+# Neighbours admitted per expanded branch before an overflow token stands
+# in for the rest. One page; Enter on the token admits one more.
+DEPENDENCY_BRANCH_PAGE = 4
+# The adversarial bound. A neighbourhood is a view, not an export: past
+# this many rendered occurrences the graph says so and stops, with the
+# exact direct counts it did not draw.
+DEPENDENCY_OCCURRENCE_CAP = 200
+
+
+class GraphInvalid(WorkError):
+	"""The projection refuses to describe a graph it cannot describe.
+
+	A cycle, a missing endpoint, or an edge whose named endpoint disagrees
+	with the row it points at is not something to drop quietly: the caller
+	would then draw a smaller graph that looks complete. It fails VISIBLY,
+	naming the exact edge."""
+
+
+def dependency_neighborhood(store: Authority, work_id: str, *,
+                            depth: int = DEPENDENCY_DEPTH_MIN,
+                            expanded=None) -> dict:
+	"""Blockers upstream and dependents downstream of one center.
+
+	`expanded` maps an exact `"<work>|<side>"` branch key to how many
+	neighbours that branch has been paged to; a branch not named there
+	admits `DEPENDENCY_BRANCH_PAGE`. Paging is per branch on purpose — an
+	operator expanding one dense blocker set has not asked to expand every
+	other one.
+
+	Expansion is DIRECTIONAL and does not turn corners. Upstream follows
+	`blocked_by` recursively and downstream follows `blocks` recursively;
+	neither walks from an upstream node into that node's other consumers,
+	because those are a different Work's neighbourhood and are reached by
+	recentering. A graph that turned corners would grow to the component
+	and stop being about the center at all."""
+	if not isinstance(depth, int) or isinstance(depth, bool) \
+			or not DEPENDENCY_DEPTH_MIN <= depth <= DEPENDENCY_DEPTH_MAX:
+		raise WorkError(
+			f"dependency depth {depth!r} is outside "
+			f"{DEPENDENCY_DEPTH_MIN}..{DEPENDENCY_DEPTH_MAX}")
+	expanded = dict(expanded or {})
+	nested = store.conn.in_transaction
+	with _read_snapshot(store):
+		center = _work(store, work_id)
+		nodes: dict[str, dict] = {}
+		edges: list[dict] = []
+		seen_edges: set[tuple[str, str]] = set()
+		omitted: dict[str, int] = {}
+		frontier: dict[str, int] = {}
+		# `fetched` and `walked` are per-RUN memos, not caches across
+		# calls: a neighbourhood is one bounded read of one snapshot.
+		state = {"occurrences": 1, "capped": False,
+		         "fetched": {}, "walked": {}}
+		nodes[center["id"]] = _graph_node(store, center)
+		for side in ("upstream", "downstream"):
+			_expand_dependency(store, center["id"], side, depth, expanded,
+			                   nodes, edges, seen_edges, omitted, frontier,
+			                   state, (center["id"],))
+		# The ancestry-independent boundary, over what was actually
+		# admitted. The walk's own path check cannot see a cycle the branch
+		# memo answered for; this can, because it asks about the drawn graph
+		# rather than about the order it was drawn in.
+		_refuse_cycles(edges)
+		result = {
+			"center": center["id"],
+			"depth": depth,
+			"depth_min": DEPENDENCY_DEPTH_MIN,
+			"depth_max": DEPENDENCY_DEPTH_MAX,
+			"branch_page": DEPENDENCY_BRANCH_PAGE,
+			"nodes": nodes,
+			# Directed, and named for what the edge MEANS: the blocker
+			# blocks the work. A renderer never has to decide direction.
+			"edges": edges,
+			# Exact DIRECT counts, per branch key. Never a guess at what
+			# lies beyond them — an invented total is worse than a bound.
+			"omitted": omitted,
+			# What the DEPTH bound cut off, per branch key — a different
+			# absence from `omitted`, opened by a different key. Never a
+			# guess: it is an exact direct count of edges this view did
+			# not walk.
+			"frontier": frontier,
+			"occurrences": state["occurrences"],
+			"occurrence_cap": DEPENDENCY_OCCURRENCE_CAP,
+			"capped": state["capped"],
+			"expanded": expanded,
+		}
+		if not nested:
+			result["snapshot_seq"] = store.last_seq()
+	return result
+
+
+def branch_key(work_id: str, side: str) -> str:
+	"""The exact `(node, side)` identity a page and an overflow token share."""
+	if side not in ("upstream", "downstream"):
+		raise WorkError(f"dependency side {side!r} is neither upstream nor "
+		                f"downstream")
+	return f"{work_id}|{side}"
+
+
+def _graph_node(store: Authority, row) -> dict:
+	"""The bounded summary a node token draws from. Deliberately small: a
+	graph is about relationships, and every extra field is width the
+	selector and the label need first."""
+	row = dict(row)
+	return {"id": row["id"],
+	        "local_id": row["id"].rsplit("-", 1)[1],
+	        "title": row["title"],
+	        "team": row["team"],
+	        "status": row["status"],
+	        "outcome": row["outcome"],
+	        "phase": row["phase"] if row["status"] == "open" else None}
+
+
+def _dependency_edges(store: Authority, work_id: str, side: str, limit: int):
+	"""One BOUNDED hop, in the canonical direction, in stable edge order.
+
+	Returns `(edges, total)`: at most `limit` rows, and the exact direct
+	count so the omission can be reported without having seen it.
+
+	W4996 review [P2]: this returned every direct edge as a Python list and
+	the caller sliced it afterwards, so a center with adversarial fan-out
+	allocated memory proportional to the WHOLE fan-out while the response
+	claimed to be a bounded view. A count plus an ordered limited page gives
+	the same exact number without materializing the rest.
+
+	The two sides are NOT symmetric and that is ruled: upstream keeps every
+	recorded edge including a satisfied one, downstream keeps only live
+	consumers."""
+	limit = max(0, int(limit))
+	if side == "upstream":
+		total = store.conn.execute(
+			"SELECT COUNT(*) AS n FROM edges WHERE work=?",
+			(work_id,)).fetchone()["n"]
+		rows = store.conn.execute(
+			"SELECT blocker FROM edges WHERE work=? ORDER BY created_seq "
+			"LIMIT ?", (work_id, limit))
+		return [(row["blocker"], work_id) for row in rows], total
+	total = store.conn.execute(
+		"SELECT COUNT(*) AS n FROM edges JOIN work ON work.id = edges.work "
+		"WHERE edges.blocker=? AND work.status='open'",
+		(work_id,)).fetchone()["n"]
+	rows = store.conn.execute(
+		"SELECT edges.work FROM edges JOIN work ON work.id = edges.work "
+		"WHERE edges.blocker=? AND work.status='open' "
+		"ORDER BY edges.created_seq LIMIT ?", (work_id, limit))
+	return [(work_id, row["work"]) for row in rows], total
+
+
+def _refuse_cycles(edges: list[dict]) -> None:
+	"""A bounded cycle check over the ADMITTED edges, after the walk.
+
+	W4996 re-review [P1]: `state["walked"]` answers "do this branch's
+	descendants need expanding again", and that is a sound question — but
+	cycle closure is a property of the ANCESTRY, which the memo does not
+	carry. A node first reached where its edge is ordinary, then reached
+	again with the other end of that edge among its ancestors, got a memo hit
+	and returned before the path check ran. Every edge of the cycle was drawn
+	and the response called itself valid.
+
+	The path-local check STAYS: it refuses at the moment of recursion, before
+	the walk can spend the view's budget descending into a loop, and it is
+	what makes the walk terminate at all. This is the boundary that does not
+	depend on which path arrived first — the graph as RENDERED either
+	contains a cycle or it does not, and that is decidable from the edges
+	alone.
+
+	Iterative, and bounded by the occurrence cap that already bounds `edges`,
+	so a damaged store cannot exhaust the interpreter's stack on the way to
+	being reported. The refusal names the exact closing edge, because "this
+	graph has a cycle" sends an operator looking through the whole
+	neighbourhood for it.
+
+	A cycle whose closing edge was NOT admitted — cut by the cap or a branch
+	page — is deliberately not reported here: the drawn graph really is
+	acyclic, and inventing a refusal about an edge the response does not
+	contain would be a different kind of lie."""
+	following: dict[str, list[str]] = {}
+	for edge in edges:
+		following.setdefault(edge["blocker"], []).append(edge["work"])
+	OPEN, DONE = 1, 2
+	state: dict[str, int] = {}
+	for start in list(following):
+		if state.get(start):
+			continue
+		# (node, iterator over its consumers). `ancestry` is the current
+		# DFS stack as a set, so a back edge is one hop's membership test.
+		stack = [(start, iter(following.get(start, ())))]
+		state[start] = OPEN
+		ancestry = {start}
+		while stack:
+			node, following_it = stack[-1]
+			far = next(following_it, None)
+			if far is None:
+				stack.pop()
+				ancestry.discard(node)
+				state[node] = DONE
+				continue
+			if far in ancestry:
+				raise GraphInvalid(
+					f"dependency cycle: {node} --blocks--> {far} closes a "
+					f"loop through {' -> '.join(entry for entry, _ in stack)}"
+					f"; the graph refuses rather than drawing it")
+			if state.get(far) == DONE:
+				continue
+			state[far] = OPEN
+			ancestry.add(far)
+			stack.append((far, iter(following.get(far, ()))))
+
+
+def _expand_dependency(store, work_id, side, remaining, expanded, nodes,
+                       edges, seen_edges, omitted, frontier, state, path):
+	"""One directional hop, then recursion, with every bound applied here.
+
+	`path` is the ancestry of THIS expansion, so a cycle is detected as an
+	edge back into it rather than by a global visited set — a node reached
+	by two different valid paths is ordinary in a DAG and must still be
+	drawn.
+
+	W4996 re-review [P1]: a DAG path is not another occurrence of a
+	canonical edge. Two valid paths to one node re-expanded that node's
+	identical branch: `seen_edges` suppressed the duplicate ROWS, but the
+	occurrence count and the recursion ran anyway, so the second traversal
+	spent the cap on edges already rendered and then overwrote the branch's
+	COMPLETE result with an omission for dependents that were on screen. A
+	bound that describes something other than the rendered graph is worse
+	than no bound.
+
+	Two memos close it, and they are deliberately not one global visited
+	set — the review is right that a blanket node cut is not equivalent,
+	because a Work legitimately appears on several edges:
+
+	  `state["fetched"]`  the direct page already read for a `(work, side)`
+	                      branch, reused rather than re-queried. This is
+	                      what keeps a re-visit from recording a smaller,
+	                      false omission when less room remains.
+	  `state["walked"]`   the greatest `remaining` depth this branch has
+	                      already been expanded with. A LATER SHORTER PATH
+	                      carries more depth and is allowed through; one
+	                      that can see no further is not.
+
+	Path-local cycle detection is untouched."""
+	if remaining <= 0:
+		# A BRANCH ALREADY EXPANDED IN THIS RESPONSE IS NOT A FRONTIER,
+		# whichever path arrived first.
+		#
+		# W4996 re-review [P2]: clearing the entry when a later path expands
+		# a branch fixed only ONE traversal order. With the shortcut older,
+		# the branch is expanded first and a later, longer path reaches it at
+		# remaining zero — and recorded a frontier for edges already drawn.
+		# Disclosure cannot depend on the order the edges happen to have
+		# been created in, so it asks the same memo the expansion sets.
+		if branch_key(work_id, side) in state["walked"]:
+			return
+		# THE DEPTH FRONTIER, and the reason it is reported separately from
+		# a dense branch page. Two different things are missing from this
+		# view and they are opened by different keys: a branch page is
+		# widened with Enter, and the depth bound is lifted with `+`. One
+		# token for both would make the key that opens it a guess.
+		#
+		# The exact direct count comes from the same bounded reader with a
+		# limit of zero — a COUNT and no rows — so naming what the bound cut
+		# off costs one indexed count per frontier branch and materializes
+		# nothing.
+		_, beyond = _dependency_edges(store, work_id, side, 0)
+		if beyond:
+			frontier[branch_key(work_id, side)] = beyond
+		return
+	key = branch_key(work_id, side)
+	# A branch already expanded at least this deep has nothing more to give.
+	# Strictly greater, so a shorter path reaching it later still expands.
+	if state["walked"].get(key, 0) >= remaining:
+		return
+	state["walked"][key] = remaining
+	_expand_branch(store, work_id, side, remaining, expanded, nodes, edges,
+	               seen_edges, omitted, frontier, state, path, key)
+
+
+def _expand_branch(store, work_id, side, remaining, expanded, nodes, edges,
+                   seen_edges, omitted, frontier, state, path, key):
+	"""The expansion itself, once the memo has admitted it.
+
+	Split from the guard so that "this branch was actually expanded" is an
+	observable event rather than an internal early return. The memo has no
+	visible result — the same response comes back either way — so a
+	regression watches this instead of asserting an outcome that cannot
+	change."""
+	# THIS BRANCH IS BEING EXPANDED, so it is no longer a depth frontier.
+	#
+	# W4996 console review [P2]: `frontier[key]` is recorded the moment a
+	# visit runs out of depth, and a LATER SHORTER PATH may legitimately
+	# reach the same branch with depth to spare and draw its edges. Nothing
+	# cleared the earlier entry, so the graph claimed a direct dependent was
+	# hidden by depth while drawing that exact edge — a bound describing
+	# something other than what is on screen, which is the same defect class
+	# as the shared-branch omissions.
+	frontier.pop(key, None)
+	page = int(expanded.get(key, DEPENDENCY_BRANCH_PAGE))
+	if key in state["fetched"]:
+		admitted = state["fetched"][key]
+	else:
+		# W4996 re-review [P2]: the SQL row limit is bounded by BOTH bounds,
+		# not just the requested page. Fetching `page` rows and letting the
+		# loop below stop at the occurrence cap left an expanded branch
+		# materializing as much as the whole direct fan-out — the
+		# count-plus-LIMIT change had moved the unbounded read one caller up
+		# rather than removing it. The exact total still comes from the
+		# COUNT, so the omission is disclosed without having seen the rows.
+		room = max(0, DEPENDENCY_OCCURRENCE_CAP - state["occurrences"])
+		admitted, total = _dependency_edges(store, work_id, side,
+		                                    min(page, room))
+		state["fetched"][key] = admitted
+		if total > len(admitted):
+			omitted[key] = total - len(admitted)
+			# WHICH bound stopped it is the difference between "there is
+			# more on this branch, press Enter" and "this view is full",
+			# and the loop below can no longer discover the second for a
+			# branch the SQL limit already trimmed.
+			#
+			# Re-review [P2]: `room <= page`, not `room <`. When they TIE
+			# the branch was page-truncated and allowance-truncated at once
+			# — the view ends at exactly the cap with an edge omitted, and
+			# no later branch can admit an occurrence. Calling that ordinary
+			# paging would hide that the view is full.
+			if room <= page:
+				state["capped"] = True
+	for blocker, work in admitted:
+		far = work if side == "downstream" else blocker
+		drawn = (blocker, work) in seen_edges
+		# CAP ADMISSION IS DECIDED FIRST, for an edge not already drawn.
+		#
+		# W4996 re-review [P1]: the path guard ran before this, so an edge
+		# the cap was about to omit could still raise. An earlier sibling's
+		# descendants can exhaust the allowance between the fetch and this
+		# iteration, and the round-5 rule is that a cycle whose closing edge
+		# the view never admitted is NOT reported — the graph actually
+		# returned is acyclic, and refusing over an edge the response does
+		# not contain is the same lie in the other direction.
+		#
+		# So an edge with no occurrence left is disclosed and not inspected:
+		# not for a cycle, and not by recursing through it.
+		if not drawn and state["occurrences"] >= DEPENDENCY_OCCURRENCE_CAP:
+			# The cap is honest: the branch records what it did not draw,
+			# and the response says the view cap was reached. Silence here
+			# would make a truncated graph look complete.
+			state["capped"] = True
+			omitted[key] = (omitted.get(key, 0)
+			                + (len(admitted)
+			                   - admitted.index((blocker, work))))
+			return
+		# The edge WILL be in the response — either it is about to enter it,
+		# or it is already part of the admitted graph — so the fast guard
+		# applies and refuses before the walk descends into the loop.
+		if far in path:
+			raise GraphInvalid(
+				f"dependency cycle: {blocker} --blocks--> {work} closes a "
+				f"loop through {' -> '.join(path)}; the graph refuses "
+				f"rather than recursing")
+		if not drawn:
+			row = store.conn.execute(
+				"SELECT * FROM work WHERE id=?", (far,)).fetchone()
+			if row is None:
+				raise GraphInvalid(
+					f"dependency edge {blocker} --blocks--> {work} names "
+					f"{far}, which the authority does not hold; the graph "
+					f"refuses rather than dropping the edge")
+			if far not in nodes:
+				nodes[far] = _graph_node(store, row)
+			seen_edges.add((blocker, work))
+			edges.append({"blocker": blocker, "work": work, "side": side})
+			# ONE OCCURRENCE PER RENDERED EDGE. Counting a re-walk would
+			# spend the view's budget on rows nobody sees twice.
+			state["occurrences"] += 1
+		_expand_dependency(store, far, side, remaining - 1, expanded, nodes,
+		                   edges, seen_edges, omitted, frontier, state,
+		                   (*path, far))
 
 
 def links(store: Authority, work_id: str) -> dict:
@@ -3011,6 +3413,124 @@ def _roster_member(store: Authority, team: str, row, *, now=None,
 READINESS_POLL_SECONDS = 1.0
 
 
+# W4615: the ONE bounded projection of deployment-global dispatch state.
+#
+# Read by home, status, `wait` and the TUI so the four cannot disagree
+# about the same instant. Reading it requires nothing: the ruling grants
+# `dispatch` for CHANGING the mode and leaves status readable by every
+# accepted participant, because a participant that cannot tell why it is
+# not being woken has to guess.
+DISPATCH_BLOCKER_LIMIT = 20
+
+
+def dispatch_view(store: Authority, *, limit: int = DISPATCH_BLOCKER_LIMIT) -> dict:
+	"""Mode, control generation, boundary, actor, instant, and the exact
+	claims still preventing `paused`.
+
+	The blockers are DERIVED from live assignments rather than read from
+	a stored snapshot, and they are bounded with EXPLICIT truncation: a
+	silently cut list reads as "these are all of them", which for an
+	operator waiting to restart is the one wrong answer.
+
+	Runtime state is deliberately absent from the decision. A blocker
+	whose runner is failed or unreachable is still a canonical claim and
+	still prevents pause; letting adapter telemetry retire it would let
+	a participant's own report decide the deployment's lifecycle."""
+	# W4615 review [P2]: ONE snapshot, because the mode and the blockers are
+	# one fact. Read as two independent SELECTs, a final pass committing
+	# between them returned `draining` with zero blocking claims — a state
+	# the authority never held, since that same commit made it `paused`.
+	# `_read_snapshot` is reentrant, so a caller already holding one (`wait`,
+	# `home`) joins it rather than opening a second.
+	with _read_snapshot(store):
+		return _dispatch_in_snapshot(store, limit)
+
+
+def _dispatch_in_snapshot(store: Authority, limit: int) -> dict:
+	row = dispatch_row(store.conn)
+	blockers = []
+	total = 0
+	if row["mode"] == "draining":
+		live = live_claim_rows(store.conn)
+		total = len(live)
+		for entry in live[:limit]:
+			blockers.append({
+				"work": entry["id"],
+				"team": entry["team"],
+				"handler": f"{entry['handler_team']}."
+				           f"{entry['handler_member']}",
+				"episode_seq": entry["episode_seq"],
+				"title": entry["title"],
+			})
+	return {
+		"mode": row["mode"],
+		"generation": row["generation"],
+		"boundary_seq": row["boundary_seq"],
+		"actor": (f"{row['actor_team']}.{row['actor_member']}"
+		          if row["actor_team"] else None),
+		"transitioned_ts": row["transitioned_ts"],
+		"blocking_claims": total,
+		"blockers": blockers,
+		"blockers_truncated": total > len(blockers),
+	}
+
+
+# The order WITHIN one authority instant. `drain_requested` and
+# `pause_reached` share a sequence when the finishing round was already
+# empty, and newest-first means the pause reads above the drain that caused
+# it. Written out rather than left to the storage order, which is not an
+# order at all.
+_DISPATCH_EVENT_RANK = {"drain_requested": 0, "resumed": 0, "pause_reached": 1}
+
+
+def dispatch_history(store: Authority, *, limit: int = 50,
+                     before: int | None = None) -> dict:
+	"""The global control journal, newest first, in whole INSTANTS.
+
+	W4615 review [P2]: this ordered by `seq` alone, limited ROWS, and
+	resumed with `seq < next_before`. An empty drain writes two events at one
+	sequence, so a page size that bisected that pair made the second event
+	unreachable — the audit journal was complete only when a caller happened
+	to choose a page size that did not cut through an instant.
+
+	`limit` therefore counts INSTANTS and every event at a boundary sequence
+	is returned together. An authority instant is indivisible here for the
+	same reason it is indivisible in the writer: the last assignment-ending
+	act and the pause it caused are one commit, and a reader that saw one
+	without the other would be reading a state that never existed."""
+	limit = max(1, int(limit))
+	# The sequences this page covers, chosen before any row is fetched, so a
+	# multi-event instant is never split by the row limit.
+	seq_sql = "SELECT DISTINCT seq FROM dispatch_events"
+	seq_params: list = []
+	if before is not None:
+		seq_sql += " WHERE seq < ?"
+		seq_params.append(int(before))
+	seq_sql += " ORDER BY seq DESC LIMIT ?"
+	seq_params.append(limit + 1)
+	sequences = [row["seq"] for row in store.conn.execute(seq_sql, seq_params)]
+	more = len(sequences) > limit
+	sequences = sequences[:limit]
+	if not sequences:
+		return {"events": [], "next_before": None, "truncated": False}
+	placeholders = ",".join("?" for _ in sequences)
+	rows = [dict(row) for row in store.conn.execute(
+		"SELECT seq, kind, mode, generation, boundary_seq, actor_team, "
+		"actor_member, live_claims, reason, ts FROM dispatch_events "
+		f"WHERE seq IN ({placeholders})", sequences)]
+	rows.sort(key=lambda row: (-row["seq"],
+	                           -_DISPATCH_EVENT_RANK.get(row["kind"], 0)))
+	for row in rows:
+		team, member = row.pop("actor_team"), row.pop("actor_member")
+		row["actor"] = f"{team}.{member}" if team else None
+	return {"events": rows,
+	        # The cursor names the LAST INSTANT returned, and the next page
+	        # starts strictly below it — so no event at that sequence is
+	        # skipped, because every one of them was already returned.
+	        "next_before": sequences[-1] if more else None,
+	        "truncated": more}
+
+
 def wait_actionable(store: Authority, *, viewer_team: str,
                     viewer_member: str,
                     timeout_seconds: float) -> dict:
@@ -3024,18 +3544,84 @@ def wait_actionable(store: Authority, *, viewer_team: str,
 	import time as _time
 	wall_deadline = _time.monotonic() + max(0.0, float(timeout_seconds))
 	while True:
-		window = participant_actions(store, viewer_team=viewer_team,
-		                             viewer_member=viewer_member,
-		                             now=store.clock())
-		if window["actions"]:
-			return {"actionable": window["actions"],
+		# W4615 review [P2]: the action set and the dispatch state are
+		# derived under ONE outer reentrant snapshot, so the answer describes
+		# one authority instant. Two snapshots could report a participant's
+		# finishing Work beside a mode that had already moved past it.
+		with _read_snapshot(store):
+			window = participant_actions(store, viewer_team=viewer_team,
+			                             viewer_member=viewer_member,
+			                             now=store.clock())
+			dispatch = dispatch_view(store)
+		# W4615: the MANAGED delivery boundary is where dispatch filters,
+		# and `participant_actions` stays untouched.
+		#
+		# That projection is shared with the TUI Inbox and the operator's
+		# personal counters. Filtering it globally would hide a
+		# participant's obligations and pokes from the human reading the
+		# console, which drain has no business doing — drain suppresses
+		# model WAKES, not visibility. So the filter lives here, on the
+		# one surface a managed bridge polls.
+		actions = _dispatchable(window["actions"], dispatch["mode"])
+		if actions:
+			return {"actionable": actions,
 			        "timed_out": False,
-			        "snapshot_seq": window["snapshot_seq"]}
+			        "snapshot_seq": window["snapshot_seq"],
+			        "dispatch": dispatch}
+		if dispatch["mode"] != "running":
+			# An explicit answer, immediately. A managed client that
+			# blocked for its full timeout here would learn "nothing for
+			# you" and could not tell a paused deployment from an idle
+			# one — and an empty actionable set read as ordinary idleness
+			# is exactly how a drained stack looks like a broken one.
+			# Both bridges already back off after a non-timeout result
+			# that forwards nothing, so this does not spin.
+			return {"actionable": [], "timed_out": False,
+			        "snapshot_seq": window["snapshot_seq"],
+			        "dispatch": dispatch}
 		remaining = wall_deadline - _time.monotonic()
 		if remaining <= 0:
 			return {"actionable": [], "timed_out": True,
-			        "snapshot_seq": window["snapshot_seq"]}
+			        "snapshot_seq": window["snapshot_seq"],
+			        "dispatch": dispatch}
 		_time.sleep(min(READINESS_POLL_SECONDS, remaining))
+
+
+def _dispatchable(actions, mode: str) -> list:
+	"""Which actions may still wake a managed model in this mode.
+
+	`running`   — every action, unchanged.
+	`draining`  — only Work this exact participant ALREADY holds, so the
+	              finishing round can finish, plus adapter-only refresh.
+	`paused`    — adapter-only refresh, and nothing that spends a turn.
+
+	Unclaimed Work disappears from managed delivery even for an eligible
+	handler, which is what retires an offer a bridge forwarded just
+	before the boundary: both bridges revalidate the exact action key
+	with `timeout=0` immediately before starting a turn, so the offer is
+	dropped there rather than becoming a claim the transaction would
+	refuse anyway.
+
+	Obligations, trials and pokes are not model wakes during a drain
+	either. They stay visible to the human in Inbox and home — this
+	filters delivery, never the board."""
+	if mode == "running":
+		return list(actions)
+	keep = []
+	for action in actions:
+		if action.get("kind") == "runtime_refresh":
+			# Adapter-only: it starts no model turn, and an operator
+			# inspecting a drained stack still needs fresh machine facts.
+			keep.append(action)
+			continue
+		if mode == "draining" and action.get("kind") == "work" \
+				and action.get("claimed") is True:
+			# `claimed` here already means "claimed BY THIS VIEWER":
+			# `participant_actions` skips Work whose Handler is anybody
+			# else, so this needs no second identity test and must not
+			# invent one that could disagree with that rule.
+			keep.append(action)
+	return keep
 
 
 def team_summary(store: Authority, *, viewer_team: str,
@@ -3100,6 +3686,18 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	row = _work(store, work_id)
 	view = _row_view(store, row, viewer_team, viewer_member)
 	view["snapshot_seq"] = store.last_seq()
+	# W4303: the live ASSIGNMENT EPISODE, because `release` now
+	# compare-and-swaps it and an operand nothing publishes cannot be
+	# supplied. The claimant reads its own episode off the readiness
+	# action it was woken by, but the recovery operator is deliberately
+	# NOT a route handler and never sees that projection — the whole
+	# point of the capability — so without this the one participant who
+	# can recover an orphaned claim could not name the claim.
+	#
+	# It stays on `detail` rather than every Work row: this is a
+	# recovery operand, not a board fact, and the lists are already the
+	# place where an extra per-row field costs the most.
+	view["episode_seq"] = row["episode_seq"]
 	# One sampled instant for the WHOLE response (R42): due flags in
 	# every trial agree with each other and with the snapshot.
 	now = store.clock()
@@ -3278,7 +3876,21 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 		# Recovery mirror: a resolved Route handler may release
 		# whoever holds the claim (self-release included); advertised
 		# only while a claimant exists. Writer stays final.
-		if handler and row["handler_team"] is not None:
+		#
+		# W4303: and so may an owning-team member holding the `recover`
+		# capability. That branch exists precisely for the case where
+		# the Route's only handler is the participant whose managed turn
+		# died holding the claim — so leaving it undiscoverable would
+		# hide recovery from the one operator who can perform it, and
+		# discovery-by-attempt is what this projection exists to avoid.
+		if row["handler_team"] is not None and (
+				handler or (viewer_team == row["team"] and
+				            store.conn.execute(
+					            "SELECT 1 FROM member_capabilities "
+					            "WHERE team=? AND member=? AND "
+					            "capability='recover'",
+					            (viewer_team, viewer_member)).fetchone()
+				            is not None)):
 			available.append("release")
 		# W47 R1: the heartbeat is advertised EXACTLY for the recorded
 		# active claimant — stricter than the route-handler test; no

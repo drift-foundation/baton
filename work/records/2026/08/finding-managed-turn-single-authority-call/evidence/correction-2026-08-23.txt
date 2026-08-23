@@ -1,0 +1,107 @@
+W7830 — the managed-operation shape, corrected
+Review: review-2026-08-23T04-30-59Z.md, two [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+The reviewer's pure counterexample, run against the shipped oracle: a
+completed read at exit 7 beside a completed claim at exit 0 returned
+`{ ok: true }`. Both findings correct.
+
+
+2. THE CONTRADICTION I LEFT IN MY OWN PROOF
+
+[P1] The thread-level developer instruction still said "Perform exactly the
+ONE canonical Baton operation you are asked for and nothing else", while the
+turn now asks for two. Developer instructions outrank the turn input, so the
+model was handed a contract it could not satisfy.
+
+I changed the turn and did not re-read the thread it runs in. A proof whose
+two halves disagree cannot diagnose anything, and mine could not have told a
+model that ignored the standalone rule from a model that obeyed the
+instruction that outranked it.
+
+The contract now says what the rule says: perform exactly the canonical
+operations asked for, in the stated order, EACH AS ITS OWN STANDALONE DIRECT
+EXECUTION REQUEST, and never combine two into one request.
+
+
+3. COMPLETED IS THAT IT RAN, NOT THAT IT WORKED
+
+[P1] `readinessClaimOutcome` required `status === "completed"` and never read
+`exitCode`, so a `detail` exiting 7 beside a claim exiting 0 was the readiness
+shape.
+
+The Handler assertion afterwards catches a claim that did not commit. NOTHING
+caught a failed READ — and the read is the half that SUCCEEDED in the defect
+this Work exists for, where the batch's read ran and its mutation was refused.
+So the one item my proof could not check was the one the original failure left
+looking healthy.
+
+Both items now require `exitCode === 0` after their terminal and completed
+checks, with the exact command, order, count, agent-source and approval checks
+unchanged.
+
+
+4. THE LIVE RE-TEST THE REVIEW ASKED FOR
+
+Re-run with the contradiction removed: the turn completed, its items were
+`userMessage` and an `agentMessage` carrying the same Python traceback, and
+there was still NO agent command item.
+
+THE ABSENCE PERSISTS, so it is routed out as the review instructed — W7989,
+cross-referencing W2845, with its own dossier at
+`work/records/2026/08/finding-managed-turn-command-item-absent/`. W7830 is
+recorded as blocked on it. The same edge could not be recorded on W2845
+because `baton.claude` is not its resolved handler while it sits with
+`baton.bug`; that edge is for its handler to add, and the cross-reference is
+in W7989's body and dossier meanwhile.
+
+ONE CORRECTION TO MY OWN EARLIER REPORT. I said the live failure showed the
+server does not record command items. The SMOKE run was confounded by the
+contradiction and could not have shown that on its own. What is unaffected are
+the two PROBES: neither carried a contradictory instruction, both used a
+single command, and the nonce probe caught a turn having run one — a
+nanosecond timestamp inside the run window — with no command item recorded.
+The finding stands on the probes, not on the smoke.
+
+
+5. MUTATION CHECK — two witnessed, one not mechanically checkable
+
+  G1  the exit code is not read                       3 failed
+  G2  only the read's exit code is read               1 failed
+
+  G3  the developer instruction contradicts again     not mechanically
+                                                      checkable
+
+G3 is recorded rather than counted: a thread-level instruction is prose to a
+model, and no deterministic case can witness a model obeying the wrong half of
+a contradiction. What CAN be checked is that the two halves agree, and they
+are now written from the same rule.
+
+
+6. REGRESSIONS
+
+One case added — the reviewer's counterexample in both directions, plus exit 0
+on both still being the shape. The oracle file is 32/32.
+
+
+7. GATES
+
+  tools/codex-event-bridge npm test            329 pass, 0 fail
+  pytest tests/work/test_w101_role_instructions.py
+        tests/work/test_w220_managed_workflow_policy.py     25 passed
+  whitespace-damage check                      clean
+
+THE LIVE SMOKE IS RED, for the reason now recorded as W7989.
+
+
+8. FILES CHANGED
+
+  tools/codex-event-bridge/src/command_oracle.mjs
+                                    `exitCode === 0` on both items
+  tools/codex-event-bridge/test/command_oracle.test.mjs
+                                    +1 case
+  tools/codex-event-bridge/smoke/managed_baton_write.mjs
+                                    the developer contract matches the rule

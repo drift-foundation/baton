@@ -33,3 +33,11 @@ not introduce cleanup of fixed, ambient, or merely name-matching paths.
 - Cleanup removes only roots created by that test process.
 - Failure-path and ownership assertions keep their present semantics.
 - The complete self-contained v12 gate remains green.
+
+## Follow-up — 2026-08-21
+
+W30 closed cancelled without implementation. The approved fresh audit now
+lives at
+`work/records/2026/08/finding-v12-test-fixture-audit-follow-up/`; the Tuner
+first establishes ownership and a bounded correction before any implementation
+or host cleanup is authorized.

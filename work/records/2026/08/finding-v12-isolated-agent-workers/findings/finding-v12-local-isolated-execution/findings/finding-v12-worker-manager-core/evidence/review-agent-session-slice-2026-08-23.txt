@@ -1,0 +1,27 @@
+W2929 item 4 second-slice independent review — 2026-08-23
+
+Focused command:
+  cd v12 && node test/worker_manager_agent_session.test.mjs
+Result:
+  13 tests; 10 passed; 3 failed.
+  FAIL: W2929 review: one posture cannot have two concurrent sessions
+        missing runtime-observation.duplicate-runtime refusal.
+  FAIL: W2929 review: execution cannot open after its assignment ended
+        missing stale-assignment.ended refusal after real authority cancel.
+  FAIL: W2929 review: retained profile must declare the digest it is filed under
+        missing integrity.digest refusal for a changed declared seal.
+
+Full command:
+  cd v12 && npm test
+Result:
+  456 tests; 453 passed; 3 failed.
+  The same three additive reviewer regressions were the only failures.
+
+Reproduction notes:
+  - the concurrency case opens one consent row, then a second while the first
+    remains state=not-started;
+  - the stale-assignment case uses V12Authority/V12, activates the exact
+    assignment, cancels it through the participant-bound session, then calls
+    the product session opener;
+  - the seal case changes only the retained body's document_digest to another
+    schema-valid digest, leaving the recomputed body and row key unchanged.

@@ -1,0 +1,141 @@
+W2929 — the activation/runtime-start slice, second correction
+Review: review-2026-08-22T22-53-46Z.md, four [P1] and one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    315 tests, 309 passed, 6 failed
+
+All five findings correct.
+
+
+2. THE ONE I GOT MOST WRONG, FIRST
+
+[P1] AN ATTEMPT'S CLAIMED OFFER WAS NOT UNIQUE. `claimOf` asked for one
+claimed offer with `.get()`, and `offers.runtime_attempt_id` carried no
+uniqueness constraint — so two Works could reach `claimed` under one attempt
+identity and activation would pick between them by unspecified row order.
+
+Last round I called this branch "unwitnessable by construction". THE
+CONSTRUCTION WAS A PROPERTY OF THE ALLOCATOR, NOT OF THE STORE, and the store
+is what activation reads. An invariant only the writer maintains is not an
+invariant — and my claim was disproved by the retained store itself.
+
+CORRECTED both ways the review asks for: a unique index on
+`offers(runtime_attempt_id)` at the database boundary (schema 2 -> 3), AND a
+reader that fails closed unless exactly one claimed row exists, for a store
+written before the index. Choosing between two claims by row order would be
+inventing an answer.
+
+That fail-closed branch is now WITNESSED rather than argued about: a case
+drops the index, writes the second row, and drives activation. Building the
+damaged store the reader defends against is the only honest way to assert a
+defence against damaged stores.
+
+
+3. THE OTHER FOUR
+
+[P1] DURABLE OBSERVATION IDENTITY WAS CONSULTED TOO LATE. The current-value
+shortcut and the transition check ran before the `(attempt, incarnation,
+source_seq)` lookup — so an EXACT old observation was refused once the axis
+advanced, while a DIFFERENT observation reusing one source identity slipped
+through whenever its axis already held the requested value. Both invert the
+pinned rule. What a source identity already said is a fact about that
+identity; today's axis has no bearing on it, so it is resolved first.
+
+[P1] LATER MULTIPLICITY COULD NOT CANCEL FROM UNCERTAINTY. The zero-runtime
+path records `uncertain`, and the map had no `uncertain -> cancel-requested`
+— so one ambiguous inspection disabled the safety response to stronger later
+evidence, and `reconcileRuntime` promised a cancellation `observe` refused.
+The cancellation INTENT is now reachable from every nonterminal runtime
+state, which is separate from the rule about destruction that uncertainty
+still never proves.
+
+[P1] THE ATTACHMENT CAS LOST ITS MISMATCH SEMANTICS UNDER A RACE. With the
+operation keyed on the attempt alone, a stale manager reached the journal
+under the same id with a different signature and surfaced
+`refused.operation-collision` instead of the pinned mismatch cancellation.
+Attaching runtime A and attaching runtime B are two acts; one identity made
+the second read as a botched retry of the first. The identity carries the
+runtime now, and a lost race re-reads the fixed identity, PRESERVES it, and
+enters cancellation for the different runtime it saw.
+
+[P2] EVERY SQLITE FAILURE WAS MISLABELLED AS CONTENTION. Only a busy or
+locked database means another writer is deciding this attempt; a constraint,
+a trigger abort, a disk or schema fault would have carried a portable meaning
+and a retry policy belonging to a completely different fact. A wrong
+diagnosis is worse than a raw error, because a caller can at least see that a
+raw error is unclassified. Only the lock condition is translated; everything
+else keeps its own identity.
+
+
+4. MUTATION CHECK — six, five witnessed
+
+  M1  the per-attempt unique index removed        1 failed
+  M2  claimOf picks one of many again             1 failed (after the
+                                                  older-store case was added)
+  M3  uncertain cannot cancel again               1 failed
+  M5  the shortcut and transition run BEFORE the
+      durable identity                            2 failed
+  M6  every storage failure is contention         1 failed
+
+  M4  the attach identity drops the runtime       0 failed
+
+M5's FIRST ATTEMPT WAS NOT FAITHFUL. I moved only where `current` was read,
+which changes nothing, and it passed. The mutation that matters moves the
+whole shortcut-and-transition block ahead of the durable lookup, and that
+fails both retained cases.
+
+M4 IS EQUIVALENT, NOT UNCOVERED, and it is recorded rather than papered over.
+With the identity keyed on the attempt alone, the journal collision is caught
+by the same handler that catches the CAS refusal, and the code then re-reads
+and cancels — the same outcome by a different route. The runtime-scoped
+identity is still right, because two attachments are two acts and should not
+share an operation id, but it is not what DECIDES the outcome. A case of mine
+pins the other side instead: attaching the same runtime twice answers
+"attached" and writes nothing.
+
+Restored: 35/35 focused, 317/317 for the whole gate.
+
+
+5. REGRESSIONS — 35 (27 before; the reviewer's six retained)
+
+Plus two of mine: the older-store fail-closed read, and the repeat attachment
+being one act rather than a collision.
+
+
+6. GATES
+
+  cd v12 && npm test                       317 tests, 317 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. ONE OPERATIONAL NOTE
+
+The schema comment I added contained backticks inside the SQL template
+literal and terminated it. Caught by `node --check` before any test ran; it
+is the second time this exact hazard has bitten me in this file, and the fix
+is the same as last time — plain quotes inside that template.
+
+
+8. STILL NOT IMPLEMENTED
+
+Cancellation ordering, output freeze, intake and cleanup — the rest of item 3
+— and all of item 4.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs          version 3; the per-attempt
+                                             unique index
+  v12/src/worker_manager/attempts.mjs        all five corrections
+  v12/test/worker_manager_attempts.test.mjs  +2 cases
+  v12/test/worker_manager_store.test.mjs     the pinned schema version

@@ -1,0 +1,67 @@
+W2928 third-review correction evidence — 2026-08-22, baton.claude
+Answering review-2026-08-22T07-12-45Z.md (P1 identity TOCTOU, P2 ignored operand).
+
+== The reviewer's reproduction, re-run through the advertised boundary ==
+
+  P1 — a getter that changes its answer
+    refused: stale assignment
+    participant reads: 1 (the snapshot reads own enumerable props once)
+    Gemini's assignment after: {"authorityUuid":"authority-uuid","workId":"full-W2","participant":"poc.gemini","generation":1}
+    full-W2 phase: active | events: 0 | operation record: null
+    every assignment-owned transition refused: 7/7
+  
+  P2 — a supplied identity operand on claim
+    refused: claim takes its actor from the session it is called on; supplying participant would let a 
+    actor operand refused: claim takes its actor from the session it is called on; supp
+
+  Before: the call COMMITTED — Gemini's assignment ended, full-W2 became
+  unclaimed, and the event and result named Gemini. reads was 9.
+
+== What changed ==
+
+SNAPSHOT FIRST, then never read the caller's object again. The session
+copies the whole operand bag into plain frozen data — own enumerable
+properties, each read exactly once — before it checks anything. There is
+no second view left to present, so no amount of getter or Proxy cleverness
+produces two answers. Whatever the ONE read returns is the identity for
+the entire operation, which is why the reproduction now refuses on the
+compare-and-swap ('stale assignment') while a shape whose single read
+names the foreign participant refuses on the binding instead. Both refuse.
+
+The CORE normalizes its own expect too (normalizeAssignment at the top of
+activity, end, pass, cancel, rejectPlan, installGate, advanceContract,
+publish and close, and snapshot for satisfyGate's evidence). Reported
+honestly: that layer is DEFENCE IN DEPTH and is not independently
+reachable today, because the session already snapshots and the trusted
+face carries no transitions. It is covered at its own level instead, by a
+direct test of snapshot/normalizeAssignment.
+
+P2: claim now runs the same strict-operand check as every other session
+entry point, so participant and actor are refused rather than dropped.
+
+== Mutation checks ==
+
+  session snapshot removed  -> both TOCTOU regressions fail
+  core normalization removed -> boundary suite still passes (12/12), which
+                                is exactly why it is reported as a second
+                                line rather than a proven barrier
+  restored                   -> 159/159
+
+== Verification ==
+
+$ cd v12 && npm test
+
+  159 cases, up from 153: four new regressions.
+
+$ W151 executable model
+  Ran 54 tests in 0.002s
+  
+  OK
+
+$ six isolated race runs
+  run 1
+  run 2
+  run 3
+  run 4
+  run 5
+  run 6

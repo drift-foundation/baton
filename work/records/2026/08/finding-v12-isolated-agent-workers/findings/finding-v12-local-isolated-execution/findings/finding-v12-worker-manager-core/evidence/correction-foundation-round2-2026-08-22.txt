@@ -1,0 +1,69 @@
+W2929 corrected-foundation round-2 — 2026-08-22
+
+Answering `review-2026-08-22T17-30-46Z.md`: five P1s, all reproduced against
+the tree before any edit and all corrected.
+
+
+1. WHAT CHANGED
+
+  [P1] The forgeable proof bit is GONE. `verifyOperationSignature` is no
+       longer exported; the reply exemption follows from a brand — a WeakSet
+       of values the validator itself produced — that no caller can reach or
+       forge. The reviewer's frame is refused by the one entry that remains.
+
+  [P1] The trust entry returns an INDEPENDENTLY OWNED copy. The document is
+       cloned first, every schema/digest/signature/semantic check runs on
+       that copy, and the copy is what comes back. Mutating the caller's
+       object afterwards — at the top level or at a nested member — changes
+       nothing the validator vouched for.
+
+  [P1] Row presence is its own fact. `replay` returns `{found, value}`, so a
+       committed JSON `null` replays as `null` without entering the action.
+
+  [P1] Invalid Unicode fails in member NAMES as well as values, before
+       ordering and serialization. RFC 8785's rule is not side-dependent.
+
+  [P1] The manager's own negotiation policy is schema-validated before it is
+       intersected with the peer: the limits, the runtime profile digest, and
+       the supported extension names, each against the frozen constraint the
+       hello's own field carries.
+
+
+2. MUTATION CHECK, AND TWO HONEST RESULTS
+
+  reverted                            result
+  the validation clone                37 pass / 2 fail
+  the member-name surrogate check     37 pass / 2 fail
+  the local policy validation         37 pass / 2 fail
+  BOTH presence checks                11 pass / 2 fail  (store file)
+  the brand check                     39 pass / 0 fail  <- NOT witnessed
+
+Two results are worth stating rather than hiding.
+
+FIRST: mutating only ONE of the two presence checks left the suite green,
+because the other still caught the retry. The faithful mutation is both at
+once — which is what the original code was, one expression used twice — and
+that fails the two null-result cases. A mutation that does not reproduce the
+original defect is not evidence about the test.
+
+SECOND: the brand check itself is NOT witnessed, and cannot be from outside
+this module. `verifyOperationSignature` is private now and its only caller
+validates first, so the guard is unreachable by construction. What the suite
+DOES witness is the property the review asked for: the export is gone, and
+the reviewer's forged frame is refused. The brand is retained as defence for
+the orchestration callers this slice does not yet have — they will hold
+documents and call inward — and it is recorded here as currently unwitnessed
+rather than presented as covered.
+
+
+3. VERIFICATION
+
+  cd v12 && TMPDIR=<bracket> npm test    200 tests, 200 pass, 0 fail
+      (193 before; the bracket retained zero test-owned roots)
+
+
+4. STILL NOT STARTED
+
+Plan items 3 and 4 — offer/claim orchestration, attempt lifecycle,
+agent-session normalization and the adapter interfaces. Two review rounds
+have now corrected the foundation; neither built on it.

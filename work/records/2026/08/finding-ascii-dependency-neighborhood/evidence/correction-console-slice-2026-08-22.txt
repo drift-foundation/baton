@@ -1,0 +1,127 @@
+W4996 — the console slice, corrected
+Review: review-2026-08-22T20-51-17Z.md, one [P1] and two [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT DONE
+
+The full PTY matrix and plan item 4's operating guide. I recorded both as not
+done when I passed the slice, and the review names them as part of what must
+come back for re-review. They are not done here either.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  .venv/bin/python3 -m pytest tests/work/test_w4996_dependency_graph.py -q
+    61 tests, 58 passed, 3 failed
+    X test_j_moves_past_every_appearance_of_one_shared_work
+    X test_a_shorter_path_removes_a_shared_branch_from_the_depth_frontier
+    X test_b_opens_the_graph_from_a_search_result
+
+All three correct. The third is the gap I named myself when I passed the
+slice, which does not make it any less of a defect — a boundary the contract
+requires is missing whether or not the implementer noticed.
+
+
+2. [P1] REPEATED WORK ROWS TRAPPED KEYBOARD SELECTION
+
+The renderer keeps one row per canonical EDGE, so a shared DAG Work occupies
+consecutive rows. Movement stepped by ROW and the anchor resolved to the
+Work's FIRST appearance — so from a shared Work, `j` landed on another row
+carrying the same id, the anchor did not change, and the next key started from
+the first appearance again. Selection was stuck there permanently.
+
+The contract already said what to do and I read only half of it: "`j`/`k` and
+Up/Down traverse one deterministic UNIQUE-NODE order" and "all repeated
+appearances of the selected ID receive the selection attribute". Those are two
+different lists — movement over distinct stops, painting over every
+appearance — and I served both from the row list.
+
+CORRECTED: `_graph_keys` is the traversal order, every distinct selectable key
+once, in first-appearance order. Painting is unchanged and still highlights
+every appearance.
+
+
+3. [P2] A SHORTCUT LEFT A FALSE DEPTH-FRONTIER TOKEN
+
+`frontier[key]` is recorded the moment a visit runs out of depth. A later
+SHORTER path may legitimately reach the same branch with depth to spare and
+draw its edges — and nothing cleared the earlier entry, so the graph claimed a
+direct dependent was hidden by depth while drawing that exact edge.
+
+That is the same defect class as the shared-branch omissions two rounds ago: a
+bound describing something other than what is on screen. I added `frontier`
+this slice and did not carry that lesson into it.
+
+CORRECTED: `_expand_branch` clears `frontier[key]` when it expands the branch.
+
+
+4. [P2] THE APPROVED SEARCH ENTRY WAS ABSENT
+
+Search mode is dispatched to `_search_mode_key` before the table's `b` case
+ever runs, so `[b]` on a search result was a no-op. The contract names entry
+from the table AND search. `_search_mode_key` opens the graph now, through the
+same `_open_graph` the table uses, so the frame, the depth and the Back
+behaviour are identical.
+
+
+5. MUTATION CHECK — six
+
+  M1  movement steps by ROW again
+        2 failed: the reviewer's `j` case and my `k` case
+  M2  traversal WRAPS at the ends
+        1 failed: the ends case
+  M3  a token shares its owner's stop
+        4 failed, including branch paging and the frontier token
+  M4  the frontier entry survives an expansion
+        2 failed: the reviewer's case and mine
+  M5  the search `b` branch removed
+        2 failed: the reviewer's case and the state-restoration case
+
+Restored: 65/65.
+
+M4's FIRST RUN FAILED ONLY THE REVIEWER'S CASE, and that is why my frontier
+case was rewritten. My fixture put the shortcut a hop further out, so the
+shared branch never recorded a frontier at all — the assertion of absence was
+vacuously true whether or not the expansion cleared anything. It uses the
+reported topology at the depth that exercises it now, and it also asserts the
+token IS drawn at depth one, so the case is about the CLEARING rather than
+about a token that never existed.
+
+
+6. REGRESSIONS — 65 (58 before; the reviewer's three retained)
+
+Added four:
+  - `k` moves by unique Work too, the ends HOLD rather than wrapping (a wrap
+    would move an action to the far end of the graph on one keypress), and
+    every distinct stop is reachable by pressing `j` from the top;
+  - a branch token and its owner are separate stops — collapsing them would
+    skip the token that opens the branch, or put Enter's two meanings on one
+    stop;
+  - the console half of the frontier defect: the RENDERER draws no
+    depth-frontier token for an edge it is showing, with the depth-one case
+    proving the fixture is not vacuous;
+  - search entry is a drill like any other: one frame, and Back returns the
+    exact result page — query, cursor, selection and page number.
+
+
+7. GATES
+
+  tests/work/test_w4996_dependency_graph.py   65 passed (61 before)
+  pytest -n auto -m "not serial" tests/work   2960 passed, 0 failed
+  pytest -m serial tests/work                 52 passed
+  tools/codex-event-bridge npm test           316 pass, 0 fail
+  tools/acp-baton-bridge npm test             55 pass, 0 fail
+  v12 npm test                                239 pass, 0 fail
+  whitespace-damage check                     clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. FILES CHANGED
+
+  src/baton_work/projection.py    `_expand_branch` clears the frontier entry
+                                  for a branch it expands
+  src/baton_work/tui/app.py       `_graph_keys` traversal; `b` in
+                                  `_search_mode_key`
+  tests/work/test_w4996_dependency_graph.py   +4 cases, 1 rewritten fixture

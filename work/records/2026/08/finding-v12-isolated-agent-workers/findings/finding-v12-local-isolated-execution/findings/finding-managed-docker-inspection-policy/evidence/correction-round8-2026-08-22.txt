@@ -1,0 +1,125 @@
+W2845 round-8 correction — a comment inside the rule, 2026-08-22
+
+Answering `review-2026-08-22T16-46-17Z.md` [P2]. No Docker command was
+executed. Oracle: codex-cli 0.149.0.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  candidate                              evaluator   audit satisfied  unaccounted
+  comment after the open paren           allow       false            1
+  comment between operands               allow       false            1
+  comment with quotes/commas/brackets    allow       false            4
+  comment trailing an operand line       allow       false            1
+
+The four-fragment row is the review's other constraint failing out loud: the
+comment TEXT was being read as syntax, so one comment produced four
+unaccounted pieces.
+
+
+2. MEASURED, INCLUDING THE BOUNDARIES THAT MUST NOT MOVE
+
+  candidate                              evaluator
+  comment after the open paren           LOADS
+  comment between operands               LOADS
+  comment carrying quotes, commas,
+    brackets and parentheses             LOADS
+  comment trailing an operand line       LOADS
+  TAB inside the comment BODY            LOADS
+  comment on the closing line            LOADS
+  TAB-INDENTED comment inside the call   REFUSES   (a tab in code is a tab
+                                                    in code, comment or not)
+  hash inside a STRING                   LOADS     (it is data, not a comment)
+
+
+3. THE CORRECTION IS A MASK, NOT A PARSER
+
+Comment spans are blanked to spaces before any structural scan, so
+`matchingParen`, the whitespace accounting and the operand reader never see
+comment text at all. That is what satisfies the review's constraint directly:
+a body carrying quotes, commas, brackets or parentheses cannot become syntax
+because it never reaches the splitter. Length is preserved, so every offset —
+and therefore every quoted refusal fragment — still lines up with the
+original text.
+
+Two boundaries are deliberately NOT crossed by the mask:
+
+  - a `#` inside a STRING is data. The walk tracks quote state with the same
+    escape rule the rest of the module uses, so `pattern=["not#docker"]` is
+    untouched and reads back as ONE operand.
+  - a TAB before the `#` is a tab in CODE and stays refused, because the
+    evaluator refuses it. Only the comment BODY is blanked.
+
+
+4. AFTER THE CORRECTION
+
+All eight rows of section 2 have the audit agreeing with the evaluator.
+
+
+5. MUTATION CHECK
+
+Replacing the mask with the raw text fails exactly the new coverage:
+
+  node --test test/policy_syntax.test.mjs
+    FAIL W2845 R8: a comment inside a rule is accounted for, not refused
+    PASS W2845 R8: a hash inside a STRING is data, and a tab in code is still code
+    PASS W2845 R8: the installed evaluator agrees about every in-rule fixture
+    tests 28  pass 27  fail 1
+
+  pytest test_w2845_docker_inspection_policy.py test_deploy_v11.py
+    FAILED test_the_audit_accounts_for_a_comment_inside_a_rule
+    FAILED test_the_deployed_artifact_keeps_the_exact_policy_boundary
+    2 failed, 40 passed
+
+Restored: 28 Node, 42 pytest, all passing.
+
+
+6. ROUNDS 3, 6 AND 7 ARE RE-ASSERTED, NOT TRUSTED
+
+Every earlier negative set is re-run inside the new cases: tab before a rule,
+tab between operands, tab before the paren, space-indented rule, lone CR,
+form feed, vertical tab, NBSP, newline inside a string literal, and rounds 6
+and 7's blank-line and indentation refusals. This correction widens what a
+COMMENT may contain and where it may sit; it widens nothing else.
+
+
+7. FAIL-CLOSED IS NOT FAIL-BLIND — THE LIVE POLICY
+
+  /home/sl/.codex/rules/baton.rules
+    rules read: 95   unaccounted: 0
+    inspection profile: satisfied=true  missing=0 broad=0 extra=0
+    baton.codex   satisfied=true  missing=0  unaccounted=0
+    baton.tuner   satisfied=true  missing=0  unaccounted=0
+    baton.prompt  satisfied=true  missing=0  unaccounted=0
+
+Unchanged from every previous round: 95 rules, 0 unaccounted. This round only
+ADDS accepted spellings, so no file that audited exact before it can fail now.
+
+
+8. VERIFICATION
+
+  tools/codex-event-bridge npm test           293 tests, 293 pass, 0 fail
+  pytest -m serial tests/work                    52 passed
+  pytest -n auto -m "not serial" tests/work    2905 passed, 2 FAILED
+  tools/acp-baton-bridge npm test                55 passed
+  v12 npm test                                  196 tests, 191 pass, 5 FAILED
+  whitespace-damage check                      clean
+
+The seven failures are not this Work's:
+
+  test_w4996_dependency_graph.py (2)   W4996's reviewer-added cases against
+                                       src/baton_work/tui/graph.py
+  v12 worker_manager tests (5)         W2929's reviewer-added cases from
+                                       review-2026-08-22T17-30-46Z.md against
+                                       v12/src/worker_manager/
+
+Both Works are queued on baton.impl awaiting their own turns. Neither shares
+a module with `tools/codex-event-bridge/src/exec_policy.mjs`, and neither was
+touched from here.
+
+
+9. WHAT WAS NOT DONE
+
+The live exact-policy matrix remains the operator gate and was not run from
+this turn. The reviewer's condition for it — that the nominated-file preflight
+agree on this valid spelling — is now met.

@@ -1,0 +1,123 @@
+W2929 — the intake/cleanup slice, second correction
+Review: review-2026-08-23T01-43-26Z.md, two [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    425 tests, 423 passed, 2 failed
+
+The two additive review regressions are the only failures. Both findings
+correct.
+
+
+2. THE SAME ORDERING RULE, IN A FOURTH MODULE
+
+[P1] EXACT INTAKE REPLAY AND COLLISION WERE HIDDEN BY CURRENT OUTPUT STATE.
+`recordIntake` read the `outputs` row and refused its absence before it ever
+reached the journal. But once a decision has committed, the intake row OWNS
+the exact result digest and keeps the retained manifest alive — so dropping
+the now-redundant output index turned an exact retry into a precondition
+failure and hid a changed one instead of colliding.
+
+THIS IS THE FOURTH TIME. `ControlStore.replay`, `observe`, `recordFrozenResult`
+and now `recordIntake`. Each time the fix was "resolve the durable identity
+before consulting today's state", and each time I wrote the next module with
+the precondition first.
+
+CORRECTED, and the shape of the fix is what makes it hold: an existing
+decision already NAMES its material, so the output index is consulted ONLY
+when there is no decision to replay — which is exactly the case in which
+nothing can be hidden by requiring it. The sealed-output precondition is
+untouched for a genuinely new decision.
+
+
+3. A FOREIGN KEY PROVES EXISTENCE, NOT IDENTITY
+
+[P1] THE LOADER DID NOT RE-BIND ITS ROW TO THE COMMITTED OPERATION. `intakeOf`
+validated the four assignment fields and returned every other column as
+trusted. The new foreign key proves that SOME retained manifest exists; it
+does not prove this is the result the decision COMMITTED. Pointing the row at
+a second, individually valid retained result passed the key, the assignment
+check, cleanup, and the operation identity derived from it.
+
+THE JOURNAL IS THE INDEPENDENT WITNESS, and it is available even when the
+current `outputs` index is not. The row's own columns are reassembled into the
+exact durable record, its signature recomputed, and compared against the
+committed operation. Writer and reader build that record in ONE place, so the
+signature that commits a decision and the signature that authenticates the
+stored row are the same computation rather than two that agree today.
+
+A signature mismatch is re-classified as `integrity.digest` rather than
+surfaced as `refused.operation-collision`: this is not a caller reusing an
+identity, it is a ROW disagreeing with the decision its own operation
+committed, and the collision code carries a portable meaning belonging to
+something else.
+
+
+4. MUTATION CHECK — five, four witnessed and one measured
+
+  X1  the output index before the committed decision  2 failed
+  X2  the row is not authenticated by the journal     2 failed
+  X3  a row with no committed decision passes         1 failed
+  X5  BOTH the authentication and the typed load
+      removed together                                3 failed
+
+  X4  the named manifest is not validated as a result 0 failed
+
+X4 IS MASKED, NOT UNCOVERED, and the measurement is the point. TWO independent
+guards refuse a decision naming a non-result manifest: the signature
+authentication catches the changed digest, and the typed load catches the
+wrong kind. Removing either alone leaves the other covering it, and only X5 —
+removing both — makes the case fail.
+
+So the typed load the review asked for is kept and is NOT counted as
+witnessed coverage, and the case that drives it is titled "TWICE OVER" with
+the measurement written beside it. A case covered by two guards is not a case
+covered twice as well; it is a case whose mutation must remove both.
+
+Restored: 29/29 focused, 428/428 for the whole gate.
+
+
+5. REGRESSIONS — 29 (26 before, including the reviewer's two)
+
+Plus three of mine: a CHANGED decision colliding after the output index is
+gone — the other side of the reviewer's exact-retry case; an intake row with
+no committed decision behind it; and a decision naming a non-result manifest,
+measured as above.
+
+
+6. GATES
+
+  cd v12 && npm test                       428 tests, 428 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+All of item 4, and the four things this manager deliberately refuses to
+decide: certified evidence of runtime absence, what a conforming agent or
+runtime adapter must be, a pinned discard policy, and the quarantine manifest
+for material with no frozen result.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/intake.mjs          the committed decision resolved
+                                             before today's output index; the
+                                             row authenticated against its own
+                                             journalled signature; one place
+                                             builds the durable record
+  v12/test/worker_manager_intake.test.mjs    +3 cases

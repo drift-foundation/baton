@@ -129,11 +129,13 @@ def test_the_slot_frees_on_every_releasing_transition(world):
 			             to="lang.rev", comment="over")
 		else:
 			tr.release_claim(store, work, actor_team="lang", actor="ada",
-			                 expect="lang.ada", reason="letting go")
+			                 expect="lang.ada", episode=fx.episode_of(store, work),
+			                 reason="letting go")
 		another = make(world, f"after {release}")
 		tr.claim_work(store, another, actor_team="lang", actor="ada")
 		tr.release_claim(store, another, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="cycling")
+		                 expect="lang.ada", episode=fx.episode_of(store, another),
+		                 reason="cycling")
 
 
 def test_a_second_participant_is_unaffected(world):
@@ -206,7 +208,9 @@ def test_becoming_idle_again_starts_a_new_interval(world):
 	make(world, "still waiting to be taken")
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	tr.release_claim(world["store"], work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="handing back")
+	                 expect="lang.ada",
+	                 episode=fx.episode_of(world["store"], work),
+	                 reason="handing back")
 	fresh = pickup(world)
 	assert fresh["state"] == "pending"
 	assert fresh["elapsed_seconds"] == 0, \

@@ -1,0 +1,115 @@
+W2845 — the absent command items have a MEASURED cause, and it is not the
+prompt
+Implementer: baton.claude. Date: 2026-08-23.
+Against `review-2026-08-23T04-13-22Z.md` / plan item 27.
+
+
+1. WHY I MEASURED BEFORE IMPLEMENTING
+
+Item 27's correction rests on a diagnosis: "the current `runCase` prompt asks
+to run/report but does not explicitly require the shell tool, wait for it, or
+separate submission from policy judgment", and "the operator evidence retained
+no turn transcript, so the model's reason for not invoking the tool is not
+recoverable".
+
+Items 1 and 2 — a dedicated Docker phase and a stricter prompt — only help if
+the model is not invoking the tool. So that is the thing to establish first,
+and it is cheap to establish.
+
+
+2. THE DECISIVE PROBE
+
+A turn cannot be argued into having run a command. It can be caught having run
+one, by asking for a value it cannot know without executing.
+
+  cwd: a fresh temporary workspace
+  prompt: run exactly `date +%s%N` and reply with ONLY its exact stdout
+  every server request answered with a denial, so nothing can hang unanswered
+
+  turn status:  completed
+  ITEM TYPES:   userMessage, agentMessage
+  AGENT:        "1787459998183143305"
+  NONCE ms:     1787459998183 — INSIDE the run window
+
+A nanosecond timestamp inside the window of the run is not knowledge. The
+command RAN. And `thread/read` with `includeTurns: true` returned NO
+`commandExecution` item for that turn.
+
+An earlier, independent probe agrees: one `/bin/echo hello-probe` instruction,
+three items — `userMessage` and two `agentMessage` — and no command item.
+
+`CommandExecutionThreadItem` IS declared in the installed
+`.codex-app-server-schema/v2/ThreadReadResponse.json` `ThreadItem` union, so
+this is the RUNNING SERVER not recording it (codex-cli 0.149.0), rather than a
+schema the oracle misread.
+
+
+3. WHAT THAT MEANS FOR ITEM 27
+
+THE DIAGNOSIS IS REFUTED BY MEASUREMENT. The model DOES invoke the tool; the
+turn record does not carry the item the oracle requires. A stricter prompt, a
+dedicated Docker phase, and a demand that the model wait for the terminal tool
+result would each be a change to behaviour that is already correct, and the
+eight cases would fail again in exactly the same way.
+
+I have therefore NOT implemented items 1 and 2, and I am not proposing an
+oracle relaxation either — the review is right that none is acceptable. The
+oracle's premise is simply not met by this server build, and that is a
+deployment fact for `baton.ops`, not something an implementer can prompt
+around.
+
+WHAT WOULD SETTLE IT, and none of these is mine to choose: an app-server build
+whose `thread/read` records command items; a different transport for the same
+evidence that is still the MANAGED turn (the review is right that direct
+`command/exec` bypasses the behaviour being gated); or an explicit decision
+that this gate cannot be proven on this build and the Work waits.
+
+
+4. WHAT I DID IMPLEMENT — ITEM 3, AND ITS REGRESSIONS FROM ITEM 4
+
+The bounded missing-attempt diagnostic, because it is right regardless of the
+cause and it is what made the cause findable at all. A fail-closed rejection
+that retains nothing is a correct rejection nobody can act on, which is how
+eight cases became "the reason is not recoverable".
+
+`missingAttemptDiagnostic` in `src/command_oracle.mjs` renders the exact turn
+id and status, the ORDERED item types, the agent-message text truncated with
+its true length, and any agent commands with their status. The exclusions are
+the design: `reasoning` items contribute their TYPE and nothing else, only
+`agentMessage` text is quoted, only this turn is read, and the bound is
+explicit. It decides nothing — no verdict reads it, and giving one to it would
+make prose evidence again.
+
+`smoke/exact_policy_matrix.mjs` prints it for any FAILED Docker verdict. The
+oracle is untouched, the eight exact commands are untouched, and every Baton,
+negative-mutation and cleanup case is untouched.
+
+Four deterministic regressions: the bounded description with a reasoning
+payload proven absent from the output; truncation that states the true length;
+a turn that DID run commands reporting which; and no recorded turn being its
+own diagnostic.
+
+
+5. GATES
+
+  tools/codex-event-bridge npm test            328 pass, 0 fail
+  pytest -n auto -m "not serial" tests/work    2977 passed, 0 failed
+  pytest -m serial tests/work                  52 passed, 0 failed
+  tools/acp-baton-bridge npm test              55 pass, 0 fail
+  v12 npm test                                 492 pass, 0 fail
+  node --check smoke/exact_policy_matrix.mjs   clean
+  whitespace-damage check                      clean
+
+The live 21-case matrix is NOT rerun here. On the measured evidence it would
+fail the same eight cases for the same reason, and running it to produce that
+result again is not evidence anybody needs.
+
+
+6. FILES CHANGED
+
+  tools/codex-event-bridge/src/command_oracle.mjs
+                                    `missingAttemptDiagnostic`
+  tools/codex-event-bridge/test/command_oracle.test.mjs
+                                    +4 cases
+  tools/codex-event-bridge/smoke/exact_policy_matrix.mjs
+                                    the bounded account on a failed verdict

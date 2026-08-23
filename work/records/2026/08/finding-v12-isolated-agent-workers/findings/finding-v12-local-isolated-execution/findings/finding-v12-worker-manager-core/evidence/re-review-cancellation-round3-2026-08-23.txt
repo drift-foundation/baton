@@ -1,0 +1,37 @@
+W2929 cancellation failure-handling third review — 2026-08-23T00:05:09Z
+
+Accepted from the correction:
+- an ordinary agent Error no longer suppresses runtime stop
+- the ordinary agent Error is re-thrown after the stop
+- an ordinary runtime Error does not hide the agent Error; AggregateError
+  retains both in call order
+- returned settlements remain unpromoted to quiescence
+- durable agent-session failure evidence remains explicitly deferred to item 4
+
+Observed remaining boundary:
+- agent.cancel throws null, which JavaScript permits
+- orderQuiescence catches it into agentFailure, whose no-failure sentinel is null
+- adapter.stop is correctly reached
+- the later agentFailure !== null check is false
+- requestCancellation returns ordered:true and silently loses the failure
+
+Added regression:
+  W2929 round-3 review: a null agent failure is still a failure
+
+Focused command:
+  node v12/test/worker_manager_attempts.test.mjs
+
+Focused result:
+  tests 61; pass 60; fail 1
+  sole failure: W2929 round-3 review: a null agent failure is still a failure
+
+Full command (cwd v12):
+  npm test
+
+Full result:
+  tests 343; pass 342; fail 1
+  same sole failure
+
+No implementation file was changed by the reviewer. The additive regression,
+this evidence, FINDING/PLAN chronology and append-only review are the only
+review-owned changes.

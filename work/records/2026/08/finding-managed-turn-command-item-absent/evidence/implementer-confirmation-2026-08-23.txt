@@ -1,0 +1,101 @@
+W7989 — the reviewer's correction, independently confirmed, and two more of my
+own claims corrected
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. THE CORRECTION IS RIGHT, AND I CONFIRMED IT ON A SECOND TURN
+
+The reviewer inspected the NONCE probe's rollout. I inspected the SMOKE
+turn's, which is the one W7830's gate actually depends on:
+
+  /home/sl/.codex/sessions/2026/08/22/
+    rollout-2026-08-22T22-48-47-01a02cf3-2411-7711-8618-4d6527b5d0d9.jsonl
+
+  payload types: {"task_started":1,"message":6,"user_message":1,
+                  "reasoning":2,"custom_tool_call":1,
+                  "custom_tool_call_output":1,"token_count":2,
+                  "agent_message":1,"task_complete":1}
+
+  custom_tool_call name=exec
+    const r = await tools.exec_command({"cmd":"…/baton --config … detail
+      work=W2","login":false,"yield_time_ms":30000,
+      "max_output_tokens":10000}); text(r);
+
+ONE custom tool call, no built-in shell call, in the turn as well as in the
+probe. And the installed `ThreadItem` union, checked directly, has no
+`custom_tool_call` variant — 18 variants, none of them it.
+
+So MY HEADLINE WAS WRONG. The symptom is real; the diagnosis was not. The
+server is not dropping a `commandExecution` item, because no built-in shell
+call was ever made — the deployment routes execution through a provider custom
+tool, and a union that cannot represent that item is behaving correctly.
+
+WHAT MY PROBE ACTUALLY ESTABLISHED, and it is less than I said: that a command
+RAN and that no `commandExecution` item appeared. I read "the server failed to
+record it" into the gap between those two facts, and the gap had a third
+explanation I did not look for. A nonce proves execution; it does not prove
+WHICH execution path.
+
+
+2. A SECOND CLAIM OF MINE, ALSO WRONG
+
+I said the managed traceback was "consistent with the read-only database this
+Work is about". The exact output says otherwise:
+
+  exit_code 1
+  sqlite3.OperationalError: unable to open database file
+    lifecycle.open_bound -> Authority.__init__ (authority.py:830)
+
+That is a DIFFERENT sqlite error, on a DIFFERENT operation. It is the READ —
+`detail` — failing because the sandbox cannot open the database file at all.
+The original W7830 observation quoted `attempt to write a readonly database`
+on a claim, and I let the two blur together.
+
+It also means the smoke's environment does not reproduce the original defect's
+shape: there, the read succeeded and the mutation was refused. Here neither
+works, so the turn stopped after the first command — which is why exactly one
+custom tool call appears.
+
+
+3. THE ONE THING THAT IS BOTH REAL AND MINE TO REPORT
+
+The canonical CLI surfaces a sqlite open failure as an UNHANDLED PYTHON
+TRACEBACK, not the typed JSON error every other refusal uses. Reproduced
+deterministically, with no model and no sandbox, against the DEPLOYED build
+and against the CURRENT SOURCE TREE:
+
+  deployed c529b28, unreadable work.sqlite3:
+    sqlite3.OperationalError: unable to open database file
+    (authority.py:830, via lifecycle.open_bound)
+
+  current tree, src/baton_work/authority.py:978, Authority(db) on an
+  unreadable file:
+    sqlite3.OperationalError: unable to open database file
+
+Every other refusal on this path is a typed `WorkError` rendered as JSON. This
+one is a stack trace, and a caller cannot classify it, retry on it, or report
+it as anything but "the tool crashed".
+
+Plan item 4 said "on a read-only store". The measured scope is wider: ANY
+sqlite open failure — unreadable file, missing directory, an inaccessible home
+— takes this path.
+
+
+4. WHAT I DID NOT DO
+
+I did not run the bounded live probe. The reviewer put it behind an operator
+decision, and running it to make the recommendation look settled would be
+choosing the option rather than reporting it.
+
+I did not touch `exec_policy.mjs`, either gate's oracle, or the eight exact
+commands. Nothing about W2845 or W7830 changes on my side from this
+confirmation: both remain unable to prove their live gate on this deployment,
+for a reason now correctly described.
+
+
+5. GATES
+
+Read-only inspection and one deterministic library-level reproduction. No
+suite is affected by this turn; nothing in any tree was changed.
+
+  whitespace-damage check                      clean

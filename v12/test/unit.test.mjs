@@ -5,9 +5,9 @@
 // (a trace payload overwriting the trace's own ordering field, and an
 // over-eager redaction hiding the negative proof's own subject).
 
-import { test } from "node:test";
+import { test, after } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, symlinkSync,
+import { existsSync, mkdirSync, readFileSync, symlinkSync,
          writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -23,8 +23,14 @@ import { assertNoBatonCapability, assertPreClaimPosture, attemptPaths as attempt
          preClaimSpec,
          stageCredentials, RuntimeError } from "../src/runtime.mjs";
 import { BatonClient, validateReadiness, BatonError } from "../src/baton_cli.mjs";
+import { ownedTemp, removeOwnedRoots } from "./owned_roots.mjs";
 
-const scratch = () => mkdtempSync(join(tmpdir(), "v12poc-test-"));
+// W2907: every fixture root comes from the registry, which records it at
+// creation, and one `after` hook removes exactly those roots. Before this,
+// all 51 call sites below leaked on success AND on failure — one isolated
+// run left 162 roots.
+const scratch = () => ownedTemp("v12poc-test-");
+after(removeOwnedRoots);
 
 const BINDING = { work: "W2", participant: "poc.claude", runtime_attempt: "a1" };
 const mintArgs = { work: "W2", participant: "poc.claude", runtimeAttempt: "a1",
@@ -308,6 +314,20 @@ test("a readiness envelope is revalidated rather than trusted", () => {
 	assert.throws(() => validateReadiness(good, "poc.rev"), /is for "poc.claude", not poc.rev/);
 	assert.throws(() => validateReadiness({ ...good,
 		result: { actionable: [{ kind: "work" }] } }, "poc.claude"), /no action_key/);
+	// v11 W4303: a Work action's assignment episode is load-bearing here —
+	// the compensating release fences on it — so an envelope that omits it
+	// is refused rather than producing a Job this manager could claim and
+	// then not release exactly.
+	assert.throws(() => validateReadiness({ ...good,
+		result: { actionable: [{ kind: "work", action_key: "k" }] } },
+		"poc.claude"), /has no episode_seq/);
+	assert.doesNotThrow(() => validateReadiness({ ...good,
+		result: { actionable: [{ kind: "work", action_key: "k", episode_seq: 4 }] } },
+		"poc.claude"));
+	// A non-Work action never carried one and is unaffected.
+	assert.doesNotThrow(() => validateReadiness({ ...good,
+		result: { actionable: [{ kind: "obligation", action_key: "obligation:3" }] } },
+		"poc.claude"));
 });
 
 test("a streamed secret is scrubbed fragment by fragment", () => {
@@ -533,16 +553,21 @@ test("R5: a post-claim failure releases the claim, and says so when it cannot", 
 
 	const manager = new Manager(config);
 	const calls = [];
-	manager.baton.release = async (work, expect, reason) => {
-		calls.push({ work, expect, reason });
+	manager.baton.release = async (work, expect, episode, reason) => {
+		calls.push({ work, expect, episode, reason });
 		return { result: { released_claimant: expect } };
 	};
 	manager.baton.detail = async () => ({ result: { phase: "queued", handler: null,
 		route: { endpoint: "poc.job" }, ready: true } });
-	const attempt = { work: "W2", runtime_attempt: "a1", trace: new Trace(path, { now: () => "T" }) };
+	const attempt = { work: "W2", runtime_attempt: "a1", episode: 41,
+	                  trace: new Trace(path, { now: () => "T" }) };
 	await manager.compensate(attempt, new Error("worker exploded"));
 	assert.equal(attempt.status, "compensated");
 	assert.equal(calls[0].expect, "poc.claude");
+	// v11 W4303: the compensation fences on the exact assignment episode
+	// this attempt was offered under, so a retried release cannot abort a
+	// successor attempt running under the same participant.
+	assert.equal(calls[0].episode, 41);
 	assert.match(calls[0].reason, /worker exploded/);
 	const lines = readFileSync(path, "utf8").trim().split("\n").map((l) => JSON.parse(l));
 	assert.equal(lines.at(-1).detail.phase, "queued");
@@ -552,7 +577,7 @@ test("R5: a post-claim failure releases the claim, and says so when it cannot", 
 	// reported as a clean end.
 	const stuck = new Manager(config);
 	stuck.baton.release = async () => { throw new Error("authority unreachable"); };
-	const bad = { work: "W2", runtime_attempt: "a2",
+	const bad = { work: "W2", runtime_attempt: "a2", episode: 41,
 	              trace: new Trace(join(scratch(), "t.jsonl"), { now: () => "T" }) };
 	await stuck.compensate(bad, new Error("worker exploded"));
 	assert.equal(bad.status, "stranded");
@@ -1081,7 +1106,7 @@ test("R4-2: every manager mutation carries an operation identity", async () => {
 	client.run = async (verb, operands) => { seen.push([verb, operands]); return { result: {} }; };
 	await client.claim("W2", "op-claim");
 	await client.pass("W2", "poc.rview", "comment", "op-pass");
-	await client.release("W2", "poc.claude", "reason", "op-release");
+	await client.release("W2", "poc.claude", 41, "reason", "op-release");
 	await client.say("T2", "recap", [], "op-say");
 	for (const [verb, operands] of seen) {
 		assert.ok(operands.some((operand) => operand.startsWith("op-id=")),

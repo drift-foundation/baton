@@ -1,0 +1,89 @@
+W2929 foundation round-four re-review — 2026-08-22T18:51:48Z
+
+BASELINE BEFORE REVIEWER ADDITIONS
+
+  cd v12 && npm test
+    tests 213
+    pass 213
+    fail 0
+
+FOCUSED COMMAND AFTER FOUR ADDITIVE REGRESSIONS
+
+  cd v12 && npm test -- --test-name-pattern='W2929 review'
+    tests 217
+    pass 213
+    fail 4
+
+The four failures are exactly the four new reviewer cases:
+
+  W2929 review: a parser-invalid absolute URI is never trusted
+  W2929 review: content entry order is byte order, not UTF-16 order
+  W2929 review: a bearer value cannot hide under a non-secret result key
+  W2929 review: a durable refusal message cannot contain the bearer
+
+MALFORMED ABSOLUTE URI PROBE
+
+  validateUri("https://[") accepted.
+
+The frozen schema accepts the string because AJV URI format assertions are
+deliberately disabled. contracts.mjs validateUri recognizes a scheme, then
+catches and ignores new URL(uri)'s parse failure as though every parse failure
+proved an opaque no-authority URI. The copied, schema-first manifest trust
+entry therefore accepts and seals the malformed source locator.
+
+BYTEWISE CONTENT ORDER PROBE
+
+  paths = ["\u{10000}.txt", "\uE000.txt"]
+  paths[0] < paths[1]                    => true
+  Buffer.compare(utf8(paths[0]),
+                 utf8(paths[1]))         => 1
+
+The current strict `<` comparison is UTF-16 code-unit order, not the frozen
+contract's bytewise UTF-8 order. The validator accepts the counterexample,
+resealed with matching aggregates and tree digest, although its entries are
+backwards under the required order.
+
+DURABLE BEARER VALUE PROBES
+
+  committed result:
+    {"accepted":false,"diagnostic":"<golden bearer>"}
+    => committed; no integrity.secret-leak refusal
+
+  durable refusal:
+    ContractError("policy", "retention",
+                  "retention refused <golden bearer>")
+    => original policy.retention refusal rethrown after durable recording;
+       no integrity.secret-leak refusal
+
+assertNoDurableSecret recursively examines object member NAMES only. It never
+compares string values with the ephemeral bearer supplied to the manager, so
+the store's two new calls do not enforce the §13 value property. The earlier
+claim_token-key regression remains useful but proves only one serialized
+shape. The two new store tests also assert that no operation row may survive a
+secret-leak refusal.
+
+Direct store probes used private temporary roots under /tmp/w2929-secret-*.
+Managed-review policy leaves those exact optional-cleanup paths for the
+operator rather than requesting destructive authority.
+
+CONTRACT BASIS
+
+  worker-control SPEC.md §3.3:
+    source URIs are absolute normalized URIs without userinfo, credentials,
+    query or fragment; content entries are sorted bytewise by normalized
+    relative path.
+
+  worker-control SPEC.md §12:
+    semantic validation enforces valid credential-free locators and sorted,
+    unique, sealed content manifests before trust.
+
+  worker-control SPEC.md §13:
+    the one deliberate claim bearer never enters a persisted envelope,
+    manifest, event, artifact reference or operation result, and logs,
+    errors and diagnostics redact it.
+
+The Python design model parses URIs with urlsplit and orders paths with
+Python's Unicode scalar ordering. For valid Unicode scalar strings that order
+agrees with UTF-8 byte order at the BMP/astral boundary; JavaScript UTF-16
+ordering does not.
+

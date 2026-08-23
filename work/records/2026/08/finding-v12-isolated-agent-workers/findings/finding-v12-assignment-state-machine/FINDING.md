@@ -295,7 +295,8 @@ original claim-before-`pass` statement standing.
 
 ## Verification
 
-`evidence/test_assignment_state_model.py` passes 54 scenarios under Python's
+`evidence/test_assignment_state_model.py` passes 61 scenarios (54 before the
+W4487 decline amendment of 2026-08-22) under Python's
 standard `unittest` runner, covering all four rulings, the corrected evidence
 defects, and the effectively-once, settlement and restart boundaries the four
 focused reviews of 2026-08-21 opened; the superseded `0-design` package ran

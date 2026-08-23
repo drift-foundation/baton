@@ -1,0 +1,136 @@
+W2929 — the cancellation-ordering slice, corrected
+Review: review-2026-08-22T23-40-54Z.md, two [P1] and one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    336 tests, 335 passed, 1 failed
+
+The sole failure is the reviewer's additive stopped-fact regression. All
+three findings correct.
+
+
+2. THE ONE I LEFT OUT
+
+[P1] THE SLICE OMITTED AGENT CANCELLATION. The owning acceptance says "only
+then does the manager order AGENT CANCELLATION AND RUNTIME STOP", and I built
+the runtime half and called item 3k done. `session.cancel` is the
+assignment-authority FENCE; it is not the provider agent's cancellation, and
+nothing in the slice touched an agent at all.
+
+I did not read the acceptance carelessly so much as let the item-4 boundary
+swallow more than it owns. Item 4 owns what a conforming agent must BE. Where
+its cancellation sits in the order is item 3's, and that is the whole subject
+of this slice — so deferring it deferred the thing being built.
+
+CORRECTED by injecting the agent as a boundary, exactly as the runtime adapter
+already is, and ordering it BETWEEN the fence and the runtime stop. The order
+is now `authority.cancel -> agent.cancel -> adapter.stop`, driven through one
+shared trace.
+
+The agent goes first for a reason worth stating: an agent told to stop after
+its runtime is already going away never hears the order, and the cooperative
+shutdown is the only thing asking it buys over a kill.
+
+THE PARAMETER ORDER IS THE ACT ORDER, and two adjacent injected objects are
+easy to swap, so both shapes are checked. A swap refuses `integrity.schema`
+rather than cancelling the wrong boundary first.
+
+
+3. THE OTHER TWO
+
+[P1] CALLING `stop` MANUFACTURED A POSITIVE STOPPED FACT. `orderStop`
+discarded the adapter's answer and reported `stopped: true` whenever the call
+RETURNED. An adapter answering `{ stopped: false }` left the manager
+announcing a stopped runtime while its own axis said only `cancel-requested`.
+
+REACHING A BOUNDARY IS NOT EVIDENCE OF ITS EFFECT — and this is the same
+mistake as the caller-authored `absenceProven` boolean, arriving from the
+manager's own side instead of the caller's. The word `stopped` is gone from
+the answer. The manager reports `ordered: true`, which is what it knows, and
+passes each settlement through UNINTERPRETED so a caller can see what the
+boundary said without the manager turning it into a fact about the world.
+Positive quiescence arrives as an OBSERVATION or not at all.
+
+[P2] THE PLAN CONTRADICTED THE IMPLEMENTATION ON RETRY. Plan item 3k said the
+stop order is not repeated for a runtime already `stopping`, while the code
+repeats it and a regression of mine requires the repeat.
+
+THE DRAFTING WAS MINE AND THE CODE IS RIGHT. The AXIS is not rewound; the
+ORDER is re-issued under the same operation identity, because an order that
+may have been lost must be repeatable and the identity is what keeps the
+repeat one act rather than two. Plan item 3k now states that rule and carries
+a dated correction note naming the review, so the chronology shows the
+contradiction and its resolution rather than hiding it.
+
+
+4. MUTATION CHECK — five, all five witnessed
+
+  O1  stop the runtime BEFORE cancelling the agent   1 failed
+  O2  no agent cancellation at all                   3 failed
+  O3  manufacture `stopped` from reaching the call   2 failed
+  O4  summarize the settlements instead of passing
+      them through                                   1 failed
+  O5  drop the boundary shape checks                 1 failed
+
+O3 fails the REVIEWER's retained case and mine together, which is the point:
+theirs pins that the manufactured fact is absent, mine pins that the real
+settlements are present.
+
+Restored: 57/57 focused, 339/339 for the whole gate.
+
+
+5. REGRESSIONS — 57 (53 before; the reviewer's one retained)
+
+The reviewer's case is retained verbatim; only its CALL SHAPE moved, because
+the signature had to gain the agent boundary the same review asked for.
+
+Plus three of mine:
+
+  - the settlements are passed through, not summarized — an agent answering
+    `{ cancelled: false }` and an adapter answering `{ stopped: false }` are
+    both reported as given, and neither is folded into the axis;
+  - the agent is told which act it is settling — the manager's operation
+    identity, the runtime id and the exact assignment;
+  - a swapped agent and runtime refuse rather than mis-ordering, and reach
+    nothing.
+
+Two existing cases changed their assertion from `stopped` to `ordered`, which
+is the correction itself, and the ordering case now expects three boundaries.
+
+
+6. GATES
+
+  cd v12 && npm test                       339 tests, 339 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Output freeze, intake and cleanup — the rest of item 3 — and all of item 4,
+including the certified absence evidence that would let a manager satisfy the
+quiescence gate this slice installs.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/attempts.mjs        the agent boundary, the ordered
+                                             `orderQuiescence`, the boundary
+                                             shape checks, header scope
+  v12/test/worker_manager_attempts.test.mjs  +3 cases, the agent double,
+                                             call shapes and two assertions
+  PLAN.md item 3k                            the retry rule, with a dated
+                                             correction note

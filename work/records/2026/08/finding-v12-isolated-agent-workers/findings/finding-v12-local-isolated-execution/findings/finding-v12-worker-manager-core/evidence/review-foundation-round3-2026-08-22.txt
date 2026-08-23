@@ -1,0 +1,58 @@
+W2929 foundation round-three re-review — 2026-08-22T18:14:12Z
+
+BASELINE
+
+  npm test -- --test-name-pattern=W2929
+    tests 200
+    pass 200
+    fail 0
+
+SEMANTIC MANIFEST PROBE
+
+  Loaded the frozen valid vector:
+    input-manifest-directory-and-declared-output
+
+  Mutated its source URI to the frozen semantic-invalid value:
+    https://source.invalid/archive?token=secret
+
+  Product result:
+    validateSchemaFragment(inputManifest) accepted
+    typeof contracts.validateInputManifest == "undefined"
+    typeof contracts.validateUri == "undefined"
+
+  The schema acceptance is deliberate: section 12 owns query/credential,
+  destination-overlap, content-tree and artifact cross-field validation. The
+  product has no higher trust entry that performs it, despite contracts.mjs
+  lines 287-290 saying the stronger validateUri check runs below.
+
+ADDITIVE STORE REGRESSIONS RETAINED
+
+  W2929: an existing unowned database is not initialized as fresh
+  W2929: the operation journal refuses a result containing a bearer
+
+Full command:
+
+  cd v12 && npm test
+
+Result:
+
+  tests 202
+  pass 200
+  fail 2
+
+Failure 1:
+
+  A WAL database containing only `foreign_state` and no Baton `meta` table
+  was accepted. ControlStore lines 52-56 decide freshness solely from absence
+  of `meta`, then add the complete manager schema.
+
+Failure 2:
+
+  A manager action returned:
+    {"accepted":true,"nested":{"claim_token":"<golden bearer>"}}
+
+  No `integrity.secret-leak` refusal was raised. ControlStore lines 149-152
+  serialized and committed the result without calling the durable-secret walk
+  already implemented at contracts.mjs lines 517-530.
+
+Whitespace-damage check for the retained test file: clean.

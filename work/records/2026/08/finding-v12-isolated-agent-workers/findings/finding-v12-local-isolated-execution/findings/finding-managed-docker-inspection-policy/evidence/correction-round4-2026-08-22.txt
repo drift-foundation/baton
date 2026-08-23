@@ -1,0 +1,137 @@
+W2845 round-4 correction, 2026-08-22 (baton.claude)
+
+No Docker command was executed anywhere in this record. Every evaluator
+result came from `codex execpolicy check`, which loads a candidate policy
+and evaluates a command without running it. Oracle: codex-cli 0.149.0,
+`/home/sl/.nvm/versions/node/v24.14.0/bin/codex`.
+
+
+1. THE REPORTED DEFECT, REPRODUCED BEFORE ANY EDIT
+
+Each candidate is the four exact inspection rules with one call added or
+replaced. `auditInspectionRules` is the module under test.
+
+  duplicate pattern operand
+    prefix_rule(pattern=["docker"],
+                pattern=["docker", "version"], decision="allow")
+    audit: satisfied=true  unaccounted=0
+    evaluator: exit 1 — starlark error: repeated named argument
+
+  empty pattern
+    prefix_rule(pattern=[], decision="allow")
+    audit: satisfied=true  unaccounted=0
+    evaluator: exit 1 — invalid pattern element: pattern cannot be empty
+
+  invalid decision literal
+    prefix_rule(pattern=["not-docker"], decision="deny")
+    audit: satisfied=true  unaccounted=0
+    evaluator: exit 1 — invalid decision: deny
+
+All three confirmed exactly as `review-2026-08-22T13-29-42Z.md` reports.
+
+
+2. ONE CASE THE REVIEW DID NOT HAVE
+
+Probing the same layer found a fourth, on the other operand:
+
+  duplicate decision operand
+    prefix_rule(pattern=["not-docker"], decision="allow", decision="allow")
+    audit: satisfied=true  unaccounted=0
+    evaluator: exit 1 — starlark error: repeated named argument
+
+`decompose` overwrote either named operand silently, so the defect was
+never specific to `pattern`. Correcting only the reported operand would
+have left an identical hole one keyword away — the same shape as round 3's
+space-indented rule.
+
+
+3. THE DECISION DOMAIN, MEASURED
+
+Each spelling appended to the exact four as
+`prefix_rule(pattern=["not-docker"], decision="<D>")`:
+
+  LOADS     allow, prompt, forbidden
+  REFUSED   deny, forbid, ask, bogus, reject, warn, allowed,
+            Allow, ALLOW, prompt_user, "" (empty string)
+
+The domain is case-sensitive. Only `allow` is coverage and only `allow` is
+what this generator emits; `prompt` and `forbidden` are accepted because
+they LOAD, and refusing an operator's valid restriction would be
+fail-blind in the direction round 1 warned about. Anything outside the
+measured three is UNACCOUNTED, including a spelling a later Codex might
+add — the same stated limitation this module already carries for CRLF.
+
+
+4. A NEIGHBOURING CASE THAT IS NOT A DEFECT
+
+  empty string pattern ELEMENT
+    prefix_rule(pattern=[""], decision="allow")
+    evaluator: exit 0 — LOADS
+    audit after the fix: satisfied=true  unaccounted=0
+
+The evaluator's complaint is about an empty PATTERN, not an empty element.
+An empty element covers nothing, because no argv element equals "". It
+stays accounted; refusing it would be fail-blind.
+
+
+5. AFTER THE CORRECTION
+
+Audit and evaluator now agree on every candidate probed:
+
+  candidate                 audit.satisfied   evaluator
+  exact four                true              LOADS
+  duplicate pattern         false (unacc 1)   REFUSED
+  duplicate decision        false (unacc 1)   REFUSED
+  empty pattern             false (unacc 1)   REFUSED
+  empty pattern positional  false (unacc 1)   REFUSED
+  decision deny             false (unacc 1)   REFUSED
+  decision deny positional  false (unacc 1)   REFUSED
+  decision prompt           true              LOADS
+  decision forbidden        true              LOADS
+  empty string element      true              LOADS
+
+The refusal now also names the operand-literal rules, so an operator
+reading it is not sent to look for whitespace that is not there:
+
+  THE OPERAND LITERALS COUNT TOO: a repeated 'pattern' or 'decision', an
+  empty pattern, and any decision other than 'allow', 'prompt' or
+  'forbidden' are each refused by the evaluator, which then loads NO rule
+  from this file — including the ones installed correctly.
+
+
+6. FAIL-CLOSED IS NOT FAIL-BLIND — THE LIVE POLICY
+
+  ~/.codex/rules/baton.rules
+    rules read: 95   unaccounted: 0
+    inspection profile: satisfied=true  missing=0 broad=0 extra=0
+    baton.codex:  satisfied=true  missing=0
+    baton.tuner:  satisfied=true  missing=0
+    baton.prompt: 30 ruled verbs present
+
+  (baton.claude and baton.gemini are ACP-launched rather than dispatched
+  through this Codex stack, so the file carries no rules for them and the
+  workflow preflight is never asked about them. Unchanged by this round.)
+
+Nothing this round refuses was accounted for before it, and nothing that
+was accounted for before it is refused now: the rule count and the
+unaccounted count are both unchanged on the installed file.
+
+
+7. SUPERSEDED UNIT COVERAGE
+
+`W2845: a deny rule is never inspection coverage` and the `deny` branch of
+`W415: a BROAD rule is refused, not counted as coverage` both spelled the
+restriction `decision="deny"`, which the evaluator refuses. They were
+asserting the audit's answer about a file Codex will not load, and they
+could never have caught this defect. Both now use `forbidden`, which is
+evaluator-valid and still not coverage; `deny` has its own unaccounted
+case beside the other invalid literals.
+
+
+8. SURROUNDING VERIFICATION
+
+  node --test (tools/codex-event-bridge):      267 passed, 0 failed
+  pytest tests/work (not serial):             2847 passed
+  pytest tests/work (serial):                   52 passed
+  npm test (tools/acp-baton-bridge):            55 passed
+  npm test (v12):                              159 passed

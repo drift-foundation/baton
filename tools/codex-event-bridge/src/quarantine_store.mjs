@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** Whether a marker instant can actually be READ OUT LOUD later.
@@ -53,14 +53,34 @@ export function quarantineKey(serverName, threadId) {
     .slice(0, 32);
 }
 
+// W4303: the failed-turn settlement needs the SAME durable, fail-closed,
+// context-keyed marker the approval quarantine needs, for the same
+// reason — the marker is committed before the publication that could be
+// lost, and a restarting dispatcher has to find it. So this class takes
+// a `suffix` plus a `label`, and both fences share one implementation
+// rather than the settlement growing a second, subtly different copy of
+// the rule that `damaged` is not `absent`.
+//
+// The two markers deliberately do NOT share a FILE. They answer
+// different questions — "this context holds intent nobody sanctioned"
+// versus "this participant is holding a claim nothing is executing" —
+// they clear on different evidence, and one context can be in both
+// states at once.
 export class QuarantineStore {
-  constructor(directory, logger = console) {
+  constructor(directory, logger = console,
+              { suffix = ".json", label = "quarantine" } = {}) {
     this.directory = directory;
     this.logger = logger;
+    this.suffix = suffix;
+    // What an operator reading a persistence failure is being told
+    // about. The remedy differs per fence, so the message names the
+    // fence rather than assuming the approval one.
+    this.label = label;
   }
 
   #path(serverName, threadId) {
-    return join(this.directory, `${quarantineKey(serverName, threadId)}.json`);
+    return join(this.directory,
+                `${quarantineKey(serverName, threadId)}${this.suffix}`);
   }
 
   /** What this context's marker says: `absent`, `present`, or `damaged`.
@@ -114,7 +134,7 @@ export class QuarantineStore {
       return kept;
     } catch (error) {
       this.logger.warn(
-        `could not preserve the damaged quarantine marker for `
+        `could not preserve the damaged ${this.label} marker for `
         + `${serverName}/${threadId}: ${error.message}`);
       return null;
     }
@@ -139,10 +159,37 @@ export class QuarantineStore {
       return true;
     } catch (error) {
       this.logger.error(
-        `the quarantine for ${serverName}/${threadId} could NOT be persisted `
-        + `to ${this.directory}: ${error.message}. The fence holds in this `
-        + `process only — restarting the dispatcher would clear it, so stop `
-        + `and start the managed stack rather than relaunching the dispatcher.`);
+        `the ${this.label} for ${serverName}/${threadId} could NOT be `
+        + `persisted to ${this.directory}: ${error.message}. The fence holds `
+        + `in this process only — restarting the dispatcher would clear it, `
+        + `so stop and start the managed stack rather than relaunching the `
+        + `dispatcher.`);
+      return false;
+    }
+  }
+
+  /** Retire this context's marker.
+   *
+   *  W4303: the approval quarantine deliberately has no clearing path —
+   *  it ends when the managed stack mints a fresh context, and nothing
+   *  else. The failed-turn fence is the opposite: it names one
+   *  recoverable condition and MUST end when a canonical read proves
+   *  the claim is gone, or the deadlock the fence describes would
+   *  simply become the fence itself. So the method exists on the shared
+   *  store and only the settlement path calls it.
+   *
+   *  A failure leaves the marker readable, which fails closed: the
+   *  target stays fenced and reconciles again rather than delivering
+   *  on the strength of a delete nobody could confirm. */
+  clear(serverName, threadId) {
+    try {
+      unlinkSync(this.#path(serverName, threadId));
+      return true;
+    } catch (error) {
+      if (error.code === "ENOENT") return true;
+      this.logger.warn(
+        `the settled marker for ${serverName}/${threadId} could not be `
+        + `removed: ${error.message}; the fence stays until it is`);
       return false;
     }
   }
@@ -151,8 +198,8 @@ export class QuarantineStore {
   keys() {
     try {
       return readdirSync(this.directory)
-        .filter((name) => name.endsWith(".json"))
-        .map((name) => name.slice(0, -5));
+        .filter((name) => name.endsWith(this.suffix))
+        .map((name) => name.slice(0, -this.suffix.length));
     } catch {
       return [];
     }

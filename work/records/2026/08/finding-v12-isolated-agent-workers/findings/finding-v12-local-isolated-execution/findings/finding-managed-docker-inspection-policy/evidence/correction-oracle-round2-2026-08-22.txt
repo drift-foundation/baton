@@ -1,0 +1,134 @@
+W2845 — the matrix oracle, second correction round
+Review: review-2026-08-22T21-02-03Z.md, one [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. SCOPE
+
+The generator, auditor, parser and round-nine comment-mask correction stay
+signed off and nothing in `exec_policy.mjs` changed. The credential-bearing
+live run is still the operator gate and was not run.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd tools/codex-event-bridge && npm test
+    313 tests, 311 passed, 2 failed
+    X only a COMMAND approval can prove command refusal
+    X observing an approval is not proof it was denied
+
+Both correct, and both are in the correction I landed this session.
+
+
+2. [P1] CORRELATION STOPPED ONE BOUNDARY SHORT
+
+Two faults with one shape: I checked that an approval was ABOUT this item and
+never that it was the right KIND of approval or that the client actually
+ANSWERED it.
+
+IDENTITY IS NOT SUFFICIENT. Read out of the installed schema rather than
+assumed — and this time I checked all three:
+
+  item/commandExecution/requestApproval   threadId turnId itemId  command …
+  item/fileChange/requestApproval         threadId turnId itemId  grantRoot …
+  item/permissions/requestApproval        threadId turnId itemId  permissions …
+
+All three carry the same identity triple. So a file-change or permission
+prompt in the same turn was being read as command-execpolicy evidence, and
+that can ACCEPT an unruled case whose command merely `failed` — the exact
+state the correction otherwise refuses. The whole point of refusing a bare
+`failed` was that a command can fail on its own; an unrelated approval let it
+back in through the other door.
+
+AN OBSERVED REQUEST IS NOT AN ANSWERED ONE. `CodexClient.respondError`
+returns false when it cannot send — a closed socket, a missing id — and
+`runCase` discarded the return value. The matrix's claim is that it denies
+exactly as the dispatcher denies; an unanswered prompt does not support that
+claim, it only shows the boundary ASKED.
+
+CORRECTED:
+  - `COMMAND_APPROVAL_METHOD` is the schema's exact spelling and
+    `approvalsFor` matches method AND identity.
+  - `runCase` records `denied` from `respondError`'s own result.
+  - `deniedApprovals` is what the unruled approval path requires, on top of
+    the already-required terminal non-completed item.
+  - A RULED inspection still fails on the mere REQUEST, answered or not: the
+    reason those four are ruled is that nothing asks about them at all.
+  - A direct `declined` is still a refusal with nothing to correlate, and a
+    bare `failed` is still insufficient.
+
+
+3. THE FIXTURE SPELLING, AND WHY IT MATTERED
+
+My synthetic approvals said `commandExecution/requestApproval`. The installed
+schema defines `item/commandExecution/requestApproval`. Method-blind
+correlation hid it exactly: A NAME NOTHING COMPARES CANNOT BE WRONG. The
+fixtures now build from the exported constant, so the product and the cases
+cannot drift apart again, and the review is right that the wrong spelling was
+a symptom rather than a separate slip.
+
+
+4. REGRESSIONS — 19 (16 before; the reviewer's two retained)
+
+Added three:
+  - every OTHER approval method is a different boundary: file-change,
+    permissions, tool-input, and the two legacy spellings are each proven not
+    to correlate and not to rescue a failed unruled command, while the
+    command method still does;
+  - an unsent denial is not a denial ON EITHER SIDE — it is still correlated,
+    because it is the ANSWER that is missing rather than the identity; one
+    sent denial among unsent ones is enough; and a ruled inspection fails on
+    the request whether or not the denial was sent;
+  - a direct decline still needs no approval at all, so the correction cannot
+    quietly make one mandatory.
+
+
+5. MUTATION CHECK — four
+
+  M1  correlate by identity only, ignoring the method
+        2 failed: the reviewer's method case and mine
+  M2  an observed approval counts as denied
+        2 failed: the reviewer's denial case and mine
+  M3  a ruled inspection tolerates an unsent-denial request
+        1 failed: the unsent-denial case
+  M4  an approval becomes mandatory for a refusal
+        2 failed: the direct-decline cases
+
+Restored: 19/19, and 316/316 for the whole bridge suite.
+
+
+6. GATES
+
+  tools/codex-event-bridge npm test           316 tests, 316 pass, 0 fail
+                                              (311 before)
+  smoke/exact_policy_matrix.mjs               parses
+  pytest -n auto -m "not serial" tests/work    2953 passed, 3 failed
+  tools/acp-baton-bridge npm test              55 pass, 0 fail
+  v12 npm test                                 239 pass, 0 fail
+  whitespace-damage check                      clean
+
+The three pytest failures are W4996 reviewer cases, from a review that landed
+earlier in this session. W4996 is queued on `baton.impl` for its own turn and
+shares no module with `exec_policy.mjs` or the matrix.
+
+
+7. UNCHANGED, AND DELIBERATELY
+
+The credential-bearing matrix rerun. The review says not to run it, install
+policy, or restart the managed stack until this boundary is corrected AND
+independently re-reviewed — so it stays the operator gate, after the
+re-review rather than before it.
+
+The reviewer's generated schema at `/tmp/w2845-app-schema-20260822-2032` was
+read again and left in place.
+
+
+8. FILES CHANGED
+
+  tools/codex-event-bridge/src/command_oracle.mjs        method filter,
+                                                         `deniedApprovals`
+  tools/codex-event-bridge/smoke/exact_policy_matrix.mjs records the denial's
+                                                         own result
+  tools/codex-event-bridge/test/command_oracle.test.mjs  spelling from the
+                                                         exported constant,
+                                                         +3 cases

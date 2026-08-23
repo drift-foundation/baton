@@ -1,0 +1,105 @@
+W2929 — round 9 correction (foundation round eight)
+Review: review-2026-08-22T20-00-37Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Plan items 3 and 4. Eight rounds have now corrected this foundation and none
+of them built on it.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    239 tests, 238 passed, 1 failed
+    X an already-gone ordinary secret still reports gone
+
+Correct, and it is the SAME contradiction I fixed last round, in the branch I
+did not fix.
+
+
+2. [P2] THE INERT BRANCH STILL CONTRADICTED THE GUARD
+
+Round eight pinned `forgetSecret`'s boolean as a description of the guard's
+CURRENT liveness and corrected the last-owner branch to consult `_PINNED`. The
+`held === undefined` branch — no dynamic owner at all — still returned `false`
+unconditionally.
+
+So releasing an ordinary value twice reported "still live" on the second call
+while the guard correctly permitted the value, because it was gone. The call
+IS state-inert: nothing to decrement, nothing to delete. But the answer is not
+a report of what the call did; it is a statement about whether the value is
+live now, and that is the rule round eight established.
+
+CORRECTED: `if (held === undefined) return !_PINNED.has(value);`. Both
+branches consult the same fact. Reference counts, permanent pinning and the
+inert state transition are unchanged.
+
+
+3. MY OWN ROUND-8 CASE MISSED IT, AND SO DID MY OWN ASSERTION
+
+Two things worth recording, because both are mine.
+
+The agreement case I added last round asserted the rule in both directions and
+stopped at the last owner — it never released a value twice, so the branch
+that answers when there is no owner was never asked. An agreement case that
+does not visit every branch is agreement about the branches it happened to
+visit. It releases again now, and asserts the guard agrees.
+
+Worse: an EARLIER case of mine asserted the wrong answer outright. The
+registrations-nest case said
+
+    assert.equal(forgetSecret(bearer), false);   // after the last release
+
+which is exactly the contradiction the very next case pins. It asserted the
+defect. Corrected to `true`, with the reason written beside it: the state
+transition is inert, the liveness answer is not.
+
+A test that pins the wrong answer is worse than a missing test, because it
+argues against the correction.
+
+
+4. MUTATION CHECK — three
+
+  M1  the inert branch reports still-live again (the reported defect)
+        3 failed: the reviewer's case, the registrations-nest case, and the
+                  agreement case
+  M2  the inert branch reports gone even when pinned
+        1 failed: the agreement case
+  M3  a remaining owner reports gone
+        1 failed: the agreement case
+
+Restored: 56/56 in the focused file, 239/239 for the whole gate.
+
+All three branches of one three-line function are now separately witnessed,
+which is the point: the boolean has three ways to be wrong and the reported
+case pins one.
+
+
+5. GATES
+
+  cd v12 && npm test                       239 tests, 239 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2953 passed, 3 failed
+  tools/codex-event-bridge npm test        311 tests, 309 pass, 2 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+NONE OF THE FIVE FAILURES IS THIS WORK'S. Three are W4996 reviewer cases; two
+are W2845 reviewer cases from `review-2026-08-22T21-02-03Z.md`, against the
+matrix oracle I landed there earlier this session. Both reviews landed while
+this turn was running. Neither Work shares a module with
+`v12/src/worker_manager/`.
+
+
+6. FILES CHANGED
+
+  v12/src/worker_manager/contracts.mjs   `forgetSecret`'s inert branch
+  v12/test/worker_manager_contracts.test.mjs   1 assertion corrected,
+                                               1 case extended

@@ -1,0 +1,129 @@
+W2929 — item 4, SECOND SLICE: opening an agent session
+Implementer: baton.claude. Date: 2026-08-23.
+Entered after `review-2026-08-23T02-22-39Z.md` signed off the
+profile-certification slice.
+
+
+1. WHAT THIS SLICE IS
+
+  "It opens separate consent and execution sessions, each with a fresh
+   per-posture epoch; it never resumes, forks, promotes or re-prompts after
+   transport loss. Consent has no assignment/workspace/output, execution has
+   the exact assignment and pinned workspace role, and neither receives Baton
+   capability."
+
+Schema 7 -> 8 adds `profiles.body` and `agent_sessions`, keyed on
+`(runtime_attempt_id, posture, session_epoch)`.
+
+
+2. THE PROFILE BYTES, BEFORE THE REVIEW HAD TO ASK
+
+Certification recorded a digest and no document. A session must pin the
+PER-POSTURE POLICY the profile carries, and a digest cannot be read for one.
+That is the freeze review's lesson — A DIGEST IS NOT A RECORD — applied before
+it could be found a second time, so the certified bytes are retained and
+`certifiedAgentSessionProfile` re-validates them and RE-BINDS them to the key
+they are filed under. A guard on the way IN cannot see an edit made
+afterwards.
+
+
+3. THE THREE RULES, AND WHERE EACH IS DECIDED
+
+A FRESH EPOCH PER POSTURE, decided by the store as the next epoch for this
+`(attempt, posture)`. There is no resume, fork or promote path, so the
+derivation says so rather than a comment saying so, and consent and execution
+count separately because they never share a connection either.
+
+THE POSTURE BINDINGS ARE READ FROM THE CERTIFIED PROFILE rather than restated
+here. The schema already pins consent's `workspace` and `declared_output` to
+false and execution's to true; a rule restated in two places is a rule that
+can disagree with itself. What this slice adds is the cross-field rule THE
+FROZEN SCHEMA'S OWN DESCRIPTION says JSON Schema cannot express: an execution
+session's assignment belongs to the session's Work.
+
+NO BATON CAPABILITY, kept BY CONSTRUCTION. This boundary takes a store, an
+attempt id, a posture and a profile digest — no session, no token, no
+authority handle. A boundary that cannot reach Baton cannot hand a Baton
+capability to a provider, which is the same move as `recordIntake` taking no
+session, and for the same reason: a handle passed and not used is a rule
+enforced by good intentions.
+
+
+4. MUTATION CHECK — seven, all seven witnessed
+
+  A1  epochs are shared across postures               1 failed
+  A2  an epoch is never fresh                         1 failed
+  A3  consent gets the assignment too                 1 failed
+  A4  the pinned policy is the profile digest         3 failed
+  A5  an uncertified profile opens anyway             2 failed
+  A6  the posture vocabulary is not closed            1 failed
+  A7  the retained profile is not re-bound to its key  1 failed
+
+A2'S FIRST ATTEMPT WAS NOT FAITHFUL. I wrote
+`MAX(session_epoch) + 0 + 1 - COUNT(*) + COUNT(*)`, which is arithmetically
+the original, and it passed for that reason. The faithful mutation returns a
+constant 1, and it fails. A mutation that computes the same number is not a
+mutation.
+
+Restored: 10/10 focused, 453/453 for the whole gate.
+
+
+5. REGRESSIONS — 10, in a new suite
+
+Consent with no assignment, workspace or output; execution with the exact
+assignment and its Work; the two postures pinning DIFFERENT policies, so the
+separation certification enforces survives being opened; execution refused on
+an unactivated attempt; every epoch fresh with the postures counting
+separately, driven as an interleaved sequence; an uncertified profile; a
+withdrawn profile; the closed posture vocabulary; a retained profile edited
+after certification; and NO BATON CAPABILITY asserted of the SIGNATURE.
+
+ONE CASE OF MINE WAS TOO BLUNT AND IS RECORDED. The capability check first
+forbade the substring `authority` and failed on `authority_uuid` — a Work
+reference column that is not a capability at all. A guard that refuses
+legitimate names is not a stricter guard, it is a broken one. It names what a
+Baton HANDLE actually travels under now, and the note is in the case.
+
+The profile fixture is the ACP boundary model's own, as in the certification
+suite: the per-posture policies a session pins here are the design's, not this
+suite's.
+
+
+6. GATES
+
+  cd v12 && npm test                       453 tests, 453 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Turns and their deadlines, event normalization, and the runtime/agent adapter
+CONTRACTS — the rest of item 4. A session's provider id, negotiated wire
+version and observed policy are recorded as null here: they are facts a
+CONFORMING adapter reports, and what a conforming adapter must be is exactly
+what remains.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs                  version 8; `profiles.body`
+                                                     and `agent_sessions`
+  v12/src/worker_manager/agent_profile.mjs           the certified bytes are
+                                                     retained and re-bound on
+                                                     read
+  v12/src/worker_manager/agent_session.mjs           NEW
+  v12/test/worker_manager_agent_session.test.mjs     NEW, 10 cases
+  v12/test/worker_manager_store.test.mjs             the pinned version and
+                                                     tables

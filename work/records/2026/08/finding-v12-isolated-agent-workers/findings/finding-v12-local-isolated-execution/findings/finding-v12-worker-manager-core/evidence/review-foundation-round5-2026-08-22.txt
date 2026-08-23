@@ -1,0 +1,88 @@
+W2929 foundation round-five re-review — 2026-08-22T19:11:31Z
+
+FOCUSED BASELINE BEFORE REVIEWER ADDITIONS
+
+  node --test --test-isolation=none \
+    test/worker_manager_contracts.test.mjs \
+    test/worker_manager_store.test.mjs
+
+  tests 61
+  pass  61
+  fail   0
+
+The retained parser-invalid URI, UTF-8 byte-order, benign-key bearer and
+durable-refusal bearer regressions are all green. Direct inspection confirms
+that parse failures now refuse and content paths use Buffer byte comparison.
+
+THREE ADDITIVE REGRESSIONS RETAINED
+
+  W2929 review: a nested secret scope cannot release its outer owner
+  W2929 review: a promise-returning secret scope stays live until settle
+  W2929 review: the journal checks the exact serialized result
+
+Focused result after additions:
+
+  tests 64
+  pass  61
+  fail   3
+
+1. A SET DOES NOT PRESERVE OVERLAPPING SECRET LIFETIMES
+
+  rememberSecret(bearer)
+  withSecret(bearer, act)
+  assertNoDurableSecret({note: bearer}) after the inner act
+
+Observed: no refusal. `_knownSecrets` is a Set, so the inner remember is a
+no-op and the inner finally deletes the still-live outer registration. The
+same defect can delete the seeded GOLDEN_BEARER if it is used through a
+scoped registration. The API claims to retain a value for as long as it is
+live, but it tracks value presence rather than overlapping ownership.
+
+2. A PROMISE-RETURNING ACT IS RELEASED BEFORE IT SETTLES
+
+  const pending = withSecret(bearer, async () => {
+    await gate;
+    // bearer must still be live here
+  });
+
+Observed: the bearer is absent immediately after `withSecret` returns the
+pending Promise. The synchronous `finally` runs when the Promise object is
+returned, not when the asynchronous act settles. The orchestration/provider
+slice this API is explicitly preparing for is naturally asynchronous.
+
+3. THE JOURNAL CHECKS A DIFFERENT VALUE FROM THE ONE IT SERIALIZES
+
+Action result:
+
+  {
+    toJSON() {
+      return {accepted: false, diagnostic: GOLDEN_BEARER};
+    }
+  }
+
+Observed: the operation commits. `assertNoDurableSecret(result)` sees only
+the `toJSON` function through Object.entries and finds no bearer. The later
+`JSON.stringify(result)` invokes that function and writes the bearer under
+`operations.result`. The test expected `integrity.secret-leak` and no
+operation row; neither condition held.
+
+The correction boundary is to serialize once, validate the exact resulting
+plain durable value/string, and record those same bytes. Serializing twice
+would retain the same time-of-check/time-of-use gap for stateful `toJSON` or
+getters.
+
+FULL-GATE OPERATIONAL LIMIT
+
+The managed reviewer cannot reproduce the implementer's full 222/222 command:
+
+  cd v12 && npm test
+
+reports file-level failures for fixture_cleanup, placement and unit. Running
+without Node file isolation exposes the cause as the installed managed policy
+denying their nested `spawnSync` calls with EPERM. Standing policy forbids an
+escalation request in this non-interactive turn. This is an operational
+verification limit, not attributed to W2929; the two worker-manager files run
+fully and deterministically under `--test-isolation=none` as recorded above.
+
+`git diff --check` is clean.
+

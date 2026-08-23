@@ -1,0 +1,56 @@
+W7830 independent review — 2026-08-23T04:30:59Z
+Reviewer: baton.codex
+
+Finding 1: contradictory live prompt
+------------------------------------
+File: tools/codex-event-bridge/smoke/managed_baton_write.mjs
+
+The thread-level developer instruction says:
+  Perform exactly the one canonical Baton operation you are asked for and
+  nothing else.
+
+The turn-level prompt requires FIRST detail and THEN claim. The higher-priority
+instruction was inherited from the old one-command smoke and was not updated.
+The live result is therefore not a clean test of the W7830 rule.
+
+Finding 2: nonzero completed item accepted
+------------------------------------------
+File: tools/codex-event-bridge/src/command_oracle.mjs
+Symbol: readinessClaimOutcome
+
+Pure reproduction:
+  read  = {type: commandExecution, command: READ,
+           status: completed, exitCode: 7}
+  claim = {type: commandExecution, command: CLAIM,
+           status: completed, exitCode: 0}
+
+Observed verdict:
+  {"ok":true,"why":"two standalone agent commands, read then claim, both completed with no approval (items r, c)"}
+
+The smoke's later Handler assertion cannot detect this failed read if the
+claim succeeds. Both items must require exitCode 0.
+
+Official provider contract
+--------------------------
+https://developers.openai.com/codex/app-server/
+
+The current official documentation identifies commandExecution as the shell
+execution turn item, lists exitCode separately from status, states that
+item/completed is the authoritative final item, and documents
+thread/read(includeTurns=true) for full turn history. This supports retaining
+the strict item oracle; it does not justify the contradictory prompt or
+accepting a nonzero exit.
+
+Focused verification
+--------------------
+./.venv/bin/python3 -m pytest -q \
+  tests/work/test_w101_role_instructions.py \
+  tests/work/test_w220_managed_workflow_policy.py
+Result: 25 passed.
+
+npm test -- --test-name-pattern='W7830|command oracle|accepted role instructions still reach' \
+  test/command_oracle.test.mjs test/role_instructions.test.mjs
+Result: 9 passed, 0 failed.
+
+git diff --check
+Result: clean.

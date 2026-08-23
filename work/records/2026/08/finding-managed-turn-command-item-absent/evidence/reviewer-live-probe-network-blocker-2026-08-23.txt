@@ -1,0 +1,67 @@
+W7989 reviewer evidence — bounded live probe cannot reach the provider
+UTC: 2026-08-23T13:39:04Z
+
+Operator decision:
+  Approved option 1: prove live rawResponseItem/completed and only then
+  implement the strict fail-closed custom-tool oracle.
+
+Durable probe:
+  evidence/probe_raw_response_items.mjs
+
+Probe boundary:
+  - one fresh app-server and one harmless managed turn;
+  - exact command: date +%s%N;
+  - every server request denied;
+  - retains bounded notification counts and only custom_tool_call /
+    custom_tool_call_output payloads;
+  - isolated temporary CODEX_HOME copies the credential and is removed on
+    every exit path;
+  - no Docker or Baton mutation.
+
+The first WebSocket-mode attempt could not bind/connect inside the managed
+execution namespace. The probe was then changed to app-server's stdio
+transport, which starts without a listener. One harness attempt incorrectly
+read turn/start as result.id rather than result.turn.id and is not provider
+evidence. That correlation bug was corrected before the measured attempt.
+
+Final measured attempt, with the exact returned thread and turn ids:
+
+  threadId: 01a02ed6-fa94-7b53-9d65-960986982c50
+  turnId:   01a02ed6-fa9b-7fa2-b820-3b1d946f0532
+  bound:    90 seconds
+
+  server stderr:
+    codex_api::endpoint::responses_websocket: failed to connect to websocket:
+    IO error: Operation not permitted (os error 1)
+
+  notification counts:
+    configWarning                     1
+    remoteControl/status/changed      1
+    thread/started                    1
+    mcpServer/startupStatus/updated   2
+    thread/status/changed             1
+    turn/started                      1
+    item/started                      1
+    item/completed                    1
+    error                             8
+    warning                           1
+
+  server requests:                    0
+  rawResponseItem/completed:          0
+  captured custom items:              0
+
+The local server and turn start are established. The outbound provider
+transport is not. This result neither confirms nor refutes that a connected
+deployment emits the custom call/output pair; it establishes that the current
+non-interactive managed reviewer cannot run the operator-approved proof.
+
+Standing managed-turn policy forbids requesting escalation or retrying outside
+the installed authority. No escalation was requested. W7830 and W2845 remain
+blocked and no oracle is implemented from this result.
+
+Required operator action:
+Run the durable probe once from an environment allowed to reach the configured
+provider, preserve its bounded JSON output, and return it to W7989. A passing
+proof must contain exactly one custom_tool_call name=exec and exactly one
+custom_tool_call_output with the same call_id, both on the exact thread and
+turn. Only that proof unlocks implementation of the strict wrapper oracle.

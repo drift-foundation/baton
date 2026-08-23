@@ -1,0 +1,187 @@
+W2929 — round 5 correction (foundation round four)
+Review: review-2026-08-22T18-51-48Z.md, three [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Plan items 3 and 4. Four rounds have now corrected this foundation and none
+of them built on it.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    217 tests, 213 passed, 4 failed
+    X a parser-invalid absolute URI is never trusted
+    X content entry order is byte order, not UTF-16 order
+    X a bearer value cannot hide under a non-secret result key
+    X a durable refusal message cannot contain the bearer
+
+All three findings are correct. Two of the four failures are the same
+finding on its two durable surfaces.
+
+
+2. [P1] A PARSER-INVALID URI ENTERED THE TRUSTED MANIFEST
+
+`validateUri` caught and IGNORED every parse failure, under a comment
+asserting that a failure meant an opaque scheme. `https://[` is not opaque;
+it is a malformed hierarchical URI. With AJV format assertions deliberately
+off — a decision this module argues for in its own header — nothing else was
+going to notice, so a resealed manifest carrying it passed the whole trust
+entry.
+
+CORRECTED: a parse failure is a refusal. §3.3 requires an absolute NORMALIZED
+URI, and a string the one available parser cannot read is not that.
+
+MEASURED RATHER THAN ASSUMED, because the correction only holds if refusing
+a parse failure costs the contract nothing:
+
+  artifact://inputs/source-1      parses
+  https://source.invalid/archive  parses
+  file:///srv/x                   parses
+  urn:uuid:1                      parses
+  mailto:worker@example.invalid   parses
+  https://[                       does not
+
+The opaque forms still answer to the ORIGINAL-TEXT query and fragment rules,
+which is asserted directly: `urn:uuid:1?x=1` and `mailto:a@b.invalid#f` are
+both refused.
+
+
+3. [P1] CONTENT MANIFESTS USED UTF-16 ORDER
+
+`validateContentManifest` compared adjacent paths with JavaScript `<`, which
+is UTF-16 code-unit order. §3.3 says entries sort BYTEWISE.
+
+  "\u{10000}.txt"  begins with surrogate 0xD800   sorts BELOW under JS `<`
+                   UTF-8 begins 0xF0             sorts ABOVE bytewise
+
+So the two orders disagree, and the product accepted a list the contract
+calls unsorted. This is a cross-language seal boundary: the frozen model
+implements byte order, and two conforming readers disagreeing about canonical
+tree order is exactly the failure a seal exists to prevent.
+
+CORRECTED: `_bytewise` compares the UTF-8 bytes of the normalized paths.
+Sorted AND unique still fall out of one pass, because equality compares zero.
+
+The regression asserts BOTH orders on the fixture first — that JS `<` calls
+it increasing and byte comparison calls it decreasing — so it fails loudly if
+a future runtime or fixture stops separating them, rather than passing
+vacuously.
+
+
+4. [P1] THE JOURNAL CHECKED FIELD NAMES, NOT THE BEARER VALUE
+
+`assertNoDurableSecret` screened member names only. A raw bearer under
+`diagnostic` committed, and the same bearer interpolated into a durable
+refusal `message` was journalled and then replayed. Both are surfaces §13
+names explicitly. A name-only check READS as a leak boundary while being a
+naming convention.
+
+SHAPE CANNOT SUBSTITUTE, and the review is right to rule it out: the contract
+admits any bearer from 32 to 4096 characters, so a rule refusing token-shaped
+strings would refuse ordinary durable operands and still miss a short one.
+The only safe test is against the actual value.
+
+CORRECTED: the manager holds the ephemeral secrets it knows, BY VALUE, and
+the walk refuses any string CONTAINING one — containment rather than
+equality, because an interpolated refusal message carries the bearer just as
+durably as a bare field does. Keys are checked as well as values.
+
+  rememberSecret(value)   register one for as long as it is live
+  forgetSecret(value)     spent; the verifier is single-use across
+                          acceptance, decline and expiry alike, so the value
+                          stops being live at the same moment
+  withSecret(value, act)  hold it for exactly one act, released in a
+                          `finally` so a throwing caller cannot leave it live
+
+`GOLDEN_BEARER` is seeded into the set because it is the one bearer value
+this BUILD holds as a constant — the pinned conformance vector — and a
+manager that wrote its own known secret to disk would be leaking whatever the
+field was called. Real bearers are registered by the code that receives them,
+which is the orchestration slice this Work has not built; the API exists so
+that slice has one boundary to use rather than a convention to remember.
+
+It is a set of VALUES, not a registry of owners, because the question at a
+durable surface is only "is this the secret" and never "whose was it".
+
+The VERIFIER is deliberately not refused. It is the whole point of having
+one, and a check that refused it would make the durable offer record
+impossible; a regression asserts that directly.
+
+Both halves of the walk are kept and neither implies the other: a field NAMED
+for a secret is refused whatever it holds, because the name says the value is
+one; a known secret VALUE is refused wherever it appears, because a leak does
+not depend on what the leaking field was called.
+
+
+5. MUTATION CHECK — five, each independently
+
+  M1  a parse failure is ignored again
+        3 failed: the reviewer's URI case, my opaque-forms case, and the
+                  malformed-locator manifest case
+  M2  ordering back to UTF-16
+        2 failed: the reviewer's ordering case and mine
+  M3  the value scan removed, names only
+        4 failed: both reviewer journal cases and both of mine
+  M4  containment weakened to equality
+        2 failed: the reviewer's refusal-message case and mine — the
+                  bare-field cases still pass, which is exactly why the
+                  interpolated one has to exist
+  M5  withSecret does not release on a throw
+        1 failed: the live-until-spent case
+
+Restored: 61/61 across the two focused files, 222/222 for the whole gate.
+
+
+6. REGRESSIONS — 222 (217 before)
+
+The reviewer's four are retained unchanged. Added five in
+`test/worker_manager_contracts.test.mjs`:
+
+  - parseable and unparseable URIs, with the opaque forms proven to survive
+    and still answer to the original-text rules;
+  - a malformed locator refused by the trust entry after passing the schema;
+  - byte order versus UTF-16 order, with the fixture's two orderings asserted
+    first and the whole trust entry exercised on a resealed manifest;
+  - a known bearer value refused under a non-secret key, inside an
+    interpolated message, nested, in an array, bare, and as a KEY — with the
+    verifier explicitly not refused;
+  - the register/forget/withSecret lifecycle, including release on a throw
+    and the explicit negative that a bearer-length ordinary operand is not a
+    secret.
+
+
+7. GATES
+
+  cd v12 && npm test                       222 tests, 222 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2925 passed, 3 failed
+  tools/codex-event-bridge npm test        297 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+THE THREE PYTEST FAILURES ARE NOT THIS WORK'S. They are W4996 reviewer cases
+from `review-2026-08-22T19-04-09Z.md`, which landed while this turn was
+running: a page/room tie disclosure, a shared branch inventing omissions, and
+a shortcut node's wide column. W4996 is queued on `baton.impl` for its own
+turn, it is Python and shares no module with `v12/src/worker_manager/`, and
+nothing here reaches it.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/contracts.mjs   validateUri refuses a parse failure;
+                                         _bytewise ordering; the value-aware
+                                         secret walk and its
+                                         remember/forget/withSecret lifecycle
+  v12/test/worker_manager_contracts.test.mjs   +5 cases
+
+`store.mjs` is unchanged: it already called the walk on both durable
+surfaces, and the correction is in what the walk examines.

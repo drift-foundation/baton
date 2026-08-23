@@ -1,0 +1,98 @@
+W2929 — the cancellation-ordering slice, third correction
+Review: review-2026-08-23T00-05-09Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    343 tests, 342 passed, 1 failed
+
+The reviewer's additive sentinel regression is the sole failure. The finding
+is correct.
+
+
+2. THE FINDING
+
+[P2] `null` WAS BOTH A LEGAL FAILURE AND THE NO-FAILURE SENTINEL.
+`agentFailure = null` meant two things at once, and JavaScript lets a boundary
+throw any value. An agent that threw `null` had its failure silently dropped:
+the runtime stop was still ordered, but the caller received an ordinary
+`ordered: true` answer, and a simultaneous runtime failure lost its partner in
+the aggregate. Both of last round's claims — "re-thrown unchanged" and
+"neither hides the other" — were false for exactly that value.
+
+PRESENCE IS ITS OWN FACT. A boolean carries it and the variable carries only
+the thrown value.
+
+THIS CODEBASE ALREADY KNEW THIS. `ControlStore.replay` carries a review note
+from an earlier round saying the same thing in the same words — it answered
+`null` for both "no row" and "the committed result was JSON null", and the
+correction was that presence is its own fact and is returned as one. I wrote
+the identical defect three modules later. The lesson had been recorded and not
+generalized, which is the part worth keeping.
+
+
+3. ONE MORE OF THE SAME SHAPE, FOUND BY SWEEPING RATHER THAN BY REVIEW
+
+`agentSettlement = agent.cancel(...) ?? null` collapsed "the boundary returned
+nothing" into "the boundary returned null". That is the same mistake one size
+smaller, and it CONTRADICTED THE COMMENT DIRECTLY ABOVE IT claiming the
+settlements are passed through un-summarized. Both settlements are verbatim
+now.
+
+It is recorded as my own sweep, not as a review finding, because it is not one.
+
+
+4. MUTATION CHECK — four, all four witnessed
+
+  Q1  presence carried by the value again (`null`)    2 failed
+  Q2  `undefined` used as the sentinel instead        1 failed
+  Q3  the aggregate consults the value, not presence  1 failed
+  Q4  normalize the settlements with `?? null` again  1 failed
+
+Q2 is the reason a second sentinel case exists: swapping which falsy value
+means absence moves the defect rather than removing it, and only a case that
+throws `undefined` sees that.
+
+Restored: 64/64 focused, 346/346 for the whole gate.
+
+
+5. REGRESSIONS — 64 (61 before; the reviewer's one retained)
+
+Plus three of mine:
+
+  - a null agent failure is still retained BESIDE a runtime failure — the
+    other half of the sentinel, which the single-failure path does not reach;
+  - an undefined agent failure is a failure too — the sibling falsy value, so
+    a future "tidy-up" cannot move the defect instead of fixing it;
+  - a settlement of nothing is passed through as nothing.
+
+
+6. GATES
+
+  cd v12 && npm test                       346 tests, 346 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Output freeze, intake and cleanup — the rest of item 3 — and all of item 4.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/attempts.mjs        `agentFailed` as its own fact;
+                                             verbatim settlements
+  v12/test/worker_manager_attempts.test.mjs  +3 cases

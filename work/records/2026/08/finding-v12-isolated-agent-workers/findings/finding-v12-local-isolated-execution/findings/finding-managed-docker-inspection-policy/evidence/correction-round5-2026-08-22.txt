@@ -1,0 +1,141 @@
+W2845 round-5 correction — empty comma fields, 2026-08-22
+
+Answering `review-2026-08-22T14-41-58Z.md`. No Docker command was executed
+anywhere in this round; mutable Docker was evaluated through
+`codex execpolicy check`, which loads a policy and decides without running
+the command. Oracle: codex-cli 0.149.0.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+Every candidate below was run against the tree as the reviewer left it.
+`loads` is the INSTALLED evaluator; `satisfied`/`unacc` are
+`auditInspectionRules` on the same text.
+
+  candidate                      loads  satisfied unacc
+  empty element mid list         false  true      0
+  empty element head list        false  true      0
+  empty arg head call            false  true      0
+  empty arg mid call             false  true      0
+  double trailing comma call     false  true      0
+  double trailing comma list     false  true      0
+  single trailing comma call     true   true      0
+  single trailing comma list     true   true      0
+  trailing comma both            true   true      0
+  lone comma list                false  false     1
+  lone comma call                false  false     1
+  positional trailing comma      true   true      0
+  positional empty mid           false  true      0
+
+The reviewer's five are the first five rows. Two rows are not in the
+report and were found by probing: `double trailing comma list` (the same
+error inside the pattern list) and `positional empty mid` (the positional
+spelling reaches the same evaluator). `lone comma` was already refused,
+by round 4's empty-pattern rule rather than by anything about commas.
+
+Representative evaluator refusal, in full:
+
+  Error: failed to parse policy at <file>
+
+  Caused by:
+      starlark error: error: Parse error: unexpected symbol ',', expected expression
+       --> <file>:4:31
+        |
+      4 | prefix_rule(pattern=["docker",, "image", "inspect"], decision="allow")
+        |                               ^
+
+
+2. WHAT THE INSTALLED EVALUATOR ACTUALLY DOES — MEASURED, NOT READ
+
+  LOADS     one trailing comma in the call operand list; one in the
+            pattern list; one in both at once; one in the positional
+            spelling
+  REFUSES   an empty head field; an empty middle field; a second trailing
+            comma — in the call and in the list alike — and an empty
+            middle field in the positional spelling
+
+That is the whole rule, and it is why `splitTopLevel`'s `filter` was
+wrong: it treated all four empty-field positions as the one valid tail.
+
+
+3. AFTER THE CORRECTION
+
+  candidate                      loads  satisfied unacc
+  empty element mid list         false  false     1
+  empty element head list        false  false     1
+  empty arg head call            false  false     1
+  empty arg mid call             false  false     1
+  double trailing comma call     false  false     1
+  double trailing comma list     false  false     1
+  single trailing comma call     true   true      0
+  single trailing comma list     true   true      0
+  trailing comma both            true   true      0
+  lone comma list                false  false     1
+  lone comma call                false  false     1
+  positional trailing comma      true   true      0
+  positional empty mid           false  false     1
+
+The audit now agrees with the evaluator on all thirteen.
+
+
+4. MUTATION CHECK
+
+Restoring the single line `return parts.filter((part) => part.trim() !== "")`
+fails exactly the new coverage and nothing else:
+
+  node --test test/policy_syntax.test.mjs
+    FAIL W2845 R5: empty comma fields are unaccounted, not exact
+    FAIL W2845 R5: the same comma hole is closed for the Baton profile
+    PASS W2845 R5: one trailing comma is valid syntax and still audits exact
+    PASS W2845 R5: the installed evaluator agrees about every comma fixture
+    tests 19  pass 17  fail 2
+
+  pytest tests/work/test_w2845_docker_inspection_policy.py tests/work/test_deploy_v11.py
+    FAILED test_the_audit_refuses_empty_comma_fields_the_evaluator_cannot_parse
+    FAILED test_the_deployed_artifact_keeps_the_exact_policy_boundary
+    2 failed, 31 passed
+
+Restored: 19 Node, 33 pytest, all passing.
+
+
+5. FAIL-CLOSED IS NOT FAIL-BLIND — THE LIVE POLICY
+
+  /home/sl/.codex/rules/baton.rules
+    rules read: 95   unaccounted: 0
+    inspection profile: satisfied=true  missing=0 broad=0 extra=0
+    baton.codex   satisfied=true  missing=0  unaccounted=0
+    baton.tuner   satisfied=true  missing=0  unaccounted=0
+    baton.prompt  satisfied=true  missing=0  unaccounted=0
+
+  (baton.claude and baton.gemini are ACP-launched rather than dispatched
+  through this Codex stack, so the file carries no rules for them.)
+
+The rule count and the unaccounted count are both unchanged on the
+installed file: nothing this round refuses was accounted for before it,
+and nothing accounted for before it is refused now.
+
+
+6. VERIFICATION
+
+  tools/codex-event-bridge npm test    272 tests, 271 pass, 1 fail
+      The one failure is `failed_turn_settlement.test.mjs`, "a failed turn
+      discovered only during reconnect is settled". It is NOT this Work's:
+      the file is untracked, belongs to the W4303 settlement work in
+      flight, imports no policy module, and fails identically with this
+      round's change reverted. Reported rather than touched or worked
+      around.
+  pytest -n auto -m "not serial" tests/work   2850 passed
+  pytest -m serial tests/work                   52 passed
+  tools/acp-baton-bridge npm test               55 passed
+  v12 npm test                                 161 passed
+
+  whitespace-damage check                     clean
+
+
+7. WHAT WAS NOT DONE
+
+The live exact-policy matrix (`smoke/exact_policy_matrix.mjs`) remains the
+operator gate and was not run from this turn: it spends real model turns
+and stages a copy of the operator's Codex credential. The reviewer's
+condition for it — that the nominated-file preflight reject
+evaluator-invalid comma fields — is now met.

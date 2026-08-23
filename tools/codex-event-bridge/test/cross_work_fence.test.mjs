@@ -29,7 +29,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { validateConfig } from "../src/config.mjs";
 import { EventBridge } from "../src/event_bridge.mjs";
-import { rulesFor } from "../src/exec_policy.mjs";
+import { inspectionRules, rulesFor } from "../src/exec_policy.mjs";
 import { freshQuarantineDir } from "./quarantine_fixture.mjs";
 import { quarantineKey, QuarantineStore } from "../src/quarantine_store.mjs";
 
@@ -42,6 +42,7 @@ writeFileSync(FIXTURE_POLICY,
     .flatMap((participant) => rulesFor({ binary: "/opt/baton/bin/baton",
                                          config: "/home/op/baton.json",
                                          participant }))
+    .concat(inspectionRules())
     .join("\n") + "\n");
 
 const quiet = { info() {}, warn() {}, error() {}, debug() {} };

@@ -1,0 +1,77 @@
+W2845 operator-oracle review evidence — 2026-08-22
+Reviewer: baton.codex
+
+OBSERVED CURRENT HARNESS
+
+`smoke/exact_policy_matrix.mjs:runCase` returns only the methods of server
+requests received during the turn. The four Docker positives pass when that
+array is empty. The four negatives require it to be nonempty. Neither path
+inspects the turn's command-execution item.
+
+The compatible operator run therefore reported:
+
+  positive docker inspections     approvals=[]  PASS
+  unruled docker commands          approvals=[]  FAIL
+
+The negative failure is correct: no request plus no mutation does not prove
+the model attempted the command. The same structural gap applies to the
+positive result: no request alone does not prove the inspection ran.
+
+LOCAL PROVIDER BOUNDARY
+
+  codex-cli 0.149.0
+
+Generated read-only from the installed app-server with:
+
+  codex app-server generate-json-schema \
+    --out /tmp/w2845-app-schema-20260822-2032
+
+`ThreadReadParams` documents that `includeTurns: true` includes turns and
+their items from rollout history. `CommandExecutionThreadItem` carries:
+
+  id                 string
+  type               "commandExecution"
+  command            exact command string
+  commandActions     best-effort parsed actions
+  cwd                working directory
+  source             agent | userShell | unifiedExecStartup |
+                     unifiedExecInteraction
+  status             inProgress | completed | failed | declined
+  aggregatedOutput   string | null
+  exitCode           integer | null
+
+`CommandExecutionRequestApprovalParams` independently carries `threadId`,
+`turnId` and `itemId`, with `command` when available. An approval proof can
+therefore be correlated to the exact turn and command item rather than counted
+as an unrelated server request.
+
+REQUIRED ORACLE
+
+After turn completion, read that exact thread with turns, select the exact
+turn id returned by `turn/start`, and require exactly one agent
+`commandExecution` item whose command equals the requested matrix command.
+
+  ruled positive:
+    exact item exists
+    status=completed
+    exitCode=0
+    no approval request for that turn/item
+
+  unruled negative, direct policy refusal:
+    exact item exists
+    status=declined
+    exitCode=null
+    no mutation (secondary confirmation)
+
+  unruled negative, approval path:
+    exact approval request is correlated by threadId/turnId/itemId
+    the client denies it
+    the same item reaches a non-completed terminal state
+    no mutation (secondary confirmation)
+
+Zero command items means the model did not prove an attempt. A different or
+additional command violates the matrix instruction and fails. `failed` alone
+does not prove policy refusal: a command may execute and fail independently.
+
+The generated schema directory was deliberately left at the exact path above;
+managed-review policy forbids optional destructive cleanup.

@@ -164,3 +164,11 @@
     correction mutation-checked. One of the implementer's own scenarios read
     the retirement's free-form reason and now reads the richer record; the
     edit is flagged in `PROGRESS.md`.
+14. [amended 2026-08-22, W4487] The decline token contradiction between this
+    contract and frozen worker-control 1.0 was ruled by `baton.slaw`: the
+    non-secret decline envelope is kept and §7's "exact unspent token"
+    requirement for DECLINE is explicitly superseded. §1 carries the dated
+    supersession with the old row quoted, §6 and §7 carry the replacement, and
+    the evidence gained seven decline scenarios (54 -> 61). Acceptance is
+    unchanged. Reviewed under W4487;
+    `work/records/2026/08/finding-worker-control-decline-token-conflict/`.

@@ -53,7 +53,7 @@ import unicodedata
 # persisted derived state is a version change even when the shape is
 # untouched; refusing the old file is the fail-closed answer, and it is
 # the same fresh-authority evolution every earlier schema took.
-SCHEMA_VERSION = 27
+SCHEMA_VERSION = 28
 PROTOCOL_VERSION = 11
 
 # W2938 (finding-claim-overdue-cue): the default claim-pickup threshold.
@@ -805,7 +805,151 @@ CREATE UNIQUE INDEX approval_incidents_open
 	ON approval_incidents (team, member, cause,
 	                       IFNULL(work, ''), IFNULL(episode, -1))
 	WHERE dismissed_ts IS NULL;
+-- W4615: DEPLOYMENT-GLOBAL managed dispatch state.
+--
+-- One typed singleton row, not a JSON blob and not a per-Work column.
+-- This is LIFECYCLE state: it says whether the deployment is admitting
+-- new claims at all. It is emphatically not a Work phase — a Work is
+-- `queued` whether or not the stack is draining, and no Work row
+-- changes when the mode does.
+--
+-- It lives in the authority rather than in a lifecycle-control file
+-- because claim admission and the mode transition must serialize
+-- through ONE writer boundary. A file consulted by the readiness
+-- producer could not refuse a claim arriving on another connection
+-- between the read and the write, which is exactly the race the drain
+-- boundary exists to close. Restart therefore reconstructs the mode
+-- from here and never from process memory.
+--
+-- The blockers preventing `paused` are DERIVED from live assignments,
+-- not copied here: a second mutable snapshot of who still holds a claim
+-- would be a place for the two to disagree, and the boundary sequence
+-- plus the live assignment set already answers it exactly, because
+-- every later claim is refused under this same transaction.
+CREATE TABLE dispatch_control (
+	id             INTEGER PRIMARY KEY CHECK (id = 1),
+	mode           TEXT NOT NULL
+	               CHECK (mode IN ('running', 'draining', 'paused')),
+	-- monotonic, advanced by drain and by resume, so a consumer can tell
+	-- "still draining from the same request" from "resumed and drained
+	-- again" without comparing timestamps
+	generation     INTEGER NOT NULL,
+	-- the authority sequence of the mutation that entered this mode. For
+	-- `draining` it IS the drain boundary: a claim admitted at a later
+	-- sequence is by definition after it.
+	boundary_seq   INTEGER NOT NULL,
+	actor_team     TEXT,
+	actor_member   TEXT,
+	transitioned_ts TEXT NOT NULL
+) STRICT;
+-- The global control journal. Separate from `events` on purpose: these
+-- acts belong to the deployment rather than to any Work, and minting a
+-- Work event (or a message) for them would put lifecycle state into a
+-- Work's history where a reader would later have to decide it was not
+-- part of that Work's story.
+CREATE TABLE dispatch_events (
+	-- DEFERRABLE because the writer allocates the sequence, runs the
+	-- mutation, and inserts the `events` row LAST inside one
+	-- transaction. An immediate check would fire while the event row is
+	-- still pending and force this journal to be written outside the
+	-- act it describes; deferring keeps the reference real and the
+	-- ordering the writer's business.
+	seq          INTEGER NOT NULL
+	             REFERENCES events(seq) DEFERRABLE INITIALLY DEFERRED,
+	kind         TEXT NOT NULL
+	             CHECK (kind IN ('drain_requested', 'pause_reached',
+	                             'resumed')),
+	mode         TEXT NOT NULL,
+	generation   INTEGER NOT NULL,
+	boundary_seq INTEGER NOT NULL,
+	actor_team   TEXT,
+	actor_member TEXT,
+	-- how many live assignments the transition observed. For
+	-- `drain_requested` this is the size of the finishing round; for
+	-- `pause_reached` it is zero by construction.
+	live_claims  INTEGER NOT NULL,
+	reason       TEXT,
+	ts           TEXT NOT NULL,
+	-- (seq, kind), not seq alone. Two control acts DO share one
+	-- authority instant, and legitimately: draining a deployment with
+	-- nothing live is `drain_requested` and `pause_reached` at the same
+	-- sequence, because the finishing round was empty at the moment it
+	-- was drawn. Allocating a second write for the pause would invent a
+	-- window in which the round is empty and the mode still says
+	-- `draining` — a state no reader should ever see, because it never
+	-- really existed. Two events of the SAME kind at one instant are
+	-- impossible by construction, which is what this key says.
+	PRIMARY KEY (seq, kind)
+) STRICT;
 """
+
+
+def dispatch_row(conn) -> dict:
+	"""The typed singleton, as a plain dict. One place reads it."""
+	row = conn.execute(
+		"SELECT mode, generation, boundary_seq, actor_team, actor_member, "
+		"transitioned_ts FROM dispatch_control WHERE id=1").fetchone()
+	return dict(row)
+
+
+def live_claim_rows(conn, *, limit: int | None = None):
+	"""The assignments still preventing `paused`, in a stable order.
+
+	DERIVED, never a stored snapshot. Every claim admitted after the
+	drain boundary is refused in the same writer transaction that set
+	it, so the live Handler set IS the finishing round — there is no
+	second list that could drift from this one."""
+	sql = ("SELECT id, team, handler_team, handler_member, episode_seq, "
+	       "title FROM work WHERE handler_team IS NOT NULL AND "
+	       "status='open' ORDER BY id")
+	if limit is not None:
+		sql += f" LIMIT {int(limit)}"
+	return conn.execute(sql).fetchall()
+
+
+def _settle_dispatch(conn, seq: int, now: str) -> None:
+	"""Reach `paused` in the SAME commit as the act that emptied the
+	finishing round.
+
+	Called from `_write` after every mutation. It is a no-op unless the
+	deployment is draining, so the ordinary path costs one indexed read
+	of a one-row table.
+
+	The last assignment-ending act and `pause_reached` are ONE authority
+	instant. They share this sequence deliberately: allocating a second
+	write for the pause would invent a window in which the round is
+	empty and the deployment still says `draining`, and a consumer that
+	read between them would see a state that never really existed."""
+	row = conn.execute(
+		"SELECT mode, generation, boundary_seq FROM dispatch_control "
+		"WHERE id=1").fetchone()
+	if row is None or row["mode"] != "draining":
+		return
+	if conn.execute(
+			"SELECT 1 FROM work WHERE handler_team IS NOT NULL AND "
+			"status='open' LIMIT 1").fetchone() is not None:
+		return
+	# W4615 review [P2]: the AUTHORITY's clock, passed in from the writer.
+	# This called the private wall clock directly, so under an injected
+	# instant the two same-sequence events disagreed — `drain_requested` at
+	# the injected time and `pause_reached` at the host's — and the singleton
+	# inherited the wrong one. A settlement completing an act must be
+	# timestamped by that act's clock.
+	#
+	# W4615 re-review [P2]: and by that act's SAMPLE of it. `now` is the
+	# write's one sampled instant (`Authority.instant()`), not a second
+	# reading taken here — the same clock read twice is still two instants
+	# whenever it advances between them, and these two events share one
+	# sequence precisely because they are one.
+	conn.execute(
+		"UPDATE dispatch_control SET mode='paused', transitioned_ts=? "
+		"WHERE id=1", (now,))
+	conn.execute(
+		"INSERT INTO dispatch_events (seq, kind, mode, generation, "
+		"boundary_seq, actor_team, actor_member, live_claims, reason, ts) "
+		"VALUES (?, 'pause_reached', 'paused', ?, ?, NULL, NULL, 0, "
+		"NULL, ?)",
+		(seq, row["generation"], row["boundary_seq"], now))
 
 
 class Authority:
@@ -827,6 +971,10 @@ class Authority:
 		# The millisecond clock honours the same injected instant so
 		# subprocess stories stay deterministic.
 		self.clock_ms = clock_ms_now
+		# W4615: the instant of the write in progress, sampled once per
+		# transaction by `_write` and read back through `instant()`. None
+		# outside a write, which is the whole point — see `instant()`.
+		self._instant: str | None = None
 		self.conn = sqlite3.connect(path, timeout=60.0)
 		self.conn.row_factory = sqlite3.Row
 		self.conn.execute("PRAGMA foreign_keys = ON")
@@ -860,6 +1008,14 @@ class Authority:
 				 ("protocol_version", str(PROTOCOL_VERSION)),
 				 ("authority_uuid", authority_uuid),
 				 ("created_ts", _utc_now())])
+			# W4615: a fresh authority dispatches. The row EXISTS from
+			# creation rather than being absent-means-running, so every
+			# reader gets a typed answer and no consumer has to invent a
+			# default for a missing singleton.
+			conn.execute(
+				"INSERT INTO dispatch_control (id, mode, generation, "
+				"boundary_seq, actor_team, actor_member, transitioned_ts) "
+				"VALUES (1, 'running', 1, 0, NULL, NULL, ?)", (_utc_now(),))
 			conn.commit()
 		finally:
 			conn.close()
@@ -999,6 +1155,32 @@ class Authority:
 			raise
 		return result
 
+	def instant(self) -> str:
+		"""The ONE sampled instant of the write in progress.
+
+		W4615 re-review [P2]. A committed mutation is one indivisible
+		authority instant, and every control transition belonging to it
+		must carry the same timestamp. Reading `clock()` twice inside one
+		write does not give that: it is the same clock SOURCE, but two
+		samples, and an advancing clock splits them. The empty drain is
+		the exact case — `drain_requested` and `pause_reached` share one
+		sequence because they are one act, and they must share one
+		instant for the same reason.
+
+		So the sample is taken once, by `_write`, inside the transaction,
+		and every writer that needs the act's time reads it back here.
+
+		It REFUSES outside a write rather than falling back to `clock()`.
+		A caller with no open transaction is asking for wall time, not for
+		this act's instant, and quietly answering with a fresh reading is
+		how the two would drift apart again."""
+		if self._instant is None:
+			raise WorkError(
+				"instant() is the sampled instant of a write in progress; "
+				"outside one there is no act to timestamp. Read clock() "
+				"for wall time")
+		return self._instant
+
 	def _write(self, event_kind: str, actor: str, payload: dict,
 	           mutate, operation=None, finish=None,
 	           references=None) -> dict:
@@ -1030,6 +1212,13 @@ class Authority:
 				if replay is not None:
 					self.conn.execute("ROLLBACK")
 					return replay
+			# W4615: the act's instant, sampled ONCE and inside the
+			# transaction — after the replay check, because a replay
+			# performs nothing and has no instant of its own. Every
+			# control transition this act writes reads it back through
+			# `instant()`, so a same-sequence pair cannot carry two
+			# timestamps.
+			self._instant = self.clock()
 			seq = self.conn.execute(
 				"UPDATE sequence SET value = value + 1 WHERE id = 1 "
 				"RETURNING value").fetchone()["value"]
@@ -1041,6 +1230,18 @@ class Authority:
 			# reader ever decides it.
 			from baton_work import transitions as _tr
 			_tr._sweep_pickup(self.conn, seq)
+			# W4615: and the drain boundary is settled at the SAME one
+			# mutation boundary, for the same reason.
+			#
+			# Handler removal is not confined to `pass`, `release` and
+			# `close`: `_recompute_ready`, `set_phase`, a blocking `say`
+			# and other audited paths can clear the Handler too. A
+			# pause-reached check copied into a short list of public
+			# verbs would strand a drain after a legitimate final
+			# release — the deployment would sit in `draining` with
+			# nothing left to drain. Here it cannot be forgotten,
+			# because every mutation passes through.
+			_settle_dispatch(self.conn, seq, self.instant())
 			if references:
 				self._commit_references(self.conn, seq, references)
 			result = {"seq": seq, "kind": event_kind}
@@ -1075,6 +1276,11 @@ class Authority:
 					f"{event_kind} lost a concurrent race: "
 					f"{failure}") from None
 			raise
+		finally:
+			# However this write ended. An instant left behind would be
+			# read by the NEXT act as its own, which is the same defect
+			# wearing a longer window.
+			self._instant = None
 		return result
 
 	# -- identity registration (A1) ----------------------------------------

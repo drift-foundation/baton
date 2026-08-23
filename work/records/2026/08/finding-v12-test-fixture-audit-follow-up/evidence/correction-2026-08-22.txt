@@ -1,0 +1,74 @@
+W2907 round-1 correction evidence — 2026-08-22, baton.claude
+Answering review-2026-08-22T06-23-08Z.md (two P1s).
+
+== P1a. The reviewer's registered-path takeover, re-run ==
+
+  registered:            /tmp/w2907-review-ZcD7Zg
+  after removeOwnedRoot: registered=false
+  replacementExists:     true
+  after removeOwnedRoots:
+    replacementRootExists: true
+    replacementFileExists: true
+
+  Before: replacementRootExists false, replacementFileExists false.
+
+  Removal and forgetting are now ONE action, so the registry never holds
+  a pathname it no longer owns. dev/ino are also recorded at creation and
+  re-checked immediately before removal — a name that now resolves to a
+  different directory is refused rather than removed. That narrows the
+  window rather than closing it (nothing between lstat and rm is atomic),
+  so it is a second line, not the first. A root the PRODUCT path removed
+  is retired with the positively observed absence that justifies it, and
+  an entry is dropped only AFTER its removal succeeds.
+
+== P1b. The report no longer travels on a channel the runner owns ==
+
+  The probe writes its report to a file the PARENT nominates. Proof that
+  the channel is independent of reporter and isolation:
+
+    --test-isolation=process  ℹ pass 6 ℹ fail 0
+    --test-isolation=none     ℹ pass 6 ℹ fail 0
+    NODE_OPTIONS=--test-reporter=dot  ......
+
+  And the child's own stdout is no longer consulted at all:
+    report file: 4 roots, tests=['creates', 'intended-failure', 'after-failure'], reachedIntendedFailure=True
+
+  The parent now diagnoses spawn error, signal, a missing report file, a
+  malformed report and an incomplete one as SEPARATE named outcomes, each
+  carrying exit status, signal, stdout and stderr — so a denied spawn
+  cannot look like a clean run, which is what made the reviewer's sandbox
+  failure indistinguishable.
+
+  'It failed for the intended reason' no longer depends on output either:
+  the probe records reachedIntendedFailure immediately BEFORE the assertion,
+  so the parent can tell 'reached it and died there' from 'died elsewhere'.
+
+== Both corrections are mutation-checked ==
+
+  probe's after hook removed        -> both probe cases fail ('survived the probe')
+  remove-and-forget split apart     -> the takeover case fails
+  restored                          -> 6/6
+
+== The documented gate, bracketed ==
+
+$ cd v12 && TMPDIR=<bracket> just test        (no ambient Node options)
+  ℹ tests 155
+  ℹ suites 0
+  ℹ pass 155
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1559.520102
+  bracket after: node-compile-cache 
+  test-owned survivors: 0
+
+  155 cases, up from 141: two new W2907 regressions and W2928's.
+
+== Host state this Work still has not touched ==
+
+  /tmp/w30-fixture-audit.Lmr3aa   present, 168 direct children
+  ambient v12poc-test-*           1098 roots
+  ambient v12poc-placement-*      78 roots
+  Host cleanup remains separately authorized. The only directories this
+  verification removed are the temporary roots it created itself.

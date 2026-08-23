@@ -129,7 +129,9 @@ def test_claimed_at_is_the_current_claim_event_timestamp(world):
 	assert claimed["claimed_at"] != claimed["last_changed_at"], \
 		"claimed_at is just last_changed_at in disguise"
 	tr.release_claim(world["store"], work, actor_team="lang",
-	                 actor="ada", expect="lang.ada", reason="pause")
+	                 actor="ada", expect="lang.ada",
+	                 episode=fx.episode_of(world["store"], work),
+	                 reason="pause")
 	assert row_of(world, work)["claimed_at"] is None
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	second = row_of(world, work)["claimed_at"]

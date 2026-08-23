@@ -1,0 +1,1877 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:baton:agent-session:1.0",
+  "title": "Baton agent-session 1.0 design documents",
+  "description": "Shape contract for the inner agent-session boundary beneath baton.worker-control 1.0. The identity, participant, artifact and evidence definitions below are reproduced VERBATIM from urn:baton:worker-control:1.0 and a test asserts they stay byte-for-byte identical; this family may not narrow or widen a shape the outer contract owns. Durable digests use the member name document_digest so an agent-session document is never mistaken for a baton.worker-manifest member.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/sessionProfile"
+    },
+    {
+      "$ref": "#/$defs/sessionRecord"
+    },
+    {
+      "$ref": "#/$defs/turnRecord"
+    },
+    {
+      "$ref": "#/$defs/normalizedEvent"
+    }
+  ],
+  "$defs": {
+    "version": {
+      "type": "object",
+      "properties": {
+        "major": {
+          "const": 1
+        },
+        "minor": {
+          "const": 0
+        }
+      },
+      "required": [
+        "major",
+        "minor"
+      ],
+      "additionalProperties": false
+    },
+    "sessionFamily": {
+      "const": "baton.agent-session"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "opaqueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "participant": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*$"
+    },
+    "workRef": {
+      "type": "object",
+      "properties": {
+        "authority_uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "work_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-W[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "authority_uuid",
+        "work_id"
+      ],
+      "additionalProperties": false
+    },
+    "assignmentRef": {
+      "type": "object",
+      "properties": {
+        "work_ref": {
+          "$ref": "#/$defs/workRef"
+        },
+        "participant": {
+          "$ref": "#/$defs/participant"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "work_ref",
+        "participant",
+        "generation"
+      ],
+      "additionalProperties": false
+    },
+    "artifactRef": {
+      "type": "object",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*/[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "content_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 2048,
+          "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^?#]*$"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "media_type",
+        "bytes",
+        "content_digest",
+        "locator"
+      ],
+      "additionalProperties": false
+    },
+    "evidenceRef": {
+      "type": "object",
+      "properties": {
+        "purpose": {
+          "enum": [
+            "log",
+            "test-output",
+            "manifest",
+            "trace",
+            "dossier",
+            "reproduction",
+            "diff",
+            "bundle",
+            "candidate-tree",
+            "attestation"
+          ]
+        },
+        "artifact": {
+          "$ref": "#/$defs/artifactRef"
+        }
+      },
+      "required": [
+        "purpose",
+        "artifact"
+      ],
+      "additionalProperties": false
+    },
+    "nonNegativeInt": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "positiveInt": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "providerSessionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "boundedText": {
+      "type": "string",
+      "maxLength": 16000
+    },
+    "namespacedDiagnostics": {
+      "type": "object",
+      "description": "Adapter-private diagnostics. Keys are reverse-DNS namespaced with an explicit version, exactly as baton.worker-control 1.0 requires of extensions. Values here can never alter a portable state.",
+      "propertyNames": {
+        "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+/[0-9]+$"
+      },
+      "additionalProperties": true
+    },
+    "posture": {
+      "enum": [
+        "consent",
+        "execution"
+      ]
+    },
+    "agentSessionRef": {
+      "type": "object",
+      "description": "One provider session, identified by manager attempt, POSTURE and epoch. Consent and execution never share an epoch or a connection. It labels evidence; it is never an assignment identity and it authorizes nothing.",
+      "properties": {
+        "runtime_attempt_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "posture": {
+          "$ref": "#/$defs/posture"
+        },
+        "session_epoch": {
+          "$ref": "#/$defs/positiveInt"
+        },
+        "provider_session_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/providerSessionId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "runtime_attempt_id",
+        "posture",
+        "session_epoch",
+        "provider_session_id"
+      ],
+      "additionalProperties": false
+    },
+    "wireProtocol": {
+      "enum": [
+        "acp",
+        "codex-app-server"
+      ]
+    },
+    "sessionCapability": {
+      "enum": [
+        "session.fresh",
+        "session.mode-pin",
+        "session.prompt",
+        "session.cancel",
+        "session.update-normalization",
+        "session.permission-refusal"
+      ]
+    },
+    "sessionState": {
+      "enum": [
+        "not-started",
+        "initializing",
+        "ready",
+        "prompting",
+        "turn-ended",
+        "cancel-requested",
+        "agent-quiescent",
+        "unknown",
+        "closed"
+      ]
+    },
+    "turnOutcome": {
+      "enum": [
+        "completed",
+        "refused",
+        "truncated",
+        "cancelled",
+        "agent-failed",
+        "policy-failed",
+        "timeout",
+        "transport-lost"
+      ]
+    },
+    "eventKind": {
+      "enum": [
+        "agent-message",
+        "agent-reasoning",
+        "tool-call",
+        "tool-call-update",
+        "plan",
+        "mode-change",
+        "usage",
+        "session-info",
+        "commands-changed",
+        "other"
+      ]
+    },
+    "disposition": {
+      "enum": [
+        "completed",
+        "unable",
+        "plan-rejected"
+      ]
+    },
+    "errorCategoryCode": {
+      "type": "object",
+      "description": "One category/code PAIR from the closed baton.worker-control 1.0 taxonomy. This family adds neither. A real code under the wrong category is refused here rather than downstream.",
+      "oneOf": [
+        {
+          "properties": {
+            "category": {
+              "const": "refused"
+            },
+            "code": {
+              "enum": [
+                "precondition",
+                "unsupported-version",
+                "capability",
+                "extension",
+                "operation-collision",
+                "already-terminal"
+              ]
+            }
+          },
+          "required": [
+            "category",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "category": {
+              "const": "ambiguous"
+            },
+            "code": {
+              "enum": [
+                "operation",
+                "runtime-start",
+                "collection"
+              ]
+            }
+          },
+          "required": [
+            "category",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "category": {
+              "const": "unavailable"
+            },
+            "code": {
+              "enum": [
+                "transport",
+                "authority",
+                "artifact-store",
+                "source-provider"
+              ]
+            }
+          },
+          "required": [
+            "category",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "category": {
+              "const": "policy"
+            },
+            "code": {
+              "enum": [
+                "denied",
+                "profile-uncertified",
+                "credential-lifetime",
+                "retention"
+              ]
+            }
+          },
+          "required": [
+            "category",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "category": {
+              "const": "integrity"
+            },
+            "code": {
+              "enum": [
+                "schema",
+                "digest",
+                "path",
+                "file-type",
+                "limit",
+                "secret-leak"
+              ]
+            }
+          },
+          "required": [
+            "category",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "category": {
+              "const": "stale-assignment"
+            },
+            "code": {
+              "enum": [
+                "ended",
+                "generation",
+                "contract",
+                "target"
+              ]
+            }
+          },
+          "required": [
+            "category",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "category": {
+              "const": "runtime-observation"
+            },
+            "code": {
+              "enum": [
+                "identity-mismatch",
+                "duplicate-runtime",
+                "quiescence-unknown",
+                "state-regression"
+              ]
+            }
+          },
+          "required": [
+            "category",
+            "code"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "clientCapabilities": {
+      "type": "object",
+      "description": "What the relay advertises to the ACP agent. Version 1.0 withholds filesystem and terminal capability structurally, and omits every other client capability whether stable or experimental.",
+      "properties": {
+        "fs": {
+          "type": "object",
+          "properties": {
+            "read_text_file": {
+              "const": false
+            },
+            "write_text_file": {
+              "const": false
+            }
+          },
+          "required": [
+            "read_text_file",
+            "write_text_file"
+          ],
+          "additionalProperties": false
+        },
+        "terminal": {
+          "const": false
+        }
+      },
+      "required": [
+        "fs",
+        "terminal"
+      ],
+      "additionalProperties": false
+    },
+    "cwdRole": {
+      "enum": [
+        "scratch",
+        "workspace"
+      ],
+      "description": "A profile pins the ROLE of the working directory, never a host path. 'scratch' is an empty read-only root for a consent session; 'workspace' is the private assignment workspace the runtime adapter materialized."
+    },
+    "codexSandboxPolicy": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "readOnly"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "workspaceWrite"
+            },
+            "network_access": {
+              "const": false
+            }
+          },
+          "required": [
+            "type",
+            "network_access"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "codexSandboxPolicyObserved": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "readOnly",
+            "workspaceWrite",
+            "dangerFullAccess",
+            "externalSandbox"
+          ]
+        },
+        "network_access": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "enum": [
+                "restricted",
+                "enabled"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "acpPolicyPinned": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "acp"
+        },
+        "session_mode_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": [
+        "kind",
+        "session_mode_id"
+      ],
+      "additionalProperties": false
+    },
+    "codexPolicyPinned": {
+      "type": "object",
+      "description": "An ACP session_mode_id is not an App Server policy. A certified Codex profile pins the complete operands of BOTH thread/start and turn/start, because turn/start may override the thread default and an unpinned turn silently inherits it.",
+      "properties": {
+        "kind": {
+          "const": "codex-app-server"
+        },
+        "thread_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "const": "never"
+            },
+            "sandbox": {
+              "enum": [
+                "readOnly",
+                "workspaceWrite"
+              ]
+            },
+            "cwd_role": {
+              "$ref": "#/$defs/cwdRole"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        },
+        "turn_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "const": "never"
+            },
+            "sandbox_policy": {
+              "$ref": "#/$defs/codexSandboxPolicy"
+            },
+            "cwd_role": {
+              "$ref": "#/$defs/cwdRole"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox_policy",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "thread_start",
+        "turn_start"
+      ],
+      "additionalProperties": false
+    },
+    "posturePolicyPinned": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/acpPolicyPinned"
+        },
+        {
+          "$ref": "#/$defs/codexPolicyPinned"
+        }
+      ]
+    },
+    "acpPolicyObserved": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "acp"
+        },
+        "session_mode_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": [
+        "kind",
+        "session_mode_id"
+      ],
+      "additionalProperties": false
+    },
+    "codexPolicyObserved": {
+      "type": "object",
+      "description": "What the provider actually reported. The full provider enums appear here so that DRIFT is representable and can be refused; the pinned shape above is deliberately narrower.",
+      "properties": {
+        "kind": {
+          "const": "codex-app-server"
+        },
+        "thread_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "enum": [
+                "never",
+                "onRequest",
+                "unlessTrusted"
+              ]
+            },
+            "sandbox": {
+              "enum": [
+                "readOnly",
+                "workspaceWrite",
+                "dangerFullAccess"
+              ]
+            },
+            "cwd_role": {
+              "$ref": "#/$defs/cwdRole"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        },
+        "turn_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "enum": [
+                "never",
+                "onRequest",
+                "unlessTrusted"
+              ]
+            },
+            "sandbox_policy": {
+              "$ref": "#/$defs/codexSandboxPolicyObserved"
+            },
+            "cwd_role": {
+              "$ref": "#/$defs/cwdRole"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox_policy",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "thread_start",
+        "turn_start"
+      ],
+      "additionalProperties": false
+    },
+    "posturePolicyObserved": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/acpPolicyObserved"
+        },
+        {
+          "$ref": "#/$defs/codexPolicyObserved"
+        }
+      ]
+    },
+    "postureBinding": {
+      "type": "object",
+      "properties": {
+        "policy": {
+          "$ref": "#/$defs/posturePolicyPinned"
+        },
+        "workspace": {
+          "type": "boolean"
+        },
+        "declared_output": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "policy",
+        "workspace",
+        "declared_output"
+      ],
+      "additionalProperties": false
+    },
+    "sessionLimits": {
+      "type": "object",
+      "properties": {
+        "setup_deadline_ms": {
+          "$ref": "#/$defs/positiveInt"
+        },
+        "turn_deadline_ms": {
+          "$ref": "#/$defs/positiveInt"
+        },
+        "cancel_drain_deadline_ms": {
+          "$ref": "#/$defs/positiveInt"
+        },
+        "max_event_bytes": {
+          "$ref": "#/$defs/positiveInt"
+        },
+        "max_queue_events": {
+          "$ref": "#/$defs/positiveInt"
+        },
+        "max_queue_bytes": {
+          "$ref": "#/$defs/positiveInt"
+        }
+      },
+      "required": [
+        "setup_deadline_ms",
+        "turn_deadline_ms",
+        "cancel_drain_deadline_ms",
+        "max_event_bytes",
+        "max_queue_events",
+        "max_queue_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "adapterIdentity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "build_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "build_digest"
+      ],
+      "additionalProperties": false
+    },
+    "providerBinding": {
+      "type": "object",
+      "description": "For a provider with NO negotiated wire version, certification binds an exact server build and its captured interface description instead. This is what replaces version negotiation; it is not a substitute name for it.",
+      "properties": {
+        "provider": {
+          "const": "codex-app-server"
+        },
+        "server_build_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "interface_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "certified_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "experimental_api": {
+          "const": false
+        }
+      },
+      "required": [
+        "provider",
+        "server_build_id",
+        "interface_digest",
+        "certified_at",
+        "experimental_api"
+      ],
+      "additionalProperties": false
+    },
+    "sessionProfile": {
+      "type": "object",
+      "properties": {
+        "session_family": {
+          "$ref": "#/$defs/sessionFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "profile"
+        },
+        "profile_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "wire_protocol": {
+          "$ref": "#/$defs/wireProtocol"
+        },
+        "pinned_wire_version": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/positiveInt"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provider_binding": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/providerBinding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "adapter": {
+          "$ref": "#/$defs/adapterIdentity"
+        },
+        "client_capabilities": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/clientCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "session_capabilities": {
+          "description": "Exactly the six mandatory capabilities of agent-session 1.0. A profile cannot declare a narrower or wider set: the version owns this list, and two live sources of truth is how a certified profile comes to disagree with the policy actually enforced.",
+          "const": [
+            "session.cancel",
+            "session.fresh",
+            "session.mode-pin",
+            "session.permission-refusal",
+            "session.prompt",
+            "session.update-normalization"
+          ]
+        },
+        "postures": {
+          "type": "object",
+          "properties": {
+            "consent": {
+              "$ref": "#/$defs/consentPostureBinding"
+            },
+            "execution": {
+              "$ref": "#/$defs/executionPostureBinding"
+            }
+          },
+          "required": [
+            "consent",
+            "execution"
+          ],
+          "additionalProperties": false
+        },
+        "mcp_servers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "limits": {
+          "$ref": "#/$defs/sessionLimits"
+        },
+        "agent_policy_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "session_family",
+        "version",
+        "document",
+        "profile_id",
+        "created_at",
+        "wire_protocol",
+        "pinned_wire_version",
+        "provider_binding",
+        "adapter",
+        "client_capabilities",
+        "session_capabilities",
+        "postures",
+        "mcp_servers",
+        "limits",
+        "agent_policy_digest",
+        "document_digest"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "wire_protocol": {
+                "const": "acp"
+              }
+            },
+            "required": [
+              "wire_protocol"
+            ]
+          },
+          "then": {
+            "properties": {
+              "pinned_wire_version": {
+                "$ref": "#/$defs/positiveInt"
+              },
+              "provider_binding": {
+                "type": "null"
+              },
+              "client_capabilities": {
+                "$ref": "#/$defs/clientCapabilities"
+              },
+              "postures": {
+                "properties": {
+                  "consent": {
+                    "properties": {
+                      "policy": {
+                        "$ref": "#/$defs/acpPolicyPinned"
+                      }
+                    }
+                  },
+                  "execution": {
+                    "properties": {
+                      "policy": {
+                        "$ref": "#/$defs/acpPolicyPinned"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "wire_protocol": {
+                "const": "codex-app-server"
+              }
+            },
+            "required": [
+              "wire_protocol"
+            ]
+          },
+          "then": {
+            "properties": {
+              "pinned_wire_version": {
+                "type": "null"
+              },
+              "provider_binding": {
+                "$ref": "#/$defs/providerBinding"
+              },
+              "client_capabilities": {
+                "type": "null"
+              },
+              "postures": {
+                "properties": {
+                  "consent": {
+                    "properties": {
+                      "policy": {
+                        "$ref": "#/$defs/codexPolicyConsent"
+                      }
+                    }
+                  },
+                  "execution": {
+                    "properties": {
+                      "policy": {
+                        "$ref": "#/$defs/codexPolicyExecution"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "stateObservation": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/sessionState"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "detail": {
+          "$ref": "#/$defs/boundedText"
+        }
+      },
+      "required": [
+        "state",
+        "observed_at"
+      ],
+      "additionalProperties": false
+    },
+    "cancellationRecord": {
+      "type": "object",
+      "properties": {
+        "ordered_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "order_delivered": {
+          "type": "boolean"
+        },
+        "drain_deadline_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "observed": {
+          "enum": [
+            "agent-turn-cancelled",
+            "agent-quiescence-unknown"
+          ]
+        },
+        "observed_at": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observed_terminal_fact": {
+          "$ref": "#/$defs/boundedText"
+        },
+        "satisfies_runtime_quiescence_gate": {
+          "const": false
+        }
+      },
+      "required": [
+        "ordered_at",
+        "order_delivered",
+        "drain_deadline_at",
+        "observed",
+        "observed_at",
+        "satisfies_runtime_quiescence_gate"
+      ],
+      "additionalProperties": false
+    },
+    "sessionRecord": {
+      "type": "object",
+      "properties": {
+        "session_family": {
+          "$ref": "#/$defs/sessionFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "session"
+        },
+        "record_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "agent_session_ref": {
+          "$ref": "#/$defs/agentSessionRef"
+        },
+        "posture": {
+          "$ref": "#/$defs/posture"
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "work_ref": {
+          "$ref": "#/$defs/workRef"
+        },
+        "assignment_ref": {
+          "description": "Exactly null for a consent session, which exists before any claim, and exactly an assignment for an execution session. The conditionals below enforce that; the cross-field rule that this assignment's work_ref equals the session's work_ref is a required SEMANTIC check because JSON Schema cannot express it.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/assignmentRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "negotiated_wire_version": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/positiveInt"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "advertised_client_capabilities": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/clientCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "negotiated_session_capabilities": {
+          "const": [
+            "session.cancel",
+            "session.fresh",
+            "session.mode-pin",
+            "session.permission-refusal",
+            "session.prompt",
+            "session.update-normalization"
+          ]
+        },
+        "pinned_policy": {
+          "$ref": "#/$defs/posturePolicyPinned"
+        },
+        "observed_policy": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/posturePolicyObserved"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/sessionState"
+        },
+        "state_history": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/stateObservation"
+          }
+        },
+        "cancellation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/cancellationRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "turn_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/opaqueId"
+          }
+        },
+        "journal": {
+          "$ref": "#/$defs/evidenceRef"
+        },
+        "adapter_diagnostics": {
+          "$ref": "#/$defs/namespacedDiagnostics"
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "session_family",
+        "version",
+        "document",
+        "record_id",
+        "created_at",
+        "agent_session_ref",
+        "posture",
+        "profile_digest",
+        "work_ref",
+        "assignment_ref",
+        "negotiated_wire_version",
+        "advertised_client_capabilities",
+        "negotiated_session_capabilities",
+        "pinned_policy",
+        "observed_policy",
+        "state",
+        "state_history",
+        "cancellation",
+        "turn_ids",
+        "journal",
+        "adapter_diagnostics",
+        "document_digest"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "posture": {
+                "const": "consent"
+              }
+            },
+            "required": [
+              "posture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "assignment_ref": {
+                "type": "null"
+              },
+              "agent_session_ref": {
+                "properties": {
+                  "posture": {
+                    "const": "consent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "posture": {
+                "const": "execution"
+              }
+            },
+            "required": [
+              "posture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "assignment_ref": {
+                "$ref": "#/$defs/assignmentRef"
+              },
+              "agent_session_ref": {
+                "properties": {
+                  "posture": {
+                    "const": "execution"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "terminalFact": {
+      "type": "object",
+      "description": "The exact provider observation the turn outcome was derived from. kind 'none' is how a timeout or a lost transport says it has nothing.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "acp-stop-reason",
+            "codex-turn-status",
+            "codex-error-info",
+            "relay-policy",
+            "relay-deadline",
+            "none"
+          ]
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "policyFailure": {
+      "type": "object",
+      "properties": {
+        "condition": {
+          "enum": [
+            "mode-unavailable",
+            "mode-absent",
+            "mode-drift",
+            "provider-policy-drift",
+            "unexpected-approval",
+            "unadvertised-client-method",
+            "refused-method",
+            "consent-posture-action"
+          ]
+        },
+        "error": {
+          "$ref": "#/$defs/errorCategoryCode"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "granted": {
+          "const": false
+        },
+        "detail": {
+          "$ref": "#/$defs/boundedText"
+        }
+      },
+      "required": [
+        "condition",
+        "error",
+        "observed_at",
+        "granted"
+      ],
+      "additionalProperties": false
+    },
+    "turnRecord": {
+      "type": "object",
+      "properties": {
+        "session_family": {
+          "$ref": "#/$defs/sessionFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "turn"
+        },
+        "turn_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "agent_session_ref": {
+          "$ref": "#/$defs/agentSessionRef"
+        },
+        "started_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "ended_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "deadline_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "prompt_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "outcome": {
+          "$ref": "#/$defs/turnOutcome"
+        },
+        "terminal_fact": {
+          "$ref": "#/$defs/terminalFact"
+        },
+        "conclusive": {
+          "type": "boolean",
+          "description": "Whether the TURN conclusively ended. Never a statement about the runtime."
+        },
+        "permitted_dispositions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/disposition"
+          }
+        },
+        "event_count": {
+          "$ref": "#/$defs/nonNegativeInt"
+        },
+        "late_event_count": {
+          "$ref": "#/$defs/nonNegativeInt"
+        },
+        "dropped_event_count": {
+          "$ref": "#/$defs/nonNegativeInt"
+        },
+        "dropped_event_bytes": {
+          "$ref": "#/$defs/nonNegativeInt"
+        },
+        "policy_failures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/policyFailure"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidenceRef"
+          }
+        },
+        "adapter_diagnostics": {
+          "$ref": "#/$defs/namespacedDiagnostics"
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "session_family",
+        "version",
+        "document",
+        "turn_id",
+        "agent_session_ref",
+        "started_at",
+        "ended_at",
+        "deadline_at",
+        "prompt_digest",
+        "outcome",
+        "terminal_fact",
+        "conclusive",
+        "permitted_dispositions",
+        "event_count",
+        "late_event_count",
+        "dropped_event_count",
+        "dropped_event_bytes",
+        "policy_failures",
+        "evidence",
+        "adapter_diagnostics",
+        "document_digest"
+      ],
+      "additionalProperties": false
+    },
+    "contentBlock": {
+      "type": "object",
+      "description": "Version 1.0 normalizes text and resource links only. Image, audio and embedded resource bytes are counted and dropped, never inlined.",
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "text"
+            },
+            "text": {
+              "$ref": "#/$defs/boundedText"
+            }
+          },
+          "required": [
+            "type",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "resource_link"
+            },
+            "uri": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 2048,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^?#]*$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "required": [
+            "type",
+            "uri",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "dropped"
+            },
+            "dropped_type": {
+              "enum": [
+                "image",
+                "audio",
+                "resource",
+                "unknown"
+              ]
+            },
+            "byte_count": {
+              "$ref": "#/$defs/nonNegativeInt"
+            }
+          },
+          "required": [
+            "type",
+            "dropped_type",
+            "byte_count"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "toolCallView": {
+      "type": "object",
+      "properties": {
+        "tool_call_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "title": {
+          "$ref": "#/$defs/boundedText"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "in_progress",
+            "completed",
+            "failed"
+          ]
+        }
+      },
+      "required": [
+        "tool_call_id",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "normalizedEvent": {
+      "type": "object",
+      "properties": {
+        "session_family": {
+          "$ref": "#/$defs/sessionFamily"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "document": {
+          "const": "event"
+        },
+        "agent_session_ref": {
+          "$ref": "#/$defs/agentSessionRef"
+        },
+        "source_seq": {
+          "$ref": "#/$defs/positiveInt"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "turn_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/opaqueId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "$ref": "#/$defs/eventKind"
+        },
+        "source_kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "description": "The provider's own update or item kind, retained verbatim as diagnostics so an unmapped kind is counted rather than guessed at."
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contentBlock"
+          }
+        },
+        "tool_call": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/toolCallView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "byte_count": {
+          "$ref": "#/$defs/nonNegativeInt"
+        },
+        "redacted": {
+          "const": true
+        },
+        "adapter_diagnostics": {
+          "$ref": "#/$defs/namespacedDiagnostics"
+        },
+        "document_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "session_family",
+        "version",
+        "document",
+        "agent_session_ref",
+        "source_seq",
+        "observed_at",
+        "turn_id",
+        "kind",
+        "source_kind",
+        "content",
+        "tool_call",
+        "byte_count",
+        "redacted",
+        "adapter_diagnostics",
+        "document_digest"
+      ],
+      "additionalProperties": false,
+      "description": "The frame the relay sealed. Lateness and the manager's observation sequence are properties of an OBSERVATION rather than of the frame, so they are reported beside the document and never folded into its bytes: a retransmitted frame is the same frame, and sealing an observation into it would make an ordinary retransmission look like a spliced stream."
+    },
+    "codexPolicyConsent": {
+      "type": "object",
+      "description": "A consent posture is non-executing: read-only sandbox, scratch root, no workspace.",
+      "properties": {
+        "kind": {
+          "const": "codex-app-server"
+        },
+        "thread_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "const": "never"
+            },
+            "sandbox": {
+              "const": "readOnly"
+            },
+            "cwd_role": {
+              "const": "scratch"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        },
+        "turn_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "const": "never"
+            },
+            "sandbox_policy": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "readOnly"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            },
+            "cwd_role": {
+              "const": "scratch"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox_policy",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "thread_start",
+        "turn_start"
+      ],
+      "additionalProperties": false
+    },
+    "codexPolicyExecution": {
+      "type": "object",
+      "description": "An execution posture writes the materialized private workspace and nothing else.",
+      "properties": {
+        "kind": {
+          "const": "codex-app-server"
+        },
+        "thread_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "const": "never"
+            },
+            "sandbox": {
+              "const": "workspaceWrite"
+            },
+            "cwd_role": {
+              "const": "workspace"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        },
+        "turn_start": {
+          "type": "object",
+          "properties": {
+            "approval_policy": {
+              "const": "never"
+            },
+            "sandbox_policy": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "workspaceWrite"
+                },
+                "network_access": {
+                  "const": false
+                }
+              },
+              "required": [
+                "type",
+                "network_access"
+              ],
+              "additionalProperties": false
+            },
+            "cwd_role": {
+              "const": "workspace"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "required": [
+            "approval_policy",
+            "sandbox_policy",
+            "cwd_role",
+            "model"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "thread_start",
+        "turn_start"
+      ],
+      "additionalProperties": false
+    },
+    "consentPostureBinding": {
+      "type": "object",
+      "description": "A consent session exists before any claim: no workspace, no declared output.",
+      "properties": {
+        "policy": {
+          "$ref": "#/$defs/posturePolicyPinned"
+        },
+        "workspace": {
+          "const": false
+        },
+        "declared_output": {
+          "const": false
+        }
+      },
+      "required": [
+        "policy",
+        "workspace",
+        "declared_output"
+      ],
+      "additionalProperties": false
+    },
+    "executionPostureBinding": {
+      "type": "object",
+      "description": "An execution session has the materialized workspace and the declared outputs.",
+      "properties": {
+        "policy": {
+          "$ref": "#/$defs/posturePolicyPinned"
+        },
+        "workspace": {
+          "const": true
+        },
+        "declared_output": {
+          "const": true
+        }
+      },
+      "required": [
+        "policy",
+        "workspace",
+        "declared_output"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

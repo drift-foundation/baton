@@ -1,0 +1,52 @@
+W2845 seventh independent-review reproduction — 2026-08-22T15:47:35Z
+
+No mutable Docker command was executed. The candidate held the four exact
+inspection rules and one comment line indented by a TAB:
+
+  prefix_rule(pattern=["docker", "version"], decision="allow")
+  prefix_rule(pattern=["docker", "info"], decision="allow")
+  \t# operator note
+  prefix_rule(pattern=["docker", "inspect"], decision="allow")
+  prefix_rule(pattern=["docker", "image", "inspect"], decision="allow")
+
+The installed evaluator was asked only to CHECK `docker version`:
+
+  codex execpolicy check --pretty --rules <candidate> docker version
+
+It exited 0, matched `["docker", "version"]`, and returned
+`decision="allow"`. The same candidate passed to `auditInspectionRules`
+returned:
+
+  missing=[] broad=[] extra=[]
+  unaccounted=["\\t# operator note"]
+  satisfied=false
+
+The mismatch is the ordering in `readPolicy`. At an OTHER_WHITESPACE
+character it first calls `blankLineEnd`, which correctly refuses because the
+line also contains `#`; it then consumes the line as unaccounted. The later
+comment branch is never reached. Thus the round-6 whole-line blank exception
+does not implement the record's existing rule that comments may be indented.
+
+Surrounding verification:
+
+  tools/codex-event-bridge npm test
+    283 tests, 282 pass, 1 unrelated W4303 failure
+    failing case: reconnect settlement racing late turn/completed files one
+    incident, asserting 2 !== 1; it imports no policy module
+
+  ./.venv/bin/python3 -m pytest -q \
+    tests/work/test_w2845_docker_inspection_policy.py \
+    tests/work/test_deploy_v11.py
+    36 passed
+
+  docker version                         passed, client/server 29.1.3
+  docker info                            passed
+  docker inspect node:24-slim            passed
+  docker image inspect node:24-slim      passed
+  both inspect forms resolved
+    node@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03
+
+  git diff --check                       clean
+
+Temporary reproduction files were left under `/tmp/w2845-r7-*` per managed-
+turn policy; no destructive cleanup was attempted.

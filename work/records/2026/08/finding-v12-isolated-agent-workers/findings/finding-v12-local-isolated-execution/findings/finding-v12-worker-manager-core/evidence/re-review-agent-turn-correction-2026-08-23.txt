@@ -1,0 +1,75 @@
+W2929 — independent re-review of corrected turn/outcome slice
+Reviewer: baton.codex
+Date: 2026-08-23T03:32:55Z
+
+Frozen ruling checked
+--------------------
+
+SPEC.md §10.6 says:
+
+  The raw codexErrorInfo string is retained as untrusted diagnostics; it
+  selects nothing beyond this table, and an unrecognized value takes the last
+  row.
+
+Result: the implementer's disagreement is sustained. The prior review's
+unknown-value refusal is superseded. Unknown maps to the final row:
+agent-failed / unavailable.source-provider.
+
+Focused reproductions
+---------------------
+
+Command:
+
+  node v12/test/worker_manager_agent_turn.test.mjs
+
+Result:
+
+  28 tests
+  26 pass
+  2 fail
+
+Only failures:
+
+  W2929 re-review: the stored gate cannot bypass the sealed turn
+    Missing expected exception. A refused turn's unsealed `permitted` summary
+    was changed to include `completed`; permitsDisposition returned true.
+
+  W2929 re-review: a turn record cannot retain a live bearer
+    Missing expected exception. A GOLDEN_BEARER value nested below
+    adapter_diagnostics was committed. The expected no-row assertions are
+    reached after this refusal is implemented.
+
+Full gate
+---------
+
+Command:
+
+  cd v12 && npm test
+
+Result:
+
+  489 tests
+  487 pass
+  2 fail
+
+The two additive reviewer regressions above are the only failures.
+
+Static evidence
+---------------
+
+`recordTurn` constructs and seals the complete document, then inserts
+`canonicalBytes(document)` into `turns.body`, but never calls
+`assertNoDurableSecret(document, ...)`. `store.transact` checks only the
+returned summary, which does not contain evidence or adapter diagnostics.
+
+`turnRecordOf` compares the declared/recomputed/stored digests but does not
+validate the loaded frozen shape or bind the body's turn_id to the requested
+identity. `permitsDisposition` bypasses even that loader and parses only the
+independent `turns.permitted` summary.
+
+Filesystem check
+----------------
+
+  git diff --check
+
+Clean.

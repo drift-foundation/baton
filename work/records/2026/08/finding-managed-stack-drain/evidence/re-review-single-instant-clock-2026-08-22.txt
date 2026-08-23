@@ -1,0 +1,49 @@
+W4615 independent correction re-review — 2026-08-22T17:57:11Z
+
+The three findings from review-2026-08-22T16-25-29Z.md were rechecked. Whole-
+instant history traversal and one-snapshot status/action projection are
+corrected. Automatic pause now uses the authority clock source, but one empty
+drain still samples it twice.
+
+Focused regression:
+
+  store.clock returns, in order:
+    2099-01-02T03:04:05Z
+    2099-01-02T03:04:06Z
+
+  tr.drain_dispatch(store, actor_team="lang", actor="ada")
+
+Observed dispatch history:
+
+  drain_requested
+    seq = <same authority sequence>
+    ts  = 2099-01-02T03:04:05Z
+
+  pause_reached
+    seq = <same authority sequence>
+    ts  = 2099-01-02T03:04:06Z
+
+  dispatch_control.transitioned_ts = 2099-01-02T03:04:06Z
+
+Cause:
+
+  transitions.drain_dispatch samples store.clock() inside its mutation.
+  Authority._write later calls self.clock() again when invoking
+  _settle_dispatch. The two events are deliberately one sequence and one
+  indivisible authority instant, but their transition times are two samples.
+
+Command:
+
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4615_dispatch_drain.py
+
+Result:
+
+  32 tests
+  31 passed
+  1 failed
+
+Failing case:
+
+  test_one_drain_instant_samples_the_authority_clock_once
+
+The prior 31 focused cases all remain green.

@@ -37,6 +37,7 @@ import uuid
 from baton_work.authority import Authority, WorkError
 from baton_work import cli as _cli
 from baton_work import projection
+from baton_work.tui import graph
 from baton_work import transitions
 
 # Fixed column budget (borderless; alignment is the separator). The title
@@ -237,6 +238,12 @@ NAV_STATE_FIELDS = (
 	"viewed_thread", "thread_before", "msg_cursor", "reader_skip",
 	"event_cursor", "event_before", "event_focus", "event_skip",
 	"links_work", "links_cursor", "poke_cursor", "poke_seq",
+	# W4996: the dependency graph's whole position. A row cursor alone
+	# would repeat the selection drift the Jobs table already forbids —
+	# the same row index means a different Work after a depth change, a
+	# branch expansion or a refresh, so the ANCHOR is the Work id (or the
+	# branch key of a token) and the row is derived from it.
+	"graph_center", "graph_depth", "graph_anchor", "graph_expanded",
 )
 # The separator between breadcrumb segments. One spelling, so the painter
 # and every test read the same trail.
@@ -244,6 +251,22 @@ NAV_SEPARATOR = " > "
 # What a frame kind is CALLED when a segment has to say which page of a
 # Work it is — only when the same Work already owns the segment above it.
 PAGE_NAMES = {"work": "detail", "root": "subtree"}
+
+
+def _nav_copy(value):
+	"""One captured field, owned by the frame that captured it.
+
+	W4996: lists were already copied and dicts were not, which was
+	harmless while no navigation state was a dict. Branch expansions are
+	one, and a shared dict would let expanding a branch after Back
+	silently rewrite the frame the operator came from — a restore that is
+	subtly not the state they left, which is exactly what this mechanism
+	exists to prevent."""
+	if isinstance(value, list):
+		return list(value)
+	if isinstance(value, dict):
+		return dict(value)
+	return value
 
 
 def _fit(value: str, size: int) -> str:
@@ -1079,6 +1102,20 @@ class Console:
 		self.show_closed = False
 		self.links_work: str | None = None
 		self.links_cursor = 0
+		# W4996: the dependency neighbourhood graph. `graph_anchor` is a
+		# Work id for a selectable Work row and a branch key for an
+		# overflow or depth-frontier token; `graph_expanded` maps a branch
+		# key to the number of direct neighbours that branch may draw.
+		self.graph_center: str | None = None
+		self.graph_depth = projection.DEPENDENCY_DEPTH_MIN
+		self.graph_anchor: str | None = None
+		self.graph_expanded: dict[str, int] = {}
+		# The width the graph was last painted at. Rows are DERIVED from
+		# the projection, never stored: the row order and every row's
+		# identity are the same at every width — a regression asserts
+		# exactly that — so a key press does not depend on having painted
+		# first, and only the narrow REFUSAL is width-dependent.
+		self._graph_width = 120
 		self.disc_cursor: int | None = None
 		self.disc_after = 0
 		self.disc_next: int | None = None
@@ -1248,14 +1285,12 @@ class Console:
 		navigates the exact path that used it."""
 		state = {}
 		for name in NAV_STATE_FIELDS:
-			value = getattr(self, name)
-			state[name] = list(value) if isinstance(value, list) else value
+			state[name] = _nav_copy(getattr(self, name))
 		return state
 
 	def _nav_restore(self, state: dict) -> None:
 		for name, value in state.items():
-			setattr(self, name, list(value) if isinstance(value, list)
-			        else value)
+			setattr(self, name, _nav_copy(value))
 
 	def _nav_push(self, kind: str, label: str, *,
 	              restore: dict | None = None,
@@ -1804,16 +1839,59 @@ class Console:
 			screen.addnstr(0, min(len(tabs) + 2, max(0, width - 1)),
 			               trail, max(0, width - 1 - len(tabs) - 2),
 			               curses.A_BOLD)
+		self._render_right_edge(screen, width)
+
+	def _render_right_edge(self, screen, width: int) -> None:
+		"""The right edge of row 0, painted the same way in BOTH header
+		paths: dispatch state, then filter disclosure, then identity.
+
+		W4615: the dispatch label goes here rather than in the top-level
+		tab row alone, because a deployment-global state that disappears
+		when the operator drills into a Work is exactly the fact they
+		would then act without. Identity is still drawn LAST and still
+		overdraws — the one promise no width may break — and the
+		dispatch label sits furthest left of the three, so a narrow
+		terminal loses it before it loses who the operator is."""
+		dispatch = self._dispatch_tag()
 		tag = self._filter_tag()
+		# W5 (ruled): active filtering is ALWAYS disclosed. It shares the
+		# right edge with the identity, so it sits just left of it
+		# rather than under it. W292: the drilled header paints the same
+		# tag from the same definition.
 		if tag:
-			# W5 (ruled): active filtering is ALWAYS disclosed. It now
-			# shares the right edge with the identity, so it sits just
-			# left of it rather than under it. W292: the drilled header
-			# paints the same tag from the same definition.
 			at = width - 2 - len(tag) - len(self.participant)
 			screen.addnstr(0, max(0, at), tag, width - 1, curses.A_BOLD)
+		if dispatch:
+			at = (width - 2 - len(dispatch) - len(self.participant)
+			      - (len(tag) + 1 if tag else 0))
+			if at > 0:
+				screen.addnstr(0, at, dispatch, width - 1, curses.A_BOLD)
 		screen.addnstr(0, max(0, width - 1 - len(self.participant)),
 		               self.participant, width - 1, curses.A_BOLD)
+
+	def dispatch_view(self) -> dict:
+		"""The deployment-global dispatch state, through the ONE cached
+		read path the rest of the console uses."""
+		return self._cached(("dispatch",),
+		                    lambda: projection.dispatch_view(self.store))
+
+	def _dispatch_tag(self) -> str:
+		"""W4615's header disclosure. ONE definition, like the filter
+		tag's and for the same reason: the top-level header and every
+		drilled header owe the operator the same fact.
+
+		Empty while `running`. A label that is always present would
+		train the eye to ignore it, and RUNNING is the state an operator
+		already assumes — but DRAINING and PAUSED change what the
+		console's own keys will do, so they are always said. The active
+		count is on the DRAINING label because "how much longer" is the
+		next question an operator asks."""
+		state = self.dispatch_view()
+		if state["mode"] == "running":
+			return ""
+		if state["mode"] == "paused":
+			return "Dispatch:PAUSED"
+		return f"Dispatch:DRAINING ({state['blocking_claims']} active)"
 
 	def _filter_tag(self) -> str:
 		"""W5's header disclosure, or empty. ONE definition, because the
@@ -1842,8 +1920,10 @@ class Console:
 		units are reserved here, where the trail's room is decided, so
 		neither can be half-erased by the other."""
 		tag = self._filter_tag()
+		dispatch = self._dispatch_tag()
 		room = max(0, self._tab_budget(width)
-		           - (len(tag) + 1 if tag else 0))
+		           - (len(tag) + 1 if tag else 0)
+		           - (len(dispatch) + 1 if dispatch else 0))
 		segments = self.nav_segments()
 		trail = NAV_SEPARATOR.join(segments)
 		if len(trail) > room:
@@ -1858,11 +1938,7 @@ class Console:
 				# often than its beginning.
 				trail = "… " + kept[-1][-max(0, room - 2):]
 		screen.addnstr(0, 0, trail, max(1, width - 1), curses.A_BOLD)
-		if tag:
-			at = width - 2 - len(tag) - len(self.participant)
-			screen.addnstr(0, max(0, at), tag, width - 1, curses.A_BOLD)
-		screen.addnstr(0, max(0, width - 1 - len(self.participant)),
-		               self.participant, width - 1, curses.A_BOLD)
+		self._render_right_edge(screen, width)
 
 	# -- rendering ------------------------------------------------------------
 
@@ -1907,7 +1983,10 @@ class Console:
 			# Messages below, Ctrl-W pane navigation.
 			self._render_detail(screen, height, width)
 		elif self.mode == "links":
-			self._render_links(screen, height, width)
+			# W4996: `[b]` is the dependency NEIGHBOURHOOD now. The flat
+			# blocked-by/blocks list it replaced showed the same edges
+			# without ever showing the shape they make.
+			self._render_graph(screen, height, width)
 		elif self.mode == "pokes":
 			# W17: the conversational pokes this participant is part of
 			# — the ones owed an answer, and the ones they asked.
@@ -2855,49 +2934,211 @@ class Console:
 				return
 			after = page["next_after"]
 
-	def _links_rows(self) -> list[tuple[str, str]]:
-		"""(work id, drawn line) pairs — every fact the `links`
-		projection's far-row summary, with the STABLE id shown so the
-		deliberate cross-team drill-through has a visible anchor."""
-		view = self._cached(("links", self.links_work),
-		                    lambda: projection.links(
-			self.store, self.links_work))
-		rows = []
+	# -- W4996: the dependency neighbourhood graph -------------------------
 
-		def far_text(prefix, entry):
-			endpoint = (entry["route"]["endpoint"]
-			            if entry["route"] else "-")
-			extra = "" if entry["outcome"] is None \
-				else f" {compact_outcome(entry['outcome'])}"
-			rows.append((entry["id"],
-			             f"{prefix} {entry['id']} {entry['team']} "
-			             f"{entry['status']}{extra} {endpoint} "
-			             f"{entry['title']}"))
+	def _graph_view(self) -> dict:
+		"""One bounded, snapshotted neighbourhood for the current center.
 
-		for entry in view["blocked_by"]:
-			far_text("blocked-by", entry)
-		for entry in view["blocks"]:
-			far_text("blocks", entry)
-		if view["duplicate_of"] is not None:
-			far_text("duplicate-of", view["duplicate_of"])
-		for entry in view["duplicates"]:
-			far_text("duplicate", entry)
-		return rows
+		Cached on every input that decides it, so paging a branch or
+		changing depth is a new read and a repaint is not."""
+		key = ("graph", self.graph_center, self.graph_depth,
+		       tuple(sorted(self.graph_expanded.items())))
+		return self._cached(key, lambda: projection.dependency_neighborhood(
+			self.store, self.graph_center, depth=self.graph_depth,
+			expanded=dict(self.graph_expanded)))
 
-	def _render_links(self, screen, height, width) -> None:
-		rows = self._links_rows()
-		if not rows:
-			screen.addnstr(2, 0, "(no blocking or dependent neighbors)",
-			               width - 1)
+	def _graph_anchor_index(self, rows: list[dict]) -> int:
+		"""The selected ROW, derived from the anchor rather than stored.
+
+		Anchoring by identity is the whole point: a row index means a
+		different Work after a depth change, a branch expansion or a
+		refresh. A Work appearing on several edges has several rows and
+		the FIRST is the one keys act on, while every one of them is
+		drawn selected."""
+		for index, row in enumerate(rows):
+			if self._graph_row_key(row) == self.graph_anchor:
+				return index
+		return 0
+
+	def _graph_keys(self, rows: list[dict]) -> list[str]:
+		"""The traversal order: every DISTINCT selectable key, once, in the
+		order it first appears. A Work drawn on three edges is one stop."""
+		seen: list[str] = []
+		for row in rows:
+			key = self._graph_row_key(row)
+			if key is not None and key not in seen:
+				seen.append(key)
+		return seen
+
+	@staticmethod
+	def _graph_row_key(row: dict) -> str | None:
+		"""What a row is selected BY. A Work row is its Work; a token is
+		its exact branch, because two branches of one Work are two
+		different things to open."""
+		# A PRESENTATION ROW HAS NO IDENTITY, and that is the stacked
+		# renderer's own rule: when a terminal cannot fit one edge on a
+		# line it draws source, arrow and target on three rows, and only
+		# the row that displays its own Work is selectable.
+		#
+		# W4996 PTY matrix: this assumed every row carried `work` and
+		# raised `KeyError` the moment the stacked fallback was reached —
+		# the console DIED on a 30-column terminal. The focused suite
+		# could not see it: it drives the console at widths where the
+		# layered form fits, and the narrow REFUSAL it does assert is a
+		# different boundary from the narrow FALLBACK.
+		if row.get("work") is None:
+			return None
+		if row["kind"] == graph.ROW_WORK:
+			return row["work"]
+		return f"{row['work']}|{row['side']}|{row['kind']}"
+
+	def _graph_reanchor(self, rows: list[dict]) -> None:
+		"""Selection follows the Work when it can and the center when it
+		cannot. Ruled: a depth reduction or a refresh that removes the
+		selected Work returns selection to the center; nothing else moves
+		it, so a resize can never move an action to another Work."""
+		if any(self._graph_row_key(row) == self.graph_anchor
+		       for row in rows):
 			return
-		budget = max(1, height - 3)
-		start = max(0, min(self.links_cursor - budget + 1,
-		                   len(rows) - budget))
-		for offset, (_work, text) in enumerate(
-				rows[start:start + budget]):
+		self.graph_anchor = self.graph_center
+
+	def _graph_row_set(self) -> list[dict]:
+		"""The selectable rows, derived on demand.
+
+		Keys act on the graph, not on the last paint: a handler that read
+		a cached row list would do nothing at all before the first render
+		and something stale after a resize. Width is passed only because
+		the renderer needs one — the row ORDER and each row's identity are
+		width-independent by contract."""
+		try:
+			return graph.rows(self._graph_view(),
+			                  max(1, self._graph_width - 1))
+		except (projection.GraphInvalid, graph.GraphTooNarrow):
+			# Both refuse VISIBLY when painted. A key press has nothing to
+			# act on either way.
+			return []
+
+	def _render_graph(self, screen, height, width) -> None:
+		self._graph_width = width
+		try:
+			view = self._graph_view()
+		except projection.GraphInvalid as refusal:
+			# Damaged data. The view refuses VISIBLY rather than drawing a
+			# smaller graph that looks complete.
+			screen.addnstr(2, 0, f"graph refused: {refusal}", width - 1)
+			return
+		try:
+			rows = graph.rows(view, max(1, width - 1))
+		except graph.GraphTooNarrow as refusal:
+			screen.addnstr(2, 0, str(refusal), width - 1)
+			return
+		if not view["edges"]:
+			# W17's empty state, kept verbatim. A lone token with nothing
+			# beside it reads as a view that failed to load; saying there
+			# are no neighbours is the answer, and it is a real one.
+			screen.addnstr(height - 4, 0,
+			               "(no blocking or dependent neighbors)", width - 1)
+		self._graph_reanchor(rows)
+		selected = self._graph_anchor_index(rows)
+		# EVERY appearance of the selected Work is drawn selected, because
+		# one Work on three edges is one Work.
+		chosen = self._graph_row_key(rows[selected]) if rows else None
+		budget = max(1, height - 4)
+		start = max(0, min(selected - budget + 1, len(rows) - budget))
+		for offset, row in enumerate(rows[start:start + budget]):
 			attribute = curses.A_REVERSE \
-				if start + offset == self.links_cursor else 0
-			screen.addnstr(2 + offset, 0, text, width - 1, attribute)
+				if self._graph_row_key(row) == chosen else 0
+			screen.addnstr(2 + offset, 0, row["text"], width - 1, attribute)
+		if height - 3 > 2 + min(len(rows) - start, budget):
+			screen.addnstr(height - 3, 0, graph.footer(view), width - 1)
+
+	def _open_graph(self, target: str) -> None:
+		"""Open the graph centered on one Work, from wherever."""
+		self._nav_push("links", f"{self._work_title(target)} · deps")
+		self.graph_center = target
+		self.graph_depth = projection.DEPENDENCY_DEPTH_MIN
+		self.graph_anchor = target
+		self.graph_expanded = {}
+		self.links_work = target
+		self.links_cursor = 0
+		self.mode = "links"
+
+	def _handle_graph(self, key: int) -> bool:
+		rows = self._graph_row_set()
+		self._graph_reanchor(rows)
+		if key in (curses.KEY_DOWN, ord("j"), curses.KEY_UP, ord("k")):
+			# ONE UNIQUE-NODE ORDER, which is what the contract says and
+			# what a row order cannot give.
+			#
+			# W4996 console review [P1]: the renderer keeps one row per
+			# canonical EDGE, so a shared DAG Work occupies consecutive
+			# rows — and stepping by row from such a Work landed on
+			# another row carrying the same id. The anchor did not change,
+			# the next key started from the first appearance again, and
+			# selection was trapped there for good.
+			#
+			# Movement is over DISTINCT selectable keys; painting is over
+			# every appearance. Those are the two halves of the same rule
+			# and they were being served by one list.
+			keys = self._graph_keys(rows)
+			if keys:
+				step = 1 if key in (curses.KEY_DOWN, ord("j")) else -1
+				try:
+					at = keys.index(self.graph_anchor)
+				except ValueError:
+					at = 0
+				self.graph_anchor = keys[
+					max(0, min(at + step, len(keys) - 1))]
+		elif key in (ord("+"), ord("=")):
+			# `=` because `+` is shifted on most layouts and an operator
+			# who presses the unshifted key means the same thing.
+			self.graph_depth = min(projection.DEPENDENCY_DEPTH_MAX,
+			                       self.graph_depth + 1)
+		elif key == ord("-"):
+			self.graph_depth = max(projection.DEPENDENCY_DEPTH_MIN,
+			                       self.graph_depth - 1)
+		elif key in (curses.KEY_ENTER, 10, 13) and rows:
+			row = rows[self._graph_anchor_index(rows)]
+			if row["kind"] == graph.ROW_OVERFLOW:
+				# Enter widens ONE branch page. It is not a depth change
+				# and it does not touch any other branch.
+				branch = projection.branch_key(row["work"], row["side"])
+				self.graph_expanded[branch] = (
+					self.graph_expanded.get(
+						branch, projection.DEPENDENCY_BRANCH_PAGE)
+					+ projection.DEPENDENCY_BRANCH_PAGE)
+			elif row["kind"] == graph.ROW_DEEPER:
+				# The depth frontier is opened by `+`, and the token says
+				# so. Enter here would silently mean two different things
+				# on two token kinds.
+				self.status = "deeper neighbours: press + to raise depth"
+			elif row["work"] != self.graph_center:
+				# RECENTER, in the graph. It does not jump to the Jobs
+				# table: the operator asked to look at a neighbour's
+				# neighbourhood, not to leave the view.
+				self._nav_push("links",
+				               f"{self._work_title(row['work'])} · deps")
+				self.graph_center = row["work"]
+				self.graph_anchor = row["work"]
+				# Branch pages belong to the graph they were opened in.
+				self.graph_expanded = {}
+				self.links_work = row["work"]
+		elif key in (27, curses.KEY_LEFT, ord("i")):
+			# Esc restores the EXACT prior graph — center, depth, anchor
+			# and branch expansions all ride the navigation frame — and
+			# the last one returns to the caller's table state.
+			if not self._nav_pop():
+				self.mode = "table"
+				self.graph_center = None
+				self.links_work = None
+		if self.mode == "links":
+			# Re-anchor AFTER the act, not only before it. A depth
+			# REDUCTION can remove the selected Work, and the ruling says
+			# selection returns to the center when it does — waiting for
+			# the next key or the next paint to notice would leave the
+			# console briefly pointing at a Work it is not showing.
+			self._graph_reanchor(self._graph_row_set())
+		return True
 
 	# -- W17: the poke view ----------------------------------------------
 
@@ -4639,6 +4880,15 @@ class Console:
 			# W235 R1: search results are selectable Work — the SAME
 			# shared claim path as the root table.
 			self._claim_selected(rows)
+		elif key == ord("b") and rows:
+			# W4996: and so is the dependency neighbourhood. The approved
+			# entry boundary names the table AND search, and search mode
+			# is dispatched before the table's own `b` case ever runs —
+			# so without this branch the key was simply a no-op here.
+			# A search result is a Work like any other, and an operator
+			# who found one by searching is exactly the operator who
+			# wants to see what it waits on.
+			self._open_graph(rows[min(self.cursor, len(rows) - 1)]["id"])
 		elif key == 27:
 			# the exact prior table state returns — path, cursor,
 			# selection, AND closed visibility (R2); the filter was
@@ -5186,46 +5436,7 @@ class Console:
 		                 if self.mode == "table" else ([], 0))
 
 		if self.mode == "links":
-			entries = self._links_rows()
-			if key in (curses.KEY_DOWN, ord("j")):
-				self.links_cursor = min(self.links_cursor + 1,
-				                        max(0, len(entries) - 1))
-			elif key in (curses.KEY_UP, ord("k")):
-				self.links_cursor = max(0, self.links_cursor - 1)
-			elif key in (curses.KEY_ENTER, 10, 13) and entries:
-				# The deliberate cross-team drill-through (ruled): the
-				# far Work re-roots the tree; the breadcrumb
-				# reconstructs its real ancestry.
-				#
-				# W292: this LEAVES the links page and RE-ROOTS at a
-				# Work that is somewhere else entirely, so the whole
-				# recorded path is unwound first — the caller's
-				# ancestry belongs to a different tree and prefixing
-				# the far Work with it would paint a containment path
-				# that does not exist.
-				#
-				# Round-1 review: this used to pop only the links frame
-				# and push one title, so a dependency pointing at a
-				# grandchild gave `Jobs > grand` and Back skipped the
-				# parent scopes. The far Work's own canonical ancestry
-				# is seeded through the SAME model every other drill
-				# uses, so its trail and its Back agree.
-				far = entries[self.links_cursor][0]
-				while self._nav_pop():
-					pass
-				self._seed_work_frames(far, self._nav_capture(),
-				                       self._rooted_table_state,
-				                       kind="root")
-				self.path = self._work_ids(far)
-				self.cursor = 0
-				self.selected_id = None
-				self.mode = "table"
-				self.links_work = None
-			elif key in (27, curses.KEY_LEFT, ord("i")):
-				if not self._nav_pop():
-					self.mode = "table"
-					self.links_work = None
-			return True
+			return self._handle_graph(key)
 		if self.mode == "detail":
 			return self._handle_detail(key)
 		# -- the Work tree ------------------------------------------------
@@ -5260,13 +5471,9 @@ class Console:
 				self.cursor = 0
 				self.selected_id = None
 		elif key == ord("b") and rows:
-			# W292: the links page is a drill into the chosen Work,
+			# W292: the dependency page is a drill into the chosen Work,
 			# so it is a breadcrumb segment like any other.
-			target = rows[self.cursor]["id"]
-			self._nav_push("links", f"{self._work_title(target)} · links")
-			self.links_work = target
-			self.links_cursor = 0
-			self.mode = "links"
+			self._open_graph(rows[self.cursor]["id"])
 		elif key == ord("c") and rows:
 			self._claim_selected(rows)
 		elif key == ord("p"):

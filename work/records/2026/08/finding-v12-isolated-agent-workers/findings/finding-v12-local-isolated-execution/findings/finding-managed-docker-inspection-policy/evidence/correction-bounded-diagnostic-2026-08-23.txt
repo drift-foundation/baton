@@ -1,0 +1,108 @@
+W2845 — the bounded diagnostic, actually bounded
+Review: review-2026-08-23T04-49-11Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+The reviewer's high-cardinality case, against the shipped helper: 1000
+commands of 1000 characters produced a summary of 1,029,041 characters.
+
+  {"itemTypes":1000,"commands":1000,"summaryLength":1029041}
+
+The finding is correct.
+
+
+2. A CAP ON THE PARTS IS NOT A BOUND ON THE WHOLE
+
+I capped each agent message and called the helper bounded. It then emitted
+every item type, every message, every command and each full command string,
+and concatenated all of them into the summary.
+
+WHAT MAKES IT WORSE THAN AN OVERSIGHT IS WHEN IT FIRES. This diagnostic exists
+for the moment a model goes off-script — which is exactly the moment a turn
+has a thousand items, and exactly the moment the operator log has to stay
+readable. The one input that triggers it is the one input that breaks it.
+
+I also wrote "BOUNDED ON PURPOSE" in the doc comment. A comment claiming a
+property the code does not have is worse than no comment: it is the reason
+nobody looks.
+
+
+3. THE CORRECTION
+
+Hard caps on COUNTS as well as sizes: 40 item types, 5 agent messages, 10
+commands, 400 characters per message, 200 per command.
+
+THE CAPS ARE PRIVATE AND THE CALLER MAY ONLY TIGHTEN. `limit` clamps downward
+through `Math.min` and cannot raise anything — an exported helper that its
+caller can make unbounded is unbounded, and "no current caller passes a large
+limit" is a property of today's callers.
+
+TRUE TOTALS ARE ALWAYS REPORTED, and every cut list carries an explicit
+"… (N more of M)" marker. A diagnostic that silently drops 990 commands is
+worse than one that says it dropped them, because the COUNT is often the
+finding — eight cases with zero command items is the whole of W2845's current
+state.
+
+Unchanged: `reasoning` items contribute their TYPE and nothing else, only
+`agentMessage` text is quoted, only this turn is read, and the helper decides
+nothing. The matrix still prints it only for a FAILED Docker verdict, and the
+strict oracle remains the sole decision.
+
+The same reproduction now:
+
+  {"itemTypes":41,"commands":11,"totals":{"items":1000,"agentMessages":0,
+   "commands":1000},"summaryLength":3095,"wholeLength":6383}
+
+1,029,041 -> 3,095, with both true totals intact.
+
+
+4. MUTATION CHECK — six, all six witnessed
+
+  H1  no total cap on commands                       1 failed
+  H2  no total cap on item types                     1 failed
+  H3  no total cap on messages                       1 failed
+  H4  the caller may raise the cap                   1 failed
+  H5  the per-command cap is gone                    2 failed
+  H6  the true totals are dropped                    4 failed
+
+H4 is the one worth reading: it keeps every hard constant and only lets
+`limit` through unclamped, and it fails. A private maximum that a parameter
+can exceed is not a maximum.
+
+
+5. REGRESSIONS — 4 added
+
+Many messages with the true total kept; many commands with the whole
+serialized diagnostic asserted under 8000 characters — the reviewer's own
+reproduction, as a case; one long command capped in place with its true
+length; and a caller-supplied limit of 100,000 not raising anything.
+
+
+6. GATES
+
+  tools/codex-event-bridge npm test            333 pass, 0 fail
+  pytest -n auto -m "not serial" tests/work    2977 passed, 0 failed
+  pytest -m serial tests/work                  52 passed, 0 failed
+  tools/acp-baton-bridge npm test              55 pass, 0 fail
+  v12 npm test                                 492 pass, 0 fail
+  node --check smoke/exact_policy_matrix.mjs   clean
+  whitespace-damage check                      clean
+
+
+7. UNCHANGED, AND STILL THE STATE OF THIS WORK
+
+The strict oracle, the eight exact commands, the Baton cases, the
+non-mutation probe and cleanup. The live matrix still cannot pass on this
+build: W7989 records the measured `commandExecution` absence, and the review
+accepts that a stronger prompt would not repair it.
+
+
+8. FILES CHANGED
+
+  tools/codex-event-bridge/src/command_oracle.mjs
+                                    hard private caps on counts and sizes,
+                                    true totals, explicit omission markers
+  tools/codex-event-bridge/test/command_oracle.test.mjs
+                                    +4 cases, 1 corrected

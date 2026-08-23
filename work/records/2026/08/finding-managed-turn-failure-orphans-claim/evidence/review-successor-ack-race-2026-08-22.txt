@@ -1,0 +1,38 @@
+W4303 independent re-review — successor acknowledgement race, 2026-08-22
+
+Focused command:
+
+  npm test -- --test-name-pattern='a late acknowledgement cannot mark a successor orphan filed'
+
+Exact failing assertion:
+
+  AssertionError [ERR_ASSERTION]: the first orphan's acknowledgement marked its successor filed
+
+  true !== false
+
+      at TestContext.<anonymous>
+      (tools/codex-event-bridge/test/failed_turn_settlement.test.mjs:657:10)
+
+Focused result: 15 files/cases selected by the Node runner, 14 passed and the
+one named regression failed.
+
+Full bridge result:
+
+  tests 289
+  pass 288
+  fail 1
+
+The sole failure was the same new regression. The independently focused
+authority suite remained green:
+
+  tests/work/test_w4303_release_recovery.py  20 passed
+
+Observed state after the deterministic ordering:
+
+  current orphan Work: W2928 (the successor B)
+  B publication result: false
+  B incidentFiled: true (incorrect; expected false)
+
+The earlier orphan A's publication returned true only after B was already the
+live fence. `#acknowledgeOrphanIncident(state)` therefore acknowledged the
+mutable current orphan rather than the orphan captured by A's publication.

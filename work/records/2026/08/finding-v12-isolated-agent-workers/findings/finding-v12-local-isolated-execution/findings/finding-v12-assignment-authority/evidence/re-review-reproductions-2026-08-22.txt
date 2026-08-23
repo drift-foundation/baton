@@ -1,0 +1,72 @@
+W2928 independent re-review reproductions, 2026-08-22T06:42:24Z
+
+All boundary reproductions imported only:
+
+  v12/src/authority/index.mjs
+
+1. The original five review findings
+
+The corrected full v12 gate passed 150/150, W151's executable model passed
+54/54, and the real-process race file passed eight consecutive isolated runs.
+The focused boundary/contract/operations run also passed. Direct checks found:
+
+  - authority.store and authority.db are undefined; the first claim mints 1;
+  - pre-approval integration writes neither an attempt nor an operation row;
+  - settleOperation without mayRetire returns live and writes no journal row;
+  - createWork(active) and end(...phase=active) refuse before writing; and
+  - the race harness retains one synchronous report per racer.
+
+2. Runtime consumer can change its own authorization and canonical target
+
+The claimant used the same public V12Authority object W2929 is directed to
+consume. It granted itself close, closed its own live Work, then set the
+deployment-wide canonical target without a proposal or any workflow receipt:
+
+  authority.grantCapability("publisher", "close")
+  authority.close({actor: "publisher", expect: assignment, ...})
+  authority.setPolicy("canonical_target", "unreviewed-tree")
+
+Observed result:
+
+  {"selfClosed":{"outcome":"satisfying","actor":"publisher",
+   "assignment":{"authorityUuid":"u","workId":"W",
+   "participant":"publisher","generation":1}},
+   "canonicalTarget":"unreviewed-tree","receipts":[]}
+
+The caller can also impersonate an already configured identity merely by
+supplying its string. Passing actor:"trusted-closer" after that identity was
+configured committed the close; no authenticated caller identity or
+unforgeable capability is compared.
+
+3. Approval policy generation is absent from the operation signature
+
+An approval committed under operation app with policyGeneration 7. Repeating
+the same operation id and otherwise identical operands with policyGeneration 8
+returned the first committed result rather than refusing different durable
+bytes. The durable row stayed at 7, while the journal signature was:
+
+  {"kind":"approval","operands":{"actor":"poc.approver",
+   "disposition":"approved","proposalId":"p","receiptId":"a"}}
+
+Calling approve with no policyGeneration also committed an approval whose
+policy_generation was null.
+
+4. Commands and results
+
+  cd v12 && npm test
+    150 pass, 0 fail
+
+  cd <W151 evidence> && python3 -m unittest test_assignment_state_model
+    Ran 54 tests; OK
+
+  cd v12 && node --test test/authority_boundary.test.mjs \
+    test/authority_contract.test.mjs test/authority_operations.test.mjs
+    3 files pass, 0 fail
+
+  for i in 1 2 3 4 5 6 7 8; do
+    node --test test/authority_race.test.mjs || exit 1
+  done
+    8 pass, 0 fail
+
+  git diff --check -- v12
+    clean

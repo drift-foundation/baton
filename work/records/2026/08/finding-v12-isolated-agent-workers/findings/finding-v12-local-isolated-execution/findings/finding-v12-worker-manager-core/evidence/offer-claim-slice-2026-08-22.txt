@@ -1,0 +1,169 @@
+W2929 — plan item 3, FIRST HALF: the offer and the claim
+Signed off before it: review-2026-08-22T21-05-52Z.md (foundation item 2).
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. WHAT THIS TURN IS, AND WHAT IT IS NOT
+
+Foundation item 2 was signed off and the handoff said to implement item 3's
+restart-safe orchestration and item 4's adapters. This turn implements the
+OFFER AND CLAIM half of item 3 — the dossier's own "Offer and claim" section,
+steps 1 through 6 plus the restart rules.
+
+NOT IMPLEMENTED, and named rather than implied by a green count:
+  - the rest of item 3: assignment activation, runtime start and
+    reconciliation by opaque runtime id, the ten orthogonal observation axes,
+    cancellation ordering, output freeze, intake and cleanup;
+  - all of item 4: the provider-neutral agent-session profile, session/turn/
+    event normalization, and the runtime/agent adapter contracts with their
+    scripted doubles.
+
+The signed-off foundation was revalidated before anything was built on it:
+239 v12 cases green against the tree as it stood.
+
+
+1. WHAT LANDED — `v12/src/worker_manager/offers.mjs`
+
+Every step is a DURABLE fact rather than an inference, because the whole
+question this boundary answers is: after a crash, can the next incarnation
+tell what actually happened?
+
+STEP 1 AND 2 — issue. The Work projection and the participant's capacity are
+read BEFORE any entropy is spent: a bearer minted for an offer that is then
+refused is a secret that existed for no reason. The per-Work CAS is the
+database's partial unique index, not a read-then-write check, because two
+manager processes both pass a check made outside the write. The VERIFIER is
+stored and the bearer is returned only after the commit.
+
+STEP 3 — accept. `validateOfferDecide` proves the decision names ONE issued
+offer and carries this exact verifier; one transaction then consumes the
+verifier, freezes the intent digest, derives the fixed claim operation id and
+stores a SEPARATE settlement deadline. A decline terminates and consumes the
+verifier too — single-use across acceptance, decline and expiry alike, so a
+decline can never be replayed into an acceptance.
+
+STEP 4 — claim. The one fixed operation is submitted through the
+participant-bound session, with the bearer held by `withSecret` for exactly
+that act. The result is recorded before anything else may run: a manager that
+activated an assignment it had not durably recorded could not, after a crash,
+tell an activation it performed from one it did not.
+
+STEP 5 — settle a lost result. BEFORE THE DEADLINE IT MAY ONLY OBSERVE. A
+read saying "not committed" proves only its own instant, because a submitter
+may already have passed its preconditions and be about to commit; retiring
+early could close an identity the authority is still going to honour, and the
+manager would record a refusal for a claim that WON. At or after the deadline
+retirement is safe. Positive evidence that the claim refused permits immediate
+retirement — that is an answer, not a guess. Every path ADOPTS an existing
+retirement's bound disposition and reason, because whoever retired the
+identity first decided what it means.
+
+STEP 6 — the late record. A commit this manager never saw is recorded on
+settlement, which is the whole reason the operation id is DERIVED rather than
+minted.
+
+RESTART, and the asymmetry is the point. An `issued` offer from a PRIOR
+incarnation is not accepted: nothing durable says the bearer was delivered,
+so honouring it means trusting a secret this process cannot account for. It
+stays VISIBLE as `abandoned-after-restart` with its verifier consumed, and a
+later offer uses a new bearer. An `accepted` offer IS recoverable, because
+acceptance froze its authorization and its fixed operation. And only ANOTHER
+incarnation's issued offers are abandoned — several managers coordinate
+through one store, and abandoning on identity alone would let one live
+manager destroy another's work.
+
+
+2. ONE SIGNED-OFF LINE CHANGED, AND IT IS RECORDED
+
+`validateOfferDecide` compared the verifier with `!==`. That exits at the
+first differing byte, so the time taken tells a forger how much of the digest
+it already has right — on the one comparison in this module that decides
+whether authority is taken.
+
+It uses `timingSafeEqual` now, with an unequal length refused first: a length
+is not secret, since the schema already fixes the digest's shape.
+
+I wrote a second, constant-time comparison in `offers.mjs` first and then
+removed it. Two comparisons where one exits early leaves the leak exactly
+where it was, so the fix belongs in the module that owns the derivation — and
+`offers.mjs` passes the verifier through instead of re-checking it.
+
+
+3. MUTATION CHECK — six
+
+  M1  the bearer is minted before the reads          1 failed
+  M2  a decline leaves the verifier unspent          2 failed
+  M3  settlement may retire before the deadline      1 failed
+  M4  a bound retirement is re-decided, not adopted  1 failed
+  M5  restart abandons every incarnation's offer     1 failed
+  M6  the claim operation id is minted, not derived  2 failed
+
+Restored: 17/17 focused, 256/256 for the whole gate.
+
+M6's FIRST RUN PASSED GREEN, and the case it named was a tautology: it
+asserted `row.claim_operation_id === claimOperationId(offerId, intentDigest)`,
+where both sides call the same function, so ANY implementation satisfies it.
+What a minted id cannot satisfy is the property the derivation exists for —
+a LATER incarnation, holding only the durable row, names the exact operation
+the first submitted. The case derives it from the stored offer id and frozen
+intent in a second process now, and also asserts a different intent gives a
+different operation, so two acceptances cannot collide onto one identity.
+
+
+4. A FIXTURE DEFECT OF MY OWN, MEASURED
+
+The first version of this suite minted its own temporary roots and left
+TWENTY behind — caught by running the gate under a `TMPDIR` bracket rather
+than by reading the code. It uses the W2907 shared owned-root registry and the
+`v12-manager-` family this Work already registered, and the bracket now
+retains zero test-owned roots.
+
+
+5. REGRESSIONS — 17 new (256 total, 239 before)
+
+Issue: the verifier stored and the bearer returned, with the bearer proven
+absent from every column AND the operation journal; each of the four
+pre-entropy refusals driven separately with the mint proven never to have
+run; an uncertified profile refused as `policy`, not as schema; the per-Work
+CAS decided by the database across two connections.
+
+Accept: the verifier consumed, the intent frozen, the derived operation id and
+the separate deadline; a wrong bearer refused without consuming anything; a
+spent verifier refused; expiry refused; a decline consuming the verifier and
+freeing the Work for a new offer with a NEW bearer.
+
+Claim and settle: exactly one fixed operation submitted with no identity
+operand; observation-only before the deadline with no control row written;
+retirement at the deadline; immediate retirement on positive refusal evidence;
+a late record of a commit never seen; a bound retirement adopted rather than
+re-decided.
+
+Restart: a prior incarnation's issued offer abandoned but visible with its
+verifier consumed; an accepted offer recoverable with its operation id; this
+incarnation's own issued offer untouched.
+
+
+6. GATES
+
+  cd v12 && npm test                       256 tests, 256 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24 — all passing
+  pytest -n auto -m "not serial" tests/work   2960 passed, 1 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+The one pytest failure is a W4996 reviewer case from
+`review-2026-08-22T21-21-32Z.md`, which landed while this turn was running.
+W4996 is queued on `baton.impl` for its own turn.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/offers.mjs        new — the offer and claim path
+  v12/src/worker_manager/contracts.mjs     constant-time verifier comparison
+  v12/src/worker_manager/store.mjs         the injected clock exposed, so an
+                                           act built on this store stamps from
+                                           the same instant source as the
+                                           journal
+  v12/test/worker_manager_offers.test.mjs  new — 17 cases

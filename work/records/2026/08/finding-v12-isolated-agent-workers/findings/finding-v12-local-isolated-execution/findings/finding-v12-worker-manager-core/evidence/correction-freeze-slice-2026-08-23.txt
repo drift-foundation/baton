@@ -1,0 +1,158 @@
+W2929 — the output-freeze slice, corrected
+Review: review-2026-08-23T00-30-49Z.md, four [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    372 tests, 370 passed, 2 failed
+
+The two additive review regressions are the only failures. All four findings
+correct.
+
+
+2. THE TWO I BUILT WRONG
+
+[P1] THE SEALED RESULT'S FREEZE SIGNATURE WAS IGNORED. `requestFreeze`
+computed the exact operation signature, journalled it, and then passed only
+the ID to `adapter.seal`. `recordFrozenResult` compared only the ID, so any
+schema-shaped digest was accepted in `freeze_operation.signature_digest` —
+and my own successful fixture supplied `digest("freeze")`, unrelated to the
+journalled operation, WHILE EVERY CASE STAYED GREEN.
+
+THE ID IS THE RETRY KEY; THE SIGNATURE IS THE BINDING over the kind and every
+effective operand. I compared the weaker half and my fixture proved it by
+accident. The whole identity crosses the boundary now — an adapter handed
+only the key cannot echo a binding it was never given — and both halves are
+compared on the way back.
+
+[P1] EXACT REPLAY WAS HIDDEN BY LATER OUTPUT STATE. The axis precondition ran
+before the fixed record identity, so once `output` advanced to `sealed` an
+exact retry of the already-committed result refused as a precondition instead
+of replaying the journal.
+
+THIS IS THE OBSERVATION-ORDERING DEFECT A THIRD TIME, in a third module. What
+a fixed identity already settled is a fact about that identity, and a stronger
+later state has no bearing on it. The replay is resolved first and the axis
+precondition applies only to a genuinely new record.
+
+Twice now this Work has recorded that lesson where it was learned and not
+carried it. The first time I wrote it in `ControlStore.replay`; the second in
+`observe`. It is worth saying plainly that a note in the module where a defect
+was found does not protect the module where it is written next.
+
+
+3. THE TWO I NEVER BUILT
+
+[P1] "DECLARED OUTPUTS ONLY" WAS NOT ENFORCEABLE FROM STORED STATE. The
+manager held `attempt.input_digest` and not one byte of the document it names,
+so a schema-valid result could substitute an undeclared output or drop a
+required one while echoing the expected digest. `validateManifest` can prove a
+document is internally well formed; it cannot compare it with a document it
+never sees.
+
+[P1] SCHEMA 4 DID NOT RETAIN THE IMMUTABLE RESULT MANIFEST. A summary row and
+the artifact references were all that survived. Every content tree, every
+explicitly missing output, the evidence and the freeze operation disappeared
+when the call returned, leaving intake, publication and restart with a number
+and nothing to replay or inspect.
+
+THESE ARE ONE DEFECT WEARING TWO HATS: A DIGEST IS NOT A RECORD. One table
+answers both, because both are the same fact — a validated document this
+manager is holding, keyed by the digest that identifies it. Schema 4 -> 5 adds
+`manifests(digest PRIMARY KEY, schema, body, retained_at)` with RFC 8785
+canonical bytes, and `outputs.manifest_digest` references it.
+
+Retention is idempotent BY CONSTRUCTION, because the key is computed from the
+bytes; a retained digest that would name different bytes is refused rather
+than overwritten. `loadManifest` parses fresh on every call, because a cached
+object handed to two callers is a durable record one of them can edit for the
+other.
+
+The declared-output comparison runs BOTH WAYS. Every result output must be
+declared, and every declaration must be ANSWERED — a declaration dropped from
+the result is not an answer to it, it is a question the result pretends was
+never asked. And the required-output rule is conditioned on the disposition,
+because the pinned sentence has two halves: "Missing or invalid required
+output prevents a SUCCESSFUL result; an inability disposition may return
+evidence without pretending the requested result exists."
+
+
+4. MUTATION CHECK — fourteen, all fourteen witnessed
+
+  S1  the freeze signature is not compared           1 failed
+  S2  only the id crosses to the adapter             1 failed
+  S3  today's axis before the durable identity       3 failed
+  S4  no declared-output comparison at all           5 failed
+  S5  undeclared outputs pass                        1 failed
+  S6  an unanswered declaration passes               1 failed
+  S7  the type is not compared                       1 failed
+  S8  a missing required output is fine              1 failed
+  S9  a missing required output refuses regardless
+      of disposition                                 1 failed
+  S10 the manifest bytes are not retained            2 failed
+  S11 an unretained declaration is not required      1 failed
+  S12 retention validates nothing                    1 failed
+  S13 a digest may name two documents                1 failed
+  S14 loadManifest hands out a cached object         2 failed
+
+S9 is the one worth reading: it makes the STRICTER rule and is still wrong,
+because the inability half of the pinned sentence is a requirement too.
+
+Restored: 39/39 focused, 385/385 for the whole gate.
+
+
+5. REGRESSIONS — 39 (26 before, including the reviewer's two)
+
+Plus thirteen of mine: an undeclared output; an unanswered declaration; a
+missing required output under `completed`; a missing required output under
+`unable`, which is ALLOWED; an absent optional output under `completed`, which
+is also allowed; a wrong type; one declaration answered twice; a result
+recorded against a declaration nobody holds; the sealed result surviving byte
+for byte across a REOPEN with a second incarnation; a retained manifest never
+handed out as an alias; retaining the same declaration twice being one row; a
+retained digest that cannot be made to name two documents; and an unreadable
+manifest never being retained.
+
+MY FIXTURE HAD TO CHANGE TO MEAN ANYTHING. `INPUT` was `digest("input")` — a
+number naming no document — which is exactly why nothing could be compared
+against a declaration. It is the retained input manifest's own digest now, and
+`quiesced(...)` retains the declaration each case actually names.
+
+
+6. GATES
+
+  cd v12 && npm test                       385 tests, 385 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Intake and cleanup — the rest of item 3 — and all of item 4. Artifact BYTE
+verification remains W2930's.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs          version 5; the `manifests` table
+                                             and the `outputs` reference to it
+  v12/src/worker_manager/manifests.mjs       NEW
+  v12/src/worker_manager/output.mjs          the whole freeze operation;
+                                             identity before axis; the
+                                             declared-output comparison;
+                                             retention
+  v12/test/worker_manager_output.test.mjs    +13 cases, the input-manifest
+                                             fixture, a meaningful INPUT
+  v12/test/worker_manager_store.test.mjs     the pinned version and tables

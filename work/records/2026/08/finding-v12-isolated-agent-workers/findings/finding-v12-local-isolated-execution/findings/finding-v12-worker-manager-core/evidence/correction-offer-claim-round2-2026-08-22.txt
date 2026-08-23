@@ -1,0 +1,129 @@
+W2929 — item 3a, second correction round
+Review: review-2026-08-22T22-01-32Z.md, three [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. WHAT THE REVIEW ACCEPTED
+
+The fixed claim signature, the direct four-part assignment, the participant
+binding and mandatory certification — all against the real `V12Session`. The
+issued-only CAS is now WITNESSED: the reviewer's two deterministic public-path
+interleavings place acceptance between the stale read and its terminal write,
+which is exactly the coverage I could not construct and recorded as
+unwitnessed. That is the right outcome for recording it rather than hiding it.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    274 tests, 271 passed, 3 failed
+
+All three findings correct.
+
+
+2. [P1] CONCURRENT EXACT ISSUE STILL RETURNED A MISMATCHED SECRET
+
+I moved the replay check before minting and left the DECIDING replay inside
+`transact`, after it. Two concurrent exact issuers both pass the optimistic
+check; the winner commits, `transact` hands the loser the winner's committed
+record, and the loser returned it beside its own freshly minted bearer.
+
+That is the original unusable pair, under exactly the concurrency the
+operation journal exists to settle — and it is the second time I have fixed
+the sequential shape of a race and left the concurrent one. The pre-check is
+still worth having (it refuses without minting in the common case), but it is
+not the decision.
+
+CORRECTED: the record `transact` returns is compared with the verifier this
+call's bearer derives. If it does not match, this call lost, and the answer is
+a refusal with no secret in it.
+
+
+3. [P1] TTL DID NOT RELEASE AN OFFER NOBODY ANSWERED
+
+`expireOffer` was reachable only from the LATE-DECISION branch of
+`acceptOffer`. An offer whose worker never answered stayed `issued` with an
+unspent verifier and held the per-Work unique index forever — so a bound that
+depends on the holder of an expired authorization sending one more message,
+which is not a bound.
+
+CORRECTED: `expireOverdue` is manager-owned time processing that needs no
+message from anybody. It runs at reissue, scoped to that Work, and at restart
+recovery, unscoped — so recovery reports what is really live rather than
+counting rows the clock has already ended. An elapsed offer settles VISIBLY as
+`expired` with its verifier consumed, so an audit can tell it from a decline
+and from an offer that never existed.
+
+
+4. [P1] THE ISSUE SIGNATURE OMITTED ITS AUTHORITY BINDING
+
+It carried `workId` while the row persists `authority_uuid` too, so reusing an
+issue identity against ANOTHER authority read as an exact replay rather than
+an operation collision. A changed durable operand is not an exact replay, and
+the authority a Work belongs to is as durable as the Work.
+
+CORRECTED: the full authority-scoped binding rides the signature.
+
+
+5. MUTATION CHECK — six
+
+  M1  the post-transaction verifier check removed
+        2 failed: the reviewer's concurrency case and mine
+  M2  the TTL sweep removed from reissue
+        1 failed: the reviewer's TTL case
+  M4  the sweep expires offers that have not elapsed
+        2 failed
+  M5  the authority binding leaves the signature
+        1 failed: the reviewer's collision case
+  M6  restart recovery stops sweeping
+        1 failed: my recovery case
+
+  M3  the sweep also selects `accepted` rows
+        0 failed — AND IT IS INERT, not a gap. `expireOffer` goes through the
+        issued-only CAS, so an accepted row is selected, attempted and
+        refused, and nothing changes. Two guards cover one property and the
+        second neutralises this mutation entirely. Recorded rather than
+        papered over with a test for a difference that does not exist.
+
+Restored: 40/40 focused, 279/279 for the whole gate.
+
+
+6. REGRESSIONS — 40 (35 before; the reviewer's three retained)
+
+Added five: the losing concurrent issuer emitting NO bearer anywhere — not
+returned, not journalled, with the store holding exactly the winner's
+verifier; an elapsed offer settled VISIBLY and the sweep being idempotent; the
+sweep never touching a live offer, nor an accepted one whatever the clock
+says; restart recovery settling elapsed offers before reporting, with this
+incarnation's own elapsed offer expired rather than abandoned because the
+clock ended it and not the restart; and the same identity against the SAME
+authority still giving the exact-reissue refusal rather than a collision,
+which is the other side of the signature rule.
+
+
+7. GATES
+
+  cd v12 && npm test                       279 tests, 279 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. STILL NOT IMPLEMENTED
+
+The rest of item 3 — assignment activation, runtime start and reconciliation,
+the observation axes, cancellation, output freeze, intake and cleanup — and
+all of item 4.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/offers.mjs        the post-transaction verifier
+                                           check, `expireOverdue` and its two
+                                           call sites, the authority binding
+                                           in the issue signature
+  v12/test/worker_manager_offers.test.mjs  +5 cases

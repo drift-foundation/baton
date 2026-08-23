@@ -173,10 +173,25 @@ export class BatonClient {
 		return this.run("pass", operands);
 	}
 
-	// Recovery, compare-and-swapped against the recorded claimant. The
-	// manager uses this only to undo a claim it committed itself.
-	async release(work, expect, reason, opId) {
-		const operands = [`work=${work}`, `expect=${expect}`, `reason=${reason}`];
+	// Recovery, compare-and-swapped against the recorded claimant AND the
+	// exact assignment episode that claim was offered under. The manager
+	// uses this only to undo a claim it committed itself.
+	//
+	// v11 W4303 made `episode=` mandatory on every release. The claimant
+	// string alone is not a fence here either: this manager releases and
+	// re-offers the same Job under the same participant, so a compensation
+	// whose result was lost and is retried later would otherwise abort a
+	// SUCCESSOR attempt that is legitimately running. The episode is the
+	// one the readiness action carried, because a claim does not mint a
+	// new one.
+	async release(work, expect, episode, reason, opId) {
+		if (!Number.isSafeInteger(episode)) {
+			throw new BatonError(
+				`release needs the assignment episode it is ending; `
+				+ `${JSON.stringify(episode)} is not one`);
+		}
+		const operands = [`work=${work}`, `expect=${expect}`,
+		                  `episode=${episode}`, `reason=${reason}`];
 		if (opId) operands.push(`op-id=${opId}`);
 		return this.run("release", operands);
 	}
@@ -212,6 +227,14 @@ export function validateReadiness(payload, participant) {
 			fail("an actionable entry has no action_key");
 		}
 		if (typeof action.kind !== "string") fail("an actionable entry has no kind");
+		// v11 W4303: a Work action's assignment episode is now load-bearing
+		// here — the manager fences its compensating release on it — so an
+		// envelope that omits it is refused rather than producing a Job the
+		// manager could claim and then not be able to release exactly.
+		if (action.kind === "work"
+		    && !Number.isSafeInteger(action.episode_seq)) {
+			fail(`work action ${action.action_key} has no episode_seq`);
+		}
 	}
 	return payload;
 }

@@ -1,0 +1,148 @@
+W2929 — the agent-session slice, corrected
+Review: review-2026-08-23T02-36-51Z.md, three [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    456 tests, 453 passed, 3 failed
+
+The three additive review regressions are the only failures. All three
+findings correct, and the third corrects a MISTAKE OF MINE ABOUT THE DESIGN,
+not just about the code.
+
+
+2. THE ONE THAT MATTERS MOST: I CONFLATED TWO ROLES
+
+[P1] EXECUTION OPENED AFTER THE AUTHORITY ASSIGNMENT ENDED. `openAgentSession`
+consulted only the assignment cached in the manager's own attempt row, so an
+execution session opened cleanly against an assignment the authority had
+already fenced and ended.
+
+AND THE REASON I BUILT IT THAT WAY WAS A CASE I WROTE MYSELF. I asserted "no
+Baton capability" of the FUNCTION SIGNATURE — no session, no handle — and
+called that keeping the rule by construction. It conflated the trusted WORKER
+MANAGER, which IS the one Baton authority client and must reproject the
+assignment, with the untrusted AGENT ENDPOINT and relay, which are what must
+never receive a capability. Removing the manager's handle did not prove
+provider isolation. It removed the liveness check the contract requires, and
+my own test then defended the hole.
+
+A structural test can encode a misunderstanding as firmly as it encodes a
+rule.
+
+CORRECTED. The manager's participant-bound handle is a parameter, read ONCE to
+reproject, and the full four-part assignment is compared before the insert.
+The rule it replaced is now stated where it actually lives: the handle appears
+in nothing the function returns and in no column of the durable row, and a
+case asserts both — plus that the handle WAS used, because a reprojection that
+never happened would satisfy an absence test perfectly.
+
+
+3. THE OTHER TWO
+
+[P1] FRESHNESS AND CONCURRENCY WERE TESTED AS ONE RULE. `openAgentSession`
+took `MAX(session_epoch) + 1` and inserted unconditionally, so a posture could
+hold three simultaneously open epochs — and my freshness case opened exactly
+that and called it evidence.
+
+A partial UNIQUE INDEX on `(runtime_attempt_id, posture) WHERE state <>
+'closed'` is what refuses now, because a read of MAX followed by a separate
+insert is not an atomic allocator across two manager connections. A case
+drives it from a SECOND CONNECTION, which no read-then-write check could
+refuse. The violation is translated to the frozen
+`runtime-observation.duplicate-runtime` pair, and only a UNIQUE violation is —
+the same narrowing the observation boundary already carries.
+
+`closeAgentSession` is the only thing that frees a posture, and the freshness
+case now drives that terminal transition between same-posture epochs.
+`unknown` deliberately does NOT free it: transport ambiguity is where a second
+session is most tempting and least safe, and re-identification after it is a
+gate this slice has not built.
+
+[P1] THE RETAINED DOCUMENT'S DECLARED SEAL WAS NOT REBOUND. The loader
+destructured `document_digest` away and never compared it, so a retained
+profile whose every other byte matched its key could carry somebody else's
+well-formed seal. TWO OF THREE WITNESSES AGREEING IS NOT AGREEMENT: declared,
+recomputed and the key are one fact now.
+
+
+4. MUTATION CHECK — six, all six witnessed
+
+  B1  the declared seal is not compared               1 failed
+  B2  no liveness reprojection                        2 failed
+  B3  the one-open index is gone                      3 failed
+  B4  `unknown` frees the posture                     1 failed
+  B5  closing does not free the posture               1 failed
+  B6  the unique violation is not translated          3 failed
+
+B2 fails the liveness case AND the handle case, which is the point: the second
+asserts the handle was USED, so a manager that stopped reprojecting would pass
+an absence test and fail this one.
+
+
+5. REGRESSIONS — 15 (13 before, including the reviewer's three)
+
+Plus two of mine: only CLOSING frees the posture, with `unknown` explicitly
+not freeing it; and the DATABASE refusing the second open session, driven from
+a second connection.
+
+Two cases of mine were rewritten rather than kept: the freshness case now
+drives legitimate closures, and the capability case asserts where the handle
+goes rather than whether the manager has one.
+
+
+6. A HABIT I HAVE NOW MADE TWICE
+
+The handle case's forbidden-substring list rejected `participant`, which is
+the ASSIGNMENT'S OWN IDENTITY and not a capability — the same too-blunt guard
+I recorded one round ago after forbidding `authority` and failing on
+`authority_uuid`. Twice is a habit. The list is only what a session object
+exposes now, and the note is in the case rather than only in this file.
+
+AND THE BACKTICK HAZARD BIT A THIRD TIME. A backticked word inside the SQL
+template literal terminated it; caught by `node --check` before any test ran.
+Third occurrence in that one file, and the comment now says so beside the
+fix.
+
+
+7. GATES
+
+  cd v12 && npm test                       458 tests, 458 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. STILL NOT IMPLEMENTED
+
+Turns and their deadlines, event normalization, the adapter CONTRACTS, and the
+§8.4 re-identification gate after transport ambiguity — which is why `unknown`
+never frees a posture here.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs                  version 9; the partial
+                                                     one-open-per-posture index
+  v12/src/worker_manager/agent_profile.mjs           declared, recomputed and
+                                                     the key are one fact
+  v12/src/worker_manager/agent_session.mjs           the manager's handle and
+                                                     the liveness reprojection;
+                                                     the database-decided
+                                                     concurrency refusal;
+                                                     `closeAgentSession`
+  v12/test/worker_manager_agent_session.test.mjs     +2 cases, 2 rewritten,
+                                                     the review's calls
+                                                     carrying the handle
+  v12/test/worker_manager_store.test.mjs             the pinned version

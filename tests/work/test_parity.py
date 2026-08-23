@@ -445,22 +445,31 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 
 
 def test_links_on_demand_agree_with_the_json_edges(world, capsys):
-	"""Gate B: the `b` links view draws exactly the JSON `links` far-row
-	summaries — same edges, same far status/endpoint/title, same order."""
+	"""Gate B: the `b` dependency view draws exactly the JSON `links`
+	edges — same far Works, both directions, no extras.
+
+	W4996 replaced the flat far-row list with the dependency
+	NEIGHBOURHOOD graph, so the drawn CELLS are the ruled selector rather
+	than a status/endpoint/title line. The parity this gate exists for is
+	unchanged and is asserted on what both surfaces still name: the exact
+	set of dependency edges around the Work, with duplicates and
+	follow-ups deliberately outside this view.
+	"""
 	path, cast = world
 	expected = _json(capsys, path, "links", f"work={cast["lang42"]}",
 	                 viewer="lang.ada")
 	screen = _screen_rows(path, "lang.ada", [(b"b", 0.5)])
-	drawn = [line for line in screen[2:] if line.strip()
-	         and not line.startswith("(")]
-	blocks = expected["blocks"]
-	assert len(drawn) == len(expected["blocked_by"]) + len(blocks)
-	for line, entry in zip(drawn[len(expected["blocked_by"]):], blocks):
-		endpoint = (entry["route"] or {}).get("endpoint") or "-"
-		assert line == (f"blocks {entry['id']} {entry['team']} "
-		                f"{entry['status']} {endpoint} "
-		                f"{entry['title']}"), \
-			f"links line disagrees: {line!r} vs {entry}"
+	drawn = [line for line in screen[2:]
+	         if "--blocks-->" in line]
+	edges = expected["blocked_by"] + expected["blocks"]
+	assert len(drawn) == len(edges), (drawn, edges)
+	for entry in edges:
+		local = entry["id"].split("-", 1)[1]
+		assert any(f"[{local} " in line for line in drawn), \
+			f"the graph does not draw the canonical edge to {entry['id']}"
+	# The center is drawn too, and it is not one of the edge rows.
+	center = cast["lang42"].split("-", 1)[1]
+	assert any(line.strip().startswith(f"[{center} ") for line in screen[2:])
 
 
 def test_collapsed_resolved_rows_agree_on_both_surfaces(tmp_path, capsys):

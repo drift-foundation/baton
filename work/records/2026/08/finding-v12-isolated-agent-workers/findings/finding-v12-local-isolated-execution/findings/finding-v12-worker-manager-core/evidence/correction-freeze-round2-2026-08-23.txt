@@ -1,0 +1,144 @@
+W2929 — the output-freeze slice, second correction
+Review: review-2026-08-23T00-49-18Z.md, four [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    389 tests, 385 passed, 4 failed
+
+The four additive review regressions are the only failures. All four findings
+correct, and all four are about TRUST IN WHAT WAS ALREADY STORED.
+
+
+2. BEING AT THE NAMED KEY IS NOT BEING THE NAMED THING
+
+[P1] A RETAINED NON-INPUT DOCUMENT WAS ACCEPTED AS THE INPUT DECLARATION.
+`loadManifest` parsed the row and handed it back. Nothing said the body was
+the KIND the caller needed, so a retained RESULT manifest — a perfectly valid
+thing to retain — could be named as an attempt's `input_digest`, and its
+similarly shaped output rows were read as trusted declarations. Every public
+operation in that sequence is valid on its own; the boundary that had to
+refuse the combination did not exist.
+
+I introduced this in the same round that introduced retention: I wrote the
+loader as a getter and the validation as something that happened on the way
+IN. A guard on the way in cannot see a document put there by a different,
+equally legitimate call.
+
+CORRECTED. The definition is REQUIRED rather than defaulted — a caller that
+has not said what it expects has not made the check that matters, and a
+default would let a new call site silently inherit somebody else's
+expectation. The body is validated as that definition, and its digest is
+recomputed against the key it was filed under, because a store nobody
+validates on the way out is a store where a hand edit outlives every guard on
+the way in.
+
+[P1] RESULT RETENTION BYPASSED THE COLLISION REFUSAL. `retainManifest` refuses
+an existing key with different bytes; the result path wrote `INSERT OR IGNORE`
+and so skipped it. The insert was silently dropped, the `outputs` row
+committed a foreign key to the OTHER document's bytes, and the operation
+reported the requested result as frozen while a reload returned a document its
+digest does not identify.
+
+That contradicts the invariant the previous correction stated in its own
+comment. Writing a rule in one function does not apply it to another writer of
+the same table; ONE RULE, ONE PLACE, and both writers go through
+`retainCanonical` now.
+
+
+3. THE OTHER TWO
+
+[P1] DECLARED OUTPUT CONSTRAINTS WERE IGNORED. The comparison read names,
+types and required status and never opened `expect.constraints`, so a tree far
+larger than its declaration froze successfully. Whether the artifact's BYTES
+are what it claims is W2930's collection-time fact; the counts, totals and
+media type are already inside the document `validateManifest` accepted. A
+limit that is decidable here and not decided here is a limit nobody enforces.
+
+`max_bytes` against the content manifest's total (or the artifact's declared
+size when there is no tree), `max_entries` against its entry count, and the
+media type against the allow-list — LITERALLY, including an empty list, since
+an allow-list that permits everything when it names nothing is a fail-open
+reading of a rule written to close.
+
+[P1] EXACT REPLAY STILL DEPENDED ON CURRENT RETENTION. Last round moved the
+output-axis check behind `store.replay`; the DECLARATION lookup stayed in
+front of it. Removing the old input row after the result committed made an
+exact retry refuse, although the journal still held the settled identity.
+
+THE SAME LESSON, ONE ROUND LATER AND ONE LINE HIGHER. I moved the check the
+review named instead of the boundary the rule is about. The immutable identity
+and its signature are computed first, replay or collision is resolved there,
+and EVERY check about today — bindings, declaration, axis — now applies only
+to a genuinely new record.
+
+
+4. MUTATION CHECK — nine, all nine witnessed
+
+  T1  the loaded body is not validated as its kind    1 failed
+  T2  the loaded body is not re-bound to its key      1 failed
+  T3  the definition may be omitted                   1 failed
+  T4  result retention ignores a collision again      1 failed
+  T5  replay is resolved after the declaration        1 failed
+  T6  no limits are checked                           4 failed
+  T7  only max_bytes is checked                       1 failed
+  T8  an empty allow-list permits everything          1 failed
+  T9  an absent output is measured too                1 failed
+
+T9 WAS UNWITNESSED AT FIRST, AND THE REASON IMPROVED THE CODE. The early
+return for a non-present output was inert: with a null content manifest and a
+null artifact, every measurement below it was skipped anyway. But the schema
+PERMITS `missing-optional` beside an artifact, and that combination is a
+document contradicting itself — so the branch now refuses the contradiction
+rather than quietly declining to measure it, and a case drives exactly that.
+An inert guard became a decision, and then the mutation bit.
+
+
+5. REGRESSIONS — 50 (43 before, including the reviewer's four)
+
+Plus seven of mine: an entry-count limit; a disallowed media type; an EMPTY
+allow-list allowing nothing; an absent output not measured against a size;
+`loadManifest` refusing to load without a named kind; a retained body that no
+longer recomputes to its key; and an output that reports itself missing while
+carrying material.
+
+Two cases of mine had to change with the loader's signature, which is the
+correction itself.
+
+
+6. GATES
+
+  cd v12 && npm test                       396 tests, 396 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Intake and cleanup — the rest of item 3 — and all of item 4. Artifact BYTE
+verification remains W2930's.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/manifests.mjs       `loadManifest` validates and
+                                             re-binds; `retainCanonical` is
+                                             the one collision refusal
+  v12/src/worker_manager/output.mjs          identity and replay ahead of
+                                             every current-state check; the
+                                             declaration loaded AS an input
+                                             manifest; declared limits; the
+                                             missing-output contradiction
+  v12/test/worker_manager_output.test.mjs    +7 cases, 2 signatures updated

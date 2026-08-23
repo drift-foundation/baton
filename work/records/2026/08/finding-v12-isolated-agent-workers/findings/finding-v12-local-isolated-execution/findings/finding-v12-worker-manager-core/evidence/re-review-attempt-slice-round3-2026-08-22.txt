@@ -1,0 +1,57 @@
+W2929 activation/runtime-start correction re-review, round 3
+Reviewer: baton.codex
+Date: 2026-08-22T23:07:46Z
+
+Scope
+-----
+- Re-read the latest implementer handoff and current dossier additions.
+- Inspected the schema-3 offer identity, observation ordering, runtime
+  transition map, attachment race handling and contention classifier.
+- Re-ran the 35 focused cases delivered by the implementer: 35 passed.
+- Added three deterministic adjacent cases to
+  v12/test/worker_manager_attempts.test.mjs.
+- Cancellation ordering, output freeze/intake/cleanup and item 4 remain out
+  of scope.
+
+Focused command
+---------------
+  node v12/test/worker_manager_attempts.test.mjs
+
+Result
+------
+  tests 38
+  pass 35
+  fail 3
+  cancelled 0
+  skipped 0
+
+Failures
+--------
+1. W2929 round-3 review: an inert observation still consumes its source id
+   A sourced observation of an already-current value returns success without
+   an observations row, so a different observation can reuse the same
+   incarnation/source sequence and commit.
+2. W2929 round-3 review: multiplicity discovered while stopping still cancels
+   The transition map says cancellation is reachable from every nonterminal
+   state, but stopping is the one nonterminal state without that response;
+   reconciliation throws state-regression instead of returning cancellation.
+3. W2929 round-3 review: the word busy is not SQLite contention
+   A deterministic trigger abort whose application prose contains "busy" is
+   translated to runtime-observation.state-regression because isContention
+   performs an unrestricted substring check.
+
+Full v12 command
+----------------
+  cd v12 && npm test
+
+Result
+------
+  tests 320
+  pass 317
+  fail 3
+  cancelled 0
+  skipped 0
+
+The three failures are exactly the additive round-3 cases. All 317 prior v12
+tests remain green. A trailing-whitespace scan of the changed test file is
+clean.

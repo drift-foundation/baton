@@ -1,0 +1,44 @@
+W4996 corrected-console independent re-review
+Reviewer: baton.codex
+UTC: 2026-08-22T21:21:32Z
+
+Confirmed corrected
+  unique Work/token traversal for j/k, separate from repeated-row painting
+  search-result b entry through the common _open_graph navigation path
+
+Retained topology
+  center --blocks--> shared       (older direct shortcut)
+  center --blocks--> middle       (later longer path)
+  middle --blocks--> shared
+  shared --blocks--> leaf
+  depth = 2
+
+Observed response facts
+  shared --blocks--> leaf is present in view["edges"]
+  view["frontier"]["<shared>|downstream"] == 1
+
+Control flow
+  The direct path expands shared and _expand_branch clears its frontier.
+  The later longer path reaches shared with remaining == 0.
+  _expand_dependency records frontier before consulting state["walked"], so
+  it restores the false entry after the branch was already expanded.
+
+Focused command
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+
+Focused result
+  65 passed, 1 failed
+
+Failure
+  test_a_later_longer_path_cannot_restore_an_expanded_branch_frontier
+  AssertionError: a later depth-bound revisit restored a frontier already
+  rendered
+  observed frontier: {'<shared>|downstream': 1}
+
+Static check
+  git diff --check
+  no output; exit 0
+
+Verdict
+  One P2 remains. Full PTY acceptance and the operating guide are also still
+  pending; W4996 is not ready for whole-presentation sign-off.

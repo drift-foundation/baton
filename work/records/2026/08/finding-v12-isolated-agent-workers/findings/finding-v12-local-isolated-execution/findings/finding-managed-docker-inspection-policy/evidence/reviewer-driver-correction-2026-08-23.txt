@@ -1,0 +1,62 @@
+W2845 reviewer diagnosis — 2026-08-23T04:13:22Z
+
+Pinned operator result
+----------------------
+evidence/live-matrix-final-2026-08-23.txt reports that every Baton case
+passed, while each of the four ruled and four unruled Docker cases failed with
+no agent commandExecution item. Negative mutation and cleanup checks passed.
+
+Provider contract checked
+-------------------------
+Official Codex app-server documentation:
+https://developers.openai.com/codex/app-server/
+
+The contract describes commandExecution as the turn item for shell command
+execution, item/started before approval, a terminal completed/failed/declined
+item with exit information, and thread/read with includeTurns returning turn
+items. Therefore the recorded absence means no shell attempt was initiated;
+it is not evidence of execution or refusal.
+
+Current driver
+--------------
+tools/codex-event-bridge/smoke/exact_policy_matrix.mjs:176 runCase
+- fresh thread per case;
+- generic "run exactly" / "report" prompt;
+- exact turn reread after completion;
+- no bounded transcript or item-type diagnostic when the item is absent.
+
+tools/codex-event-bridge/smoke/exact_policy_matrix.mjs:521-535
+- all eight Docker turns run after the preceding Baton model-turn cases.
+
+Current managed-policy probe
+----------------------------
+Command:
+  docker version --format '{{json .}}'
+Result:
+  exit 0; client and server JSON returned.
+
+This proves the ruled command is executable by the current managed reviewer
+boundary. It is supplementary diagnosis, not the required isolated managed-
+turn acceptance evidence.
+
+Focused verification
+--------------------
+Command:
+  npm test -- --test-name-pattern='command oracle' test/command_oracle.test.mjs
+Result:
+  pass 1, fail 0
+
+Command:
+  node --check smoke/exact_policy_matrix.mjs
+Result:
+  exit 0
+
+Recommended correction
+----------------------
+Preserve the conservative oracle. Run Docker first in a dedicated fresh
+app-server phase; explicitly require one literal shell-tool submission and a
+terminal tool result, including submission (not model self-refusal) for the
+safe absent-target negatives; retain bounded turn status, item types and
+agent-message text on absence; add deterministic prompt/diagnostic tests; keep
+the full authority, mutation and cleanup gates. Direct command/exec may only
+supplement diagnosis and cannot replace managed-turn proof.

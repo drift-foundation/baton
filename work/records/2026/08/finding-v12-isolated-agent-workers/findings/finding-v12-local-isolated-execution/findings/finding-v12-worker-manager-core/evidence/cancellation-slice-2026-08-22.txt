@@ -1,0 +1,161 @@
+W2929 — item 3, THIRD SLICE: cancellation ordering
+Implementer: baton.claude. Date: 2026-08-22.
+Entered after `review-2026-08-22T23-21-33Z.md` signed off the
+activation/runtime-start slice through plan item 3i.
+
+
+1. WHAT THIS SLICE IS
+
+The one pinned rule, from FINDING.md:
+
+  "Cancellation calls `session.cancel(expect=assignment, ...)` FIRST, so the
+   authority atomically fences and ends the generation and installs the typed
+   quiescence gate. Only then does the manager order agent cancellation and
+   runtime stop."
+
+Until the generation is fenced the assignment is still LIVE. A runtime
+stopped first is a worker torn out from under an assignment the authority
+still believes is executing — and the authority would keep routing to it.
+
+The manager's own intent is journalled BEFORE the authority is asked, for the
+same reason runtime start journals before the adapter call: a crash between
+the two boundaries must be answerable, and a state column records only that
+somebody once intended to cancel.
+
+
+2. WHAT IS DELIBERATELY NOT HERE
+
+THE QUIESCENCE GATE IS NOT SATISFIED BY THIS SLICE. The authority installs
+`runtime-quiescence:<generation>` and — measured against the current tree,
+not the prose — `Core.satisfyGate` accepts only `runtime-absent` evidence
+naming the exact runtime, or a certified-isolation policy.
+
+`runtime-absent` is the SAME positive-absence claim the reconciliation retry
+path is closed for until item 4 defines certified adapter evidence. Opening
+it here while the retry path stays closed would be two different answers to
+one question, so it stays closed and this slice says so in the code.
+
+Agent-side quiescence is not that evidence and never becomes it. That is the
+authority's rule, and this manager does not try to route around it.
+
+Output freeze, intake and cleanup remain unimplemented.
+
+
+3. WHAT THE ORDERING COSTS TO TEST
+
+FINAL STATE CANNOT EXPRESS IT. A manager that stopped the runtime and then
+fenced the generation leaves exactly the same rows behind as one that fenced
+and then stopped. So the session and adapter doubles write into ONE SHARED
+TRACE, and the cases assert the sequence rather than the residue.
+
+
+4. THE DECISIONS INSIDE
+
+- `cancelOperationId` and `authorityCancelOperationId` are both DERIVED from
+  the attempt and its fixed assignment, so a manager that restarts
+  mid-cancellation names the act it already performed. They are deliberately
+  DIFFERENT strings: §4.2 says success at one boundary does not imply success
+  at the other, and one shared identity would invite reading either journal's
+  row as evidence of the other's.
+- NO LIVENESS PRE-CHECK. Whether the assignment is still live is the
+  authority's decision, made inside its own transaction; asking first and
+  acting on the answer would be a read-then-write race wearing a guard's
+  clothes. A pre-check is not a decision.
+- The session is the BINDING. A session for another participant is refused
+  `refused.capability` before anything is reached, exactly as activation
+  refuses it.
+- An attempt with no fixed assignment is refused `refused.precondition`:
+  cancellation fences an exact generation and there is none to fence.
+- `cancel-requested` is announced only when the TRANSITION MAP declares it
+  from where the runtime actually is. That is the round-3 rule applied from
+  the acting side: a runtime already `stopping` is carrying the intent out
+  and a `destroyed` one has nothing left to carry out.
+
+ONE DISTINCTION WORTH NAMING, because it looks like a contradiction of the
+signed-off round-3 rule and is not. `cancel()` — the reconciliation helper —
+reports a DECISION about what an inspection found, and a destroyed attempt
+CONTRADICTS it, so it still refuses. `requestCancellation` PERFORMS a
+cancellation at the authority, and a destroyed runtime merely leaves nothing
+to stop. Different acts, different rules; both keep the axis where the
+runtime actually is.
+
+
+5. MUTATION CHECK — nine, all nine witnessed
+
+  N1  stop the runtime BEFORE fencing                 2 failed
+  N2  journal the intent AFTER the authority answers  1 failed
+  N3  drop the session binding check                  1 failed
+  N4  one operation identity for both journals        1 failed
+  N5  the operation id is not restart-stable          4 failed
+  N6  stop a runtime already observed destroyed       1 failed
+  N7  announce cancel-requested unconditionally       2 failed
+  N8  skip the stop when one is already in flight     1 failed
+  N9  cancel without a fixed assignment               1 failed
+
+Restored: 53/53 focused, 335/335 for the whole gate.
+
+
+6. REGRESSIONS — 53 (41 before; +12)
+
+The twelve:
+
+  - the authority FENCES before the runtime is told to stop (the shared
+    trace, not the residue);
+  - a refused fence stops nothing and moves no axis;
+  - the cancellation INTENT survives an authority that never answers — the
+    manager's journal row is committed although the transport died;
+  - a restart submits the SAME cancellation, not a second one — a second
+    incarnation reading only the store derives the same authority identity;
+  - the two journals do not share one operation identity;
+  - the adapter is told which act it is settling;
+  - cancellation needs an exact generation to fence;
+  - a foreign session cannot cancel this attempt's assignment, and reaches
+    nothing;
+  - with no runtime attached the generation is still fenced;
+  - a destroyed runtime is fenced with nothing left to stop, and its terminal
+    axis is not rewound;
+  - an in-flight stop is re-ordered without rewinding the axis or advancing
+    the observation sequence;
+  - THE WHOLE CANCELLATION AGAINST A REAL AUTHORITY — a real `V12Authority`,
+    a real claim, a real `V12Session.cancel`. The assignment ends, the phase
+    is `block`, and the gate is the authority's own
+    `runtime-quiescence:<generation>` token. A double can agree with an
+    implementation about a shape neither shares with the authority.
+
+The `running(...)` fixture asserts it actually attached. Its first version
+did not, and every ordering case passed while stopping nothing.
+
+
+7. GATES
+
+  cd v12 && npm test                       335 tests, 335 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. STILL NOT IMPLEMENTED
+
+Output freeze, intake and cleanup — the rest of item 3 — and all of item 4,
+including the certified absence evidence that would let a manager satisfy the
+quiescence gate this slice installs.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/attempts.mjs        `requestCancellation`,
+                                             `cancelOperationId`,
+                                             `authorityCancelOperationId`,
+                                             `orderStop`; header scope
+  v12/test/worker_manager_attempts.test.mjs  +12 cases, doubles extended
+                                             with a shared trace and `stop`

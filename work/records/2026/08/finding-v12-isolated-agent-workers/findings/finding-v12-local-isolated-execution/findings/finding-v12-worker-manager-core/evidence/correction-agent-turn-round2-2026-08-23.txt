@@ -1,0 +1,127 @@
+W2929 — the turn slice, second correction
+Review: review-2026-08-23T03-32-55Z.md, two [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+0. THE DISAGREEMENT, RESOLVED
+
+The re-review supersedes its own prior point: §10.6 does say an unrecognized
+`codexErrorInfo` takes the final row, and the implemented answer is the
+recorded contract. Raising it on the handoff rather than diverging silently
+was the right shape, and it is worth noting that the divergence I was asked
+for would have been the STRICTER one — being stricter than a frozen contract
+is still disagreeing with it.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    489 tests, 487 passed, 2 failed
+
+The two additive review regressions are the only failures. Both findings
+correct.
+
+
+2. A SCAN OVER A PROJECTION IS A SCAN OVER THE PROJECTION
+
+[P1] THE TURN BODY COULD DURABLY RETAIN A LIVE BEARER. The operation journal
+scans the RESULT it commits — and that summary omits `evidence` and
+`adapter_diagnostics`, which is exactly where a bearer would sit. So a live
+bearer under an innocently named diagnostic landed in `turns.body` while the
+journal committed a clean summary and reported no leak.
+
+I had reasoned that the journal's durable-secret boundary covered this. It
+covers what it is GIVEN. `assertNoDurableSecret` now runs over the exact owned
+document before anything can be inserted or journalled, and a refusal leaves
+both tables untouched.
+
+
+3. A SEAL THE CONSUMER DOES NOT CONSULT PROTECTS NOBODY
+
+[P1] THE DISPOSITION GATE TRUSTED AN UNSEALED SUMMARY COLUMN. I added a sealed
+canonical record and then left the one safety decision reading
+`turns.permitted` directly — so editing that single column made the manager
+accept `completed` from a refused turn while the retained record still forbade
+it.
+
+The gate consumes the sealed record now. And the summary must AGREE with it:
+a drifted query column is an integrity failure wherever it is found rather
+than something to quietly prefer the sealed side of, because the next reader
+may be one that only has the column.
+
+`turnRecordOf` also binds a FOURTH witness — the identity the caller asked
+for. The declared digest, the recomputed digest and the stored digest can all
+agree while the record answers to somebody else's turn id, which is what
+copying one row's body and seal onto another produces.
+
+
+4. MUTATION CHECK — five, three witnessed and two measured
+
+  F1  the whole document is not scanned               2 failed
+  F3  the summary is not compared with the record     2 failed
+  F4  the record need not call itself by its key      1 failed
+
+  F2  the gate reads the unsealed column again        0 failed
+  F5  the retained record is not shape-validated      0 failed
+
+F2 IS MASKED BY F3'S GUARD. With the summary-versus-record comparison passing,
+reading the column is equivalent — the comparison is what decides, and the
+line only makes the source of the answer obvious.
+
+F5 IS INERT given the write-side validation and the seal: bytes that changed
+would fail the digest first, and a malformed record could never have been
+written. It is kept because a loader that trusts what it parses is the shape
+this Work has corrected twice, and it is NOT counted as a guard.
+
+Restored: 31/31 focused, 492/492 for the whole gate.
+
+
+5. ONE ASSERTION OF THE REVIEWER'S I HAD TO SCOPE
+
+Their bearer case asserts `operations` is empty. The table is not empty and
+never was: the fixture's `recordAttempt` journals `attempt.record:attempt-1`
+before any turn exists. The claim being made is that the REFUSED TURN
+journalled nothing, so the count is scoped to `kind = 'agent.turn'` with the
+reason written beside it. Every other assertion is theirs, unchanged.
+
+
+6. REGRESSIONS — 31 (28 before, including the reviewer's two)
+
+Plus three of mine: a bearer in an EVIDENCE LOCATOR and in a nested
+diagnostic value — the other members the journal's summary also omits, which
+is the finding generalized rather than the one case fixed; the summary and the
+sealed record compared on each of the three members the gate reads, and the
+gate answering again once restored; and a record filed under another turn's
+identity with both halves moved together, so every digest agrees and only the
+requested identity does not.
+
+
+7. GATES
+
+  cd v12 && npm test                       492 tests, 492 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. STILL NOT IMPLEMENTED
+
+Event normalization, the runtime/agent adapter CONTRACTS, and the
+re-identification gate after transport ambiguity.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/agent_turn.mjs          the whole document scanned
+                                                 before anything is written;
+                                                 the gate reads the sealed
+                                                 record and requires the
+                                                 summary to agree; the fourth
+                                                 witness on read
+  v12/test/worker_manager_agent_turn.test.mjs    +3 cases, one assertion
+                                                 scoped

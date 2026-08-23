@@ -299,8 +299,14 @@ def test_a_terminal_neighbour_reports_no_route_in_either_view(world):
 
 
 def test_the_console_neighbour_view_reads_the_corrected_route(world):
-	"""The `b` view renders `links` directly, so the operator-facing
-	end of this defect is covered too."""
+	"""The `b` view reads the canonical dependency projection, so the
+	operator-facing end of this defect is covered too.
+
+	W4996 replaced the flat far-row list with the dependency
+	NEIGHBOURHOOD graph, whose ruled cells are stable selectors rather
+	than a route endpoint. This Work's subject is the CORRECTED ROUTE, so
+	the assertion moves to where the console now reads it: the graph's own
+	node facts, which are the projection's and not the renderer's."""
 	from baton_work.tui.app import Console
 	consumer = make(world, title="the consumer")
 	blocker = onto_alternate(world, make(world, title="the blocker"))
@@ -309,7 +315,13 @@ def test_the_console_neighbour_view_reads_the_corrected_route(world):
 	                  rationale="waits on it")
 	view = Console(world["store"], "lang", "ada",
 	               config_path=world["config"])
-	view.links_work = consumer
-	rows = view._links_rows()
-	assert rows, rows
-	assert any("lang.impl" in text for _work, text in rows)
+	view.graph_center = consumer
+	graph_view = view._graph_view()
+	assert graph_view["edges"], graph_view
+	assert blocker in graph_view["nodes"], graph_view["nodes"]
+	# The console draws the corrected endpoint because the node it draws
+	# carries it — the same value the JSON `links` response reports.
+	assert links(world, consumer)["blocked_by"][0]["route"]["endpoint"] \
+		== "lang.impl"
+	assert any(row["work"] == blocker
+	           for row in view._graph_row_set()), view._graph_row_set()

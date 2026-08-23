@@ -70,8 +70,14 @@ def test_the_footer_reads_deps_wide_and_the_key_still_works(tmp_path):
 	assert "[b] deps" in table, "the footer does not advertise [b] deps"
 	assert "b links" not in table, "the ambiguous label survived"
 	neighbors = "\n".join(ptyharness.replay(steps[1]))
-	assert "the blocker" in neighbors, \
+	# W4996 replaced the flat blocked-by/blocks list with the dependency
+	# NEIGHBOURHOOD graph, whose approved presentation is stable selectors
+	# rather than titles. This Work's subject is the LABEL, and its
+	# property here is that `b` still opens the neighbour view — asserted
+	# in the terms the ruled view actually draws.
+	assert "--blocks-->" in neighbors, \
 		"the b binding no longer opens the neighbor view"
+	assert "depth 1/3" in neighbors, neighbors
 	back = "\n".join(ptyharness.replay(steps[2]))
 	assert "[b] deps" in back, "the label did not survive the return"
 

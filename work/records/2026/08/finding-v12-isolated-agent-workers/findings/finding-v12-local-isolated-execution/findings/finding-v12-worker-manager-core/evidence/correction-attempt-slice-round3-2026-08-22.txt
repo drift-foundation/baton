@@ -1,0 +1,133 @@
+W2929 — the activation/runtime-start slice, third correction
+Review: review-2026-08-22T23-07-46Z.md, two [P1] and one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    320 tests, 317 passed, 3 failed
+
+Exactly the three additive round-3 cases. All three findings correct.
+
+
+2. THE THREE
+
+[P1] A NO-CHANGE OBSERVATION DID NOT CONSUME ITS SOURCE IDENTITY. When no
+prior row existed and today's axis already held the observed value, `observe`
+returned success and wrote nothing — so the `(attempt, incarnation,
+source_seq)` identity stayed reusable and a DIFFERENT observation committed
+under it. The round-2 correction only bit when the first observation happened
+to change state.
+
+That made the identity's meaning depend on WHERE THE AXIS ALREADY WAS, which
+is the same inversion the last round removed from the other direction. An
+accepted sourced observation now consumes its identity whether or not it moved
+an axis.
+
+A manager-internal repeat stays inert, deliberately and narrowly: it mints a
+fresh sequence at every call, so there is no identity for another caller to
+reuse and a row would record nothing anyone could ask about. `observation_seq`
+still advances only on an actual change.
+
+[P1] `stopping` STILL DISABLED LATER MISMATCH CANCELLATION. The round-2
+comment claimed cancellation was reachable from every nonterminal state, and
+`stopping` was the one that was not — so a later inspection that found two
+runtimes was refused by the very axis the safety response writes to.
+
+THE FIX IS NOT `stopping -> cancel-requested`. That would move the axis
+BACKWARDS to re-announce an intent the runtime is already carrying out. The
+DECISION is what the caller acts on; the axis records where the runtime
+actually is. `cancel` is idempotent for a stop already in flight — it returns
+the cancellation decision and leaves `stopping` alone.
+
+`destroyed` is deliberately NOT in that set and is named as such in the code.
+It is terminal, and an adapter still listing runtimes for a destroyed attempt
+is a contradiction rather than a cancellation this manager can carry out, so
+it keeps refusing instead of being reported as a cancellation that never
+happens.
+
+[P2] CONTENTION WAS MATCHED IN APPLICATION PROSE. `isContention` concatenated
+the structured fields with the free-form message and accepted any substring
+`busy`, so a trigger raising `busy provider invariant` was handed a database
+lock's portable meaning AND its retry policy. The message is
+application-controlled; the result code is SQLite's own answer.
+
+Measured rather than assumed, against this Node build:
+
+  trigger abort   errcode 1811  errstr "constraint failed"
+                  message "busy provider invariant"
+  real lock       errcode 5     errstr "database is locked"
+
+1811 is SQLITE_CONSTRAINT_TRIGGER — primary code 19 in the low byte, the
+extended reason in the high bits. The classifier reads `errcode & 0xff` and
+accepts only SQLITE_BUSY (5) and SQLITE_LOCKED (6). No prose is consulted at
+all.
+
+
+3. MUTATION CHECK — six, all six witnessed
+
+  M1  an inert sourced observation returns without
+      consuming its identity                          2 failed
+  M2  cancel always observes cancel-requested         2 failed
+  M3  cancel REWINDS a stopping runtime instead
+      (stopping -> cancel-requested declared)         1 failed
+  M4  contention matched by substring again           1 failed
+  M5  SQLITE_BUSY no longer counts as contention      2 failed
+  M6  the durable identity is skipped at an inert
+      value                                           2 failed
+
+M3 IS THE ONE WORTH READING. It makes the reviewer's case PASS — the decision
+is still `cancel` — and fails only the case that asserts the axis is still
+`stopping` and the observation sequence did not advance. That is exactly the
+distinction the review drew ("the test pins the decision, not a backward axis
+transition"), and it is now pinned on both sides.
+
+M5 DISPROVED SOMETHING I WAS ABOUT TO CLAIM. I added a case driving a genuine
+SQLITE_BUSY through `observe` because the positive side of the classifier
+looked unwitnessed. It was not: the round-2 case `a stale observer cannot
+regress a newer axis value` already drives a real lock from a second
+connection, and it fails under M5 too. My case is a second, direct witness of
+the classifier rather than the first witness of anything, and it is recorded
+that way instead of counted as new coverage.
+
+
+4. REGRESSIONS — 41 (35 before; the reviewer's three retained)
+
+Plus three of mine, each pinning the OTHER side of a correction:
+
+  - an inert sourced observation still REPLAYS exactly, and writes one row
+    for one identity — consuming the identity must not turn an exact repeat
+    into a conflict;
+  - cancelling an in-flight stop does not rewind the axis or advance the
+    observation sequence;
+  - a genuinely locked database IS still reported as contention.
+
+
+5. GATES
+
+  cd v12 && npm test                       323 tests, 323 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+6. STILL NOT IMPLEMENTED
+
+Cancellation ordering, output freeze, intake and cleanup — the rest of item 3
+— and all of item 4.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/attempts.mjs        all three corrections
+  v12/test/worker_manager_attempts.test.mjs  +3 cases

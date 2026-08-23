@@ -1,0 +1,128 @@
+W4996 — the order-independent frontier, the PTY matrix, and the guide
+Review: review-2026-08-22T21-21-32Z.md, one [P2] plus the two named
+remaining items.
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  .venv/bin/python3 -m pytest tests/work/test_w4996_dependency_graph.py -q
+    66 tests, 65 passed, 1 failed
+    X test_a_later_longer_path_cannot_restore_an_expanded_branch_frontier
+
+Correct. My previous correction fixed ONE traversal order.
+
+
+2. [P2] DISCLOSURE DEPENDED ON EDGE CREATION ORDER
+
+Clearing the frontier entry when a later path expands a branch handles
+longer-first. With the SHORTCUT older, the branch is expanded first and a
+later, longer path reaches it at `remaining == 0` — and recorded a frontier
+for edges already drawn. Same false claim, other direction.
+
+CORRECTED: a depth-bound visit asks the same memo the expansion sets. If
+`branch_key(work, side)` is already in `state["walked"]`, the branch has been
+expanded in this response and is not a frontier, whichever path arrived
+first. The later-expansion pop stays, so both orders are covered by two
+mechanisms that agree rather than by one that happens to fire.
+
+The added case asserts the two orders AGREE rather than asserting each
+separately — two corrections were needed and each covered one direction,
+which is exactly the shape that made this survive a round.
+
+A second case pins that the correction did not silence a REAL frontier: a
+branch nothing expanded is still disclosed with its exact count, and stops
+being disclosed when the depth reaches it.
+
+
+3. THE PTY MATRIX — AND IT FOUND A CRASH THE FOCUSED SUITE COULD NOT
+
+`tests/work/test_w4996_dependency_graph_pty.py`, 11 cases covering the
+contract's own list: many-to-one, one-to-many, both sides at once, the
+containment/duplicate text that must be absent, the empty state, the footer
+legend and its depth, a narrow terminal keeping every relationship, a resize
+in BOTH directions, the stacked fallback, and Enter-recenter with Esc back.
+
+THE CONSOLE DIED ON A 30-COLUMN TERMINAL. `_graph_row_key` assumed every row
+carried a `work`, and the STACKED renderer's presentation rows carry no
+identity by design — that is its own documented rule: source, arrow and
+target on three rows, and only the row that displays its own Work is
+selectable. Reaching that fallback raised `KeyError: 'work'` and exited 1
+with a traceback.
+
+Every focused case passed while this was true. They drive the console at
+widths where the layered form fits, and the narrow REFUSAL they do assert is
+a different boundary from the narrow FALLBACK. This is precisely what the
+review asked the PTY matrix for.
+
+CORRECTED: a row with no `work` is not selectable. Pinned in the focused
+suite too, at the width that reaches the stacked form, and
+mutation-checked there.
+
+ONE PTY CASE IS DELIBERATELY NOT THE ONE I FIRST WROTE. The narrow REFUSAL
+needs a terminal narrower than one complete selector, and the console's own
+table cannot start at such a width — it exits before the graph is reached. So
+the refusal stays asserted in the focused suite where it can be measured, and
+the PTY case asserts the boundary a real operator actually reaches: the
+stacked form, which is what was broken.
+
+The matrix drives the centre through SEARCH rather than by counting table
+rows. The Jobs table orders by readiness and priority, so which row leads is
+a property of the dependency shape these cases vary — and searching also
+exercises the search entry path the contract requires.
+
+
+4. THE OPERATING GUIDE — plan item 4
+
+`docs/BATON-WORK.md` gains **The dependency graph**: what the page shows and
+what it deliberately does not, the exact drawn shape, every bound with the
+token that discloses it, the key table, what Enter does and does not do, the
+narrow-terminal fallbacks and the refusal, and the damaged-store refusal. The
+two existing sentences that described `[b] deps` as the flat neighbour view
+now point at it, and the footer sentence names entry from the table AND
+search.
+
+
+5. MUTATION CHECK — four
+
+  M1  the order guard removed
+        2 failed: the reviewer's case and the order-agreement case
+  M2  no frontier is ever recorded
+        3 failed, including the still-disclosed case
+  M3  the later-expansion pop removed
+        3 failed, including the order-agreement case
+  M4  a presentation row is assumed to carry a Work
+        1 failed: the new selectability case
+
+Restored: 69 focused, 11 PTY.
+
+
+6. GATES
+
+  tests/work/test_w4996_dependency_graph.py       69 passed (66 before)
+  tests/work/test_w4996_dependency_graph_pty.py   11 passed (new)
+  pytest -n auto -m "not serial" tests/work       2975 passed, 0 failed
+  pytest -m serial tests/work                     52 passed
+  tools/codex-event-bridge npm test               316 pass, 0 fail
+  tools/acp-baton-bridge npm test                 55 pass, 0 fail
+  whitespace-damage check                         clean
+
+  v12 npm test                                    263 tests, 256 pass, 7 fail
+
+THOSE SEVEN ARE NOT THIS WORK'S. They are W2929 reviewer cases from
+`review-2026-08-22T21-36-26Z.md`, against the offer/claim slice I landed on
+that Work earlier this session. W2929 is queued on `baton.impl` for its own
+turn and shares no module with anything here.
+
+No projection version change.
+
+
+7. FILES CHANGED
+
+  src/baton_work/projection.py    the depth-bound visit consults the
+                                  expansion memo
+  src/baton_work/tui/app.py       a presentation row is not selectable
+  docs/BATON-WORK.md              the dependency-graph section, and two
+                                  sentences pointed at it
+  tests/work/test_w4996_dependency_graph.py       +3 cases
+  tests/work/test_w4996_dependency_graph_pty.py   new, 11 cases

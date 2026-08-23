@@ -394,7 +394,8 @@ def test_the_blocking_request_serializes_against_a_claim_release(world):
 	store = world["store"]
 	work, thread = asking(world)
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="stepping away")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="stepping away")
 	before = store.last_seq()
 	with pytest.raises(bw.WorkError, match="unclaimed"):
 		tr.post_thread(store, thread, author_team="lang", author="ada",

@@ -1,0 +1,108 @@
+W2929 — the cancellation-ordering slice, second correction
+Review: review-2026-08-22T23-55-38Z.md, one [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    340 tests, 339 passed, 1 failed
+
+The reviewer's additive post-fence failure regression is the sole failure.
+The finding is correct.
+
+
+2. THE FINDING
+
+[P1] AN AGENT CANCELLATION FAILURE SUPPRESSED THE RUNTIME STOP. `agent.cancel`
+was called and `adapter.stop` followed it on the same straight line, so a
+throwing agent left the function before the stop was ever ordered — WITH THE
+AUTHORITY ALREADY FENCED AND THE ASSIGNMENT ALREADY ENDED. An unreachable
+provider therefore left a fenced runtime running indefinitely.
+
+The correction I made last round created this. I added the agent boundary in
+front of the runtime stop and did not ask what happens when the boundary I put
+first fails.
+
+PERSISTENT AGENT UNREACHABILITY IS A REASON TO STOP THE RUNTIME, NOT A REASON
+TO LEAVE IT ALONE. A cooperative request is the polite path, not a
+precondition for the forceful one. The failure is captured, the stop is
+ordered anyway, and only then is the failure re-thrown UNCHANGED — it is the
+caller's to classify, not this boundary's, and the order stays
+agent-before-runtime.
+
+WHEN BOTH FAIL, NEITHER HIDES THE OTHER. An `AggregateError` carries both, in
+call order. Letting the runtime's failure propagate alone would have been this
+boundary silently choosing which failure the caller is entitled to see, which
+is the same shape as summarizing a settlement.
+
+
+3. MUTATION CHECK — four, three witnessed
+
+  P1  an agent failure vetoes the stop again          3 failed
+  P2  the captured agent failure is swallowed         2 failed
+  P3  the runtime failure hides the agent failure     1 failed
+
+  P4  a failed agent still reports a settlement       0 failed
+
+P4 IS EQUIVALENT, NOT UNCOVERED, and it is recorded rather than papered over.
+The failure path THROWS before the return, so a settlement assigned there can
+never be observed by anyone: the assignment is dead code and the mutation
+changes nothing reachable.
+
+Because of that, one of my case titles was overclaiming — it said "reports no
+settlement" when no settlement is observable on that path at all. It is
+retitled to what it actually pins: the failure is re-thrown unchanged, after
+the stop was ordered.
+
+Restored: 60/60 focused, 342/342 for the whole gate.
+
+
+4. REGRESSIONS — 60 (58 before; the reviewer's one retained)
+
+Plus two of mine:
+
+  - a failing runtime stop does not hide a failing agent — both boundaries
+    throw, and the `AggregateError` carries both in call order;
+  - a failed agent cancellation is re-thrown UNCHANGED, after the stop — not
+    wrapped, not relabelled, and the stop carries the manager's own identity.
+
+
+5. WHAT IS STILL NOT DURABLE, AND SAID PLAINLY
+
+A failed agent cancellation is visible to the CALLER and is not recorded in
+the store. There is no agent-session evidence table yet — item 7 of the pinned
+store surface, owned by item 4 — so a manager that crashes right after the
+throw learns nothing about the failed cooperative attempt beyond the committed
+`attempt.cancel` intent. That is a gap in coverage, not a claim that it does
+not matter.
+
+
+6. GATES
+
+  cd v12 && npm test                       342 tests, 342 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Output freeze, intake and cleanup — the rest of item 3 — and all of item 4.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/attempts.mjs        the captured agent failure, the
+                                             unconditional stop, the
+                                             two-failure aggregate
+  v12/test/worker_manager_attempts.test.mjs  +2 cases, one title corrected

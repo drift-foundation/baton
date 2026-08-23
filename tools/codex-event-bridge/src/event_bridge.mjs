@@ -6,7 +6,7 @@ import { dirname } from "node:path";
 import { CodexClient, CodexProtocolError } from "./codex_client.mjs";
 import { classifyFailure, makeRuntimePublisher, silentPublisher } from "./runtime_publisher.mjs";
 import { eventFingerprint, formatEventMessage, normalizeEvent } from "./event_types.mjs";
-import { assertPolicyProvisioned } from "./exec_policy.mjs";
+import { assertInspectionProvisioned, assertPolicyProvisioned } from "./exec_policy.mjs";
 import { QuarantineStore } from "./quarantine_store.mjs";
 import { promisify } from "node:util";
 
@@ -94,6 +94,13 @@ export class EventBridge extends EventEmitter {
     // managed context, so a dispatcher-only restart finds it and a full
     // managed-stack start — which mints a new thread id — does not.
     this.quarantines = new QuarantineStore(config.quarantineDir, logger);
+    // W4303: the failed-turn fence, on the same context key and in the
+    // same directory, in its own file. It answers a different question
+    // from the quarantine and clears on different evidence, so it is a
+    // separate marker rather than a field inside that one.
+    this.settlements = new QuarantineStore(config.quarantineDir, logger,
+                                           { suffix: ".settlement.json",
+                                             label: "failed-turn settlement" });
 
     const createClient = clientFactory ?? ((name, server) => new CodexClient({ name, endpoint: server.endpoint, debug, logger }));
     for (const [name, server] of Object.entries(config.servers)) {
@@ -135,6 +142,16 @@ export class EventBridge extends EventEmitter {
         // dispatcher happens to be doing now.
         attempt: null,
         attempts: new Map(),
+        // W4303: the claim this participant is still holding after one
+        // of this dispatcher's turns died on it, or null. Sticky like
+        // `tainted` and, unlike it, recoverable: it clears on a
+        // canonical read proving the claim is gone, and on nothing else.
+        orphan: null,
+        reconciling: false,
+        // W4303: an `idle` publication held back because a completion
+        // arrived while `turn/start` was still in flight, so whether it
+        // was OURS is not yet decided.
+        deferredIdle: null,
         // W99 review P1: approval requests that arrived while
         // `turn/start` was still in flight and named a turn nothing has
         // bound yet. Their Work attribution is UNPROVEN until the start
@@ -180,6 +197,16 @@ export class EventBridge extends EventEmitter {
           participant: state.identity.participant,
         });
       }
+      // W2845: and the read-only Docker inspection profile, ONCE. That
+      // capability belongs to the deployment host rather than to any
+      // participant, so checking it per identity would repeat one
+      // deployment fact as several identity failures.
+      //
+      // It runs AFTER the per-participant loop deliberately. A policy
+      // that is wrong in both places is first of all a Baton policy
+      // that is wrong, and that refusal is the one carrying the exact
+      // per-participant install instructions.
+      assertInspectionProvisioned(this.config.roleInstructions.execPolicyFile);
     }
     // W99 review P1: BEFORE any lease opens or any socket listens,
     // restore the fence for every context this deployment already
@@ -188,6 +215,10 @@ export class EventBridge extends EventEmitter {
     // relaunching this one process is a recovery the ruling explicitly
     // says it is not.
     for (const state of this.targetStates.values()) this.#restoreQuarantine(state);
+    // W4303: and the failed-turn fence, on the same rule and for the
+    // same reason — a canonical claim is not released by restarting the
+    // process that observed it being orphaned.
+    for (const state of this.targetStates.values()) this.#restoreSettlement(state);
     // W93: every identified target's lease opens here, so a configured
     // participant whose runner is up but quiet is visibly present
     // rather than indistinguishable from one that never started.
@@ -210,6 +241,7 @@ export class EventBridge extends EventEmitter {
     // anything opened; publishing about it has to happen after.
     for (const state of this.targetStates.values()) {
       await this.#recoverQuarantineIncident(state);
+      await this.#recoverOrphanIncident(state);
     }
     if (listen) {
       await mkdir(dirname(this.config.eventSocket), { recursive: true, mode: 0o700 });
@@ -266,7 +298,7 @@ export class EventBridge extends EventEmitter {
     // W3243: `queuedAt` is what makes "how long has delivery been
     // stuck" answerable. 24 events queued behind one turn was the
     // incident, and the depth alone did not say for how long.
-    state.queue.push({ event, ambiguous: false, queuedAt: now });
+    this.#admit(state, { event, ambiguous: false, queuedAt: now });
     this.globalQueueDepth += 1;
     this.logger.info(`[${event.target}] event received: ${event.type}`);
     if (state.tainted) this.logger.warn(`[${event.target}] context is quarantined; retained (${state.queue.length}) for the fresh context a full managed-stack start mints`);
@@ -293,7 +325,12 @@ export class EventBridge extends EventEmitter {
       // must never be delivered to again. Reporting it healthy because
       // its turn ended is the exact fiction this fence exists to stop.
       const tainted = state.tainted;
-      if (!loaded || blocked || tainted) ready = false;
+      // W4303: an orphaned claim is the third way a loaded, idle,
+      // connected target is undeliverable — and the one an operator can
+      // actually clear, which is why it reports separately from the
+      // permanent quarantine rather than collapsing into it.
+      const orphan = state.orphan;
+      if (!loaded || blocked || tainted || orphan) ready = false;
       const oldest = state.queue.length ? state.queue[0].queuedAt : null;
       targets[name] = Object.freeze({
         connected,
@@ -302,7 +339,7 @@ export class EventBridge extends EventEmitter {
         // Everything an operator needs to act without reading a log:
         // who this target is, which Thread and turn are stuck, why,
         // how much is waiting behind it, and for how long.
-        deliverable: Boolean(loaded && !blocked && !tainted),
+        deliverable: Boolean(loaded && !blocked && !tainted && !orphan),
         participant: state.identity?.participant ?? null,
         threadId: state.threadId,
         queueDepth: state.queue.length,
@@ -343,6 +380,28 @@ export class EventBridge extends EventEmitter {
             durable: Boolean(tainted.durable),
             restored: Boolean(tainted.restored),
             remedy: tainted.remedy,
+          })
+          : null,
+        // W4303: the surviving claim and its EXACT generation, because
+        // "which Work, under which assignment episode" is precisely what
+        // the recovering `release` needs and precisely what an operator
+        // could not find anywhere while W2907 sat orphaned for five
+        // hours.
+        orphan: orphan
+          ? Object.freeze({
+            since: orphan.since,
+            ageMs: Math.max(0, now - orphan.since),
+            turnId: orphan.turnId,
+            status: orphan.status,
+            participant: orphan.participant,
+            work: orphan.work,
+            episode: orphan.episode,
+            actionKey: orphan.actionKey,
+            correlation: orphan.correlation,
+            durable: Boolean(orphan.durable),
+            restored: Boolean(orphan.restored),
+            incidentFiled: Boolean(orphan.incidentFiled),
+            remedy: orphan.remedy,
           })
           : null,
       });
@@ -444,6 +503,16 @@ export class EventBridge extends EventEmitter {
     // cleared, and the next Work started on the same context, which
     // then ran the previous Work's unfinished cleanup.
     if (this.stopping || state.draining || state.activeTurn || state.blocked || state.tainted || state.queue.length === 0 || state.status.type !== "idle") return;
+    // W4303: a target holding an orphaned claim is idle, loaded and
+    // connected — and cannot claim anything, because the participant's
+    // one slot is taken. Delivering here spends a model turn to reach a
+    // refusal, which is exactly what the restart evidence recorded. The
+    // events stay queued and the fence is re-checked against the
+    // authority instead.
+    if (state.orphan) {
+      void this.#reconcileOrphan(state);
+      return;
+    }
     const serverState = this.serverStates.get(state.serverName);
     if (!serverState.client.connected) return;
     const serverDelay = serverState.retryUntil - Date.now();
@@ -473,7 +542,7 @@ export class EventBridge extends EventEmitter {
       // the agent's atomic claim remains the final authority. What it
       // removes is the misleading wake, not the refusal behind it.
       if (await this.#episodeIsOver(state, queued.event)) {
-        this.#dequeue(state);
+        this.#dequeue(state, queued);
         this.logger.info(`[${state.name}] ${queued.event.action.key} is no longer actionable for ${queued.event.action.participant}; dropped without spending a turn`);
         this.emit("actionDropped", { target: state.name, event: queued.event });
         if (state.queue.length > 0) this.#scheduleDrain(state, 0);
@@ -487,13 +556,23 @@ export class EventBridge extends EventEmitter {
       // only — never the message text, argv, or any request payload.
       const attempt = this.#openAttempt(state, queued.event);
       const turn = await serverState.client.startTurn(state.threadId, formatEventMessage(queued.event), queued.event.id);
-      this.#dequeue(state);
+      this.#dequeue(state, queued);
       this.#bindAttempt(state, attempt, turn.id);
       const completed = state.completedTurns.get(turn.id);
       if (completed) {
         state.completedTurns.delete(turn.id);
         state.activeTurn = null;
+        // W4303: this delivery's completion beat its own `turn/start`
+        // response, so `#turnCompleted` could not tell it from an
+        // interactive turn and held its publication. It IS ours, and the
+        // binding above is what proves it — so the SAME settlement runs
+        // here. Fixing only the event handler would have left this
+        // ordering publishing `idle` over an orphaned claim.
+        state.deferredIdle = null;
         this.logger.info(`[${state.name}] turn completed before acceptance was observed: ${turn.id} (${completed.status})`);
+        if (!await this.#settleTurn(state, completed, state.threadId)) {
+          void state.runtime.state("idle", { session: state.threadId });
+        }
       } else {
         state.activeTurn = { id: turn.id, event: queued.event };
       }
@@ -527,6 +606,12 @@ export class EventBridge extends EventEmitter {
       // this same turn just quarantined, which will never drain again.
       state.draining = false;
       this.#resolvePendingOrigins(state);
+      // W4303: and the same bound settles a held `idle`. By here the
+      // binding has either claimed the completion as ours — in which
+      // case the branch above already cleared this — or definitively has
+      // not, so an interactive turn's honest state is published rather
+      // than lost.
+      this.#flushDeferredIdle(state);
       if (!state.activeTurn && state.status.type === "idle" && state.queue.length > 0) this.#scheduleDrain(state, 0);
     }
   }
@@ -586,12 +671,18 @@ export class EventBridge extends EventEmitter {
       queued.ambiguous = false;
       return false;
     }
-    this.#dequeue(state);
+    this.#dequeue(state, queued);
     // W99: an ambiguous delivery still HAPPENED, so its attempt learns
     // the turn it turned out to be rather than staying unbound forever.
     this.#bindDelivered(state, queued.event.id, delivered.turn.id);
-    if (delivered.turn.status === "inProgress") state.activeTurn = { id: delivered.turn.id, event: queued.event };
+    const live = delivered.turn.status === "inProgress";
+    if (live) state.activeTurn = { id: delivered.turn.id, event: queued.event };
     this.logger.warn(`[${state.name}] reconciled ambiguous turn/start as delivered: ${delivered.turn.id} (${delivered.turn.status})`);
+    // The third place a terminal managed turn is first observed, and the
+    // same settlement. `#drain` reached here because a `turn/start` was
+    // ambiguous; if the delivery landed and has already ended, its claim
+    // needs reconciling before this target drains anything else.
+    if (!live) await this.#settleTurn(state, delivered.turn, state.threadId);
     return true;
   }
 
@@ -603,13 +694,19 @@ export class EventBridge extends EventEmitter {
     state.status = response.thread.status;
 
     if (state.queue[0]?.ambiguous) {
-      const delivered = findClientMessage(response.thread, state.queue[0].event.id);
+      const head = state.queue[0];
+      const delivered = findClientMessage(response.thread, head.event.id);
       if (delivered) {
-        const event = state.queue[0].event;
-        this.#dequeue(state);
+        const event = head.event;
+        this.#dequeue(state, head);
         this.#bindDelivered(state, event.id, delivered.turn.id);
-        state.activeTurn = delivered.turn.status === "inProgress" ? { id: delivered.turn.id, event } : null;
+        const live = delivered.turn.status === "inProgress";
+        state.activeTurn = live ? { id: delivered.turn.id, event } : null;
         this.logger.warn(`[${state.name}] reconciled ambiguous turn/start as delivered: ${delivered.turn.id} (${delivered.turn.status})`);
+        // An ambiguous delivery that turns out to have ALREADY ENDED is a
+        // terminal managed turn this dispatcher is observing for the first
+        // time, exactly like the persisted branch below.
+        if (!live) await this.#settleTurn(state, delivered.turn, state.threadId);
       }
     }
 
@@ -617,9 +714,27 @@ export class EventBridge extends EventEmitter {
       const persisted = response.thread.turns?.find((turn) => turn.id === state.activeTurn.id);
       if (persisted && persisted.status !== "inProgress") {
         this.logger.info(`[${state.name}] reconciled turn completion: ${persisted.id} (${persisted.status})`);
+        // W4303 review [P1]: this cleared the attempt and drained. When a
+        // transport drop hides `turn/completed`, the resume snapshot is the
+        // FIRST and only observation of the terminal failure — so skipping
+        // settlement here reproduced the orphaned claim in full: `idle`
+        // published, no fence, no incident, and the next readiness event
+        // delivered into a lane the participant's one claim slot occupies.
+        // Reconnect reconciliation exists precisely because notifications
+        // can be missed, so this is an ordinary path, not an exotic one.
+        await this.#settleTurn(state, persisted, state.threadId);
         state.activeTurn = null;
       } else if (!persisted && response.thread.status.type === "idle") {
         this.logger.warn(`[${state.name}] accepted turn ${state.activeTurn.id} is absent after resume; clearing local in-flight state without replay`);
+        // The turn is GONE from an IDLE thread, so nothing is executing it
+        // and this dispatcher cannot prove it completed. The ambiguity that
+        // stays untouched is whether to REPLAY it — it is not replayed. The
+        // claim is a separate question with a canonical answer: settlement
+        // reads the authority, finds nothing in the ordinary case and
+        // returns without fencing, and fences only when the claim really
+        // did survive.
+        await this.#settleTurn(state, { id: state.activeTurn.id, status: null },
+                               state.threadId);
         state.activeTurn = null;
       }
     }
@@ -627,8 +742,51 @@ export class EventBridge extends EventEmitter {
     void this.#drain(state);
   }
 
-  #dequeue(state) {
-    state.queue.shift();
+  /** W4303: append, except that a SURVIVING CLAIM goes to the front.
+   *
+   *  The producer already forwards claimed Work first, which fixes the
+   *  restart envelope. It does not fix the dispatcher's own queue: an
+   *  unclaimed event forwarded before the claim was reconciled is
+   *  already sitting here, and appending behind it reproduces the
+   *  incident one queue further down — a model turn spent on Work the
+   *  participant's occupied slot cannot accept, while the action that
+   *  would have freed it waits.
+   *
+   *  At most one action is ever promoted, because a participant holds at
+   *  most one claim, and order inside both partitions is untouched.
+   *
+   *  The HEAD is not displaced when a delivery is in flight or awaiting
+   *  reconciliation: `#drain` is holding that exact entry across an
+   *  await and `#reconcileTarget` looks it up by position, so moving it
+   *  would settle the wrong event. */
+  #admit(state, entry) {
+    if (entry.event.action?.claimed !== true) {
+      state.queue.push(entry);
+      return;
+    }
+    const pinned = state.draining || state.queue[0]?.ambiguous ? 1 : 0;
+    let at = pinned;
+    while (at < state.queue.length
+           && state.queue[at].event.action?.claimed === true) at += 1;
+    if (at >= state.queue.length) {
+      state.queue.push(entry);
+      return;
+    }
+    state.queue.splice(at, 0, entry);
+    this.logger.info(
+      `[${state.name}] ${entry.event.action.key} is already claimed by `
+      + `${entry.event.action.participant}; delivered ahead of `
+      + `${state.queue.length - at - 1} unclaimed event(s) it would `
+      + `otherwise wait behind`);
+  }
+
+  #dequeue(state, entry) {
+    // Removed by IDENTITY when the caller has the entry, so a claimed
+    // action admitted at the front while a delivery was in flight can
+    // never make a settling caller drop somebody else's event.
+    const at = entry === undefined ? 0 : state.queue.indexOf(entry);
+    if (at < 0) return;
+    state.queue.splice(at, 1);
     this.globalQueueDepth -= 1;
   }
 
@@ -1405,25 +1563,546 @@ export class EventBridge extends EventEmitter {
     state.blocked = null;
   }
 
+  // -- W4303: failed-turn settlement -------------------------------------
+  //
+  // `work/records/2026/08/finding-managed-turn-failure-orphans-claim/`.
+  //
+  // The incident: this dispatcher delivered W2907, the agent claimed it
+  // atomically at 07:17:03Z, and the turn terminated as `failed` at
+  // 07:17:04Z — before the review, before any pass, and without
+  // releasing anything. `#turnCompleted` then did what it did for every
+  // other terminal status: published `idle`, cleared the turn, and
+  // drained the next event. Five hours later canonical state still read
+  // `active` with `baton.codex` as Handler while the runtime projection
+  // reported that same context idle with no Work, and the participant's
+  // one claim slot was deadlocked — two later review wakes could not be
+  // claimed at all.
+  //
+  // So a terminal FAILURE is settled rather than reported. The exact
+  // delivered assignment is re-read from the authority, and if the
+  // participant still holds that claim the target is fenced, the runner
+  // is published `failed(internal)` rather than idle, and one durable
+  // incident names the surviving Work and its exact claim generation.
+  // Queued readiness is RETAINED: later work is visibly blocked on
+  // participant capacity, which is the true reason it cannot proceed.
+  //
+  // What it deliberately does NOT do is release the claim. The ruling
+  // requires potentially useful work to be preserved: automatic release
+  // needs an explicit configured rule with exact generation fencing, and
+  // no such rule is configured here. The incident is the authorized,
+  // attributable handoff to an operator, who recovers with the
+  // `episode=`-fenced `release` this same Work added.
+  //
+  // One routine, called from BOTH completion orderings. The ordinary one
+  // is `turn/completed` arriving against a bound `activeTurn`; the other
+  // is the completion arriving BEFORE `turn/start` returns, which
+  // `#drain` picks out of `completedTurns`. Fixing only the event
+  // handler would have left that race publishing `idle` over an orphaned
+  // claim exactly as before.
+  async #settleTurn(state, turn, session) {
+    const id = EventBridge.#liveTurnId(turn?.id);
+    const attempt = id === null ? null : state.attempts.get(id) ?? null;
+    const action = attempt?.action ?? null;
+    // `completed` is the app-server's one success terminal. Everything
+    // else that ends a turn — failed, aborted, whatever a later build
+    // adds — is settled, because the question is whether the promised
+    // work was done, and only `completed` answers yes.
+    if (turn?.status === "completed") return false;
+    if (!action) {
+      // No delivered assignment, so there is no claim this dispatcher
+      // could have orphaned. An interactive turn the operator typed
+      // into the same thread is exactly this case.
+      this.logger.info(
+        `[${state.name}] turn ${id ?? "?"} ended ${turn?.status ?? "unknown"} `
+        + `with no delivery bound to it; nothing to reconcile`);
+      return false;
+    }
+    const found = await this.#readAssignment(state, action);
+    if (found.state === "released") {
+      this.logger.info(
+        `[${state.name}] turn ${id} ended ${turn?.status ?? "unknown"} during `
+        + `${action.key}, and the authority no longer records that claim; `
+        + `nothing was orphaned`);
+      return false;
+    }
+    this.#fence(state, {
+      turnId: id,
+      status: typeof turn?.status === "string" ? turn.status : null,
+      participant: action.participant,
+      actionKey: action.key,
+      work: found.work ?? action.work ?? null,
+      episode: found.episode ?? (Number.isSafeInteger(action.episode)
+        ? action.episode : null),
+      correlation: found.state,
+      session,
+    });
+    await this.#fileOrphanIncident(state, session);
+    return true;
+  }
+
+  /** The exact canonical read the settlement decides on.
+   *
+   *  `claimed` — the authority still records this participant as holding
+   *  the delivered assignment. `released` — it does not, so the lane is
+   *  free and the failure orphaned nothing. `unreadable` — the read
+   *  failed or the projection was malformed, which FAILS CLOSED: it
+   *  cannot justify publishing `idle` or draining another Work, because
+   *  "I could not ask" and "the answer was no" are not the same fact.
+   *
+   *  Matched on the STRUCTURED Work and episode the immutable attempt
+   *  carries, never by taking the action key apart — the key is opaque
+   *  by W148 and the producer sends both fields precisely so a consumer
+   *  never has to.
+   *
+   *  A producer old enough to send neither still gets a real answer: a
+   *  participant holds at most one claim, so ANY claimed Work in its own
+   *  actionable set is the occupied lane this settlement is about. That
+   *  is a weaker correlation, and it is reported as one. */
+  async #readAssignment(state, action) {
+    if (!this.config.roleInstructions) {
+      this.logger.error(
+        `[${state.name}] a managed turn failed during ${action.key} and this `
+        + `deployment has no roleInstructions to reach Baton through, so the `
+        + `claim cannot be reconciled; fencing rather than reporting idle`);
+      return { state: "unreadable" };
+    }
+    const argv = ["--config", this.config.roleInstructions.config,
+                  "--participant", action.participant, "wait", "timeout=0"];
+    let payload;
+    try {
+      const result = await this.revalidate(this.config.roleInstructions.binary, argv);
+      payload = JSON.parse(result.stdout);
+    } catch (error) {
+      this.logger.error(
+        `[${state.name}] could not reconcile ${action.key} after a failed `
+        + `turn: ${error.message}; the target is fenced rather than reported `
+        + `idle`);
+      return { state: "unreadable" };
+    }
+    const live = payload?.result?.actionable;
+    if (!Array.isArray(live)) {
+      this.logger.error(
+        `[${state.name}] reconciliation of ${action.key} returned no `
+        + `actionable set; the target is fenced rather than reported idle`);
+      return { state: "unreadable" };
+    }
+    const held = live.filter((entry) => entry?.kind === "work"
+      && entry.claimed === true
+      && Number.isSafeInteger(entry.episode_seq));
+    const exact = action.work
+      ? held.find((entry) => entry.work === action.work
+        && (!Number.isSafeInteger(action.episode)
+          || entry.episode_seq === action.episode))
+      : null;
+    if (exact) {
+      return { state: "claimed", work: exact.work, episode: exact.episode_seq };
+    }
+    if (!action.work && held.length > 0) {
+      // Uncorrelated, and said so. The lane is provably occupied and the
+      // failure is provably this dispatcher's, but which of the two the
+      // other is remains unproven, so the incident says `held` rather
+      // than claiming an attribution it did not make.
+      return { state: "held", work: held[0].work,
+               episode: held[0].episode_seq };
+    }
+    return { state: "released" };
+  }
+
+  /** Fence this target on a surviving claim. Durable BEFORE anything
+   *  asynchronous, exactly like the approval quarantine, so a crash
+   *  between observing the failure and publishing it cannot lose the
+   *  only notice. */
+  #fence(state, observed) {
+    // Already fenced. A duplicate completion, a reconnect that replays
+    // a terminal event, or a second settlement of the same turn must not
+    // re-mint the record — that would reset `incidentFiled` and file the
+    // one failure again on every repeat, which is the opposite of the
+    // idempotence the durable acknowledgement exists to give.
+    if (state.orphan) return;
+    state.orphan = {
+      since: Date.now(),
+      ...observed,
+      incidentFiled: false,
+      reported: false,
+      restored: false,
+      // The read that produced this fence IS a check, so the first
+      // re-check waits out the ordinary backoff instead of firing again
+      // on the `#drain` this settlement is about to trigger.
+      checkedAt: Date.now(),
+      remedy: "release the exact claim with `release work=WORK "
+        + "expect=PARTICIPANT episode=N reason=…` — a Route handler, or a "
+        + "member of the owning team holding the `recover` capability",
+    };
+    state.orphan.durable = this.settlements.save(
+      state.serverName, state.threadId, this.#orphanRecord(state.orphan));
+    this.#reportOrphan(state);
+    this.logger.error(
+      `[${state.name}] the managed turn ${state.orphan.turnId ?? "?"} ended `
+      + `${state.orphan.status ?? "without a terminal status"} while `
+      + `${state.orphan.participant} still holds ${state.orphan.work ?? "a claim"}`
+      + (Number.isSafeInteger(state.orphan.episode)
+        ? ` at assignment episode ${state.orphan.episode}` : "")
+      + `. That claim is orphaned: nothing is executing it and the `
+      + `participant's one claim slot is occupied, so ${state.queue.length} `
+      + `readiness event(s) are RETAINED rather than delivered into a lane `
+      + `that cannot claim them. ${state.orphan.remedy}.`);
+  }
+
+  // W4303: the honest runner state after a failed turn that orphaned a
+  // claim is `failed`, not `idle`. `internal` is the closed cause: the
+  // dispatcher's own delivery ended without completing, which is not an
+  // approval, a credential, a provider or a transport fault. Published
+  // once per fence — duplicate terminal events are ordinary and must not
+  // each mint a new report.
+  #reportOrphan(state) {
+    if (!state.orphan || state.orphan.reported) return;
+    state.orphan.reported = true;
+    // A quarantined context already publishes its own terminal state and
+    // names its own remedy; two `failed` reports racing for one lease
+    // would just overwrite each other. The orphan's DURABLE half — the
+    // incident and the fence — is filed either way.
+    if (state.tainted) return;
+    void state.runtime.state("failed", {
+      cause: "internal",
+      detail: "a managed turn failed holding an active claim; the Work is "
+        + "still claimed and nothing is executing it",
+      session: state.orphan.session ?? state.threadId,
+    });
+  }
+
+  /** The durable half. Reuses the W415 incident path rather than
+   *  inventing a second incident system: the cause vocabulary already
+   *  has `internal`, the row already carries Work, assignment episode,
+   *  action key and session, it is already owed to the runner's
+   *  CONFIGURED action owner, and it already survives runtime `idle` and
+   *  restart until that owner dismisses it. */
+  async #fileOrphanIncident(state, session) {
+    const orphan = state.orphan;
+    if (!orphan || orphan.incidentFiled) return false;
+    // W4303 review [P2]: JOIN an in-flight publication rather than
+    // starting a second one.
+    //
+    // `incidentFiled` is the DURABLE acknowledgement, and it becomes true
+    // only after the awaited publication returns. That is correct for a
+    // restart and useless for a race: reconnect settlement and a late
+    // `turn/completed` can both observe it false, both publish, and the
+    // authority counts one failed turn twice. The reconnect correction is
+    // what made the two observations overlap naturally, so this window is
+    // that correction's own consequence.
+    //
+    // The in-flight handle is the missing half. A second observer awaits
+    // the SAME promise and returns its answer, so there is one publication
+    // per fence and both callers learn the same outcome.
+    if (orphan.filing) return orphan.filing;
+    const filing = this.#publishOrphanIncident(state, session, orphan);
+    orphan.filing = filing;
+    try {
+      const filed = await filing;
+      if (filed) this.#acknowledgeOrphanIncident(state, orphan);
+      return filed;
+    } finally {
+      // A FALSE or FAILED publication stays retryable. The handle is
+      // dropped unless the acknowledgement made it durable, so a runner
+      // that refused or threw is tried again by the next observer or by
+      // the periodic re-file — which is the property the durable
+      // acknowledgement exists to give and must not lose to this fix.
+      if (!orphan.incidentFiled) orphan.filing = null;
+    }
+  }
+
+  /** The publication itself, and a THROW is a failed publication rather
+   *  than a failed settlement.
+   *
+   *  Found while correcting the review's [P2]: a runner that rejected took
+   *  the whole settlement path down with it — out of `#settleTurn`, out of
+   *  `#turnCompleted`, and into an unhandled rejection — so the incident
+   *  was neither filed NOR retried, and in the notification path the rest
+   *  of the handler never ran. That is the opposite of the review's
+   *  requirement that a failed publication stay retryable.
+   *
+   *  Nothing is lost by answering `false`: the fence is already durable —
+   *  `#fence` saves it before anything asynchronous — and `incidentFiled`
+   *  stays false, so the next observer and the restart re-file path both
+   *  try again. The error is logged rather than swallowed silently. */
+  async #publishOrphanIncident(state, session, orphan) {
+    try {
+      return await this.#sendOrphanIncident(state, session, orphan);
+    } catch (error) {
+      this.logger.error(
+        `[${state.name}] the failed-turn incident for `
+        + `${orphan.work ?? "a claim"} could not be published: `
+        + `${error.message}. The fence is durable and unacknowledged, so it `
+        + `is re-filed rather than lost`);
+      return false;
+    }
+  }
+
+  async #sendOrphanIncident(state, session, orphan) {
+    const filed = await state.runtime.incident({
+      cause: "internal",
+      category: "other",
+      detail: `a dispatcher-owned turn ended ${orphan.status ?? "abnormally"} `
+        + `while ${orphan.participant} still held this claim`
+        + (orphan.correlation === "unreadable"
+          ? `; the canonical reconciliation could not be read, so the target `
+            + `is fenced until it can be`
+          : orphan.correlation === "held"
+            ? `; the delivery carried no Work locator, so this is the `
+              + `participant's one occupied claim rather than a proven `
+              + `correlation`
+            : "")
+        + `. Nothing is executing it and no later Work can be claimed until `
+        + `it is released.`,
+      work: orphan.work ?? null,
+      episode: Number.isSafeInteger(orphan.episode) ? orphan.episode : null,
+      actionKey: orphan.actionKey ?? null,
+      session: session ?? orphan.session ?? state.threadId,
+    });
+    return filed;
+  }
+
+  /** Durable proof that the fence's incident reached the authority, so a
+   *  restart neither loses it nor re-files it. Same rule, and the same
+   *  reasoning, as the approval quarantine's acknowledgement. */
+  #acknowledgeOrphanIncident(state, orphan) {
+    // W4303 re-review [P1]: the acknowledgement is bound to the EXACT
+    // orphan whose publication returned, not to whatever `state.orphan`
+    // names by the time the await resolves.
+    //
+    // Those need not be the same fence, and reaching the difference takes
+    // no corruption: A's publication is still in flight when canonical
+    // reconciliation proves claim A released and clears its marker, the
+    // successor turn fails holding claim B and starts B's own publication,
+    // and then A's finally succeeds. Reading live state there marked B
+    // filed — and if B's own publication then returned false, the durable
+    // marker claimed an incident that was refused, so a restart trusted it
+    // and never re-filed the notice for a live orphaned claim.
+    //
+    // This is my own round-2 correction's blind spot: I bound the JOIN to
+    // the orphan object and left the ACKNOWLEDGEMENT reading `state`.
+    if (!orphan || orphan.incidentFiled) return;
+    orphan.incidentFiled = true;
+    // The IN-MEMORY half is true of the captured object whatever happened
+    // since: its incident really was filed. The DURABLE half is about the
+    // live fence, so a publication that finished after its own fence was
+    // cleared updates nothing — writing there would overwrite a successor's
+    // marker with a claim about a different orphan.
+    if (state.orphan !== orphan) return;
+    orphan.durable = this.settlements.save(
+      state.serverName, state.threadId, this.#orphanRecord(orphan));
+  }
+
+  // The marker's key set is CLOSED and matches what the status row
+  // publishes. Live-only bookkeeping stays out, and so does anything a
+  // request payload could have carried — a settlement marker is no more
+  // entitled to a command body than an incident is.
+  #orphanRecord(orphan) {
+    return {
+      since: orphan.since,
+      turnId: orphan.turnId,
+      status: orphan.status,
+      participant: orphan.participant,
+      work: orphan.work,
+      episode: orphan.episode,
+      actionKey: orphan.actionKey,
+      correlation: orphan.correlation,
+      session: orphan.session ?? null,
+      incidentFiled: Boolean(orphan.incidentFiled),
+      ...(orphan.damaged ? { damaged: true } : {}),
+      remedy: orphan.remedy,
+    };
+  }
+
+  /** Restore a fence this deployment already recorded, BEFORE anything
+   *  opens. A dispatcher-only restart must come back fenced: the claim
+   *  it fenced on is canonical state, and restarting a process does not
+   *  release it. `damaged` fails closed for the same reason it does for
+   *  the quarantine — a marker at this exact key is positive evidence
+   *  that a claim was orphaned, and losing its payload destroys what we
+   *  knew about WHICH, not the fact that there was one. */
+  #restoreSettlement(state) {
+    const found = this.settlements.load(state.serverName, state.threadId);
+    if (found.state === "absent") return;
+    if (found.state === "damaged") {
+      const kept = this.settlements.preserveDamaged(state.serverName, state.threadId);
+      state.orphan = {
+        since: Date.now(),
+        turnId: null,
+        status: null,
+        participant: state.identity?.participant ?? null,
+        work: null,
+        episode: null,
+        actionKey: null,
+        correlation: "unknown",
+        session: null,
+        damaged: true,
+        // Unknown, therefore not filed: a lost payload cannot vouch for
+        // a publication that may never have happened.
+        incidentFiled: false,
+        reported: false,
+        restored: true,
+        checkedAt: 0,
+        remedy: "read this participant's claimed Work from the authority and "
+          + "release it with an exact `expect=`/`episode=` compare-and-swap",
+      };
+      state.orphan.durable = this.settlements.save(
+        state.serverName, state.threadId, this.#orphanRecord(state.orphan));
+      this.logger.error(
+        `[${state.name}] the failed-turn settlement marker for this managed `
+        + `context is damaged (${found.reason}). A marker at this exact key `
+        + `is evidence that a claim was orphaned, so the target stays fenced `
+        + `with the locator unknown rather than being read as clean`
+        + (kept ? `; the damaged bytes are kept at ${kept}` : "")
+        + `.`);
+      return;
+    }
+    state.orphan = {
+      ...found.record,
+      reported: false,
+      restored: true,
+      durable: true,
+      checkedAt: 0,
+      incidentFiled: found.record.incidentFiled === true,
+    };
+    this.logger.error(
+      `[${state.name}] a claim orphaned by a failed managed turn is still `
+      + `open at ${new Date(found.record.since).toISOString()}`
+      + (found.record.work ? ` on ${found.record.work}` : "")
+      + (Number.isSafeInteger(found.record.episode)
+        ? ` (assignment episode ${found.record.episode})` : "")
+      + `. Restarting the dispatcher does not release a canonical claim, so `
+      + `this target stays fenced until a reconciliation proves it gone. `
+      + `${found.record.remedy ?? ""}`.trimEnd());
+  }
+
+  /** Recover the publication half of a restored fence.
+   *
+   *  The marker is committed synchronously, before the incident is
+   *  published; a dispatcher can stop in that window. A restoring process
+   *  cannot infer that a fire-and-forget publication completed before its
+   *  predecessor died, so it files unless the marker durably says it
+   *  already did — which is what makes recovery idempotent across
+   *  restarts instead of re-filing forever. */
+  async #recoverOrphanIncident(state) {
+    if (!state.orphan) return;
+    this.#reportOrphan(state);
+    if (state.orphan.incidentFiled) return;
+    this.logger.warn(
+      `[${state.name}] the restored failed-turn fence carries no record that `
+      + `its durable incident was ever filed; filing it now rather than `
+      + `assuming the process that observed the failure survived long enough `
+      + `to publish it`);
+    await this.#fileOrphanIncident(state, state.orphan.session ?? state.threadId);
+  }
+
+  /** Ask the authority whether the fenced claim is still there.
+   *
+   *  The ONE way the fence ends. Clearing on a timer, on a restart, or on
+   *  an operator dismissing the incident would each end the fence without
+   *  the claim having gone anywhere — and W415 rules that dismissal
+   *  mutates no Work, so acknowledging the notice is explicitly not
+   *  recovering from it.
+   *
+   *  A read that fails RETAINS the fence: it is the same fail-closed rule
+   *  that set it. */
+  async #reconcileOrphan(state) {
+    const orphan = state.orphan;
+    if (!orphan || state.reconciling) return;
+    const now = Date.now();
+    if (now - orphan.checkedAt < this.config.reconnectMinMs) return;
+    orphan.checkedAt = now;
+    state.reconciling = true;
+    try {
+      const participant = orphan.participant ?? state.identity?.participant ?? null;
+      if (!participant) {
+        this.logger.error(
+          `[${state.name}] the failed-turn fence names no participant, so `
+          + `nothing can be reconciled against the authority; it stays.`);
+        return;
+      }
+      const found = await this.#readAssignment(state, {
+        participant,
+        key: orphan.actionKey ?? "the orphaned claim",
+        ...(orphan.work ? { work: orphan.work } : {}),
+        ...(Number.isSafeInteger(orphan.episode) ? { episode: orphan.episode } : {}),
+      });
+      if (found.state !== "released") {
+        this.#scheduleDrain(state, this.config.reconnectMaxMs);
+        return;
+      }
+      // Cleared only on the canonical answer, and the marker goes with
+      // it — a fence whose file outlived its condition would refence the
+      // target on the next restart.
+      const cleared = this.settlements.clear(state.serverName, state.threadId);
+      if (!cleared) return;
+      this.logger.info(
+        `[${state.name}] the orphaned claim`
+        + (orphan.work ? ` on ${orphan.work}` : "")
+        + ` has been released; the fence is lifted and ${state.queue.length} `
+        + `retained readiness event(s) may drain`);
+      state.orphan = null;
+      if (!state.tainted) void state.runtime.state("idle", { session: state.threadId });
+      void this.#drain(state);
+    } finally {
+      state.reconciling = false;
+    }
+  }
+
+  /** Publish an `idle` that was held while a delivery was in flight.
+   *
+   *  Dropped rather than published if a turn is now running: `working`
+   *  is the honest state then, and a stale idle arriving behind it would
+   *  report the runner as free while it is not. */
+  #flushDeferredIdle(state) {
+    const held = state.deferredIdle;
+    if (!held) return;
+    state.deferredIdle = null;
+    if (state.activeTurn || state.orphan) return;
+    if (state.tainted) this.#reportQuarantined(state, held.session);
+    else void state.runtime.state("idle", { session: held.session });
+  }
+
   async #turnCompleted(serverState, params) {
     const state = this.targetByThread.get(`${serverState.name}\u0000${params.threadId}`);
     if (!state) return;
     const isExternal = state.activeTurn?.id === params.turn.id;
     this.logger.info(`[${state.name}] turn completed: ${params.turn.id} (${params.turn.status})${isExternal ? "" : " [interactive]"}`);
-    // Between turns the runner is idle — the honest state, and one an
-    // adapter can only report because it OBSERVED the completion.
-    // Silence past the lease deadline is what becomes `unknown`, and
-    // only the authority derives that.
-    // W99: unless this context is quarantined, in which case `idle`
-    // would advertise a runner that is up and will never be given
-    // anything again.
-    if (state.tainted) this.#reportQuarantined(state, params.threadId);
-    else void state.runtime.state("idle", { session: params.threadId });
     this.#clearBlocked(state);
     if (isExternal) state.activeTurn = null;
     else {
       state.completedTurns.set(params.turn.id, params.turn);
       while (state.completedTurns.size > 20) state.completedTurns.delete(state.completedTurns.keys().next().value);
+    }
+    // W4303: the runner state is decided AFTER the settlement, not
+    // before it. Publishing `idle` first and correcting it afterwards
+    // would still have advertised, however briefly, a runner that is up
+    // and free while canonical state records it holding Work nothing is
+    // executing — which is the contradiction this Work exists to remove.
+    //
+    // A completion this dispatcher cannot yet attribute is HELD rather
+    // than guessed at: with a `turn/start` still in flight, "interactive"
+    // and "ours, arriving early" are indistinguishable here, and only
+    // the binding decides. `#drain` settles both outcomes.
+    if (!isExternal && state.attempt && state.attempt.turnId === null) {
+      state.deferredIdle = { session: params.threadId };
+    } else {
+      // Between turns the runner is idle — the honest state, and one an
+      // adapter can only report because it OBSERVED the completion.
+      // Silence past the lease deadline is what becomes `unknown`, and
+      // only the authority derives that.
+      // W99: unless this context is quarantined, in which case `idle`
+      // would advertise a runner that is up and will never be given
+      // anything again.
+      // Settled on the BOUND ATTEMPT, not on `activeTurn`. The two
+      // usually agree; they do not after `#reconcileTarget` clears an
+      // accepted turn it could not find on resume, and the completion
+      // that then arrives for that exact delivery would otherwise be
+      // read as interactive and published idle. `#settleTurn` costs one
+      // map lookup and no canonical read when nothing is bound to the
+      // turn, so an interactive turn stays free.
+      const settled = await this.#settleTurn(state, params.turn, params.threadId);
+      if (state.tainted) this.#reportQuarantined(state, params.threadId);
+      else if (!settled) void state.runtime.state("idle", { session: params.threadId });
     }
     try {
       const thread = await serverState.client.readThread(state.threadId);

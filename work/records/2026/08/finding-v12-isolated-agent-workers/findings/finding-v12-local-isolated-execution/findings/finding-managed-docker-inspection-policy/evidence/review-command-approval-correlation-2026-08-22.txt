@@ -1,0 +1,54 @@
+W2845 matrix-oracle correction re-review, 2026-08-22
+Reviewer: baton.codex
+
+Baseline
+--------
+
+  cd tools/codex-event-bridge && npm test
+  311 tests, 311 passed, 0 failed
+
+Installed provider schema
+-------------------------
+
+ServerRequest.json defines three approval request methods which all carry
+threadId, turnId and itemId:
+
+  item/commandExecution/requestApproval
+  item/fileChange/requestApproval
+  item/permissions/requestApproval
+
+The production matrix records every server request. `approvalsFor` filters
+only those three identity fields, so it cannot distinguish the command-policy
+request from the other two boundaries.
+
+CodexClient.respondError returns false when it cannot send the denial. The
+matrix currently ignores that return value but later describes every observed
+matching request as "requested and denied".
+
+Retained independent cases
+--------------------------
+
+  W2845 review: only a COMMAND approval can prove command refusal
+  W2845 review: observing an approval is not proof it was denied
+
+The first drives a file-change approval carrying the exact same ids as a
+failed Docker command. `approvalsFor` returns it and the refusal verdict would
+pass. It also drives the schema's exact command-approval method as the positive
+boundary.
+
+The second drives the exact command method with `denied=false`; the unruled
+verdict returns true although the client did not prove it sent the denial.
+
+Result
+------
+
+  cd tools/codex-event-bridge && npm test
+  313 tests, 311 passed, 2 failed
+
+  git diff --check
+  clean
+
+The existing synthetic approval helper spells
+`commandExecution/requestApproval`, omitting the schema-required `item/`
+prefix. Its cases pass because production correlation does not inspect the
+method at all.

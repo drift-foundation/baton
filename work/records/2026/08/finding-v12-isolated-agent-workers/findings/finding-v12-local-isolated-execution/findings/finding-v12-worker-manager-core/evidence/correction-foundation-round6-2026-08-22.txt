@@ -1,0 +1,151 @@
+W2929 — round 7 correction (foundation round six)
+Review: review-2026-08-22T19-31-47Z.md, two [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Plan items 3 and 4. Six rounds have now corrected this foundation and none of
+them built on it. Both findings are again in the code I landed last round —
+the same two boundaries, each corrected at the reported point and still split
+one level down.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    231 tests, 229 passed, 2 failed
+    X the first result is the same durable copy a retry replays
+    X a thenable is inspected once and held until completion
+
+Both findings are correct.
+
+
+2. [P1] THE FIRST COMMITTED RESULT WAS NOT THE DURABLE RESULT
+
+Round 5 made the journal record `_durable(result)` — the exact serialized
+bytes — and left `transact` returning `result` itself. So a `toJSON` gave the
+first caller the caller-owned source object and an exact retry the parsed
+journal: two different answers under ONE operation identity, for an act that
+ran once. The dossier pins a byte-stable operation result AND says returned
+values are copies rather than caller-owned aliases; that path satisfied
+neither.
+
+CORRECTED: `_durable` returns `{bytes, committed}` from the ONE
+serialization. `committed` is the parse of exactly those bytes, and it is
+what every caller is told — first call and replay alike. It is nobody's
+alias, so a caller that mutates what it was handed cannot change what the
+next caller is told, and no caller behaviour is invoked a second time.
+
+
+3. [P1] THENABLE CLASSIFICATION CONSUMED A DIFFERENT CONTINUATION
+
+`withSecret` read `outcome.then` to decide whether ownership transfers and
+then handed `outcome` to `Promise.resolve`, which reads `then` again —
+assimilation may read it further. A stateful thenable exposing its
+continuation on the first read and `undefined` afterwards was classified
+asynchronous while the continuation was never called: the wrapper settled
+immediately and released the bearer with the represented act still pending.
+
+This is the same shape as the round-5 serialization finding, one level down.
+A read that DECIDES something must be the read that is USED.
+
+CORRECTED: the continuation is captured once and THAT callable is
+assimilated, with its original receiver:
+
+  const continuation = outcome?.then;
+  if (typeof continuation === "function") {
+      transferred = true;
+      return new Promise((resolve, reject) => {
+          continuation.call(outcome, resolve, reject);
+      }).finally(() => forgetSecret(value));
+  }
+
+A THROWING `then` getter lands in the existing `finally` with `transferred`
+still false, so the synchronous cleanup covers it — which the review requires
+explicitly, and which now has its own regression: a value whose
+classification failed was never handed to anyone, so nothing else would ever
+release it.
+
+The review also confirms the scoped API does not need removing. That closes
+the question I raised last round.
+
+
+4. MUTATION CHECK — five, and one honest non-result
+
+  M1  return the action's object again
+        2 failed: the reviewer's copy case and the canonical-answer case
+  M3  classify by reading `then`, assimilate by reading it again
+        2 failed: the reviewer's thenable case and the rejecting-thenable case
+  M4  classification reads `then` twice
+        1 failed: the reviewer's thenable case
+  M5  a throwing getter is swallowed
+        1 failed: the throwing-getter case
+
+  M2  return `JSON.parse(durable.bytes)` per caller instead of the one
+      parsed copy
+        0 failed — AND THAT IS CORRECT, not a hole. Each call would produce
+        its own unowned copy of the same bytes, so every property the
+        boundary promises still holds: canonical, byte-stable, nobody's
+        alias. It is an equivalent implementation with one extra parse, not
+        a defect the suite missed, and it is recorded rather than papered
+        over with a test that would pin an arbitrary choice.
+
+Restored: 75/75 across the two focused files, 236/236 for the whole gate.
+
+
+5. REGRESSIONS — 236 (231 before)
+
+The reviewer's two are retained unchanged. Added five:
+
+  - a throwing `then` getter releases synchronously (the review's explicit
+    requirement, and unwitnessed until now);
+  - a thenable that REJECTS through its captured continuation releases — a
+    provider act ending badly is the likeliest way to strand a registration;
+  - a non-callable `then` is ordinary data and releases synchronously, since
+    treating it as asynchronous would strand the bearer forever;
+  - the committed answer is one canonical value everywhere: not an alias at
+    the top level or nested, and mutating the first answer does not change
+    what the retry replays;
+  - an action returning nothing answers `null` on the first call as well as
+    the replay, because `undefined` has no durable representation.
+
+
+6. GATES
+
+  cd v12 && npm test                       236 tests, 236 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2938 passed, 1 failed
+  tools/codex-event-bridge npm test        297 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+THE ONE PYTEST FAILURE IS NOT THIS WORK'S:
+`test_w4996_review_a_cycle_cut_by_the_cap_is_not_invented`, from
+`review-2026-08-22T19-42-55Z.md`, which landed while this turn was running.
+It is against the cycle boundary I added to W4996 earlier today. W4996 is
+queued on `baton.impl` for its own turn, it is Python, and it shares no
+module with `v12/src/worker_manager/`.
+
+ON THE REVIEW'S VERIFICATION NOTE: it records that the complete v12 gate was
+not attempted after the focused gate went red, and that the managed-review
+EPERM limitation for nested-spawn cases still stands with no escalation
+requested. Both are reasonable. The full gate runs from the implementer lane
+and is green at 236, including the reviewer's two cases and the five added
+this round.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/store.mjs       `_durable` returns `{bytes,
+                                         committed}`; `transact` returns the
+                                         committed copy
+  v12/src/worker_manager/contracts.mjs   `withSecret` captures the
+                                         continuation once and assimilates it
+  v12/test/worker_manager_contracts.test.mjs   +3 cases
+  v12/test/worker_manager_store.test.mjs       +2 cases

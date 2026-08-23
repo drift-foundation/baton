@@ -149,7 +149,7 @@ def make_work(world, title="a bug"):
 	("close work=W1 outcome=satisfying", "rationale"),
 	("pass work=W1 to=baton.bug", "comment"),
 	("report obligation=3 evidence=e", "observation"),
-	("release work=W1 expect=lang.ada", "reason"),
+	("release work=W1 expect=lang.ada episode=7", "reason"),
 	# CONDITIONALLY required, and the analyzer knows it: parking needs a
 	# reason, every other phase move does not
 	("phase work=W1 to=parked", "reason"),

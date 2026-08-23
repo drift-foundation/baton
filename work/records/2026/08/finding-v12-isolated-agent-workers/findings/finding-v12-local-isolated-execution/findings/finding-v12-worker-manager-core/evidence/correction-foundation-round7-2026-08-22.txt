@@ -1,0 +1,90 @@
+W2929 — round 8 correction (foundation round seven)
+Review: review-2026-08-22T19-49-19Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Plan items 3 and 4. Seven rounds have now corrected this foundation and none
+of them built on it.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    237 tests, 236 passed, 1 failed
+    X releasing a pinned registration never reports it gone
+
+Correct.
+
+
+2. [P2] THE RELEASE ANSWER CONTRADICTED THE GUARD IT DESCRIBES
+
+`forgetSecret` documents its boolean as whether the value is now gone, and
+its own comment says a pinned value never is. It then deleted the last
+dynamic registration and returned `true` without consulting `_PINNED`.
+
+NOT A LEAK, and the review says so plainly: the guard is the boundary and it
+went on refusing the value correctly. What was wrong is that the exported
+lifecycle answer said the opposite of the state the guard enforces. An
+orchestration slice reading `true` and concluding the value is no longer live
+would be reasoning from a false report — the kind of defect that is invisible
+until something depends on it.
+
+CORRECTED: `return !_PINNED.has(value)`. The nested count, the inert
+unbalanced release and the permanent pinned protection are unchanged.
+
+
+3. MUTATION CHECK — two
+
+  M1  report gone without consulting the pinned register
+        2 failed: the reviewer's case and the agreement case
+  M2  report still-live for every release
+        1 failed: the agreement case
+
+Restored: 55/55 in the focused file, 238/238 for the whole gate.
+
+M2 is why the added case tests BOTH directions. A boolean has two ways to be
+wrong, and the reviewer's case — correctly, for the defect it reports — only
+pins one of them. Always answering "still live" would satisfy it while
+breaking every ordinary release.
+
+
+4. REGRESSIONS — 238 (237 before)
+
+The reviewer's case is retained. Added one, and it asserts AGREEMENT rather
+than a return value: whatever `forgetSecret` reports, the guard must behave
+that way. It probes the guard after every release —
+
+  - an ordinary value through nested owners: false while an owner remains,
+    guard still refusing; true when the last one goes, guard now permitting;
+  - a pinned value: false after a balanced release, false after an
+    unbalanced one, guard refusing throughout;
+  - and the scoped form, whose release runs the same path.
+
+Testing the agreement rather than the literal boolean is the point: the
+boolean is only meaningful as a description of the guard.
+
+
+5. GATES
+
+  cd v12 && npm test                       238 tests, 238 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2942 passed, 0 failed
+  tools/codex-event-bridge npm test        297 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN, with no failure belonging to another Work
+for the first time in this sequence.
+
+
+6. FILES CHANGED
+
+  v12/src/worker_manager/contracts.mjs   `forgetSecret` consults `_PINNED`
+  v12/test/worker_manager_contracts.test.mjs   +1 case

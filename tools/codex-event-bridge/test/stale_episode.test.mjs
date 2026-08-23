@@ -31,13 +31,17 @@ import { freshQuarantineDir } from "./quarantine_fixture.mjs";
 // operations. These fixtures therefore need a real one.
 import { mkdtempSync as _mkdtemp, writeFileSync as _write } from "node:fs";
 import { join as _join } from "node:path";
-import { rulesFor as _rulesFor } from "../src/exec_policy.mjs";
+import { inspectionRules as _inspectionRules,
+         rulesFor as _rulesFor } from "../src/exec_policy.mjs";
 const _policyDir = _mkdtemp("/tmp/w415-fixture-policy-");
 export const FIXTURE_POLICY = _join(_policyDir, "baton.rules");
+// W2845: and the deployment-wide read-only Docker inspection profile,
+// which `start()` preflights on the same nominated file.
 _write(FIXTURE_POLICY, ["/srv/baton/baton.json", "/home/op/baton.json"]
 	.flatMap((config) => ["baton.tuner", "baton.codex", "a.b"]
 		.flatMap((participant) => _rulesFor({
 			binary: "/opt/baton/bin/baton", config, participant })))
+	.concat(_inspectionRules())
 	.join("\n") + "\n");
 
 
@@ -356,9 +360,12 @@ test("the producer's event names the participant and the key", () => {
 	// episode now ride BESIDE the key, because a consumer correlating a
 	// failure with the assignment it interrupted may not parse the key
 	// (docs/EFFECTIVE-BATON.md) and had no other way to learn them.
+	// W4303 extends it once more, on the same rule and for the same
+	// reason: the dispatcher SCHEDULES on `claimed`, and reading it back
+	// out of the summary sentence would be that same forbidden parse.
 	assert.deepEqual(event.action, {
 		participant: "baton.claude", key: "work:A:2:g1",
-		work: "7ba67cb8-W1224", episode: 4 });
+		work: "7ba67cb8-W1224", episode: 4, claimed: false });
 });
 
 test("W415: an action block without the new correlation still delivers", () => {

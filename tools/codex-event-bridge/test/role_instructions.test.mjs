@@ -12,13 +12,17 @@ import { freshQuarantineDir } from "./quarantine_fixture.mjs";
 // operations. These fixtures therefore need a real one.
 import { mkdtempSync as _mkdtemp, writeFileSync as _write } from "node:fs";
 import { join as _join } from "node:path";
-import { rulesFor as _rulesFor } from "../src/exec_policy.mjs";
+import { inspectionRules as _inspectionRules,
+         rulesFor as _rulesFor } from "../src/exec_policy.mjs";
 const _policyDir = _mkdtemp("/tmp/w415-fixture-policy-");
 export const FIXTURE_POLICY = _join(_policyDir, "baton.rules");
+// W2845: and the deployment-wide read-only Docker inspection profile,
+// which `start()` preflights on the same nominated file.
 _write(FIXTURE_POLICY, ["/srv/baton/baton.json", "/home/op/baton.json"]
 	.flatMap((config) => ["baton.tuner", "baton.codex", "a.b"]
 		.flatMap((participant) => _rulesFor({
 			binary: "/opt/baton/bin/baton", config, participant })))
+	.concat(_inspectionRules())
 	.join("\n") + "\n");
 
 

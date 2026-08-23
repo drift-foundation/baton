@@ -1353,3 +1353,176 @@ Containment remains structural and prevents premature parent closure; it is
 not a scheduler dependency. Add a dependency edge only when one concrete W28
 decision or action genuinely cannot proceed until the named Work completes.
 W28 is never claimed merely to stand in for execution occurring in a child.
+
+## M2 conditional activation — confirmed 2026-08-21
+
+The approver accepts W1425 as the next campaign milestone after M1. M2 is
+limited to the OCI reference worker, the trusted Worker Manager, and one
+complete local isolated lifecycle. It does not authorize the proposal
+pipeline, provider certification, remote execution, resilience trials, or
+production rollout.
+
+M2 has a real scheduler dependency on the completed M1 contract freeze, not
+merely a containment relationship. W1425 therefore moves from discretionary
+parking to an explicit block on W1408. Closing W1408 makes M2 visible for its
+own bounded decomposition and approval without starting it early.
+
+## M3–M6 conditional activation — confirmed 2026-08-21
+
+The approver conditionally accepts the remaining campaign milestones with
+explicit scheduler gates. This supersedes the earlier statement that every
+later milestone remains parked until a separate future approval: the scope is
+approved now, but no milestone becomes runnable before its prerequisites
+close.
+
+W1427 (M3, proposal pipeline) waits on W1425. Its boundary is refresh,
+immutable forge-independent proposals, clean verification, technical review,
+explicit approval, and trusted integration. Workers, verifiers, and reviewers
+receive no canonical write authority; the integrator does not resolve
+conflicts or edit code.
+
+W1429 (M4, runtime certification) also waits on W1425 and may proceed
+independently of M3. It certifies the local Claude, Gemini, and Codex paths
+against the same worker contract. A remote adapter remains a named extension
+point in the contract, but implementing or certifying SSH or another remote
+transport is not part of this milestone.
+
+W1431 (M5, resilience and scale) waits on both W1427 and W1429. It exercises
+failure and race recovery plus concurrent isolated workers. Timeouts and
+expired deadlines report conditions; they do not automatically discard useful
+output unless an explicit route policy authorizes that disposition.
+
+W1433 (M6, rollout and adoption) waits on W1431. It covers mixed v11/v12
+operation, observability, documentation, retention, identity separation,
+rollback, and the later production-adoption decision. V11 remains available
+until v12 has a practically usable TUI and the approver separately rules that
+the legacy path can be retired; milestone approval itself does not make that
+decision.
+
+## Operator-visible handoff before claim — confirmed 2026-08-22
+
+V12 exposes the pre-claim handoff instead of leaving an honestly unclaimed Job
+looking abandoned while its selected worker starts, loads policy, or inspects
+the contract. The operator-facing model has exactly two ordered stages:
+
+1. **Offered:** the manager selected and handed the exact Work to one intended
+   participant/runtime attempt. This event records the issue time and token
+   expiry and starts the visible claim-acceptance countdown. The participant
+   has not yet accepted, so Work remains queued, Handler is empty, and no
+   assignment generation or writable execution capability exists.
+2. **Claimed:** the successful canonical claim names the Handler, moves Work to
+   active, mints the assignment generation, and stops the offer countdown.
+
+An offer is evidence of dispatch, not evidence that the recipient accepted or
+started authoritative execution. Failed, refused, or expired are outcomes of
+the Offered attempt, not additional operator-facing phases, and may be followed
+by a new offer to another eligible participant. Expiry stops the countdown and
+leaves Work unclaimed. Jobs and Teams may choose compact presentation, but must
+never collapse Offered and Claimed or fill Handler before the authority
+commits the claim.
+
+This makes normal model startup latency legible without weakening claim-gated
+execution. It is a v12 projection and observability requirement and changes no
+v11 phase, Handler, or readiness semantics.
+
+## Reviewer scheduling intents — confirmed 2026-08-22
+
+V12 preserves two distinct reviewer-selection intents rather than treating
+every review handoff as the same scheduling request:
+
+- **Affinity review** prefers the same reviewer across an
+  implementation→review→implementation revision cycle, preserving useful
+  context and review continuity. If that reviewer is unavailable, scheduling
+  may fall back to another eligible reviewer rather than stranding the Work.
+- **Independent opinion** deliberately selects a different participant from
+  the prior reviewer. Policy may additionally require a different provider or
+  model when participant separation alone does not provide the intended
+  independence.
+
+Reviewer memory and model context are efficiency advantages only. The bound
+canonical dossier remains the authoritative source of the contract, evidence,
+prior findings, and revision history; either scheduling intent must remain
+correct after context loss or reviewer replacement.
+
+These are deferred v12 scheduler intents. This ruling authorizes no scheduler
+implementation and makes no change to the v11 reviewer pool, routes, or
+selection behavior.
+
+## Actionable runtime failures — confirmed 2026-08-22
+
+A failed runtime must not appear in the TUI as an unexplained `fail`. The
+Worker Manager or adapter, rather than the agent, owns publication of a typed
+failure observation because that path remains available when the agent cannot
+send a final message. The Jobs view shows a bounded human-readable cause beside
+the failed run, such as `approval required: rm cleanup`, while Work details
+link the exact attempt to its durable diagnostic record.
+
+The diagnostic record includes the source component, typed cause/category,
+manager-observed time, exact attempt and assignment identity when one exists,
+the failed operation in a safely bounded form, and a stable locator for
+redacted logs or retained evidence. A local deployment may resolve that
+locator to a file; remote runtimes may expose an artifact URI. The TUI provides
+a direct path from the failed Job or member to those diagnostics instead of
+requiring the operator to discover service logs manually.
+
+Agent prose may add context but is not required to make failure intelligible.
+Diagnostic publication must survive an interrupted or quarantined turn, must
+not grant workflow authority, and must not expose credentials or unrestricted
+raw output. The W2907 approval quarantine on 2026-08-22 is the motivating
+example: the durable observation should have said that review was interrupted
+because deletion of its temporary test directory requested approval and
+should have linked the corresponding managed-turn log.
+
+## Broad worker freedom inside strict confinement — confirmed 2026-08-22
+
+V12 does not reproduce host-side per-command approval inside an isolated
+worker. After a successful claim unlocks execution, the model may run broadly
+destructive commands, including recursive deletion, against its assignment's
+private writable workspace and declared output areas. Destroying those areas
+may fail or erase that attempt, but cannot alter the canonical checkout,
+another worker, or Baton authority. The manager records the outcome and applies
+the configured retain, salvage, or dispose policy; a command is not escalated
+to the human merely because it is destructive inside that boundary.
+
+This is root-like freedom within the disposable assignment, not host-root or
+container-engine authority. The reference runtime must not use privileged
+containers, host namespaces, host devices, or the host container-runtime
+socket. It grants no writable canonical repository or authority mount and no
+capability that lets container root escape the assignment boundary. Runtime
+implementations may use an unprivileged numeric user and must drop unnecessary
+OS capabilities; the product invariant is the confinement boundary, not a
+particular in-container uid.
+
+The v11 rule forbidding approval escalation in host-side managed Codex turns
+is therefore a temporary safety rule for shared-host execution. It does not
+constrain command choice inside a conforming v12 worker.
+
+## Stage-scoped dependency gates — confirmed 2026-08-22
+
+V11 dependency edges remain unchanged: one open prerequisite blocks the whole
+Work, including research, review, implementation, and integration. V12 must
+not inherit that coarse interpretation as its only dependency model.
+
+Most development dependencies constrain a particular execution stage rather
+than every useful action on the dependent Work. V12 therefore distinguishes:
+
+- an **outcome dependency**, where planning or review genuinely requires the
+  predecessor's completed result and the whole Work remains gated;
+- an **implementation dependency**, where research and review may proceed but
+  no implementation offer may be issued until the predecessor closes; and
+- an **integration dependency**, where isolated implementation may proceed but
+  verification, acceptance, or integration waits for the prerequisite.
+
+The dependency target is a named stage/offer eligibility boundary, not an
+informal convention inferred from Route names. A gate is rechecked atomically
+when that stage's offer is issued. Whole-Work blocking is reserved for genuine
+outcome dependencies and is not the default merely because two implementations
+must land in order.
+
+The current W2929→W2930 edge demonstrates the v11 limitation: it blocks
+W2930's review even though only implementation ordering normally needs to be
+serial. We deliberately leave that live v11 edge unchanged. Under v12 the
+review could run concurrently, while the implementation offer would remain
+ineligible until W2929 completed. One-live-claim capacity may also serialize a
+particular implementer, but capacity is not a substitute for the durable
+stage-scoped dependency because other eligible implementers may exist.

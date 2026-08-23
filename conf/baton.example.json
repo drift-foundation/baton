@@ -60,7 +60,8 @@
       "participants": {
         "sl": {
           "capabilities": [
-            "config"
+            "config",
+            "dispatch"
           ],
           "display": "Slawomir",
           "roles": [

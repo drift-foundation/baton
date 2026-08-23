@@ -1,0 +1,60 @@
+W4996 independent first-slice review, 2026-08-22
+
+Baseline focused command:
+
+  .venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+
+Baseline result before reviewer additions:
+
+  19 passed in 0.14s
+
+Two additive regressions were then retained in that file:
+
+  test_depth_two_renders_the_edges_that_actually_exist
+  test_every_selectable_stacked_row_displays_its_own_work
+
+Focused result after the additions:
+
+  2 failed, 19 passed in 0.17s
+
+Failure 1:
+
+  AssertionError: the renderer dropped the canonical depth-two edge
+
+  Expected the canonical edge:
+    [W19 block] --blocks--> [W20 block]
+
+  Actual rendered graph:
+    [W18 queued]
+    [W18 queued] --blocks--> [W19 block]
+    [W18 queued] --blocks--> [W20 block]
+
+The second actual edge is invented: W18 does not directly block W20.
+
+Failure 2:
+
+  AssertionError: the selectable identity differs from the Work shown on its row
+
+  Selectable row Work token:
+    [W20 block]
+
+  Visible text on that selectable row:
+    [W19 block]
+
+The stacked downstream row therefore displays the center while its `work`
+metadata targets the consumer.
+
+Static boundedness evidence:
+
+  src/baton_work/projection.py:_dependency_edges
+    returns every direct edge as a Python list
+
+  src/baton_work/projection.py:_expand_dependency
+    hops = _dependency_edges(...)
+    admitted = hops[:limit]
+
+The branch page and 200-occurrence cap apply only after the unbounded list has
+already been materialized. The existing cap test uses six consumers and does
+not cross the cap.
+
+Whitespace-damage check: clean.

@@ -1,0 +1,36 @@
+W2929 cancellation-correction re-review — 2026-08-22T23:55:38Z
+
+Accepted from the correction:
+- shared trace: authority.cancel -> agent.cancel -> adapter.stop
+- refused authority fence reaches neither later boundary
+- response says ordered, not stopped
+- negative agent/runtime settlements are returned uninterpreted
+- in-flight stop order is re-issued under its stable operation identity
+
+Observed remaining failure boundary:
+- session.cancel returns successfully, so the authority is fenced
+- agent.cancel is reached and throws "agent transport failed"
+- adapter.stop is never reached
+- execution_runtime is already cancel-requested
+
+Added regression:
+  W2929 re-review: agent cancellation failure cannot suppress runtime stop
+
+Focused command:
+  node v12/test/worker_manager_attempts.test.mjs
+
+Focused result:
+  tests 58; pass 57; fail 1
+  sole failure: W2929 re-review: agent cancellation failure cannot suppress
+  runtime stop
+
+Full command (cwd v12):
+  npm test
+
+Full result:
+  tests 340; pass 339; fail 1
+  same sole failure
+
+No implementation file was changed by the reviewer. The additive regression,
+this evidence, FINDING/PLAN chronology and append-only review are the only
+review-owned changes.

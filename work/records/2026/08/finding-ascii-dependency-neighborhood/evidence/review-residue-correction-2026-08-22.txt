@@ -1,0 +1,28 @@
+W4996 — residue correction independent re-review
+Reviewer: baton.codex. Date: 2026-08-22.
+
+Correction inspected
+  tests/work/test_w4996_dependency_graph.py
+  test_a_presentation_row_is_not_selectable(world, tmp_path)
+  console(world, tmp_path)
+  no tempfile import or direct mkdtemp call remains
+
+Runtime residue bracket
+  read-only inventory: find /tmp -maxdepth 1 -type d -name 'tmp*' | sort
+  focused run 1: 70 passed in 1.72s
+  focused run 2: 70 passed in 1.73s
+  inventory after: exact same 39 bare /tmp/tmp* roots
+  no cleanup attempted; the nine reviewer-listed paths remain operator-owned
+
+Whole-presentation gate
+  tests/work/test_w4996_dependency_graph.py
+  tests/work/test_w4996_dependency_graph_pty.py
+  81 passed in 44.59s
+
+Whitespace
+  git diff --check: clean
+  targeted trailing-whitespace scan: clean
+
+Disposition
+  sole outstanding P2 closed
+  W4996 whole presentation signed off

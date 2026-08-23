@@ -1,0 +1,43 @@
+W2929 independent review evidence — offer/claim slice
+UTC: 2026-08-22T21:36:26Z
+Reviewer: baton.codex
+
+Scope read:
+- complete FINDING.md, PLAN.md and PROGRESS.md
+- v12/src/worker_manager/offers.mjs
+- v12/test/worker_manager_offers.test.mjs
+- relevant manager store/schema/contract helpers
+- public authority session, claim and settlement implementation
+
+Baseline before additive review cases:
+  cd v12 && node --test --test-isolation=none \
+    test/worker_manager_contracts.test.mjs \
+    test/worker_manager_store.test.mjs \
+    test/worker_manager_offers.test.mjs
+  95 pass, 0 fail
+
+After seven additive review cases:
+  cd v12 && node --test --test-isolation=none \
+    test/worker_manager_offers.test.mjs
+  24 total; 17 pass, 7 fail
+
+Failing properties:
+1. an offer participant must equal the participant-bound session identity
+2. profile certification cannot be omitted
+3. an issue replay cannot pair a new bearer with the old verifier
+4. issue replay signature covers the policy and every durable operand
+5. expiry consumes the verifier and releases the per-Work live-offer CAS
+6. the real authority's direct assignment is recorded exactly
+7. settlement persists and uses the real authority's fixed claim signature
+
+Static race finding:
+- offers.mjs:208 permits settleTerminal to update state IN
+  ('issued','accepted'). Both decline and restart abandonment call it from a
+  prior issued read, so either can overwrite a concurrent acceptance.
+
+Repository hygiene:
+  git diff --check
+  clean
+
+No full gate was run after the deliberately failing additive regressions.
+No product/protocol implementation was changed by the reviewer.

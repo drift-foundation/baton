@@ -1,0 +1,6133 @@
+{
+ "format": "baton.worker-conformance/cases-2",
+ "cases": [
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-collection-ambiguous",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-09"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "transport-drop"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.collect"
+    ],
+    "faults": [
+     "transport-drop"
+    ],
+    "detail": "Interrupt a collection, then reconcile."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "resolved_by_exact_operation",
+      "op": "is-true"
+     },
+     {
+      "fact": "collected_from_writable_mount",
+      "op": "is-false"
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     }
+    ]
+   },
+   "required_facts": [
+    "collected_from_writable_mount",
+    "durable_effects",
+    "resolved_by_exact_operation"
+   ],
+   "deciding_evidence": [
+    "log",
+    "reproduction"
+   ],
+   "statement": "An interrupted collection reconciles by repeating the exact operation against sealed bytes.",
+   "document_digest": "sha256:8e7daa1a93b660a933bf4c1de349835808c350458a982675c884313a2a1aaf99"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-directory-exact-tree",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Materialize a directory source and enumerate the tree."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "tree_digest_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "entry_count_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "total_bytes_matches",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "entry_count_matches",
+    "total_bytes_matches",
+    "tree_digest_matches"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "The materialized tree digest, entry count and total bytes equal the declared content manifest.",
+   "document_digest": "sha256:a71460b192b6908f8bbece22552b0b5f8f33d58fa2970209c8179bf899224f90"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-freeze-after-quiescence",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "process-kill"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect",
+     "output.freeze"
+    ],
+    "faults": [
+     "process-kill"
+    ],
+    "detail": "Stop the writer, observe quiescence, then freeze."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "runtime_state_at_freeze",
+      "op": "equals",
+      "value": "quiescent"
+     },
+     {
+      "fact": "freeze_committed",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "freeze_committed",
+    "runtime_state_at_freeze"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "trace"
+   ],
+   "statement": "Freeze commits only after a quiescent runtime observation.",
+   "document_digest": "sha256:6a9a723ba716a6aaee55784851b300c445070f557eb84e7f9dcdd6a353753f08"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-freeze-changed-bytes-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Freeze different bytes under the same operation id."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "operation-collision"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A freeze of different bytes under the same operation id refuses.",
+   "document_digest": "sha256:49ec4321953d596cc1d2cbc746d2393278fcf5ebda3dc524092ed08a80548644"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-freeze-digest-recomputes",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Freeze, then recompute the manifest digest over collected bytes."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "manifest_digest_recomputes",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "manifest_digest_recomputes"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "attestation"
+   ],
+   "statement": "The frozen-result manifest digest recomputes over the collected bytes.",
+   "document_digest": "sha256:e2bcfd846ff5ab81e3ad6ab34054de3f7ca1990ccdae2351f1916585130df016"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-freeze-exact-replay",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "frame-duplicate"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [
+     "frame-duplicate"
+    ],
+    "detail": "Retry the exact freeze operation."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "replay_is_byte_identical",
+      "op": "is-true"
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "replay_is_byte_identical"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "An exact freeze retry replays byte-for-byte and commits nothing a second time.",
+   "document_digest": "sha256:f6585208e12eacbb322ae7c90c89534647d7ddbce7fad6eb9008deea88b75a2b"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-git-exact-base",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Materialize a git source whose manifest binds an exact base revision."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "materialized_object_id",
+      "op": "equals",
+      "value": "base-revision-under-test"
+     },
+     {
+      "fact": "object_id_matches_manifest",
+      "op": "is-true"
+     },
+     {
+      "fact": "ref_was_resolved",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "materialized_object_id",
+    "object_id_matches_manifest",
+    "ref_was_resolved"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "The workspace resolves to the exact base_revision the input manifest bound.",
+   "document_digest": "sha256:3bfe7e188a485831147c97526987e76d473346d5e508334805399bac4e051457"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-git-moved-ref-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Move the source ref after binding, then materialize."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "digest"
+    },
+    "requires": [
+     {
+      "fact": "object_id_matches_manifest",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "object_id_matches_manifest",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "A source ref that moved after binding refuses rather than taking the new tip.",
+   "document_digest": "sha256:b4e152fb45080f5a75c1c3bd53a8e5d06daa625a0964b35f071f7b15bc1292a4"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-input-readonly",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe attempts a write into a declared input path."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "input_write_succeeded",
+      "op": "is-false"
+     },
+     {
+      "fact": "input_write_denied_by",
+      "op": "non-empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "input_write_denied_by",
+    "input_write_succeeded"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "A write into a declared input path does not succeed; inputs are read-only to the worker.",
+   "document_digest": "sha256:b0fc2fe9ccbd47e5be40f41a32be41c8e98e7182476c05b8b3c9756e4d25074b"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-missing-required-output",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-07"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "output-suppress"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "result.declare"
+    ],
+    "faults": [
+     "output-suppress"
+    ],
+    "detail": "Suppress a required output, then declare."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "declared_disposition",
+      "op": "equals",
+      "value": "unable"
+     },
+     {
+      "fact": "absence_recorded",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "absence_recorded",
+    "declared_disposition"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "A missing required output yields 'unable' with the absence recorded, never 'completed'.",
+   "document_digest": "sha256:ef9c97893d070dc394c85cf019d99ca34e765e06e56f76706074d876f08c46ae"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-output-overlap-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Declare two outputs whose destinations overlap."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "path"
+    },
+    "requires": []
+   },
+   "required_facts": [
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Two declared outputs whose destinations overlap are refused.",
+   "document_digest": "sha256:4c19ba971008d7166c79cca0c9645f46c132122bd4e154be2758106b11e84454"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-output-symlink-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Place a symlink inside a declared output and freeze."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "file-type"
+    },
+    "requires": []
+   },
+   "required_facts": [
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A symlink or reparse point inside a declared output is refused at freeze.",
+   "document_digest": "sha256:49b8ed4786e173fe46b995253d0ed85042a95b24ca641a4ee5d2e25c89f38979"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-output-traversal-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Declare an output path containing a traversal segment."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "path"
+    },
+    "requires": []
+   },
+   "required_facts": [
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A declared output path containing a traversal segment is refused.",
+   "document_digest": "sha256:24dcdc50b0510293cc4e321d105325021c16f894049df74bd64f818fd1a442d9"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-proposal-is-not-a-push",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "proposal.publish"
+    ],
+    "faults": [],
+    "detail": "Publish a proposal and read the canonical target."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "proposal_is_immutable_artifact",
+      "op": "is-true"
+     },
+     {
+      "fact": "canonical_target_revision_before",
+      "op": "equals",
+      "value": "target-under-test"
+     },
+     {
+      "fact": "canonical_target_revision_after",
+      "op": "equals",
+      "value": "target-under-test"
+     }
+    ]
+   },
+   "required_facts": [
+    "canonical_target_revision_after",
+    "canonical_target_revision_before",
+    "proposal_is_immutable_artifact"
+   ],
+   "deciding_evidence": [
+    "bundle",
+    "manifest"
+   ],
+   "statement": "The proposal is an immutable artifact and the canonical target revision is unchanged.",
+   "document_digest": "sha256:4880d4f79fc26bac494cfc10dfccbe1628ace93fcff03040c9ca3a7e931e3de6"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-undeclared-not-collected",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [
+     "output.collect"
+    ],
+    "faults": [],
+    "detail": "Probe writes outside every declared output, then collect."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "wrote_undeclared_path",
+      "op": "is-true"
+     },
+     {
+      "fact": "collected_paths",
+      "op": "disjoint-from",
+      "value": [
+       "undeclared.txt"
+      ]
+     }
+    ]
+   },
+   "required_facts": [
+    "collected_paths",
+    "wrote_undeclared_path"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "diff"
+   ],
+   "statement": "A file written outside every declared output is not collected.",
+   "document_digest": "sha256:6cd764fe3ffe69f45ab67b5bf0f41df5ee46714a05e9ebc32a8475a97e82fd40"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-cross-worker-isolation",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "concurrent-assignment"
+   ],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [
+     "concurrent-assignment"
+    ],
+    "detail": "Run two concurrent assignments; each probes for the other's paths."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "peer_workspace_readable",
+      "op": "is-false"
+     },
+     {
+      "fact": "peer_output_writable",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "peer_output_writable",
+    "peer_workspace_readable"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "Neither runtime can read or write the other's workspace or declared output.",
+   "document_digest": "sha256:a811d39ad9bced8996fcad2d09f34ba89eae5c8b104b3fcf95e3e8a2962c0696"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-git-metadata-private",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe reads which object store the workspace resolves against."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "object_store_identity",
+      "op": "equals",
+      "value": "private-clone"
+     },
+     {
+      "fact": "object_store_identity",
+      "op": "not-equals",
+      "value": "canonical"
+     }
+    ]
+   },
+   "required_facts": [
+    "object_store_identity"
+   ],
+   "deciding_evidence": [
+    "log",
+    "diff"
+   ],
+   "statement": "The workspace's Git metadata resolves only against its private object store.",
+   "document_digest": "sha256:5eb41b7ffccd01fc6c4b202c3d75991bcc757825b8b792cbbaf107fe530861ed"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-network-policy-enforced",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "network-deny"
+   ],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [
+     "network-deny"
+    ],
+    "detail": "Probe attempts egress inside and outside the pinned policy."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "egress_beyond_policy_succeeded",
+      "op": "is-false"
+     },
+     {
+      "fact": "egress_within_policy_succeeded",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "egress_beyond_policy_succeeded",
+    "egress_within_policy_succeeded"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "Egress beyond the pinned network policy does not succeed.",
+   "document_digest": "sha256:9894bd143b6ca971563a276162ab5d27eaa9ee7a46fce1635ff042aed9d12462"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-no-authority-capability",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe attempts to resolve and open the authority home and database."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "authority_home_reachable",
+      "op": "is-false"
+     },
+     {
+      "fact": "authority_database_reachable",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "authority_database_reachable",
+    "authority_home_reachable"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "No path resolving into the authority home or its database is reachable from the runtime.",
+   "document_digest": "sha256:48c334db276560bc741444d33b66c2d17da354627c206bdbccaff6762b33538c"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-no-baton-executable",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe attempts to resolve the Baton executable and configuration."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "baton_executable_reachable",
+      "op": "is-false"
+     },
+     {
+      "fact": "baton_config_reachable",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "baton_config_reachable",
+    "baton_executable_reachable"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "The Baton executable and configuration are not reachable from the runtime.",
+   "document_digest": "sha256:b0c558d7e7c4bf6a4d80f036ca0178ba7d504a8a8065254fdffe6539c3600180"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-no-canonical-repository",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe attempts to resolve the canonical repository."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "canonical_repository_reachable",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "canonical_repository_reachable"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "The canonical repository is not mounted; only the private copy is.",
+   "document_digest": "sha256:b7b72b4bbc2b3d9025f74c2cc3bd4101414720e7a84fff1642378ed4761cecd7"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-resource-policy-enforced",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe attempts to exceed the pinned resource limits."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "resource_beyond_policy_succeeded",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "resource_beyond_policy_succeeded"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "Resource use beyond the pinned limits does not succeed.",
+   "document_digest": "sha256:0de6413ef48c36d4c713096c09236c7e29cc28b77e50821d6457e43219c9497e"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "B-tool-policy-enforced",
+   "family": "B",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "B-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe enumerates the tools available to it."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "tool_outside_policy_available",
+      "op": "is-false"
+     },
+     {
+      "fact": "available_tools",
+      "op": "subset-of",
+      "value": [
+       "pinned-tool-a",
+       "pinned-tool-b"
+      ]
+     }
+    ]
+   },
+   "required_facts": [
+    "available_tools",
+    "tool_outside_policy_available"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "No tool outside the pinned tool policy is available to the worker.",
+   "document_digest": "sha256:ad56b7d7f282f981add17b24840038a76805005151d0a95525de0fa2519ec809"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-activity-changes-no-state",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "activity.emit"
+    ],
+    "faults": [],
+    "detail": "Emit a burst of activity and read the projection either side."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "phase_before",
+      "op": "equals",
+      "value": "active"
+     },
+     {
+      "fact": "phase_after",
+      "op": "equals",
+      "value": "active"
+     },
+     {
+      "fact": "handler_unchanged",
+      "op": "is-true"
+     },
+     {
+      "fact": "generation_unchanged",
+      "op": "is-true"
+     },
+     {
+      "fact": "contract_unchanged",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "contract_unchanged",
+    "generation_unchanged",
+    "handler_unchanged",
+    "phase_after",
+    "phase_before"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "A burst of activity leaves phase, Handler, contract and generation unchanged.",
+   "document_digest": "sha256:32084577c5ebf6964fd7411ea9a7b73566bf2de235f7fe980b66891801451762"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-assignment-manifest-after-claim",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-07"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Read the assignment manifest and the authority claim event."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "manifest_existed_before_claim",
+      "op": "is-false"
+     },
+     {
+      "fact": "manifest_exists_after_claim",
+      "op": "is-true"
+     },
+     {
+      "fact": "manifest_generation_is_live",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "manifest_existed_before_claim",
+    "manifest_exists_after_claim",
+    "manifest_generation_is_live"
+   ],
+   "deciding_evidence": [
+    "manifest"
+   ],
+   "statement": "The assignment manifest exists only after the claim committed and binds the live generation.",
+   "document_digest": "sha256:b7fc6dd002469e71d1aa1ed77232113a31d91cbeb9cbf2f8e8644456cb156d85"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-claim-ambiguous-no-execution",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "process-kill"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [
+     "process-kill"
+    ],
+    "detail": "Interrupt the claim mid-flight and inspect."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "operation_state",
+      "op": "equals",
+      "value": "unknown"
+     },
+     {
+      "fact": "writable_runtime_started",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "operation_state",
+    "writable_runtime_started"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "While a claim is unsettled, no writable runtime starts.",
+   "document_digest": "sha256:6c76acae91a35fd7832c7c63bbbc716ef469ae32dd4cf980bf8243849e45c008"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-claim-settled-by-operation",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "manager-restart"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [
+     "manager-restart"
+    ],
+    "detail": "Restart the manager, then settle the claim."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "settled_by",
+      "op": "equals",
+      "value": "operation-replay"
+     },
+     {
+      "fact": "settled_by",
+      "op": "not-equals",
+      "value": "handler-identity"
+     }
+    ]
+   },
+   "required_facts": [
+    "settled_by"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "The claim is settled by exact operation replay, not by reading the current Handler.",
+   "document_digest": "sha256:c7e6a53b26d31b96ce78081532439cf116aab5488d92f10f4f202eae98738e08"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-decline-carrying-bearer-refused",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [],
+    "detail": "Decline while carrying the claim bearer."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "schema"
+    },
+    "requires": [
+     {
+      "fact": "claim_committed",
+      "op": "is-false"
+     },
+     {
+      "fact": "offer_state",
+      "op": "not-equals",
+      "value": "declined"
+     }
+    ]
+   },
+   "required_facts": [
+    "claim_committed",
+    "offer_state",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A decline that transmits the bearer is refused; the offer is not terminated.",
+   "document_digest": "sha256:f5d3ca120ca3845c1908e36a8902ee90da8263262f9b800d03df6dbac77a02fc"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-decline-without-bearer",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [],
+    "detail": "Decline an issued offer with claim_token null."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "decline_carried_null_token",
+      "op": "is-true"
+     },
+     {
+      "fact": "offer_state",
+      "op": "equals",
+      "value": "declined"
+     },
+     {
+      "fact": "offer_verifier_spent",
+      "op": "is-true"
+     },
+     {
+      "fact": "claim_committed",
+      "op": "is-false"
+     },
+     {
+      "fact": "work_phase",
+      "op": "equals",
+      "value": "queued"
+     }
+    ]
+   },
+   "required_facts": [
+    "claim_committed",
+    "decline_carried_null_token",
+    "offer_state",
+    "offer_verifier_spent",
+    "work_phase"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "A decline carrying no bearer terminates its own offer, spends the verifier and commits no claim.",
+   "document_digest": "sha256:1862146ca005190f8c0c65d79122927da41e07fd0aba5cd4d6271d1924528e80"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-decline-wrong-binding-refused",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [],
+    "detail": "Decline naming one offer while carrying another offer's attempt or Work."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "claim_committed",
+      "op": "is-false"
+     },
+     {
+      "fact": "offer_state",
+      "op": "not-equals",
+      "value": "declined"
+     },
+     {
+      "fact": "other_offer_state",
+      "op": "not-equals",
+      "value": "declined"
+     }
+    ]
+   },
+   "required_facts": [
+    "claim_committed",
+    "offer_state",
+    "other_offer_state",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A differently bound decline refuses and terminates neither the named offer nor the bound one.",
+   "document_digest": "sha256:1f377860e713b982de307dce5ed9eaf758daf9cbdbfcd1c086609cad47a7fc8d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-no-write-before-activate",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Probe before and after activation."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "writable_paths_before_activate",
+      "op": "empty"
+     },
+     {
+      "fact": "tools_before_activate",
+      "op": "empty"
+     },
+     {
+      "fact": "writable_paths_after_activate",
+      "op": "non-empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "tools_before_activate",
+    "writable_paths_after_activate",
+    "writable_paths_before_activate"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "No writable path or execution tool exists before assignment.activate.",
+   "document_digest": "sha256:cea35026b99b1345dc300941b2573446519ae24803cf3fb65512a83fe8b779f4"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-preclaim-metadata-only",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.issue"
+    ],
+    "faults": [],
+    "detail": "Inspect the offer frame before any decision."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "offer_carries_input_bytes",
+      "op": "is-false"
+     },
+     {
+      "fact": "offer_carries_digests",
+      "op": "non-empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "offer_carries_digests",
+    "offer_carries_input_bytes"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "The offer frame carries metadata and digests only; no input bytes.",
+   "document_digest": "sha256:181dfed55c86eb9a4af6f576bfce0f86845606156fdce2e1858fe27971949f9e"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-preclaim-no-execution",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [
+     "offer.issue"
+    ],
+    "faults": [],
+    "detail": "Probe the consent runtime for writable paths and input."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "consent_runtime_has_workspace",
+      "op": "is-false"
+     },
+     {
+      "fact": "consent_runtime_has_output",
+      "op": "is-false"
+     },
+     {
+      "fact": "consent_runtime_writable_paths",
+      "op": "empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "consent_runtime_has_output",
+    "consent_runtime_has_workspace",
+    "consent_runtime_writable_paths"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "The consent runtime reaches no input, no output and no writable path.",
+   "document_digest": "sha256:85a5a384f42987994f10ad76ba1650302e8da7e529747a489df561495be38f65"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-stale-activity",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "activity.emit"
+    ],
+    "faults": [],
+    "detail": "Emit activity under a superseded generation."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "generation"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Activity under a superseded generation refuses.",
+   "document_digest": "sha256:d6fd790d3bbe766097263cdafe4d2ec02734fd49e50a0c93106a942d7a1db6ac"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-stale-proposal",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "proposal.publish"
+    ],
+    "faults": [],
+    "detail": "Publish a proposal under a superseded generation."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "generation"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A proposal published under a superseded generation refuses.",
+   "document_digest": "sha256:30e2012e14c24c9cf1a8f1b2954a1559bcade3aac639f2f5d357eff58b6fb2b7"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-stale-result",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "result.declare"
+    ],
+    "faults": [],
+    "detail": "Declare a result under a superseded generation."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "generation"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A result declared under a superseded generation refuses.",
+   "document_digest": "sha256:55b57db4a2ff4ecd744c44ffd1540baf70648e2e948a3cdc997d8ec839a28548"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-token-expired",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "clock-advance"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [
+     "clock-advance"
+    ],
+    "detail": "Advance the clock past expiry, then decide."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "claim_committed",
+      "op": "is-false"
+     },
+     {
+      "fact": "work_phase",
+      "op": "equals",
+      "value": "queued"
+     }
+    ]
+   },
+   "required_facts": [
+    "claim_committed",
+    "refusal",
+    "work_phase"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An expired claim token refuses; the Work stays queued, unclaimed and offerable.",
+   "document_digest": "sha256:12db75fcdb6f637ca90677380a2faae1373ddded4de5e1b4729d667b67fe1421"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-token-replayed",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [],
+    "detail": "Replay a token that was already spent."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "claim_committed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "claim_committed",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A replayed claim token refuses; no second claim commits.",
+   "document_digest": "sha256:6546f47472da8800c9f191ed48866957c881bfe69e64e37e1706eefb93aaad9c"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "C-token-wrong-binding",
+   "family": "C",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "C-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [],
+    "detail": "Present a token against a different offer, Work or participant."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "claim_committed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "claim_committed",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A token presented against a different offer, Work or participant refuses.",
+   "document_digest": "sha256:1906776b1668e40d92c10b1ac59983585733c48b724d045ae38e606c49bfd781"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-agent-quiescence-not-runtime",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Reach agent quiescence, then read the gate and its clearance evidence."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "agent_session_state",
+      "op": "equals",
+      "value": "agent-quiescent"
+     },
+     {
+      "fact": "gate_cleared",
+      "op": "is-false"
+     },
+     {
+      "fact": "gate_clearance_evidence_sources",
+      "op": "disjoint-from",
+      "value": [
+       "agent-session"
+      ]
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_session_state",
+    "gate_clearance_evidence_sources",
+    "gate_cleared"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "No gate clearance cites an agent-session observation.",
+   "document_digest": "sha256:e50e1de7326572da7483576a50f2a7d901f5782fb3ca1aaa675be70ddb737418"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-cancel-reply-is-not-death",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.cancel",
+     "runtime.inspect"
+    ],
+    "faults": [],
+    "detail": "Cancel, then read the gate before inspecting."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "cancel_reply_succeeded",
+      "op": "is-true"
+     },
+     {
+      "fact": "gate_cleared_by_reply",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "cancel_reply_succeeded",
+    "gate_cleared_by_reply"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "A successful cancel reply does not by itself satisfy the quiescence gate.",
+   "document_digest": "sha256:ad2bebbcba46c073b9c62572f64ce6d544c4db4cc4c670120947dab255b8b380"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-cancelled-output-sealed",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.collect"
+    ],
+    "faults": [],
+    "detail": "Cancel with partial output present, then collect."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "material_sealed",
+      "op": "is-true"
+     },
+     {
+      "fact": "sealed_binds",
+      "op": "non-empty"
+     },
+     {
+      "fact": "material_discarded",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "material_discarded",
+    "material_sealed",
+    "sealed_binds"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "Partial output at cancellation is sealed with its Work, generation, reason and policy provenance.",
+   "document_digest": "sha256:a4ebcc61cc0d07988707a893ba2042954fa075b88bcaf44b96fcfe7ab5e969f3"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-destroyed-clears-gate",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.destroy"
+    ],
+    "faults": [],
+    "detail": "Destroy the runtime, satisfy the gate, claim a successor."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "runtime_observation",
+      "op": "equals",
+      "value": "destroyed"
+     },
+     {
+      "fact": "gate_cleared",
+      "op": "is-true"
+     },
+     {
+      "fact": "successor_generation",
+      "op": "equals",
+      "value": 2
+     }
+    ]
+   },
+   "required_facts": [
+    "gate_cleared",
+    "runtime_observation",
+    "successor_generation"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "attestation"
+   ],
+   "statement": "A positive destroyed observation clears the gate and the successor mints the next generation.",
+   "document_digest": "sha256:e12372ca86b78fa022c477661f61f31f17d224dee6fea2d48082ce4d144eaa6b"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-discard-requires-policy",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.retain"
+    ],
+    "faults": [],
+    "detail": "Attempt discard with no pinned disposable-attempt policy."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "retention"
+    },
+    "requires": [
+     {
+      "fact": "material_discarded",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "material_discarded",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Discarding recoverable output without a pinned disposable-attempt policy refuses.",
+   "document_digest": "sha256:7cc2638d5e9c33291bf4e6cd47dd0e9afba78595a729977cc62a9bf226ac8e2e"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-fence-before-stop",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.cancel"
+    ],
+    "faults": [],
+    "detail": "Cancel, then read the ordered event journal."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "fence_precedes_agent_cancel",
+      "op": "is-true"
+     },
+     {
+      "fact": "fence_precedes_runtime_stop",
+      "op": "is-true"
+     },
+     {
+      "fact": "fence_and_end_same_transaction",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "fence_and_end_same_transaction",
+    "fence_precedes_agent_cancel",
+    "fence_precedes_runtime_stop"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "The fence-and-end authority transaction precedes every stop order.",
+   "document_digest": "sha256:b52d8eb6dd951aaec649f34eb81f9b1d1760e163f16be5d61a8d1a0f29be868d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-late-publication-refused",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "proposal.publish"
+    ],
+    "faults": [],
+    "detail": "Publish after the fence."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "ended"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Publication attempted after the fence refuses.",
+   "document_digest": "sha256:c5d9d323fb5a6864880d80be9892f45642dac1e3a4f7ff051a5f9fcad27224de"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-quiescent-is-not-destroyed",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [],
+    "detail": "Observe quiescence and read the gate."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "runtime_observation",
+      "op": "equals",
+      "value": "quiescent"
+     },
+     {
+      "fact": "gate_cleared",
+      "op": "is-false"
+     },
+     {
+      "fact": "gate_token",
+      "op": "non-empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "gate_cleared",
+    "gate_token",
+    "runtime_observation"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "A quiescent observation does not clear runtime-quiescence.",
+   "document_digest": "sha256:a13ba7bf9ee1c2bcbf868e4cd60688e558e2779f2ddae195cc0639bb478dd5fa"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-replacement-gated",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "transport-partition"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [
+     "transport-partition"
+    ],
+    "detail": "Attempt a replacement claim while gated."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "gate_held",
+      "op": "is-true"
+     },
+     {
+      "fact": "claim_committed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "claim_committed",
+    "gate_held",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "A replacement claim refuses while the quiescence gate is visibly held.",
+   "document_digest": "sha256:4858d19caadb75426ba8c67a524c86cbd24666978d8a07bd2f8bfc41a80add78"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-retention-policy",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-09"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.retain"
+    ],
+    "faults": [],
+    "detail": "Attempt retention beyond the pinned policy."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "retention"
+    },
+    "requires": [
+     {
+      "fact": "retained_past_policy",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "refusal",
+    "retained_past_policy"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "Retention beyond the pinned policy refuses; retention is not acceptance.",
+   "document_digest": "sha256:d309cb7d6b02164c04e5744fd0d20cae950f8112eead18bf3b36bcc797c5c699"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-slot-freed-immediately",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-07"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "concurrent-assignment"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [
+     "concurrent-assignment"
+    ],
+    "detail": "After cancellation, claim an unrelated Work as the same participant."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "unrelated_claim_committed",
+      "op": "is-true"
+     },
+     {
+      "fact": "cancelled_work_still_gated",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "cancelled_work_still_gated",
+    "unrelated_claim_committed"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "The participant may claim an unrelated Work while the cancelled Work stays gated.",
+   "document_digest": "sha256:660fef52d2174348560157eb0ffd2993a1ce29dd9d79d3ad939741b5311a76df"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "D-uncertain-quiescence",
+   "family": "D",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "D-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "transport-partition"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [
+     "transport-partition"
+    ],
+    "detail": "Partition the runtime, then inspect."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "runtime_observation",
+      "op": "equals",
+      "value": "uncertain"
+     },
+     {
+      "fact": "runtime_observation",
+      "op": "not-equals",
+      "value": "destroyed"
+     }
+    ]
+   },
+   "required_facts": [
+    "runtime_observation"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "An unreachable runtime records 'uncertain', never 'destroyed'.",
+   "document_digest": "sha256:49593ba4a31a82386698f0b567894c3438f739c902296d003e56448506267192"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-adapter-restart-reconciles",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-09"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "adapter-restart"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [
+     "adapter-restart"
+    ],
+    "detail": "Restart the adapter mid-attempt, then reconcile its runtime observations."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "adapter_reattached_to_same_runtime",
+      "op": "is-true"
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     },
+     {
+      "fact": "second_runtime_started",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "adapter_reattached_to_same_runtime",
+    "durable_effects",
+    "second_runtime_started"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "After an adapter restart the same runtime is re-identified and no second runtime starts.",
+   "document_digest": "sha256:cf444a02a8947a150a13bc2314aa24b5b961568b8f41501723ea5451f3360fa9"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-agent-transport-lost",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-07"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "transport-drop"
+   ],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [
+     "transport-drop"
+    ],
+    "detail": "Drop the agent transport mid-turn."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "agent_session_state",
+      "op": "equals",
+      "value": "unknown"
+     },
+     {
+      "fact": "turn_outcome",
+      "op": "equals",
+      "value": "transport-lost"
+     },
+     {
+      "fact": "reprompted",
+      "op": "is-false"
+     },
+     {
+      "fact": "session_resumed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_session_state",
+    "reprompted",
+    "session_resumed",
+    "turn_outcome"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "A dropped agent transport ends the epoch 'unknown' with no resume and no re-prompt.",
+   "document_digest": "sha256:461d30e6b8a464d1b3dd2217a6df88447962df6a590fb376b7190be8408d9520"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-cleanup-blocked-on-intake",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.destroy"
+    ],
+    "faults": [],
+    "detail": "Run cleanup while a sealed record is pending intake."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "cleanup_result",
+      "op": "equals",
+      "value": "blocked-on-intake"
+     },
+     {
+      "fact": "authority_state_unchanged",
+      "op": "is-true"
+     },
+     {
+      "fact": "pending_material_deleted",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "authority_state_unchanged",
+    "cleanup_result",
+    "pending_material_deleted"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Cleanup reports blocked-on-intake and changes no authority state.",
+   "document_digest": "sha256:c60de3102fb19412106a4bc962943828c526de04d67839c6d3af146db06e704d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-duplicate-frame",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "frame-delay",
+    "frame-duplicate"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "activity.emit"
+    ],
+    "faults": [
+     "frame-duplicate",
+     "frame-delay"
+    ],
+    "detail": "Duplicate and delay a frame carrying the same message id."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A duplicated or delayed frame produces no second durable effect.",
+   "document_digest": "sha256:b5ea9ed5952132fc2f328752813014467eacac9f55e44f0cd9fbb9abed130a55"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-duplicate-observation",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "frame-duplicate"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [
+     "frame-duplicate"
+    ],
+    "detail": "Deliver a duplicate runtime observation."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     },
+     {
+      "fact": "replay_is_byte_identical",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "replay_is_byte_identical"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "A duplicate runtime observation replays without a second effect.",
+   "document_digest": "sha256:6c551bc11f6c1c03694ebe8a3f0680dda6c3430819172be141003658b95407c7"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-duplicate-runtime-start",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "duplicate-runtime-start"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [
+     "duplicate-runtime-start"
+    ],
+    "detail": "Produce two runtimes for one attempt."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "runtime-observation",
+     "code": "duplicate-runtime"
+    },
+    "requires": [
+     {
+      "fact": "assignment_cancelled",
+      "op": "is-true"
+     },
+     {
+      "fact": "second_runtime_adopted",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "assignment_cancelled",
+    "refusal",
+    "second_runtime_adopted"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "A duplicated runtime start cancels the assignment rather than adopting one.",
+   "document_digest": "sha256:87c3664635c8768804c846566a110fc2250fbcfc7e2c6ecf463a4296f32efee4"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-exact-replay",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "frame-duplicate"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "operation.reply"
+    ],
+    "faults": [
+     "frame-duplicate"
+    ],
+    "detail": "Retry the exact operation."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "replay_is_byte_identical",
+      "op": "is-true"
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "replay_is_byte_identical"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An exact operation retry replays byte-for-byte.",
+   "document_digest": "sha256:98001a2be0e895aea89a2c9d5334b0a749871017bc47e6d5e50446ae194c85d3"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-manager-restart-reconciles",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "manager-restart"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "operation.reply"
+    ],
+    "faults": [
+     "manager-restart"
+    ],
+    "detail": "Restart the manager mid-operation, then reconcile."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "authority_record_read",
+      "op": "is-true"
+     },
+     {
+      "fact": "control_store_record_read",
+      "op": "is-true"
+     },
+     {
+      "fact": "outcome_inferred_from_handler",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "authority_record_read",
+    "control_store_record_read",
+    "outcome_inferred_from_handler"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "After restart the ambiguous operation is reconciled against both durable records.",
+   "document_digest": "sha256:462cdb80df6e9b6ec362bc9779f3e372761c4833ab1c9fbd3669bbc43f537a9e"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-observation-regression",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [],
+    "detail": "Report an observation earlier than the recorded one."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "runtime-observation",
+     "code": "state-regression"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "A regressive runtime observation refuses; the axis never walks backwards.",
+   "document_digest": "sha256:6cee1145a3b3578008453366f5ea8335b25575b670adcd8313a98258fe0627f3"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-operation-collision",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "operation.reply"
+    ],
+    "faults": [],
+    "detail": "Reuse an operation id with a different signature."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "operation-collision"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "The same operation id with a different signature refuses and changes nothing.",
+   "document_digest": "sha256:8397234c4d5e5d22d663a60a7a8e1a48e7a9e09af1af92a07b1e64de79ffa377"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-operation-signature-covers-kind",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-11"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze",
+     "output.collect"
+    ],
+    "faults": [],
+    "detail": "Reuse one operation id for output.freeze and output.collect, whose bodies are byte-identical."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "operation-collision"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     },
+     {
+      "fact": "second_kind_replayed_first_result",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal",
+    "second_kind_replayed_first_result"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Two kinds carrying identical operands are different operations, so the second under one id collides rather than replaying.",
+   "document_digest": "sha256:d15244f12967cea03e3c0c61f12f35a8bbce4d32ed9b894418243420775ed09d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-operation-signature-mismatch-refused",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-11"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "offer.decide"
+    ],
+    "faults": [],
+    "detail": "Change a durable operand, recompute ONLY the body digest, and retain the previous operation signature."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "digest"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A command whose operation signature does not recompute over its own kind and operands refuses and writes nothing.",
+   "document_digest": "sha256:2c7cd689064519c26eb2fcdcab18835f6e2a66ffc28471abeaea149467c2858d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-partition-reattach-proof",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "transport-partition"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [
+     "transport-partition"
+    ],
+    "detail": "Partition, heal, then reattach."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "runtime_identity_proved",
+      "op": "is-true"
+     },
+     {
+      "fact": "assignment_compared_in_full",
+      "op": "is-true"
+     },
+     {
+      "fact": "reachability_treated_as_identity",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "assignment_compared_in_full",
+    "reachability_treated_as_identity",
+    "runtime_identity_proved"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "attestation"
+   ],
+   "statement": "Reattachment cites an exact runtime identity and the full assignment.",
+   "document_digest": "sha256:1d5423f700ebe136cb618c1c6089220eb23d59e392972e4e2c81263052f11a18"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-reachability-is-not-identity",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "E-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "transport-partition"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [
+     "transport-partition"
+    ],
+    "detail": "Heal the partition onto a different runtime and attempt reattachment."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "runtime-observation",
+     "code": "identity-mismatch"
+    },
+    "requires": [
+     {
+      "fact": "reattached",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "reattached",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "Transport reachability alone is refused as evidence of runtime identity.",
+   "document_digest": "sha256:aa2815c4510cefefa72e48489f8bcfcb2afe2fe8f3f7fbe06b3d857af9c1991d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "E-remote-host-restart",
+   "family": "E",
+   "scope": "portable-core",
+   "applies_to": [
+    "remote"
+   ],
+   "obligations": [
+    "E-10"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "host-restart"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.inspect"
+    ],
+    "faults": [
+     "host-restart"
+    ],
+    "detail": "Restart the remote runtime host, then inspect and attempt a replacement."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "runtime_observation",
+      "op": "equals",
+      "value": "uncertain"
+     },
+     {
+      "fact": "gate_cleared",
+      "op": "is-false"
+     },
+     {
+      "fact": "replacement_claim_committed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "gate_cleared",
+    "replacement_claim_committed",
+    "runtime_observation"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "A restarted remote host leaves the runtime uncertain and the replacement gated.",
+   "document_digest": "sha256:fe99f0c767b96301cb9731c31f70eb843b490161819fb5c7989aae8a00639c9c"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-canary-each-surface",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "canary-plant"
+   ],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [
+     "canary-plant"
+    ],
+    "detail": "Plant one canary per named surface and scan all ten."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "surfaces_scanned",
+      "op": "equals",
+      "value": [
+       "caches",
+       "declared-output",
+       "events",
+       "evidence",
+       "git-objects",
+       "manifests",
+       "proposal",
+       "retained-logs",
+       "retained-runtime-layers",
+       "workspace"
+      ]
+     },
+     {
+      "fact": "planted_canaries_found",
+      "op": "equals",
+      "value": 10
+     }
+    ]
+   },
+   "required_facts": [
+    "planted_canaries_found",
+    "surfaces_scanned"
+   ],
+   "deciding_evidence": [
+    "attestation",
+    "reproduction"
+   ],
+   "statement": "Every surface worker-control 9 names is scanned, evidenced by a planted canary found in each.",
+   "document_digest": "sha256:d5471601fa848d496b60a9b963d1e3aa44376e54d7a0cf9b0da87ea2d58a6f94"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-credential-expiry-mid-run",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "credential-expire"
+   ],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [
+     "credential-expire"
+    ],
+    "detail": "Expire the credential mid-run and probe its use."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "credential_expired_during_run",
+      "op": "is-true"
+     },
+     {
+      "fact": "expired_credential_accepted",
+      "op": "is-false"
+     },
+     {
+      "fact": "expiry_reported",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "credential_expired_during_run",
+    "expired_credential_accepted",
+    "expiry_reported"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "A credential that expires during a run stops working and the expiry is reported.",
+   "document_digest": "sha256:91dea81553eac232e7a72cef507fc303797a138c6c3b62e994686ba6f979318c"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-credential-lifetime",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "credential-expire"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [
+     "credential-expire"
+    ],
+    "detail": "Activate with a credential below the pinned remaining-lifetime floor."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "credential-lifetime"
+    },
+    "requires": [
+     {
+      "fact": "execution_started",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "execution_started",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A credential below the pinned remaining-lifetime floor refuses before execution.",
+   "document_digest": "sha256:0f21e6968121f045467f9236367ae5c0c7277c613f41c69d5ee77951c9835d3e"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-credential-not-reusable-cross-assignment",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "concurrent-assignment",
+    "credential-reuse"
+   ],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [
+     "concurrent-assignment",
+     "credential-reuse"
+    ],
+    "detail": "Present one assignment's credential from another assignment's runtime."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "cross_assignment_access_succeeded",
+      "op": "is-false"
+     },
+     {
+      "fact": "cross_assignment_denied_by",
+      "op": "non-empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "cross_assignment_access_succeeded",
+    "cross_assignment_denied_by"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "One assignment's credential grants nothing in another assignment's runtime.",
+   "document_digest": "sha256:ca54633602ea700e431f8d6e1c8b5ef8671f4957100f70486d8c4cc8dca17ec1"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-credential-scoped-to-assignment",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Deliver the credential and probe its scope and persistence."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "credential_delivered_to_assignment",
+      "op": "is-true"
+     },
+     {
+      "fact": "credential_out_of_band",
+      "op": "is-true"
+     },
+     {
+      "fact": "credential_scope",
+      "op": "equals",
+      "value": "assignment"
+     },
+     {
+      "fact": "credential_persisted",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "credential_delivered_to_assignment",
+    "credential_out_of_band",
+    "credential_persisted",
+    "credential_scope"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "The credential is delivered out of band, scoped to the exact assignment, and not persisted.",
+   "document_digest": "sha256:7d7438269fba70dd18c4c5b4a2ad5667b34056a11468388d29b596b12652aac1"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-leak-refuses-publication",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "canary-plant"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "proposal.publish"
+    ],
+    "faults": [
+     "canary-plant"
+    ],
+    "detail": "Plant a canary in the output, then publish."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "secret-leak"
+    },
+    "requires": [
+     {
+      "fact": "proposal_published",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "proposal_published",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "A detected leak refuses publication.",
+   "document_digest": "sha256:3dcc38b9f9f3e1cabea0c473ff4450d4ec1dc1d42232d8eb1ea2c64fa2df2778"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-no-credential-in-events",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "canary-plant"
+   ],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [
+     "canary-plant"
+    ],
+    "detail": "Plant a credential canary and scan events, errors and logs."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "canaries_found_in_events",
+      "op": "disjoint-from",
+      "value": [
+       "credential-canary"
+      ]
+     },
+     {
+      "fact": "event_surfaces_scanned",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "canaries_found_in_events",
+    "event_surfaces_scanned"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "No credential appears in any event, error or retained log.",
+   "document_digest": "sha256:c432b5cd93ff8d5950baaebce3b0d9e27b0cc30f00b6d3087885d029513bbd87"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-no-credential-in-manifests",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "canary-plant"
+   ],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [
+     "canary-plant"
+    ],
+    "detail": "Plant a credential canary and scan every durable manifest."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "canaries_found_in_manifests",
+      "op": "disjoint-from",
+      "value": [
+       "credential-canary"
+      ]
+     },
+     {
+      "fact": "manifest_surfaces_scanned",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "canaries_found_in_manifests",
+    "manifest_surfaces_scanned"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "attestation"
+   ],
+   "statement": "No credential appears in any durable manifest or artifact locator.",
+   "document_digest": "sha256:05a13c66a07e99c5a8bd17feb4d34e6888f8b6de1992d007c66c847013e634a7"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "F-residual-risk-reported",
+   "family": "F",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "F-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Read the assessor's residual-risk statement."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "residual_risk_unproven",
+      "op": "non-empty"
+     },
+     {
+      "fact": "scanned_surfaces_listed",
+      "op": "is-true"
+     },
+     {
+      "fact": "absence_claimed_unqualified",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "absence_claimed_unqualified",
+    "residual_risk_unproven",
+    "scanned_surfaces_listed"
+   ],
+   "deciding_evidence": [
+    "dossier"
+   ],
+   "statement": "The run reports which surfaces were scanned and what remains unproven.",
+   "document_digest": "sha256:6927e8e1ddd76945b7913263b94062b1de2fa709d496aa9946c8f9c2e0983f72"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-approval-payload-valid",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Script one approval request per family and capture each reply."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "payload_valid_against_provider_schema",
+      "op": "is-true"
+     },
+     {
+      "fact": "anything_granted",
+      "op": "is-false"
+     },
+     {
+      "fact": "families_answered",
+      "op": "equals",
+      "value": 4
+     }
+    ]
+   },
+   "required_facts": [
+    "anything_granted",
+    "families_answered",
+    "payload_valid_against_provider_schema"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "Each denial payload validates against its family's provider response schema.",
+   "document_digest": "sha256:6ad411a9c860a17331746ffd5aabfdbd6a917bddb487c453138b06c39b2aa721"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-approval-race",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Script an approval arriving after cancellation was ordered."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "requires": [
+     {
+      "fact": "anything_granted",
+      "op": "is-false"
+     },
+     {
+      "fact": "answer_identical_to_unraced",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "answer_identical_to_unraced",
+    "anything_granted",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "An approval arriving after cancellation takes the identical non-granting answer.",
+   "document_digest": "sha256:f9a21e12ab0137d81cdd31cb6843854c51048dddd5d9a6dac469db78530caa1c"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-approval-refused",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Script an unexpected approval request."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "requires": [
+     {
+      "fact": "anything_granted",
+      "op": "is-false"
+     },
+     {
+      "fact": "turn_outcome",
+      "op": "equals",
+      "value": "policy-failed"
+     }
+    ]
+   },
+   "required_facts": [
+    "anything_granted",
+    "refusal",
+    "turn_outcome"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "An unexpected approval request grants nothing.",
+   "document_digest": "sha256:1dc8d0caabbe82d022e403fcc7c8213949c1dae6fd61bf1ff7e3a298794d75dc"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-artifact-store-unavailable",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-11"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "artifact-store-unavailable"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "control.error"
+    ],
+    "faults": [
+     "artifact-store-unavailable"
+    ],
+    "detail": "Make the artifact store unreachable."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "unavailable",
+     "code": "artifact-store"
+    },
+    "requires": [
+     {
+      "fact": "operation_state",
+      "op": "equals",
+      "value": "unknown"
+     }
+    ]
+   },
+   "required_facts": [
+    "operation_state",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An unreachable artifact store is reported unavailable, never as a refusal.",
+   "document_digest": "sha256:54a35dae52f129435378eb0ac81d6143b8dd83017eb777c477594e0c2cccea45"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-authority-unavailable",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-11"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "authority-unavailable"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "control.error"
+    ],
+    "faults": [
+     "authority-unavailable"
+    ],
+    "detail": "Make the authority unreachable."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "unavailable",
+     "code": "authority"
+    },
+    "requires": [
+     {
+      "fact": "operation_state",
+      "op": "equals",
+      "value": "unknown"
+     }
+    ]
+   },
+   "required_facts": [
+    "operation_state",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An unreachable authority is reported unavailable with operation_state unknown.",
+   "document_digest": "sha256:53bce4ac32b5dc05bc533132c0d822e398d481ca1b626caf0099db8090829bbe"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-capability-refused",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "control.hello"
+    ],
+    "faults": [],
+    "detail": "Send a message requiring an unselected capability."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "capability"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A message requiring an unselected capability refuses before any side effect.",
+   "document_digest": "sha256:43e115ef81f9f721ca73ef663f147243a288d8f77920feead6e5aeedee1e0747"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-error-frames-typed",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-10"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "control.error"
+    ],
+    "faults": [],
+    "detail": "Collect the error frame from every control-refusal case in the run."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "every_refusal_was_a_control_error",
+      "op": "is-true"
+     },
+     {
+      "fact": "every_pair_in_taxonomy",
+      "op": "is-true"
+     },
+     {
+      "fact": "retry_classes_seen",
+      "op": "non-empty"
+     },
+     {
+      "fact": "operation_states_seen",
+      "op": "non-empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "every_pair_in_taxonomy",
+    "every_refusal_was_a_control_error",
+    "operation_states_seen",
+    "retry_classes_seen"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Every refused control operation yields a control.error with its pair, retry class and operation_state.",
+   "document_digest": "sha256:eb58bafd7d7d3b61de61443821342ceb535cbfc6d4026822273d164b49e30b53"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-extension-refused",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "control.hello"
+    ],
+    "faults": [],
+    "detail": "Send an unnegotiated extension."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "extension"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An unnegotiated extension refuses before any side effect.",
+   "document_digest": "sha256:5a971ca1a90142d545b5e0d36398f8b60753730191cb9366fac2efffed773f03"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-mode-unavailable",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Withhold the pinned mode from the scripted agent."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "requires": [
+     {
+      "fact": "turn_started",
+      "op": "is-false"
+     },
+     {
+      "fact": "fell_back_to_other_mode",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "fell_back_to_other_mode",
+    "refusal",
+    "turn_started"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An unavailable pinned mode fails visibly rather than falling back.",
+   "document_digest": "sha256:c328354643869a88da5005db9d17e4334267f7a18a2fc3ff636659ca348fdf11"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-plan-rejected",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "plan-reject"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "result.declare"
+    ],
+    "faults": [
+     "plan-reject"
+    ],
+    "detail": "Reject a plan, then reoffer the identical one."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "gate_token",
+      "op": "equals",
+      "value": "plan-revision"
+     },
+     {
+      "fact": "identical_plan_reoffered",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "gate_token",
+    "identical_plan_reoffered",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "The plan-revision gate blocks reoffering the identical plan.",
+   "document_digest": "sha256:d70e4e3c854a472c89947be3d2b909bfd9c1cec57bc9aa3855ebb5ad0202b00f"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-policy-drift",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Report provider operands differing from the pinned ones."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "requires": [
+     {
+      "fact": "turn_outcome",
+      "op": "equals",
+      "value": "policy-failed"
+     }
+    ]
+   },
+   "required_facts": [
+    "refusal",
+    "turn_outcome"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "Provider operands differing from the pinned ones fail the turn.",
+   "document_digest": "sha256:5768ae02d31c8a2fa4a14ad8f96bf3fca02f44ef907749401b3d35475e06f2c3"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-profile-failure-signal",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-14"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "profile-decertify"
+   ],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [
+     "profile-decertify"
+    ],
+    "detail": "Produce a run with a failed core case and read the emitted profile signal."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "signal",
+      "op": "equals",
+      "value": "probation"
+     },
+     {
+      "fact": "signal_failed_cases",
+      "op": "non-empty"
+     },
+     {
+      "fact": "signal_consumer",
+      "op": "equals",
+      "value": "route-policy"
+     },
+     {
+      "fact": "signal_binds_profile_digest",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "signal",
+    "signal_binds_profile_digest",
+    "signal_consumer",
+    "signal_failed_cases"
+   ],
+   "deciding_evidence": [
+    "dossier",
+    "attestation"
+   ],
+   "statement": "A run with a failed portable core case emits a probation signal bound to the profile and adapter digests.",
+   "document_digest": "sha256:0c1610aca91c1a2629070d56fcec6a53dc358e8c6bcd2a0fe386567c0bd5b8d1"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-proposal-integrity",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "workflow-receipt",
+    "control_kinds": [
+     "proposal.publish"
+    ],
+    "faults": [],
+    "detail": "Recompute every digest the proposal binds."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "assignment_digest_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "input_digest_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "policy_digest_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "output_digest_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "candidate_digest_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "target_digest_matches",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "assignment_digest_matches",
+    "candidate_digest_matches",
+    "input_digest_matches",
+    "output_digest_matches",
+    "policy_digest_matches",
+    "target_digest_matches"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "candidate-tree"
+   ],
+   "statement": "Every digest the proposal binds matches what the run actually used.",
+   "document_digest": "sha256:23ebf42d849fae63d7cfe8833eb10819fe0adff95a95df11335b40ca7676db0f"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-prose-decides-nothing",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Script a transcript claiming success, failure and completion."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "portable_state_derived_from_prose",
+      "op": "empty"
+     },
+     {
+      "fact": "portable_state_derived_from_tool_status",
+      "op": "empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "portable_state_derived_from_prose",
+    "portable_state_derived_from_tool_status"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "No portable state is derived from agent prose, tool status or diagnostics.",
+   "document_digest": "sha256:d9e8d716628e250d96df9944de718688ff741d1a0afc7708dacd4ee29f96d212"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-receipt-immutability",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "workflow-receipt",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Write each workflow receipt twice with different content."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "already-terminal"
+    },
+    "requires": [
+     {
+      "fact": "committed_receipt_unchanged",
+      "op": "is-true"
+     },
+     {
+      "fact": "receipt_families_tested",
+      "op": "equals",
+      "value": 5
+     }
+    ]
+   },
+   "required_facts": [
+    "committed_receipt_unchanged",
+    "receipt_families_tested",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "A second differing write to any workflow receipt refuses.",
+   "document_digest": "sha256:de9f544eb41a2cad924cce12905350f0c521f26f885103cd797fa4d2cff20806"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-source-provider-unavailable",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-11"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "source-provider-unavailable"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "control.error"
+    ],
+    "faults": [
+     "source-provider-unavailable"
+    ],
+    "detail": "Make the source provider unreachable."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "unavailable",
+     "code": "source-provider"
+    },
+    "requires": [
+     {
+      "fact": "operation_state",
+      "op": "equals",
+      "value": "unknown"
+     }
+    ]
+   },
+   "required_facts": [
+    "operation_state",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An unreachable source provider is reported unavailable, never as a refusal.",
+   "document_digest": "sha256:2ffd9a80b902367e4dbd05d9743266796d9ededd19fd0936c5cb191f6f378724"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-stale-contract",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-12"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "activity.emit"
+    ],
+    "faults": [],
+    "detail": "Act under a superseded contract selector."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "contract"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "An act under a superseded contract selector refuses.",
+   "document_digest": "sha256:c4134e2f91323f24d7d3fd8f161add2595da6ad804b5a5cccbbe42a4924a3ab0"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-stale-target",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-13"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "canonical-target-move"
+   ],
+   "stimulus": {
+    "kind": "workflow-receipt",
+    "control_kinds": [],
+    "faults": [
+     "canonical-target-move"
+    ],
+    "detail": "Move the canonical target, then integrate."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "target"
+    },
+    "requires": [
+     {
+      "fact": "journalled_attempts",
+      "op": "equals",
+      "value": 1
+     },
+     {
+      "fact": "integration_committed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "integration_committed",
+    "journalled_attempts",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "A moved canonical target refuses integration and journals exactly one attempt.",
+   "document_digest": "sha256:8ac2765c830bcf0be67fa0c2605212ef4a6e74ae2208a31a803d97bfc0568fc0"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-uncertified-profile",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-07"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "profile-decertify"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [
+     "profile-decertify"
+    ],
+    "detail": "Withdraw profile certification, then attempt execution."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "profile-uncertified"
+    },
+    "requires": [
+     {
+      "fact": "gate_token",
+      "op": "equals",
+      "value": "contract-runtime"
+     },
+     {
+      "fact": "execution_started",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "execution_started",
+    "gate_token",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "An uncertified runtime profile cannot execute the contract.",
+   "document_digest": "sha256:16024371101e697afc07a3505aee2ad14dc7dcd04ec5a8f98a6fbbcbf33580ff"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-untrusted-output",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [
+     "result.declare"
+    ],
+    "faults": [],
+    "detail": "Declare schema-valid but hostile worker output."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "output_schema_valid",
+      "op": "is-true"
+     },
+     {
+      "fact": "output_trusted_without_verification",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "output_schema_valid",
+    "output_trusted_without_verification"
+   ],
+   "deciding_evidence": [
+    "log",
+    "reproduction"
+   ],
+   "statement": "Schema-valid worker output is still treated as untrusted.",
+   "document_digest": "sha256:98208b3f5e089beaa4ac93b910905b1e4bb10f5cf5b4c9f3b91336438a04654d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-verdict-is-not-policy",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-09"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Read route policy and profile certification either side of a run."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "suite_mutated_route_policy",
+      "op": "is-false"
+     },
+     {
+      "fact": "suite_mutated_certification",
+      "op": "is-false"
+     },
+     {
+      "fact": "verdict_reported",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "suite_mutated_certification",
+    "suite_mutated_route_policy",
+    "verdict_reported"
+   ],
+   "deciding_evidence": [
+    "dossier"
+   ],
+   "statement": "The suite reports a verdict and mutates no route policy or profile certification.",
+   "document_digest": "sha256:f33b27424422851df682ebc5d4777040f35c80af52f3a4b319a3eab5deb47bda"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "G-version-refused",
+   "family": "G",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "G-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "control.hello",
+     "control.welcome"
+    ],
+    "faults": [],
+    "detail": "Offer an unsupported protocol version."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "unsupported-version"
+    },
+    "requires": [
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An unsupported protocol version refuses before any side effect.",
+   "document_digest": "sha256:52cafda97519ca8b50d4c129fe66e7d5ce488aca3841740e6aec2fdad44e3d5d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-agent-holds-no-capability",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-09"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Enumerate everything the agent endpoint received."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "baton_capabilities_reaching_agent",
+      "op": "empty"
+     },
+     {
+      "fact": "agent_received_token",
+      "op": "is-false"
+     },
+     {
+      "fact": "agent_received_authority_path",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_received_authority_path",
+    "agent_received_token",
+    "baton_capabilities_reaching_agent"
+   ],
+   "deciding_evidence": [
+    "log",
+    "attestation"
+   ],
+   "statement": "Nothing the agent endpoint received carries a Baton capability.",
+   "document_digest": "sha256:d70cd10956a161daf930e7c08db0bbef3a0ed6ed27971079b4103d4c8447020d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-axis-monotonic",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Report an agent-session state earlier than the recorded one."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "runtime-observation",
+     "code": "state-regression"
+    },
+    "requires": [
+     {
+      "fact": "axis_regressed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "axis_regressed",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "A regressive agent-session state refuses.",
+   "document_digest": "sha256:44d67659860927934bb687e10092cefe2f9eb5b5797ffae8e2cd74fcf0b0c3be"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-cancel-drain-unknown",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "transport-drop"
+   ],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [
+     "transport-drop"
+    ],
+    "detail": "Order cancellation and let the drain deadline elapse."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "cancel_observation",
+      "op": "equals",
+      "value": "agent-quiescence-unknown"
+     },
+     {
+      "fact": "turn_outcome",
+      "op": "equals",
+      "value": "timeout"
+     },
+     {
+      "fact": "gate_cleared",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "cancel_observation",
+    "gate_cleared",
+    "turn_outcome"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "No terminal fact within the drain deadline records agent-quiescence-unknown.",
+   "document_digest": "sha256:7283cabd238c56f0d82167b5814f51063b8c934666d792ee29066cf225c9d258"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-cancel-observed",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-08"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [
+     "runtime.cancel"
+    ],
+    "faults": [],
+    "detail": "Order cancellation and observe the terminal fact."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "cancel_order_recorded",
+      "op": "is-true"
+     },
+     {
+      "fact": "cancel_observation",
+      "op": "non-empty"
+     },
+     {
+      "fact": "order_treated_as_observation",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "cancel_observation",
+    "cancel_order_recorded",
+    "order_treated_as_observation"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "Cancellation records the order, then whichever terminal fact actually occurred.",
+   "document_digest": "sha256:dba6ec188f6f4141cfb68c7e44a20883a15da13972d0b569c89955f243689a85"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-capability-withheld",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Capture the client capabilities the relay advertised."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "advertised_client_capabilities",
+      "op": "empty"
+     },
+     {
+      "fact": "fs_advertised",
+      "op": "is-false"
+     },
+     {
+      "fact": "terminal_advertised",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "advertised_client_capabilities",
+    "fs_advertised",
+    "terminal_advertised"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "The relay advertises no filesystem, terminal or other client capability.",
+   "document_digest": "sha256:44dbc8785414a2fa8f9b4dff2f4e8d9217717d2e7ea95cce51f2c4a13cb1e3e8"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-consent-then-execution",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-03"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Run a consent posture, settle the claim, then run an execution posture."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "consent_assignment_ref",
+      "op": "equals",
+      "value": null
+     },
+     {
+      "fact": "execution_assignment_present",
+      "op": "is-true"
+     },
+     {
+      "fact": "same_runtime_attempt",
+      "op": "is-true"
+     },
+     {
+      "fact": "consent_epoch",
+      "op": "equals",
+      "value": 1
+     },
+     {
+      "fact": "execution_epoch",
+      "op": "equals",
+      "value": 1
+     }
+    ]
+   },
+   "required_facts": [
+    "consent_assignment_ref",
+    "consent_epoch",
+    "execution_assignment_present",
+    "execution_epoch",
+    "same_runtime_attempt"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "manifest"
+   ],
+   "statement": "One attempt hosts a consent session with no assignment and a separate execution session with the exact one.",
+   "document_digest": "sha256:b6cb0296205642b6b03ed4421243b4ad289c8ce51c3355f60868b36a818ebf40"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-disposition-gating",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-05"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "result.declare"
+    ],
+    "faults": [],
+    "detail": "Declare a disposition outside the set the observed turn outcome permits."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "disposition_accepted",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "disposition_accepted",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "A disposition outside the set permitted by the turn outcome refuses.",
+   "document_digest": "sha256:ff85234403e4b60244aa43d6eb10a0bde91c1479f02556bf875a7ca1539f0ea3"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-event-integrity",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-07"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "frame-duplicate"
+   ],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [
+     "frame-duplicate"
+    ],
+    "detail": "Deliver an identical duplicate, then a conflicting one."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "digest"
+    },
+    "requires": [
+     {
+      "fact": "identical_duplicate_replayed",
+      "op": "is-true"
+     },
+     {
+      "fact": "conflict_merged",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "conflict_merged",
+    "identical_duplicate_replayed",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "attestation"
+   ],
+   "statement": "Events are sealed and bounded; a conflicting duplicate refuses rather than merging.",
+   "document_digest": "sha256:0a9b3a6382e93eb13ed585df1067fc2c807a59158b6a94596244b6cffed189f7"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-event-normalization",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-06"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Script one provider update per normalized kind, plus an unmapped one."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "event_kinds_exercised",
+      "op": "equals",
+      "value": 10
+     },
+     {
+      "fact": "unmapped_kind_normalized_to",
+      "op": "equals",
+      "value": "other"
+     },
+     {
+      "fact": "events_dropped_silently",
+      "op": "empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "event_kinds_exercised",
+    "events_dropped_silently",
+    "unmapped_kind_normalized_to"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "Every scripted provider update maps into the closed event set; unmapped kinds become 'other'.",
+   "document_digest": "sha256:eb6d19f4963c98f54394ffcf56c67c0d857238e386ca742531fe40f19c971b2b"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-event-overflow-counted",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-07"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Overflow the relay queue."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "dropped_event_count",
+      "op": "non-empty"
+     },
+     {
+      "fact": "drops_recorded_durably",
+      "op": "is-true"
+     },
+     {
+      "fact": "drops_silent",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "dropped_event_count",
+    "drops_recorded_durably",
+    "drops_silent"
+   ],
+   "deciding_evidence": [
+    "trace"
+   ],
+   "statement": "Queue overflow drops are counted durably, never silent.",
+   "document_digest": "sha256:836c93ec32618bfe6db37a4365b8f7124250bfd50ccbf70cadad85a2a20dcb5c"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-fresh-session",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Open two epochs and compare provider session identities."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "distinct_provider_sessions",
+      "op": "equals",
+      "value": 2
+     },
+     {
+      "fact": "session_reused",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "distinct_provider_sessions",
+    "session_reused"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "Each epoch opens a new provider session; none is reused.",
+   "document_digest": "sha256:aab634c024579ca40a966033df2b2cfcd414fbce6f0ad9637f4d0f021ab1184d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-history-methods-refused",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Attempt session load, resume and fork."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "capability"
+    },
+    "requires": [
+     {
+      "fact": "history_methods_sent",
+      "op": "empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "history_methods_sent",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "Load, resume and fork are never sent and are refused if attempted.",
+   "document_digest": "sha256:10069c2ed72c9320b444a645e0bda8db579565ab3f994a8b6a701e82e17f8901"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-provider-id-is-not-identity",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-09"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "authority-read",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Search durable records for identities derived from a provider session id."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "participants_derived_from_provider_id",
+      "op": "empty"
+     },
+     {
+      "fact": "assignments_derived_from_provider_id",
+      "op": "empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "assignments_derived_from_provider_id",
+    "participants_derived_from_provider_id"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "No Baton participant, Handler or assignment is derived from a provider session id.",
+   "document_digest": "sha256:55db75aa6ea0f0a8748787b90fc9d69d19f661e297125f507b68419bc3aeabbc"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-turn-outcomes",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-04"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "clock-advance",
+    "transport-drop"
+   ],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [
+     "transport-drop",
+     "clock-advance"
+    ],
+    "detail": "Script one ending per closed turn outcome."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "outcomes_exercised",
+      "op": "equals",
+      "value": 8
+     },
+     {
+      "fact": "every_outcome_named_its_terminal_fact",
+      "op": "is-true"
+     },
+     {
+      "fact": "outcomes_derived_from_prose",
+      "op": "empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "every_outcome_named_its_terminal_fact",
+    "outcomes_derived_from_prose",
+    "outcomes_exercised"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "Each scripted ending produces its mapped closed turn outcome and names its terminal fact.",
+   "document_digest": "sha256:e2535921998e58e0530ab61f4531f3f484f7879957927eddcfe83945fb6e3fb6"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "H-unadvertised-method-refused",
+   "family": "H",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "H-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "agent-script",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Script an agent call to an unadvertised client method."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "requires": [
+     {
+      "fact": "method_served",
+      "op": "is-false"
+     },
+     {
+      "fact": "turn_outcome",
+      "op": "equals",
+      "value": "policy-failed"
+     }
+    ]
+   },
+   "required_facts": [
+    "method_served",
+    "refusal",
+    "turn_outcome"
+   ],
+   "deciding_evidence": [
+    "log"
+   ],
+   "statement": "An agent call to an unadvertised client method is refused, and the turn fails.",
+   "document_digest": "sha256:0bf2d1027c7765d7b7a0c279f6f6cade63323eed47bf80014e964a00cf0ac5ef"
+  }
+ ]
+}

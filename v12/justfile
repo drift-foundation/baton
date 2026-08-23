@@ -20,6 +20,13 @@ install:
 test:
 	npm test
 
+# Just the v12 assignment-authority regressions (W2928). They need no
+# Docker, no v11 executable and no network — the authority is a
+# self-contained durable store — so this is the fast loop while working
+# on the assignment contract.
+test-authority:
+	node --test test/authority_*.test.mjs
+
 # The whole live proof, from a fresh disposable authority, with every
 # assertion. It needs Docker, the deployed v11 executable, the ACP
 # adapter tree and a readable Claude credential — the runner prints and

@@ -150,8 +150,15 @@ message count, and a discussion post never moves a baton.
   can honestly proceed meanwhile; the result always reports which form
   committed, so you never read Events back to find out.
 - **Recover an abandoned claim explicitly.** `release work=W expect=team.member
-  reason="…"` is an exact compare-and-swap against the recorded claimant with
-  a durable reason. Baton never auto-releases, transfers, or admits a second
+  episode=N reason="…"` is an exact compare-and-swap against the recorded
+  claimant AND the assignment episode that claim was offered under, with a
+  durable reason. Read the episode from your own readiness action, or from
+  `detail work=W` as `episode_seq`; it is mandatory on every release,
+  self-release included, so a stale request can never release a later claim by
+  the same participant. Authority is the live Route endpoint, or an
+  owning-team member holding the narrow `recover` capability for the case
+  where the route's only handler is the participant that died holding the
+  claim. Baton never auto-releases, transfers, or admits a second
   claimant on staleness. `heartbeat work=W` is liveness evidence only — an
   agent mid-turn cannot beat, so silence is never treated as failure.
 - **Retries are effectively-once.** Mutating verbs take `op-id=`; an exact

@@ -1,0 +1,53 @@
+W4303 independent-review reproduction, 2026-08-22T14:46:33Z
+
+The new failed-turn settlement runs when `turn/completed` is observed and when
+that notification beats the corresponding `turn/start` response. A third
+ordinary completion path remains outside it: a transport disconnect hides the
+notification, then `#reconcileTarget` first observes the terminal turn in the
+thread resume snapshot.
+
+The reviewer-added regression in
+`tools/codex-event-bridge/test/failed_turn_settlement.test.mjs` performs this
+sequence:
+
+  1. deliver W2907 at assignment episode 2907;
+  2. leave the managed turn active and have canonical `wait timeout=0` report
+     W2907 still claimed by `baton.codex`;
+  3. disconnect before emitting `turnCompleted`;
+  4. reconnect with the resume snapshot carrying
+     `{ id: "turn-1", status: "failed" }` and an idle thread.
+
+Focused command:
+
+  node --test-name-pattern="a failed turn discovered only during reconnect is settled" \
+    tools/codex-event-bridge/test/failed_turn_settlement.test.mjs
+
+Actual result:
+
+  AssertionError: resume cleared a failed turn without reconciling its
+  surviving claim
+
+    actual:
+      deliverable: true
+      orphan: null
+      incidents: 0
+
+    expected:
+      deliverable: false
+      orphan: 7ba67cb8-W2907
+      incidents: 1
+
+The direct cause is `EventBridge.#reconcileTarget`: when the persisted active
+turn has a terminal status, it logs the completion and assigns
+`state.activeTurn = null`. It does not call `#settleTurn`. It then calls
+`#drain`, so later readiness may be delivered into the canonically occupied
+participant lane.
+
+Surrounding verification:
+
+  failed_turn_settlement.test.mjs and imported stale-episode cases:
+    33 passed, 1 reviewer regression failed
+  tests/work/test_w4303_release_recovery.py:
+    20 passed
+  git diff --check:
+    clean before this evidence was added

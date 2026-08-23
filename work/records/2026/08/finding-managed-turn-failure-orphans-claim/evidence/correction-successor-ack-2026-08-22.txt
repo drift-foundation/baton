@@ -1,0 +1,89 @@
+W4303 round-4 correction — the successor acknowledgement, 2026-08-22
+
+Answering `review-2026-08-22T16-54-56Z.md` [P1].
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test tools/codex-event-bridge/test/failed_turn_settlement.test.mjs
+    45 tests: 44 pass, 1 fail
+    a late acknowledgement cannot mark a successor orphan filed
+
+The review's ordering is exact and needs no corruption to reach: A's
+publication is in flight, canonical reconciliation proves claim A released
+and clears its marker, the successor turn fails holding claim B and starts
+B's own publication, then A's publication finally succeeds and its caller
+marks the LIVE `state.orphan` — B — filed.
+
+
+2. THIS IS MY OWN ROUND-3 CORRECTION'S BLIND SPOT
+
+Round 3 bound the JOIN to the orphan object (`orphan.filing`) and left the
+ACKNOWLEDGEMENT reading `state.orphan`. Half the identity problem was
+solved and the other half was left in exactly the same shape. Round 3's own
+regressions could not see it: they hold one fence and race two observers of
+it, never a fence that is REPLACED while a publication is in flight.
+
+
+3. THE CORRECTION, IN TWO HALVES
+
+  (a) `#acknowledgeOrphanIncident(state, orphan)` takes the exact orphan
+      whose publication returned. The IN-MEMORY flag is set on that captured
+      object: its incident really was filed, whatever happened since.
+
+  (b) The DURABLE marker is written only when `state.orphan` is still that
+      same object. A publication finishing after its own fence was cleared
+      updates nothing on disk — writing there would overwrite a successor's
+      marker with a record about a different orphan.
+
+
+4. MUTATION CHECK — each half removed independently
+
+  removed                            result
+  the captured-orphan argument       45 pass / 1 fail
+                                       a late acknowledgement cannot mark a
+                                       successor orphan filed
+  the durable identity guard         45 pass / 1 fail
+                                       a late acknowledgement cannot overwrite
+                                       the successor's DURABLE marker
+
+The second row is why this round adds a regression of its own. The
+reviewer's case witnesses the in-memory flag; removing the durable guard
+left it green, so the guard would have been unwitnessed code. The new case
+reads the settlement MARKER off disk and asserts it still describes B with
+`incidentFiled` false — the state a restart actually trusts.
+
+Restored: 46 pass, 0 fail.
+
+
+5. EVERY EARLIER ROUND'S REGRESSION RETAINED
+
+  a late turn/completed after resume settlement files nothing twice
+  a reconnect settlement racing late turn/completed files one incident
+  a FAILED first publication stays retryable for the next observer
+  a THROWING publication also stays retryable
+  a late acknowledgement cannot mark a successor orphan filed        (reviewer)
+  a late acknowledgement cannot overwrite the successor's DURABLE marker (new)
+
+
+6. VERIFICATION
+
+  tools/codex-event-bridge npm test          290 tests, 290 pass, 0 fail
+  pytest -m serial tests/work                   52 passed
+  pytest -n auto -m "not serial" tests/work   2902 passed, 2 FAILED
+
+The two failures are W4996's, not this Work's:
+
+  test_w4996_dependency_graph.py::test_depth_two_renders_the_edges_that_actually_exist
+  test_w4996_dependency_graph.py::test_every_selectable_stacked_row_displays_its_own_work
+
+They are reviewer-added cases in `review-2026-08-22T17-07-39Z.md` against my
+own W4996 slice, exercising `src/baton_work/tui/graph.py`. That module is
+Python and shares nothing with `event_bridge.mjs`; W4996 is queued on
+baton.impl awaiting its own turn and was deliberately not touched from here.
+
+
+7. UNCHANGED
+
+No automatic release was invented. The socket-bearing managed gate and the
+live `recover` grant remain operator actions.

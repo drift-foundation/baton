@@ -3,7 +3,9 @@
 Version: `1-ruled` (supersedes `0-design`, 2026-08-21; revised after the
 focused reviews of 2026-08-21T21:06:44Z, 2026-08-21T21:27:27Z,
 2026-08-21T21:40:39Z, 2026-08-21T21:48:06Z, and the signed-off review of
-2026-08-21T21:52:09Z)
+2026-08-21T21:52:09Z; §6 and §7 amended 2026-08-22 by the W4487 decline
+ruling — see "Superseded by W4487" in §1; §7 clarified 2026-08-22 by the
+W4487 re-review with the exact claim-token verifier derivation)
 
 Status: the four open approvals of `0-design` were ruled by `baton.slaw` on
 2026-08-21 and are pinned in `FINDING.md`. This revision folds those rulings
@@ -34,6 +36,8 @@ spike; implementation requires separately assigned Work.
 | Focused review 3 P1 (deadline) | §6, §7, §10 — the claim-settlement deadline is a distinct durable boundary from the bearer-acceptance deadline, and retirement requires it; reconciling an already committed claim does not. |
 | Focused review 3 P1 (operands) | §4, §7, §8, §9, §10 — settlement takes and validates the FIXED claim signature; a committed or durably refused record under the same id with different operands is a collision that fails closed and changes nothing. |
 | Focused review 4 P1 (disposition) | §4, §7, §9, §10 — a retirement durably binds the terminal DISPOSITION it caused, and every manager entry path replays that disposition instead of the one its own path would have chosen. |
+| W4487 re-review (verifier), 2026-08-22 | §7 — the claim-token VERIFIER is pinned to one exact derivation: SHA-256 over the bearer's own UTF-8 bytes, serialized `sha256:<64 lowercase hex>`. This contract owns the offer record and had left the derivation unstated, so worker-control's new operation-signature payload computed a different value for the same token and called it the same thing. A clarification, not a supersession: nothing previously stated is reversed. |
+| W4487 ruling (decline), 2026-08-22 | §1, §6, §7 — DECLINE no longer requires the bearer. It is authorized by the exact integrity-protected `offer.decide` binding and consumes the verifier without echoing the token. Acceptance is unchanged and still requires the exact unspent, unexpired bearer. This amends `1-ruled` AFTER sign-off and is the only post-freeze change to this contract. |
 
 ## 1. Supersession boundary
 
@@ -67,6 +71,45 @@ withdrawn by the approver rulings and are retained here only as history:
 recovery reservation (§5, §12 of `0-design`), and the globally drained v12
 schema activation that minted a generation for every claim (§12 of
 `0-design`). Neither is part of this contract.
+
+### Superseded by W4487, 2026-08-22 — the decline token requirement
+
+**The superseded text.** §7's `Decline` row read, in the signed-off
+`1-ruled` contract:
+
+> | Decline | agent through manager; **exact unspent token** | offer
+> `declined`, verifier consumed | token dead | intent digest | terminal
+> offer |
+
+**Why it is superseded.** Worker-control 1.0
+(`../finding-v12-worker-contract/findings/finding-worker-control-api-manifests/SPEC.md`
+§6.1) carries the token for acceptance only, and its frozen
+`worker-control-1.0.schema.json` mechanically REQUIRES `claim_token: null`
+when `decision=decline`. Both contracts were frozen, and a Worker Manager
+could not satisfy both by any implementation choice: the W151 shape is a
+schema-invalid document on the wire. The contradiction is recorded at
+`work/records/2026/08/finding-worker-control-decline-token-conflict/` and
+was ruled by `baton.slaw` on 2026-08-22.
+
+**What replaces it.** The non-secret decline envelope is kept. A decline is
+authorized by the exact integrity-protected `offer.decide` operation bound
+to `(offer_id, runtime_attempt_id, work_ref, decision, reason)`; the
+manager validates that whole binding and atomically consumes the offer's
+durable verifier without minting a claim. §0's precedence rule — "if
+worker-control conflicts with W151, W151 wins" — is not weakened in
+general; this one conflict is settled in worker-control's favour by an
+explicit ruling, and that is the only way it could be settled at all.
+
+**What is NOT superseded.** Every other property the token requirement was
+carrying stands, and is carried by the binding instead: the decline is
+bound to the exact issued offer and cannot terminate another, it is
+effectively once, it consumes the verifier so the bearer is dead
+afterwards, and it mints no claim and takes no capacity.
+**Acceptance is untouched** and still requires the exact unspent, unexpired
+bearer, succeeding only through the canonical claim transaction. The
+reasoning behind the old requirement — that a terminal act on an offer must
+prove it is that exact offer — is the reason the binding has to be exact,
+not a reason to keep transmitting a secret in order to refuse authority.
 
 ## 2. Confirmed facts revalidated against the current tree
 
@@ -256,6 +299,28 @@ verifier/digest, manager-observed issue/expiry times, runtime attempt,
 readiness episode as advisory evidence, and pinned input/policy/profile
 digests. It never stores the bearer token.
 
+**The verifier is one exact value (clarified 2026-08-22, W4487 re-review).**
+This contract owns the offer record, so it owns what the verifier IS, and it
+did not say. The derivation is
+
+```text
+verifier = "sha256:" + lowercase hex of SHA-256 over the bearer's own UTF-8 bytes
+```
+
+The token's OWN BYTES, not a JSON encoding of them. A bearer is a secret
+string rather than a JSON document: hashing its encoding brings the quotes and
+the escaping rules into the value, so two peers that escape a character
+differently derive different verifiers for the same secret. The bytes have one
+answer. The `sha256:` prefix is the family's one digest representation
+(worker-control §3.2), it is what that frozen schema's `digest` type accepts,
+and it names the algorithm — so replacing SHA-256 later is a visible change
+rather than a silent reinterpretation of 64 hexadecimal characters.
+
+Every consumer uses THIS value. worker-control's §4.2 operation-signature
+payload carries it as `claim_token_verifier`; a golden bearer and its verifier
+are pinned as literals in both executable models, and the conformance package
+asserts the two derivations agree over bearers neither package pins.
+
 Acceptance records a SECOND, separate deadline: the claim-settlement deadline,
 after which an operator may declare the fixed claim over. Ruling 2 makes these
 two boundaries independent on purpose — the first is how long the bearer has
@@ -277,6 +342,25 @@ commits before expiry, later submission of that already-authorized claim is
 reconciliation, not revival of an expired token — the authority transaction
 still rechecks route, capacity, gates, and Work state, and refuses normally if
 any has changed.
+
+**Refusing authority is authorized differently from taking it (W4487,
+2026-08-22).** The `issued -> declined` compare-and-swap takes NO bearer. It
+validates the exact `offer.decide` binding — `offer_id`,
+`runtime_attempt_id`, `work_ref`, `decision`, and `reason` — against the
+issued record, and only then consumes the verifier. So the two decisions
+consume the same single-use fact and prove themselves differently: an
+acceptance proves possession of the secret because it is about to gain
+authority, and a decline proves the exact identity of the offer it is
+ending because that is all a terminal act on an offer needs. Sending a
+secret in order to reject authority is a leak with nothing bought by it,
+and worker-control's frozen schema refuses to carry it at all.
+
+The verifier is single-use across BOTH paths and across expiry. Once
+consumed, no bearer can be validated against that offer again, whichever
+transition consumed it, so a declined offer's token is exactly as dead as
+an accepted one's. The reason is a durable operand and rides the operation
+signature: reusing one decline operation id with different prose is an
+operand collision, not a replay.
 
 A separate, visible **claim-settlement timeout** may end an accepted offer
 that never settles. It does not un-consume the verifier, does not permit a
@@ -369,7 +453,7 @@ the full four-part identity, never participant alone.
 | --- | --- | --- | --- | --- | --- |
 | Observe | manager; Work is visible | none | none | read again | no offer |
 | Issue offer | manager CAS; Work open, unclaimed, ungated, contract certified, no nonterminal offer FOR THIS WORK, participant capacity free | `issued` offer with verifier, binding, expiry, attempt and digests | bearer may request acceptance only | `offer_id` | issued or no change |
-| Decline | agent through manager; exact unspent token | offer `declined`, verifier consumed | token dead | intent digest | terminal offer |
+| Decline | agent through manager; exact `offer.decide` binding `(offer_id, runtime_attempt_id, work_ref, decision, reason)` over an ISSUED offer with an unspent verifier; **no bearer** (W4487, superseding "exact unspent token") | offer `declined`, verifier consumed, decline reason bound | token dead; no claim minted and no capacity taken | manager operation id whose signature binds the whole binding INCLUDING the reason; an exact replay returns the one committed decline | terminal offer; a stale, foreign, differently bound or operand-colliding decline refuses and changes nothing |
 | Expire | manager clock; issued and deadline reached | offer `expired`, verifier consumed | token dead | offer CAS | terminal offer |
 | Accept | agent through manager; exact issued binding before expiry | offer `accepted`, verifier consumed, intent digest/time and claim op fixed, and the separate claim-settlement deadline recorded | authorizes one canonical claim attempt; no write/publication capability | offer CAS; replayed token refuses | accepted or no change |
 | Settlement timeout | manager policy; offer `accepted`; retirement additionally requires the recorded claim-settlement deadline to have passed | ONE authority act, taking the fixed claim signature, retires that identity and binds the operands, reason and terminal disposition it settled; then the offer takes the BOUND disposition | none; token is not revived, and nothing can commit under the retired identity | operation settlement, then offer CAS; a caller meeting an existing retirement replays its disposition rather than its own | before the deadline it refuses and the fixed claim stays live; a claim found committed is recorded `claimed` whatever the deadline says; an operand mismatch is a collision and changes nothing; an unanswerable lookup leaves the offer accepted |

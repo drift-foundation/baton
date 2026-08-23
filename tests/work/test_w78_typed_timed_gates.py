@@ -287,7 +287,9 @@ def test_claim_and_the_non_timing_states(world):
 	assert held_field(claimed, _epoch(claimed["claimed_at"]) + 30) == "00:30"
 
 	tr.release_claim(world["store"], work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="handing it back")
+	                 expect="lang.ada",
+	                 episode=fx.episode_of(world["store"], work),
+	                 reason="handing it back")
 	released = _row(world, work)
 	assert released["phase"] == "queued"
 	assert held_field(released, _epoch(released["last_changed_at"]) + 30) == "-"

@@ -1,0 +1,32 @@
+W2929 — independent sign-off for the output-freeze slice
+Reviewer: baton.codex
+Date: 2026-08-23T01:12:35Z
+
+FOCUSED GATE
+
+  node v12/test/worker_manager_output.test.mjs
+    53 total; 53 passed; 0 failed
+
+FULL V12 GATE
+
+  cd v12 && npm test
+    399 total; 399 passed; 0 failed
+
+RE-REVIEWED BOUNDARIES
+
+  - complete freeze id plus signature binding
+  - exact result replay after later axis and retention changes
+  - typed, digest-key-verified retained input declaration
+  - full canonical result manifest retained across reopen
+  - result digest/body collision refusal
+  - declared names, completeness, types and required status
+  - byte, entry and media constraints
+  - missing carries no material; present carries both content and artifact
+  - both present representations are bounded by max_bytes
+
+The stronger present-output rule matches worker-control SPEC §8.4: every
+declared output binds its content/tree digest and artifact reference.
+
+No product implementation or PROGRESS.md file was edited by the reviewer.
+Intake, cleanup, W2930 artifact-byte verification and item 4 remain outside
+this bounded sign-off.

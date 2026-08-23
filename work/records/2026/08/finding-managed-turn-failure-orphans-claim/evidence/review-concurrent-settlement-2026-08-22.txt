@@ -1,0 +1,43 @@
+W4303 concurrent settlement reproduction, 2026-08-22T15:23:14Z
+
+The reconnect correction makes two settlement observations overlap naturally:
+
+  1. resume first observes persisted turn-1 as failed and begins the canonical
+     claim read;
+  2. before that read returns, the previously hidden turn/completed arrives
+     for the same delivered turn and begins the same read;
+  3. both reads return the exact W2907 assignment episode still claimed.
+
+The additive reviewer regression pauses both reads and releases them together:
+
+  node tools/codex-event-bridge/test/failed_turn_settlement.test.mjs
+
+Focused failure:
+
+  a reconnect settlement racing late turn/completed files one incident
+
+  AssertionError: concurrent settlement observers filed the same incident twice
+
+    actual:   2
+    expected: 1
+
+  42 tests: 41 pass, 1 fail
+
+Direct cause:
+
+  #fence returns early for the second observer once state.orphan exists, but
+  both observers still call #fileOrphanIncident. That method checks only
+  orphan.incidentFiled, which is set by #acknowledgeOrphanIncident after the
+  awaited state.runtime.incident publication returns. Both calls therefore
+  publish while the flag is false.
+
+The durable fence and failed runtime report remain singular. The defect is the
+durable incident occurrence: one failed turn is counted twice. The existing
+late-notification test runs only after resume settlement has completed and so
+cannot witness this race.
+
+Surrounding verification:
+
+  tests/work/test_w4303_release_recovery.py: 20 passed
+  failed_turn_settlement.test.mjs without the reviewer race: all pass
+  git diff --check: clean

@@ -1,0 +1,59 @@
+W2929 independent item-3a replay-provenance re-review
+Reviewer: baton.codex
+Date: 2026-08-22T22:21:52Z
+
+Scope
+  The one P1 in review-2026-08-22T22-14-59Z.md.
+  Foundation item 2 remained signed off.
+  The rest of item 3 and all of item 4 were not reviewed.
+
+Observed implementation
+  v12/src/worker_manager/offers.mjs:248-283
+    `committed` begins false and is set only inside the action supplied to
+    ControlStore.transact. A journal replay skips the action and leaves it
+    false. A returning transaction whose action ran necessarily committed;
+    rollback and commit failures throw before issueOffer examines the flag.
+
+  v12/src/worker_manager/offers.mjs:284-292
+    verifier equality is evaluated only after the commit marker succeeds and
+    reports integrity.digest on disagreement. It no longer decides replay
+    provenance.
+
+  v12/test/worker_manager_offers.test.mjs:1070-1095
+    the retained same-bearer nested interleaving passes: the inner connection
+    commits and the outer connection replays, yet the outer refuses even
+    though both verifier values are identical.
+
+  v12/test/worker_manager_offers.test.mjs:1226-1243
+    a genuine first issue and an independent Work both succeed, covering the
+    commit direction.
+
+Non-blocking precision note
+  v12/test/worker_manager_offers.test.mjs:1200-1224 is stopped by the
+  optimistic replay precheck in the current implementation. It pins the
+  sequential public refusal, but does not independently execute the marker.
+  The deterministic same-bearer race and first-commit case cover the two
+  marker outcomes.
+
+Commands and results
+  cd v12 && node test/worker_manager_offers.test.mjs
+    43 passed, 0 failed
+
+  cd v12 && npm test
+    282 passed, 0 failed
+
+  assignment state model
+    64 passed
+  worker-control model
+    24 passed
+  worker runtime conformance model
+    74 passed
+  agent-session boundary model
+    56 passed
+
+  git diff --check
+    clean
+
+Disposition
+  Signed off for completed plan item 3a only. Continue the rest of item 3 and
+  item 4; W2929 is not complete.

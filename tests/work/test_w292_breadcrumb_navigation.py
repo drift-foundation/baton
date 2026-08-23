@@ -290,33 +290,61 @@ def test_opening_a_re_rooted_works_detail_is_a_distinguishable_level(world):
 	assert view.mode == "table" and view.nav_segments() == ["Jobs", "the root"]
 
 
-def test_a_linked_drill_through_rebuilds_the_far_works_own_ancestry(world):
-	"""Round-1 review, [P1].
+def select_neighbour(view):
+	"""Move the graph selection onto the first row that is not the center.
 
-	The neighbour view's Enter re-roots at a Work somewhere else. It used
-	to pop the links frame and push one title, so a dependency pointing
-	at a grandchild gave `Jobs > grand` and Back skipped the parent
-	scopes; opened from an already re-rooted caller it also left that
-	caller's ancestry prefixing an unrelated Work."""
+	BOUNDED and direction-agnostic. The center sits BETWEEN the upstream
+	and downstream layers, so which key reaches a neighbour depends on the
+	fixture's shape — and a `while` that assumed one direction spins
+	forever on a Work whose only edges are on the other side."""
+	rows = view._graph_row_set()
+	assert any(row["work"] != view.graph_center for row in rows), rows
+	for key in (ord("k"), ord("j")):
+		for _step in range(len(rows)):
+			if view.graph_anchor != view.graph_center:
+				return
+			view.handle(key)
+	assert view.graph_anchor != view.graph_center, "no neighbour was reachable"
+
+
+def test_a_linked_drill_through_rebuilds_the_far_works_own_ancestry(world):
+	"""Round-1 review, [P1] — restated for the view that replaced it.
+
+	W4996's approved contract changed what Enter DOES here: the `[b]`
+	page is the dependency neighbourhood graph, and Enter RECENTERS it on
+	the selected Work, pushing one navigation frame. It no longer unwinds
+	the stack and re-roots the Jobs tree at the far Work.
+
+	The property this case has always protected survives that change and
+	is what is asserted: a drill from this page pushes its own frames, the
+	trail names where the operator actually is, and each Back reveals
+	exactly one level — ending at the table they left. What is gone is the
+	cross-TREE jump, which the contract removed deliberately; that removal
+	is recorded in the dossier rather than absorbed here."""
 	view = console(world)
 	select(view, "a second root")
 	view.handle(ord("b"))
 	assert view.mode == "links"
-	assert view.nav_segments() == ["Jobs", "a second root · links"], \
+	assert view.nav_segments() == ["Jobs", "a second root · deps"], \
 		view.nav_segments()
+	center = view.graph_center
 
+	# Recenter on the neighbour: one more frame, still in the graph.
+	# Selection starts at the CENTER, which sits between the upstream and
+	# downstream layers — so the neighbour is reached with `k` here, and
+	# the case moves onto it deliberately rather than assuming a direction.
+	select_neighbour(view)
 	view.handle(curses.KEY_ENTER)
-	assert view.mode == "table"
-	assert view.nav_segments() == ["Jobs", "the root", "the child",
-	                               "the grandchild"], view.nav_segments()
-	assert view.path == [world["root"]["work_id"], world["child"]["work_id"],
-	                     world["grand"]["work_id"]]
-	assert "a second root" not in view.nav_text(), \
-		"the caller's ancestry survived a cross-tree drill-through"
+	assert view.mode == "links", "Enter left the dependency view"
+	assert view.graph_center != center, "Enter did not recenter"
+	assert len(view.nav_segments()) == 3, view.nav_segments()
+	assert view.nav_segments()[-1].endswith(" · deps"), view.nav_segments()
 
-	for expected in (["Jobs", "the root", "the child"], ["Jobs", "the root"]):
-		view.handle(27)
-		assert view.nav_segments() == expected, view.nav_segments()
+	# Back reveals exactly one level, and the first Back off the page
+	# returns to the caller's table.
+	view.handle(27)
+	assert view.mode == "links" and view.graph_center == center
+	assert view.nav_segments() == ["Jobs", "a second root · deps"]
 	view.handle(27)
 	assert view.nav == [] and view.mode == "table"
 	assert header(view).startswith("[Jobs]")
@@ -324,22 +352,33 @@ def test_a_linked_drill_through_rebuilds_the_far_works_own_ancestry(world):
 
 def test_a_drill_through_from_a_re_rooted_caller_carries_no_caller_ancestry(
 		world):
+	"""The same question under W4996's contract: what does the caller get
+	back?
+
+	The dependency page no longer re-roots the Jobs tree, so a caller's
+	ancestry can no longer prefix an unrelated Work. What must still hold
+	— and is the part that would actually hurt an operator — is that Back
+	returns the RE-ROOTED caller exactly as it was, path included."""
 	view = console(world)
 	select(view, "the root")
 	view.handle(ord("u"))
+	rooted = list(view.path)
 	# The re-rooted window shows the root's subtree; open the neighbour
 	# view of the grandchild, whose dependent is outside that subtree.
 	select(view, "the grandchild")
 	view.handle(ord("b"))
 	assert view.mode == "links"
-	entries = view._links_rows()
-	assert entries, "the fixture dependency did not reach the neighbour view"
+	assert view._graph_view()["edges"], \
+		"the fixture dependency did not reach the neighbour view"
+	select_neighbour(view)
 	view.handle(curses.KEY_ENTER)
-	assert view.nav_segments() == ["Jobs", "a second root"], \
-		view.nav_segments()
-	assert view.path == [world["other"]["work_id"]]
+	assert view.mode == "links", "the dependency page re-rooted the tree"
+	assert view.path == rooted, \
+		"recentering the graph moved the caller's table underneath it"
 	view.handle(27)
-	assert view.nav == [] and view.mode == "table" and view.path == []
+	view.handle(27)
+	assert view.mode == "table" and view.path == rooted, \
+		"Back did not restore the re-rooted caller"
 
 
 def test_local_tab_keys_never_reach_the_global_row(world):
@@ -434,7 +473,9 @@ def test_the_links_page_is_a_segment_too(world):
 	view.handle(ord("b"))
 	assert view.mode == "links"
 	assert view.nav_segments()[0] == "Jobs"
-	assert "links" in view.nav_segments()[-1]
+	# W17 ruled the label reads "deps"; W4996 made the page the
+	# dependency neighbourhood graph. The segment is still a segment.
+	assert "deps" in view.nav_segments()[-1]
 	assert "[Jobs]" not in header(view)
 	view.handle(27)
 	assert view.mode == "table" and view.nav == []

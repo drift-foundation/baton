@@ -1,8 +1,10 @@
 # Plan
 
 1. [done] Promote this independently scheduled cleanup out of W2 containment.
-2. [pending] Inventory every scratch-root lifetime and group cleanup under
-   test-owned roots without weakening destructive-path assertions.
-3. [pending] Implement failure-safe cleanup and add a regression proving one
-   complete gate leaves no newly created fixture roots.
-4. [pending] Run the complete v12 gate and independently review.
+2. [transferred] Inventory and correction planning moved to the fresh follow-up
+   record `work/records/2026/08/finding-v12-test-fixture-audit-follow-up/` after
+   W30 closed cancelled.
+3. [transferred] Implementation, if required, follows the bounded audit rather
+   than continuing under this terminal record.
+4. [transferred] Verification and independent review follow the resulting
+   implementation Work.

@@ -147,7 +147,9 @@ def test_nothing_ever_selects_an_alternate_on_its_own(world):
 	work = _make(world)
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	tr.release_claim(world["store"], work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="stepping away")
+	                 expect="lang.ada",
+	                 episode=fx.episode_of(world["store"], work),
+	                 reason="stepping away")
 	assert _route(world, work)["route"] == "main"
 
 

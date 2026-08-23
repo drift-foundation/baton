@@ -1,0 +1,73 @@
+W2845 round-1 correction evidence — 2026-08-22, baton.claude
+Answering review-2026-08-22T05-48-15Z.md [P1].
+
+== 1. The reviewer's two candidates, re-checked against BOTH oracles ==
+
+  candidate A reversed keyword order
+    rule: prefix_rule(decision="allow", pattern=["docker"])
+    codex execpolicy check 'docker run --privileged alpine' -> allow  (unchanged: still authorized)
+    auditInspectionRules -> satisfied=false broad=["docker","docker","docker","docker"] unaccounted=[]
+    preflight refuses: the nominated execution policy at /tmp/w2845-recheck.SaSsYG/a.rules contains a BROADER Docker rule [docker] co
+
+  candidate B single-quoted strings
+    rule: prefix_rule(pattern=['docker'], decision='allow')
+    codex execpolicy check 'docker run --privileged alpine' -> allow  (unchanged: still authorized)
+    auditInspectionRules -> satisfied=false broad=["docker","docker","docker","docker"] unaccounted=[]
+    preflight refuses: the nominated execution policy at /tmp/w2845-recheck.SaSsYG/b.rules contains a BROADER Docker rule [docker] co
+
+  Before: both returned missing=[] broad=[] extra=[] satisfied=true.
+
+== 2. Every spelling this correction turned up ==
+
+  canonical             audit: satisfied=false -> BROAD
+  reversed keywords     audit: satisfied=false -> BROAD
+  single quotes         audit: satisfied=false -> BROAD
+  mixed quotes          audit: satisfied=false -> BROAD
+  positional operands   audit: satisfied=false -> BROAD
+  loose whitespace      audit: satisfied=false -> BROAD
+  multi-line            audit: satisfied=false -> BROAD
+  variable indirection  audit: satisfied=false -> UNACCOUNTED
+  string concatenation  audit: satisfied=false -> UNACCOUNTED
+  a loop                audit: satisfied=false -> UNACCOUNTED
+
+  a_loop                 evaluator on "docker run --privileged alpine": allow
+  a                      evaluator on "docker run --privileged alpine": allow
+  b                      evaluator on "docker run --privileged alpine": allow
+  canonical              evaluator on "docker run --privileged alpine": allow
+  loose_whitespace       evaluator on "docker run --privileged alpine": allow
+  mixed_quotes           evaluator on "docker run --privileged alpine": allow
+  multi_line             evaluator on "docker run --privileged alpine": allow
+  positional_operands    evaluator on "docker run --privileged alpine": allow
+  reversed_keywords      evaluator on "docker run --privileged alpine": allow
+  single_quotes          evaluator on "docker run --privileged alpine": allow
+  string_concatenation   evaluator on "docker run --privileged alpine": allow
+  variable_indirection   evaluator on "docker run --privileged alpine": allow
+
+  The oracle is what makes these cases honest: the multi-line fixture
+  originally used TAB indentation, and the evaluator rejected the whole
+  file rather than authorizing. Starlark forbids tabs. A test written
+  from my reading of the language would have been wrong the same way the
+  parser was.
+
+== 3. The approved state is still reachable ==
+
+  exact four                    satisfied=true
+  same rules in single quotes   satisfied=true   (fail-closed, not fail-blind)
+  with a # operator comment     satisfied=true
+
+== 4. The LIVE nominated policy under the corrected preflight ==
+
+  workflow baton.prompt  satisfied=true
+  workflow baton.codex   satisfied=true
+  workflow baton.tuner   satisfied=true
+  inspection               satisfied=true  unaccounted=[]
+
+== 5. Verification ==
+
+  tools/codex-event-bridge npm test   222 pass, 0 fail  (was 216; six new)
+  full pytest                         2873 pass, 0 fail
+
+  The same parser serves the BATON workflow audit, so the identical hole
+  existed there: a reversed-keyword executable-only Baton rule was also
+  invisible. It is covered by regressions in both lanes. The review found
+  it on Docker; it was never only a Docker defect.

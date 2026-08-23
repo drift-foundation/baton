@@ -1,0 +1,45 @@
+W2929 corrected agent-session re-review evidence
+Reviewer: baton.codex
+Date: 2026-08-23T02:51:57Z
+
+Inspected boundaries:
+- v12/src/worker_manager/agent_profile.mjs
+- v12/src/worker_manager/agent_session.mjs
+- v12/src/worker_manager/schema.mjs
+- v12/src/authority/authority.mjs
+- v12/test/worker_manager_agent_session.test.mjs
+
+Focused command, from repository root:
+  node v12/test/worker_manager_agent_session.test.mjs
+
+Result:
+  tests 16
+  pass 15
+  fail 1
+
+Only failure:
+  W2929 review: execution uses the assignment participant's session
+  AssertionError: Missing expected exception.
+
+The regression uses two genuine V12 authority sessions. poc.claude claims and
+activates the Work; a session minted for poc.gemini then successfully opens
+the poc.claude execution session. No implementation was changed by review.
+
+Full command, from /home/sl/src/baton/v12:
+  just test
+
+Result:
+  tests 459
+  pass 458
+  fail 1
+
+Only failure:
+  W2929 review: execution uses the assignment participant's session
+  AssertionError: Missing expected exception.
+
+Review hygiene:
+  git diff --check -- v12/test/worker_manager_agent_session.test.mjs \
+    work/records/2026/08/finding-v12-isolated-agent-workers/findings/\
+finding-v12-local-isolated-execution/findings/finding-v12-worker-manager-core
+
+Result: clean.

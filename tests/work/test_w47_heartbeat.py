@@ -140,7 +140,8 @@ def test_only_the_exact_claimant_beats(world):
 		tr.heartbeat(store, done, actor_team="lang", actor="ada")
 	# release wins the race: the beat refuses without an event
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="pause")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="pause")
 	events_now = store.conn.execute(
 		"SELECT COUNT(*) AS n FROM events").fetchone()["n"]
 	with pytest.raises(bw.WorkError, match="unclaimed"):
@@ -183,7 +184,8 @@ def test_the_beat_is_epoch_scoped(world):
 	tr.heartbeat(store, work, actor_team="lang", actor="ada")
 	old_beat = row_of(world, work)["heartbeat_at"]
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="cycling")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="cycling")
 	assert row_of(world, work)["heartbeat_at"] is None
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	fresh = row_of(world, work)
@@ -380,7 +382,8 @@ def test_discovery_advertises_heartbeat_to_the_exact_claimant(world):
 	# property below is unchanged.
 	done = make(world, title="finished")
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="taking the other one")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="taking the other one")
 	tr.claim_work(store, done, actor_team="lang", actor="ada")
 	tr.close_work(store, done, actor_team="lang", actor="ada",
 	              rationale="done", outcome="satisfying")
@@ -455,7 +458,7 @@ def test_the_projection_identifies_the_heartbeat_shape(world):
 	# shape; W179's honest-breaking major moved the projection to 5.0
 	# (no alias), so the CURRENT same-major demand is 5.x and a stale
 	# 4.x demand refuses.
-	assert jsonapi.PROJECTION_VERSION == "12.3"  # W5, the poke major
+	assert jsonapi.PROJECTION_VERSION == "12.4"  # W5, the poke major
 	jsonapi.require_version("12.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("4.2")
@@ -478,7 +481,8 @@ def test_the_two_writer_race_resolves_fail_closed(world):
 	def wrapped(kind, actor, payload, mutate, **kw):
 		store._write = original
 		tr.release_claim(store, work, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="raced away")
+		                 expect="lang.ada", episode=fx.episode_of(store, work),
+		                 reason="raced away")
 		return original(kind, actor, payload, mutate, **kw)
 
 	store._write = wrapped
@@ -502,7 +506,8 @@ def test_the_two_writer_race_resolves_fail_closed(world):
 
 	# beat wins: the event is history; release clears the live output
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="pause")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="pause")
 	assert row_of(world, work)["heartbeat_at"] is None, \
 		"a released claim kept live heartbeat output"
 	assert store.conn.execute(

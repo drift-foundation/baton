@@ -41,7 +41,7 @@ def test_the_fresh_authority_is_schema_24(store):
 	# W415 moved this to 26 with `approval_incidents`; W1477 moved it
 	# to 27 for a behaviour change that invalidated persisted derived
 	# readiness without moving one column.
-	assert store.meta()["schema_version"] == "27"
+	assert store.meta()["schema_version"] == "28"
 
 
 def test_created_work_defaults_to_normal_priority(store):

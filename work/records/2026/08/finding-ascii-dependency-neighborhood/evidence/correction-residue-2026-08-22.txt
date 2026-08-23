@@ -1,0 +1,98 @@
+W4996 — the leaked temporary root
+Review: review-2026-08-22T21-48-17Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. WHAT THE REVIEW CONFIRMED
+
+The order-independent frontier, the eleven PTY scenarios including the
+30-column stacked path, and plan item 4's operating guide are all confirmed
+complete, at 80/80 independently verified. This turn closes the one P2.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+`test_a_presentation_row_is_not_selectable` — the case I added LAST turn to
+pin the crash the PTY matrix found — called `tempfile.mkdtemp()` directly and
+nothing owned the result. Every run left an empty root behind; the review
+lists nine observed.
+
+Measured rather than reasoned about: two focused runs before the fix left two
+new bare `/tmp/tmp*` directories.
+
+
+2. WHY IT HAPPENED, WHICH IS THE PART WORTH RECORDING
+
+The console helper in that file takes a `tmp_path`, and every other console
+case receives pytest's managed fixture. I added that case in a hurry to pin a
+crash, needed a path, and minted one inline rather than adding the fixture
+argument — a case that bypasses the managed mechanism is not covered by it,
+and the mechanism cannot tell.
+
+It is the same class of residue W2907 exists to stop, reintroduced by one
+case that opted out of the convention around it. Two turns ago I found the
+identical mistake in a v12 suite of mine by running its gate under a bracket;
+this one needed a reviewer to catch, because the v11 suite has no bracket.
+
+
+3. CORRECTED
+
+The case takes `tmp_path` like every other console case in the section.
+
+
+4. AND A GUARD, so it cannot come back
+
+`test_this_suite_mints_no_temporary_root_of_its_own` asserts the file's own
+SOURCE contains no `tempfile.mkdtemp`, `mkdtemp(` or `TemporaryDirectory`
+outside the guard itself.
+
+Asserting the source rather than counting `/tmp` entries is deliberate: a
+count is affected by every other process on the machine and by any other
+suite in the same run, so it would be flaky in exactly the direction that
+teaches people to ignore it. This is a property of the file, and the file is
+what regressed.
+
+The guard reads everything BEFORE its own definition, because it necessarily
+names the calls it forbids — a check that matched its own text could never
+pass, and I had to correct that before it was worth anything.
+
+MUTATION: restoring the `mkdtemp` call fails the guard.
+
+
+5. RESIDUE BRACKET
+
+  bare /tmp/tmp* roots before  39
+  full non-serial suite (2976 passed) + the PTY matrix (11 passed)
+  bare /tmp/tmp* roots after   39
+
+Zero new roots. Two consecutive focused runs of the file alone likewise left
+zero.
+
+The nine paths the review lists were LEFT IN PLACE. The managed reviewer
+deliberately did not clean them and neither did I: destructive cleanup of
+paths outside this Work's own fixtures is an operator act, and the review
+says so explicitly.
+
+
+6. GATES
+
+  tests/work/test_w4996_dependency_graph.py       70 passed (69 before)
+  tests/work/test_w4996_dependency_graph_pty.py   11 passed
+  pytest -n auto -m "not serial" tests/work       2976 passed, 0 failed
+  pytest -m serial tests/work                     52 passed
+  tools/codex-event-bridge npm test               316 pass, 0 fail
+  tools/acp-baton-bridge npm test                 55 pass, 0 fail
+  whitespace-damage check                         clean
+
+  v12 npm test                                    274 tests, 271 pass, 3 fail
+
+THOSE THREE ARE NOT THIS WORK'S. They are W2929 reviewer cases from
+`review-2026-08-22T22-01-32Z.md`, against the offer/claim slice I landed on
+that Work earlier this session. W2929 is queued on `baton.impl` for its own
+turn.
+
+
+7. FILES CHANGED
+
+  tests/work/test_w4996_dependency_graph.py   one case takes `tmp_path`;
+                                              +1 guard

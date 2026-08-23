@@ -1,0 +1,96 @@
+W4303 round-3 correction — concurrent settlement, 2026-08-22
+
+Answering `review-2026-08-22T15-23-14Z.md` [P2].
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+The reviewer's additive regression, run against the tree as it was left:
+
+  node --test tools/codex-event-bridge/test/failed_turn_settlement.test.mjs
+
+  AssertionError: concurrent settlement observers filed the same incident twice
+    actual:   2
+    expected: 1
+
+  42 tests: 41 pass, 1 fail
+
+The window is exactly as reported: `incidentFiled` is the DURABLE
+acknowledgement and becomes true only after the awaited publication returns,
+so two observers of one fence can both read it false and both publish.
+
+Worth stating plainly: this window is the ROUND-2 correction's own
+consequence. Routing the resume path through the shared settlement is what
+made reconnect and a late `turn/completed` overlap naturally, and the
+sequential late-notification case I added in that round runs only after the
+first settlement has acknowledged — so it could never have witnessed this.
+
+
+2. THE CORRECTION, IN TWO HALVES
+
+  (a) JOIN, not a second publication. The in-flight promise is held on the
+      orphan; a second observer awaits the SAME promise and returns its
+      answer. One publication per fence, and both callers learn the same
+      outcome.
+
+  (b) RETRYABLE on failure. The handle is dropped unless the acknowledgement
+      made it durable, so a runner that refused or threw is tried again by
+      the next observer and by the restart re-file path. A shared promise
+      without this half would have replaced double-filing with never-filing,
+      which is worse and quieter.
+
+
+3. FOUND WHILE CORRECTING, NOT IN THE REPORT
+
+A runner whose `incident` REJECTED took the whole settlement path down with
+it — out of `#settleTurn`, out of `#turnCompleted`, into an unhandled
+rejection — so the incident was neither filed nor retried, and in the
+notification path the rest of the handler never ran.
+
+A throw is now a failed publication rather than a failed settlement: it is
+logged, answered `false`, and retried. Nothing is lost, because `#fence`
+makes the fence durable before anything asynchronous and `incidentFiled`
+stays false.
+
+
+4. MUTATION CHECK — each half removed independently
+
+  removed                                  result
+  the in-flight join                       43 pass / 1 fail
+                                             a reconnect settlement racing late
+                                             turn/completed files one incident
+  the handle-clearing on failure           42 pass / 2 fail
+                                             a FAILED first publication stays
+                                             retryable for the next observer
+                                             a THROWING publication also stays
+                                             retryable
+
+Neither half is unwitnessed, and no case fires for the half it does not name.
+Restored: 44 pass, 0 fail.
+
+
+5. BOTH REGRESSIONS RETAINED, as the review requires
+
+  a late turn/completed after resume settlement files nothing twice   (sequential)
+  a reconnect settlement racing late turn/completed files one incident (concurrent)
+
+
+6. VERIFICATION
+
+  tools/codex-event-bridge npm test          288 tests, 288 pass, 0 fail
+  pytest -n auto -m "not serial" tests/work   2883 passed
+  pytest -m serial tests/work                   52 passed
+  tools/acp-baton-bridge npm test               55 passed
+  v12 npm test                                 186 passed
+  whitespace-damage check                     clean
+
+The bridge suite is fully green for the first time since this Work opened:
+the failure other Works have been reporting as "W4303's reviewer regression"
+was this defect, and it is the one corrected here.
+
+
+7. UNCHANGED
+
+The socket-bearing managed gate and the live `recover` grant remain operator
+actions. No automatic release was invented; drain, cancellation and recovery
+are untouched.

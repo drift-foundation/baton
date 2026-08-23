@@ -1,0 +1,101 @@
+W2929 — the output-freeze slice, third correction
+Review: review-2026-08-23T01-02-53Z.md, one [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    397 tests, 396 passed, 1 failed
+
+The reviewer's additive regression is the only failure. The finding is
+correct.
+
+
+2. THE FINDING, AND WHY IT IS THE SAME ONE AGAIN
+
+[P1] `present` WITH NO MATERIAL FROZE AS A SATISFIED REQUIRED OUTPUT. Last
+round I refused an output that says `missing-optional` while carrying material
+and did not refuse its converse. `checkDeclaredLimits` entered the `present`
+branch, computed a null size, skipped every limit and returned success — and
+the required-output rule tests only `status !== "present"`, so an output with
+no tree and no artifact satisfied a required declaration under a `completed`
+disposition.
+
+A STATUS WORD IS NOT MATERIAL, and this is the second time in two rounds that
+I enforced ONE DIRECTION of a two-directional rule. I wrote "a comparison that
+runs one way is half a comparison" into the dossier one round earlier, in this
+same file, about this same function. Recording the lesson beside the code did
+not make me apply it to the very next branch I wrote.
+
+CORRECTED, and to the contract rather than to the minimum that passes the
+case. §8.4: a frozen result binds "every declared output's content/tree digest
+AND artifact reference". Both are required for a `present` output. The
+nullable members exist so a MISSING output can say so, not so a present one
+can choose which half to supply.
+
+
+3. ONE INERT BRANCH THE CORRECTION EXPOSED, AND CLOSED
+
+With both representations required, the size computation's fallback — "the
+tree's total, or else the artifact's declared size" — became unreachable, and
+`size !== null` became always true. That is the inert-guard shape I recorded
+last round.
+
+So it is a decision now rather than a deletion: BOTH sizes are bounded by the
+declaration. Measuring only the tree would leave the transported
+representation unbounded, and the constraint says "maximum bytes" about the
+output, not about whichever representation happened to be there. The media
+type check lost its now-impossible null guard for the same reason.
+
+
+4. MUTATION CHECK — three, all three witnessed
+
+  U1  present may carry nothing                      2 failed
+  U2  EITHER representation is enough                1 failed
+  U3  only the tree is bounded                       1 failed
+
+U2 IS THE ONE THAT MATTERS. It satisfies the reviewer's case — which drives
+NEITHER representation — while accepting an output that supplies only one. A
+rule that rejects just the empty case is satisfied by whichever half is
+cheaper to fake, so a case of mine drives each half separately.
+
+
+5. REGRESSIONS — 53 (51 before, including the reviewer's one)
+
+Plus two of mine: a present output carrying only ONE representation, driven
+both ways; and the artifact's declared size bounded by the declaration while
+the tree is well inside it.
+
+
+6. GATES
+
+  cd v12 && npm test                       399 tests, 399 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Intake and cleanup — the rest of item 3 — and all of item 4. Artifact BYTE
+verification remains W2930's; what is enforced here is what the sealed
+observation DECLARES about itself.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/output.mjs          a present output must carry both
+                                             representations; both sizes
+                                             bounded; the dead null guards
+                                             removed
+  v12/test/worker_manager_output.test.mjs    +2 cases

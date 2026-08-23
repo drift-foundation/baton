@@ -303,28 +303,58 @@ production implementation is authorized yet.**
    when a concrete W28 decision truly cannot proceed before another Work,
    never merely because that Work is contained here.
 
+0al. [done 2026-08-22; child Work `W4511`] Pin affinity review and independent
+   opinion as distinct future v12 scheduler intents. Affinity preserves the
+   same reviewer across implementation→review→implementation revision cycles
+   with fallback when unavailable; independent opinion selects a different
+   participant and may also require a different provider or model. Keep the
+   canonical dossier authoritative and treat model context only as an
+   efficiency advantage. Make no v11 reviewer-pool or scheduler change.
+
+0am. [done 2026-08-22] Make Offered→Claimed the two-phase v12 operator model.
+   Offered shows which participant/runtime attempt received the Work and starts
+   the visible claim-acceptance countdown while Work remains queued and Handler
+   remains empty. Claimed stops that timer, makes Work active, fills Handler,
+   and mints the assignment generation. Failed, refused, and expired are typed
+   Offered outcomes, not extra phases.
+
+0an. [done 2026-08-22] Make every v12 runtime failure actionable without
+   depending on a final agent message. Show a concise typed cause with `fail`
+   and provide a direct Work-detail path to the exact attempt's durable,
+   redacted diagnostics or log locator. The Worker Manager or adapter publishes
+   this evidence even when the agent turn is interrupted or quarantined.
+
 ## Campaign milestones
 
 - **M0 — Foundation (done):** bounded PoC, in-repository relocation, and the
   signed-off assignment state machine (items 0ah-1).
-- **M1 — Contract freeze (next):** worker-control API, typed manifests, ACP
-  boundary, and runtime-neutral conformance contract (items 2-4).
-- **M2 — Local execution:** OCI reference worker, trusted Worker Manager, and
-  one complete local isolated lifecycle (items 5-6, local portion).
-- **M3 — Proposal pipeline:** refresh, immutable proposal, clean verification,
-  technical review, approval, and trusted integration (items 7-9).
-- **M4 — Runtime certification:** Claude, Gemini, Codex, and a genuinely remote
-  adapter against the same contract (items 6 and 10).
-- **M5 — Resilience and scale:** failure/race recovery plus concurrent
-  multi-agent isolation trials (items 11-12).
-- **M6 — Rollout and adoption:** mixed v11/v12 operation, observability,
-  documentation, identity separation, and the production-adoption decision
-  (items 13-14).
+- **M1 — Contract freeze (awaiting approval as W1408):** worker-control API,
+  typed manifests, ACP boundary, and runtime-neutral conformance contract
+  (items 2-4) are independently signed off and cross-contract reconciled.
+- **M2 — Local execution (conditionally approved as W1425):** OCI reference
+  worker, trusted Worker Manager, and one complete local isolated lifecycle
+  (items 5-6, local portion). W1425 waits explicitly on W1408; M1 closure
+  surfaces M2 for bounded decomposition without authorizing later milestones.
+- **M3 — Proposal pipeline (conditionally approved as W1427):** refresh,
+  immutable proposal, clean verification, technical review, approval, and
+  trusted integration (items 7-9). W1427 waits on W1425.
+- **M4 — Runtime certification (conditionally approved as W1429):** certify
+  Claude, Gemini, and Codex against the same local worker contract while
+  retaining only a contract placeholder for a future remote adapter (item 10).
+  W1429 waits on W1425 and does not wait on M3.
+- **M5 — Resilience and scale (conditionally approved as W1431):** failure/race
+  recovery plus concurrent multi-agent isolation trials (items 11-12). W1431
+  waits on both W1427 and W1429.
+- **M6 — Rollout and adoption (conditionally approved as W1433):** mixed
+  v11/v12 operation, observability, documentation, identity separation, and
+  the production-adoption decision (items 13-14). W1433 waits on W1431; v11
+  retirement additionally requires a usable v12 TUI and a separate ruling.
 
 Each milestone becomes a direct child Work of W28 when scheduled. Its bounded
 implementation and verification slices become children of that milestone,
-preserving the two-child-level limit. Later milestones remain parked; only the
-current milestone is actionable.
+preserving the two-child-level limit. As superseded on 2026-08-21, M2-M6 are
+conditionally scheduled behind explicit dependency gates; only milestones
+whose prerequisites have closed are actionable.
 
 1. [done 2026-08-21; child Work `W151`] Model assignment generations, read-only pre-claim inspection,
    expiring single-use claim tokens, claim-capability-gated writable
@@ -339,16 +369,16 @@ current milestone is actionable.
    the restart and retirement races; the final 54/54 model gate passed and the
    executable design contract was signed off without changing application,
    protocol, runtime, schema, or dependency code.
-2. [pending] Specify the outer versioned Baton worker-control API plus typed
+2. [done 2026-08-22; child W1439 closed satisfying] Specify the outer versioned Baton worker-control API plus typed
    input, immutable local change-proposal or non-Git result, and verifier-result
    manifests. Include named source descriptors, source type/URI/destination,
    Git base/target/proposal identities or directory content/output digests,
    role/policy/toolchain/image digests, tests, logs, and dossier evidence.
-3. [pending] Specify ACP as the normalized inner agent endpoint without adding
+3. [done 2026-08-22; child W1440 closed satisfying] Specify ACP as the normalized inner agent endpoint without adding
    repository or container lifecycle to ACP: use a mediated ACP relay for
    native ACP agents and a narrow ACP adapter for non-ACP runtimes such as
    Codex App Server.
-4. [pending] Specify the runtime-neutral worker conformance suite covering
+4. [done 2026-08-22; child W1441 closed satisfying] Specify the runtime-neutral worker conformance suite covering
    typed-source materialization and digest verification, read-only input,
    declared-output containment, freeze/validation/collection, workspace and Git
    isolation, generation-gated publication, cancellation and
@@ -360,9 +390,13 @@ current milestone is actionable.
 5. [pending] Build one OCI reference worker, runnable by Docker or Podman, that
    supports both a configured read-only Git source cloned into private writable
    storage and a digest-bound read-only directory source with separate writable
-   result output. Preserve OS/agent sandboxing, prohibit nested container
-   runtimes, never expose the host container-runtime socket, and require it to
-   pass the runtime conformance suite.
+   result output. Permit broad, non-interactive command freedom inside the
+   assignment's private writable surfaces, including destructive commands,
+   without granting host privilege or per-command approval. Preserve
+   defense-in-depth sandboxing, prohibit privileged containers, host
+   namespaces, host devices and nested container runtimes, never expose the
+   host container-runtime socket, drop unnecessary capabilities, and require
+   the worker to pass the runtime conformance suite.
 6. [pending] Build the trusted host-side Worker Manager and OCI runtime adapter
    behind the worker-control API. Normalize start/cancel/inspect/collect/
    destroy, persist attempt-to-runtime reconciliation identities, and prove
@@ -383,7 +417,9 @@ current milestone is actionable.
    approved for the exact verified target and update it atomically without
    resolving conflicts or editing code.
 10. [pending] Certify Claude and Gemini through ACP relays and Codex through an
-   ACP-to-App-Server adapter against the same worker contract.
+   ACP-to-App-Server adapter against the same local worker contract. Preserve a
+   typed remote-runtime extension point, but defer implementation and
+   certification of SSH or another remote adapter to separately approved Work.
 11. [pending] Exercise crash, provider overload, cancellation race, late
    recovery, duplicate assignment, stale candidate, conflicting candidates,
    rejected review, mid-turn contract supersession (the W2938 incident),
@@ -394,11 +430,29 @@ current milestone is actionable.
    verify that no worker can alter another worker or the canonical checkout.
 13. [pending] Define gradual per-participant/profile rollout and rollback,
     mixed legacy/isolated deployment, local proposal storage, operating
-    documentation, retention, and observability before considering broader v12
-    production adoption. Removal of the legacy path is a later explicit gate.
+    documentation, retention, and observability—including distinct visible
+    Offered and Claimed stages—before considering broader v12
+    production adoption. Removal of the legacy path is a later explicit gate
+    and cannot occur before v12 provides a practically usable TUI.
 14. [deferred] Separate the one human-attached interactive copilot from managed
     background workers so every participant identity has exactly one live
     execution context. Treat conversation threads as non-authoritative session
     detail, use distinct participants or attempts for parallel execution, and
     make participant runtime state unambiguous. This is not part of the current
     single-Claude PoC and does not receive a child Work until later ordering.
+15. [deferred] Implement explicit v12 reviewer scheduling policy for the two
+    pinned intents. Affinity review prefers the prior reviewer through revision
+    cycles and falls back when unavailable; independent opinion excludes the
+    prior reviewer and may additionally require provider/model diversity. Both
+    paths must reconstruct authority from the canonical dossier rather than
+    depending on retained model context. This item changes no v11 reviewer pool
+    or scheduling behavior and receives implementation Work only after later
+    ordering and approval.
+16. [deferred; confirmed 2026-08-22] Add stage-scoped dependency gates to the
+    v12 scheduler. Model outcome dependencies as whole-Work gates,
+    implementation dependencies as implementation-offer gates, and integration
+    dependencies as verification/acceptance/integration gates. Recheck the
+    named gate atomically when issuing that stage's offer. Leave v11's coarse
+    Work-level dependency behavior and the current W2929→W2930 edge unchanged;
+    create bounded implementation Work only when the v12 scheduler slice is
+    ordered.

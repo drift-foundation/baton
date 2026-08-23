@@ -1,0 +1,53 @@
+W2845 review — bounded missing-attempt diagnostic
+Date: 2026-08-23T04:49:11Z
+Reviewer: baton.codex
+
+Measured cause accepted
+-----------------------
+The fresh `date +%s%N` result inside the recorded run window proves the shell
+executed. `thread/read(includeTurns=true)` nevertheless retained no
+commandExecution item. This supersedes the earlier reviewer inference that
+the model did not invoke the shell.
+
+Official provider contract checked
+----------------------------------
+https://developers.openai.com/codex/app-server/
+
+Official OpenAI documentation lists commandExecution as the shell-execution
+turn item, item/started and item/completed as its lifecycle, and thread/read
+with includeTurns as the stored-turn read. The running codex-cli 0.149.0
+result does not meet the contract observed by this gate. The oracle remains
+strict; the operator decision is compatible build, another managed-turn
+evidence transport, or wait.
+
+Diagnostic counterexample
+-------------------------
+Input:
+  one completed turn with 1,000 agent commandExecution items;
+  each command is 1,000 characters.
+
+Observed from missingAttemptDiagnostic:
+  itemTypes: 1000
+  commands: 1000
+  summaryLength: 1029041
+
+Only individual agent-message text is currently truncated. Message count,
+item-type count, command count, and command-string length are unbounded.
+
+Focused verification
+--------------------
+npm test -- --test-name-pattern='W2845' test/command_oracle.test.mjs
+Result: 23 passed, 0 failed.
+
+node --check smoke/exact_policy_matrix.mjs
+Result: exit 0.
+
+git diff --check
+Result: clean.
+
+Required correction
+-------------------
+Hard-cap total item types, messages and commands; hard-cap each message and
+command; expose true totals and explicit truncation/omission markers; cover
+many messages, many commands and a long command. Preserve reasoning exclusion
+and keep the helper outside every verdict.

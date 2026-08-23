@@ -76,7 +76,9 @@ def test_release_ends_active_and_opens_queued(world):
 	work = _make(world)
 	tr.claim_work(world["store"], work, actor_team="lang", actor="ada")
 	tr.release_claim(world["store"], work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="stepping away")
+	                 expect="lang.ada",
+	                 episode=fx.episode_of(world["store"], work),
+	                 reason="stepping away")
 	assert _episodes(world, work)[-2:] == [("active", "release", False),
 	                                       ("queued", None, True)]
 

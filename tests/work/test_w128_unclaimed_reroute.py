@@ -235,6 +235,7 @@ def test_claimed_work_is_never_rerouted_under_its_handler(world):
 	# the stated alternatives both work
 	tr.release_claim(world["store"], work, actor_team="lang",
 	                 actor="grace", expect="lang.grace",
+	                 episode=fx.episode_of(world["store"], work),
 	                 reason="handing it back")
 	reroute(world, work, reason="now that nobody holds it")
 	assert route_of(world, work)["route"] == "main"

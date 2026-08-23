@@ -1,0 +1,180 @@
+W4996 — round 4 correction (first slice, third correction round)
+Review: review-2026-08-22T19-04-09Z.md, one [P1] and two [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Console wiring — `[b]` still opens the old flat links page — navigation,
+resize and Back behaviour, PTY coverage, and the `ROW_DEEPER` depth-frontier
+gap. The review does not treat any of them as landed and neither does this
+round.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  .venv/bin/python3 -m pytest tests/work/test_w4996_dependency_graph.py -q
+    33 tests, 30 passed, 3 failed
+    X test_w4996_review_the_cap_is_disclosed_when_page_and_room_tie
+    X test_w4996_review_a_shared_branch_does_not_invent_omissions
+    X test_w4996_review_a_shortcut_node_keeps_one_wide_column
+
+All three findings are correct.
+
+
+2. [P1] A SHARED DAG BRANCH INVENTED OMISSIONS FOR RENDERED EDGES
+
+`seen_edges` suppressed the duplicate ROWS and nothing else was conditional
+on it: the occurrence increment and the recursion ran on every path. So a
+node reached by two valid DAG paths had its branch walked twice — the second
+walk spent the cap on edges already drawn and then OVERWROTE the branch's
+complete result with an omission for dependents that were on screen. The
+reported case returned all 150 edges while claiming 105 were hidden.
+
+A bound that describes something other than the rendered graph is worse than
+no bound, because the operator has no way to tell.
+
+CORRECTED with two memos, deliberately not one global visited set — the
+review is right that a blanket node cut is not equivalent, since a Work
+legitimately appears on several edges:
+
+  state["fetched"]   the direct page already read for a (work, side) branch,
+                     REUSED rather than re-queried. This is what stops a
+                     later visit — which has less room left — from admitting
+                     fewer of the SAME edges and labelling the rest hidden.
+  state["walked"]    the greatest `remaining` depth this branch has already
+                     been expanded with. Strictly greater admits, so a LATER
+                     SHORTER PATH carrying more depth still expands; one that
+                     can see no further does not.
+
+And the occurrence increment moved INSIDE the new-edge branch: one occurrence
+per RENDERED edge. Path-local cycle detection is untouched, and a regression
+still proves a cycle refuses.
+
+`_expand_dependency` was split into the guard and `_expand_branch`, the
+expansion itself. That is not tidying: the memo has no visible result — the
+same response comes back either way — so "this branch was actually expanded"
+had to become an observable event for a regression to witness it.
+
+
+3. [P2] A PAGE/ALLOWANCE TIE REACHED THE CAP WITHOUT SAYING SO
+
+The cap flag was set only when `room < page`. With four slots left, an
+ordinary page of four and five direct neighbours, the query admits four and
+omits one — the view ends at exactly 200 occurrences reporting
+`capped: false`. It was page-truncated and allowance-truncated at once, and
+more to the point the view is FULL: no later branch can admit a row.
+
+CORRECTED: `room <= page`. An omission remaining as the allowance is
+exhausted is a cap, including at the equality boundary.
+
+
+4. [P2] A SHORTCUT EDGE MOVED A WORK OUT OF ITS COLUMN
+
+A legal DAG can reach a Work directly AND by a longer path. Shortest-path
+layering puts `shortcut` at layer one, so the edge from the layer-two node
+runs RIGHT TO LEFT. The renderer clamped the gap to one space and painted
+the target after the source, putting the same selector at columns 25 and 73 —
+the exact rule the round-3 correction recorded, broken by the case it did not
+consider.
+
+CORRECTED, and this is the judgement call in this round: THE LAYERED FORM
+DECLINES. A row cannot run left to right to a target that sits left of its
+source without either moving the endpoint or overlapping the arrow, so the
+form returns None and the graph falls to adjacency, which draws the same
+edges with the same endpoints and no layer columns at all. Losing the layout
+is honest; moving a selector is not.
+
+The reviewer's other option — represent the shortcut without moving its
+endpoint — has one real implementation: LONGEST-path layering, which makes
+every DAG edge monotonic by construction. I did not take it, because the
+approved contract says the center sits between SHORTEST-path layers, and
+changing that is a contract question rather than a rendering fix. It is named
+in the code and offered here.
+
+AND THE FALLBACK HAD TO BE FIXED TOO, or declining would have moved the
+defect rather than removed it. `_adjacency` sized its source field to
+whatever token it held, so `[W19 block]` landed at offset 24 after a short
+source and 25 after a long one — one Work at two offsets, for a reason that
+has nothing to do with the graph. The source field is padded to the widest
+token now. The form's promise is stated rather than implied: every occurrence
+of a Work AS A TARGET shares one offset and every occurrence AS A SOURCE
+shares another; it does not claim one offset per Work, because an adjacency
+list has no layer to derive one from.
+
+
+5. MUTATION CHECK — six, each independently
+
+  M1  occurrences counted for re-walked edges
+        1 failed: the re-walk occurrence case
+  M2  the direct page re-queried on every visit
+        2 failed: the re-query case and the occurrence case
+  M3  the depth memo removed
+        1 failed: the re-expansion watcher
+  M4  the tie not disclosed (`room < page` again)
+        1 failed: the reviewer's tie case
+  M5  the layered form clamps instead of declining
+        1 failed: the reviewer's shortcut-column case
+  M6  the adjacency arrow column goes ragged again
+        1 failed: the reviewer's shortcut-column case
+
+Restored: 36/36.
+
+
+6. THE FIRST MUTATION RUN FOUND THAT THREE HALVES MASKED EACH OTHER
+
+M1, M2 and M3 all passed green against the reviewer's shared-branch fixture,
+because in it the two paths reach the shared node at the SAME depth: the
+`walked` memo stops the second traversal outright, so neither the re-query
+nor the re-count can happen, and removing the memo changes no visible field.
+Three corrections, one case, and the case could not tell them apart.
+
+So three fixtures were built to separate them, and the first two use the path
+the review explicitly requires to keep working:
+
+  `_shared_by_long_then_short` — center -> a -> shared AND center -> shared.
+  The longer path is walked first, so the branch is expanded with one hop
+  left and then reached again by the shortcut carrying more. By then its own
+  150 rows have consumed most of the allowance, which is what makes a
+  re-query admit 46 of the same edges and report 104 hidden.
+
+  - test_a_second_deeper_visit_does_not_requery_the_direct_page  (M2)
+  - test_a_re_walked_edge_is_not_another_occurrence              (M1)
+  - test_a_branch_is_not_re_expanded_at_a_depth_it_already_had   (M3)
+
+The third watches `_expand_branch`, because the memo's whole effect is work
+NOT done. It deliberately does not assert one expansion per branch — a later
+shorter path must still be admitted, and the other two cases depend on that.
+
+
+7. GATES
+
+  tests/work/test_w4996_dependency_graph.py   36 passed (33 before)
+  pytest -n auto -m "not serial" tests/work   2931 passed, 0 failed
+  pytest -m serial tests/work                 52 passed
+  tools/codex-event-bridge npm test           297 pass, 0 fail
+  tools/acp-baton-bridge npm test             55 pass, 0 fail
+  whitespace-damage check                     clean
+
+  v12 npm test                                225 tests, 222 pass, 3 fail
+
+THOSE THREE ARE NOT THIS WORK'S. They are W2929 reviewer cases from
+`review-2026-08-22T19-11-31Z.md`, which landed while this turn was running:
+a nested secret scope releasing its outer owner, a promise-returning scope,
+and the journal checking the exact serialized result. W2929 is queued on
+`baton.impl` for its own turn, it is JavaScript under `v12/`, and nothing in
+this change reaches it.
+
+No projection version change: `capped` and `omitted` already existed and only
+their values are now correct.
+
+
+8. FILES CHANGED
+
+  src/baton_work/projection.py    the `fetched` and `walked` memos, the
+                                  guard/`_expand_branch` split, one
+                                  occurrence per rendered edge, and the
+                                  `room <= page` cap disclosure
+  src/baton_work/tui/graph.py     `_layered` declines a non-monotonic graph;
+                                  `_adjacency` keeps one arrow column
+  tests/work/test_w4996_dependency_graph.py   +3 cases and their fixture

@@ -1,0 +1,39 @@
+W2929 — item 3a second-correction independent re-review
+Reviewer: baton.codex. Date: 2026-08-22.
+
+Scope
+  review-2026-08-22T22-01-32Z correction only
+  foundation item 2 remains signed off
+  rest of item 3 and all of item 4 not reviewed
+
+Accepted
+  passive TTL settlement on reissue and recovery
+  visible expired state with verifier consumed
+  authority_uuid included in the issue operation signature
+  different-bearer concurrent loser refusal
+
+Additive reproduction
+  W2929 re-review: replay provenance does not depend on bearer uniqueness
+
+Interleaving
+  outer issuer passes optimistic replay check
+  its injected mint callback runs an exact inner issue to commit
+  both injected mint callbacks return the same valid bearer
+  outer transact replays the inner durable result
+  record.verifier equals the outer derived verifier
+  outer returns successfully instead of refusing as the journal loser
+
+Focused commands
+  node --test --test-isolation=none test/worker_manager_offers.test.mjs
+    41 tests, 40 pass, 1 fail
+  node --test --test-isolation=none \
+    test/worker_manager_contracts.test.mjs \
+    test/worker_manager_store.test.mjs \
+    test/worker_manager_offers.test.mjs
+    119 tests, 118 pass, 1 fail
+
+Source
+  offers.mjs:236  transact returns either first commit or exact replay value
+  offers.mjs:263  verifier inequality is used as replay provenance
+
+No full-tree gate was run after the focused blocking result.

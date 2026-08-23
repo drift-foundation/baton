@@ -1,0 +1,131 @@
+W2929 — item 4, THIRD SLICE: the turn and its outcome
+Implementer: baton.claude. Date: 2026-08-23.
+Entered after `review-2026-08-23T03-01-41Z.md` signed off the bounded
+session-opening slice.
+
+
+1. WHAT THIS SLICE IS
+
+  "Every turn has a manager deadline. Turn outcome is selected only from the
+   closed eight-value vocabulary and only from a terminal provider fact,
+   policy failure, deadline or transport death. It gates but never chooses
+   worker disposition."
+
+Schema 9 -> 10 adds `turns`, with `deadline_at` NOT NULL and the derived
+`permitted` set stored beside the outcome.
+
+
+2. SELECTED, NEVER INFERRED
+
+The ACP boundary's §5.4 lists what an outcome is NOT derived from: silence,
+transport closure, an empty update stream, a tool call's own status, agent
+prose, and reachability at any layer. Each is a guess somebody could defend,
+which is why the section exists.
+
+So `selectTurnOutcome` takes the evidence a relay actually holds and REFUSES
+when none of it names an outcome. A turn that ended with no terminal fact, no
+policy failure, no transport death and before its deadline is a turn nobody
+can name an outcome for, and the alternative to refusing is guessing.
+
+THE ORDER OF PRECEDENCE IS AN ARGUMENT, not a convenience:
+
+  - a §4 violation ends the turn WHERE IT HAPPENS, so it outranks anything
+    that arrives afterwards, including a terminal fact;
+  - a terminal provider fact outranks an elapsed deadline, because the fact
+    ARRIVED;
+  - transport death outranks the deadline for the reason it is a separate
+    outcome at all: the epoch is gone, which is more than "nothing has come
+    back yet".
+
+The ACP `stopReason` mapping is EXACT — five reasons, and an unknown one is
+refused rather than rounded to the nearest. A JSON-RPC error response is
+`agent-failed` and its payload is never parsed to select a different outcome.
+
+
+3. GATES, NEVER CHOOSES
+
+The worker declares its disposition; the outcome decides only whether such a
+declaration may be accepted. The acceptance table is transcribed verbatim and
+DRIVEN EXHAUSTIVELY — all eight rows, and both directions of the permitted
+set — because a closed vocabulary tested at three of eight points is a closed
+vocabulary nobody has checked.
+
+`cancelled` and `policy-failed` permit NOTHING because the assignment is
+already ended and the material goes to quarantine. `timeout` and
+`transport-lost` permit nothing because they are the honest outcomes that say
+the relay does not know, and a disposition accepted on "I do not know" is
+§5.4's inference wearing a different hat. Those two are also the only two that
+are not `conclusive`.
+
+The permitted set is stored beside the turn rather than re-derived on read, so
+a later reader sees THE GATE THAT WAS APPLIED rather than one from a table
+that may have moved since.
+
+
+4. MUTATION CHECK — eight, all eight witnessed
+
+  D1  no evidence infers completion                   2 failed
+  D2  a policy failure no longer outranks a fact      1 failed
+  D3  the deadline outranks transport death           1 failed
+  D4  an unknown stop reason maps to completed        1 failed
+  D5  timeout and transport-lost permit a disposition 2 failed
+  D6  the ambiguous outcomes are called conclusive    1 failed
+  D7  the deadline is optional                        1 failed
+  D8  a turn need not be inside a session             1 failed
+
+D2 and D3 are the ones worth reading: both keep every individual mapping and
+only reorder the precedence, and both fail. An ordering that is only a comment
+is not an ordering.
+
+Restored: 13/13 focused, 474/474 for the whole gate.
+
+
+5. REGRESSIONS — 13, in a new suite
+
+The two tables asserted against the closed vocabulary and each other, so an
+outcome without a gate or without a conclusiveness is caught rather than
+defaulted; both mappings driven for EVERY key plus unknown values; no evidence
+naming nothing; a turn ending before its deadline with nothing; each of the
+deadline, transport death and policy failure naming exactly one; the
+precedence order in all three of its pairs; the gate applied and not chosen,
+in both directions; all four permit-nothing outcomes crossed with all three
+dispositions; the stored gate being what a later reader sees; the deadline
+required in all three of its timestamps; a turn refused outside a session; and
+the turn identity varying with epoch, posture and prompt.
+
+
+6. GATES
+
+  cd v12 && npm test                       474 tests, 474 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+7. STILL NOT IMPLEMENTED
+
+Event normalization, the runtime/agent adapter CONTRACTS, and the
+re-identification gate after transport ambiguity. The unexpected-approval
+path — mark `policy-failed`, then cancellation and quarantine — is reachable
+here as an outcome, and the ACT of entering cancellation from it belongs with
+the relay this slice does not yet build.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs                version 10; the `turns`
+                                                   table
+  v12/src/worker_manager/agent_turn.mjs            NEW
+  v12/test/worker_manager_agent_turn.test.mjs      NEW, 13 cases
+  v12/test/worker_manager_store.test.mjs           the pinned version and
+                                                   tables

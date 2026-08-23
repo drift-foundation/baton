@@ -1,0 +1,163 @@
+W2929 — round 6 correction (foundation round five)
+Review: review-2026-08-22T19-11-31Z.md, two [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Plan items 3 and 4. Five rounds have now corrected this foundation and none
+of them built on it. Both findings are in the secret boundary I landed last
+round — the value-aware check closed the reported leak and left two adjacent
+ones.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    225 tests, 222 passed, 3 failed
+    X a nested secret scope cannot release its outer owner
+    X a promise-returning secret scope stays live until settle
+    X the journal checks the exact serialized result
+
+Both findings are correct.
+
+
+2. [P1] THE JOURNAL VALIDATED A DIFFERENT OBJECT FROM THE DURABLE JSON
+
+`transact` walked the action's result and then called `JSON.stringify`
+separately for the row. Two observable reads of a value the manager did not
+construct: a `toJSON` method returns `{diagnostic: <bearer>}` while
+`Object.entries` shows only the method, so the walk passed and the raw bearer
+committed.
+
+The durable boundary is the SERIALIZED REPRESENTATION, not the object it came
+from. `_durable(value, where)`:
+
+  const bytes = JSON.stringify(value ?? null);
+  assertNoDurableSecret(JSON.parse(bytes), where);
+  return bytes;
+
+Serialized ONCE. The parse of those exact bytes is what gets walked —
+`JSON.parse` runs no user code, so the walk sees precisely what will be
+stored — and the SAME bytes are recorded. It does not reserialize after
+validating, which would reopen the identical gap for a stateful `toJSON` or
+getter; a regression counts the reads and asserts exactly one.
+
+Both durable surfaces go through it: the committed result and the sealed
+refusal.
+
+
+3. [P1] SECRET SCOPES RELEASED VALUES THAT WERE STILL LIVE
+
+Two defects in one `Set`, and the Set is why:
+
+  - A `Set` records PRESENCE, not ownership. An outer owner holding a bearer
+    and an inner `withSecret` on the same value are two registrations of one
+    value; the inner `finally` deleted the outer owner's still-live entry. A
+    scoped use of the seeded golden bearer could delete the seed itself.
+  - `withSecret` released as soon as the act RETURNED. A provider act
+    naturally returns a Promise, so the bearer was unregistered while the
+    work was still pending — precisely the call shape the orchestration slice
+    will use. Returning a pending Promise is not completion.
+
+CORRECTED with TWO REGISTERS, because two different lifetimes were being
+conflated:
+
+  _PINNED   what this BUILD knows at rest: the golden conformance bearer.
+            Never released, because nothing acquired it and so nothing may
+            hand it back.
+  _live     a REFERENCE COUNT. A value stays live until its last owner
+            releases it. An unbalanced release of a value nobody holds
+            changes nothing rather than going negative and swallowing the
+            next registration.
+
+`withSecret` now transfers ownership to the continuation when the act returns
+a thenable, releasing in `.finally` so an awaiting caller sees the value
+released and a pending one still sees it held. A synchronous throw still
+releases immediately.
+
+THE REVIEWER'S ALTERNATIVE — remove the scoped API until its real
+orchestration caller can define the lifetime — was considered and not taken.
+The API is what makes the boundary usable rather than a convention to
+remember, and both of its failure modes are now regressions rather than
+possibilities. If the reviewer would still rather it wait for its caller,
+deleting it is a small change and I will make it.
+
+
+4. MUTATION CHECK — six, each independently
+
+  M1  validate the object, serialize separately
+        1 failed: the reviewer's toJSON case
+  M2  the registry is a presence set again
+        3 failed: the reviewer's nesting case, my nesting case, and the
+                  async-nesting case
+  M3  the seed joins the releasable register
+        1 failed: the pinned-seed case
+  M4  a returned Promise ends the scope
+        2 failed: the reviewer's async case and my rejecting case
+  M5  an async scope never releases
+        3 failed: both async cases and the async-nesting case
+  M6  reserialize after validating
+        1 failed: the bytes-it-validated case
+
+Restored: 68/68 across the two focused files, 229/229 for the whole gate.
+
+M1 and M6 are deliberately separate. M1 breaks the ORDER — validate then
+serialize — and only the reviewer's case sees it. M6 keeps the order and adds
+a second serialization, which only a read COUNT can see. Two halves of one
+rule, and each needed its own case.
+
+
+5. REGRESSIONS — 229 (225 before)
+
+The reviewer's three are retained unchanged. Added four:
+
+  - registrations nest, an unbalanced release is inert, and the SEED is
+    pinned — a scoped use of it and two stray releases leave it live;
+  - an async scope that REJECTS still releases, because a provider that
+    failed is the likeliest way to strand a registration forever;
+  - an async scope nested inside a live outer owner, where the two
+    corrections meet: neither the settle nor the outer release may end the
+    other's lifetime;
+  - the journal records the bytes it validated, proven by counting `toJSON`
+    reads and by replaying those exact bytes.
+
+
+6. GATES
+
+  cd v12 && npm test                       229 tests, 229 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2931 passed, 1 failed
+  tools/codex-event-bridge npm test        297 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+THE ONE PYTEST FAILURE IS NOT THIS WORK'S:
+`test_w4996_review_a_walk_memo_cannot_hide_a_cycle_on_another_path`, from
+`review-2026-08-22T19-23-55Z.md`, which landed while this turn was running.
+It is a case against the depth memo I added to W4996 earlier today — a real
+concern for that Work, which is queued on `baton.impl` for its own turn. It
+is Python and shares no module with `v12/src/worker_manager/`; nothing here
+reaches it and it was not touched from here.
+
+A NOTE ON THE REVIEW'S OWN VERIFICATION: it records that the complete v12
+gate could not run under the managed review policy because unrelated
+fixture/placement cases need nested process spawns and receive EPERM, and
+that no escalation was requested. The full gate does run here and is green at
+229; the three reviewer cases and the four added this round are included in
+that number.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/contracts.mjs   the pinned/live registers, reference
+                                         counting, Promise-aware `withSecret`
+  v12/src/worker_manager/store.mjs       `_durable`: serialize once, validate
+                                         those bytes, record them
+  v12/test/worker_manager_contracts.test.mjs   +3 cases
+  v12/test/worker_manager_store.test.mjs       +1 case

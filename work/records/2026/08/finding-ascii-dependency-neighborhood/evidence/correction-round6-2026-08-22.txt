@@ -1,0 +1,109 @@
+W4996 — round 6 correction (first slice, fifth correction round)
+Review: review-2026-08-22T19-42-55Z.md, one [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Console wiring, navigation, resize and Back behaviour, PTY coverage, and the
+`ROW_DEEPER` depth-frontier slice.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  .venv/bin/python3 -m pytest tests/work/test_w4996_dependency_graph.py -q
+    44 tests, 43 passed, 1 failed
+    X test_w4996_review_a_cycle_cut_by_the_cap_is_not_invented
+
+Correct, and it is against the ordering I left in place last round while
+adding the cycle boundary.
+
+
+2. [P1] THE PATH GUARD REFUSED AN EDGE THE CAP WOULD OMIT
+
+`_expand_branch` fetches a bounded direct page and then walks its siblings.
+An earlier sibling's descendants can spend the remaining allowance between
+the fetch and a later sibling's turn — and the loop tested `far in path`
+BEFORE testing whether that edge could still enter the response. So a closing
+edge raised `GraphInvalid` although the cap would have omitted it and
+`_refuse_cycles` would have seen a perfectly acyclic admitted graph.
+
+That contradicts the rule I pinned in round five: a cycle whose closing edge
+was cut by the cap or a branch page is not reported, because the graph
+actually returned is acyclic. Refusing over an edge the response does not
+contain is the same lie as hiding one it does — in the other direction. I
+wrote the rule and then left the fast guard running one step in front of it.
+
+CORRECTED, exactly as the review sets out. For an edge not already drawn, cap
+admission is decided FIRST: if no occurrence remains, the branch discloses the
+cap and the exact remaining direct omission and returns, without inspecting
+that edge for a cycle and without recursing through it.
+
+The path guard then applies to an edge that WILL be in the response — either
+it is about to enter it, or it is already part of the admitted graph. Both are
+edges the operator can see, so refusing over them invents nothing.
+`_refuse_cycles` is unchanged.
+
+
+3. MUTATION CHECK — three, each independently
+
+  M1  the path guard runs before cap admission again
+        2 failed: the reviewer's case and the disclosed-not-refused case
+  M2  cap admission applies to already-drawn edges too
+        1 failed: the exhausted-allowance case
+  M3  the fast guard removed entirely
+        2 failed: the round-5 watcher and the already-drawn guard case
+
+Restored: 47/47.
+
+M2's FIRST RUN PASSED GREEN and is why a fifth case exists. Making cap
+admission apply to drawn edges as well reintroduces round four's finding from
+the other side: a branch revisited after the allowance is spent would report
+its OWN rendered edges as hidden. Nothing in the suite reached that, because
+the round-4 shared-branch fixtures never approach the cap. The new case sizes
+the shared branch at `cap - 4` so the revisit happens with the allowance
+exactly exhausted, and it asserts the branch reports no omission at all.
+
+
+4. REGRESSIONS — 47 (44 before)
+
+The reviewer's case is retained. Added three:
+
+  - an already-drawn edge still meets the FAST guard, watched through
+    `_refuse_cycles`: refusing over an edge already in the response invents
+    nothing, and the walk must still stop before circling a damaged loop;
+  - a cycle edge the cap omits is DISCLOSED, not refused — the response comes
+    back bounded and acyclic, and the final boundary is run over its edges to
+    say so, rather than the case merely observing that nothing raised;
+  - an exhausted allowance does not omit already-drawn edges (M2's case).
+
+
+5. GATES
+
+  tests/work/test_w4996_dependency_graph.py   47 passed (44 before)
+  pytest -n auto -m "not serial" tests/work   2942 passed, 0 failed
+  pytest -m serial tests/work                 52 passed
+  tools/codex-event-bridge npm test           297 pass, 0 fail
+  tools/acp-baton-bridge npm test             55 pass, 0 fail
+  whitespace-damage check                     clean
+
+  v12 npm test                                237 tests, 236 pass, 1 fail
+
+THAT ONE IS NOT THIS WORK'S. It is a W2929 reviewer case from
+`review-2026-08-22T19-49-19Z.md`, which landed while this turn was running:
+releasing a pinned registration never reports it gone — against the pinned/
+live secret registers I added there earlier today. W2929 is queued on
+`baton.impl` for its own turn, it is JavaScript under `v12/`, and nothing here
+reaches it.
+
+No projection version change: no response shape moved, and the values that
+changed are `capped` and `omitted` in a case that previously raised instead
+of answering.
+
+
+6. FILES CHANGED
+
+  src/baton_work/projection.py    `_expand_branch`: cap admission decided
+                                  before the path guard, for an edge not
+                                  already drawn
+  tests/work/test_w4996_dependency_graph.py   +3 cases

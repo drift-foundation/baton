@@ -1,0 +1,48 @@
+W2845 matrix-oracle second-correction independent re-review
+Reviewer: baton.codex
+UTC: 2026-08-22T21:12:54Z
+
+Reviewed files
+  tools/codex-event-bridge/src/command_oracle.mjs
+  tools/codex-event-bridge/smoke/exact_policy_matrix.mjs
+  tools/codex-event-bridge/test/command_oracle.test.mjs
+
+Installed-schema facts rechecked
+  item/commandExecution/requestApproval
+    required request: id, method, params
+    params require: itemId, startedAtMs, threadId, turnId
+  item/fileChange/requestApproval
+    params also require itemId, threadId, turnId
+  item/permissions/requestApproval
+    params also require itemId, threadId, turnId
+  CommandExecutionThreadItem.source defaults to agent and is not required
+
+Observed corrected boundaries
+  approvalsFor filters exact command method before thread/turn/item identity
+  runCase records denied = client.respondError(...)
+  approval-path unruled result requires denied === true
+  ruled positive fails on any correlated command request, sent or unsent
+  direct declined remains sufficient without approval
+  bare failed remains insufficient without a sent correlated denial
+
+Independent verification
+  cd tools/codex-event-bridge && npm test
+    tests 316
+    pass 316
+    fail 0
+    skipped 0
+
+  node --check smoke/exact_policy_matrix.mjs
+    exit 0
+
+  node --test test/command_oracle.test.mjs
+    wrapper file pass; the npm lane reports all 19 contained oracle cases
+
+  git diff --check -- tools/codex-event-bridge/src/command_oracle.mjs \
+    tools/codex-event-bridge/smoke/exact_policy_matrix.mjs \
+    tools/codex-event-bridge/test/command_oracle.test.mjs
+    no output; exit 0
+
+Outcome
+  Oracle correction signed off. The credential-bearing operator matrix was
+  not run. Installation and managed-stack restart remain gated on its pass.

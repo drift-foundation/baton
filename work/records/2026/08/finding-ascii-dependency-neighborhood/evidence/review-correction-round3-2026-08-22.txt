@@ -1,0 +1,90 @@
+W4996 independent round-3 correction re-review, 2026-08-22T19:04:09Z
+
+IMPLEMENTER BASELINE
+
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+    30 passed
+
+The three reported corrections are green at their original boundaries: an
+expanded direct branch limits its SQL page by the remaining occurrence room,
+an ordinary depth-two chain keeps its intermediate node in one wide column,
+and overflow tokens follow the visible members of their exact branch.
+
+THREE ADDITIVE REGRESSIONS RETAINED
+
+  test_w4996_review_the_cap_is_disclosed_when_page_and_room_tie
+  test_w4996_review_a_shared_branch_does_not_invent_omissions
+  test_w4996_review_a_shortcut_node_keeps_one_wide_column
+
+Focused result after additions:
+
+  3 failed, 30 passed in 0.80s
+
+1. PAGE/ROOM TIE DOES NOT DISCLOSE THE CAP
+
+Fixture:
+
+  center plus 195 fully expanded upstream blockers
+  center plus 5 downstream dependents on the ordinary 4-row page
+
+Observed response:
+
+  occurrences                         200
+  occurrence_cap                     200
+  omitted[center|downstream]            1
+  capped                            false
+
+projection.py:_expand_dependency marks `capped` only when `room < page`.
+Here both equal four. The direct branch omits one edge and exhausts the global
+allowance, but the response describes only ordinary paging even though no
+other branch can admit an occurrence.
+
+2. A SHARED DAG BRANCH INVENTS HIDDEN DEPENDENTS
+
+Fixture:
+
+  center --blocks--> left  --blocks--> shared --blocks--> 150 leaves
+         `--blocks--> right --blocks--'
+
+The shared branch is expanded to all 150 leaves at depth three. Its first
+valid path renders every outgoing edge. The second valid path traverses the
+same 150 canonical edges again; `seen_edges` prevents a second edge row, but
+`state["occurrences"] += 1` and recursion still run for every seen edge.
+
+Observed response:
+
+  canonical edges returned                         154
+  shared outgoing edges returned                    150
+  occurrences                                       200
+  capped                                           true
+  omitted[shared|downstream]                         105
+
+The overflow token therefore says 105 dependents are hidden even though all
+150 are already present in `edges`. The occurrence count measures DFS path
+replays rather than rendered occurrences, and an exact omission is replaced
+by a false one on the second visit.
+
+3. A LEGAL SHORTCUT MOVES ONE WORK BETWEEN WIDE COLUMNS
+
+Fixture:
+
+  center --blocks--> shortcut
+     `----blocks--> alternate --blocks--> far --blocks--> shortcut
+
+This is an acyclic graph. `_walk` assigns `shortcut` to its shortest-path
+depth-one column. On the longer canonical `far --blocks--> shortcut` edge,
+`_layered` begins at `far`'s farther column and prints the target after the
+arrow because its gap is clamped to at least one; it cannot print the target
+back at the already assigned depth-one column.
+
+Observed selector columns for `shortcut`:
+
+  25, 73
+
+That reintroduces the exact condition the correction claims to close: a
+column is no longer a property of the Work. The layered form must represent
+cross-layer shortcut edges without moving the node, or decline that form and
+use an honest fallback for a graph it cannot layer monotonically.
+
+`git diff --check` is clean.
+

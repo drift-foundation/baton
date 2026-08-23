@@ -43,7 +43,11 @@ MUTATIONS = frozenset({
 	"runtime-facts", "runtime-refresh",
 	# W415: a durable managed-turn incident and its authoritative
 	# dismissal. Both WRITE; neither carries workflow authority.
-	"incident", "dismiss"})
+	"incident", "dismiss",
+	# W4615: deployment-global maintenance control. These WRITE the
+	# dispatch singleton and carry no Work authority at all — no Work
+	# row changes when the deployment drains.
+	"drain", "resume"})
 
 # W5: the closed answer vocabularies, shared by the generated help and
 # the transition layer. `unknown` leads each diagnostic vocabulary
@@ -278,12 +282,19 @@ GRAMMAR = {
 	          "transaction, and only claiming reaches that phase (W38)",
 	          "keys": (_key("work", required=True,
 	                        help="the Work to claim"),)},
-	"release": {"help": "release/recover the active claim (self or "
-	            "forced) with an exact compare-and-swap",
+	"release": {"help": "release/recover the active claim (a Route "
+	            "handler, or an owning-team `recover` operator) with an "
+	            "exact claimant + assignment-episode compare-and-swap "
+	            "(W4303)",
 	            "keys": (_key("work", required=True, help="the Work id"),
 	                     _key("expect", required=True,
 	                          help="the exact recorded claimant "
 	                          "team.member"),
+	                     _key("episode", required=True, kind="int",
+	                          help="the exact assignment episode that "
+	                          "claim was offered under; a stale request "
+	                          "never releases a later claim by the same "
+	                          "participant"),
 	                     _key("reason", prose=True, required=True,
 	                          help="durable reason the Work became "
 	                          "unclaimed"))},
@@ -485,6 +496,30 @@ GRAMMAR = {
 	# W415: what FAILED and still needs an operator, which is a
 	# different question from what a runner is doing now. An incident
 	# survives the runner returning to idle, a restart, and a refresh.
+	"drain": {"help": "suspend managed dispatch deployment-wide: claims "
+	          "live at this boundary finish normally, no new claim is "
+	          "admitted, and the deployment reaches `paused` when the "
+	          "last one ends (requires the accepted `dispatch` "
+	          "capability)",
+	          "keys": (_key("reason", prose=True,
+	                        help="durable note recorded in the global "
+	                             "control journal"),)},
+	"resume": {"help": "return the deployment to ordinary dispatch "
+	           "(requires the accepted `dispatch` capability)",
+	           "keys": (_key("reason", prose=True,
+	                         help="durable note recorded in the global "
+	                              "control journal"),)},
+	"dispatch": {"help": "the deployment-global dispatch state: mode, "
+	             "control generation, boundary, actor, and the exact "
+	             "claims still preventing `paused` — readable by every "
+	             "accepted participant",
+	             "keys": (_key("history", kind="bool", default=False,
+	                           help="the global control journal instead "
+	                                "of the current state"),
+	                      _key("limit", kind="int",
+	                           help="control-journal page size"),
+	                      _key("before", kind="int",
+	                           help="page before this control sequence"))},
 	"incidents": {"help": "durable managed-turn incidents awaiting an "
 	              "action owner; open by default",
 	              "keys": (_key("include-dismissed", kind="bool", default=False,
@@ -2006,7 +2041,8 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return transitions.release_claim(
 			store, args.work, actor_team=team, actor=member,
-			expect=args.expect, reason=args.reason, op_id=args.op_id,
+			expect=args.expect, episode=args.episode,
+			reason=args.reason, op_id=args.op_id,
 			refs=args.refs or ())
 	if command == "heartbeat":
 		team, member = _need_participant(args)
@@ -2165,6 +2201,22 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return projection.teams(store, viewer_team=team,
 		                        viewer_member=member)
+	if command == "drain":
+		team, member = _need_participant(args)
+		return transitions.drain_dispatch(
+			store, actor_team=team, actor=member, reason=args.reason,
+			op_id=args.op_id, refs=args.refs or ())
+	if command == "resume":
+		team, member = _need_participant(args)
+		return transitions.resume_dispatch(
+			store, actor_team=team, actor=member, reason=args.reason,
+			op_id=args.op_id, refs=args.refs or ())
+	if command == "dispatch":
+		if args.history:
+			return projection.dispatch_history(
+				store, limit=args.limit if args.limit else 50,
+				before=args.before)
+		return projection.dispatch_view(store)
 	if command == "incidents":
 		team, member = _need_participant(args)
 		return projection.incidents(

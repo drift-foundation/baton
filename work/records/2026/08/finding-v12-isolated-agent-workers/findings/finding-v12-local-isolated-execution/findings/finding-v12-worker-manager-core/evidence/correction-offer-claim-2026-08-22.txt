@@ -1,0 +1,147 @@
+W2929 — item 3a corrected
+Review: review-2026-08-22T21-36-26Z.md, six [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    263 tests, 256 passed, 7 failed — the seven additive reviewer cases.
+
+All six findings are correct. Two of them — the settlement signature and the
+assignment shape — were invisible to my own suite for the same reason: a
+scripted double can agree with an implementation about a shape NEITHER shares
+with the authority. The review is right that a real `V12Session` is where
+that shows.
+
+
+2. THE SIX
+
+[P1] THE SETTLEMENT COULD NOT NAME ITS OPERATION. `acceptOffer` stored
+`claim_signature = NULL` and settlement passed `undefined`, so a real
+committed claim read as an operation collision and retirement could not write
+the authority's NOT NULL column. The acceptance transaction now freezes
+`V12Authority.claimSignature(workId, participant)` beside the intent, and
+every settlement uses that exact value. It is IMPORTED rather than restated:
+a third copy of a signature rule is a third thing that can drift, and this one
+decides whether a settlement is recognised at all.
+
+[P1] THE ASSIGNMENT SHAPE. `V12Session.claim` returns the assignment
+DIRECTLY and both recording paths read `result.assignment`, so the authority
+held a live generation while the manager durably recorded `assignment: null`.
+A record that disagrees with the authority is worse than none, because a
+restart trusts it. Both paths record what the authority returned.
+
+[P1] THE PARTICIPANT IS THE SESSION'S BINDING. `issueOffer` took it as an
+independent operand and never compared it, so the offer, verifier and intent
+could name B while `submitClaim` necessarily acts as A. A session with no
+binding is refused outright; an operand that disagrees with the binding is
+refused before entropy; otherwise the binding is what is stored.
+
+[P1] EXPIRY IS A SETTLEMENT, not only a refusal. It threw and left the row
+`issued` with an unspent verifier holding the per-Work slot — so the Work
+could never receive another offer and the bearer stayed replayable against
+the pinned single-use rule. Expiry now CASes to `expired`, consumes the
+verifier, keeps the row visible and releases the slot; the caller's refusal
+is still raised, because their decision did fail.
+
+[P1] STALE TERMINALIZATION. `settleTerminal` updated `issued` OR `accepted`
+rows while both callers act from an earlier `issued` read, so a stale decline
+or abandonment could destroy the authorization and fixed claim identity that
+acceptance had just frozen. Every issued-only transition CASes from `issued`
+alone and reports the winner's state without rewriting it.
+
+[P1] CERTIFICATION WAS OPTIONAL. The comparison was conditional on the
+argument being supplied, so omitting it skipped the check entirely — and my
+happy-path fixtures omitted it throughout, which is how it survived. The
+control store's own `profiles` row is the stronger fact and is preferred; an
+explicit assertion is accepted otherwise and may not CONTRADICT the store;
+absence of both is refused before entropy. `certifyProfile` records one.
+
+[P1] ISSUE REPLAY. The signature covered three operands, so a changed policy
+digest replayed the first offer as the same request — an operation identity
+that ignores operands is not an identity. It now covers every effective
+durable operand. And the replay is checked BEFORE entropy: the bearer exists
+only in the process that minted it, so a second call cannot reproduce one and
+refuses rather than returning a secret that does not derive the stored
+verifier.
+
+
+3. MUTATION CHECK — eight
+
+  M1  claim_signature stored as NULL again        4 failed
+  M2  the assignment read as a member again       2 failed
+  M3  the participant operand trusted             1 failed
+  M4  expiry only throws                          1 failed
+  M6  certification optional again (both guards)  2 failed
+  M7  the issue signature covers three operands   1 failed
+  M8  the replay guard removed                    1 failed
+
+  M5  the terminal CAS accepts an `accepted` row  0 failed
+
+Restored: 30/30 focused, 269/269 for the whole gate.
+
+M5 IS UNWITNESSED AND I COULD NOT WITNESS IT. Acceptance spends the verifier,
+and `validateOfferDecide` refuses a spent verifier before the CAS is reached;
+`recoverOnRestart` filters accepted rows before abandoning. So no reachable
+path drives an issued-only transition against an accepted row today. It stays
+as defence for the callers the rest of item 3 will add, recorded as
+unwitnessed rather than counted as covered — and the race cases below assert
+the OUTCOME (the accepted row survives) rather than which guard fired.
+
+M8 WAS ALSO GREEN AT FIRST, against the reviewer's retained case, which
+permits either a throw or a matching pair and so cannot tell "refused" from
+"replayed something usable". A case of mine pins the answer — and it had to
+pin the runtime attempt id too, because that is a durable operand defaulting
+to a fresh UUID, so an "exact" replay without it is a different operation and
+collides, which is the OTHER retained case.
+
+
+4. REGRESSIONS — 30 (24 before; the reviewer's seven retained)
+
+Added six: the exact re-issue refusal; a stale DECLINE losing to a concurrent
+acceptance with the frozen operation and signature intact; restart
+abandonment losing the same race; the whole claim path against a REAL
+authority with the authority's own projection agreeing; pre-deadline
+observation and deadline retirement against the real authority, with the
+retired identity proven closed and the Work left unheld; and refusal-evidence
+retirement against the real authority.
+
+TWO FIXTURE CORRECTIONS OF MY OWN, both recorded. The scripted double now
+carries a `participant` and returns the assignment DIRECTLY, exactly as
+`V12Session` does — a wrapper there was half of why the shape mismatch
+survived. And certification is stated by every case that is not about
+certification, rather than defaulted in the helper: a fixture that quietly
+supplies the one fact a boundary checks is how the omission hole lived.
+
+One retained assertion needed a minimal change: `assert.deepEqual(row, ...)`
+cannot hold because `node:sqlite` rows carry a null prototype and strict
+deepEqual compares prototypes. It spreads the row now; the property is
+exactly the reviewer's.
+
+
+5. GATES
+
+  cd v12 && npm test                       269 tests, 269 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2975 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+6. STILL NOT IMPLEMENTED
+
+The rest of item 3 — assignment activation, runtime start and reconciliation,
+the observation axes, cancellation, output freeze, intake and cleanup — and
+all of item 4.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/offers.mjs        all six corrections, plus
+                                           `certifyProfile`
+  v12/test/worker_manager_offers.test.mjs  +6 cases, 2 fixture corrections

@@ -128,7 +128,8 @@ def test_release_mints_so_the_endpoint_is_woken_again(world):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	held = key(world, work)
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="handing back")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="handing back")
 	freed = key(world, work)
 	assert freed is not None and freed != held, \
 		"an explicit release did not open a new assignment episode"

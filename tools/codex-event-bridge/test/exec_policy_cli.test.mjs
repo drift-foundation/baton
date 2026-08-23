@@ -19,8 +19,9 @@ import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { rulesFor, identityFromOperands, generate, USAGE, RULED_VERBS,
-         ExecPolicyError } from "../src/exec_policy.mjs";
+import { rulesFor, identityFromOperands, generate, inspectionRules,
+         requestFromOperands, USAGE, INSPECTION_PROFILE, POLICY_PROFILE,
+         RULED_VERBS, ExecPolicyError } from "../src/exec_policy.mjs";
 
 const MODULE = join(dirname(fileURLToPath(import.meta.url)),
                     "..", "src", "exec_policy.mjs");
@@ -135,3 +136,96 @@ test("W415 packaging: the operand parser is the CLI's only interface",
 		const { assertPolicyProvisioned } = await import("../src/exec_policy.mjs");
 		assert.equal(assertPolicyProvisioned(file, IDENTITY).satisfied, true);
 	});
+
+// -- W2845: the second profile ---------------------------------------------
+//
+// `work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+// finding-v12-local-isolated-execution/findings/
+// finding-managed-docker-inspection-policy/`. The four read-only Docker
+// inspection prefixes go into the SAME nominated policy file, so the
+// generator has to be able to print them — the operator installed them
+// by hand on 2026-08-22 because it could not.
+
+const INSPECTION = ["profile=managed-docker-inspection"];
+
+test("W2845: the inspection profile prints exactly the four ruled prefixes",
+	() => {
+		const proc = run(INSPECTION);
+		assert.equal(proc.status, 0, proc.stderr);
+		assert.equal(proc.stderr, "");
+		// The approved set, in the ruled order, written out here rather
+		// than read from the module the case is testing.
+		assert.equal(proc.stdout,
+			'prefix_rule(pattern=["docker", "version"], decision="allow")\n'
+			+ 'prefix_rule(pattern=["docker", "info"], decision="allow")\n'
+			+ 'prefix_rule(pattern=["docker", "inspect"], decision="allow")\n'
+			+ 'prefix_rule(pattern=["docker", "image", "inspect"], decision="allow")\n');
+		// Byte-for-byte the reviewed generator's own output: the CLI is a
+		// front door onto `inspectionRules`, never a second copy of it.
+		assert.equal(proc.stdout, `${inspectionRules().join("\n")}\n`);
+		// It names no participant and no config, so it is run ONCE for
+		// the deployment rather than once per identity.
+		assert.ok(!proc.stdout.includes("--participant"));
+		// And it installs nothing, like the workflow profile.
+		const dir = mkdtempSync("/tmp/exec-policy-cli-inspection-");
+		assert.equal(run(INSPECTION, { cwd: dir }).status, 0);
+		assert.deepEqual(readdirSync(dir), []);
+	});
+
+test("W2845: the workflow profile is the default and may be named", () => {
+	// Every invocation the release already documents keeps working, and
+	// naming the profile explicitly prints the same bytes.
+	const implicit = run(OPERANDS);
+	const explicit = run([`profile=${POLICY_PROFILE}`, ...OPERANDS]);
+	assert.equal(explicit.status, 0, explicit.stderr);
+	assert.equal(explicit.stdout, implicit.stdout);
+	assert.equal(explicit.stdout, `${rulesFor(IDENTITY).join("\n")}\n`);
+	// The two profiles are different sets, and neither leaks into the
+	// other: the Docker rules carry no Baton identity, and the Baton
+	// rules authorize no Docker command.
+	assert.ok(!implicit.stdout.includes("docker"));
+	assert.ok(!run(INSPECTION).stdout.includes(IDENTITY.binary));
+});
+
+test("W2845: an ambiguous or misapplied profile operand is refused", () => {
+	// A generator that guessed here would print one profile's rules to
+	// an operator who asked for the other's, and the output is a
+	// security boundary somebody then installs.
+	const refusals = [
+		[["profile=nonsense"], /unknown profile "nonsense"/],
+		[["profile="], /unknown profile ""/],
+		[["profile"], /operand profile needs a value/],
+		[[...INSPECTION, ...OPERANDS],
+		 /takes no other operand; drop binary=/],
+		[[...INSPECTION, "participant=baton.codex"],
+		 /takes no other operand; drop participant=baton\.codex/],
+		[[...INSPECTION, `profile=${POLICY_PROFILE}`],
+		 /operand profile was given more than once/],
+		// The workflow profile still needs its identity, named or not.
+		[[`profile=${POLICY_PROFILE}`],
+		 /missing operand\(s\): binary, config, participant/],
+		[[`profile=${POLICY_PROFILE}`, "binary=baton", OPERANDS[1], OPERANDS[2]],
+		 /ABSOLUTE installed executable/],
+	];
+	for (const [argv, expected] of refusals) {
+		const proc = run(argv);
+		assert.equal(proc.status, 1, `${argv.join(" ")} was not refused`);
+		assert.match(proc.stderr, expected);
+		assert.equal(proc.stdout, "",
+			`${argv.join(" ")} still wrote policy text to stdout`);
+	}
+	// The usage names BOTH forms, so an operator who guessed wrong is
+	// told what the other one is.
+	assert.ok(USAGE.includes(`profile=${INSPECTION_PROFILE}`));
+	assert.match(run(["profile=nonsense"]).stderr,
+		new RegExp(`profile=${INSPECTION_PROFILE}`));
+});
+
+test("W2845: the operand parser is the CLI's only interface here too", () => {
+	assert.deepEqual(requestFromOperands(INSPECTION),
+		{ profile: INSPECTION_PROFILE, identity: null });
+	assert.deepEqual(requestFromOperands(OPERANDS),
+		{ profile: POLICY_PROFILE, identity: IDENTITY });
+	assert.throws(() => requestFromOperands(["profile=nonsense"]), ExecPolicyError);
+	assert.equal(generate(INSPECTION), `${inspectionRules().join("\n")}\n`);
+});

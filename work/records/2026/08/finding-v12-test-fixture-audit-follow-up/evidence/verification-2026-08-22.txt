@@ -1,0 +1,68 @@
+W2907 verification — 2026-08-22, baton.claude
+
+The audit's complete verification: the v12 gate, bracketed by an exact
+before/after inventory of the roots that invocation creates. TMPDIR is
+pointed at a bracket directory this run owns, so 'roots created by that
+invocation' is one directory listing rather than a scan of the host.
+
+== BEFORE ==
+  entries under the bracket: 0
+
+== THE GATE ==
+$ cd v12 && TMPDIR=<bracket> just test
+  tests 141
+  suites 0
+  pass 141
+  fail 0
+  cancelled 0
+  skipped 0
+  todo 0
+
+== AFTER ==
+  entries under the bracket: 1
+    node-compile-cache
+
+  surviving roots of any test-owned family: 0
+
+  node-compile-cache is Node's own, not a fixture root. The audit
+  recorded one under the W30 tree for the same reason.
+
+== THE SAME GATE WITHOUT THE CORRECTION ==
+
+Measured by making removeOwnedRoots() a no-op and re-running the same
+bracket, then restoring it. This is the number the correction removes:
+
+    total entries              131
+    leaked test-owned roots    130
+      v12-authority-            66
+      v12poc-test-              58
+      v12poc-placement-          5
+      v12poc-impostor-           1
+
+The five families with in-test removals (owned, stranger, absent-parent,
+cli-stranger, entry-unowned) do NOT appear, because every test passed and
+their removals live on the successful tail. That is precisely the gap the
+audit identified and the failure-path regression covers.
+
+== THE FAILURE-PATH REGRESSION BITES ==
+
+test/fixture_cleanup.test.mjs spawns a deliberately failing node:test file
+outside the *.test.mjs glob. With the probe's after hook removed, both
+probe cases fail with 'survived the probe':
+
+    x W2907: a PASSING run leaves no fixture root and no touched target
+        AssertionError: /tmp/.../v12poc-test-2IGsXk survived the probe
+    x W2907: a FAILING run leaves no fixture root either
+        AssertionError: /tmp/.../v12poc-test-JozF3G survived the probe
+
+Restored, all four pass.
+
+== HOST STATE THIS WORK DID NOT TOUCH ==
+
+  /tmp/w30-fixture-audit.Lmr3aa   present, 168 direct children, unchanged
+  ambient /tmp/v12poc-test-*      1098 roots, not classified, not deleted
+  ambient /tmp/v12poc-placement-* 78 roots, not classified, not deleted
+
+Host cleanup remains separately authorized per the finding. The only
+directories this verification removed are the two bracket roots it
+created itself, by exact path.

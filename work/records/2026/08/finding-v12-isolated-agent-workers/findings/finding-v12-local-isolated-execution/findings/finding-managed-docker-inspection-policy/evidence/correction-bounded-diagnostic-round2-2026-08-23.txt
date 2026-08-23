@@ -1,0 +1,104 @@
+W2845 — the bounded diagnostic, bounded in every dimension
+Review: review-2026-08-23T05-04-02Z.md, one [P2].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+The reviewer's two shapes, against the shipped helper:
+
+  {"nanMessage":1000000,"nanCommand":1000009,"nanSummary":1000088,
+   "longType":1000000,"longTypeSummary":1000051}
+
+Both correct.
+
+
+2. A CLAMP A NON-NUMBER WALKS THROUGH IS NOT A CLAMP
+
+`Math.min(NaN, hardMaximum)` is NaN, and `value.length > NaN` is false — so
+`limit: NaN` did not tighten the cap, it REMOVED it, and a million-character
+message came back whole.
+
+THE FAILURE DIRECTION IS THE POINT. A clamp that fails toward a smaller cap
+announces itself the first time a diagnostic looks truncated. This one failed
+OFF, which looks like nothing at all until the day it matters — the same day
+this diagnostic exists for.
+
+`tighten` normalizes first: a non-number, a non-finite, or anything below one
+falls back to the private hard maximum, and a real number is floored and
+clamped. Every value the reviewer's list contains — NaN, ±Infinity, negative,
+zero, fractional, a string, null, undefined, an object, an array — is driven.
+
+
+3. A HARD PROPERTY THAT DEPENDS ON THE PROTOCOL IS THE PROTOCOL'S
+
+I capped the COUNT of item types and not the STRINGS, so one item with a
+million-character `type` produced a million-character summary. The same held
+for the turn id, the turn status and each command's status.
+
+Protocol-conforming values are small. That is a fact about conforming
+producers, and this helper's stated hard-output property was resting on it —
+in a diagnostic whose entire purpose is the turn that did something
+unexpected.
+
+Every externally supplied string retained in the result or the summary is now
+capped: types, ids, statuses, messages, commands. A summary backstop sits
+behind them.
+
+
+4. MUTATION CHECK — five, four witnessed and one inert
+
+  J1  the limit is used raw again                    2 failed
+  J2  item-type strings are not capped               2 failed
+  J3  the turn id and status are not capped          1 failed
+  J5  a command status is not capped                 2 failed
+
+  J4  the summary backstop is removed                0 failed
+
+J4 IS INERT AND IS RECORDED AS SUCH. With every field capped, the summary can
+no longer reach the backstop, so removing it changes nothing. It is kept for
+the next field somebody adds without a cap — which is exactly the failure this
+round corrected twice — and it is NOT counted as a guard. The comment says so.
+
+
+5. REGRESSIONS — 3 added
+
+Eleven invalid limit values, each asserting the message, the command AND the
+whole serialized result stay bounded; oversized metadata across the turn id,
+status, an item type and a command status; and every dimension at once — 2000
+items, each a million characters, with a million-character id and status and
+`limit: NaN` — asserting the COMPLETE serialized diagnostic under 20,000
+characters while the true counts survive.
+
+The last one is the reviewer's requirement stated directly: a fixed maximum
+for the complete serialized diagnostic, not a sum of per-field promises.
+
+
+6. GATES
+
+  tools/codex-event-bridge npm test            336 pass, 0 fail
+  pytest -n auto -m "not serial" tests/work    2977 passed, 0 failed
+  pytest -m serial tests/work                  52 passed, 0 failed
+  tools/acp-baton-bridge npm test              55 pass, 0 fail
+  v12 npm test                                 492 pass, 0 fail
+  node --check smoke/exact_policy_matrix.mjs   clean
+  whitespace-damage check                      clean
+
+No Docker command was executed.
+
+
+7. UNCHANGED
+
+True counts, omission markers, reasoning-payload exclusion, the
+diagnostic-only boundary, the strict oracle as the sole decision, the eight
+exact commands, the Baton cases, the non-mutation probe and cleanup. The live
+matrix still cannot pass on this build — W7989.
+
+
+8. FILES CHANGED
+
+  tools/codex-event-bridge/src/command_oracle.mjs
+                                    `tighten`; every retained string capped;
+                                    a summary backstop marked inert
+  tools/codex-event-bridge/test/command_oracle.test.mjs
+                                    +3 cases

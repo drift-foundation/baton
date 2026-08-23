@@ -1,5 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
+  "control": {
+    "binary": "/absolute/path/to/v11-release/bin/baton",
+    "config": "/absolute/path/to/mailbox/baton.json",
+    "participant": "baton.slaw"
+  },
   "startTimeoutSeconds": 15,
   "stopTimeoutSeconds": 10,
   "contexts": [

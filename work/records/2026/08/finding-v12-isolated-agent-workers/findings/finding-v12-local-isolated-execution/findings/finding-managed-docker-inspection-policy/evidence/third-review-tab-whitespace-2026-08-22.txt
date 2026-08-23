@@ -1,0 +1,40 @@
+W2845 third independent-review reproduction, 2026-08-22T12:51:09Z
+
+The candidate file contained the exact four generated Docker inspection rules,
+with one TAB before the fourth rule. No Docker command was executed while
+testing the candidate.
+
+The file's relevant final line, rendered with `sed -n l`, was:
+
+  \tprefix_rule(pattern=["docker", "image", "inspect"], decision="allow")$
+
+The current audit returned:
+
+  {"missing":[],"broad":[],"extra":[],"unaccounted":[],"satisfied":true}
+
+The installed evaluator was then asked only to check `docker version`:
+
+  codex execpolicy check --pretty --rules /tmp/w2845-tab.rules docker version
+
+It exited 1 and refused the policy before making an authorization decision:
+
+  Error: failed to parse policy at /tmp/w2845-tab.rules
+  Caused by:
+      starlark error: error: Parse error: tabs are not allowed
+
+The mismatch is at `tools/codex-event-bridge/src/exec_policy.mjs:381`:
+`readPolicy` treats every JavaScript `\s` character as harmless and skips it.
+That includes TAB, although the real evaluator rejects TAB anywhere in this
+policy. The test fixture already records that Starlark forbids tabs, but no
+regression asks the audit to refuse one.
+
+Surrounding verification:
+
+  tools/codex-event-bridge npm test: 223 passed, 0 failed
+  focused W2845/deployed pytest:     24 passed, 0 failed
+  git diff --check:                  clean
+
+The four live approved inspections also executed without an approval request:
+Docker client and daemon 29.1.3; both inspect forms resolved
+node@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03.
+No mutable Docker command was executed.

@@ -1,0 +1,144 @@
+W7830 — one operation per execution request
+Implementer: baton.claude. Date: 2026-08-23.
+Plan items 2 and 3. Item 1 is a confirmed boundary; item 4 is an operator gate.
+
+
+1. BASELINE BEFORE ANY EDIT
+
+  pytest tests/work/test_w101_role_instructions.py
+        tests/work/test_w220_managed_workflow_policy.py     24 passed
+  node --test test/role_instructions.test.mjs
+                  test/command_oracle.test.mjs             27 passed
+
+matching the reviewer's recorded baseline.
+
+
+2. ITEM 2 — THE NORMATIVE RULE, AND A REGRESSION THAT KEEPS IT THERE
+
+One bullet at the head of `AGENTS.md`'s "Non-interactive managed turns",
+immediately after "The active-work claim" — the claim it binds hardest is the
+one defined in the section above it, and a rule filed anywhere else is a rule
+a reader of the claim rules never reaches.
+
+It states that every canonical Baton operation is ONE STANDALONE DIRECT
+EXECUTION REQUEST; that `claim` is bound above all because it is the mandatory
+first act; that it is never combined with `detail` or another read, another
+mutation, a shell wrapper, or shell control syntax; WHY — the deployment
+authorizes an exact canonical invocation, so a batch containing one is a
+different command, the read succeeds, the mutation is refused as a read-only
+database and the Work stays unclaimed; and that an exact operation which still
+fails alone is a deployment or policy incident to report rather than retry
+inside a broader command.
+
+`test_the_required_policy_binds_one_operation_per_execution_request` asserts
+the four normative phrases AND their POSITION: after the claim rules, and
+first among the managed-turn rules. Text a regression only greps for can drift
+to the bottom of a file and still pass.
+
+
+3. ITEM 3 — THE READINESS SHAPE
+
+`readinessClaimOutcome` in `src/command_oracle.mjs`, deliberately separate
+from `requestedItem`: that one requires exactly ONE command item and would
+refuse this shape as "the turn also ran something else". One command per turn
+was right for the policy matrix; this Work is about the turn that legitimately
+runs two.
+
+WHAT AN OUTCOME ALONE CANNOT SAY, and why the verdict is about the ordered
+item list: "the Work is claimed" is equally true of one batched command that
+happened to work, of a claim issued before the read, and of three attempts of
+which one landed. So the verdict requires exactly two agent-sourced command
+items, the first the canonical read, the second the canonical claim, both
+terminal and completed, and no COMMAND approval correlated to either.
+
+Eight deterministic regressions in `test/command_oracle.test.mjs`, including
+the defect itself: `detail` and `claim` in ONE item is refused as "exactly
+two", which a proof reading only the committed Handler would have accepted.
+
+`smoke/managed_baton_write.mjs` now presents ready Work and asks for the two
+operations as separate execution requests, with BOTH command strings fixed —
+including the claim's operation id — reads the exact turn back with
+`thread/read includeTurns`, and runs the shape oracle over it. It keeps the
+whole server request rather than its method, because an approval correlated by
+identity cannot be correlated from a method alone. Every existing negative
+control is untouched, and `exec_policy.mjs` is not changed.
+
+
+4. THE LIVE PROOF DID NOT PASS, AND I AM NOT WEAKENING IT TO MAKE IT
+
+Three live runs against the running `codex app-server` (codex-cli 0.149.0,
+ws://127.0.0.1:4500), with the deployed executable
+`/home/sl/opt/baton/v11/c529b28/bin/baton`. All three failed the new
+assertion, and the two reasons are OPERATIONAL FINDINGS rather than something
+to assert around.
+
+FINDING A — `thread/read includeTurns` RETURNED NO COMMAND ITEM FOR A TURN
+THAT DEMONSTRABLY RAN A COMMAND. The turn's items were exactly
+`userMessage` and `agentMessage`; the agent message was a real Python
+traceback from the deployed baton executable, so a command certainly ran.
+`CommandExecutionThreadItem` IS declared in the installed
+`.codex-app-server-schema/v2/ThreadReadResponse.json` `ThreadItem` union, so
+this is the running server not recording it rather than a schema the oracle
+misread.
+
+A separate minimal probe confirms it independently of this Work: one thread,
+one `/bin/echo hello-probe` instruction, `thread/read includeTurns` — three
+items, `userMessage` and two `agentMessage`, no `commandExecution`.
+
+This is the premise W2845's oracle rests on ("the installed app-server returns
+each turn's items ... a `commandExecution` item carries the exact `command`"),
+and it does not hold against this running server. Every command-item verdict
+in that matrix has the same exposure.
+
+FINDING B — THE MANAGED INVOCATION ENDED IN AN UNHANDLED TRACEBACK. Not a
+typed JSON error: `Traceback ... baton_work/cli.py line 2217 in entry`. That
+is consistent with the read-only-database failure this Work is about, and the
+same canonical commands succeed cleanly OUTSIDE the sandbox — verified against
+a scaffolded disposable home with no model involved: `detail` and
+`claim work=W2 op-id=w7830-live-probe` both returned normal JSON, the claim
+committing at seq 3.
+
+So the CLI surfaces the sandbox refusal as an unhandled exception rather than
+the typed error every other refusal uses. The original observation quotes the
+same `sqlite3.OperationalError`, so this is that path, seen from the outside.
+
+WHAT I DID NOT DO. I did not relax the shape assertion to accept zero command
+items, did not fall back to reading the committed Handler alone, and did not
+change `exec_policy.mjs`. Any of those would have produced a green live proof
+that established nothing — which is the exact failure mode the W2845 oracle
+exists to remove.
+
+WHAT THE SMOKE GAINED FROM FAILING. It now dumps every item of the turn when
+the shape does not hold. The defect this Work exists for was invisible because
+the visible symptom was an idle reviewer beside pending Work; an assertion
+that fails without saying what the turn actually did repeats that.
+
+
+5. GATES
+
+  pytest -n auto -m "not serial" tests/work    2977 passed, 0 failed
+  pytest -m serial tests/work                  52 passed, 0 failed
+  tools/codex-event-bridge npm test            324 pass, 0 fail
+  tools/acp-baton-bridge npm test              55 pass, 0 fail
+  v12 npm test                                 492 pass, 0 fail
+  whitespace-damage check                      clean
+
+The focused baselines moved 24 -> 25 Python and 27 -> 35 Node, by exactly the
+cases added here.
+
+THE LIVE SMOKE IS RED, deliberately and reportedly. It is excluded from every
+suite above, as it always has been.
+
+
+6. FILES CHANGED
+
+  AGENTS.md                                   one normative bullet
+  tests/work/test_w101_role_instructions.py   +1 case, text and position
+  tools/codex-event-bridge/src/command_oracle.mjs
+                                              `readinessClaimOutcome`
+  tools/codex-event-bridge/test/command_oracle.test.mjs
+                                              +8 cases
+  tools/codex-event-bridge/smoke/managed_baton_write.mjs
+                                              the two-operation readiness
+                                              shape, the exact turn read back,
+                                              and a failure dump

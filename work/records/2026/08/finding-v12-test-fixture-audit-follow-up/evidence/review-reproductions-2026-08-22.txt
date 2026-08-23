@@ -1,0 +1,64 @@
+W2907 independent-review reproductions, 2026-08-22T06:23:08Z
+
+1. Registered-path takeover deletes replacement data
+
+Using only `v12/test/owned_roots.mjs`:
+
+  root = ownedTemp("w2907-review-")
+  rmSync(root, recursive+force)       # an existing test-tail removal
+  mkdirSync(root)                     # pathname is now a replacement owner
+  write replacement-owner.txt
+  removeOwnedRoots()
+
+Observed:
+
+  before:
+    registered: /tmp/w2907-review-BEaQ8r
+    replacementExists: true
+  after:
+    removed: /tmp/w2907-review-BEaQ8r
+    replacementRootExists: false
+    replacementFileExists: false
+
+The registry recorded a pathname, not continuing ownership. Five registered
+placement families are still removed directly before the suite hook, so this
+ABA path exists in the changed suite.
+
+2. The probe report is hidden by supported Node's default test isolation
+
+On Node v24.14.0 (which satisfies v12/package.json's >=22.5 engine), direct
+execution of the probe with the exact current child form:
+
+  node --test test/fixtures/fixture_cleanup_probe.mjs
+
+exited 0 and reported the file-level test result, but emitted no
+`W2907-ROOTS` lines. The probe's own stdout is hidden behind the isolated test
+file process. Adding `--test-isolation=none` made both expected root reports
+visible and showed all three tests:
+
+  W2907-ROOTS [...three roots...]
+  W2907-ROOTS [...four roots...]
+  tests 3
+  pass 3
+  fail 0
+
+Therefore `fixture_cleanup.test.mjs`'s regex over the default runner's stdout
+cannot observe the report on this supported runtime.
+
+3. Verification in an exact review-owned TMPDIR
+
+  TMPDIR=/tmp/w2907-review-gate.MavDEx npm test
+
+The gate was not green. `fixture_cleanup.test.mjs` failed, as did W2928's
+already-reviewed race test and pre-existing child-process cases that the
+managed reviewer sandbox does not permit to spawn. Running the cleanup test
+module directly exposed its two W2907 failures:
+
+  W2907: a PASSING run leaves no fixture root and no touched target
+  W2907: a FAILING run leaves no fixture root either
+  AssertionError: the probe reported no roots
+
+The bracket nevertheless held no surviving test-owned family after failure;
+only Node's `node-compile-cache` remained. The bracket and the two manual
+review roots were then removed by their exact literal paths. The W30 audit
+root and ambient v12poc roots were neither opened for cleanup nor modified.

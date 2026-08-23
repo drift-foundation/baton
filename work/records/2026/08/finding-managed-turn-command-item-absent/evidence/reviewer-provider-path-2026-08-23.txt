@@ -1,0 +1,62 @@
+W7989 reviewer evidence — provider custom-tool execution path
+UTC date: 2026-08-23
+
+Provider rollout inspected read-only:
+/home/sl/.codex/sessions/2026/08/22/rollout-2026-08-22T22-39-53-01a02cea-fecc-7902-9102-bdb4daa45a8d.jsonl
+
+Relevant response items (long unrelated encrypted reasoning omitted):
+
+2026-08-23T04:39:58.156Z
+type=custom_tool_call
+id=ctc_0f709659e56bd3b5016a8a799d748887d0a6601b956badee6e
+call_id=call_Z6b6zR31NOYGYmjkBVmuD26E
+name=exec
+input:
+  const r = await tools.exec_command({"cmd":"date +%s%N","workdir":"/tmp/probe3-TQfiaK","yield_time_ms":10000,"max_output_tokens":1000});
+  text(r.output);
+
+2026-08-23T04:39:58.239Z
+type=custom_tool_call_output
+id=ctco_01a02ceb-121e-79e3-b5d3-862d4fc9d6ca
+call_id=call_Z6b6zR31NOYGYmjkBVmuD26E
+output:
+  Script completed
+  Wall time 0.0 seconds
+  Output:
+  1787459998183143305
+
+The final agent response repeats 1787459998183143305. This proves the
+execution occurred through the provider custom `exec` tool and its nested
+tools.exec_command call. It does not prove a built-in app-server shell call.
+
+Installed schema locators:
+
+tools/codex-event-bridge/.codex-app-server-schema/ResponseItem.ts
+  ResponseItem variants include custom_tool_call and
+  custom_tool_call_output. Both carry call_id.
+
+tools/codex-event-bridge/.codex-app-server-schema/v2/RawResponseItemCompletedNotification.ts
+  RawResponseItemCompletedNotification is { threadId, turnId, item:
+  ResponseItem }.
+
+tools/codex-event-bridge/.codex-app-server-schema/v2/ThreadItem.ts
+  ThreadItem has commandExecution and dynamicToolCall variants, but no
+  custom_tool_call variant.
+
+tools/codex-event-bridge/src/codex_client.mjs
+  The client emits a generic notification event for every server
+  notification, so a bridge-side live capture is mechanically possible.
+
+Official protocol reference consulted:
+https://developers.openai.com/codex/app-server/
+  Documents commandExecution as a shell-command ThreadItem and thread/read as
+  persisted thread history. It does not state that a provider custom tool's
+  nested command is converted to commandExecution.
+
+Reviewer conclusion:
+The original no-command-item symptom is real, but the first server-recording
+diagnosis was wrong. The managed deployment used a different item family.
+Live rawResponseItem/completed is a candidate evidence transport, not a proven
+oracle: a bounded probe must first show both correlated items are emitted by
+the deployed WebSocket server, and an operator must accept a strict,
+fail-closed wrapper and matching contract before either gate can depend on it.

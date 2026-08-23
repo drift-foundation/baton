@@ -1,0 +1,95 @@
+W2929 — item 3a, third correction round
+Review: review-2026-08-22T22-14-59Z.md, one [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. WHAT THE REVIEW ACCEPTED
+
+Manager-owned TTL processing, the authority binding in the issue signature,
+and the concurrent-mismatch refusal. This round is the one remaining P1.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    280 tests, 279 passed, 1 failed
+
+
+2. [P1] PROVENANCE WAS INFERRED FROM THE PAYLOAD
+
+The correction compared the returned durable verifier with the one this
+caller's bearer derives. INEQUALITY PROVES A LOSS; EQUALITY PROVES NOTHING.
+Two exact issuers can receive the same injected bearer — the inner one
+commits, the outer `transact` replays that record, the comparison agrees, and
+the transaction LOSER reports success.
+
+That makes effectively-once depend on a probabilistic property of the secret
+source. The journal decides effectively-once; a payload never does.
+
+This is the third round on the same race, and the shape of my error each time
+is worth naming: I keep answering "did this call win?" with evidence that is
+NEAR the answer rather than the answer. First a check placed before the
+decision, then a check that reads what the decision produced. The decision
+itself is the only thing that knows.
+
+CORRECTED: `transact` runs the action only when it did NOT replay, so the
+action setting a flag IS the transaction boundary reporting which of the two
+happened. Nothing about the payload is consulted for provenance.
+
+The verifier comparison stays, with a DIFFERENT job and a different refusal:
+if this call did commit, the row it wrote must derive from the bearer it
+minted. That is an invariant about a store defect, not a provenance decision,
+and returning a secret that does not open the offer it names would be the
+worst kind of answer.
+
+
+3. MUTATION CHECK — three
+
+  M1  provenance inferred from the payload again
+        1 failed: the reviewer's same-bearer race
+  M2  the marker always reports a commit
+        2 failed: the reviewer's case and the loser-emits-nothing case
+  M3  the marker always reports a replay
+        38 failed — every path that issues an offer at all
+
+M3's breadth is the point rather than noise: the marker is now load-bearing
+for every issue, which is what "the transaction boundary decides" means.
+
+
+4. REGRESSIONS — 43 (41 before; the reviewer's retained)
+
+Added two, and they are the two directions a single-sided case would miss:
+
+  - a SEQUENTIAL exact reissue refused by the same marker, driven with the
+    SAME bearer so nothing about the payload distinguishes the second call
+    from the first — one boundary, both orders, neither reading the payload;
+  - a genuinely first issue NOT refused as a replay, including a second offer
+    for another Work. A too-eager marker would satisfy every refusal case
+    above, so the boundary needs its positive direction pinned too.
+
+
+5. GATES
+
+  cd v12 && npm test                       282 tests, 282 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+6. STILL NOT IMPLEMENTED
+
+The rest of item 3 — assignment activation, runtime start and reconciliation,
+the observation axes, cancellation, output freeze, intake and cleanup — and
+all of item 4.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/offers.mjs        the commit marker decides
+                                           provenance; the verifier
+                                           comparison keeps a separate job
+  v12/test/worker_manager_offers.test.mjs  +2 cases

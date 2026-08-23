@@ -1,0 +1,61 @@
+W2845 round-2 correction evidence — 2026-08-22, baton.claude
+Answering review-2026-08-22T06-59-24Z.md [P1]: Starlark string escapes.
+
+== Every escape family, against BOTH oracles ==
+
+  candidate                        evaluator  audit
+  docker hex     \x64ocker         allow      satisfied=false -> UNACCOUNTED
+  docker unicode \u0064ocker       allow      satisfied=false -> UNACCOUNTED
+  docker long-u  \U00000064ocker   allow      satisfied=false -> UNACCOUNTED
+  docker octal   \144ocker         allow      satisfied=false -> UNACCOUNTED
+  docker raw     r"docker"         allow      satisfied=false -> UNACCOUNTED
+  baton  hex     \x2fopt/...       allow      satisfied=false -> UNACCOUNTED
+  baton  octal   \057opt/...       allow      satisfied=false -> UNACCOUNTED
+
+  Before: all of these returned satisfied=true with broad, extra and
+  unaccounted all empty. The evaluator's answer is unchanged — they do
+  authorize — and the audit now refuses every one of them.
+
+== What changed, and why it is a REMOVAL rather than a decoder ==
+
+stringLiteral treated every backslash sequence as syntax it understood:
+it decoded \n and \t and otherwise dropped the backslash and copied the
+next character. So \x64ocker read as x64ocker — a rule for nothing,
+invisible to the Docker audit — while Starlark decodes it as docker.
+
+The correction is round 1's lesson applied one level down: do not
+reimplement the language. The ONLY escapes accepted are the three this
+module's own generator can emit — backslash-backslash, backslash-quote
+and backslash-apostrophe, which is what JSON.stringify produces for a
+backslash or a quote inside an operand. Every other escape is refused, so
+hex, unicode, long-unicode, octal and anything neither of us has thought
+of all land in UNACCOUNTED and fail closed. Raw and triple-quoted strings
+were already unaccounted and still are.
+
+FAIL-CLOSED IS NOT FAIL-BLIND. A generated policy for a path containing a
+backslash, or a participant containing a quote, still round-trips through
+its own auditor — there is a regression for exactly that. A deployment
+needing any OTHER escape cannot be audited by this preflight, and that
+refusal is the honest answer: its exact evaluator semantics would have to
+be established against the oracle first, not guessed a second time.
+
+== Verification ==
+
+$ tools/codex-event-bridge && npm test
+  ℹ tests 223
+  ℹ pass 223
+  ℹ fail 0
+  223, up from 222; the escape families joined the existing oracle case
+  and the Baton profile gained oracle coverage of its own.
+
+$ full pytest
+  2873 passed, 0 failed
+
+$ the live nominated policy under the corrected preflight
+  workflow baton.prompt  satisfied=true
+  workflow baton.codex   satisfied=true
+  workflow baton.tuner   satisfied=true
+  inspection               satisfied=true  unaccounted=[]
+
+  Read-only throughout: nothing installed, nothing restarted. Mutable
+  Docker was evaluated through codex execpolicy only and never executed.

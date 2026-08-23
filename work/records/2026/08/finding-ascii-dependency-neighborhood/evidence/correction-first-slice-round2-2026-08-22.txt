@@ -1,0 +1,166 @@
+W4996 — round 3 correction (first slice, second correction round)
+Review: review-2026-08-22T18-07-47Z.md, three [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+The console wiring — `[b]` still opens the old flat links page — and the
+`ROW_DEEPER` depth-frontier gap. The review says both remain pending slices
+and does not treat them as landed. Neither does this round.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  .venv/bin/python3 -m pytest tests/work/test_w4996_dependency_graph.py -q
+    28 tests, 24 passed, 4 failed
+    X test_an_expanded_branch_is_materialized_only_to_the_remaining_cap
+    X test_deeper_edges_keep_each_node_in_its_wide_layer_column
+    X test_each_overflow_token_follows_its_visible_branch_siblings[upstream]
+    X test_each_overflow_token_follows_its_visible_branch_siblings[downstream]
+
+All three findings are correct.
+
+
+2. [P2] AN EXPANDED BRANCH STILL MATERIALIZED PAST THE CAP
+
+My round-2 correction changed `_dependency_edges` from fetch-all to
+`COUNT(*)` plus an ordered `LIMIT` — and then `_expand_dependency` passed the
+raw expansion value as that limit. So the unbounded read moved one caller up
+rather than going away: with 240 direct dependents and an expansion of 250,
+the SQL returned all 240 and only the Python loop stopped drawing at the cap.
+
+CORRECTED: the row limit is `min(page, occurrence_cap - occurrences)`. The
+exact total still comes from the COUNT, so the omission is disclosed without
+having seen the rows.
+
+AND THE FLAG HAD TO FOLLOW. Bounding the limit alone broke
+`test_the_occurrence_cap_actually_bounds_an_adversarial_branch`: the loop
+could no longer discover the cap for a branch the SQL had already trimmed, so
+`capped` stayed false while the view was in fact full. WHICH bound stopped a
+branch is the difference between "there is more here, press Enter" and "this
+view is full", and only the second is `capped`. The branch records `capped`
+when the remaining allowance — not the requested page — is what truncated it.
+
+
+3. [P2] DEPTH-TWO ROWS MOVED A NODE BETWEEN LAYER COLUMNS
+
+`_layered` indented every downstream edge to the center column and
+right-justified every upstream edge to end there, whatever the depth. In
+`A --blocks--> B --blocks--> C` centered on A, B was the first row's target at
+the center's right edge and then the second row's source at column zero. One
+node in two columns is an adjacency list with indentation, not the layered
+form the contract approved.
+
+CORRECTED: `_columns` derives ONE start offset per Work from its
+shortest-path layer, and every row draws from its source's column with the
+arrow reaching the target's. A node's column is now a property of the node
+rather than of the row it happens to appear on. Measured on the corrected
+renderer:
+
+  [W21 queued] --blocks--> [W18 block]
+                           [W18 block]
+                           [W18 block] --blocks--> [W19 block]
+                                                   [W19 block] --blocks--> [W20 block]
+
+W18 is the center and holds column 25 in both its appearances; W19 holds its
+own column in both of its.
+
+
+4. [P2] OVERFLOW TOKENS WERE OUTSIDE THEIR BRANCH POSITION
+
+`_ordered` emitted both of the center's branch tokens immediately after the
+center, so `[+N blockers]` sat between the center and the blockers it belongs
+to, and `[+N dependents]` came before any dependent had been drawn. The same
+shape at deeper layers.
+
+CORRECTED: a token is placed by its BRANCH, not by the node that owns the
+branch. `_edge_rows` builds the ROW_WORK traversal, `_branch_anchor` finds
+the last VISIBLE member of each branch, and the list is rebuilt once rather
+than inserted into while its indices move. A branch with nothing visible has
+no member to follow, so its token takes the slot the branch itself would
+occupy — after the owner's row going downstream, before it going upstream,
+which is the direction each side reads.
+
+The wide form also puts the token in its SIBLINGS' column rather than its
+owner's. They are one layer out, so aligning with the owner would print
+`[+2 blockers]` in the center's column, reading as something about the center
+instead of one more of the rows above it.
+
+
+5. MUTATION CHECK — four, each independently
+
+  M1  the expansion limit ignores the remaining cap
+        1 failed: the expanded-cap materialization case
+  M2  layered offsets return to per-row justification
+        1 failed: the depth-two layer-column case
+  M3  every token anchored to its owner's row rather than its branch
+        3 failed: the exact-count placement, the reviewer's downstream case,
+                  and the deeper-branch case added this round
+  M4  the token takes its owner's column
+        1 failed: the siblings-column case added this round
+
+Restored: 30/30.
+
+M3's FIRST RUN IS WHY TWO CASES WERE ADDED. It failed the downstream
+reviewer case and NOT the upstream one, and the reason is structural rather
+than accidental: for the CENTER's upstream branch, "after the last visible
+blocker" and "immediately before the center" are always the same slot,
+because the center's blockers are always the rows just above it. The reported
+upstream case therefore cannot tell the branch rule from an owner-relative
+one. `test_a_deeper_branch_token_follows_ITS_siblings_not_its_owner` puts TWO
+nodes in the depth-one layer, where the two rules diverge, and the upstream
+half is witnessed there. `test_an_overflow_token_sits_in_its_siblings_column`
+witnesses the column choice, which nothing had asserted.
+
+
+6. ONE EXISTING CASE OF MINE CONTRADICTED THE REVIEW, AND IS RECORDED
+
+`test_an_overflow_token_names_its_exact_count_and_side` asserted the token
+"sits with its branch rather than at the end of the page" as
+`index < len(rendered) - 1`. That encoded the OLD placement, where the token
+sat beside the center; under the corrected rule a center whose only branch is
+downstream has its token last, and the old assertion refused it. It now
+asserts the exact rule — the token immediately follows the last visible
+sibling of its branch — which is what it was always trying to say.
+
+Changing a test to accept a correction deserves saying out loud. The
+assertion was weaker and less precise than the property it named, and the
+reviewer's rule is the one the contract describes.
+
+
+7. GATES
+
+  tests/work/test_w4996_dependency_graph.py   30 passed (28 before)
+  pytest -n auto -m "not serial" tests/work   2925 passed, 0 failed
+  pytest -m serial tests/work                 52 passed
+  tools/codex-event-bridge npm test           297 tests, 297 pass, 0 fail
+  tools/acp-baton-bridge npm test             55 pass, 0 fail
+  whitespace-damage check                     clean
+
+The whole v11 suite is green — the first time in this session, because
+W2845, W4303, W4615 and W4996 were each corrected in their own turns.
+
+  v12 npm test    217 tests, 213 pass, 4 fail
+
+THOSE FOUR ARE NOT THIS WORK'S. They are W2929 reviewer cases from
+`review-2026-08-22T18-51-48Z.md`, which landed while this turn was running:
+a bearer hiding under a non-secret result key, a durable refusal message
+containing the bearer, a parser-invalid absolute URI, and content entry order
+in byte rather than UTF-16 order — the last two against the manifest trust
+entry landed on W2929 earlier today. W2929 is queued on `baton.impl` for its
+own turn and was not touched from here. Nothing in this change reaches `v12`.
+
+No projection version change: the response shape is unchanged — `capped` and
+`omitted` already existed and only their values are now correct.
+
+
+8. FILES CHANGED
+
+  src/baton_work/projection.py    `_expand_dependency`: the SQL limit bounded
+                                  by both bounds, and `capped` set when the
+                                  cap is the one that truncated
+  src/baton_work/tui/graph.py     `_ordered` split into `_edge_rows`,
+                                  `_tokens` and `_branch_anchor`; `_layered`
+                                  offsets from `_columns`; `_token_column`
+  tests/work/test_w4996_dependency_graph.py   +2 cases, 1 assertion corrected

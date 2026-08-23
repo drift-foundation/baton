@@ -1,0 +1,198 @@
+W2929 — round 4 correction (foundation round three)
+Review: review-2026-08-22T18-14-12Z.md, two [P1] and one [P2].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Plan items 3 and 4: no offer/claim orchestration, no attempt lifecycle, no
+agent-session normalization, no adapter interface. Three rounds have now
+corrected this foundation and none of them built on it. The review says the
+same and is right to.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    202 tests, 200 passed, 2 failed
+    X W2929: an existing unowned database is not initialized as fresh
+    X W2929: the operation journal refuses a result containing a bearer
+
+The manifest finding had no failing case because there was nothing to fail:
+the product exported no manifest validator at all. Reproduced by hand — a
+copy of the frozen valid manifest with
+`sources.0.uri = "https://source.invalid/archive?token=secret"` passed
+`validateSchemaFragment(..., "inputManifest", ...)`, and the module exported
+neither `validateInputManifest` nor `validateUri`. All three findings are
+correct.
+
+
+2. [P1] THE PROMISED SEMANTIC MANIFEST TRUST ENTRY DID NOT EXIST
+
+This is the one worth stating plainly. The module header promised exact
+schema AND semantic validation below orchestration, and the AJV setup
+justified leaving `format: "uri"` assertions OFF by naming a `validateUri`
+that "enforces below" — a helper nothing had written. So the comment argued
+for the weaker check being disabled on the strength of a stronger one that
+did not exist, and a secret-bearing durable locator was accepted at the exact
+boundary this foundation says it closes.
+
+CORRECTED — one copied, schema-first trust entry, `validateManifest`, plus
+the pure §12 rules that belong below orchestration:
+
+  rule 1   Work id prefix against the authority uuid
+  rule 3   names unique across sources AND outputs; destinations pairwise
+           NON-OVERLAPPING, not merely unequal — a declared output inside a
+           source directory has the worker writing into delivered material
+           and the tree seal stops describing what is on disk
+  rule 4   `validateUri`: absolute, no userinfo, no query, no fragment. The
+           query rule is read off the ORIGINAL TEXT rather than a parser's
+           reconstruction, because the rule is about what the durable string
+           may contain. §3.3's reason is written in: a query is where signed
+           credentials and unstable selection parameters ride
+  rule 5   `verifyManifestDigest` — over the whole document with
+           `manifest_digest` OMITTED, not nulled; those are different
+           canonical bytes and a regression asserts they differ
+  rule 6   content manifests: entries bytewise sorted AND unique in one pass,
+           declared entry_count and total_bytes recomputed, tree digest
+           recomputed over the canonical ordered entry array
+  rule 7   a git source's `object_format` matches its base revision's
+           algorithm — a sha1 base under a sha256 repository is not a shorter
+           digest, it is a different object namespace
+  rule 8   the decidable half: every artifact reference's locator, wherever
+           it sits, is a credential-free URI
+  rule 13  the durable-secret walk, applied before the structural rules so a
+           leak is refused as a leak
+
+Schema-first, for the reason the envelope entry is: every rule reads members,
+and reading a member the schema has not established is exactly how the
+round-2 bypass happened. It returns an INDEPENDENTLY OWNED copy, like
+`validateAgainstSchema` — a regression mutates the input afterwards and shows
+the validated value unmoved.
+
+Artifact references and content manifests are found by a WALK over the
+document, not a list of known field paths. The human contract's locator sits
+in a member no §12 rule names and is exactly as durable as a source's; a
+rule keyed on paths would miss it. A regression witnesses that specific one.
+
+DELIBERATELY ABSENT, and named rather than half-implemented: rule 2's live
+assignment-generation comparison and rule 11's observation monotonicity. Both
+need state this slice has no orchestration to hold. They stay in their own
+pending plan items, which is where the review agrees they belong.
+
+
+3. [P1] THE OPERATION JOURNAL COULD DURABLY STORE THE BEARER
+
+`assertNoDurableSecret` walked correctly and `ControlStore.transact` never
+called it. A result of `{nested: {claim_token: <bearer>}}` was JSON-serialized
+straight into `operations.result` and committed. The file-wide sweep proved
+only that its own one safe action was safe — it asserted a property of the
+fixture, not of the boundary.
+
+CORRECTED: the check runs on every committed journal result, INSIDE the
+transaction, so a refusal takes the action's writes with it. That ordering is
+the point: a committed mutation whose journal row was rejected is the
+effectively-once mechanism's worst state — done, unrecorded, and repeatable.
+
+The same discipline applies to the SEALED REFUSAL. Its message and operation
+state are journalled and replayed verbatim, so they are durable surfaces too
+and are checked before the refusal record is written.
+
+
+4. [P2] A DATABASE WITHOUT BATON METADATA WAS SILENTLY ADOPTED
+
+The constructor asked only whether a table named `meta` EXISTS and treated
+its absence as proof the file was new. Absence of Baton's metadata is not
+evidence that a database belongs to Baton — it is equally the signature of
+somebody else's store. A pre-existing file holding `foreign_state` was
+adopted and came back carrying that table and every manager table.
+
+CORRECTED: the question is ownership, not presence. A GENUINELY EMPTY schema
+is initialized; a file already holding application objects must carry the
+manager's own `meta` or is refused without a byte changed, with the handle
+closed. The reviewer's retained regression asserts the file BYTES are
+identical after the refusal and that only `foreign_state` remains.
+
+
+5. MUTATION CHECK — five, each independently
+
+  M1  transact skips the durable-secret check
+        1 failed: the journal bearer case
+  M2  ownership decided by meta-absence again
+        1 failed: the unowned-database case
+  M3  the trust entry skips the input-manifest semantic rules
+        3 failed: the record's semantic-invalid vectors, unique names,
+                  git object format
+  M4  validateUri stops refusing a query
+        1 failed: the credential-locator case
+  M5  the artifact walk becomes a top-level field check
+        6 failed, including the frozen valid manifest
+
+Restored: 52/52 in the two focused files, 213/213 for the whole v12 gate.
+
+
+6. ONE OF MY OWN TESTS PASSED FOR THE WRONG REASON, AND M3 IS HOW I FOUND IT
+
+The frozen record expresses an invalid vector as a PATCH against a named
+valid one. My first version applied the patch and did not reseal
+`manifest_digest`, so both semantic vectors were refused by
+`verifyManifestDigest` — the document no longer matched its own declared
+digest — and never reached the rule they exist to witness. M3 removed the
+entire input-manifest semantic block and the case stayed green.
+
+Fixed two ways: `patched()` reseals, and the assertion now requires the
+refusal to be the one the record NAMES rather than any ContractError.
+"Refused somehow" is precisely what the missing reseal was quietly giving.
+Recorded rather than silently repaired, because a vacuous vector test is
+worse than no vector test — it reads as agreement with the frozen contract.
+
+Two fixtures of mine were also wrong about which layer refuses them, and
+both now assert the schema ACCEPTS the document first:
+  - an artifact locator with a query is a SCHEMA refusal (the locator
+    pattern already excludes `?` and `#`), so the walk case uses USERINFO,
+    which the pattern permits and only rule 4 catches;
+  - every descriptor is a closed object, so the §13 case arrives through the
+    negotiated extensions bag, which the schema deliberately leaves open.
+
+
+7. REGRESSIONS — 213 (202 before)
+
+  test/worker_manager_contracts.test.mjs   +11 (37 total)
+      the frozen input manifest through the product entry and its ownership;
+      the record's two SEMANTIC invalid vectors, each proven schema-valid
+      first and then refused for the reason the record names; credential,
+      userinfo, fragment and non-absolute locators; the artifact walk;
+      aggregates and tree seal, each half separately; sorted-and-unique
+      entries including a duplicate; the omitted-member digest; workspace
+      path escapes; unique names; git object format; the extensions leak.
+  test/worker_manager_store.test.mjs       the reviewer's two, retained.
+
+
+8. GATES
+
+  cd v12 && npm test                       213 tests, 213 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+                                           (only node's own compile cache)
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  whitespace-damage check                  clean
+
+The worker-control model is the one that matters most here: it validates the
+same frozen vectors from the design side, so the product entry and the model
+now agree about every manifest document rather than only about the envelopes.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/contracts.mjs   the §12 manifest trust entry:
+                                         validateManifest, validateUri,
+                                         validateRelativePath,
+                                         validateContentManifest,
+                                         verifyManifestDigest
+  v12/src/worker_manager/store.mjs       durable-secret check on the journal
+                                         result and the sealed refusal;
+                                         ownership rather than meta-presence
+  v12/test/worker_manager_contracts.test.mjs   +11 cases

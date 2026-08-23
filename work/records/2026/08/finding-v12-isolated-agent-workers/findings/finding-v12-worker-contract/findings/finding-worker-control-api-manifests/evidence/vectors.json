@@ -1,0 +1,233 @@
+{
+  "format": "baton.worker-control/vectors-1",
+  "valid": [
+    {
+      "name": "hello-exact-version-and-sealed-body",
+      "document": {
+        "protocol": "baton.worker-control",
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "message_type": "command",
+        "kind": "control.hello",
+        "message_id": "message-hello-1",
+        "correlation_id": null,
+        "sent_at": "2026-08-21T22:00:00.000Z",
+        "sender": {
+          "role": "runtime-adapter",
+          "instance_id": "adapter-incarnation-1"
+        },
+        "operation": null,
+        "body_digest": "sha256:a5cf2e10265b4d6a9231a4df2b31cb474de136334b6558a7053be263deb03868",
+        "body": {
+          "role": "runtime-adapter",
+          "supported_versions": [
+            {
+              "major": 1,
+              "minor": 0
+            }
+          ],
+          "capabilities": [
+            "core.runtime-lifecycle",
+            "core.errors"
+          ],
+          "extensions": [],
+          "limits": {
+            "max_frame_bytes": 1048576,
+            "max_extension_bytes": 65536,
+            "max_artifact_bytes": 1073741824,
+            "max_manifest_entries": 10000,
+            "max_activity_bytes": 16000
+          },
+          "runtime_profile_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "extensions": {}
+      }
+    },
+    {
+      "name": "input-manifest-directory-and-declared-output",
+      "document": {
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "manifest_id": "input-manifest-1",
+        "created_at": "2026-08-21T22:00:00.000Z",
+        "manifest_digest": "sha256:45656c6c2a3d283a634aa83bdde60ed0ba596c0f637c111d6564f4133ccf215f",
+        "extensions": {},
+        "schema": "baton.worker-manifest/input",
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        },
+        "assignment_contract": "v12-assignment-1",
+        "human_contract": {
+          "artifact_id": "human-contract-1",
+          "media_type": "text/markdown",
+          "bytes": 1200,
+          "content_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "locator": "artifact://contracts/human-contract-1"
+        },
+        "sources": [
+          {
+            "name": "source",
+            "type": "directory",
+            "uri": "artifact://inputs/source-1",
+            "destination": "workspace/source",
+            "required": true,
+            "content_manifest": {
+              "entries": [
+                {
+                  "path": "README.md",
+                  "bytes": 4,
+                  "content_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+                }
+              ],
+              "entry_count": 1,
+              "total_bytes": 4,
+              "tree_digest": "sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "proposal",
+            "type": "directory-result",
+            "path": "workspace/output",
+            "required": true,
+            "constraints": {
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "validator_digest": null
+            }
+          }
+        ],
+        "role_instructions_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "policy_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "toolchain_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "worker_image_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "runtime_profile_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "resource_policy_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+        "network_policy_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+        "mount_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "tool_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "credential_policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "retention_policy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "record_binding": {
+          "root": "baton-repository",
+          "path": "work/records/2026/08/finding-v12-isolated-agent-workers",
+          "finding_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "plan_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        }
+      }
+    },
+    {
+      "name": "offer-decide-decline-carries-no-bearer",
+      "document": {
+        "protocol": "baton.worker-control",
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "message_type": "command",
+        "kind": "offer.decide",
+        "message_id": "message-decide-w4487-1",
+        "correlation_id": "message-offer-w4487-1",
+        "sent_at": "2026-08-22T14:30:00.000Z",
+        "sender": {
+          "role": "worker-endpoint",
+          "instance_id": "worker-incarnation-1"
+        },
+        "operation": {
+          "operation_id": "operation-decide-w4487-1",
+          "signature_digest": "sha256:ce612a410f9514073ee8ba7693a778d75fa0e9d17c387138def829168150364d"
+        },
+        "body_digest": "sha256:530756cac184f68f22b23ed413983e506b14b2d70661cdd8c561c8d355ff8a23",
+        "body": {
+          "offer_id": "offer-w4487-1",
+          "runtime_attempt_id": "attempt-w4487-1",
+          "work_ref": {
+            "authority_uuid": "43c55d4b1234567890abcdef12345678",
+            "work_id": "43c55d4b-W1439"
+          },
+          "decision": "decline",
+          "reason": "the worker endpoint has no free runtime capacity for this offer",
+          "claim_token": null
+        },
+        "extensions": {}
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "manifest-overlapping-input-and-output",
+      "layer": "semantic",
+      "expected": "destinations overlap",
+      "mutate_valid": "input-manifest-directory-and-declared-output",
+      "patch": {
+        "outputs.0.path": "workspace/source/generated"
+      }
+    },
+    {
+      "name": "durable-source-query-refused",
+      "layer": "semantic",
+      "expected": "URI contains a query",
+      "mutate_valid": "input-manifest-directory-and-declared-output",
+      "patch": {
+        "sources.0.uri": "https://source.invalid/archive?token=secret"
+      }
+    },
+    {
+      "name": "hello-extra-core-field-refused",
+      "layer": "schema",
+      "expected": "Additional properties are not allowed",
+      "mutate_valid": "hello-exact-version-and-sealed-body",
+      "patch": {
+        "body.optimistic_minor": true
+      }
+    },
+    {
+      "name": "hello-body-digest-mismatch",
+      "layer": "semantic",
+      "expected": "body digest mismatch",
+      "mutate_valid": "hello-exact-version-and-sealed-body",
+      "patch": {
+        "body.max_untrusted_bytes": 1
+      }
+    },
+    {
+      "name": "decline-carrying-a-bearer-refused",
+      "layer": "schema",
+      "expected": "is not of type 'null'",
+      "mutate_valid": "offer-decide-decline-carries-no-bearer",
+      "patch": {
+        "body.claim_token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    },
+    {
+      "name": "accept-without-a-bearer-refused",
+      "layer": "schema",
+      "expected": "is not of type 'string'",
+      "mutate_valid": "offer-decide-decline-carries-no-bearer",
+      "patch": {
+        "body.decision": "accept"
+      }
+    },
+    {
+      "name": "decline-reason-changed-with-stale-operation-signature",
+      "layer": "semantic",
+      "expected": "operation signature mismatch",
+      "mutate_valid": "offer-decide-decline-carries-no-bearer",
+      "patch": {
+        "body.reason": "the worker endpoint declines because the contract summary is out of date",
+        "body_digest": "sha256:78ac1220d03292b4b20a5e4cf781c2ccff86c7fe1d5b3a52ec31602fe3d1b517"
+      }
+    }
+  ]
+}

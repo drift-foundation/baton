@@ -21,6 +21,20 @@ Source commit: `8835cd5` (`feat(v11): harden coordination lifecycle and agent UX
 | `src/input_source.mjs` | — (new) | — | Not derived from v11. Written for this prototype after review found that resolving an untrusted `job.in.json` source and copying it with `dereference: true` allowed a record-local symlink to materialize arbitrary host files into the worker snapshot. |
 | `scripts/new-authority.sh` | `/home/sl/baton-v11.8835cd5/baton.json` (shape only) | — | The disposable authority document is modelled on the production one's structure. No production value, path, participant or database is reused. |
 
+`src/authority/` (Baton Work `W2928`) is **not on this table on purpose**.
+The disposable v12 assignment authority is new code written against
+`finding-v12-assignment-state-machine/SPEC.md` version `1-ruled`, not a copy
+or an adaptation of any v11 module. It reuses v11 CONCEPTS the specification
+names — Route and Handler as separate questions, phase as a closed scheduler
+axis, one displayed typed gate, compare-and-swap with an operation journal —
+and no v11 code. Its schema is a fresh superset described by §5 of that
+contract rather than a migration of `src/baton_work/authority.py`'s, and it
+opens only the SQLite file its caller hands it.
+
 The deployed executable `/home/sl/opt/baton/v11/8835cd5/bin/baton` is invoked as
 an unmodified black-box CLI/JSON client. It is never copied and never patched.
-Neither this prototype nor any model in it opens the SQLite file.
+Neither this prototype nor any model in it opens THAT executable's SQLite file
+— nor any other v11 authority's. `src/authority/` opens the disposable v12
+store its caller hands it and nothing else, which is a different file with a
+different schema; the qualification is added here because the unqualified
+sentence would now read as a claim this subtree no longer makes.

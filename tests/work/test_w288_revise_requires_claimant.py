@@ -139,7 +139,8 @@ def test_releasing_the_claim_ends_the_authority(world):
 	store, _config = world
 	work, _thread, proposed = _setup(store)
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="stepping away")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="stepping away")
 	with pytest.raises(bw.WorkError, match="is unclaimed"):
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
 		               message_seq=proposed, expected_revision=0,
@@ -163,7 +164,8 @@ def test_forced_recovery_moves_the_authority_to_the_recoverer(world):
 	store, _config = world
 	work, _thread, proposed = _setup(store)
 	tr.release_claim(store, work, actor_team="lang", actor="bee",
-	                 expect="lang.ada", reason="ada's runner died")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="ada's runner died")
 	tr.claim_work(store, work, actor_team="lang", actor="bee")
 	with pytest.raises(bw.WorkError, match="claimed by lang.bee"):
 		tr.revise_work(store, work, actor_team="lang", actor="ada",
@@ -184,7 +186,8 @@ def test_a_claim_lost_inside_the_transaction_fails_closed(world):
 	def wrapped(kind, actor, payload, mutate, **kw):
 		store._write = original
 		tr.release_claim(store, work, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="raced away")
+		                 expect="lang.ada", episode=fx.episode_of(store, work),
+		                 reason="raced away")
 		return original(kind, actor, payload, mutate, **kw)
 
 	store._write = wrapped
@@ -223,7 +226,8 @@ def test_a_retry_after_losing_the_claim_replays_and_authorizes_nothing_new(world
 	               message_seq=proposed, expected_revision=0,
 	               rationale="agreed", op_id="rev-1")
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="handing over")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="handing over")
 	tr.claim_work(store, work, actor_team="lang", actor="bee")
 	replay = tr.revise_work(store, work, actor_team="lang", actor="ada",
 	                        message_seq=proposed, expected_revision=0,

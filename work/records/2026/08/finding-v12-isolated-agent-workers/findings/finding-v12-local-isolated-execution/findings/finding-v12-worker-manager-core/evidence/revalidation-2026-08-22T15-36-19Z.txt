@@ -1,0 +1,37 @@
+W2929 implementation-handoff revalidation — 2026-08-22T15:36:19Z
+
+Current tree
+  No v12/src/worker_manager implementation exists.
+  No v12 source or test names either frozen 1.0 contract URN yet.
+  v12/src/authority/index.mjs remains the public W2928 boundary.
+  V12Session supplies the dossier-listed reads and transitions; claim takes
+  its participant from the session binding and refuses a participant operand.
+
+cd /home/sl/src/baton/v12 && npm test
+  tests 161
+  pass 161
+  fail 0
+
+cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence
+python3 -B -m unittest -q test_assignment_state_model.py
+  Ran 64 tests
+  OK
+
+cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence
+python3 -B -m unittest -q test_contract_model.py
+  Ran 24 tests
+  OK
+
+cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence
+python3 -B -m unittest -q test_conformance_model.py
+  Ran 74 tests
+  OK
+
+cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/evidence
+python3 -B -m unittest -q test_acp_boundary_model.py
+  Ran 56 tests
+  OK
+
+The v12 count moved from the retained 159-test baseline to 161 because W2907
+added fixture-ownership regressions. No W2929 implementation accounts for the
+increase.

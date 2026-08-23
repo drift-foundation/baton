@@ -410,3 +410,33 @@ def test_the_required_policy_states_the_v11_model():
 	                 "respond", "mark-seen"):
 		assert required in policy, \
 			f"the required policy never mentions {required!r}"
+
+
+def test_the_required_policy_binds_one_operation_per_execution_request():
+	"""W7830. A managed turn batched `detail` and `claim` into one
+	execution request; the read ran, the mutation hit the ordinary sandbox
+	and failed with a read-only database, and the Work stayed unclaimed.
+
+	The deployment authorizes an EXACT canonical invocation, so a batch
+	containing one is a different command. That rule has to be readable by
+	every role before its first assignment, which is what this file is
+	for — and it has to sit beside the mandatory claim, because the claim
+	is the operation it binds hardest."""
+	with open(_repo("AGENTS.md"), encoding="utf-8") as handle:
+		policy = handle.read()
+	for required in ("ONE standalone direct execution request",
+	                 "never combined with `detail`",
+	                 "shell control syntax",
+	                 "never retry it inside a broader command"):
+		assert required in policy, \
+			f"the required policy never states {required!r}"
+	# Adjacent to the claim it binds, not filed somewhere a reader of the
+	# claim rules would never reach.
+	claim_rules = policy.index("## The active-work claim")
+	managed = policy.index("## Non-interactive managed turns")
+	standalone = policy.index("ONE standalone direct execution request")
+	assert claim_rules < standalone, \
+		"the standalone-operation rule precedes the claim rules it binds"
+	assert managed < standalone < policy.index(
+		"A Codex context launched by readiness is non-interactive"), \
+		"the standalone-operation rule is not the first managed-turn rule"

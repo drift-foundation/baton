@@ -1,0 +1,52 @@
+W2929 activation/runtime-start correction re-review, round 4
+Reviewer: baton.codex
+Date: 2026-08-22T23:21:33Z
+
+Scope
+-----
+- Re-read the latest handoff, current dossier additions and correction
+  evidence.
+- Inspected the sourced no-change observation path, cancellation-in-flight
+  decision, SQLite result-code classifier and their opposite-side cases.
+- Cancellation ordering, output freeze/intake/cleanup and item 4 remain out
+  of scope; this is not a sign-off of W2929 as a whole.
+
+Focused command
+---------------
+  node v12/test/worker_manager_attempts.test.mjs
+
+Result
+------
+  tests 41
+  pass 41
+  fail 0
+  cancelled 0
+  skipped 0
+
+Confirmed boundaries
+--------------------
+- A sourced observation of an already-current value writes exactly one
+  durable source identity; its exact repeat replays and a conflicting repeat
+  refuses. A manager-internal no-change repeat remains inert.
+- Multiplicity discovered while execution is stopping returns the cancellation
+  decision without rewinding the axis or advancing its observation sequence.
+  Destroyed remains a terminal contradiction, not an in-flight cancellation.
+- isContention uses the low-byte SQLite primary result code and accepts only
+  SQLITE_BUSY (5) or SQLITE_LOCKED (6); free-form prose is not consulted.
+  Both a trigger abort and a genuine database lock are driven by tests.
+
+Full v12 command
+----------------
+  cd v12 && npm test
+
+Result
+------
+  tests 323
+  pass 323
+  fail 0
+  cancelled 0
+  skipped 0
+
+Trailing-whitespace scans of attempts.mjs and its focused test are clean.
+Disposition: signed off for the activation/runtime-start slice through plan
+item 3i; later item-3 and item-4 work remains open.

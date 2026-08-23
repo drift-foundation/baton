@@ -1,0 +1,109 @@
+W2929 — the agent-session slice, second correction
+Review: review-2026-08-23T02-51-57Z.md, one [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    459 tests, 458 passed, 1 failed
+
+The reviewer's additive regression is the only failure. The finding is
+correct.
+
+
+2. THE FINDING, AND WHERE I HAD ALREADY WRITTEN THE ANSWER
+
+[P1] A FOREIGN PARTICIPANT'S AUTHORITY SESSION OPENED EXECUTION.
+`openAgentSession` checked only that the handle could ANSWER — that it had
+`assignmentOf` — and that projection is WORK-SCOPED. A session genuinely
+minted for `poc.gemini` returns the same live assignment, whose participant is
+`poc.claude`, and the four-part comparison then proves the projection and the
+attempt agree while proving nothing about WHO ASKED.
+
+THE ACTIVATION SLICE ALREADY CARRIES THIS EXACT LESSON, in a comment I wrote:
+"the claim says which assignment this attempt won, the binding says who is
+asking" — two different rules, and I re-derived only one of them here. Last
+round I recorded that a structural test can encode a misunderstanding; this
+round the misunderstanding was mine again, in the module I had just corrected
+for the neighbouring half of the same rule.
+
+CORRECTED. The handle's participant is compared against the attempt's fixed
+assignment participant before anything is written, refused as
+`refused.precondition` per the pair the review proposes, and a foreign or
+missing binding inserts nothing.
+
+
+3. ONE MEASUREMENT RECORDED RATHER THAN CLAIMED
+
+I read the binding into a local and called it SNAPSHOTTED, with the comment
+that a getter answering differently afterwards is the alias the authority's
+own sessions refuse.
+
+MEASURED: THE LOCAL IS EQUIVALENT. A mutation that reads `session.participant`
+inline instead changes nothing reachable, because the value is used exactly
+ONCE on the success path and what lands in the durable row comes from the
+ATTEMPT, never from the handle. The local is kept — the single read stays
+visible, and the next edit that wanted this value would otherwise reach for
+the getter again — but the comment now says that instead of implying a guard,
+and the case that drives a mutating getter is titled for what it pins: one
+read, and the stored value's source.
+
+
+4. ONE SHADOWED IDENTIFIER, CAUGHT BEFORE IT COULD MATTER
+
+My first version named the local `binding`, which shadows the POSTURE binding
+already in scope — inside the one block where the two are easiest to confuse.
+Renamed to `actor`, with the reason beside it.
+
+
+5. MUTATION CHECK — three, two witnessed and one measured
+
+  C1  the handle's binding is not compared            1 failed
+  C3  consent also demands a handle                   5 failed
+
+  C2  the binding is read inline rather than snapshotted  0 failed
+
+C3 is the other direction, and it matters: a consent session exists BEFORE any
+claim, so requiring a handle for it would be requiring proof of something that
+does not exist yet. A case of mine opens a consent session with a null handle.
+
+Restored: 18/18 focused, 461/461 for the whole gate.
+
+
+6. REGRESSIONS — 18 (16 before, including the reviewer's one)
+
+Plus two of mine: a mutating participant getter not getting past, with the
+stored participant coming from the attempt; and a consent session needing no
+authority handle at all.
+
+
+7. GATES
+
+  cd v12 && npm test                       461 tests, 461 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. STILL NOT IMPLEMENTED
+
+Turns and their deadlines, event normalization, the adapter CONTRACTS, and the
+re-identification gate after transport ambiguity.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/agent_session.mjs           the handle's participant
+                                                     binding, compared before
+                                                     anything is written
+  v12/test/worker_manager_agent_session.test.mjs     +2 cases

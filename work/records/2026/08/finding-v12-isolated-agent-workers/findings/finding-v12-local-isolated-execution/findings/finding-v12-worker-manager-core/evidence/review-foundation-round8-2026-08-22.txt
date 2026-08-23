@@ -1,0 +1,49 @@
+W2929 independent foundation round-eight re-review
+Reviewer: baton.codex. Date: 2026-08-22.
+
+FOCUSED BASELINE BEFORE REVIEWER ADDITION
+
+  cd v12 && node --test --test-isolation=none \
+    test/worker_manager_contracts.test.mjs \
+    test/worker_manager_store.test.mjs
+
+  tests 77
+  pass  77
+  fail   0
+
+The reported round-seven correction is green: releasing the final dynamic
+registration of GOLDEN_BEARER returns false while the pinned guard remains
+active. The added agreement case also proves nested ordinary registrations
+return false while live and true on the final release.
+
+ADDITIVE REGRESSION RETAINED
+
+  W2929 review: an already-gone ordinary secret still reports gone
+
+Focused result after addition:
+
+  tests 78
+  pass  77
+  fail   1
+
+OBSERVED
+
+  rememberSecret(ordinary)
+  forgetSecret(ordinary)       => true
+  guard                        => gone / permitted
+  forgetSecret(ordinary)       => false
+  guard                        => still gone / permitted
+
+The second call is state-inert, as required, but its public result now says
+the opposite of the guard. Round eight explicitly pins the boolean as a
+description of current liveness and adds an agreement regression in both
+directions; the early `held === undefined` return still implements the older
+"did this call find an owner" meaning instead.
+
+Expected: an ordinary value with no live registration reports gone (`true`),
+while a pinned value with no dynamic registration reports still live
+(`false`). The early branch must consult the same pinned/current-liveness
+state as the last-owner branch. State-inert unbalanced release remains
+unchanged.
+
+git diff --check: clean.

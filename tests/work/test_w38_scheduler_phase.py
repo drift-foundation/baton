@@ -125,7 +125,8 @@ def test_claiming_and_releasing_move_phase_with_the_handler(store):
 	assert _row(store, work)["phase"] == "active"
 	_invariant(store)
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="stepping away")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="stepping away")
 	assert _row(store, work)["phase"] == "queued"
 	_invariant(store)
 

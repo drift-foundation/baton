@@ -1,0 +1,69 @@
+W4996 independent console-slice review, 2026-08-22
+
+Focused baseline before additive cases
+--------------------------------------
+
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+  58 passed in 1.64s
+
+Retained independent cases
+--------------------------
+
+  test_a_shorter_path_removes_a_shared_branch_from_the_depth_frontier
+  test_b_opens_the_graph_from_a_search_result
+  test_j_moves_past_every_appearance_of_one_shared_work
+
+Focused result after retaining them
+-----------------------------------
+
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+  3 failed, 58 passed in 1.69s
+
+Exact observed failures
+-----------------------
+
+1. Shared branch reached first at the depth boundary and later through a
+   shortcut:
+
+     asserted canonical edge: shared --blocks--> leaf is in view["edges"]
+     actual frontier: {"<shared>|downstream": 1}
+
+   The projection says one direct dependent is depth-hidden although the one
+   direct edge is already rendered.
+
+2. Selected search result followed by `b`:
+
+     expected mode: links
+     actual mode:   search
+
+   `_search_mode_key` consumes every search-page key before the table handler
+   that opens the graph.
+
+3. Shared Work drawn on two consecutive incoming-edge rows with a tail after
+   it, anchor set to shared, then `j`:
+
+     expected anchor: tail
+     actual anchor:   shared
+
+   `_graph_anchor_index` resolves the shared Work ID to its first occurrence;
+   moving one edge row lands on the same Work ID, so the next resolution goes
+   back to the first occurrence and selection cannot advance.
+
+Live acceptance topology
+------------------------
+
+Canonical v11 CLI:
+
+  detail work=W6175
+
+At snapshot_seq 6232 it reported `blocked_by` W2845 and W4996, and `blocks`
+W4303 and W4615. This confirms the many-to-one and simultaneous fan-out shape
+the source presentation must disclose. The installed c529b28 `tui` still
+shows the old flat blocked-by/blocks page, as expected before this source slice
+is deployed; it is not evidence for or against the new renderer.
+
+Other checks
+------------
+
+  git diff --check
+  clean

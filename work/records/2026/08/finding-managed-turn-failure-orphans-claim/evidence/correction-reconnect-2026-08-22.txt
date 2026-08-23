@@ -1,0 +1,87 @@
+W4303 reconnect-settlement correction, 2026-08-22
+
+Answering `review-2026-08-22T14-46-33Z.md`.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+The reviewer's regression, run against the tree as it was left:
+
+  node --test --test-name-pattern="a failed turn discovered only during reconnect is settled" \
+    tools/codex-event-bridge/test/failed_turn_settlement.test.mjs
+
+  AssertionError: resume cleared a failed turn without reconciling its
+  surviving claim
+    actual:   { deliverable: true,  orphan: null,               incidents: 0 }
+    expected: { deliverable: false, orphan: '7ba67cb8-W2907',   incidents: 1 }
+
+Suite before the correction: 34 tests, 33 pass, 1 fail.
+
+
+2. THE SETTLEMENT CALL SITES, BEFORE AND AFTER
+
+  site                                              before   after
+  #turnCompleted (notification, bound attempt)      settles  settles
+  #drain (completion beat turn/start response)      settles  settles
+  #reconcileTarget, persisted turn terminal         CLEARS   settles   <- reported P1
+  #reconcileTarget, ambiguous resolved as ended     CLEARS   settles   <- found here
+  #reconcileAmbiguous from #drain                   CLEARS   settles   <- found here
+  #reconcileTarget, accepted turn absent, idle      CLEARS   settles   <- found here
+
+The last three are not in the review. Each binds the delivery and then drops
+it: same terminal turn, same surviving claim, same orphan, different route.
+
+
+3. MUTATION CHECK — EACH CALL SITE REMOVED INDEPENDENTLY
+
+  removed                    result
+  persisted terminal         39 pass / 2 fail
+                               a failed turn discovered only during reconnect is settled
+                               a late turn/completed after resume settlement files nothing twice
+  resume ambiguous           40 pass / 1 fail
+                               an ambiguous turn/start resolved on resume as ALREADY FAILED is settled
+  drain ambiguous            40 pass / 1 fail
+                               an ambiguous turn/start resolved by DRAIN as already failed is settled
+  absent turn                40 pass / 1 fail
+                               an accepted turn ABSENT after resume still reconciles its claim
+
+No call site is unwitnessed, and no regression fires for a site it does not
+name. Restored: 41 pass, 0 fail.
+
+(The counts above are from the final suite; the first mutation was measured
+at the intermediate suite size and reported the same two cases.)
+
+
+4. THE BOUNDARIES THAT MUST NOT MOVE, ASSERTED
+
+  a SUCCESSFUL turn discovered during reconnect is not fenced
+      and the authority is not read at all — `completed` is the one success
+      terminal, so an ordinary reconnect costs no canonical read
+  a failed turn found on reconnect whose claim is GONE is not fenced
+  an absent turn whose claim is GONE leaves the target deliverable
+  an accepted turn ABSENT after resume is NOT REPLAYED (starts stay at 1)
+  a late turn/completed after resume settlement files nothing twice
+      incident count, `failed` report count and the fence all unchanged,
+      and no `idle` published over the fence
+
+
+5. VERIFICATION
+
+  tools/codex-event-bridge npm test          279 tests, 279 pass, 0 fail
+      (272 before; the suite gained 7 cases, one of them the reviewer's)
+  pytest -n auto -m "not serial" tests/work  2850 passed
+  pytest -m serial tests/work                  52 passed
+  tools/acp-baton-bridge npm test              55 passed
+  v12 npm test                                161 passed
+  whitespace-damage check                    clean
+
+
+6. NOT CHANGED
+
+`v12` consumes the release contract — mandatory `episode=` fencing in
+`v12/src/baton_cli.mjs` and the offer episode in `v12/src/manager.mjs` — and
+has no dispatcher resume path of its own. Checked, not assumed.
+
+Plan items 3a (the socket-bearing managed gate), 7 (whether a configured
+automatic release should exist) and 8 (granting `recover` in the live
+`baton.json`) are untouched and remain what they were.

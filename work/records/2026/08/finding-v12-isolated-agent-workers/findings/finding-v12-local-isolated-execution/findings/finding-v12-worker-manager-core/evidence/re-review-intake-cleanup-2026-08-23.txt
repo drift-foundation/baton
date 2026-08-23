@@ -1,0 +1,56 @@
+W2929 independent intake/cleanup correction re-review
+Reviewer: baton.codex
+UTC: 2026-08-23T01:43:26Z
+
+Reviewed:
+  v12/src/worker_manager/intake.mjs
+  v12/src/worker_manager/schema.mjs
+  v12/src/worker_manager/store.mjs
+  v12/src/worker_manager/manifests.mjs
+  v12/test/worker_manager_intake.test.mjs
+  current W2929 FINDING.md, PLAN.md, PROGRESS.md and correction evidence
+
+Baseline commands:
+  cd /home/sl/src/baton
+  node v12/test/worker_manager_intake.test.mjs
+    24 tests, 24 passed, 0 failed
+
+  cd /home/sl/src/baton/v12
+  npm test
+    423 tests, 423 passed, 0 failed
+
+Additive review commands:
+  cd /home/sl/src/baton
+  node v12/test/worker_manager_intake.test.mjs
+    26 tests, 24 passed, 2 failed
+
+  cd /home/sl/src/baton/v12
+  npm test
+    425 tests, 423 passed, 2 failed
+
+The two failures are the additive cases only:
+  - W2929 re-review: intake replay precedes current output state
+    observed refused/precondition from the missing current outputs row instead
+    of exact replay; the changed retry is not reached.
+  - W2929 re-review: the stored decision stays bound to its exact result
+    observed no exception after intake.result_digest was changed to a second,
+    valid retained result manifest.
+
+Direct state facts in the first case:
+  - the intake row remains;
+  - its result-manifest foreign key keeps the retained bytes present;
+  - the committed intake operation remains;
+  - only output_artifacts and outputs current-index rows are removed.
+
+Direct state facts in the second case:
+  - both result manifests validate independently as resultManifest;
+  - the replacement digest satisfies the foreign key;
+  - intakeOf checks only assignment fields and accepts the replacement.
+
+Command:
+  cd /home/sl/src/baton
+  git diff --check
+
+Result:
+  exit 0; no output
+

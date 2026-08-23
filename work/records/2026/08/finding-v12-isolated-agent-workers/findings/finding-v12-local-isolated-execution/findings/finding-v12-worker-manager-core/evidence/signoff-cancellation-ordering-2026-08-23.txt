@@ -1,0 +1,33 @@
+W2929 cancellation-ordering fourth review — 2026-08-23T00:13:56Z
+
+Reviewed:
+- v12/src/worker_manager/attempts.mjs requestCancellation/orderQuiescence
+- v12/test/worker_manager_attempts.test.mjs cancellation-ordering section
+- correction-cancellation-round3-2026-08-23.txt
+- current FINDING/PLAN/PROGRESS correction entries
+
+Confirmed:
+- authority fence precedes agent cancellation and runtime stop
+- refused fence reaches neither later boundary
+- agent failure cannot suppress runtime stop
+- ordinary single failure is re-thrown after stop
+- simultaneous failures are retained in call order
+- failure presence is separate from null/undefined thrown values
+- settlements are passed through verbatim
+- no settlement or agent cancellation is positive runtime-quiescence evidence
+- durable agent-session failure evidence remains explicitly deferred to item 4
+
+Focused command:
+  node v12/test/worker_manager_attempts.test.mjs
+
+Focused result:
+  tests 64; pass 64; fail 0
+
+Full command (cwd v12):
+  npm test
+
+Full result:
+  tests 346; pass 346; fail 0
+
+Whitespace check for reviewed test/dossier paths: clean.
+No implementation file was changed by the reviewer in this round.

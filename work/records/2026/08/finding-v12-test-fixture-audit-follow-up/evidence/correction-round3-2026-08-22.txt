@@ -1,0 +1,69 @@
+W2907 round-3 correction — verification, 2026-08-22
+identityOf() conflation: absence / non-directory takeover / lstat failure
+
+node: v24.14.0  |  NODE_OPTIONS=''
+bracket: /tmp/w2907-r3-final.TMIujE
+
+=== cd v12 && TMPDIR=$BRACKET just test ===
+✔ R5-1: a committed recap is replayed, not re-executed as new Work (0.386488ms)
+✔ R5-1: a recap that never committed does not silently pass as sent (0.299036ms)
+✔ R5-2: an immediate successor claim does not make a committed pass look failed (0.388983ms)
+✔ R5-2: an immediate successor claim does not make a committed release look failed (0.410804ms)
+ℹ tests 161
+ℹ suites 0
+ℹ pass 161
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1564.724994
+
+=== test-owned roots left in the bracket (nine families) ===
+(none)
+
+=== everything left in the bracket ===
+  node-compile-cache
+
+=== mutation check: restore the null conflation in inspect() ===
+Both catch-branch and non-directory branch forced to { state: "absent" },
+i.e. the exact pre-correction semantics of identityOf():
+
+  ✔ W2907: a PASSING run leaves no fixture root and no touched target
+  ✔ W2907: a FAILING run leaves no fixture root either
+  ✔ W2907: recreating a removed root's pathname survives suite cleanup
+  ✔ W2907: a pathname that is no longer our directory is left alone
+  ✖ W2907: a symbolic link at a root's pathname is not absence
+  ✖ W2907: a regular file at a root's pathname is not absence either
+  ✔ W2907: removal unlinks a symbolic link instead of following it
+  ✔ W2907: the registry only ever removes what it handed out
+  ℹ tests 8  ℹ pass 6  ℹ fail 2
+
+Restored: 8/8.
+
+=== the probe channel is still isolation-independent ===
+  node --test --test-isolation=process test/fixture_cleanup.test.mjs
+    tests 8  pass 8  fail 0   bracket residue: (none)
+  node --test --test-isolation=none    test/fixture_cleanup.test.mjs
+    tests 8  pass 8  fail 0   bracket residue: (none)
+
+=== the fourth state: an lstat that fails for a reason other than absence ===
+node evidence/lstat-error-probe-2026-08-22.mjs
+  PASS: an lstat failure fails closed and keeps the record
+
+It is a probe rather than a suite case because inducing EACCES needs a
+chmod on the temporary directory ITSELF, which no other test in the file
+could tolerate, and because running as root defeats the permission (the
+probe skips with exit 2 in that case).
+
+=== host state ===
+No host cleanup performed. /tmp/w30-fixture-audit.Lmr3aa untouched.
+Ambient v12poc-* roots untouched.
+Retained scratch paths, listed for the operator rather than removed:
+  /tmp/w2907-rereview.5Qwxd2        (reviewer, round 2)
+  /tmp/w2907-direct-sandbox.DdLn5v  (reviewer, round 2)
+  /tmp/w2907-direct-target.GT5Rk8   (reviewer, round 2)
+  /tmp/w2907-rereview-gate.FBlIZi   (reviewer, round 2)
+  /tmp/w2907-bracket-path, /tmp/w2907-gate-out.txt, /tmp/w2907-probe,
+  /tmp/w2907-probe-backup.mjs, /tmp/w2907-registry-backup.mjs,
+  /tmp/w2907-r2-lstat.DJMJ5S       (implementer, rounds 1-2)
+This round removed only the four brackets it created itself, by exact path.

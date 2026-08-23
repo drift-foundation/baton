@@ -96,10 +96,19 @@ block/parked and terminal close also release. `block` IS the phase such
 Work is in — not a flag beside some other stage — and blocked Work
 cannot be claimed, and therefore cannot be passed either; the refusal
 names the phase and points at `reroute`. An abandoned or yielded claim
-is recovered with `release work=WORK expect=team.member reason=TEXT` —
-live Route-handler authority, an exact compare-and-swap against the
-recorded claimant, and a durable reason; it clears the claimant and
-derives the scheduler state the Work lands in. The projection carries
+is recovered with `release work=WORK expect=team.member episode=N
+reason=TEXT` — live Route-handler authority OR an owning-team member
+holding the `recover` capability, an exact compare-and-swap against
+both the recorded claimant and the assignment episode that claim was
+offered under (`detail` publishes it as `episode_seq`), and a durable
+reason; it clears the claimant and derives the scheduler state the Work
+lands in, and the result names which `authorization` branch was used.
+`episode=` is mandatory on every release including self-release,
+because the claimant string alone cannot tell one claim from a later
+one by the same participant. `recover` exists for the case the Route
+cannot serve — the endpoint's only handler is the participant whose
+managed turn died holding the claim — and is separate from `config`,
+from Route membership, and from any runtime lease field. The projection carries
 `handler` (JSON) and the detail facts name the
 claimant.
 
@@ -412,13 +421,91 @@ through the Message index (or forward through the Thread list) while
 more exists, p returns to the newest page (not a previous-page step), s advances your seen cursor
 through the SELECTED message and no later one, z reveals closed
 rows, [b] deps opens
-the blocking/dependent neighbor view, p opens the poke view described
+the dependency NEIGHBOURHOOD GRAPH described below (from the table and
+from search results alike), p opens the poke view described
 below, q asks Exit? y/N on one row (y exits; n or Esc returns to the unchanged view). `:` opens the command bar: everything typed there is
 the PUBLIC CLI grammar run as you (for example
 `:create team=push kind=bug title="..." origin=self-initiated
 body="..."`), with the public refusals. As you type, the bar shows context-sensitive assistance on the right — matching verbs, then the effective remaining required and optional keys (form conditions applied exactly as the parser enforces them), then closed values narrowed by your prefix — derived through a shared partial-command analyzer that speaks the same quoting and first-`=` rules as execution; malformed, unknown, or duplicated input shows the diagnostic instead. The assistance is read-only and yields to your input when space runs out. The caret stays visible at the insertion point; input longer than the row scrolls in a horizontal viewport (`<` marks the clipped left) and is never cut.
 
 `::` (a second colon on the empty bar) opens the multiline **batch** buffer: Enter adds a line, `Ctrl-G` runs, `Esc` cancels — a visible legend names all three, and a pasted newline can never execute. Go first statically validates every line through the same parser (one refusal and nothing runs), then executes sequentially in written order, stopping at the first authority refusal; the pane honestly marks lines `ok` (completed — committed, never rolled back), `!!` (failed, with the public refusal), and `--` (unrun), and failed/unrun input stays editable. Mutating lines without an explicit `op-id=` carry a generated per-line identity retained across unedited retries, so a re-run replays committed results instead of duplicating them; completed lines are skipped. A batch is a command list, not a script: no variables, control flow, or expansion.
+
+
+### The dependency graph
+
+`[b] deps` opens the selected Work's dependency NEIGHBOURHOOD — the Work
+between what it waits on and what waits on it — from the Jobs table and
+from search results alike. It draws dependencies ONLY: containment stays
+in the Jobs tree, and duplicates and follow-ups keep their own
+projections.
+
+```text
+[W4487 open] --blocks--> [W2929 wait]
+                         [W2929 wait] --blocks--> [W2930 queued]
+                                                  [+3 dependents]
+```
+
+Every edge spells `--blocks-->` with the arrowhead at the CONSUMER, so
+direction survives a pipe, a log paste and a screen reader. There is no
+colour, no Unicode and no information in styling. Each Work is drawn as
+its stable local selector and status, which is the same spelling every
+other console surface and `local_id` in JSON use.
+
+**What the graph promises.** It is exactly the canonical dependency
+projection — upstream keeps every recorded blocker including a satisfied
+one, downstream keeps only live consumers, and a renderer never invents
+edge lifetime. It is also BOUNDED, and every bound is disclosed with an
+exact count rather than left to be inferred:
+
+- depth 1 to 3, shown in the footer as `depth N/3`;
+- four direct neighbours per branch, with `[+N blockers]` or
+  `[+N dependents]` naming exactly how many that branch is not drawing;
+- `[+N deeper blockers]` / `[+N deeper dependents]` naming what the DEPTH
+  bound cut off, which is a different absence opened by a different key;
+- a 200-occurrence view cap, which says `view cap 200 reached` when it is.
+
+A truncated graph that looked complete would be worse than no graph, so
+none of those counts is ever a guess.
+
+**Keys.**
+
+| key | meaning |
+| --- | --- |
+| `j` / `k`, Up / Down | move to the next or previous Work or token |
+| Enter on a Work | recenter the graph on it |
+| Enter on `[+N blockers]` / `[+N dependents]` | draw one more page of THAT branch |
+| `+` / `-` | change depth within 1..3 |
+| Esc | back one level, ending at the table you came from |
+
+`j`/`k` traverse one deterministic order — upstream outermost-to-centre,
+the centre, then downstream centre-to-outermost, with each branch's
+overflow token after its visible siblings. A Work drawn on several
+relationships is ONE stop, and every one of its appearances is
+highlighted.
+
+Enter on a Work recenters IN THE GRAPH and does not jump to the Jobs
+table. The depth is preserved, branch expansions reset, and the selection
+becomes the new centre. Esc restores the exact prior graph — centre,
+depth, selection and branch pages together — and the last Esc returns to
+the table or search results you left, with its row and view state intact.
+
+A depth-frontier token is opened with `+`, not Enter, because widening a
+branch page and lifting the depth bound are different acts; pressing
+Enter on one says so rather than doing the other.
+
+**Narrow terminals lose layout, never a relationship.** The wide form
+places each Work in its shortest-path column; when that will not fit,
+the graph falls back to one edge per row, and then to source, arrow and
+target on three rows. Every renderer draws the same Works and the same
+edges in the same order, so `j`/`k` mean the same thing at every width
+and a resize can never move an action to another Work. A terminal too
+narrow for one complete selector refuses explicitly rather than clipping
+an identity — a clipped id is a different Work as far as your eyes are
+concerned.
+
+If the store is damaged — a dependency cycle, or an edge naming Work the
+authority does not hold — the page refuses visibly and names the exact
+edge. It does not draw a smaller graph that looks complete.
 
 Wakeups are PARTICIPANT-relative: `wait`
 returns the one canonical action projection for your exact identity —
@@ -549,8 +636,9 @@ The table's `Wait` field shows the inline dependency cue, arrowless:
 and `Wn+N` adds the count of remaining open blockers; a row with no
 open blocker has an empty cell, and satisfied edges leave it (the
 ledger keeps history). `↳` remains exclusively the containment-tree
-marker; `[b] deps` remains the full neighbor view; narrow layouts omit
-the cue whole — never clipped or relabelled. The boolean Ready column
+marker; `[b] deps` remains the full neighbour view, now drawn as the
+graph described under **The dependency graph** below; narrow layouts
+omit the cue whole — never clipped or relabelled. The boolean Ready column
 is gone: the cue names what must finish.
 
 Every Work carries its authority-local short

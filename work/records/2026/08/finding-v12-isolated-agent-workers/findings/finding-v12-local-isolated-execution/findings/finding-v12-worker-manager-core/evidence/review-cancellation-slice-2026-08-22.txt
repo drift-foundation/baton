@@ -1,0 +1,38 @@
+W2929 independent cancellation-slice review — 2026-08-22T23:40:54Z
+
+Inspected boundary:
+- v12/src/worker_manager/attempts.mjs requestCancellation/orderStop
+- v12/test/worker_manager_attempts.test.mjs cancellation-ordering cases
+- owning FINDING.md Runtime, cancellation, output and cleanup acceptance
+- PLAN.md item 3k
+
+Static observations:
+- requestCancellation calls session.cancel before orderStop.
+- orderStop is the only post-fence outside-call boundary; no agent
+  cancellation interface or call exists in v12/src, v12/test, or this dossier
+  beyond the owning acceptance prose.
+- orderStop discards adapter.stop's return and returns stopped:true.
+- PLAN 3k says an in-flight stop is not repeated, while code and its existing
+  test require adapter.stop to be called again for execution_runtime=stopping.
+
+Added regression:
+  W2929 review: ordering a stop is not proof the runtime stopped
+
+Focused command:
+  node v12/test/worker_manager_attempts.test.mjs
+
+Focused result:
+  tests 54; pass 53; fail 1
+  sole failure: W2929 review: ordering a stop is not proof the runtime stopped
+  AssertionError: calling the stop boundary manufactured positive stopped evidence
+
+Full command (cwd v12):
+  npm test
+
+Full result:
+  tests 336; pass 335; fail 1
+  sole failure: W2929 review: ordering a stop is not proof the runtime stopped
+
+No implementation file was changed by the reviewer. The additive regression,
+this evidence, FINDING/PLAN chronology and the append-only review are the only
+review-owned changes.

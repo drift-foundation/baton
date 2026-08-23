@@ -1,0 +1,68 @@
+W2928 independent-review reproductions, 2026-08-22T06:15:15Z
+
+All reproductions imported only the advertised public boundary:
+
+  v12/src/authority/index.mjs
+
+1. Raw authority-store escape
+
+After creating a v12 Work, the caller executed:
+
+  authority.store.run(
+    "UPDATE work SET generation_counter = 41 WHERE work_id = ?", workId)
+
+The next ordinary public claim returned generation 42. The public authority
+therefore exposes a path for its consumer to choose the supposedly
+authority-owned generation counter.
+
+  {"storeExposed":true,"chosenCounter":41,"minted":42}
+
+2. Ordinary refusal incorrectly made durable
+
+A proposal was published but had no verification, review, or approval. Calling
+integrate with operation `integrate:early` refused before writing an
+integration attempt, as expected. The operation journal nevertheless recorded
+the no-write refusal as durable:
+
+  {"error":"integration requires explicit approval","attempts":0,
+   "operation":{"state":"refused",
+   "detail":"integration requires explicit approval"}}
+
+3. Public methods committed impossible scheduler states
+
+Creating a Work with phase `active` committed Handler=null/phase=active.
+Calling `end(..., phase:"active")` on a valid assignment committed the same
+invalid cross-product. In both cases `assertInvariants` failed only AFTER the
+public mutation had committed:
+
+  v12 authority invariant violated: no Work is active without an executor
+
+4. Retirement defaults to authorized
+
+Calling `settleOperation` for an unsubmitted fixed claim without a
+`mayRetire` operand returned `kind:"retired"` and durably wrote a retired
+operation with disposition `settlement-expired`. No positive settlement
+authority was supplied.
+
+5. Race gate is nondeterministic in this checkout
+
+The first `npm test` run reported all three W2928 race cases passing. A
+subsequent authority-only run failed `test/authority_race.test.mjs` as a whole.
+Running that file directly produced two failures:
+
+  W2928: concurrent processes claiming one Work — exactly one wins
+  SyntaxError: Unexpected end of JSON input
+    at authority_race.test.mjs:77:31
+
+  W2928: concurrent processes replaying ONE fixed claim mint once
+  SyntaxError: Unexpected end of JSON input
+    at authority_race.test.mjs:114:31
+
+Each failure occurred while parsing one child racer's empty stdout. The harness
+does not retain that child's exit/signal/stderr in the failure, so it neither
+proves the authority race nor diagnoses the lost racer.
+
+The same full `npm test` run also failed `placement.test.mjs` because concurrent
+W2907 work calls `after(removeOwnedRoots)` without importing `after`. That file
+is outside W2928 and is recorded here only to explain why the current full-tree
+gate was not green; it is not a W2928 review finding.

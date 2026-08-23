@@ -1,0 +1,122 @@
+W7989 — the raw transport is a conclusive negative; `item/completed` carries
+the commandExecution item and `thread/read` drops it
+Implementer: baton.claude. Date: 2026-08-23.
+Under the operator's pinned option 1, and closing pinned plan item 5.
+
+
+1. WHAT THE FIRST OPERATOR RUN ALREADY SHOWED, AND NOBODY READ
+
+`evidence/operator-live-probe-2026-08-23.json`:
+
+  "item/started": 3, "item/completed": 3
+  "storedThreadItemTypes": ["userMessage", "agentMessage"]
+
+THREE items announced live, TWO persisted. Counts cannot say what the third
+was, so the probe recorded the discrepancy without anyone being able to act on
+it. That is the thread nobody had pulled, and it is the whole finding.
+
+
+2. TWO RUNS, ONE PER CAPABILITY SURFACE
+
+Plan item 5 pinned the correction: the first operator run declared
+`experimentalApi: false`, so its zero raw items established only the stable
+surface. Both surfaces are now measured.
+
+`evidence/probe_live_items.mjs` is the reviewer's probe with ONE addition:
+`item/started` and `item/completed` retain the item's type, id, status, key
+set, bounded command and exit code. `evidence/
+probe_live_items_experimental.mjs` differs from it in ONE field,
+`capabilities.experimentalApi`. Everything else in both — the harmless
+command, the isolated credential home, the denial of every interactive
+request, the bounded output, the disposal on every exit path — is the
+reviewer's, unchanged.
+
+  experimentalApi: false → evidence/implementer-live-probe-2026-08-23.json
+  experimentalApi: true  → evidence/implementer-live-probe-experimental-2026-08-23.json
+
+
+3. THE RAW TRANSPORT IS A CONCLUSIVE NEGATIVE
+
+  rawResponseItemTypeCounts: {}      on BOTH surfaces
+  customItems:               []      on BOTH surfaces
+
+`rawResponseItem/completed` never fires on this app-server build, opted in or
+out. The candidate transport option 1 was approved to prove does not exist
+here, so the strict wrapper oracle pinned in plan item 6 has nothing to read
+and must not be built. Plan item 5's inferred next check is answered, and the
+answer is no.
+
+
+4. AND THE ACTUAL TRANSPORT IS ALREADY THERE
+
+Both runs, identically:
+
+  item/started   commandExecution  status=inProgress
+                 command=/bin/bash -lc 'date +%s%N'
+  item/completed commandExecution  status=failed exitCode=1
+                 command=/bin/bash -lc 'date +%s%N'
+                 keys: type,id,pluginId,scriptPath,command,cwd,processId,
+                       source,status,commandActions,aggregatedOutput,exitCode
+
+  storedThreadItemTypes: ["userMessage","agentMessage"]
+
+THE STRUCTURED `commandExecution` ITEM IS EMITTED LIVE. The exact command,
+`source`, a terminal `status`, an `exitCode`, and an id an approval can be
+correlated to — precisely what both blocked oracles require, and NOT
+model-generated JavaScript, which was the standing objection to the raw path.
+
+AND `thread/read` WITH `includeTurns` DOES NOT PERSIST IT. Eight and ten items
+announced live across the two runs; two item types stored in each. `reasoning`
+is dropped as well, so this is not specific to commands.
+
+So the defect is narrower and sharper than any version of it so far: THE
+SERVER RECORDS THE ITEM AND THE STORED TURN HISTORY OMITS IT. My original
+headline said the server never recorded it. The reviewer's correction said the
+deployment used a different item family. On this configuration both are wrong,
+and the true statement is about PERSISTENCE, not recording and not the item
+family.
+
+
+5. THE CAVEAT THAT KEEPS THIS HONEST
+
+Both probes pin a `CODEX_HOME` with `gpt-5.6-sol` and NO provider custom tool,
+and both executed through the BUILT-IN SHELL: `/bin/bash -lc '…'`.
+
+The managed deployment's turns went through a provider `custom_tool_call
+name=exec` — confirmed on the nonce probe and independently on the W7830
+smoke.
+
+SO THE EXECUTION PATH IS CONFIGURATION-DEPENDENT. A gate reading
+`item/completed` would see nothing under the custom-tool configuration the
+managed stack runs today. What is established is that the structured item
+EXISTS and is reachable on this build — not that the managed stack as
+configured emits it. That is the difference between "the gate can be built"
+and "the gate passes today", and only the first is measured.
+
+One more fact reported rather than smoothed: the command FAILED, `exitCode=1`,
+under the probe's sandbox. That does not weaken the transport result — the
+item carried the exact command and a truthful nonzero exit, which is what a
+fail-closed oracle needs it to do — but a run whose command succeeds has not
+been observed here.
+
+
+6. WHAT I DID NOT DO
+
+I did not change either gate, either oracle, `exec_policy.mjs`, or the eight
+exact commands. The pinned unlock condition names a matched `custom_tool_call`
+pair; that pair provably cannot occur on this build, and substituting my own
+condition for the pinned one would be deciding the question rather than
+answering it.
+
+I did not reconfigure the managed stack. Which execution path a deployment
+takes is an operator decision, and it is now a decision with measurement under
+it.
+
+
+7. GATES
+
+Two bounded live turns under the operator's pinned option 1, each disposing
+its temporary workspace and credential home. No repository file outside this
+dossier was changed.
+
+  whitespace-damage check                      clean

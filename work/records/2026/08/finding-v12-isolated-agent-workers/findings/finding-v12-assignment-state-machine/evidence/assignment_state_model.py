@@ -12,6 +12,56 @@ from dataclasses import dataclass, field
 from hashlib import sha256
 
 
+# THE CLAIM-TOKEN VERIFIER, AND THIS CONTRACT OWNS IT.
+#
+# W4487 re-review 2026-08-22
+# (`work/records/2026/08/finding-worker-control-decline-token-conflict/
+# review-2026-08-22T14-57-26Z.md`).
+#
+# This contract owns the offer record, so it owns what "the verifier" IS.
+# It did not say. This module hashed the token's raw UTF-8 bytes and stored
+# bare hexadecimal; worker-control's §4.2 operation-signature payload, added
+# by the same Work, hashed the token's JCS JSON encoding — quotes included —
+# and serialized it with the family's `sha256:` prefix. Both called the
+# result "the verifier the manager already stores". For the bearer `"x" * 43`
+# they are
+#
+#   this module     cc0b1c2c66f3bb9fd1a081c626ba1bef62f6f96441a43be15268523776ac26a1
+#   worker-control  sha256:6162a6f0b60f2860a9712724c281a7e83d2a74adf304a9dbaf54d43d5aeceadf
+#
+# — different hashed byte sequences, not formatting variants. Two conforming
+# peers would compute different operation signatures for the same acceptance,
+# which is the ambiguity §4.2's clarification existed to remove.
+#
+# ONE DERIVATION, pinned here and repeated verbatim in worker-control's model,
+# with the conformance package asserting the two agree on a golden bearer:
+#
+#   verifier = "sha256:" + lowercase hex of SHA-256 over the token's own
+#              UTF-8 bytes
+#
+# The token's OWN BYTES, not a JSON encoding of them. A bearer is a secret
+# string, not a JSON document: hashing its encoding makes the verifier depend
+# on escaping rules, so a peer that escapes a character differently — or at
+# all — computes a different verifier for the same secret. The bytes have one
+# answer.
+#
+# The `sha256:` prefix because §3.2 of worker-control is the family's one
+# digest representation, it is what the frozen schema's `digest` type accepts,
+# and it names the algorithm — so replacing SHA-256 later is a visible change
+# rather than a silent reinterpretation of 64 hex characters.
+def token_verifier(token):
+	"""The single-use offer verifier derived from one bearer token."""
+	return "sha256:" + sha256(token.encode("utf-8")).hexdigest()
+
+
+# The cross-contract golden pair. Pinned as a LITERAL rather than computed,
+# so a change to the derivation on either side fails a comparison instead of
+# moving both expected values with it.
+GOLDEN_BEARER = "x" * 43
+GOLDEN_VERIFIER = ("sha256:cc0b1c2c66f3bb9fd1a081c626ba1bef62f6f96441a43be152"
+                   "68523776ac26a1")
+
+
 class Refusal(RuntimeError):
 	pass
 
@@ -488,7 +538,18 @@ class Offer:
 	expires_at: int
 	verifier: str
 	state: str = "issued"
+	# W4487: the verifier is a durable single-use fact in its own right,
+	# separate from the row's state. Acceptance, decline and expiry all
+	# consume it, and once consumed no bearer can ever be validated
+	# against this offer again — which is what makes "decline kills the
+	# token without echoing it" observable rather than implied by a state
+	# name.
+	verifier_spent: bool = False
 	accepted_at: int | None = None
+	# The durable decline record: its exact binding and its prose, so an
+	# exact replay returns the one committed decline.
+	declined_at: int | None = None
+	decline_reason: str | None = None
 	# Distinct from `expires_at`: that one is the bearer's deadline to
 	# accept, this one is how long the accepted claim stays live afterwards.
 	settle_by: int | None = None
@@ -580,7 +641,7 @@ class Manager:
 
 	@staticmethod
 	def _digest(token):
-		return sha256(token.encode()).hexdigest()
+		return token_verifier(token)
 
 	def _attempt(self, offer_id):
 		return self.store.attempts[self.store.offers[offer_id].attempt_id]
@@ -622,19 +683,84 @@ class Manager:
 		return offer
 
 	def accept(self, offer_id, token):
+		"""ACCEPTANCE STILL REQUIRES THE BEARER, and W4487 does not touch it.
+
+		The ruling separates the two decisions on purpose: taking authority
+		presents the exact unspent, unexpired bearer and succeeds only
+		through the canonical claim transaction, while REFUSING authority
+		needs no secret at all. Weakening this half would have been the
+		obvious wrong reading of "decline carries no token".
+		"""
+
 		offer = self.store.offers[offer_id]
-		if offer.state != "issued":
+		if offer.state != "issued" or offer.verifier_spent:
 			raise Refusal("token replay")
 		if self.now() >= offer.expires_at:
 			offer.state = "expired"
+			offer.verifier_spent = True
 			raise Refusal("token expired")
 		if self._digest(token) != offer.verifier:
 			raise Refusal("token mismatch")
+		offer.verifier_spent = True
 		offer.state = "accepted"
 		offer.accepted_at = self.now()
 		offer.settle_by = offer.accepted_at + self.deployment.settlement_window
 		offer.claim_op_id = f"claim:{offer.offer_id}"
 		return offer
+
+	def decline(self, offer_id, attempt_id, work_ref, reason, op_id):
+		"""W4487: refuse an issued offer WITHOUT echoing the bearer.
+
+		Ruled 2026-08-22 and recorded in
+		`work/records/2026/08/finding-worker-control-decline-token-conflict/`.
+		The frozen contracts contradicted each other: W151 §7 required the
+		exact unspent token, while worker-control 1.0 §6.1 and its schema
+		require `claim_token: null` when `decision=decline`. A manager could
+		not satisfy both, and the approver kept worker-control's non-secret
+		shape — so W151's token requirement for DECLINE is superseded.
+
+		What replaces it is not "less authorization", it is DIFFERENT
+		authorization. The integrity-protected `offer.decide` operation is
+		bound to the exact issued offer, runtime attempt, Work, decision and
+		reason; the manager validates that whole binding and only then
+		consumes the verifier. A worker declining an offer is refusing
+		authority rather than taking it, and transmitting a secret in order
+		to refuse is a leak with nothing bought by it.
+
+		Every property acceptance had, this keeps except the bearer:
+
+		- bound to the EXACT issued offer, so it cannot terminate another;
+		- effectively once, through the manager's own operation journal;
+		- consumes the verifier, so the token is dead afterwards;
+		- mints no claim and touches no authority state at all.
+		"""
+
+		def action():
+			offer = self.store.offers.get(offer_id)
+			if offer is None:
+				raise Refusal("no such offer")
+			# THE WHOLE BINDING, not the id alone. The id is what a caller
+			# names; the binding is what proves the caller is talking about
+			# the offer it thinks it is. A decline naming one offer while
+			# carrying another's attempt or Work terminates neither.
+			if (offer.attempt_id, offer.work_ref) != (attempt_id, work_ref):
+				raise Refusal(
+					"decline binding does not match the issued offer")
+			if offer.state != "issued" or offer.verifier_spent:
+				raise Refusal(
+					f"offer is {offer.state}; only an issued offer with an "
+					f"unspent verifier can be declined")
+			offer.verifier_spent = True
+			offer.state = "declined"
+			offer.declined_at = self.now()
+			offer.decline_reason = reason
+			return offer
+		# The prose rides the signature, exactly as §7 requires of every
+		# durable operand: reusing one operation id with a different reason
+		# is a collision, not a replay of the first one.
+		return self.store.replay(
+			op_id, ("decline", offer_id, attempt_id, work_ref, "decline", reason),
+			action)
 
 	def _terminalize(self, offer, state, reason, may_retire=True):
 		"""Close the fixed claim operation FIRST, then the offer row.

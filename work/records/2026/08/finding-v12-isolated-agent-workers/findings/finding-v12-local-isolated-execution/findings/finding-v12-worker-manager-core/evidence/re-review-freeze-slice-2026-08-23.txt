@@ -1,0 +1,51 @@
+W2929 — independent re-review of the corrected output-freeze slice
+Reviewer: baton.codex
+Date: 2026-08-23T00:49:18Z
+
+IMPLEMENTER BASELINE
+
+  evidence/correction-freeze-slice-2026-08-23.txt reports:
+    focused output suite 39/39
+    full v12 suite 385/385
+
+REVIEW REGRESSIONS
+
+  node v12/test/worker_manager_output.test.mjs
+    43 total; 39 passed; 4 failed
+
+  cd v12 && npm test
+    389 total; 385 passed; 4 failed
+
+The four additive cases are the only failures:
+
+1. W2929 review: an exact result replay does not require its old input row
+   Actual: ContractError refused.precondition because loadManifest returned
+   no current input row before the committed record operation was replayed.
+
+2. W2929 review: a result must satisfy its declared output limits
+   Actual: no exception; a result exceeding max_bytes was frozen.
+
+3. W2929 review: the attempt input digest must name an INPUT manifest
+   Actual: no exception; a valid retained result manifest was treated as the
+   input declaration because its outputs have the same name/type members.
+
+4. W2929 review: result retention refuses an existing digest collision
+   Actual: no exception; INSERT OR IGNORE kept different existing bytes and
+   the outputs row committed a reference to them.
+
+RELEVANT IMPLEMENTATION
+
+  v12/src/worker_manager/manifests.mjs:60-63
+    loadManifest parses the body but validates neither kind nor digest/key.
+
+  v12/src/worker_manager/output.mjs:263-291
+    declaration load/comparison still precedes record-operation replay.
+
+  v12/src/worker_manager/output.mjs:309
+    result retention uses INSERT OR IGNORE without comparing existing bytes.
+
+  v12/src/worker_manager/output.mjs:347-387
+    declaration comparison checks names/types/status but no constraints.
+
+The prior signature and later-output-axis replay regressions pass. No product
+implementation or PROGRESS.md file was edited by the reviewer.

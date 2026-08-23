@@ -3,7 +3,8 @@
 import unittest
 
 from assignment_state_model import (
-	V11, V12, Authority, ControlStore, Deployment, Manager, Refusal)
+	GOLDEN_BEARER, GOLDEN_VERIFIER, V11, V12, Authority, ControlStore,
+	Deployment, Manager, Refusal, token_verifier)
 
 
 class Clock:
@@ -117,6 +118,140 @@ class AssignmentStateTests(unittest.TestCase):
 			self.manager.claim(offer_id)
 		self.assertEqual(winner.generation, 1)
 		self.assertEqual(self.store.offers[offer_id].state, "claim-refused")
+
+	# --- W4487: declining without echoing the bearer ---------------------
+	#
+	# The two frozen contracts contradicted each other — W151 §7 required
+	# the exact unspent token to decline, worker-control 1.0 and its schema
+	# require `claim_token: null` — and the approver kept the non-secret
+	# shape. These pin every property the token requirement was carrying,
+	# so the supersession is a change of AUTHORIZATION and not a loss of
+	# one.
+
+	def _decline(self, offer_id="offer-1", attempt_id="attempt-1",
+	             work_ref=None, reason="the worker has no capacity",
+	             op_id="decide-1"):
+		return self.manager.decline(
+			offer_id, attempt_id,
+			self.authority.work_ref() if work_ref is None else work_ref,
+			reason, op_id)
+
+	def test_decline_needs_no_bearer_and_kills_the_token(self):
+		self.manager.offer("offer-1", "baton.codex", "attempt-1", "secret-1", 100)
+		offer = self._decline()
+		self.assertEqual(offer.state, "declined")
+		self.assertTrue(offer.verifier_spent,
+		                "the decline did not consume the offer's verifier")
+		self.assertEqual(offer.decline_reason, "the worker has no capacity")
+		# No claim, no assignment, no capacity taken: refusing authority is
+		# not a quieter way of taking it.
+		self.assertIsNone(self.authority.assignment())
+		self.assertIsNone(self.authority.work.handler)
+		self.assertEqual(self.authority.work.generation_counter, 0)
+		self.assertTrue(
+			self.deployment.slots.free("baton.codex", self.authority.work.work_id))
+		# And the bearer is dead afterwards, exactly as if it had been spent
+		# by an acceptance — which is the property W151 §7 was protecting.
+		with self.assertRaisesRegex(Refusal, "replay"):
+			self.manager.accept("offer-1", "secret-1")
+		self.authority.assert_invariants()
+
+	def test_accept_still_requires_the_exact_unspent_bearer(self):
+		"""The other half of the ruling, and the one it would be easy to
+		lose: acceptance is unchanged."""
+
+		self.manager.offer("offer-1", "baton.codex", "attempt-1", "secret-1", 100)
+		with self.assertRaisesRegex(Refusal, "mismatch"):
+			self.manager.accept("offer-1", "not-the-secret")
+		self.assertIsNone(self.authority.assignment())
+		self.manager.accept("offer-1", "secret-1")
+		self.assertTrue(self.store.offers["offer-1"].verifier_spent)
+		self.assertEqual(self.manager.claim("offer-1").generation, 1)
+
+	def test_a_decline_cannot_terminate_a_differently_bound_offer(self):
+		"""The id alone is what a caller NAMES; the binding is what proves
+		it is talking about the offer it thinks it is."""
+
+		self.manager.offer("offer-1", "baton.codex", "attempt-1", "secret-1", 100)
+		other_authority, other_manager = self.second_work()
+		other_manager.offer("offer-2", "baton.codex", "attempt-2", "secret-2", 100)
+
+		# Right offer id, another offer's attempt.
+		with self.assertRaisesRegex(Refusal, "binding does not match"):
+			self._decline(attempt_id="attempt-2", op_id="decide-wrong-attempt")
+		# Right offer id, another Work.
+		with self.assertRaisesRegex(Refusal, "binding does not match"):
+			self._decline(work_ref=other_authority.work_ref(),
+			              op_id="decide-wrong-work")
+		# An offer that does not exist at all.
+		with self.assertRaisesRegex(Refusal, "no such offer"):
+			self._decline(offer_id="offer-absent", op_id="decide-absent")
+
+		for offer_id in ("offer-1", "offer-2"):
+			offer = self.store.offers[offer_id]
+			self.assertEqual(offer.state, "issued", offer_id)
+			self.assertFalse(offer.verifier_spent, offer_id)
+
+	def test_decline_is_effectively_once_and_replays_the_committed_decision(self):
+		self.manager.offer("offer-1", "baton.codex", "attempt-1", "secret-1", 100)
+		first = self._decline()
+		replayed = self._decline()
+		self.assertIs(first, replayed,
+		              "an exact replay must return the one committed decline")
+		self.assertEqual(replayed.declined_at, first.declined_at)
+		# A different reason under the same operation id is a COLLISION, not
+		# a replay: the prose is a durable operand and rides the signature.
+		with self.assertRaisesRegex(Refusal, "different operands"):
+			self._decline(reason="a different reason entirely")
+		self.assertEqual(self.store.offers["offer-1"].decline_reason,
+		                 "the worker has no capacity")
+
+	def test_a_stale_decline_refuses_and_changes_nothing(self):
+		offer_id = accepted(self.manager)
+		with self.assertRaisesRegex(Refusal, "only an issued offer"):
+			self._decline(op_id="decide-after-accept")
+		self.assertEqual(self.store.offers[offer_id].state, "accepted")
+		# The accepted offer still settles into a claim, untouched.
+		self.assertEqual(self.manager.claim(offer_id).generation, 1)
+
+		# And a second decline of an already declined offer refuses under a
+		# NEW operation id rather than silently re-terminalizing it.
+		other_authority, other_manager = self.second_work()
+		other_manager.offer("offer-2", "baton.claude", "attempt-2", "secret-2", 100)
+		other_manager.decline("offer-2", "attempt-2", other_authority.work_ref(),
+		                      "declined once", "decide-2")
+		with self.assertRaisesRegex(Refusal, "offer is declined"):
+			other_manager.decline("offer-2", "attempt-2",
+			                      other_authority.work_ref(),
+			                      "declined twice", "decide-3")
+
+	def test_a_declined_offer_frees_the_Work_for_a_fresh_offer(self):
+		"""`declined` is terminal, so the per-Work uniqueness rule lets the
+		next offer issue — the point of declining rather than letting the
+		offer sit until it expires."""
+
+		self.manager.offer("offer-1", "baton.codex", "attempt-1", "secret-1", 100)
+		with self.assertRaisesRegex(Refusal, "another nonterminal offer"):
+			self.manager.offer("offer-2", "baton.claude", "attempt-2", "s2", 100)
+		self._decline()
+		self.manager.offer("offer-2", "baton.claude", "attempt-2", "secret-2", 100)
+		self.manager.accept("offer-2", "secret-2")
+		self.assertEqual(self.manager.claim("offer-2").generation, 1)
+
+	def test_a_decline_survives_manager_restart(self):
+		"""The decline is durable in the control store, not in the process
+		that observed it — the same boundary every other manager-owned
+		mutation is held to."""
+
+		self.manager.offer("offer-1", "baton.codex", "attempt-1", "secret-1", 100)
+		self._decline()
+		restarted = Manager(self.authority, self.store, self.clock)
+		replayed = restarted.decline("offer-1", "attempt-1",
+		                             self.authority.work_ref(),
+		                             "the worker has no capacity", "decide-1")
+		self.assertEqual(replayed.state, "declined")
+		with self.assertRaisesRegex(Refusal, "replay"):
+			restarted.accept("offer-1", "secret-1")
 
 	# --- claim, restart, and runtime identity ---------------------------
 
@@ -904,6 +1039,56 @@ class AssignmentStateTests(unittest.TestCase):
 		self.assertEqual(attempt.runtime, "uncertain")
 		self.assertEqual(attempt.cleanup, "pending")
 		self.authority.assert_invariants()
+
+
+if __name__ == "__main__":
+	unittest.main()
+
+
+class TokenVerifierTests(unittest.TestCase):
+	"""W4487 re-review: this contract owns the offer record, so it owns what
+	the verifier IS — and it did not say. Two models derived it two ways and
+	both called it the value the manager already stores."""
+
+	def test_the_verifier_is_the_bearer_bytes_in_the_family_digest_form(self):
+		# The GOLDEN pair, asserted against a literal rather than against a
+		# recomputation of the same expression, which would agree with any
+		# derivation including a wrong one.
+		self.assertEqual(token_verifier(GOLDEN_BEARER), GOLDEN_VERIFIER)
+		self.assertTrue(GOLDEN_VERIFIER.startswith("sha256:"))
+		self.assertEqual(len(GOLDEN_VERIFIER), len("sha256:") + 64)
+
+	def test_the_token_bytes_are_hashed_and_not_a_json_encoding_of_them(self):
+		"""The exact mistake the re-review found.
+
+		Hashing the JSON encoding brings the quotes and the escaping rules
+		into the value, so a peer that escapes a character differently
+		computes a different verifier for the same secret."""
+		import json
+		from hashlib import sha256
+		as_json = "sha256:" + sha256(
+			json.dumps(GOLDEN_BEARER, separators=(",", ":")).encode()).hexdigest()
+		self.assertNotEqual(token_verifier(GOLDEN_BEARER), as_json)
+		# And a token whose JSON encoding is NOT its own bytes still verifies
+		# by its bytes: the quote would be escaped, the backslash doubled.
+		for awkward in ['a"b' + "c" * 29, "a\\b" + "c" * 29, "é" + "c" * 31]:
+			self.assertEqual(
+				token_verifier(awkward),
+				"sha256:" + sha256(awkward.encode("utf-8")).hexdigest(), awkward)
+
+	def test_the_offer_record_stores_exactly_that_verifier(self):
+		"""The derivation is not a helper sitting beside the store; it IS
+		what the issued record holds, which is what makes the cross-contract
+		golden case meaningful."""
+		deployment = Deployment(certified_contracts={V11, V12})
+		authority = Authority(work_id="golden-W1", deployment=deployment,
+		                      contract=V12)
+		manager = Manager(authority, ControlStore(), Clock(10))
+		offer = manager.offer("golden-offer", "baton.codex", "attempt-golden",
+		                      GOLDEN_BEARER, 99)
+		self.assertEqual(offer.verifier, GOLDEN_VERIFIER)
+		self.assertNotIn(GOLDEN_BEARER, repr(offer),
+		                 "the issued record kept the bearer")
 
 
 if __name__ == "__main__":

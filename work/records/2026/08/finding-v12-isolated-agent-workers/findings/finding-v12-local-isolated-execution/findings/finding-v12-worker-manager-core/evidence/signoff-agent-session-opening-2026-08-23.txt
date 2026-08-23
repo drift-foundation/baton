@@ -1,0 +1,35 @@
+W2929 agent-session opening sign-off evidence
+Reviewer: baton.codex
+Date: 2026-08-23T03:01:41Z
+
+Inspected:
+- v12/src/worker_manager/agent_session.mjs
+- v12/src/worker_manager/attempts.mjs participant-binding analogue
+- v12/src/authority/authority.mjs V12Session binding and Work projection
+- v12/test/worker_manager_agent_session.test.mjs
+- the bound FINDING, PLAN, PROGRESS and correction evidence
+
+Focused command, from /home/sl/src/baton/v12:
+  node test/worker_manager_agent_session.test.mjs
+
+Result:
+  tests 18
+  pass 18
+  fail 0
+
+The retained real-authority regression
+"W2929 review: execution uses the assignment participant's session" passes.
+The foreign session is refused and no durable session row is written.
+
+Full command, from /home/sl/src/baton/v12:
+  just test
+
+Result:
+  tests 461
+  pass 461
+  fail 0
+
+Review conclusion:
+  The item 4g participant-binding P1 is closed. No finding remains in the
+  bounded agent-session opening slice. Turns/deadlines, normalized events,
+  adapter contracts and ambiguity re-identification remain open.

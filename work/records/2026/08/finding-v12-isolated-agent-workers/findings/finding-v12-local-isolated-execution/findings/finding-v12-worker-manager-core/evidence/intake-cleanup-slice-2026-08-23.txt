@@ -1,0 +1,153 @@
+W2929 — item 3, FIFTH SLICE: trusted intake and cleanup
+Implementer: baton.claude. Date: 2026-08-23.
+Entered after `review-2026-08-23T01-12-35Z.md` signed off the output-freeze
+slice through plan item 3s. This completes item 3.
+
+
+1. WHAT THIS SLICE IS
+
+  "Ended-assignment material is sealed/quarantined. Intake changes only its
+   trusted disposition and never publishes on the dead generation. Destruction
+   waits for the recorded intake/discard policy; cleanup never changes
+   authority state."
+
+and from the contract, SPEC 6.4:
+
+  `output.retain`   -> "retained/quarantined locator and deadline; RETENTION
+                        IS NOT ACCEPTANCE"
+  `runtime.destroy` -> "collection/intake boundary satisfied or pinned discard
+                        policy ... cleanup observation only; never changes
+                        authority state"
+
+Schema 5 -> 6 adds `intake`, holding the decision, its retention, the locator,
+the deadline and the assignment it was decided under.
+
+
+2. TWO DESIGN DECISIONS, STATED BECAUSE THEY ARE THE SLICE
+
+`recordIntake` IS NOT GIVEN A SESSION. "Never publishes on the dead
+generation" is a rule about what intake may do, and the strongest way to keep
+it is to hand this boundary no way to reach the authority at all. A handle
+that is passed and not used is a rule enforced by good intentions, and this
+Work has already found two rules that were only enforced by the writer.
+
+THE DISCARD PATH IS CLOSED. SPEC 6.4 admits destruction under a "pinned
+discard policy" as well as a satisfied intake boundary. A policy this function
+takes as an ARGUMENT is the rejected `absenceProven` shape a fourth time, so
+it is not offered: destruction requires a recorded intake decision, and the
+refusal names what would open it. The same closure the retry path already has,
+for the same reason.
+
+RETENTION IS TWO FACTS, NOT ONE. Whether intake wanted the material and where
+the material went are separate columns, because a REJECTED draft that is
+RETAINED under policy is an ordinary outcome and collapsing them would make it
+unsayable.
+
+
+3. THE DURABLE REFUSAL, AND WHY THE IDENTITY IS DERIVED FROM INTAKE
+
+The pinned rule is that cleanup's `blocked-on-intake` refusal "is durable to
+its own operation; a later re-evaluation uses a new operation". A counter
+would satisfy the words and would be caller-authored.
+
+So the cleanup operation identity is DERIVED FROM THE INTAKE STATE IT WAS
+EVALUATED AGAINST. A retry while nothing has changed lands on the same
+identity and REPLAYS the same refusal — the store can be asked what happened,
+rather than re-deriving it. Once intake decides, the identity moves, and the
+new evaluation is a new act. The evaluation is keyed on the durable fact whose
+change is what makes re-evaluating legitimate.
+
+The axis moves to `blocked-on-intake` inside that refused operation and the
+writes are kept, which is what `store.transact` already does for a durable
+refusal.
+
+
+4. ORDERED, NOT DONE — AGAIN
+
+`requestDestroy` passes the adapter's settlement through uninterpreted and
+moves the cleanup axis only on a positive `destroyed` OBSERVATION. An adapter
+that returned from `destroy()` has said it accepted the order, which is not
+the runtime being gone; positive absence is item 4's certified-adapter
+question and is still closed. The cancellation slice's rule, applied to the
+boundary that has the same shape.
+
+And destruction WAITS FOR THE ASSIGNMENT TO BE OVER. Destroying the runtime of
+an assignment the authority still believes is executing is the cancellation
+ordering defect from the other end.
+
+
+5. MUTATION CHECK — ten, all ten witnessed
+
+  V1  the destroy identity ignores the intake state   1 failed
+  V2  the blocked refusal is not durable              1 failed
+  V3  cleanup does not block on intake                1 failed
+  V4  cleanup runs while the assignment is live       2 failed
+  V5  cleanup completes from the adapter's say-so     1 failed
+  V6  the intake decision is not bound to its
+      generation                                      1 failed
+  V7  any disposition word is accepted                1 failed
+  V8  any retention word is accepted                  1 failed
+  V9  the locator is not validated                    1 failed
+  V10 recordIntake moves an axis                      3 failed
+
+V6's FIRST ATTEMPT WAS NOT FAITHFUL and passed for that reason. It disabled
+ONE DISJUNCT of a four-way condition — `false && A || B || C || D` still fires
+on B, C and D — so the generation clause the case drives was untouched. The
+faithful mutation disables the whole condition, and it fails.
+
+Restored: 16/16 focused, 415/415 for the whole gate.
+
+
+6. REGRESSIONS — 16, in a new suite
+
+An intake decision recorded with NOT ONE of the ten axes moving; retention
+that is not acceptance; the same decision replaying and a different one
+colliding; only the pinned words accepted; a credential-bearing locator
+refused; a decision read under another generation refused; an unactivated
+attempt refused; cleanup blocking on intake DURABLY, with the retry replaying
+the refusal; a later re-evaluation using a new operation; cleanup waiting for
+the assignment to be over; ordering destruction not being evidence; cleanup
+completing on a positive destroyed observation; the adapter told which act it
+is settling; an adapter with no `destroy()`; and TWO REAL-AUTHORITY cases —
+intake and cleanup changing NO authority state, compared over every field the
+projection carries rather than a chosen few, and a real live assignment
+blocking destruction.
+
+
+7. GATES
+
+  cd v12 && npm test                       415 tests, 415 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:
+    assignment state machine               64 passed
+    ACP agent boundary                     56 passed, 208 subtests
+    worker runtime conformance             74 passed, 694 subtests
+    worker-control API and manifests       24 passed, 47 subtests
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. WHAT REMAINS
+
+ITEM 3 IS NOW IMPLEMENTED END TO END: offer and claim, activation and runtime
+start, cancellation ordering, output freeze, intake and cleanup.
+
+Item 4 is untouched — provider-neutral agent-session profile,
+session/turn/event normalization and the adapter CONTRACTS — and it still owns
+the two things this manager deliberately refuses to decide: certified evidence
+of runtime absence, and what a conforming agent or runtime adapter must be. A
+pinned discard policy that would open the second destruction path is also not
+yet a durable fact.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs          version 6; the `intake` table
+  v12/src/worker_manager/intake.mjs          NEW
+  v12/test/worker_manager_intake.test.mjs    NEW, 16 cases
+  v12/test/worker_manager_store.test.mjs     the pinned version and tables

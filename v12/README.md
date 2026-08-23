@@ -27,7 +27,9 @@ into this proof nor installs its dependencies.
 
 ### Before the first mutation
 
-The live proof needs `just`, Node and npm (Node 20 or newer), Python 3, Git,
+The live proof needs `just`, Node and npm (Node 22.5 or newer — the v12
+assignment authority stores its state through the built-in `node:sqlite`),
+Python 3, Git,
 Docker with a reachable daemon, and the configured worker image already
 available to that daemon. It also needs an executable deployed v11 Baton, the
 configured `claude-agent-acp` adapter tree and entrypoint, a readable Claude
@@ -230,6 +232,7 @@ reviewed history and are never regenerated in place.
 | Path | What it is |
 | --- | --- |
 | `bin/v12-poc` | `submit` (operator), `manage` (Worker Manager), `snapshot` |
+| `src/authority/` | the disposable **v12 assignment authority** (W2928) — see below |
 | `src/manager.mjs` | the orchestrator — the only thing that touches Baton |
 | `src/baton_cli.mjs` | black-box CLI/JSON client for the deployed executable |
 | `src/claim_token.mjs` | the claim fence: short-lived, single-use, bound |
@@ -250,6 +253,51 @@ reviewed history and are never regenerated in place.
 Everything in this directory is reviewed source, fixtures or retained
 evidence. Disposable state lives under the external `state_root`, and
 `node_modules/` is resolved from the pinned lockfile and ignored.
+
+## The v12 assignment authority
+
+`src/authority/` is a **different thing from everything above it**, and the
+distinction matters when reading this subtree.
+
+The `0-spike` proof answers its question by driving the DEPLOYED v11
+executable as a black-box CLI: `src/baton_cli.mjs` shells out to it, the
+assignment identity it carries is `generation: 1`, envelopes hold local
+`W2`-style selectors, and the token registry lives in one manager process.
+Those are explicitly disposable spike choices, recorded as such in
+`PROVENANCE.md` and superseded by §1 of the assignment contract.
+
+`src/authority/` is the executable implementation of that contract's
+authority half — Work state, the per-Work contract selector, the
+per-Work generation counter, the live assignment, fenced generations,
+the one typed gate, assignment-ending and contract events, gate
+evidence, proposal and workflow receipts, and the operation journal. It
+is a **self-contained durable authority of its own**: it imports Node
+builtins and its own siblings, opens exactly the SQLite file it is
+handed, and never touches `src/baton_work/`, a v11 `work.sqlite3`, or
+the deployed executable. `test/authority_boundary.test.mjs` enforces
+that rather than asserting it.
+
+Its contract is
+`baton:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/SPEC.md`
+version `1-ruled`; the implementation record is
+`.../findings/finding-v12-local-isolated-execution/findings/finding-v12-assignment-authority`.
+
+    node --test test/authority_*.test.mjs
+
+The Worker Manager control store the contract puts beside it — offers,
+runtime attempts, quarantined output, runtime observations — is a
+SEPARATE deliverable and is deliberately absent here. An authority that
+also stored a runtime observation would be answering a question it is
+not authoritative for. The manager consumes `src/authority/index.mjs`
+and nothing deeper: the authority, not the manager, allocates
+generations and decides claim, retirement, cancellation, gate and close
+outcomes.
+
+It needs **Node 22.5 or newer**, because it stores its durable state
+through the built-in `node:sqlite` rather than an npm dependency. That
+module is still flagged experimental by Node and prints one warning on
+first use; the warning is left visible rather than suppressed, because
+it is an honest statement of what this subtree depends on.
 
 ## Boundaries this prototype keeps
 

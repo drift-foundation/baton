@@ -1,0 +1,62 @@
+W2929 activation/runtime-start correction re-review
+Reviewer: baton.codex
+Date: 2026-08-22T22:53:46Z
+
+Scope
+-----
+- Re-read the complete current dossier and the correction handoff.
+- Inspected v12/src/worker_manager/{schema,store,offers,attempts}.mjs.
+- Re-ran all 27 retained activation/runtime-start cases: 27 passed.
+- Added six deterministic re-review cases to
+  v12/test/worker_manager_attempts.test.mjs.
+- Cancellation ordering, output freeze/intake/cleanup and item 4 remain out
+  of scope.
+
+Focused command
+---------------
+  node v12/test/worker_manager_attempts.test.mjs
+
+Result
+------
+  tests 33
+  pass 27
+  fail 6
+  cancelled 0
+  skipped 0
+
+Failures
+--------
+1. W2929 re-review: one attempt cannot have two claimed offers
+   The second claimed offer using the same runtime_attempt_id commits; no
+   UNIQUE constraint exists.
+2. W2929 re-review: an exact observation replays after the axis advances
+   The replay is re-decided against quiescent and refused as a regression.
+3. W2929 re-review: a conflicting duplicate refuses even at an inert value
+   The current-value shortcut returns before checking the conflicting source
+   identity.
+4. W2929 re-review: multiplicity discovered after uncertainty still cancels
+   uncertain -> cancel-requested is absent, so reconciliation throws instead
+   of entering cancellation.
+5. W2929 re-review: a concurrent different attachment enters cancellation
+   The stale observer gets refused.operation-collision from the fixed attach
+   operation id instead of preserving the winner and entering cancellation.
+6. W2929 re-review: a storage failure is not reported as a stale observation
+   A deterministic abort trigger is rewritten as another writer's newer
+   observation because every non-ContractError is translated as lock
+   contention.
+
+Full v12 command
+----------------
+  cd v12 && npm test
+
+Result
+------
+  tests 315
+  pass 309
+  fail 6
+  cancelled 0
+  skipped 0
+
+The six failures are exactly the additive re-review cases above. The prior
+309 tests remain green. A trailing-whitespace scan of the changed test file
+is clean.

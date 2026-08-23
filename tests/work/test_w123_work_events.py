@@ -209,6 +209,7 @@ def test_association_is_typed_not_a_string_search(world):
 	tr.claim_work(store, subject, actor_team="lang", actor="ada")
 	tr.release_claim(store, subject, actor_team="lang", actor="ada",
 	                 expect="lang.ada",
+	                 episode=fx.episode_of(store, subject),
 	                 reason=f"handing back, see {bystander} for context")
 	seqs = [e["seq"] for e in read(world, bystander)["events"]]
 	release = [e for e in read(world, subject)["events"]
@@ -385,7 +386,8 @@ def test_a_completed_claim_interval_rides_both_boundaries(world):
 	tr.claim_work(store, work, actor_team="lang", actor="ada")
 	tr.heartbeat(store, work, actor_team="lang", actor="ada")
 	tr.release_claim(store, work, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="cycling")
+	                 expect="lang.ada", episode=fx.episode_of(store, work),
+	                 reason="cycling")
 	events = {e["kind"]: e for e in read(world, work)["events"]}
 	start = events["claim"]["claim_interval"]
 	end = events["release"]["claim_interval"]
@@ -491,7 +493,8 @@ def test_pagination_is_bounded_in_both_directions_with_a_proof_row(world):
 	for _ in range(9):
 		tr.claim_work(store, work, actor_team="lang", actor="ada")
 		tr.release_claim(store, work, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="cycling")
+		                 expect="lang.ada", episode=fx.episode_of(store, work),
+		                 reason="cycling")
 	total = len(read(world, work)["events"])
 	assert total == 19, total
 	page = read(world, work, limit=5)
@@ -599,7 +602,8 @@ def test_each_tab_preserves_its_own_state(world):
 	for _ in range(4):
 		tr.claim_work(store, work, actor_team="lang", actor="ada")
 		tr.release_claim(store, work, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="cycling")
+		                 expect="lang.ada", episode=fx.episode_of(store, work),
+		                 reason="cycling")
 	console = console_at(world)
 	console.focus = "reader"
 	console.handle(ord("j"))            # move the Messages selection
@@ -661,7 +665,8 @@ def test_events_open_newest_first_with_stable_identifiers(world):
 	for _ in range(3):
 		tr.claim_work(store, work, actor_team="lang", actor="ada")
 		tr.release_claim(store, work, actor_team="lang", actor="ada",
-		                 expect="lang.ada", reason="cycling")
+		                 expect="lang.ada", episode=fx.episode_of(store, work),
+		                 reason="cycling")
 	console = console_at(world)
 	console.handle(ord("]"))
 	lines = painted(console)

@@ -180,7 +180,8 @@ def _every_phase(world):
 	released = _make(world, "released")
 	tr.claim_work(store, released, actor_team="lang", actor="ada")
 	tr.release_claim(store, released, actor_team="lang", actor="ada",
-	                 expect="lang.ada", reason="handing it back")
+	                 expect="lang.ada", episode=fx.episode_of(store, released),
+	                 reason="handing it back")
 	rows["released"] = released
 
 	claimed = _make(world, "claimed")

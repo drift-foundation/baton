@@ -105,8 +105,11 @@ keeps the explicit config and participant identity established above.
         comment="fix and regression are ready for review"
     $BATON close work=W2 outcome=satisfying \
         rationale="reviewed fix and regression both pass"
-    $BATON release work=W2 expect=app.mina \
+    $BATON release work=W2 expect=app.mina episode=41 \
         reason="the original runner cannot continue"
+    $BATON dispatch
+    $BATON drain reason="host kernel upgrade"
+    $BATON resume reason="upgrade complete"
 
 **Protocol 11 uses `say`, not retired `send`.** A plain `say` discusses the
 Work; adding `request=` and `on=` creates one directed obligation. `pass` is a
@@ -543,17 +546,73 @@ until somebody recovers it explicitly.
 Baton never auto-releases, transfers, or admits a second claimant on staleness.
 `heartbeat work=` is liveness evidence only; an agent mid-turn cannot beat, so
 silence is never treated as failure. Recovery is therefore explicit, and it is
-a compare-and-swap against the recorded claimant:
+a compare-and-swap against **both** the recorded claimant and the exact
+assignment episode that claim was offered under:
 
-    baton --participant app.ops release work=W76 expect=app.mina \
+    baton --participant app.ops release work=W76 expect=app.mina episode=41 \
         reason="runner died mid-turn; no heartbeat for 40 minutes and the
                 operator confirmed the host is gone"
-    # -> {"released_claimant": "app.mina"}
+    # -> {"released_claimant": "app.mina", "episode": 41,
+    #     "authorization": "handler"}
 
 A wrong guess refuses rather than guessing for you:
 
     W76 is claimed by app.mina, not app.juno; the compare-and-swap refuses —
     recovery never guesses whose execution it is interrupting
+
+`episode=` is mandatory on every release, self-release included, and `detail
+work=` publishes it as `episode_seq`. The claimant alone is not a fence: a
+participant that released and re-took the same Work is still `app.mina`, so a
+recovery request written against the first claim would silently abort the
+second. Claiming deliberately does not mint an episode and every release, pass
+and re-offer does, so the episode names one assignment and no successor to it:
+
+    W76 is claimed under assignment episode 58, not 41; the compare-and-swap
+    refuses — a release aimed at one assignment never ends a later one, even
+    when the same participant holds both
+
+That also makes recovery single-use. A dispatcher retrying a stale
+failed-turn settlement, or an operator re-running a command from scrollback,
+refuses instead of releasing whatever claim happens to be live.
+
+### When the route's only handler is the one that died
+
+Ordinary release authority is the Work's live Route endpoint, which covers
+self-release and one handler recovering another. It does not cover the case
+this exists for: a managed turn that failed one second after claiming, on a
+route whose only handler is that same failed participant. There is then no
+resolved handler left to recover it, and the participant's one claim slot
+deadlocks — for five hours, in the incident that produced this rule.
+
+So a member of the Work's **owning team** may instead hold the `recover`
+capability:
+
+    "participants": {
+      "ops": { "display": "Ops", "roles": ["dev"],
+               "capabilities": ["recover"] }
+    }
+
+    baton --participant app.ops release work=W76 expect=app.mina episode=41 \
+        reason="the managed turn failed holding this claim"
+    # -> {"released_claimant": "app.mina", "episode": 41,
+    #     "authorization": "recover"}
+
+`recover` is deliberately narrow and deliberately separate. It is not `config`,
+which rewrites who may act on everything; it is not route membership, which
+would make the recovery operator a normal executor of every Work that endpoint
+owes; and it is never derived from a runner's `actionOwner`, which is
+participant-authored telemetry and grants no workflow authority at all. It is
+also still bounded by ownership — a capability says what kind of act you may
+perform, not whose work is yours. The `authorization` field records which
+branch a release went through, because "a handler released its own claim" and
+"an operator recovered somebody else's" are different operational events.
+
+Without either, the refusal names both paths:
+
+    release: app.juno is neither a resolved handler of app.bug (route 'main',
+    handlers ['mina']) nor a member of app holding the `recover` capability;
+    recovering a claim its own route handlers cannot reach is a configured
+    operator capability, and contribution never grants it
 
 Releasing does **not** stop the external agent that may still be running.
 Coordinate with its operator before forcing one.
@@ -575,6 +634,78 @@ the public API. Authority state is never reconstructed by hand — and
 `home`, `tree`, `detail`, `thread`, `work-events`, `events`, `links`, and
 `search` are the read-only views. **If a question about coordination can only
 be answered by opening the SQLite file, that inability is the finding.**
+
+## Maintenance: draining managed dispatch
+
+A running deployment keeps the pipeline saturated. The moment one handler
+relinquishes a claim, readiness offers the next eligible Work to whoever can
+take it — which is correct in ordinary operation and leaves no deterministic
+moment to restart the stack. An operator waiting for "the current item to
+finish" can miss the gap repeatedly, because somebody else has already
+started the next one.
+
+`drain` draws the boundary explicitly:
+
+    $BATON drain reason="host kernel upgrade"
+    # -> {"mode": "draining", "generation": 7, "boundary_seq": 4711,
+    #     "live_claims": 2, "blockers": ["app.mina holds W76", ...]}
+
+Claims live at that instant finish normally — their holders may pass, close,
+release, or otherwise end them exactly as before. Nothing later is admitted:
+a new claim refuses in the write transaction, whichever route it arrives by.
+
+    W12 cannot be claimed: managed dispatch is draining; no new claim is
+    admitted until an authorized `resume`
+
+When the last live claim ends, the deployment reaches `paused` in the same
+authority instant as the act that ended it. Ask at any time:
+
+    $BATON dispatch
+    # -> {"mode": "draining", "generation": 7, "blocking_claims": 1,
+    #     "blockers": [{"work": "W76", "handler": "app.mina",
+    #                   "episode_seq": 58, ...}], ...}
+
+**A drain never cancels anything.** A failed or orphaned claim stays a
+visible blocker with its exact identity rather than being force-released, and
+a runner reporting `failed` does not retire it — recovery is the separate,
+audited `release` above. If the deployment will not reach `paused`, the
+blocker list names precisely who to talk to.
+
+Resume is explicit, and only explicit — restarting the services does not
+resume:
+
+    $BATON resume reason="upgrade complete"
+
+**Who may.** `drain` and `resume` require the accepted-configuration
+`dispatch` capability, granted in `baton.json` and separate from every other
+authority: a Route or a held role is local scheduling responsibility, a
+runtime action owner is transient adapter state, `recover` releases one
+orphaned claim, and `config` authors the roster. Reading `dispatch` requires
+nothing — a participant that cannot tell why it is not being woken would have
+to guess.
+
+**What a managed agent sees.** While draining, managed readiness delivers a
+participant only the Work it already holds; while paused, nothing that would
+spend a turn. The answer is immediate and says why, so a drained deployment
+never looks like an idle one. Obligations, pokes and unclaimed Work stay
+visible in `home` and `inbox` throughout — drain suppresses model wakes, not
+your view of the board.
+
+**With the lifecycle manager.** A version-2 `infra.json` names one canonical
+control identity, and then:
+
+    tools/infra.py drain   MAILBOX --reason "host kernel upgrade"
+    tools/infra.py dispatch MAILBOX          # mode, generation, blockers
+    tools/infra.py stop-drained MAILBOX      # refuses unless paused
+    tools/infra.py stop    MAILBOX           # immediate; unchanged
+
+`stop-drained` reads the canonical state and refuses **before signalling any
+service** unless the deployment is paused, so a refused graceful stop leaves
+everything exactly as it found it. Plain `stop` is unchanged and remains the
+immediate one — it must keep working when the authority cannot be reached at
+all, which is when you need it most. `dispatch` answers even with every
+service stopped, because "the stack is down" and "the deployment is paused"
+are different facts.
 
 ## Evidence lives in the repository
 

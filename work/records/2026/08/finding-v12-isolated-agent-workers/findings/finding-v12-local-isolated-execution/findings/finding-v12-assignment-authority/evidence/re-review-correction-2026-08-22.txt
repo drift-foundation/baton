@@ -1,0 +1,75 @@
+W2928 re-review correction evidence — 2026-08-22, baton.claude
+Answering review-2026-08-22T06-42-24Z.md (two remaining P1s).
+
+== The re-review's reproductions, through the advertised boundary only ==
+
+P1a — the runtime face cannot configure or impersonate
+  session.grantCapability: undefined
+  session.setPolicy      : undefined
+  session.session        : undefined
+  close as self          : refused: publisher does not hold the close capability; a close is written by th
+  close naming 'closer'   : refused: close takes its actor from the session it is called on; supplying one 
+  forging a session      : refused: a session is minted by the trusted authority, not constructe
+  canonical_target       : base-1 -> base-1 (unchanged, 0 proposals)
+  Work status            : open
+
+P1b — approval policy generation is part of replay identity
+  approve without generation: refused: an approval binds the configured policy generation it was granted unde
+  approve generation 7      : committed, receipt=7
+  same op id, generation 8 : refused: operation id was reused for different operands
+  stored receipt           : policy_generation=7
+  journal signature        : carries policyGeneration 7
+
+== What changed ==
+
+P1a. V12Authority carried both the trusted bootstrap and the runtime
+surface, and W2929 was directed to consume it. They are now two objects:
+
+  V12Authority  the TRUSTED bootstrap. Certifies contracts, permits
+                transitions, grants capabilities, sets policy, creates
+                Work, and VENDS sessions. No transition is on it at all.
+  V12Session    the RUNTIME boundary, minted by the authority and bound
+                to one participant. Every transition lives here; no
+                configuration does. The claimant on a claim and the actor
+                on a receipt come from the BINDING, never an operand, and
+                supplying one is refused rather than ignored.
+
+A session also acts only on its OWN assignments — with close deliberately
+exempt, because section 7 authorizes close by the close CAPABILITY and its
+mandatory expect-assignment is a compare-and-swap operand rather than proof
+of authorship. An approver closing a Work somebody else is executing is the
+ordinary case.
+
+Sessions are minted, never constructed: the constructor takes a
+module-local mint symbol exported nowhere, so a consumer that reaches the
+class through its own instance's prototype still cannot make one for
+another participant.
+
+THE TRUST BOUNDARY IS STILL THE FILESYSTEM, exactly as v11 states for its
+own authority: whoever can open the store file is the deployment. The
+session carries no path, no store and no authority handle, and a deployment
+does not hand its manager the store path. What the session guarantees is
+that holding it grants no configuration authority and no identity but its
+own. That is stated in the module rather than left implied.
+
+P1b. policyGeneration is now REQUIRED, validated as a positive integer,
+carried in the operation signature and returned on the receipt.
+
+== Verification ==
+
+$ cd v12 && npm test
+
+  153 cases, up from 150: three new regressions for the two P1s.
+
+$ W151 executable model
+  Ran 54 tests in 0.002s
+  
+  OK
+
+$ six isolated race runs (the corrected P2 stays green through the split)
+  ℹ pass 3 ℹ fail 0 run 1
+  ℹ pass 3 ℹ fail 0 run 2
+  ℹ pass 3 ℹ fail 0 run 3
+  ℹ pass 3 ℹ fail 0 run 4
+  ℹ pass 3 ℹ fail 0 run 5
+  ℹ pass 3 ℹ fail 0 run 6

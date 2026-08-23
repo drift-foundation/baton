@@ -1,7 +1,17 @@
 // W415: the LIVE proof that a managed turn commits a canonical Baton
 // mutation without asking anybody.
 //
-// `work/records/2026/08/finding-managed-turn-approval-incidents/`.
+// W7830 EXTENDS IT to the shape that mutation must have: a readiness pickup
+// runs a canonical read and then the mandatory claim as TWO SEPARATE
+// execution requests. The old prompt handed the model exactly one claim
+// command, so it could not reproduce the failure — a managed turn that put
+// `detail` and `claim` in one request, where the read succeeded, the mutation
+// stayed inside the ordinary sandbox and failed read-only, and the Work
+// stayed unclaimed. A proof that supplies the single command has already
+// answered the question it is asking.
+//
+// `work/records/2026/08/finding-managed-turn-approval-incidents/` and
+// `work/records/2026/08/finding-managed-turn-single-authority-call/`.
 //
 // Manual installed-server test; excluded from the default unit suite,
 // because it needs a running `codex app-server` and spends one real
@@ -31,6 +41,7 @@ import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { CodexClient } from "../src/codex_client.mjs";
+import { readinessClaimOutcome } from "../src/command_oracle.mjs";
 
 const endpoint = process.argv[2] ?? "ws://127.0.0.1:4500";
 // W415 review round 2: the candidate executable is EXPLICIT. Defaulting
@@ -105,7 +116,11 @@ async function main() {
 	const client = new CodexClient({ name: "w415-live", endpoint, logger: quiet });
 	// ANY interactive request is a failure of this proof, whatever it is
 	// for. The point is that the narrow operation needed none.
-	client.on("serverRequest", (request) => approvals.push(request.method));
+	//
+	// W7830: the whole request is kept, not just its method. The readiness
+	// shape below correlates command approvals to the exact item they were
+	// raised about, and a method alone cannot be correlated to anything.
+	client.on("serverRequest", (request) => approvals.push(request));
 	await client.connectAndInitialize();
 
 	let outcome = "not run";
@@ -118,9 +133,18 @@ async function main() {
 		// printed below are expected to be EMPTY.
 		const started = await client.startThread({
 			cwd: workspace,
+			// W7830 review [P1]: this said "exactly the ONE canonical Baton
+			// operation", and the turn below asks for two. Developer
+			// instructions outrank the turn input, so the model was given a
+			// contract it could not satisfy — which invalidates any failure
+			// here as a diagnosis of whether it followed the standalone rule.
+			// The contract now says what the rule says.
 			developerInstructions:
-				"You are a Baton implementer in a live proof. Perform exactly the "
-				+ "one canonical Baton operation you are asked for and nothing else.",
+				"You are a Baton implementer in a live proof. Perform exactly "
+				+ "the canonical Baton operations you are asked for, in the "
+				+ "stated order, EACH AS ITS OWN STANDALONE DIRECT EXECUTION "
+				+ "REQUEST, and nothing else. Never combine two Baton "
+				+ "operations into one execution request.",
 		});
 		const threadId = started.thread.id;
 		console.log(`thread ${threadId} started`);
@@ -132,17 +156,67 @@ async function main() {
 			"this proof must run with NO writable grant; a granted root would "
 			+ "make the committed operation prove nothing about command policy");
 
+		// W7830: THE READINESS SHAPE, not one supplied command.
+		//
+		// The old prompt handed the model exactly one claim invocation, so it
+		// could not reproduce the failure this Work exists for: a managed turn
+		// that batched `detail` and `claim` into ONE execution request, where
+		// the read succeeded, the mutation stayed inside the ordinary sandbox
+		// and failed read-only, and the Work stayed unclaimed. A proof that
+		// supplies the single command already answers the question it is
+		// asking.
+		//
+		// So the turn is given the two operations a real readiness pickup
+		// performs, and the command text of each is FIXED — including the
+		// claim's operation id — so the exact strings are assertable against
+		// the items the turn actually ran.
+		const readCommand = `${baton} --config ${config} --participant poc.ops `
+			+ `detail work=${work}`;
+		const claimCommand = `${baton} --config ${config} --participant poc.ops `
+			+ `claim work=${work} op-id=w7830-live-${randomUUID()}`;
 		const turn = await client.startTurn(threadId,
-			`Run exactly this one command and then reply with the single word `
-			+ `DONE:\n\n${baton} --config ${config} --participant poc.ops `
-			+ `claim work=${work} op-id=w415-live-${randomUUID()}\n\n`
-			+ `Do not run anything else. Do not ask for approval or escalated `
-			+ `permissions; if the command fails, reply with its exact error.`,
+			`You have picked up ready Work. Run these two canonical Baton `
+			+ `operations and then reply with the single word DONE.\n\n`
+			+ `FIRST, run exactly this and nothing else in the same command:\n\n`
+			+ `${readCommand}\n\n`
+			+ `THEN, as a SEPARATE execution request, run exactly this:\n\n`
+			+ `${claimCommand}\n\n`
+			+ `Each canonical Baton operation is one standalone direct command. `
+			+ `Never combine them into a single request, with a newline, \`&&\`, `
+			+ `\`;\`, a pipe or any shell wrapper. Do not run anything else. Do `
+			+ `not ask for approval or escalated permissions; if a command `
+			+ `fails, reply with its exact error.`,
 			randomUUID());
 		const completed = await client.waitForTurnCompletion(threadId, turn.id,
 			180_000);
 		outcome = completed.status;
 		console.log(`turn ${turn.id} ended ${completed.status}`);
+
+		// READ THE EXACT TURN BACK. `waitForTurnCompletion` reports a status;
+		// the items are what say WHICH commands ran, in what order, and
+		// whether each one terminated. A status cannot distinguish two
+		// standalone operations from one batch that happened to work.
+		const read = await client.readThread(threadId, { includeTurns: true });
+		const exact = (read.turns ?? []).find((each) => each.id === turn.id);
+		assert.ok(exact, `thread/read returned no turn ${turn.id}`);
+		const shape = readinessClaimOutcome({ turn: exact, readCommand,
+			claimCommand, approvals, threadId, turnId: turn.id });
+		console.log(`readiness shape: ${shape.why}`);
+		if (!shape.ok) {
+			// A LIVE failure has to say what the turn actually did. The
+			// defect this Work exists for was invisible for exactly this
+			// reason — an idle reviewer beside pending Work, with the shape
+			// of the attempt nowhere in view.
+			for (const each of exact.items ?? []) {
+				const detail = each.type === "commandExecution"
+					? `${each.source ?? "agent"} ${each.status} exit=${each.exitCode} `
+					  + `${JSON.stringify(each.command)}`
+					: JSON.stringify(each.text ?? each).slice(0, 400);
+				console.log(`  item ${each.id} ${each.type}: ${detail}`);
+			}
+		}
+		assert.ok(shape.ok, `the managed turn did not use the readiness `
+			+ `shape: ${shape.why}`);
 	} finally {
 		client.disconnect();
 	}
@@ -152,13 +226,15 @@ async function main() {
 	const after = cli("poc.ops", "detail", `work=${work}`).result;
 	console.log(`after the managed turn: phase=${after.phase} `
 		+ `handler=${after.handler?.participant ?? null}`);
-	assert.deepEqual(approvals, [],
-		`the managed turn requested interactive approval: ${approvals.join(", ")}`);
+	assert.deepEqual(approvals.map((request) => request.method), [],
+		`the managed turn requested interactive approval: `
+		+ `${approvals.map((request) => request.method).join(", ")}`);
 	assert.equal(after.handler?.participant, "poc.ops",
 		`the canonical claim did not commit (turn ended ${outcome}); `
 		+ `handler is ${JSON.stringify(after.handler)}`);
 	assert.equal(after.phase, "active");
-	console.log("\nPASS — the managed turn committed a canonical Baton claim "
+	console.log("\nPASS — the managed turn ran a standalone canonical detail "
+		+ "and then a standalone canonical claim, and the claim committed "
 		+ "with no interactive approval request.");
 
 	// THE NEGATIVE CONTROL, and the one that matters for the ruled
@@ -176,6 +252,9 @@ async function main() {
 		logger: quiet });
 	control.on("serverRequest", (request) => {
 		controlApprovals.push(request.method);
+		// unchanged: this negative control counts methods, because it is
+		// about a command that must not run at all rather than about which
+		// item an approval belonged to
 		control.respondError(request.id, -32601,
 			"this proof denies commands, exactly like the dispatcher");
 	});

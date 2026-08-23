@@ -242,7 +242,9 @@ from baton_work.authority import Authority, WorkError
 #
 # A MINOR: the key is opaque to every consumer, which delivers on it
 # changing and never parses it, and the new field is additive.
-PROJECTION_VERSION = "12.3"
+# W4615 adds the typed `dispatch` object to home and to `wait`; additive,
+# so the MINOR advances and no consumer that ignores it breaks.
+PROJECTION_VERSION = "12.4"
 
 
 def require_version(requested: str | None) -> None:

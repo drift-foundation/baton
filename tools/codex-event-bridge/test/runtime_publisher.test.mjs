@@ -30,13 +30,17 @@ import {
 // operations. These fixtures therefore need a real one.
 import { mkdtempSync as _mkdtemp, writeFileSync as _write } from "node:fs";
 import { join as _join } from "node:path";
-import { rulesFor as _rulesFor } from "../src/exec_policy.mjs";
+import { inspectionRules as _inspectionRules,
+         rulesFor as _rulesFor } from "../src/exec_policy.mjs";
 const _policyDir = _mkdtemp("/tmp/w415-fixture-policy-");
 export const FIXTURE_POLICY = _join(_policyDir, "baton.rules");
+// W2845: and the deployment-wide read-only Docker inspection profile,
+// which `start()` preflights on the same nominated file.
 _write(FIXTURE_POLICY, ["/srv/baton/baton.json", "/home/op/baton.json"]
 	.flatMap((config) => ["baton.tuner", "baton.codex", "a.b"]
 		.flatMap((participant) => _rulesFor({
 			binary: "/opt/baton/bin/baton", config, participant })))
+	.concat(_inspectionRules())
 	.join("\n") + "\n");
 
 const BATON = {
@@ -1588,11 +1592,15 @@ test("W415: a BROAD rule is refused, not counted as coverage", async () => {
 	assert.throws(() => assertPolicyProvisioned(other, identity),
 		/does not authorize/);
 
-	// A deny rule is never coverage.
-	const denied = join(dir, "deny.rules");
-	writeFileSync(denied, `${rulesFor(identity).join("\n")
-		.replace(/allow/g, "deny")}\n`);
-	assert.throws(() => assertPolicyProvisioned(denied, identity),
+	// A RESTRICTING rule is never coverage. Round 4 of the W2845 review:
+	// this spelled the restriction `decision="deny"`, which the installed
+	// evaluator refuses outright — so it asserted the audit's answer about
+	// a file Codex will not load. `forbidden` is one of the three
+	// decisions the evaluator actually accepts, and is still not coverage.
+	const restricted = join(dir, "forbidden.rules");
+	writeFileSync(restricted, `${rulesFor(identity).join("\n")
+		.replaceAll('"allow"', '"forbidden"')}\n`);
+	assert.throws(() => assertPolicyProvisioned(restricted, identity),
 		/does not authorize/);
 
 	// An unreadable policy is a refusal, not an assumption of coverage.
@@ -1797,4 +1805,90 @@ test("W415: an unruled verb for the same participant fails the preflight",
 			for (const verb of RULED_VERBS) assert.match(error.message, new RegExp(verb));
 			assert.match(error.message, /read-only commands need no allow rule here/);
 		}
+	});
+
+// -- W4303: the failed-turn incident is the same durable channel ------------
+//
+// `work/records/2026/08/finding-managed-turn-failure-orphans-claim/`.
+//
+// W415 filed one durable incident when a turn escalated for approval.
+// W4303 files one when a turn simply FAILS holding a claim — a different
+// cause with the same operator problem behind it: the transient runtime
+// state vanishes, and the Work is left canonically claimed with nothing
+// executing it. It reuses this path rather than growing a second
+// incident system, so the cause vocabulary, the safe category, the
+// configured action owner and the sticky-until-dismissed lifetime are
+// the ones already ruled.
+
+test("W4303: the publisher files an `internal` incident with its locator",
+	async () => {
+		const { RuntimePublisher } = await import("../src/runtime_publisher.mjs");
+		const calls = [];
+		const publisher = new RuntimePublisher(
+			{ binary: "/opt/baton/bin/baton", config: "/srv/baton/baton.json",
+			  participant: "baton.codex" },
+			{ incarnation: "run-1", adapter: "codex", actionOwner: "baton.slaw",
+			  logger: quiet,
+			  execute: async (_file, argv) => { calls.push(argv); return { stdout: "{}" }; } });
+		const filed = await publisher.incident({
+			cause: "internal", category: "other",
+			detail: "a dispatcher-owned turn ended failed while baton.codex "
+				+ "still held this claim",
+			work: "7ba67cb8-W2907", episode: 2907,
+			actionKey: "work:7ba67cb8-W2907:2907:g1", session: "thread-a" });
+		assert.equal(filed, true);
+		const argv = calls.find((entry) => entry.includes("incident"));
+		assert.ok(argv, `no incident published: ${JSON.stringify(calls)}`);
+		// `internal` is an accepted runtime cause and `other` an accepted
+		// safe category, so the authority takes this row unchanged.
+		assert.ok(argv.includes("cause=internal"));
+		assert.ok(argv.includes("category=other"));
+		assert.ok(argv.includes("work=7ba67cb8-W2907"));
+		assert.ok(argv.includes("episode=2907"));
+		assert.ok(argv.includes("action-key=work:7ba67cb8-W2907:2907:g1"));
+	});
+
+test("W4303: a runner with no configured action owner cannot file, and says so",
+	async () => {
+		// The same boundary W415 drew: an incident nobody is holding is a
+		// loose end, and guessing an owner is worse than refusing. Here it
+		// matters more, because the incident IS the handoff to whoever
+		// recovers the claim.
+		const { RuntimePublisher } = await import("../src/runtime_publisher.mjs");
+		const warned = [];
+		const publisher = new RuntimePublisher(
+			{ binary: "/opt/baton/bin/baton", config: "/srv/baton/baton.json",
+			  participant: "baton.codex" },
+			{ incarnation: "run-1", adapter: "codex", logger:
+				{ ...quiet, warn: (message) => warned.push(message) },
+			  execute: async () => ({ stdout: "{}" }) });
+		assert.equal(await publisher.incident({ cause: "internal",
+			category: "other", work: "7ba67cb8-W2907" }), false);
+		assert.match(warned.join("\n"), /no configured action owner/);
+	});
+
+test("W4303: the failed-turn incident carries no command body or thread text",
+	async () => {
+		// Same rule as the approval incident, and it has to be asserted
+		// separately because this one is filed from a different path: what
+		// travels is the closed cause, the safe category, the Work locator
+		// and one scrubbed line.
+		const { RuntimePublisher } = await import("../src/runtime_publisher.mjs");
+		const calls = [];
+		const publisher = new RuntimePublisher(
+			{ binary: "/opt/baton/bin/baton", config: "/srv/baton/baton.json",
+			  participant: "baton.codex" },
+			{ incarnation: "run-1", adapter: "codex", actionOwner: "baton.slaw",
+			  logger: quiet,
+			  execute: async (_file, argv) => { calls.push(argv); return { stdout: "{}" }; } });
+		await publisher.incident({
+			cause: "internal", category: "other",
+			detail: "a dispatcher-owned turn ended failed\nsecret=sk-ant-value\n"
+				+ "and left the claim standing",
+			work: "7ba67cb8-W2907", episode: 2907, session: "thread-a" });
+		const serialized = JSON.stringify(calls.find((e) => e.includes("incident")));
+		// `safeDetail` collapses the payload to one line; the assertion is
+		// that no NEWLINE-delimited extra material survives to be read as
+		// structure by whatever renders it.
+		assert.equal(serialized.includes("\\n"), false, serialized);
 	});

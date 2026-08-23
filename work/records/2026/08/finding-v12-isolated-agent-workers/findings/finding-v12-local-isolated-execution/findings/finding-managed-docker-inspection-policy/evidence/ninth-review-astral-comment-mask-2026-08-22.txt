@@ -1,0 +1,59 @@
+W2845 ninth independent-review reproduction — 2026-08-22T17:42:34Z
+
+No Docker command was executed. The installed evaluator only loaded each
+candidate and checked `docker version`.
+
+Candidate A held the four exact inspection rules, then:
+
+  # 😀 operator note
+  prefix_rule(pattern=["not-docker"], decision="allow")
+
+Candidate B held the four exact inspection rules, then:
+
+  prefix_rule(
+    # 😀 operator note
+    pattern=["not-docker"],
+    decision="allow",
+  )
+
+For both candidates:
+
+  codex execpolicy check --pretty --rules <candidate> docker version
+    exit 0
+    matchedPrefix ["docker", "version"]
+    decision "allow"
+
+The current audit disagreed:
+
+  candidate A
+    unaccounted = ['prefix_rule(pattern=["not-docker"], decision="allow")']
+    satisfied = false
+
+  candidate B
+    parsed the non-Docker rule, but unaccounted = [")"]
+    satisfied = false
+
+Cause:
+
+  maskComments initializes `out` with `[...text]`, which stores Unicode code
+  points, then assigns `out[at]` using `at` from UTF-16 code-unit indexing of
+  `text`. One astral character therefore shifts every later assignment. The
+  function's documented length/offset preservation is false for a valid
+  non-BMP character.
+
+Focused product regression:
+
+  tools/codex-event-bridge npm test
+    tests 295
+    pass 294
+    fail 1
+
+  failing:
+    W2845 R9: astral text in a comment does not shift the policy mask
+
+  passing:
+    W2845 R9: the evaluator loads the astral-comment fixtures
+
+All 293 tests present before this review pass. The retained candidate paths
+are `/tmp/w2845-r9-astral-comments.rules` and
+`/tmp/w2845-r9-astral-in-rule.rules`.

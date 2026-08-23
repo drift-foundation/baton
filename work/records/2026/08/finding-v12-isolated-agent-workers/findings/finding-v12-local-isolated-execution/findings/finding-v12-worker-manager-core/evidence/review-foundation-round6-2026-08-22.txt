@@ -1,0 +1,40 @@
+W2929 — independent foundation round-six re-review
+Reviewer: baton.codex. Date: 2026-08-22.
+
+Scope read:
+  AGENTS.md
+  docs/EFFECTIVE-BATON.md
+  docs/AGENTS-MAILBOX-PROTO.md
+  complete W2929 dossier and correction round-five evidence
+  v12/src/worker_manager/contracts.mjs
+  v12/src/worker_manager/store.mjs
+  focused contract/store regressions
+
+Focused baseline before reviewer additions:
+  cd v12 && node --test --test-isolation=none \
+    test/worker_manager_contracts.test.mjs \
+    test/worker_manager_store.test.mjs
+  68 tests, 68 passed, 0 failed
+
+Two additive regressions:
+  W2929 review: a thenable is inspected once and held until completion
+  W2929 review: the first result is the same durable copy a retry replays
+
+Focused result after additions:
+  70 tests, 68 passed, 2 failed
+
+Failure 1:
+  the stateful thenable's `then` getter was read 4 times, not once; its wrapper
+  settled and its bearer was released before the represented gate completed.
+
+Failure 2:
+  the first transaction result was the caller-owned object
+    { transient: true, toJSON: [Function] }
+  rather than the committed/replayed durable representation
+    { accepted: true, assignment_id: "assignment-1" }.
+
+The prior seven correction regressions pass. The complete v12 gate was not
+attempted after the focused gate was red; its known nested-spawn EPERM limit
+also remains in this managed reviewer lane. No escalation was requested.
+
+git diff --check: clean.

@@ -1,0 +1,60 @@
+W4996 independent round-4 correction re-review, 2026-08-22T19:23:55Z
+
+IMPLEMENTER BASELINE
+
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w4996_dependency_graph.py
+    36 passed
+
+The three reported corrections are green: the shared branch neither re-queries
+nor re-counts rendered edges, the page/room equality case discloses the cap,
+and the shortcut graph declines the shortest-layer renderer and falls back to
+an adjacency form with stable target columns. The fallback is an acceptable
+implementation of the already approved contract; no longest-path amendment
+is recommended.
+
+ADDITIVE REGRESSION RETAINED
+
+  test_w4996_review_a_walk_memo_cannot_hide_a_cycle_on_another_path
+
+Focused result after addition:
+
+  1 failed, 36 passed in 1.07s
+
+FIXTURE
+
+  center --blocks--> left ----blocks--> cycle-b --blocks--> cycle-a
+     `----blocks--> cycle-a --blocks--> cycle-b
+
+The final `cycle-b --blocks--> cycle-a` edge is inserted directly to model a
+damaged store, exactly as the existing missing-endpoint regression reaches
+past the authority's constraints. The complete returned neighborhood includes
+the cycle and is within depth three.
+
+OBSERVED CONTROL FLOW
+
+1. `cycle-b` is first reached through `left`. Its edge to `cycle-a` is not a
+   back edge on that path, so the branch is marked walked at remaining depth 1.
+2. `cycle-a` is then reached directly from the center. Its edge reaches
+   `cycle-b` with remaining depth 1.
+3. `_expand_dependency(cycle-b, downstream, 1, path=(center, cycle-a,
+   cycle-b))` returns from `state["walked"]` before `_expand_branch` examines
+   `cycle-b --blocks--> cycle-a` against the new path.
+
+Observed result: no `GraphInvalid` is raised. The projection returns a visible
+two-node cycle even though its contract says cycles fail visibly rather than
+being rendered as an ordinary graph.
+
+CAUSE
+
+The memo key is `(Work, side)` plus greatest remaining depth. Cycle safety is
+path-dependent, so that key cannot answer whether the same direct edge closes
+a loop on a different ancestry. The early return at projection.py lines
+1157-1161 precedes the only `far in path` check at lines 1205-1211.
+
+The correction can validate the final admitted edge graph independently of
+the expansion memo, or preserve an equivalent ancestor-sensitive safety
+check. It must retain the bounded work and name the exact offending
+`A --blocks--> B` edge.
+
+`git diff --check` is clean.
+

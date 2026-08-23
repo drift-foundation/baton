@@ -1,0 +1,55 @@
+W2845 fifth independent-review reproduction, 2026-08-22T14:41:58Z
+
+No Docker command was executed. Each result below came from the installed
+`codex execpolicy check`, which loads a candidate policy and evaluates
+`docker version` without executing it. Oracle: codex-cli 0.149.0.
+
+The candidate policy held the first three exact inspection rules and replaced
+the fourth with each malformed form below:
+
+  empty element inside the pattern list
+    prefix_rule(pattern=["docker",, "image", "inspect"], decision="allow")
+
+  empty element at the start of the pattern list
+    prefix_rule(pattern=[,"docker", "image", "inspect"], decision="allow")
+
+  empty argument at the start of the call
+    prefix_rule(, pattern=["docker", "image", "inspect"], decision="allow")
+
+  empty argument between the two named operands
+    prefix_rule(pattern=["docker", "image", "inspect"],, decision="allow")
+
+  a second trailing comma
+    prefix_rule(pattern=["docker", "image", "inspect"], decision="allow",,)
+
+For all five candidates, `auditInspectionRules` returned:
+
+  missing=[] broad=[] extra=[] unaccounted=[] satisfied=true
+
+For all five candidates, `codex execpolicy check` exited 1 before making an
+authorization decision. Representative error:
+
+  starlark error: error: Parse error: unexpected symbol ',', expected expression
+
+The cause is `splitTopLevel`: after splitting at top-level commas it removes
+every empty field. One empty tail is valid for a single trailing comma, but an
+empty head or middle field and more than one trailing comma are parse errors.
+`stringList` and `decompose` therefore receive the same non-empty fields as a
+valid exact rule and return it as parsed.
+
+This is the same false-ready availability failure as rounds 3 and 4. Codex
+loads no rule from the nominated file, while the preflight advertises all four
+inspection rules as provisioned.
+
+Surrounding verification:
+
+  policy_syntax.test.mjs: passed within the Node suite
+  docker_inspection_policy.test.mjs: passed within the Node suite
+  git diff --check: clean
+
+The complete Node suite could not be established in this managed sandbox:
+`exec_policy_cli.test.mjs` was denied nested Node process creation (`EPERM`),
+and `runtime_publisher.test.mjs` was denied Unix-socket listen (`EPERM`). The
+focused Python selection had 29 passes and one environment failure because
+the managed participant cannot connect to `/var/run/docker.sock`; the policy
+parser cases themselves passed. No escalation was requested.

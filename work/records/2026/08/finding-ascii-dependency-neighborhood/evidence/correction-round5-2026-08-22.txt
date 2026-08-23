@@ -1,0 +1,134 @@
+W4996 — round 5 correction (first slice, fourth correction round)
+Review: review-2026-08-22T19-23-55Z.md, one [P1].
+Implementer: baton.claude. Date: 2026-08-22.
+
+
+0. STILL NOT STARTED
+
+Console wiring, navigation, resize and Back behaviour, PTY coverage, and the
+`ROW_DEEPER` depth-frontier gap. The review does not treat any as landed.
+
+The review also settles the round-4 renderer question: declining the
+shortest-path layered form for a non-monotonic shortcut and using the aligned
+adjacency fallback is consistent with the approved contract, and no
+longest-path amendment is recommended. That decision is closed.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  .venv/bin/python3 -m pytest tests/work/test_w4996_dependency_graph.py -q
+    37 tests, 36 passed, 1 failed
+    X test_w4996_review_a_walk_memo_cannot_hide_a_cycle_on_another_path
+
+The finding is correct, and it is against the memo I added LAST round.
+
+
+2. [P1] THE WALK MEMO COULD HIDE A CYCLE
+
+`state["walked"]` answers "do this branch's descendants need expanding
+again", and that is a sound question. Cycle closure is a different one: it is
+a property of the ANCESTRY, which the memo does not carry.
+
+So a node first reached where its outgoing edge is ordinary, and reached
+again with the other end of that edge among its ancestors, got a memo hit and
+returned before `_expand_branch` compared anything with the new path. Every
+edge of the two-node cycle was returned inside the requested depth and the
+response called itself valid.
+
+CORRECTED with a second boundary rather than by weakening the memo, which is
+what the review asks for: `_refuse_cycles(edges)` runs after the walk, over
+the edges the response ACTUALLY CONTAINS. The drawn graph either has a cycle
+or it does not, and that is decidable from the edges alone — no traversal
+order can hide it.
+
+It is ITERATIVE and bounded by the occurrence cap that already bounds
+`edges`, so a damaged store is reported rather than crashed on. It
+distinguishes ANCESTRY from "already finished", because a node reached by two
+valid paths is ordinary in a DAG and a naive visited-set check would refuse
+the most common shape in this repository's own graph — a regression covers
+exactly that false positive.
+
+The refusal names the exact closing edge. Either real edge of the loop is an
+exact answer, depending where the search enters it; naming a real one is the
+property, because "this graph has a cycle" sends an operator through the
+whole neighbourhood looking for it.
+
+THE PATH-LOCAL CHECK STAYS. It no longer changes the ANSWER — a plain cycle
+is refused either way — but it refuses at the first re-entry instead of
+walking up to the whole occurrence budget round a loop.
+
+DELIBERATELY NOT REPORTED: a cycle whose closing edge was not admitted, cut
+by the cap or a branch page. The drawn graph really is acyclic, and inventing
+a refusal about an edge the response does not contain would be a different
+kind of lie. A regression pins both directions — invisible at depth one,
+refused once the depth reaches it.
+
+
+3. MUTATION CHECK — four, each independently
+
+  M1  no admitted-graph cycle check
+        4 failed: the reviewer's memo case, the traversal-order case, the
+                  closing-edge case, and the walk-first watcher
+  M2  a visited set instead of ancestry
+        15 failed, led by every ordinary DAG shape — the false positive
+  M3  the admitted-graph refusal stops naming its edge
+        1 failed: the closing-edge case
+  M4  the path-local check removed
+        1 failed: the walk-first watcher
+
+Restored: 43/43.
+
+
+4. TWO GUARDS WERE UNWITNESSED ON THE FIRST RUN, AND THAT IS WHY TWO CASES
+   EXIST
+
+M3 and M4 both passed green at first.
+
+M3, because every cycle case that asserted on the MESSAGE was being refused
+by the PATH-LOCAL check, which names its edge correctly. The new check's
+message was never exercised. `test_the_admitted_graph_refusal_names_its_
+closing_edge_too` drives the reviewer's own shape, where only the
+admitted-graph check can fire.
+
+M4, because with the new boundary in place the walk's own check no longer
+changes the answer. What it still does is work NOT done, so it is watched
+rather than asserted about: `test_the_walk_still_refuses_a_cycle_before_
+descending_into_it` patches `_refuse_cycles` and requires that a plain cycle
+never reaches it — with a second, acyclic neighbourhood proving the watch is
+not inert.
+
+Two of my first fixtures were also wrong and were corrected rather than
+kept: a 300-link chain whose loop could not be inside a depth-3 view at all
+(the "iterative" property is not witnessable at this scale — Python's limit
+is far above the 200-edge cap — so that case was replaced by the diamond
+false-positive case, which is a real risk); and a cycle-beyond-depth fixture
+whose closing edge was still outside the view at depth three.
+
+
+5. GATES
+
+  tests/work/test_w4996_dependency_graph.py   43 passed (37 before)
+  pytest -n auto -m "not serial" tests/work   2938 passed, 0 failed
+  pytest -m serial tests/work                 52 passed
+  tools/codex-event-bridge npm test           297 pass, 0 fail
+  tools/acp-baton-bridge npm test             55 pass, 0 fail
+  whitespace-damage check                     clean
+
+  v12 npm test                                231 tests, 229 pass, 2 fail
+
+THOSE TWO ARE NOT THIS WORK'S. They are W2929 reviewer cases from
+`review-2026-08-22T19-31-47Z.md`, which landed while this turn was running: a
+thenable inspected once and held until completion, and the first result being
+the same durable copy a retry replays. Both are against the secret-lifetime
+and journal work I landed on W2929 earlier today. W2929 is queued on
+`baton.impl` for its own turn, it is JavaScript under `v12/`, and nothing
+here reaches it.
+
+No projection version change: `GraphInvalid` is an existing refusal and no
+response shape moved.
+
+
+6. FILES CHANGED
+
+  src/baton_work/projection.py    `_refuse_cycles`, called after the walk
+  tests/work/test_w4996_dependency_graph.py   +6 cases and one fixture helper

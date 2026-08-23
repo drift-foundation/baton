@@ -1,0 +1,150 @@
+W2929 — the turn slice, corrected
+Review: review-2026-08-23T03-15-42Z.md, five [P1].
+Implementer: baton.claude. Date: 2026-08-23.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test    480 tests, 474 passed, 6 failed
+
+The six additive review regressions are the only failures. All five findings
+correct.
+
+
+2. THE ONE WHERE MY TEST DEFENDED MY MISTAKE
+
+[P1] THE CODEX TERMINAL MAPPING CONTRADICTED THE FROZEN TABLE. §10.3 maps
+`turn/completed` status `failed` to `agent-failed`; I had TWO statuses and my
+own case asserted that `failed` must be REFUSED.
+
+A VOCABULARY I SHORTENED IS NOT A STRICTER VOCABULARY. It is a different one,
+and the difference was invisible because I also wrote the test that defended
+it — the second time in three rounds that a case of mine has protected a
+misreading rather than caught it.
+
+And the refinement branch collapsed every `codex-error-info` string to
+`agent-failed`, dropping §10.6 entirely. That table is now transcribed in full
+— ELEVEN rows, each with an outcome AND the closed error pair it is reported
+as — and driven exhaustively, because sampling three of eleven leaves eight
+untested and the table looking driven.
+
+
+3. ONE PLACE I HAVE NOT DONE WHAT THE REVIEW ASKED
+
+The review says an unrecognized `codexErrorInfo` "must refuse rather than
+silently becoming an agent failure". §10.6 ends:
+
+  "The raw `codexErrorInfo` string is retained as untrusted diagnostics; it
+   selects nothing beyond this table, AND AN UNRECOGNIZED VALUE TAKES THE LAST
+   ROW."
+
+Refusing would be stricter and would contradict a decision the boundary
+already froze. I have implemented the frozen sentence — unknown takes the last
+row, `agent-failed` reported as `unavailable.source-provider` — changed that
+one assertion in the reviewer's case, and left the quote beside the code and
+in the case. If the acceptance is meant to have moved I would rather be
+overruled than diverge silently in either direction.
+
+
+4. THE OTHER FOUR, WHICH ARE ONE CORRECTION
+
+[P1] SHAPE AND SEAL WERE BYPASSED — three nonempty strings accepted
+`deadlineAt: "not-a-timestamp"` and `promptDigest: "not-a-digest"`, and the
+row could not represent `dropped_event_bytes`, `policy_failures`, evidence,
+diagnostics or the seal.
+
+[P1] THE DECIDING POLICY FACT WAS DISCARDED — any array-like with a length
+selected `policy-failed`, and the list was then thrown away.
+
+[P1] THE ACT WAS NEITHER REPLAY- NOR COLLISION-SAFE — a deterministic identity
+with a plain insert answers a repeat with a raw UNIQUE violation.
+
+[P1] THE FIRST ANSWER ALIASED THE CALLER'S TERMINAL FACT.
+
+They have ONE correction between them: build the complete frozen `turnRecord`,
+validate it against the placed schema BEFORE reading semantic members, seal
+it, and commit it through the manager's operation journal — whose byte-stable
+result is what the first caller and every retry receive. Schema 10 -> 11 adds
+the canonical `body`, the `document_digest` and a `policy_failures` column, so
+the evidence that selected an outcome sits beside the outcome and a reader
+need not open the sealed document to ask which violation ended the turn.
+
+
+5. MUTATION CHECK — eight, six witnessed and two measured
+
+  E1  codex `failed` is refused again                 2 failed
+  E2  every codexErrorInfo collapses to agent-failed  2 failed
+  E3  no shape validation of the turn record          3 failed
+  E4b BOTH validations removed                        4 failed
+  E5  the act is not journalled                       2 failed
+  E7  the policy evidence is not retained             1 failed
+
+  E4  only the per-failure validation removed         0 failed
+  E6  the caller's terminal fact is not copied        0 failed
+
+E4 IS MASKED. The record-level validation covers policy failures too, so
+removing only the per-failure check leaves the malformed case still caught;
+E4b removes both and it fails. The per-failure check is kept because its
+refusal names WHICH failure, and it is not counted as a guard.
+
+E6 IS EQUIVALENT, and the reason is the correction itself: `store.transact`
+returns the byte-stable JSON it committed, so the answer is already owned, and
+the row is written from those members inside the transaction. THE JOURNAL is
+what makes the answer owned — not the clone — and the comment now says that
+rather than implying otherwise.
+
+Restored: 26/26 focused, 487/487 for the whole gate.
+
+
+6. REGRESSIONS — 26 (19 before, including the reviewer's six)
+
+Plus these of mine: the three codex statuses driven for every key and three
+unknowns; §10.6 driven for all eleven rows including the error PAIRS, with the
+transport and provider rows compared because that is why the table carries a
+pair; malformed timestamps and digests refused by the shape; four malformed
+policy-failure shapes, including a `granted: true` one and a real code under
+the wrong category; negative counts on all four; an exact repeat replaying and
+a changed one colliding; the answer surviving mutation of the caller's object;
+and the sealed turn surviving byte for byte with a hand edit caught on the way
+out.
+
+
+7. GATES
+
+  cd v12 && npm test                       487 tests, 487 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2976 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        316 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+
+8. ONE OPERATIONAL NOTE
+
+Compiling two definitions out of one schema document in a single Ajv instance
+fails: it keys compiled schemas by `$id` and refuses a second registration
+under the same one. The `$id` is dropped for both compilations; the
+definitions are unchanged and only the registration key is.
+
+
+9. STILL NOT IMPLEMENTED
+
+Event normalization, the runtime/agent adapter CONTRACTS, and the
+re-identification gate after transport ambiguity.
+
+
+10. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs              version 11; the turn's
+                                                 canonical body, its seal and
+                                                 the policy evidence
+  v12/src/worker_manager/agent_turn.mjs          the three codex statuses,
+                                                 §10.6 in full, the frozen
+                                                 record built validated sealed
+                                                 and journalled
+  v12/test/worker_manager_agent_turn.test.mjs    +7 cases, 3 corrected
+  v12/test/worker_manager_store.test.mjs         the pinned version
