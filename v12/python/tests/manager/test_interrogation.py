@@ -850,6 +850,26 @@ class ATimeoutIsAnObservationAndNotACancellation(InterrogationCase):
         self.assertEqual(authority_reads, [],
                          "the replay path asked Baton to re-decide")
 
+    def test_replay_does_not_require_the_adapter_capabilities_to_still_exist(
+            self):
+        """The adapter is mutable too, and it is not a signed operand.
+
+        A restart may have no reachable adapter at all. The already committed
+        answer must still replay from the journal; inspecting today's adapter
+        protocol before that decision makes historical success depend on a
+        capability the replay promises not to use.
+        """
+        first = self.probing()
+
+        class Gone:
+            pass
+
+        again = probe(
+            self.store, self.port, Gone(), attempt_id=ATTEMPT,
+            posture="execution", session_epoch=1, operation_id="probe-1",
+            deadline_seconds=30)
+        self.assertEqual(again, first)
+
     def test_a_fresh_interrogation_still_needs_the_live_generation(self):
         """The half the correction had to KEEP. Moving the authority read
         inside the fresh act must not stop it happening for a fresh

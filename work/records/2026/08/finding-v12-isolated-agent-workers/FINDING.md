@@ -1642,3 +1642,33 @@ The repository's deliberately bounded dossier-directory nesting is not a Work-
 graph limit. A deeper independently scheduled finding may be promoted to a
 top-level permanent record with forwarding provenance while its Baton Work
 retains the appropriate logical containment and dependency links.
+
+## Team hierarchy and shared principals — confirmed requirement 2026-08-25
+
+V12 must distinguish a human or agent principal from the team scope in which
+that principal acts. One approver may oversee a hierarchy of related teams —
+for example, one infrastructure approver across several infrastructure
+subprojects — while another team may bind a dedicated one-to-one approver.
+Copying the same person into unrelated `team.member` identities, as v11 must,
+loses the fact that this is one shared resource and fragments its inbox,
+capacity, runtime state, and audit history.
+
+The hierarchy is deployment-defined. Slawomir's deployment may create an
+administrative root such as `admins`, place every working team beneath it, and
+grant one Slawomir principal approval scope over the whole subtree. Another
+deployment may omit that node and bind approvers one-to-one at its leaves.
+Neither shape is built into the protocol.
+
+An organizational node may be grouping-only: it need not own a repository or
+create Work. Team hierarchy is organizational policy only. It does not imply repository
+containment, Work containment, dependency edges, scheduling order, or shared
+working trees. Each leaf team may continue to own one independent repository.
+An organizational node may grant a role to one principal for a bounded
+subtree; a leaf may instead declare a local role binding. Every authorized act
+records both the exact principal and the team/scope whose role was exercised.
+
+Resolution must be explicit, deterministic, inspectable, and fail closed when
+no binding or an unresolved ambiguity remains. The detailed inheritance and
+override grammar, whether multi-parent organizations are admitted, and how
+shared-principal capacity is scheduled remain design questions for the bounded
+M6 Job. This requirement is not backported to v11.

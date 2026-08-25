@@ -1,0 +1,98 @@
+W6632 — the gates after the assignment-root re-review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest tests.manager.test_oci
+    # Ran 56 tests -- OK   (48 before, plus the identity slice and 5 of mine)
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_oci_engine
+    # Ran 12 tests -- OK (skipped=5)
+    # docker 29.1.3: the full cycle green. podman: absent, skipped per engine.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1128 tests -- FAILED (failures=12, errors=1, skipped=6)
+
+    cd v12/python && just build
+    # Ran 1128 tests -- FAILED (failures=10, errors=1, skipped=5)
+
+THE DELTA AGAINST THE TWELVE THIS CAMPAIGN HAS CARRIED ALL ALONG
+
+  Before this claim the pre-existing set was twelve:
+    test_oci ........................ 4
+    test_boundary_inventory ......... 7
+    test_dependencies ............... 1
+
+  After it:
+    test_oci ........................ 0
+    test_boundary_inventory ......... 7   (no OCI entry remains in any of them)
+    test_dependencies ............... 0
+
+  FIVE OF THE TWELVE ARE GONE, and nothing was added. The seven that remain
+  are `documents.py`, `sessions.py`, `handshake.py` and `workspaces.py`
+  entries belonging to other Work -- measured rather than assumed: the probe
+  gate reports zero `oci.py` mentions, and the ownership gate's unowned list
+  contains no `oci.py` entry.
+
+STILL OPEN AND NOT THIS WORK'S
+
+  tests.manager.test_interrogation .... 1 error    -- W6627, in review
+  tests.manager.test_secrets .......... 2 subtests -- W6630, in review
+  tests.manager.test_worker_container . 1 failure  -- W6633, in review
+      test_two_independent_builds_have_one_pinnable_image_identity
+
+WHAT THE SIX REQUIRED CORRECTIONS DID
+
+  1. CANONICAL IDENTITY, NOT LEXICAL PREFIX. `_canonical` resolves a host path
+     the way the kernel would, and BOTH the roots and the mount sources go
+     through it -- resolution applied to one side only would refuse every
+     legitimate mount under a symlinked root. The `..` check runs on the
+     SPELLING, before resolution collapses it. The RESOLVED source is what
+     reaches argv: proving the resolved path and then emitting the spelling
+     would leave the engine free to resolve it again, which is the same defect
+     with an extra step.
+  2. NO ROOT CONTAINS ANOTHER, and no mount source or target contains another.
+     Equality is containment's degenerate case and is refused by the same rule.
+     A source inside two roots has no unique posture authority; nested targets
+     shadow, nested sources alias.
+  3. ONE RESOLVED IDENTITY. `RESOLVED_IDENTITY` is the image, profile and
+     adapter digests; the adapter owns one record at construction, the argv
+     names its image, and `start` refuses labels that disagree with it --
+     BEFORE the engine is asked to create anything, because a start that
+     created a container and then refused would leave exactly the state no
+     reconciliation can undo. Mismatch, no-side-effect and
+     restart-reconciliation probes included.
+  4. THE OCI INVENTORY IS COMPLETE. Twenty receiving entries owned -- fifteen
+     delegated to the private owner that actually decides them, five stated
+     with witnesses -- and twenty-nine probes, each driving the real public
+     vector or seam. `_canonical` was given a LITERAL label, because a computed
+     one is a boundary the inventory cannot attribute.
+  5. REAL ENGINE EVIDENCE. `tests/manager/test_oci_engine.py` drives the
+     adapter against a real daemon: start, list by reconciliation labels, stop
+     with proof, destroy with proof, the duplicate-start refusal, the applied
+     restrictions read back from the engine's own record, a workspace mount
+     resolved to the place this manager named, and positive absence for an
+     identity that never existed. Every container is registered for removal
+     before it can exist, and the engine is asked afterwards whether anything
+     survived.
+
+     SKIPPED PER ENGINE when the binary or its daemon is absent -- the policy
+     this dossier requires, and deliberately the opposite of W6633's image
+     gate, which builds THIS repository's own artefact and fails instead. A
+     case requires the covered engines and `ENGINES` to be the same list, so an
+     engine this adapter claims to speak cannot go unrun.
+  6. This file and `PROGRESS.md`.
+
+AN UNATTRIBUTED INTERACTION, REPORTED RATHER THAN GUESSED AT
+
+  `test_worker_container`'s `test_the_same_context_builds_to_the_same_artefact`
+  and `test_the_image_id_is_a_receipt_and_not_the_artefact` pass when that
+  suite runs alone (30 tests, 1 failure -- the reviewer's), pass when run
+  together with `test_oci_engine` (42 tests, 1 failure -- the same one), pass
+  in the locked installed-layout build, and FAIL in a full source `discover`
+  run. I could not attribute the difference and am not guessing at it. They
+  are W6633's cases, that Work is in review, and the reproduction is recorded
+  here so whoever holds it has the measurement.
+
+  One thing was ruled out and corrected on the way: `test_oci_engine` used to
+  `docker pull` unconditionally. A test module that mutates the shared image
+  store decides other modules' outcomes, so it pulls only when the pinned base
+  is absent. That did not change the interaction above.

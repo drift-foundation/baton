@@ -174,8 +174,7 @@ def revive_refusal(sealed):
     # integer message was accepted into a refusal, and a `false` durable marker
     # was silently rewritten to true. The public door and the replay door lead
     # to one document; fitting a lock to one of them is not locking it.
-    record = boundaries.sealed(
-        boundaries.adopted(sealed, "a sealed refusal"), "a sealed refusal")
+    record = boundaries.adopted(sealed, "a sealed refusal")
     # §13 AT THE PUBLIC DOOR, in the other direction. Re-review [P1]: the
     # inventory called this prose-only on the reasoning that the bytes were
     # walked on the way in -- true of the internal replay path, whose input is
@@ -188,8 +187,11 @@ def revive_refusal(sealed):
     # `manager_signature` walks operands: the named half of the walk is about
     # MEMBERS, and a member named for a secret is an ordinary substring once
     # it has been folded into a message.
+    # BEFORE `sealed`, which names the values it rejects: fourth review [P1]'s
+    # ordering rule, applied at this door too. `adopted` has already decoded
+    # the caller's text into exact built-in data.
     check_no_durable_secret(record, what="a revived refusal")
-    return _revived(record)
+    return _revived(boundaries.sealed(record, "a sealed refusal"))
 
 
 def _revived(record):

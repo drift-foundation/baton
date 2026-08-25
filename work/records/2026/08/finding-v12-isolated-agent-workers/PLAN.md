@@ -506,3 +506,11 @@ whose prerequisites have closed are actionable.
      the trusted integrator. Keep dossier-path flattening or promotion an
      indexing concern that never reduces logical containment, dependency or
      scheduling fidelity.
+21. [deferred; confirmed requirement 2026-08-25; ledger W9901] Model v12 principals
+    separately from hierarchical team scopes so one approver can serve a
+    bounded organizational subtree while another team binds a dedicated
+    one-to-one approver. Preserve one principal's inbox, runtime state,
+    capacity and audit identity across those scopes. Keep organizational
+    hierarchy independent from repositories, Work containment and dependency
+    edges. Design and certify deterministic fail-closed role resolution in a
+    separate M6-contained Job; do not backport this model to v11.

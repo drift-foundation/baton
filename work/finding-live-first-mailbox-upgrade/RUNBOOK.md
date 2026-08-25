@@ -104,48 +104,43 @@ a follow-up, and not a completion criterion.
 
 Slawomir's ruling: do not specify or implement porting. Most old messages never
 need it — once communications are live, actors identify and re-send the small
-subset that matters, and the retired mailbox stays intact for inspection.
+subset that matters. At these cutovers the retired mailbox stayed intact for
+inspection.
 **Archival completeness must not become a dependency of the live channel.**
 
 If someone ever demonstrates an actual need for specific historical messages,
-that gets its own finding at that time. Until then: read the retired mailbox
-directly with the executable matching its protocol. Do not improvise a port
-against a live authority — unvalidated rows in the single transactional
-authority would be a worse failure than the outage such a port would be trying
-to undo.
+that gets its own finding at that time. Do not improvise a port against a live
+authority — unvalidated rows in the single transactional authority would be a
+worse failure than the outage such a port would be trying to undo.
+
+**Superseded 2026-08-25:** the protocol 6, 7, and 8 mailbox archives were
+approved for deletion after v11 replaced every fallback consumer. Their old
+messages will no longer be recoverable. No port was requested or needed.
 
 ## Cutover record
 
 This procedure has been executed three times, all on 2026-08-07: 6 to 7 (by
 the reviewer, after an in-place cutover stalled), 7 to 8, and 8 to 9. Each
-retirement, its archive path and what it preserved are tabulated in
+retirement and its initial archive disposition are recorded in
 `FINDING.md` beside this file.
 
 No port was ever performed. Nobody has needed one — which is the invariant
 above holding in practice rather than in theory.
 
-## Preserve the executable of every retired era
+## Historical archive rule — superseded 2026-08-25
 
-**A retired authority can only be read by the executable of its own
-protocol.** Schema validation is exact, so a newer build refuses an older
-instance rather than misreading it: a protocol mismatch exits 4, and schema
-tampering within a matching protocol exits 6. Both fail closed, and neither
-gives you the data.
+The original runbook retained every retired authority together with the only
+executable capable of reading its exact protocol. Schema validation was exact,
+so a newer build refused an older instance rather than misreading it.
 
-Each versioned deployment directory is therefore the only key to its archive
-and must not be deleted:
+That retention rule no longer applies to the protocol 6, 7, and 8 mailboxes.
+Their archives were approved for deletion after v11 replaced every fallback
+consumer; their messages will no longer be recoverable.
 
-| Archive | Readable only by |
-|---|---|
-| `mailbox-retired-protocol6-20260807T1249Z` | `baton-protocol6/bin/baton` |
-| `mailbox-protocol7-retired-20260807` | the protocol-7 build |
-| `mailbox-protocol8-retired-20260807T234737Z` | `baton-protocol8/bin/baton` |
+Deployment paths remain versioned for reproducibility and controlled rollback,
+not as fallback access to those deleted coordination authorities. An agent
+pointing at an incompatible live authority still fails closed on protocol or
+schema mismatch — the failure mode worth having.
 
-This is why the deployment path is versioned rather than overwritten in place.
-It also means an agent still pointing at an old path fails closed on a
-protocol error instead of silently reading a dead mailbox — the failure mode
-worth having.
-
-Also carried forward: damaged attachment records left in a retired archive are
-not on the live channel, so live `doctor` stays `ok: true` and their repair is
-unhurried and optional.
+The damaged attachment records isolated in those retired archives will be
+deleted with them and never entered the live channel.

@@ -179,3 +179,50 @@ Status: **changes requested** in
    `integrity.secret-leak` and a diagnostic containing no bearer.
 4. [next] Rerun focused, affected adjacent, full source and installed-layout
    gates, append exact evidence, and return for independent review.
+
+## Fourth review correction — 2026-08-25
+
+`review-2026-08-25T10-49-54Z.md`: the centralized walk was right and its
+ORDER was wrong. `boundaries.row` walked after every column rule, and several
+of those rules name the value they reject — so a live bearer in a malformed
+typed column reached a public `integrity.schema` diagnostic before the walk
+could answer with the bounded refusal instead.
+
+1. [done] The walk is the first content check after the row is copied. Safe
+   that early because the copy is already exact built-in data: SQLite returns
+   `str`, `int`, `float`, `bytes` or `None`, so the walk traverses plain
+   values and runs nothing.
+2. [done] The same ordering at every other public door whose input has already
+   been made exact — `certified_agent_session_profile`,
+   `certify_agent_session_profile` and `revive_refusal`. The shape is not
+   specific to the function the finding named, and this Work has been
+   corrected three times for fixing only what was named.
+3. [done] `check_manifest_structure` is deliberately NOT moved: its input is a
+   raw caller document, so the schema must establish the shape before anything
+   traverses it. The distinction between the two groups is whether the input
+   has been made exact built-in data yet, and it is recorded rather than left
+   to be re-derived.
+4. [done] The reviewer's regression and all five third-correction regressions
+   are kept. Two cases added: one drives all four doors and requires
+   `secret-leak` with no bearer in the message, and one requires the ordinary
+   schema refusal to survive when nothing is held — a correction that turned
+   every malformed document into `secret-leak` would be a different defect
+   with a green gate.
+
+## Fifth review correction — 2026-08-25
+
+Status: **changes requested** in
+`review-2026-08-25T13-19-17Z.md`.
+
+1. [done 2026-08-25] Confirm the fourth correction at all four exact-data
+   doors and its 60/60 focused gate.
+2. [next] Prevent an ownership/type diagnostic from quoting a live bearer
+   before §13 at `certify_agent_session_profile` and
+   `record_inquiry_answer`. Keep the additive two-door regression and require
+   `integrity.secret-leak` with no bearer in either message.
+3. [next] Re-audit the remaining public document owners for any
+   ownership/shape/content diagnostic that can run before their secret walk;
+   the ordering boundary includes the first diagnostic, not only the first
+   semantic validator.
+4. [next] Rerun focused and affected adjacent gates, append exact evidence,
+   and return for independent review.

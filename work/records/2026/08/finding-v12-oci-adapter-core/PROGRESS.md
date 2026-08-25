@@ -153,3 +153,54 @@ Every public call site and golden vector moved with it, and five cases were adde
 tests.manager.test_oci — 45, all pass, including your test_a_repository_outside_assignment_owned_roots_is_not_mountable.
 
 STILL OPEN from the correction plan, and I am not restating the smoke-test claim you already overruled: this module's receiving inventory and probes, and the isolated Docker positive-cleanup smoke plus compatible Podman coverage. Your record is explicit that the test module's note about smoke belonging to a separate cut does not supersede this dossier's acceptance, and I accept that.
+
+## Assignment-root re-review correction — 2026-08-25
+
+**Lexical containment is not mount authority.** `os.path.normpath` is a string
+operation, so a symlink planted under the writable workspace passed the test
+and the engine — the party that actually resolves the path — followed it out of
+the assignment. `_canonical` resolves as the kernel would, and it is applied to
+BOTH sides: resolving only the source would refuse every legitimate mount under
+a symlinked root. The resolved source is what reaches argv, because proving one
+path and emitting another leaves the engine free to resolve it again.
+
+**Ambiguity is refused rather than resolved by iteration order.** A root inside
+another gives a source two postures and lets whichever matched first decide
+whether it may be written. Nested targets shadow; nested sources alias. Equality
+is the degenerate case of both and is refused by the same rule.
+
+**One delivery carries one identity.** The adapter held an image digest while
+`start` took labels independently — two accounts nothing compared, and
+reconciliation after a restart reads the labels and reasons about the image
+from them. `RESOLVED_IDENTITY` is one record owned at construction: the argv
+names its image, the labels must agree with it, and a mismatch is refused
+before the engine is asked to create anything.
+
+**The inventory is complete for this module**, measured rather than asserted:
+zero `oci.py` mentions in the probe gate and none in the unowned list. Finding
+that required giving `_canonical` a literal label — a computed one is a
+boundary the inventory cannot attribute, which is the third time this
+distribution has been corrected for the same thing.
+
+**Real engine evidence exists.** The adapter now runs against a real daemon
+through its own `EnginePort`, with the applied restrictions read back from the
+engine's record rather than from the argv this suite chose. Skipped per engine
+when one is absent — the policy this dossier requires — and a case keeps the
+covered engines and `ENGINES` the same list.
+
+## Verification
+
+`evidence/gate-after-correction-2026-08-25.txt`. `test_oci` 56/56;
+`test_oci_engine` 12 with the five Podman cases skipped and Docker green. The
+pre-existing twelve are now seven, all of them other modules', and nothing was
+added.
+
+One interaction is reported and NOT explained: two of W6633's container cases
+pass alone, pass beside this module's engine gate, pass in the locked build,
+and fail in a full source run. The measurement is in the evidence file rather
+than a guess in this one.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.

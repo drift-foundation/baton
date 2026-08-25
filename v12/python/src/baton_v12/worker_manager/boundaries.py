@@ -400,8 +400,37 @@ def row(record, what, columns):
     build does not name is a store written under a shape this build cannot
     reason about, and adopting its familiar-looking columns would be reading a
     stranger's row as our own.
+
+    §13 RUNS HERE, before any of that. Third review [P1]: the column contract
+    proves the SET and the SHAPES and says nothing about content, so a hand
+    edit could put a currently live bearer into a persisted value and every
+    public read that returns the row would hand it out -- and a write-side
+    walk cannot establish §13 for bytes read after a later edit. It is in this
+    function rather than in each reader because "each reader" is a list
+    somebody maintains: every adopted row in this manager comes through here,
+    so a projection added tomorrow is covered tomorrow.
+
+    THE DYNAMIC RULE, NOT A SECOND SHAPE ADOPTION. It refuses a value this
+    process is holding LIVE; a genuinely forgotten secret is absent from the
+    registry and its row stays readable and replayable, which is what keeps an
+    exact durable replay from failing on the retry.
     """
     taken = {key: record[key] for key in record.keys()}
+    # §13 FIRST, AND THE ORDER IS THE CONTENT. Fourth review [P1]: the walk
+    # ran at the END, after the member set and every column rule -- and
+    # several of those rules NAME the invalid value in their refusal. So a
+    # live bearer sitting in a malformed typed column was interpolated into a
+    # public schema diagnostic before the walk could answer with the bounded
+    # `integrity.secret-leak` instead. The row never left; the validator
+    # quoted its secret into the refusal that did, which is precisely the
+    # bounded-diagnostic failure §13's containment rule exists to stop.
+    #
+    # SAFE THIS EARLY because the copy above is already exact built-in data:
+    # SQLite hands back `str`, `int`, `float`, `bytes` or `None`, so the walk
+    # traverses plain values and runs nothing. That is what distinguishes this
+    # from `check_manifest_structure`, whose input is a caller document and
+    # which therefore still establishes the schema first.
+    check_no_durable_secret(taken, what=what)
     _members(taken, what, tuple(columns), ())
     for name in columns:
         contract = columns[name]
@@ -421,23 +450,6 @@ def row(record, what, columns):
         if contract.allowed is not None and value not in contract.allowed:
             _refuse(f"{what} records {name} {name_value(value)}, which is not "
                     f"one of {', '.join(contract.allowed)}")
-    # §13 AT THE ONE CROSSING OUT OF THE STORE. Third review [P1]: the column
-    # contract proves the SET and the SHAPES and says nothing about content, so
-    # a hand edit could put a currently live bearer into a persisted value and
-    # every public read that returns the row would hand it out. A write-side
-    # walk cannot establish §13 for bytes read after a later edit -- which is
-    # the reasoning `certified_agent_session_profile` was corrected on, and
-    # this docstring already calls the store a receiving trust domain.
-    #
-    # HERE rather than in each reader, because "each reader" is a list somebody
-    # maintains: every adopted row in this manager comes through this one
-    # function, so a projection added tomorrow is covered tomorrow.
-    #
-    # THE DYNAMIC RULE, NOT A SECOND SHAPE ADOPTION. It refuses a value this
-    # process is holding LIVE; a genuinely forgotten secret is absent from the
-    # registry and its row stays readable and replayable, which is what keeps
-    # an exact durable replay from failing on the retry.
-    check_no_durable_secret(taken, what=what)
     return taken
 
 

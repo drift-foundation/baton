@@ -53,7 +53,7 @@ from ..contracts.errors import name_value
 from . import boundaries, documents
 
 __all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "MAX_DIAGNOSTIC",
-           "POSTURES", "ROOT_NAMES", "MOUNTABLE",
+           "POSTURES", "ROOT_NAMES", "MOUNTABLE", "RESOLVED_IDENTITY",
            "RESTRICTIONS", "OciAdapter", "destroy_vector", "inspect_vector",
            "list_vector", "run_vector", "stop_vector"]
 
@@ -125,6 +125,32 @@ POSTURES = ("consent", "execution")
 ROOT_NAMES = ("inputs", "workspace", "git")
 MOUNTABLE = {"consent": (), "execution": ("inputs", "workspace")}
 WRITABLE = {"execution": ("workspace",)}
+
+
+# THE ONE RESOLVED IDENTITY a delivery is made under. Review: the adapter
+# held `image_digest` and `start` accepted labels independently, so what was
+# STARTED and what the runtime was LABELLED with were two accounts nothing
+# compared. Reconciliation after a restart finds a runtime by those labels and
+# then reasons about it as though they described the image that is running.
+#
+# One record, owned at construction, is what makes the two accounts one: the
+# image reaches the argv from it, the profile and adapter digests reach the
+# labels from it, and a request whose labels disagree is refused rather than
+# started.
+RESOLVED_IDENTITY = ("image_digest", "profile_digest", "adapter_digest")
+
+
+def _identity(identity):
+    """The resolved identity, exactly and by digest."""
+    taken = boundaries.document(identity, "a resolved runtime identity",
+                                required=RESOLVED_IDENTITY)
+    for name in RESOLVED_IDENTITY:
+        value = boundaries.text(taken[name], "a resolved identity digest")
+        if not _DIGEST.match(value):
+            _refuse(f"the resolved {name} is {name_value(value)}, which is "
+                    f"not a sha256 digest; a delivery is made under an "
+                    f"identity this manager can name exactly", code="digest")
+    return taken
 
 
 def _refuse(message, code="schema"):
@@ -247,6 +273,43 @@ def _label_pairs(labels):
             for name in documents.RUNTIME_LABELS]
 
 
+def _canonical(place, what):
+    """One host path, as the KERNEL would resolve it.
+
+    Review [P1]: containment was decided with `os.path.normpath`, which is a
+    string operation. A symlink planted under the writable workspace and
+    pointing anywhere at all therefore passed the lexical test, and the closed
+    argv handed the engine the symlink spelling -- which the engine then
+    resolved against foreign host state. Lexical containment is not mount
+    authority, because the party that resolves the path is not this one.
+
+    `realpath` on a path that does not exist yet returns it unchanged, so a
+    root the manager has not created yet is still nameable; what it removes is
+    the case where something DOES exist and is not what its spelling says.
+
+    The `..` check runs on the SPELLING, before resolution collapses it: a
+    caller writing `..` is asking this adapter to compute a path rather than
+    name one, and refusing that is cheaper than proving where it landed.
+    """
+    # A LITERAL LABEL at the owner. The inventory attributes an owned entry by
+    # the label written at the site, so a computed one is a boundary it cannot
+    # place -- the same correction `certified_agent_session_profile` was made
+    # for. `what` still names the caller's own noun in the refusals below,
+    # where it says WHICH path disagreed rather than what the rule is called.
+    text = boundaries.text(place, "a host path")
+    if not text.startswith("/"):
+        _refuse(f"{what} is {name_value(text)}, which is not an absolute "
+                f"path; the engine would resolve it somewhere this manager "
+                f"did not choose", code="path")
+    if ".." in text.split("/"):
+        _refuse(f"{what} traverses with `..`; a canonical path is what this "
+                f"adapter mounts", code="path")
+    if ":" in text:
+        _refuse(f"{what} carries a colon, which is the engine's own "
+                f"separator", code="path")
+    return os.path.realpath(text)
+
+
 def _roots(assignment_roots, posture):
     """The assignment's own roots, and the posture that decides which apply."""
     boundaries.text(posture, "a worker posture")
@@ -255,12 +318,20 @@ def _roots(assignment_roots, posture):
                 f"{', '.join(POSTURES)}")
     taken = boundaries.document(assignment_roots, "the assignment's roots",
                                 required=ROOT_NAMES)
-    real = {}
-    for name in ROOT_NAMES:
-        place = boundaries.text(taken[name], "an assignment root")
-        if not place.startswith("/"):
-            _refuse(f"the {name} root is not an absolute path", code="path")
-        real[name] = os.path.normpath(place)
+    real = {name: _canonical(taken[name], f"the {name} root")
+            for name in ROOT_NAMES}
+    # NO ROOT CONTAINS ANOTHER. Review: with `workspace` beneath `inputs`, a
+    # source inside both has no unique posture authority -- `_mounts` would
+    # classify it by whichever root matched first, and whether it may be
+    # WRITTEN would depend on that order. Ambiguity about writability is not a
+    # thing this adapter may resolve by iteration order.
+    for name, place in real.items():
+        for other, elsewhere in real.items():
+            if other != name and _within(place, elsewhere):
+                _refuse(f"the {name} root {name_value(place)} lies inside the "
+                        f"{other} root {name_value(elsewhere)}; a source "
+                        f"inside two roots has no unique posture authority",
+                        code="path")
     return real, posture
 
 
@@ -289,38 +360,54 @@ def _mounts(mounts, roots, posture):
     for mount in mounts:
         one = boundaries.document(mount, "a runtime mount",
                                   required=("source", "target", "writable"))
-        source = os.path.normpath(
-            boundaries.text(one["source"], "a mount source"))
+        # THE SOURCE IS RESOLVED; THE TARGET IS NOT. A source is a HOST path
+        # and the engine will resolve it, so this adapter proves the thing the
+        # engine will act on. A target is a path INSIDE a container that does
+        # not exist yet, and resolving it against this host would be resolving
+        # somebody else's filesystem.
+        source = _canonical(one["source"], "a mount source")
         target = os.path.normpath(
             boundaries.text(one["target"], "a mount target"))
-        if not source.startswith("/") or not target.startswith("/"):
-            _refuse(f"a mount names {name_value(source)} at "
-                    f"{name_value(target)}; both are absolute paths or the "
-                    f"engine resolves them somewhere this manager did not "
-                    f"choose", code="path")
-        if ".." in source.split("/") or ".." in target.split("/"):
-            _refuse(f"a mount traverses with `..`; a canonical path is what "
-                    f"this adapter mounts", code="path")
+        if not target.startswith("/"):
+            _refuse(f"a mount target is {name_value(target)}, which is not an "
+                    f"absolute path", code="path")
+        if ".." in target.split("/") or ":" in target:
+            _refuse(f"a mount target is not canonical; `..` and the engine's "
+                    f"own `:` separator are both refused", code="path")
         # PROVED TO BE OURS, rather than proved not to be one of theirs.
         under = [name for name in permitted if _within(source, roots[name])]
         if not under:
             _denied(f"a mount names {name_value(source)}, which is not this "
                     f"assignment's material; a {posture} container may mount "
                     f"only {', '.join(permitted)} or a descendant of one")
+        if type(one["writable"]) is not bool:
+            _refuse(f"a mount says it is writable {name_value(one['writable'])}"
+                    f"; that is a yes or a no")
         if one["writable"] and under[0] not in WRITABLE.get(posture, ()):
             _denied(f"a mount asks to write {name_value(source)}; a "
                     f"{posture} container writes only under its workspace, "
                     f"and delivered inputs are evidence rather than scratch")
-        if ":" in source or ":" in target:
-            _refuse(f"a mount path carries a colon, which is the engine's own "
-                    f"separator", code="path")
         if target in seen:
             _refuse(f"two mounts land on {name_value(target)}; the second "
                     f"would hide the first")
+        # NEITHER SIDE MAY CONTAIN THE OTHER. Equal targets hide; NESTED ones
+        # alias -- the inner mount shadows part of the outer, and which of the
+        # two a path inside the container reaches depends on the engine's own
+        # ordering rather than on anything this manager decided. Nested
+        # SOURCES are the same question on the host: one mount would expose a
+        # subtree of another under a second name and a possibly different
+        # writability.
+        for before_source, before_target, _writable in taken:
+            if _within(source, before_source) or _within(before_source, source):
+                _refuse(f"mount sources {name_value(before_source)} and "
+                        f"{name_value(source)} contain one another; one mount "
+                        f"would expose a subtree of the other under a second "
+                        f"name", code="path")
+            if _within(target, before_target) or _within(before_target, target):
+                _refuse(f"mount targets {name_value(before_target)} and "
+                        f"{name_value(target)} contain one another; the inner "
+                        f"one would shadow part of the outer", code="path")
         seen.add(target)
-        if type(one["writable"]) is not bool:
-            _refuse(f"a mount says it is writable {name_value(one['writable'])}"
-                    f"; that is a yes or a no")
         taken.append((source, target, one["writable"]))
     return taken
 
@@ -450,17 +537,20 @@ class OciAdapter:
     a decision: the manager reconciles, and this reports.
     """
 
-    def __init__(self, engine, run, *, image_digest, assignment_roots,
+    def __init__(self, engine, run, *, identity, assignment_roots,
                  posture, mounts=()):
         self.engine = _engine(engine)
         self.run = run if isinstance(run, EnginePort) else EnginePort(run)
-        boundaries.text(image_digest, "an image digest")
-        self.image_digest = image_digest
+        # ONE RESOLVED IDENTITY, owned at construction and never re-supplied
+        # per request. It is what the argv names and what the labels must
+        # agree with, so the started image and the reconciliation labels are
+        # one account rather than two.
+        self.identity = _identity(identity)
+        self.image_digest = self.identity["image_digest"]
         # Owned at CONSTRUCTION, so an adapter that cannot say what its
-        # assignment owns never reaches a delivery.
-        _roots(assignment_roots, posture)
-        self.assignment_roots = dict(assignment_roots)
-        self.posture = posture
+        # assignment owns never reaches a delivery -- and the RESOLVED roots
+        # are kept, so what was proved is what is later mounted.
+        self.assignment_roots, self.posture = _roots(assignment_roots, posture)
         self.mounts = tuple(mounts)
 
     # -- the seam ------------------------------------------------------------
@@ -476,6 +566,20 @@ class OciAdapter:
                                     required=("labels", "operation_id"))
         labels = _labels(taken["labels"])
         boundaries.identity(taken["operation_id"], "an operation identity")
+        # THE LABELS MUST BE THIS ADAPTER'S OWN IDENTITY. A runtime labelled
+        # with a profile or adapter digest other than the one it is started
+        # under is a runtime reconciliation would describe wrongly for the
+        # rest of its life -- and the manager would be reading that
+        # description rather than the image.
+        for name in ("profile_digest", "adapter_digest"):
+            if labels[name] != self.identity[name]:
+                _denied(f"this start labels the runtime "
+                        f"{name_value(labels[name])} for {name} and the "
+                        f"resolved identity is "
+                        f"{name_value(self.identity[name])}; one delivery "
+                        f"carries one identity, and a label that disagrees "
+                        f"with what is started is what reconciliation would "
+                        f"believe afterwards")
         existing = self.list({"labels": labels})
         if existing:
             _denied(f"{len(existing)} runtime(s) already carry these "

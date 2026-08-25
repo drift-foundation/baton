@@ -1256,6 +1256,36 @@ STATED_OWNERS = {
         "the variant it names is read",
     ("injected", "interrogation.py:inquire", "agent.inquire.kind"):
         "the same, for the acknowledgement set",
+    # -- W6632: the constrained OCI adapter core -----------------------------
+    #
+    # THE ENVELOPE IS ITERATED, NOT READ. `mounts` is a sequence this adapter
+    # walks; every mount inside it is owned as a document, and the sequence
+    # itself is never indexed, measured or branched on. A boundary on the
+    # container would be a boundary on nothing.
+    ("caller", "oci.py:run_vector", "mounts"):
+        "iterated, never read: `_mounts` owns each mount as a document and "
+        "this adapter never indexes, measures or branches on the sequence",
+    ("caller", "oci.py:OciAdapter.__init__", "mounts"): "the same",
+    # A YES OR A NO, decided by `type(...) is bool` rather than by a boundary
+    # helper. The domain has no two-valued rule and inventing one for a single
+    # field would put a helper on the package's surface that answers a question
+    # `type` already answers exactly.
+    ("caller", "oci.py:run_vector", "mounts.writable"):
+        "`type(value) is bool`: an exact two-valued rule, and a truthy "
+        "substitute is refused rather than read as yes",
+    # A POSITIVE WHOLE NUMBER OF SECONDS, for the same reason: `type(...) is
+    # int` with `bool` excluded and a range, written where it is used.
+    ("caller", "oci.py:stop_vector", "seconds"):
+        "an exact positive whole number, with `bool` excluded because it is "
+        "an int and a stop timeout of `True` is not one second",
+    # NEVER TRUSTED, ONLY COMPARED. The engine's `Running` member is matched
+    # against the two exact singletons and anything else -- absent, a string,
+    # a number, `None` -- falls through to `uncertain`. A manager that treated
+    # confusion as death would release an assignment whose worker is running,
+    # so this field cannot refuse and must not be owned as though it could.
+    ("caller", "oci.py:OciAdapter.observe", "document.Running"):
+        "compared with `is True` / `is False` and anything else answers "
+        "`uncertain`; this read cannot refuse, because confusion is not death",
 }
 
 # Entries owned by a helper that owns them FOR their caller. The layer owns by
@@ -1294,6 +1324,49 @@ NO_PROBE = {
 }
 
 DELEGATED = {
+    # -- W6632: the constrained OCI adapter core -----------------------------
+    #
+    # Every public vector and the adapter itself share the same private owners,
+    # which is what keeps one rule one rule: `_engine` decides which engines
+    # this adapter speaks, `_labels` holds the frozen label document, `_roots`
+    # holds the assignment's own roots and the posture that reads them, and
+    # `_mounts` owns each mount. Owning them at six call sites instead would be
+    # how a rule ends up applied at five of them.
+    ("caller", "oci.py:run_vector", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "oci.py:stop_vector", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "oci.py:list_vector", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "oci.py:inspect_vector", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "oci.py:destroy_vector", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "oci.py:OciAdapter.__init__", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "oci.py:run_vector", "labels"):
+        ("oci.py:_labels", "caller:labels"),
+    ("caller", "oci.py:list_vector", "labels"):
+        ("oci.py:_labels", "caller:labels"),
+    ("caller", "oci.py:run_vector", "assignment_roots"):
+        ("oci.py:_roots", "caller:assignment_roots"),
+    ("caller", "oci.py:OciAdapter.__init__", "assignment_roots"):
+        ("oci.py:_roots", "caller:assignment_roots"),
+    ("caller", "oci.py:run_vector", "posture"):
+        ("oci.py:_roots", "caller:posture"),
+    ("caller", "oci.py:OciAdapter.__init__", "posture"):
+        ("oci.py:_roots", "caller:posture"),
+    ("caller", "oci.py:run_vector", "mounts.source"):
+        ("oci.py:_canonical", "caller:place"),
+    ("caller", "oci.py:run_vector", "mounts.target"):
+        ("oci.py:_mounts", "caller:mounts[target]"),
+    ("caller", "oci.py:OciAdapter.__init__", "run"):
+        ("oci.py:EnginePort.__init__", "caller:run"),
+    # The ONE resolved identity a delivery is made under, owned once at
+    # construction so the started image and the reconciliation labels are one
+    # account rather than two.
+    ("caller", "oci.py:OciAdapter.__init__", "identity"):
+        ("oci.py:_identity", "caller:identity"),
     # -- W6627: the operator interrogation split -----------------------------
     #
     # `probe` and `inquire` are the two halves of one act and share `_ask`,
@@ -1896,6 +1969,195 @@ class BoundaryCase(unittest.TestCase):
                "a persisted interrogation")] = (
             "a persisted interrogation",
             self.spoiling_interrogation("kind", driver="many"))
+        return found
+
+    # -- W6632: the constrained OCI adapter core -----------------------------
+
+    OCI_ROOTS = {"inputs": "/srv/a-1/inputs",
+                 "workspace": "/srv/a-1/workspace",
+                 "g" + "it": "/srv/a-1/private"}
+    OCI_LABELS = {"runtime_attempt_id": "attempt-1", "authority_uuid": UUID,
+                  "work_id": WORK, "participant": WHO, "generation": 1,
+                  "profile_digest": "sha256:" + "b" * 64,
+                  "adapter_digest": "sha256:" + "c" * 64}
+    OCI_IMAGE = "sha256:" + "e" * 64
+    # AGREEING with OCI_LABELS, because that is the contract: a fixture whose
+    # identity and labels disagreed would make every seam probe refuse for the
+    # mismatch instead of for its own operand.
+    OCI_IDENTITY = {"image_digest": OCI_IMAGE,
+                    "profile_digest": "sha256:" + "b" * 64,
+                    "adapter_digest": "sha256:" + "c" * 64}
+
+    def running_vector(self, **spoiled):
+        from baton_v12.worker_manager import oci
+        operands = dict(image_digest=self.OCI_IMAGE,
+                        labels=dict(self.OCI_LABELS),
+                        assignment_roots=dict(self.OCI_ROOTS),
+                        posture="execution", name="baton-op-1")
+        engine = spoiled.pop("engine", "docker")
+        operands.update(spoiled)
+        return lambda: oci.run_vector(engine, **operands)
+
+    def mounting(self, **spoiled):
+        one = {"source": "/srv/a-1/workspace/tree", "target": "/workspace",
+               "writable": True}
+        one.update(spoiled)
+        return self.running_vector(mounts=[one])
+
+    def adapter(self, **spoiled):
+        """One adapter over a silent engine, with one operand spoiled."""
+        from baton_v12.worker_manager import oci
+        operands = dict(identity=dict(self.OCI_IDENTITY),
+                        assignment_roots=dict(self.OCI_ROOTS),
+                        posture="execution")
+        engine = spoiled.pop("engine", "docker")
+        run = spoiled.pop("run", lambda argv: {"status": 0, "stdout": "[]",
+                                               "stderr": ""})
+        operands.update(spoiled)
+        return lambda: oci.OciAdapter(engine, run, **operands)
+
+    def seam(self, member, request):
+        """One adapter seam operation, driven with a spoiled request."""
+        from baton_v12.worker_manager import oci
+
+        def run():
+            built = oci.OciAdapter(
+                "docker",
+                lambda argv: {"status": 0, "stdout": "[]", "stderr": ""},
+                identity=dict(self.OCI_IDENTITY),
+                assignment_roots=dict(self.OCI_ROOTS), posture="execution")
+            getattr(built, member)(request)
+        return run
+
+    def oci_probes(self):
+        """One probe per (entry, label) the OCI core owns.
+
+        Every one drives the REAL public vector or seam with exactly one
+        operand spoiled, and `refusing` requires the refusal to name the
+        label -- so a probe stopped by an earlier precondition fails rather
+        than passing for the wrong reason.
+        """
+        from baton_v12.worker_manager import oci
+        A = "oci.py"
+
+        def at(site, subject, domain="caller"):
+            return (domain, site, subject)
+
+        found = {}
+        # THE SHARED ENGINE NAME, at every vector and at the adapter. Six
+        # entries delegate to one owner, so each gets its own drive: a
+        # delegation nobody exercised at a site is a rule that site does not
+        # actually have.
+        engines = {
+            f"{A}:run_vector": self.running_vector(engine=SURROGATE),
+            f"{A}:stop_vector":
+                lambda: oci.stop_vector(SURROGATE, runtime_id="r-1"),
+            f"{A}:list_vector":
+                lambda: oci.list_vector(SURROGATE,
+                                        labels=dict(self.OCI_LABELS)),
+            f"{A}:inspect_vector":
+                lambda: oci.inspect_vector(SURROGATE, runtime_id="r-1"),
+            f"{A}:destroy_vector":
+                lambda: oci.destroy_vector(SURROGATE, runtime_id="r-1"),
+            f"{A}:OciAdapter.__init__": self.adapter(engine=SURROGATE),
+        }
+        for site, drive in engines.items():
+            found[(at(site, "engine"), "an engine name")] = (
+                "an engine name", drive)
+        # The runtime identity, at each vector that names one.
+        for site, drive in (
+                (f"{A}:stop_vector",
+                 lambda: oci.stop_vector("docker", runtime_id=SURROGATE)),
+                (f"{A}:inspect_vector",
+                 lambda: oci.inspect_vector("docker", runtime_id=SURROGATE)),
+                (f"{A}:destroy_vector",
+                 lambda: oci.destroy_vector("docker", runtime_id=SURROGATE))):
+            found[(at(site, "runtime_id"), "a runtime id")] = (
+                "a runtime id", drive)
+        found[(at(f"{A}:OciAdapter.observe", "runtime_id"),
+               "a runtime id")] = (
+            "a runtime id", self.seam("observe", SURROGATE))
+        found[(at(f"{A}:OciAdapter.destroy", "runtime_id"),
+               "a runtime id")] = (
+            "a runtime id", self.seam("destroy", SURROGATE))
+        # The frozen label document, at both vectors that carry one.
+        found[(at(f"{A}:run_vector", "labels"), "a runtime's labels")] = (
+            "a runtime's labels", self.running_vector(labels="not a document"))
+        found[(at(f"{A}:list_vector", "labels"), "a runtime's labels")] = (
+            "a runtime's labels",
+            lambda: oci.list_vector("docker", labels="not a document"))
+        # The assignment's roots and the posture that reads them.
+        for site, drive in (
+                (f"{A}:run_vector",
+                 self.running_vector(assignment_roots="not a document")),
+                (f"{A}:OciAdapter.__init__",
+                 self.adapter(assignment_roots="not a document"))):
+            found[(at(site, "assignment_roots"),
+                   "the assignment's roots")] = (
+                "the assignment's roots", drive)
+        for site, drive in (
+                (f"{A}:run_vector", self.running_vector(posture=SURROGATE)),
+                (f"{A}:OciAdapter.__init__",
+                 self.adapter(posture=SURROGATE))):
+            found[(at(site, "posture"), "a worker posture")] = (
+                "a worker posture", drive)
+        # The image, the name, and the injected engine capability.
+        found[(at(f"{A}:run_vector", "image_digest"), "an image digest")] = (
+            "an image digest", self.running_vector(image_digest=SURROGATE))
+        found[(at(f"{A}:OciAdapter.__init__", "identity"),
+               "a resolved runtime identity")] = (
+            "a resolved runtime identity",
+            self.adapter(identity="not a document"))
+        found[(at(f"{A}:run_vector", "name"), "a runtime name")] = (
+            "a runtime name", self.running_vector(name=SURROGATE))
+        found[(at(f"{A}:OciAdapter.__init__", "run"),
+               "the engine's run operation")] = (
+            "the engine's run operation", self.adapter(run=object()))
+        # THE PORT'S OWN DOOR as well as the adapter's. The adapter wraps a
+        # bare callable in an `EnginePort`, and a caller holding the port
+        # constructs one directly -- two doors to one rule, so two drives.
+        found[(at(f"{A}:EnginePort.__init__", "run"),
+               "the engine's run operation")] = (
+            "the engine's run operation", lambda: oci.EnginePort(object()))
+        # A mount, member by member.
+        # THE EMPTY STRING RATHER THAN THE SURROGATE for members inside an
+        # owned envelope: the envelope's own encodability walk refuses a
+        # surrogate FIRST, so such a probe would prove the envelope's rule and
+        # call it the member's. An empty string is perfectly encodable and is
+        # still not a path.
+        found[(at(f"{A}:run_vector", "mounts.source"), "a host path")] = (
+            "a host path", self.mounting(source=""))
+        found[(at(f"{A}:run_vector", "mounts.target"), "a mount target")] = (
+            "a mount target", self.mounting(target=""))
+        # The seam's own requests, envelope and member by member.
+        found[(at(f"{A}:OciAdapter.start", "request"), "a start request")] = (
+            "a start request", self.seam("start", "not a document"))
+        found[(at(f"{A}:OciAdapter.start", "request.labels"),
+               "a start request")] = (
+            "a start request",
+            self.seam("start", {"operation_id": "runtime.start:1"}))
+        found[(at(f"{A}:OciAdapter.start", "request.operation_id"),
+               "an operation identity")] = (
+            "an operation identity",
+            self.seam("start", {"labels": dict(self.OCI_LABELS),
+                                "operation_id": ""}))
+        found[(at(f"{A}:OciAdapter.list", "request"), "a list request")] = (
+            "a list request", self.seam("list", "not a document"))
+        found[(at(f"{A}:OciAdapter.list", "request.labels"),
+               "a list request")] = (
+            "a list request", self.seam("list", {}))
+        found[(at(f"{A}:OciAdapter.stop", "request"), "a stop request")] = (
+            "a stop request", self.seam("stop", "not a document"))
+        found[(at(f"{A}:OciAdapter.stop", "request.runtime_id"),
+               "a runtime id")] = (
+            "a runtime id",
+            self.seam("stop", {"runtime_id": "",
+                               "operation_id": "runtime.stop:1"}))
+        found[(at(f"{A}:OciAdapter.stop", "request.operation_id"),
+               "an operation identity")] = (
+            "an operation identity",
+            self.seam("stop", {"runtime_id": "r-1",
+                               "operation_id": ""}))
         return found
 
     def answering(self, **answer):
@@ -3746,7 +4008,7 @@ class EveryProbeProvesItArrived(BoundaryCase):
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
                 **self.session_probes(), **self.output_probes(),
-                **self.interrogation_probes()}
+                **self.interrogation_probes(), **self.oci_probes()}
 
     def expected(self):
         """(entry, label) for every entry the LAYER or a DELEGATE owns.
@@ -3826,6 +4088,17 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
 WITNESSES = {
+    # -- W6632: the constrained OCI adapter core -----------------------------
+    ("caller", "oci.py:run_vector", "mounts"):
+        "test_a_mount_sequence_is_iterated_and_never_read",
+    ("caller", "oci.py:OciAdapter.__init__", "mounts"):
+        "test_a_mount_sequence_is_iterated_and_never_read",
+    ("caller", "oci.py:run_vector", "mounts.writable"):
+        "test_a_writable_flag_is_a_yes_or_a_no",
+    ("caller", "oci.py:stop_vector", "seconds"):
+        "test_a_stop_timeout_is_a_positive_whole_number",
+    ("caller", "oci.py:OciAdapter.observe", "document.Running"):
+        "test_an_unrecognised_running_member_is_uncertain_and_never_absent",
     # -- W6627: the operator interrogation split -----------------------------
     ("caller", "interrogation.py:probe", "session_epoch"):
         "test_a_session_epoch_counts_from_one",
@@ -4128,6 +4401,103 @@ class StatedRules(SourceMaterializerCase):
                 question="how is it going?")
         self.assertIn("an agent inquiry acknowledgement answers",
                       caught.exception.message)
+
+    # -- W6632's stated owners, exercised through the public operation ------
+
+    OCI_ROOTS = {"inputs": "/srv/a-1/inputs",
+                 "workspace": "/srv/a-1/workspace",
+                 "git": "/srv/a-1/git"}
+    # EXACTLY the frozen `runtime.labels` member set, taken from the contract
+    # rather than retyped: a fixture with an invented member would make every
+    # case here refuse for the label document's reason instead of its own.
+    OCI_LABELS = {"runtime_attempt_id": "attempt-1", "authority_uuid": UUID,
+                  "work_id": WORK, "participant": WHO, "generation": 1,
+                  "profile_digest": "sha256:" + "b" * 64,
+                  "adapter_digest": "sha256:" + "c" * 64}
+
+    def vector(self, **overrides):
+        from baton_v12.worker_manager import oci
+        operands = dict(image_digest="sha256:" + "e" * 64,
+                        labels=dict(self.OCI_LABELS),
+                        assignment_roots=dict(self.OCI_ROOTS),
+                        posture="execution", name="baton-op-1")
+        operands.update(overrides)
+        return oci.run_vector("docker", **operands)
+
+    def test_a_mount_sequence_is_iterated_and_never_read(self):
+        """The container is walked; every mount inside it is owned. Any
+        iterable of owned mounts produces the same argv, because nothing
+        indexes, measures or branches on the sequence itself."""
+        one = {"source": "/srv/a-1/workspace", "target": "/workspace",
+               "writable": True}
+        as_list = self.vector(mounts=[dict(one)])
+        as_tuple = self.vector(mounts=(dict(one),))
+        as_generator = self.vector(mounts=iter([dict(one)]))
+        self.assertEqual(as_list, as_tuple)
+        self.assertEqual(as_list, as_generator)
+        # And an element that is NOT a mount is refused as one, which is what
+        # says the ownership is on the member rather than on the container.
+        with self.assertRaises(ContractRefusal) as caught:
+            self.vector(mounts=["not a mount"])
+        self.assertIn("a runtime mount", caught.exception.message)
+
+    def test_a_writable_flag_is_a_yes_or_a_no(self):
+        """`type(value) is bool`, so a truthy substitute is refused rather
+        than read as yes -- which would silently grant write access."""
+        for spoiled in (1, "true", "yes", None, [], 0):
+            with self.subTest(writable=spoiled):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.vector(mounts=[{"source": "/srv/a-1/workspace",
+                                         "target": "/workspace",
+                                         "writable": spoiled}])
+                self.assertIn("that is a yes or a no",
+                              caught.exception.message)
+
+    def test_a_stop_timeout_is_a_positive_whole_number(self):
+        from baton_v12.worker_manager import oci
+        self.assertIn("30", oci.stop_vector("docker", runtime_id="r-1"))
+        for spoiled in (0, -1, 1.5, True, False, "30", None):
+            with self.subTest(seconds=spoiled):
+                with self.assertRaises(ContractRefusal) as caught:
+                    oci.stop_vector("docker", runtime_id="r-1",
+                                    seconds=spoiled)
+                self.assertIn("positive whole number",
+                              caught.exception.message)
+
+    def test_an_unrecognised_running_member_is_uncertain_and_never_absent(
+            self):
+        """This read CANNOT refuse, and that is the rule rather than an
+        omission: a manager that treated confusion as death would release an
+        assignment whose worker is still running."""
+        from baton_v12.worker_manager import oci
+        import json as _json
+
+        def engine_saying(state):
+            record = {"Id": "r-1", "State": state}
+            return lambda argv: {"status": 0,
+                                 "stdout": _json.dumps([record]),
+                                 "stderr": ""}
+
+        for running in (True, False, None, "yes", 1, [], {}):
+            with self.subTest(running=running):
+                adapter = oci.OciAdapter(
+                    "docker", engine_saying({"Running": running}),
+                    identity={"image_digest": "sha256:" + "e" * 64,
+                              "profile_digest": "sha256:" + "b" * 64,
+                              "adapter_digest": "sha256:" + "c" * 64},
+                    assignment_roots=dict(self.OCI_ROOTS),
+                    posture="execution")
+                seen = adapter.observe("r-1")
+                if running is True:
+                    self.assertEqual(seen["state"], "running")
+                elif running is False:
+                    # The engine SAID it is not running, which this adapter
+                    # reports as quiescence rather than as absence: the
+                    # container is still there.
+                    self.assertEqual(seen["state"], "quiescent")
+                else:
+                    self.assertEqual(seen["state"], "uncertain")
+                    self.assertNotEqual(seen["state"], "absent")
 
     def test_an_absent_observation_is_omitted_and_not_nulled(self):
         """An inquiry never observes anything, and the view says so by not

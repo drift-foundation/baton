@@ -26,7 +26,7 @@ from baton_v12.contracts import ContractRefusal
 from baton_v12.worker_manager import documents, oci
 from baton_v12.worker_manager.oci import (ENGINES, LABEL_PREFIX,
                                           MAX_DIAGNOSTIC, RESTRICTIONS,
-                                          EnginePort, OciAdapter,
+                                          ROOT_NAMES, EnginePort, OciAdapter,
                                           destroy_vector, inspect_vector,
                                           list_vector, run_vector, stop_vector)
 
@@ -375,6 +375,62 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
                     mounts=[{"source": escape, "target": "/workspace",
                              "writable": True}])
 
+    def test_the_engine_is_handed_what_this_adapter_proved(self):
+        """The other half of resolving: proving the resolved path and then
+        emitting the SPELLING would leave the engine free to resolve it again,
+        which is the same defect with an extra step."""
+        with tempfile.TemporaryDirectory() as root:
+            real = os.path.join(root, "real")
+            os.mkdir(real)
+            for name in ROOT_NAMES:
+                os.mkdir(os.path.join(real, name))
+            linked = os.path.join(root, "linked")
+            os.symlink(real, linked)
+            roots = {name: os.path.join(linked, name) for name in ROOT_NAMES}
+            tree = os.path.join(roots["workspace"], "tree")
+            os.mkdir(tree)
+            argv = run_vector(
+                "docker", image_digest=IMAGE, labels=LABELS,
+                assignment_roots=roots, posture="execution",
+                name="baton-op-1",
+                mounts=[{"source": tree, "target": "/workspace",
+                         "writable": True}])
+            rendered = argv[argv.index("--mount") + 1]
+            self.assertIn(f"source={os.path.realpath(tree)},", rendered)
+            self.assertNotIn(f"source={tree},", rendered)
+
+    def test_two_roots_that_are_the_same_place_are_refused(self):
+        """Equality is containment's degenerate case with the same defect: a
+        source under it belongs to two roots at once."""
+        same = dict(ROOTS)
+        same["workspace"] = same["inputs"]
+        with self.assertRaises(ContractRefusal) as caught:
+            run_vector("docker", image_digest=IMAGE, labels=LABELS,
+                       assignment_roots=same, posture="execution",
+                       name="baton-op-1")
+        self.assertIn("no unique posture authority", caught.exception.message)
+
+    def test_a_symlinked_root_and_a_symlinked_source_agree(self):
+        """Resolution is applied to BOTH sides or it decides nothing: a
+        resolved source compared against an unresolved root would refuse every
+        legitimate mount under a symlinked root."""
+        with tempfile.TemporaryDirectory() as root:
+            real = os.path.join(root, "real")
+            os.makedirs(os.path.join(real, "workspace", "tree"))
+            for name in ROOT_NAMES:
+                if name != "workspace":
+                    os.mkdir(os.path.join(real, name))
+            linked = os.path.join(root, "linked")
+            os.symlink(real, linked)
+            roots = {name: os.path.join(linked, name) for name in ROOT_NAMES}
+            argv = run_vector(
+                "docker", image_digest=IMAGE, labels=LABELS,
+                assignment_roots=roots, posture="execution",
+                name="baton-op-1",
+                mounts=[{"source": os.path.join(real, "workspace", "tree"),
+                         "target": "/workspace", "writable": True}])
+            self.assertIn("--mount", argv)
+
     def test_nested_mount_sources_and_targets_are_ambiguous(self):
         """No mount may hide or alias a second mount by containment."""
         cases = [
@@ -410,11 +466,109 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
 
 class Adapting(unittest.TestCase):
 
-    def adapter(self, *answers, engine="docker"):
+    # ONE RESOLVED IDENTITY, and it AGREES with `LABELS` — because that is
+    # the contract now: what a delivery is started under and what its runtime
+    # is labelled with are one account, and a fixture whose two halves
+    # disagreed would make every case here refuse for the mismatch.
+    IDENTITY = {"image_digest": IMAGE,
+                "profile_digest": LABELS["profile_digest"],
+                "adapter_digest": LABELS["adapter_digest"]}
+
+    def adapter(self, *answers, engine="docker", identity=None):
         self.engine = Engine(answers)
-        return OciAdapter(engine, self.engine, image_digest=IMAGE,
+        # The identity is passed THROUGH rather than copied, so a case may
+        # hand this door something that is not a document at all -- which is
+        # one of the things the door has to refuse.
+        return OciAdapter(engine, self.engine,
+                          identity=self.IDENTITY if identity is None
+                          else identity,
                           assignment_roots=ROOTS,
                           posture="execution")
+
+
+class OneDeliveryCarriesOneResolvedIdentity(Adapting):
+    """Review: the adapter held an image digest and `start` took labels
+    independently, so what was STARTED and what the runtime was LABELLED with
+    were two accounts nothing compared — and reconciliation after a restart
+    reads the labels and reasons about the image from them.
+
+    One record owned at construction is what makes them one account.
+    """
+
+    def test_the_started_image_comes_from_the_resolved_identity(self):
+        adapter = self.adapter(answer(stdout=""), answer(stdout="runtime-1\n"))
+        adapter.start({"labels": dict(LABELS),
+                       "operation_id": "runtime.start:1"})
+        started = self.engine.vectors[-1]
+        self.assertIn(IMAGE, started)
+        # And the labels the engine was told to write are the same digests.
+        rendered = " ".join(started)
+        self.assertIn(f"{LABEL_PREFIX}profile_digest="
+                      f"{LABELS['profile_digest']}", rendered)
+        self.assertIn(f"{LABEL_PREFIX}adapter_digest="
+                      f"{LABELS['adapter_digest']}", rendered)
+
+    def test_labels_that_disagree_with_the_identity_are_refused(self):
+        """The mismatch probe. A runtime labelled with a profile or adapter
+        digest other than the one it is started under is a runtime
+        reconciliation would describe wrongly for the rest of its life."""
+        for name in ("profile_digest", "adapter_digest"):
+            with self.subTest(member=name):
+                adapter = self.adapter(answer(stdout=""))
+                with self.assertRaises(ContractRefusal) as caught:
+                    adapter.start({
+                        "labels": dict(LABELS, **{name: "sha256:" + "9" * 64}),
+                        "operation_id": "runtime.start:1"})
+                self.assertEqual(
+                    (caught.exception.category, caught.exception.code),
+                    ("policy", "denied"))
+                self.assertIn("one delivery carries one identity",
+                              caught.exception.message)
+
+    def test_nothing_is_started_when_the_identity_disagrees(self):
+        """Refused BEFORE the engine is asked to run anything: a start that
+        had already created a container and then refused would leave exactly
+        the state no later reconciliation can undo."""
+        adapter = self.adapter(answer(stdout=""))
+        with self.assertRaises(ContractRefusal):
+            adapter.start({"labels": dict(LABELS,
+                                          profile_digest="sha256:" + "9" * 64),
+                           "operation_id": "runtime.start:1"})
+        self.assertTrue(all("run" not in vector
+                            for vector in self.engine.vectors),
+                        self.engine.vectors)
+
+    def test_a_restart_finds_the_runtime_by_the_identity_it_started_under(
+            self):
+        """The restart probe. A new adapter over the same resolved identity
+        lists by the same labels and recognises what the first one started —
+        which is what makes the labels a description of the image rather than
+        an independent claim beside it."""
+        first = self.adapter(answer(stdout=""), answer(stdout="runtime-1\n"))
+        started = first.start({"labels": dict(LABELS),
+                               "operation_id": "runtime.start:1"})
+        listing = json.dumps({
+            "ID": "runtime-1",
+            "Labels": ",".join(f"{LABEL_PREFIX}{name}={LABELS[name]}"
+                               for name in documents.RUNTIME_LABELS)})
+        again = self.adapter(answer(stdout=listing))
+        found = again.list({"labels": dict(LABELS)})
+        self.assertEqual([entry["runtime_id"] for entry in found],
+                         [started["runtime_id"]])
+        self.assertEqual(found[0]["labels"]["profile_digest"],
+                         again.identity["profile_digest"])
+        self.assertEqual(found[0]["labels"]["adapter_digest"],
+                         again.identity["adapter_digest"])
+
+    def test_a_resolved_identity_is_three_digests_and_nothing_else(self):
+        for spoiled in ({"image_digest": IMAGE},
+                        dict(Adapting.IDENTITY, extra="x"),
+                        dict(Adapting.IDENTITY, image_digest="latest"),
+                        dict(Adapting.IDENTITY, profile_digest=""),
+                        "not a document"):
+            with self.subTest(identity=spoiled):
+                with self.assertRaises(ContractRefusal):
+                    self.adapter(identity=spoiled)
 
 
 class TheEngineReportsFactsAndDecidesNothing(Adapting):

@@ -79,9 +79,9 @@ Ruled by Slawomir, relayed by the reviewer (`decision`, outcome
 part of this finding, and not before the protocol-7 review lands.
 
 Most old messages never need porting. Once communications are live, actors
-identify and re-send the small subset that still matters, and the retired
-mailbox stays intact for inspection. **Archival completeness must not become a
-new dependency of the live channel.**
+identify and re-send the small subset that still matters. At this cutover the
+retired mailbox stayed intact for inspection. **Archival completeness must not
+become a new dependency of the live channel.**
 
 If someone ever demonstrates an actual need, it gets its own
 `work/finding-.../` folder at that point. Until then there is nothing here to
@@ -89,33 +89,32 @@ build, schedule, or track, and this section exists only to say so — an earlier
 draft listed design questions for a port, which read like an agenda and has
 been removed for that reason.
 
-The standing answer to "can we get the old messages back" is: the retired
-mailbox is intact and readable, so yes — later, offline, if it turns out to
-matter.
+**Superseded 2026-08-25:** the protocol 6, 7, and 8 mailbox archives were
+approved for deletion after v11 replaced every fallback consumer. Their old
+messages will no longer be recoverable. No port was requested or needed.
 
 ## This deployment, for the record
 
-- Retired intact:
-  `/home/sl/src/mailbox-retired-protocol6-20260807T1249Z`
+- Retired intact at the time; deletion approved on 2026-08-25
   (uuid `0231b16a81ef2522d630e8d1a81d8c97`, protocol 6, generation 2,
   59 messages, 273 transitions, `quick_check: ok` — verified read-only).
 - Fresh protocol-7 instance at the canonical path, uuid
   `1063b97dbba0ed1382ae386bb9f9240f`, `doctor ok: true`.
 - No port performed. Nobody has needed one.
-- The protocol-6 executable
-  (`cf2de45ef5963daec6a63806fbfacf0638e4d450e8c5fa08b081d596018977c9`) is the
-  only thing that can read the retired authority and must be preserved.
+- At the time, the protocol-6 executable
+  (`cf2de45ef5963daec6a63806fbfacf0638e4d450e8c5fa08b081d596018977c9`) was the
+  only thing that could read the retired authority.
 
 ## Cutover record
 
 The contract has now been exercised twice in one day, both times without an
 in-place migration and both times with the retired instance preserved whole.
 
-| Retired | Preserved at | Live now |
+| Retired | Initial disposition | Live then |
 |---|---|---|
-| protocol 6 | `mailbox-retired-protocol6-20260807T1249Z` | — |
-| protocol 7 | `mailbox-protocol7-retired-20260807` | — |
-| protocol 8 | `mailbox-protocol8-retired-20260807T234737Z` | protocol 9 |
+| protocol 6 | archived intact; deletion approved 2026-08-25 | — |
+| protocol 7 | archived intact; deletion approved 2026-08-25 | — |
+| protocol 8 | archived intact; deletion approved 2026-08-25 | protocol 9 |
 
 What made the last cutover cheap, and is worth repeating:
 

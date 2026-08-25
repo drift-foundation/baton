@@ -182,3 +182,17 @@ values, not merely precede the successful return.
 
 One additive regression records the leak. Full analysis is in
 `review-2026-08-25T10-49-54Z.md`.
+
+## Independent fifth-review finding — 2026-08-25
+
+**Observed, P1.** The fourth correction fixes its four exact-data doors, but
+`certify_agent_session_profile` and `record_inquiry_answer` both run
+`boundaries.document` before §13. A malformed top-level operand equal to the
+live bearer is therefore quoted by the ownership/type diagnostic and returned
+as `integrity.schema`; the later walk is never reached.
+
+One additive two-door regression observes `('schema', True)` — schema code and
+the complete bearer present in the message — at both surfaces. The Python walk
+is safe on the raw operand because it traverses only exact built-ins and ignores
+behaviour-bearing types. Full analysis is in
+`review-2026-08-25T13-19-17Z.md`.

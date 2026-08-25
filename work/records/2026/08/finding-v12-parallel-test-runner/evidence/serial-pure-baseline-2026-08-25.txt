@@ -1,0 +1,47 @@
+W9707 serial pure-test baseline — 2026-08-25
+
+Host
+  AMD Ryzen 9 9950X3D
+  16 physical cores, 2 threads/core, 32 online logical CPUs
+  os.process_cpu_count() = 32
+  len(os.sched_getaffinity(0)) = 32
+
+Scope
+  Every current v12/python authority test module (8).
+  Every current v12/python manager test module except
+  tests.manager.test_worker_container (20).
+  Docker, packaging and the installed-layout replay were deliberately omitted:
+  this measurement is the candidate parallel phase, not the complete gate.
+
+Command shape
+  cd v12/python
+  env PYTHONPATH=src /usr/bin/time -f \
+    '[serial-pure] elapsed=%e user=%U system=%S cpu=%P maxrss=%MKB' \
+    python3 -m unittest <the 28 explicit module names>
+
+Result
+  Ran 1070 tests in 423.370s
+  FAILED (failures=12, skipped=1)
+  elapsed=423.54s
+  user=422.65s
+  system=1.38s
+  aggregate CPU=100%
+  maximum RSS=186824 KiB
+
+Interpretation
+  The failures are the current in-flight v12 campaign baseline, not introduced
+  by this read-only benchmark: boundary-inventory ownership/probe gaps,
+  one declared-operand gap, and four OCI mount-boundary regressions. The run
+  also emitted existing ResourceWarnings for unclosed SQLite connections in
+  boundary-inventory refusal probes.
+
+  The wall and user times are effectively equal, proving the current runner
+  uses one CPU. Progress showed the structural boundary inventory dominating
+  the wall clock. A module-only partition would therefore leave one long pole;
+  the implementation plan uses class-level process shards generally and
+  individual test-method shards for the two aggregate boundary probe classes.
+
+  This is a comparison baseline, not satisfying verification. Final evidence
+  must repeat jobs=1 and default jobs on the same reviewed tree, preserve the
+  exact collected test-id and failure sets, run the mandatory serial and
+  installed-layout phases, and include Docker cleanup.

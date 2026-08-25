@@ -264,3 +264,38 @@ mentions `secret-leak` and none touches an adopted row.
 
 **Awaiting independent re-review.** The claim is not released and no Git
 operation was performed.
+
+## Fourth review correction — 2026-08-25
+
+The centralized walk was right and its ORDER was wrong. `boundaries.row`
+walked last, after every column rule, and several of those rules name the
+value they reject — so a live bearer in a malformed typed column was quoted
+into a public schema diagnostic before the walk could answer with the bounded
+refusal. The row never left; the validator quoted its secret into the refusal
+that did.
+
+The walk is the first content check after the copy now, which is safe because
+the copy is already exact built-in data. And because the shape is not specific
+to that function, the same ordering is applied at every public door whose
+input has already been made exact: both profile paths and the public revival
+door. `check_manifest_structure` is deliberately left alone — its input is a
+raw caller document, so the schema must establish the shape before anything
+traverses it, and that distinction is now recorded rather than left to be
+re-derived.
+
+Two cases: all four doors must answer `secret-leak` with no bearer in the
+message, and — the other half — the ordinary schema refusal must survive when
+nothing is held, because a correction that turned every malformed document
+into `secret-leak` would be a different defect with a green gate.
+
+## Verification
+
+`evidence/gate-after-fourth-correction-2026-08-25.txt`. `test_secrets` 60/60.
+Full suite 1102, and the locked installed-layout build against a verified idle
+engine reports the same 13. Nothing added; the review's one removed. The
+single remaining non-baseline failure is W6633's, in review.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.

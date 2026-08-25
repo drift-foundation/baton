@@ -311,3 +311,19 @@ green and kept as written.
 
     The cases iterate `SECRET_MEMBERS` itself rather than a retyped list, so a
     name outside the frozen set is not quietly treated as a secret.
+
+## Fifth re-review correction — 2026-08-25
+
+Status: **changes requested** in
+`review-2026-08-25T13-11-30Z.md`.
+
+21. [next] Move adapter capability validation inside the fresh journal action,
+    so exact replay consults no current adapter state. Preserve the fresh
+    invalid-adapter schema refusal and prove that it leaves no interrogation or
+    durable operation record.
+22. [next] Extend the aggregate mutable-input regression to count adapter
+    capability inspection as well as clock and authority reads; keep the
+    additive restart-style replay regression.
+23. [next] Rerun focused, boundary, section-13, source and locked
+    installed-layout gates; record the exact delta and return for independent
+    certification.

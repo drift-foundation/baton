@@ -1,0 +1,73 @@
+W6630 — the v12 Python gate after the FOURTH review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    # Ran 60 tests -- OK
+    # 58 before, plus two of mine generalizing the finding.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1102 tests -- FAILED (failures=13, skipped=1)
+
+    cd v12/python && just build          (against a verified idle engine)
+    # Ran 1102 tests -- FAILED (failures=13)
+
+THE DELTA AGAINST `gate-after-third-correction-2026-08-25.txt`
+
+  ADDED BY THIS CORRECTION ....................... 0
+  REMOVED BY THIS CORRECTION ..................... 1  (the review's own)
+      test_the_secret_walk_precedes_column_diagnostics_that_quote_values
+  W6627's two interrogation cases were fixed under that Work's own claim.
+
+  Twelve remain pre-existing: `test_oci` 4, `test_boundary_inventory` 7,
+  `test_dependencies` 1.
+
+STILL OPEN AND NOT THIS WORK'S
+
+  tests.manager.test_worker_container ....... 1   -- W6633, in review
+      test_two_independent_builds_have_one_pinnable_image_identity
+
+THE FINDING, AND WHY IT WAS FIXED IN FOUR PLACES
+
+  `boundaries.row` copied the row, checked the member set, applied every
+  column rule, and walked LAST -- and several column refusals name the value
+  they reject. So a live bearer in a malformed typed column was interpolated
+  into a public `integrity.schema` diagnostic before the walk could answer
+  with the bounded `integrity.secret-leak` instead. The row never left; the
+  validator quoted its secret into the refusal that did.
+
+  The walk is the FIRST content check after the copy now. Safe that early
+  because the copy is already exact built-in data -- SQLite returns `str`,
+  `int`, `float`, `bytes` or `None` -- so the walk traverses plain values and
+  runs nothing.
+
+  THE SHAPE IS NOT SPECIFIC TO THAT FUNCTION, and this Work has been corrected
+  three times for fixing only what a finding named. Any validator that quotes
+  the value it rejects leaks it if it runs before the walk, so the same
+  ordering is applied at every public door whose input is ALREADY exact data:
+
+    boundaries.row ................................. the finding
+    certified_agent_session_profile ................ walk before the schema
+                                                     and the digest compare
+    certify_agent_session_profile .................. walk before the schema
+                                                     and the seal
+    revive_refusal ................................. walk before `sealed`
+
+  DELIBERATELY NOT MOVED: `contracts.check_manifest_structure`. Its input is a
+  raw caller document rather than adopted data, so the schema genuinely must
+  establish the shape first -- traversing an un-adopted mapping is how a value
+  with behaviour gets to run inside a walk. Its existing reason already says
+  so and is unchanged. The distinction between the two groups is exactly
+  whether the input has been made exact built-in data yet.
+
+THE REGRESSIONS
+
+  test_no_public_door_quotes_a_live_bearer_before_it_walks drives all four
+  doors with a spoiled operand carrying the live bearer, and requires each to
+  answer `secret-leak` with a message that does NOT contain it.
+
+  test_the_shape_still_decides_when_nothing_is_held is the other half: the
+  ordering refuses a LEAK earlier, it does not swallow the structural fault.
+  With no secret live, each door still answers with the schema refusal it
+  always did — a correction that turned every malformed document into
+  `secret-leak` would be a different defect with a green gate.
+
+  The reviewer's case and all five third-correction regressions are kept.

@@ -86,3 +86,33 @@ Status: **changes requested; positive-root implementation is partial**.
 6. [still required] Add isolated Docker positive-cleanup and compatible Podman
    coverage; append actual state to `PROGRESS.md` and run all specified gates.
    Review: `review-2026-08-25T03-01-06Z.md`.
+
+## Assignment-root re-review correction — 2026-08-25
+
+All six required corrections from `review-2026-08-25T03-01-06Z.md` are done.
+
+1. [done] Canonical filesystem identity before containment. `_canonical`
+   resolves a host path as the kernel would; both roots and mount sources go
+   through it, and the RESOLVED source is what reaches argv.
+2. [done] Pairwise equal/nested assignment roots refused, and pairwise
+   equal/nested mount sources and targets refused. All four of the reviewer's
+   assertions are green, plus three of mine covering resolution on both sides
+   and the degenerate equal-roots case.
+3. [done] One closed `RESOLVED_IDENTITY` — image, profile and adapter digests
+   — owned at construction, naming the argv's image and required to agree with
+   the reconciliation labels. Mismatch, no-side-effect and restart probes
+   added.
+4. [done] Every OCI receiving entry owned and probed: twenty owners (fifteen
+   delegated, five stated with witnesses) and twenty-nine probes. Measured
+   rather than asserted — the probe gate reports zero `oci.py` mentions and the
+   ownership gate's unowned list contains none. `assignment_roots` is a
+   declared operand; `identity` deliberately is not, because this gate reads
+   public FUNCTIONS and it is a constructor operand.
+5. [done] `tests/manager/test_oci_engine.py`: the real-engine cycle for Docker
+   and Podman, skipped per engine when the binary or daemon is absent, with a
+   case requiring the covered engines and `ENGINES` to be the same list.
+6. [done] `PROGRESS.md` and
+   `evidence/gate-after-correction-2026-08-25.txt`.
+
+The pre-existing twelve this campaign has carried are now seven, and the five
+that went are this Work's. Nothing was added.

@@ -346,6 +346,35 @@ class TheJournalIsADurableSurface(SecretCase):
 
 class ProtocolIdentityAndPortableRefusalsArePublicSurfaces(SecretCase):
 
+    def test_a_malformed_public_document_cannot_quote_the_live_bearer_it_is_made_of(
+            self):
+        """An ownership/type diagnostic is itself a public surface.
+
+        `check_no_durable_secret` only traverses exact built-ins, so it is safe
+        on a raw caller operand. Waiting until `boundaries.document` has
+        accepted a dict lets that boundary quote an exact string bearer while
+        refusing the malformed top-level shape. Both public doors below put
+        their §13 walk after that same boundary.
+        """
+        doors = {
+            "certify_agent_session_profile":
+                lambda: worker_manager.certify_agent_session_profile(
+                    self.store, BEARER),
+            "record_inquiry_answer":
+                lambda: worker_manager.record_inquiry_answer(
+                    self.store, operation_id="inquiry-malformed",
+                    answer=BEARER),
+        }
+        with held_secret(BEARER):
+            for name, door in doors.items():
+                with self.subTest(door=name):
+                    with self.assertRaises(ContractRefusal) as caught:
+                        door()
+                    self.assertEqual(
+                        (caught.exception.code,
+                         BEARER in caught.exception.message),
+                        ("secret-leak", False))
+
     def test_a_live_bearer_never_becomes_a_manager_signature(self):
         """The journal guard is too late for protocol identity: the exported
         signature builder must not first serialize the bearer and hand that
@@ -527,6 +556,66 @@ class EveryAdoptedRowIsWalkedOnTheWayOut(SecretCase):
             "SELECT * FROM offers WHERE offer_id = 'offer-14'").fetchone()
         self.assertNotIn(BEARER, json.dumps(
             {key: row[key] for key in row.keys()}))
+
+    def test_no_public_door_quotes_a_live_bearer_before_it_walks(self):
+        """Fourth review [P1], generalized to every door that QUOTES.
+
+        The finding was about `boundaries.row`, and the shape is not specific
+        to it: a validator that names the value it rejects will interpolate a
+        secret into a public diagnostic if it runs before the walk. Each door
+        below is given a spoiled operand carrying the live bearer, and each
+        must answer `secret-leak` with a message that does not contain it.
+        """
+        signature = manager_signature("probe.kind", {})
+        self.store.transact("op-order", "probe.kind", signature,
+                            lambda connection: {"body": "ordinary"})
+        self.edited("UPDATE operations SET settled_at = ? "
+                    "WHERE operation_id = ?", BEARER, "op-order")
+        profile = _profile_carrying(BEARER)
+        self.edited(
+            "INSERT INTO profiles (kind, name, digest, body, certified_at, "
+            "withdrawn_at) VALUES ('agent-session', ?, ?, ?, ?, NULL)",
+            profile["profile_id"], profile["document_digest"],
+            json.dumps(dict(profile, session_capabilities="not a list")), NOW)
+        doors = {
+            "operation_record":
+                lambda: self.store.operation_record("op-order"),
+            "certified_agent_session_profile":
+                lambda: worker_manager.certified_agent_session_profile(
+                    self.store, profile["document_digest"]),
+            "revive_refusal":
+                lambda: worker_manager.revive_refusal(json.dumps({
+                    "category": "not-a-category", "code": "retention",
+                    "message": f"held because of {BEARER}", "durable": True})),
+            "certify_agent_session_profile":
+                lambda: worker_manager.certify_agent_session_profile(
+                    self.store,
+                    dict(_profile_carrying(BEARER),
+                         session_capabilities="not a list")),
+        }
+        with held_secret(BEARER):
+            for name, door in doors.items():
+                with self.subTest(door=name):
+                    with self.assertRaises(ContractRefusal) as caught:
+                        door()
+                    self.assertEqual(caught.exception.code, "secret-leak",
+                                     caught.exception.message)
+                    self.assertNotIn(BEARER, caught.exception.message)
+
+    def test_the_shape_still_decides_when_nothing_is_held(self):
+        """The ordering refuses a LEAK earlier; it does not swallow the
+        structural fault. With no secret live, each door still answers with
+        the schema refusal it always did."""
+        profile = dict(_profile_carrying("ordinary"),
+                       session_capabilities="not a list")
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.certify_agent_session_profile(self.store, profile)
+        self.assertNotEqual(caught.exception.code, "secret-leak")
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.revive_refusal(json.dumps({
+                "category": "not-a-category", "code": "retention",
+                "message": "ordinary", "durable": True}))
+        self.assertNotEqual(caught.exception.code, "secret-leak")
 
     def test_the_walk_is_reached_by_the_row_boundary_and_not_by_a_reader(self):
         """The anti-circularity half: the guard is at the ONE crossing, so a

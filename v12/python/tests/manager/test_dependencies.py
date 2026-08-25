@@ -450,6 +450,18 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # And the whole answer document a model's turn produced; `body` is its
         # bounded prose, and the envelope around it is what gets journalled.
         "answer",
+        # W6632's constrained OCI core. `assignment_roots` is the record of
+        # what THIS assignment owns, and it is an operand rather than internal
+        # state for the reason the ruling gives: roots alone cannot choose the
+        # posture-specific topology, so the caller supplies both and the
+        # adapter proves them.
+        #
+        # `identity` is deliberately ABSENT: the resolved image/profile/adapter
+        # record is a constructor operand of `OciAdapter`, and this gate reads
+        # the module's public FUNCTIONS. Declaring a name no public function
+        # takes would be a permission nobody asked for, which the stale half of
+        # this check refuses in the other direction.
+        "assignment_roots",
     }
 
     # Names that are BOOKKEEPING whatever they are attached to. This is the

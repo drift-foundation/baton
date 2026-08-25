@@ -315,3 +315,15 @@ durable-writer inventory's ownership-only exemption is false.
 
 Two additive regressions and the correction boundaries are in
 `review-2026-08-25T11-30-14Z.md`.
+
+## Independent fifth-review observation — 2026-08-25
+
+**Observed, P1:** `_ask` still validates both adapter capabilities before the
+journal decides replay. The adapter is mutable, is not a signed operand and is
+not called on replay; an exact retry with an unavailable/replaced adapter is
+nevertheless refused before its durable answer can be returned. The new
+“nothing mutable” regression counts clock and authority only and therefore
+does not prove its own stated property.
+
+The additive restart-style regression and correction boundary are in
+`review-2026-08-25T13-11-30Z.md`.
