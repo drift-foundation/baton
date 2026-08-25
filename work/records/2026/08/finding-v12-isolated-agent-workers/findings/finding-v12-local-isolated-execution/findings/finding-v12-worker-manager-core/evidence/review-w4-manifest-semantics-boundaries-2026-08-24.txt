@@ -1,0 +1,99 @@
+W4 §12 manifest-semantics independent review evidence — 2026-08-24
+
+Scope
+-----
+Reviewed PLAN 4cv, `contracts/manifest.py`, the expanded canonical-vector suite,
+the frozen Node URI/content/manifest rules, and the declared dependency
+allowlist widening.
+
+Accepted
+--------
+* `check_manifest_structure` validates schema first, verifies digest identity,
+  then applies semantic relationships over one owned document.
+* Work authority prefixes, recursive artifact/content discovery, bytewise
+  sorted-unique paths, declared entry count/bytes/tree digest, input-wide unique
+  names, destination overlap and versioned-source object namespace are present.
+* The published conformance vector is the positive baseline and negative cases
+  reseal after changing one property, so digest identity does not make them
+  vacuous.
+* Relative manifest paths and positive assignment generation are already owned
+  by the frozen schema. Deleting duplicate semantic checks is sound because
+  explicit cases pin both schema guarantees.
+* Adding the standard-library `urllib` package to the import allowlist is sound
+  in principle and adds no runtime distribution. Its current use is incomplete,
+  as described below.
+* The composite is honestly named as structure checking rather than the whole
+  trust entry while §13's live-secret registry remains absent.
+
+P1 — the URI splitter is not the frozen URI validator
+----------------------------------------------------
+The frozen host constructs `new URL(uri)` and then refuses nonempty username or
+password. Python `check_uri` calls `urlsplit(uri)` and discards the result.
+`urlsplit` is deliberately permissive: it accepts malformed hierarchical URI
+authorities that the frozen constructor rejects, and discarding its result also
+omits the explicit userinfo/credential check.
+
+Measured comparison:
+
+* `https://exa mple.test/tree`: Python `urlsplit` accepts; frozen `new URL`
+  raises TypeError.
+* `https://example.test:bad/tree`: Python `urlsplit` accepts; frozen `new URL`
+  raises TypeError.
+* `https://worker:secret@example.test/tree`: Python `check_uri` accepts even
+  though §12 rule 4 and the frozen host refuse durable userinfo.
+
+Retain:
+
+* `test_a_durable_locator_carries_no_userinfo`
+* `test_a_splitter_accepting_text_does_not_make_it_a_readable_uri`
+
+The correction must keep the original-text query/fragment checks, reject
+userinfo, and close the authority/port syntax that `urlsplit` merely separates
+without validating. Calling a permissive splitter is not proof that the build
+can safely consume the locator.
+
+P1 — two exported semantic helpers read unowned caller containers
+-----------------------------------------------------------------
+`check_work_ref` and `check_content_manifest` are imported by
+`baton_v12.contracts` and named in its `__all__`; the package docstring says that
+exported surface is the promise. Both immediately index their operands under the
+assumption that `check_manifest_structure` already performed schema validation.
+Direct callers therefore receive raw TypeError/KeyError on malformed values,
+and a dict subclass's hostile `__getitem__` executes.
+
+Retain:
+
+* `test_the_exported_work_reference_rule_owns_its_shape_first`
+* `test_the_exported_content_rule_owns_its_shape_first`
+
+Give each public function a schema-owning wrapper and keep a private trusted
+semantic helper for the already-owned composite path. This preserves one owner
+at each crossing without validating nested values twice. If the helpers are not
+intended as public operations, shrinking the explicitly published surface needs
+a separate ruling rather than leaving unsafe functions under `__all__`.
+
+Verification
+------------
+Focused reviewer regressions:
+
+    env PYTHONPATH=src python3 -m unittest -v \
+      tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers
+
+Result: 4 methods; 5 failure reports and 8 raw errors. The failures are accepted
+credential/malformed URIs and hostile dict execution; the errors are raw
+TypeError/KeyError from missing or wrongly typed helper operands.
+
+Full source:
+
+    env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+
+Result: 571 methods in 67.333s; 5 failures, 8 errors and one retained
+ambient-version skip. Every one of the 567 delivered methods passes; all red
+results are the four additive reviewer methods. The locked build was not
+attempted while source is red.
+
+Verdict
+-------
+Changes requested. Retain the semantic implementation and four regressions;
+correct the URI and exported-caller boundaries before §13 or retention begins.
+

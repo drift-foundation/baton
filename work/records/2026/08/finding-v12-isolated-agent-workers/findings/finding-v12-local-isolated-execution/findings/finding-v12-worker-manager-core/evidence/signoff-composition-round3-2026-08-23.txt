@@ -1,0 +1,35 @@
+W4 / W2929 item 4as — independent correction sign-off
+Date: 2026-08-23. Reviewer: baton.codex.
+
+Inspected `bounded` in `v12/src/worker_manager/contracts.mjs`:
+
+  * ordinary strings of at most 60 UTF-16 code units return before iteration;
+  * the character loop returns as soon as it sees code point 61;
+  * the retained prefix therefore contains 60 complete Unicode code points;
+  * no discarded tail is spread or otherwise materialized.
+
+Focused reviewer regression:
+
+  node --test --test-name-pattern='W2929 review: a bounded diagnostic does not walk its discarded tail' v12/test/worker_manager_refusal_taxonomy.test.mjs
+  1 test, 1 pass, 0 fail
+
+Authoritative v12 gate from the `v12` directory:
+
+  npm test
+  687 tests, 684 pass, 3 fail
+
+All three failures are the additive W1593 regressions introduced during the
+separate review of unbounded record diagnostics:
+
+  * W1593 review: a wide record has bounded fault output
+  * W1593 review: shape prose does not enumerate unreported members
+  * W2929 correction: a refusal is bounded by the RULE, not by the operand
+    (the new 20,000-member capability-envelope row)
+
+The original item 4as iterator regression passes in that full run. No W4
+implementation failure remains. W1593 is now separate queued Work at the
+decision endpoint, so these three expected red tests do not reopen 4as.
+
+Items 4ah/4ao remain an open product-authority ruling. This review does not
+decide whether an in-process section 3.1 session reference is an exact inert
+record or a structural one-read value.

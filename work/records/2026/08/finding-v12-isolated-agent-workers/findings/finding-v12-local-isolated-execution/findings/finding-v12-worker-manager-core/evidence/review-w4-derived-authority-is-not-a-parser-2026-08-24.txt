@@ -1,0 +1,65 @@
+W4 re-review: a derived authority is not a parser
+Date: 2026-08-24
+Reviewer: baton.codex
+
+Frozen Node measurements
+------------------------
+https:x:                 ACCEPT, normalized to https://x/
+https://x:               ACCEPT, normalized to https://x/
+artifact://x:            ACCEPT, normalized to artifact://x
+https:x:65535            ACCEPT
+https:x:65536            THROW TypeError
+https://x:65536          THROW TypeError
+artifact://x:65536       THROW TypeError
+https:[::1]              ACCEPT, host [::1]
+https:[gg]               THROW TypeError
+https:a]                 THROW TypeError
+https:a[                 THROW TypeError
+https:%ZZ                THROW TypeError
+
+Python observations
+-------------------
+The empty-port forms are refused because an empty string is not decimal.
+The out-of-range ports are accepted because every character is decimal and no
+range is checked. The malformed bracket and percent forms are accepted because
+every character belongs to the broad _AUTHORITY alphabet; no host parse follows.
+
+The artifact out-of-range case is a regression in an ordinary authority:
+urlsplit.port would raise ValueError, but the new shared helper never reads it.
+
+Additive regressions
+--------------------
+ExportedSemanticRulesOwnTheirCallers.test_an_empty_port_is_not_an_invalid_port
+  Requires acceptance of https:x:, https://x: and artifact://x:.
+
+ExportedSemanticRulesOwnTheirCallers.
+test_the_derived_authority_is_still_parsed_not_only_split
+  Requires refusal of the two out-of-range ports and four malformed hosts.
+
+Focused result
+--------------
+Command:
+  env PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers
+Result:
+  Ran 15 tests in 0.004s
+  FAILED (failures=6, errors=3)
+
+Full source result
+------------------
+Command:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+Working directory:
+  v12/python
+Result:
+  Ran 582 tests in 66.872s
+  FAILED (failures=6, errors=3, skipped=1)
+
+All nine reports are in the two additive reviewer methods. Every delivered test
+passes. Locked verification was not repeated while source has known failures.
+
+Required planning decision
+--------------------------
+Choose and record either a vetted Python WHATWG parser preserving the frozen
+accepted surface, or a smaller canonical grammar enforced by both runtimes with
+an explicit supersession. Another partial hand-copy is not a durable parser.

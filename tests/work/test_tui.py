@@ -273,12 +273,12 @@ def test_a_narrow_terminal_omits_whole_columns_never_identities(world):
 
 
 def test_links_are_on_demand_and_escape_returns(world):
-	"""Blocking/dependent neighbors on demand (ruled): `b` on the selected
+	"""Blocking/dependent neighbors on demand (ruled): `d` on the selected
 	row shows the far-row facts from the links projection; escape returns
 	to the same table."""
 	path, cast = world
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"b", 0.5),                  # links of the selected epic
+		(b"d", 0.5),                  # links of the selected epic
 		(b"\x1b", 0.5),               # back to the table
 		(b"qy", 0.4),
 	])
@@ -286,7 +286,7 @@ def test_links_are_on_demand_and_escape_returns(world):
 	joined = "\n".join(screen)
 	# W4996 replaced the flat `blocked-by`/`blocks` list with the
 	# dependency NEIGHBOURHOOD graph. The property this case has always
-	# held is unchanged — `b` draws the far rows from the canonical
+	# held is unchanged — `d` draws the far rows from the canonical
 	# dependency projection — and it is now spelled with the ruled
 	# selector and an explicit direction on every edge.
 	for far in (cast["pushcoin"], cast["web"], cast["mdb"]):
@@ -477,8 +477,10 @@ def test_declared_transitions_stay_in_json_and_off_the_reading_surface(
 		                      viewer_member="ada")["available_transitions"]
 	assert available, "the canonical projection stopped declaring authority"
 	assert "prioritize" in available
+	# W6814: the epic has children, so Enter roots at it and `]` opens
+	# its own Messages tab — the reading surface this case inspects.
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"\r", 0.5), (b"qy", 0.4)])
+		(b"\r]", 0.5), (b"qy", 0.4)])
 	screen = "\n".join(ptyharness.replay(steps[0]))
 	assert "can:" not in screen, \
 		f"the reading surface still renders Work capabilities: {screen[:500]}"
@@ -559,7 +561,7 @@ def test_links_drill_through_to_the_far_work(world):
 	"""
 	path, cast = world
 	text, status, steps = ptyharness.drive(path, "lang.ada", [
-		(b"b", 0.5),                  # the neighbourhood of the selected epic
+		(b"d", 0.5),                  # the neighbourhood of the selected epic
 		(b"j", 0.4),                  # select the first dependent edge
 		(b"\r", 0.5),                 # recenter on it
 		(b"qy", 0.4),

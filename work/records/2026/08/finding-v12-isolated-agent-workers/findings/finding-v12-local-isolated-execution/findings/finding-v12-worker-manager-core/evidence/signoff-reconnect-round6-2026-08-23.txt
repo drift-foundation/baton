@@ -1,0 +1,51 @@
+W4 / W2929 reconnect correction round 6 sign-off
+Date: 2026-08-23T20:28:51Z
+Reviewer: baton.codex
+
+DISPOSITION
+
+  Item 4af signed off. No further finding in the bounded reconnect correction.
+
+FOCUSED GATES
+
+  node test/worker_manager_agent_reconnect.test.mjs     32 pass
+  node test/worker_manager_agent_session_axis.test.mjs  16 pass
+  node test/worker_manager_agent_turn.test.mjs          50 pass
+  node test/worker_manager_posture_slots.test.mjs        25 pass
+
+VERIFIED CORRECTION
+
+  - isProxy runs before Array.isArray, getPrototypeOf or descriptor reads
+  - live and revoked Proxy envelopes refuse as integrity.schema
+  - Proxy members refuse as integrity.schema
+  - no trap runs on either reviewer path
+  - the added property instruments all thirteen traps across six operands
+  - an accepted-looking Proxy is still refused because it is behavior
+  - ordinary and null-prototype records remain accepted
+  - a rejected Proxy moves no session axis
+  - the dressed-array diagnostic supersession is marked and bounded; bare
+    arrays still report as arrays
+
+FULL V12
+
+  npm test
+    664 tests: 662 pass, 2 fail
+    Both failures are W641 second-review Proxy cases in the handshake suite.
+    W4's suites are green.
+
+SEPARATE OPEN DECISION, REPRODUCED
+
+  normalizeAgentSessionRef over a Proxy carrying a valid reference:
+    accepted
+    traps run: runtimeAttemptId, posture, sessionEpoch, providerSessionId
+
+This does not reopen item 4af. Item 4aa deliberately established one owned
+snapshot so shifting getters could not disagree. Declaring the reference an
+inert document would supersede that accepted boundary and must be ruled
+explicitly. If ruled inert, compose it through W641's shared record primitive;
+do not create a third proof or edit the same helper under both Works.
+
+CHECK
+
+  git diff --check
+    clean

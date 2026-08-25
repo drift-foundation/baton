@@ -1,0 +1,208 @@
+W2845 — cut 1 correction
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T04-41-03Z.md (five P1, one P2).
+Cut 1 only. Cuts 2-5 remain absent, not stubbed and not promised.
+
+
+1. ALL SIX REPRODUCED BEFORE ANY EDIT
+
+Written as one probe script and run against the delivered cut:
+
+  is_v12_contract(hostile)          LEAK RuntimeError, ran ['ne']
+  gate_token(hostile, "d")          LEAK RuntimeError, ran ['format']
+  gate_token("k", hostile)          LEAK RuntimeError, ran ['format']
+  same_assignment(hostile, None)    ACCEPTED -- worse than a leak; it ANSWERED
+  check_generation(10**5000)        LEAK ValueError
+  check_generation(-(10**5000))     LEAK ValueError
+  assignment_ref(... 10**5000)      LEAK ValueError
+  open(marker file, uuid not-a-uuid)  ACCEPTED; file changed; 18 tables
+  open(B) with the probe answering A  face said A over a live B
+  open with a faulting schema       partial write SURVIVED the failure
+
+Every finding is correct. The 53-case gate passing while all ten of those were
+true is the useful fact about my own cut: the cases proved the rules I had
+thought of.
+
+
+2. [P1 1] THE FACE NAMED A WHILE THE CONNECTION GOVERNED B
+
+`open` validated the read-only probe, validated the live recheck, and then
+built the Store from the PROBE's UUID. With the file replaced in the window by
+another valid Python-authority store and no expected UUID supplied, both
+validations passed and the public `authority_uuid` named a store the connection
+was not talking to -- an authority answering to two identities, which is the
+one thing §4 says an `assignment_ref` must never be.
+
+The LIVE identity governs now, and a disagreement between probe and live
+REFUSES rather than resolving itself: the caller decided to open against what
+the probe said, and quietly handing back a different authority answers a
+question nobody asked.
+
+The regression asserts both directions -- the swap refuses, and with nothing
+swapped the face and the live `meta` row agree -- because a guard that simply
+refused everything would satisfy the first half alone.
+
+
+3. [P1 2] PRESENCE IS NOT VALIDITY
+
+`_check_compatibility` checked that `authority_uuid` EXISTED, and compared it
+only when a caller happened to supply an expected one. So a marker-only file
+recording `not-a-uuid` was a recognized authority, and opening it grew the full
+18-table schema inside it.
+
+The recorded UUID is now held to the same frozen grammar every assignment
+identity is held to, on the probe AND on the live recheck, because both go
+through that one function. Nothing built from a durable identity can be valid
+if the identity is not.
+
+Covered: text that is not a UUID, uppercase hex, a truncated UUID, an empty
+string, and an INTEGER -- a foreign store's `meta` is not a STRICT table, so its
+value need not even be text. Each asserts the file is byte-identical afterwards
+and still has exactly one table.
+
+
+4. [P1 3] A FAILED OPEN COMMITTED WHAT IT HAD WRITTEN
+
+The `COMMIT` was in a `finally`, so a fault partway through the schema
+committed the statements that had already run. A failed open left tables behind
+in somebody else's database -- the exact outcome the whole non-adopting design
+exists to prevent, reached through the ERROR path instead of the success one.
+
+Commit is on the success path only; every failure rolls back. The regression
+also proves the store is USABLE afterwards -- a rollback that left the
+transaction open would make the next open fail for a reason that has nothing to
+do with the store.
+
+
+5. [P1 4] AN EXPORTED HELPER IS A BOUNDARY
+
+`is_v12_contract` invoked the caller's `__ne__`. `gate_token` invoked the
+caller's `__format__` -- while assembling a value that becomes DURABLE.
+`same_assignment` short-circuited on `None` BEFORE validating anything.
+
+I had proved the rule at `own` and not at the doors people walk through. A rule
+enforced at the inner function and not at the exported one is a rule with a way
+around it, and that is the same shape as every "applied at one of N sites"
+finding I have been given this week -- this time between an internal helper and
+its own exported surface.
+
+All three prove their operands first. `gate_token` additionally refuses a
+separator inside the KIND, because the token is parsed at its first colon and
+one that does not round-trip is not an identity.
+
+The new case drives fourteen exported entry points with an object that raises
+from `__ne__`, `__eq__`, `__hash__`, `__format__`, `__str__` and `__repr__`.
+`parse_gate` is asserted SEPARATELY, on its own terms -- answering "this is not
+a gate token" is its whole contract -- rather than being folded into the table
+and quietly weakening it.
+
+
+6. [P1 5] THE DIAGNOSTIC WAS THE ESCAPE
+
+`str()` of an integer is NOT inert in Python 3.13: the interpreter refuses to
+render one above 4,300 digits. `check_generation` interpolated the rejected
+value and `name_of` stringified every exact int, so a 5,001-digit generation
+left as a raw `ValueError` from the MESSAGE after the check had already decided
+to refuse it.
+
+The one function whose entire job is to describe a rejected value safely was
+itself a way for a rejected value to escape. `bit_length()` runs no conversion
+and cannot fail, so an integer too wide to show is named by its SIZE; 64 bits
+covers every value this contract can legitimately carry, so nothing valid is
+ever reduced to a size. The refusal message is asserted to stay under 300
+characters rather than becoming 5,001 digits of somebody else's number.
+
+
+7. [P2 6] THE LOCK IS CONSUMED NOW, NOT DESCRIBED
+
+The review is right that a lock nobody resolves from is a document about a
+build rather than a property of one, and that a test reading its TEXT proves
+only that text resembling pins exists.
+
+`just build` resolves it OFFLINE with `--require-hashes`, and with
+`--ignore-installed` so every pin is actually fetched and verified rather than
+skipped as already-satisfied. It then builds and installs this distribution
+with `--no-build-isolation` -- isolation would silently reach the network for
+build dependencies, which is exactly what the lock exists to prevent -- imports
+the package from OUTSIDE the source tree and asserts it came from
+`site-packages`, and runs the whole suite against the INSTALLED layout so a
+packaging mistake cannot hide behind `PYTHONPATH=src`.
+
+IT REFUSES RATHER THAN SKIPS when the wheelhouse is absent, naming the override.
+A gate that quietly passes because it could not run is the failure mode this
+distribution is built against.
+
+  [build] imported the INSTALLED package from .../site-packages/baton_v12/authority
+  [build] 16 exported names
+  Ran 60 tests in 0.030s
+  OK
+  [build] the locked offline build installs, imports and passes
+
+`build` is part of `just gate`, so the claim is exercised every time the gate
+runs rather than on request.
+
+
+8. MUTATIONS -- TEN AGAINST THE CORRECTIONS
+
+  Z1  the face is built from the probe again        0 -- EQUIVALENT, see below
+  Z2  a replacement in the window resolves silently 1 case
+  Z3  the recorded uuid is only checked for presence 1
+  Z4  a failed open commits what it wrote          1
+  Z5  is_v12_contract compares caller values again 1
+  Z6  gate_token formats caller values again       1
+  Z7  gate_token admits a separator in the kind    1
+  Z8  same_assignment short-circuits again         1
+  Z9  the generation refusal renders the value     1
+  Z10 name_of renders every integer                1
+
+Z1 IS EQUIVALENT GIVEN Z2, and the reason is worth stating: with the
+disagreement refusal in place, the probe's UUID and the live one are provably
+identical by the time the Store is constructed, so reading either gives the
+same answer. Z2 is the guard. Using the live value is kept because it says
+WHICH one governs, and it is not counted as a second guard.
+
+Z8 MEASURED ZERO FIRST, AND THAT WAS MY CASE, NOT THE CODE. The first draft of
+the exported-helper case only inspected the outcome when something was raised,
+so a helper that ACCEPTED the hostile operand passed it -- which is precisely
+how `same_assignment(hostile, None)` slipped through. That is the same weakness
+an independent reviewer found in a sweep case of mine two days ago, repeated
+here in a case written for the very defect it then tolerated. Every row must
+now REFUSE. A case that permits silent acceptance is a case that permits the
+bug.
+
+
+9. REGRESSIONS ADDED -- 7, and the suite is 53 -> 60
+
+  the face and the live store can never name two authorities
+  a malformed recorded uuid is not a recognized authority   (5 shapes)
+  a failed open commits nothing it wrote on the way
+  no exported helper runs what it is given                  (14 entry points)
+  the helpers still answer for the values they are for
+  a gate kind may not smuggle the separator
+  an integer too large to render still refuses as a Refusal (5 shapes)
+
+The positive halves are deliberate: a boundary that refuses everything
+satisfies every hostile case above and no contract at all.
+
+
+10. GATES
+
+  just gate (v12/python)        version + 60 tests + locked build, all pass,
+                                Python 3.13.7
+  the locked build              offline, hash-enforced, installs, imports from
+                                site-packages, and the suite passes against the
+                                INSTALLED layout
+  temp roots after the run      zero; every fixture owns and cleans its own,
+                                and the build venv is removed by its own trap
+  the frozen Node reference     UNTOUCHED; `git status` on `v12/src/authority`
+                                is empty
+  whitespace-damage check       clean
+  every original reproduction   now Refusal, with nothing run and no file
+                                modified
+
+
+11. STILL ABSENT ON PURPOSE
+
+Cuts 2-5. `test_a_later_cut_adds_methods_rather_than_stubs` still asserts the
+runtime transitions do not exist, because a stub raising `NotImplementedError`
+is a method the exported surface claims to have. W4 stays blocked on W2845.

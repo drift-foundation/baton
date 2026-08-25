@@ -1,0 +1,180 @@
+W2929 / current authority W4 — turn slice, THIRD correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T14-47-38Z.md (three P1, one P2).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    tests 498, pass 492, fail 6
+
+The six additive regressions were the only failures, exactly as reported.
+Each failed for the stated reason:
+
+  :673 second same-prompt turn   refused.operation-collision (store.mjs:224)
+  :693 closed epoch             accepted; a turn row was written
+  :713 provider-session-b       accepted and sealed against ...-a
+  :734 policyFailures=null      raw TypeError (agent_turn.mjs:267)
+  :748 permitted='not-json'     raw SyntaxError (agent_turn.mjs:423)
+  :767 exact replay             integrity.secret-leak (agent_turn.mjs:331)
+
+All four findings are correct. Nothing in this review is disputed.
+
+
+2. P1 — CONTENT-DERIVED TURN IDENTITY
+
+The identity was (attempt, posture, epoch, prompt_digest). Equal prompt bytes
+are not the same act, so a second legitimate turn in one epoch reached the
+first turn's operation id.
+
+The added component is the MANAGER-OWNED supervision window. §5.1 mints a
+deadline per supervised turn, and (started_at, deadline_at) is the window that
+deadline bounds. It carries no prompt content, it is stable across retry
+because a retry replays the window it was given, and it is the manager's, so a
+caller cannot make two turns collide by repeating itself.
+
+ended_at is deliberately EXCLUDED. The window is what the manager ALLOCATED;
+the end instant is what it later OBSERVED. Folding an observation into an
+identity would mint a second turn document for a retry that merely reported a
+different end. Under one window a changed end keeps the identity and changes
+the signature, so it collides — which is what "the same turn, described
+differently" should answer. An added case drives exactly that.
+
+The window is a COMPONENT, not the whole identity, and carries no uniqueness
+rule of its own. Two turns may legitimately share a window and differ by
+prompt; the already-accepted case at :645 does exactly that. Refusing it would
+have been inventing a serialization §5 does not state, so it was not done, and
+the reasoning sits beside the function.
+
+
+3. P1 — ADMISSION PROVED ROW PRESENCE, NOT THE SESSION
+
+`admitTurn` now loads state AND provider_session_id and binds both.
+
+TURN_ADMITTING_SESSION_STATES is a closed set named POSITIVELY — ready,
+prompting, turn-ended, cancel-requested, agent-quiescent — rather than by
+excluding today's two bad values. A list of states where a turn may NOT settle
+is a list a newly frozen state joins silently and wrongly. not-started and
+initializing are out because no prompt has been issued; unknown and closed are
+out because §3.3 makes both terminal.
+
+This is STRICTER THAN THE REVIEW ASKED, which asked only that a terminal or
+ambiguous epoch admit no new turn. It is raised here rather than left to be
+discovered: nothing in this slice moves a session out of `not-started` yet, so
+the state transitions a later slice adds must reach an admitting state before
+recording a turn. The partition is driven exhaustively against the frozen
+sessionState enum read from the placed schema, in BOTH directions, so a new
+frozen state fails the case rather than passing silently.
+
+The provider session reference must AGREE exactly. An omitted reference is
+not agreement either: the sealed record would have carried null for an epoch
+that durably holds one, and §3.1 says the reference labels evidence.
+
+
+4. P1 — CURRENT STATE DECIDED BEFORE THE IMMUTABLE ANSWER
+
+Both admission and the durable-secret scan moved INSIDE `store.transact`'s
+action. The journal resolves identity and signature first, so an exact retry
+replays and a changed one collides without either check running.
+
+That is one move answering two findings. The secret scan reads the EPHEMERAL
+registry as it stands right now: run ahead of the journal, ordinary durable
+text that was benign when committed could later be registered as a bearer and
+start refusing an exact replay — writing nothing, returning no bearer-bearing
+field, and hiding an immutable answer whose bytes had not changed. Admission
+reads mutable session state: a turn that settled legitimately and a session
+that closed afterwards are both true, and the retry is owed the first one.
+
+A genuinely new write still refuses in both cases. Two added regressions hold
+the replay-after-close direction and the exhaustive state partition; the
+reviewer's :767 holds the secret-liveness direction.
+
+
+5. P2 — MALFORMED INPUT AND SUMMARY
+
+`requirePolicyFailureList` is extracted from `selectTurnOutcome` and called by
+`recordTurn` BEFORE `.map`, so the collection shape is proved before anything
+iterates it.
+
+`permitsDisposition` parses the retained summary inside an integrity wrapper.
+A summary that cannot even be COMPARED with the sealed record has already
+diverged from it, which is the same integrity failure a comparable-but-
+different summary reports — so it reports as that pair, not as whichever error
+the parser reached first.
+
+
+6. MUTATIONS — EIGHT, SEVEN WITNESSED, ONE MEASURED
+
+  M1 identity drops the supervision window          7 cases fail
+  M2 recordTurn stops proving the collection        3 cases fail
+  M3 admission stops reading the session state      5 cases fail
+  M4 admission stops binding the provider session   5 cases fail
+  M5 current state decides before the journal       5 cases fail
+  M6 the retained summary is parsed raw again       3 cases fail
+  M7 the session reference is taken on trust        0 cases fail  MASKED
+  M8 the observed end instant joins the identity    3 cases fail
+
+M7 is MEASURED AS MASKED and is said rather than implied. Removing
+`turnSessionRef` leaves every malformed-reference case still refusing with the
+same closed pair, because the reference is a member of the frozen turnRecord
+and the record-level validation rejects it. It is kept because the reference
+now reaches the IDENTITY digest and the durable body before any row is read,
+and a boundary whose one input shape is only implied by a check further down
+is one the next reader has to reconstruct. It is not counted as a guard, and
+its case asserts the BEHAVIOUR — that no caller-supplied shape escapes the
+closed taxonomy — rather than that one line.
+
+
+7. REGRESSIONS — 43 (37 before, including the reviewer's six)
+
+Six of mine:
+
+  the supervision window identifies the turn, is stable under repetition, and
+    moves on EITHER half of the manager-owned window
+  a re-reported end instant COLLIDES rather than minting a second turn
+  every frozen session state admits a turn or refuses one, exhaustively and in
+    both directions, driven off the placed schema's own enum
+  a turn committed before the epoch closed still replays
+  an omitted provider session is still a disagreement, and the agreeing
+    reference is sealed into the record
+  a malformed session reference reports a closed pair, seven shapes
+
+
+8. GATES
+
+  cd v12 && npm test                       504 tests, 504 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2977 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+The TMPDIR bracket was /tmp/w4-tmpdir-MGNB12; it retained only Node's own
+`node-compile-cache` and no test-owned root. It is left in place for the
+operator rather than removed by a destructive shell command. The 435 stale
+/tmp/v12-manager-* roots predate this turn (all mtime 2026-08-22 15:26) and
+are likewise left untouched.
+
+
+9. STILL NOT IMPLEMENTED
+
+Event normalization, the runtime/agent adapter CONTRACTS, and the
+re-identification gate after transport ambiguity.
+
+
+10. FILES CHANGED
+
+  v12/src/worker_manager/agent_turn.mjs          manager-owned supervision
+                                                 window in the identity;
+                                                 admission binds session state
+                                                 and provider reference;
+                                                 admission and the secret scan
+                                                 moved inside the journalled
+                                                 transaction; both malformed
+                                                 shapes report closed pairs
+  v12/test/worker_manager_agent_turn.test.mjs    +6 cases; no existing
+                                                 assertion edited or weakened

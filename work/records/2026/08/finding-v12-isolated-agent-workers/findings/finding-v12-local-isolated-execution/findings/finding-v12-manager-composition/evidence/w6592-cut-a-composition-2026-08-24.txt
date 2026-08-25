@@ -1,0 +1,159 @@
+W6592 cut A — the Python manager's first public composition
+Recorded 2026-08-24 by baton.claude (implementer).
+
+WHAT WAS MISSING, AND WHY IT WAS MISSING
+
+  `certify_profile(store, kind, name, profile_digest)` recorded that a DIGEST
+  was certified. Nothing in Python ever saw the document that digest named, so
+  `client_capabilities` had NOWHERE TO ARRIVE -- which is why the §2.2 consumer
+  was absent rather than merely unexported, and why exporting one without a
+  document to read would have been the test-only API the assignment forbids.
+
+  Revalidated on the current tree rather than taken from the brief:
+  `clientCapabilities` occurred in
+  `src/baton_v12/contracts/schema/agent-session-1.0.schema.json` and NOWHERE
+  ELSE in the Python source or tests.
+
+WHAT CUT A ADDS
+
+  worker_manager/handshake.py      certify_agent_session_profile
+                                   certified_agent_session_profile
+                                   check_client_capabilities
+                                   negotiate_acp
+                                   ACP_CLIENT_CAPABILITIES (read-only)
+                                   ACP_CLIENT_CAPABILITY_MEMBERS
+                                   SESSION_CAPABILITIES (from the schema)
+  worker_manager/schema.py         the `profiles` table, schema version 6
+  worker_manager/documents.py      profile.agent-session-certified,
+                                   acp.negotiated
+  contracts/validate.py            validate_agent_session_fragment and
+                                   AGENT_SESSION_DEFINITIONS -- a SECOND table
+                                   rather than one merged namespace, because
+                                   `version`, `digest` and `timestamp` are
+                                   defined in BOTH frozen documents and one
+                                   function over a merged namespace would
+                                   answer about whichever schema carried the
+                                   name first
+
+  The order is the frozen module's pinned acceptance: SHAPE, then the DOCUMENT
+  SEAL over the document with `document_digest` omitted, then POLICY -- only
+  the rules the schema cannot state. The store holds the exact canonical BYTES
+  rather than the digest alone, because a session must pin the per-posture
+  policy a profile carries and a digest cannot be read for it. Read-back
+  requires ALL THREE WITNESSES: what the document declares, what its bytes
+  recompute to, and the key it is filed under.
+
+THE FINDING THIS CUT PRODUCED: §2.2 WAS IN THE WRONG PLACE
+
+  I first put `check_client_capabilities` on the CERTIFICATION path, which
+  reads naturally -- the document arrives there. Then I measured it.
+
+  For a PROFILE-CARRIED document the frozen schema states §2.2 EXACTLY:
+  `clientCapabilities` requires `fs` and `terminal`, admits no other member,
+  makes `fs` an empty closed object and pins `terminal` to the constant false,
+  and the ACP conditional makes it non-null. Every document the rule refuses,
+  the schema refuses FIRST -- eleven cases checked, zero disagreements:
+
+    {'fs': {}, 'terminal': True}                    schema refuses / rule refuses
+    {'fs': {'readTextFile': False}, ...}            schema refuses / rule refuses
+    {'fs': {}, 'terminal': False, 'session': {}}    schema refuses / rule refuses
+    {'terminal': False}                             schema refuses / rule refuses
+    {'fs': {}}                                      schema refuses / rule refuses
+    {'fs': {}, 'terminal': 0}                       schema refuses / rule refuses
+    {'fs': [], 'terminal': False}                   schema refuses / rule refuses
+    'x' / [1] / None                                schema refuses / rule refuses
+    {'fs': {}, 'terminal': False, 'plan': True}     schema refuses / rule refuses
+
+  So a capability check after the schema has spoken is the SECOND LIVE SOURCE OF
+  TRUTH this schema's own prose warns about -- "two live sources of truth is how
+  a certified profile comes to disagree with the policy actually enforced".
+
+  THE RULE BELONGS WHERE IT IS NOT IMPLIED: AT EMISSION. The schema constrains
+  what may be STORED; §2.2 constrains what is SENT, and W641's correction was
+  about exactly that difference -- the host had one constant standing for two
+  documents and emitted the durable summary onto the transport, sending field
+  names ACP does not have. `negotiate_acp` therefore sends
+  `check_client_capabilities(profile["client_capabilities"])`: the profile's own
+  document, passed through the rule. Answering from a module constant would
+  restore the seam, with the profile saying one thing and the wire carrying
+  another and nothing comparing them.
+
+  `ACP_CLIENT_CAPABILITIES` is a READ-ONLY MAPPING for a related reason. A
+  module-level document would be one object every caller could edit -- including
+  the caller whose edit this boundary exists to refuse -- and a FUNCTION
+  returning a fresh copy would put a constant on the package's callable surface,
+  where every sweep over the exported operations would have to explain why one
+  of them is not an operation.
+
+WHAT THE BOUNDARY INVENTORY MADE ME DO
+
+  Adding a module to this package is not a matter of adding a module. In order:
+
+    1. An owner whose label was a VARIABLE, which the inventory cannot
+       attribute -- one root cause producing 273 failures. Three sites, all
+       fixed to literals.
+    2. Eight caller entries with NO OWNER. Two of them were parameters I had
+       ported but never read: `what` on three public operations and
+       `agent_methods` on `negotiate_acp`. An operand supplied and ignored is
+       one the caller believes it chose, so both are GONE rather than declared.
+    3. Sixteen owned entries with NO PROBE. Each now has one that spoils
+       exactly its own member and nothing else.
+    4. A stated owner with NO WITNESS -- three witness cases added.
+    5. The agent's capability answer WALKED UNOWNED. A generator yielding the
+       six mandatory capabilities once would have passed the handshake and then
+       failed every one of them.
+
+  The store's object inventory, the declared-operand vocabulary and the
+  unstorable-text sweep each needed this cut's entries too. All three are
+  completeness checks and all three caught it.
+
+MUTATION -- 16 OF 16 KILLED, AND THE THREE SURVIVORS EACH SAID SOMETHING ELSE
+
+  Round one killed 13 of 16.
+
+    H16  "the wire document is shared rather than fresh" -- A REAL DEFECT. A
+         shallow copy of the read-only constant left `fs` as the mapping proxy
+         itself and every case still passed. A document carrying a proxy is not
+         one a consumer can canonicalize, own or store. A case now asserts the
+         emitted answer is plain built-in data all the way down and survives
+         `own`.
+    H11  "the wire document is the constant, not the profile's" -- COULD NOT BE
+         KILLED BEHAVIOURALLY, and that is the honest result rather than a
+         missing case. The frozen schema pins `client_capabilities` to exactly
+         `{"fs": {}, "terminal": false}`, so a stored profile that reaches
+         emission CANNOT differ from the constant; the two are
+         indistinguishable today. They are not the same code -- W641's defect
+         was one constant standing for two documents -- so the property is
+         checked structurally: the emitted value is the PROFILE's member,
+         passed through the rule.
+    H15  "the capability answer is walked unowned" -- KILLED ALL ALONG, by the
+         witness in the inventory's `StatedRules`, which my first harness did
+         not run. The harness was measuring less than I claimed for it.
+
+  Round two: 16 of 16.
+
+AN OPERATIONAL NOTE, BECAUSE IT BIT TWICE
+
+  A mutation run left a mutant in the tree -- the same defect this campaign
+  already recorded once. This time the cause was mine and worse: I put
+  `timeout` around the harness, the kill skipped the `finally` that restores,
+  and a SECOND harness then ran against a source the first was still rewriting.
+  Two mutants, H4 and then H5, had to be restored by hand.
+
+  The fix is not a bigger timeout. The harness now runs the fast suites and
+  finishes in seconds, and the source is diffed against a pristine copy after
+  every round. Both comparisons are clean.
+
+VERIFICATION
+
+  tests.manager.test_handshake             29 methods, all pass
+  tests.manager.test_boundary_inventory    67 methods, all pass
+  full Python source suite                 618 tests
+  XDG_RUNTIME_DIR=/tmp just gate           618 at source and 618 in the locked
+                                           build
+
+STATE
+
+  Awaiting independent review of cut A. The contracts-package inventory is cut
+  B of this same Job and is deliberately a separate cut with its own review.
+  W1593's boundary now exists; W1593 exercises it from its own claim.

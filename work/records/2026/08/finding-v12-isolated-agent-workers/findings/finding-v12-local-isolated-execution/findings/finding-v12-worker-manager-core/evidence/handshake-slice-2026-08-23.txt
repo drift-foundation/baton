@@ -1,0 +1,159 @@
+W2929 / current authority W4 — HANDSHAKE AND THE CLOSED SURFACE (SPEC 2.1-2.5)
+Date: 2026-08-23. Implementer: baton.claude.
+First delivery of this slice; no review to answer.
+
+
+1. WHAT THIS SLICE IS, AND WHAT IT DELIBERATELY IS NOT
+
+IN: 2.1 version negotiation and provider certification, 2.2 the withheld
+client surface, 2.3 the required/optional/refused method sets, 2.4 the six
+Baton agent-session capabilities, 2.5 experimental surfaces as diagnostics,
+and section 9's obligation 4 (adapter identity), which the certified profile
+already binds.
+
+OUT, and named rather than left to be discovered:
+
+  8.1 identity preservation and 8.2 the relay journal — these are about what
+  the relay SENDS and what it records frame by frame. They need the transport
+  and the journal, and they belong with the adapter composition that is still
+  open.
+
+  8.4 reconnect ambiguity — already named as still-open transport-ambiguity
+  re-identification, and it reaches into W151's ambiguity path.
+
+  8.5 cancellation forwarding — the manager's half of cancellation ordering
+  is already implemented and signed off (items 3l-3o); the FORWARDING half is
+  a relay act.
+
+  6.5 the relay queue, unchanged from the event slice's statement.
+
+
+2. THE THREE SENTENCES IT TURNS ON
+
+THE SETS BELONG TO THE VERSION, NOT TO A PROFILE. 2.3 says so and gives the
+reason: "a certified profile that disagrees with the policy actually enforced
+is worse than no profile: it is a second source of truth wearing the first
+one's authority." So the four sets are module constants. A profile supplies
+which wire it speaks, which version it pins, and which build it was certified
+against — never which methods are required.
+
+THE RELAY ADVERTISES NOTHING, AND THE COMPARISON IS EXACT. 2.2 withholds every
+client capability rather than everything unsafe. A subset check asks whether
+what is present is safe; the rule is that nothing may be present, and a member
+ACP adds next version would pass a subset check on the day it appeared.
+`session` is STABLE, is not in the unstable set, and is still not advertised —
+a case asserts that, because it is the difference between the two readings.
+
+BINDING REPLACES NEGOTIATION; IT IS NOT A SECOND SPELLING OF IT. The Codex App
+Server documents no protocolVersion, so there is nothing to negotiate and
+nothing to refuse a downgrade against. Certification binds an exact server
+build and its captured interface digest instead, and each door refuses the
+other's profile so neither can be reached by the wrong one.
+
+
+3. WRITTEN AND TESTED AGAINST THE FROZEN MODEL
+
+The first event review caught me building a normalizer against section 6.2's
+prose while the captured trace said something else — and my fixture agreed
+with my code because I wrote both. So the constants here are transcribed from
+`evidence/acp_boundary_model.py`, and the case file PARSES that file and
+compares member for member rather than retyping them. A set transcribed twice
+by one author is a set that can be wrong twice in the same direction.
+
+
+4. BOUNDARIES
+
+  certification first   a handshake runs under a currently certified profile
+                        or refuses policy.profile-uncertified. Withdrawal is
+                        visible here, not just at open time.
+  exact version         no downgrade AND no upgrade; an answer is an
+                        announcement, and the profile pinned what this manager
+                        certified against.
+  five methods          refused.capability, exhaustively driven one at a time.
+  six capabilities      refused.capability, exhaustively driven one at a time.
+                        A seventh gains nothing: session.reuse does not exist.
+  outbound refusals     refused.capability for all twenty-one, "whether or not
+                        advertised" — an agent offering session/resume changes
+                        nothing about whether this relay may call it, and a
+                        case drives exactly that.
+  served client methods policy.denied for all eight, not refused.capability:
+                        the agent is not asking whether the surface exists, it
+                        is reaching for one the relay structurally withheld,
+                        which is a section 4 violation.
+  owned answers         the negotiated client capabilities and capability list
+                        are copies; editing an answer must not reach the
+                        module constant the next handshake returns.
+
+
+5. MUTATIONS — THIRTEEN
+
+  H1  the wire version is not compared exactly        1 case fails
+  H2  the required methods are not required           1 case fails
+  H3  the six capabilities are not mandatory          1 case fails
+  H4  the handshake accepts an uncertified profile    2 cases fail
+  H5  negotiation accepts a provider profile          1 case fails
+  H6  binding accepts an ACP profile                  1 case fails
+  H7  the observed build is not compared              1 case fails
+  H8  the interface digest is not compared            1 case fails
+  H9  the outbound refusal list is not consulted      2 cases fail
+  H10 a client method is served                       1 case fails
+  H11 the advertisement is a subset check             1 case fails
+  H12 the answer aliases the module constants         2 cases fail
+  H13 the experimental-API check is dropped           0  UNREACHABLE
+
+H5 REPORTED ZERO ON THE FIRST PASS AND THE INSTRUMENT WAS AT FAULT — the same
+class of error the previous round's evidence records twice, checked for this
+time. The case offered wire version 1 against a profile pinning null, so the
+VERSION rule refused it with the same pair for a different reason and the
+wire-protocol rule was never consulted. The case now offers null, which the
+profile pins exactly, so only the door being named can refuse; the mutation
+fails.
+
+H13 is MEASURED AS UNREACHABLE: the frozen schema makes `experimental_api` a
+CONSTANT false, so such a profile cannot be certified at all and the runtime
+check never fires. The case drives the refusal at CERTIFICATION, which is
+where it actually lands. The check is kept because this function reads the
+binding and a reader should see the rule where the binding is used, not have
+to find it in a schema three files away. It is not counted as a guard.
+
+
+6. REGRESSIONS — 14, in a new file
+
+The four closed sets compared against the model's own literals; required and
+refused proved disjoint, and required agent methods proved disjoint from
+served client methods; the per-wire required sets; the withheld advertisement
+including the stable-but-absent `session` member; six advertisement shapes
+denied; exact-version negotiation with five rejected versions; every required
+method removed one at a time; every session capability removed one at a time
+plus a seventh ignored; uncertified and withdrawn profiles; provider binding
+with a wrong build, a drifted interface and nothing observed; the experimental
+API refused at certification; both doors refusing the other's profile; all
+twenty-one outbound refusals and three permitted optionals; all eight served
+client methods; and an advertised refused method still refused.
+
+
+7. GATES
+
+  cd v12 && npm test                       569 tests, 569 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 555 -> 569.
+
+
+8. STILL NOT IMPLEMENTED
+
+Sections 6.5, 8.1, 8.2, 8.4 and 8.5; adapter prompt composition; the runtime
+adapter contract; and re-identification after transport ambiguity. W543 owns
+the tool-call `kind` prose/schema conflict and is untouched here.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/agent_handshake.mjs        NEW — the whole slice
+  v12/test/worker_manager_agent_handshake.test.mjs  NEW — 14 cases

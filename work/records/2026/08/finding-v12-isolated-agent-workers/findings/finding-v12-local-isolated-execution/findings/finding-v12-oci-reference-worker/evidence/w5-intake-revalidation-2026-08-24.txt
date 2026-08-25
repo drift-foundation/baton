@@ -1,0 +1,79 @@
+W5 intake revalidation — 2026-08-24
+Reviewer: baton.codex
+
+CANONICAL COORDINATION
+- Current Work: W5, contained by W3.
+- W2930/W1425 are retired-authority provenance only.
+- W4 closed satisfying before W5 became ready.
+- W5 has no PROGRESS.md and no implementation owner yet.
+
+LANDED PYTHON MANAGER
+- v12/python/src/baton_v12/worker_manager/attempts.py calls an injected
+  adapter through start(document), list(document), and stop(document).
+- request_runtime_start journals before start and reconciles by opaque id plus
+  the full labels: runtime_attempt_id, authority_uuid, work_id, participant,
+  generation, profile_digest, adapter_digest.
+- An empty listing becomes execution_runtime=uncertain. The public surface has
+  no inspect/absence evidence that can prove the exact runtime destroyed.
+- v12/python/src/baton_v12/worker_manager/__init__.py explicitly says output
+  freeze, intake, cleanup, agent state machines, public composition and
+  positive runtime absence remain absent rather than stubbed.
+
+FROZEN CONTRACT BOUNDARIES
+- worker-control SPEC §§1, 6.2-6.4, 7, 8, 9, 10 and 13: adapter reports only;
+  manager operations are effectively once; source/workspace/output identities
+  and digests are explicit; collection reads sealed bytes; engine diagnostics
+  carry no authority.
+- assignment-state SPEC §§6-10: separate consent_runtime and
+  execution_runtime axes; nothing writable before exact activation; zero is
+  not absence; destroyed is stronger than quiescent; replacement stays gated
+  while uncertain.
+- agent-session SPEC §§3.2 and 4.2: separate fresh consent and execution
+  sessions under one runtime attempt; consent has no assignment/workspace/
+  output and cannot be promoted; execution begins after activation.
+- conformance SPEC local-oci core: 109 cases. W5-relevant families include 15
+  source/output, 8 isolation, 12 cancellation/quiescence, 12 local-applicable
+  restart/retry/partition cases, and 9 credential/leakage cases. W6 assesses
+  the whole portable core independently.
+
+FROZEN NODE EVIDENCE, NOT IMPLEMENTATION
+- v12/src/input_source.mjs: realpath containment, no root/internal links,
+  regular-file-only bounded copy.
+- v12/src/manifest.mjs: sorted relative paths and byte digests, but its bespoke
+  digest encoding is not automatically the frozen Python/JCS manifest shape.
+- v12/src/runtime.mjs: canonicalizes mount sources and asserts capability
+  absence, but copies an operator Claude credential and creates separate
+  preclaim/execution specs; neither is adopted without the current ruling.
+- v12/src/container.mjs: explicit argv, drop ALL capabilities,
+  no-new-privileges, inspect/quiesce/remove evidence; it calls Docker directly
+  and has no runtime-neutral adapter.
+
+READ-ONLY OCI BASELINE
+- docker client/server: 29.1.3, API 1.52.
+- Linux amd64, cgroup v2, overlay2, runc, built-in seccomp and AppArmor.
+- node:24-slim local image id:
+  sha256:9da0264deb61958d09c073001c1bd3a110ae3874be3375e92e0c0f16683986dd
+- repository digest:
+  node@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03
+- These reads approve no tag and certify no built worker image.
+
+OPEN TOPOLOGY RULING
+OCI mounts are fixed when a container is created. A single container cannot
+both expose no writable workspace during consent and later acquire the
+activated execution workspace without being replaced or having that
+capability pre-mounted. Pre-mounting violates the frozen timing rule; reusing
+the consent session violates agent-session 1.0. Recommend a consent OCI
+runtime followed by a distinct execution OCI runtime under the same
+runtime_attempt_id, with positive consent teardown before activation.
+
+PROPOSED JOB CUTS
+1. Source/workspace materializer (pure filesystem/Git).
+2. OCI adapter core (policy/argv/inspect/positive absence).
+3. Reference image and baton-worker entrypoint (scripted M2 agent).
+4. Sealed output collector and assignment-scoped credentials.
+5. Local OCI lifecycle composition (actual engine mutation and restart/race).
+
+Manager completion remains separate M2 Work: public contract composition,
+agent sessions/adapter protocols, output receiver, intake/retention/cleanup,
+and §13 enforcement. W5 integration depends on these; component work is
+parallel only where its interfaces do not require them.

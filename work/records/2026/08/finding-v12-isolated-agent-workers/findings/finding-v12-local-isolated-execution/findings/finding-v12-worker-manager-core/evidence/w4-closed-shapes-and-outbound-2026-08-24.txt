@@ -1,0 +1,179 @@
+W4 / M2 — PLAN 4cc: closed shapes, adopted rows, a probe per entry, and the
+outbound constructors that were owed
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T12-14-23Z.md (three P1s plus the acknowledged outbound gap).
+
+WHAT THE THREE P1s HAD IN COMMON
+
+  Last round I added the adopted and injected trust domains and reported them
+  done. All three findings say the same thing about that: I fixed the INSTANCES
+  the previous review had demonstrated and left the MODEL able to produce more.
+
+    - the adopted universe began at `boundaries.adopted` calls, so a persistent
+      read with no validator produced no inventory row -- the exact circularity
+      4ca rejected, moved one domain over rather than removed;
+    - `document` rejected missing members and accepted every extra one, and
+      `alternative` closed the vocabulary and left every variant's shape open,
+      so "closed" was true of the discriminator and of nothing else;
+    - and the probe gate still iterated the old global (kind, label) table while
+      the inventory was keyed by entry, so nothing required an entry to have a
+      probe at all.
+
+  Each is the same defect class this campaign keeps finding in my work, at the
+  level above the one I corrected.
+
+1. ADOPTED ENTRIES NOW COME FROM THE SQL, NOT FROM THE VALIDATORS
+
+  The universe of persistent reads is discovered by parsing the SQL each
+  `execute` is handed and keeping every SELECT, keyed by the table it names.
+  That structure exists whether or not anybody owned the result, which is the
+  property the previous two versions lacked. Five crossings:
+
+    offers.py:_offers                  offers        -> boundaries.row
+    offers.py:_certified               meta          -> boundaries.text
+    store.py:ControlStore._adopt       meta          -> boundaries.text x2
+    store.py:ControlStore._operation_row  operations -> boundaries.row
+    store.py:ControlStore._objects     sqlite_master -> STATED, see below
+
+  `boundaries.row` is new and owns a row's COLUMN SET as well as its values,
+  against a per-table contract that lives beside the DDL in schema.py. The
+  contract and the CHECK constraint are the same statement in the two
+  vocabularies each end can enforce: the CHECK binds what THIS build writes, and
+  an adopted row is by definition one some other process wrote.
+
+  THREE READ SITES BECAME ONE. The offers table was read from the lookup, the
+  expiry sweep and restart recovery, and three sites is three chances to forget.
+  A caller cannot now obtain an offer row without passing through `_offers`.
+
+  `sqlite_master` is declared with a reason instead: SQLite's catalogue names
+  objects with identifiers it accepted at CREATE time, and this read decides one
+  membership question. I wrote a `boundaries.text` there first and could not
+  drive it -- a boundary no caller can reach is precisely what my last round was
+  corrected for, so it is absent rather than decorative.
+
+  A new column kind, `json`, proves a persisted result or refusal DECODES at the
+  read and hands back the bytes that were stored, because replay is byte-stable.
+  `replay` therefore no longer decodes through the layer: the value crossed at
+  the read, and decoding it a second time would be the blanket revalidation the
+  same ruling forbids. A failure there is now a defect and faults as one, the
+  same rule `deadline` follows with its already-owned instant.
+
+2. CLOSED MEANS CLOSED, IN BOTH DIRECTIONS
+
+  `document(value, what, required, optional)` refuses a member its contract does
+  not name. An extra member has two readings and both are alarming -- a build
+  this one was not written against, or a document that is not the one we think
+  it is -- and ignoring it silently picks the happier one.
+
+  `alternative` now takes a per-variant `(required, optional)` contract rather
+  than a vocabulary. `{"kind": "committed"}` was a complete settlement, and the
+  offer advanced to `claimed` carrying a null assignment -- the exact outcome the
+  `committed` branch exists to record faithfully. The four variants are
+  live/record, committed/result, retired/record, refused/detail, and the
+  retirement's bound record is owned at the same crossing because the manager
+  reads BOTH its members to choose the control state it writes.
+
+  The projection contract is split into the five members the manager READS and
+  the ten it knows the authority emits. Naming the unread ten is what lets the
+  contract be closed without pretending the authority sends nothing else -- and
+  the split is checked against the authority's own source, not against the fake.
+
+3. THE INVENTORY, KEYED THE SAME WAY THREE TIMES
+
+  An entry is `(domain, lexical site, subject)` where the site is module, class
+  and function. The universe, the owner and the probe are looked up by that same
+  tuple, so a repeated label cannot stand in for two entries and a probe cannot
+  cover an entry it was not aimed at.
+
+    58 receiving entries    46 caller, 7 injected, 5 adopted
+    43 probes               one per (entry, label) the layer or a delegate owns
+    28 stated owners        each naming a witness test that must exist
+     5 delegated             the label is read from the DELEGATE's own code
+     3 declared exceptions   boundary calls that are not receiving entries
+
+  Two corrections fell out of building it. `replay`'s `kind` and `signature`
+  were declared DELEGATED to `_agreeing` and are not: `_agreeing` is called by
+  `transact`, and replay COMPARES both against the journalled row. And
+  `accept_offer`'s `reason` does not reach SQL unowned -- it rides the
+  settlement's manager signature, and canonicalization refuses it. Both were
+  written down wrong by me and found by the machinery rather than by a reader.
+
+4. THE OUTBOUND CONSTRUCTORS, WHICH WERE OWED
+
+  4bz's third part, unimplemented for two rounds and named in my own handoff.
+  `documents.py` holds one contract table and ten constructors; every operation
+  answers through them.
+
+  The reason it matters is not tidiness. `_settle_terminal` returns one document
+  when its compare-and-swap wins and a different one when it loses, and
+  `_record_claim` is reached from four callers each contributing its own
+  members -- so the shape of an answer was a property of the PATH rather than of
+  the operation, and a caller reading one return statement could not learn what
+  the others answer with. A document whose members depend on which branch built
+  it cannot be owned at the far end against anything.
+
+  The constructors establish the SHAPE and nothing else. Owning our own outbound
+  values would be the same blanket revalidation, one direction over.
+
+MUTATIONS, ROUND 5 (16 run against the 455-test suite)
+
+  D1  a document may carry members its contract omits      5 failing
+  D2  a variant need not carry its own members             3
+  D3  a persisted row's column SET is not checked          3
+  D4  a persisted row's VALUES are not owned               3
+  D5  a persisted json column is only text                 1
+  D6  the offers table is read without adopting            6
+  D7  the journal is read without adopting                 5
+  D8  an outbound document may carry an unnamed member     1
+  D8b an outbound document may omit a required member      1
+  D9  an outbound document keeps the caller's member order 1
+  D10 the claim answer's Work reference is not owned       2
+  D11 the retirement's bound record is not owned           2
+  D12 the projection contract names no unread members      2
+  D13 the adopted universe comes from validators again     5
+  D14 the site key is the function name alone              8
+  D15 the probe gate stops requiring one probe per entry   0 -- MEASURED
+                                                           EQUIVALENT
+  D16 an omitted optional member arrives as None           1
+
+  FIVE BEGAN AS ZEROS and four were missing cases, each of the shape I keep
+  producing -- a rule applied where I could picture it going wrong:
+
+    D3  every probe corrupted a VALUE, so nothing exercised the half of `row`
+        that decides whether the row is one this build owns at all. Witnessed by
+        adding a column to the live table behind the manager's back.
+    D8/D9/D16  I asserted that a constructor refuses a bad member set and never
+        that it produces a stable one. These answers are JOURNALLED and an exact
+        retry reproduces the stored bytes, so member order and the difference
+        between an omitted optional and a null one are durable facts.
+    D12 the fake session answers the five members the manager reads, so emptying
+        the unread ten changed nothing. That was the FAKE agreeing with the
+        contract rather than the authority agreeing with it -- a closed contract
+        that has never seen a real projection would refuse the first one it met.
+        The members are now read out of the authority's own source, and the
+        contract must name exactly them. (A test, not an import: the manager
+        still does not depend on the authority's module graph.)
+
+  D15 IS A REAL EQUIVALENCE AND IS LEFT AS ONE, for the same reason C10 was last
+  round. Every entry has a probe, so relaxing the assertion that says so changes
+  no verdict. What CAN be measured is that the pairing would notice a missing
+  one, and that is its own case
+  (test_the_missing_probe_check_can_actually_fail), which drops a probe and
+  requires the difference to name exactly the entry it dropped.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 455 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 455. 425 -> 455 (30 added,
+  including the reviewer's three retained regressions, which now pass at the
+  central model rather than at three patched sites). Zero temp roots. The
+  working tree reports no whitespace errors. The frozen Node oracle under
+  v12/src/authority is untouched -- the tree reports no modification there.
+
+STATE
+
+  Awaiting re-review of the centralized model and its inventory as one unit, per
+  PLAN 4bx/4by. Cut D remains unstarted, as the gate requires. Nothing under 4bz
+  is now outstanding: (a) validate once at each receiving domain, (b) an
+  inventory of entries and owners, and (c) closed canonical outbound
+  constructors are all delivered.

@@ -1,0 +1,9 @@
+not-started       -> closed        closed=true  table permits closed: false   <-- FORBIDDEN EDGE TAKEN
+initializing      -> closed        closed=true  table permits closed: true
+ready             -> closed        closed=true  table permits closed: true
+prompting         -> closed        closed=true  table permits closed: false   <-- FORBIDDEN EDGE TAKEN
+turn-ended        -> closed        closed=true  table permits closed: true
+cancel-requested  -> closed        closed=true  table permits closed: false   <-- FORBIDDEN EDGE TAKEN
+agent-quiescent   -> closed        closed=true  table permits closed: true
+unknown           -> closed        closed=true  table permits closed: false   <-- FORBIDDEN EDGE TAKEN
+closed            -> closed        closed=false table permits closed: true

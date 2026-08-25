@@ -1,0 +1,206 @@
+W2845 — the authority-wide bounded-diagnostic audit
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T06-51-18Z.md (one P1, ruled in-Work).
+Scope: every Refusal construction in v12/python/src/baton_v12/authority.
+Frozen Node authority: outside the patch boundary and untouched.
+
+
+1. THE RULING, AND WHY IT IS RIGHT
+
+I raised these sites and did not touch them, because the boundary said correct
+cut 5 only and the code had been signed off. The reviewer overruled that and the
+reasoning is worth recording verbatim in effect: earlier cut sign-off is not an
+exemption from a still-live package invariant when later evidence exposes a
+contradiction.
+
+That is the correct call and I was wrong to treat sign-off as the boundary. A
+signed-off cut is a statement that nobody had found a defect, not that none is
+there.
+
+
+2. THE AUDIT, DONE BY WALKING RATHER THAN BY READING
+
+116 interpolations inside `Refusal`/`refuse` messages across five modules,
+enumerated with an AST walk. Reading for them is how the defect survived two
+reviews.
+
+  ALREADY BOUNDED             through `name_of`, `len`, module constants, or
+                              joins of this package's own constant sets
+  PACKAGE-OWNED PROSE         `what`, `name`, `kind`, `capability`, `forbidden`
+                              -- literals this package passes to its own
+                              helpers, not caller text
+  CORRECTED                   26 sites: 13 in core.py, 12 in store.py, 1 in
+                              identity.py
+
+The 26 by family:
+
+  the Work identity           duplicate creation, unknown Work, the gate-arrival
+                              identity, the close identity
+  the participant             the slot collision (both names), route resolution
+                              (both names), the receipt actor
+  the assignment              the authority-mismatch pair
+  the contract and gate       the certified-profile refusal, the blocked-gate and
+                              parked-phase refusals
+  the frozen result           the digest binding and the assignment binding
+  the receipt                 the identity collision, and the holder it names
+  the store path              every one of eleven `create`/`open` verdicts, plus
+                              the path rendered inside a LABEL handed to
+                              `check_authority_uuid`
+
+
+3. THE MECHANISM ITSELF HAD THE DEFECT IT EXISTS TO PREVENT
+
+`name_of` bounded a rejected STRING and then rendered a rejected value's TYPE
+NAME raw:
+
+    return f"a {kind.__name__}"
+
+A class named with two hundred thousand characters therefore produced a
+two-hundred-thousand-character diagnostic FROM THE HELPER WHOSE ENTIRE JOB IS TO
+DESCRIBE A REJECTED VALUE SAFELY. That is the same shape as the earlier integer
+finding, where `str()` of a 5,001-digit integer raised out of the same function.
+Twice now the bounding helper has been the unbounded path.
+
+The sixty-character rule lives in ONE place now -- `_shown` -- so a second caller
+cannot apply a different one, and `type_name_of` gives the messages whose rule is
+about the TYPE a bounded way to say so.
+
+
+4. THE REAL FIX IS THAT THE RULE IS NOW CHECKED
+
+Two reviews found the same defect at different sites, and cut 5's evidence
+asserted the bound held while the file being written broke it. The reason is not
+carelessness in one file: A RULE NOTHING CHECKS IS A RULE THAT HOLDS WHEREVER
+SOMEBODY HAPPENED TO LOOK.
+
+So `EveryDiagnosticIsBoundedByTheRule` walks the package AST and requires every
+value interpolated into a refusal to be a bounded rendering or one of fourteen
+explicitly named package-owned expressions. A new raw interpolation now fails the
+gate instead of waiting for a third review.
+
+Its own failure modes are covered, because a table-driven check that passes
+vacuously is worse than no check:
+
+  the walker finds almost nothing        refused (>100 interpolations, >3 modules)
+  the allow-list becomes the answer      refused (fewer than half the sites may be
+                                         named exceptions)
+  an allow-list entry nothing uses       refused -- and this one FIRED during
+                                         development, on `_OPAQUE_ID_LIMIT`,
+                                         which I had allow-listed for a site the
+                                         walker cannot see
+
+AND THE CHECK HAS A BLIND SPOT I NAMED RATHER THAN LEFT: it reads `Refusal` call
+sites, not the helpers that BUILD text for them. `opaque_id_fault` is such a
+helper. So its boundedness is proven by a behavioural case instead, and I
+measured the blind spot: injecting the rejected value into that helper's prose is
+caught by the family suite and NOT by the AST check. An allow-list entry backed by
+a measurement is a fact; one backed by a comment is a hope.
+
+
+5. THE FAMILY SUITE, AND THE INSTRUMENT WEAKNESS IT EXPOSED
+
+Three data-driven cases drive ONE MILLION caller-controlled characters through
+the supported public faces and measure what comes back: the identity, participant,
+route, slot, assignment, gate-token, contract, frozen-result, receipt, opaque-id,
+type-name and store-path families -- including STORED text echoed by a later
+refusal, which the ruling singled out. A frozen result is published with a wide
+digest and then contradicted, so the value is ours by the time it renders and the
+caller's by origin.
+
+MY FIRST VERSION OF THIS SUITE WAS WEAK IN A WAY I HAVE BEEN SHOWN BEFORE: it
+accepted ANY refusal. Adding a required phrase per family immediately exposed
+THREE families measuring the wrong rule -- one intercepted by the session binding
+check, one refused by the UUID grammar, and one hitting the empty-file rule
+because `sqlite3.connect` writes no bytes. A case that accepts any refusal
+measures whichever one happens to arrive.
+
+Two audited sites CANNOT be witnessed behaviourally, and saying which is part of
+the audit rather than a gap in it:
+
+  the assignment's authority UUID   fixed-width grammar, 32 hex characters, so a
+                                    wide value is refused before this refusal is
+                                    reachable
+  a colliding receipt identity      `check_opaque_id` caps it at 160, so the
+                                    worst message this site can build is short
+
+Both render through `name_of` anyway, as defence in depth if a grammar is ever
+relaxed, and the AST check is what witnesses them.
+
+
+6. MUTATIONS -- TWENTY, ALL WITNESSED, EVERY NUMBER ATTRIBUTED
+
+  W1  the duplicate-Work id rendered raw          3 cases
+  W2  the unknown-Work id rendered raw            2
+  W3  the receipt actor rendered raw              3
+  W4  route and participant rendered raw          2
+  W5  the held slot rendered raw                  2
+  W6  the assignment's authority rendered raw     1 (AST only -- grammar-bounded)
+  W7  the STORED frozen digest rendered raw       2
+  W8  the receipt identity rendered raw           1 (AST only -- grammar-bounded)
+  W9  the gate-arrival identity rendered raw      2
+  W10 the blocked gate rendered raw               2
+  W11 the certified contract rendered raw         2
+  W12 the close identity rendered raw             2
+  W13 the store path rendered raw                 2
+  W14 the path inside a LABEL rendered raw        1
+  W15 name_of renders a wide type name raw        1
+  W16 name_of stops bounding strings             20
+  W17 the shown bound is the operand's length    22
+  W18 the member type name rendered raw           2
+  X1  a NEW raw interpolation is added            1 -- the standing check earning
+                                                  its keep
+  X2  a HELPER builds unbounded text              1 -- caught by the family suite,
+                                                  NOT by the AST check, which is
+                                                  the argument for having both
+
+FOUR MUTATIONS STARTED AS ZEROS AND ALL FOUR WERE MISSING CASES, not
+equivalences: the blocked gate, the close identity, the certified contract, and
+the path inside a label. Each one the AST check had already flagged and no case
+drove. That is the useful division of labour -- the source check found the sites,
+and the zeros told me which sites had no behaviour behind them.
+
+W15 was also a zero at first: every case I had drove the member-KEY path, so
+`name_of`'s type branch had no witness at all. Added one.
+
+
+7. A SECOND INSTRUMENT ERROR, AND ITS ROOT CAUSE
+
+My first run of this set reported one mutation as EIGHT failing; by hand it was
+ONE. The cause is worth recording because it is not the stripped environment I
+blamed last round: Python caches bytecode by (mtime, size), and a mutation
+restored within the same second can leave a `.pyc` that the next run reuses. So a
+mutation can be measured against the PREVIOUS file.
+
+Every number above was measured with `PYTHONDONTWRITEBYTECODE=1`, with every
+`__pycache__` removed before each run, and with the failing case NAMES captured
+rather than counted. Three instrument shapes are now recorded across this Work --
+a false zero, a false non-zero, and stale bytecode -- and all three have the same
+remedy: attribute the number to named cases.
+
+
+8. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 213 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              213/213 from the wheel, imported out of
+                                   site-packages, race children still proving
+                                   their package origin
+  exported names                   20, unchanged (`type_name_of` is public in
+                                   `errors` and in that module's `__all__`; it is
+                                   not part of the package promise)
+  temp roots after the run         zero
+  the frozen Node authority        UNTOUCHED
+  whitespace-damage check          clean
+  both reviewer regressions        green
+
+
+9. WHAT DID NOT CHANGE, DELIBERATELY
+
+No durable-text operand cap was introduced. No accepted operand was shortened,
+truncated or rejected for length. The settlement ruling stands: the authority
+still accepts and exactly compares the 100,185-character signature it can itself
+produce, and the case that pins it passes unchanged.
+
+Only the RENDERING of a rejected value in a diagnostic is bounded. That is the
+distinction the ruling drew, and it is the reason this correction touches
+messages and nothing else.

@@ -1,0 +1,81 @@
+W1593 reviewer research, 2026-08-23
+
+Current-tree reproduction:
+
+  validateClientCapabilities, 20,000-member envelope
+    policy.denied; message 269,042 characters
+
+  validateClientCapabilities, 20,000-member fs record
+    policy.denied; message 269,065 characters
+
+  classify/describe, 20,000-member plain record
+    description "a plain object"; snapshot retains all 20,000 names
+
+Scaling probe with fixed-width names:
+
+  members   shape description   shape ms   fault chars   fault ms
+     1,000  a plain object          0.121        14,047      0.212
+     5,000  a plain object          0.747        70,047      0.548
+    20,000  a plain object          2.100       280,047      2.898
+
+Times are one local observation, not a performance threshold. The message
+length and key retention are deterministic.
+
+Confirmed implementation constraint:
+
+JavaScript's own-key reflection APIs return complete arrays. The exact record
+rule must distinguish an accepted record from one carrying any extra string,
+non-enumerable or symbol member, so one complete own-key reflection is an
+unavoidable O(n) lower bound. A correction cannot honestly promise work wholly
+independent of the rejected record while preserving exactness.
+
+Avoidable current work:
+
+- `classify` always enumerates and concatenates own names although `describe`,
+  `isPlainRecord`, and reconnect consume only Proxy/array/prototype facts;
+- `recordFault` copies the complete key set again with `map`, sorts it, and
+  joins every name into the message;
+- once the reflected key count differs from the manager-owned expected count,
+  exact mismatch is already established and no full sort/join is needed.
+
+Proposed diagnostic decision (awaiting product authority):
+
+- retain the current useful small-record behavior: a single unexpected member
+  name remains visible, individually bounded;
+- for a wide mismatch, report total own-member count plus a fixed number of
+  bounded sample names and an omitted count;
+- keep every refusal under 500 characters, matching W4's cross-boundary
+  property;
+- never expose Symbol descriptions or member values;
+- preserve caller-local taxonomy and every signed-off exactness/inertness rule.
+
+Implementation-ready boundary after ruling:
+
+1. Separate shape classification from member enumeration so coarse `describe`
+   and reconnect do not collect unused names.
+2. In `recordFault`, take the unavoidable own-string and own-symbol arrays
+   once inside the existing translated boundary.
+3. Compare total count with expected count first. On mismatch, construct only
+   the fixed bounded diagnostic sample; do not map/sort/join the full arrays.
+4. When counts agree (current callers expect zero or two members), compare the
+   manager-owned expected names directly, then retain descriptor/enumerability
+   proof exactly as signed off.
+
+Additive regressions installed:
+
+- primitive wide-record fault under 500 characters;
+- coarse shape description performs zero own-member enumerations;
+- capability envelope and nested fs rows added to W4's shared under-500
+  refusal property.
+
+Current focused results:
+
+  records: 8/10 (the two W1593 cases fail)
+  refusal taxonomy: 11/12 (the shared capability property fails)
+  full v12: 684/687 (exactly those three additive tests fail)
+
+Operational record gap:
+
+The bound dossier has no PROGRESS.md. Repository policy assigns that file to
+the implementer alone; baton.claude must create it before recording
+implementation progress. The reviewer did not create or write it.

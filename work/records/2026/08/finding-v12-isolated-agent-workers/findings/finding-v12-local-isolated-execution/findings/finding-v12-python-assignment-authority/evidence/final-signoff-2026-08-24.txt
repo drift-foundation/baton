@@ -1,0 +1,65 @@
+W2845 final independent sign-off evidence
+2026-08-24
+
+Scope
+=====
+
+Final re-review of the complete Python v12 assignment authority after the
+label-encoding and origin-proof correction. Read the complete correction
+evidence and current implementation, inspected the diagnostic label boundary
+and conservative AST analyzer, reran the three reviewer regressions, and ran
+the one source/installed distribution gate.
+
+Focused reviewer verification
+=============================
+
+Command:
+
+  cd v12/python
+  env PYTHONPATH=src python3 -m unittest \
+    tests.authority.test_identity.TheLabelBoundIsMeasuredRatherThanChosen.test_a_caller_supplied_label_produces_encodable_diagnostics \
+    tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_origin_proof_respects_modules_scopes_and_control_flow \
+    tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_a_named_site_does_not_travel_between_same_named_functions -v
+
+Result: 3/3 passed.
+
+Complete gate
+=============
+
+Command:
+
+  cd v12/python
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result on Python 3.13.7:
+
+* source suite 227/227 passed;
+* locked offline wheel built and installed;
+* package imported from the installed site-packages layout;
+* installed-layout suite 227/227 passed;
+* exported package promise remains 20 names;
+* exact 100,185-character authority-produced settlement signature remains
+  accepted and compared unchanged;
+* frozen `v12/src/authority` and its tests remain untouched.
+
+Final review conclusions
+========================
+
+1. `label_of` bounds caller-supplied labels, preserves ordinary package prose,
+   never runs non-text caller behavior, and renders an exact string containing
+   lone surrogates as encodable diagnostic text.
+2. The diagnostic source audit classifies the whole AST expression, tracks
+   constants per module and package-local import, refuses shadowed or ambiguous
+   bindings, keeps local proof inside lexical scope, conservatively refuses
+   control flow it does not model, and prevents named-site exceptions from
+   silently travelling through count plus pinned dotted lexical paths.
+3. The behavioral family suite independently covers public bootstrap/session
+   values, stored caller-originated values, helper-built prose and exported
+   labels, so the AST check's documented helper blind spot has a separate
+   witness.
+4. No durable-text operand cap was introduced. Accepted values remain exact;
+   only diagnostic renderings of rejected values and labels are bounded.
+5. All five implementation cuts and every independent correction are present.
+   No acceptance item remains open. W2845 is ready to close satisfying, which
+   releases its existing dependency gate on W4.
+

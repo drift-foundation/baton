@@ -2,11 +2,16 @@
 
 THE PINNED MODEL, exactly: open on a borderless fixed-column table showing
 three containment levels — the viewer's top-level Work, its children, and
-theirs (W155, superseding W71's two-level cap). `u` re-roots the window at the
-selected Work and a persistent breadcrumb names that path; Enter opens the
-focused Work's detail rather than drilling a level; `o` opens the focused Work view (facts, trials, and the selectable
-thread set); Enter there opens one thread's paged thread — never
-several merged into a false timeline. `b` shows blocking/dependent neighbors
+theirs (W155, superseding W71's two-level cap). Work CLAIMED below that
+window is still shown: a `⋮` elision line (W6814) stands for the omitted
+levels and the exact active Work is drawn under it, so a roll-up never looks
+idle while somebody is executing beneath it. `u` re-roots the window at the
+selected Work and a persistent breadcrumb names that containment path; Enter
+ACTIVATES the focused Work — W6814 supersedes W71's single meaning, and the
+row's own canonical child count decides: a Work that contains Work becomes
+the contextual root, one that contains none opens its detail (facts, trials,
+and the selectable thread set). Enter there opens one thread's paged thread —
+never several merged into a false timeline. `d` shows blocking/dependent neighbors
 with stable ids and drills through on Enter. `p` shows the conversational
 pokes this participant is part of, which are addressed to a PARTICIPANT and
 not to Work — so that view hangs off the identity in the header rather than
@@ -26,6 +31,7 @@ both.
 from __future__ import annotations
 
 import curses
+import locale
 import os
 import shlex
 import subprocess
@@ -248,9 +254,22 @@ NAV_STATE_FIELDS = (
 # The separator between breadcrumb segments. One spelling, so the painter
 # and every test read the same trail.
 NAV_SEPARATOR = " > "
-# What a frame kind is CALLED when a segment has to say which page of a
-# Work it is — only when the same Work already owns the segment above it.
-PAGE_NAMES = {"work": "detail", "root": "subtree"}
+# What a NON-Jobs page of a Work is called in the breadcrumb's last
+# segment. The Work's own three tabs need no suffix — they are tabs of the
+# page the trail already names, not places of their own (W6814).
+PAGE_NAMES = {"links": "deps"}
+
+# W6814 (finding-tui-active-descendant-trail): the bound on ORDINARY session
+# navigation history. Browser-shaped: one entry per explicit page transition,
+# oldest evicted at the bound. The original caller is kept beside the stack
+# and is never evicted, so a 64-deep walk can still be left in one Back —
+# eviction may cost the middle of a path, never the way out of it.
+NAV_HISTORY_LIMIT = 64
+
+# W6814: the local tabs of one contextual Work page. All three are scoped to
+# that page's ROOT Work: `Jobs` renders it as the tree root, and Messages and
+# Events are its own. A merely highlighted descendant never moves them.
+ROOT_TABS = ("jobs", "messages", "events")
 
 
 def _nav_copy(value):
@@ -796,6 +815,105 @@ def _title_cell(row: dict, title_width: int) -> str:
 	return (prefix + row["title"][:room])[:title_width].ljust(title_width)
 
 
+# W6814 (finding-tui-active-descendant-trail): the omitted-levels marker.
+# It says that one or more containment levels were skipped between the row
+# above it and the active Work below it, and it is deliberately NOT a Work
+# row — no Id, no columns, no selection. A marker an operator can put the
+# cursor on is a Work as far as their hands are concerned, and Enter on one
+# would have to mean nothing, which is the worst answer a key can give.
+ELISION_MARK = "⋮"
+ELISION_FALLBACK = "..."
+
+
+def elision_mark(encoding: str | None = None) -> str:
+	"""`⋮` when the terminal's locale can ENCODE it, `...` otherwise.
+
+	Encodability is the only thing that can be ASKED. Whether the font
+	actually HAS the glyph is invisible to curses, so the finding rules
+	out guessing it from `TERM` or a terminal name — a guess wearing a
+	fact's clothes is worse than the ASCII fallback, because the operator
+	cannot tell it happened. Both spellings say the same thing and the
+	structure around them is identical, so a fallback screen loses a
+	glyph and no meaning."""
+	if encoding is None:
+		encoding = locale.getpreferredencoding(False)
+	try:
+		ELISION_MARK.encode(encoding)
+	except (LookupError, UnicodeEncodeError, TypeError):
+		return ELISION_FALLBACK
+	return ELISION_MARK
+
+
+def _elision_cell(depth: int, title_width: int, mark: str) -> str:
+	"""The elision line's Title cell: the containment indent the hidden
+	levels would have occupied, then the marker.
+
+	It sits at the depth of the Work BELOW it, so the marker lines up
+	with that row's `↳` and the pair reads as one structure rather
+	than as two unrelated lines."""
+	prefix = "  " * max(0, depth - 1)
+	return (prefix + mark)[:title_width].ljust(title_width)
+
+
+def tree_stream(rows: list[dict], trails) -> list[dict]:
+	"""The PHYSICAL display order of the Jobs table — W6814.
+
+	Ordinary Work rows in the canonical window order, and after each
+	anchor's ordinary SUBTREE one elision line followed by the active
+	Work rows the bounded window hides beneath it. Entries are
+	`{"kind": "work", "row": ..., "trail": bool}` or
+	`{"kind": "elision", "depth": ...}`; only Work entries are
+	selectable, which is what keeps the cursor, the viewport anchor and
+	every key on exact Work ids.
+
+	Insertion is after the anchor's WHOLE ordinary subtree rather than
+	immediately after the anchor row, because a group painted between a
+	parent and its own visible children would read as another child of
+	that parent. A group flushes when a row arrives that is not a
+	descendant of its anchor, so nested anchors flush deepest-first and
+	each group stays inside the branch it belongs to.
+
+	One elision per anchor GROUP, not per trail: the marker says levels
+	were omitted, and repeating it above every concurrent claim would
+	spend a line per worker saying the same thing."""
+	groups: dict[str, list[dict]] = {}
+	for trail in trails or ():
+		groups.setdefault(trail["anchor"], []).append(trail)
+	stream: list[dict] = []
+	pending: list[tuple[int, list[dict]]] = []
+
+	def emit(depth: int, group: list[dict]) -> None:
+		stream.append({"kind": "elision", "depth": depth + 1})
+		for trail in group:
+			# The trail's own canonical row, re-depthed for the indent
+			# it is DRAWN at. Nothing else about it is touched: its
+			# Handler, Phase, Run state and claim facts are the
+			# projection's, and the ancestor above keeps its own.
+			stream.append({"kind": "work", "trail": True,
+			               "row": dict(trail["work"], depth=depth + 1)})
+
+	def flush(down_to: int) -> None:
+		while pending and pending[-1][0] >= down_to:
+			depth, group = pending.pop()
+			emit(depth, group)
+
+	for row in rows:
+		flush(row.get("depth") or 0)
+		stream.append({"kind": "work", "trail": False, "row": row})
+		if row["id"] in groups:
+			pending.append((row.get("depth") or 0, groups.pop(row["id"])))
+	flush(0)
+	# Anchors the projection returned that this view then hid. Containment
+	# forbids the only way it could happen — a parent cannot close while an
+	# open child remains, so a collapsed closed row can hold no active
+	# descendant — but a trail is never DROPPED to keep that assumption
+	# tidy. It flushes at the end of the table, where it is visibly out of
+	# place rather than invisibly absent.
+	for anchor in list(groups):
+		emit(0, groups.pop(anchor))
+	return stream
+
+
 def blocker_cue(row: dict) -> str:
 	"""The inline cue under the `Wait` heading: WHAT is holding this row.
 
@@ -1077,6 +1195,11 @@ class Console:
 		self.participant = f"{viewer_team}.{viewer_member}"
 		self.config_path = config_path
 		self.path: list[str] = []        # drilled Work ids, root-first
+		# W6814: the encoding the `⋮`/`...` fallback is decided
+		# against. None asks the process locale, which is what a real
+		# terminal session runs under; a test pins either spelling by
+		# naming an encoding, without needing a terminal to do it.
+		self.encoding: str | None = None
 		# W292 (finding-work-detail-breadcrumb-navigation): the ONE
 		# universal navigation stack. Empty means the operator is on a
 		# top-level page, which is the only place the global
@@ -1093,6 +1216,11 @@ class Console:
 		# drillable page joins by pushing a frame, not by growing a
 		# special case here.
 		self.nav: list[dict] = []
+		# W6814: the page the FIRST drill of this walk left. It is kept
+		# beside the stack rather than inside it, because the bound
+		# above evicts the oldest ordinary entry and the way out is the
+		# one entry that may never be the casualty.
+		self.nav_caller: dict | None = None
 		self.cursor = 0
 		self.mode = "table"       # table / links / thread / thread
 		self.status = ""
@@ -1295,35 +1423,127 @@ class Console:
 	def _nav_push(self, kind: str, label: str, *,
 	              restore: dict | None = None,
 	              work: str | None = None) -> None:
-		"""Drill in one level. `restore` is the state of the level being
-		LEFT, captured before the caller changed anything; omitting it
-		captures the live state, which is right whenever the push
-		happens first.
+		"""Record ONE explicit navigation. `restore` is the state of the
+		page being LEFT, captured before the caller changed anything;
+		omitting it captures the live state, which is right whenever the
+		push happens first.
 
 		A Work frame carries the Work's ID, not only its title. Two
 		siblings may share a title, and deciding what is already on the
 		stack by comparing prose would put the operator in a scope they
-		did not open."""
+		did not open.
+
+		W6814 supersedes W292's frame-per-ancestor seeding. This stack is
+		INTERACTION history in the browser's model: one entry per
+		explicit navigation act, whatever containment distance that act
+		crossed. Structure is now the breadcrumb's separate job
+		(`nav_segments`), and the two answer genuinely different
+		questions — how did I get here, and where am I. Under W292 they
+		were one list, so opening a VISIBLE grandchild with one Enter
+		cost three Backs to leave, through two pages the operator had
+		never asked to see."""
+		state = self._nav_capture() if restore is None else restore
+		if self.nav and (kind, work, label) == \
+				(self.nav[-1]["kind"], self.nav[-1]["work"],
+				 self.nav[-1]["label"]):
+			# Consecutive duplicates coalesce. The page you are already
+			# on is not somewhere Back can take you, and recording it
+			# would spend a Back doing nothing visible — which reads as
+			# a dropped keystroke.
+			return
+		if not self.nav:
+			self.nav_caller = state
 		self.nav.append({"kind": kind, "label": label, "work": work,
-		                 "restore": self._nav_capture() if restore is None
-		                            else restore})
+		                 "restore": state})
+		if len(self.nav) > NAV_HISTORY_LIMIT:
+			# The OLDEST ordinary entry goes. `nav_caller` already holds
+			# the escape target, so the walk shortens from the far end
+			# and never loses its exit.
+			del self.nav[0]
 
 	def _nav_pop(self) -> bool:
-		"""Back/Esc: pop EXACTLY one segment and restore the level it
+		"""Back/Esc: pop EXACTLY one entry and restore the page it
 		reveals. False when there is nothing to pop, which is how a
-		top-level page keeps its own Esc semantics."""
+		top-level page keeps its own Esc semantics.
+
+		W6814: the LAST Back always lands on the original caller.
+		Normally that is exactly the popped entry's own restore; after an
+		eviction it is the only surviving record of it, which is what
+		stops a long walk from stranding the operator inside a Work
+		view."""
 		if not self.nav:
 			return False
-		self._nav_restore(self.nav.pop()["restore"])
+		frame = self.nav.pop()
+		state = frame["restore"] if self.nav \
+			else (self.nav_caller or frame["restore"])
+		self._nav_restore(state)
+		if not self.nav:
+			self.nav_caller = None
 		return True
 
 	def nav_segments(self) -> list[str]:
 		"""The complete location path, root-first, or empty at the top
-		level. The first segment is the top-level PAGE the drill started
-		from, because that is the level the last Back returns to."""
+		level. The first segment is the top-level PAGE the walk started
+		from.
+
+		W6814 splits this from the Back stack. A Work page contributes
+		its canonical containment ANCESTRY — every level, whether or not
+		the operator opened each one explicitly — because the breadcrumb
+		answers where this is, and containment is what that means. `nav`
+		answers the different question of how many Backs it took to get
+		here, and one Enter is one Back however many levels it crossed.
+
+		A drill DEEPER inside a path already painted contributes only its
+		missing descendants (W292 R1: `root > root > child` duplicated a
+		segment that is not a containment level); a page of a Work the
+		segment above already names contributes that page's name instead;
+		and a page that is not a Work's names itself."""
 		if not self.nav:
 			return []
-		return [self.tab.title()] + [frame["label"] for frame in self.nav]
+		names: list[str] = []
+		covered: list[str] = []
+		for frame in self.nav:
+			if not frame["work"]:
+				names.append(frame["label"])
+				covered = []
+				continue
+			trail = [entry["title"]
+			         for entry in self._work_ancestry(frame["work"])]
+			ids = self._work_ids(frame["work"])
+			already = len(covered) \
+				if covered and ids[:len(covered)] == covered else 0
+			fresh, covered = trail[already:], ids
+			suffix = PAGE_NAMES.get(frame["kind"])
+			if not fresh and not suffix:
+				continue
+			if not fresh:
+				fresh = [trail[-1]]
+			fresh[-1] = f"{fresh[-1]} · {suffix}" if suffix else fresh[-1]
+			names.extend(fresh)
+		return [self.tab.title()] + names
+
+	def context_work(self) -> str | None:
+		"""The Work whose CONTEXTUAL PAGE the operator is on, or None at
+		a top-level page or a page that is not a Work's.
+
+		This is what the local `[Jobs] [Messages] [Events]` row is scoped
+		to. It comes from the navigation entry rather than from the
+		cursor, which is the ruling: moving the highlight through the
+		tree must never change which Work owns Messages or Events."""
+		if self.nav:
+			here = self.nav[-1]
+			return here["work"] if here["kind"] == "work" else None
+		# A view constructed STRAIGHT into a Work page has no recorded
+		# path — the parity and unit harnesses build one — and its tabs
+		# must still be that Work's. The re-rooted table says so through
+		# `path`, and the detail view through the Work it is showing.
+		if self.mode == "detail":
+			return self.detail_work
+		return self.path[-1] if self.path else None
+
+	def context_tab(self) -> str:
+		"""Which of the contextual page's three tabs is showing."""
+		return "jobs" if self.mode != "detail" else self.detail_tab
 
 	def nav_text(self) -> str:
 		return NAV_SEPARATOR.join(self.nav_segments())
@@ -1336,63 +1556,46 @@ class Console:
 		                     lambda: projection.breadcrumb(self.store, work_id))
 		return list(trail) or [{"id": work_id, "title": work_id}]
 
-	def _open_work_scopes(self, kind: str) -> list[str]:
-		"""The Work ids this path already has scopes of ONE kind for, in
-		order — the trailing run of such frames on the stack.
+	def _open_root(self, work_id: str) -> None:
+		"""Make one Job the CONTEXTUAL ROOT of the Work view — W6814.
 
-		The kind matters. A re-rooted subtree and a Work's detail page
-		are two different pages of the same Work, so one does not stand
-		in for the other; only a drill of the same kind continues a
-		recorded containment path."""
-		open_scopes = []
-		for frame in self.nav:
-			if frame["kind"] != kind:
-				open_scopes = []
-				continue
-			open_scopes.append(frame["work"])
-		return open_scopes
+		The three-level window and its active-descendant elisions are
+		recomputed relative to the new root, which is the whole point:
+		once the operator has opened a Job, spending vertical space on
+		its former ancestors buys them nothing they cannot read in the
+		breadcrumb.
 
-	def _seed_work_frames(self, work_id: str, caller: dict, level, *,
-	                      kind: str = "work") -> None:
-		"""Record the Work scopes for `work_id` that are not already
-		recorded, root-first.
+		Re-rooting where you already are is idempotent and records no
+		history, so `u` on the current root and Enter on the root row are
+		both no-ops rather than Backs that go nowhere."""
+		if self.mode == "table" and self.path and self.path[-1] == work_id:
+			return
+		self._nav_push("work", self._work_title(work_id), work=work_id)
+		self._nav_restore(self._rooted_state(work_id))
 
-		The rule this implements is the finding's: do not paint ancestry
-		that one Back immediately skips. A drill straight into a
-		grandchild therefore records the parent scopes too, and each
-		Back reveals one of them — `level(work)` says what that revealed
-		scope looks like, which is the only thing the two drillable
-		surfaces disagree about.
+	def _activate(self, row: dict) -> None:
+		"""Enter on a Job — W6814, deliberately superseding W71's rule
+		that Enter always opened detail and only `u` re-rooted.
 
-		Round-1 review: this used to push the WHOLE ancestry every time.
-		Re-rooting at a Work and then at its child produced
-		`Jobs > root > root > child`, where the duplicated segment is
-		not a containment level and the first two Backs revealed
-		identical scopes. So a drill DEEPER inside a path the stack
-		already records adds only the missing descendants; only a drill
-		into an unrelated tree seeds the whole ancestry, and it seeds it
-		from the caller as before."""
-		ancestry = self._work_ancestry(work_id)
-		ids = [entry["id"] for entry in ancestry]
-		open_scopes = self._open_work_scopes(kind)
-		# A genuine descent CONTINUES the recorded path; anything else
-		# is a different tree and starts fresh from the caller.
-		already = len(open_scopes) \
-			if open_scopes and ids[:len(open_scopes)] == open_scopes else 0
-		for depth in range(already, len(ancestry)):
-			if depth == already:
-				restore = caller
-			else:
-				restore = dict(caller)
-				restore.update(level(ids[depth - 1]))
-			label = ancestry[depth]["title"]
-			if self.nav and self.nav[-1].get("work") == ids[depth]:
-				# The same Work, a different page of it — opening a
-				# re-rooted Work's detail is a real second level and
-				# gets a real second segment, but two segments reading
-				# the same title would not say which is which.
-				label = f"{label} · {PAGE_NAMES.get(kind, kind)}"
-			self._nav_push(kind, label, restore=restore, work=ids[depth])
+		The row's OWN canonical child count decides. A Job that contains
+		Work becomes the contextual root and the tree is recomputed
+		beneath it; a Job that contains none opens its own detail,
+		because there is no subtree left to present. One canonical fact
+		(`progress.children`, the same number the `▸N` disclosure already
+		draws), so the two branches cannot drift from what the screen
+		says.
+
+		`u` survives as the EXPLICIT re-root — it is the way to root at a
+		childless Job, which activation deliberately does not do — and it
+		is no longer the only way to reach a subtree.
+
+		Either branch is ONE explicit navigation and therefore exactly
+		one Back, whatever containment distance Enter crossed."""
+		children = (row.get("progress") or {}).get("children") or 0
+		if children:
+			self._open_root(row["id"])
+		else:
+			self._enter_detail(row["id"], came_from="table")
 
 	def _work_title(self, work_id: str) -> str:
 		"""A Work's own title from the cached breadcrumb — the same read
@@ -1434,8 +1637,8 @@ class Console:
 		self.schedule_refresh()
 
 
-	def view(self) -> tuple[list[dict], dict]:
-		"""(tree rows, summary) — W155 (superseding W71's two-level
+	def _window(self) -> dict:
+		"""THE canonical tree window — W155 (superseding W71's two-level
 		cap): the main screen is a bounded THREE-LEVEL containment
 		window. At the top it shows every root, each root's immediate
 		children (depth 1, `↳`) and their children in turn (depth 2);
@@ -1453,12 +1656,46 @@ class Console:
 		# carries it, and the projection returns the filtered window
 		# plus its normalized disclosure.
 		filter_key = tuple(sorted((self.work_filter or {}).items()))
-		window = self._cached(("tree", root_id, filter_key),
-		                      lambda: projection.tree(
+		return self._cached(("tree", root_id, filter_key),
+		                    lambda: projection.tree(
 			self.store, root_id, viewer_team=self.team,
 			viewer_member=self.member,
 			work_filter=self.work_filter))
+
+	def view(self) -> tuple[list[dict], dict]:
+		"""(tree rows, summary) — the two halves of `_window()` every
+		caller that does not need the trails already asked for."""
+		window = self._window()
 		return list(window["rows"]), window["summary"]
+
+	def trails(self) -> list[dict]:
+		"""W6814: the actively claimed Work the bounded window HIDES,
+		each with the returned ancestor it belongs under.
+
+		Served from the SAME cached window as the rows and the summary,
+		so an elision group and the ancestor it hangs from are one
+		authority state — the whole reason the field is derived inside
+		the canonical tree read rather than joined here."""
+		return list(self._window().get("active_trails") or ())
+
+	def elision_mark(self) -> str:
+		"""The omitted-levels marker this terminal can actually
+		encode."""
+		return elision_mark(self.encoding)
+
+	def table_rows(self) -> tuple[list[dict], int]:
+		"""(selectable Jobs rows, hidden closed count) — W6814.
+
+		The ordinary window and the active-descendant trails in ONE
+		display order, which is what every key acts on: a trail Work is
+		reachable by j/k, Enter, `c`, `d` and `u` exactly as an
+		ordinary row is, because from the operator's hands it is an
+		ordinary row. The elision lines are not here at all — the keys
+		never see a line that is not a Work."""
+		visible, hidden = self.visible_rows(self.rows())
+		stream = tree_stream(visible, self.trails())
+		return ([entry["row"] for entry in stream
+		         if entry["kind"] == "work"], hidden)
 
 	def search_rows(self) -> list[dict]:
 		"""W336: the search window flows through the SAME countdown and
@@ -1965,13 +2202,18 @@ class Console:
 			# cached snapshot, never a second authority read.
 			rows = self.rows()
 			summary = self.view()[1]
+			# W6814: from the SAME cached window as the rows above, so
+			# an elision group and the ancestor it hangs from can never
+			# come from two authority states.
+			trails = self.trails()
 		elif self.mode == "search":
-			rows = self.search_rows()
+			rows, trails = self.search_rows(), ()
 			summary = self._cached(
 				("summary",),
 				lambda: projection.team_summary(
 					self.store, viewer_team=self.team))
 		else:
+			trails = ()
 			rows, summary = [], self._cached(
 				("summary",),
 				lambda: projection.team_summary(
@@ -2018,6 +2260,12 @@ class Console:
 				"n/p page · Esc back", width - 1)
 		else:
 			table_top = 1
+			if self.context_work():
+				# W6814: the contextual Work page's own tabs sit
+				# directly under the breadcrumb, above the tree the
+				# `Jobs` tab is showing.
+				self._paint_tab_row(screen, table_top, width, "jobs")
+				table_top += 1
 			if self.work_filter:
 				# The dedicated normalized-clause line; horizontally
 				# viewported at narrow widths, never silently dropped.
@@ -2027,7 +2275,7 @@ class Console:
 				screen.addnstr(1, 0, clauses, width - 1, curses.A_DIM)
 				table_top = 2
 			self._render_table(screen, height, width, rows,
-			                   top=table_top)
+			                   top=table_top, trails=trails)
 		self._render_bar(screen, height, width)
 
 	# -- W25: the Inbox tab ----------------------------------------------
@@ -2768,16 +3016,25 @@ class Console:
 		}
 
 	def _render_table(self, screen, height, width, rows,
-	                  top: int = 1) -> None:
+	                  top: int = 1, trails=()) -> None:
 		# W4 R1: the Id width comes from the rows ACTUALLY painted in
 		# this view — a collapsed closed row must not consume Title
 		# space or drop columns until `z` exposes it. The W39
 		# dependency cue is scoped the same way, and is ONE whole
 		# optional responsive field: when it alone breaks the fit it is
-		# omitted entirely (never clipped); `[b] deps` stays available.
+		# omitted entirely (never clipped); `[d] deps` stays available.
 		visible, hidden = self.visible_rows(rows)
-		id_width = id_column_width(visible)
-		cue_width = cue_column_width(visible)
+		# W6814: the physical display stream — the ordinary rows plus,
+		# under each anchor, one non-selectable elision line and the
+		# active Work this window hides beneath it. `selectable` is what
+		# the cursor, the Id/cue budgets and every key see, so a trail
+		# Work is an ordinary row to all of them and the elision is
+		# invisible to all of them.
+		stream = tree_stream(visible, trails)
+		selectable = [entry["row"] for entry in stream
+		              if entry["kind"] == "work"]
+		id_width = id_column_width(selectable)
+		cue_width = cue_column_width(selectable)
 		# W73: the Out column is part of the budget exactly when the
 		# view can hold terminal Work, so every fit judgment below
 		# carries the same answer.
@@ -2801,7 +3058,7 @@ class Console:
 		# W4: the exact Id column LEADS the table and never truncates —
 		# it grows to the longest visible selector; the responsive drop
 		# budget carries it, and the title absorbs the remainder.
-		claimed = any(row.get("handler") for row in rows)
+		claimed = any(row.get("handler") for row in selectable)
 		columns = visible_columns(width, lead, terminal, claimed)
 		fixed = sum(w for _n, w in columns) + len(columns)
 		title_width = max(MIN_TITLE, width - fixed - lead - 2)
@@ -2821,16 +3078,16 @@ class Console:
 		# background refresh that inserts or removes rows never moves
 		# the cursor to a different Work.
 		if self.selected_id is not None:
-			for index, row in enumerate(visible):
+			for index, row in enumerate(selectable):
 				if row["id"] == self.selected_id:
 					self.cursor = index
 					break
 			else:
 				self.cursor = min(self.cursor,
-				                  max(0, len(visible) - 1))
-		if visible:
+				                  max(0, len(selectable) - 1))
+		if selectable:
 			self.selected_id = \
-				visible[min(self.cursor, len(visible) - 1)]["id"]
+				selectable[min(self.cursor, len(selectable) - 1)]["id"]
 		# The hidden-count footer is part of the collapse CONTRACT: when
 		# closed rows are hidden, one line is RESERVED for naming them —
 		# a full page of open rows may never make the collapse silent.
@@ -2839,9 +3096,30 @@ class Console:
 		# The selected row must be PAINTED: Enter acts on it, and an
 		# off-screen aim would be an invisible destructive action. Long
 		# tables scroll so the cursor stays inside the drawn slice.
-		start = max(0, min(self.cursor - budget + 1,
-		                   len(visible) - budget))
-		for offset, row in enumerate(visible[start:start + budget]):
+		# W6814: the viewport scrolls over PHYSICAL lines and still
+		# anchors on the selected WORK. An elision spends a line like
+		# anything else, so a group under the cursor's ancestor can
+		# never quietly push the selected row off the drawn slice —
+		# which is the failure the id anchor exists to prevent.
+		at_line = [index for index, entry in enumerate(stream)
+		           if entry["kind"] == "work"]
+		cursor_line = at_line[self.cursor] if self.cursor < len(at_line) \
+			else 0
+		start = max(0, min(cursor_line - budget + 1,
+		                   len(stream) - budget))
+		for offset, entry in enumerate(stream[start:start + budget]):
+			if entry["kind"] == "elision":
+				# The Id column stays EMPTY and no data column is
+				# drawn: the line says "levels omitted" and nothing
+				# that could be mistaken for a Work's own facts. Dim,
+				# because it is structure rather than content.
+				cell = _elision_cell(entry["depth"], title_width,
+				                     self.elision_mark())
+				screen.addnstr(top + 1 + offset, id_width + 1, cell,
+				               max(0, width - 1 - id_width - 1),
+				               curses.A_DIM)
+				continue
+			row = entry["row"]
 			# W71: depth-1 rows are `↳`-indented containment children; a
 			# child that itself contains children carries a visible
 			# disclosure count (its canonical progress total) reachable
@@ -2863,8 +3141,11 @@ class Console:
 			cells = self._row_cells(row)
 			for name, col_width in columns:
 				line += " " + cells[name][:col_width].ljust(col_width)
+			# W6814: selection is decided by IDENTITY, not by the
+			# physical line — the elision lines mean the two counts
+			# are no longer the same number.
 			attribute = curses.A_REVERSE \
-				if start + offset == self.cursor else 0
+				if row["id"] == self.selected_id else 0
 			if self.phase_blink.get(row["id"], 0) > 0:
 				# W105: the ephemeral phase-CHANGE cue covers the whole
 				# visible row, not just the Phase cell. It was easy to
@@ -2895,18 +3176,22 @@ class Console:
 					top + 1 + offset, id_width + 1, title_cell,
 					min(title_width, max(0, width - 1 - id_width - 1)),
 					attribute | curses.A_BOLD)
-		footer_row = top + 1 + min(len(visible) - start, budget)
+		footer_row = top + 1 + min(len(stream) - start, budget)
 		if hidden and footer_row <= height - 2:
 			screen.addnstr(footer_row, 0,
 			               f"({hidden} closed hidden — z shows)",
 			               width - 1)
-		if not visible and not hidden:
+		if not stream and not hidden:
 			screen.addnstr(top + 1, 0, "(no work here)", width - 1)
 		if height - 2 > footer_row:
+			# W6814 supersedes W71's `Enter details` here: Enter is now
+			# ordinary ACTIVATION and what it opens depends on the row —
+			# a Job with children becomes the contextual root, a Job
+			# without them opens its own detail.
 			screen.addnstr(
 				height - 2, 0,
-				"Enter details · u unfold · c claim · z closed · "
-				"[b] deps · Esc back · : command · q quit", width - 1)
+				"Enter drill · u unfold · c claim · z closed · "
+				"[d] deps · Esc back · : command · q quit", width - 1)
 
 	def _thread_autoselect(self) -> None:
 		"""The ruled default across EVERY bounded page of the detail
@@ -3054,7 +3339,8 @@ class Console:
 
 	def _open_graph(self, target: str) -> None:
 		"""Open the graph centered on one Work, from wherever."""
-		self._nav_push("links", f"{self._work_title(target)} · deps")
+		self._nav_push("links", f"{self._work_title(target)} · deps",
+		               work=target)
 		self.graph_center = target
 		self.graph_depth = projection.DEPENDENCY_DEPTH_MIN
 		self.graph_anchor = target
@@ -3373,7 +3659,11 @@ class Console:
 			line += f"  wait {gate['selector']}"
 		return line
 
-	DETAIL_TABS = ("messages", "events")
+	# W6814 supersedes the two-tab detail row. The tabs belong to the
+	# contextual Work PAGE, not to its detail view, and `Jobs` is that
+	# Work rendered as the tree root — the third thing an operator can
+	# want to see about the Work they opened.
+	DETAIL_TABS = ROOT_TABS
 
 	def detail_tab_segments(self) -> list[tuple[str, str]]:
 		"""`(tab name, drawn label)`, every label bracketed.
@@ -3383,6 +3673,30 @@ class Console:
 		return [(name, f"[{name.title()}]")
 		        for name in self.DETAIL_TABS]
 
+	def _paint_tab_row(self, screen, row: int, width: int,
+	                   active: str) -> None:
+		"""The contextual Work page's local tab row, painted label by
+		label — W110: the active one carries REVERSE and a single string
+		could only weight both or neither.
+
+		W110 review R2: the SAME narrow-layout rule the top level uses.
+		This loop used to stop at the first label too wide, which left
+		the inactive `[Messages]` alone on a 13-column bar while the
+		operator was in Events — advertising a tab the screen did not
+		show, and losing the one it did.
+
+		W6814 gives it a second caller. The Jobs tab of a contextual
+		Work page is the same row above a table instead of above a
+		reader, and two paintings of one row would be two chances for
+		them to disagree about which tab is active."""
+		column = 0
+		for name, label in fitted_tabs(self.detail_tab_segments(), active,
+		                               max(0, width - 1)):
+			screen.addnstr(row, column, label, width - 1 - column,
+			               curses.A_BOLD | (curses.A_REVERSE
+			                                if name == active else 0))
+			column += len(label) + len(TAB_GAP)
+
 	def _tab_bar(self) -> str:
 		"""W123: `[Messages]  [Events]`. The bar is presentation; the
 		tab itself is client state and touches no authority."""
@@ -3390,13 +3704,40 @@ class Console:
 		                    in self.detail_tab_segments())
 
 	def _switch_tab(self, step: int) -> None:
-		"""`]` next, `[` previous. Each tab's own focus, selection, page
-		cursor and reader scroll live in separate fields, so switching
-		preserves both sides by construction rather than by saving and
-		restoring a shared slot."""
-		here = self.DETAIL_TABS.index(self.detail_tab)
-		self.detail_tab = self.DETAIL_TABS[
-			(here + step) % len(self.DETAIL_TABS)]
+		"""`]` next, `[` previous, across the contextual Work page's own
+		`[Jobs] [Messages] [Events]` — W6814.
+
+		Each tab's own focus, selection, page cursor and reader scroll
+		live in separate fields, so switching preserves every side by
+		construction rather than by saving and restoring a shared slot.
+		A tab change is a LOCAL interaction: it records no history and
+		does not touch the breadcrumb, because the operator has not
+		changed which Work they are looking at."""
+		here = self.DETAIL_TABS.index(self.context_tab())
+		self._show_tab(self.DETAIL_TABS[
+			(here + step) % len(self.DETAIL_TABS)])
+
+	def _show_tab(self, name: str) -> None:
+		"""Show one of the contextual page's tabs, scoped to the page's
+		ROOT Work rather than to whatever row is highlighted.
+
+		`Jobs` re-enters the tree already rooted there — preserving the
+		row and cursor if it is already the root, so a round trip out to
+		Messages and back returns to the row the operator left."""
+		root = self.context_work() or self.detail_work \
+			or (self.path[-1] if self.path else None)
+		if root is None:
+			return
+		if name == "jobs":
+			self.mode = "table"
+			if not (self.path and self.path[-1] == root):
+				self.path = self._work_ids(root)
+				self.cursor = 0
+				self.selected_id = None
+			return
+		self.mode = "detail"
+		self.detail_work = root
+		self.detail_tab = name
 
 	def _detail_footer(self, screen, height, width, bits) -> None:
 		"""The advertised controls. `[/] tabs` is ALWAYS present: the
@@ -3704,20 +4045,7 @@ class Console:
 		# label by label, because the active one carries REVERSE and a
 		# single string could only weight both or neither — the same
 		# reason the top-level header is painted in pieces.
-		column = 0
-		# W110 review R2: the SAME narrow-layout rule the top level
-		# uses. This loop used to stop at the first label too wide,
-		# which left the inactive `[Messages]` alone on a 13-column bar
-		# while the operator was in Events — advertising a tab the
-		# screen did not show, and losing the one it did.
-		for name, label in fitted_tabs(self.detail_tab_segments(),
-		                               self.detail_tab,
-		                               max(0, width - 1)):
-			screen.addnstr(offset_row, column, label, width - 1 - column,
-			               curses.A_BOLD | (curses.A_REVERSE
-			                                if name == self.detail_tab
-			                                else 0))
-			column += len(label) + len(TAB_GAP)
+		self._paint_tab_row(screen, offset_row, width, self.detail_tab)
 		offset_row += 1
 		if self.detail_tab == "events":
 			self._render_events(screen, offset_row, height, width)
@@ -4880,11 +5208,18 @@ class Console:
 			# W235 R1: search results are selectable Work — the SAME
 			# shared claim path as the root table.
 			self._claim_selected(rows)
-		elif key == ord("b") and rows:
+		elif key == ord("d") and rows:
 			# W4996: and so is the dependency neighbourhood. The approved
 			# entry boundary names the table AND search, and search mode
-			# is dispatched before the table's own `b` case ever runs —
+			# is dispatched before the table's own `d` case ever runs —
 			# so without this branch the key was simply a no-op here.
+			#
+			# W96: the key is `d` for deps. It was `b`, inherited from the
+			# earlier blocker/link presentation, and this view has shown
+			# both prerequisites and dependents since W4996 — so `b` named
+			# half of what it opened. Removed outright, with no alias: a
+			# hidden compatibility binding is a second contract nobody
+			# advertises and nobody tests.
 			# A search result is a Work like any other, and an operator
 			# who found one by searching is exactly the operator who
 			# wants to see what it waits on.
@@ -5416,7 +5751,8 @@ class Console:
 		# detail mode has no recorded path, and its brackets must still
 		# not reach the global row.
 		if key in (ord("["), ord("]")) \
-				and not self.nav and self.mode == "table":
+				and not self.nav and self.mode == "table" \
+				and not self.context_work():
 			step = -1 if key == ord("[") else 1
 			self.tab = TABS[(TABS.index(self.tab) + step) % len(TABS)]
 			return True
@@ -5432,7 +5768,7 @@ class Console:
 			return self._search_mode_key(key)
 		if self.mode == "pokes":
 			return self._handle_pokes(key)
-		rows, _hidden = (self.visible_rows(self.rows())
+		rows, _hidden = (self.table_rows()
 		                 if self.mode == "table" else ([], 0))
 
 		if self.mode == "links":
@@ -5446,33 +5782,28 @@ class Console:
 		elif key in (curses.KEY_UP, ord("k")):
 			self.cursor = max(0, self.cursor - 1)
 			self.selected_id = rows[self.cursor]["id"] if rows else None
+		elif key in (ord("["), ord("]")) and self.context_work():
+			# W6814: inside a contextual Work page the bracket keys move
+			# among ITS tabs. The global guard above already declined
+			# them, which is the whole separation: `]` never escapes a
+			# drilled page to reach Teams.
+			self._switch_tab(1 if key == ord("]") else -1)
 		elif key in (curses.KEY_ENTER, 10, 13) and rows:
-			# W71: Enter has ONE meaning — open the selected Work's
-			# detail view. It never drills into children.
-			self._enter_detail(rows[self.cursor]["id"],
-			                   came_from="table")
+			# W6814 supersedes W71's single meaning: activation opens
+			# what the row HAS — a subtree, or the Job's own detail.
+			self._activate(rows[self.cursor])
 		elif key == ord("u") and rows:
-			# W71/W155: the visible unfold — re-root the three-level
-			# window at the selected Work; breadcrumbs identify the
-			# position and Esc returns upward. Re-rooting at the current root is
-			# idempotent: one logical unfold, one Back (R2).
-			target = rows[self.cursor]["id"]
-			if not (self.path and self.path[-1] == target):
-				# W292: a re-root is a drill-in like any other, and it
-				# records the SAME ancestry a Work-detail entry does —
-				# so the trail names the containment path and each Back
-				# reveals one level of it, ending at the table the
-				# operator left with its row and view state intact
-				# (refining W71's reset-to-row-zero).
-				self._seed_work_frames(
-					target, self._nav_capture(), self._rooted_table_state,
-					kind="root")
-				self.path = self._work_ids(target)
-				self.cursor = 0
-				self.selected_id = None
-		elif key == ord("b") and rows:
+			# W71/W155/W6814: the EXPLICIT unfold. Activation covers the
+			# ordinary case; this is what roots at a Job with no children
+			# and what an operator with the key in their hands still
+			# expects. Re-rooting at the current root is idempotent: one
+			# logical unfold, one Back (R2).
+			self._open_root(rows[self.cursor]["id"])
+		elif key == ord("d") and rows:
 			# W292: the dependency page is a drill into the chosen Work,
 			# so it is a breadcrumb segment like any other.
+			#
+			# W96: `d` for deps, and `b` is gone rather than aliased.
 			self._open_graph(rows[self.cursor]["id"])
 		elif key == ord("c") and rows:
 			self._claim_selected(rows)
@@ -5483,7 +5814,7 @@ class Console:
 			self._open_pokes()
 		elif key == ord("z"):
 			self.show_closed = not self.show_closed
-			shown, _hidden = self.visible_rows(self.rows())
+			shown, _hidden = self.table_rows()
 			self.cursor = min(self.cursor, max(0, len(shown) - 1))
 			self.selected_id = shown[self.cursor]["id"] if shown \
 				else None
@@ -5744,17 +6075,15 @@ class Console:
 		inside one open detail view, which is `_switch_tab`'s job and is
 		it was never meant to follow the operator to a different Work.
 
-		W292: entry also records the NAVIGATION path. One frame is
-		pushed per Work in the canonical ancestry, root-first, so
-		repeated Back walks out through the parent Works one segment at
-		a time instead of jumping to the caller — and so a segment the
-		breadcrumb paints is a segment one Back actually visits. The
-		ancestors the operator never opened get the ordinary fresh-entry
-		defaults; only the frame the caller came from restores the
-		caller's own view."""
-		caller = self._nav_capture()
-		self._seed_work_frames(work_id, caller, self._fresh_detail_state,
-		                       kind="work")
+		W292 recorded the navigation path here, one frame per Work in
+		the canonical ancestry. W6814 SUPERSEDES that: entry records
+		exactly ONE history entry, because the operator performed one
+		navigation. The breadcrumb still names the whole containment
+		ancestry — it is derived structurally now (`nav_segments`) rather
+		than assembled from Back steps — so nothing is lost from the
+		trail and two intermediate Works the operator never opened no
+		longer become two Backs they have to spend."""
+		self._nav_push("work", self._work_title(work_id), work=work_id)
 		self._nav_restore(self._fresh_detail_state(work_id))
 		self.detail_return = came_from
 
@@ -5762,11 +6091,16 @@ class Console:
 		"""The re-rooted window's path: the ancestry as Work ids."""
 		return [entry["id"] for entry in self._work_ancestry(work_id)]
 
-	def _rooted_table_state(self, work_id: str) -> dict:
-		"""The Jobs table re-rooted at one ancestor — what a Back into a
-		parent Work scope reveals when the drill was a re-root."""
-		return {"mode": "table", "path": self._work_ids(work_id),
-		        "cursor": 0, "selected_id": None}
+	def _rooted_state(self, work_id: str) -> dict:
+		"""What a FRESH contextual Work page looks like on its `Jobs`
+		tab: the Work as the tree root, the cursor at the top, and the
+		Messages/Events tabs already aimed at that same Work so `]`
+		reaches them without a second decision about which Work they
+		belong to."""
+		state = self._fresh_detail_state(work_id)
+		state.update({"mode": "table", "path": self._work_ids(work_id),
+		              "cursor": 0, "selected_id": None})
+		return state
 
 	def _fresh_detail_state(self, work_id: str) -> dict:
 		"""What a FRESH Work-detail entry looks like — the one

@@ -1,0 +1,57 @@
+W641 independent review round 1
+Date: 2026-08-23. Reviewer: baton.codex.
+
+FOCUSED RESULT
+
+  node test/worker_manager_agent_handshake.test.mjs
+    23 tests: 21 pass, 2 fail
+
+The two failures are the additive review regressions:
+
+  W641 review: structural equality is equality of JSON documents
+    Missing expected exception for:
+      { fs: new Date(0), terminal: false }
+
+  W641 review: an unsupported value keeps the closed refusal taxonomy
+    raw TypeError: Do not know how to serialize a BigInt
+
+The first value is not the required document: Date serializes as a string,
+but Object.keys(Date) is empty and the current validator calls that `{}`.
+The second is already known to be invalid; JSON.stringify in its refusal
+diagnostic replaces policy.denied with an open host exception.
+
+OTHER W641 GATES
+
+  worker_manager_agent_profile.test.mjs     14 pass
+  worker_manager_agent_session.test.mjs     18 pass
+  frozen schema versus product schema       byte-identical (cmp exit 0)
+
+  python3 -m unittest test_acp_boundary_model.py
+    64 tests: 62 pass, 1 fail, 1 error
+    Both non-passes are W543's open tool-kind review. W641's capability
+    constant, structural cases, trace and profile cases pass.
+
+FULL V12
+
+  npm test
+    649 tests: 643 pass, 6 fail
+    2 W641 review: this round
+    2 W543 review: already open
+    2 W771 second review: already open
+
+CONSUMER SWEEP
+
+  No agent-session 1.0 source consumer retains
+  NORMALIZED_CLIENT_CAPABILITIES, ACP_WIRE_CLIENT_CAPABILITIES, or the removed
+  snake-case summary. The corrected worker-manager handshake is the sole 1.0
+  source consumer.
+
+  v12/src/acp_session.mjs sends `{}` but is explicitly retained only as the
+  accepted `0-spike`, not the 1.0 implementation base, by the owning SPEC.
+  tools/acp-baton-bridge is the earlier v11 bridge. Neither is classified as a
+  W641 item-4 regression; future 1.0 adapter work remains plan item 5.
+
+CHECK
+
+  git diff --check (review scope)
+    clean

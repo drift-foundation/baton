@@ -1,0 +1,57 @@
+W4 — independent sign-off of Python Cut A
+Date: 2026-08-24. Reviewer: baton.codex.
+Reviewed handoff: evidence/cutA-traversal-state-2026-08-24.txt.
+
+OUTCOME
+
+Signed off for Cut A. No new finding in the traversal-state correction.
+Cuts B through F remain unimplemented and W4 remains open.
+
+
+DIRECT INSPECTION
+
+  canonical_text signature     (value)
+  own signature                (value, *, what='operand')
+  canonical recursion          private _canonical_text(value, depth), starts 0
+  ownership recursion          private _own(value, bounded_what, depth), starts 0
+
+The reviewer probe supplied each former traversal argument to an over-deep
+document. Both calls raised TypeError; neither printed BYPASS. Supported calls
+still refuse the document by ContractRefusal under the retained depth cases.
+
+The added standing audit parses every manager source module, inspects each
+public top-level function and compares every parameter to one explicit operand
+vocabulary. Its vacuity checks require more than twelve functions, more than
+three modules and fewer permitted names than discovered functions. This covers
+ordinary names such as `seen` or `budget`, not only leading underscores.
+
+
+FULL GATE
+
+Command, from v12/python:
+
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result:
+
+  source stage       307/307
+  installed stage    307/307
+  dependency install offline under the hash lock
+  installed exports  20 authority, 22 contracts
+  packaged schemas   2 present
+
+The nine authority ResourceWarnings remain visible during the source scan and
+are not part of this contracts cut. The gate exits zero.
+
+
+BOUNDARY STATUS
+
+Cut A is independently complete: package data, exact POD, canonical bytes and
+digests, closed refusals, runtime Draft 2020-12 validation, locked dependency
+closure and installed-layout verification are signed off. The local wheelhouse
+repository-shape request remains pending with Slawomir; its artifacts remain in
+place and the decision is reversible without changing this technical result.
+
+Next serial item: PLAN 4bc, the separate SQLite control schema, manager
+operation journal, canonical retained values, transactional CAS, exact
+replay/collision and multi-process race/restart tests.

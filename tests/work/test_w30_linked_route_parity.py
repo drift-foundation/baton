@@ -299,7 +299,7 @@ def test_a_terminal_neighbour_reports_no_route_in_either_view(world):
 
 
 def test_the_console_neighbour_view_reads_the_corrected_route(world):
-	"""The `b` view reads the canonical dependency projection, so the
+	"""The `d` view reads the canonical dependency projection, so the
 	operator-facing end of this defect is covered too.
 
 	W4996 replaced the flat far-row list with the dependency

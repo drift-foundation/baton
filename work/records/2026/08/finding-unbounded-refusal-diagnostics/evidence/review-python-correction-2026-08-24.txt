@@ -1,0 +1,55 @@
+W1593 independent primitive-correction evidence — 2026-08-24
+
+Code inspection
+---------------
+`v12/python/src/baton_v12/contracts/pod.py::own_record` now:
+
+* owns the exact built-in document before shape comparison;
+* converts the manager-owned required rule to a tuple and frozenset;
+* supplies unexpected names to `counted_sample_of` as a generator;
+* computes the bounded missing and unexpected samples before refusing;
+* reports the expected-member count and exact `len(taken)` received count;
+* emits missing and unexpected clauses only when that side is violated; and
+* returns the owned document only when neither violation exists.
+
+`v12/python/src/baton_v12/contracts/errors.py::counted_sample_of` walks its
+operand once, retains at most `_SHOWN_NAMES` entries, bounds each through the
+existing `name_value` rule, and reports the omitted count. It does not sort,
+slice, measure or materialize the rejected-name operand.
+
+Independent verification
+------------------------
+Focused command:
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_pod -v
+
+Result: Ran 31 tests in 0.002s; OK.
+
+Distribution command:
+
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Source result: Ran 585 tests in 67.172s; OK (skipped=1). The skip is the
+intentional ambient-versus-locked dependency assertion.
+
+Locked-stage result: not independently reached. The hash-locked pip install
+could not resolve jsonschema==4.26.0 because this managed reviewer's package
+index connection failed after all retries. The recipe failed before building
+or running installed-layout tests. Standing managed-turn policy forbids an
+escalation request. The implementer's evidence records 585/585 in that stage;
+this review neither reproduced nor contradicted it.
+
+Remaining public-boundary gate
+------------------------------
+The current Python source/test search for `clientCapabilities`,
+`client_capabilit`, and `ClientCapabilities` finds only
+`contracts/schema/agent-session-1.0.schema.json`. No public manager consumer
+exists yet. Primitive signoff therefore does not close W1593: final acceptance
+must exercise the invariant through the actual ACP capability consumer created
+by the separately scheduled M2 contracts-inventory/public-composition Job.
+That concrete Job is W6592, created under the W3 local-execution milestone.
+
+Disposition
+-----------
+Primitive correction signed off. Overall Work remains blocked on public
+composition acceptance.

@@ -1,0 +1,34 @@
+Independent W4 item 4ar review, 2026-08-23
+
+Accepted:
+- providerSessionId now measures the frozen maxLength in Unicode code points;
+- the retained 512/513 astral-character boundary rows pass;
+- opaqueId remains ASCII-closed and reports its length in the right unit;
+- bounded diagnostic output no longer cuts a surrogate pair;
+- prior opaque-id, diagnostic, posture-slot and section 3.1 regressions pass.
+
+New review regression:
+
+  W2929 review: a bounded diagnostic does not walk its discarded tail
+
+The test wraps the standard string iterator only to count yielded characters.
+For a 1,000-character astral string, `nameValue` returns 61 characters but
+traverses 1,063: the short limit probe consumes 61, then `[...text]`
+materializes all 1,002 characters of the JSON-quoted string before slicing
+the first 60. A bounded prefix needs at most two short passes (<=130 here),
+not work and an array proportional to the caller-sized tail it discards.
+
+Focused result:
+
+  node test/worker_manager_refusal_taxonomy.test.mjs
+  11 tests; 10 pass; 1 fail
+
+Full result:
+
+  npm test
+  684 tests; 683 pass; 1 fail
+
+The sole failure is the additive discarded-tail regression.
+
+Item 4ah/4ao remains an open product-authority ruling and was not reviewed as
+implemented because it has not been decided or implemented.

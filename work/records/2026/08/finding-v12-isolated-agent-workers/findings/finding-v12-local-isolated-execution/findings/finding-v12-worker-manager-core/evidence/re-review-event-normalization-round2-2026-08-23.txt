@@ -1,0 +1,48 @@
+W4/W2929 item 4p event-normalization re-review — 2026-08-23
+
+Correction revalidated
+----------------------
+The six regressions from review-2026-08-23T16-47-06Z.md all pass. The
+corrected focused event file before new reviewer cases was 39/39:
+
+  cd v12 && node test/worker_manager_agent_events.test.mjs
+
+Code inspection confirmed the reported corrections on their original paths:
+agent reasoning is contentless but counted; root-level ACP tool-call fields
+are consumed; retained replay authenticates and returns the durable document;
+the seal owns turn_id; and the limit measures canonical event bytes.
+
+Two additive re-review regressions
+----------------------------------
+1. `W2929 re-review: a retained read binds the full requested session`
+   records an event under provider session A, then asks `eventRecordOf` for
+   the same attempt/posture/epoch/source sequence under provider session B.
+   The read currently returns A's document rather than refusing
+   `runtime-observation.identity-mismatch`.
+
+2. `W2929 re-review: a non-durable frame member reports a closed error`
+   supplies a function in adapter diagnostics. `sealEvent` currently leaks a
+   raw `DataCloneError` from `structuredClone` rather than the closed
+   `integrity.schema` pair.
+
+Focused result after the cases:
+
+  39 passed, 2 failed, 41 total
+
+Full gate
+---------
+  cd v12 && npm test
+
+  550 passed, 2 failed, 552 total
+
+Only the two new re-review regressions fail. `git diff --check` is clean.
+
+Separate contract finding
+-------------------------
+The carried-forward conflict between ACP SPEC §6.2 and frozen
+`$defs.toolCallView` is now owned by Baton W543 at:
+
+  work/records/2026/08/finding-acp-tool-call-kind-contract-conflict/
+
+It is intentionally not resolved inside W4.
+

@@ -1,0 +1,46 @@
+Independent W4 composition-correction review, 2026-08-23
+
+Accepted:
+- `opaqueIdFault` matches the frozen ASCII grammar, nonempty rule and
+  160-character limit and is shared by turn, attempt, session-reference and
+  posture-slot boundaries;
+- well-formed absence remains distinct from schema refusal;
+- `nameValue` bounds the produced rendering for strings, Symbols and BigInts;
+- `turnSessionRef` delegates to the one section 3.1 normalizer;
+- the review's three additive regressions are retained and now pass.
+
+New frozen-contract comparison:
+
+  providerSessionId = "😀" repeated 512 times
+  JavaScript UTF-16 code units: 1024
+  Unicode code points:          512
+  frozen schema:                accepted
+  normalizeAgentSessionRef:     integrity.schema
+
+The frozen providerSessionId is a string with minLength 1 and maxLength 512.
+JSON Schema length is measured in Unicode characters. JavaScript `.length`
+measures UTF-16 code units, so the new manual check rejects a value at the
+frozen inclusive boundary. The same probe with 513 Unicode characters is
+invalid under both.
+
+Added reviewer regression to the existing section 3.1 boundary-pair table:
+- exactly 512 astral Unicode characters: accepted;
+- 513 astral Unicode characters: integrity.schema.
+
+Focused result:
+
+  node test/worker_manager_refusal_taxonomy.test.mjs
+  9 tests; 8 pass; 1 fail
+
+Only `axis: a provider id of exactly 512 Unicode characters` fails.
+
+Full result:
+
+  npm test
+  682 tests; 681 pass; 1 fail
+
+The sole failure is the additive provider-session Unicode-bound case above.
+
+Tracking correction: PLAN.md already used 4ao for the open session-container
+ruling and then reused 4ao for the completed diagnostic P2. The latter is
+renumbered 4aq; the original 4ao remains the pending ruling.

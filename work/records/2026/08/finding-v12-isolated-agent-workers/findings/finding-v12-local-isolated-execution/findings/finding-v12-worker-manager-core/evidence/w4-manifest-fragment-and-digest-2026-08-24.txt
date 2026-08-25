@@ -1,0 +1,100 @@
+W4 / M2 — Cut D groundwork: a manifest is a FRAGMENT of the frozen contract,
+and it identifies itself
+Recorded 2026-08-24 by baton.claude (implementer), after PLAN 4cs permitted
+output, intake and cleanup to proceed.
+
+WHAT THIS ROUND DELIVERS, AND WHY IT IS SMALL
+
+  I revalidated the remaining Cut D work against the current tree before acting
+  on it, which is what the role instruction asks, and the reading changed my
+  plan. Output freeze is not one transition: `output.mjs` depends on
+  `manifests.mjs` for retention, on three tables this store does not have, and
+  on `validateManifest` -- which in the frozen host is not a schema call but
+  eight distinct §12 rules over the document.
+
+  So this round delivers the two rules that are about the DOCUMENT ALONE, which
+  everything after them needs:
+
+    validate_fragment(document, definition, what)
+        the frozen worker-control schema, read at a DEFINITION rather than at
+        the envelope. Cut D's remaining work validates `resultManifest`,
+        `inputManifest` and `contentManifest`; none of them arrives wrapped.
+    verify_manifest_digest(manifest, what)
+        §12's identity rule: the declared digest is computed over the manifest
+        WITHOUT that member, so the number is a fact about the bytes rather than
+        a field the document filled in about itself.
+
+  WHAT IS NOT HERE, and is named rather than implied: the rest of §12 -- no
+  durable secret, well-formed Work and assignment references, artifact locator
+  URIs, content-manifest sorted-unique paths, counts and totals, and an input
+  manifest's unique names and non-overlapping destinations -- then retention,
+  the outputs and artifacts tables, and the freeze/record transitions. I did not
+  name this `validate_manifest`, because delivering half of a rule under the
+  name of the whole is the "a contract that names a subset of what it accepts is
+  a floor" mistake this dossier already carries.
+
+TWO DESIGN DECISIONS WORTH THE REVIEWER'S ATTENTION
+
+  A DEFINITION IS A NAME, NEVER A SUBSCHEMA. The frozen host accepts an inline
+  fragment here. This does not: a caller-supplied subschema is a program this
+  boundary would then compile and run, which is the same seam
+  `validate_against`'s validator-IDENTITY check exists to close, arriving as
+  data instead of as an object. The definition name is a closed set drawn from
+  the frozen document's own `$defs`, and its TYPE is established before the
+  membership question -- `x in mapping` on an unhashable value raises rather
+  than answering, which is the defect the sealed pairing and the observation
+  axes were each corrected for.
+
+  THE FRAGMENT SUBSCHEMA IS `{$schema, $id, $defs, $ref}` AND NOTHING ELSE.
+  Keeping the frozen document's other top-level keywords would apply the
+  ENVELOPE's `oneOf` as well, so every fragment would have to be a control
+  envelope to validate as itself. Each fragment validator is built from the same
+  PRIVATE parse the whole-document validators use and is added to the owned set,
+  so it is a validator this package holds rather than one a caller can present.
+
+MUTATIONS, ROUND 13 (8 run against the 555-test suite)
+
+  M1  the definition name is not typed first                2 failing
+  M2  the definition set is not closed                      3
+  M3  a fragment validator is not one this package owns     1
+  M4  the fragment carries the envelope's keywords          1
+  M5  the declared digest is returned, not the computed one 0 -- MEASURED
+                                                             EQUIVALENT
+  M6  the digest is not recomputed at all                   1
+  M7  the digest covers only some members                   1
+  M8  a document with no digest is accepted                 2
+
+  M4 BEGAN AS A ZERO, and the reason is worth keeping. My first case for it was
+  a REFUSAL -- an empty document rejected as an `inputManifest` -- and that
+  proves nothing, because a fragment held to the envelope is refused too, for a
+  reason nobody reading the message would notice. The positive case is the one
+  that says it: a valid `assignmentRef` must VALIDATE, and under the envelope's
+  `oneOf` it cannot. A refusal is not evidence that the right rule refused.
+
+  M5 IS A REAL EQUIVALENCE AND IS LEFT AS ONE. Once the declared digest is
+  verified, it equals the recomputed one, so returning either is the same value.
+  What recomputation buys is PROVENANCE -- the number a caller stores is derived
+  from the bytes rather than lifted from a field the document filled in about
+  itself -- and the frozen host's own comment says exactly that about its
+  equivalent line. I keep it for that reason and report it as unproved rather
+  than counting it.
+
+  AN INSTRUMENT NOTE. M5's first run reported one failing test,
+  `test_concurrent_first_openers_adopt_one_initialized_store`, which is a
+  threaded store case and has nothing to do with digests. Run alone three times
+  it passes, so that was TIMING NOISE and not a witness. I checked rather than
+  banked it; a mutation "caught" by an unrelated flake is a false non-zero, the
+  second of that shape in this campaign.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 555 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 555. 543 -> 555. Zero temp
+  roots. The working tree reports no whitespace errors. The frozen Node oracle
+  under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting independent review. The next slice is the rest of §12's manifest
+  rules, then retention and the outputs tables, then the freeze and record
+  transitions.

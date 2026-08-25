@@ -1,0 +1,89 @@
+W771 — second correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T19-28-58Z.md (one P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node test/worker_manager_posture_slots.test.mjs   22 pass, 2 fail of 24
+
+The two additive regressions were the only failures. The finding is correct.
+
+
+2. THE REVIEWER TAUGHT ME THIS ASYMMETRY LAST ROUND AND I APPLIED IT ONCE
+
+Round 1's `a delayed close cannot release a newer epoch` established that the
+OBSERVATION is about the epoch and always lands, while the SLOT movement is
+about the posture and only applies to its own occupant. I implemented that in
+`closeAgentSession` and did not carry it one function over.
+
+So `handleTransportLoss` still required both. A retry after positive recovery
+refused on `available`; a delayed epoch-1 report refused on epoch 2 and rolled
+back with it, leaving epoch 1 falsely `ready` when the transport really had
+died for it.
+
+The composition matches `closeAgentSession` now: the observation lands, the
+slot moves only when it is this epoch's AND occupied, and the answer reports
+the occupancy that ACTUALLY HOLDS rather than the one this ending would have
+produced on its own. A caller told `recovery-required` while a later epoch
+occupies the posture has been told something false about the posture.
+
+THE STRICT SLOT API IS UNCHANGED, as the review requires.
+`requireSlotRecovery` and `releaseSlot` still refuse a foreign or stale epoch;
+what changed is that the transport-loss COMPOSITION no longer asks them a
+question that does not apply.
+
+
+3. MUTATIONS — FOUR, ALL WITNESSED
+
+  Z1 the observation is rolled back with the slot again   3 cases fail
+  Z2 a foreign epoch's slot is moved                      2 cases fail
+  Z3 an already-recovered slot is moved again             1 case fails
+  Z4 the answer reports the intended occupancy            1 case fails
+
+Z4 initially showed witnesses that were NOT mine — two W4 fifth-review cases
+that had just landed in the reconnect file and fail on the current code for
+their own reasons. My case did not assert the reported occupancy at all. I
+added that assertion, and Z4 now fails the case that should own it. A
+mutation's witnesses have to be checked for WHOSE they are, not only counted.
+
+
+4. REGRESSIONS — 25 (24 before, including the reviewer's two)
+
+One of mine, and it is deliberately shaped as a shared property rather than a
+third instance: `the two endings share one asymmetry` drives BOTH transport
+loss and normal close through the same scenario — epoch 1 recovered on
+positive evidence, epoch 2 takes the posture, epoch 1's ending arrives late —
+and asserts for each that the observation landed, that epoch 2's row and slot
+are untouched, and that the answer reports the occupancy that holds.
+
+Written that way because the finding was that I treated one ending as a
+precedent rather than a rule. The next ending now has a property to satisfy.
+
+
+5. GATES
+
+  W771's suites                            posture slots 25/25, sessions
+                                           18/18, axis 16/16
+  cd v12 && npm test                       652 tests, 646 pass, 6 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  whitespace-damage check                  clean
+
+Both W771 failures are fixed and none of the six remaining is W771's. They are
+three other Works' open review rounds: two "W543 review", two "W641 review"
+and two "W2929 fifth review". None was touched here.
+
+
+6. STILL OPEN
+
+Plan item 5. The review records that its own consumer sweep found no
+additional `v12/src` posture-slot consumers, so what remains of item 5 is the
+W4 integration review rather than a search.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/agent_reconnect.mjs        transport loss composes
+                                                    like a delayed close and
+                                                    reports the real occupancy
+  v12/test/worker_manager_posture_slots.test.mjs    +1 case

@@ -1,0 +1,160 @@
+W771 — reconcile agent-session close with the observation axis
+Date: 2026-08-23. Implementer: baton.claude.
+Implementing the confirmed ruling; no review to answer.
+
+
+1. REVALIDATED BEFORE IMPLEMENTING
+
+The ruling is this record's own, confirmed by Slawomir and already written
+into FINDING.md. Revalidated against the current tree rather than taken on
+trust:
+
+  the four forbidden edges     still taken by closeAgentSession, reproduced
+                               with the W4 probe retained in that dossier
+  the partial unique index     still WHERE state <> 'closed' at schema 13
+  the stranding                still real: not-started reaches only unknown,
+                               and unknown does not free the posture
+  the signed-off tests         two of them close a not-started row to get the
+                               posture back, which is the pair the ruling
+                               authorizes migrating
+
+
+2. WHAT LANDED
+
+SCHEMA 13 -> 14. The partial unique index on agent_sessions is REMOVED and not
+recreated; a store at 13 or earlier is refused by the version check rather
+than migrated, as every prior roll was. `posture_slots` replaces it:
+
+  PRIMARY KEY (runtime_attempt_id, posture)
+  occupancy CHECK IN ('available','occupied','recovery-required')
+  session_epoch, reason, changed_at
+
+The superseded index's own comment is kept in the schema and marked
+superseded, with the reasoning, rather than deleted — the next reader needs to
+know why the current rule is not the obvious one.
+
+posture_slots.mjs is the new boundary:
+
+  occupySlot          compare-and-set against 'available', called from INSIDE
+                      openAgentSession's transaction so the slot and the
+                      session row are one act
+  requireSlotRecovery occupied -> recovery-required, with a reason
+  releaseSlot         -> available, ONLY on RECOVERY_EVIDENCE
+  postureSlot         the slot as it stands, or null
+
+RECOVERY_EVIDENCE is a closed two: `provider-session-closed` and
+`runtime-absent`. A stop REQUEST, an elapsed deadline and a disconnect are
+deliberately not members, and a case asserts that by name so the omission
+reads as a decision. `runtime-absent` REQUIRES the exact identity observed,
+because "the container is gone" without saying which container is a claim
+about nothing.
+
+closeAgentSession is replaced. It is the NORMALLY OBSERVED end now: the
+observation moves through the axis boundary — refusing every edge the frozen
+table forbids, exactly as any other observation would — and the slot is
+released on that observation as evidence. A session that did not close
+normally is not its business; transport loss goes to handleTransportLoss and
+the slot is returned by releaseSlot with whatever actually established
+absence.
+
+
+3. TWO SIGNED-OFF TESTS MIGRATED, ON THIS RECORD'S AUTHORITY
+
+  "every epoch is FRESH, ACROSS LEGITIMATE CLOSURES"
+      got its posture back by writing closed over not-started. It now uses the
+      path the ruling added for exactly this case: the slot needs recovery and
+      positive absence evidence returns it. An assertion was ADDED — every
+      epoch's observation is still not-started — because recovery rewriting no
+      history is the property the migration turns on.
+  "only CLOSING frees the posture"
+      is unchanged in what it proves and corrected in how. The unknown row
+      still refuses a second open; what used to free the slot was writing
+      closed OVER that unknown. Positive evidence frees it now, three
+      non-evidence attempts are driven, and the unknown observation is
+      asserted to SURVIVE.
+
+Its title is now the one stale thing in it — the ruling is that closing is no
+longer the only thing that frees a posture. Left alone deliberately: renaming
+a signed-off case is a bigger edit than the ruling authorized, and the case
+body says what it now means. Raised on the handoff instead.
+
+
+4. MUTATIONS — EIGHT, ALL WITNESSED
+
+  P1 intent counts as absence evidence               2 cases fail
+  P2 runtime absence needs no identity               2 cases fail
+  P3 occupying skips the compare-and-set             4 cases fail
+  P4 a recovery-required slot may be re-occupied     4 cases fail
+  P5 a re-reported ambiguity overwrites the reason   1 case fails
+  P6 an available slot can become ambiguous          1 case fails
+  P7 a slot movement needs no reason                 1 case fails
+  P8 a never-occupied slot recovers anyway           1 case fails
+
+P3 and P4 both fail the signed-off "the DATABASE refuses the second open
+session" case, which is the evidence that the replacement is as strong as the
+index it replaced: two managers on separate connections are still decided by
+the database.
+
+MEASURED: postureSlot's own occupancy-vocabulary check is UNREACHABLE through
+SQL, because the column's CHECK constraint refuses an invented value first.
+The case asserts the constraint that actually holds rather than the line that
+cannot fire, and the check is kept as defence against a store built some other
+way. It is not counted as a guard.
+
+
+5. REGRESSIONS — 16 new, plus the two migrated
+
+Every case the ruling requires: positive normal-close, never-submitted,
+transport-loss, exact-container-stop, stale/absent-container-id, retry (both
+directions), crash/restart across two manager incarnations, and retained
+output. Plus: the two axes proved disjoint; the evidence set closed with the
+three non-members named; the two postures proved to hold separate slots; an
+occupied AND a recovery-required slot each refusing a second occupant; a
+never-occupied slot; an available slot refusing ambiguity; five empty reasons
+at both movements; three malformed references; and the database refusing an
+invented occupancy.
+
+
+6. GATES
+
+  cd v12 && npm test                       622 tests, 621 pass, 1 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+THE ONE FAILURE IS NOT THIS WORK'S, and it is named rather than glossed:
+`W2929 re-review: an options document is a plain record` is an additive
+regression a W4 re-review added to
+v12/test/worker_manager_agent_reconnect.test.mjs while W771 was being
+implemented. It drives Date, Map, RegExp, class-instance and inherited-member
+option envelopes through handleTransportLoss, whose envelope predicate is
+`typeof options !== "object" || Array.isArray(options)` — none of which W771
+touched. W4 is queued at baton.impl for that correction and it is the next
+thing I claim.
+
+I did not fix it under this claim. It belongs to W4's open review round, and
+correcting another Work's finding inside this one would put the change in the
+wrong record.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs                  schema 14; the index
+                                                     removed and its comment
+                                                     kept as superseded
+  v12/src/worker_manager/posture_slots.mjs           NEW — the occupancy axis
+  v12/src/worker_manager/agent_session.mjs           open occupies the slot in
+                                                     its own transaction;
+                                                     close observes and
+                                                     releases
+  v12/test/worker_manager_posture_slots.test.mjs     NEW — 16 cases
+  v12/test/worker_manager_agent_session.test.mjs     2 authorized migrations
+  v12/test/worker_manager_store.test.mjs             the schema pin and table
+                                                     list
+  .../finding-acp-agent-boundary/FINDING.md          the clarification the
+                                                     plan requires, appended
+                                                     and superseding nothing

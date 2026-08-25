@@ -1,0 +1,84 @@
+W4 / M2 — a successful split is not a parse, and an exported rule owns its own
+operand
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T18-32-54Z.md (two P1s).
+
+1. CALLING A LENIENT PARSER AND DISCARDING ITS ANSWER IS NOT PARSING
+
+  `check_uri` called `urlsplit` inside a `try` and threw the result away, so
+  the only thing it proved was that the splitter did not raise. `urlsplit` is
+  deliberately permissive: it hands back a hostname containing a space and a
+  port that is not a number, and the frozen host's URL constructor refuses
+  both. It also parses userinfo without objecting to it, so
+  `worker:secret@host` -- a credential in a durable locator, which is the exact
+  thing §12 rule 4 exists to keep out -- was accepted.
+
+  The split's ANSWER is now read. Userinfo first, because a credential-bearing
+  locator has a reason and the reason is the part a reader acts on; then the
+  authority against RFC 3986's own alphabet, which a space is not in; then the
+  port, whose accessor is where `urlsplit` finally does raise.
+
+  `@` IS IN THE ALPHABET, deliberately: RFC 3986's authority is
+  `[userinfo "@"] host [":" port]`, so leaving it out would refuse a
+  credential-bearing locator for the wrong reason.
+
+2. AN EXPORTED RULE OWNS ITS OWN OPERAND
+
+  `check_work_ref` and `check_content_manifest` are on the package's public
+  surface and indexed their arguments as though the composite had already
+  schema-owned them. A direct caller's malformed value escaped as a TypeError
+  or a KeyError, and a dict SUBCLASS executed hostile `__getitem__` inside the
+  trusted contracts layer -- the one thing this cut exists to keep out.
+
+  One public wrapper that validates the fragment, one private body the
+  composite calls with values it has already owned. A public entry owns its
+  input; an already-owned value is not owned twice.
+
+MUTATIONS, ROUND 15 (7 run against the 573-test suite)
+
+  P1  a locator may carry userinfo                        1 failing
+  P2  only a password counts as userinfo                  1
+  P3  the authority alphabet is not checked               1
+  P4  a port need not be a number                         1
+  P5  the exported work rule does not own its operand     1
+  P6  the exported content rule does not own its operand  1
+  P7  the composite re-validates what it already owns     1
+
+  ALL WITNESSED, and two began as zeros.
+
+  P2 IS THE SAME SHAPE AS LAST ROUND'S URI ZEROS, one round later. The case I
+  had supplied both halves of the userinfo, so dropping the user-name half
+  changed no verdict -- the rule was proved by a locator that would have been
+  refused either way. Half a check passes a test written against the whole, and
+  I have now made this mistake twice in the same function.
+
+  P7 IS STRUCTURAL, and needed a structural check. Putting the public wrapper
+  back inside the composite validates one document twice; both orders accept
+  and refuse exactly the same inputs, so no behavioural case can see it. The
+  witness reads the composite's own AST and requires it to call the private
+  bodies -- the same mechanism the manager's inventory uses one layer down, and
+  the first time this campaign has needed it inside the contracts layer.
+
+  Worth naming: 4bz's "not owned twice" rule has been enforced by the manager's
+  inventory since it was written, and the contracts package is not in that
+  inventory. This is the first double validation the inventory could not have
+  caught, and it was caught by a review instead.
+
+ONE TIDY
+
+  The review's additions left a module `if __name__ == "__main__"` guard in the
+  middle of the test file, ahead of a later class. Harmless under discovery and
+  removed, so the file has one entry point at its end.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 573 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 573. 567 -> 573: the
+  review's four retained regressions and two witnesses of my own. Zero temp
+  roots. The working tree reports no whitespace errors. The frozen Node oracle
+  under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting re-review. Next: §13's durable-secret rule with the registry it
+  needs, then retention and the outputs tables, then freeze and record.

@@ -1,0 +1,94 @@
+W4 — cut A: the caller could choose the traversal state
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T10-24-07Z.md (one P1).
+
+
+1. REPRODUCED FIRST
+
+  canonical_text(deep, -MAX_DEPTH * 2)   canonicalized a document past the
+                                         frozen depth
+  own(deep, _depth=-1000000)             owned one
+
+Both closed. The reviewer's two methods are retained.
+
+
+2. A LEADING UNDERSCORE NAMES A CONVENTION, NOT A BOUNDARY
+
+The previous correction shared the depth and width bounds between the two public
+doors, because a rule applied at one of N sites is not applied. It then left the
+ENFORCEMENT STATE of that shared rule as a parameter of both public functions --
+so a caller could hand the descent a negative starting point and walk past the
+bound the correction had just finished sharing.
+
+THE BOUND WAS SHARED AND ITS STATE WAS NOT, which is the same defect one level
+lower. Each public operation takes only its genuine operands now and the descent
+lives in a private helper that keeps its own bookkeeping.
+
+This is the second time in two rounds that I have corrected the mechanism a
+review named rather than the rule underneath it -- last round it was a single
+expression, this round a single parameter.
+
+
+3. SO THE RULE IS CHECKED, NOT THE TWO FUNCTIONS
+
+Fixing the two functions a review names is exactly what I have now been caught
+doing five times, so this round adds a standing case: NO PUBLIC OPERATION IN
+THIS PACKAGE TAKES A PARAMETER THAT IS BOOKKEEPING RATHER THAN AN OPERAND. The
+permitted operand names are written out, because deriving "is this an operand"
+from a name is the guessing the case exists to stop, and an entry in that list
+is a claim somebody makes deliberately.
+
+Its own vacuous-pass mode is refused: the sweep must find more than a dozen
+public functions across more than three modules, and the operand list must stay
+smaller than the surface it permits.
+
+MEASURED: a future `digest(value, seen=None)` -- an ordinary-looking parameter
+with no underscore at all -- fails it. That is the half a leading-underscore
+check would have missed entirely.
+
+
+4. MUTATIONS -- SEVEN, ALL WITNESSED
+
+  Q1 the canonicalizer takes its depth from the caller again   2 cases
+  Q2 ownership takes its depth from the caller again           2
+  Q3 the public entry point starts the descent below zero      1
+  Q4 ownership starts its descent below zero                   1
+  Q5 the label is not bounded before the descent               1
+  Q6 a new public operation takes bookkeeping                  1
+  Q7 the sweep permits an underscore parameter                 0 -- REDUNDANT
+
+TWO NEEDED WORK AND EACH GOT A DIFFERENT ANSWER.
+
+  Q5 was a MISSING CASE. Every label case I had went through `own_record`, which
+  bounds the label itself before calling `own` -- so `own`'s OWN bounding was
+  never measured, and a caller reaching `own` directly (which the exported
+  surface invites) was relying on a guard nothing tested. A case calls `own`
+  directly with a hostile label and with a million-character one.
+
+  Q7 was a GENUINE REDUNDANCY AND I REMOVED IT rather than reporting it. I had
+  written a separate "no underscore-named parameter" case in front of the
+  operand case; removing it changes no verdict, because an underscore-named
+  parameter is not a declared operand either. A guard nothing can observe is
+  worth less than the line it costs. The operand case is also the STRONGER
+  statement, which is the argument for keeping that one and not the other.
+
+
+5. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 307 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              307/307 from the wheel with the ruled
+                                   validator resolved offline
+  exported names                   20 authority, 22 contracts
+  temp roots after the run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+Suite 304 -> 307: the reviewer's two methods plus three of mine, less the
+redundant one removed.
+
+
+6. UNCHANGED
+
+The wheelhouse arrangement, so the repository-shape proposal reaches Slawomir
+undisturbed. Cuts B through F and `authority_port.py` remain absent on purpose.

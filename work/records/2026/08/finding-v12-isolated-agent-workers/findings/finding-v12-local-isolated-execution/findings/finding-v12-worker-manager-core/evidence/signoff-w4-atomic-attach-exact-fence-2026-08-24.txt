@@ -1,0 +1,70 @@
+W4 Cut D second-slice correction signoff evidence — 2026-08-24
+
+Reviewed
+--------
+* PLAN 4cr-done and implementer evidence
+  `w4-cut-d-atomic-attach-and-exact-fence-2026-08-24.txt`
+* `attempts._attach`
+* `AuthorityPort.cancel`
+* the two retained reviewer regressions
+
+Atomic attachment
+-----------------
+`observe(... execution_runtime=running)` now runs inside the action passed to
+`store.transact`. Its savepoint nests on the same connection, so a fault after
+the runtime-id UPDATE rolls back that UPDATE, the observation and the operation
+result together. The retained regression injects that fault, proves no runtime
+identity was committed and the old axis remains, closes and reopens the store,
+then proves one retry attaches the runtime and reaches `running`.
+
+The implementer correctly changed the two intermediate assertions from the
+review's alternative repair model to the atomic model the review recommended.
+I accept that change. I renamed the test from
+`test_a_committed_attachment_replay_repairs_the_running_observation` to
+`test_a_failed_attachment_rolls_back_before_a_restart_retry`, and shortened its
+comment, because under the accepted correction neither a committed partial
+attachment nor a replay exists. No assertion or behavior changed in that rename.
+
+Exact fence
+-----------
+The fence answer's assignment is first owned and related to authority UUID,
+Work id and the participant-bound session. It is then compared as the exact
+four-part document against `expect`, before the fence cause/value is accepted
+and before `request_cancellation` can call the provider agent or runtime
+adapter. A returned generation 2 for expected generation 1 now refuses, and the
+retained regression proves both downstream call lists stay empty.
+
+Independent verification
+------------------------
+Focused after the test rename:
+
+    env PYTHONPATH=src python3 -m unittest -v \
+      tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_failed_attachment_rolls_back_before_a_restart_retry \
+      tests.manager.test_attempts.CancellationFencesBeforeItStops.test_a_fence_for_another_generation_orders_nothing
+
+Result: 2/2 pass.
+
+Full source before the name-only cleanup:
+
+    env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+
+Result: 543/543 pass in 68.694s, with one retained ambient-version skip. The
+focused rerun proves the renamed witness still passes.
+
+The first `just build` invocation could not create just's default temporary
+directory under read-only `/run/user/1000`. Repeating through the repository's
+documented writable runtime root reached the locked resolver:
+
+    env XDG_RUNTIME_DIR=/tmp just build
+
+It could not resolve `jsonschema==4.26.0` because the configured index hostname
+was unavailable (`Name or service not known`). Non-interactive policy forbids
+escalation or an alternate dependency source. This signoff therefore does not
+claim an independent locked-build pass; the implementer evidence records a
+543/543 locked pass in its environment.
+
+Verdict
+-------
+PLAN 4cr is accepted. Both P1s from PLAN 4cq are closed. Output freeze, intake
+and cleanup may proceed.
+

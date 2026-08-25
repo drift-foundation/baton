@@ -1,0 +1,138 @@
+W2845 — the label encoding, and the origin proof that was still spelling
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T07-25-10Z.md (one P1, one P2).
+Frozen Node authority: outside the patch boundary and untouched.
+
+
+1. BOTH REPRODUCED FIRST
+
+  check_work_id(None, what="\ud800")   a Refusal whose first character is a
+                                       lone surrogate; encoding it as UTF-8
+                                       raises UnicodeEncodeError at position 0
+
+And all four analyzer false positives reproduced through the audit's own
+`interpolations` and `offenders` entry points, on minimal fabricated packages:
+
+  a literal LIMIT in one module proved a caller's LIMIT parameter in another
+  an assignment inside a nested function proved the enclosing function's
+    parameter of the same name
+  one safe assignment proved a name that was later reassigned raw, and one
+    proved a name whose other branch assigned raw
+  one exception for a `body` excused a same-spelled interpolation in a sibling
+    `body` in the same module
+
+Each returned NO offenders. The analyzer agreed with itself four ways.
+
+
+2. [P1] AN EXACT STRING IS INERT BUT IT IS NOT NECESSARILY TEXT
+
+`label_of` proved the label was an exact `str` -- which makes it safe to READ --
+and then returned it. Python strings may hold lone surrogates, so the refusal
+carried one out to whatever logged it, and the ordinary refusal the boundary had
+already decided on became a `UnicodeEncodeError`.
+
+That is the same failure `name_of` uses `ascii` to prevent for a rejected VALUE,
+and I did not carry it across when I wrote the parallel boundary for a rejected
+LABEL. Two rules that are the same rule, applied in one of the two places.
+
+Ordinary prose is returned exactly as written; only text that cannot round-trip
+is rendered, and `ascii` runs nothing and cannot fail. Slicing cannot create the
+problem: Python strings are code points, so a bound never cuts a character in
+half.
+
+AND "ORDINARY PROSE IS RETURNED AS WRITTEN" IS NOW A CASE. Rendering every label
+through `ascii` bounds and encodes just as well and NOTHING IN THE SUITE
+NOTICED -- so preserving prose was an intention, not a property. Found by a
+mutation with no witness.
+
+
+3. [P2] THE ANALYZER PROVED FOUR THINGS THE AST DOES NOT SAY
+
+  constants     were one package-global set of bare names. A package-global name
+                set is a package-global SPELLING, which is the thing this
+                analyzer exists not to trust. Constants are per module now: what
+                the module binds ONCE to a literal, plus what it imports from a
+                module in this package that owns it. Shadowing is decided by
+                COUNTING bindings rather than by inspecting one of them -- a name
+                bound twice is nobody's constant, because the analyzer cannot say
+                which binding ran last.
+  scopes        `ast.walk(function)` descends into nested functions, so a closure
+                proved its enclosing function's parameter. A scope is a scope.
+  control flow  a name was proved if ANY safe assignment existed. Reaching
+                definitions would be the real answer; the honest answer for a
+                test is CONSERVATIVE, so a name is proved only when every binding
+                of it in its own scope is a plain assignment from a bounding
+                call, at the function's top level where it dominates, and the use
+                is after it. A loop target, a `with` target, a walrus, an
+                augmented assignment or a `global` is a binding this analyzer
+                does not model, and one of those makes the name unproven.
+  site identity each site carries its DOTTED LEXICAL PATH, and an exception
+                covers the number of sites it declares rather than a spelling. A
+                spelling has no count, which is exactly how one entry excused ten
+                exported helpers.
+
+The dotted path of every excused site is also pinned in a case, so moving an
+exception between two `body` siblings changes a list somebody has to edit.
+
+
+4. WHAT THE ANALYZER NOW REFUSES, AS CASES RATHER THAN AS INTENT
+
+Seven shapes it could have guessed at, each fabricated and each refused: a safe
+assignment AFTER the use, a loop target, a `with` target, a safe assignment
+nested in a branch, a module constant rebound later, an import from outside the
+package, and a walrus rebinding. Guessing is what produced two rounds of false
+proof, so the refusals are the documented behaviour.
+
+116 interpolations, 16 unproven, 16 named -- with every one of the 16 named by
+module, function AND lexical path.
+
+
+5. MUTATIONS -- TEN, NINE WITNESSED, ONE MEASURED EQUIVALENT
+
+  M1  the label is not proved encodable            1 case
+  M2  the encodable check renders everything       4
+  M3  constants are package-global again           1
+  M4  a shadowed name is still owned               1
+  M5  locals are collected across nested scopes    0 -- EQUIVALENT, measured
+  M6  any safe assignment proves the name          4
+  M7  a safe assignment in a branch dominates      1
+  M8  a use before the assignment is proved        1
+  M9  an exception is not counted                  1
+  M10 the site path is the short name              1
+
+M2 WAS A ZERO UNTIL I WROTE THE MISSING CASE, and the missing case is the one in
+section 2: nothing pinned that an ordinary label survives unquoted.
+
+M5 IS A GENUINE EQUIVALENCE AND IS REPORTED AS ONE, hand-measured rather than
+trusted to the harness. Collecting locals across nested scopes changes no verdict
+BECAUSE the conservative rule already refuses: a nested `def` is itself a binding
+of every name assigned inside it, so descending into one makes those names
+unsafe rather than proved. The scope restriction is therefore redundant GIVEN the
+binding rule -- and both stay, because either alone is unsound if the other is
+ever relaxed, and the two were written for different reviews.
+
+
+6. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 227 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              227/227 from the wheel, imported out of
+                                   site-packages
+  all three reviewer methods       green
+  exported names                   20, unchanged
+  temp roots after the run         zero
+  the frozen Node authority        UNTOUCHED
+  whitespace-damage check          clean
+
+
+7. REGRESSIONS -- 3 ADDED, THE SUITE IS 224 -> 227
+
+  an ordinary label is returned exactly as written
+  every named site covers the paths it was written for
+  the analyzer refuses what it cannot prove (seven fabricated shapes)
+
+
+8. UNCHANGED, DELIBERATELY
+
+No durable-text operand cap. No accepted operand shortened or refused for length.
+The settlement ruling stands and its case passes as written.

@@ -257,3 +257,20 @@ serialize them, and W1425 itself waits on the final proof. Only the authority
 slice is initially routed runnable to implementation; later slices return to
 review when their predecessor closes so their implementation boundary is
 revalidated against the landed tree before handoff.
+
+## M2 host implementation replanned in Python — confirmed 2026-08-23
+
+The campaign's host-language ruling supersedes M2's assumption that the
+host-side Node proof would grow into the authority, Worker Manager, or OCI
+runtime adapter implementation. The existing Node modules remain executable
+reference evidence only. V12 host-side authority, scheduler, Worker Manager,
+durable control store, and runtime adapters are Python; provider-native code
+may use Node or another practical language only inside the isolated worker.
+
+The child sequence remains conceptually authority, manager, worker/runtime,
+and local proof, but its implementation boundaries must be revised before
+more execution. W4 is replanned as the Python Worker Manager. W5 must separate
+the Python host OCI adapter from the opaque provider-native worker image. W6
+must certify the language-neutral contracts against that composition. No
+reviewed state-machine or conformance decision is discarded merely because
+its first executable reference was Node.

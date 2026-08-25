@@ -223,8 +223,7 @@ class TraceRunner:
             "source_kind": step["update"]["sessionUpdate"],
             "content": m.normalize_content(
                 [step["update"]["content"]] if "content" in step["update"] else []),
-            "tool_call": {"tool_call_id": step["update"]["toolCallId"],
-                          "status": step["update"]["status"]}
+            "tool_call": m.normalize_tool_call(step["update"])
             if "toolCallId" in step["update"] else None,
             "byte_count": 128,
             "redacted": True,
@@ -1007,7 +1006,37 @@ class BoundaryRuleTests(unittest.TestCase):
         advertised = set(m.MINIMAL_CLIENT_CAPABILITIES)
         self.assertEqual(advertised, {"fs", "terminal"})
         self.assertEqual(m.MINIMAL_CLIENT_CAPABILITIES["terminal"], False)
-        self.assertEqual(set(m.MINIMAL_CLIENT_CAPABILITIES["fs"].values()), {False})
+        # SUPERSEDED ASSERTION, on W641's ruling.  This required every `fs`
+        # member to be present and False, which encoded the Baton-invented
+        # normalized summary the ruling removes.  ACP's members are optional,
+        # so withholding is ABSENCE and the object is empty.
+        self.assertEqual(m.MINIMAL_CLIENT_CAPABILITIES["fs"], {})
+
+    def test_a_filesystem_member_present_at_all_is_refused(self) -> None:
+        """W641 -- absence is the withholding, so presence is the defect.
+
+        Driven on the snake_case summary this contract used to require, on the
+        ACP camelCase member set false, and on a member set true: none of the
+        three is what version 1.0 sends.
+        """
+        m.validate_client_capabilities({"fs": {}, "terminal": False})
+        # Member ORDER carries no meaning; the same document is the same.
+        m.validate_client_capabilities({"terminal": False, "fs": {}})
+        for advertised in (
+            {"fs": {"read_text_file": False, "write_text_file": False},
+             "terminal": False},
+            {"fs": {"readTextFile": False}, "terminal": False},
+            {"fs": {"readTextFile": True}, "terminal": False},
+            {"fs": {}, "terminal": True},
+            {"fs": {}, "terminal": False, "session": {}},
+            {"terminal": False},
+            {"fs": {}},
+            "nothing",
+        ):
+            with self.assertRaises(m.BoundaryError) as caught:
+                m.validate_client_capabilities(advertised)
+            self.assertEqual((caught.exception.category, caught.exception.code),
+                             ("policy", "denied"))
 
     def test_an_unmapped_update_kind_is_counted_as_other(self) -> None:
         self.assertEqual(m.normalize_acp_update({"sessionUpdate": "something_new_in_1_4"}), "other")
@@ -1380,6 +1409,152 @@ class BoundaryRuleTests(unittest.TestCase):
         for state, successors in m.ALLOWED_SESSION_SUCCESSORS.items():
             with self.subTest(state=state):
                 self.assertTrue(successors <= m.SESSION_STATES)
+
+
+class ToolCallKind(unittest.TestCase):
+    """§6.2.1, the W543 correction: portable, optional, never invented."""
+
+    def test_a_supplied_kind_is_copied_verbatim(self):
+        for kind in sorted(m.TOOL_KINDS):
+            view = m.normalize_tool_call(
+                {"toolCallId": "tc-1", "status": "completed", "kind": kind})
+            self.assertEqual(view["kind"], kind)
+
+    def test_the_vocabulary_is_the_pinned_acp_ten(self):
+        self.assertEqual(sorted(m.TOOL_KINDS), sorted([
+            "read", "edit", "delete", "move", "search", "execute", "think",
+            "fetch", "switch_mode", "other"]))
+
+    def test_an_absent_kind_is_omitted_and_never_invented(self):
+        # The captured trace's own shape: root-level id and status, no kind.
+        view = m.normalize_tool_call(
+            {"toolCallId": "tc-1", "status": "in_progress"})
+        self.assertNotIn("kind", view)
+        # MIGRATED on the review's authority: explicit null is the SDK's
+        # "not supplied" for an UPDATE, and the source used to be unspecified.
+        # The omission assertion this case already made is unchanged.
+        self.assertNotIn("kind", m.normalize_tool_call(
+            {"sessionUpdate": "tool_call_update", "toolCallId": "tc-1",
+             "status": "completed", "kind": None}))
+        # And nothing else in the update may be used to infer one -- a title,
+        # a tool name, a command and a status are all present here and the
+        # member is still absent.
+        rich = m.normalize_tool_call({
+            "toolCallId": "tc-1", "status": "failed", "title": "read a file",
+            "name": "fs_read", "command": "cat /etc/passwd"})
+        self.assertNotIn("kind", rich)
+        self.assertEqual(rich["title"], "read a file")
+
+    def test_a_value_outside_the_pinned_vocabulary_refuses(self):
+        for invented in ["summon", "READ", "", "read ", "execute_command", 7]:
+            with self.assertRaises(m.BoundaryError) as caught:
+                m.normalize_tool_call({"toolCallId": "tc-1",
+                                       "status": "completed",
+                                       "kind": invented})
+            self.assertEqual((caught.exception.category, caught.exception.code),
+                             ("integrity", "schema"))
+
+    def test_null_is_absence_only_for_an_update(self):
+        with self.assertRaises(m.BoundaryError) as caught:
+            m.normalize_tool_call({"sessionUpdate": "tool_call",
+                                   "toolCallId": "tc-1",
+                                   "status": "completed", "kind": None})
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+        view = m.normalize_tool_call({"sessionUpdate": "tool_call_update",
+                                      "toolCallId": "tc-1",
+                                      "status": "completed", "kind": None})
+        self.assertNotIn("kind", view)
+
+    def test_an_unhashable_invalid_kind_uses_the_closed_error_pair(self):
+        for invented in [[], {}]:
+            with self.assertRaises(m.BoundaryError) as caught:
+                m.normalize_tool_call({"toolCallId": "tc-1",
+                                       "status": "completed",
+                                       "kind": invented})
+            self.assertEqual((caught.exception.category, caught.exception.code),
+                             ("integrity", "schema"))
+
+    def test_the_source_decides_which_shapes_are_absence(self):
+        """The declaration was quoted and then implemented on one path."""
+        table = [
+            # shape, fields, on tool_call, on tool_call_update
+            ("an omitted member", {}, "absent", "absent"),
+            ("an explicit null", {"kind": None}, "refuses", "absent"),
+            ("a pinned value", {"kind": "read"}, "read", "read"),
+            ("a value outside the ten", {"kind": "summon"},
+             "refuses", "refuses"),
+        ]
+        for shape, fields, on_call, on_update in table:
+            for source, expected in (("tool_call", on_call),
+                                     ("tool_call_update", on_update)):
+                with self.subTest(shape=shape, source=source):
+                    update = {"sessionUpdate": source, "toolCallId": "tc-1",
+                              "status": "completed", **fields}
+                    if expected == "refuses":
+                        with self.assertRaises(m.BoundaryError) as caught:
+                            m.normalize_tool_call(update)
+                        self.assertEqual((caught.exception.category,
+                                          caught.exception.code),
+                                         ("integrity", "schema"))
+                    elif expected == "absent":
+                        self.assertNotIn("kind", m.normalize_tool_call(update))
+                    else:
+                        self.assertEqual(
+                            m.normalize_tool_call(update)["kind"], expected)
+
+    def test_a_refusal_names_the_shape_and_never_runs_the_value(self):
+        """`x not in frozenset` HASHES x -- the check ran what it refused."""
+
+        class Hostile:
+            def __repr__(self):
+                raise AssertionError("__repr__ ran")
+
+            def __str__(self):
+                raise AssertionError("__str__ ran")
+
+            def __hash__(self):
+                raise AssertionError("__hash__ ran")
+
+            def __eq__(self, other):
+                raise AssertionError("__eq__ ran")
+
+        class Sneaky(str):
+            # In the vocabulary BY VALUE and not by shape.  The pinned type is
+            # the JSON string `read`; membership is tested only after the
+            # shape is known, so this never reaches the frozenset either.
+            def __hash__(self):
+                raise AssertionError("__hash__ ran")
+
+        marker = "zz-not-a-tool-kind-zz"
+        for what, value in [("a list", []), ("a dict", {}), ("a set", set()),
+                            ("an int", 7), ("a bool", True),
+                            ("an object that raises if anything reads it",
+                             Hostile()),
+                            ("a str subclass", Sneaky("read")),
+                            ("an invalid string", marker)]:
+            for source in ("tool_call", "tool_call_update"):
+                with self.subTest(what=what, source=source):
+                    with self.assertRaises(m.BoundaryError) as caught:
+                        m.normalize_tool_call({"sessionUpdate": source,
+                                               "toolCallId": "tc-1",
+                                               "status": "completed",
+                                               "kind": value})
+                    self.assertEqual((caught.exception.category,
+                                      caught.exception.code),
+                                     ("integrity", "schema"))
+                    # The message describes the SHAPE rather than echoing the
+                    # value this boundary has just rejected.
+                    self.assertNotIn(marker, str(caught.exception))
+                    self.assertIn(type(value).__name__, str(caught.exception))
+
+    def test_the_view_still_needs_an_id_and_one_of_the_four_statuses(self):
+        for update in [{"status": "completed"},
+                       {"toolCallId": "", "status": "completed"},
+                       {"toolCallId": "tc-1"},
+                       {"toolCallId": "tc-1", "status": "cancelled"}]:
+            with self.assertRaises(m.BoundaryError):
+                m.normalize_tool_call(update)
 
 
 if __name__ == "__main__":

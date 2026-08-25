@@ -174,15 +174,36 @@ REQUIRED_METHODS_BY_WIRE = {
     }),
 }
 
-MINIMAL_CLIENT_CAPABILITIES = {
-    "fs": {"read_text_file": False, "write_text_file": False},
-    "terminal": False,
-}
+# W641 correction 2026-08-23: this was
+#     {"fs": {"read_text_file": False, "write_text_file": False},
+#      "terminal": False}
+# -- a Baton-invented normalized summary that contradicted section 2.2's wire
+# document and the pinned ACP 1.3 SDK's own optional camelCase members.  ONE
+# representation now, and it is ACP's.  Withholding is expressed by ABSENCE,
+# which is what the SDK's optional members mean.
+MINIMAL_CLIENT_CAPABILITIES = {"fs": {}, "terminal": False}
 
 
 def validate_client_capabilities(advertised: dict) -> None:
-    """§2.2 — the relay withholds fs and terminal capability structurally."""
-    if advertised != MINIMAL_CLIENT_CAPABILITIES:
+    """§2.2 -- the relay withholds fs and terminal capability structurally.
+
+    STRUCTURAL, not serialized.  JSON object member order carries no meaning,
+    so the comparison is between the documents; an added member, a changed
+    value, an enabled capability or a snake_case transport member refuses.
+    """
+    if not isinstance(advertised, dict):
+        raise BoundaryError(
+            "the relay may advertise no filesystem, terminal or other client capability",
+            "policy", "denied")
+    if set(advertised) != {"fs", "terminal"} or advertised["terminal"] is not False:
+        raise BoundaryError(
+            "the relay may advertise no filesystem, terminal or other client capability",
+            "policy", "denied")
+    fs = advertised["fs"]
+    if not isinstance(fs, dict) or fs:
+        # A member present AT ALL -- even set false -- is a member ACP's
+        # optional type did not have to carry, and this is the one boundary
+        # where that difference is still visible.
         raise BoundaryError(
             "the relay may advertise no filesystem, terminal or other client capability",
             "policy", "denied")
@@ -664,6 +685,81 @@ DROPPED_CONTENT_TYPES = frozenset({"image", "audio", "resource"})
 def normalize_acp_update(update: dict) -> str:
     """§6.1-§6.2.  An unmapped kind is COUNTED as 'other', never guessed at."""
     return ACP_UPDATE_KINDS.get(update.get("sessionUpdate"), "other")
+
+
+# The pinned ACP 1.3 ToolKind vocabulary, verbatim.  W543 correction
+# 2026-08-23: the SDK declares `kind?: ToolKind` on ToolCall and
+# `kind?: ToolKind | null` on ToolCallUpdate -- permitted, never required.
+TOOL_CALL_STATUSES = frozenset({
+    "pending", "in_progress", "completed", "failed",
+})
+
+TOOL_KINDS = frozenset({
+    "read", "edit", "delete", "move", "search", "execute", "think", "fetch",
+    "switch_mode", "other",
+})
+
+
+def normalize_tool_call(update: dict) -> dict:
+    """§6.2.1 -- the portable tool-call view, kind included when GIVEN.
+
+    Copies a valid `kind` and OMITS the member otherwise.  Baton never invents
+    one: absence does not become 'other', and no title, tool name, command
+    text, adapter family or later status may be used to infer it.  A missing
+    kind is missing evidence.
+
+    A value outside the pinned vocabulary REFUSES rather than silently
+    widening the frozen contract.  The field may support presentation and it
+    decides no permission, policy, tool authority, turn outcome or
+    disposition.
+
+    Review [P1]: THE TWO SOURCES DO NOT ADMIT THE SAME SHAPES, and this model
+    normalized without looking at its source at all.  An OMITTED member is
+    absence on either.  An explicit null is the SDK's own "not supplied" on
+    `tool_call_update` and is absence there; on the initial `tool_call` it is
+    a shape `kind?: ToolKind` does not admit, so it refuses.  A source this
+    model cannot see is not proof that the null was permitted.
+
+    Review [P2]: and the refusal tests the value's SHAPE before its
+    membership.  `x not in frozenset` HASHES x, so a list or dict left this
+    boundary as a raw unhashable `TypeError` instead of the closed pair -- the
+    check ran the value it was refusing.  `type(...) is str` is the pinned
+    wire shape exactly, and the diagnostic names the shape and the vocabulary
+    rather than the repr of a rejected caller value.
+    """
+    tool_call_id = update.get("toolCallId")
+    if not isinstance(tool_call_id, str) or not tool_call_id:
+        raise BoundaryError("a tool call carries the provider's own id",
+                            "integrity", "schema")
+    status = update.get("status")
+    if status not in TOOL_CALL_STATUSES:
+        raise BoundaryError(f"{status!r} is not one of ACP's four tool-call statuses",
+                            "integrity", "schema")
+    view = {"tool_call_id": tool_call_id, "status": status}
+    if isinstance(update.get("title"), str):
+        view["title"] = update["title"]
+    if "kind" not in update:
+        return view
+    supplied = update["kind"]
+    source_kind = update.get("sessionUpdate")
+    if supplied is None:
+        if source_kind != "tool_call_update":
+            raise BoundaryError(
+                "only tool_call_update declares kind?: ToolKind | null; an "
+                "initial tool call declares kind?: ToolKind and does not "
+                "admit null, so an explicit null is a shape the pinned ACP "
+                "1.3 SDK refuses rather than the provider omitting the member",
+                "integrity", "schema")
+        return view
+    if type(supplied) is not str or supplied not in TOOL_KINDS:
+        raise BoundaryError(
+            "a tool-call kind is one of the pinned ACP 1.3 ToolKinds ("
+            + ", ".join(sorted(TOOL_KINDS)) + "); this update carried a "
+            f"{type(supplied).__name__} that is not one of them, and a later "
+            "vocabulary needs explicit version/certification work",
+            "integrity", "schema")
+    view["kind"] = supplied
+    return view
 
 
 def normalize_content(blocks: list) -> list:

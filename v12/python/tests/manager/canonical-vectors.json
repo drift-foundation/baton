@@ -1,0 +1,125 @@
+{
+ "_": [
+  "Canonical vectors GENERATED FROM the frozen Node canonicalizer on",
+  "2026-08-24, not written by hand and not copied from this Python",
+  "implementation. The frozen host is the oracle: if the two disagree the",
+  "port is wrong, and a vector written by the port would only prove the",
+  "port agrees with itself.",
+  "",
+  "The cases exist to DISTINGUISH the hosts. 'astral member names beside",
+  "BMP' is the one that matters most: RFC 8785 orders members by UTF-16",
+  "code units, so U+1F600 sorts BEFORE U+E000 because it encodes as the",
+  "surrogate pair D83D DE00. Python's sorted() orders by CODE POINTS and",
+  "puts it last. A faithful-looking port would produce a different",
+  "canonical form, a different digest, and a manager that disagrees with",
+  "the frozen reference about what a document IS."
+ ],
+ "source": "v12/src/worker_manager/contracts.mjs canonicalBytes/digest",
+ "vectors": [
+  {
+   "name": "empty object",
+   "canonical": "{}",
+   "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+   "name": "empty array",
+   "canonical": "[]",
+   "digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+   "name": "null",
+   "canonical": "null",
+   "digest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  },
+  {
+   "name": "true",
+   "canonical": "true",
+   "digest": "sha256:b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+  },
+  {
+   "name": "false",
+   "canonical": "false",
+   "digest": "sha256:fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
+  },
+  {
+   "name": "zero",
+   "canonical": "0",
+   "digest": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+   "name": "max safe integer",
+   "canonical": "9007199254740991",
+   "digest": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26"
+  },
+  {
+   "name": "plain text",
+   "canonical": "\"hello\"",
+   "digest": "sha256:5aa762ae383fbb727af3c7a36d4940a5b8c40a989452d2304fc958ff3f354e7a"
+  },
+  {
+   "name": "member order",
+   "canonical": "{\"\":4,\"C\":3,\"a\":2,\"b\":1}",
+   "digest": "sha256:8eaa2260273c74b3b89b802de48dab855af71914bf9ac1d9bea1338ffa76fc79"
+  },
+  {
+   "name": "nested",
+   "canonical": "{\"a\":{\"b\":[1,2,{\"c\":\"d\"}]}}",
+   "digest": "sha256:2eee46a2a2ea150ded5589a4957becca07950353239b91c15a1662812019cf9a"
+  },
+  {
+   "name": "escapes",
+   "canonical": "\"\\\"\\\\/\\b\\f\\n\\r\\t\"",
+   "digest": "sha256:11b17be1c38ac0f40c1c36cb58861f9853f04d6702d8edf4c79e6aca6216c346"
+  },
+  {
+   "name": "control characters",
+   "canonical": "\"\\u0000\\u0001\\u001f\"",
+   "digest": "sha256:842096a6d3fcd0968fe35809ea5810d33f7072b93743fc0f7b4ff484ae727d20"
+  },
+  {
+   "name": "delete character",
+   "canonical": "\"\"",
+   "digest": "sha256:6fe76740e12a93d5598fe685cb6ad3d3c94e44609065a56866b69647772026ec"
+  },
+  {
+   "name": "non ascii",
+   "canonical": "\"séance 😀 日本語\"",
+   "digest": "sha256:c52732c2f226f6ab4daec6ad756dda7b03d04c51c6864525e354d7b4d4d38b70"
+  },
+  {
+   "name": "astral member names beside BMP",
+   "canonical": "{\"😀\":1,\"\":2,\"￿\":3}",
+   "digest": "sha256:80effa34834c68066d1434784de21bf2125840ff99fe3bed49f7f9a5549cc7ed"
+  },
+  {
+   "name": "astral vs BMP ordering",
+   "canonical": "{\"𐀀\":1,\"\":2}",
+   "digest": "sha256:4045c21a23c8ae8f8d9add81f54bd506bee65885099876fb4afb378b1f2c3516"
+  },
+  {
+   "name": "surrogate pair value",
+   "canonical": "\"😀\"",
+   "digest": "sha256:7a0c50b92434b015545fe93ab723db2d4b2cdd14a441405624a9ce8be29f1d5a"
+  },
+  {
+   "name": "combining marks",
+   "canonical": "{\"é\":2,\"é\":1}",
+   "digest": "sha256:a7962fb10dc1255be368ece9c22b2256605921dc6d0a8c9409d3ee406bcb86e5"
+  },
+  {
+   "name": "deep nesting",
+   "canonical": "{\"a\":{\"b\":{\"c\":{\"d\":{\"e\":{\"f\":{\"g\":1}}}}}}}",
+   "digest": "sha256:e49632ce73594128a50bdc021d886fb8983c3f0f68c208866c634bc6e9920643"
+  },
+  {
+   "name": "array of objects",
+   "canonical": "[{\"a\":2,\"b\":1},{\"c\":4,\"d\":3}]",
+   "digest": "sha256:b7674d3bc235a66d417357c0c4e21e834e6d899b1535ccdd3c988e9ce73d2c3d"
+  },
+  {
+   "name": "long member set",
+   "canonical": "{\"k0\":0,\"k1\":1,\"k10\":10,\"k11\":11,\"k12\":12,\"k13\":13,\"k14\":14,\"k15\":15,\"k16\":16,\"k17\":17,\"k18\":18,\"k19\":19,\"k2\":2,\"k20\":20,\"k21\":21,\"k22\":22,\"k23\":23,\"k24\":24,\"k25\":25,\"k26\":26,\"k27\":27,\"k28\":28,\"k29\":29,\"k3\":3,\"k30\":30,\"k31\":31,\"k32\":32,\"k33\":33,\"k34\":34,\"k35\":35,\"k36\":36,\"k37\":37,\"k38\":38,\"k39\":39,\"k4\":4,\"k5\":5,\"k6\":6,\"k7\":7,\"k8\":8,\"k9\":9}",
+   "digest": "sha256:7b2b5b4ba533cd4eb42178e5be1b228d4ea6c07ca968d83562d90ffbc043ed6a"
+  }
+ ]
+}

@@ -1,0 +1,111 @@
+W2845 cut-3 independent review evidence — 2026-08-24
+
+Baseline gate
+-------------
+
+    XDG_RUNTIME_DIR=/tmp just gate
+
+Observed on Python 3.13.7:
+
+    source-tree suite: Ran 135 tests; OK
+    wheel built and installed offline from the hash-locked wheelhouse
+    package import resolved under the temporary venv's site-packages
+    reported installed-layout suite: Ran 135 tests; OK
+
+The source result is valid. The installed-layout result has the subprocess
+escape described in finding 2 below, so it does not yet prove the installed
+journal/race implementation end to end.
+
+Finding 1: settlement bypasses the opaque operation-id grammar
+---------------------------------------------------------------
+
+`Store.replay` applies `opaque_id_fault`, but `Core.operation_result`,
+`Core.operation_record` and `Core.settle_operation` apply only the weaker
+nonempty-text rule. `settle_operation` then calls `record_retirement` directly,
+so it bypasses the one grammar said to govern every operation identity.
+
+Independent probe against the delivered source:
+
+    huge = "x" * 1_000_000
+    out = core.settle_operation(
+        huge, signature="sig", reason="deadline",
+        disposition="settlement-expired", may_retire=True)
+    record = core.operation_record(huge)
+
+Observed:
+
+    retired 1000000 retired
+
+The reported 1 MB-primary-key defect therefore remains reachable through the
+very transition introduced to retire an identity.
+
+A second probe retired `"bad id"`, then submitted a claim under that exact id.
+Observed:
+
+    operation_record("bad id").state == "retired"
+    claim(..., operation_id="bad id") refused:
+      every mutating operation needs an operation id ... not the frozen opaque grammar
+
+The claim did not replay the bound retirement reason. The authority therefore
+durably records an identity that one transition accepts and the ordinary replay
+path says cannot be an identity at all. That contradicts both the one-grammar
+claim and retirement-before-operands semantics.
+
+Adjacent public reads also accept malformed selectors as ordinary misses:
+
+    operation_result("bad id") -> None
+    operation_record("bad id") -> None
+    operation_result("-bad") -> None
+    operation_record("x" * 161) -> None
+
+Correction boundary: put the opaque-ID proof in one reusable validation entry
+point and apply it to replay, settlement and both public journal reads. Add
+positive and negative settlement/read regressions, including a retired identity
+whose later transition replays the retirement rather than rejecting its shape.
+
+Finding 2: installed race children force the source tree
+---------------------------------------------------------
+
+`tests/authority/test_operations.py` computes `SOURCE` from the repository test
+file. Both child programs execute:
+
+    sys.path.insert(0, sys.argv[1])
+
+and the parent supplies `SOURCE` to every spawned child. During `just build`,
+the unittest parent uses the temporary venv's interpreter and installed
+package, but all five inherited/concrete real-process race cases force their
+children back to `/home/sl/src/baton/v12/python/src`.
+
+Static inventory:
+
+    tests/authority/test_operations.py:40   SOURCE = .../src
+    tests/authority/test_operations.py:506  sys.path.insert(...)
+    tests/authority/test_operations.py:555  ... script, SOURCE, ...
+    tests/authority/test_operations.py:631  sys.path.insert(...)
+
+The source gate already exports `PYTHONPATH=src`, which subprocesses inherit.
+The installed gate deliberately clears `PYTHONPATH` and uses a venv interpreter,
+so no explicit source injection is needed in either mode. Correction should
+also make the children report/assert the same package origin as the parent, so
+a future source fallback fails rather than silently weakening the build claim.
+
+Contract decision: settlement signature size
+--------------------------------------------
+
+No new settlement-signature size bound is requested. The expected signature
+must exactly equal the authority-generated canonical signature. Those
+signatures include every durable operand and the current ruled contract places
+no independent text-size bound on all such operands. An ad hoc settlement-only
+cap could therefore make a legitimate authority-produced operation impossible
+to settle. Keep exact encodable text in Cut 3; any future size bound must be a
+system-wide operand/signature ruling, not a local settlement limit.
+
+Static boundaries
+-----------------
+
+    git diff --check
+
+Observed: clean.
+
+`git diff --name-only` over the frozen Node authority modules and seven frozen
+authority test files produced no output. Cuts 4 and 5 remain absent.

@@ -1,0 +1,229 @@
+W2845 — implementation cut 1
+Date: 2026-08-24. Implementer: baton.claude.
+Boundary followed: evidence/python-authority-boundary-2026-08-24.txt and
+review-2026-08-24T04-20-07Z.md.
+Scope: package + identity/POD/errors + create/open/store compatibility. Cut 1
+ONLY; nothing from cuts 2-5 is implemented, stubbed or promised.
+
+
+1. REVALIDATED BEFORE WRITING ANYTHING
+
+  Python 3.13.7, SQLite 3.46.1                 present, as the boundary records
+  the frozen Node authority                    read: errors, identity, schema,
+                                               store; 7 modules, 2087 lines
+  the frozen authority tests                   present and untouched
+  pip 25.1.1 / setuptools 78.1.1 hashes        RECOMPUTED from
+                                               /usr/share/python-wheels and
+                                               they match the boundary's record
+                                               byte for byte
+  the Node reference gate                      684/687, exactly the three
+                                               W1593-owned failures the
+                                               boundary already names
+
+I did not take the hashes on trust. A lock file whose hashes were copied from a
+document rather than from the artifacts is a lock that pins a claim.
+
+
+2. WHAT CUT 1 DELIVERS
+
+  v12/python/pyproject.toml        >=3.13, no runtime dependency, and no
+                                   schema validator: W4 adds the pinned Draft
+                                   2020-12 one when W4 consumes frozen schema.
+                                   Pinning it here would be a dependency this
+                                   slice cannot justify.
+  v12/python/requirements.lock     an EMPTY runtime set, stated rather than
+                                   omitted, plus the two build artifacts with
+                                   their verified hashes.
+  v12/python/justfile              the gate: an interpreter check that refuses
+                                   below 3.13, then the standard library's own
+                                   `unittest` over `tests/`.
+  src/baton_v12/authority/
+    errors.py                      `Refusal`, with the raising-site `durable`
+                                   correction carried forward, and a value
+                                   namer that never runs what it refuses.
+    identity.py                    exact built-in POD ownership, the frozen
+                                   snake_case identities, canonical
+                                   signatures, `claim_signature`, gate tokens.
+    schema.py                      the store kind, the schema version, and the
+                                   authority's tables and nothing else.
+    store.py                       distinct non-adopting `create`/`open`, the
+                                   read-only probe, the recheck under the write
+                                   lock, and the `transact` boundary cut 3's
+                                   journal will be built on.
+    api.py                         `Authority`: create, open, close,
+                                   authority_uuid. Nothing else.
+
+`store.py` and `core.py` remain private implementation; `core.py` does not
+exist yet because cut 1 has no core to put in it, and an empty module would be
+a face this cut is not entitled to declare.
+
+
+3. THE ONE PLACE I DID NOT PORT THE NODE HOST, AND WHY
+
+The frozen `Store.open` creates when absent, adopts when present, and writes
+the schema BEFORE establishing whose store it is. For a disposable single-host
+authority that was tolerable.
+
+It is not tolerable here, and the boundary says so: this distribution now sits
+beside three other SQLite files whose first schema version is also `1` -- the
+Node authority, v11, and the manager's control store. A create-or-adopt `open`
+against any of them writes tables into somebody else's database before anyone
+has asked whose it is, AND THE FAILURE MODE IS SILENT SUCCESS.
+
+So the two operations are separate and the order of the checks is deliberate:
+
+  create   reserves the path with O_CREAT | O_EXCL BEFORE SQLite is involved,
+           so two racing creators produce one winner and one refusal rather
+           than two half-built stores. It fails on a file, a directory and a
+           DANGLING SYMLINK alike -- the last being exactly the case a
+           "does it exist?" check answers wrongly.
+  open     probes READ-ONLY, checks KIND before VERSION before UUID, and only
+           then connects. Kind first because "version 1" is true of three other
+           products and telling a caller their store is the wrong VERSION when
+           it is the wrong PRODUCT sends them to fix the wrong thing.
+
+AND A REFUSAL LEAVES THE FILE AS IT WAS FOUND -- not "after we fixed the
+PRAGMAs". The journal mode is the only PERSISTENT sqlite setting involved, so
+`open` withholds it until the recheck under `BEGIN IMMEDIATE` has passed;
+`busy_timeout` and `foreign_keys` are per-connection and write nothing.
+
+
+4. THE PYTHON TRANSLATION OF THE SNAPSHOT CORRECTION
+
+The Node defect was a getter answering one participant to the binding check and
+another to the execution. Python's version of that hazard is not `Proxy` and
+not getters: it is `dict`/`list` SUBCLASSES, `__getitem__` overrides, arbitrary
+mappings and objects with hooks of their own.
+
+So `own()` does not defend against those; it makes them unreachable. Types are
+tested with `type(x) is T` -- never `isinstance` -- so a subclass is REFUSED
+rather than admitted with its overrides intact, and only exact `dict`, `list`,
+`str`, `int`, `bool` and `None` are data. A behaviour-bearing container never
+enters the authority, so validating one view and executing another is
+impossible rather than guarded against.
+
+The test carries a `LyingDict` whose reads answer `baton.claude` once and
+`baton.gemini` afterwards -- the exact Node defect, in Python -- and it is
+refused for being a subclass, before either answer matters.
+
+AND THE REFUSAL NEVER RUNS THE VALUE. A `Hostile` fixture raises from
+`__repr__`, `__str__`, `__eq__`, `__hash__`, `__iter__`, `__len__`,
+`__getitem__` and `keys`, and is offered as the operand, as a member, as a list
+entry and nested; nothing runs in any position. This is the rule six W2929
+review rounds established, applied at the first boundary of a new host rather
+than after somebody finds it here too.
+
+
+5. MUTATIONS -- TWENTY
+
+  Y1  open adopts a foreign store again              1 case
+  Y2  the store kind stops being compared            1
+  Y3  the schema version stops being compared        1
+  Y4  the expected uuid is a default, not a CAS      3
+  Y5  create adopts an existing file                 3
+  Y6  a symlink is a fine home for an authority      1
+  Y7  an empty file is a store                       0 -- EQUIVALENT
+  Y8  the persistent setting precedes the recheck    1
+  Y9  a failed creation leaves its half-built file   1
+  Y10 nested transactions each open their own        2
+  Y11 dict subclasses are accepted as documents      2
+  Y12 list subclasses are accepted                   2
+  Y13 the safe-integer bound is dropped              1
+  Y14 unencodable text is a durable operand          1
+  Y15 non-string keys are coerced in                 1
+  Y16 depth is unbounded                             1
+  Y17 three quarters of an identity is an identity   1
+  Y18 the absent operand is the null one             1
+  Y19 the signature stops sorting its members        1
+  Y20 the claim signature trusts its operands        1
+
+Y7 IS A GENUINE EQUIVALENCE and is reported as one. The read-only probe already
+refuses a zero-length file, because there is no `meta` table to read, so the
+explicit size check changes no verdict. It is kept because it changes the
+REASON: "the file is empty and is not an authority store" is the accurate
+diagnosis of an interrupted creation, and "this is not our store" is not.
+
+
+6. FOUR ZEROS, AND ONLY ONE OF THEM WAS ABOUT THE CODE
+
+Y8, Y9 and Y19 all measured zero first, and all three were MY INSTRUMENT OR MY
+COVERAGE rather than the implementation:
+
+  Y8   my case refused before the mutated line was reached, so the window
+       between the probe and the recheck was never exercised. I added a case
+       that simulates a concurrent replacement by making the probe answer for a
+       file it did not read -- cut 1 has no deterministic way to interleave two
+       processes, and cut 3 is where the real races arrive. The ORDERING is
+       what is ours to get right either way, and it is pinned now.
+  Y9   my case failed BEFORE the reservation was held, so it proved only that
+       nothing was reserved. The cleanup exists for a failure AFTER the
+       reservation; a case that makes the schema application raise witnesses it.
+  Y19  the mutation replaced the first textual `sort_keys=True` IN THE FILE --
+       which was in a COMMENT describing the call, not the call. The real call
+       site, mutated, fails the case immediately.
+
+That last one is the fourth instrument error I have recorded this week (a regex
+that missed subTest failures, a mutation that did not parse, a mutation that
+did not express what I meant, and now one that hit a comment). The check I now
+run before believing any number is whether the MUTATED SOURCE actually says the
+thing I claimed to be testing -- and this time I ran it because the zero looked
+wrong, which is the only reason it was found.
+
+TWO MORE INSTRUMENT ERRORS, in the boundary tests rather than in mutations:
+
+  * a schema scan for words like "attempt" and "runtime" failed on
+    `integration_attempt` -- an authority fact whose NAME contains a
+    control-store word -- and on comment prose about a certified runtime
+    profile. Replaced with an exact table-set comparison plus a whole-name
+    disjointness check.
+  * a source scan for `work.sqlite3` and `baton_work` failed on this package's
+    own DOCSTRINGS, which say correctly that nothing here opens them. Replaced
+    with a scan over string LITERALS excluding docstrings: prose that states
+    the boundary is exactly what should be kept, and a checker that cannot tell
+    a claim from a reach punishes documentation.
+
+
+7. THE TRUST CLAIM IS THE NARROW ONE
+
+`tests/authority/test_boundary.py` proves the exported names are exactly the
+sixteen promised, that none of them contains store/path/SQL/mint/bootstrap,
+that the bootstrap face exposes `authority_uuid`, `close`, `create`, `open` and
+nothing else, that every module imports only the standard library and this
+package, that no literal reaches for v11/the Node host/a dossier, and that the
+schema's table set is exactly the authority's and disjoint from the control
+store's.
+
+It does NOT claim that underscores are a sandbox. A determined trusted
+in-process module can import `baton_v12.authority.store` or read a private
+attribute, and saying otherwise would be a false guarantee dressed as a test.
+Untrusted workers are isolated by process and container, which is a mechanism
+that enforces something.
+
+`test_a_later_cut_adds_methods_rather_than_stubs` asserts that `claim`, `end`,
+`cancel`, `session` and the rest are ABSENT: a stub raising
+`NotImplementedError` is a method the exported surface claims to have.
+
+
+8. GATES
+
+  just gate (v12/python)       53 tests, 53 pass, 0 fail, on Python 3.13.7
+  temp roots after the run     zero; every fixture owns and cleans its own
+  the frozen Node reference    UNTOUCHED -- `git status` on
+                               `v12/src/authority` and all seven frozen
+                               authority test files is empty
+  the Node v12 gate            684/687, the same three W1593-owned failures
+                               that were there before this Work started and
+                               that this Work does not touch
+  whitespace-damage check      clean
+
+
+9. WHAT CUT 1 DELIBERATELY DOES NOT DO
+
+No Work, generation, claim, end, gate, event or projection (cut 2). No
+operation journal, savepoint-scoped refusals, replay, retirement, restart or
+race (cut 3). No proposal, receipt, capability or contract progression (cut 4).
+No session face (cut 5). No schema validator. No manager, adapter, OCI,
+provider, v11, CLI or operator code. `v12/src/authority` and its tests were
+read and not edited.
+
+W4 remains blocked on W2845, as it should until the final independent review.

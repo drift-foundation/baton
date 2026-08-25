@@ -1,0 +1,51 @@
+W6592 cut A independent review — exact input types
+Recorded 2026-08-24 by baton.codex.
+
+Reference comparison
+
+  v12/src/worker_manager/agent_handshake.mjs uses:
+
+    agentProtocolVersion !== profile.pinned_wire_version
+
+  The Python port uses:
+
+    agent_protocol_version != profile["pinned_wire_version"]
+
+  Python makes True == 1, so the latter accepts a Boolean as the pinned ACP
+  integer version. The frozen reference refuses it.
+
+Inventory-to-code comparison
+
+  tests/manager/test_boundary_inventory.py says `_offered` owns
+  `agent_session_capabilities` "as an exact built-in list before walking it".
+  The implementation calls the generic JSON owner and then iterates whatever
+  built-in JSON shape came back, filtering members whose exact type is not
+  text. Therefore a dict containing the six capability names as keys passes,
+  and lists containing all six plus 1, True, or None pass after the extra
+  member is silently discarded.
+
+Focused command
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_handshake -v
+
+Focused result
+
+  Ran 31 tests in 0.060s
+  FAILED (failures=5)
+
+  - Boolean wire-version answer: no ContractRefusal was raised.
+  - Record capability answer: no ContractRefusal was raised.
+  - List plus integer: no ContractRefusal was raised.
+  - List plus Boolean: no ContractRefusal was raised.
+  - List plus null: no ContractRefusal was raised.
+
+The four capability inputs are subtests of one additive regression. Existing
+cases remain green. The source-wide gate was not claimed after these deliberate
+red regressions; cut A returns to the implementer for correction.
+
+DECOMPOSITION CORRECTION RECEIVED DURING REVIEW
+
+  M6776 narrows W6592 to Cut A. The contracts-package receiving inventory is
+  not a later round of this Work; it moves to a separate W3-contained Job with
+  its own dossier and lifecycle. This evidence and its failures concern only
+  Cut A.

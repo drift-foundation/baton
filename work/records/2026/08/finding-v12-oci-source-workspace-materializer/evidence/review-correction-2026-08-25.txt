@@ -1,0 +1,37 @@
+W6631 correction re-review — 2026-08-25
+
+PREVIOUS P1 CORRECTIONS
+
+  The frozen directorySource/gitSource fragments now validate before member
+  reads or filesystem work. Staged writes loop to completion and the delivered
+  tree is re-measured. A pre-existing staging symlink, directory or file is
+  refused without being followed or removed.
+
+DETERMINISTIC ANCESTOR RACE
+
+  The additive test wraps os.scandir. It allows the root listing to produce
+  the `deep` directory entry, then at iterator exhaustion renames the real
+  directory and plants a symlink to an outside tree at the queued child name.
+  `_walk` later calls os.scandir on that pathname, follows the link, and accepts
+  the outside file. No ContractRefusal is raised.
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_workspaces
+
+  Ran 44 tests in 0.021s
+  FAILED (failures=1)
+
+RECEIVING INVENTORY
+
+  env PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape.\
+    test_the_declared_owner_checks_can_actually_fail -v
+
+  AssertionError: workspaces.py:materialize_directory_source:380 owns a
+  boundary with no literal label; the inventory cannot attribute it
+
+  Ran 1 test in 0.141s
+  FAILED (failures=1)
+
+The correction handoff's own PROGRESS names the directory-identity rewrite,
+inventory completion and full gates as not done. This re-review confirms those
+are live blockers rather than documentary lag.

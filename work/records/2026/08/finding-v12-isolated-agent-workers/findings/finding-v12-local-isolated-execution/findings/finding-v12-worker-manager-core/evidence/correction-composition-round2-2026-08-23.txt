@@ -1,0 +1,128 @@
+W4 / W2929 item 4ar — composition correction, round 2
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T21-08-54Z.md (one P1).
+Items 4ah and 4ao remain OPEN RULINGS and are not decided here.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test test/worker_manager_refusal_taxonomy.test.mjs   8 pass, 1 fail
+
+Exactly the additive review rows. The finding is correct.
+
+
+2. THE BOUND WAS RIGHT AND THE RULER WAS WRONG
+
+JavaScript `.length` counts UTF-16 CODE UNITS. JSON Schema `maxLength` counts
+UNICODE CHARACTERS. The two agree exactly until a string leaves the BMP, and
+then they silently do not: a provider session id of 512 astral characters has
+a `.length` of 1024, so it VALIDATES under the frozen contract and was REFUSED
+as `integrity.schema` by the hand-written proof that exists to be faithful to
+that contract. 513 is invalid under both, which is why the defect only shows
+at the boundary.
+
+Item 4an set out to make this acceptance boundary faithful, and I made it
+faithful in the wrong unit. I checked the NUMBER against the frozen schema and
+not the MEASURE.
+
+There is one ruler now, `withinCharacters` in `contracts.mjs`, exported as
+`withinFrozenLength` for the boundaries that need it. It is fast and exact
+together: a code point is never MORE than one code unit, so a string short
+enough in code units is short enough in characters and the iteration is
+skipped entirely; only a string that fails the cheap test is counted, and the
+count stops as soon as it passes the limit.
+
+
+3. THE SAME UNIT, AT THE TWO OTHER PLACES ONE IS USED
+
+Applying it only where the review found it would have been the same mistake
+this pass keeps correcting, so I looked for every ruler.
+
+  a) THE FROZEN opaqueId LIMIT. Corrected, and MEASURED AS EQUIVALENT FOR THE
+     VERDICT: the `opaqueId` grammar admits only ASCII, so no astral string is
+     accepted whichever unit the length test counts in. What the wrong unit
+     DID produce was a FALSE DIAGNOSTIC -- "is 162 characters" about an
+     81-character string. Reported as equivalent for acceptance rather than
+     counted as a guard, and corrected anyway, because a rule measured in the
+     wrong unit at one of two sites is exactly the shape this manager keeps
+     finding.
+
+  b) THE DIAGNOSTIC BOUND. `bounded` sliced by code unit, which can CUT A
+     SURROGATE PAIR IN HALF and put a lone surrogate into a message that may
+     be retained. No acceptance decision depends on it and it produces a
+     MALFORMED STRING, which is worth fixing on its own terms. It slices by
+     character now.
+
+
+4. SOMETHING MY OWN FIRST DRAFT GOT WRONG, KEPT AS AN ASSERTION
+
+I wrote a case row expecting `e` + a combining acute + `x` to fit in a limit of
+two, reasoning about what renders as one glyph. `maxLength` counts CODE
+POINTS, not graphemes: that string is three characters and does not fit. The
+row asserts three now, with the reason written beside it, because the
+contract's unit is the one that decides and not the one that looks right.
+
+
+5. MUTATIONS -- SEVEN, ALL WITNESSED
+
+  W1 the provider bound measures code units again     2 cases fail
+  W2 the fast path answers for every string           2 cases fail
+  W3 the counter never stops early                    7 cases fail
+  W4 the name is sliced by code unit again            1 case fails
+  W5 the opaque-id length bound removed               3 cases fail
+  W6 withinFrozenLength accepts a non-string          1 case fails
+  W7 the provider bound removed                       1 case fails
+
+W2 is the one worth naming: it keeps the FAST PATH and deletes the exact one,
+which is the plausible way this optimisation gets broken later. It fails the
+same two cases as W1, which is right -- the fast path alone IS the old defect.
+
+
+6. THE REGRESSION ADDED IS ABOUT THE RULER, AT EVERY PLACE ONE IS USED
+
+`one ruler, and it is the frozen contract's`. The finding was not that 512 was
+compared wrongly; it was that a hand-written proof of a frozen bound measured
+in a different unit from the contract it stands in for. So the case covers all
+three rulers:
+
+  - the opaqueId limit: 160 ASCII accepted, 161 refused FOR LENGTH, and 80
+    astral characters refused FOR GRAMMAR, so the two reasons stay distinct
+  - the shared ruler at the exact boundary: ASCII and astral, at the limit and
+    one over, plus two lone surrogates, plus the combining sequence in
+    section 4, plus a non-string
+  - the diagnostic ruler: a bounded name of a 1000-astral string carries no
+    lone surrogate and no replacement character, and is still within the
+    character bound
+
+The reviewer's additive 512/513 astral rows are retained in the section 3.1
+boundary-pair case, unchanged.
+
+
+7. GATES
+
+  refusal taxonomy             10 / 10
+  session axis                 16 / 16
+  turn                         50 / 50
+  reconnect                    32 / 32
+  posture slots                25 / 25
+  full v12 npm test            683 tests, 683 pass, 0 FAIL
+  TMPDIR bracket               zero test-owned roots (the one entry is
+                               node-compile-cache, Node's own)
+  design models                64 / 66 / 24 / 74, all OK
+  v11 pytest                   2980 passed; serial 52 passed
+  codex-event-bridge           336 / 336
+  acp-baton-bridge             55 / 55
+  whitespace-damage check      clean
+
+
+8. TRACKING, AND THE OPEN RULINGS
+
+The review's renumbering is accepted as recorded: the completed P2 is 4aq and
+4ao stays with the open session-container ruling alongside 4ah. This
+correction is item 4ar.
+
+4ah and 4ao are Slawomir's and I have not decided them. Unchanged by this
+round: the MEMBER half is done either way -- and now measured in the frozen
+contract's own unit, which is one more reason the member half can be
+considered settled -- so what remains is purely the CONTAINER, with one
+normalizer to change rather than two.

@@ -1,0 +1,143 @@
+W4 / M2 — Cut D, second slice: runtime start, reconciliation and cancellation
+ordering
+Recorded 2026-08-24 by baton.claude (implementer), after PLAN 4co signed off the
+first slice.
+
+WHAT THIS SLICE IS
+
+  The rest of the frozen `attempts.mjs`, and the ordering IS the content:
+
+    request_runtime_start   commits a fully signed `runtime.start` operation and
+                            hands its identity to the adapter, so the adapter
+                            and a restart settle the same act
+    reconcile_runtime       decides what exists by IDENTITY and by the FULL
+                            labels; mismatch or multiplicity CANCELS rather than
+                            starting another
+    request_cancellation    fences at the authority FIRST, then orders the agent
+                            cancelled and the runtime stopped -- and never
+                            claims either of them happened
+
+  Two injected capabilities enter: the runtime adapter (start, list, stop) and
+  the provider agent (cancel). What a conforming one must BE is still a later
+  item's to pin, which is why POSITIVE RUNTIME ABSENCE cannot be proven here and
+  the retry path stays closed and says so. A proof a caller can write is not a
+  proof, so this takes no `absence_proven` operand.
+
+  STILL ABSENT RATHER THAN STUBBED: output freeze, intake and cleanup, then the
+  agent state machines and the public manager composition.
+
+THE ORDERINGS, AND WHY EACH IS THAT WAY
+
+  JOURNAL BEFORE THE ADAPTER. An axis label is not an effectively-once act: a
+  journalled operation is what a restart replays and what the adapter can be
+  asked about, while a state column records only that somebody once intended to
+  start.
+
+  THE MINTED RUNTIME IS CHECKED BEFORE THE FILTER. A runtime this call started
+  carrying labels for a different assignment is not ABSENT, it is WRONG, and
+  this call caused it -- filtering it out would leave a mislabelled runtime
+  running with the manager waiting for news.
+
+  FENCE, THEN STOP. Until the generation is fenced the assignment is still live,
+  so a runtime stopped first would be a worker torn out from under an assignment
+  the authority still believes is executing. The manager's own intent is
+  journalled BEFORE the authority is asked, for the same reason runtime start
+  journals first: a crash between two boundaries must be answerable.
+
+  THE AGENT BEFORE THE RUNTIME. An agent told to stop after its runtime is
+  already going away never hears the order, and the cooperative shutdown is the
+  whole point of asking it. A FAILED COOPERATIVE REQUEST DOES NOT VETO THE STOP:
+  by that line the authority has already fenced and ended the assignment, so
+  persistent agent unreachability is a REASON to stop the runtime rather than a
+  reason to leave a fenced one running.
+
+  ORDERED, NOT DONE. Both settlements ride back UNINTERPRETED and un-normalized.
+  Reaching a boundary is not evidence of its effect, and collapsing "the
+  boundary returned nothing" into "it returned null" is a smaller version of the
+  same mistake.
+
+TWO DELIBERATE DEPARTURES FROM THE ORACLE, BOTH REPORTED
+
+  1. THE CANCELLATION ANSWER IS NESTED, NOT MERGED. The frozen host spreads the
+     intent, the fence and the quiescence answer into one object, so its member
+     set depends on which branch ran. Three named members always present is a
+     document the next receiver can own, which is what the outbound constructors
+     exist for.
+  2. THE LOST-RACE CATCH IS NARROWED to the compare-and-swap's own refusal. The
+     oracle catches every contract error there, which swallows an operation
+     COLLISION and answers it as a cancellation -- so a wrong operation identity
+     would be invisible. §4.2's collision is the caller's to see. This is what
+     makes the per-runtime attach identity OBSERVABLE, and the mutation table
+     below shows the two are complementary.
+
+WHAT THE INVENTORY REQUIRED, AND WHAT IT FOUND
+
+  The adapter and the agent are capabilities, so their calls are injected
+  crossings and their answers are entries. That surfaced a modelling gap I had
+  to fix rather than declare: `cancel` exists on the authority session AND on
+  the provider agent, so a member name alone stopped identifying a crossing. For
+  those two capabilities the holder's name is now part of the member's identity
+  -- two crossings that share a verb are still two crossings.
+
+  Owned at the crossing: the adapter's start answer and every listed runtime,
+  because the manager COMPARES their ids and labels. Stated with the pinned
+  reason: the two settlements, which it forwards uninterpreted.
+
+  Three derived identities (`_start_operation_id`, `_cancel_operation_id`,
+  `_authority_cancel_operation_id`) are PRIVATE, for the reason
+  `_fixed_assignment` is: each projects an attempt row this build has already
+  adopted, and an exported projector over an unowned dict is a boundary nobody
+  owns. They become public when a restart needs to name the act.
+
+  241 receiving entries    152 caller, 52 injected, 37 adopted
+  141 probes               one per (entry, label fragment)
+  79 stated owners         each naming a witness test that must exist
+  17 delegations, 2 unprobed entries declared and checked to be OWNED
+
+MUTATIONS, ROUND 11 (17 run against the 541-test suite)
+
+  K1  the start is journalled after the adapter call        1 failing
+  K2  an unactivated attempt may start a runtime            2
+  K3  a second start is performed                           1
+  K4  a mislabelled minted runtime is not cancelled         1
+  K5  multiplicity does not cancel                          1
+  K6  an attached runtime may be replaced                   0 -- see below
+  K7  the attach identity is keyed on the attempt alone     1
+  K8  the agent is ordered after the runtime                3
+  K9  an agent failure vetoes the stop                      2
+  K10 one failure hides the other                           1
+  K11 the boundary shapes are not checked                   3
+  K12 a cancellation in flight is re-announced              1
+  K13 the session binding does not gate cancellation        1
+  K14 an unfenced answer is accepted                        1
+  K15 the fenced assignment is not related                  3
+  K16 the adapter's listing is not owned                    3
+  K17 a collision is answered as a cancellation             0 -- MEASURED
+                                                            EQUIVALENT
+
+  K6 WAS A REDUNDANT CHECK AND IS GONE. I wrote an early mismatch test in
+  `_attach` -- read the row, compare, cancel -- and deleting it changed no
+  verdict: the compare-and-swap refuses exactly that case and the lost path
+  answers with the same cancellation, from a FRESHER read. The sixth duplicate
+  of a write's own condition this campaign has made me remove, and this one was
+  also the staler of the two.
+
+  K17 IS A MEASURED EQUIVALENCE WHOSE VALUE IS THAT IT MAKES K7 OBSERVABLE.
+  With the attach identity keyed per runtime no collision arises, so narrowing
+  the catch has nothing to catch today. What it does is turn a wrong identity
+  from silent into visible: K7 measured ZERO under the oracle's broad catch and
+  measures 1 under the narrow one. A guard whose job is to stop another guard's
+  failure being swallowed is worth keeping even when it is idle, and I am
+  reporting it as idle rather than as proved.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 541 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 541. 518 -> 541. Zero temp
+  roots. The working tree reports no whitespace errors. The frozen Node oracle
+  under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting independent review of Cut D's second slice. Output freeze, intake and
+  cleanup remain unstarted.

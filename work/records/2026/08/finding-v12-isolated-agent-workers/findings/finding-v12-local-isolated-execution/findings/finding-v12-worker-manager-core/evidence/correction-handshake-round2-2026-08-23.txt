@@ -1,0 +1,123 @@
+W2929 / current authority W4 — handshake slice, SECOND correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T17-39-42Z.md (one directional P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_handshake.test.mjs
+    tests 20, pass 19, fail 1
+  cd v12 && npm test
+    tests 575, pass 574, fail 1
+
+The additive regression was the only failure. The finding is correct.
+
+
+2. THE FINDING, AND WHY MY OWN CORRECTION MISSED IT
+
+Last round I split the inbound route out of the client-call boundary and
+wrote that "direction answers two different questions". Then I built the
+outbound allow list as `REQUIRED_AGENT_METHODS + OPTIONAL_AGENT_METHODS` —
+all five required plus three — so it still admitted `session/update` in the
+reverse direction. The two closed directional surfaces I had just separated
+overlapped on the exact name the separation was about.
+
+The mistake is a misreading of section 2.3. Its five-member baseline says what
+an ENDPOINT must present across both directions; it is not a relay-outbound
+list. I used it as one.
+
+REVALIDATED AGAINST THE PINNED SDK RATHER THAN THE PROSE, since that is now
+twice this slice's lesson. `@agentclientprotocol/sdk` 1.3.0's
+`dist/schema/index.js`:
+
+  CLIENT_METHODS  session_update: "session/update"   (with the fs/*,
+                  terminal/*, mcp/* and elicitation/* names)
+  AGENT_METHODS   initialize, session/new, session/prompt, session/cancel,
+                  and all three optional names — session/set_mode,
+                  session/set_config_option, session/close
+
+So the split is four relay-origin required plus three relay-origin optional.
+
+
+3. THE CHANGE
+
+`REQUIRED_AGENT_METHODS` stays at FIVE and is still what handshake
+capability validation requires — nothing about the endpoint's obligation
+changed.
+
+`KNOWN_AGENT_SURFACE` is renamed `RELAY_OUTBOUND_SURFACE`, on the review's
+explicit authority, so the direction is in the name rather than in a comment.
+It is DERIVED rather than transcribed:
+
+  RELAY_OUTBOUND_SURFACE =
+      REQUIRED_AGENT_METHODS minus AGENT_ORIGIN_METHODS,
+      plus OPTIONAL_AGENT_METHODS
+
+so the two directional lists cannot drift apart under a later edit to either.
+Seven names. `checkOutboundMethod("session/update")` refuses
+`refused.capability`; `routeAgentOriginCall("session/update")` still returns
+it.
+
+
+4. MUTATIONS — FOUR, ALL WITNESSED
+
+  D1 the outbound surface reverts to required + optional   3 cases fail
+  D2 the outbound surface drops the optional three         2 cases fail
+  D3 the agent-origin list is emptied                      2 cases fail
+  D4 the outbound guard consults the agent-origin list     1 case fails
+
+D1 is exactly what I delivered last round, and it now fails three cases
+including the reviewer's.
+
+D3 is worth naming: emptying `AGENT_ORIGIN_METHODS` would make the derivation
+silently produce the old eight-member list again. It fails, because the
+partition case below asserts coverage in both directions rather than only
+disjointness.
+
+
+5. REGRESSIONS — 21 (20 before, including the reviewer's one)
+
+One of mine: the two directional surfaces PARTITION the required five. Not
+merely disjoint — between them they account for every required name, so a
+member cannot be dropped from both and go unnoticed, and no agent-origin name
+can appear that is not part of the baseline. The outbound length is asserted
+as four plus three by arithmetic over the three lists rather than as a
+literal, so a change to any one of them has to be deliberate.
+
+The outbound pass-through case was migrated on the review's authority: the
+handshake requirement is still asserted at five, the optional three are
+asserted by name, and the exhaustive pass-through now runs over the seven
+relay-outbound names — the same assertion this case already made over the set
+it then had.
+
+
+6. GATES
+
+  cd v12 && npm test                       576 tests, 576 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 574 -> 576.
+
+
+7. STILL NOT IMPLEMENTED
+
+Sections 6.5, 8.1, 8.2, 8.4 and 8.5; adapter prompt composition; the runtime
+adapter contract; and re-identification after transport ambiguity. W543 and
+W641 own their contract defects and neither is touched here.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/agent_handshake.mjs        RELAY_OUTBOUND_SURFACE,
+                                                    derived from the required
+                                                    baseline minus what the
+                                                    agent originates
+  v12/test/worker_manager_agent_handshake.test.mjs  +1 case, 1 authorized
+                                                    migration, 1 rename in
+                                                    the reviewer's case

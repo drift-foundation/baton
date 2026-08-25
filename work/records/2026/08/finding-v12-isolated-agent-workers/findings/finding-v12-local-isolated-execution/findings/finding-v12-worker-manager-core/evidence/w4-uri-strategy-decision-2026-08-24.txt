@@ -1,0 +1,117 @@
+W4 / M2 — the URI parser-equivalence decision, with the measurement that
+settles it
+Recorded 2026-08-24 by baton.claude (implementer). Answering the re-review
+"a derived authority is not a parser", which requires a strategy ruling BEFORE
+the next implementation edit.
+
+NO IMPLEMENTATION EDIT WAS MADE THIS ROUND. The review asked for the strategy to
+be pinned first, and the nine additive methods it left are still failing by its
+design: full source is 582 with six failures and three errors, all of them those
+methods, and every one of the 580 delivered tests passes. `git diff --check` is
+clean and the frozen Node oracle is untouched.
+
+THE FINDING THAT DECIDES IT, AND NEITHER REVIEW HAS NAMED IT YET
+
+  I measured what the frozen constructor DOES with the forms it accepts, not
+  only whether it accepts them. Ten of nineteen come back as a DIFFERENT STRING:
+
+    https://EXAMPLE.test/x    -> https://example.test/x
+    https://ä.test/x          -> https://xn--4ca.test/x
+    https://%41.test/x        -> https://a.test/x
+    https://x:00080/x         -> https://x:80/x
+    https://x:/x              -> https://x/x
+    https:x  https:/x  https:///x -> https://x/
+    file://                   -> file:///
+    https:%41                 -> https://a/
+
+  So "accept exactly what the frozen reader accepts" CANNOT BE A RULE OVER THE
+  ORIGINAL TEXT. The frozen reader accepts a string and then uses a different
+  one -- and this module's own §12 rule 4 comment says the opposite about how
+  these rules must work: "the rule is read off the ORIGINAL TEXT first, because
+  a rule about what a durable string may CONTAIN must not be decided only by a
+  parser's reconstruction of it."
+
+  A durable locator whose meaning depends on a normalizing parser is a locator
+  two conforming readers can disagree about, which is the exact failure §3.3
+  exists to prevent. The current frozen behaviour therefore does not establish
+  the boundary it is being used as the standard for. That is not an argument
+  about convenience; it is the same class of defect the last three reviews have
+  been finding one edge at a time.
+
+STRATEGY 1 -- A VETTED WHATWG PARSER IN PYTHON
+
+  What it would take, measured from the table above: WHATWG host parsing,
+  percent-decoding, IDNA/punycode and port normalization. `urllib` does none of
+  those; it is an RFC 3986 splitter. So this means a SECOND third-party runtime
+  dependency.
+
+  That reopens PLAN 4bh, which ruled exactly one runtime dependency with its
+  complete hash-locked closure, and PLAN 4bi, which gives the manager an exact
+  import allowlist. It also cannot be verified here: the configured index has
+  been unreachable by DNS for several rounds -- the reviewer's own locked runs
+  say so -- and I will not claim a package exists, is maintained, or resolves
+  offline without measuring it.
+
+  And it would keep the property above: the boundary would still accept strings
+  that only mean something after normalization.
+
+STRATEGY 2 -- ONE SMALLER CANONICAL GRAMMAR, ENFORCED BY BOTH RUNTIMES
+
+  Recommended. The smaller trust surface, and it removes normalization from the
+  boundary entirely: every rule is literally checkable on the original text in
+  either runtime, with no parser and no reconstruction.
+
+  PROPOSED GRAMMAR for a durable locator:
+
+    scheme      lowercase, `[a-z][a-z0-9+.-]*`, then ":"
+    opaque form no "//" after the colon; a non-empty remainder; no "?" or "#"
+                (this is what `urn:x:y` and `mailto:a@b` use)
+    hierarchical exactly "//" after the colon, then authority, then an optional
+                "/" path
+    authority   host, optionally ":" port. NO userinfo in any form.
+    host        either a bracketed IPv6 literal of hex groups and colons, or a
+                registered name of lowercase `[a-z0-9._~-]`. No percent-encoding,
+                no uppercase, no non-ASCII -- so nothing to normalize.
+    port        "[1-9][0-9]{0,4}" with a value at most 65535, or ABSENT. No empty
+                marker, no leading zeros.
+    everywhere  no query, no fragment (unchanged)
+
+  WHAT IT SUPERSEDES -- forms the frozen constructor accepts today and this
+  would refuse, each because it only has one meaning after normalization:
+
+    uppercase hosts               https://EXAMPLE.test/x
+    non-ASCII hosts               https://ä.test/x
+    percent-encoded hosts         https://%41.test/x
+    empty port markers            https://x:/x
+    leading-zero ports            https://x:00080/x
+    shorthand slashes             https:x   https:/x   https:///x
+    underscore / dotted / leading-hyphen names   a_b, a..b, -a
+
+  The shorthand row is the one I want the reviewer to look at hardest, because
+  the last two reviews had me ADD support for it. Under this grammar a producer
+  must write the canonical two-slash form. That is a real change to accepted
+  input and is exactly why this needs a recorded ruling rather than my judgement.
+
+  WHAT IT KEEPS: every retained regression -- query, fragment, userinfo,
+  malformed authority, empty host, and the multi-colon and out-of-range port
+  cases -- is refused by this grammar too. The shorthand-acceptance methods are
+  the only retained ones that would change, and they would change by ruling
+  rather than by my editing them.
+
+  SHARED VECTORS: the grammar's accepted and refused sets belong in the same
+  published vector file the manifest rules already drive from, so both runtimes
+  are held to one list rather than to two implementations that agree today.
+
+WHAT I NEED FROM THE REVIEW
+
+  A ruling on strategy 1 or 2, and if 2, on the supersession list above --
+  particularly the shorthand forms. I have not edited `check_uri`, and I will
+  not, until the strategy is pinned; three rounds of chasing edges is the
+  anti-loop signal this dossier already knows how to answer, and the answer is
+  not a fourth round of the same.
+
+STATE
+
+  Blocked on the ruling. Source is red by the review's design and its 580
+  delivered tests pass. The contracts-package anti-loop inventory, §13 and
+  retention remain unstarted behind this.

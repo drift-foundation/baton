@@ -1,0 +1,112 @@
+W2845 independent re-review evidence — Cut 5 correction
+2026-08-24
+
+Scope
+=====
+
+Reviewed the implementer's Cut 5 correction handoff and
+`evidence/cut5-correction-2026-08-24.txt`. The two findings in
+`review-2026-08-24T06-36-30Z.md` are corrected:
+
+* Session caller-controlled names now render through the bounded `name_of`
+  mechanism; multiple unknown members become a three-name sample plus a count;
+  Session repr is bounded too.
+* Generated transitions accept `*documents` and enforce exactly one exact
+  built-in operand dict at the Session boundary, distinguishing omission,
+  explicit null and multiple documents with Refusal outcomes.
+
+Focused correction verification
+===============================
+
+Command:
+
+  cd v12/python
+  env PYTHONPATH=src python3 -m unittest \
+    tests.authority.test_session.FinalReviewFindings -v
+
+Result before the additional Core regressions: 5/5 passed.
+
+Full source and installed-wheel verification
+============================================
+
+Command:
+
+  cd v12/python
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result: source suite 205/205 passed; the locked offline wheel built, installed,
+imported from the installed layout, and passed the same 205/205 tests. Python
+3.13.7. Frozen `v12/src/authority` and its tests have no diff. `git diff
+--check` was clean for tracked files; this new Python slice and dossier are
+untracked as a whole in the shared worktree.
+
+New final-boundary reproduction
+===============================
+
+The implementer correctly raised two earlier-Core measurements instead of
+silently editing already reviewed cuts. I independently reproduced both through
+the supported public faces, using syntactically valid identities containing one
+million caller-controlled characters:
+
+  duplicate_work 1000030 Work 0123abcd-W111111111111111111111111111111...
+  actor_capability 1000126 baton.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...
+
+The first is `Authority.create_work` invoked twice with the same valid Work id.
+The second is a minted Session for a valid participant invoking `verify`
+without the configured capability. Both are ordinary rejected-value
+diagnostics, and both directly embed the rejected identity rather than render
+it through `name_of`.
+
+The exact known sites are `core.py`'s duplicate-Work refusal and
+`_require_capability`. Inspection also finds other raw interpolations of
+caller-controlled or caller-originated stored text in Core refusals (for
+example unknown Work, slot collision, route resolution, authority mismatch,
+gate/CAS identity, frozen result and receipt collisions). Therefore the safe
+correction boundary is a package-wide audit of Refusal construction, not two
+case-specific substitutions.
+
+Ruling
+======
+
+This is within W2845. `authority/errors.py` already owns the package-wide rule:
+caller-controlled text placed into a diagnostic is bounded by the rule, never
+by the operand. Earlier cut sign-off does not exempt code when later evidence
+shows it contradicts that still-live invariant. A deeper child dossier would
+also exceed the repository's two-level child limit; the authority is not ready
+for W4 while its public faces retain this defect.
+
+This ruling does NOT add a durable-text operand cap and does NOT change the
+settlement decision. A long accepted signature must still compare exactly. The
+correction is limited to rendering rejected values in diagnostics: use bounded
+names, fixed rule prose, and bounded sample/count forms where a message names
+several operands, while preserving useful exact values when they are short.
+
+Reviewer regressions
+====================
+
+Two additive cases were added to
+`v12/python/tests/authority/test_session.py::FinalReviewFindings`:
+
+* `test_bootstrap_collision_refusal_is_bounded_by_the_rule`
+* `test_capability_refusal_is_bounded_by_the_rule`
+
+Current focused result after adding them: 7 cases run, the five corrected
+Session cases pass, and these two fail at lengths 1,000,030 and 1,000,126.
+They are the red handoff. The implementer should add broader data-driven
+coverage for every audited caller-text family rather than treating these two
+representatives as the entire surface.
+
+Required correction
+===================
+
+1. Audit every Refusal construction in `v12/python/src/baton_v12/authority/`
+   for raw caller-controlled or caller-originated stored text.
+2. Route every such rendering through the existing bounded mechanism, or use
+   fixed rule prose / bounded sampling where that communicates the rule better.
+3. Preserve exact accepted operands and the no-cap settlement behavior.
+4. Add data-driven regressions covering the audited identity, actor, route,
+   gate, digest/result and receipt collision families, including stored text
+   echoed by a later refusal.
+5. Make the two reviewer cases green and rerun the complete source and locked
+   installed-wheel gate before returning W2845.
+

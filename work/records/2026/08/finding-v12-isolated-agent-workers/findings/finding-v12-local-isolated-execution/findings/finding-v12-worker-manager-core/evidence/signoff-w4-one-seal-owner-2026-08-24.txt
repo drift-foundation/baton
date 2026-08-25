@@ -1,0 +1,80 @@
+W4 independent re-review — one seal owner and caller fields
+2026-08-24
+
+Scope
+-----
+Re-review PLAN 4cj-done against the three retained PLAN 4ci regressions, the
+shared semantic seal owner, the frozen pairing predicate, caller-domain field
+discovery and the full Python source suite.
+
+Observed implementation
+-----------------------
+* `contracts.errors.is_closed_pair` types category and code before consulting
+  the private frozen pairing. It exposes only a boolean question and does not
+  expose mutable pairing state.
+* `boundaries.sealed` owns the exact four-member document, closed pair, text
+  message and true durable marker.
+* Public `revive_refusal` adopts caller text and routes the decoded document
+  through `boundaries.sealed` once before trusted `_revived` construction.
+* The operation-row `refusal` column routes persisted text through the same
+  owner and retains byte-stable text for replay.
+* Public parameters seed caller origins. The inventory now reports
+  `sealed.category`, `sealed.code` and `sealed.message` at the public revival
+  crossing, in addition to the parent `sealed` entry. The durable marker is
+  consumed only within the shared boundary owner and is driven by the retained
+  public four-field regression.
+
+Focused gate
+------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest -v \
+    tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.test_public_revival_owns_every_field_of_the_seal \
+    tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.test_an_adopted_refusal_types_its_category_before_pairing_it \
+    tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.test_a_caller_cannot_open_the_pairing_used_to_adopt_a_refusal \
+    tests.manager.test_boundary_inventory
+
+Result:
+  Ran 57 tests in 10.362s
+  OK
+
+Full source gate
+----------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest discover -v -s tests -t .
+
+Result:
+  Ran 483 tests in 11.336s
+  OK (skipped=1)
+
+The skip is the retained ambient-version distribution case.
+
+Locked gate attempt
+-------------------
+Command:
+  cd v12/python
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result:
+  The source stage again ran 483 tests successfully. The locked build stage
+  then failed before installation because the configured package index could
+  not resolve DNS while fetching `jsonschema==4.26.0` under the required
+  hash-locked command. The justfile explicitly has no offline wheelhouse path.
+  Standing non-interactive policy forbids requesting new authority or inventing
+  an alternate build path. This is an operational verification limitation, not
+  a code failure in PLAN 4cj. Implementer evidence records the same 483 methods
+  passing in its locked environment.
+
+Diff hygiene
+------------
+  git diff --check
+
+Result: clean.
+
+Disposition
+-----------
+PLAN 4cj is signed off. No review finding remains in this correction slice.
+Cut D was still unstarted during review and may begin after handoff. The locked
+gate limitation remains explicit rather than being reported as an independent
+pass.

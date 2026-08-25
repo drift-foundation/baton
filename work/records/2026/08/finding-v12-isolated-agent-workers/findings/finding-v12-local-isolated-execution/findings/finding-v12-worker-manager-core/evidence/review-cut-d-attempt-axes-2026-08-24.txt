@@ -1,0 +1,99 @@
+W4 independent review — Cut D attempt axes, activation and observations
+2026-08-24
+
+Scope
+-----
+Review PLAN 4cl-done against the durable manager-journal contract, the frozen
+host's observation contention rule, the centralized receiving-entry model and
+the delivered schema/attempt tests. Runtime start, reconciliation and
+cancellation remained unstarted throughout this review.
+
+Accepted in this slice
+----------------------
+* An attempt record signs all eight durable operands.
+* Activation relates the session binding, this attempt's committed claim and
+  the authority's live four-part assignment.
+* The assignment columns are all-four-or-none and the conditional UPDATE stays
+  as the write's defensive compare-and-swap. H14 may remain a measured
+  equivalence through today's public operation identity; that is not a reason
+  to weaken the write.
+* Axis vocabularies and transition relations remain distinct and frozen.
+* Source identity is resolved before current axis state, inert sourced
+  observations consume their identity, and failed inserts roll the axis move
+  back with the savepoint.
+
+Additive regressions
+--------------------
+File: v12/python/tests/manager/test_attempts.py
+
+1. ActivationNeedsAllThreeToAgree.
+   test_an_exact_reactivation_replays_one_byte_stable_answer
+
+   The first activation returns already_fixed=False and records that document
+   in the operation journal. An identical later call takes the fixed-row
+   shortcut before store.transact and returns already_fixed=True. The same
+   operation therefore has two answers depending on arrival timing. A racing
+   second manager that read before the first commit replays False from the
+   journal, while the same call beginning after commit synthesizes True.
+
+2. ObservationsMoveAlongTheirOwnAxis.
+   test_unhashable_axis_and_value_are_contract_refusals
+
+   A list axis raises raw TypeError at `axis not in TRANSITIONS`; a list value
+   raises the same at `value not in moves`. Both happen before the closed-set
+   refusal the inventory claims owns these caller entries.
+
+3. WhatOnlyAnotherWriterCanCause.
+   test_a_stale_observer_translates_only_database_contention
+
+   A clock hook pauses one manager after its deferred savepoint has read the
+   old axis and immediately before its conditional UPDATE. A second manager
+   commits the transition. The stale writer then raises raw
+   sqlite3.OperationalError('database is locked'). The frozen host classifies
+   only SQLite busy/locked result codes as runtime-observation.state-regression
+   and deliberately leaves trigger/constraint/storage failures unclassified;
+   the Python port omitted that contention-only translation entirely.
+
+Focused result
+--------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest -v \
+    tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_an_exact_reactivation_replays_one_byte_stable_answer \
+    tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_unhashable_axis_and_value_are_contract_refusals \
+    tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_stale_observer_translates_only_database_contention
+
+Result:
+  3 methods; 2 failures and 2 subtest errors.
+  * False != True for the two activation documents.
+  * Two raw TypeError: unhashable type: 'list'.
+  * Raw OperationalError: database is locked.
+
+Full source result
+------------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest discover -s tests -t .
+
+Result:
+  Ran 517 tests in 39.771s
+  FAILED (failures=2, errors=2, skipped=1)
+
+All 514 delivered methods pass; the four failure reports belong to the three
+new reviewer methods. The skip is the retained ambient-version distribution
+case. The locked build was not run because the source gate is red.
+
+Diff hygiene
+------------
+  git diff --check
+
+Result: clean.
+
+Disposition
+-----------
+Changes requested. Retain all 514 delivered methods and the three additive
+regressions. Make an exact activation retry consult the one journalled answer
+rather than synthesizing a current-state answer; type the two closed vocabulary
+operands before membership; and translate only SQLite contention by its result
+code while preserving non-contention storage faults. Runtime start,
+reconciliation and cancellation stay unstarted pending re-review.

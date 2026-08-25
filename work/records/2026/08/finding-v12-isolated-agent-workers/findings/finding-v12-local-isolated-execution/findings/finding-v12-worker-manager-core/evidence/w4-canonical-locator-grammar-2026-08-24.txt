@@ -1,0 +1,107 @@
+W4 / M2 — the shared canonical locator grammar, in both runtimes
+Recorded 2026-08-24 by baton.claude (implementer), implementing the confirmed
+decision "one smaller canonical URI grammar" (FINDING; PLAN 4dd) and the
+approver's follow-up: opaque forms excluded, the bounded Node edit and the
+superseded test migrations authorized.
+
+WHAT WAS BUILT
+
+  fixtures/uri-vectors.json   20 accepted and 50 refused forms. THE AUTHORITY
+                              FOR BOTH RUNTIMES, not two implementations that
+                              agree today. Each refusal carries its reason.
+  contracts/manifest.py       `check_uri` rewritten to the grammar
+  worker_manager/contracts.mjs  `validateUri` corrected to the same grammar --
+                              the bounded edit the ruling authorizes, and
+                              nothing else in that module is touched
+  both test suites            read the same corpus and run the same assertions
+
+  THE GRAMMAR, enforced over the ORIGINAL TEXT with no parse and no
+  reconstruction anywhere in it:
+
+    scheme      lower-case ASCII `[a-z][a-z0-9+.-]*`
+    shape       `scheme://authority` then nothing or an absolute path;
+                `file:///absolute-path` with no remote authority
+    authority   no userinfo; one non-empty lower-case DNS/IPv4 host or one
+                bracketed IPv6 literal; an optional port 1 to 65535
+    everywhere  no query, no fragment, no backslash, no control or space
+    path        percent escapes are `%` and two UPPER-CASE hexadecimal digits
+
+  The IPv6 literal is the one place a library decides: `ipaddress` in Python and
+  the constructor's own hostname round-trip in Node. Hand-rolling an address
+  parser is what the ruling steers away from, and BOTH sides additionally
+  require the literal to be lower case and to come back as the SAME TEXT -- an
+  address that only becomes valid after normalization is not canonical.
+
+  `urllib` LEAVES the Python allowlist and `ipaddress` joins it. The grammar
+  needs no URI parser at all now, which is a smaller surface than the widening
+  I asked for two rounds ago.
+
+EVERY SUPERSEDED ASSERTION, NAMED (the ruling requires this rather than a quiet
+delete; PROGRESS carries the same list)
+
+  Python, `ExportedSemanticRulesOwnTheirCallers`:
+    test_the_frozen_reader_decides_where_the_authority_starts   REQUIRED
+      `https:x`, `https:/x`, `https:///x`, `https:x:8080/p` to be ACCEPTED.
+      Shorthand is excluded; all four are refused.
+    test_the_frozen_constructor_not_urlsplit_decides_the_host   same forms, same
+      supersession.
+    test_an_empty_port_is_not_an_invalid_port                   REQUIRED
+      `https:x:`, `https://x:`, `artifact://x:` to be accepted. Empty markers
+      are excluded; all three are refused.
+    test_the_scheme_decides_whether_a_host_is_required          ACCEPTED
+      `file://`, `artifact://`, `urn:x:y`, `mailto:a@b`. A non-file scheme now
+      needs a non-empty authority, `file` needs a path, and opaque forms are
+      excluded entirely.
+    test_a_credential_is_found_wherever_the_authority_starts and
+    test_special_scheme_normalization_does_not_hide_userinfo    expected the
+      shorthand credential forms to refuse WITH THE USERINFO REASON. The ruling
+      permits refusing at canonical syntax first, which they do; the refusals
+      are retained and the reasons move.
+  Python, `TheCanonicalVectorIsTheBaseline`:
+    test_a_source_uri_is_absolute_readable_and_bare             three expected
+      phrases changed -- "not an absolute URI" and "not a URI this build can
+      read" became the grammar's more precise reasons. Every refusal retained.
+  Node, `worker_manager_contracts.test.mjs`:
+    "a durable locator carrying a credential is refused"        two expected
+      phrases changed from /absolute/ to /canonical locator/. Refusals retained.
+    "a URI this build cannot parse is refused, opaque forms are not" RENAMED to
+      "a URI outside the canonical grammar is refused". It asserted that opaque
+      forms STAY accepted, on the reasoning that refusing a parse failure "costs
+      the contract nothing". The ruling supersedes that reasoning; `urn:uuid:1`
+      and `mailto:` move from the accepted list to the refused list.
+    "a malformed locator cannot reach the trusted manifest"     /parseable/
+      became /does not close it/.
+
+  RETAINED UNCHANGED on both sides, and a case asserts the corpus still carries
+  each: query, fragment, userinfo in canonical form, malformed authority, empty
+  host, and every port refusal.
+
+VERIFICATION
+
+  Python: XDG_RUNTIME_DIR=/tmp just gate -- 574 tests, all pass, Python 3.13.7;
+  the locked build installs, imports and passes the same 574. Zero temp roots.
+  Node: `npm test` in v12 -- the three locator cases pass and the new shared-
+  vector case passes.
+
+  AN OPERATIONAL FINDING, REPORTED RATHER THAN FIXED OR HIDDEN. The frozen
+  prototype's own Node suite has THREE failures that are not mine and that this
+  edit does not touch:
+
+    W1593 review: a wide record has bounded fault output
+    W1593 review: shape prose does not enumerate unreported members
+    W2929 correction: a refusal is bounded by the RULE, not by the operand
+
+  All three are about refusal MESSAGE LENGTH -- one reports a 269,042-character
+  refusal for a capability envelope with 20,000 members -- and none of them
+  calls `validateUri`. I checked that my edit lost no export (39 exports, none
+  missing) and touched no shared helper. They are outside this boundary and
+  outside W4's claimed scope, so I have not changed them; W4 owns the Python
+  manager core and the bounded locator correction, and silently repairing
+  somebody else's failing gate would misreport what this round did.
+
+  The working tree reports no whitespace errors.
+
+STATE
+
+  Awaiting independent review of both runtimes. The contracts-package anti-loop
+  inventory is next, then §13, then retention and the outputs tables.

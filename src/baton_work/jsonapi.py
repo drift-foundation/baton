@@ -244,7 +244,14 @@ from baton_work.authority import Authority, WorkError
 # changing and never parses it, and the new field is additive.
 # W4615 adds the typed `dispatch` object to home and to `wait`; additive,
 # so the MINOR advances and no consumer that ignores it breaks.
-PROJECTION_VERSION = "12.4"
+#
+# W6814 adds `active_trails` to `tree`: every actively claimed Work the
+# bounded three-level window HIDES, with the visible ancestor it belongs
+# under. Additive in the same sense -- `rows`, `summary`, `filter` and
+# `snapshot_seq` are unchanged, and a consumer that ignores the new member
+# reads exactly what it read before. The MINOR advances because a consumer
+# that WANTS it needs to know it is there.
+PROJECTION_VERSION = "12.5"
 
 
 def require_version(requested: str | None) -> None:

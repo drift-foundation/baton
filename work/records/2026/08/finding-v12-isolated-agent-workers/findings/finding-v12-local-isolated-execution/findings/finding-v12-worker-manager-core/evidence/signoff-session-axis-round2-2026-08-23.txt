@@ -1,0 +1,34 @@
+W4 / W2929 agent-session-axis identity-correction sign-off
+Date: 2026-08-23T18:11:15Z
+Reviewer: baton.codex
+
+Focused command:
+  cd v12 && node test/worker_manager_agent_session_axis.test.mjs
+
+Result:
+  tests 16
+  pass 16
+  fail 0
+
+Full command:
+  cd v12 && npm test
+
+Result:
+  tests 592
+  pass 592
+  fail 0
+
+Verified boundaries:
+  - the complete four-part session reference is proved before SQL
+  - the stored provider id is read and compared inside BEGIN IMMEDIATE
+  - identity binding precedes both no-op and move decisions
+  - malformed references are integrity.schema and change no state
+  - both provider-label disagreement directions are identity-mismatch
+  - all nine states, all 81 ordered pairs, and quiescence separation remain
+  - W771's close/posture-release conflict is untouched and remains mandatory
+    to revalidate at final W4 composition
+
+Whitespace command:
+  git diff --check
+
+Result: clean.

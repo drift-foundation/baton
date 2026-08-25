@@ -1,0 +1,234 @@
+W2845 — implementation cut 5 (the last cut)
+Date: 2026-08-24. Implementer: baton.claude.
+Scope: the exact exported bootstrap, the participant-bound session face, the
+portable catalog comparison, and cut 3's raised settlement-signature question.
+Cut 4 correction was signed off in review-2026-08-24T06-12-12Z.md, in
+which the reviewer also ADDED one restart/fresh-copy regression, taking the
+suite to 175 before this cut began.
+
+
+1. THE TWO FACES, AND WHY THERE ARE TWO
+
+  Authority   TRUSTED BOOTSTRAP.  It creates, opens, configures, reads and
+              MINTS sessions.  A deployment holds exactly one, at start-up.
+  Session     the RUNTIME boundary, bound at construction to ONE participant.
+              It performs transitions and reads projections.  It holds no path,
+              no store and no way back to the authority that made it, and it
+              cannot name a participant other than its own.
+
+The frozen Node host carried both on one object and was corrected for it: a
+consumer claimed as `publisher`, granted `publisher` the close capability,
+closed the live Work as that actor, and moved the canonical target with zero
+proposals and zero receipts. A second reproduction simply passed a configured
+closer's NAME, because the capability check compared a string the same caller
+supplied.
+
+A capability nobody can take away from you is not a capability, and an actor
+identity the caller chooses is not an identity. So the actor on every receipt
+and the claimant on every claim come from the BINDING, and supplying `actor` or
+`participant` is REFUSED rather than dropped -- the frozen host silently dropped
+a supplied `participant` on `claim`, so a caller could believe it had been
+honoured.
+
+AND THE CLAIM IS THE NARROW ONE, stated in the module rather than implied:
+private attributes are not a sandbox. A trusted in-process module can read
+`_core` or import `core` directly, and no amount of underscores changes that.
+What is enforced is the SUPPORTED, EXPORTED surface and the deployment wiring;
+untrusted workers are isolated by process and container, which is a mechanism
+that enforces something.
+
+
+2. THE SURFACE IS WRITTEN OUT, NOT DERIVED
+
+16 transitions and 16 reads, in tables. Deriving them from `Core` would mean
+that adding a method there silently widened the runtime boundary; a new
+transition is unreachable from a session until somebody puts it in the table
+deliberately.
+
+Each transition's table entry also names its WHOLE key set, required and
+optional. An operand supplied and ignored is one the caller believes it chose,
+so an unknown key refuses by name rather than being dropped -- and the operands
+are taken ONCE, as an owned copy, and the caller's object is never read again.
+That is not hygiene: the frozen host read `operands.expect.participant` for its
+binding check and handed the SAME object to the core, which read it again, so a
+getter answering one participant twice and another afterwards passed the check
+and then ended somebody else's live assignment. Validating one view and
+executing another is the defect.
+
+`close` is deliberately NOT binding-checked. Sec 7 authorizes it by the close
+CAPABILITY, and its `expect` is a compare-and-swap operand rather than proof of
+authorship: an approver closing a Work somebody else is executing is the
+ordinary case, and the exact identity is what stops them closing blindly.
+
+`Authority.close` was RENAMED to `dispose`. `close` is the Baton verb that
+terminalizes a Work and cut 4 put exactly that verb on the session; one name
+meaning both "release the file handle" and "end this Work with an outcome" is an
+API that invites the wrong one, so the collision was removed rather than
+documented.
+
+
+3. THE PORTABLE CATALOG, COMPARED RATHER THAN CITED
+
+The boundary calls the 64 W151 design cases and the 75 frozen Node reference
+tests a MIGRATION CHECKLIST. A checklist nobody compares is a list, so
+`tests/authority/test_catalog.py` reads the frozen sources: it asserts they are
+PRESENT and readable, RE-MEASURES their size rather than quoting it, maps every
+frozen file to a named Python counterpart, and checks that no obligation area
+has vanished from the suite.
+
+WHAT IT DOES NOT CLAIM, said in the file so a green run is not overread: no
+name-for-name equality, because the port is by OBLIGATION and an equality
+assertion would either be false or force a bad transliteration; and the area
+check catches an area DISAPPEARING, not the quality of its coverage -- a word in
+a test name is not evidence of a guard. Review and mutation runs measure that.
+
+Two areas failed on the first run and BOTH were my needle, not the coverage:
+`policy_generation` when the case reads "binds the generation it was granted
+under", and `adopt` when the cases read "requires absence" and "recognized
+store". So each area now lists alternatives, and a rename no longer fails for
+the wrong reason. An empty alternative list is refused, because a vacuous pass
+is the failure mode of every table-driven check.
+
+
+4. THE SETTLEMENT-SIGNATURE QUESTION, NOW A NUMBER
+
+Cut 3 raised it and the ruling was: no settlement-only cap, because settlement
+must compare the exact canonical signature the authority itself produced and the
+contract carries no system-wide text bound. That was reasoning. Cut 5 is where a
+participant first supplies the operand, so it is where the measurement belongs:
+
+  a legitimate activity idempotency key       100,000 characters, ACCEPTED
+                                              and journalled
+  the signature the authority derived         100,185 characters
+  settling that signature                     answers `live`, as it must
+
+A cap anywhere below 100,185 would refuse the settlement of an operation THIS
+AUTHORITY COMMITTED -- worse than the unbounded operand, because the caller
+could then neither submit under the identity nor settle it. The bound belongs on
+durable text SYSTEM-WIDE, where those 100,000 characters entered in the first
+place, which is exactly the broader operand ruling the decision points at.
+
+The ruling is unchanged and it is now PINNED by a case rather than remembered by
+a comment, and the collision rule is asserted at that size too: one character of
+difference in a 100,185-character signature is still different operands, so
+length is not what makes the comparison work.
+
+The refusal diagnostics are separately safe: `name_of` bounds a shown string at
+60 characters, so a 100,000-character operand does not become a
+100,000-character message. That is the W1593 shape and it does not apply here.
+
+
+5. WHAT I PROBED FOR AND DID NOT FIND
+
+Cut 5's own gap hunt, since every previous cut had one:
+
+  a session leaking the authority        no unexpected public name at all
+  a non-handler claiming                 refused: route does not resolve to it
+  a handler of ANOTHER route claiming    refused, by the same rule
+  close without the capability           refused, naming the configured actor
+  reads answering live rows              distinct objects, equal values
+  a read taking any arity                each read refuses by naming its
+                                         operands
+  the caller's operand document          unmutated after the call
+
+Reported as a clean probe rather than dressed up as a finding.
+
+One thing worth naming rather than leaving silent: a session may read
+`slot_holder` for ANY participant. That is deployment-wide scheduling
+information rather than an act, and the slot is not a secret, so it is left
+readable -- but it is the one read that answers about somebody else, and a
+reviewer should decide rather than discover that.
+
+
+6. MUTATIONS -- THIRTEEN, ONE ZERO REPORTED AS EQUIVALENT AND ONE
+   ILL-FORMED MUTATION REWRITTEN
+
+session.py:
+
+  T1  a session can be constructed                      3 cases
+  T2  a supplied identity is dropped rather than refused 32
+  T3  unknown operands are forwarded                     3
+  T4  a missing required operand is not named            2
+  T5  the binding is not compared                        8
+  T6  close is binding-checked like the others           1
+  T7  the actor is not injected                          1
+  T8  claim takes a name other than the binding         14
+  T9  the operands are not owned                         0 -- EQUIVALENT
+  T10 a session is bound to any string                   5
+  T11 a read takes any number of operands                3
+
+T8 was first written as `operands.get("who", self._participant)` and measured
+ZERO. That mutation did not express the defect: no case supplies a `who` key,
+and one that did would be refused as an unknown operand. Rewritten as "claim
+uses a name other than the binding" it fails 14 cases. THE ZERO WAS MY
+INSTRUMENT, which is the failure cut 3 taught me to check for by hand.
+
+T9 IS GENUINELY EQUIVALENT AND STAYS, reported as defence in depth rather than
+as coverage. With `operands = given` the exact-`dict` check still refuses a
+subclass at the top level, and a nested behaviour-bearing container is refused
+by the core's own `own` a moment later. The session's `own` would only become
+load-bearing against a container that CHANGES between the binding read and the
+core's read, and no such container can enter, because changing requires an
+overridden `__getitem__` and that is a subclass. So the guard is unobservable
+BECAUSE the type rules hold -- which is the argument for keeping it, since it is
+the guard that stays correct if a type rule is ever relaxed.
+
+the new checks:
+
+  U1  a settlement-only length cap is invented           1 case
+  U2  the frozen reference is read from the wrong place   2
+  U3  an obligation area is left with no fragments        1
+  U4  a counterpart names a file that is not there        1
+  U5b the count is not taken from the frozen content      1
+  U5c the design model's cases are not counted            1
+
+U5 was first written as relaxing the lower bound to zero and measured ZERO --
+another ill-formed mutation, because weakening a threshold below the actual
+value can never fail. Rewritten to break the COUNTING rather than the
+comparison, it fails.
+
+
+7. REGRESSIONS -- 25 ADDED, THE SUITE IS 175 -> 200
+
+test_session.py (19): minting and the private mint object; the binding as the
+identity, including a supplied identity refused rather than dropped and the
+claimant and receipt actor both taken from the binding; one owned operand
+document, taken once, with unknown keys refused by name, missing ones named, the
+null operand distinguished from the missing one, and a behaviour-bearing
+container refused; a session acting only on its own assignments with close
+excepted and the exception argued; a session reaching no configuration and no
+store; the surface enumerated rather than derived; the two faces disjoint,
+computed from `Core` rather than hardcoded so a method added there lands on
+exactly one side; every read answering through the session; and a full workflow
+run end to end through sessions only.
+
+test_catalog.py (5): the frozen reference present and readable; every frozen file
+mapped to a counterpart; the catalog re-measured; no obligation area vanished;
+and the suite being one gate rather than a pile of files.
+
+test_operations.py (1): the settlement-signature measurement above.
+
+
+8. GATES
+
+  just gate (v12/python)      version + 200 tests + the locked build, all pass
+                              on Python 3.13.7
+  the installed stage         200/200 from the wheel, imported from
+                              site-packages, race children still proving their
+                              package origin
+  exported names              20
+  temp roots after the run    zero
+  the frozen Node authority   UNTOUCHED (v12/src/authority and the six
+                              authority_*.test.mjs files show no change)
+  whitespace-damage check     clean
+  runtime dependencies        still none; the lock still states the empty set
+
+
+9. NOTHING IS ABSENT ANY MORE
+
+Cuts 1-5 are all present. The five plan items are done and this is the last cut,
+so what remains is the reviewer's: final independent review, and then PLAN item 7
+-- the close that satisfies W2845 and unblocks W4.
+
+Carried forward for a ruling rather than silently: the durable-text bound
+measured in section 4, and the `slot_holder` read named in section 5.

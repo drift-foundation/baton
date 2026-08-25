@@ -1,0 +1,152 @@
+W4 / W2929 — Python Worker Manager boundary revalidation
+Date: 2026-08-24. Reviewer: baton.codex.
+
+1. CURRENT TREE
+
+The campaign ruling is clear: trusted v12 host code is Python; Node and
+JavaScript are admitted only inside isolated worker images. The existing
+`v12/src/authority` and `v12/src/worker_manager` trees are therefore frozen
+executable-reference evidence, not an implementation base.
+
+Observed:
+
+  * `v12/` contains no Python source file.
+  * The repository contains no `pyproject.toml`, `setup.py`, `setup.cfg`,
+    `tox.ini`, or `pytest.ini`.
+  * There is no Python assignment-authority/session implementation for a
+    Python Worker Manager to consume.
+  * The host has Python 3.13.7 and SQLite 3.46.1.
+  * The host system Python has jsonschema 4.19.2; the repository `.venv` has
+    no jsonschema, and neither environment has an RFC 8785 package.
+  * The two frozen product schema copies are still byte-identical to their
+    canonical dossier assets:
+
+      worker-control  be1a536bc9aa2d7e23749cf54ceb98906f8dceeb8de9d72e2abc17b9baf18658
+      agent-session   22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c
+
+The current Node reference gate is 684/687. Its three failures are exactly the
+open W1593 diagnostic regressions already recorded; no new migration failure
+appeared.
+
+
+2. PROPOSED PACKAGE BOUNDARY
+
+Keep the Python host self-contained and separately installable below
+`v12/python/`:
+
+  pyproject.toml                       package metadata, Python floor, exact
+                                       runtime/test dependencies
+  src/baton_v12/contracts/             frozen schema assets, Draft 2020-12
+                                       validation, canonical bytes/digests,
+                                       semantic rules, closed refusals
+  src/baton_v12/authority_port.py      the capability-shaped injected Python
+                                       authority-session protocol only
+  src/baton_v12/worker_manager/        store, offers, attempts, output/intake,
+                                       session/event axes, posture slots,
+                                       adapters, and one public manager surface
+  tests/                               portable contract, state, replay,
+                                       restart, race, refusal and ownership tests
+
+Nothing in this package imports `src/baton_work`, shells out to a v11 CLI,
+opens an authority database, imports or executes a host-side `.mjs` module, or
+reads `work/records` at runtime. Product schema assets are copied into Python
+package data and a TEST asserts byte identity with the canonical dossier. The
+Node tree remains runnable only as historical reference evidence.
+
+`authority_port.py` does not implement authority or grant capability. It types
+the already-minted, participant-bound Python session supplied by trusted
+deployment: participant plus project/slot/operation reads and claim,
+settlement, activity, cancel, end, pass, publish and gate transitions. Unit
+tests use a strict fake. The real object must come from a separately owned
+Python authority implementation; W4 never receives authority bootstrap,
+configuration, store path, database handle, or a session mint.
+
+
+3. PYTHON TRANSLATION OF THE POD RULING
+
+The approved exact inert session-reference rule remains semantic, not
+JavaScript-shaped. At a Python in-process boundary the admitted container is
+an exact built-in `dict`, not a dict subclass, arbitrary Mapping, proxy,
+dataclass, object, sequence, or accessor-bearing representation. It carries
+exactly the four frozen string keys; all values are validated under the frozen
+bounds and copied into manager-owned built-ins before use. An absent
+`provider_session_id` is not silently rewritten to null because the approved
+document has four required members and the later ruling retained exact POD.
+
+The same inert rule applies recursively to canonical documents: exact built-in
+dict/list and JSON primitives only. Python booleans are not accepted as
+integers. Lone surrogates, duplicate decoded object names, non-string object
+keys, non-finite/floating numbers, integers outside the frozen safe range, and
+subclass hooks are refused before canonicalization or durable use.
+
+Diagnostics never call `str`, `repr`, iteration, attribute access, or mapping
+methods on an untrusted unsupported object. Schema-library prose is not
+retained because it may render the rejected instance. The manager translates
+the failing keyword/path into owned bounded text. Exact wide-record validation
+may inspect every key, but the W1593 rule applies to the explanation: fixed
+message budget, bounded name samples, total/omitted counts, and no rejected
+values.
+
+
+4. CONTRACT AND STORAGE CUTS
+
+Use a real Draft 2020-12 validator pinned in the Python package; do not replace
+the frozen schemas with a partial handwritten validator. The contracts admit
+only safe integers, so the complete required canonicalizer can remain
+self-contained: exact built-in JSON values, UTF-8, rejection of invalid
+Unicode, RFC 8785 escaping, and property ordering by UTF-16 code units. Port
+the frozen canonical/digest vectors before orchestration.
+
+The control store is a separate explicit SQLite file beneath the validated
+external state root. Python `sqlite3` owns its schema and transactions; it
+does not share a file, connection, transaction, schema, or SQL helper with the
+authority. Each process opens its own connection. `BEGIN IMMEDIATE`, partial
+unique indexes, compare-and-swap updates and a manager operation journal carry
+the already-reviewed one-live-offer, exact replay/collision, durable refusal,
+observation monotonicity, freeze/intake and cleanup rules. Canonical documents
+are stored as owned bytes and decoded into fresh built-ins on every return.
+
+Clock, entropy, id source, authority session and runtime/agent adapters are
+constructor dependencies. The public manager core performs no Docker/Podman,
+mount, process, credential-file, provider SDK, or network mutation. W5 owns
+the Python host OCI adapter and the opaque worker image.
+
+
+5. IMPLEMENTATION ORDER AND REVIEW CUTS
+
+  A. Package/contracts/POD/refusals and byte-identical schema assets.
+  B. SQLite schema, operation journal, canonical retained values and races.
+  C. Offer/decline/accept/claim/settlement/restart against the injected
+     authority-session capability.
+  D. Attempt axes, cancellation ordering, output freeze, intake and cleanup.
+  E. Agent profile/handshake/session/turn/event/posture-slot state machines.
+  F. Public manager composition and adapter-result validation.
+
+Each cut returns for independent review before the next. Tests are ported by
+portable obligation, not by transliterating JavaScript. Proxy/revoked-proxy,
+accessor and UTF-16 iterator cases stay with the frozen Node implementation;
+their language-neutral properties become Python tests using hostile classes,
+dict/list subclasses, duplicate-key JSON, objects whose rendering raises, and
+wide built-in records. Portable vector/catalog coverage, not a copied test
+count, decides completeness.
+
+
+6. BLOCKING PREREQUISITES FOR APPROVAL
+
+The current M2 ledger has no Python authority Work and W4 has no Python
+authority-session implementation to inject. This is a real dependency, not a
+module-layout detail. Recommended resolution: create a separately owned Python
+authority sibling before W4, restore the authority -> manager dependency, and
+keep W4 scoped to the capability port plus strict fake until that prerequisite
+closes. W4 must not copy authority state or quietly use the frozen Node
+authority to avoid the gap.
+
+Approval must also pin the Python floor and dependency/lock mechanism and make
+the Draft 2020-12 validator available to managed non-interactive implementation
+turns. The current repository venv cannot run that boundary. The recommended
+starting floor is the measured Python 3.13 line, with exact locked dependencies
+inside `v12/python/`; ambient system packages are research evidence, not a
+reproducible product dependency.
+
+Do not route W4 to implementation until those two prerequisites and the
+proposed package/POD boundary are approved.

@@ -10,3 +10,44 @@
    retention behavior with isolation and stale-generation regressions.
 5. [pending] Run focused container/runtime tests, record implementer progress,
    and return for independent review.
+
+## Replan under campaign item 20 — 2026-08-24
+
+6. [done] Revalidate the canonical W5 binding, frozen worker-control,
+   agent-session and conformance contracts, the landed Python manager boundary,
+   the frozen Node evidence and the read-only local Docker baseline. Evidence:
+   `evidence/w5-intake-revalidation-2026-08-24.txt`.
+7. [done 2026-08-24; approved in M6617] Reconcile the campaign's singular-container
+   phrase with the frozen consent/execution postures and physical mount timing.
+   Recommend one posture-specific OCI container for consent and a distinct one
+   for execution under the same runtime attempt; never pre-mount writable
+   execution capability or promote the consent session.
+8. [done 2026-08-24] Created the separately reviewed M2 manager follow-up
+   Jobs for contract/public composition, agent sessions and adapter protocols,
+   output/collection, intake/retention/cleanup, and §13 security. Record only
+   real dependency edges; pure materializer/image work need not wait for every
+   manager receiver.
+   Jobs: W6592 contracts/public composition, W6627 agent/runtime protocols,
+   W6628 output receiver, W6629 intake/retention/cleanup, and W6630 section 13
+   security.
+9. [done 2026-08-24] Created five bounded W5 child Jobs, each with a
+   promoted top-level permanent dossier: materializer/workspace, OCI adapter
+   core, reference worker image/entrypoint, sealed output/credential boundary,
+   and local lifecycle composition. The final composition depends on the four
+   component Jobs and the applicable manager prerequisites.
+   W6631 materializer, W6632 adapter core, W6633 image, W6634 output/credentials
+   and W6636 lifecycle composition. W6634 requires W6628/W6630; W6636 requires
+   W6631/W6632/W6633/W6634 and W6592/W6627/W6628/W6629/W6630.
+10. [in progress] Route only implementation-ready children to `baton.impl`; W5
+    remains the roll-up. Each child receives its own tests, evidence and
+    append-only independent review. Do not create `PROGRESS.md` here.
+11. [pending] Close W5 only after all contained implementation Jobs close
+    satisfying. W6 then owns the independent complete 109-case `local-oci`
+    conformance assessment; counts from W5 component tests do not certify it.
+12. [done 2026-08-24; decomposition review] W5 is blocked on all five children.
+    W6631, W6632 and W6633 are independently implementation-ready. Because
+    dependency mutation follows Route authority, `baton.impl` must install the
+    recorded manager edges on W6627-W6630, W6634 and W6636 before executing
+    those Jobs. Exact messages and the full DAG are recorded in
+    `evidence/w5-decomposition-2026-08-24.txt` and
+    `review-2026-08-24T22-43-25Z.md`.

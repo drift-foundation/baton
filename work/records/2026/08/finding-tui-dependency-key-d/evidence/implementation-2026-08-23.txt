@@ -1,0 +1,131 @@
+W96 — the dependency view opens with `d`
+Date: 2026-08-23. Implementer: baton.claude.
+
+
+1. REVALIDATION BEFORE ANY EDIT
+
+The reviewer's revalidation holds against the current tree:
+
+  lowercase `d` unbound       enumerated every `ord("<lower>")` in
+                              src/baton_work/tui/app.py — j k p n s z y x w
+                              c b a u t q l i h, and no `d`. Also checked the
+                              `key in (...)` dispatch forms and the three
+                              `chr(key)` text-entry paths (command bar, batch
+                              buffer, search input), where `d` is typed TEXT
+                              and never a binding.
+  two entry branches          app.py:4883 in Console._search_mode_key and
+                              app.py:5473 in the Console.handle table branch;
+                              both matched ord("b") and both call _open_graph.
+  one live advertisement      the Work-table footer in Console._render_table.
+                              Search supports the action and does not
+                              advertise it; no new Search surface was invented.
+  three operator-guide refs   docs/BATON-WORK.md:423, :436, :639.
+  packaged suite              confirmed it neither asserts nor presses the
+                              dependency key; not expanded.
+
+Focused baseline before implementation, a superset of the reviewer's 10:
+  22 passed in 51.63s  (W17 label PTY wide/narrow, W4996 table and Search
+  entry plus the graph PTY file, W292 breadcrumb segments, core TUI PTY,
+  JSON/TUI parity)
+
+
+2. THE CHANGE
+
+  src/baton_work/tui/app.py    both dispatch branches ord("b") -> ord("d");
+                               the footer and the module docstring's key
+                               summary; the layout comment that names the
+                               action; `b` removed with NO alias
+  docs/BATON-WORK.md           the three current-contract references
+
+Untouched, as the recommended patch boundary requires:
+projection.dependency_neighborhood, tui/graph.py, _open_graph, graph
+navigation, breadcrumb machinery, protocol commands, JSON projections.
+
+The footer string is the same width in both spellings, so no layout
+judgment moved and the narrow-width case needed no adjustment.
+
+
+3. TESTS
+
+Fixtures moved to `d` (no assertion weakened, no case deleted):
+
+  test_w4996_dependency_graph.py       open_graph helper and three entry
+                                       cases; two renamed test_b_* -> test_d_*
+  test_w4996_dependency_graph_pty.py   the shared OPEN_CENTER script
+  test_w17_deps_label.py               wide `jb` -> `jd`, narrow `b` -> `d`,
+                                       and the four `[b] deps` assertions
+  test_w292_breadcrumb_navigation.py   three drill-in presses
+  test_tui.py, test_parity.py          the two PTY scripts and the one
+                                       parity script
+
+Prose kept truthful without rewriting history: test_w39_dependency_cue.py,
+test_w30_linked_route_parity.py and the docstrings above now name `d`.
+test_w17_deps_label.py's module docstring KEEPS the `[b] deps` sentence as
+the record of what W17 ruled and then says W96 moved the key — the history is
+why the current spelling is not the obvious one.
+
+Not touched: test_w1568_command_submit_enter.py's `b"b"`, which is a
+character typed into the batch buffer and never the dependency key.
+
+NEW — tests/work/test_w96_dependency_key_d.py, 3 cases:
+
+  test_b_does_nothing_in_the_work_table
+      mode, breadcrumb trail, cursor, selection and graph centre all come out
+      exactly as they went in, and `d` still works from the state `b` left
+  test_b_does_nothing_in_search_results
+      search dispatches before the table branch, so it is its own binding and
+      its own removal; query, page, cursor and selection unmoved
+  test_b_leaves_the_table_on_a_real_terminal
+      the footer is still on screen and no `--blocks-->` edge was drawn after
+      `b`; the graph appears only after `d`
+
+The removal is asserted, not inferred from deleted cases. Deleting the old
+positive cases would prove only that nobody tests `b` any more — an alias
+would keep every renamed case green.
+
+
+4. MUTATIONS — FIVE, ALL WITNESSED
+
+  N1 table keeps `b` as a hidden alias     2 cases fail
+       test_b_does_nothing_in_the_work_table
+       test_b_leaves_the_table_on_a_real_terminal
+  N2 search keeps `b` as a hidden alias    1 case fails
+       test_b_does_nothing_in_search_results
+  N3 the footer advertises the old key     3 cases fail
+       both W17 label cases and the real-terminal no-alias case
+  N4 the table branch reverts to `b`       8 cases fail across four files
+       W96 x2, W17 x2, W4996 x1, W292 x3
+  N5 the search branch reverts to `b`      3 cases fail
+       W96 x1, W4996 x2
+
+Named rather than omitted: under N4 ONLY, one multi-file `-k` selection
+(W96 + W17 + W4996 + W292 together) hangs instead of failing, while each of
+those four files fails fast on its own. N4 leaves the dispatcher in a state
+no delivered tree has — `d` bound in Search and unbound in the table — and
+the behaviour does not reproduce in the delivered tree, where that same
+selection and the full v11 gate are green. It is recorded because a hang
+under mutation is worth a reviewer's attention even when the mutation is
+artificial; it is not offered as a finding against this change.
+
+
+5. GATES
+
+  focused surfaces, 9 files                167 passed in 123.65s
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/acp-baton-bridge npm test          55 pass, 0 fail  (just test-v11's
+                                           chained ACP gate)
+  whitespace-damage check                  clean
+
+The v11 count moved 2977 -> 2980: the three new W96 cases.
+
+
+6. ACCEPTANCE BOUNDARY, ITEM BY ITEM
+
+  table opens with `d`                     test_d_opens_the_graph_and_esc_...
+  Search opens with `d`                    test_d_opens_the_graph_from_a_...
+  visible help says `[d] deps`             both W17 cases, wide and narrow
+  `b` opens nothing in either context      the three new W96 cases
+  focused positive and negative coverage   above, including PTY
+  no schema/projection/protocol/layout     nothing outside app.py dispatch,
+    change                                 the footer string, docs and tests

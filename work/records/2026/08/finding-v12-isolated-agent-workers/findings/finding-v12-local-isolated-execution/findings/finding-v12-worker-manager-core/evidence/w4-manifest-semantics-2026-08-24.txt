@@ -1,0 +1,115 @@
+W4 / M2 — §12's manifest semantics, beyond what the schema says
+Recorded 2026-08-24 by baton.claude (implementer), after PLAN 4cu signed off the
+fragment and digest rules.
+
+WHAT THIS DELIVERS
+
+  `contracts/manifest.py`: the §12 rules that are about what a manifest MEANS,
+  over one owned copy, schema first.
+
+    check_work_ref            a Work id carries its authority's prefix. §4: a
+                              reference names a Work IN AN AUTHORITY, and an id
+                              without that prefix is a reference to somebody
+                              else's Work wearing this one's name
+    check_uri                 §12 rule 4: absolute, readable, and carrying no
+                              query and no fragment -- a query is where signed
+                              credentials and unstable selection parameters ride
+    check_content_manifest    §12 rule 6: entry paths sorted bytewise AND unique
+                              in one pass, the declared count and byte total
+                              compared against the entries, and the tree digest
+                              recomputed
+    check_relative_path       exported for a caller holding a path the schema
+                              never saw
+    check_manifest_structure  the composite: schema, identity, Work and
+                              assignment references, every artifact locator and
+                              every content manifest at any depth, and an input
+                              manifest's unique names, non-overlapping
+                              destinations and single object namespace
+
+  STILL NOT THE WHOLE §12 TRUST ENTRY, and named so. §13's durable-secret rule
+  is absent: its two halves are forbidden member NAMES and a check against the
+  live bearer VALUES this process holds, and the second needs a reference-counted
+  secret registry this distribution does not have. Shipping the name half under
+  the whole rule's name is the floor-versus-contract mistake this dossier
+  already carries, so the composite is called `check_manifest_structure` and
+  becomes the trust entry when the secret rule lands beside it. Then retention,
+  the outputs and artifacts tables, and freeze/record.
+
+TWO MORE UNREACHABLE BOUNDARIES, DELETED
+
+  Writing the rules faithfully to the frozen host produced two owners the
+  schema already carries, and both measured zero:
+
+  THE SEVENTH: `check_relative_path` inside the composite. Every path member of
+  a manifest is typed `relativePath`, whose pattern already refuses an absolute
+  path, a backslash, a NUL and an empty, `.` or `..` segment -- so no document
+  reaching those lines can fail it. The calls are gone; the rule stays exported
+  for a caller holding a path the schema never saw, with its own cases.
+
+  THE EIGHTH: the assignment generation's positivity. `assignmentRef.generation`
+  carries `minimum: 1`.
+
+  NEITHER RELIANCE IS LEFT IMPLICIT. A case pins that the schema's own path type
+  carries the path rule and another that it carries the generation bound, so if
+  either ever stops, the gate says so rather than a document getting through.
+
+MUTATIONS, ROUND 14 (17 run against the 567-test suite)
+
+  N1  a Work id need not carry its authority         1 failing
+  N2  the prefix comparison is shorter               6
+  N3  a query is allowed in a durable locator        1
+  N4  a fragment is allowed                          1
+  N5  a relative locator is accepted                 1
+  N6  an unreadable URI is accepted                  1
+  N7  entries need not be sorted or unique           1
+  N8  the entry count is not compared                1
+  N9  the byte total is not compared                 1
+  N10 the tree digest is not recomputed              1
+  N11 names may repeat across sources and outputs    1
+  N12 destinations may overlap                       1
+  N13 overlap becomes equality                       1
+  N14 an object format need not match its revision   1
+  N15 an assignment generation may be zero           -- the check is DELETED
+  N16 nested artifacts and content are not found     2
+  N17 the schema is consulted after the semantics    1
+
+  ALL WITNESSED. Five began as zeros and four were ONE missing case with one
+  cause: every URI case I had written spoiled the same clause, so the fragment,
+  the relative locator and the unreadable one were never driven. A rule with
+  four clauses needs four cases; testing the first clause four times is not
+  testing the rule.
+
+  N14's zero had a different cause worth recording: the published conformance
+  vector carries a DIRECTORY source, so the versioned-source branch had nothing
+  to drive it. The case now builds that source from the schema's own required
+  members rather than from a vector that does not exist.
+
+  N17 is the ordering rule -- schema before semantics -- and it needed a
+  document that is BOTH schema-invalid and unidentified, because with only one
+  fault either order gives the same answer.
+
+  THE VECTOR IS THE BASELINE. Every case spoils exactly one thing in the
+  conformance vector the worker-contract finding published, and reseals it so
+  the identity rule does not refuse it before the rule under test is reached --
+  the vacuous-probe shape this dossier has been corrected for twice. A manifest
+  I wrote by hand would be a document built to pass my own rules.
+
+ONE DECLARED WIDENING
+
+  `urllib` joins the manager's standard-library allowlist, for §12 rule 4: a
+  durable locator must be a URI THE ONE AVAILABLE PARSER CAN READ, and
+  re-implementing a URI parser to avoid a standard-library import would be
+  writing the thing the rule exists to lean on. It adds no runtime dependency;
+  the ruled-validator rule is about third-party packages and this is not one.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 567 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 567. 555 -> 567. Zero temp
+  roots. The working tree reports no whitespace errors. The frozen Node oracle
+  under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting independent review. Next: §13's durable-secret rule with the registry
+  it needs, then retention and the outputs tables, then freeze and record.

@@ -1,0 +1,44 @@
+W6631 independent review evidence — 2026-08-24
+
+KNOWN AT HANDOFF
+
+  PROGRESS and M6827 state that test_boundary_inventory has four W6631-owned
+  failures and that its DELEGATED/probe integration is unfinished.
+
+ADDITIVE REVIEW PROBES
+
+  v12/python/tests/manager/test_workspaces.py adds:
+
+    test_a_source_descriptor_is_the_frozen_closed_shape
+    test_a_short_write_cannot_publish_a_truncated_source
+    test_a_stale_staging_symlink_is_not_cleanup_authority
+
+FOCUSED COMMAND
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_workspaces -v
+
+RESULT
+
+  Ran 39 tests in 0.018s
+  FAILED (failures=4, errors=1)
+
+  - Missing directory-source `uri` accepted.
+  - Missing directory-source `required` accepted.
+  - Unknown extra source member accepted despite the frozen closed schema.
+  - A one-byte os.write publishes b"m" instead of b"more than one byte" and
+    still returns the origin manifest's digest/count.
+  - A stale staging symlink is chmod-followed, mutating its target, then leaks
+    NotADirectoryError rather than a ContractRefusal.
+
+CODE REVIEW FOLLOW-UP
+
+  os.O_NOFOLLOW in `_read_exactly` applies to the final pathname component.
+  `_walk` stores directory pathnames after DirEntry.is_dir and later calls
+  os.scandir on those names. A deterministic parent-directory replacement
+  regression is required; the existing file replacement test covers a
+  different window.
+
+POLICY RULING
+
+  The repository instruction forbidding mutating Git operations has no /tmp
+  exception. W6631 keeps GitPort injected; a real adapter is separate Work.

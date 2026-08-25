@@ -45,6 +45,11 @@ import fixtures as fx                                          # noqa: E402
 TAB, BTAB = 9, curses.KEY_BTAB
 ENTER, ESC, CTRL_W = 13, 27, 23
 NEXT_TAB = ord("]")
+# W6814 put a third tab (`Jobs`) on the contextual Work page's row, so a
+# Messages→Events→Messages round trip is `]` then `[` rather than `]`
+# twice. The property under test — a tab keeps its own pane focus across a
+# round trip — is unchanged and is what these cases still assert.
+PREV_TAB = ord("[")
 
 
 @pytest.fixture()
@@ -446,7 +451,7 @@ def test_an_in_detail_tab_round_trip_still_preserves_both_sides(pair):
 	view.handle(CTRL_W)
 	view.handle(ord("j"))                    # Events: choose the reader
 	assert view.event_focus == "reader"
-	view.handle(NEXT_TAB)                    # back to Messages
+	view.handle(PREV_TAB)                    # back to Messages
 	assert view.detail_tab == "messages"
 	assert view.focus == "threads", \
 		"the round trip reset the Messages pane the operator chose"
@@ -464,7 +469,7 @@ def test_switching_tabs_inside_detail_preserves_each_tabs_own_focus(world):
 	assert view.focus == "threads"
 	view.handle(NEXT_TAB)               # to Events
 	assert view.detail_tab == "events"
-	view.handle(NEXT_TAB)               # back to Messages
+	view.handle(PREV_TAB)               # back to Messages
 	assert view.detail_tab == "messages"
 	assert view.focus == "threads", \
 		"a tab round trip reset the pane focus the operator chose"

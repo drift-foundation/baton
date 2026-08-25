@@ -1,0 +1,103 @@
+W2845 cut-1 independent review evidence — 2026-08-24
+
+Baseline
+--------
+
+Command (XDG_RUNTIME_DIR is needed only because this managed context's
+/run/user/1000 is read-only):
+
+    XDG_RUNTIME_DIR=/tmp just gate
+
+Result: Python 3.13.7; 53 tests passed, 0 failed.
+
+Probe 1 — the probe UUID and live connection UUID can diverge
+---------------------------------------------------------------
+
+Create a valid authority B, make the read-only probe report valid authority A,
+then open without an expected UUID (the documented operator-tool case).
+
+Observed:
+
+    face_uuid= 00000000000000000000000000000000
+    live_uuid= ffffffffffffffffffffffffffffffff
+
+`Store.open` rechecks the live database but returns the UUID from the stale
+probe. The public identity can therefore name a different authority than the
+connection it governs.
+
+Probe 2 — malformed durable identity is accepted and populated
+---------------------------------------------------------------
+
+Create a SQLite file containing only the three expected meta keys, with the
+correct kind and version but `authority_uuid = not-a-uuid`, then call
+`Store.open` without an expected UUID.
+
+Observed:
+
+    opened_uuid= not-a-uuid
+    tables= 18
+
+The compatibility check tests only UUID presence. Open accepts the malformed
+identity and applies the entire authority schema.
+
+Probe 3 — failed schema application commits partial repair
+-----------------------------------------------------------
+
+Start from a valid store, remove `policy` and `activity`, and create a view
+named `activity`. `Store.open` recreates `policy` before schema application
+fails when it reaches the conflicting view.
+
+Observed:
+
+    refused_as= OperationalError
+    policy_after_failure= ('table',)
+    bytes_changed= True
+
+The unconditional `COMMIT` in the `finally` suite commits work performed before
+the failure. A failed open therefore changes the store instead of rolling the
+first write transaction back.
+
+Probe 4 — rejected public helper operands execute caller behavior
+----------------------------------------------------------------
+
+An object whose `__ne__` and `__format__` append to a list and raise was passed
+to the exported helpers.
+
+Observed:
+
+    contract RuntimeError ['ne']
+    gate RuntimeError ['format']
+
+An exact `dict` carrying a hostile key with the same hash as `work_ref` was
+passed to `same_assignment`.
+
+Observed:
+
+    RuntimeError [('eq', 'work_ref')]
+
+Thus `is_v12_contract`, `gate_token`, and `same_assignment` can run code owned
+by the value they should reject. The existing hostile-value cases exercise
+`own`, but not these exported entry points.
+
+Probe 5 — a rejected exact integer escapes as a fault
+-----------------------------------------------------
+
+Pass `10 ** 5000` to `check_generation` and `check_authority_uuid`.
+
+Observed on Python 3.13.7:
+
+    check_generation ValueError Exceeds the limit (4300 digits) for integer string conversion
+    check_authority_uuid ValueError Exceeds the limit (4300 digits) for integer string conversion
+
+`check_generation` interpolates the rejected value and `name_of` stringifies
+exact integers. Both bypass the intended bounded `Refusal` outcome.
+
+Packaging observation
+---------------------
+
+The gate runs only `version` and source-tree `unittest`. No recipe consumes
+`requirements.lock`, performs a hash-enforced environment bootstrap, or builds
+the declared distribution. `pyproject.toml` leaves the PEP 517 requirement as
+`setuptools>=78.1.1`, so an ordinary isolated build does not derive its build
+backend from the exact lock pin. Current tests check lock-file text shape, not
+that the lock governs a successful build.

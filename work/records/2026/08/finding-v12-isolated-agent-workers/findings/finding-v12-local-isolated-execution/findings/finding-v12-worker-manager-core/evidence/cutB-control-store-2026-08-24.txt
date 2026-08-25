@@ -1,0 +1,192 @@
+W4 — implementation cut B: the control store and the manager's journal
+Date: 2026-08-24. Implementer: baton.claude.
+Boundary: PLAN item 4bc, after cut A was signed off in
+review-2026-08-24T10-28-27Z.md.
+
+
+1. WHAT IS IMPLEMENTED
+
+  the separate control store   its own SQLite file, its own STORE KIND marker,
+                               its own schema version, opened by this manager
+                               and by nothing else
+  ownership before adoption    a GENUINELY EMPTY schema is initialized; anything
+                               else must carry this manager's marker or be
+                               refused WITHOUT A BYTE CHANGED
+  one atomic boundary          `transact`: optimistic peek, BEGIN IMMEDIATE,
+                               RE-READ INSIDE THE LOCK, savepoint, action,
+                               journal, commit
+  the operation journal        operation id, kind, full signature, state, the
+                               byte-stable result, the SEALED refusal, and the
+                               settled instant from the injected clock
+  two kinds of refusal         ordinary rolls back; durable keeps its writes,
+                               records the sealed outcome and commits, and the
+                               retry REPLAYS it
+  exact replay and collision   presence is its own fact; a reused id with
+                               different operands is
+                               `refused.operation-collision` and changes nothing
+  races and restart            four real processes on one operation identity,
+                               and the journal replaying after a reopen
+
+THE STATE TABLES ARE ABSENT. The frozen host has fifteen; this cut carries two,
+because a table nothing writes is a claim about a design rather than part of
+one. Offers, attempts, sessions, turns, events, intake and outputs arrive with
+the cuts that give them meaning.
+
+
+2. THE OBLIGATIONS PORTED WITH THEIR CORRECTIONS INTACT
+
+  presence vs null       the frozen host answered `null` for BOTH "no row" and
+                         "the committed result was JSON null", so an exact retry
+                         of a null-returning operation looked NEW, ran the action
+                         a second time, and only then hit the primary key.
+                         Effectively-once cannot be built on a value that also
+                         means absence, so `replay` answers `(found, value)`.
+  ownership vs presence  asking only whether `meta` EXISTS treated its absence as
+                         proof the file was new -- and absence of our metadata is
+                         equally the signature of somebody else's store. A
+                         database holding `foreign_state` was ADOPTED.
+  the sealed refusal     only the message was kept, so replay fabricated
+                         `refused.precondition` for every durable refusal. A
+                         `policy.retention` and a `refused.precondition` are
+                         different answers with different retry policies. The
+                         whole closed pair is stored.
+  refuse untouched       the frozen host executed the schema and changed the
+                         journal mode BEFORE reading the recorded version, so
+                         opening a store it could not speak added tables to it on
+                         the way to refusing. Nothing is written until the store
+                         is proved ours, WAL included.
+  one clock              the journal used to stamp every row with the epoch, so
+                         it carried no settlement evidence at all. The manager's
+                         instant source is injected and proved AT OPEN, because a
+                         clock that cannot stamp a row is worth finding before
+                         the first journalled act rather than during it.
+
+AND ONE THING I ADDED BEYOND THE PORT: the store KIND. The frozen host records
+only a version, and version 1 is true of the authority's store and of three other
+files beside it. Kind is checked BEFORE version, so a caller is told their store
+is the wrong PRODUCT rather than sent to fix the wrong thing -- the same
+correction the authority slice was given, applied here before anybody had to find
+it twice.
+
+
+3. WHERE I DELIBERATELY DID NOT COPY THE AUTHORITY
+
+The authority separates `create` from `open` and reserves its path with
+`O_CREAT|O_EXCL`, because it is the deployment's root of identity. The manager's
+reviewed obligation is weaker on purpose: a manager may be started against a path
+that does not exist yet, and the frozen host's correction is the empty-or-ours
+rule instead. Both refuse to adopt somebody else's database; they differ on
+whether an absent path is an error.
+
+Carrying the manager's own reviewed semantics is the port. Substituting the
+authority's would be a redesign this cut has no ruling for, so the difference is
+written into the module rather than left for a reviewer to wonder about.
+
+
+4. TWO DEFECTS I FOUND IN MY OWN CODE BY RUNNING IT
+
+THE JOURNAL ROW WAS NEVER WRITTEN. My first draft committed the action's writes
+and never recorded the committed result at all, so the retry ran the action a
+SECOND time and returned a different answer under one operation identity --
+effectively-once, implemented to do the opposite. The first thing I ran against
+it caught it, which is the argument for exercising a mechanism rather than
+reading it.
+
+`executescript` ISSUES A COMMIT BEFORE IT RUNS, which would have ended the
+transaction the DDL is supposed to be atomic inside -- so a crash mid-schema
+could leave exactly the half-built store the single transaction exists to
+prevent. The statements are split with SQLite's own parser.
+
+
+5. MUTATIONS -- SIXTEEN, ALL WITNESSED
+
+  R1  a foreign database is adopted                    2 cases
+  R2  presence replaces ownership                      1
+  R3  the version is not checked                       3
+  R4  a refused open leaks its handle                  2
+  R5  the schema is applied outside a transaction     18
+  R6  the committed result is never journalled         9
+  R7  presence is not its own fact                     2
+  R8  a reused id with other operands is accepted      1
+  R9  a durable refusal is rolled back                 2
+  R10 an ordinary refusal keeps its writes             1
+  R11 a fault is journalled and committed              1
+  R12 the sealed refusal keeps only its message        4
+  R13 the result is not owned before journalling       2
+  R14 the record is a live row                         2
+  R15 the clock is not proved at open                  3
+  R16 the re-read inside the lock is dropped           1
+
+THREE BEGAN AS ZEROS AND EACH GOT A DIFFERENT ANSWER.
+
+  R4 was A CASE THAT PROVED NOTHING. It wrote to the refused file from another
+  connection and called that evidence -- but a leaked connection with no open
+  transaction holds no lock, so the write succeeded either way. It counts THIS
+  PROCESS'S FILE DESCRIPTORS now, which is the fact the case is actually about,
+  and a second case covers the other refusal path: the store that is ours in kind
+  and not in version, where the handle is already open when the refusal happens.
+
+  R11 was MY MUTATION. `except ZeroDivisionError if False else BaseException`
+  still catches `BaseException`, so it expressed nothing. Rewritten to make the
+  fault branch behave like the durable one -- record and commit -- it fails.
+
+  R16 was A WINDOW THE TESTS COULD NOT REACH. The re-read inside the lock only
+  matters when a competing writer lands between the peek and the lock, and four
+  racing processes did not happen to land there. So a case OPENS THE WINDOW ON
+  PURPOSE: a competing connection commits the row during the peek, and the
+  manager must return the winner's answer without running its own action. The
+  process race still covers the same property, non-deterministically; this one
+  covers it every time.
+
+
+6. THE RACE PROVES IT RACED
+
+Four processes, a real file barrier, one fixed operation identity. Every child
+returns the SAME committed answer -- the first writer's, replayed -- and the
+journal holds exactly one row.
+
+AND EACH CHILD REPORTS ITS OWN PID, because every child replays the same answer
+and the answers alone cannot say whether four processes contended or one ran four
+times. A race case that cannot prove it raced is a case that passes for the wrong
+reason.
+
+
+7. A HYGIENE CHECK THAT COULD NOT ATTRIBUTE WHAT IT COUNTED
+
+My temp roots used the prefix `v12-manager-`, which is also the FROZEN NODE
+suite's -- and that suite left 435 roots on this machine on 2026-08-22. So the
+"zero temp roots" check could not tell my leaks from its. Renamed to
+`v12-worker-manager-`; measured, this run leaves ZERO, and the 435 are visibly
+somebody else's and predate the session.
+
+Same lesson as attributing mutation failures to named cases: a measurement that
+cannot say whose it is reports the wrong thing.
+
+
+8. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 334 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              334/334 from the wheel
+  exported names                   20 authority, 22 contracts
+  temp roots left by this run      zero
+  the frozen Node oracle           UNTOUCHED and still runnable
+  whitespace-damage check          clean
+
+27 regressions added; the suite is 307 -> 334.
+
+
+9. THE ALLOWLIST GREW WITH THE PACKAGE, AND WAS CHECKED FOR IT
+
+Cut B added a second manager package, so the dependency allowlist and the
+public-parameter sweep now cover both -- an allowlist naming one of two packages
+would have let the other reach for anything, which is the rule-versus-site defect
+at the level of the check itself.
+
+The sweep also walks CLASS METHODS now. Cut A's surface was module functions and
+cut B's is a class, so a sweep that walked only functions would have stopped
+seeing most of the package the moment it grew one.
+
+AND THE VACUITY CHECK CAUGHT ITS OWN AUTHOR: my first operand list included
+`connection`, which no public signature takes, and the rule that the list must
+stay smaller than the surface refused it.

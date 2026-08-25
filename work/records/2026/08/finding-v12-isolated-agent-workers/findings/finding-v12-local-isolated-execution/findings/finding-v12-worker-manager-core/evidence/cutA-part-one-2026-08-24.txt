@@ -1,0 +1,208 @@
+W4 — implementation cut A, part one
+Date: 2026-08-24. Implementer: baton.claude.
+Boundary: review-2026-08-24T04-06-44Z.md, cut A ("Package/contracts/POD/refusals
+and byte-identical schema assets").
+Scope: EVERYTHING IN CUT A THAT THE OPEN VALIDATOR RULING DOES NOT CHANGE.
+
+
+1. WHY I IMPLEMENTED THIS TIME, HAVING DECLINED LAST TIME
+
+Last episode I raised the validator prerequisite and passed W4 back without
+writing anything. The decision route returned W4 to implementation with no
+ruling recorded, no reply on the thread, and no change to the wheelhouse.
+
+Blocking twice with nothing delivered would be the wrong answer to that. So I
+looked at what the ruling actually decides, and it decides ONE SEAM. The package
+skeleton, the byte-identical schema assets, the exact-POD ownership, the closed
+refusal taxonomy, the bounded diagnostics and the canonicalizer are needed under
+ALL THREE options -- provision the wheelhouse, validate at test time, or narrow
+the cut. This work cannot be wasted by the ruling going any particular way,
+which is the test for "do the part that does not depend on the answer".
+
+WHAT I DID NOT DO is decide the seam by filling it. `frozen.py` reads and parses
+the schemas, which the standard library does, and validates nothing against
+them. The seam is ABSENT, NOT STUBBED, and a case asserts no exported name
+claims to validate -- because a `validate` raising `NotImplementedError` is a
+name the surface claims to have and a caller has to run it to find out it does
+nothing.
+
+I am stating the assumption rather than hiding it: I have read the return to
+implementation as authorization to proceed on the option-independent core, and
+NOT as an answer to the validator question, which is still open.
+
+
+2. THE ONE PLACE A FAITHFUL PORT WOULD HAVE BEEN SILENTLY WRONG
+
+RFC 8785 orders member names by their UTF-16 CODE UNITS.
+`Array.prototype.sort` on JavaScript strings already is that ordering, so the
+frozen host gets it for free and says so in a comment. PYTHON'S `sorted()`
+ORDERS BY CODE POINTS.
+
+The two disagree for every document with an astral member name beside one in
+U+E000..U+FFFF, because UTF-16 encodes astral characters as surrogate pairs in
+U+D800..U+DFFF, which sort BELOW U+E000. Measured:
+
+  this implementation   {"<U+1F600>":1,"<U+E000>":2,"<U+FFFF>":3}
+  a code-point sort     {"<U+E000>":2,"<U+FFFF>":3,"<U+1F600>":1}
+
+Same document, two canonical forms, two digests. A transliteration would have
+produced a manager that disagrees with the frozen reference about what a
+document IS -- and it would have passed every test written from the Python side.
+The ordering is done on the UTF-16 encoding, and a case pins the two orders side
+by side rather than comparing one hash.
+
+THIS IS WHY THE VECTORS ARE GENERATED FROM THE FROZEN HOST rather than written
+here. 21 documents, chosen to distinguish the two hosts rather than to agree
+with them -- escapes, control characters, DEL, combining marks, astral values,
+astral member names, deep nesting, and a 40-member set whose order separates
+lexicographic from numeric sorting. The frozen host is the oracle; a vector
+written by the port would only prove the port agrees with itself.
+
+All 21 match byte for byte, and every digest matches.
+
+
+3. WHAT ELSE THE CUT CARRIES
+
+  the refusal        `ContractRefusal(category, code)` with §9's CLOSED pairing
+                     validated AT THE RAISING SITE. The frozen host carried the
+                     pair as free strings and trusted every site to spell them
+                     consistently; a pair checked at the edge is a pair that can
+                     already have been recorded wrong.
+  the pairing        written out, because the schema carries the two
+                     vocabularies as flat enums and does not pair them -- and a
+                     case proves the union of the pairs is EXACTLY the schema's
+                     two enums, so a code added to the frozen schema without a
+                     category fails loudly instead of becoming unmappable.
+  the POD ruling     exact built-in containers, `type(x) is T` and never
+                     `isinstance`, so a behaviour-bearing container is REFUSED
+                     rather than admitted with its overrides intact. A `dict`
+                     subclass whose reads answer differently each time -- Python's
+                     version of the shifting getter that started all this -- is
+                     refused with its read counter still at ZERO.
+  absence            an absent `provider_session_id` is NAMED, not rewritten to
+                     null. That was the whole point of retaining exact POD: 168
+                     of the 228 refusals in the cost study were this one benign
+                     cause, because the frozen host read it with `?? null`.
+  diagnostics        every W1593 rule from the authority slice, from the start
+                     rather than after three reviews: a refusal never runs the
+                     value it refuses, caller text is bounded by the RULE, a
+                     wide integer is named by its SIZE, a label is bounded and
+                     proved encodable, and several rejected names become a
+                     bounded sample plus a count.
+  the schema assets  packaged, read beside the module, and proved byte-identical
+                     to BOTH the canonical dossier asset and the frozen Node
+                     copy -- three copies of one contract exist, so all three are
+                     compared rather than two.
+
+
+4. TWO THINGS I CHOSE NOT TO SHARE, AND SAID SO IN THE CODE
+
+`baton_v12.authority` already has `Refusal`, `name_of` and `own`. A rule that
+exists twice is a rule that holds in one of the two places, and I have been shown
+that four times this campaign, so this is not a comfortable decision.
+
+  the refusal TYPE   a caller has to be able to tell WHICH boundary refused. The
+                     authority's is an ordinary outcome of an assignment
+                     transition; this one is §9's wire-shaped pair.
+  `own` and `name_of` these are not on the authority package's EXPORTED SURFACE,
+                     and the authority's own boundary cases exist to refuse
+                     reaching past it. Importing them would break the boundary
+                     the two-package split is for. The bounds differ too: the
+                     authority's are its contract's and these are the frozen
+                     schema's.
+
+PROMOTING A SHARED PRIMITIVE IS RAISED RATHER THAN TAKEN. It would change the
+authority's exported promise, which is closed Work and not mine to reopen.
+
+
+5. ONE CHANGE OUTSIDE MY OWN FILES, AND WHY
+
+The build stage asserted the INSTALLED origin of `baton_v12.authority` only. The
+distribution now carries two slices, so an origin check naming one of them would
+report a green import while the other came from wherever it liked. It now checks
+both AND asserts the frozen schema assets TRAVELLED INTO THE WHEEL -- package
+data that never entered the wheel would otherwise fail nowhere, because a
+source-tree run reads it from the checkout.
+
+I also hit an existing authority case: its isolation test parses every module in
+the distribution and refuses an import outside the standard library, and
+`importlib.resources` is not on its list. I CHANGED MY MODULE RATHER THAN THEIR
+TEST -- the asset is read relative to `__file__`, which is correct in both
+layouts and needs no new import. Reporting it because a reviewer should know a
+closed Work's case fired, and how I answered it.
+
+
+6. MUTATIONS -- TWENTY-ONE, ALL WITNESSED
+
+  A1  member names ordered by code point            3 cases
+  A2  a lone surrogate in a VALUE serialized        3
+  A3  a lone surrogate in a NAME serialized         1
+  A4  negative/oversized integers canonicalize      2
+  A5  the float branch gives the generic reason     5
+  A6  a bool is an integer                          3
+  A7  containers matched by isinstance              1
+  A8  digest_of_bytes takes anything                4
+  B1  own admits subclasses                         2
+  B2  own returns the caller's container            3
+  B3  the depth bound dropped                       1
+  B4  an extra member dropped rather than refused   2
+  B5  a missing member not named                    1
+  B6  a non-text member name coerced                4
+  B7  own_record accepts a non-record               2
+  C1  the closed pair not checked                   2
+  C2  the sample not bounded                        1
+  C3  a label not bounded                           1
+  C4  a non-text label rendered raw                 1
+  C5  the code half of the pair not checked         2
+  D1  the opaque bound retyped WRONG                1
+  D2b the pairing gains a code the schema lacks     1
+  D3  a packaged schema copy drifts                 3
+
+FOUR STARTED AS ZEROS AND ALL FOUR WERE MY TESTS, not equivalences:
+
+  A5   removing the float branch still REFUSES -- a float falls through to "no
+       representation". The branch exists to give §3.2's REASON, so the case now
+       checks the reason. A branch whose only job is the message needs a case
+       that reads the message.
+  C1   every raising site in this cut uses a valid pair, so the guard against a
+       WRONG pair had nothing to fire on. The answer is a case that makes the
+       future mistake on purpose -- and it asserts `AssertionError` rather than
+       `ContractRefusal`, because a caller sending a bad document is an ordinary
+       refusal and this package spelling its own vocabulary wrong is a defect.
+  D1   `OPAQUE_ID_LIMIT = 160` agrees with the schema, so hardcoding it passes.
+       Re-expressed as retyping it WRONG, the case fires -- which is what it can
+       actually prove.
+  D2   the agreement test compared a PRODUCTION HELPER to the schema, and a
+       helper that returned the schema's own codes made it agree with itself.
+       Both sides are derived in the CASE now, from `ERROR_CODES` and from the
+       parsed schema. That was the sharpest of the four: a test that trusts a
+       helper living next to one of its two sources is not comparing two things.
+
+
+7. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 267 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              267/267 from the wheel, BOTH slices proved to
+                                   import from site-packages, and the two frozen
+                                   schema assets proved to have travelled
+  exported names                   20 authority, 19 contracts
+  temp roots after the run         zero
+  runtime dependencies             still NONE; the lock still states the empty
+                                   set, and a case asserts no validator is
+                                   pinned
+  the frozen Node authority        UNTOUCHED
+  the frozen Node worker_manager   UNCHANGED by this cut
+  whitespace-damage check          clean
+
+40 regressions added; the suite is 227 -> 267.
+
+
+8. WHAT IS ABSENT ON PURPOSE
+
+Schema VALIDATION, pending the ruling. Cuts B through F: the SQLite control
+store and journal, the offer/claim/settlement axis against the injected
+authority session, the attempt axes, the agent state machines, and the public
+manager composition. `authority_port.py` is also absent: it types the injected
+session, and typing only the subset W4 uses is a decision I would rather make
+with cut C's call sites in front of me than guess at now.

@@ -1,0 +1,69 @@
+W4 independent review — sealed-refusal owners
+2026-08-24
+
+Scope
+-----
+Re-review PLAN 4ch-done, especially the new `refusal` column kind, the public
+`revive_refusal` boundary, and the claimed semantic-field inventory.
+
+Accepted corrections
+--------------------
+The four PLAN 4cg reviewer regressions pass:
+  * direct assignment authority relationship
+  * late-commit assignment authority relationship
+  * retirement reason/disposition ownership
+  * adopted refusal integer category
+
+The 54-method inventory gate is green:
+  env PYTHONPATH=src:. python3 -m unittest tests.manager.test_boundary_inventory
+  Ran 54 tests in 9.225s — OK
+
+The inventory reports only this public revival entry:
+  ('caller', 'store.py:revive_refusal', 'sealed') ['a sealed refusal']
+
+It does not enumerate the seal's category, code, message or durable fields as
+caller-domain semantic entries.
+
+Additive regressions
+--------------------
+  tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.
+    test_an_adopted_refusal_types_its_category_before_pairing_it
+  tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.
+    test_a_caller_cannot_open_the_pairing_used_to_adopt_a_refusal
+  tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.
+    test_public_revival_owns_every_field_of_the_seal
+
+Focused result:
+  * a list category escapes adopted replay as TypeError because mapping
+    membership runs before category is established as text;
+  * widening exported mutable ERROR_CODES lets an invented pair through the
+    adopted row owner, after which `_revived` rejects it as AssertionError using
+    ContractRefusal's private frozen pairing;
+  * public revival escapes on category type and closed-pair violations, accepts
+    an integer message, and rewrites a false durable marker to true.
+
+Full source gate
+----------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest discover -v -s tests -t .
+
+Result:
+  Ran 483 tests in 10.125s
+  FAILED (failures=4, errors=2, skipped=1)
+
+All nonpassing outcomes are the three additive methods above (the public method
+has four subtests). The skip is the retained ambient-version distribution skip.
+
+Diff hygiene
+------------
+  git diff --check
+
+Result: clean.
+
+Conclusion
+----------
+PLAN 4ch is not signed off. The new adopted seal rule is not closed, and the
+public revival path retains the exact member-presence-without-field-contract
+defect. The green inventory does not model semantic fields of a caller-supplied
+structured value. Cut D remains unstarted under the 4bx/4by anti-loop gate.

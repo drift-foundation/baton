@@ -1,0 +1,107 @@
+W4 / M2 — Cut D first slice, corrections: the journal answers first, types
+precede membership, and only contention is translated
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T15-19-08Z.md (three P1s).
+
+WHAT THE THREE HAD IN COMMON
+
+  Each is a rule this dossier already contains, not applied in the new module.
+  That is worth saying plainly: the boundary model is mechanical now and catches
+  a missing OWNER, but it does not catch a rule I know and did not carry over.
+
+1. AN EXACT RETRY MUST REPRODUCE THE RECORDED ANSWER
+
+  `activate_assignment` returned from the already-fixed branch before it reached
+  the journal. So the FIRST call committed `already_fixed=False`, a later exact
+  retry synthesized `already_fixed=True` from the row, and a contender that had
+  read before the commit replayed the journalled False. One act, three arrival
+  times, two answers.
+
+  The manager's journal exists so an exact retry reproduces the recorded bytes,
+  and a branch that steps around it is not a replay however reasonable its
+  answer looks. The signature is derived before the branch and
+  `store.replay` answers first.
+
+  THE ORDER OF THE THREE CHECKS IS DELIBERATE:
+
+    - the fixed-assignment MISMATCH is decided first, because it is a
+      precondition about the ATTEMPT rather than about this operation's
+      identity. An activation naming another assignment is refused with what
+      actually differs, rather than with an operation collision that says only
+      that the operands changed.
+    - then the journal, which reproduces this operation's recorded answer and
+      still collides on a full-signature disagreement.
+    - then the already-fixed fallback, which now means what it always should
+      have: an attempt this build finds fixed with NO act of its own to
+      reproduce. The retained delivered case covers it by deleting the journal
+      row, which is the shape that produces it.
+
+2. A CLOSED SET TYPES BEFORE IT ASKS
+
+  `axis not in TRANSITIONS` and `value not in moves` were asked of the raw
+  operand, so an exact-POD list escaped both as a raw `TypeError` while the
+  inventory declared them owned by closed-set refusals.
+
+  THIS IS THE SAME DEFECT PLAN 4cj CORRECTED FOR THE SEALED PAIRING, one round
+  earlier, in code I wrote after that correction. A check that assumes the type
+  it is checking is not owning the field, and I had the sentence already.
+
+3. ONLY CONTENTION IS TRANSLATED
+
+  The savepoint handler rolled back and rethrew everything, so a stale writer's
+  conditional UPDATE surfaced `sqlite3.OperationalError('database is locked')`
+  and never reached the row-count refusal that means the same thing.
+
+  Classification is by SQLite's own RESULT CODE and never by prose. The low byte
+  is the primary code and the high bits are the extended reason, so a trigger
+  abort's 1811 is compared as SQLITE_CONSTRAINT rather than as itself. A locked
+  database at this boundary means exactly one thing -- another writer is
+  deciding this attempt, so the observation did not land -- and everything else
+  keeps its own identity, because giving a disk fault or a constraint a portable
+  meaning it does not have hands a caller the wrong retry policy with full
+  confidence.
+
+MUTATIONS, ROUND 10 (9 run against the 518-test suite)
+
+  J1  the activation journal is not consulted        1 failing
+  J2  the replayed answer is rebuilt from state      1
+  J3  the fixed mismatch is decided after the journal 1
+  J4  the axis type is not established first         1
+  J5  the value type is not established first        1
+  J6  every storage failure becomes contention       2
+  J7  no storage failure becomes contention          1
+  J8  contention is matched on the message           1
+  J9  the extended result code is compared whole     1
+
+  ALL NINE WITNESSED. J8 began as a zero and was a missing case of a shape the
+  frozen host had already recorded as its own P2: every failure I had driven
+  differed in result code AND in wording, so matching on prose passed
+  everything. The witness is a trigger raising `busy provider invariant:
+  database is locked by policy` -- application-controlled text that says
+  "locked" and is a constraint violation -- and it must keep its own identity.
+  A caller told to retry a constraint violation retries it forever.
+
+  J9 is the reason the primary code is masked out rather than compared whole:
+  an extended code would never equal 5 or 6, so contention would stop being
+  recognised at all.
+
+WHAT THE REVIEW ACCEPTED, RECORDED HERE BECAUSE IT WAS MY QUESTION
+
+  The activation UPDATE's compare-and-swap stays. H14 is a legitimate measured
+  equivalence through today's single public operation identity -- a contender
+  that read before the first commit replays the committed row -- and that does
+  not make the write's own condition redundant. I asked for a ruling and this is
+  it; the guard is not weakened.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 518 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 518. 514 -> 518 (the
+  reviewer's three retained regressions and one witness of my own). Zero temp
+  roots. The working tree reports no whitespace errors. The frozen Node oracle
+  under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting re-review of Cut D's first slice. Runtime start, reconciliation and
+  cancellation ordering remain unstarted until this slice is signed off.

@@ -1,0 +1,135 @@
+W4 / M2 — PLAN 4bz: receiving trust domains, one owner per entry
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T11-58-38Z.md (three P1s) under the ruling pinned as PLAN 4bz
+and message 4477.
+
+THE RULING, AND WHAT OF IT IS DONE
+
+  4bz has three parts. Two are delivered and one is NOT, and the not-done part
+  is stated here rather than left for a reviewer to discover:
+
+  (a) Funnel external/injected/adopted data through the receiving boundary
+      EXACTLY ONCE.                                              DELIVERED
+  (b) Make the inventory identify trust-domain ENTRIES and their OWNING
+      VALIDATORS rather than reachability.                       DELIVERED
+  (c) Produce outbound contract documents through CLOSED CANONICAL
+      CONSTRUCTORS.                                              NOT DONE
+
+  (c) is not started. Every operation still assembles its answer as an inline
+      dict -- issue_offer, accept_offer, _settle_terminal, _record_claim,
+      settle_claim, recover_on_restart. I named this gap in the poke answer to
+      poke=4478 and I am naming it again on the way out rather than letting
+      "4bz addressed" stand for it. It is the first thing W4 owes on return.
+
+THE THREE DOMAINS, AND WHAT WAS MISSING
+
+  boundaries.DOMAINS = ("caller", "adopted", "injected")
+
+  caller    an operand a caller handed us.
+  adopted   persistent data coming back out of our own store. Ours once; a
+            receiver input again the moment it is read, because the process that
+            wrote it is not this one and the bytes may not be either.
+  injected  the answer of a capability trusted deployment supplied. Trusted to
+            be the authority's; not trusted to be correct.
+
+  Only `caller` existed before this round. The two that did not exist are
+  exactly where the review's three P1s were, which is the finding: I had been
+  patching sites inside the one domain I had named while two whole domains
+  crossed the boundary unowned.
+
+WHAT NOW OWNS WHAT
+
+  injected -- every answer, at the port, not at its users:
+    project_work      document(required=status, phase, handler, gate,
+                               authority_uuid)
+    slot_holder       text
+    claim             document(required=work_ref, participant, generation)
+    settle_operation  alternative(live|committed|retired|refused)
+    claim_signature   injected
+  adopted -- at the decode, which is where the domain is crossed:
+    replay            adopted(row["result"])
+    revive_refusal    document(adopted(sealed), required=category, code, message)
+
+  Three kinds were added to carry these: `document` (an exact fresh dict,
+  optionally with exactly these members), `alternative` (a document that must be
+  ONE OF a closed set, discriminated), `adopted` (persistent text decoded and
+  owned, refusing rather than faulting).
+
+WHAT WAS DELETED, WHICH IS THE OTHER HALF OF THE RULING
+
+  4bz forbids blanket revalidation as plainly as it requires ownership, and the
+  double validations were mine:
+
+    deadline()      re-owned its from-instant AND re-owned its own answer.
+    accept_offer()  owned offer_id twice.
+    issue_offer()   re-owned authority_uuid already owned in the projection.
+
+  The from-instant case is the instructive one. Every caller passes an instant
+  this layer has already proved, so the re-proof was unreachable -- and in the
+  previous round I had written it up as an "unreachable entry with a reason",
+  which sounded like rigour. It was not: it was me documenting a double
+  validation as though it were a defended edge. A boundary no caller can drive
+  is usually a boundary that should not be there. A defect that fails there now
+  faults as the caller's ownership defect, which is what it is.
+
+THE INVENTORY, REBUILT SO IT CAN FIND A MISSING OWNER
+
+  The review's third P1 was that my inventory could not discover an entry with
+  no validator, because the universe of entries was derived from the validators
+  themselves -- so an unowned entry was invisible by construction. It is now:
+
+    receiving_entries()   55 entries read from the CODE (52 caller, 2 adopted,
+                          1 injected) -- every call site that receives across a
+                          domain, by AST, independent of who owns it.
+    owning_validators()   36 subjects the layer owns.
+    STATED_OWNERS         25 written-out entry -> owner pairings.
+    DELEGATED             9 entries owned by the boundary one call down.
+
+  Mutation C9 -- put the universe back on the validators -- now fails 32 cases.
+  It failed none before this round, which is the measurement of the P1.
+
+MUTATIONS, ROUND 4 (10 run against the 425-test suite)
+
+  C1  the projection answer is not owned          2 failing
+  C2  the claim answer is not owned               3 failing
+  C3  the settlement answer is not a closed set   6 failing
+  C4  the slot holder is not owned                3 failing
+  C5  adopted journal bytes are not owned         2 failing
+  C6  the sealed refusal is not owned             3 failing
+  C7  a document need not be a document           3 failing
+  C8  the closed set admits anything              1 failing
+  C9  the inventory universe comes from validators again  32 failing
+  C10 an entry may be owned twice                 0 failing -- MEASURED
+                                                  EQUIVALENT, see below
+
+  C4 and C8 began as zeros and were MISSING CASES, both of the same shape I keep
+  producing: a rule applied where I could picture it going wrong. C4 -- no test
+  ever drove a non-text slot holder through the port, though the port owned it.
+  C8 -- no test ever supplied a settlement whose `kind` was outside the four,
+  which is precisely the hazard the closed set exists for, since an unrecognised
+  answer had been read as `live`, the branch that writes nothing. Both now have
+  witnesses (TheInjectedDomainOwnsEveryAnswer).
+
+  C10 IS A REAL EQUIVALENCE AND IS NOT REPAIRED. Relaxing
+  `assertLessEqual(claims, 1)` to 9 changes no verdict because nothing in the
+  tree is owned twice, so the guard has nothing to catch today. It guards a
+  future mistake. What CAN be measured is that the counting would see a second
+  claim, and that is now its own case
+  (test_the_double_ownership_check_can_actually_fail), which fabricates a second
+  owner for a real entry and requires the count to exceed one. The assertion
+  stays at 1. I am recording this as equivalent rather than manufacturing a
+  failing mutant for it.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 425 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 425. 417 -> 425 this round
+  (8 regressions). Zero temp roots left behind. The working tree reports no
+  whitespace errors. The frozen Node oracle under v12/src/authority is
+  untouched -- the tree reports no modification there, as it has every round.
+
+STATE
+
+  Awaiting re-review of the trust-domain boundary and its code-derived inventory
+  as one unit, per PLAN 4bx/4by. Cut D remains unstarted, as the gate requires.
+  4bz(c), the closed outbound constructors, is unimplemented and owed.

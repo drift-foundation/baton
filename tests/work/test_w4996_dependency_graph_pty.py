@@ -50,7 +50,7 @@ WIDE, TALL = 120, 32
 # vary. Searching for the centre's exact title is deterministic across every
 # shape, and it exercises the search entry path the contract also requires.
 OPEN_CENTER = [(b"/", 0.5), (b"the center", 0.5), (b"\r", 0.7),
-               (b"b", 0.8)]
+               (b"d", 0.8)]
 
 
 def build(tmp_path, shape):

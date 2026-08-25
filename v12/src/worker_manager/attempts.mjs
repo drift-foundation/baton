@@ -30,7 +30,8 @@
 // item 4's to pin. Until then absence cannot be proven and the retry path is
 // deliberately closed.
 
-import { ContractError, digest } from "./contracts.mjs";
+import { ContractError, digest, nameValue, opaqueIdFault }
+	from "./contracts.mjs";
 
 // THE PER-AXIS TRANSITIONS, not the vocabulary's array order.
 //
@@ -122,7 +123,25 @@ export const AXES = Object.freeze(Object.fromEntries(
 	Object.entries(TRANSITIONS).map(([axis, moves]) =>
 		[axis, Object.freeze(Object.keys(moves))])));
 
+/** W2929 composition revalidation, 2026-08-23. THE IDENTIFIER IS PROVED
+ *  BEFORE IT REACHES THE STATEMENT. Measured: an unproved id went straight
+ *  into the prepared statement, so a caller handing this boundary an object
+ *  got SQLite's own binding error — "Unknown named parameter 'toJSON'" — or,
+ *  through a trapping Proxy, an arbitrary Error of the caller's choosing.
+ *  Either way the closed pair was lost at a read that never validated its one
+ *  operand.
+ *
+ *  An absent attempt still answers null, and that is the point of separating
+ *  the two: a well-formed id naming nothing is an ABSENCE, and an id that is
+ *  not an id is a REFUSAL. Conflating them tells a caller "no such attempt"
+ *  about a question that was never asked. */
 function attemptRow(store, attemptId) {
+	const fault = opaqueIdFault(attemptId);
+	if (fault !== null) {
+		throw new ContractError("integrity", "schema",
+			`a runtime attempt id ${fault}; an operand is proved before it `
+			+ `reaches the store, and a malformed identity is not an absence`);
+	}
 	return store.db.prepare(
 		"SELECT * FROM attempts WHERE runtime_attempt_id = ?")
 		.get(attemptId) ?? null;
@@ -233,8 +252,8 @@ export function activateAssignment(store, session, { attemptId, expect }) {
 	if (!sameAssignment(claimed, expect)) {
 		throw new ContractError("stale-assignment", "generation",
 			`attempt ${attemptId} claimed `
-			+ `${JSON.stringify(claimed)} and this activation names `
-			+ `${JSON.stringify(expect)}`);
+			+ `${nameValue(claimed)} and this activation names `
+			+ `${nameValue(expect)}`);
 	}
 	const already = fixedAssignment(attempt);
 	if (already !== null) {
@@ -243,7 +262,7 @@ export function activateAssignment(store, session, { attemptId, expect }) {
 		// participant or authority.
 		if (!sameAssignment(already, expect)) {
 			throw new ContractError("stale-assignment", "generation",
-				`attempt ${attemptId} is fixed to ${JSON.stringify(already)}`);
+				`attempt ${attemptId} is fixed to ${nameValue(already)}`);
 		}
 		return { attemptId, assignment: already, alreadyFixed: true };
 	}
@@ -255,8 +274,8 @@ export function activateAssignment(store, session, { attemptId, expect }) {
 	}
 	if (!sameAssignment(live, expect)) {
 		throw new ContractError("stale-assignment", "generation",
-			`the live assignment is ${JSON.stringify(live)} and this `
-			+ `activation expects ${JSON.stringify(expect)}`);
+			`the live assignment is ${nameValue(live)} and this `
+			+ `activation expects ${nameValue(expect)}`);
 	}
 	const signature = digest({ kind: "assignment.activate",
 	                           operands: { attemptId, expect } });

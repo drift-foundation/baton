@@ -1,0 +1,128 @@
+W2845 — cut 3 correction
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T05-38-39Z.md (one P1, one P2).
+Cut 3 only. Cuts 4-5 remain absent.
+
+
+1. [P1] I STATED THE RULE IN ONE PLACE AND CALLED IT FROM ONE SITE
+
+Cut 3's own evidence says I put the opaque-id rule in one place "so a second
+boundary cannot reach a different conclusion about the same string". I put the
+RULE in one place. I called it from `Store.replay` and nowhere else.
+`settle_operation`, `operation_result` and `operation_record` kept the weaker
+text check.
+
+So a one-million-character id was still a durable primary key -- and the review
+found the worse half: SETTLEMENT COULD RECORD AN INVALID IDENTITY AS RETIRED,
+and a claim under the same id then refused on SHAPE before ever reading the
+retirement. Two authority paths disagreed about whether a durable identity
+existed, and the bound retirement reason was never replayed. That is not a size
+problem; it is two answers to one question.
+
+`check_opaque_id` now serves all four paths. Writing a rule down is not applying
+it, and this is the third time this week I have made that exact mistake in a
+different shape -- documented-but-unimplemented, implemented-at-one-of-two-sites,
+and now stated-once-called-once.
+
+
+2. [P2] THE RACE CHILDREN WERE READING THE SOURCE TREE UNDER THE INSTALLED GATE
+
+Both child scripts began with `sys.path.insert(0, <repository src>)`. Under the
+installed gate the parent used the wheel and every child ran source code, so the
+five subprocess race cases proved something about `src/` while the gate claimed
+to exercise the whole installed layout. A packaging skew in claim, replay or
+settlement would have passed it.
+
+The children are told the store path and NOTHING about imports now. They inherit
+the gate's own environment -- `PYTHONPATH=src` for the source stage, an empty one
+plus the venv interpreter for the installed stage -- and each REPORTS the
+directory it imported `baton_v12.authority` from. The parent asserts child and
+parent origins agree, so the claim is checked rather than assumed.
+
+MEASURED: with the child's `sys.path.insert` restored to the real repository
+path, `just build` FAILS with four failures -- the origin assertion firing in
+every race case. The guard detects exactly the skew that was there.
+
+
+3. THE SETTLEMENT SIGNATURE CAP, NOT INVENTED
+
+Accepted as ruled: settlement must compare the exact canonical signature the
+authority itself produced, including every durable operand, and the contract has
+no system-wide text bound -- so a settlement-only limit could reject a legitimate
+signature. The code now says so where the check would have gone, and points at
+the broader operand/signature ruling as the only place it could change.
+
+
+4. MUTATIONS -- SIX, AND ONE OF THEM IS EQUIVALENT ALONE
+
+  Q1 settlement uses the weaker check       0 alone -- EQUIVALENT
+  Q1+Q2 both weakened together             13 subtests, on the
+                                           `settle_operation` AND
+                                           `operation_result` paths
+  Q2 operation_result uses the weaker check 6 subtests
+  Q3 operation_record uses the weaker check 6 subtests
+  Q4 replay uses the weaker check           1 case
+  Q5 the opaque length bound is dropped     1 case
+  Q6 the opaque grammar is dropped          1 case
+  P2 the child prepends src again           4 cases, INSTALLED GATE ONLY
+
+Q1 IS EQUIVALENT ON ITS OWN AND LOAD-BEARING IN COMBINATION, and the reason is
+worth stating: `settle_operation` calls `operation_result` before it decides
+anything, so its own check is shadowed by its neighbour's. Weakening BOTH fails
+thirteen subtests, seven of them on the settlement path. It is real
+defence-in-depth rather than dead code, and it is reported as equivalent-alone
+rather than counted as an independent guard.
+
+AND MY MUTATION HARNESS LIED TO ME ONCE. Its first run reported Q1, Q2 and Q3 as
+zero. Direct runs of the same mutations show 6, 6 and (for Q1) the combination
+above. I could not reconstruct why the harness disagreed, so I re-measured every
+one of them by hand and report the hand numbers. A harness that produces a false
+ZERO is more dangerous than one that produces a false failure: a false failure
+gets investigated, and a false zero gets written into an evidence file as
+"equivalent". That is the sixth instrument error I have recorded this week and
+the first in the false-negative direction.
+
+
+5. REGRESSIONS -- 2 ADDED, THE SUITE IS 135 -> 136
+
+  every journal path holds one opaque id rule
+      ten invalid ids x FOUR paths -- replay, settlement, and both journal
+      reads -- forty checks, plus the assertion that NOTHING was minted under
+      any of them (settlement used to write the retirement, so an invalid id
+      became a durable key that replay then refused to look at).  Then five
+      legitimate ids driven through every path, because a rule that refused
+      ordinary ids would be a bug wearing a fix.
+
+  retirement precedence holds for a valid identity
+      the other half of the P1: with one rule, settlement and replay AGREE that
+      the identity exists, so a claim under a retired id replays the bound
+      retirement reason instead of refusing on shape and never seeing it.
+
+The existing one-path case was REPLACED by the four-path table rather than kept
+beside it, because a case that covers one of four paths is the thing that let
+this through.
+
+And every race case now carries the origin assertion, which is why the P2
+mutation fails four of them rather than none.
+
+
+6. GATES
+
+  just gate (v12/python)      version + 136 tests + the locked build, all pass
+                              on Python 3.13.7
+  the installed stage         136/136 with the children PROVEN to import the
+                              wheel, not merely asserted to
+  temp roots after the run     zero
+  the frozen Node reference    UNTOUCHED
+  whitespace-damage check      clean
+
+
+7. STILL ABSENT ON PURPOSE
+
+Cut 4: contract progression, proposal, the four immutable receipts,
+policy-generation binding, configured capabilities, authorized close, and the
+stale-target durable integration attempt -- the first real transition to raise a
+durable refusal. Cut 5: the participant-bound session face, and the natural
+moment to revisit any operand bound a participant supplies.
+
+W4 stays blocked on W2845.

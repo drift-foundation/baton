@@ -1,0 +1,219 @@
+W2845 — cut 2 correction
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T05-12-08Z.md (five P1, two P2).
+Cut 2 only. Cuts 3-5 remain absent.
+
+
+1. ALL SEVEN REPRODUCED BEFORE ANY EDIT
+
+One probe script, run against what I delivered:
+
+  gate X using Y's assignment, X unclaimed   ACCEPTED; X blocked, Y untouched
+  gate X using Y's assignment, X live        ACCEPTED; Y ENDED, X untouched
+  claim at MAX_SAFE_INTEGER                  ACCEPTED; minted
+                                             9007199254740992
+  a route with a lone surrogate              LEAK UnicodeEncodeError
+  an ending reason with a lone surrogate     LEAK UnicodeEncodeError
+  a plan digest with a lone surrogate        LEAK UnicodeEncodeError
+  gate_token with a lone-surrogate detail    returned an unencodable token
+  runtime-absent with runtime=[1]            ACCEPTED and journalled
+  revised-plan with plan_digest=[1]          ACCEPTED and journalled
+  isolation with policy={"any": "thing"}     ACCEPTED and journalled
+  events after claim                         []
+  event keys after an ending                 work_id/participant/generation,
+                                             three quarters of an identity
+  cancel(None)                               LEAK TypeError
+  invariants with block and no gate          True
+  invariants with an invented phase          True
+  invariants with an untyped gate            True
+
+Every finding is correct, and all fifteen were true while 99 cases passed.
+I probed this cut before handing it over and found three things; the reviewer
+found seven more. The lesson is not that probing is useless -- it is that
+probing my own design finds the gaps I can imagine, and that is a smaller set
+than the gaps that exist.
+
+
+2. [P1 1] A COMPARE-AND-SWAP THAT COMPARES ONE OBJECT AND MUTATES ANOTHER
+
+An assignment for Y satisfied `_expect` -- correctly, it WAS Y's live
+assignment -- and then X was gated. On the live path it was worse: Y was ENDED
+and X stayed untouched, so a gate arrival for X terminated somebody else's
+assignment on another Work.
+
+The identity must belong to the Work being acted on, and that is checked before
+either branch. I had treated `_expect` as "is this identity current", and the
+question at this boundary is "is this identity current FOR THIS WORK" -- the
+second is not implied by the first, and the operand carries the Work id right
+there in it.
+
+
+3. [P1 2] THE GENERATION SPACE IS FINITE AND ITS END IS A REFUSAL
+
+The counter was incremented and returned as an assignment identity without ever
+being held to the frozen range, so a Work at the boundary minted
+9007199254740992 -- a generation no consumer of these documents can read back.
+
+I bounded integers in `own` and in `check_generation` in cut 1 and then MINTED
+one without going through either. The bound was on what a caller may send; the
+authority is also a producer.
+
+§10.1 says the counter is never decremented or reused, which means the space is
+finite, and running out is an ORDINARY refusal rather than a number nobody can
+use. The last generation the range allows is still minted; the one after it
+refuses and moves nothing.
+
+
+4. [P1 3] ONE TEXT RULE, NOT TWO
+
+`_text` required exact nonempty `str` and stopped there. `own` -- for
+documents -- also required the text to be ENCODABLE. So the scalars had a
+weaker rule sitting beside the stronger one, and a lone surrogate reached
+SQLite from a route, an ending's prose, a plan digest, and out of `gate_token`
+as an invalid durable token.
+
+A rule that exists twice holds in one of the two places. There is one now,
+`check_text` in `identity`, beside the other frozen grammars, and every cut-2
+text operand uses it -- optional prose included, because prose is durable too.
+
+AND ORDINARY NON-ASCII TEXT IS DATA. A route named `révision-plan` and a reason
+carrying an emoji are asserted to work, because a rule that refused them would
+be a bug wearing a fix.
+
+
+5. [P1 4] A GATE IS DISCHARGED BY PROOF, NOT BY TRUTHINESS
+
+Every evidence check used truthiness, so a list stood for an exact runtime
+identity, a dict stood for a pinned clause, and a list satisfied a
+plan-revision gate. `[1]` is not a proof of anything; it is a value that
+happens not to be empty. Each kind now names the shape it requires, through the
+one durable-text rule.
+
+AND THE PROOF IS BOUND TO THE CONFIGURED FACT:
+
+  contract-runtime   the evidence must name the profile, and it must be the one
+                     certified for this contract. Recording only "a certified
+                     profile exists" leaves the evidence unable to say WHICH one
+                     was relied on, which is the whole point of keeping it.
+
+  certified-isolation  THE ONE REPRESENTATION DECISION THIS CORRECTION TAKES,
+                       raised here rather than left implicit. A boolean
+                       `isolation_certified` made "pinned" mean "somebody once
+                       said yes", and the evidence then only had to be truthy,
+                       so neither side named anything. The policy now holds the
+                       CLAUSE IDENTITY and the evidence must name that clause;
+                       `True` is no longer a pinned clause. I took the strict
+                       reading because it is the safe direction and because
+                       "pinned clause" reads as an identity in the frozen
+                       prose -- but it is a representation choice and the
+                       reviewer invited it to be raised, so: raised. Rule it
+                       otherwise and I will change it.
+
+
+6. [P1 5] THE HISTORY IS THE WHOLE LIFE, IN WHOLE IDENTITIES
+
+Claim wrote no event, so the journal said who LOST the Work and never who took
+it. W151's transition table requires the claim event; the frozen Node host
+omits it, and the frozen host is executable-reference evidence rather than the
+contract. It is written in the SAME transaction as the Handler, because an
+event that can exist without its state is not a record of anything.
+
+And the events answered in separate columns -- work id, participant and
+generation -- which is three quarters of an identity in the one place a reader
+reconstructs history from. §4 says an identity is never a participant alone or
+a local selector, and a journal that answers in parts invites exactly the
+comparison §4 forbids. The columns stay, because they are what is indexed; the
+ANSWER is an `assignment_ref`.
+
+The existing one-event-after-end case was UPDATED rather than kept: it pinned
+the reference's omission, and the review is explicit that it should not.
+
+
+7. [P2 6] ONE MISSING-ASSIGNMENT REFUSAL FOR EVERY TRANSITION
+
+`cancel` subscripted the normalized ABSENCE before reaching the
+compare-and-swap, so `cancel(None)` raised `TypeError` where every other
+transition gives an ordinary refusal. The COMMON precondition comes before the
+transition-specific one: "you gave me no assignment" is true of every act and
+is answered the same way by all of them. The case drives all four.
+
+
+8. [P2 7] A BACKSTOP FOR BOTH DIRECTIONS
+
+It checked gate-implies-block and nothing else, so an open Work in `block` with
+NO gate, and one in an INVENTED phase, both returned True. A backstop that
+checks one direction of a cross-product is a backstop for one of its two
+failures. It now checks membership in the closed axis, both directions of the
+pairing, and the gate's kind and detail -- and the coherent pairings still pass,
+so it has not simply become a refusal.
+
+
+9. MUTATIONS -- FOURTEEN AGAINST THE CORRECTIONS
+
+  N1  install_gate compares one Work, mutates another   1 case
+  N2  the generation space is unbounded again           1
+  N3  durable scalar text stops being encodable         1
+  N4  gate_token stops checking its halves              2
+  N5  gate evidence returns to truthiness               2
+  N6  the pinned clause is a yes again                  1
+  N7  the isolation clause is not bound                 1
+  N8  contract-runtime evidence names no profile        1
+  N9  claim writes no event                             3
+  N10 events answer in separate columns again           2
+  N11 cancel subscripts the absence again               1
+  N12 the backstop checks one direction again           2
+  N13 the backstop accepts an invented phase            1
+  N14 the backstop accepts an untyped gate              1
+
+N6 MEASURED ZERO FIRST, and it was the same shape as two zeros last round: the
+refusal still happened, from the next check, with a DIFFERENT MESSAGE. "No
+clause is pinned" points at the configuration; "this evidence names a clause the
+deployment has not pinned" points at the evidence. Those are different problems
+with different owners, so the case asserts the message and the mutation fails.
+Two rounds running, the answer to "this guard has no witness" has been "then
+assert what it actually tells the caller".
+
+
+10. REGRESSIONS -- 8 ADDED, THE SUITE IS 99 -> 107
+
+One per finding, each with its positive half:
+
+  a compare-and-swap compares the Work it mutates -- both branches, asserting
+      NEITHER Work moved, plus the same act with its own identity working
+  the generation space is finite -- the last generation still minted, the next
+      refused, and nothing moved
+  every durable text operand goes through one rule -- ten operands, plus
+      non-ASCII text accepted
+  a gate is discharged by proof and not by truthiness -- five shapes for the
+      runtime, plus the journalled proof asserted to BE the proof
+  a plan revision needs a digest and not merely something
+  the history is the whole life -- claim, release, claim with generations
+      1, 1, 2, and no event answering with a bare participant
+  a missing assignment is the same refusal everywhere -- all four transitions
+  the backstop checks both directions -- six corruptions, plus the three
+      coherent pairings still passing
+
+All 99 existing cases are preserved; the two that pinned the reference's event
+omission were updated, as the review directs.
+
+
+11. GATES
+
+  just gate (v12/python)      version + 107 tests + the locked build, all pass
+                              on Python 3.13.7
+  the locked build            offline, hash-enforced; the suite passes from the
+                              INSTALLED layout
+  temp roots after the run    zero
+  the frozen Node reference   UNTOUCHED
+  whitespace-damage check     clean
+  every reproduction          now refuses, and every ACCEPTED row above is now
+                              a Refusal that moved nothing
+
+
+12. STILL ABSENT ON PURPOSE
+
+Cut 3: the operation journal, savepoint-scoped refusals, replay and collision,
+retirement, settlement, restart-with-journal, real spawned-process races -- and
+the `operation_id` operand that only means something once they exist. Cut 4:
+contract progression, proposal, receipts, capability-checked transitions,
+authorized close. Cut 5: the participant-bound session face. W4 stays blocked.

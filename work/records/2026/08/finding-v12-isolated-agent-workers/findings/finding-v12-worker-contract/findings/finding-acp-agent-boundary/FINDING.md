@@ -387,3 +387,144 @@ the second-round corrections.
    means byte equality rather than object identity. Every component that
    accepts a sealed document now takes its own copy and returns a copy, and
    the certification entry points do the same.
+
+## Clarification: posture occupancy is not the observation axis — 2026-08-23
+
+**Nothing in §3.3, §7.3 or the successor table is superseded by this note.**
+The nine-state agent-session axis stands exactly as frozen, `unknown` remains
+terminal, and it is never promoted to `closed`. This clarification records
+what that axis is NOT, because a consumer implemented it as though it were
+also a resource lock.
+
+**Observed in the v12 manager (W771, `2b077949-W771`).** The store enforced
+"at most one live session per posture" with a partial unique index on
+`agent_session_state`, so posture occupancy was a PROJECTION of what the
+provider had been observed to do. The only value that freed a posture was
+`closed` — which asserts that a terminal turn fact was observed for every turn
+the epoch started. A session that ended before it initialized therefore had a
+choice between stranding its posture forever and inventing an observation, and
+the close path chose the second: it wrote `closed` over four states this
+document's own successor table forbids, including `unknown`.
+
+**Confirmed ruling by Slawomir, 2026-08-23**, recorded in full at
+`work/records/2026/08/finding-agent-session-close-axis-conflict/`. Occupancy
+is a separate manager-owned axis, `available -> occupied ->
+recovery-required -> available`. Opening a session occupies the posture
+atomically; a normally observed provider-session close returns it; ambiguity
+moves it to `recovery-required`; and **silence and elapsed time never recover
+it**. Leaving `recovery-required` takes positive evidence that the old
+provider session cannot still act — for an OCI reference runtime, the adapter
+observing the exact assignment container stopped or absent. A request to stop
+is not that evidence; the observation is.
+
+**Recovery does not rewrite observation history**, which is the point of the
+separation. This durable result is coherent and is the normal shape after
+transport loss:
+
+```text
+observation: unknown   runtime: stopped   slot: available   outputs: retained
+```
+
+Recovering a slot recovers EXECUTION CAPACITY only. It does not discard a
+filesystem, accept an output or choose salvage; those remain independent
+disposition decisions.
+
+**For an implementer reading §7.3 alone:** the axis answers what the provider
+was seen to do. It does not answer whether a posture may be reused, and a
+consumer that derives the second from the first will eventually have to invent
+the first to get the second.
+
+## Correction: the tool-call `kind` — 2026-08-23 (W543)
+
+**§6.2's row and `$defs.toolCallView` contradicted each other, and the
+contradiction is corrected rather than left to each reader.** The prose said
+`tool_call` "carries the ACP `toolCallId`, `kind`, `status`"; the schema
+permitted only `tool_call_id`, optional `title` and `status` with
+`additionalProperties: false`. A consumer following the prose expected
+evidence the schema forbade; one following the schema silently discarded a
+field the prose required. **The superseded schema shape and the superseded
+prose row are both quoted in §6.2.1**, so the next reader can see which way it
+was resolved and why.
+
+**Confirmed ruling by Slawomir, 2026-08-23**, recorded in full at
+`work/records/2026/08/finding-acp-tool-call-kind-contract-conflict/`: `kind`
+is **portable but OPTIONAL advisory evidence**, copied verbatim when the
+provider supplies one of the pinned ACP 1.3 `ToolKind` values and **omitted**
+when it does not. **Baton never invents one** — absence does not become
+`other`, and no title, tool name, command text, adapter family or later status
+may be used to infer it. A value outside the pinned ten **refuses** rather
+than silently widening a frozen contract. The field may support presentation
+and decides no permission, policy, tool authority, turn outcome, success,
+failure or disposition.
+
+**Revalidated against the pinned SDK rather than inferred from either
+artefact**, as the ruling required: `@agentclientprotocol/sdk` 1.3.0 declares
+`kind?: ToolKind` on `ToolCall` and `kind?: ToolKind | null` on
+`ToolCallUpdate`, and its `ToolKind` is exactly `read`, `edit`, `delete`,
+`move`, `search`, `execute`, `think`, `fetch`, `switch_mode`, `other`. The
+SDK's own comment — "Helps clients choose appropriate icons and UI treatment"
+— is the presentation-only boundary the ruling states.
+
+**The captured trace is now a positive example rather than an undecidable
+gap.** `evidence/traces.json` records root-level `toolCallId` and `status`
+with no `kind`, which is exactly the absent case: a provider that supplies no
+kind produces a portable view without the member.
+
+Changed in one act: this record's §6.2 row and new §6.2.1, `toolCallView` and
+the new `toolKind` definition in the frozen schema, `normalize_tool_call` and
+five focused cases in the executable model, the byte-identical product schema
+copy, the v12 normalizer, and the v12 regressions — including one v12
+assertion that required a supplied kind to be DISCARDED, which this ruling
+supersedes and which is marked as superseded where it stood.
+
+**Amended on independent review of the correction, 2026-08-23.** The first
+draft quoted the SDK's nullability distinction and then normalized both
+sources identically, which erases the only difference the declaration states.
+An OMITTED member is absence on either source; an explicit `null` is the SDK's
+own "not supplied" only on `tool_call_update`, and on the initial `tool_call`
+it **refuses** as `integrity.schema`. And a refusal now tests the value's
+SHAPE before its membership of the vocabulary, so no invalid value can leave
+this boundary as a raw language exception instead of the closed pair: the
+JavaScript consumer no longer serializes what it is rejecting and the Python
+consumer no longer hashes it. Both consequences are stated in §6.2.1.
+
+## Correction: one ACP capability representation — 2026-08-23 (W641)
+
+**The frozen schema and the executable model required a representation §2.2
+does not describe, and the correction REMOVES it rather than naming it.**
+§2.2 says the relay's ACP `clientCapabilities` are exactly
+`{ "fs": {}, "terminal": false }`. The `clientCapabilities` definition in this
+record's schema instead REQUIRED `fs.read_text_file: false` and
+`fs.write_text_file: false`, and `evidence/acp_boundary_model.py` used that
+shape as `MINIMAL_CLIENT_CAPABILITIES`, validated it as the advertisement and
+returned it as the negotiated document. A consumer copying the model —
+which W4 did — sent snake_case field names on a transport that has none.
+
+**Confirmed ruling by Slawomir, 2026-08-23**, recorded in full at
+`work/records/2026/08/finding-acp-client-capability-wire-profile-conflation/`:
+agent-session 1.0 keeps **one** ACP capability representation. The canonical
+value is the pinned ACP wire structure, the profile persists that same
+structural document, and the relay sends an owned copy of it. ACP's member
+names and **omission semantics** are authoritative — an absent `readTextFile`
+or `writeTextFile` means the capability was not advertised, and Baton does not
+synthesize an explicit `false` to restate it.
+
+**This supersedes the candidate boundary that would have kept a normalized
+summary as a second named shape.** The `read_text_file`/`write_text_file`
+representation is the contract defect to remove, not a representation to
+maintain. A future provider-neutral capability model would be separately
+justified Work with its own versioned contract.
+
+**Validation is structural and order-independent.** JSON member order carries
+no meaning, while an added member, a changed value, an enabled capability, a
+snake_case transport member or an unsupported shape refuses `policy.denied`.
+The exact minimal-capability policy of §2.2 is unchanged: withholding is still
+total, and `session` is still stable and still not advertised.
+
+Changed in one act: this record's `clientCapabilities` definition, the
+executable model's constant and its structural validator, the captured
+`evidence/traces.json` profile and its two negative capability vectors (with
+the profile re-sealed), the byte-identical product schema copy, the v12
+handshake constant and its consumers, and the focused regressions in both the
+model and v12 — including two assertions that encoded the removed shape, each
+marked superseded where it stood.

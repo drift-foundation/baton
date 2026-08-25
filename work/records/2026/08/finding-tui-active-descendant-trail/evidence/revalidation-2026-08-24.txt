@@ -1,0 +1,85 @@
+W6814 reviewer revalidation — 2026-08-24
+
+LIVE REPRODUCTION
+
+  Canonical tree read at snapshot 6820:
+
+    baton ... tree work=W2
+
+  W2 depth 0, W3 depth 1, W5 depth 2. W5 is open/block, handler null,
+  deeper true, and has five children. W6631 is absent.
+
+  Canonical runtime read at the same recorded snapshot:
+
+    baton ... runtime
+
+  baton.claude handled_work contains W6631, open/active, handler
+  baton.claude. Its runtime state is working.
+
+  Canonical ancestry read:
+
+    baton ... breadcrumb work=W6631
+
+  W2 -> W3 -> W5 -> W6631.
+
+FILTER COUNTEREXAMPLE
+
+  Canonical tree read at snapshot 6825:
+
+    baton ... tree work=W2 handler=baton.claude
+
+  Result rows: []. The matching claimed Work is beyond the bounded window, so
+  no bounded row matches and none of its ancestors is retained as context.
+
+CURRENT CODE BOUNDARIES
+
+  src/baton_work/projection.py:tree
+    - one read snapshot;
+    - bases plus two batched descendant levels;
+    - canonical filter applies only to those bounded rows;
+    - returns rows/summary/filter/snapshot_seq;
+    - `_children_outside` supplies only the Boolean `deeper` cue.
+
+  src/baton_work/projection.py:runtime and :teams
+    - one snapshot each;
+    - `_work_state` supplies held Work id/title/status/phase/handler;
+    - runtime supplies the participant's runner state;
+    - neither supplies containment ancestry or all fields needed by every
+      canonical Work filter.
+
+  src/baton_work/projection.py:breadcrumb
+    - supplies immutable containment ancestry for one Work;
+    - a separate call per active Work would be an N-read renderer join and not
+      part of the tree snapshot.
+
+  src/baton_work/tui/app.py:View.view / View.rows
+    - caches and paints the canonical tree rows;
+    - phase observation and selection are keyed by Work id.
+
+  src/baton_work/tui/app.py:_render_table / _title_cell / handle_key
+    - cursor and scroll currently count every rendered row as selectable Work;
+    - Enter, u and d consume rows[cursor][id];
+    - an elision therefore needs a separate display-line model, not a fake Work
+      dict inserted into the selectable list.
+
+  src/baton_work/tui/app.py:handle_key
+    - Enter currently opens detail for every Work;
+    - u currently re-roots the tree;
+    - the new contextual-root decision deliberately supersedes that split for
+      ordinary activation and must update the W71-era contract text/tests.
+
+WHY THE ORIGINAL NO-PROJECTION-CHANGE PREMISE DOES NOT HOLD
+
+  Combining runtime/teams + breadcrumb + detail/search in the TUI would:
+
+    1. mix independent snapshots on one screen despite the existing tree
+       consistency contract;
+    2. grow reads with the number/depth of active Work;
+    3. require the renderer to reproduce canonical filter semantics or display
+       Work excluded by the selected filter;
+    4. break the documented JSON/TUI statement that the tree is one canonical
+       projection.
+
+  Raw store access is explicitly forbidden. An additive active_trails field
+  derived inside projection.tree is the bounded correction: public projection
+  minor only, no protocol or SQLite schema meaning changes.

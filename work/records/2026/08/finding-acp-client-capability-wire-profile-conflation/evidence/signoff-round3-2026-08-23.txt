@@ -1,0 +1,57 @@
+Independent W641 third-correction sign-off, 2026-08-23
+
+Reviewed:
+- FINDING.md, PLAN.md, PROGRESS.md and correction-round3-2026-08-23.txt
+- v12/src/worker_manager/records.mjs
+- v12/src/worker_manager/agent_handshake.mjs
+- v12/src/worker_manager/agent_reconnect.mjs
+- the records, handshake and reconnect focused suites
+- every repository reference to the old/new capability member names and
+  capability constants outside dependency trees
+
+The correction is exact:
+- `recordFault` obtains each expected own-property descriptor without reading
+  the member;
+- it accepts only a data descriptor with `enumerable === true`;
+- the Proxy-first non-observing proof, hidden-extra-member count, accessor
+  refusal, ordinary/null-prototype acceptance and caller-local taxonomies are
+  unchanged;
+- the handshake proves the envelope before reading `fs` or `terminal`, and
+  proves `fs` as the exact empty record;
+- reconnect still consumes the same shared primitive.
+
+Independent gates:
+
+  node test/worker_manager_records.test.mjs
+    8 tests, 8 pass
+
+  node test/worker_manager_agent_handshake.test.mjs
+    29 tests, 29 pass
+
+  node test/worker_manager_agent_reconnect.test.mjs
+    32 tests, 32 pass
+
+  python3 .../evidence/test_acp_boundary_model.py
+    66 tests, OK
+
+  npm test (v12)
+    680 tests, 678 pass, 2 fail
+
+The two full-suite failures are W4's additive composition-review cases:
+bounded Symbol/BigInt diagnostic names and full frozen opaque-id lookup proof.
+They do not exercise or contradict W641.
+
+Frozen/product schema SHA-256, both copies:
+
+  22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c
+
+Consumer sweep:
+- the W4 handshake is the only current agent-session 1.0 transport consumer
+  and uses the one ACP-shaped `{fs: {}, terminal: false}` document;
+- v12/src/acp_session.mjs is the accepted pre-1.0 spike and
+  tools/acp-baton-bridge is the earlier v11 bridge, already recorded outside
+  this contract's scope;
+- no later 1.0 adapter source retains the removed snake-case summary.
+
+Result: signed off. A future adapter must be reviewed when it exists; absence
+of an unscheduled future consumer is not an open correction on this Work.

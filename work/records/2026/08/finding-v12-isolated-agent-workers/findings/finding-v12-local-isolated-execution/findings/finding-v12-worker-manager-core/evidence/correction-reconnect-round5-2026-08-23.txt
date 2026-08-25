@@ -1,0 +1,125 @@
+W4 / W2929 item 4ae — fifth reconnect correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T19-42-22Z.md (one P2, two edges).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test test/worker_manager_agent_reconnect.test.mjs   25 pass, 2 fail
+
+Exactly the two additive review regressions. The finding is correct.
+
+
+2. EDGE ONE: THE COMMENT CLEARED THE OPERATION THAT WAS FAILING
+
+`describe` has said for two rounds that "`typeof` and `Array.isArray` invoke
+nothing". That is TRUE and it is not the property that matters. Array
+classification follows a Proxy to its target, so `Array.isArray` THROWS on a
+revoked Proxy -- and it sat outside the translated boundary in both refusal
+paths, the envelope and the member value, leaking a raw TypeError at the exact
+moment the boundary had already decided to refuse.
+
+So the single operation still outside the translation was the one every
+comment in the file had explicitly cleared. I have now been told four times
+that a refusal must not run what it refuses, and I read that as being about
+executing CALLER CODE. This one runs no caller code and fails anyway.
+
+WHAT I AM TAKING FROM IT: "runs no user code" is not "cannot fail", and my
+comments were reasoning about the wrong property. Every classification this
+boundary performs now happens inside ONE guarded helper, so the next one is
+inside the translation by construction rather than because someone remembered.
+`typeof` is the only operation named as exempt, because it is the only one
+that genuinely cannot throw.
+
+
+3. EDGE TWO: THE REFUSAL INTERVIEWED THE VALUE THAT WAS THROWN AT IT
+
+`ownTurnInFlight` caught a reflection failure and then interpolated
+`failure.message`. JavaScript permits throwing ANY value, so that is a
+property read on an object the caller chose: an accessor there runs the
+caller's code INSIDE the refusal, and its own throw replaces the closed pair
+with an arbitrary Error.
+
+The catch takes no binding now and the message is the manager's own text, the
+same text whatever was thrown. This is the same sentence as the round-3
+diagnostic finding -- `JSON.stringify` on a rejected value -- at the one place
+where the value arrives by being thrown rather than by being passed.
+
+
+4. SOMETHING THE REVIEW DID NOT ASK FOR, AND WHY I DID IT ANYWAY
+
+Having array classification in the snapshot made a second hole visible:
+`isPlainRecord` decided "is this a document" from the PROTOTYPE alone, and a
+Proxy over an array whose `getPrototypeOf` trap answers `Object.prototype`
+passes that test. An array envelope then became a valid options document.
+
+One line, `if (snapshot.array) return false`, and it tests the rule this
+envelope has always stated rather than inferring it from a prototype a Proxy
+is free to lie about. Reported here rather than folded in silently, because it
+is a behavior change beyond the review's two edges.
+
+
+5. MUTATIONS -- FIVE, ALL WITNESSED
+
+  N1 array classification back outside the translation   1 case fails
+  N2 the refusal reads the thrown value again           2 cases fail
+  N3 an array proxy is a document again                 1 case fails
+  N4 the reflection wrapper removed entirely            5 cases fail
+  N5 the descriptor wrapper removed                     3 cases fail
+
+N1 fails only the review's own case, which is correct -- that case owns the
+edge and my added cases own the rules around it.
+
+MY FIRST N1 DID NOT PARSE. I built it by rewriting the try block and produced
+a syntax error, which `node --test` would have reported as a whole-file
+failure that looks like a witness. I check `node --check` on every mutated
+file before running the suite for exactly this reason; the malformed attempt
+was discarded and N1 re-run as the literal pre-fix shape. That is the second
+time this week a mutation result was a fact about my instrument.
+
+
+6. REGRESSIONS ADDED -- 2, BOTH SHAPED AS PROPERTIES
+
+  no refusal interviews the value that was thrown
+      All THREE reflection traps this boundary can hit -- getPrototypeOf on
+      the envelope, getOwnPropertyDescriptor on the envelope, getPrototypeOf
+      on the member value -- each throwing an object whose message, name,
+      stack, code, toString and valueOf are ALL throwing getters. Asserts the
+      closed pair, that no getter ran, and that the axis did not move.
+      The review found this at one catch; the rule is about every catch.
+
+  an array is not a document however it is dressed
+      A bare array and a Proxy over an array wearing Object.prototype, each
+      as the envelope AND as the member value. Asserts the closed pair, that
+      the diagnostic says "an array", and that the axis did not move.
+
+Both review regressions are retained unchanged, and no earlier assertion in
+the file was edited or weakened.
+
+
+7. GATES
+
+  reconnect                        29 / 29
+  session axis                     16 / 16
+  turn                             50 / 50
+  posture slots                    25 / 25
+  full v12 npm test                656 tests, 654 pass, 2 fail
+  TMPDIR bracket over that run     zero test-owned roots (the one entry is
+                                   node-compile-cache, Node's own)
+  design models                    64 / 66 / 24 / 74, all OK
+  v11 pytest                       2980 passed; serial 52 passed
+  codex-event-bridge               336 / 336
+  acp-baton-bridge                 55 / 55
+  whitespace-damage check          clean
+
+BOTH REMAINING v12 FAILURES ARE W641's -- "structural equality is equality of
+JSON documents" and "an unsupported value keeps the closed refusal taxonomy",
+in the handshake suite, from W641's own open review round. Neither is touched
+here. W543's two and W771's two are gone because those Works fixed them.
+
+
+8. STILL UNIMPLEMENTED IN W4
+
+The runtime and agent adapter contracts, and the composition of the posture
+lifecycle W771 corrected into the W4 boundary (W771 plan item 5, and W151 §9
+next-epoch enforcement, both still deferred).

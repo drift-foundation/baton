@@ -1,0 +1,186 @@
+W4 / M2 — PLAN 4ce: every input form, every semantic member, and the duplicate
+refusal adoption
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T12-46-50Z.md (three P1s).
+
+THE SHAPE OF THIS ROUND'S FINDING
+
+  Last round I made the universe structural for the domain a review had
+  demonstrated, and this round says the structure I chose was still a SUBSET of
+  the language. `receiving_entries()` enumerated ordinary positional and
+  keyword-only parameters, capability calls and SELECT statements -- three of
+  the forms a value can arrive in, presented as all of them.
+
+  What fell through the gaps was not hypothetical:
+
+    - an unencodable bound participant constructed happily, because the
+      inventory saw the session's CALLS and never `session.participant`;
+    - a non-callable bearer mint performed a Work projection, a certification
+      check, expiry processing and a capacity read before escaping as a raw
+      TypeError -- and it was excluded from the universe BY NAME, on the
+      grounds that capabilities are owned at their constructors, while no
+      constructor owned it;
+    - nine public constructors take `**members` and were absent from an
+      inventory that claimed to hold every public parameter.
+
+  An exclusion nobody checks is a hole with a comment over it. That is the
+  sentence I want to keep from this round.
+
+1. EVERY SIGNATURE FORM, EVERY CAPABILITY VALUE, EVERY CAPABILITY OPERAND
+
+  `_parameters()` reads all four forms, so the nine `**members` constructors are
+  entries. `NOT_INPUTS` is now {self, cls}: a capability OPERAND is an entry like
+  any other, and what differs is who owns it.
+
+    typed at their own site   mint_bearer (issue_offer), action (transact),
+                              clock (open), claim_signature (AuthorityPort)
+    typed at construction     session -- each of the four operations it must
+                              carry, before an offer can spend anything
+    named to a constructor    store, port -- and CONSTRUCTED_BY has to name a
+                              site that EXISTS and owns something, which is
+                              checked rather than assumed
+
+  A capability's bound VALUE is its own entry: `session.participant` is owned as
+  durable text at construction. The label carries the reason ("the identity this
+  session binds an authorization to"), because a refusal here should say what is
+  actually lost rather than restate the rule.
+
+  `__init__` is treated as public whatever its leading underscore. A constructor
+  is how a deployment hands this manager its capability, and using a naming
+  convention as a trust boundary is how `AuthorityPort`'s own operands were
+  invisible.
+
+2. A MEMBER SET IS NOT A FIELD CONTRACT
+
+  Exact POD and an exact member set are the SAFE REPRESENTATION of a document.
+  They say nothing about what its members MEAN, and three well-formed documents
+  proved it: an integer `authority_uuid` was issued and put in an operation
+  signature; a claim answer naming another participant was durably recorded; and
+  a text `generation` reached SQLite's INTEGER column as a raw IntegrityError
+  AFTER the authority had answered the claim -- the worst moment to find out,
+  because the authority holds a live assignment and the manager has no record.
+
+  The injected documents' members are now entries in the same lexical universe,
+  discovered structurally: a member READ on a value whose origin is a capability
+  answer, followed one level into this module's own helpers, and keyed to the
+  CROSSING rather than to the reading site. `issue_offer` reading five members
+  of a projection the port obtained is the port's crossing seen from further in,
+  not five more crossings.
+
+  Twelve new member entries, owned:
+
+    project_work.authority_uuid       identity
+    claim / committed result          the whole assignment document, then
+      .work_ref                       document
+      .work_ref.authority_uuid        identity
+      .work_ref.work_id               identity AND compared to the Work asked
+      .participant                    text AND compared to the session binding
+      .generation                     a whole number counting from zero
+    settle_operation.record           document (reason, disposition)
+    settle_operation.detail           text when present
+    settle_operation.result           the assignment, by the other path
+
+  TWO OF THE FOUR PARTS ARE RELATIONSHIPS. A perfectly well-formed identity
+  naming another participant or another Work is not this manager's assignment,
+  and recording one would durably attribute somebody else's claim to this offer.
+  Those are compared, not shaped -- which is why `settle_operation` now takes the
+  Work the settlement is about.
+
+  ONE OWNER FOR TWO PATHS. The claim answer and a committed settlement's result
+  are the same document arriving twice, so `_assignment` owns both. Writing the
+  rule at one of its two sites is this campaign's recurring defect, and the
+  committed path is exactly where a late record goes to the same columns.
+
+3. THE DUPLICATE REFUSAL ADOPTION
+
+  `_operation_row` owned the journal row and proved its refusal column decodes;
+  `replay` then called the public `revive_refusal`, which adopted the same bytes
+  again. The reviewer patched the second adoption and made an exact durable
+  replay fail, which is the proof it was reachable.
+
+  Split rather than weakened, per 4bz's deletion half. The `json` column
+  contract now names the members it must decode to, so the whole sealed pair is
+  owned ONCE at the read; `_revived` is the constructor over an already-owned
+  document, and the public `revive_refusal` keeps its own full boundary for a
+  caller holding raw sealed text.
+
+WHAT THE MACHINERY CAUGHT THIS ROUND
+
+  Two things, before any reader did.
+
+  A shared owner building its labels from the caller's noun produced a label
+  with no literal part at all, and the inventory refused it on the spot -- a rule
+  that is applied and cannot be SEEN to be applied is one the next reviewer takes
+  on trust. Labels are now literal-or-template: the fragment is what the source
+  says, and a probe asserts the FULL label, so a probe aimed at the claim answer
+  cannot be satisfied by the committed claim's refusal.
+
+  And driving the generation range turned up a redundancy rather than a missing
+  case: the frozen bound is already owned by the exact-POD rule that owns the
+  document the member arrives in. My range check was a second owner for one
+  property, and unreachable besides. It is gone -- the third unreachable boundary
+  this campaign has made me delete rather than document.
+
+THE INVENTORY NOW
+
+  115 receiving entries    83 caller, 27 injected, 5 adopted
+  58 probes                one per (entry, label fragment)
+  47 stated owners         each naming a witness test that must exist
+  5 delegations            the label read from the delegate's own code
+  2 constructor exceptions each naming a site checked to exist
+  3 declared exceptions    boundary calls that are not receiving entries
+
+MUTATIONS, ROUND 6 (20 run against the 473-test suite)
+
+  E1  the bearer mint is not typed                            4 failing
+  E2  the journalled action is not typed                      3
+  E3  the bound participant is not owned                      5
+  E4  a generation may be anything whole-ish                  3
+  E5  a generation may count from below zero                  1
+  E6  the claim's participant is not compared                 1
+  E7  the claim's Work is not compared                        1
+  E8  the projection's authority is not owned                 4
+  E9  a committed result is not owned as an assignment        4
+  E10 a live settlement may carry a record                    1
+  E11 a refused settlement's detail is not owned              1
+  E12 replay adopts the refusal a second time                 1
+  E13 a journalled refusal's members are not owned at the read 1
+  E14 the universe drops variadic parameters                  2
+  E15 the universe drops capability values                    2
+  E16 the universe drops injected document members            3
+  E17 the universe drops members a helper reads               2
+  E18 capability operands are excluded again                  3
+  E19 a constructor exception need not name a real site       0 -- MEASURED
+  E20 a probe need not assert its own label                   0 -- EQUIVALENT
+
+  Four began as zeros. Two were MISSING CASES: no test had ever supplied a
+  generation past the frozen range (which produced the redundancy finding above)
+  and none had ever supplied a record beside a `live` settlement -- every
+  settlement case I had written used the authority's own `record: None`, so the
+  one path whose whole point is that the manager writes nothing had never been
+  handed a decision nobody made.
+
+  E19 AND E20 ARE REAL EQUIVALENCES AND ARE LEFT AS ONES. Every constructor
+  exception names a site that exists and every probe's fragment is part of its
+  full label, so relaxing either assertion changes no verdict. What can be
+  measured is that both checks would SEE a violation, and that is its own case
+  (test_the_declared_owner_checks_can_actually_fail), which fabricates a
+  constructor site that is not there and a fragment that is not in its label.
+
+  This is the third round with a guard of this shape and the treatment has been
+  the same each time: report the equivalence, prove the mechanism separately, do
+  not manufacture a failing mutant for it.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 473 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 473. 455 -> 473 (18 added,
+  including the reviewer's six retained regressions, which pass at the central
+  model rather than at six patched sites). Zero temp roots. The working tree
+  reports no whitespace errors. The frozen Node oracle under v12/src/authority is
+  untouched.
+
+STATE
+
+  Awaiting re-review of the centralized model and its inventory as one unit, per
+  PLAN 4bx/4by. Cut D remains unstarted, as the gate requires.

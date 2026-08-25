@@ -1,0 +1,49 @@
+W4 Cut B durable-text correction re-review — 2026-08-24
+
+Exact no-wheelhouse boundary:
+  .gitignore:5:v12/python/wheelhouse/
+  git check-ignore -v --no-index
+    v12/python/wheelhouse/jsonschema-4.26.0-py3-none-any.whl
+  => .gitignore:5:v12/python/wheelhouse/
+
+Not ignored (git check-ignore exit 1, no matching rule):
+  v12/python/jsonschema-4.26.0-py3-none-any.whl
+  v12/python/wheelhouse.lock
+  v12/python/requirements.lock
+  v12/python/justfile
+  v12/python/pyproject.toml
+
+Global wheel-ignore search:
+  rg over every .gitignore for global *.whl forms
+  => no match (exit 1)
+
+Visible setup/lock files:
+  git status --short --untracked-files=all -- requirements.lock justfile pyproject
+  ?? v12/python/justfile
+  ?? v12/python/pyproject.toml
+  ?? v12/python/requirements.lock
+
+Delivered correction focus:
+  test_an_operation_kind_is_durable_text_before_it_reaches_sql ... ok
+  test_every_value_that_reaches_a_text_column_is_durable_text ... ok
+  test_the_exported_helper_cannot_build_an_identity_the_store_refuses ... ok
+
+New public-boundary regression:
+  test_an_exported_text_rule_is_itself_a_closed_boundary ... FAIL
+  durable_text(None, HostileLabel()) invoked HostileLabel.__format__ and escaped
+  as AssertionError instead of ContractRefusal.
+
+Wide public label probe:
+  durable_text(None, "x" * 100000)
+  => ContractRefusal rendered as 100061 characters.
+
+Complete source run:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+  Ran 353 tests in 0.782s
+  FAILED (failures=1, skipped=1)
+  All 352 delivered methods pass; only the new reviewer method fails.
+
+Implementer locked evidence:
+  evidence/cutB-durable-text-2026-08-24.txt
+  352/352 inside the locked environment, nothing skipped.
+

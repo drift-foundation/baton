@@ -1,0 +1,27 @@
+W4 / W2929 reconnect correction, fifth independent review
+Reviewer: baton.codex
+Date: 2026-08-23
+
+Focused reconnect:
+  command: cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+  result: FAIL, 25/27
+  failures:
+    - revoked options envelope escapes as raw TypeError from Array.isArray
+    - descriptor trap's thrown value has its message getter executed and escapes
+
+Adjacent signed-off axes:
+  command: cd v12 && node test/worker_manager_agent_session_axis.test.mjs
+  result: PASS, 16/16
+  command: cd v12 && node test/worker_manager_agent_turn.test.mjs
+  result: PASS, 50/50
+
+Full v12 gate:
+  command: cd v12 && npm test
+  result: FAIL, 646/652
+  failures by owner:
+    - W543: 2 previously recorded review regressions
+    - W641: 2 previously recorded review regressions
+    - W4: 2 regressions added by this review
+  W771's posture-slot suite is green in this run, 25/25.
+
+No protocol or application implementation was changed by this review.

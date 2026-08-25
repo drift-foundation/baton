@@ -1,0 +1,131 @@
+W4 / M2 — PLAN 4cg: the relationship a type check left unowned, and the fields
+of adopted structured columns
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T13-14-01Z.md (two P1s).
+
+1. A FOUR-PART IDENTITY IS NOT OWNED IF ONE RELATIONSHIP IS ONLY SHAPED
+
+  Last round I made `_assignment` own each part of an assignment identity and
+  compare the two I thought were relationships -- the Work and the participant.
+  `authority_uuid` I typed as durable text and left unrelated. So a perfectly
+  well-formed assignment from authority ffffffffffffffffffffffffffffffff was
+  accepted for an offer issued from 0000000000000000000000000000000a, advanced
+  the offer to `claimed`, and recorded the foreign generation.
+
+  THREE of the four parts are relationships, not two. The authority is now
+  supplied from the offer's own adopted row and compared on both paths -- the
+  direct claim and the late commit -- because they are the same document
+  arriving twice and correcting one of them is this campaign's recurring defect.
+
+  The port's `claim` and `settle_operation` take the authority beside the Work,
+  and the inventory records both as stated relationship operands with a witness.
+
+2. A MEMBER SET IS NOT A FIELD CONTRACT -- THE OTHER TWO PLACES
+
+  The same sentence from the last review, applied where I had not applied it.
+
+  THE RETIREMENT'S BOUND RECORD. `reason` and `disposition` were checked for
+  PRESENCE. The manager records the one and BRANCHES on the other -- one reaches
+  a TEXT column, the other decides which control state is written -- so an
+  integer reason was adopted as the terminal decision and the offer settled.
+  Both are owned as text now.
+
+  THE SEALED REFUSAL. `Column.members` was a tuple of NAMES, so a persisted
+  refusal whose category was the integer 7 passed the row contract; replay then
+  handed it to `ContractRefusal`, whose closed-pairing check is an ASSERTION
+  about this build's own raising sites, and a caller replaying its first answer
+  got an AssertionError.
+
+  A new `refusal` column kind owns the whole seal at its one adopted crossing:
+  the four members, the §9 CLOSED PAIRING between category and code, the text
+  message and the durable marker. What makes a seal a seal is the pairing --
+  `refused.precondition` and `policy.retention` carry different portable
+  meanings and different retry policies, so a pair this build cannot place is
+  not one of its refusals however well-formed its parts.
+
+3. THE UNIVERSE NOW FOLLOWS A CROSSING WHEREVER IT IS SPELLED
+
+  The reviewer's second P1 was that the model treated semantic fields as
+  container presence, and the gap was in the ORIGIN TRACKING rather than in any
+  one owner: it stopped at `bound = answer.get("record") or {}`, at a private
+  helper's RETURN, and at a list of rows.
+
+  There were two tracking functions and they had drifted -- the one that bound
+  local names followed some shapes and the one that resolved a call's argument
+  followed others -- so a crossing handed straight INTO a helper was tracked and
+  the same crossing handed back OUT of one was not. They are one function now,
+  `_source`, which follows: reads, capability calls and values, the port's
+  answers, the layer's own returns, member reads, subscripts, boolean and
+  conditional defaults, comprehensions of rows, and private helpers' returns to
+  a fixpoint.
+
+  ADOPTED COLUMNS ARE ENTRIES. An adopted origin now names the READ as well as
+  the table, because `meta` is read at two places and a crossing belongs where
+  it happened. A column that is read is its own entry, owned by the row contract
+  that covers it, with its own probe -- 29 adopted entries where there were 5.
+
+  AND THE PROBES FOR THEM ARE DERIVED FROM THE TABLE CONTRACTS rather than
+  listed, because a column added to a contract and never spoiled is the gap this
+  file keeps being corrected for. A probe writes what SQLite itself would
+  refuse, with `PRAGMA ignore_check_constraints` on the side connection: a CHECK
+  binds THIS build's writers, and adopted data is by definition data this
+  process did not write.
+
+  THE ANTI-CIRCULARITY CHECK THIS CREATED. Generating the column probes from the
+  universe means both shrink together if the tracking stops working -- exactly
+  the shape of every finding in this campaign, arriving in my own fix. So there
+  is a SECOND mechanism: a flat scan for `x["<name>"]` where the name is a
+  column of a table this build owns, using none of the tracking, compared
+  against what the tracking found. Three mutations that disable tracking paths
+  are caught by it and by nothing else.
+
+THE INVENTORY NOW
+
+  143 receiving entries    85 caller, 29 injected, 29 adopted
+  84 probes                one per (entry, label fragment)
+  49 stated owners         each naming a witness test that must exist
+  5 delegations, 2 constructor exceptions, 3 declared exceptions
+
+MUTATIONS, ROUND 7 (16 run against the 480-test suite)
+
+  F1  the claim's authority is not compared                   3 failing
+  F2  the offer's authority is not supplied to the claim      2
+  F3  the retirement's reason is not owned                    4
+  F4  the retirement's disposition is not owned               3
+  F5  a sealed refusal is only a member set                   4
+  F6  the sealed pairing is not closed                        1
+  F7  a sealed category may be anything                       2
+  F8  a sealed message need not be text                       1
+  F9  a seal need not be marked durable                       1
+  F10 origin tracking stops at a boolean default              1
+  F11 origin tracking stops at a helper's return              1
+  F12 origin tracking stops at a list of rows                 1
+  F13 an adopted column is not an entry                       2
+  F14 a row owner no longer covers its columns                2
+  F15 a persisted row's column values are not owned           6
+  F16 the adopted origin forgets which site read it           5
+
+  ALL SIXTEEN WITNESSED, and six began as zeros.
+
+  F6, F8 and F9 were missing cases of one shape: every sealed-refusal case I had
+  written spoiled the CATEGORY, which the first check catches, so the pairing,
+  the message rule and the durable marker had never been driven. Testing the
+  first field of four is not testing the contract.
+
+  F10, F11 and F12 were the circularity described above -- the probes and the
+  universe shrinking together -- and they are caught by the independent scan.
+  That check was written because the mutation measured zero, which is the
+  measurement doing its job on the mechanism rather than on the code.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 480 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 480. 473 -> 480 (7 added,
+  including the reviewer's four retained regressions, which pass at the central
+  model). Zero temp roots. The working tree reports no whitespace errors. The
+  frozen Node oracle under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting re-review of the centralized model and its inventory as one unit, per
+  PLAN 4bx/4by. Cut D remains unstarted, as the gate requires.

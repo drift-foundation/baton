@@ -1,0 +1,132 @@
+W2929 / current authority W4 — reconnect slice, SECOND correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T18-32-05Z.md (one P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+    tests 14, pass 13, fail 1
+
+The additive regression was the only failure. The finding is correct.
+
+Noted for the record: this failure was already present and NAMED in W771's
+handoff, which was implemented and passed while this round was open. W771's
+evidence says exactly which predicate was at fault and that it belonged to
+W4's open round rather than to W771. It is fixed here, in the record that owns
+it.
+
+
+2. THE FINDING, AND THAT MY OWN CORRECTION CARRIED IT
+
+The previous round's finding was "a default is for an argument nobody gave,
+not an argument somebody gave wrongly". I wrote that sentence into the code —
+and then implemented it as
+
+    typeof options !== "object" || Array.isArray(options)
+
+which is true of a Date, a Map, a regular expression and every class instance.
+Each of those took the absent-member default and COMMITTED the epoch from
+`prompting` to `unknown`. The defect the paragraph describes survived the fix
+aimed at it, because "not a primitive and not an array" is not "is a record".
+
+That is the third time in this Work that a check written as an ALLOW rule was
+implemented as a DENY rule — the handshake slice's two method surfaces were
+the first two, and the correction there says a deny list "silently widens when
+an SDK adds a method". A type test that admits everything except two known
+shapes widens the same way, on the day a caller passes a shape nobody listed.
+
+`in` had the matching problem one line down: it walks the prototype chain, so
+a member the caller never put in the document it passed would have been read
+from something else.
+
+
+3. THE CHANGE
+
+A RECORD IS A PROTOTYPE TEST. `isPlainRecord` admits an object whose prototype
+is `Object.prototype` or null and nothing else. That is the only test that
+GENERALIZES: enumerating the exotic types this contract happens to know would
+admit the next one on the day it appeared.
+
+`Object.create(null)` is admitted deliberately — it carries no class and no
+behaviour, so it is a document. A case drives it, and drives a promise, a
+typed array and a boxed string as shapes this contract has never listed and
+refuses anyway.
+
+The optional member is read with `Object.prototype.hasOwnProperty.call`, so
+what was GIVEN is what is on the object.
+
+Refusal messages name the value by its constructor rather than serializing it:
+a Map and a class instance both stringify to `{}`, and a refusal reading "{}
+is not an options document" would tell a caller it had passed an empty
+document.
+
+
+4. MUTATIONS — FOUR, ALL WITNESSED
+
+  T1 any non-array object is a document again      2 cases fail
+  T2 a null-prototype document is refused          1 case fails
+  T3 the envelope is not proved at all             3 cases fail
+  T4 the member is read through the prototype chain 1 case fails
+
+T1 is exactly what I delivered last round, and it now fails including on the
+reviewer's own case.
+
+T4 needed a case that could reach it. With the prototype rule in place, the
+only input where an inherited member is visible is a plain record whose
+`turnInFlight` lives on `Object.prototype` ITSELF — prototype pollution. The
+case pollutes, asserts an EMPTY document takes the honest default rather than
+the polluted value, restores the prototype in a `finally`, and separately
+asserts an own member still decides. Without that case the own-member rule
+would have been unwitnessed defence.
+
+
+5. REGRESSIONS — 16 (14 before, including the reviewer's one)
+
+Two of mine:
+
+  a null-prototype document is a record, and behaviour is not — both
+    directions of the prototype rule, with four shapes this contract has never
+    listed refusing for the rule rather than by enumeration
+  the member must be the caller's OWN — the prototype-pollution case above
+
+ONE OF MY FIRST ATTEMPTS WAS WRONG AND THE REVIEWER'S CASE SAID SO. I first
+wrote the ownership case as `Object.create({ turnInFlight: true })` taking the
+absent default. The reviewer's own case lists that shape among the ones that
+must REFUSE, and the prototype rule refuses it before ownership is asked. I
+corrected the case to match the ruling rather than the other way round, and
+found the pollution input that actually exercises ownership.
+
+
+6. GATES
+
+  cd v12 && npm test                       624 tests, 624 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN, including the one failure W771's handoff
+named and left for this round. The v12 count is 624: 605 at the last W4 round,
+plus W771's 16 new cases, plus the reviewer's one and my two, minus nothing.
+
+
+7. UNCHANGED
+
+The next-epoch flag remains reported rather than durable enforcement. W151
+§9's re-identification gate stays deferred. W771's lifecycle has landed and is
+awaiting its own review; its plan item 5 — re-reviewing W4 composition and
+every adapter consumer against the corrected lifecycle — remains open and is
+not discharged by this correction.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/agent_reconnect.mjs        isPlainRecord and a
+                                                    describe helper; the
+                                                    member is read as an own
+                                                    member
+  v12/test/worker_manager_agent_reconnect.test.mjs  +2 cases

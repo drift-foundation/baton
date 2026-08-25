@@ -5,7 +5,7 @@ The ruled cue (finding-tui-inline-dependency-cue, W187 relabel:
 that Work is blocked by the named OPEN Work — the deterministic first
 open blocker's authority-local selector, `+N` for the rest. A row with
 no open blocker has no cue; satisfied historical edges leave the live
-cue. `↳` containment and `[b] deps` stay untouched; narrow layouts omit
+cue. `↳` containment and `[d] deps` stay untouched; narrow layouts omit
 the cue as ONE whole responsive field, never clipping or relabeling it.
 The boolean Ready column is gone — the arrow explains what must finish.
 """
@@ -182,7 +182,7 @@ def test_containment_and_dependency_stay_distinct(world):
 def test_narrow_widths_omit_the_cue_whole_never_clip_it(world):
 	"""When the cue field alone breaks the fit it disappears entirely —
 	no cue fragment survives — while the table itself still paints and
-	`[b] deps` remains the full view."""
+	`[d] deps` remains the full view."""
 	consumer = make(world, title="tight")
 	gate = make(world, title="gate")
 	block(world, consumer, gate)
@@ -212,7 +212,7 @@ def test_narrow_widths_omit_the_cue_whole_never_clip_it(world):
 		"the table stopped painting instead of omitting the cue"
 	# the full dependency view stays reachable
 	links = pj.links(world["store"], consumer)
-	assert links["blocked_by"], "the [b] deps view lost the edge"
+	assert links["blocked_by"], "the [d] deps view lost the edge"
 
 
 def test_the_cue_follows_refresh(world):

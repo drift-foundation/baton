@@ -1,0 +1,106 @@
+W4 / M2 — PLAN 4ci: one authoritative seal owner, and caller-domain semantic
+fields
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T13-34-30Z.md (two P1s).
+
+1. A CLOSED PAIR CANNOT BE OWNED BY A VALUE CALLERS CAN WIDEN
+
+  I closed the adopted refusal's pairing against `ERROR_CODES`. That is the
+  READABLE vocabulary -- an ordinary mutable dict a consumer maps onto the wire
+  -- and the contracts layer keeps it deliberately non-authoritative, with its
+  own case proving a caller may append to it without opening the frozen pairing
+  behind `ContractRefusal`. So the boundary that adopted persisted refusals was
+  closed against something that can be widened while the constructor a line
+  later stayed closed, and the disagreement between them surfaced as an
+  AssertionError to a caller replaying its first answer.
+
+  I used the public name because it was the public one. What I needed was the
+  authority, and the two are not the same thing just because one of them is
+  exported.
+
+  `contracts.errors.is_closed_pair` is that authority: one shared QUESTION over
+  the private frozen pairing, carrying no mutable state and handing nothing back
+  that could be widened. The manager's seal owner asks it; the constructor keeps
+  its assertion for this build's own raising sites, and is never reached with an
+  input that is not already owned.
+
+  AND IT TYPES BEFORE IT PLACES. `x in mapping` on a list RAISES rather than
+  answering, so an exact-POD list category escaped the boundary meant to own it
+  as `TypeError: unhashable type`. A check that assumes the type it is checking
+  is not owning the field, and the typing belongs inside the shared question so
+  neither caller has to remember it.
+
+2. TWO DOORS INTO ONE DOCUMENT, AND I FITTED A LOCK TO ONE
+
+  PLAN 4cf split public revival from trusted replay, correctly. The next round
+  gave the ADOPTED half a field contract and left the PUBLIC half checking four
+  member names -- so through `revive_refusal` a list category escaped as
+  TypeError, a cross-category pair as AssertionError, an integer message was
+  accepted into a `ContractRefusal`, and a `false` durable marker was silently
+  rewritten to true.
+
+  This is the campaign's defect class arriving inside the correction for it: a
+  rule applied at one of its sites. There is ONE `boundaries.sealed` now -- the
+  members, the pairing, the text message, the durable marker -- and both the
+  column kind and the public boundary call it.
+
+3. CALLER-DOMAIN SEMANTIC FIELDS ARE ENTRIES
+
+  The inventory confirmed the model gap rather than four local defects: it held
+  `('caller', 'store.py:revive_refusal', 'sealed')` and nothing about its
+  members. Injected documents had member entries and adopted rows had column
+  entries; a caller's structured value had neither, because a parameter was not
+  an ORIGIN.
+
+  It is now. Every public parameter seeds `caller:<name>`, so the same member-read
+  discovery that finds `claim.generation` and `operations.refusal` finds
+  `sealed.category`, `sealed.code`, `sealed.message` and
+  `accept_offer.work_ref.work_id`. One rule, three domains, no domain-specific
+  exception -- which is what the last four reviews have each been about.
+
+  `sealed.durable` is deliberately NOT an entry: nothing outside the boundary
+  layer reads it, and inventing a read to make an entry appear would be the
+  decoration this file exists to stop. It is owned by `sealed` and driven by the
+  public boundary's own probe set.
+
+THE INVENTORY NOW
+
+  148 receiving entries    90 caller, 29 injected, 29 adopted
+  87 probes                one per (entry, label fragment)
+  51 stated owners         each naming a witness test that must exist
+  5 delegations, 2 constructor exceptions, 3 declared exceptions
+
+MUTATIONS, ROUND 8 (10 run against the 483-test suite)
+
+  G1  the seal is paired against the readable vocabulary   1 failing
+  G2  the pairing does not type what it hashes             3
+  G3  the pairing is not closed at all                     6
+  G4  a sealed message need not be text                    3
+  G5  a seal need not be marked durable                    2
+  G6  public revival owns only the member names            3
+  G7  the adopted column owns only the member names        5
+  G8  caller parameters are not origins                    5
+  G9  a caller document's members are not entries          1
+  G10 members a helper reads are not entries               1
+
+  ALL TEN WITNESSED, no zeros. G1 is the one worth naming: it is caught by
+  exactly one case, the reviewer's own, which widens `ERROR_CODES` and requires
+  the adopted boundary to stay shut. A mutation with a single witness is a rule
+  whose only proof is one test, and that is the honest shape here -- the property
+  is "this boundary does not consult the widenable value", and there is one way
+  to observe it.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 483 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 483. 480 -> 483 (the
+  reviewer's three retained regressions, which pass at the central model; no
+  other regressions were needed this round because the corrections were to
+  shared owners and to the universe rather than to sites). Zero temp roots. The
+  working tree reports no whitespace errors. The frozen Node oracle under
+  v12/src/authority is untouched.
+
+STATE
+
+  Awaiting re-review of the centralized model and its inventory as one unit, per
+  PLAN 4bx/4by. Cut D remains unstarted, as the gate requires.

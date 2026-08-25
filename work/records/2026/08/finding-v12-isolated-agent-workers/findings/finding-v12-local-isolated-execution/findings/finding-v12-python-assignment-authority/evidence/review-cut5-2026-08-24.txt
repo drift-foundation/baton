@@ -1,0 +1,102 @@
+W2845 — independent final review of Cut 5
+Date: 2026-08-24. Reviewer: baton.codex.
+
+OUTCOME: CHANGES REQUESTED
+
+BASELINE
+
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+  Python:          3.13.7
+  source tree:     200/200 PASS
+  installed wheel: 200/200 PASS
+  installed import: isolated venv site-packages
+  race children:   package-origin assertions remain active
+
+The advertised gate is genuinely green. The findings below are independently
+reproduced gaps outside those 200 cases.
+
+P1 — SESSION REFUSALS RENDER UNBOUNDED CALLER TEXT
+
+`errors.py` states the authority-wide rule directly: caller-controlled text in
+a Refusal is bounded by the RULE and never by the operand. The new session
+wrapper bypasses `name_of` at two sites:
+
+  session.py:183  joins every unknown operand key into the message
+  session.py:213  interpolates the supplied assignment participant directly
+
+Independent probes with one 1,000,000-character string produced:
+
+  foreign assignment participant:  Refusal, 1,000,056 characters
+  unknown operand key:              Refusal, 1,000,089 characters
+
+Both verdicts are correct and both diagnostics violate the package's explicit
+bounded-output rule. The extra-key path also performs an avoidable full
+sort/join for diagnostic prose. Preserve useful small names, but bound each
+caller-controlled rendering and the complete message; for multiple unexpected
+keys report a bounded sample/count rather than the whole rejected set.
+
+P2 — THE “ONE EXACT BUILT-IN DICT” BOUNDARY IS NOT EXACTLY ONE DICT
+
+The implementation boundary says every runtime-session mutation takes one
+exact built-in operand dict. Current `session.py` instead:
+
+  line 161: converts explicit `None` to `{}`
+  line 256: declares `given=None`, conflating omission with explicit null
+  Python arity: a second document escapes as raw TypeError
+
+Independent answers:
+
+  claim()        -> Refusal “claim needs operation_id, work_id”
+  claim(None)    -> the same Refusal; explicit null was silently replaced
+  claim({}, {})  -> TypeError, not the authority's Refusal outcome
+
+An explicit value must not be dropped, especially in the wrapper whose stated
+purpose is to refuse supplied-but-ignored operands. Require exactly one
+positional operand document at the public transition boundary; zero, explicit
+null, or more than one must be typed Refusals naming the one-document rule.
+
+REVIEWER REGRESSIONS
+
+Two additive tests were added in `test_session.FinalReviewFindings`:
+
+  test_session_refusals_are_bounded_by_the_rule_not_caller_text
+  test_a_transition_takes_exactly_one_built_in_operand_document
+
+Focused result before correction:
+
+  2 methods run
+  4 failing subtests and 1 error
+
+The exact failures are the two million-character messages, omitted/null
+diagnostics that report missing members instead of the document rule, and the
+raw two-document TypeError. The existing case that calls explicit `None` a
+legitimate document must be updated as part of this specifically authorized
+correction.
+
+OPEN QUESTIONS RESOLVED
+
+* `slot_holder(other_participant)` is accepted. It is a read of the
+  deployment-wide scheduler-capacity projection, not an act as that
+  participant and not secret material. Sessions already read Work assignment
+  and Handler projections across the deployment. The participant binding
+  continues to govern claimant/actor identity and assignment-owned mutations.
+* No settlement-only signature cap is introduced. The measured
+  authority-produced 100,185-character signature settles correctly; a shorter
+  local cap would strand an operation the same authority accepted. Any durable
+  text bound is system-wide and belongs to its broader owner.
+
+CORRECTION BOUNDARY
+
+1. Bound caller-controlled participant and unknown-key renderings in Session
+   Refusals, including avoidable sample/join work, while retaining useful small
+   diagnostics and the exact verdict.
+2. Enforce exactly one exact built-in transition operand dict. Do not coalesce
+   explicit `None` with omission, and do not leak TypeError for a second
+   document.
+3. Make both reviewer tests green, update the now-superseded explicit-None
+   expectation, and rerun the complete source plus installed-wheel gate at 202
+   tests or more.
+
+Frozen Node authority files remain reference-only. Correct Cut 5 only and
+return for final re-review; do not close W2845 yet.

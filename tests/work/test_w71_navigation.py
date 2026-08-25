@@ -96,20 +96,24 @@ def test_the_tree_is_three_levels_with_disclosure(world):
 
 def test_unfold_re_roots_and_esc_returns(world):
 	"""u on the ↳ child re-roots the window (child + grandchild) with a
-	real breadcrumb; Esc walks the recorded path outward.
+	real breadcrumb; Esc returns to the view that opened it.
 
 	W292 (finding-work-detail-breadcrumb-navigation) refines this. The
-	breadcrumb now starts at the top-level PAGE and the global tab row
-	is not repeated inside a drilled view, and Back pops exactly ONE
-	segment: from the child window it reveals the parent Work scope,
-	and the Esc after that reaches the top-level Jobs view. Painting
-	`the root` in the trail and then skipping it on the way out was the
-	ambiguity this ruling removes."""
+	breadcrumb starts at the top-level PAGE and the global tab row is
+	not repeated inside a drilled view.
+
+	W6814 (finding-tui-active-descendant-trail) SUPERSEDES the rest of
+	W292's rule here. W292 made every ancestor the trail painted its own
+	Back step, so this re-root cost two Escs to leave — one for `the
+	root`, a scope the operator never asked to open. The breadcrumb is
+	still the whole containment path; the Back stack is now explicit
+	navigation actions, and one `u` is one Esc. The two facts the
+	original case pinned — the trail names the path, and Esc leaves the
+	view it opened — are both asserted below."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"j", 0.4),                  # select ↳ the child
 		(b"u", 0.5),                  # re-root
-		(b"\x1b", 0.5),               # one segment out: the parent scope
-		(b"\x1b", 0.5),               # and out to the top level
+		(b"\x1b", 0.5),               # one action in, one Esc out
 		(b"qy", 0.4),
 	])
 	rooted = ptyharness.replay(steps[1])
@@ -117,16 +121,12 @@ def test_unfold_re_roots_and_esc_returns(world):
 		f"the re-rooted breadcrumb is wrong: {rooted[0]!r}"
 	assert rooted[0].startswith("Jobs > "), \
 		f"the trail does not start at the top-level page: {rooted[0]!r}"
-	assert "[Jobs]" not in rooted[0], \
+	assert "[Jobs]  [Teams]" not in rooted[0], \
 		f"the global tab row survived the drill-in: {rooted[0]!r}"
 	assert any("↳ the grandch" in line for line in rooted), rooted[:6]
-	parent = ptyharness.replay(steps[2])
-	assert parent[0].startswith("Jobs > the root"), \
-		f"one Esc did not reveal the parent scope: {parent[0]!r}"
-	assert "the child" not in parent[0], parent[0]
-	back = ptyharness.replay(steps[3])
-	assert back[0].startswith("[Jobs]"), \
-		f"the last Esc did not reach the top level: {back[0]!r}"
+	back = ptyharness.replay(steps[2])
+	assert back[0].startswith("[Jobs]  [Teams]"), \
+		f"one Esc did not return from one unfold: {back[0]!r}"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -151,20 +151,37 @@ def test_unfolding_the_current_root_is_idempotent(world):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
-def test_enter_opens_details_never_drills(world):
-	"""Enter on a parent opens ITS detail (threads/messages) — the
-	child table does not replace the view; the breadcrumb names the
-	detailed Work."""
+def test_enter_activates_what_the_selected_work_actually_holds(world):
+	"""W6814 SUPERSEDES W71's `Enter opens details, never drills`.
+
+	The old rule gave Enter one meaning for every row, and `u` alone
+	reached a subtree. That cost the operator a second key to see what
+	a roll-up contains — the ordinary thing to want from a Job that
+	contains Work — and it is why an active descendant could sit
+	unlooked-at behind an idle-looking parent.
+
+	Activation is now conditional on the row's own canonical child
+	count, which is the same number the `▸N` disclosure already draws:
+	a Job with children becomes the contextual root, and a Job with
+	none opens its own detail. Both halves are asserted here, from the
+	same fixture, so neither rule can quietly become the only one."""
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"\r", 0.6),                 # detail of "the root"
+		(b"\r", 0.6),                 # "the root" HAS children: re-root
+		(b"\x1b", 0.5),
+		(b"jj\r", 0.6),               # "the grandchild" has none: detail
 		(b"qy", 0.4),
 	])
-	detail = ptyharness.replay(steps[0])
-	assert "the root" in detail[0], detail[0]
+	rooted = ptyharness.replay(steps[0])
+	assert rooted[0].startswith("Jobs > the root"), rooted[0]
+	assert any("the child" in line for line in rooted[1:]), rooted[:8]
+	assert "Threads (" not in "\n".join(rooted), \
+		"activating a Job with children opened detail instead of its tree"
+	detail = ptyharness.replay(steps[2])
+	assert "the grandchild" in detail[0], detail[0]
 	flat = "\n".join(detail)
-	assert "Threads (1)" in flat, "the detail lost its thread list"
-	assert "root opener" in flat, "the selected thread's messages missing"
-	assert "↳" not in flat, "Enter drilled into children"
+	assert "Threads (1)" in flat, "the childless Job did not open its detail"
+	assert "grand opener" in flat, "the selected thread's messages missing"
+	assert "↳" not in flat, "the detail view painted a containment tree"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
 
@@ -176,7 +193,10 @@ def test_ctrl_w_moves_panes_and_footer_advertises(world):
 		# W2597: entry now lands in the Message index, so the walk
 		# starts by going UP to Threads. The four focus states this
 		# test asserts are the same four, in the same order.
-		(b"\r\x17k", 0.6),            # detail, then Ctrl-W k → Threads
+		# W6814: `the root` has children, so Enter makes it the
+		# contextual root and `]` reaches that same Work's Messages
+		# tab. The pane walk below is unchanged.
+		(b"\r]\x17k", 0.6),           # detail, then Ctrl-W k → Threads
 		(b"\x17j", 0.5),              # Ctrl-W j → the Message index
 		(b"\x17j", 0.5),              # Ctrl-W j → the reader (W14)
 		(b"\x17\x17", 0.5),           # Ctrl-W Ctrl-W → cycle to Threads
@@ -245,7 +265,9 @@ def test_refs_render_under_a_separate_section(world):
 	               refs=["pushcoin:docs/trace.md"])
 	store.close()
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"\r", 0.6),
+		# W6814: Enter roots at `the root`; `]` opens that Work's own
+		# Messages tab, which is the surface this case is about.
+		(b"\r]", 0.6),
 		# W76: the index reads newest-first, so the LAST posted message
 		# is the entry selection — no walk needed.
 		(b"", 0.4),                   # W2597: already in the index

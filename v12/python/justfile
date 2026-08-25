@@ -1,0 +1,143 @@
+set shell := ["bash", "-lc"]
+set quiet
+
+PY := "python3"
+
+# The wheelhouse variable this file used to carry is gone.
+#
+# PLAN item 4bp, approved: dependency distributions do not belong in Git. The
+# repository carries `pyproject.toml`, the exact hash-locked `requirements.lock`,
+# source, tests and package data -- and no downloaded wheels, including the
+# platform-specific `rpds-py` one. A normal checkout builds its own disposable
+# environment and downloads exactly the locked artifacts from its configured
+# package index, WITH THE HASHES STILL ENFORCED.
+#
+# What the lock guarantees is unchanged: the same five distributions at the same
+# versions with the same SHA-256s. What changed is where the bytes come from. An
+# operator-maintained cache, certified bundle or offline mirror may supply the
+# same artifacts as deployment infrastructure, but that is outside the source
+# tree and is not the fresh-checkout contract.
+
+# THE gate for the v12 Python distribution: the interpreter it claims, the
+# standard library's own test runner over the source tree, and then the locked
+# build proving the distribution actually installs and passes from the
+# installed layout.
+default: gate
+
+gate: version test build
+
+# The distribution declares `requires-python = ">=3.13"`. A gate that ran on an
+# older interpreter would prove the wrong thing quietly, so it refuses.
+version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    "{{PY}}" - <<'PY'
+    import sys
+    if sys.version_info < (3, 13):
+        raise SystemExit(f"v12 requires Python 3.13 or newer; this is {sys.version.split()[0]}")
+    print(f"[gate] python {sys.version.split()[0]}")
+    PY
+
+test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "$(dirname "{{justfile()}}")"
+    # WHICH VALIDATOR THIS STAGE ACTUALLY RESOLVED, said out loud.
+    #
+    # Found while implementing item 4bp: this stage runs against whatever
+    # `jsonschema` the ambient interpreter has, which on the machine I develop on
+    # is 4.19.2 while the lock pins 4.26.0 -- so a green source run proved the
+    # code works with a version this distribution does not pin, and it had been
+    # doing that quietly for two rounds. The LOCKED stage is what proves the pin;
+    # this line is what stops a green source run from looking like it did.
+    PYTHONPATH=src "{{PY}}" -c "
+    import importlib.metadata as metadata
+    try:
+        print(f'[test] resolved jsonschema {metadata.version(\"jsonschema\")}')
+    except Exception:
+        print('[test] no jsonschema resolved; validation cases will fail')
+    " || true
+    PYTHONPATH=src "{{PY}}" -m unittest discover -s tests -t . -v
+
+# The locked build, CONSUMED rather than described.
+#
+# Review [P2]: `requirements.lock` was checked by a test that looked at its
+# TEXT, and nothing ever used it. A lock nobody resolves from is a document
+# about a build rather than a property of one, and "hash-enforced" was a claim
+# with no mechanism behind it.
+#
+# So this RESOLVES the lock with `--require-hashes`, and with
+# `--ignore-installed` so every pin is actually fetched and verified rather than
+# skipped as already-satisfied. The artifacts come from the configured package
+# index (item 4bp); `--require-hashes` is what makes that a locked build rather
+# than a resolution, because pip refuses any bytes whose SHA-256 is not the one
+# this distribution pins, wherever they were found.
+#
+# It then builds and installs THIS distribution with `--no-build-isolation`, so
+# the build reaches for exactly the pinned `setuptools` already installed above
+# rather than resolving its own unpinned copy -- and finally runs the whole suite
+# against the INSTALLED layout from outside the source tree, so a packaging
+# mistake cannot hide behind `PYTHONPATH=src`.
+#
+# IT FAILS RATHER THAN SKIPS. `set -euo pipefail` means an index that cannot be
+# reached, a hash that does not match, or a suite that does not pass stops the
+# gate. A gate that quietly passes because it could not run is the failure mode
+# this whole distribution is built against -- and an unreachable index is now one
+# of the ways it cannot run, which is a deployment concern rather than a licence
+# to skip.
+#
+# The superseded text this replaces said the lock resolved OFFLINE, that build
+# isolation would reach the network contrary to the lock, and that the gate
+# refuses when the wheelhouse is absent. All three described the mechanism item
+# 4bp removed.
+build:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "$(dirname "{{justfile()}}")"
+    ENV="$(mktemp -d)/env"
+    trap 'rm -rf "$(dirname "$ENV")"' EXIT
+    "{{PY}}" -m venv "$ENV"
+    # DISPOSABLE, and hash-verified. `--require-hashes` is what makes this a
+    # locked build rather than a resolution: pip refuses any artifact whose
+    # SHA-256 is not the one this file pins, wherever the index found it.
+    "$ENV/bin/pip" install --no-cache-dir --disable-pip-version-check \
+        --require-hashes --ignore-installed -r requirements.lock
+    "$ENV/bin/pip" install --no-index --no-cache-dir --disable-pip-version-check \
+        --no-build-isolation .
+    # From OUTSIDE the source tree, so `src/` cannot be what is really imported.
+    (cd / && "$ENV/bin/python" -c "
+    import baton_v12.authority as authority
+    import baton_v12.contracts as contracts
+    import pathlib
+    # BOTH slices, because the distribution now carries two. An origin check
+    # that named one of them would report a green import while the other came
+    # from wherever it liked.
+    for name, package in (('authority', authority), ('contracts', contracts)):
+        here = pathlib.Path(package.__file__).resolve()
+        assert 'site-packages' in here.parts, here
+        print(f'[build] imported the INSTALLED {name} from {here.parent}')
+        print(f'[build] {len(package.__all__)} exported names in {name}')
+    # And the frozen schema assets have to have TRAVELLED, not merely been
+    # importable: package data that never entered the wheel would fail here
+    # rather than in a source-tree run that reads them from the checkout.
+    schema = pathlib.Path(contracts.__file__).resolve().parent / 'schema'
+    assets = sorted(path.name for path in schema.glob('*.json'))
+    assert assets == ['agent-session-1.0.schema.json',
+                      'worker-control-1.0.schema.json'], assets
+    print(f'[build] the frozen schema assets travelled: {len(assets)}')
+    ")
+    PYTHONPATH= "$ENV/bin/python" -m unittest discover -s tests -t . 2>&1 | tail -3
+    echo "[build] the locked build installs, imports and passes"
+
+# There is deliberately no separate `imports` recipe. The dependency claims are
+# CHECKED, not restated, and there are now two of them because the distribution
+# ships two slices: `tests/authority/test_boundary.py` parses the AUTHORITY
+# package and refuses any import outside the standard library, and
+# `tests/manager/test_dependencies.py` holds the Worker Manager to the one ruled
+# validator, reached from exactly one module, with the lock and the environment
+# it produces proved to agree. One mechanism each, inside the gate, rather than a second one
+# beside it that can drift.
+#
+# This paragraph used to say the runtime dependency set was empty. It stopped
+# being empty when the validator was ruled, and a comment that restates a
+# superseded state is exactly the drift the paragraph warns about.

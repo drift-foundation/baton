@@ -1,0 +1,138 @@
+W543 — reconcile ACP tool-call kind across prose and schema
+Date: 2026-08-23. Implementer: baton.claude.
+Implementing the confirmed ruling; no review to answer.
+
+
+1. REVALIDATED AGAINST THE PINNED SDK, NOT AGAINST EITHER ARTEFACT
+
+The ruling required exactly this and it is worth doing rather than assuming,
+because the whole conflict is two frozen documents disagreeing.
+
+  @agentclientprotocol/sdk 1.3.0, dist/schema/types.gen.d.ts
+
+    type ToolKind = "read" | "edit" | "delete" | "move" | "search"
+                  | "execute" | "think" | "fetch" | "switch_mode" | "other"
+
+    ToolCall        kind?: ToolKind
+    ToolCallUpdate  kind?: ToolKind | null
+
+Permitted, never required — which is the ruling's "portable but optional",
+confirmed rather than inferred. The SDK's own comment on the member is "Helps
+clients choose appropriate icons and UI treatment", which is the
+presentation-only boundary the ruling draws.
+
+The ten values are exactly the ten the ruling names, in that order.
+
+
+2. ONE CONTRACT CHANGE, SEVEN ARTEFACTS
+
+  SPEC.md section 6.2         the row now reads "carries the ACP toolCallId
+                              and status, and kind when the provider supplies
+                              one (6.2.1)"
+  SPEC.md section 6.2.1 NEW   the correction, QUOTING the superseded reading
+                              of both artefacts so the next reader can see
+                              which way it was resolved and why
+  frozen schema               toolCallView gains optional `kind`; a new
+                              `toolKind` definition carries the pinned ten,
+                              so the schema and the model cannot drift apart
+                              on the vocabulary
+  finding-acp-agent-boundary
+    FINDING.md                the correction appended with its revalidation
+  executable model            `normalize_tool_call` implements the ruling;
+                              the trace-driven case now builds its view
+                              THROUGH that function instead of inline, so the
+                              model has one tool-call boundary rather than two
+  product schema copy         byte-identical to the frozen asset, which its
+                              own signed-off case asserts
+  v12 normalizer + tests      TOOL_KINDS, the copy/omit/refuse behaviour, and
+                              the regressions below
+
+The trace at evidence/traces.json is unchanged and its INTERPRETATION is
+corrected: root-level toolCallId and status with no kind is now a positive
+example of the absent case rather than an undecidable gap.
+
+
+3. ONE SUPERSEDED ASSERTION, MARKED WHERE IT STOOD
+
+v12's "a tool call carries the provider's id and ONE of ACP's four" ended with
+an assertion that a supplied `kind` must be DISCARDED. I wrote that during the
+event slice precisely because the two frozen artefacts disagreed and I would
+not pick a winner. W543 picked. The assertion is replaced with the copied
+view, and the comment above it says what it used to require and on whose
+authority it changed.
+
+
+4. REGRESSIONS
+
+Model, five new cases: every one of the ten copied; the vocabulary compared
+against the pinned list; absent omitted for a missing member, an explicit
+null, and a RICH update carrying a title, a tool name, a command and a status
+— because "absence does not become other" is the inference that would look
+most reasonable; six invalid values refused; and the id/status rules
+preserved.
+
+v12, four new cases: all ten copied across both tool-call kinds; absent
+omitted in the same three shapes; eight invalid values refused; and a kind
+carried through sealing into the durable frame, which is the half the old
+`additionalProperties: false` made impossible. That last case also asserts the
+field DECIDED nothing — the event's own kind still comes from the section 6.2
+mapping and no column carries the tool kind, which is how "no permission,
+policy, tool authority, turn outcome or disposition" is implemented: nothing
+reads it.
+
+
+5. GATES
+
+  design models, all four:                 64, 61, 74, 24
+  the ACP boundary model                   56 -> 61, the five new cases
+  cd v12 && npm test                       635 tests, 628 pass, 7 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  the W543-owned suites                    112 pass, 0 fail
+    (agent_events, agent_turn, agent_profile — the last one is where the
+     product-schema-is-byte-identical-to-the-frozen-asset case lives, and it
+     passes, which is the "finish in one state" the plan asks for)
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+THE SEVEN FAILURES ARE NOT THIS WORK'S, and they are named rather than
+glossed. All seven are additive reviewer regressions that landed while W543
+was being implemented, in two suites W543 does not touch and which contain no
+reference to a tool-call kind at all:
+
+  v12/test/worker_manager_agent_reconnect.test.mjs   2, "W2929 third review"
+      a further round on the transport-loss options envelope
+  v12/test/worker_manager_posture_slots.test.mjs     5, "W771 review"
+      the first review of W771's posture-slot lifecycle
+
+W4 and W771 own them. I did not fix them under this claim: correcting another
+Work's finding inside this one would put the change in the wrong record, and
+both are queued for their own rounds.
+
+
+6. STILL OPEN
+
+Plan item 5 — re-reviewing every consumer against the corrected single
+contract — is not discharged by this implementation.
+
+
+7. FILES CHANGED
+
+  .../finding-acp-agent-boundary/SPEC.md                    6.2 row, new 6.2.1
+  .../finding-acp-agent-boundary/FINDING.md                 the correction
+  .../finding-acp-agent-boundary/schema/
+      agent-session-1.0.schema.json                         toolCallView.kind,
+                                                            new toolKind
+  .../finding-acp-agent-boundary/evidence/
+      acp_boundary_model.py                                 normalize_tool_call
+      test_acp_boundary_model.py                            +5 cases, and the
+                                                            trace case routed
+                                                            through the model
+  v12/src/worker_manager/schema/agent-session-1.0.schema.json  synced copy
+  v12/src/worker_manager/agent_events.mjs                   TOOL_KINDS and the
+                                                            copy/omit/refuse
+  v12/test/worker_manager_agent_events.test.mjs             +4 cases, 1
+                                                            superseded
+                                                            assertion replaced

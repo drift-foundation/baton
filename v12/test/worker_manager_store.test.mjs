@@ -52,16 +52,17 @@ test("W2929: the control store needs an explicit path and its own schema", () =>
 	const path = storePath();
 	const store = open(path);
 	try {
-		// 11 since the turn review: the turn's own canonical document and the
-		// policy evidence that selected its outcome, retained beside the
-		// summary. A row that cannot represent the frozen record is not it.
+		// 14 since W771: posture occupancy separated from the observation
+		// axis. Which epoch may run is a MANAGER-owned fact; what the
+		// provider was seen to do is evidence, and freeing a posture must
+		// never require relabelling the second as the first.
 		// Pinned as a literal rather than read from the module, because
 		// comparing a build with itself proves nothing about what a store on
 		// disk contains.
 		assert.equal(store.db.prepare(
 			"SELECT value FROM meta WHERE key='schema_version'").get().value,
 			String(SCHEMA_VERSION));
-		assert.equal(SCHEMA_VERSION, 11);
+		assert.equal(SCHEMA_VERSION, 14);
 		// The manager's tables, and NOT the authority's: a manager that
 		// stored a claim or a generation would be a second authority.
 		const names = new Set(store.db.prepare(
@@ -70,7 +71,8 @@ test("W2929: the control store needs an explicit path and its own schema", () =>
 		for (const table of ["offers", "attempts", "operations",
 		                     "observations", "profiles", "meta",
 		                     "outputs", "output_artifacts", "manifests",
-		                     "intake", "agent_sessions", "turns"]) {
+		                     "intake", "agent_sessions", "turn_allocations",
+		                     "turns", "agent_events", "posture_slots"]) {
 			assert.ok(names.has(table), table);
 		}
 		for (const absent of ["work", "assignments", "generations", "gates",

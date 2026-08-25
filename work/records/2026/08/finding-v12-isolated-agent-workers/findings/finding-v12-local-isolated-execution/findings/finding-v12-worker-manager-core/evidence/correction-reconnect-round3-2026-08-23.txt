@@ -1,0 +1,132 @@
+W2929 / current authority W4 — reconnect slice, THIRD correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T18-55-02Z.md (one P2, two parts).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+    tests 18, pass 16, fail 2
+
+Both additive regressions were the only failures in that file. Both findings
+are correct.
+
+
+2. THE CODE I ADDED TO MAKE REFUSALS BETTER BECAME THE ESCAPE ROUTE
+
+`describe()` did not exist before the previous round. I added it so a refusal
+would not read "{} is not an options document" when a caller passed a Map. It
+did two things a refusal must never do:
+
+  JSON.stringify(value)          throws a raw TypeError on a BigInt
+  getPrototypeOf(v).constructor  a property an untrusted prototype may define
+                                 as a throwing getter, whose arbitrary Error
+                                 then escapes
+
+So at the exact moment the boundary had DECIDED to refuse, it ran the rejected
+value's behaviour and lost the decision. That is the same shape as the two P1s
+it was written alongside — an operand reaching a boundary that had not proved
+it — with the aggravating detail that this operand had already been proved
+unacceptable.
+
+A REFUSAL MUST NEVER RUN THE VALUE IT IS REFUSING. Diagnostics are the one
+place it is tempting, because a better message needs to know more about the
+value, and knowing more means touching it.
+
+
+3. THE CHANGE
+
+`describe` is built from inert facts only: `typeof`, `Array.isArray`, and a
+prototype comparison. Nothing is serialized and no property of the value or
+its prototype is read. The prototype comparison is wrapped, because
+translating an unavoidable reflection failure is cheaper than proving no host
+or Proxy object can make `getPrototypeOf` throw.
+
+The result is deliberately COARSE — "a bigint value", "an array", "a plain
+object", "an object with a prototype of its own". A diagnostic that has to be
+exactly right about an untrusted value is a diagnostic that has to touch it.
+
+The member refusal uses the same helper instead of serializing the member.
+
+
+4. MUTATIONS — FOUR PATTERNS, WITH TWO MEASUREMENTS
+
+  U1 the rejected value is serialized again        3 cases fail
+  U4 the member refusal serializes the member      3 cases fail
+  U2 the prototype constructor is read again       masked by the wrapper
+  U3 the reflection wrapper is removed             0  UNREACHABLE
+  U2 + U3 together                                 3 cases fail
+
+MEASURED, and both directions matter here. Removing the wrapper ALONE fails no
+case, because `getPrototypeOf` does not throw on any ordinary JavaScript
+value — it is defence against host and Proxy exotica and is not counted as a
+guard. Re-adding the constructor read alone is caught BY that wrapper, which
+translates the getter's Error. What the cases witness is the pair: read the
+constructor and remove the wrapper, and three fail including the review's own.
+
+That is worth stating plainly rather than reporting "4 witnessed": the guard
+that actually carries the finding is not reading the constructor, and the
+wrapper is a second line that no ordinary value reaches.
+
+
+5. REGRESSIONS — 21 (18 before, including the reviewer's two)
+
+Three of mine:
+
+  a refusal never runs the value it is refusing — the general rule the two
+    review cases are instances of, driven over seven hostile shapes that are
+    each hostile in a DIFFERENT way: a BigInt member, a symbol member, a
+    throwing `toJSON`, a throwing `valueOf`, a hostile-prototype envelope, a
+    BigInt envelope and a symbol envelope
+  an ACCEPTED document is not touched either — a plain record carrying a
+    throwing `Symbol.toStringTag` getter is a LEGITIMATE document, and the
+    property is that reaching the honest absent default ran nothing
+  the refusal still says something useful — coarse is not useless, driven on
+    six shapes
+
+MY FIRST VERSION OF THE SECOND CASE WAS WRONG. I expected the throwing-tag
+record to be REFUSED. Its prototype is `Object.prototype` and it has no own
+`turnInFlight`, so the plain-record rule accepts it and the absent default
+applies — correctly. I had asserted the outcome I assumed rather than the rule
+that applies, and the case now asserts the rule and the untouched getter.
+
+
+6. GATES
+
+  cd v12 && npm test                       640 tests, 633 pass, 7 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  W4's own suites                          reconnect 21/21, axis 16/16,
+                                           turn 50/50, handshake 21/21
+  design models                            64, 63 (1 fail 1 error), 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+NONE OF THE SEVEN v12 FAILURES IS W4's, and the two that WERE W4's last round
+are fixed here. They are:
+
+  worker_manager_agent_events.test.mjs   2, "W543 review"
+      W543's first review round on the tool-call `kind` ruling
+  worker_manager_posture_slots.test.mjs  5, "W771 review"
+      W771's first review round on the posture-slot lifecycle
+
+The ACP boundary model's 1 failure and 1 error are the same W543 round, in the
+`ToolCallKind` class W543 added. Both Works are queued for their own rounds; I
+did not touch either under this claim.
+
+
+7. UNCHANGED
+
+The next-epoch flag remains reported rather than durable enforcement; W151 §9
+stays deferred; W771's plan item 5 — re-reviewing W4 composition against the
+corrected lifecycle — remains open and is not discharged here.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/agent_reconnect.mjs        `describe` uses inert
+                                                    facts only; the member
+                                                    refusal uses it too
+  v12/test/worker_manager_agent_reconnect.test.mjs  +3 cases

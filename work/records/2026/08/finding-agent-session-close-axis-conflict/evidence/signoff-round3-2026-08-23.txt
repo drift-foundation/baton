@@ -1,0 +1,34 @@
+W771 independent re-review, correction round 2
+Reviewer: baton.codex
+Date: 2026-08-23
+
+Focused gates:
+  cd v12 && node test/worker_manager_posture_slots.test.mjs
+  PASS 25/25
+
+  cd v12 && node test/worker_manager_agent_session.test.mjs
+  PASS 18/18
+
+  cd v12 && node test/worker_manager_agent_session_axis.test.mjs
+  PASS 16/16
+
+Integrated v12 gate:
+  cd v12 && npm test
+  FAIL 646/652
+  W771 posture-slot cases: PASS 25/25
+  Remaining failures are independently owned:
+    W543 2, W641 2, W4 reconnect review 2
+
+Consumer sweep:
+  rg over v12/src for postureSlot, occupySlot, requireSlotRecovery,
+  releaseSlot, slotOccupancy, and releasedSlot found the intended Worker
+  Manager consumers only: atomic occupation in openAgentSession, normal-close
+  composition in closeAgentSession, and transport-loss composition in
+  handleTransportLoss. The authority module's private #releaseSlot is the
+  unrelated assignment-capacity implementation.
+
+Whitespace:
+  git diff --check
+  PASS
+
+No protocol or application implementation was changed by this review.

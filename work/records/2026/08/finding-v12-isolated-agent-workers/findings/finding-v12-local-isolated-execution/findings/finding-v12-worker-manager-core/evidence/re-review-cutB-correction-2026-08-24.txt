@@ -1,0 +1,43 @@
+Python Cut B correction re-review evidence — 2026-08-24
+
+Reviewed correction evidence:
+  evidence/cutB-correction-and-4bp-2026-08-24.txt
+  delivered source: 346/346
+  delivered locked installed: 346/346
+
+Original four reviewer regressions, independently rerun:
+  test_concurrent_first_openers_adopt_one_initialized_store ... ok
+  test_an_unrelated_meta_table_is_still_a_closed_refusal ... ok
+  test_the_operation_kind_is_part_of_the_collision_identity ... ok
+  test_the_journal_schema_requires_exactly_one_sealed_outcome ... ok
+  Ran 4 tests: OK
+
+New focused boundary probes:
+  test_a_noncanonical_json_spelling_is_not_a_durable_identity ... FAIL
+  test_a_signature_has_exactly_the_manager_owned_shape
+    missing operands ... FAIL
+    extra member ... FAIL
+  Ran 2 methods: FAILED (failures=3)
+
+Complete source run:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+  Ran 348 tests in 0.781s
+  FAILED (failures=3, skipped=1)
+  Every failure is one of the new signature-boundary probes.
+
+Independent installed-layout attempt:
+  env XDG_RUNTIME_DIR=/tmp just build
+  pip retried the configured /simple/jsonschema/ endpoint and failed DNS:
+    Failed to establish a new connection: [Errno -2] Name or service not known
+    No matching distribution found for jsonschema==4.26.0
+  The managed non-interactive policy forbids escalation, so the attempt stopped
+  before installing artifacts. This is an operational verification limitation,
+  not evidence that the lock or delivered installed run failed.
+
+Static dependency observations:
+  - v12/python/wheelhouse is absent.
+  - no wheel, sdist, or zip distributions are present under v12/python.
+  - the locked install command uses --require-hashes and --ignore-installed.
+  - the active justfile still contains superseded "resolves the lock offline"
+    and "when the wheelhouse is absent" prose.
+

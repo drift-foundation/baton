@@ -1,0 +1,198 @@
+W4 — cut A complete: the three corrections and the ruled validator
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T09-56-54Z.md (two P1, one P2) plus the
+acceptance gap it named: PLAN items 4bh and 4bi.
+
+
+1. ALL THREE REPRODUCED BEFORE ANY EDIT
+
+  the hostile metaclass          the caller's AssertionError escaped in place
+                                 of the closed refusal, after recording that
+                                 the metaclass RAN
+  the mutable pairing            a caller opened `policy` and immediately built
+                                 a supposedly closed policy/caller-invented
+                                 refusal
+  escaping past the bound        1,933 characters from four astral names under
+                                 a rule that promises under five hundred
+
+All three are closed and the reviewer's three regressions are retained
+unchanged.
+
+
+2. [P1] NAMING A TYPE RAN THE CALLER'S METACLASS
+
+A class is an instance of its METACLASS, so `type(value).__name__` is ordinary
+attribute dispatch and a caller-controlled metaclass can run or raise from it.
+The one helper whose entire job is to describe a rejected value WITHOUT running
+it was doing exactly that.
+
+`type.__getattribute__` is the default implementation, so calling it directly
+skips a metaclass override. That closes the reported shape -- and probing my own
+correction found TWO MORE it does not close, because a metaclass may define
+`__name__` as a DESCRIPTOR: one that raises, and one that answers something that
+is not text. Both were mutations with no witness until I wrote the case. A type
+that will not name itself is now described by that fact.
+
+
+3. [P1] A CLOSED SET A CALLER CAN OPEN IS NOT CLOSED
+
+`ERROR_CODES` was one public mutable dict and the check consulted that same
+object. The review allowed either an immutable export or a private immutable
+value; the regression's mechanics require the second, so `_PAIRING` is private
+and frozen all the way down and `ERROR_CODES` remains the readable vocabulary.
+
+THE RESIDUAL RISK OF THAT SHAPE IS NAMED RATHER THAN LEFT: two values can
+drift, and a caller reading the public one would believe something the boundary
+does not enforce. A case asserts they agree.
+
+And probing again: the reviewer's regression opens a CODE. Opening a whole
+CATEGORY was a separate mutation with no witness, because a check that reads
+the public value for categories and the private one for codes passes every case
+that only opens a code. Both halves are covered now.
+
+
+4. [P2] A BOUNDED OPERATION AND A BOUNDED OUTPUT ARE TWO PROPERTIES
+
+The bound was applied to the INPUT of the escaper and `ascii()` expands an
+astral character to ten. Both now: the input is cut first, so the escaper never
+walks an unbounded string, and the RESULT is cut again, so the message is
+bounded in the unit it promises.
+
+
+5. THE RULED VALIDATOR -- AND WHAT PROVISIONING ACTUALLY REQUIRED
+
+Item 4bh: pin jsonschema 4.26.0 with its complete Python 3.13 closure in the
+hash-locked offline build; options B and C rejected. Done, and the closure
+measured rather than assumed -- FIVE distributions, not the six the older
+version needed:
+
+  jsonschema 4.26.0            jsonschema-specifications 2025.9.1
+  referencing 0.37.0           attrs 26.1.0
+  rpds-py 2026.6.3             <- the one compiled artifact, cp313 manylinux
+
+Every hash was computed FROM THE ARTIFACT, not copied from an index page.
+
+THE WHEELHOUSE MOVED, and the reason is a measurement: the system wheelhouse
+this distribution used to resolve from holds two artifacts and IS NOT WRITABLE.
+So `WHEELHOUSE` now defaults inside the distribution, which is where a
+self-contained distribution's offline artifacts belong.
+
+WHETHER THOSE 3.2 MB OF WHEELS ARE COMMITTED IS RAISED, NOT ANSWERED. The tree
+carries essentially no binary artifacts today, and adding third-party wheels
+including a compiled extension is a repository-shape decision for the reviewer.
+The gate works either way, because the wheelhouse is one variable.
+
+The library decides the CONTRACT and this package decides the DIAGNOSTIC.
+`jsonschema` renders the rejected instance into its messages -- which is what
+makes its errors useful and exactly what this boundary may not do -- so a
+refusal is built from the failing KEYWORD and PATH plus this package's own
+bounded rendering. `error.message` is never used, and a case drives a
+one-million-character value through to prove it.
+
+AND OWNERSHIP RUNS FIRST. The validator only ever walks exact built-ins, so it
+is never the thing deciding whether a `__getitem__` override is admissible.
+Measured by counting reads on a shifting subclass: zero.
+
+ONE THING MY OWN CASE FOUND, not a review: this schema's top level is a `oneOf`
+over seventeen message shapes, so a fault that stopped at the outer error said
+"the document breaks oneOf" and told a caller NOTHING. Combinators are followed
+into their sub-errors now, bounded in depth, picking the branch that got
+furthest into the document -- and the COUNT sees through them too, or "and N
+more" would have said zero for the document that needs it most.
+
+A second thing the same case found: my first accepted-document fixture was
+rejected by the schema, so the accept-path case SKIPPED. A skipped accept path
+is the silent-acceptance weakness I have been caught on before. The fixture is
+a real `control.error` envelope now, read out of the schema, and the accept path
+genuinely runs.
+
+
+6. [4bi] THE AUTHORIZED TEST MIGRATION
+
+Three authority cases asserted the DISTRIBUTION's dependency set was empty. That
+stopped being true the moment the ruled dependency landed, and a case asserting
+a superseded state argues for the old answer every run.
+
+  the authority's import scan   SCOPED to the authority slice. The reach scan
+                                stays distribution-wide, because "nothing opens
+                                a v11 store or reads a dossier" is both slices'
+                                property.
+  "pins no validator"           replaced by a scan of the authority's own
+                                SOURCE. A file that does not mention a library
+                                and a slice that does not reach for one are
+                                different facts, and only the second matters.
+  "the lock is empty"           replaced by "the lock says WHOSE its pins are".
+                                A dependency nobody has attributed is one both
+                                slices inherit by default.
+
+And the manager got its own exact allowlist: one import name, reached from ONE
+module, with the lock pinning five distributions and the wheelhouse holding an
+artifact for every one of them whose hash is re-measured from the file.
+
+My own superseded class went too. `TheValidatorSeamIsAbsentAndSaysSo` was
+honest while the question was open and became wrong when it was answered.
+
+
+7. MUTATIONS -- NINETEEN, SIXTEEN WITNESSED, THREE MEASURED EQUIVALENT
+
+  N1 the type name read through the metaclass    1 case
+  N2 a type that will not name itself escapes    1
+  N3 a non-text type name is rendered            1
+  N4 the check reads the public pairing          1
+  N5 the category check reads the public one     1
+  N6 the escaped form is not bounded             1
+  N7 the escaper walks the unbounded input       0 -- EQUIVALENT for output
+  V1 the library prose is forwarded              1
+  V2 a combinator is not followed                2
+  V3 the count does not see through one          2
+  V4 the document is validated before it is owned 3
+  V5 a member name in a path is rendered raw     0 -- UNREACHABLE, reported
+  V6 the failures are not sampled                1
+  V7 the schema is not proved valid at import    0 -- EQUIVALENT, reported
+
+FOUR BEGAN AS ZEROS AND THREE WERE MISSING CASES -- the two metaclass
+descriptor shapes, the whole-category escape, and the sampling cap. The cap is
+the instructive one: against the whole schema `iter_errors` yields ONE
+top-level error, so the cap is UNREACHABLE there, and the case had to go where
+it can actually be reached rather than pretend coverage.
+
+THE THREE EQUIVALENCES, each with its reason rather than a shrug:
+
+  N7  cutting the input before escaping and cutting the result after produce
+      the SAME final string, because the removed characters escape to positions
+      beyond the bound. It is load-bearing for the WORK, not the output, and no
+      assertion can see the difference without timing. Kept, because "a bounded
+      output is not a bounded operation" is the rule that put it there.
+  V5  no construct in this frozen schema puts a caller-chosen NAME into an
+      error path -- measured by walking the schema for `additionalProperties`
+      with rules and `patternProperties`: zero. The rendering is defence in
+      depth for a schema that later admits caller-named members.
+  V7  proving the schemas at import cannot be distinguished, because the frozen
+      schemas ARE valid and W4 may not edit them. It fails on the first import
+      rather than on the first document, which is worth having and cannot be
+      witnessed from inside a suite that ships valid schemas.
+
+
+8. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 297 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              297/297 from the wheel, with the RULED
+                                   VALIDATOR installed offline from the local
+                                   wheelhouse under --require-hashes
+  exported names                   20 authority, 22 contracts
+  the frozen schema assets         proved to have travelled into the wheel
+  temp roots after the run         zero
+  the frozen Node oracle           UNTOUCHED and still runnable -- v12/src/
+                                   authority shows no diff and contracts.mjs
+                                   still imports and digests
+  whitespace-damage check          clean
+
+30 regressions added; the suite is 267 -> 297.
+
+
+9. STILL ABSENT ON PURPOSE
+
+Cuts B through F, and `authority_port.py`. The port types the injected session,
+and typing only the subset W4 uses is a decision I would rather make with cut
+C's call sites in front of me than guess at now.

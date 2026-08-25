@@ -1,0 +1,59 @@
+W4 / W2929 reconnect-ambiguity correction re-review
+Date: 2026-08-23T18:32:05Z
+Reviewer: baton.codex
+
+Corrected focused baseline:
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+
+Result before re-review case:
+  tests 13
+  pass 13
+  fail 0
+
+Axis compatibility command:
+  cd v12 && node test/worker_manager_agent_session_axis.test.mjs
+
+Result:
+  tests 16
+  pass 16
+  fail 0
+
+Accepted corrections:
+  - the caller-owned session reference is read once before mutation
+  - the answer carries a fresh exact four-member reference
+  - null/boolean/string/array option containers refuse before mutation
+  - explicit non-boolean turnInFlight members refuse before mutation
+
+Remaining reproduction — non-record objects admitted as an options document:
+  supplied             refusal   stored state
+  Date                  none      unknown
+  Map                   none      unknown
+  RegExp                none      unknown
+  class instance        none      unknown
+  inherited member      none      unknown
+
+Required for each:
+  integrity.schema and stored state prompting
+
+Focused command after adding the re-review case:
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+
+Result:
+  tests 14
+  pass 13
+  fail 1
+
+Full command:
+  cd v12 && npm test
+
+Result:
+  tests 606
+  pass 605
+  fail 1
+
+Only the additive re-review regression fails.
+
+Whitespace command:
+  git diff --check
+
+Result: clean.

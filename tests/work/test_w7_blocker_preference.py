@@ -373,7 +373,7 @@ def test_the_projection_version_names_the_ordering_contract(world):
 	# W7's ordering rode 11.2 briefly and is aggregated into the 12.0
 	# candidate W5's review ordered — nothing was released between them,
 	# so two majors would describe a history that never happened.
-	assert jsonapi.PROJECTION_VERSION == "12.4"
+	assert jsonapi.PROJECTION_VERSION == "12.5"
 	jsonapi.require_version("12.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("11.2")

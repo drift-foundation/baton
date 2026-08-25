@@ -1,0 +1,100 @@
+W4 independent re-review — PLAN 4cd-done
+2026-08-24
+
+Delivered baseline
+------------------
+
+From v12/python:
+
+  env PYTHONPATH=src:. python3 -m unittest discover -v -s tests -t .
+
+Before reviewer additions: 455 tests pass, one ambient-version skip.
+
+The three retained PLAN 4cc regressions also pass focused:
+
+  * injected Work projections reject extra members;
+  * committed settlement answers require a result;
+  * adopted offer deadlines are owned before comparison.
+
+Accepted implementation evidence
+--------------------------------
+
+* boundaries.document now rejects missing and extra members.
+* boundaries.alternative now applies a required/optional member contract per
+  discriminator.
+* SQL SELECT crossings are discovered independently from boundary calls, and
+  offers/operations rows pass through per-table column contracts.
+* offers.py emits its contract documents through documents.py constructors;
+  constructor member order and optional-member omission are stable.
+
+Additive reviewer methods
+-------------------------
+
+Added five methods to test_offers.py/test_boundary_inventory.py and one to
+test_store.py:
+
+  TheInjectedCapabilityIsTyped.
+    test_the_bound_participant_is_owned_when_the_port_receives_it
+  WhatMustHoldBeforeEntropyIsSpent.
+    test_the_mint_capability_is_typed_before_authority_reads
+  WhatMustHoldBeforeEntropyIsSpent.
+    test_the_injected_work_projection_owns_the_members_it_persists
+  TheClaimAndItsSettlement.
+    test_the_injected_claim_answer_owns_its_assignment_identity
+  EveryReceivingEntryHasOneOwner.
+    test_variadic_public_parameters_are_receiving_entries_too
+  ASealedRefusalReproducesTheFirstAnswer.
+    test_replay_does_not_readopt_a_refusal_owned_at_the_row
+
+Focused behavior
+----------------
+
+* A session participant containing a lone surrogate is accepted by
+  AuthorityPort construction. The inventory discovers capability CALLS only,
+  not the bound participant value.
+* A non-callable mint_bearer reaches a raw TypeError after project_work,
+  certification, expiry processing and slot_holder. The inventory deliberately
+  removes mint_bearer from caller entries while no constructor types it.
+* A projection whose authority_uuid is integer 7 is accepted and offer issuance
+  succeeds. Exact member sets and exact POD do not establish the semantic type
+  of an identity that is then put in the operation signature and TEXT column.
+* A claim answer naming another participant is accepted and recorded. A claim
+  answer whose generation is `not-a-generation` escapes as
+  sqlite3.IntegrityError at offers.claim_generation after the authority has
+  already answered the claim.
+* receiving_entries iterates positional and keyword-only arguments but not
+  vararg/kwarg. Nine public documents.py constructors with **members are absent
+  from the claimed every-public-parameter universe.
+* _operation_row owns and JSON-checks a refusal column, then replay calls public
+  revive_refusal, which invokes boundaries.adopted and boundaries.document on
+  that same value again. Patching the second adoption makes an exact durable
+  refusal replay fail, proving the duplicate crossing.
+
+Structural locations
+--------------------
+
+* test_boundary_inventory.py:62-72 excludes capability parameters and models
+  calls only; 204-230 omits vararg/kwarg and injected attributes/document
+  members.
+* authority_port.py:117-126 checks only nonempty exact str for participant;
+  139-176 closes projection/claim member sets but supplies no per-member type or
+  identity contracts.
+* offers.py:252-344 performs authority reads and expiry work before calling an
+  untyped mint_bearer.
+* documents.py:103-140 exposes nine **members constructors which the inventory
+  does not enumerate.
+* store.py:565 routes an already-owned refusal through revive_refusal;
+  store.py:120-132 adopts and owns it again.
+
+Full source result after reviewer additions
+-------------------------------------------
+
+  461 tests; 13 failure reports, 2 raw errors, 1 ambient-version skip.
+
+The six added methods account for every nonpassing result. The failure-report
+count includes nine constructor subtests and one of two claim-identity subtests;
+the raw errors are non-callable mint_bearer and non-integer generation. All 455
+delivered methods otherwise pass.
+
+The locked build was not rerun while the source review gate intentionally fails.
+No temporary reproduction outside test-managed roots was created.

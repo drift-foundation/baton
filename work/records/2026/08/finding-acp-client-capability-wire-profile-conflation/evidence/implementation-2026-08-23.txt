@@ -1,0 +1,129 @@
+W641 — one ACP client-capability representation
+Date: 2026-08-23. Implementer: baton.claude.
+Implementing the confirmed ruling; no review to answer.
+
+
+1. THE RULING WENT FURTHER THAN MY WORKAROUND
+
+I raised this during the handshake slice and, on that review's instruction,
+split the concept into two NAMED representations: ACP_WIRE_CLIENT_CAPABILITIES
+for the transport and NORMALIZED_CLIENT_CAPABILITIES for the durable profile.
+That was the right thing to do while the artefacts disagreed and the owner had
+not ruled.
+
+The ruling did not ratify the split. It says agent-session 1.0 keeps ONE
+representation, that it is ACP's, and that the snake_case explicit-false shape
+is "the contract defect to remove, not a second representation to name". So
+this implementation DELETES the second constant rather than keeping it.
+
+Revalidated: the pinned SDK's FileSystemCapabilities members are optional, so
+an empty `fs` is a complete expression of "no filesystem capability" and an
+explicit false was never needed to say it.
+
+
+2. ONE CHANGE, SEVEN ARTEFACTS
+
+  frozen schema        `clientCapabilities` now admits `{fs: {}, terminal:
+                       false}` and nothing else; `fs` has NO properties and
+                       `additionalProperties: false`, so a member present at
+                       all -- even set false -- refuses. The removed shape is
+                       quoted in the description.
+  owning FINDING       the correction, with what the schema and model used to
+                       require quoted rather than summarized
+  executable model     MINIMAL_CLIENT_CAPABILITIES is the ACP document;
+                       validate_client_capabilities is STRUCTURAL and
+                       order-independent
+  captured traces      the certified profile's own client_capabilities, both
+                       negative capability vectors (an enabled terminal, and a
+                       filesystem member present), and the profile RE-SEALED
+                       because its bytes changed
+  product schema copy  byte-identical, which its own signed-off case asserts
+  v12 handshake        one exported constant, ACP_CLIENT_CAPABILITIES
+  fixtures + tests     every profile fixture in four v12 suites, and the two
+                       assertions that encoded the removed shape
+
+The trace profile's digest moved to
+sha256:3c7b7a50953dd4075533c7c3d90d034920f34bb458b07d799d0f61419bccbe4a and
+every v12 fixture carrying the old value was updated with it, so the
+design-model-profiles-certify-unchanged case still holds.
+
+
+3. TWO SUPERSEDED ASSERTIONS, MARKED WHERE THEY STOOD
+
+  model, `..._inventory_matches_the_vendored_declaration`
+      asserted every `fs` member was present and False -- the removed shape,
+      stated as a property. It asserts the empty object now.
+  v12, `the ACP wire shape is not the durable profile summary`
+      asserted the profile's document was REFUSED as an advertisement,
+      because the two representations differed. The ruling removed the
+      second, so the case is INVERTED: renamed `W641: the profile persists
+      the SAME document the relay sends`, and it now asserts the profile's
+      document validates, negotiates, and comes back as an OWNED copy --
+      because one representation is not one object.
+
+
+4. WHAT DID NOT CHANGE, DELIBERATELY
+
+The exact minimal-capability POLICY. Withholding is still total; `session` is
+still stable and still not advertised; the eight client methods are still
+denied. The ruling corrected which document expresses that policy, not the
+policy, and the cases that carry it are untouched.
+
+
+5. MUTATIONS — THREE, ALL WITNESSED
+
+  X1 the invented summary comes back as the sent document   4 cases fail
+  X2 an fs member present is admitted again                 1 case fails
+  X3 the comparison becomes order-sensitive again           1 case fails
+
+X1 is exactly the state this Work exists to remove, and it now fails four
+cases including the one asserting the profile and the sent document are the
+same.
+
+
+6. GATES
+
+  design models, all four:                 64, 64 (1 fail 1 error), 74, 24
+  W641's suites                            handshake 21/21, profile 14/14,
+                                           sessions 18/18
+  cd v12 && npm test                       645 tests, 639 pass, 6 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  whitespace-damage check                  clean
+
+NONE OF THE SIX v12 FAILURES IS W641's, and the ACP model's one failure and
+one error are not either. They are three other Works' open rounds:
+
+  2  "W543 review"            the tool-call `kind` ruling
+  2  "W2929 fourth review"    the transport-loss options envelope
+  2  "W771 second review"     the posture-slot lifecycle, landed during this
+                              implementation
+
+The ACP model's failure and error are the same W543 round, in the ToolCallKind
+class W543 added. All three are queued for their own rounds and none was
+touched here.
+
+
+7. STILL OPEN
+
+Plan item 5 — re-reviewing W4 and every later adapter consumer against the
+corrected single contract — is not discharged by this implementation.
+
+
+8. FILES CHANGED
+
+  .../finding-acp-agent-boundary/FINDING.md                the correction
+  .../finding-acp-agent-boundary/schema/
+      agent-session-1.0.schema.json                        clientCapabilities
+  .../finding-acp-agent-boundary/evidence/
+      acp_boundary_model.py                                the constant and a
+                                                           structural validator
+      test_acp_boundary_model.py                           1 superseded
+                                                           assertion, +1 case
+      traces.json                                          profile, two
+                                                           vectors, re-sealed
+  v12/src/worker_manager/schema/agent-session-1.0.schema.json   synced copy
+  v12/src/worker_manager/agent_handshake.mjs               one constant
+  v12/test/worker_manager_agent_handshake.test.mjs         1 inverted case
+  v12/test/worker_manager_agent_profile.test.mjs           fixture + digest
+  v12/test/worker_manager_agent_session.test.mjs           fixture + digest
+  v12/test/worker_manager_agent_events.test.mjs            fixture

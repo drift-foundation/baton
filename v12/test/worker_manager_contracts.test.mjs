@@ -663,12 +663,16 @@ test("W2929: a durable locator carrying a credential is refused", () => {
 	// assertions are off and this exists instead. A query is refused because
 	// that is where a signed credential rides — the frozen vector's own
 	// `?token=secret` is the case.
+	// MIGRATED by the canonical-grammar ruling: the two authority-less forms
+	// were expected to say "absolute", and the grammar refuses them earlier and
+	// for a more precise reason -- they are not `scheme://authority` at all.
+	// The refusals themselves are retained.
 	for (const [uri, why] of [
 			["https://source.invalid/archive?token=secret", /query/],
 			["https://user:pass@source.invalid/archive", /userinfo/],
 			["https://source.invalid/archive#frag", /fragment/],
-			["/not/absolute", /absolute/],
-			["//source.invalid/archive", /absolute/]]) {
+			["/not/absolute", /canonical locator/],
+			["//source.invalid/archive", /canonical locator/]]) {
 		assert.throws(() => validateUri(uri, "locator"), why, uri);
 	}
 	assert.doesNotThrow(() => validateUri("artifact://inputs/source-1"));
@@ -846,17 +850,20 @@ test("W2929: a manifest carrying a secret is refused as a leak", () => {
 });
 
 
-test("W2929: a URI this build cannot parse is refused, opaque forms are not", () => {
-	// Round-4 review [P1]. Format assertions are deliberately off, so a
-	// malformed hierarchical URI had nothing else to catch it. The opaque
-	// forms are here because the correction only holds if refusing a parse
-	// failure costs the contract nothing — measured, not assumed.
-	for (const bad of ["https://[", "https://a b", "http://:80", "://x"]) {
+test("W2929: a URI outside the canonical grammar is refused", () => {
+	// MIGRATED by the canonical-grammar ruling. This case used to assert that
+	// OPAQUE forms stay accepted, on the reasoning that refusing a parse
+	// failure "costs the contract nothing". The ruling supersedes that: the
+	// worker-control 1.0 subset is deliberately hierarchical, so `urn:` and
+	// `mailto:` are now refused and adding either back is a versioned contract
+	// change rather than a parser exception. The malformed refusals are
+	// retained unchanged.
+	for (const bad of ["https://[", "https://a b", "http://:80", "://x",
+	                   "urn:uuid:1", "mailto:worker@example.invalid"]) {
 		assert.throws(() => validateUri(bad, "locator"),
 			(error) => error instanceof ContractError, bad);
 	}
-	for (const good of ["artifact://inputs/source-1", "urn:uuid:1",
-	                    "mailto:worker@example.invalid", "file:///srv/x",
+	for (const good of ["artifact://inputs/source-1", "file:///srv/x",
 	                    "https://source.invalid/archive"]) {
 		assert.doesNotThrow(() => validateUri(good), good);
 	}
@@ -873,7 +880,9 @@ test("W2929: a malformed locator cannot reach the trusted manifest", () => {
 		validateSchemaFragment(structuredClone(document), "inputManifest",
 			"input manifest"),
 		"the schema now refuses this, so it no longer witnesses rule 4");
-	assert.throws(() => validateManifest(document), /parseable/);
+	// MIGRATED: the grammar names the exact fault -- an unclosed bracket --
+	// where the constructor could only say "not parseable".
+	assert.throws(() => validateManifest(document), /does not close it/);
 });
 
 test("W2929: content entry order is UTF-8 byte order, not UTF-16", () => {
@@ -1221,4 +1230,89 @@ test("W2929 review: an already-gone ordinary secret still reports gone", () => {
 		"an already-gone ordinary value was reported still live");
 	assert.doesNotThrow(() =>
 		assertNoDurableSecret({ note: bearer }, "after an inert release"));
+});
+
+
+test("the shared locator vectors are the authority for both runtimes", () => {
+	// ONE LIST, TWO IMPLEMENTATIONS. The ruling makes
+	// `fixtures/uri-vectors.json` the authority for this grammar rather than
+	// two implementations that agree today; the Python contracts package reads
+	// the same file and runs the same assertions.
+	const vectors = JSON.parse(readFileSync(
+		join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures",
+		     "uri-vectors.json"), "utf8"));
+	assert.ok(vectors.accepted.length >= 15);
+	assert.ok(vectors.refused.length >= 40);
+	for (const uri of vectors.accepted) {
+		assert.doesNotThrow(() => validateUri(uri, "locator"), uri);
+	}
+	for (const { uri, why } of vectors.refused) {
+		assert.throws(() => validateUri(uri, "locator"),
+			(error) => error instanceof ContractError, `${uri} (${why})`);
+	}
+});
+
+test("no locator names an address the two runtimes spell differently", () => {
+	// The IPv4-MAPPED family, `::ffff:0:0/96`, is excluded from the shared
+	// grammar. Not a rule about addresses -- a rule about AGREEMENT: this
+	// constructor's canonical text for the family is the hex form and Python's
+	// `ipaddress` writes the dotted form, so each refuses the other's spelling
+	// and there is no mapped locator both runtimes can read. The measurement
+	// is asserted here rather than described, so a future runtime that spells
+	// it the other way fails this case instead of silently changing what a
+	// durable locator means.
+	assert.equal(new URL("http://[::ffff:1.2.3.4]").hostname,
+		"[::ffff:102:304]");
+	// The dotted spelling never reaches this rule: the literal alphabet has
+	// already refused it, which is the same answer for a nearer reason.
+	assert.throws(() => validateUri("https://[::ffff:1.2.3.4]/x", "locator"),
+		(error) => error instanceof ContractError);
+	for (const literal of ["::ffff:102:304", "::ffff:0:0", "::ffff:0:1"]) {
+		assert.throws(() => validateUri(`https://[${literal}]/x`, "locator"),
+			(error) => error instanceof ContractError
+				&& /IPv4-mapped/.test(error.message), literal);
+	}
+	// The exclusion is the mapped range and not everything shaped like it:
+	// `::ffff:1` is `0:0:0:0:0:0:ffff:1`, an ordinary address both runtimes
+	// spell the same way.
+	assert.doesNotThrow(() => validateUri("https://[::ffff:1]/x", "locator"));
+});
+
+test("a DNS name is held to the DNS bounds", () => {
+	// The character rules were here and the LENGTH rules were not, so a
+	// 64-byte label -- a name no resolver will ever carry -- was a durable
+	// locator as far as this contract was concerned.
+	const label = "a".repeat(63);
+	assert.doesNotThrow(() => validateUri(`https://${label}.test/x`));
+	const longest = [label, label, label, "a".repeat(61)].join(".");
+	assert.equal(longest.length, 253);
+	assert.doesNotThrow(() => validateUri(`https://${longest}/x`));
+	for (const host of ["a".repeat(64), `ok.${"a".repeat(64)}.test`,
+	                    [label, label, label, label].join("."),
+	                    [label, label, label, "a".repeat(62)].join(".")]) {
+		assert.throws(() => validateUri(`https://${host}/x`, "locator"),
+			(error) => error instanceof ContractError, host);
+	}
+});
+
+test("the literal alphabet guards an assumption about this runtime", () => {
+	// The alphabet clause in `validateUriIpv6` currently refuses nothing this
+	// constructor would have accepted -- measured, and a mutation deleting the
+	// clause survives. It is kept anyway because it is the only clause there
+	// that does not ask a third-party normalizer, and this case pins the
+	// assumption that makes it look redundant. If a future runtime starts
+	// accepting a scope id or a dotted quad and returning it unchanged, this
+	// fails HERE, pointing at the clause that is holding the grammar still,
+	// rather than silently widening what a durable locator may say.
+	for (const outside of ["fe80::1%eth0", "fe80::1%25eth0", "::%1"]) {
+		let hostname = null;
+		try { hostname = new URL(`http://[${outside}]`).hostname; } catch {}
+		assert.notEqual(hostname, `[${outside}]`,
+			`this runtime now round-trips ${outside}; the alphabet clause in `
+			+ `validateUriIpv6 is what keeps the grammar fixed`);
+	}
+	// The dotted quad is accepted by the constructor and REWRITTEN, which is
+	// the same divergence from the other direction.
+	assert.equal(new URL("http://[::ffff:1.2.3.4]").hostname,
+		"[::ffff:102:304]");
 });

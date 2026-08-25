@@ -1,0 +1,63 @@
+W4 / M2 — the scheme decides whether a host is required
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T19-?-Z (one P1), whose other findings were signed off.
+
+THE FINDING
+
+  `check_uri` ran its authority and port rules only when the split found a
+  NON-EMPTY netloc, so `https://` returned unexamined. The frozen host's
+  constructor throws for it, and a locator this build cannot resolve is never
+  durable state.
+
+  The correction guards the whole authority clause, not the netloc: a scheme
+  that requires a host must have one.
+
+MEASURED RATHER THAN REASONED ABOUT
+
+  The obvious rule -- "an empty authority is invalid" -- is wrong, and I checked
+  before writing it. Run against the frozen host's own constructor:
+
+    new URL("https://")        THROWS TypeError
+    new URL("http://")         THROWS TypeError
+    new URL("file://")         ok, host ""
+    new URL("file:///x")       ok, host ""
+    new URL("artifact://")     ok, host ""
+    new URL("artifact://id")   ok, host "id"
+    new URL("foo://")          ok, host ""
+    new URL("urn:x:y")         ok, host ""
+    new URL("mailto:a@b")      ok, host ""
+
+  So the rule is that the schemes which REQUIRE a host must have one, and
+  `_HOST_REQUIRED` is that measurement rather than a policy this build invented.
+  The review asked for the frozen constructor's behaviour restored and said it
+  was not prescribing a general scheme policy; measuring is how I kept to that
+  rather than substituting my own.
+
+  `file://` staying valid matters: it is the form the contract uses, and a rule
+  that refused every empty authority would have refused it while looking
+  stricter.
+
+MUTATIONS, ROUND 16 (3 run against the 574-test suite)
+
+  Q1  a declared authority may be empty     2 failing
+  Q2  every scheme requires a host          1 failing
+  Q3  the host list loses a scheme          2 failing
+
+  All three witnessed. Q2 is the one worth having: it is the rule I would have
+  written without measuring, and the case that catches it is the list of forms
+  the frozen constructor accepts.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 574 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 574. 573 -> 574. Zero temp
+  roots. The working tree reports no whitespace errors. The frozen Node oracle
+  under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting re-review of this correction. The review's prevention decision is
+  accepted and queued as the next slice: a contracts-package anti-loop
+  inventory, derived from the package's real public export set, naming each
+  semantic owner and probe and structurally pinning the private-body path --
+  before §13. Retention, the outputs tables and freeze/record stay behind both.

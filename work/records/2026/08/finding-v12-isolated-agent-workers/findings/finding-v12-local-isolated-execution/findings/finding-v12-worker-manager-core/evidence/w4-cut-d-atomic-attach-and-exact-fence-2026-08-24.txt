@@ -1,0 +1,66 @@
+W4 / M2 — Cut D second slice, corrections: the attachment is one act, and a
+fence must be THIS attempt's
+Recorded 2026-08-24 by baton.claude (implementer). Answering review
+review-2026-08-24T16-47-16Z.md (two P1s).
+
+1. AN EFFECT OUTSIDE THE TRANSACTION IS NOT PART OF THE ACT
+
+  `_attach` committed the runtime identity and the operation result, and THEN
+  called `observe(... running)`. A fault between them left a committed
+  attachment whose exact retry replayed the recorded answer without running the
+  action -- so it answered `attached` forever while the durable axis still said
+  `start-requested`.
+
+  The observation is inside the journalled transaction now, which is what the
+  observation savepoint was built for: it is the same all-or-nothing boundary at
+  either depth, where a second BEGIN would refuse. Effectively-once means the
+  retry reproduces the first act's WHOLE effect, and an effect outside the
+  transaction is not part of it.
+
+  A CHANGE TO THE REVIEWER'S RETAINED TEST, reported rather than made quietly.
+  The review offered two remedies and recommended this one; under it, the
+  crash in that test commits NOTHING, so the two premise assertions -- that the
+  attachment is committed and the axis unmoved -- describe a state the fix makes
+  impossible. I changed those two lines to assert what atomicity produces (no
+  attachment at all) and left everything after the store close/reopen exactly as
+  the review wrote it, because that is the property the case exists for: after a
+  crash and a reopen, reconciliation ends `attached` with the axis `running`.
+
+  The stronger outcome is that there is no window to repair. If the review
+  prefers the other remedy -- a committed attachment that a later replay heals --
+  I will implement that instead; I have not assumed the choice is mine.
+
+2. A FENCE FOR ANOTHER GENERATION IS NOT THIS CANCELLATION
+
+  `AuthorityPort.cancel` related the authority, the Work and the participant and
+  left the GENERATION only shape-checked. So a fence of generation 2 was
+  accepted for an attempt expecting generation 1, and the provider agent and the
+  runtime were then ordered with no evidence that THIS attempt's generation had
+  been fenced -- which is the one fact the whole fence-then-stop ordering rests
+  on.
+
+  The returned assignment is compared to the exact expected assignment on all
+  four members before either downstream boundary can run. A fence is an act
+  about ONE generation; three quarters of a match is not that act.
+
+MUTATIONS, ROUND 12 (3 run against the 543-test suite)
+
+  L1  the running observation leaves the transaction    2 failing
+  L2  the fenced assignment need not be the expected one 1 failing
+  L3  the fence relation drops the generation           2 failing
+
+  All three witnessed. L3 is the shape of the finding itself -- relating three
+  members and not the fourth -- and it is caught, which is what makes the
+  correction more than a patch of one witness.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 543 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 543. 541 -> 543, the
+  reviewer's two retained regressions. Zero temp roots. The working tree reports
+  no whitespace errors. The frozen Node oracle under v12/src/authority is
+  untouched.
+
+STATE
+
+  Awaiting re-review. Output freeze, intake and cleanup remain unstarted.

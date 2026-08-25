@@ -1,0 +1,103 @@
+Independent review of the Cut C centralized boundary layer — 2026-08-24
+
+Reviewed delivery
+-----------------
+
+Implementer handoff: Baton T4 message 4489 and PLAN item 4by-done.
+Rulings: PLAN items 4bx, 4by and 4bz.
+Delivery evidence: evidence/cutC-boundary-layer-2026-08-24.txt.
+
+Accepted corrections
+--------------------
+
+The shared instant owner now establishes exact text, fixed-width grammar and a
+real calendar instant. Both retained impossible-calendar methods pass. The
+prior eleven reviewer methods pass, the focused offers suite passes, and the
+new label-aware probes reject the previously vacuous absent-offer shape. The
+central validators' refusal labels are useful and the transitive call walk is
+mechanically exercised.
+
+Retained review probes
+----------------------
+
+Six additive methods were added:
+
+* test_boundary_inventory.py:
+  TheInventoryIsDerivedFromTheCode.
+  test_every_exported_callable_is_a_receiving_entry
+* test_offers.py:
+  WhatMustHoldBeforeEntropyIsSpent.
+  test_the_injected_work_projection_is_owned_before_use
+* test_offers.py:
+  TheClaimAndItsSettlement.
+  test_the_injected_claim_answer_is_owned_before_recording
+* test_offers.py:
+  TheClaimAndItsSettlement.
+  test_the_injected_settlement_answer_is_owned_before_branching
+* test_store.py:
+  ASealedRefusalReproducesTheFirstAnswer.
+  test_an_adopted_committed_result_is_owned_before_replay
+* test_store.py:
+  ASealedRefusalReproducesTheFirstAnswer.
+  test_an_adopted_refusal_is_owned_before_revival
+
+Focused result: three failures and three raw errors. Full source is 423 methods
+with three failures, three errors and one ambient-version skip. The six new
+methods account for every nonpassing result; the delivered 417 methods are
+otherwise unchanged (416 source passes plus the skip; implementer evidence
+records 417/417 locked).
+
+Structural finding — the inventory derives validators, not trust entries
+--------------------------------------------------------------------------
+
+PLAN 4bz requires each receiving trust-domain entry and its owner. The AST walk
+starts from calls to `boundaries.<kind>` instead. A missing validator therefore
+produces no node for the inventory to discover.
+
+The implementation then drops exported callables whose reached set is empty,
+collapses every method of a class into one class entry, represents call sites as
+only `(kind, label)`, and finally checks the global union. Repeated labels and
+distinct receiving entries disappear into one pair. AuthorityPort,
+claim_operation_id and revive_refusal are already absent from the resulting
+ten-operation map, while the test's `> 5` threshold remains green.
+
+This is the anti-loop failure mode in structural form: the inventory can prove
+that visible validator calls are probed, but cannot prove that every receiver
+input has a validator. The redesigned inventory must derive trust entries
+independently -- public entry parameters, adopted persistent decodes and
+injected/callback returns -- key them by owning entry/call site, and then require
+one owner and one reachable probe for each. Validator calls may satisfy that
+inventory; they cannot be its source of truth.
+
+Observed persistent-input gaps
+------------------------------
+
+ControlStore.replay trusts adopted row payloads after SQL. A malformed committed
+`result` escapes from json.loads as JSONDecodeError. A refusal replaced with
+`{}` reaches revive_refusal and escapes as KeyError. Both are adopted persistent
+data under PLAN 4bz and must be owned as exact closed documents before replay or
+revival. The boundary-call-derived inventory cannot see either missing owner.
+
+Observed injected-result gaps
+-----------------------------
+
+Only the claim-signature result has an injected owner. Other session results
+are processed directly:
+
+* integer project_work output reaches `.get` as raw AttributeError;
+* integer claim output is durably recorded as assignment 7 and advances the
+  offer to `claimed`;
+* integer settle_operation output is silently interpreted as `live` and leaves
+  the offer accepted.
+
+These are receiver inputs at the capability return boundary. Own their exact
+document/result alternatives before branching or persistence. A generic
+`injected = text` alias cannot express those result shapes.
+
+Outcome
+-------
+
+Changes requested under the anti-loop gate; Cut D remains unstarted. This is not
+a request for six named-site patches. Correct the centralized model so the
+inventory is derived from trust entries independently of validators and the
+layer owns persistent and injected document shapes once at entry.

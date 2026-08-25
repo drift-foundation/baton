@@ -1,0 +1,24 @@
+W4 terminal signoff evidence — 2026-08-24
+
+Approver ruling (Baton thread T4, message 6492):
+- Exclude the complete IPv4-mapped IPv6 range from the shared canonical
+  locator grammar.
+- Python and Node have incompatible canonical text for that family.
+- Preserve cross-runtime same-text canonicality.
+- Any future admission requires a versioned grammar change.
+
+Independent verification carried forward from the immediately preceding
+technical review:
+- Python locator class: 10/10.
+- Python full source: 577/577; one retained skip.
+- Node focused contracts: 60/60.
+- Shared corpus: 20 accepted, 58 refused.
+- git diff --check: clean.
+
+Scope disposition:
+- Canonical locator correction: accepted and signed off.
+- Full-Node message-length failures: unrelated; owned by W1593/W2929.
+- Differential sweep counts: supplementary and not independently attested
+  because no durable generator was supplied.
+- Contracts inventory, §13 and retention: separate M2-contained Jobs under
+  umbrella PLAN item 20, not continuations of W4.

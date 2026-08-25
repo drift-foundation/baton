@@ -3,7 +3,7 @@
 `work/records/2026/08/finding-ascii-dependency-neighborhood/`, contract
 approved 2026-08-22 without amendment.
 
-The `[b] deps` page was a flat list of `blocked_by`/`blocks`/duplicate rows.
+The `[d] deps` page was a flat list of `blocked_by`/`blocks`/duplicate rows.
 It never showed how the selected Work sits BETWEEN its upstream blockers and
 its downstream dependents, so an operator reconstructed even a small N:M
 neighbourhood mentally.
@@ -1238,7 +1238,7 @@ def test_a_lone_work_renders_as_itself(world):
 
 # -- the console -------------------------------------------------------------
 #
-# The second slice. `[b]` opens the graph, `j`/`k` move by ROW while selection
+# The second slice. `[d]` opens the graph, `j`/`k` move by ROW while selection
 # is anchored by IDENTITY, Enter recenters or widens one branch, `+`/`-` move
 # depth inside 1..3, and every one of those rides the universal navigation
 # frame so Esc restores the exact prior graph.
@@ -1253,11 +1253,11 @@ def open_graph(view, work):
 	ids = [row["id"] for row in view.rows()]
 	view.cursor = ids.index(work)
 	view.selected_id = work
-	view.handle(ord("b"))
+	view.handle(ord("d"))
 	return view
 
 
-def test_b_opens_the_graph_and_esc_returns_to_the_table(world, tmp_path):
+def test_d_opens_the_graph_and_esc_returns_to_the_table(world, tmp_path):
 	blocker, center, consumer = chain(world)
 	view = console(world, tmp_path)
 	ids = [row["id"] for row in view.rows()]
@@ -1266,7 +1266,7 @@ def test_b_opens_the_graph_and_esc_returns_to_the_table(world, tmp_path):
 	# Captured with the operator's row already selected — Esc must return
 	# to the table they left, not to the top of it.
 	before = (view.mode, list(view.path), view.cursor, view.selected_id)
-	view.handle(ord("b"))
+	view.handle(ord("d"))
 	assert view.mode == "links"
 	assert view.graph_center == center
 	assert view.graph_depth == pj.DEPENDENCY_DEPTH_MIN
@@ -1280,7 +1280,7 @@ def test_b_opens_the_graph_and_esc_returns_to_the_table(world, tmp_path):
 		"Esc did not restore the table the operator left"
 
 
-def test_b_opens_the_graph_from_a_search_result(world, tmp_path):
+def test_d_opens_the_graph_from_a_search_result(world, tmp_path):
 	"""The approved entry boundary names both the table and search results."""
 	target = make(world, "graph-search-target")
 	view = console(world, tmp_path)
@@ -1291,7 +1291,7 @@ def test_b_opens_the_graph_from_a_search_result(world, tmp_path):
 	assert view.mode == "search"
 	rows, _hidden = view.visible_rows(view.search_rows())
 	assert [row["id"] for row in rows] == [target], rows
-	view.handle(ord("b"))
+	view.handle(ord("d"))
 	assert view.mode == "links"
 	assert view.graph_center == target
 
@@ -1656,7 +1656,7 @@ def test_search_entry_carries_the_search_state_back(world, tmp_path):
 	assert view.mode == "search"
 	before = (view.search_query, view.cursor, view.selected_id,
 	          view.search_page)
-	view.handle(ord("b"))
+	view.handle(ord("d"))
 	assert view.mode == "links" and view.graph_center == target
 	assert view.nav_segments()[-1].endswith(" · deps")
 	view.handle(27)

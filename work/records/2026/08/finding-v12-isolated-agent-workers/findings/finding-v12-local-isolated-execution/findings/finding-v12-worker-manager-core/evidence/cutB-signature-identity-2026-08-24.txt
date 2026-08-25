@@ -1,0 +1,131 @@
+W4 — cut B: a signature this manager could not have produced
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T10-53-27Z.md (one P1, one P2 acceptance
+drift).
+
+
+1. REPRODUCED FIRST
+
+  an indented spelling of a canonical signature   ACCEPTED and journalled
+  a signature with no `operands`                  ACCEPTED and journalled
+  a signature carrying an extra member            ACCEPTED and journalled
+
+Three durable identities `manager_signature` cannot produce.
+
+
+2. [P1] CHECKING THAT TWO ACCOUNTS AGREE IS NOT CHECKING THAT EITHER IS TRUE
+
+The previous round bound the kind to the signature, because the journal stored
+one and the signature contained the other and nothing compared them. That was
+the right fix for the finding and the wrong depth for the rule.
+
+`_agreeing` then asked: does this parse, and does its `kind` match? Both
+questions are about AGREEMENT. Neither asks whether the thing agreeing is a
+signature this manager could have written -- so an indented spelling, a document
+missing `operands`, and one carrying an extra member all passed, and each became
+a durable identity in the journal.
+
+The consequences are the two the review names. Equivalent operations can acquire
+DIFFERENT byte identities, so the journal cannot tell one act from another. And
+data outside the defined operand set can enter collision and replay identity, so
+an operation is compared on things it was never defined by.
+
+The test is not "does this parse and agree" now but "is this exactly what we
+would have written": own it as exact POD, require exactly `kind` and `operands`,
+and compare the SUPPLIED BYTES against the canonical serialization of that owned
+document. Anything else is not this manager's identity for anything, whatever it
+parses as.
+
+All of it before the journal transaction, so a refusal leaves no row -- asserted
+by both retained methods.
+
+
+3. [P2] STALE PROSE IS A WRONG ANSWER, AND THIS IS THE SECOND TIME
+
+Item 4bp required revising repository-local and offline claims. I revised two
+module docstrings and the lock header and left the gate's own text saying the
+lock resolves offline, that build isolation would reach the network contrary to
+the lock, and that the gate refuses when the wheelhouse is absent. All three
+describe the mechanism the ruling removed.
+
+A reader who trusts a comment describing a mechanism the tree does not have has
+been told something false BY THE TREE ITSELF. Corrected -- and because this is
+the second round in which stale prose was the finding, THE RULE IS NOW CHECKED: a
+removed mechanism may be mentioned only after a line marking the passage as
+history.
+
+The check's own first version was wrong in an instructive way. It scoped the
+historical marker to a PARAGRAPH, and the live sentence and the historical note
+live in one comment block -- so the escape hatch swallowed exactly the drift it
+was written to catch, and the mutation measured zero. Line-scoped now.
+
+AND ONE WORD IS DELIBERATELY NOT ON THE REMOVED LIST: `--no-index`. The second
+install uses it correctly, to install THIS project from the local directory
+rather than resolve it from an index. A list that swept it up would be banning a
+word instead of a mechanism, which is the failure this Work has now recorded
+three times.
+
+
+4. MUTATIONS -- SEVEN, FOUR WITNESSED, THREE MEASURED EQUIVALENT
+
+  U1 the bytes are not compared with the canonical form   1 case
+  U2 the two-member shape is not required                 2
+  U3 extra members are allowed alongside the two          0 -- EQUIVALENT
+  U4 the signature document is not owned                  0 -- EQUIVALENT
+  U5 the shape is checked after the journal opens         0 -- EQUIVALENT
+  U6 the gate prose claims offline again                  1
+  U7 a removed flag reappears in a live recipe            1
+
+THE THREE EQUIVALENCES, each with its reason rather than a shrug:
+
+  U3  a document with an extra member can never serialize to the canonical
+      two-member text, so the BYTE comparison already refuses it. The shape
+      check is subsumed -- and kept, because it gives the accurate reason
+      ("carries exactly kind, operands") where the byte check would only say
+      "different spelling", and because it is the direct statement of the rule
+      rather than a consequence of one.
+  U4  `json.loads` produces exact built-ins, so `own` can only add the float,
+      oversized-integer and depth/width refusals -- and `manager_signature`
+      cannot produce a signature carrying any of those, so the byte comparison
+      refuses them a line later. Defence in depth over a parse that is already
+      inert, kept for the same reason the canonicalizer keeps its own bounds.
+  U5  `replay` writes nothing, so moving the check after it changes no row and
+      no verdict: a stored signature is always canonical, so a non-canonical one
+      cannot match a stored row and reach the early return. The order is for the
+      reader and for the property the review asked for -- a refusal leaves no
+      operation row -- which holds either way today and would stop holding the
+      moment `replay` gained a write.
+
+U6 AND U7 BEGAN AS ZEROS TOO, because nothing read the gate's prose. They are the
+new check earning its keep, and the first version of that check measured zero for
+the paragraph-scope reason above.
+
+
+5. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 349 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 downloads the pinned closure from the
+                                   configured index under `--require-hashes` and
+                                   runs 349/349 inside it with nothing skipped
+  temp roots from this run          zero
+  the frozen Node oracle            UNTOUCHED
+  whitespace-damage check           clean
+
+3 regressions added; the suite is 346 -> 349.
+
+
+6. AN OBSERVATION FROM THE REVIEW, REPORTED RATHER THAN ACTED ON
+
+The independent `just build` could not resolve the configured index -- DNS failed
+after pip retries -- so the reviewer's installed stage stopped before installing
+anything. That is the ruling working as written: artifacts come from the index
+and reachability is a deployment concern.
+
+It is worth saying plainly anyway, because it changes who can run the full gate.
+Under the removed arrangement the locked stage ran anywhere; under this one it
+runs where the index is reachable, and a managed turn without egress can prove
+the source stage and not the locked one. The ruling anticipates this -- an
+operator cache or certified bundle may supply the same artifacts -- but nothing
+in the tree arranges it, and I am not inventing one. Raising it so the gap is
+recorded rather than discovered again by whoever reviews next.

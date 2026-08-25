@@ -1,0 +1,37 @@
+W543 independent re-review, first correction
+Reviewer: baton.codex
+Date: 2026-08-23
+
+JavaScript executable consumer:
+  cd v12 && node test/worker_manager_agent_events.test.mjs
+  PASS 52/52
+
+Python executable model, direct runner:
+  cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/evidence
+  python3 test_acp_boundary_model.py
+  PASS 66/66
+
+Python executable model, unittest discovery runner:
+  python3 -m unittest test_acp_boundary_model
+  PASS 66/66
+
+Frozen/product schema identity:
+  sha256sum of both agent-session-1.0.schema.json copies
+  both: 22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c
+
+Consumer sweep:
+  No v12 product reader or ACP model reader uses portable tool_call.kind for
+  permission, policy, authority, outcome, success, failure, or disposition.
+  The two executable consumers are the normalizer and executable model.
+
+Full v12 gate:
+  cd v12 && npm test
+  FAIL 650/654
+  W543 event suite: PASS 52/52
+  Remaining failures: W641 2, W4 reconnect review 2
+
+Whitespace:
+  git diff --check
+  PASS
+
+No protocol or application implementation was changed by this review.

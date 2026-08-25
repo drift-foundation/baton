@@ -1,0 +1,43 @@
+W771 independent review round 1
+UTC: 2026-08-23T18:49:02Z
+
+Focused implementation baseline before additive reviewer regressions:
+  node test/worker_manager_posture_slots.test.mjs  16/16 pass
+  node test/worker_manager_agent_session.test.mjs 18/18 pass
+  node test/worker_manager_store.test.mjs         22/22 pass
+
+Focused result after five additive reviewer regressions:
+  node test/worker_manager_posture_slots.test.mjs 16/21 pass
+
+Failing regressions:
+  1. W771 review: a provider-close label is not the observation
+     No expected refused.precondition exception: a ready session's slot was
+     released solely from the provider-session-closed string.
+
+  2. W771 review: transport loss itself enters slot recovery
+     Observation became unknown, but the slot remained occupied instead of
+     becoming recovery-required for epoch 1.
+
+  3. W771 review: runtime absence binds the attached runtime identity
+     No expected runtime-observation.identity-mismatch exception: a foreign
+     non-empty runtime identity released the slot.
+
+  4. W771 review: delayed slot evidence cannot move a newer epoch
+     No expected runtime-observation.identity-mismatch exception: delayed
+     epoch-1 ambiguity/release operands could act on epoch 2.
+
+  5. W771 review: a delayed close cannot release a newer epoch
+     Closing epoch 1 changed the epoch-2 slot from occupied to available.
+
+Full independent gate after additive reviewer regressions:
+  cd v12 && npm test
+  624 passed / 629 total
+  Exactly the five W771 reviewer regressions above failed.
+
+Review tests:
+  v12/test/worker_manager_posture_slots.test.mjs
+
+Review journal:
+  work/records/2026/08/finding-agent-session-close-axis-conflict/
+  review-2026-08-23T18-49-02Z.md
+

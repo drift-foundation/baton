@@ -638,7 +638,7 @@ def test_the_public_grammar_carries_drain_status_and_resume(world, capsys):
 	# has to guess.
 	seen = _run(capsys, config, "dispatch", participant="lang.grace")
 	assert seen["result"]["mode"] == "paused"
-	assert seen["projection_version"] == "12.4"
+	assert seen["projection_version"] == "12.5"
 	refused = _run(capsys, config, "resume", participant="lang.grace",
 	               expect_ok=False)
 	assert "does not hold the `dispatch`" in refused["error"]

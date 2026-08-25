@@ -20,6 +20,8 @@ import { certifyAgentSessionProfile }
 	from "../src/worker_manager/agent_profile.mjs";
 import { agentSessionsOf, closeAgentSession, nextEpoch, openAgentSession }
 	from "../src/worker_manager/agent_session.mjs";
+import { releaseSlot, requireSlotRecovery }
+	from "../src/worker_manager/posture_slots.mjs";
 
 after(removeOwnedRoots);
 
@@ -57,10 +59,7 @@ const ACP_PROFILE = {
 	  "build_digest": "sha256:b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1"
 	 },
 	 "client_capabilities": {
-	  "fs": {
-	   "read_text_file": false,
-	   "write_text_file": false
-	  },
+	  "fs": {},
 	  "terminal": false
 	 },
 	 "session_capabilities": [
@@ -99,7 +98,7 @@ const ACP_PROFILE = {
 	  "max_queue_bytes": 4194304
 	 },
 	 "agent_policy_digest": "sha256:c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-	 "document_digest": "sha256:22a2eacfe57c7c3a9766b827b1aa9e07c7d715a62b2e8a53965192d73fde6059"
+	 "document_digest": "sha256:3c7b7a50953dd4075533c7c3d90d034920f34bb458b07d799d0f61419bccbe4a"
 	};
 
 /** The manager's own authority handle. It answers ONE question — what the
@@ -223,42 +222,104 @@ test("W2929: every epoch is FRESH, ACROSS LEGITIMATE CLOSURES", () => {
 		for (const posture of ["consent", "consent", "execution", "consent"]) {
 			const opened = openAgentSession(store, api(),
 				{ attemptId: ATTEMPT, posture, profileDigest });
-			epochs.push([posture, opened.agentSessionRef.sessionEpoch]);
-			assert.equal(closeAgentSession(store, {
-				attemptId: ATTEMPT, posture,
-				epoch: opened.agentSessionRef.sessionEpoch }).closed, true);
+			const epoch = opened.agentSessionRef.sessionEpoch;
+			epochs.push([posture, epoch]);
+			// MIGRATED under W771's ruling. This case is about EPOCH
+			// FRESHNESS, and it used to get the posture back by writing
+			// `closed` over a `not-started` row — an edge §7.3 forbids, taken
+			// because `closed` was also the only thing that freed a posture.
+			// A session that never initialized ended AMBIGUOUSLY, so the
+			// honest path is the one the ruling added: the slot needs
+			// recovery, and positive absence evidence returns it. The
+			// observation stays `not-started`, because that is what was seen.
+			// W771 review: evidence names the EPOCH it is about and the
+			// EXACT runtime the attempt is attached to, so this attaches one
+			// before observing it absent.
+			store.db.prepare("UPDATE attempts SET runtime_id = ? WHERE "
+				+ "runtime_attempt_id = ?")
+				.run(`container-${posture}-${epoch}`, ATTEMPT);
+			requireSlotRecovery(store, { attemptId: ATTEMPT, posture,
+				sessionEpoch: epoch,
+				reason: "the session never initialized" });
+			releaseSlot(store, { attemptId: ATTEMPT, posture,
+				sessionEpoch: epoch, evidence: "runtime-absent",
+				runtimeIdentity: `container-${posture}-${epoch}`,
+				reason: "the exact assignment container was observed absent" });
 		}
 		assert.deepEqual(epochs, [["consent", 1], ["consent", 2],
 		                          ["execution", 1], ["consent", 3]],
 			"an epoch was reused, or the two postures shared a counter");
-		// A closed epoch is never reopened: the next one is always the next.
+		// A finished epoch is never reopened: the next one is always the next.
 		assert.equal(nextEpoch(store, ATTEMPT, "consent"), 4);
 		assert.equal(nextEpoch(store, ATTEMPT, "execution"), 2);
+		// AND RECOVERY REWROTE NO HISTORY. Every epoch's observation is still
+		// exactly what the provider was seen to do, which is the whole of
+		// W771's separation.
+		assert.deepEqual(agentSessionsOf(store, ATTEMPT)
+			.map((row) => row.state),
+			["not-started", "not-started", "not-started", "not-started"]);
 	} finally {
 		store.close();
 	}
 });
 
-test("W2929: only CLOSING frees the posture", () => {
+test("W771: positive absence evidence recovers the posture", () => {
+	// RENAMED on the review's case-specific authority. The old title, "only
+	// CLOSING frees the posture", became false the moment the ruling
+	// separated the two axes — closing is now ONE kind of positive evidence
+	// and runtime absence is another. Every assertion below is retained and
+	// strengthened.
 	const store = open();
 	try {
 		const profileDigest = attemptFor(store);
 		const first = openAgentSession(store, api(),
 			{ attemptId: ATTEMPT, posture: "consent", profileDigest });
 		// `unknown` is transport ambiguity — where a second session is most
-		// tempting and least safe — and it does NOT free the posture, because
-		// re-identification after it is a gate this slice has not built.
+		// tempting and least safe — and it does NOT free the posture.
+		//
+		// MIGRATED under W771's ruling, and the property is UNCHANGED: what
+		// used to free the slot was writing `closed` over that `unknown`,
+		// which §3.3 names as recording knowledge nobody acquired. Positive
+		// absence evidence frees it now, and the `unknown` observation
+		// SURVIVES — the durable result is exactly the coherent shape the
+		// ruling describes.
 		store.db.prepare("UPDATE agent_sessions SET state = 'unknown' "
 			+ "WHERE runtime_attempt_id = ?").run(ATTEMPT);
+		store.db.prepare("UPDATE attempts SET runtime_id = ? WHERE "
+			+ "runtime_attempt_id = ?").run("container-consent-1", ATTEMPT);
+		requireSlotRecovery(store, { attemptId: ATTEMPT, posture: "consent",
+			sessionEpoch: 1,
+			reason: "the transport died and nothing observed the ending" });
 		assert.throws(() => openAgentSession(store, api(),
 			{ attemptId: ATTEMPT, posture: "consent", profileDigest }),
 			(error) => error instanceof ContractError
 				&& error.code === "duplicate-runtime");
-		closeAgentSession(store, { attemptId: ATTEMPT, posture: "consent",
-			epoch: first.agentSessionRef.sessionEpoch });
+		// And a stop REQUEST is not the observation, so it recovers nothing:
+		// only evidence from the closed set moves the slot.
+		for (const [what, operands] of [
+				["no evidence", { }],
+				["a stop request", { evidence: "stop-requested" }],
+				["absence without an identity",
+				 { evidence: "runtime-absent" }]]) {
+			assert.throws(() => releaseSlot(store, { attemptId: ATTEMPT,
+				posture: "consent", sessionEpoch: 1,
+				reason: "wanted the posture back", ...operands }),
+				(error) => error instanceof ContractError
+					&& error.category === "integrity"
+					&& error.code === "schema", what);
+		}
+		releaseSlot(store, { attemptId: ATTEMPT, posture: "consent",
+			sessionEpoch: 1, evidence: "runtime-absent",
+			runtimeIdentity: "container-consent-1",
+			reason: "the exact assignment container was observed absent" });
 		assert.equal(openAgentSession(store, api(),
 			{ attemptId: ATTEMPT, posture: "consent", profileDigest })
 			.agentSessionRef.sessionEpoch, 2);
+		// The first epoch's observation is untouched: recovery recovers
+		// CAPACITY and never relabels evidence.
+		assert.equal(agentSessionsOf(store, ATTEMPT)
+			.find((row) => row.session_epoch === 1).state, "unknown");
+		assert.equal(first.agentSessionRef.sessionEpoch, 1);
 	} finally {
 		store.close();
 	}

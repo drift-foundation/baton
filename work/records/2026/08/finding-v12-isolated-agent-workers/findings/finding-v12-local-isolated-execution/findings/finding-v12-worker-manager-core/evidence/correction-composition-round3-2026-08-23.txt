@@ -1,0 +1,111 @@
+W4 / W2929 item 4as — composition correction, round 3
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T21-19-33Z.md (one P2).
+Items 4ah and 4ao remain OPEN RULINGS and are not decided here.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test test/worker_manager_refusal_taxonomy.test.mjs  10 pass, 1 fail
+
+Exactly the additive review regression. The finding is correct.
+
+
+2. A BOUNDED OUTPUT IS NOT A BOUNDED OPERATION
+
+`bounded` probed the length cheaply, stopping after 61 characters -- and then
+spread the WHOLE string to slice sixty characters off the front. 1,063
+iterator steps and a full-size array to produce a 61-character answer.
+
+I had fixed the thing I could see in the output and left the work
+proportional to what was being discarded. Round two was about measuring in the
+contract's unit; this is about the same helper doing the measuring
+efficiently, and the two are the same mistake at different depths: I checked
+the ANSWER and not the ACT.
+
+And it is a REFUSAL PATH. The transient cost of explaining a rejection should
+not scale with the rejected value either -- that is the same sentence as "a
+refusal must not run the value it refuses", one property over.
+
+ONE PASS THAT STOPS. The prefix is built while counting and the loop returns
+the moment the limit is exceeded, so at most 61 characters are ever visited
+whatever the caller sent. The cheap code-unit test in front of it is exact for
+the short case -- a code point is never more than one code unit -- so an
+ordinary short value is not iterated at all.
+
+
+3. MUTATIONS -- FOUR, ALL WITNESSED
+
+  X1 the prefix materializes the whole string again   1 case fails
+  X2 the loop never stops early                       6 cases fail
+  X3 the cheap short-circuit is removed               1 case fails
+  X4 the prefix is built by code unit                 1 case fails
+
+X3 MEASURED ZERO FIRST and it was an EQUIVALENCE for behaviour: without the
+short-circuit the loop handles short strings correctly, so the answer is
+identical and only the traversal differs. I witnessed it rather than reporting
+it, by measuring iterator yields for a SHORT name the way the review measured
+them for a long one. An optimisation nothing observes is an optimisation
+nothing protects, and this manager has now had two findings in two rounds
+about work that was invisible because only the answer was checked.
+
+
+4. THE REGRESSION ADDED IS THE GENERAL PROPERTY
+
+`a refusal is bounded by the RULE, not by the operand`. The review found this
+in one helper; it is a property of every refusal, so it is asserted as one --
+a reference with 20,000 members, an update with 20,000 members, a
+40,000-character method, a 40,000-character turn token and a 40,000-character
+attempt id, each required to refuse with a message under 500 characters. All
+five hold: 147, 92, 181, and the two identity paths through the bounded name.
+
+Plus the short-input yield count from section 3, so both halves of the rule
+are pinned: bounded for a huge operand, free for an ordinary one.
+
+
+5. MEASURED, REPORTED, AND NOT FIXED HERE
+
+W641's shared `recordFault` interpolates every own member NAME of a rejected
+record. Measured:
+
+  validateClientCapabilities, envelope with 20,000 members
+      -> ContractError, message 269,042 characters
+  validateClientCapabilities, `fs` with 20,000 members
+      -> ContractError, message 269,065 characters
+
+That is the same defect this correction is about, in the module W4 consumes.
+It stays in the closed taxonomy, so nothing is unsafe -- the refusal is
+correct and enormous.
+
+I did not touch it. Item 4ai reserves `records.mjs` to W641, and a fix from
+here would put the change in the wrong Work.
+
+W641 had CLOSED satisfying by the time I measured this, so its thread refused
+the report -- correctly, since a closed context is readable history. Raised as
+FOLLOW-UP WORK W1593 instead, bound to
+`work/records/2026/08/finding-unbounded-refusal-diagnostics`, carrying the
+measurement, the suggested shape and the list of signed-off behaviour that
+must not move. My new case carries the numbers and the two capability rows it
+should grow the day W1593 is closed.
+
+
+6. GATES
+
+  refusal taxonomy             12 / 12
+  session axis                 16 / 16
+  turn                         50 / 50
+  reconnect                    32 / 32
+  posture slots                25 / 25
+  full v12 npm test            685 tests, 685 pass, 0 FAIL
+  TMPDIR bracket               zero test-owned roots (the one entry is
+                               node-compile-cache, Node's own)
+  design models                64 / 66 / 24 / 74, all OK
+  v11 pytest                   2980 passed; serial 52 passed
+  codex-event-bridge           336 / 336
+  acp-baton-bridge             55 / 55
+  whitespace-damage check      clean
+
+
+7. THE OPEN RULINGS
+
+4ah and 4ao are Slawomir's and are unchanged by this round.

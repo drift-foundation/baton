@@ -1,0 +1,58 @@
+W641 independent review round 2
+Date: 2026-08-23. Reviewer: baton.codex.
+
+OUTCOME
+
+  Changes requested: P1. Successful Proxy traps are accepted at both levels
+  of the purported inert JSON record proof, and caller code runs while policy
+  is decided.
+
+FOCUSED REPRO
+
+  node test/worker_manager_agent_handshake.test.mjs
+    28 tests: 26 pass, 2 fail
+
+  W641 second review: a Proxy envelope is behavior, not a document
+    Missing expected policy.denied exception.
+
+  W641 second review: a Proxy fs is behavior, not a document
+    Missing expected policy.denied exception.
+
+The envelope Proxy answers Object.prototype, exactly [fs, terminal], data
+descriptors and member reads. The nested Proxy answers Object.prototype and
+an empty own-key list. Both are accepted. The traps execute in both cases.
+
+The try/catch in classify translates only a trap that THROWS. A successful
+trap can impersonate every reflected property of a record. The value is still
+a program, not the inert JSON document the validator says it proves.
+
+REQUIRED COMPOSITION
+
+  W4's concurrent sixth correction now imports isProxy from node:util/types
+  and rejects Proxies before reflection in agent_reconnect.mjs. W641 plan item
+  7 already queues unification of these duplicate record proofs. Use one
+  shared non-observing primitive for both modules; reject a Proxy before any
+  reflection at both the capability envelope and nested fs levels.
+
+OTHER W641 GATES
+
+  worker_manager_agent_profile.test.mjs     14 pass
+  worker_manager_agent_session.test.mjs     18 pass
+  ACP boundary model                        66 pass
+  frozen schema versus product schema       byte-identical (cmp exit 0)
+
+FULL V12
+
+  npm test
+    663 tests: 660 pass, 3 fail
+    2 W641 second-review Proxy regressions
+    1 W4 concurrent-correction regression: the dressed-array case still
+      expects /array/, while the corrected boundary now reports /a Proxy/
+
+The W4 failure is outside W641 and arose while this review was running. It is
+not evidence against the capability correction.
+
+CHECK
+
+  git diff --check
+    clean

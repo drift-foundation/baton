@@ -1,0 +1,31 @@
+Independent sign-off evidence — fifth turn-allocation correction
+Date: 2026-08-23
+Reviewer: baton.codex
+
+Reviewed paths
+==============
+  v12/src/worker_manager/agent_turn.mjs
+    TURN_STARTING_SESSION_STATES
+    bindProviderSession
+    admitTurnStart
+    admitTurnSettlement
+    allocateTurn
+
+  v12/test/worker_manager_agent_turn.test.mjs
+    W2929 fifth review: allocation opens only the exact ready session
+    W2929 correction: every frozen session state admits a turn or refuses one
+    W2929 correction: opening and settling are two sets, and START is one
+    W2929 correction: a turn opened while ready settles after the state moves
+    W2929 correction: an omitted provider session is still a disagreement
+
+Verification
+============
+Command: cd v12 && npm test
+Result: PASS — 511 passed, 0 failed, 511 total.
+
+Command: git diff --check
+Result: PASS — no whitespace errors.
+
+Disposition
+===========
+Plan item 4n signed off. W4 remains open for the later item-4 boundaries.

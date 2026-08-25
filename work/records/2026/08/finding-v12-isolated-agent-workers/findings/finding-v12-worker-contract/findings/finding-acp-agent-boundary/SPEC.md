@@ -611,8 +611,8 @@ has never seen is COUNTED rather than dropped or guessed at.
 | `agent_message_chunk` | `agent-message` | text and resource-link content only |
 | `agent_thought_chunk` | `agent-reasoning` | content is diagnostics; never portable evidence |
 | `user_message_chunk` | `other` | the relay authored the prompt; an echo is diagnostic |
-| `tool_call` | `tool-call` | carries the ACP `toolCallId`, `kind`, `status` |
-| `tool_call_update` | `tool-call-update` | status only from ACP's four values |
+| `tool_call` | `tool-call` | carries the ACP `toolCallId` and `status`, and `kind` when the provider supplies one (§6.2.1) |
+| `tool_call_update` | `tool-call-update` | the same three; status only from ACP's four values |
 | `plan` | `plan` | digest-bound before any use beyond display |
 | `plan_update` | `plan` | superseding entry under the same plan id |
 | `plan_removed` | `plan` | explicit removal entry |
@@ -621,6 +621,53 @@ has never seen is COUNTED rather than dropped or guessed at.
 | `session_info_update` | `session-info` | |
 | `usage_update` | `usage` | integers only; never a limit or a decision |
 | `available_commands_update` | `commands-changed` | |
+
+#### 6.2.1 The tool-call `kind` — corrected 2026-08-23 (W543)
+
+**The row above previously read "carries the ACP `toolCallId`, `kind`,
+`status`" while `$defs.toolCallView` permitted only `tool_call_id`, optional
+`title` and `status` with `additionalProperties: false`.** The two frozen
+artefacts contradicted each other: a consumer following the prose expected
+evidence the schema forbade, and one following the schema silently discarded a
+field the prose required. That contradiction is corrected here rather than
+left for each reader to resolve; the superseded reading is quoted above so the
+next reader can see which way it was resolved and why.
+
+**Confirmed ruling by Slawomir, 2026-08-23**, recorded in full at
+`work/records/2026/08/finding-acp-tool-call-kind-contract-conflict/`:
+
+- `kind` is **portable but OPTIONAL advisory evidence**. The pinned ACP 1.3
+  SDK declares `kind?: ToolKind` on `ToolCall` and `kind?: ToolKind | null` on
+  `ToolCallUpdate` — permitted, never required.
+- Baton **copies** a valid `kind` when the provider supplies one and **omits**
+  the member when it does not.
+- **The two sources do not admit the same shapes**, and the declaration above
+  is the whole reason: an OMITTED member is absence on either source, but an
+  explicit `null` is the SDK's own "not supplied" only on `tool_call_update`.
+  On the initial `tool_call`, `kind?: ToolKind` does not admit `null`, so an
+  explicit `null` there **refuses** as `integrity.schema` rather than being
+  read as the provider omitting the member. Recorded on independent review of
+  the correction, 2026-08-23: the first draft quoted the distinction and then
+  normalized both sources identically, which erases it.
+- **Baton never invents a kind.** Absence does not become `other`, and no
+  title, tool name, command text, adapter family or later status may be used
+  to infer one. A missing kind is missing evidence.
+- When present the value is one of the pinned ACP 1.3 `ToolKind` values —
+  `read`, `edit`, `delete`, `move`, `search`, `execute`, `think`, `fetch`,
+  `switch_mode`, `other`. Anything else **refuses** rather than silently
+  widening the frozen contract; a later ACP vocabulary needs explicit
+  version/certification work. A refusal tests the value's SHAPE before its
+  membership of that vocabulary and does not serialize, hash or otherwise run
+  the value it is rejecting: every invalid value leaves this boundary as the
+  closed `integrity`/`schema` pair, never as a raw language exception.
+- The field may support **presentation** — a tool-category label or icon, the
+  use the SDK's own declaration names. It **decides no permission, policy,
+  tool authority, turn outcome, success, failure or disposition.**
+
+The captured trace at `evidence/traces.json` records root-level `toolCallId`
+and `status` and carries no `kind`. That is now a POSITIVE example of the
+absent case rather than an undecidable gap: a provider that supplies no kind
+produces a portable view without the member.
 
 ### 6.3 Content restrictions
 

@@ -19,3 +19,11 @@ dependent neighbors without suggesting blink behavior.
 
 This is a TUI wording/help correction only. The `b` key, links projection,
 dependency graph, empty-state text, JSON, and protocol remain unchanged.
+
+## Superseded key ruling — 2026-08-23
+
+The instruction to preserve `b` is superseded by the independently scheduled
+record `work/records/2026/08/finding-tui-dependency-key-d/`. The current
+confirmed contract is `[d] deps`; lowercase `b` is removed with no
+compatibility alias. The graph and protocol portions of the 2026-08-16 ruling
+remain current.

@@ -1,0 +1,176 @@
+W2845 — the caller-supplied label, and the audit that missed it
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T07-10-44Z.md (one P1, one P2).
+Frozen Node authority: outside the patch boundary and untouched.
+
+
+1. BOTH REPRODUCED FIRST, TO THE CHARACTER
+
+  own                    1,000,139        check_text             1,000,037
+  check_authority_uuid   1,000,072        check_timestamp        1,000,082
+  check_work_id          1,000,108        assignment_key         1,000,056
+  check_participant      1,000,044        normalize_assignment   1,000,139
+  check_generation       1,000,051
+  check_opaque_id        1,000,014
+
+Ten exported helpers, and three classifier false positives:
+
+  name_of(value) + value      classified BOUNDED
+  ', '.join(caller_values)    classified BOUNDED
+  what                        classified BOUNDED
+
+After the correction all ten are under 500 characters and all three classify as
+unbounded.
+
+
+2. THE P2 IS THE FINDING, AND THE P1 IS ITS CONSEQUENCE
+
+The audit I wrote to stop this defect is the reason it survived. It classified an
+interpolation by UNPARSING it and matching a string prefix, so:
+
+  it read `name_of(value) + value` as bounded because the TEXT began with
+  `name_of`, which is a bounded call inside an unbounded expression;
+  it accepted any `join` of anything, with no proof the iterable was ours;
+  and it accepted `what` BECAUSE OF HOW THE VARIABLE WAS SPELLED.
+
+`what` is package prose at every internal call site and caller text at every
+exported one. Trusting the spelling meant one entry, written for the internal
+sites, silently covered the ten exported ones -- so a check whose stated purpose
+was "no site is trusted because somebody looked at it once" trusted thirty sites
+because of a variable name.
+
+I wrote in the last evidence that a rule nothing checks holds wherever somebody
+happened to look. The sharper version is the one I have now been shown: A CHECK
+THAT MATCHES SPELLING INSTEAD OF ORIGIN IS ANOTHER PLACE FOR SOMEBODY TO HAVE
+LOOKED ONCE.
+
+
+3. THE LABEL, BOUND ONCE AT THE BOUNDARY
+
+`label_of` bounds a caller-supplied label, applied at the entry of every function
+that accepts one -- ten in `identity`, one in `store`, four in `core`. A label is
+not QUOTED the way a rejected value is, because it is prose naming the operand a
+rule is about and quoting it would make every message read like a citation. The
+LENGTH rule is the same rule, so it applies.
+
+AND THE BOUND IS MEASURED, NOT CHOSEN. Binding the label at the sixty-character
+VALUE limit truncated this package's own longest label mid-word and took the
+member name with it, so twelve publication cases went from "policy_digest is
+nonempty text" to a sentence that no longer said which digest was missing. That
+is the settlement-signature lesson in a second place: A BOUND BELOW WHAT THE
+AUTHORITY ITSELF LEGITIMATELY PRODUCES BREAKS THE AUTHORITY RATHER THAN THE
+CALLER. The limit is 160, and a case measures the package's longest label plus
+one rendered member and fails if that ever exceeds it -- so the number is checked
+rather than remembered.
+
+A THIRD THING, FOUND BY A MUTATION WITH NO WITNESS: a label that is not text was
+returned raw and then interpolated, and `f"{what}"` CALLS `__str__`. A caller
+supplying a hostile label could therefore replace the refusal the boundary had
+already decided on with an exception of its own choosing -- the exact rule
+`name_of` exists to enforce, in the one place nobody had checked it. A non-text
+label is named by its type now, and a case offers a label that raises from
+`__str__`, `__repr__` and `__format__` and asserts none of them ran.
+
+
+4. THE CLASSIFIER, PROVING SHAPES AND ORIGINS
+
+  a bounding call     the WHOLE interpolation is one call to a named bounding
+                      helper. A `BinOp` with a bounded operand is not bounded,
+                      and neither is a conditional, a subscript, a slice, a
+                      `%`-format, an f-string of both, or a generator inside a
+                      join.
+  a proven join       `"...".join(X)` only when X is proved package-owned.
+  a package constant  proved BY FIXPOINT over the whole package: a name is owned
+                      when the module assigns it an expression that reaches
+                      outside nothing, and `GATE_KINDS = frozenset({...})` is
+                      owned on the second pass because the names it mentions are
+                      owned on the first. Origin all the way down.
+  a proven local      a bare name assigned IN SCOPE from a bounding call, with
+                      the scope chain unioned because a closure reads its
+                      enclosing function. This is how `what` earns its place now
+                      -- by where its value came from, not by its name.
+  a named site        keyed by MODULE, FUNCTION and expression.
+
+The named-site table is eleven entries and each states its reason. It is keyed by
+SITE, and the property is enforced rather than described: fabricated findings
+prove that an entry excuses the one site it names and neither the same expression
+in another function nor in another module.
+
+Two other things the rewrite fixed, both found while doing it:
+
+  the walker attributed each closure's refusals TWICE, once to `body` and once to
+  the transition around it, so a named entry could have been written for the
+  wrong one. It descends with a scope stack now and the site belongs to the
+  innermost function.
+  116 interpolations, 22 unproven, 11 named. The old classifier reported ZERO
+  unproven -- which is what a prefix match looks like when it agrees with you.
+
+
+5. MUTATIONS -- TWELVE, ALL WITNESSED
+
+  L1 the label is not bounded at all           11 cases
+  L2 own does not bind its label                6
+  L3 the label bound is the value bound        17
+  L4 a non-text label is rendered raw           4
+  C1 the classifier matches by text prefix      3
+  C2 a bounded operand bounds the expression    5
+  C3 a join is accepted unproved                3
+  C4 any bare name is accepted                  2
+  C5 a named site is keyed by expression alone 11
+  C6 the constant fixpoint runs once            1
+
+TWO STARTED AS ZEROS AND NEITHER WAS AN EQUIVALENCE.
+
+  L2 was MY MUTATION: I inserted `pass` after the `def`, which changes nothing,
+  because the binding line still ran. Rewritten to remove the binding, it fails
+  six -- and one of the six is the AST check, because without the assignment
+  `what` is no longer a proven local. The source check and the behaviour catch
+  the same omission from opposite directions, which is the argument for having
+  both.
+  L4 was a MISSING CASE, and the missing case was the hostile label in section 3
+  -- the most interesting thing in this round, and I would not have looked for it
+  if the zero had not been there.
+
+C5 failing eleven is the property the last version lacked: the entry that
+excused `what` everywhere could not have been written this way.
+
+
+6. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 221 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              221/221 from the wheel, imported out of
+                                   site-packages, race children still proving
+                                   their package origin
+  exported names                   20, unchanged (`label_of` is public in
+                                   `errors` and in that module's `__all__`, not
+                                   in the package promise)
+  both reviewer methods            green
+  temp roots after the run         zero
+  the frozen Node authority        UNTOUCHED
+  whitespace-damage check          clean
+
+
+7. REGRESSIONS -- 6 ADDED, THE SUITE IS 215 -> 221
+
+  the label bound exceeds the longest label we write
+      measured, and the property is our longest literal PLUS one rendered member
+  a label at the bound keeps its ending
+      the four digest members, which is what the sixty-character bound broke
+  a caller-supplied label is still bounded
+  a label that is not text is named and NEVER RUN
+  a named site does not travel
+      fabricated findings, so it is the lookup being tested and not today's table
+  the shapes the classifier must still reject
+      nine more beyond the reviewer's three: an f-string of both, a conditional,
+      a subscript, a generator inside a join, `str`, `repr`, `%`-format, a slice,
+      and `.decode()`
+
+
+8. WHAT DID NOT CHANGE, DELIBERATELY
+
+No durable-text operand cap. No accepted operand shortened or rejected for
+length. The settlement ruling stands and its case passes as written: the
+authority still accepts and exactly compares the 100,185-character signature it
+can itself produce. Only the rendering of a rejected value -- and now of a
+rejected label -- is bounded.

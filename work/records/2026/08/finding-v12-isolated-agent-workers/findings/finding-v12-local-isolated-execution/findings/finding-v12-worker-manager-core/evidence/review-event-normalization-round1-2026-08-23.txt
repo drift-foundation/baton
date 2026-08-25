@@ -1,0 +1,57 @@
+W2929 item 4o independent review evidence — 2026-08-23
+
+Reviewed boundary
+-----------------
+v12/src/worker_manager/agent_events.mjs
+v12/src/worker_manager/schema.mjs
+v12/test/worker_manager_agent_events.test.mjs
+Frozen ACP SPEC §§6.1-6.4, its agent-session schema, model and captured trace.
+
+Frozen evidence revalidated
+---------------------------
+* SPEC §6.2 says agent_thought_chunk content is diagnostics and never
+  portable evidence.
+* evidence/traces.json records ACP tool_call and tool_call_update fields at
+  the update root: sessionUpdate, toolCallId and status.
+* SPEC §6.4 says the consumer verifies the seal before reading another field,
+  answers with the same sealed bytes, and returns owned copies.
+* evidence/acp_boundary_model.py enforces the event limit against the
+  canonical byte length of the complete event, not its byte_count member.
+* A sealed event owns its turn_id; observation metadata lives beside it.
+
+Focused command
+---------------
+cd v12 && node test/worker_manager_agent_events.test.mjs
+
+Result: 29 passed, 6 failed, 35 total. The only failures are the six additive
+reviewer regressions:
+
+1. agent reasoning content remains diagnostic-only;
+2. the captured root-level ACP tool-call shape normalizes directly;
+3. first observation and replay answer with owned copies of the same sealed
+   document;
+4. replay authenticates the retained sealed frame;
+5. a sealed turn binding cannot disappear through an omitted optional
+   observation operand;
+6. the limit measures canonical sealed-event bytes rather than trusting the
+   event's claimed byte_count.
+
+Full command
+------------
+cd v12 && npm test
+
+Result: 540 passed, 6 failed, 546 total. Again, the only failures are those
+six additive reviewer regressions. All 540 delivered tests remain green.
+
+Repository whitespace gate
+--------------------------
+git diff --check
+
+Result: clean (no output).
+
+Interpretation
+--------------
+The slice's schema, closed taxonomy, ordinary content filtering, durable
+ordering, duplicate collision, lateness, secret scan and delivered baseline
+remain accepted. The six failures isolate four correction areas: ACP mapping,
+same-sealed-document replay, turn identity, and canonical event bounds.

@@ -1,0 +1,170 @@
+W4 — cut B correction, and the dependency-distribution ruling
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T10-42-01Z.md (three P1, one P2) plus the
+approved migration in PLAN item 4bp.
+
+
+1. ALL FOUR REPRODUCED FIRST
+
+  concurrent first openers      raw `table meta already exists`
+  a foreign `meta(id INTEGER)`  raw `no such column: key`
+  a reused id with another kind replayed the first success
+  the journal row shape         accepted all four impossible combinations
+
+
+2. [P1] THE CHECK OUTSIDE ANSWERS; THE LOCK DECIDES -- AND I APPLIED THAT TO
+   ONE OF THE TWO PLACES THAT NEEDED IT
+
+`transact` re-reads inside the lock, and I wrote a comment saying why: two
+managers can pass the optimistic peek concurrently and a read-then-write check
+outside would let both through. `open` did the same thing and did NOT re-read:
+emptiness was decided before the lock, so when several managers observed one
+fresh database as empty the first created the schema and every waiter resumed
+into the same `CREATE TABLE`.
+
+The same sentence, the same file, applied at one of two sites. That is the fifth
+time this campaign, and the first time I had already written the rule down in the
+module where I then failed to follow it.
+
+Initialization now re-reads under the lock: still empty -> create; already ours
+-> adopt by exactly the rule any other existing store is adopted by; foreign ->
+refuse untouched.
+
+
+3. [P1] A NAME IS NOT PERMISSION
+
+The mere name `meta` was treated as licence to run `SELECT key, value FROM meta`,
+so a foreign database carrying `meta(id INTEGER)` escaped as a raw SQLite error.
+The empty-or-ours rule covers EVERY foreign schema, including one that happens to
+reuse a generic table name -- so the probe runs inside the taxonomy rather than
+in front of it, and a caller reading our refusals does not have to know SQLite's
+error vocabulary to learn their database is not ours.
+
+The two foreign shapes are told apart, because "no metadata at all" and "a meta
+we cannot read" are different facts and the second message is wrong about the
+first. Measured: removing the first branch still REFUSED, with the wrong reason.
+
+
+4. [P1] TWO CALLER ACCOUNTS OF ONE FACT
+
+The journal stores `kind`, `manager_signature` puts the kind INSIDE the
+signature, and `transact` took both from the caller and compared neither. So a
+first write could record a row whose two accounts of the kind contradicted each
+other, and a retry with the same signature and a different kind replayed the
+first success instead of colliding.
+
+Bound at the write, so a contradictory row cannot exist to be replayed, AND
+compared at replay, so a row written by another writer or an older build still
+collides. Both, because unreachable is not the same as unnecessary -- the
+write-time check makes the replay comparison unreachable from the public path,
+and a store is not the only thing that writes to a store.
+
+
+5. [P2] IMPOSSIBLE STATE, REJECTED BY THE STORE
+
+`state` was constrained and its payload columns were not, so the table accepted a
+committed row with no result, a committed row carrying a refusal, a refused row
+with no refusal, and a refused row carrying a result. `_record` writes coherent
+rows -- and every action receives the same connection, and later cuts add writers.
+
+One CHECK, and JSON `null` stays the TEXT "null" so it remains distinct from SQL
+NULL, for the same reason `replay` answers presence separately from value.
+
+THE VERSION WENT TO 2 WITH IT. A store written under the weaker table cannot
+satisfy the rule this build enforces, and keeping the number would have let this
+build adopt one -- which is the "does not guess across versions" rule applied to
+my own change instead of somebody else's.
+
+AND THE INVARIANT CAUGHT MY OWN TESTS: two fixtures wrote committed rows with no
+result as side-effect markers. That is the argument for putting the rule in the
+schema rather than in the writer.
+
+
+6. [4bp] DEPENDENCY DISTRIBUTIONS ARE OUT OF GIT
+
+  removed          v12/python/wheelhouse, 7 artifacts, 3.2 MB, including the
+                   platform-specific rpds-py wheel
+  the justfile     no WHEELHOUSE variable, no refuse-if-absent guard, no
+                   --no-index --find-links. A disposable venv downloads the
+                   locked artifacts from the configured index with
+                   --require-hashes still enforced
+  the lock         header corrected: its hashes are the artifacts' own, and the
+                   checkout downloads and verifies them
+  two docstrings   "hash-locked offline build" -> "hash-locked build"
+  the case         the wheelhouse class became `TheHashesAreTheArtifactsOwn`.
+                   The MECHANISM is superseded and the PROPERTY is not: "a lock
+                   whose hashes came from a document rather than from the bytes
+                   pins a claim" is true wherever the bytes come from, so the
+                   check moved to the environment the lock produces rather than
+                   being deleted with the directory it used to read
+
+THE FIRST LOCKED DOWNLOAD AFTER THE RULING WAS REFUSED, and that is the finding
+worth recording. `pip` and `setuptools` were hashed from DEBIAN'S REPACKAGED
+WHEELS in /usr/share/python-wheels, because under the offline arrangement those
+WERE the artifacts. The index serves different bytes for the same version, so
+`--require-hashes` stopped the build and named pip's expected and actual digests.
+
+The mechanism worked exactly as intended. A hash is a fact about BYTES, and the
+bytes changed when their source did -- so both were re-measured from the index's
+artifacts rather than carried over. Had the flag been advisory, the build would
+have silently installed something the lock did not describe.
+
+
+7. AND A DEFECT IN MY OWN GATE, FOUND WHILE DOING THIS
+
+THE SOURCE STAGE RESOLVES THE AMBIENT `jsonschema`, which on this machine is
+4.19.2 while the lock pins 4.26.0. So a green source run proved the code works
+with a version this distribution does not pin, and it had been doing that
+quietly for two rounds -- including in evidence I wrote.
+
+The arrangement is defensible; the SILENCE was not. So the source stage now
+prints which validator it resolved, the pinned-version case reports what it found
+instead of skipping invisibly, and a case asserts the gate really does include
+the stage that builds the locked environment and runs this suite inside it.
+
+Measured: inside the locked environment nothing skips, and the pinned versions
+assertion runs for real.
+
+
+8. MUTATIONS -- SEVENTEEN, ALL WITNESSED
+
+  T1  emptiness is not re-read inside the lock     1 case
+  T2  a foreign meta escapes the taxonomy          1
+  T3  the name meta is permission enough           1
+  T4  the kind is not compared on replay           1
+  T5  the kind and signature need not agree        1
+  T6  a non-canonical signature is accepted        2
+  T6b the non-text signature escapes as a fault    1
+  T7  the journal row invariant is dropped         4
+  T8  the version is not raised with the shape     1
+  T9  the locked build stops enforcing hashes      1
+  T10 a distribution reappears in the tree         1
+  and R1-R16 from cut B, unchanged
+
+SIX BEGAN AS ZEROS. Five were missing cases -- the two foreign shapes told apart,
+a recorded kind that disagrees, a contradictory submission writing no row, a
+non-text signature, and a store written under the previous shape.
+
+THE SIXTH WAS A CASE MEASURING PROSE. `test_the_build_still_enforces_the_hashes`
+searched the WHOLE justfile for `--require-hashes` -- and the comment two lines
+above the install command contains it, so removing the flag from the COMMAND
+changed nothing and the case passed on its own documentation. It reads the recipe
+now. That is the third time in this Work that a check has been caught measuring a
+spelling rather than a mechanism.
+
+
+9. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 346 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 downloads the exact pinned closure from the
+                                   configured index under --require-hashes,
+                                   installs, imports from site-packages, and
+                                   runs 346/346 there with NOTHING SKIPPED
+  the repository                   carries no wheel, sdist or archive anywhere
+                                   under the distribution, and a case says so
+  temp roots from this run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+12 regressions added; the suite is 334 -> 346.

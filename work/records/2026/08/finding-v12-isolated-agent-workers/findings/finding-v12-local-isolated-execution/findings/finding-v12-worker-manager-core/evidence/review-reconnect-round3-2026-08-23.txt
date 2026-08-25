@@ -1,0 +1,51 @@
+W4 / former W2929 reconnect correction, independent review round 3
+UTC: 2026-08-23T18:55:02Z
+
+Accepted correction:
+  The plain-record rule now admits Object.prototype and null-prototype records
+  only. Date, Map, RegExp, class-instance and custom-prototype values refuse as
+  integrity.schema before mutation. turnInFlight is read as an own member.
+
+Focused delivered baseline:
+  node test/worker_manager_agent_reconnect.test.mjs
+  16 tests, 16 passed
+
+Focused result after two additive reviewer regressions:
+  node test/worker_manager_agent_reconnect.test.mjs
+  18 tests, 16 passed, 2 failed
+
+Failure 1:
+  W2929 third review: a non-boolean member refuses without serializing it
+  Expected integrity.schema; observed raw TypeError:
+    Do not know how to serialize a BigInt
+  Source: agent_reconnect.mjs JSON.stringify(turnInFlight) in refusal text.
+  Durable session state remained prompting.
+
+Failure 2:
+  W2929 third review: refusing a non-record does not run its prototype
+  Expected integrity.schema; observed the arbitrary Error thrown by an
+  untrusted constructor accessor.
+  Source: agent_reconnect.mjs describe() reads the rejected value's prototype
+  constructor while constructing refusal text.
+  Durable session state remained prompting.
+
+Independent companion gate:
+  node test/worker_manager_agent_session_axis.test.mjs
+  16 tests, 16 passed
+
+Full current v12 gate:
+  npm test
+  631 total, 624 passed, 7 failed
+  Exactly two failures are the W4 review cases above. The remaining five are
+  the additive W771 posture-slot regressions already returned to W771's
+  implementer; they are not attributed to item 4ab.
+
+Whitespace:
+  git diff --check
+  clean
+
+Review:
+  work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+  finding-v12-local-isolated-execution/findings/
+  finding-v12-worker-manager-core/review-2026-08-23T18-55-02Z.md
+

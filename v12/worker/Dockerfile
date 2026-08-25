@@ -1,0 +1,55 @@
+# The v12 OCI reference worker image.
+#
+# W6633. Every line here is a decision the acceptance names, so each carries
+# the reason rather than the setting alone.
+#
+# THE BASE IS PINNED BY DIGEST, not by tag. `python:3.13-slim` is a name
+# somebody moves; a worker built from a moved tag is a worker nobody can say
+# the contents of afterwards, which makes the image digest the manager records
+# a description of something else. The digest below is the one this recipe was
+# built and reviewed against, and changing it is a reviewed change.
+# Resolved 2026-08-24 from `docker manifest inspect -v python:3.13-slim`
+# on this host: docker.io/library/python:3.13-slim at the index digest
+# below. Recorded rather than described, so a reviewer can re-resolve it.
+FROM python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3
+
+# NO BUILD TOOLCHAIN, NO PACKAGE MANAGER STATE, NO NETWORK CLIENT. The worker
+# runs one Python program; anything else in the image is something a
+# compromised worker can use.
+#
+# The two files ARE the program. Nothing from `baton_v12` is copied in: a
+# worker that could import the manager is a worker one bug away from holding
+# the manager's capabilities, and the absence is enforced by a case rather than
+# by this comment.
+COPY baton_worker.py /opt/baton/baton_worker.py
+COPY scripted_agent.py /opt/baton/scripted_agent.py
+
+# A FIXED NON-ROOT USER, by numeric id so it does not depend on a passwd entry
+# the base image might change. 65532 is the conventional "nonroot" id and is
+# the same one the adapter's `--user` restriction names -- two places agreeing
+# because they were written from one decision, and a case asserts they agree.
+USER 65532:65532
+
+# No shell form, so there is no shell in the process tree and nothing to
+# interpret a signal or a metacharacter on the worker's behalf. The manager
+# stops this container by signalling PID 1, and PID 1 is Python.
+ENTRYPOINT ["python3", "/opt/baton/baton_worker.py"]
+
+# Deterministic bytes: no `.pyc` written at run time, unbuffered streams so a
+# frame is never left in a buffer when the process is stopped, and the module
+# path is explicit rather than inherited from a working directory.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0
+
+# The posture arrives from the manager, never from the image. An image that
+# defaulted to a posture would be an image that runs as `execution` when the
+# manager forgot to say -- and forgetting is exactly when the default matters.
+#
+# There is deliberately no `ENV BATON_WORKER_POSTURE`.
+#
+# There is also no `VOLUME`, no `EXPOSE` and no `HEALTHCHECK`: the worker has
+# no network, its writable workspace is a mount the manager names per
+# assignment, and its health is observed by the adapter through the engine
+# rather than announced by the container.

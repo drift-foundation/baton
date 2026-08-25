@@ -26,6 +26,8 @@ import { fileURLToPath } from "node:url";
 
 import Ajv2020 from "ajv/dist/2020.js";
 
+import { describe } from "./records.mjs";
+
 export class ContractError extends Error {
 	constructor(category, code, message) {
 		super(message);
@@ -36,6 +38,148 @@ export class ContractError extends Error {
 		this.category = category;
 		this.code = code;
 	}
+}
+
+/** A caller's value NAMED for a refusal message, safely.
+ *
+ *  W2929 composition revalidation, 2026-08-23. Six review rounds established
+ *  that a refusal must never serialize the value it is refusing, and each
+ *  round fixed the one site it was found at. A sweep of every boundary in
+ *  this manager then measured the same defect at eleven more:
+ *  `JSON.stringify(x ?? null)` in a diagnostic throws on a BigInt, on a
+ *  circular object, on a `toJSON` that throws, and on a Proxy whose traps
+ *  throw — so the message built to explain a refusal replaced the closed
+ *  `category`/`code` pair with a raw `TypeError`, at the exact moment the
+ *  boundary had already decided to refuse.
+ *
+ *  WHAT IS SAFE TO SHOW. A string primitive interpolates without running
+ *  anything and cannot fail, and the string is usually the whole diagnostic —
+ *  "the agent called session/prompt" is worth far more than "the agent called
+ *  a string value". It is bounded, because an unbounded caller value in a
+ *  durable message is a different problem. Numbers, booleans, bigints and
+ *  symbols have a `String` form that runs nothing. EVERYTHING ELSE is named
+ *  by its SHAPE through the shared record proof, which never runs the value.
+ *
+ *  This lives beside `ContractError` because it is about forming one. It does
+ *  not duplicate `records.mjs`; it calls it. */
+const NAMED_VALUE_LIMIT = 60;
+
+/** Review [P2]: EVERY caller-controlled rendering is bounded, not the one I
+ *  happened to think of. I bounded strings and then returned `String(value)`
+ *  for numbers, bigints and symbols — and a symbol's DESCRIPTION and a
+ *  bigint's digits are caller-controlled too, so a thousand of either
+ *  rendered at full length into a message that may be retained. Being safe to
+ *  CONVERT is not the same as being safe to KEEP, and I had been reasoning
+ *  about the first. One bound, applied where the rendering is produced. */
+/** How many CHARACTERS, in the unit the frozen JSON Schema counts.
+ *
+ *  Review [P1]: JavaScript `.length` counts UTF-16 CODE UNITS and JSON Schema
+ *  `maxLength` counts UNICODE CHARACTERS, and the two disagree the moment a
+ *  string leaves the BMP. A provider session id of exactly 512 astral
+ *  characters has a `.length` of 1024: valid under the frozen contract and
+ *  refused by the hand-written proof that exists to be faithful to it. The
+ *  bound was right and the RULER was wrong.
+ *
+ *  Fast and exact together: a code point is never MORE than one code unit, so
+ *  a string short enough in code units is short enough in characters and the
+ *  iteration is skipped. Only a string that fails the cheap test is counted
+ *  properly, and only then is it iterated at all. */
+function withinCharacters(text, limit) {
+	if (text.length <= limit) return true;
+	let characters = 0;
+	for (const _character of text) {
+		characters += 1;
+		if (characters > limit) return false;
+	}
+	return true;
+}
+
+/** The first `limit` CHARACTERS, never half of one.
+ *
+ *  Slicing by code unit can cut a surrogate pair in half and put a lone
+ *  surrogate into a diagnostic that may end up retained. Same unit confusion,
+ *  same fix, and this one produces a MALFORMED STRING rather than a wrong
+ *  verdict — which is why it is worth fixing even though no acceptance
+ *  decision depends on it. */
+function bounded(text) {
+	// Review [P2]: this probed the length cheaply and then spread the WHOLE
+	// string to slice sixty characters off the front, so the work was
+	// proportional to the part being thrown away — 1,063 iterator steps and a
+	// full-size array to produce a 61-character answer. A bounded OUTPUT is
+	// not a bounded operation, and this is a refusal path: the transient cost
+	// of explaining a rejection should not scale with the rejected value
+	// either.
+	//
+	// ONE PASS THAT STOPS. The prefix is built while counting and the loop
+	// returns the moment the limit is exceeded, so at most 61 characters are
+	// ever visited whatever the caller sent. The code-unit test in front of it
+	// is exact for the short case — a code point is never more than one code
+	// unit — so an ordinary short value is not iterated at all.
+	if (text.length <= NAMED_VALUE_LIMIT) return text;
+	let prefix = "";
+	let characters = 0;
+	for (const character of text) {
+		characters += 1;
+		if (characters > NAMED_VALUE_LIMIT) return `${prefix}…`;
+		prefix += character;
+	}
+	return text;
+}
+
+export function nameValue(value) {
+	if (typeof value === "string") return bounded(JSON.stringify(value));
+	if (typeof value === "number" || typeof value === "bigint"
+			|| typeof value === "symbol") {
+		return bounded(String(value));
+	}
+	return describe(value);
+}
+
+/** The FROZEN `$defs.opaqueId`, in one place: why `value` is not one, or null.
+ *
+ *  `{"type": "string", "minLength": 1, "maxLength": 160,
+ *    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"}`
+ *
+ *  Review [P1]: item 4ak stopped objects before SQLite and then accepted every
+ *  NONEMPTY STRING, which is one third of the rule. A string with a space in
+ *  it, or a 161-character one, was treated as a legitimate lookup — so the
+ *  turn read answered `null` and the attempt read went on to a precondition
+ *  refusal, collapsing a malformed identity into ABSENCE or business state in
+ *  the same breath as claiming those answers were separated.
+ *
+ *  Every identifier the frozen schema types as `opaqueId` is proved here, so
+ *  a second boundary cannot come to a different conclusion about the same
+ *  string. That is the 4al defect, and stating the rule once is the only
+ *  thing that actually prevents it.
+ *
+ *  Length BEFORE the pattern: cheaper, and it is the same discipline as
+ *  shape-before-membership everywhere else in this manager. */
+const OPAQUE_ID_LIMIT = 160;
+const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
+
+/** The frozen `maxLength` test, shared so no boundary measures its own way. */
+export function withinFrozenLength(value, limit) {
+	return typeof value === "string" && withinCharacters(value, limit);
+}
+
+export function opaqueIdFault(value) {
+	if (typeof value !== "string") return `is ${nameValue(value)}`;
+	if (value.length === 0) return "is empty";
+	// MEASURED AS EQUIVALENT FOR THE VERDICT, and corrected anyway: the
+	// `opaqueId` grammar below admits only ASCII, so no astral string can be
+	// accepted whichever unit this counts in. What the wrong unit DID produce
+	// was a false diagnostic — "is 162 characters" about an 81-character
+	// string — and a rule measured in the wrong unit at one of two sites is
+	// the shape of defect this manager keeps finding.
+	if (!withinCharacters(value, OPAQUE_ID_LIMIT)) {
+		return `is longer than the frozen opaqueId limit of `
+			+ `${OPAQUE_ID_LIMIT} characters`;
+	}
+	if (!OPAQUE_ID.test(value)) {
+		return `is ${nameValue(value)}, which is not the frozen opaqueId `
+			+ `grammar`;
+	}
+	return null;
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -839,22 +983,74 @@ export function validateRelativePath(path, where = "path") {
 	return path;
 }
 
-// §12 rule 4, and §3.3's reason for it: a query string is where signed
-// credentials and unstable selection parameters live, so a durable source
-// locator may not carry one AT ALL. That is strictly more than `format:
-// "uri"` asserts, which is why the format assertion stays off above.
+// ONE SHARED CANONICAL LOCATOR GRAMMAR, enforced over the ORIGINAL TEXT.
+//
+// THE RULING (the worker-manager-core FINDING, "one smaller canonical URI
+// grammar"): v12 does not reproduce this constructor's WHATWG acceptance
+// surface in the other runtime, because it cannot be reproduced as a RULE at
+// all. Measured: `new URL` NORMALIZES, and ten of nineteen forms it accepts
+// come back as a different string -- `EXAMPLE.test` lower-cased, `ä.test`
+// punycoded, `%41` decoded, `:00080` trimmed, `https:x` rewritten. A durable
+// locator whose meaning depends on a normalizing parser is one two conforming
+// readers can disagree about, which is the failure §3.3 exists to prevent.
+//
+// So this is the BOUNDED CORRECTION the ruling authorizes: both runtimes now
+// enforce the smaller grammar below, and `fixtures/uri-vectors.json` is the
+// authority for both -- not two implementations that agree today.
+//
+//     scheme      lower-case ASCII [a-z][a-z0-9+.-]*
+//     shape       scheme://authority then nothing or an absolute path;
+//                 file:///absolute-path with no remote authority
+//     authority   no userinfo; one non-empty lower-case DNS/IPv4 host or one
+//                 bracketed IPv6 literal; an optional port 1 to 65535
+//     everywhere  no query, no fragment, no backslash, no control or space
+//     path        percent escapes are `%` and two UPPER-CASE hex digits
+//
+// DELIBERATELY EXCLUDED, each a versioned contract change if ever needed:
+// special-scheme shorthand, opaque forms such as `urn:` and `mailto:`, empty
+// non-file authorities, empty port markers, and the rest of WHATWG
+// normalization. This constructor's broader retention as the parity oracle
+// stays in force; only this boundary is corrected.
+const URI_SCHEME = /^[a-z][a-z0-9+.-]*$/;
+// Each label is bounded to 63 bytes and the whole written name to 253.
+const URI_DNS =
+	/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/;
+const URI_DNS_NAME = 253;
+// The bracketed literal's alphabet: hexadecimal and colons, so a scope id
+// never reaches the constructor and no dotted quad rides inside a literal.
+const URI_IPV6 = /^[0-9a-f:]+$/;
+// An IPv4-MAPPED address, `::ffff:0:0/96`, in the canonical text this boundary
+// has already pinned. Exact by construction: a canonical literal with THREE
+// groups after `::` and `ffff` first is `0:0:0:0:0:ffff:x:y`, which is the
+// mapped range, while `::ffff:1` is `0:0:0:0:0:0:ffff:1` and does not match.
+// The family is excluded because the two runtimes spell it differently --
+// measured: this constructor writes `::ffff:102:304` and Python's `ipaddress`
+// writes `::ffff:1.2.3.4`, each refusing the other's canonical text.
+const URI_IPV6_MAPPED = /^::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}$/;
+const URI_PORT = /^[1-9][0-9]{0,4}$/;
+const URI_ESCAPE = /^%[0-9A-F]{2}/;
+const URI_PATH_CHARACTERS = new Set(
+	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	+ "-._~!$&'()*+,;=:@/");
+
 export function validateUri(uri, where = "uri") {
 	if (typeof uri !== "string" || uri.length === 0) {
 		throw new ContractError("integrity", "schema",
 			`${where} is not a URI`);
 	}
-	// Read the rule off the ORIGINAL TEXT first. `new URL` normalizes, and
-	// a rule about what a durable string may CONTAIN must not be decided
-	// only by a parser's reconstruction of it.
-	const scheme = /^[A-Za-z][A-Za-z0-9+.-]*:/.exec(uri);
-	if (scheme === null || uri.startsWith("//")) {
+	// THE WHOLE STRING FIRST, so no later clause has to wonder whether its
+	// slice was the one carrying these.
+	for (const character of uri) {
+		if (character <= " " || character === "\u007f") {
+			throw new ContractError("integrity", "schema",
+				`${where} carries a control character or a space; a durable `
+				+ `locator is one exact line of text`);
+		}
+	}
+	if (uri.includes("\\")) {
 		throw new ContractError("integrity", "schema",
-			`${where} ${JSON.stringify(uri)} is not an absolute URI`);
+			`${where} carries a backslash, which is a separator in one runtime `
+			+ `and an ordinary character in another`);
 	}
 	if (uri.includes("?")) {
 		throw new ContractError("integrity", "schema",
@@ -866,35 +1062,150 @@ export function validateUri(uri, where = "uri") {
 		throw new ContractError("integrity", "schema",
 			`${where} contains a fragment (§12 rule 4)`);
 	}
-	// A PARSE FAILURE IS A REFUSAL.
-	//
-	// Round-4 review [P1]: this caught and ignored every parse error under
-	// the belief that a failure meant an opaque scheme. `https://[` is not
-	// opaque, it is a malformed hierarchical URI — and with AJV format
-	// assertions deliberately off, nothing else was going to notice. §3.3
-	// requires an absolute NORMALIZED URI, and a string the one available
-	// parser cannot read is not that.
-	//
-	// Every valid form this contract uses parses, measured rather than
-	// assumed: `artifact://`, `https://`, `file:///`, `urn:` and `mailto:`
-	// all succeed, so the opaque cases lose nothing by being held to it.
-	let parsed;
-	try {
-		parsed = new URL(uri);
-	} catch {
+	const mark = uri.indexOf("://");
+	const scheme = mark === -1 ? null : uri.slice(0, mark);
+	if (scheme === null || !URI_SCHEME.test(scheme)) {
 		throw new ContractError("integrity", "schema",
-			`${where} ${JSON.stringify(uri)} is not a parseable absolute `
-			+ `URI; a locator this build cannot read is never trusted `
-			+ `state (§3.3)`);
+			`${where} ${JSON.stringify(uri)} is not a canonical locator; the `
+			+ `grammar is a lower-case scheme followed by \`://\` and an `
+			+ `authority, with no shorthand and no opaque form`);
 	}
-	// Userinfo needs the parse: it is only userinfo when it sits before the
-	// authority's `@`, and `mailto:a@b` is not that.
-	if (parsed.username !== "" || parsed.password !== "") {
+	const rest = uri.slice(mark + 3);
+	if (scheme === "file") {
+		// `file:///absolute-path`, and NO REMOTE AUTHORITY: a file locator
+		// naming a host would be a claim about somebody else's filesystem.
+		if (!rest.startsWith("/") || rest === "/") {
+			throw new ContractError("integrity", "schema",
+				`${where} ${JSON.stringify(uri)} is a file locator; the `
+				+ `grammar is \`file:///\` and an absolute path, with no host`);
+		}
+		validateUriPath(rest, uri, where);
+		return uri;
+	}
+	const slash = rest.indexOf("/");
+	const authority = slash === -1 ? rest : rest.slice(0, slash);
+	validateUriAuthority(authority, uri, where);
+	validateUriPath(slash === -1 ? "" : rest.slice(slash), uri, where);
+	return uri;
+}
+
+function validateUriAuthority(authority, uri, where) {
+	if (authority.length === 0) {
+		throw new ContractError("integrity", "schema",
+			`${where} ${JSON.stringify(uri)} names no host; a locator this `
+			+ `build cannot resolve is never durable state (§3.3)`);
+	}
+	if (authority.includes("@")) {
 		throw new ContractError("integrity", "schema",
 			`${where} carries userinfo; a durable locator never carries a `
 			+ `credential (§12 rule 4)`);
 	}
-	return uri;
+	let port;
+	if (authority.startsWith("[")) {
+		const close = authority.indexOf("]");
+		if (close === -1) {
+			throw new ContractError("integrity", "schema",
+				`${where} ${JSON.stringify(uri)} opens a bracketed host and `
+				+ `does not close it`);
+		}
+		validateUriIpv6(authority.slice(1, close), uri, where);
+		port = authority.slice(close + 1);
+	} else {
+		const colon = authority.indexOf(":");
+		const host = colon === -1 ? authority : authority.slice(0, colon);
+		if (!URI_DNS.test(host) || host.length > URI_DNS_NAME) {
+			throw new ContractError("integrity", "schema",
+				`${where} ${JSON.stringify(uri)} names a host outside the `
+				+ `grammar; it is lower-case ASCII labels of letters, digits `
+				+ `and inner hyphens, each label at most 63 bytes and the whole `
+				+ `name at most ${URI_DNS_NAME}, or a bracketed IPv6 literal`);
+		}
+		port = colon === -1 ? "" : authority.slice(colon);
+	}
+	if (port.length === 0) return;
+	if (!port.startsWith(":")) {
+		throw new ContractError("integrity", "schema",
+			`${where} ${JSON.stringify(uri)} carries text after its host that `
+			+ `is not a port`);
+	}
+	const digits = port.slice(1);
+	if (!URI_PORT.test(digits) || Number(digits) > 65535) {
+		throw new ContractError("integrity", "schema",
+			`${where} ${JSON.stringify(uri)} names a port outside the grammar; `
+			+ `it is a decimal number from 1 to 65535 with no leading zero and `
+			+ `no empty marker`);
+	}
+}
+
+// The bracketed literal, held to lower case and to one canonical shape. An
+// address that has to be case-folded before two readers agree is a
+// normalization, and there is none in this contract.
+function validateUriIpv6(literal, uri, where) {
+	const refuse = () => {
+		throw new ContractError("integrity", "schema",
+			`${where} ${JSON.stringify(uri)} names no IPv6 address`);
+	};
+	// A separate lower-case clause stood here. MEASURED REDUNDANT and deleted:
+	// the alphabet admits no upper-case character, so nothing could reach it.
+	//
+	// THE ALPHABET ITSELF IS DELIBERATELY RETAINED although this constructor
+	// refuses every literal it would catch, so a mutation that deletes it
+	// SURVIVES. That is reported rather than hidden. It is not unreachable by
+	// construction, the way the deleted clauses were -- it is unreachable
+	// because of what a THIRD-PARTY NORMALIZER does in this runtime version. It
+	// is the only clause here that fixes the grammar without asking that
+	// normalizer, and the whole ruling exists because that normalizer's
+	// acceptance surface is not a contract. The assumption it guards is pinned
+	// by its own case in the suite, so a runtime that stops refusing scope ids
+	// fails a test instead of quietly widening a durable locator.
+	if (!URI_IPV6.test(literal)) refuse();
+	// A second `::` had a clause here. MEASURED REDUNDANT: this constructor
+	// already throws for `[2001:db8::1::2]`, so the clause could never refuse
+	// anything the parse did not, and an unreachable boundary is one more thing
+	// claiming to be checked.
+	let parsed;
+	try {
+		parsed = new URL(`http://[${literal}]`);
+	} catch {
+		refuse();
+	}
+	// The constructor's own answer must be the SAME TEXT: it normalizes, and a
+	// literal that only becomes valid after normalization is not canonical.
+	if (parsed.hostname !== `[${literal}]`) refuse();
+	if (URI_IPV6_MAPPED.test(literal)) {
+		throw new ContractError("integrity", "schema",
+			`${where} ${JSON.stringify(uri)} names an IPv4-mapped IPv6 `
+			+ `address; the two runtimes spell that family differently and `
+			+ `the grammar admits no address it cannot spell one way`);
+	}
+}
+
+function validateUriPath(path, uri, where) {
+	if (path.length === 0) return;
+	if (!path.startsWith("/")) {
+		throw new ContractError("integrity", "schema",
+			`${where} ${JSON.stringify(uri)} carries a path that is not `
+			+ `absolute`);
+	}
+	for (let at = 0; at < path.length; ) {
+		const character = path[at];
+		if (character === "%") {
+			if (!URI_ESCAPE.test(path.slice(at, at + 3))) {
+				throw new ContractError("integrity", "schema",
+					`${where} ${JSON.stringify(uri)} carries a percent escape `
+					+ `that is not \`%\` and two UPPER-CASE hexadecimal digits`);
+			}
+			at += 3;
+			continue;
+		}
+		if (!URI_PATH_CHARACTERS.has(character)) {
+			throw new ContractError("integrity", "schema",
+				`${where} ${JSON.stringify(uri)} carries `
+				+ `${JSON.stringify(character)} in its path, which the grammar `
+				+ `does not admit`);
+		}
+		at += 1;
+	}
 }
 
 // §3.3 says entries sort BYTEWISE, and JavaScript `<` does not.

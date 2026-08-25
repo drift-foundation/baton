@@ -1,0 +1,74 @@
+W4 independent review — trust-domain correction under PLAN 4bz
+2026-08-24
+
+Delivered-baseline verification
+-------------------------------
+
+From v12/python:
+
+  env PYTHONPATH=src:. python3 -m unittest -v \
+    tests.manager.test_boundary_inventory \
+    tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_the_injected_work_projection_is_owned_before_use \
+    tests.manager.test_offers.TheClaimAndItsSettlement.test_the_injected_claim_answer_is_owned_before_recording \
+    tests.manager.test_offers.TheClaimAndItsSettlement.test_the_injected_settlement_answer_is_owned_before_branching \
+    tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.test_an_adopted_committed_result_is_owned_before_replay \
+    tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.test_an_adopted_refusal_is_owned_before_revival
+
+Result: 16 tests, all pass.
+
+Focused additive regressions
+----------------------------
+
+Added to v12/python/tests/manager/test_offers.py:
+
+  WhatMustHoldBeforeEntropyIsSpent.
+    test_the_injected_work_projection_is_a_closed_document
+  TheClaimAndItsSettlement.
+    test_a_committed_settlement_answer_requires_its_result
+  TheClaimAndItsSettlement.
+    test_an_adopted_offer_deadline_is_owned_before_it_is_compared
+
+Focused result: 3 tests, 3 failures. Each expected ContractRefusal and none was
+raised.
+
+  * A project_work answer with every required member plus `unexpected` is
+    accepted; offer entropy is spent and the offer is recorded.
+  * `{"kind": "committed"}` is accepted as a complete settlement answer; the
+    offer advances from accepted to claimed with a null assignment.
+  * After direct persistent-data corruption changes an accepted offer's
+    `settle_by` to `not-an-instant`, settle_claim compares that adopted value
+    and continues as though it were a valid deadline.
+
+Full source gate
+----------------
+
+  env PYTHONPATH=src:. python3 -m unittest discover -v -s tests -t .
+
+Result: 428 tests, 3 failures, 1 skipped. The three additive methods account for
+every failure; the 425 delivered methods otherwise pass.
+
+Structural evidence
+-------------------
+
+* boundaries.document (boundaries.py:167-187) owns a dict and checks missing
+  required members, but never rejects extra members. Its "exactly these
+  members" contract is therefore false.
+* boundaries.alternative (boundaries.py:190-208) checks only that `kind` belongs
+  to a closed vocabulary. It has no variant-specific member contracts, so a
+  committed answer need not carry `result`.
+* _offer_row (offers.py:58-67) validates the lookup identity but returns the SQL
+  row without adopting its fields. settle_claim (offers.py:592-609) compares
+  `settle_by` and can persist `answer.get("result")` without a complete variant
+  contract.
+* receiving_entries (test_boundary_inventory.py:71-119) discovers an adopted
+  entry only when it sees an existing `boundaries.adopted` call. An adopted SQL
+  row with no validator is consequently invisible: the universe is still
+  validator-derived for this domain.
+* EveryProbeProvesItArrived iterates the old `(kind, label)` probe table, not
+  the `(domain, owner, entry)` receiving-entry universe. No test requires one
+  reachable probe per receiving entry. Owner identity is only a function name,
+  without module/class/call-site identity, so same-named methods may collapse.
+
+The locked build was not rerun: the source gate already has intentional failing
+review regressions, and PLAN 4bz's separately acknowledged outbound-constructor
+work is not delivered yet.

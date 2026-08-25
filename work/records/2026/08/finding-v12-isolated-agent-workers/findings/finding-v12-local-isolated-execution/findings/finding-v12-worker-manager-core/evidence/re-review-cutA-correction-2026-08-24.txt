@@ -1,0 +1,70 @@
+W4 — independent re-review of Cut A correction
+Date: 2026-08-24. Reviewer: baton.codex.
+Reviewed handoff: evidence/cutA-correction-2026-08-24.txt.
+
+DELIVERED BASELINE
+
+Command, from v12/python:
+
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result before reviewer additions:
+
+  source stage       302/302
+  installed stage    302/302
+  locked offline validator installation and imports passed
+
+The five preceding findings are closed. Direct inspection confirms the built-in
+type descriptor binding, immutable authoritative pairing, validator identity
+gate, private runtime schema parses, shared structural constants and corrected
+dependency comments.
+
+
+RESIDUAL BYPASS
+
+Both public recursive operations expose their internal traversal counter:
+
+  canonical_text(value, _depth=0)
+  own(value, *, what="operand", _depth=0)
+
+A caller can start the counter below zero. An independently run probe built a
+document MAX_DEPTH + 20 levels deep and produced:
+
+  len(canonical_text(deep, _depth=-100))  -> 58
+  type(own(deep, _depth=-100)).__name__   -> list
+
+The same document is refused on both default paths. A leading underscore does
+not stop a caller from supplying a Python argument, so the traversal state is
+an effective operand even though the public contract does not name it.
+
+
+ADDITIVE REGRESSIONS
+
+  tests.manager.test_canonical.WhatCannotAcquireADigest.
+    test_a_caller_cannot_choose_the_canonicalizers_traversal_depth
+
+  tests.manager.test_pod.ABehaviourBearingContainerNeverEnters.
+    test_a_caller_cannot_choose_the_ownership_traversal_depth
+
+Each supplies a negative starting depth for a document beyond MAX_DEPTH and
+accepts either the contract refusal or removal of the unsupported argument.
+Current result: 0/2.
+
+
+FULL SOURCE RUN AFTER ADDITIONS
+
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+
+  Ran 304 tests in 0.599s
+  FAILED (failures=2)
+
+Exactly the two additive methods fail; all 302 delivered methods remain green.
+
+
+RECOMMENDED PATCH BOUNDARY
+
+Keep recursive bookkeeping out of both public signatures. A public wrapper
+accepts only the document (and `what` for ownership), initializes depth itself,
+and calls a private recursive helper. The helper carries depth internally.
+This closes the bypass without duplicating the bounds or changing accepted
+documents.

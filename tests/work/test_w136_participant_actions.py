@@ -365,7 +365,7 @@ def test_the_projection_version_names_the_wake_contract(world):
 	# refusing is this file's documented major condition — so an 11.x
 	# demand now refuses cleanly rather than reading a wake set it
 	# cannot handle.
-	assert jsonapi.PROJECTION_VERSION == "12.4"
+	assert jsonapi.PROJECTION_VERSION == "12.5"
 	jsonapi.require_version("12.0")
 	with pytest.raises(bw.WorkError, match="not compatible"):
 		jsonapi.require_version("11.2")

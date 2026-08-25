@@ -1,0 +1,241 @@
+W4 / W2929 items 4ai, 4aj, 4ak — composition revalidation
+Date: 2026-08-23. Implementer: baton.claude.
+Following the sign-off of item 4af (review-2026-08-23T20-28-51Z.md), which set
+4ah (an open ruling) and 4ai (consume and revalidate the shared primitive).
+
+
+0. WHAT THIS PASS IS
+
+Item 4ai asked W4 to CONSUME and REVALIDATE W641's shared record primitive at
+composition rather than edit it concurrently, and to revalidate the W771
+posture lifecycle and W151 section 9 in the same pass. I did that, and the
+revalidation found things. They are separated below so each can be judged on
+its own.
+
+I consumed and did not edit `records.mjs`. Every change here is in W4's own
+modules.
+
+
+1. ITEM 4ai — THE SHARED PRIMITIVE, CONSUMED AND REVALIDATED
+
+`agent_reconnect.mjs` calls `records.mjs` and keeps no copy. Revalidated by
+MUTATING THE SHARED MODULE and checking that W4's own cases still hold it:
+
+  removing the Proxy test                 fails 4 reconnect cases
+  deciding after the traps have run       fails 3 reconnect cases
+  dropping the prototype rule             fails 5 reconnect cases
+
+So a relaxation of the shared primitive cannot pass W4's boundary silently.
+That is what "revalidate" has to mean for a dependency: not that the suites
+are green, but that they would go red if it changed.
+
+Reconnect is 32/32 and unchanged from the signed-off item 4af.
+
+
+2. ITEM 4aj — THE CLOSED TAXONOMY, SWEPT
+
+Six review rounds established that a refusal must never serialize the value it
+is refusing, and each round fixed the ONE site the reviewer had found. Nobody
+swept. I swept.
+
+MEASURED, by driving every boundary with a BigInt, a circular object, a
+throwing `toJSON` and a trapping Proxy:
+
+  ELEVEN diagnostic sites lost the closed pair.
+
+  agent_session_axis   normalizeAgentSessionRef, the state check
+  agent_events         tool-call status, sourceKind, sealEvent kind,
+                       the observed turn id
+  agent_turn           turnSessionRef, the turn token
+  posture_slots        evidence, posture, attemptId, epoch, runtimeIdentity
+  agent_handshake      wire version, observed build id, and all THREE method
+                       surfaces
+  attempts             the claimed and expected assignments
+
+Every one was `JSON.stringify(x ?? null)` inside a message. They are one
+helper now, `nameValue` in `contracts.mjs`, beside the `ContractError` it
+exists to build. It calls `records.mjs` for shapes rather than duplicating it.
+
+AND THE DIAGNOSTIC IS STILL WORTH READING, which matters: a string primitive
+interpolates without running anything and cannot fail, so a method name is
+SHOWN. "The agent called session/prompt" is the whole diagnostic and losing it
+to "a string value" would be paying for safety twice. It is bounded at 60
+characters, because an unbounded caller value in a message that may become
+durable is a different problem. Numbers, booleans, bigints and symbols have a
+`String` form that runs nothing. Everything else is named by SHAPE.
+
+
+3. ITEM 4ak — OPERANDS THAT REACHED SQLITE UNPROVED
+
+A second, different class, found by the same sweep and reported separately
+because it is not a diagnostic defect:
+
+  turnRecordOf(store, id)              id bound straight into the statement
+  eventRecordOf(store, ref, seq)       four members read off an unproved
+                                       reference and bound
+  attempts.attemptRow(store, id)       id bound straight into the statement
+
+An object operand produced SQLite's own "Unknown named parameter 'toJSON'"; a
+trapping Proxy produced an arbitrary Error of the caller's choosing. Three
+READ boundaries that never validated their one operand.
+
+Each proves its operand first. `eventRecordOf` proves the reference through
+section 3.1's own normalizer and uses THE ONE OWNED COPY for both the query
+and the retained-document binding, because reading the members twice is how a
+check and an answer come to disagree.
+
+ABSENCE AND REFUSAL STAY DIFFERENT ANSWERS. A well-formed id naming nothing
+still answers null; an id that is not an id refuses. Conflating them would
+tell a caller "no such turn" about a question that was never asked, and there
+is a case for it.
+
+
+4. TWO COPIES OF SECTION 3.1 THAT HAD DIVERGED, NOT MERELY DUPLICATED
+
+`turnSessionRef` in `agent_turn.mjs` and `normalizeAgentSessionRef` in
+`agent_session_axis.mjs` are both section 3.1. Measured:
+
+  providerSessionId: ""    axis REFUSES        turn ACCEPTED
+
+The same reference was valid at the turn boundary and invalid at the axis.
+
+THIS NEEDED NO RULING: the frozen schema decides it. `$defs.providerSessionId`
+is `{"type": "string", "minLength": 1, "maxLength": 512}`, and an empty opaque
+id is not an id. The axis was right. The turn copy had dropped the word
+"nonempty" from its check AND from its own message.
+
+Fixed, and the case that owns it drives BOTH copies through one table --
+because the defect was not either check on its own, it was that nothing
+compared them.
+
+STILL LOOSER THAN THE FROZEN SCHEMA, MEASURED AND NOT FIXED HERE: neither copy
+enforces `maxLength` (512 for a provider session id, 160 for an opaque id) or
+`opaqueId`'s `^[A-Za-z0-9][A-Za-z0-9._:-]*$` pattern. That changes what is
+ACCEPTED across every W4 boundary and belongs in the composition ruling beside
+4ah, not in a correction round.
+
+
+5. ITEM 4ah — THE RULING, WITH THE MEASUREMENTS IT NEEDS
+
+I did not decide this. Here is what is true, so the decision is about
+evidence:
+
+  a) ORDINARY ACCESSORS RUN. A plain object whose four members are getters is
+     accepted and all four run. Refusing Proxies alone would not establish an
+     inert-data rule, exactly as the review says.
+
+  b) ITEM 4aa's PROTECTION HOLDS. A shifting getter is read ONCE -- measured,
+     one read -- so the check and the answer cannot disagree. Whatever is
+     ruled, that property is already there and must survive.
+
+  c) ANY CONTAINER IS ACCEPTED. A class instance carrying the four members is
+     accepted. AN ARRAY with the four members attached is accepted.
+
+  d) EXTRA MEMBERS ARE IGNORED. A reference carrying `extra` and `state`
+     alongside the four is accepted and the extras are dropped.
+
+  e) THE FROZEN SCHEMA IS ALREADY EXACT. `$defs.agentSessionRef` is
+     `additionalProperties: false` over exactly those four members. That is
+     direct contract evidence for the inert-record reading -- though it
+     governs the DOCUMENT form, and whether the in-process API operand must
+     match it is precisely the open question.
+
+  f) THE BLAST RADIUS IS NOW ONE LARGER. This pass routed `eventRecordOf`
+     through the axis normalizer, so a ruling reaches the event reader too.
+     Three call sites in `src` plus the turn module's own copy.
+
+If (a) is ruled inert, `recordFault(ref, [the four])` from `records.mjs` does
+it exactly, and BOTH copies must change -- which is the argument for the turn
+module consuming the axis normalizer rather than reimplementing it.
+
+
+6. W771 POSTURE LIFECYCLE AT THE W4 BOUNDARY (W771 plan item 5)
+
+Composition points, revalidated: `openAgentSession` occupies in the same
+transaction as the insert; `closeAgentSession` releases only its own slot;
+`handleTransportLoss` requires recovery for an applicable same-epoch occupied
+slot. Suites green: posture slots 25/25, sessions 18/18, axis 16/16.
+
+A repeat of the consumer sweep found no `v12/src` posture-slot consumer beyond
+those two modules, which agrees with the W771 review's own sweep.
+
+`nextEpoch` and `agentSessionsOf` do not touch a slot, and should not: one
+reads and the other allocates a number.
+
+
+7. W151 SECTION 9 NEXT-EPOCH ENFORCEMENT
+
+Unchanged and still DEFERRED. The next-epoch flag remains reported rather than
+durably enforced. Nothing in this pass moved it and nothing here depends on
+it; it is named so that "revalidated" does not quietly mean "not looked at".
+
+
+8. MUTATIONS -- EIGHT, ALL WITNESSED
+
+  T1 nameValue serializes the value again        2 cases fail
+  T2 nameValue stops bounding a long string      1 case fails
+  T3 nameValue stops showing strings             1 case fails
+  T4 the attempt id is not proved                1 case fails
+  T5 the turn token is not proved                2 cases fail
+  T6 the event reference is not proved           2 cases fail
+  T7 the source sequence is not proved           1 case fails
+  T8 the two reference copies diverge again      1 case fails
+
+Plus the three shared-primitive mutations in section 1, which are the
+revalidation of the dependency rather than of this change.
+
+
+9. REGRESSIONS ADDED -- A NEW SUITE OF 4
+
+`v12/test/worker_manager_refusal_taxonomy.test.mjs`. THIS IS THE FILE I
+SHOULD HAVE WRITTEN AFTER THE FIRST OF THE SIX ROUNDS: the rule stated once
+over every boundary, so the next site is covered before someone has to find
+it.
+
+  every boundary refuses inside the closed taxonomy
+      27 boundaries x 6 hostile operands = 162 checks. Deliberately weak per
+      boundary and strong across them: it does not say what any boundary
+      DECIDES -- that belongs to the suite that owns it -- only that whatever
+      it decides, it says so in the closed pair. The count is asserted,
+      because a boundary quietly dropped from the list would otherwise make
+      the case pass MORE easily.
+  absence and refusal are different answers
+  one section 3.1 reference, not two that disagree
+  a refusal names a value without running it
+
+The boundary list is ENUMERATED rather than discovered, on purpose: a sweep
+that finds its own subjects stops finding them the day an export is renamed,
+and does it silently.
+
+
+10. GATES
+
+  refusal taxonomy (new)       4 / 4
+  reconnect                    32 / 32
+  session axis                 16 / 16
+  turn                         50 / 50
+  posture slots                25 / 25
+  events                       52 / 52
+  full v12 npm test            676 tests, 674 pass, 2 fail
+  TMPDIR bracket               zero test-owned roots (the one entry is
+                               node-compile-cache, Node's own)
+  design models                64 / 66 / 24 / 74, all OK
+  v11 pytest                   2980 passed; serial 52 passed
+  codex-event-bridge           336 / 336
+  acp-baton-bridge             55 / 55
+  whitespace-damage check      clean
+
+BOTH REMAINING FAILURES ARE W641's, from a third review round that landed
+while this pass was running: "W641 third review: hidden fields are not the
+wire document" and "records review: an expected JSON member must be
+enumerable". Neither is touched here, and the second is in W641's own suite
+for the shared module.
+
+
+11. WHAT I DID NOT DO
+
+- Did not edit `records.mjs`. Item 4ai says W641 owns it; I consumed it.
+- Did not decide 4ah. Section 5 is evidence for a ruling, not a ruling.
+- Did not tighten `maxLength` or the `opaqueId` pattern. That changes what is
+  ACCEPTED across every boundary and belongs with 4ah.
+- Did not touch the two W641 failures.

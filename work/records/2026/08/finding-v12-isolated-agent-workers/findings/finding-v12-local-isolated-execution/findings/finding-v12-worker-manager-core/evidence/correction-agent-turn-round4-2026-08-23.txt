@@ -1,0 +1,202 @@
+W2929 / current authority W4 — turn slice, FOURTH correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T15-09-47Z.md (one P1, one P2 with two parts).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    tests 506, pass 504, fail 2
+
+The two additive regressions were the only failures, each for the stated
+reason: DataCloneError from structuredClone, SyntaxError from JSON.parse.
+
+The P1 is correct and I am not defending the previous answer. I was asked for
+one manager-owned identity per supervised turn, allocated or validated
+atomically within the epoch. I supplied a digest of the caller's startedAt and
+deadlineAt and kept promptDigest to tell two reuses apart. Nothing allocated
+it, nothing recorded the allocation, and no constraint bounded it — so it was
+reusable DATA that happened to differ, and prompt bytes were still the
+fallback deciding whether one supervised act was one turn or two. That is the
+finding restated, not answered.
+
+
+2. P1 — THE SUPERVISION BOUNDARY NOW MINTS THE IDENTITY
+
+Schema 11 -> 12 adds `turn_allocations`:
+
+  turn_token   PRIMARY KEY
+  (runtime_attempt_id, posture, session_epoch, turn_ordinal) UNIQUE
+  FOREIGN KEY (attempt, posture, epoch) -> agent_sessions
+  turns.turn_id -> turn_allocations(turn_token)
+
+`allocateTurn(store, sessionRef)` claims the next per-epoch ordinal under
+BEGIN IMMEDIATE and derives `turn:<digest(attempt, posture, epoch, ordinal)>`.
+The UNIQUE constraint is what makes epoch-local uniqueness a fact rather than
+an intention — the same reasoning the one-open-session-per-posture index
+already carries: two managers racing on separate connections both pass any
+read, and only the database can refuse the second.
+
+`recordTurn` takes `turnToken`, uses it AS the identity (nothing is derived
+any more), and binds it inside the write transaction: the token must name an
+allocation, and that allocation must belong to the epoch this turn claims.
+
+WHAT THE IDENTITY NOW CARRIES: the attempt, the posture, the epoch and an
+ordinal. No prompt, no timestamp, no outcome — nothing the agent said and
+nothing the manager later observed.
+
+PROMPT BYTES MOVED TO THE SIGNATURE, where the review put them. The signature
+is digest(kind, {turnId, sealed}) and `sealed` is the document digest, which
+covers prompt_digest. So a changed prompt under one allocated turn is changed
+operands for one act and COLLIDES; it can no longer become a quiet second
+turn. There is a case asserting exactly that.
+
+Preserved, and each still has its case: same-prompt later turns separate
+(they are separate allocations), exact replay, changed-operand collision, and
+the deliberate exclusion of the observed `endedAt` — which is now automatic,
+because no operand reaches the identity at all.
+
+TWO DELIBERATE CHOICES, RAISED RATHER THAN BURIED.
+
+First, allocation is NOT journalled. An operation journal replays an act by
+its identity, and allocating is how an identity comes to exist; keying it
+under an invented id would be inventing the thing allocation produces. A
+retried allocation mints a fresh ordinal and the abandoned one is a GAP —
+visible, harmless, and honest about a turn the relay opened and did not
+finish. What must survive a retry is the RECORD, and it does, because the
+relay holds the token it was given.
+
+Second, allocation does NOT check the settle-admitting state or the provider
+reference. Opening a turn asks whether the epoch exists; whether a turn may
+still SETTLE there is a question about the moment it settles, and `recordTurn`
+asks it then against the state that holds then. Allocating into an epoch that
+later refuses the record costs one gap and no durable turn. This also keeps
+every record-time boundary the third review installed genuinely exercised at
+the record call rather than pre-empted at allocation.
+
+
+3. P2 — TWO MALFORMED SHAPES
+
+`recordTurn` proves each policy-failure element is a plain object BEFORE
+`structuredClone`, and translates any residual clone failure to the same
+closed pair. The clone exists to stop a caller mutating what was validated,
+not to discover what kind of value it was handed.
+
+`turnRecordOf` parses the retained record inside an integrity wrapper.
+Retained bytes that cannot be parsed have failed the seal as surely as bytes
+that parse and disagree with it, and the SUMMARY in the same safety path
+already reported the closed pair.
+
+
+4. EXISTING ASSERTIONS CHANGED — NAMED EXPLICITLY
+
+The P1 ruling makes two existing cases state a contract that no longer
+exists. Both are changed, neither is weakened, and both are called out here
+because the standing rule is that editing an existing assertion needs
+case-specific confirmation.
+
+  "W2929: the turn identity is derived from its epoch and prompt"
+      asserted that turnId(REF, digest("other")) differed from
+      turnId(REF, PROMPT) — that the PROMPT was part of the identity. That is
+      precisely what the review ruled out. Replaced by
+      "the turn identity is ALLOCATED, and carries no prompt", which drives
+      the attempt, posture, epoch and ordinal and asserts the token's shape.
+
+  "W2929 correction: the manager's supervision window identifies the turn"
+      was MINE from the third round and asserted the superseded design.
+      Replaced by "an allocation is the identity, and it is epoch-local".
+
+Two more cases needed their SETUP revalidated, with assertions untouched:
+
+  "a record filed under another turn's identity is refused" — the fixture the
+      review named. It minted its second turn by changing the prompt under one
+      window; two supervised turns are two allocations now.
+  "the ambiguous and ended outcomes permit NOTHING" — four distinct turns in
+      one epoch, told apart by prompt bytes; four allocations now.
+
+And the schema pin in worker_manager_store.test.mjs moves 11 -> 12 with
+`turn_allocations` added to the table list, as every prior schema round did.
+
+
+5. MUTATIONS — NINE
+
+  M1 the identity is derived from operands again    23 cases fail
+  M2 the allocation is not bound at all              1 case fails
+  M3 the allocation's epoch is not compared          1 case fails
+  M4 the ordinal never advances                      7 cases fail
+  M5 the turn token is taken on trust                0  MASKED
+  M6 the policy-failure element shape is not proved  0  alone
+  M7 the clone failure is not translated             0  alone
+  M6 + M7 together                                   1 case fails
+  M8 retained record bytes are parsed raw            1 case fails
+  M9 turns -> turn_allocations foreign key dropped   0  MASKED
+
+M6 and M7 MUTUALLY MASK: either alone refuses the reviewer's function element
+with the same closed pair, and both must go for the case to fail. Measured
+directly, and both are kept — the shape proof names what the value was, the
+translation covers an interior no clone can own.
+
+M5 is MEASURED AS MASKED and the masking source was measured rather than
+assumed: with the proof removed, `undefined` refuses in `canonicalBytes` (no
+representation for undefined) and null/""/7 refuse in the frozen record
+validation on `/turn_id`. Same closed pair, worse message. Kept for the
+message, not counted as a guard.
+
+M9 is MEASURED AS MASKED by `bindAllocation`, which refuses an unallocated or
+foreign token before the constraint could fire. Both are kept: the foreign key
+is the database saying a record belongs to an allocation, and the binding is
+the boundary saying WHICH epoch — a key alone would only ask whether the
+string exists somewhere.
+
+
+6. REGRESSIONS — 47 (45 before, including the reviewer's two)
+
+Three of mine beyond the two replacements above:
+
+  a changed prompt under one allocated turn COLLIDES, and the exact retry
+    still replays — the review's central point, asserted directly
+  a record is written under an allocation or refused: an unallocated
+    well-formed token, an allocation belonging to the CONSENT posture of the
+    same attempt (chosen so the execution epoch stays `ready` and the refusal
+    must come from the binding rather than from admission), and four
+    malformed token shapes
+  the allocation is epoch-local: ordinals advance, are recorded, and a second
+    epoch starts at one with distinct tokens
+
+
+7. GATES
+
+  cd v12 && npm test                       508 tests, 508 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+The TMPDIR bracket was /tmp/w4r4-PT2It9; it retained only Node's own
+`node-compile-cache` and no test-owned root. It and the earlier
+/tmp/w4-tmpdir-MGNB12 are left for the operator.
+
+
+8. STILL NOT IMPLEMENTED
+
+Event normalization, the runtime/agent adapter CONTRACTS, and the
+re-identification gate after transport ambiguity.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs              schema 12: turn_allocations
+                                                 and the turns reference
+  v12/src/worker_manager/agent_turn.mjs          allocateTurn, turnToken,
+                                                 bindAllocation; recordTurn
+                                                 takes the token as identity;
+                                                 both malformed shapes closed
+  v12/test/worker_manager_agent_turn.test.mjs    +3 cases, 2 replaced, 2
+                                                 fixtures revalidated
+  v12/test/worker_manager_store.test.mjs         the schema pin and the table
+                                                 list

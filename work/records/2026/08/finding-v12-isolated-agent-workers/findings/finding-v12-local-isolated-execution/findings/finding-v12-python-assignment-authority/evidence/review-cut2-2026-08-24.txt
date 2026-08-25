@@ -1,0 +1,130 @@
+W2845 cut-2 independent review evidence — 2026-08-24
+
+Baseline
+--------
+
+    XDG_RUNTIME_DIR=/tmp just gate
+
+Observed on Python 3.13.7: 99 source-tree tests pass; the hash-locked wheel
+builds and installs; 99 installed-layout tests pass. `git diff --check` is
+clean. `git status --short` over the frozen Node authority and its seven test
+files produces no output.
+
+Probe 1 — install_gate accepts an assignment for another Work
+-------------------------------------------------------------
+
+Create unclaimed X and live Y, then request a gate on X while supplying Y's
+current full assignment as `expect`.
+
+Observed:
+
+    unclaimed_cross_work= {'gate': 'plan-revision:d', 'phase': 'block',
+                           'assignment': None}
+    X phase=block
+    Y assignment remains live
+
+Then make X and Y both live and repeat against X with Y's current assignment.
+
+Observed:
+
+    live_cross_work cause=gate-arrival, assignment=<Y assignment>
+    X assignment remains live
+    Y assignment=None
+
+The unclaimed branch proves only that Y is current before changing X. The live
+branch ends Y and leaves X untouched. The compare-and-swap is not bound to the
+`work_id` operand of the gate request.
+
+Probe 2 — generation arithmetic crosses the frozen safe-integer boundary
+------------------------------------------------------------------------
+
+Set a queued v12 Work's durable authority-owned counter to
+`MAX_SAFE_INTEGER`, then claim normally.
+
+Observed:
+
+    generation= 9007199254740992
+    safe= False
+
+The claim increment is not checked before it is written and projected as an
+assignment identity.
+
+Probe 3 — exact strings that cannot round-trip escape the text boundary
+----------------------------------------------------------------------
+
+Use a lone surrogate (`"\ud800"`) as a route, gate detail, and ending reason.
+
+Observed:
+
+    create_work(... route) -> UnicodeEncodeError
+    gate_token(... detail) -> accepted an unencodable token
+    end(... reason) -> UnicodeEncodeError; transaction rolled back
+
+`_text`, `_optional_text`, and `gate_token` check exact type/non-emptiness but
+not encodability. The recorded Python boundary requires invalid Unicode to
+refuse before durable machinery.
+
+Probe 4 — cancel(None) leaves the refusal taxonomy
+---------------------------------------------------
+
+    Core.cancel(None)
+
+Observed:
+
+    TypeError: 'NoneType' object is not subscriptable
+
+`cancel` reads `expect["generation"]` before the common compare-and-swap can
+produce the ordinary missing-assignment refusal.
+
+Probe 5 — semantically invalid gate evidence is accepted and journalled
+------------------------------------------------------------------------
+
+Install `plan-revision:old`, then satisfy it with:
+
+    {"kind": "revised-plan", "plan_digest": [1], "extra": "accepted"}
+
+Observed:
+
+    {'gate': 'plan-revision:old', 'kind': 'revised-plan', 'phase': 'queued'}
+    stored evidence = {'kind': 'revised-plan', 'plan_digest': [1],
+                       'extra': 'accepted'}
+
+Truthiness is standing in for the semantic evidence shape. The same mechanism
+accepts non-text runtime/policy values, while `certified-profile` journals no
+profile identity and the configured isolation fact is only a boolean rather
+than the clause the evidence claims. W151 requires positive exact-runtime
+absence or a pinned isolation clause, and certification evidence for the
+contract-runtime gate.
+
+Probe 6 — the invariant backstop accepts impossible scheduler states
+--------------------------------------------------------------------
+
+Corrupt an unclaimed open Work first to `phase=block, gate=NULL`, then to
+`phase=banana, gate=NULL`, and call `assert_invariants` after each.
+
+Observed:
+
+    block True
+    banana True
+
+The backstop checks gate-implies-block but not block-implies-gate, and it never
+checks that an open phase belongs to the closed scheduler axis.
+
+Probe 7 — the authority omits W151's claim event and full event identity
+------------------------------------------------------------------------
+
+Claim one v12 Work, read assignment events, end it, and inspect the resulting
+event projection.
+
+Observed:
+
+    after_claim= []
+    end_event_keys= ['at', 'cause', 'fenced', 'gate', 'generation',
+                     'participant', 'phase', 'reason', 'seq', 'work_id']
+    has_full_assignment= False
+
+W151 `SPEC.md` transition table says claim writes a claim event, and the text
+immediately below the table requires every assignment-ending event to record
+the ended full `assignment_ref`. The frozen Node executable reference omits the
+claim event, but W2845 explicitly treats Node as evidence only and names W151
+`1-ruled` as the authority-owned contract.

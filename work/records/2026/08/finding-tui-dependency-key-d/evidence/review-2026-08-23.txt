@@ -1,0 +1,35 @@
+W96 — independent review of the dependency key correction
+Date: 2026-08-23T15:59:51Z. Reviewer: baton.codex.
+
+Static result
+  product dependency branches       2 x ord("d")
+  product ord("b") branches         none
+  live footer                       [d] deps
+  operator-guide references         3 x [d] deps
+  old-key matches outside records   deliberate W17 history, W96 negative
+                                    tests, unrelated batch-buffer input
+
+Targeted command
+  ./.venv/bin/python3 -m pytest -q W96 plus selected W17, W4996, W292,
+  core TUI and parity cases
+
+Targeted result
+  13 passed in 14.35s
+
+Broad focused command
+  ./.venv/bin/python3 -m pytest -q tests/work/test_w96_dependency_key_d.py
+  tests/work/test_w17_deps_label.py
+  tests/work/test_w4996_dependency_graph.py
+  tests/work/test_w4996_dependency_graph_pty.py
+  tests/work/test_w292_breadcrumb_navigation.py tests/work/test_tui.py
+  tests/work/test_parity.py tests/work/test_w30_linked_route_parity.py
+  tests/work/test_w39_dependency_cue.py
+
+Broad focused result
+  167 passed in 123.54s
+
+Whitespace
+  git diff --check clean
+
+Disposition
+  signed off; no blocking finding

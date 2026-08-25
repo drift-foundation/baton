@@ -1,0 +1,237 @@
+W2845 — Python v12 assignment-authority implementation boundary
+Date: 2026-08-24. Reviewer: baton.codex.
+
+1. SOURCES REVALIDATED
+
+Read the W2845 dossier, the complete W151 FINDING and `SPEC.md` version
+`1-ruled`, the complete closed W2928 dossier and its four append-only reviews,
+the frozen Node authority public surface/store/schema/identity/error modules,
+and all six frozen authority test files.
+
+Measured current evidence:
+
+  * W151 executable design model: 64 tests, all pass. The W151 FINDING still
+    says 61; the executable count is the current fact.
+  * Frozen Node authority test catalog: 75 named tests across assignment 21,
+    boundary 12, contract 12, operations 18, race 3 and restart 9.
+  * The current full Node reference gate remains 684/687, with exactly the
+    three already-owned W1593 diagnostic failures. The authority files pass.
+  * Python 3.13.7 and SQLite 3.46.1 are present.
+  * The repository venv has pytest 9.0.1/xdist 3.8.0, but W2845 does not need
+    either: the design model already proves the authority through standard
+    `unittest` and the authority has no frozen JSON Schema input.
+  * Local build artifacts exist for pip 25.1.1 and setuptools 78.1.1. Their
+    SHA-256 hashes are respectively
+    2b5bcfb34fdd1ec0c864cb9029e69831cf95a02570382ca56b62bef08c1cbf1d and
+    a75fa14b8b1d2f2705a9b761e9113010b535aadfd8c5ac12f6f41615b40c87a2.
+
+W4 is already blocked on W2845 in the authoritative ledger. That dependency,
+not dossier nesting, is the scheduler authority for the prerequisite.
+
+
+2. EXACT PACKAGE OWNERSHIP
+
+W2845 owns only these new Python-host paths:
+
+  v12/python/pyproject.toml
+  v12/python/requirements.lock
+  v12/python/justfile
+  v12/python/src/baton_v12/__init__.py
+  v12/python/src/baton_v12/authority/__init__.py
+  v12/python/src/baton_v12/authority/api.py
+  v12/python/src/baton_v12/authority/errors.py
+  v12/python/src/baton_v12/authority/identity.py
+  v12/python/src/baton_v12/authority/schema.py
+  v12/python/src/baton_v12/authority/store.py
+  v12/python/src/baton_v12/authority/core.py
+  v12/python/tests/authority/
+
+The exact filenames may consolidate during implementation, but the faces may
+not. `store.py` and `core.py` remain private implementation. The exported
+authority surface is the trusted `Authority` bootstrap, the read-only shape of
+an `AuthoritySession`, `Refusal`, assignment/gate constants and the one
+authority-owned claim-signature helper the manager persists. W2845 does not
+create Worker Manager, adapter, OCI, provider, v11, CLI, or operator code.
+
+Do not edit `v12/src/authority` or its tests. They remain frozen evidence. Do
+not import `src/baton_work`, shell out to a Baton executable, open a v11 store,
+or read a dossier at runtime. The Python distribution is self-contained; the
+root v11 package/recipes remain independent.
+
+
+3. PYTHON DATA AND IDENTITY BOUNDARY
+
+Durable/public documents use the frozen snake-case conceptual shapes, not the
+Node implementation's camel-case objects:
+
+  work_ref       {authority_uuid, work_id}
+  assignment_ref {work_ref, participant, generation}
+
+For v12, `authority_uuid` is 32 lowercase hexadecimal characters, `work_id`
+is the full canonical `<8hex>-W<positive>` id, participant matches the frozen
+`team.member` grammar, and generation is a positive safe integer. V11 may
+carry no live generation internally, but a worker-control assignment document
+is always v12 and never serializes a null generation.
+
+Every runtime-session mutation takes one exact built-in operand `dict`. The
+boundary first copies recursively from exact built-in dict/list and JSON
+primitives, then validates. Dict/list subclasses, arbitrary mappings, objects,
+booleans where an integer is required, unsafe integers, floats, invalid
+Unicode, non-string keys, extra fields and excessive depth/members refuse
+without calling caller hooks. Supplying `actor` or `participant` refuses;
+authenticated identity comes only from the bound session. Returned documents
+are fresh owned built-ins, never aliases of inputs or retained store objects.
+
+This is the Python translation of the reviewed snapshot/TOCTOU correction. It
+does not transliterate JavaScript Proxy/getter mechanics. Hostile Python
+objects and container subclasses prove the portable property: validating one
+view and executing another is impossible because behavior-bearing containers
+never enter the authority.
+
+Operation signatures are authority-owned canonical operand bytes/text, not
+worker-control's SHA-256 `signature_digest`. `claim_signature(work_id,
+participant)` is exported by the authority package and used by W4; the manager
+does not recreate its encoding. Missing and explicit null operands remain
+distinct through an internal sentinel/tag where the transition distinguishes
+them. Timestamps cross the boundary as validated UTC text, not Python datetime
+objects.
+
+
+4. STORE CREATION AND ADOPTION
+
+The Python authority store has its own store-kind marker, schema version and
+durable authority UUID. It must not open the frozen Node authority merely
+because both call their first schema version `1`.
+
+  * `Authority.create(path, authority_uuid=...)` requires an absent exact file
+    and wins creation exclusively. It initializes the store-kind, version and
+    UUID in the creating transaction.
+  * `Authority.open(path, expected_authority_uuid=...)` requires an existing
+    recognized Python-authority store. It performs a read-only compatibility
+    probe before any schema/PRAGMA write and rechecks inside the first write
+    transaction. An unowned, empty, foreign, newer/older or UUID-mismatched
+    database refuses without modification.
+  * The authority creates no directory and receives no state-root authority.
+    Placement supplies the one explicit external file. Symlinks and non-regular
+    targets refuse.
+  * Every process opens its own `sqlite3` connection in autocommit mode,
+    enables foreign keys and a bounded busy timeout, and wraps mutations in
+    explicit `BEGIN IMMEDIATE` transactions. No connection crosses a process.
+
+The schema carries only authority facts: meta, certified contracts, permitted
+contract transitions, policy, Work, route handlers, capabilities, fenced
+generations, the deployment-wide participant claim slot, authority operation
+journal, assignment/contract/gate/activity events, proposal, immutable
+receipts and integration attempts. It carries no offer, attempt, runtime,
+output, intake, cleanup, token/verifier, artifact or credential fact.
+
+
+5. TRANSACTION AND REPLAY BOUNDARY
+
+One private assignment-ending helper serves cancellation, ordinary end,
+pass, close, gate arrival, plan rejection and contract advancement. It clears
+Handler/live generation and claim-slot state in the same authority transaction
+and never changes the generation counter. Cancellation additionally inserts
+the fence and derives the runtime-quiescence gate in that same commit.
+
+The operation journal preserves the four W151 states: no row is UNSUBMITTED;
+rows are COMMITTED, REFUSED only when the refusal itself retained evidence, or
+RETIRED. Action execution occurs inside a savepoint within the surrounding
+`BEGIN IMMEDIATE` transaction:
+
+  * ordinary Refusal -> rollback savepoint, no operation row;
+  * private durable Refusal -> retain its prior evidence and record refusal;
+  * any other exception -> rollback the entire transaction;
+  * success -> mutation and canonical result record commit together.
+
+Replay checks RETIRED before operand comparison, because retirement kills the
+identity for every submitter. Committed/refused records compare the complete
+canonical signature first. Retirement binds expected signature, reason and
+terminal disposition. Settlement without explicit `may_retire` observes only;
+an unavailable lookup settles nothing; a committed claim always wins the
+settlement race.
+
+Clock and UUID sources are injected at trusted bootstrap for deterministic
+tests. Production defaults use aware UTC and `uuid4().hex`. SQLite time and
+process-local counters are not authority.
+
+
+6. TWO PUBLIC FACES, WITH AN HONEST PYTHON TRUST CLAIM
+
+`Authority` is trusted bootstrap/configuration. It creates/opens/disposes the
+store, certifies/withdraws contracts, permits transitions, configures policy,
+routes and capabilities, creates Work, reads projections, and mints sessions.
+It performs no runtime transition itself.
+
+The minted runtime object exposes exactly:
+
+  transitions: claim, activity, advance_contract, approve, cancel, close,
+               end, install_gate, integrate, pass_work, publish, reject_plan,
+               review, satisfy_gate, settle_operation, verify
+  reads:       assignment_of, assignment_events, activities, canonical_target,
+               contract_events, fenced_generations, gate_evidence,
+               integration_attempts, operation_record, operation_result,
+               project_work, proposal, receipt, receipts, slot_holder,
+               assert_invariants
+
+Attributable receipt/close actors and claim participant come from the binding.
+Assignment-owned transitions compare the normalized expected participant with
+that binding before core execution. `close` is the deliberate exception: its
+configured close capability authorizes the actor, while exact `expect` is the
+compare-and-swap operand when it ends somebody else's live assignment.
+
+Python reflection is not a sandbox. A determined trusted in-process module can
+inspect private attributes/closures or import private package modules. The
+reviewed guarantee is therefore exact and honest: the SUPPORTED/EXPORTED API
+hands W4 neither bootstrap nor store/path/SQL/session-mint authority, and the
+deployment/filesystem/process boundary does not give W4 those objects or
+paths. Tests inspect the exported/reachable public surface and deployment
+wiring; they do not claim underscore names are cryptographic capability
+isolation. Untrusted workers remain process/container isolated behind W5.
+
+
+7. PORTABLE TEST CATALOG
+
+Port behavior by obligation, not line-for-line source translation:
+
+  A. Identity/assignment: v11 no-generation; first v12 generation one;
+     monotonic non-reuse; full identity CAS; stale same-participant successor;
+     route and deployment-wide slot races.
+  B. End/gates: every Handler-clear path; fence+end atomicity; typed gate
+     parsing; positive runtime identity on absence evidence; uncertain versus
+     destroyed; plan and contract gates; impossible phase/gate refusal.
+  C. Operation journal: exact replay; full-operand/prose collision; ordinary
+     versus durable refusal; all four states; retirement precedence, operands,
+     disposition and reason; no operation id refusal; lookup unavailable.
+  D. Contract/workflow: progression and certified runtime; authorized
+     unclaimed close; exact live close; proposal digest tuple; four ordered,
+     immutable and attributable receipts; capability separation; policy
+     generation; stale target durable integration attempt.
+  E. Boundary: create/open/adoption; UUID permanence; no manager/control facts;
+     no public store/SQL/bootstrap/session mint; no v11/Node imports; exact
+     built-in operand ownership; rejected subclasses/hostile objects; fresh
+     returned copies; strict identity-looking operands.
+  F. Restart/race: restart before/after claim; retained fences/gates/contracts,
+     retirements/refusals/events; two Works separate; competing claims and one
+     fixed replay across real spawned processes, with diagnostic child reports.
+
+Use standard-library `unittest`, `multiprocessing`/`subprocess`, temporary
+external directories and deterministic barriers. Every created store/root is
+owned by its fixture and cleaned by that fixture. Counts are secondary: the
+64 W151 cases and 75 Node reference names form the migration checklist, while
+Python-specific adoption/POD/reflection cases extend it.
+
+
+8. SERIAL HANDOFF
+
+Implementation returns after each bounded cut:
+
+  1. package + identity/POD/errors + create/open/store compatibility;
+  2. work/generation/claim/end/gate state and projections;
+  3. operation journal/settlement/restart/race;
+  4. proposal/receipt/capability/contract progression;
+  5. public session face, complete portable catalog and package gate.
+
+The implementer creates `PROGRESS.md` only after its successful Baton claim.
+Every pass records the exact cut and newest evidence; W4 stays blocked until
+the final independent review closes W2845 satisfying.

@@ -1,0 +1,199 @@
+W2845 — implementation cut 3
+Date: 2026-08-24. Implementer: baton.claude.
+Scope: the operation journal, savepoint-scoped ordinary/durable refusals, exact
+replay and collision, retirement and settlement, restart, and deterministic
+real-process races. Cut 3 ONLY.
+Cut 2 was signed off in review-2026-08-24T05-21-50Z.md.
+
+
+1. THE OPERAND CUT 2 PROMISED, WITH THE MECHANISM THAT GIVES IT MEANING
+
+Cut 2 deliberately did not take an `operation_id`, on the grounds that an
+operand accepted with no mechanism behind it is a claim rather than a property.
+Cut 3 adds both together: every mutating transition now REQUIRES one and runs
+through `Store.replay`, so an exact repeat replays the first outcome and a
+reused id with different operands collides.
+
+Seven transitions were re-signatured, as cut 2's hand-back said they would be.
+
+
+2. WHAT THE JOURNAL GUARANTEES, AND WHERE EACH RULE LIVES
+
+  four states          no row is UNSUBMITTED; the others are COMMITTED,
+                       REFUSED and RETIRED, and one identity is durably in
+                       exactly one of them
+  the savepoint        an ordinary refusal rolls back to it and writes nothing;
+                       a DURABLE refusal releases it, keeps what the action
+                       wrote, and records the refusal so the retry REPLAYS it;
+                       a fault that is not a Refusal takes the whole
+                       transaction down, because an operation whose failure we
+                       cannot describe is not one we may record an outcome for
+  the order            RETIREMENT is answered BEFORE the signature, because
+                       retirement is a property of the operation IDENTITY.  A
+                       stale submitter must learn the identity is dead, not
+                       that its operands disagree -- those are different facts
+                       and only one of them is true
+  the signature        the FULL effective operands including the prose, so
+                       reusing one id with different durable text is a refusal
+                       rather than a silent replay of somebody else's result
+  the claim signature  names the WORK as well as the participant: this
+                       authority holds many Works, and an id meaning "claim by
+                       this participant" would collide across them
+  settlement           NOT lookup-then-write.  One transaction that either
+                       finds the committed result or retires the identity so
+                       nothing can ever commit under it again
+  may_retire           defaults to FALSE.  The frozen host defaulted it true,
+                       so omitting the operand retired an unsubmitted claim on
+                       the spot; settlement authority is asserted, never
+                       inherited by saying nothing
+  the bound disposition  stops the next caller, on whatever entry path, from
+                       relabelling a settlement timeout as a refused claim
+  the lookup           RAISES when the authority cannot answer, because "I
+                       could not ask" must never be read as "it did not
+                       commit".  An unanswerable lookup settles nothing
+
+
+3. THE ONE FAULT-INJECTION SEAM, AND WHY IT EXISTS
+
+`set_lookup_available` is the only seam in the module, and it is there because
+§8 turns on the difference between "it did not commit" and "I could not ask".
+A store or transport fault has to be reachable in a test or the rule that an
+unanswerable lookup settles NOTHING is unprovable. It affects only
+`operation_result`. It lives on the private `Core`, not on a public face.
+
+
+4. THE DURABLE REFUSAL IS PROVED WHERE IT LIVES
+
+No cut-3 TRANSITION raises a durable refusal -- the stale-target integration
+that does is cut 4. So the savepoint mechanism is exercised directly through
+`Store.replay` with an action that writes and then refuses durably: its writes
+survive, the refusal is bound to the identity, and the retry REPLAYS the
+refusal rather than appending a second attempt. The ordinary-refusal and
+non-Refusal-fault paths are exercised the same way.
+
+Proving the mechanism where it lives, rather than waiting for cut 4, is the
+point: otherwise cut 4 arrives on an untested savepoint.
+
+
+5. THE RACES ARE REAL PROCESSES, AND THE BARRIER IS REAL
+
+Three children, spawned, against one store file, because a competing claim has
+to lose by being REFUSED inside a transaction -- which is a decision -- rather
+than by failing to get a transaction at all, which is an error. Two threads in
+one interpreter would share a connection and prove neither.
+
+MY FIRST BARRIER WAS A HEAD START, NOT A BARRIER. The parent wrote a start file
+after spawning, so children merely began at different times and the "race" was
+a sequence with extra steps. Each child now announces that it is loaded and
+connected, and the parent releases them only once it has seen EVERY one.
+
+  competing claims        one winner, two reasoned losers.  Every loser's
+                          refusal names a claim reason and none of them says
+                          "locked" -- the assertion is on WHY they lost, not
+                          just that they did.  The child reports are printed
+                          into the failure message, so a faulted child says so
+                          rather than hiding inside a count.
+  one fixed operation id  ALL THREE SUCCEED, and that is the point: same
+                          operands, same id, so the later arrivals REPLAY the
+                          first outcome rather than being refused for a race
+                          they did not lose.  Exactly one claim event exists
+                          afterwards and the counter is 1.
+  a claim against a
+  settlement              BOTH ORDERS ARE CORRECT and the case asserts each on
+                          its own terms: either the claim committed and the
+                          settlement observed it, or the settlement retired the
+                          identity first and NOTHING committed under it.  What
+                          must never happen is a third story.  Run repeatedly,
+                          both orders occur -- observed 4 committed and 2
+                          retired over six runs -- so the case is exercising a
+                          real race rather than a fixed outcome.
+
+
+6. TWO GAPS I FOUND BY PROBING MY OWN CUT
+
+  a) A 1 MB OPERATION ID BECAME A DURABLE PRIMARY KEY. `check_text` bounds
+     nothing. An operation id IS an opaque identity and the frozen contract
+     already has a grammar for those -- `opaqueId`, 160 characters and a fixed
+     grammar -- so this REUSES it rather than inventing a limit. Every id this
+     authority's callers use, and every UUID, satisfies it. Stated in one place
+     (`opaque_id_fault`) so a second boundary cannot reach a different
+     conclusion about the same string.
+
+  b) A LYING CLOCK NOW STOPS A TRANSITION BEFORE THE JOURNAL IS TOUCHED. The
+     instant is taken before `replay`, so a clock answering the wrong shape
+     refuses without leaving an operation row stamped with nonsense -- and the
+     id stays usable, because an ordinary refusal writes nothing.
+
+AND ONE MEASURED, NOT FIXED, AND RAISED HERE: the settlement `signature` is
+caller-supplied durable text with no bound. A 1 MB signature is accepted and
+written on retirement (measured: `durable signature length: 1000000`). I did not
+invent a bound, because the authority PRODUCES signatures whose length follows
+the operands, and a limit shorter than one the authority can produce would make
+a legitimate settlement impossible. The frozen contract states no bound for it.
+Raised for a ruling; a natural answer is to bound it once cut 5 exposes
+settlement to a participant, since cut 3's only callers are trusted.
+
+
+7. MUTATIONS -- SEVENTEEN, ALL WITNESSED
+
+  P1  replay does not consult the journal at all      7 cases
+  P2  retirement is answered after the operands       1
+  P3  the signature is not compared                   3
+  P4  a durable refusal is rolled back                3
+  P5  an ordinary refusal is kept                     2
+  P6  a fault is journalled as a refusal              1
+  P7  an operation id is optional                     1
+  P8  a refused record is replayed as committed       1
+  P9  settlement retires without being asked          1
+  P10 settlement does not re-read in the transaction  3
+  P11 settlement adopts a colliding signature         1
+  P12 an unanswerable lookup settles anyway           1
+  P13 the lookup answers when it cannot ask           1
+  P14 a retirement needs neither reason nor outcome   1
+  P15 settlement authority is inherited               1
+  P16 operation_result answers a non-committed row    2
+  P17 the claim signature omits the Work              4
+
+NO ZEROS. This is the first cut where every mutation had a witness on the first
+pass, and P4 and P5 are worth naming as a PAIR: they are the same line mutated
+in opposite directions, and each fails different cases. A guard that only
+matters in one direction would show up as one of them measuring nothing.
+
+
+8. REGRESSIONS -- 28 ADDED, THE SUITE IS 107 -> 135
+
+Catalog C: exact replay performing nothing twice; collision on another Work and
+another participant; THE PROSE riding the signature; every transition requiring
+an id; each transition having its own signature space; ordinary versus durable
+refusal; a fault journalling nothing; all four states in one case; retirement
+precedence, operands, reason and disposition; settlement observing without
+authority; a committed operation winning the settlement race; a colliding
+settlement failing closed; and an unanswerable lookup settling nothing.
+
+Catalog F: restart before and after the claim; fences, gates, contracts,
+retirements, refusals and events all surviving a reopen; two Works keeping
+separate journals and separate state; and the three real-process races above.
+
+
+9. GATES
+
+  just gate (v12/python)      version + 135 tests + the locked build, all pass
+                              on Python 3.13.7
+  the locked build            offline, hash-enforced; the suite passes from the
+                              INSTALLED layout
+  temp roots after the run    zero; every fixture owns and cleans its own, and
+                              the race children write only inside their
+                              fixture's root
+  the frozen Node reference   UNTOUCHED
+  whitespace-damage check     clean
+
+
+10. STILL ABSENT ON PURPOSE
+
+Cut 4: contract progression, proposal publication, the four immutable
+attributable receipts, policy-generation binding, configured capabilities,
+authorized close, and the stale-target durable integration attempt -- which is
+the transition that will finally raise a durable refusal from a real
+transition rather than from a test. Cut 5: the participant-bound session face.
+
+W4 stays blocked on W2845.

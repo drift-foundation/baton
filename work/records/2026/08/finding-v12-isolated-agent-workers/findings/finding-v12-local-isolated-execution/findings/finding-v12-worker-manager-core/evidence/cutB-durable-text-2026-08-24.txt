@@ -1,0 +1,99 @@
+W4 — cut B: what reaches a TEXT column must be durable text
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T11-02-11Z.md (one P1).
+
+
+1. REPRODUCED FIRST, ALL FOUR SHAPES
+
+  kind = None              raw sqlite3.IntegrityError from the NOT NULL column
+  kind = 7                 COMMITTED; SQLite stored the text "7", so the exact
+                           retry with integer 7 collided with its own row
+  kind = ""                committed as an unnamed operation kind
+  a hostile kind           the caller's __eq__ ran and its AssertionError
+                           escaped from a boundary that had already decided
+
+
+2. THE THIRD THING
+
+The last two rounds established that the two accounts of the kind AGREE, and
+then that the signature IS one this manager could have produced. Neither
+establishes that the value going into a column the schema types as TEXT is
+durable text. That is a third property, and the integer case is the one that
+shows why it is not implied by the other two: `7` agreed with itself, produced a
+perfectly canonical signature, committed -- and SQLite silently stored `"7"`, so
+the operation could never be replayed by the caller that created it.
+
+`durable_text` is that rule, in one place: exact `str`, non-empty, encodable. It
+runs BEFORE any comparison, so a hostile operand is refused without its `__eq__`
+being invoked -- `type(x) is str` touches no caller code.
+
+
+3. THE RULE APPLIES AT SIX SITES, NOT ONE
+
+The review named the kind. A sweep of everything this store puts into or reads
+out of a TEXT column found the same `UnicodeEncodeError` leaking from three more
+writes and both reads:
+
+  the operation identity          leaked
+  the settled instant             leaked
+  a durable refusal's sealed text leaked
+  replay's identity operand       leaked
+  operation_record's identity     leaked
+
+A rule applied at one of six sites is not applied. Sixth time this campaign, and
+the second time in this cut -- so the sweep is the fix, not the single
+substitution, and each site is measured.
+
+The exported `manager_signature` proves it too, because a helper that can build
+an identity the store must then refuse is a helper that invites the caller to
+discover the rule by hitting it.
+
+
+4. TWO THINGS MY OWN CASES TAUGHT ME WHILE WRITING THEM
+
+THE READS. I wrote the write-side case, and it failed on its own assertion --
+`operation_record` faulted on the identity it was checking was absent. An
+identity that cannot be durable text cannot name a row either, so a lookup for
+one is a lookup for something that cannot exist. Both reads refuse now.
+
+THE CLOCK IS PROVED EARLIER THAN I EXPECTED. My case drove a surrogate clock
+through a transaction; the store refused at OPEN, because the clock is proved
+when the store is built. That is better than what I was testing for, so the case
+asserts it where it actually happens rather than where I assumed.
+
+
+5. MUTATIONS -- NINE, EIGHT WITNESSED, ONE MEASURED EQUIVALENT
+
+  V1 the kind is not proved before comparison     1 case
+  V2 the kind may be empty                        4
+  V3 the kind need not be text at all            13
+  V4 encodability is not proved                   4
+  V5 the exported helper builds any identity      4
+  V6 the operation identity is not proved         1
+  V7 the record read is not proved                1
+  V8 the sealed refusal is not proved             6
+  V9 an unsealable durable refusal keeps writes   0 -- EQUIVALENT
+
+V9 IS AN EQUIVALENCE AND THE COMMENT WAS CORRECTED RATHER THAN THE CODE. I had
+written that sealing before releasing the savepoint is what stops an unsealable
+durable refusal keeping its writes. Measured: swapping the order changes nothing,
+because what protects the writes is the ROLLBACK in the outer handler -- the
+refusal raises before the COMMIT either way and the whole transaction goes back.
+
+So the ordering is kept for a smaller and true reason: the failure happens before
+this branch starts committing rather than in the middle of it. A comment claiming
+more than the mechanism does is the same defect as prose describing a mechanism
+that is gone, which this cut was already corrected for once.
+
+
+6. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 352 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 352/352 inside the environment built from the
+                                   lock, nothing skipped
+  temp roots from this run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+3 regressions added; the suite is 349 -> 352.

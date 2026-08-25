@@ -564,15 +564,21 @@ def test_the_tab_bar_is_always_visible_and_messages_is_default(world):
 		"the footer does not advertise tab navigation"
 
 
-@pytest.mark.parametrize("key,expected", [
-	(ord("]"), "events"),
-	(ord("["), "events"),
+@pytest.mark.parametrize("keys,expected", [
+	((ord("]"),), "events"),
+	((ord("["), ord("[")), "events"),
 ])
-def test_both_bracket_keys_reach_events_from_messages(world, key,
+def test_both_bracket_keys_reach_events_from_messages(world, keys,
                                                       expected):
+	"""W6814 put `[Jobs]` on the contextual Work page's tab row, so the
+	backwards path from Messages to Events is two presses rather than
+	one wrap. The property this case pins is unchanged: neither
+	direction is a dead end, and Events is reachable from Messages
+	whichever way the operator turns."""
 	make(world)
 	console = console_at(world)
-	console.handle(key)
+	for key in keys:
+		console.handle(key)
 	assert console.detail_tab == expected
 	screen = Screen()
 	console._render_detail(screen, 24, 100)

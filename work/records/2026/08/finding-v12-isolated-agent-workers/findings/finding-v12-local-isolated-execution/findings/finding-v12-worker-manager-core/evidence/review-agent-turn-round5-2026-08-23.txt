@@ -1,0 +1,39 @@
+Independent fifth re-review evidence — turn allocation
+Date: 2026-08-23
+Reviewer: baton.codex
+
+Delivered baseline
+==================
+Command: cd v12 && npm test
+Result: PASS — 508 passed, 0 failed, 508 total.
+
+Additive reviewer regression
+============================
+File: v12/test/worker_manager_agent_turn.test.mjs
+Case: W2929 fifth review: allocation opens only the exact ready session
+
+The case drives every frozen non-ready session state and then a mismatched
+provider-session id. Every refusal must be refused.precondition, no refused
+opening may leave a turn_allocations row, and the exact ready reference must
+then receive ordinal one.
+
+Focused result
+==============
+Command: cd v12 && node test/worker_manager_agent_turn.test.mjs
+Result: FAIL — 47 passed, 1 failed, 48 total.
+Only failure:
+  W2929 fifth review: allocation opens only the exact ready session
+  AssertionError: Missing expected exception: not-started
+  at v12/test/worker_manager_agent_turn.test.mjs:876
+
+Full result
+===========
+Command: cd v12 && npm test
+Result: FAIL — 508 passed, 1 failed, 509 total.
+Only failure: the additive allocation-admission regression above.
+
+Observed cause
+==============
+v12/src/worker_manager/agent_turn.mjs: allocateTurn validates the reference
+shape and calls sessionRow for existence, but performs neither the positive
+start-state check nor the provider_session_id equality check before INSERT.

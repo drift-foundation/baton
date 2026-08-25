@@ -1,0 +1,127 @@
+W4 — cut C correction: I wrote a weaker copy of my own rule
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T11-29-52Z.md (three P1, one P2).
+
+
+1. ALL FOUR REPRODUCED FIRST
+
+  a null claim capability     constructed happily and surfaced as a raw
+                              TypeError AFTER the offer was accepted and its
+                              claim identity frozen
+  a surrogate offer id        raw UnicodeEncodeError from SQLite
+  a surrogate clock at expiry the same
+  "not-an-instant"            silently EXPIRED a valid offer by lexicographic
+                              comparison
+  a negative ttl              minted a bearer and committed an already-expired
+                              offer
+  the offers CHECK            accepted an `accepted` row with the five identity
+                              fields absent AND an `issued` row already carrying
+                              acceptance deadlines
+
+
+2. [P1] THE ONE THAT MATTERS MOST IS THE ONE I WROTE MYSELF
+
+Cut B established `_durable_text` and applied it at six sites, and the evidence
+for that round says so at length. Cut C then declared a LOCAL `_text` one file
+over -- weaker, accepting lone surrogates, and treating any nonempty string as an
+instant.
+
+That is the seventh time this campaign a rule has been applied at one of N sites,
+and the first where the other site was mine and three days old. Writing the rule
+down did not stop me; having it in a different module did not stop me. There is
+no local rule now: both are imported, so there is one of each.
+
+AND THE INSTANT IS A SECOND PROPERTY, not a stronger version of the first.
+Encodable text keeps a value out of SQLite's way; the frozen grammar keeps it out
+of a COMPARISON's way, because a fixed-width lexicographic instant sorts exactly
+as it orders in time and arbitrary text sorts too. The review names them as
+separate and they are separate rules.
+
+THE CLOCK IS HELD TO BOTH NOW. Cut B proved the manager's instant source was
+storable; every deadline this manager compares is derived from it, so storable
+and ORDERABLE were two properties there as well.
+
+
+3. [P1] A CAPABILITY DISCOVERED MISSING ONCE DURABLE STATE DEPENDS ON IT WAS
+   NEVER TYPED
+
+The port checked that its five members EXIST. A session whose `claim` is `None`
+therefore constructed, issued and accepted -- and failed as a `TypeError` after
+the claim identity had been frozen, which is the one moment the manager cannot
+retreat from.
+
+Every named OPERATION must be callable at construction; `participant` stays a
+bound value. They are checked differently because they are different things, and
+the port names them separately now.
+
+
+4. [P1] A DURATION IS AN OPERAND
+
+`ttl_seconds` went straight to `timedelta`, so a negative one minted a bearer and
+committed durable authority nobody can use, holding the per-Work slot until
+something swept it. Proved before the reads it precedes, let alone before
+entropy.
+
+
+5. [P2] THE COMMENT SAID FIVE AND THE CONSTRAINT SAID THREE
+
+The schema documented that acceptance freezes all five identity fields or none,
+and its CHECK named three and constrained only `issued`. A row naming a claim
+operation without the signature to settle it is an identity nobody can retire;
+one carrying acceptance deadlines before acceptance is the same thing arriving
+early.
+
+The states divide cleanly and the CHECK now says so: the states reachable WITHOUT
+acceptance carry none of the five, and the states only acceptance leads to carry
+all five. THE SCHEMA VERSION WENT TO 4 with it, for the reason it went to 2 and
+3: a store written under an earlier shape cannot hold what this build enforces.
+
+
+6. AND THE SWEEP, BECAUSE ONE FIX IS NOT THE RULE
+
+Every SQL and time boundary in cut C, probed after the corrections: a surrogate
+offer id at accept, a non-instant and a surrogate at expiry, a non-instant at
+recovery, a surrogate profile name, a surrogate Work id at issue, and a zero TTL.
+All seven refuse with the closed pair. The profile name is refused by the
+canonicalizer rather than by a new check -- a rule already applied, found by
+looking rather than assumed.
+
+
+7. MUTATIONS -- FIFTEEN, FOURTEEN WITNESSED, ONE REDUNDANCY REMOVED
+
+  Y1  the port checks existence rather than callability   5 cases
+  Y2  the port checks only one operation                  4
+  Y3  the instant grammar is dropped                      1
+  Y4  the clock is text but not an instant                3
+  Y5  expiry compares any text                            1
+  Y6  the accept boundary takes any text                  4
+  Y7  a nonpositive ttl is accepted                       1
+  Y9  the invariant covers three fields                   1
+  Y10 the pre-acceptance states are unconstrained        31
+  Y11 the schema version is not advanced                  1
+
+FOUR BEGAN AS ZEROS AND THREE WERE MISSING CASES: a clock answering prose rather
+than an instant, the acceptance DEADLINE half of the invariant (the reviewer's
+row omits all five, so a CHECK naming three still refuses it), and every earlier
+schema version rather than the first -- my version cases named v1 while the build
+had moved to 4, so reverting the number by one measured zero.
+
+THE FOURTH WAS A GENUINE REDUNDANCY AND I REMOVED IT. I wrote
+`type(x) is bool or type(x) is not int`, and `type(True)` IS `bool`, so the first
+clause can never decide anything the second does not. Measured, then deleted
+rather than reported -- a guard nothing can see is worth less than the line it
+costs. The case that drives `True` and `False` stays, because what must hold is
+that a boolean is not a duration, not that a particular clause is the reason.
+
+
+8. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 400 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 400/400 inside the environment built from the
+                                   lock, nothing skipped
+  temp roots from this run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+7 regressions added; the suite is 393 -> 400. Schema version 4.

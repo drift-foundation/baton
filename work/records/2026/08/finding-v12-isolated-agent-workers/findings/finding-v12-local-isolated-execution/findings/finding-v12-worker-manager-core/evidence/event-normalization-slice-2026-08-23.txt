@@ -1,0 +1,159 @@
+W2929 / current authority W4 — UPDATE NORMALIZATION (frozen SPEC section 6)
+Date: 2026-08-23. Implementer: baton.claude.
+First delivery of this slice; no review to answer.
+
+
+1. WHAT THIS SLICE IS, AND WHAT IT DELIBERATELY IS NOT
+
+IN: the closed ten-kind event set (6.1), the ACP mapping table (6.2), content
+restrictions (6.3), and sealing/sequence/duplicate/lateness/identity (6.4).
+
+OUT, and named rather than left to be discovered:
+
+  6.5 FLOW CONTROL — the bounded relay queue with pinned depth and byte caps,
+  backpressure where the transport allows it, and the drop path. The queue is
+  a RELAY structure, not a manager one, so it belongs with the runtime/agent
+  adapter contracts that are still open. The manager's durable half of 6.5
+  already exists: `turns.dropped_event_count` and `dropped_event_bytes` carry
+  the counted overflow totals and `recordTurn` has taken them since the turn
+  slice landed.
+
+  SESSION-STATE GATING. 6.4 gives this boundary identity, sequence and
+  lateness rules and no state rule. Inventing one here would be this module
+  deciding a question 7.3 owns, so it is not done, and a case records the
+  omission as a decision rather than leaving it as a gap.
+
+
+2. THE DESIGN, AND THE THREE SENTENCES IT TURNS ON
+
+COUNTED, NEVER GUESSED AT. 6.1's `other` is an escape hatch with teeth: an
+update kind this contract has never seen becomes `other`, keeps the
+provider's own string verbatim as diagnostics, and carries NO portable
+content. Its bytes are still counted. A relay that guessed would be inventing
+agent evidence; one that dropped would report a partial stream as complete.
+
+`other` CARRYING NO CONTENT IS A RULE, NOT A DESCRIPTION. `user_message_chunk`
+maps to `other` and arrives WITH content — the relay authored that prompt, so
+an echo of it is the transport talking back. A normalizer that passed content
+through whenever it happened to be present would quietly make the relay's own
+prompt into durable agent evidence.
+
+THE SEAL COVERS THE FRAME, NOT THE OBSERVING OF IT. 6.4 is explicit and the
+reason is concrete: `late` and the manager's `observation_seq` are properties
+of an OBSERVATION. A retransmitted frame is the same frame, so sealing
+lateness in would give one frame observed twice — once before a turn ended and
+once after — two digests, making an ordinary duplicate indistinguishable from
+a spliced stream. Lateness is decided when the frame is FIRST seen; a
+retransmission replays that original observation.
+
+
+3. SCHEMA 12 -> 13
+
+  agent_events
+    PRIMARY KEY (attempt, posture, epoch, source_seq)   the duplicate rule
+    UNIQUE (attempt, posture, epoch, observation_seq)   the manager's order
+    turn_id -> turn_allocations(turn_token)
+    FOREIGN KEY (attempt, posture, epoch) -> agent_sessions
+    late and observation_seq are COLUMNS, never members of `body`
+
+The manager's ordering is per epoch and restarts at one, exactly as 6.4 says
+and as the runtime observations already assign theirs per attempt.
+
+
+4. THE BOUNDARIES
+
+  seal first        6.4: a consumer verifies the seal BEFORE it reads any
+                    other field. A frame whose digest was never checked has no
+                    claim on the identity, sequence or duplicate rules below,
+                    so `authenticateEvent` runs before any of them.
+  identity          the FULL reference per 3.1; a disagreement is
+                    runtime-observation.identity-mismatch. An omitted
+                    provider id is not agreement.
+  duplicates        same sequence + same seal -> replay the ORIGINAL
+                    observation, nothing persisted twice. Same sequence +
+                    different seal -> integrity.digest, because the transport
+                    lied about ordering or the stream was spliced and neither
+                    is a merge to attempt. Both sides are sealed, so the two
+                    digests ARE the comparison.
+  lateness          decided once, at first sight, against the turn's terminal
+                    fact. A frame naming no turn is never late — there is no
+                    terminal fact for it to be after.
+  turn binding      the frame's own turn_id and the turn it is observed into
+                    must agree, and that turn must be allocated in this epoch.
+  bounds            the profile the session actually opened under pins
+                    max_event_bytes; over-limit refuses integrity.limit with
+                    no partial action (3.1). A withdrawn profile refuses
+                    rather than falling back: a bound nobody can read is not
+                    a bound.
+  redaction         the complete document is scanned before anything durable.
+                    `redacted: true` is a constant in the frozen shape, so it
+                    is a claim this boundary has to be able to make.
+
+
+5. MUTATIONS — THIRTEEN, ALL WITNESSED
+
+  E1  an unmapped update refuses instead of counting        1 case
+  E2  `other` passes its content through                    2 cases
+  E3  unadmitted blocks are inlined rather than dropped     1 case
+  E4  the tool-call status is not checked against the four  1 case
+  E5  the seal is not verified before other fields          1 case
+  E6  a duplicate mints a new observation                   2 cases
+  E7  a spliced duplicate is merged rather than refused     1 case
+  E8  the provider session reference is not bound           1 case
+  E9  lateness is recomputed on every observation           1 case
+  E10 the event bound is not applied                        1 case
+  E11 the durable secret scan is dropped                    1 case
+  E12 the observed turn is not bound to the epoch           1 case
+  E13 the manager's ordering is the relay's                 1 case
+
+E9 is the one worth naming: it changes a replay to recompute lateness from
+today's state instead of replaying what was recorded, which is precisely the
+failure 6.4 spends a paragraph forbidding, and it is caught.
+
+
+6. REGRESSIONS — 29, in a new file
+
+Both tables driven EXHAUSTIVELY and in both directions: every one of the
+thirteen ACP rows lands in the closed ten, and no normalized kind is
+unreachable from the frozen mapping. All four tool-call statuses across both
+tool-call kinds. Every droppable block type plus an unseen one and an absent
+one. Five malformed `sessionUpdate` shapes, five malformed tool calls, four
+malformed admitted blocks, five non-positive sequences.
+
+Then the durable half: record and answer, ordering per epoch and its restart,
+same-frame replay, spliced-duplicate refusal, identity mismatch in both
+directions, no session at all, lateness true/false/replayed/no-turn, foreign
+turn in both directions, over-limit, withdrawn profile, bearer in three
+places, seal-before-fields, retained-frame re-binding including unparsable
+bytes, and a frame filed under another sequence.
+
+
+7. GATES
+
+  cd v12 && npm test                       540 tests, 540 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 511 -> 540: 29 new cases.
+
+The TMPDIR bracket retained only Node's own `node-compile-cache`.
+
+
+8. STILL NOT IMPLEMENTED
+
+Section 6.5's relay queue, adapter prompt composition, the runtime/agent
+adapter CONTRACTS, and re-identification after transport ambiguity.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/schema.mjs              schema 13: agent_events
+  v12/src/worker_manager/agent_events.mjs        NEW — the whole slice
+  v12/test/worker_manager_agent_events.test.mjs  NEW — 29 cases
+  v12/test/worker_manager_store.test.mjs         the schema pin and the table
+                                                 list

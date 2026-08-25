@@ -93,7 +93,13 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 	for line in screen[2:]:
 		# W71: the table ends at the footer/help, a pane header, or a
 		# blank; tree rows may be ↳-indented children.
-		if line.startswith(("Msgs", "Enter details", "»Threads",
+		# W6814 renamed the Jobs footer's first cell when Enter became
+		# ordinary activation. The break is on the footer's stable
+		# `Enter ` PREFIX rather than one wording of it: an Id column
+		# leads every table row, so no row can start with that word,
+		# and the next rewording of the help text is not a parity
+		# failure.
+		if line.startswith(("Msgs", "Enter ", "»Threads",
 		                    " Threads")):
 			break
 		if not line.strip() or line.startswith("("):
@@ -317,7 +323,10 @@ def test_a_seen_transition_moves_both_surfaces_identically(world, capsys):
 	assert before["subtree_total"] > 0
 	# grace drills into the epic and marks the epic's own thread seen.
 	text, status, _steps = ptyharness.drive(path, "lang.grace", [
-		(b"\r", 0.5),        # drill: path = [lang42]
+		# W6814: the epic has children, so Enter roots at it; `]` opens
+		# that same Work's Messages tab, which is what this case marks
+		# seen. The keys after it are unchanged.
+		(b"\r]", 0.5),       # drill: the epic's own Messages
 		(b"o", 0.5),         # the focused view + thread set
 		(b"\r", 0.5),        # open the epic's own thread
 		(b"", 0.4),          # W2597: entry already focuses the index
@@ -445,7 +454,7 @@ def test_the_round_line_agrees_with_the_canonical_projection(
 
 
 def test_links_on_demand_agree_with_the_json_edges(world, capsys):
-	"""Gate B: the `b` dependency view draws exactly the JSON `links`
+	"""Gate B: the `d` dependency view draws exactly the JSON `links`
 	edges — same far Works, both directions, no extras.
 
 	W4996 replaced the flat far-row list with the dependency
@@ -458,7 +467,7 @@ def test_links_on_demand_agree_with_the_json_edges(world, capsys):
 	path, cast = world
 	expected = _json(capsys, path, "links", f"work={cast["lang42"]}",
 	                 viewer="lang.ada")
-	screen = _screen_rows(path, "lang.ada", [(b"b", 0.5)])
+	screen = _screen_rows(path, "lang.ada", [(b"d", 0.5)])
 	drawn = [line for line in screen[2:]
 	         if "--blocks-->" in line]
 	edges = expected["blocked_by"] + expected["blocks"]

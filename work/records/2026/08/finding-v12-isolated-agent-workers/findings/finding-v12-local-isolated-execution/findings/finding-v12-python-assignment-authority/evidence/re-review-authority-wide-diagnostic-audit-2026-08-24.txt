@@ -1,0 +1,99 @@
+W2845 independent re-review evidence — authority-wide diagnostic audit
+2026-08-24
+
+Accepted correction
+===================
+
+The authority-wide audit materially improves the package and closes the two
+public-face reproductions from `review-2026-08-24T06-51-18Z.md`:
+
+* the original duplicate-Work and capability Refusals are bounded;
+* the focused diagnostic-family, AST-audit and Session review set passes 13/13;
+* 26 Core/store/identity rendering sites now use bounded names;
+* caller-originated text read back from the store is covered behaviorally;
+* `name_of` now bounds caller-controlled type names through the one sixty-
+  character mechanism;
+* the long accepted settlement signature remains exact and uncapped;
+* the frozen Node authority remains untouched.
+
+Implementer evidence reports the complete source and installed-wheel gate green
+at 213/213 before the reviewer regressions below were added.
+
+Independent reproduction: caller-supplied diagnostic labels
+===========================================================
+
+The AST audit globally allow-lists the expression `what` on the premise that it
+is package-owned prose. That premise is false at the exported identity-helper
+boundary. `identity.py.__all__` exports helpers whose public signatures accept a
+caller-supplied `what`, and the existing `ExportedHelpersAreBoundaries` suite
+already treats these module exports as boundaries.
+
+One-million-character `what` labels produced these Refusal lengths through the
+current source:
+
+  own                    1,000,139
+  check_authority_uuid   1,000,072
+  check_work_id          1,000,108
+  check_participant      1,000,044
+  check_generation       1,000,051
+  check_opaque_id        1,000,014
+  check_text             1,000,037
+  check_timestamp        1,000,082
+  assignment_key         1,000,056
+  normalize_assignment   1,000,139
+
+These are messages the authority constructs after deciding to reject an
+operand. The caller could construct its own `Refusal`, but that is a different
+fact: these exported helpers are producing the unbounded authority diagnostic.
+
+Independent reproduction: audit-classifier false positives
+===========================================================
+
+`EveryDiagnosticIsBoundedByTheRule._is_bounded` accepts an interpolation when
+the unparsed expression merely STARTS with a bounded helper name, and accepts
+every textual `join` with the same prefix shape. It therefore classifies each
+of these unsafe forms as bounded:
+
+  name_of(value) + value
+  ', '.join(caller_values)
+  what
+
+The first contains raw caller text beside a bounded rendering. The second has
+no proof that its iterable is package-owned. The third trusts variable spelling
+rather than origin and is the exact false-negative behind the live helper
+defect above. A future raw interpolation in any of these shapes would leave the
+standing source audit green.
+
+Reviewer regressions
+====================
+
+Two additive test methods are the red handoff:
+
+* `test_identity.ExportedHelpersAreBoundaries.
+  test_an_exported_helper_bounds_its_caller_supplied_label` drives the ten
+  exported-helper label paths above.
+* `test_boundary.EveryDiagnosticIsBoundedByTheRule.
+  test_the_classifier_accepts_only_the_exact_bounded_shape` requires the audit
+  classifier to reject a composite bounded-plus-raw expression, an unproved
+  join and globally trusted `what`, while still accepting exact `name_of(...)`
+  and `len(...)` calls.
+
+The full source suite now runs 215 tests. Every pre-existing test passes; only
+the two new methods fail, with ten behavioral subtest failures and three audit-
+classifier subtest failures (13 reported failures total). The locked installed
+gate was not rerun after introducing deliberately red reviewer cases.
+
+Required correction
+===================
+
+1. Bound caller-supplied diagnostic labels once at the identity-helper
+   boundary, preserving current short package labels and useful messages.
+2. Remove global trust in the spelling `what`; either render labels through an
+   explicitly bounded helper or prove package ownership at the actual site.
+3. Make the AST classifier accept exact safe node shapes, not expressions that
+   merely begin with a safe call. A join is accepted only when its source is
+   itself proved package-owned.
+4. Mutation-check the helper-label family and all three classifier false-
+   positive shapes. Make both reviewer methods green and rerun the complete
+   source and locked installed-wheel gate.
+

@@ -1,0 +1,146 @@
+W4 — cut A correction: four authority seams and the shared canonical bound
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T10-15-14Z.md (four P1, one P2, two stale
+statements).
+
+
+1. ALL FIVE REPRODUCED BEFORE ANY EDIT
+
+  the metaclass DESCRIPTOR        ran while the manager was only naming a class
+  the outer pairing container     a caller replaced one category's set and built
+                                  an invented pair
+  a supplied validator            was invoked, after the document was owned
+  the readable schema             a caller edited it and a valid envelope refused
+  the canonical surface           a document too deep and one too wide for `own`
+                                  both acquired a digest
+
+
+2. [P1] THE SAME LINE, CORRECTED TWICE, AND WHY THAT IS THE INTERESTING PART
+
+Round one: `type(value).__name__` ran a metaclass `__getattribute__` override.
+Round two: `type.__getattribute__(kind, "__name__")` skipped the override and
+still RESOLVED AND INVOKED a data descriptor the metaclass installed as
+`__name__`.
+
+Both are one defect stated two ways: ANY LOOKUP THAT CONSULTS THE METACLASS
+CONSULTS THE CALLER. I corrected the mechanism I had been shown instead of the
+rule underneath it, which is the same mistake as fixing the one site a review
+names rather than sweeping for the rule -- and I have now made that mistake at
+the level of a single expression.
+
+The name is bound from `type.__dict__["__name__"]` directly, so the metaclass is
+not consulted at all: the only description of a class this package accepts is the
+one `type` keeps about it.
+
+MY OWN PREVIOUS CASE WAS SUPERSEDED BY THE FIX and is strengthened rather than
+deleted. It asserted the two descriptor shapes produced the "will not name
+itself" fallback, which was true of the weaker mechanism. The property now is
+that a metaclass descriptor NEITHER RUNS NOR CHANGES THE ANSWER, and the case
+asserts that instead.
+
+
+3. [P1] PRIVACY IS NOT AN ISOLATION BOUNDARY, AND THE COMMENT SAID SO
+
+`_PAIRING` was private and its member sets were frozen, and its OUTER CONTAINER
+was an ordinary dict -- while the comment beside it promised "frozen all the way
+down". The session face in the authority slice says the same thing about
+underscores in as many words. I wrote the promise and did not implement it.
+
+A read-only mapping over frozen sets now, which is what the comment already
+claimed.
+
+
+4. [P1] TWO WAYS A CALLER STILL SUPPLIED A PROGRAM
+
+  the validator     `validate_against` took any object and invoked its
+                    `iter_errors`. The document was owned first, so a caller
+                    could not smuggle a CONTAINER -- and nothing stopped it
+                    smuggling a VALIDATOR. This whole cut exists to keep caller
+                    programs out of a trusted surface and the surface had a door.
+
+                    The check is IDENTITY, not shape. Asking "does it have
+                    `iter_errors`" would be asking the attacker to confirm their
+                    own credentials.
+
+  the schema        the validators were built over the SAME dicts exported as
+                    `WORKER_CONTROL` and `AGENT_SESSION`, so editing the readable
+                    projection rewrote what the runtime enforced. Runtime
+                    authority is a PRIVATE parse of the frozen bytes now, and no
+                    caller holds a reference to it.
+
+The second is the more interesting one, because nothing was "supplied" at all --
+a caller merely edited something the package offered as readable and the contract
+changed underneath it. A projection that can rewrite what it projects is not a
+projection.
+
+
+5. [P2] ONE RULE, TWO PUBLIC DOORS, ENFORCED AT ONE
+
+`own` enforced the frozen depth and width; the canonical surface is public too
+and enforced neither, so a document `own` refuses could still acquire bytes and a
+digest by going straight to it.
+
+That is the shape this repository has now caught me in five times: a rule stated
+once and applied at one of N sites. The bounds live WITH THE CANONICALIZER now,
+beside the recursion that has to respect them, and `pod` takes them from there --
+one definition, both doors.
+
+Depth is checked DURING the descent, not before it: a document deep enough to
+matter is one whose depth cannot be measured without descending, and letting it
+escape as a raw `RecursionError` would be a fault leaving a boundary that had a
+refusal ready.
+
+
+6. THE TWO STALE STATEMENTS
+
+`frozen.py` still said no validator had been pinned and the `justfile` still said
+the runtime dependency set was empty. Both were true while the question was open
+and became wrong when it was answered. Corrected, and each correction says what
+it replaced -- a comment that argues for a superseded state is worse than no
+comment, which is the same reason my superseded test class was replaced rather
+than deleted quietly.
+
+
+7. MUTATIONS -- NINE, ALL WITNESSED, NO ZEROS
+
+  P1 the type name read through the metaclass again    3 cases
+  P2 the pairing's outer container mutable again       1
+  P3 the depth bound dropped from canonicalization     1
+  P4 the array width bound dropped                     1
+  P5 the object width bound dropped                    1
+  P6 the depth not carried into arrays                 1
+  P7 a supplied validator is run                       1
+  P8 identity becomes shape                            1
+  P9 the runtime schema is the readable one            1
+
+P6 is worth naming: dropping the bound and failing to CARRY it are different
+defects, and a case that only drove the first would have left the second
+untested.
+
+
+8. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 302 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              302/302 from the wheel with the ruled
+                                   validator installed offline under
+                                   --require-hashes
+  exported names                   20 authority, 22 contracts
+  temp roots after the run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+All five reviewer methods are green and the earlier three remain green.
+
+
+9. THE WHEELHOUSE
+
+The review PROPOSES retaining the 3.2 MB of artifacts and says explicitly that
+this is a proposal for Slawomir rather than a reviewer ruling. I have left them
+in place and changed nothing about the arrangement, so the decision stays open
+and costs nothing to reverse: it is one variable.
+
+
+10. STILL ABSENT ON PURPOSE
+
+Cuts B through F, and `authority_port.py`.

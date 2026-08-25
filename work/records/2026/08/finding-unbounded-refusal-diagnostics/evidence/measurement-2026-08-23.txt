@@ -1,0 +1,24 @@
+Measurement — 2026-08-23, baton.claude, during W2929 composition round 3.
+
+Tree state: full v12 gate 685 tests, 685 pass, 0 fail.
+
+Probe: build a plain record with 20,000 own members and offer it to the ACP
+capability boundary, which proves it through the shared `recordFault`.
+
+  validateClientCapabilities, envelope with 20,000 members
+      ContractError  policy / denied      message 269,042 characters
+  validateClientCapabilities, `fs` with 20,000 members
+      ContractError  policy / denied      message 269,065 characters
+
+For contrast, the same class of operand at W4's own boundaries after item 4as:
+
+  normalizeAgentSessionRef, reference with 20,000 members     147 characters
+  normalizeAcpUpdate, update with 20,000 members               92 characters
+  serveClientMethod, 40,000-character method                  181 characters
+
+The verdict is correct in every row. The closed pair holds in every row. The
+difference is entirely in how much of the rejected value the message carries.
+
+Not fixed from W2929: item 4ai reserves `records.mjs` to W641, and W641 had
+closed satisfying by the time this was measured, so the thread could not take
+the report either. Raised as follow-up Work instead.

@@ -1,0 +1,57 @@
+# The complete resolved environment for the v12 Python distribution, pinned
+# with hashes.
+#
+# THE RUNTIME SET IS NO LONGER EMPTY, and the change is a ruling rather than a
+# convenience. PLAN item 4bh: the Worker Manager validates frozen JSON Schema
+# and a handwritten substitute is forbidden, so a real Draft 2020-12 validator
+# is pinned here with its complete Python 3.13 resolver closure. Options B (a
+# test-only oracle) and C (a partial first cut) were considered and rejected.
+#
+# The AUTHORITY slice is still standard-library only and a case proves it. This
+# distribution ships two slices and only one of them may reach a dependency;
+# `tests/authority/test_boundary.py` holds the authority to the empty set and
+# `tests/manager/test_dependencies.py` holds the manager to exactly this list.
+#
+# Every hash below was computed from the ARTIFACT on 2026-08-24, not copied from
+# an index page. A lock whose hashes came from a document rather than from the
+# bytes pins a claim.
+#
+# PLAN item 4bp: the repository does not carry those artifacts. A checkout builds
+# a disposable environment and downloads exactly these from its configured index,
+# and `--require-hashes` refuses anything whose SHA-256 is not the one below --
+# so what this file guarantees is the same whether the bytes came from an index,
+# an operator cache or a certified bundle.
+
+# --- runtime: the ruled Draft 2020-12 validator and its closure ---
+jsonschema==4.26.0 \
+    --hash=sha256:d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce
+jsonschema-specifications==2025.9.1 \
+    --hash=sha256:98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe
+referencing==0.37.0 \
+    --hash=sha256:381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231
+attrs==26.1.0 \
+    --hash=sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309
+# The one PLATFORM-SPECIFIC artifact in the closure: a compiled extension with
+# no pure-Python fallback, so this hash is the cp313 manylinux wheel's and a
+# different interpreter or architecture resolves -- and must pin -- its own.
+rpds-py==2026.6.3 \
+    --hash=sha256:acac386b453c2516111b50985d60ce46e7fadb5ea71ae7b25f4c946935bf27cf
+
+# --- build ---
+#
+# RE-MEASURED FROM THE INDEX'S ARTIFACTS on 2026-08-24, and the reason is worth
+# recording: these two hashes were previously taken from Debian's repackaged
+# wheels in /usr/share/python-wheels. That arrangement is superseded; under it
+# THOSE were the artifacts, and offline resolution from a local directory is what
+# the hashes described. Item 4bp made the configured index the
+# source, and the index serves different bytes for the same version -- so the
+# first locked download after the ruling was REFUSED by `--require-hashes`,
+# naming pip's expected and actual digests.
+#
+# That refusal is the mechanism working exactly as intended, and it is why the
+# hashes had to be re-measured rather than carried over: a hash is a fact about
+# BYTES, and the bytes changed when their source did.
+pip==25.1.1 \
+    --hash=sha256:2913a38a2abf4ea6b64ab507bd9e967f3b53dc1ede74b01b0931e1ce548751af
+setuptools==78.1.1 \
+    --hash=sha256:c3a9c4211ff4c309edb8b8c4f1cbfa7ae324c4ba9f91ff254e3d305b9fd54561

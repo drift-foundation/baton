@@ -1,0 +1,150 @@
+W2929 / current authority W4 — event normalization, SECOND correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T17-01-19Z.md (one P1, one P2).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_events.test.mjs
+    tests 41, pass 39, fail 2
+  cd v12 && npm test
+    tests 552, pass 550, fail 2
+
+Both additive regressions were the only failures. Both findings are correct.
+
+
+2. P1 — THE READ PATH BOUND THREE QUARTERS OF THE REFERENCE
+
+`eventRecordOf` takes the full session reference and selected the row on
+attempt, posture and epoch. `authenticateRetained` then bound the seal and the
+sequence and never compared the retained `agent_session_ref` with the
+reference the caller asked for. So a caller asking for provider session B
+received a frame sealed for provider session A whenever the other three
+components agreed — the SAME identity mismatch the write path refuses,
+reached through the read path instead.
+
+§3.1 makes the provider session id part of the reference, so binding three
+quarters of it is not binding it. The requested reference is now a fifth
+witness beside the shape, the declared digest, the recomputed digest and the
+sequence.
+
+ABSENCE AND DISAGREEMENT ARE DIFFERENT ANSWERS, and an added case holds both
+directions. A genuinely absent `(attempt, posture, epoch, source_seq)` is
+still null. A PRESENT row whose sealed reference disagrees REFUSES: answering
+null there would tell a caller no such frame exists while the epoch holds one,
+which is a worse lie than the one being fixed.
+
+MEASURED: from the REPLAY path the same comparison is INERT, because the
+retained and incoming digests are already equal there and equal digests mean
+equal references. It is one function because the rule is one rule, and the
+reader is where it has teeth. Said in the code rather than left for a reader
+to work out.
+
+
+3. P2 — SEALING NON-DURABLE INPUT LEAKED AN INTERPRETER ERROR
+
+`sealEvent` called `structuredClone` directly on content, tool-call data and
+diagnostics, so a non-cloneable member escaped as raw `DataCloneError`. The
+outer taxonomy is closed and unnormalizable event content belongs to
+`integrity.schema`; a provider-facing caller cannot map an interpreter
+exception onto that wire contract without re-deriving policy it was never
+given.
+
+`ownDurable` covers all three members. The SEAL is wrapped separately, because
+`canonicalBytes` is the other place a caller's value becomes durable.
+
+AN EXISTING ContractError PASSES THROUGH UNCHANGED, which is the half worth a
+case of its own: `Infinity` clones perfectly well and fails at the canonical
+boundary, whose refusal names the rule exactly. A general "cannot own this"
+would have reported the same pair while telling the caller less. The case
+asserts both that the message names the rule AND that it was not wrapped —
+because interpolating the precise text into the general refusal would satisfy
+a naive pattern while losing exactly what the precision was for.
+
+
+4. MUTATIONS — EIGHT
+
+  D1 the read binds only three quarters of the reference   2 cases fail
+  D2 the read binds no reference at all                    2 cases fail
+  D3 content is cloned raw again                           1 case fails
+  D4 the tool call is cloned raw again                     1 case fails
+  D5 diagnostics are cloned raw again                      2 cases fail
+  D6 a precise canonical refusal is flattened              1 case fails
+  D7 a mismatched read answers null instead of refusing    2 cases fail
+  D8 ownDurable flattens a precise ContractError too       0  UNREACHABLE
+
+TWO OF MY OWN INSTRUMENTS WERE WRONG ON THE FIRST PASS, and the fix is worth
+recording because both were silent.
+
+D2 first read `if (false && a || b || c || d)`. `&&` binds tighter than `||`,
+so that disabled only the FIRST clause — which no case drives, because a
+differing attempt id makes the row absent rather than mismatched. It reported
+zero witnesses and meant nothing. Rewritten as `if (false)`, it fails two.
+
+D6 reported zero against an assertion that only required `/infinity/` to
+appear in the message. Flattening INTERPOLATES the precise text into the
+general refusal, so the pattern still matched. The case now also requires that
+the general wrapper is absent, and the mutation fails.
+
+A mutation that reports zero is a claim about the code; twice here it was a
+defect in the instrument. Both are now measured rather than assumed.
+
+D8 is MEASURED AS UNREACHABLE: nothing inside `structuredClone` raises a
+`ContractError`, so removing that line changes no case. It is kept for
+symmetry with the seal wrapper, where the same line is load-bearing, and it is
+not counted as a guard.
+
+
+5. REGRESSIONS — 44 (41 before, including the reviewer's two)
+
+Three of mine:
+
+  every durable member of the frame is OWNED or refused — content, tool call
+    and diagnostics, because the finding is that an interpreter exception is
+    not a closed pair rather than that one field was missed
+  a precise canonical refusal is not flattened — the pass-through half
+  absence and disagreement are different answers — an unobserved sequence and
+    an empty epoch answer null; a present row re-sealed for another provider
+    session refuses, with both halves moved together so every digest agrees
+    and only the requested reference does not
+
+
+6. GATES
+
+  cd v12 && npm test                       555 tests, 555 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 550 -> 555.
+
+
+7. THE SEPARATE CONTRACT DEFECT
+
+The §6.2-prose-versus-`toolCallView` disagreement over a tool-call `kind`
+member now has an independent durable owner, W543 at
+`work/records/2026/08/finding-acp-tool-call-kind-contract-conflict/`. This
+slice continues to invent no such member and the case recording that omission
+is unchanged. Nothing here waits on W543 and W543 excuses nothing here.
+
+
+8. STILL NOT IMPLEMENTED
+
+Section 6.5's relay queue, adapter prompt composition, the runtime/agent
+adapter CONTRACTS, and re-identification after transport ambiguity.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/agent_events.mjs        the requested session
+                                                 reference is bound on read;
+                                                 ownDurable covers all three
+                                                 caller-supplied members and
+                                                 the seal, preserving a
+                                                 precise ContractError
+  v12/test/worker_manager_agent_events.test.mjs  +3 cases; no existing
+                                                 assertion changed

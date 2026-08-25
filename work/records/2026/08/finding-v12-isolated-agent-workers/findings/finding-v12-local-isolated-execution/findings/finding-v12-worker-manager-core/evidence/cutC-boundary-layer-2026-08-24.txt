@@ -1,0 +1,124 @@
+W4 — the centralized boundary layer, and an inventory derived from the code
+Date: 2026-08-24. Implementer: baton.claude.
+Gate answered: PLAN items 4bx and 4by, and the routing addendum
+review-2026-08-24T11-46-38Z.md. NOT another named-site patch.
+
+
+1. WHY THE LOOP HAPPENED, IN ONE SENTENCE
+
+My inventory came from recall and my probes proved that a refusal happened
+rather than proving WHICH boundary refused -- so each round I fixed the sites a
+review named, claimed a sweep, and the same class survived where I had not
+thought to look.
+
+Both halves are now mechanical.
+
+
+2. THE LAYER: `boundaries.py`, FIVE KINDS
+
+  text        exact, non-empty, encodable. Keeps a value out of SQLite's way.
+  identity    the same rule, for a value a durable ROW IS NAMED BY. Named apart
+              because a lookup for an identity that cannot exist is a different
+              mistake from storing text that cannot be stored -- and because the
+              inventory needs a vocabulary to be legible in.
+  instant     text, the frozen grammar, AND A REAL CALENDAR MOMENT.
+  deadline    an instant plus a duration, with the duration and the SUM inside
+              the domain.
+  injected    the answer of a capability trusted deployment supplied.
+
+EVERY REFUSAL NAMES ITS BOUNDARY. `what` is not decoration: it is how a probe
+proves it arrived, and it is the mechanism that makes vacuity detectable.
+
+THREE PROPERTIES, NOT ONE, FOR AN INSTANT. Fixed-width digits do not establish a
+calendar -- `2026-99-99T99:99:99.999Z` had the shape, escaped `strptime` as a raw
+`ValueError` on the arithmetic path, and on the comparison path was never parsed
+at all: it simply sorted after every real deadline and silently expired a live
+offer. AND THE CALENDAR DOES NOT ESTABLISH THE GRAMMAR: `2026-8-24T0:0:0.1Z` is
+a real moment, parses cleanly, and SORTS WRONG -- "2026-8-24" orders after
+"2026-12-01". Neither implies the other, so the owner establishes both, and a
+case reads all three refusals to check they say which property failed.
+
+
+3. THE INVENTORY IS DERIVED, NOT RECALLED
+
+`test_boundary_inventory.py` walks the AST of the manager packages, collects
+every `boundaries.<kind>(..., "<label>")` call, and attributes each to every
+exported operation that can REACH it -- transitively, through the package's own
+helpers. Ten operations, twenty-eight distinct boundaries, none of them listed
+by hand.
+
+  a boundary added anywhere              appears in the derived set and fails
+                                         until it is probed
+  a helper that newly reaches one        changes the attribution, because the
+                                         walk is transitive
+  a boundary call with no literal label  RAISES rather than being skipped, so
+                                         the inventory cannot lose one quietly
+
+THE DERIVATION FOUND TWO THINGS ON ITS FIRST RUN, and both are exactly what it
+is for:
+
+  A HAND-WRITTEN RULE BESIDE THE LAYER. `_agreeing` had its own copy of the text
+  rule whose message happened to say "an operation signature" -- so a probe aimed
+  at that label was refused by a rule the inventory could not see. Through the
+  layer now.
+
+  A LOOP THAT HID ITS LABELS. `issue_offer` proved seven operands with one call
+  inside a `for` over a table of (value, label) pairs. It reads well and it is
+  invisible to a walk. UNROLLED: a rule that is applied and cannot be SEEN to be
+  applied is a rule the next reviewer has to take on trust.
+
+
+4. EVERY PROBE PROVES IT ARRIVED
+
+Each probe establishes real preconditions -- issuing an offer, accepting one --
+and then asserts the EXACT LABEL of the boundary it targets. A probe refused
+earlier by a precondition sees a different label and fails.
+
+`test_a_probe_that_is_refused_earlier_fails` proves that guard rather than
+promising it: it drives the review's own vacuous shape (a spoiled clock on an
+offer that does not exist) and requires the harness to reject it.
+
+AND WHAT CANNOT BE PROBED IS DECLARED WITH ITS REASON. Five derived boundaries
+have no caller operand that can reach them -- the from-instants inside `deadline`,
+whose callers prove the instant earlier, and `deadline`'s own answer. Each is
+listed with why, and `test_every_declared_unreachable_is_really_unreachable`
+CHECKS the claim by spoiling the operand that would reach it and requiring the
+earlier boundary to refuse first. An unreachable entry is a claim a reviewer can
+check and a later cut can invalidate; it is not an opt-out.
+
+
+5. MUTATIONS -- TWELVE, ALL WITNESSED
+
+  A1  the calendar is not established            25 cases
+  A2  the grammar is dropped                      4
+  A3  the duration domain is dropped              3
+  A4  the sum overflow escapes                    2
+  A5  a boundary stops naming itself              1
+  A6  identity stops proving anything            16
+  A7  injected stops proving anything             2
+  A8  a rule moves back out of the layer          3
+  A9  the derivation stops following helpers      1
+  A10 the probe stops checking its label          1
+
+A2 BEGAN AS A ZERO and produced the padding finding in section 2: `strptime`
+subsumes the grammar for everything EXCEPT a real moment written without padding,
+which is the one case where the grammar is the only thing standing between the
+manager and a comparison that orders backwards.
+
+A5, A9 and A10 are the machinery checking itself -- a boundary that stops naming
+itself, a derivation that stops being transitive, and a probe that stops proving
+it arrived all fail.
+
+
+6. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 417 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 417/417 inside the environment built from the
+                                   lock, nothing skipped
+  temp roots from this run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+10 regressions added; the suite is 407 -> 417. Cut D remains unstarted, as the
+gate requires.

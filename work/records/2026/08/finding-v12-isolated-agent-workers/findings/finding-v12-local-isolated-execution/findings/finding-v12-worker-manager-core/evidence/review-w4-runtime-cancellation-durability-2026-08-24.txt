@@ -1,0 +1,92 @@
+W4 Cut D second-slice independent review evidence — 2026-08-24
+
+Scope
+-----
+Reviewed the delivered runtime start/reconciliation and cancellation slice in:
+
+* v12/python/src/baton_v12/worker_manager/attempts.py
+* v12/python/src/baton_v12/worker_manager/authority_port.py
+* v12/python/src/baton_v12/worker_manager/documents.py
+* v12/python/tests/manager/test_attempts.py
+* v12/python/tests/manager/test_boundary_inventory.py
+* evidence/w4-cut-d-runtime-and-cancellation-2026-08-24.txt
+
+Accepted observations
+---------------------
+* Runtime-start intent is journalled before adapter start.
+* Runtime identity is fixed by compare-and-swap and full seven-member labels,
+  including participant, are used for reconciliation.
+* A minted runtime is checked before filtering; mismatch and multiplicity
+  request cancellation rather than another start.
+* Cancellation asks the authority first, then the provider agent, then the
+  runtime adapter. Agent failure does not suppress the runtime stop, and two
+  failures are retained.
+* The nested cancellation answer and narrow lost-attach catch are sound
+  departures from the frozen host.
+
+P1 witness 1 — a committed attachment replay never repairs the axis
+--------------------------------------------------------------------
+`_attach` commits `runtime_id` and the journal result in `store.transact`, then
+calls `observe(... execution_runtime=running)` outside that transaction only
+when its local `attached` list says the action ran. A fault in that gap leaves
+the attachment and journal committed but the axis at `start-requested`. After a
+store close/reopen, the exact retry replays the journal without running the
+action, leaves `attached` empty and permanently skips the observation while
+returning `decision=attached`.
+
+Additive regression:
+`TheRuntimeIsStartedOnceAndReconciled.test_a_committed_attachment_replay_repairs_the_running_observation`
+
+Expected: the reopened manager's exact reconciliation retry leaves the fixed
+runtime attached and the durable execution axis at `running`.
+
+Observed:
+
+    AssertionError: 'start-requested' != 'running'
+
+The existing `observe` implementation explicitly uses a savepoint because it
+is meant to run inside a journalled action. The correction should make the
+attachment update, running observation and committed result one atomic act, or
+provide equivalently atomic replay repair. A second unjournalled gap is not a
+durable correction.
+
+P1 witness 2 — the fence answer is not related to the expected generation
+----------------------------------------------------------------------------
+`AuthorityPort.cancel` owns the fence document and passes its assignment to
+`_assignment`. That shared owner relates authority UUID, Work id and participant
+but only shapes `generation`. Consequently a well-formed fence answer naming
+generation 2 is accepted while `expect` names generation 1; provider-agent
+cancel and runtime stop are then both ordered even though this attempt's exact
+generation was not shown fenced.
+
+Additive regression:
+`CancellationFencesBeforeItStops.test_a_fence_for_another_generation_orders_nothing`
+
+Expected: a different returned generation is a ContractRefusal and neither
+downstream cancellation boundary is called.
+
+Observed:
+
+    AssertionError: ContractRefusal not raised
+
+The correction should relate the owned fence assignment to all four members of
+the exact `expect` passed to the authority before anything below the fence runs.
+
+Verification
+------------
+Focused, with a real store close/reopen in the attachment witness:
+
+    env PYTHONPATH=src python3 -m unittest -v \
+      tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_committed_attachment_replay_repairs_the_running_observation \
+      tests.manager.test_attempts.CancellationFencesBeforeItStops.test_a_fence_for_another_generation_orders_nothing
+
+Result: 2 run, 2 failures, exactly the two assertions above.
+
+Full source:
+
+    env PYTHONPATH=src python3 -m unittest discover -s tests -t . -v
+
+Result: 543 run in 66.367s; 2 failures, 1 retained ambient-version skip. Both
+failures are the additive reviewer witnesses; all 541 delivered methods pass.
+The locked build was not attempted while the source gate is red.
+

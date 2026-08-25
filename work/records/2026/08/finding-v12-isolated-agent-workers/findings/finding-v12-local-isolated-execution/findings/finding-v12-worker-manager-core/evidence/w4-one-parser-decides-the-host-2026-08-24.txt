@@ -1,0 +1,83 @@
+W4 / M2 — one parser decides what a locator names
+Recorded 2026-08-24 by baton.claude (implementer). Answering the re-review of
+special-scheme host parsing (one P1).
+
+THE FINDING, AND WHY MY LAST CORRECTION WAS HALF ONE
+
+  The previous round asked `urlsplit` for `netloc` and then applied a measured
+  list of host-requiring schemes. That composes two facts from DIFFERENT PARSER
+  MODELS, and the disagreement is exactly what a durable locator must not have.
+
+    the frozen reader normalizes    Python's split reports
+    https:x     -> https://x/       netloc ""
+    https:/x    -> https://x/       netloc ""
+    https:///x  -> https://x/       netloc ""
+
+  So three forms the frozen reader accepts were refused as hostless. And the
+  negative side was worse: `https:worker@example.test` carries a CREDENTIAL the
+  frozen reader sees plainly, and my rule reported "no host" and never reached
+  the userinfo check. A remedy that merely accepted the shorthand forms would
+  have reopened that boundary while looking like a fix.
+
+  The authority of a host-requiring scheme is now derived the way the frozen
+  reader derives it: skip ANY NUMBER of `/` or `\\` after `scheme:`, read to the
+  next `/`, `\\`, `?` or `#`, split userinfo at the LAST `@`. Everything else
+  keeps the split's own answer, because `artifact:x`, `urn:x:y` and `mailto:a@b`
+  carry no authority in either model.
+
+MEASURED, EVERY TIME
+
+    https:x  https:/x  https:///x  https:\\x        -> host "x"
+    https:worker@example.test and its slash variants
+                                                   -> host "example.test",
+                                                      user "worker"
+    https:a@b@example.test                         -> host "example.test"
+    https:  https://  http://                      -> throw
+    https:x:bad/p  https://a:b:8080/x              -> throw
+    https://[::1]/p  https://[::1]:8080/p          -> ok
+    artifact://user@id                             -> user "user"
+
+MY OWN MUTATION TESTING CORRECTED THE CODE, NOT THE TEST
+
+  R7 is the one worth recording. I wrote the port split as "everything after
+  the LAST colon", and a mutation to the first colon changed no verdict -- so I
+  measured both against the frozen constructor and found MY version wrong:
+  `https://a:b:8080/x` throws there, and my rule accepted it with port 8080.
+  Taking the last colon quietly reads a malformed authority as a well-formed
+  one, which is the same class of disagreement the whole correction exists to
+  remove.
+
+  That is the first time in this campaign a zero-scoring mutation turned out to
+  mean the IMPLEMENTATION was wrong rather than the test set thin. The rule I
+  have been applying -- "no witness has three distinct answers: missing case,
+  redundant code, real equivalence" -- has a fourth: the mutant is right.
+
+MUTATIONS, ROUND 17 (9 run against the 580-test suite)
+
+  R1  the authority starts only after two slashes      4 failing
+  R2  the authority runs to the end of the text        2
+  R3  userinfo splits at the first at-sign             3
+  R4  a host-requiring scheme may have no host         2
+  R5  the special-scheme authority rules are skipped   5
+  R6  userinfo is not refused                          4
+  R7  the port is split at the last colon              1
+  R8  an IPv6 literal's colons count as a port         1
+  R9  the non-special path loses its authority rules   1
+
+  ALL WITNESSED. Three began as zeros: R7 corrected the code as above; R8 needed
+  an IPv6 literal WITHOUT a port, since with one both spellings agree; and R9
+  needed a userinfo case on a NON-special scheme, because every credential case
+  I had written used a special one.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 580 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 580. 574 -> 580: the
+  review's two retained methods and four witnesses of my own. Zero temp roots.
+  The working tree reports no whitespace errors. The frozen Node oracle under
+  v12/src/authority is untouched.
+
+STATE
+
+  Awaiting re-review. The contracts-package anti-loop inventory remains the next
+  slice, and §13 and retention stay behind it.

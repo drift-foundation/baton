@@ -430,6 +430,59 @@ reviewable. Each one carries a durable rationale:
 Use a child when the requirement is *separately accountable*. Use a dependency
 when this Work simply cannot finish first.
 
+### Campaigns contain bounded Jobs
+
+A campaign or milestone is a roll-up, not one implementation Job with an
+ever-growing discussion. If the plan already names independently reviewable
+cuts, represent them as contained Work before implementation starts:
+
+    W300  Build the worker runtime
+    ├─ W301  Persist attempts and assignment generations
+    ├─ W302  Start, cancel and reconcile runtimes
+    ├─ W303  Validate and freeze worker output
+    └─ W304  Retain or discard completed attempts
+
+Each child has one bounded acceptance result, its own claim, discussion,
+evidence, review cycle and terminal outcome. The parent exposes real progress
+through its open/closed child roll-up. Add dependency edges between children
+only where execution order is genuine; containment by itself preserves the
+opportunity to research, review or implement independent Jobs concurrently.
+
+Calling two deliverables “Cut A” and “Cut B” inside one Work does not satisfy
+this rule, even if each cut receives a separate review round. They still share
+one Work identity, one visible state and one progress row. If both can be
+claimed, reviewed or closed independently, create two Jobs before the first is
+routed for implementation.
+
+Long message history is a decomposition warning. It is not protocol state and
+does not impose an arbitrary numeric limit, but a Work that has accumulated
+many review rounds while substantial unstarted scope remains is hiding the
+queue. At the next handoff, separate the remaining independently accountable
+outcomes instead of appending another subsystem to the same thread. A newly
+discovered trust boundary, operator surface or reusable correction normally
+deserves a child or sibling; a correction within the current acceptance result
+stays with the current Job.
+
+Never split scope underneath a live claimant. Let the current bounded
+correction finish, pass or release, then create and order the remaining Jobs.
+The practical test is simple: if an outcome could be reviewed, accepted,
+rejected or scheduled on its own, it should be visible as its own Job.
+
+There is no preferred small number of children and no requirement that a real
+project fit into one shallow implementation item. The project is the Work
+graph: containment supplies human roll-ups, while explicit dependency edges
+decide which bounded leaf Jobs are ready. As capacity grows, multiple workers
+claim independent ready leaves concurrently. Each worker returns an isolated,
+immutable result or change proposal; verification and the trusted integration
+stage decide which results enter the canonical project. Workers do not merge
+their own competing changes into the canonical checkout.
+
+Repository dossier layout is an indexing concern, not a scheduler limit. A
+repository may flatten or promote a deeply nested dossier to keep paths usable,
+with forwarding links preserving provenance, while Baton retains the logical
+containment and dependency relationships needed to present and schedule the
+larger graph.
+
 ## Changing the contract of assigned Work
 
 Discussion may refine what assigned Work means, but outsiders **propose** —

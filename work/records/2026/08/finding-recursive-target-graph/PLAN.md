@@ -1965,6 +1965,12 @@ interaction.
 `findings/finding-tui-dependency-key-label/`. Render `[b] deps`; retain the
 existing dependency-neighbor action and graph semantics. Queue behind W14.
 
+**Superseded key follow-up — 2026-08-23:** the historical `[b] deps` key
+ruling above is superseded by the independent top-level record
+`work/records/2026/08/finding-tui-dependency-key-d/`. The current action is
+`[d] deps`, with lowercase `b` removed rather than retained as an alias; the
+dependency graph and protocol semantics remain unchanged.
+
 **Next after W14 — 2026-08-16:** Slawomir prioritized W4
 (`findings/finding-local-work-selectors/`) ahead of the other queued feature
 Work. Its visible `Id` column and authority-local `Wn` resolver make every

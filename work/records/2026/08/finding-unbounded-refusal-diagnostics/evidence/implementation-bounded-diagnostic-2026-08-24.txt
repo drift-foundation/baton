@@ -1,0 +1,115 @@
+W1593 — the bounded record diagnostic, implemented in the Python POD primitive
+Recorded 2026-08-24 by baton.claude (implementer), correcting the P1 in
+review-2026-08-24T22-18-51Z.md.
+
+WHAT WAS WRONG, IN ONE SENTENCE
+
+  `own_record` refused on the unexpected members and returned, so a document
+  that broke BOTH sides of the exact-record rule was told about one of them,
+  and neither branch said how many members had arrived.
+
+  Before, for a session reference carrying `authority_uuid` and seven
+  unexpected members:
+
+    a session reference does not carry 'unexpected-0', 'unexpected-1',
+    'unexpected-2' and 4 more; an extra member in an exact record is one the
+    sender believes was read
+
+  Bounded, and missing three quarters of the rule it was enforcing.
+
+  After, 308 characters:
+
+    a session reference is an exact record of 4 named members and 8 received
+    members arrived: it needs 'work_id', 'participant', 'provider_session_id';
+    an exact record does not carry 'unexpected-0', 'unexpected-1',
+    'unexpected-2' and 4 more; an extra member in an exact record is one the
+    sender believes was read
+
+  ONLY THE CLAUSES TRUE OF THIS DOCUMENT appear. A record that breaks one side
+  is not told about a violation it did not commit; a diagnostic that overstates
+  teaches its reader to stop believing it.
+
+    missing only   ... 3 received members arrived: it needs 'work_id'
+    extra only     ... 5 received members arrived: an exact record does not
+                       carry 'extra'; an extra member ...
+    one member     ... 1 received member arrived ...   (not "1 members")
+
+THE PART THAT IS NOT THE MESSAGE
+
+  `counted_sample_of` replaces `sample_of`'s `list(names)[:3]`. A BOUNDED
+  OUTPUT IS NOT A BOUNDED OPERATION -- W2929's words, and the reason this Work
+  exists. The old sampler COPIED THE WHOLE REJECTED NAME SET in order to slice
+  three names off the front, and a caller that also needed the count either
+  walked the names twice or built that list itself.
+
+  One walk answers both, keeps at most the shown names, and copies nothing
+  else -- so `own_record` hands it a GENERATOR and a wide record's extra names
+  are never materialized at all. The membership test is a `frozenset` of OUR
+  OWN required names: this contract's small fixed cost, not the rejected
+  value's. `sample_of` survives as a one-line call to it, so the bound and the
+  "and N more" format keep exactly one definition.
+
+MESSAGE LENGTHS MEASURED (the rule is under 500)
+
+    combined missing and seven extras            308
+    missing only                                 146
+    one extra                                    200
+    sixty extras with 300-character names        393
+    four extras with 300 emoji each              391
+
+MUTATION -- 14 OF 14 KILLED, AND THE FIRST ROUND FOUND A DEFECT IN MY TEST
+
+  Round one had one survivor, and it was worth more than the passes:
+
+    E1  "the sampler copies its names again" -- putting `list(names)` back in
+        front of the walk left EVERY BEHAVIOURAL CASE GREEN.
+
+  My generator case asserted the names were walked once. That is still true of
+  the mutant: `list()` consumes the generator exactly once and then walks the
+  copy. The property this Work is about is a property of the CODE SHAPE, and
+  nothing observable from outside distinguishes the two -- so my witness was
+  weaker than the claim I had written on it.
+
+  It is now checked where it lives: a narrow structural case forbids
+  materializing THE OPERAND -- `list`, `tuple`, `set`, `frozenset`, `sorted`,
+  `len`, `reversed` or a subscript applied to it -- while leaving the small
+  bounded list of shown names alone. E1 dies on round two.
+
+  Also killed: sample bound dropped; omitted count dropped; omitted count off
+  by one; the extra branch returning early again; the received count dropped;
+  the received count reported as the RULE's count; the missing clause dropped;
+  the extra clause dropped; a clause emitted whether or not it was true; the
+  membership test taken from the wrong side; an extra member admitted; a
+  missing member admitted; the plural rule inverted.
+
+WHAT WAS DELIBERATELY NOT TOUCHED
+
+  The frozen Node reference. `records.mjs` and its three red cases are
+  measurement evidence, not a work item; host-side JavaScript is frozen and the
+  ruling says so twice. They remain red, unchanged and untouched.
+
+  A public Python capability boundary. REVALIDATED AGAINST THE CURRENT TREE
+  rather than taken from the review: `clientCapabilities` appears in
+  `src/baton_v12/contracts/schema/agent-session-1.0.schema.json` and NOWHERE
+  ELSE in the Python source or tests. There is still no consumer at which to
+  prove the black-box capability refusal, and inventing one so a test could
+  pass would be building the boundary backwards. Final sign-off stays blocked
+  on the separately scheduled manager composition work.
+
+  The verdict, the exact-POD rules, the caller-local closed refusal pair, the
+  inertness guarantees and the coarse no-enumeration behaviour. All signed off
+  across earlier rounds; all still pass.
+
+VERIFICATION
+
+  Focused:  env PYTHONPATH=src python3 -m unittest tests.manager.test_pod
+            31 methods, all pass. The reviewer's four additive methods are
+            green, including the five subtests that were red.
+  Gate:     XDG_RUNTIME_DIR=/tmp just gate
+            585 tests at source and the same 585 in the locked build.
+
+STATE
+
+  Awaiting independent review of the primitive correction. This Work should not
+  close on the primitive alone: the capability consumer acceptance is still
+  blocked on the composition work that will expose the real boundary.

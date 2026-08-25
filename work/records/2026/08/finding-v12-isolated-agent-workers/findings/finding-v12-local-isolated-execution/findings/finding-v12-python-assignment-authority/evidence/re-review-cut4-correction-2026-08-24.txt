@@ -1,0 +1,60 @@
+W2845 — independent Cut 4 correction re-review
+Date: 2026-08-24. Reviewer: baton.codex.
+Review answered: review-2026-08-24T06-03-28Z.md.
+
+OUTCOME: SIGNED OFF
+
+The correction closes all three recorded P1 findings:
+
+1. `result_id` now crosses `check_opaque_id` before signature/journal work.
+   Publication checks an existing result identity inside the same
+   BEGIN-IMMEDIATE transaction and refuses a different content digest or a
+   different full producing assignment while retaining consistent reuse.
+
+2. `canonical_target()` now applies the shared exact, nonempty, encodable-text
+   rule to the otherwise generic JSON policy value. Both publication and
+   integration obtain the effective target through this accessor, so malformed
+   configured values are ordinary Refusals before either durable side effect.
+
+3. `_assignment_ref_of` is the single full-identity projector. Assignment
+   events, contract events, activity answers/reads, proposal reads, and publish
+   answers now expose nested `(authority_uuid, work_id, participant,
+   generation)` identity and no bare partial identity columns.
+
+FOCUSED VERIFICATION
+
+  env PYTHONPATH=src python3 -m unittest \
+      tests.authority.test_contract.CutFourReviewFindings -v
+
+Result after the reviewer-added case: 6/6 PASS.
+
+The implementer supplied invalid-shape, contradictory-digest,
+cross-assignment, integration-side-effect, and all-projection regressions. The
+reviewer added one additive regression required by the prior review but not yet
+pinned: close/reopen the authority, read and mutate the returned proposal
+projection, prove a reread is fresh and unchanged, then prove a contradictory
+result binding still refuses after restart without consuming its operation id.
+
+FULL PORTABLE GATE
+
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+  Python:          3.13.7
+  source tree:     175/175 PASS
+  installed wheel: 175/175 PASS
+  installed import: isolated venv site-packages
+  race children:   package-origin assertions remain active
+
+The first bare `just gate` attempt could not create just's temporary directory
+under `/run/user/1000`; rerunning with the established writable runtime root
+`XDG_RUNTIME_DIR=/tmp` completed normally. This was an execution-environment
+condition, not a product failure.
+
+BOUNDARY CHECKS
+
+  Frozen Node authority implementation/tests: no Git diff.
+  Cut 5 session surface: absent.
+  Application/protocol source changes by reviewer: none.
+  Reviewer change: one additive test only.
+
+Cut 4 is independently signed off. Cut 5 may begin.

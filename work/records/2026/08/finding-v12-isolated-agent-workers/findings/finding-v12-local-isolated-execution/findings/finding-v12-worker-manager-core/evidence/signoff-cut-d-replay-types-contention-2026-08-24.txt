@@ -1,0 +1,77 @@
+W4 independent re-review — Cut D replay, types and contention correction
+2026-08-24
+
+Scope
+-----
+Re-review PLAN 4cn-done against the three retained PLAN 4cm regressions, the
+new adversarial constraint-message witness, the activation fallback and the
+full Python source gate. Runtime start, reconciliation and cancellation stayed
+unstarted throughout this review.
+
+Observed correction
+-------------------
+* Activation derives the full manager signature before the fixed-row branch.
+  A four-part mismatch remains a specific stale-assignment precondition; an
+  exact journal row then replays before the already-fixed fallback. The
+  fallback is now reachable only when the row is fixed and no activation
+  operation exists to reproduce.
+* The defensive activation compare-and-swap remains unchanged. H14 remains a
+  legitimate measured equivalence through today's one public operation
+  identity, not a reason to weaken the write.
+* Axis and value establish exact str type before either mapping membership
+  question, so unhashable caller inputs receive the closed integrity/schema
+  refusal.
+* The observation savepoint rolls back before classifying failure. It translates
+  only SQLite primary BUSY or LOCKED result codes, including extended codes
+  after masking the low byte. Constraint, trigger, disk and schema faults stay
+  unclassified.
+* The added trigger witness carries prose saying busy and database is locked
+  while retaining SQLITE_CONSTRAINT identity, proving classification does not
+  inspect application-controlled wording.
+
+Focused verification
+--------------------
+The retained exact-replay, fixed-mismatch, no-journal fallback, unhashable
+vocabulary, stale-writer contention and trigger-abort rollback methods all
+passed. The first focused command referred to the new prose-adversary method by
+an incorrect guessed name and produced one unittest loader error; rerunning its
+actual method,
+`test_a_failure_whose_PROSE_says_busy_keeps_its_own_identity`, passed 1/1.
+
+Full source gate
+----------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest discover -s tests -t .
+
+Result:
+  Ran 518 tests in 40.609s
+  OK (skipped=1)
+
+The skip is the retained ambient-version distribution case.
+
+Canonical locked gate attempt
+-----------------------------
+Command:
+  cd v12/python
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result:
+  The source stage ran the same 518 methods in 40.619s and passed with one
+  ambient-version skip. The locked build then could not fetch
+  jsonschema==4.26.0 because the configured package index was unreachable by
+  DNS. Standing non-interactive policy forbids escalation or an alternate
+  wheelhouse path. This is an operational verification limitation, not a code
+  finding; implementer evidence records 518/518 in its locked environment.
+
+Diff hygiene
+------------
+  git diff --check
+
+Result: clean.
+
+Disposition
+-----------
+PLAN 4cn is signed off with no remaining finding in this correction slice.
+Runtime start, reconciliation and cancellation may begin from the recorded
+Cut D plan while preserving all 518 methods.

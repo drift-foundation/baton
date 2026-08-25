@@ -1,0 +1,48 @@
+# The v12 trusted host, as ONE self-contained Python distribution.
+#
+# W2845 (the assignment authority) and W4 (the Worker Manager) ship together
+# and remain separate modules, Work, SQLite files, connections, schemas and
+# transactions. Packaging them together does not grant the manager authority
+# ownership; the import graph and the store-kind marker are what keep that
+# true, not this file.
+#
+# THIS DISTRIBUTION DOES NOT DEPEND ON THE NODE HOST. `v12/src/authority` is
+# executable-reference EVIDENCE: the Python implementation carries forward its
+# behaviour and its vectors, and no runtime code here imports it, bridges to
+# it, shells out to a Baton executable, opens a v11 store or reads a dossier.
+#
+# THE AUTHORITY SLICE IS STILL STANDARD-LIBRARY ONLY. The dependency below is
+# the Worker Manager's, ruled in PLAN item 4bh: it consumes frozen JSON Schema
+# and a handwritten substitute is forbidden. Two cases keep that split honest --
+# `tests/authority/test_boundary.py` holds the authority to the standard library
+# and `tests/manager/test_dependencies.py` holds the manager to exactly this
+# name, reached from exactly one module.
+
+[build-system]
+requires = ["setuptools>=78.1.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "baton-v12"
+version = "0.1.0"
+description = "The Baton v12 trusted host: assignment authority and worker manager"
+requires-python = ">=3.13"
+dependencies = ["jsonschema==4.26.0"]
+
+[project.optional-dependencies]
+# Still empty on purpose, and stated rather than omitted: both slices are proved
+# with the standard library's own `unittest`, `sqlite3`, `subprocess` and
+# `multiprocessing`. A test dependency is a dependency.
+test = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# Product schema copies travel as package data and their byte identity with
+# the canonical dossier assets is proved by a test. W4 adds them; the
+# authority consumes no frozen schema.
+"baton_v12" = ["**/schema/*.json"]

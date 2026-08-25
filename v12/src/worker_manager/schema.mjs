@@ -46,7 +46,23 @@
 //      dispositions its outcome permits.
 //  11: the turn's own CANONICAL DOCUMENT, retained beside the summary. A
 //      row that cannot represent the frozen record is not the record.
-export const SCHEMA_VERSION = 11;
+//  12: the ALLOCATED TURN. A turn identity derived from operands is data
+//      that happens to differ, not an identity: the fourth re-review found
+//      that reusable timestamps plus prompt bytes decided whether one
+//      supervised act was one turn or two. The supervision boundary now
+//      MINTS the identity, epoch-locally unique by constraint, and the
+//      record references the allocation it was written under.
+//  13: NORMALIZED AGENT EVENTS. The sealed frame the relay produced, with
+//      the manager's own observation sequence and the lateness it decided
+//      recorded BESIDE it rather than inside it — a retransmitted frame is
+//      the same frame, and sealing an observation into it would make an
+//      ordinary duplicate indistinguishable from a spliced stream.
+//  14: POSTURE OCCUPANCY, separated from the observation axis. W771's
+//      ruling: `unknown` is terminal evidence and is never promoted to
+//      `closed` merely because the manager ordered a close or wants the
+//      posture back, so which epoch may run is a MANAGER-owned axis and not
+//      a projection of what the provider was observed to do.
+export const SCHEMA_VERSION = 14;
 
 export const SCHEMA = `
 PRAGMA journal_mode = WAL;
@@ -108,25 +124,91 @@ CREATE TABLE IF NOT EXISTS agent_sessions (
 	PRIMARY KEY (runtime_attempt_id, posture, session_epoch)
 ) STRICT;
 
--- AT MOST ONE OPEN SESSION PER POSTURE, across every manager process.
+-- AT MOST ONE LIVE SESSION PER POSTURE, across every manager process.
 --
--- Review [P1]: freshness and concurrency are two rules and the first version
--- tested them as one — allocating MAX+1 and inserting unconditionally, so a
--- posture could hold three simultaneously open epochs. A partial unique index
--- rather than a read-then-write check, because two managers racing on
--- separate connections both pass any read and only the database can refuse
--- the second.
+-- SUPERSEDED AT SCHEMA 14 (W771). This rule used to be a partial unique index
+-- on agent_sessions WHERE state <> 'closed', which made posture occupancy a
+-- PROJECTION OF THE OBSERVATION AXIS. Two facts got tangled by that:
 --
--- 'closed' is the only state that frees the posture. 'unknown' deliberately
--- does NOT: transport ambiguity is where a second session would be most
--- tempting and least safe, and re-identification after it is a gate this
--- slice has not built.
+--   * 'closed' asserts that a terminal turn fact was observed for every turn
+--     the epoch started, and
+--   * 'unknown' records the ABSENCE of that knowledge and must never be
+--     relabelled as an observation (SPEC 3.3).
+--
+-- So a session that ended before it initialized could reach only 'unknown',
+-- and the posture was then stranded forever — while the close path avoided
+-- that by writing 'closed' over four states the frozen successor table
+-- forbids, inventing knowledge to recover capacity.
+--
+-- W771's ruling separates them. The observation axis is unchanged and stays
+-- exactly what the provider was seen to do. Occupancy is a MANAGER-owned axis
+-- in posture_slots below, and recovering a slot is an explicit, evidence-
+-- backed act rather than a side effect of relabelling evidence.
+--
+-- The superseded index is not recreated. A store at schema 13 or earlier is
+-- refused by the version check rather than migrated, as every prior roll was.
 --
 -- (Plain quotes, not backticks: this whole schema is a JS template literal
 -- and a backticked word terminates it. THIRD occurrence in this file.)
-CREATE UNIQUE INDEX IF NOT EXISTS agent_sessions_one_open_per_posture
-	ON agent_sessions (runtime_attempt_id, posture)
-	WHERE state <> 'closed';
+
+-- ONE SLOT PER (attempt, posture), and the PRIMARY KEY says so.
+--
+-- available          nothing may be running; a session may open
+-- occupied           one epoch holds it
+-- recovery-required  the epoch that held it may still be able to act, and
+--                    nobody has established otherwise
+--
+-- SILENCE AND ELAPSED TIME NEVER RECOVER A SLOT. Moving out of
+-- recovery-required takes positive evidence that the old provider session
+-- cannot still act — for the OCI reference runtime, the adapter observing
+-- that the exact assignment container is stopped or absent. A request to stop
+-- is not proof; the observation is.
+--
+-- Opening is a compare-and-set against 'available', so two managers racing on
+-- separate connections are decided by the database exactly as the superseded
+-- index decided them.
+CREATE TABLE IF NOT EXISTS posture_slots (
+	runtime_attempt_id TEXT NOT NULL REFERENCES attempts(runtime_attempt_id),
+	posture            TEXT NOT NULL
+	                   CHECK (posture IN ('consent', 'execution')),
+	occupancy          TEXT NOT NULL CHECK (occupancy IN (
+	                       'available', 'occupied', 'recovery-required')),
+	-- the epoch occupying or last occupying the slot; null before the first
+	session_epoch      INTEGER,
+	-- why the slot is where it is, for the reader who finds it not available
+	reason             TEXT,
+	changed_at         TEXT NOT NULL,
+	PRIMARY KEY (runtime_attempt_id, posture)
+) STRICT;
+
+-- THE SUPERVISION BOUNDARY MINTS THE TURN IDENTITY, before a prompt exists.
+--
+-- Fourth re-review [P1]: the identity had been a digest of the caller's
+-- started_at/deadline_at with prompt_digest deciding whether a reused
+-- window meant one act or two. Nothing allocated it, nothing recorded the
+-- allocation, and no constraint made it unique in the epoch — so it was
+-- reusable DATA that happened to differ, and prompt bytes were the fallback
+-- identity the finding had ruled out.
+--
+-- An ordinal is allocated per (attempt, posture, epoch) and the token is
+-- derived from it, so the identity carries nothing the agent said and nothing
+-- the manager later observed. The UNIQUE constraint is what makes epoch-local
+-- uniqueness a fact rather than an intention: two managers racing on separate
+-- connections both pass any read, and only the database can refuse the second.
+--
+-- An allocation with no turn document is a GAP, not an error. Allocating is
+-- how a supervised turn begins; a turn that never settles has still had one.
+CREATE TABLE IF NOT EXISTS turn_allocations (
+	turn_token         TEXT PRIMARY KEY,
+	runtime_attempt_id TEXT NOT NULL REFERENCES attempts(runtime_attempt_id),
+	posture            TEXT NOT NULL,
+	session_epoch      INTEGER NOT NULL,
+	turn_ordinal       INTEGER NOT NULL CHECK (turn_ordinal >= 1),
+	allocated_at       TEXT NOT NULL,
+	UNIQUE (runtime_attempt_id, posture, session_epoch, turn_ordinal),
+	FOREIGN KEY (runtime_attempt_id, posture, session_epoch)
+		REFERENCES agent_sessions (runtime_attempt_id, posture, session_epoch)
+) STRICT;
 
 -- ONE TURN, inside one session epoch.
 --
@@ -139,7 +221,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS agent_sessions_one_open_per_posture
 -- have moved. The turn outcome GATES the worker disposition and never
 -- chooses it.
 CREATE TABLE IF NOT EXISTS turns (
-	turn_id            TEXT PRIMARY KEY,
+	-- schema 12: the identity is the ALLOCATION, and the reference is what
+	-- durably binds the record to the supervised turn it was written under.
+	-- PRIMARY KEY is also the one-document-per-allocation rule.
+	turn_id            TEXT PRIMARY KEY
+	                   REFERENCES turn_allocations(turn_token),
 	runtime_attempt_id TEXT NOT NULL REFERENCES attempts(runtime_attempt_id),
 	posture            TEXT NOT NULL,
 	session_epoch      INTEGER NOT NULL,
@@ -173,6 +259,49 @@ CREATE TABLE IF NOT EXISTS turns (
 	FOREIGN KEY (runtime_attempt_id, posture, session_epoch)
 		REFERENCES agent_sessions (runtime_attempt_id, posture, session_epoch)
 ) STRICT;
+
+-- ONE NORMALIZED EVENT per (epoch, source_seq).
+--
+-- THE SEAL COVERS THE FRAME AND NOTHING ABOUT OBSERVING IT (SPEC 6.4). The
+-- relay stamps document_digest over the frame; the manager decides lateness
+-- and assigns observation_seq when it PERSISTS the frame, and both live in
+-- their own columns. The reason is concrete: the same frame observed twice,
+-- once before a turn ended and once after, would otherwise carry two
+-- different digests, and an ordinary retransmission would be
+-- indistinguishable from a spliced stream.
+--
+-- The PRIMARY KEY is the duplicate rule. Same source_seq with the same
+-- document replays the ORIGINAL observation; with a different document it is
+-- integrity.digest, because the transport lied about ordering or the stream
+-- was spliced and neither is a merge to attempt.
+CREATE TABLE IF NOT EXISTS agent_events (
+	runtime_attempt_id TEXT NOT NULL,
+	posture            TEXT NOT NULL,
+	session_epoch      INTEGER NOT NULL,
+	-- the relay's sequence, positive and scoped to one epoch
+	source_seq         INTEGER NOT NULL CHECK (source_seq >= 1),
+	-- the MANAGER's own ordering, assigned at persistence
+	observation_seq    INTEGER NOT NULL CHECK (observation_seq >= 1),
+	-- the turn this frame belongs to, or null for a frame outside one
+	turn_id            TEXT REFERENCES turn_allocations(turn_token),
+	kind               TEXT NOT NULL,
+	source_kind        TEXT NOT NULL,
+	byte_count         INTEGER NOT NULL CHECK (byte_count >= 0),
+	-- decided ONCE, when the frame was first seen, and replayed thereafter
+	late               INTEGER NOT NULL CHECK (late IN (0, 1)),
+	-- the sealed frame, RFC 8785 canonical
+	body               TEXT NOT NULL,
+	document_digest    TEXT NOT NULL,
+	recorded_at        TEXT NOT NULL,
+	PRIMARY KEY (runtime_attempt_id, posture, session_epoch, source_seq),
+	FOREIGN KEY (runtime_attempt_id, posture, session_epoch)
+		REFERENCES agent_sessions (runtime_attempt_id, posture, session_epoch)
+) STRICT;
+
+-- The manager's ordering is unique within the epoch it orders.
+CREATE UNIQUE INDEX IF NOT EXISTS agent_events_observation_seq
+	ON agent_events (runtime_attempt_id, posture, session_epoch,
+	                 observation_seq);
 
 -- One offer. The verifier is stored; the bearer never is.
 CREATE TABLE IF NOT EXISTS offers (

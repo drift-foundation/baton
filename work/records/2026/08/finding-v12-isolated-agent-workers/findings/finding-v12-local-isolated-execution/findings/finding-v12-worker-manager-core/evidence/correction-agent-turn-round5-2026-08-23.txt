@@ -1,0 +1,169 @@
+W2929 / current authority W4 — turn slice, FIFTH correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T16-15-49Z.md (one P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && npm test
+    tests 509, pass 508, fail 1
+
+The additive regression was the only failure, at the first state it drives
+(`not-started`), exactly as reported.
+
+THE FINDING IS CORRECT AND THE ARGUMENT I MADE AGAINST IT WAS NOT. In round 4
+I wrote that allocation deliberately skips the state and provider checks
+because "opening a turn asks whether the epoch exists; whether a turn may
+still SETTLE there is a question about the moment it settles", and added that
+checking at allocation would pre-empt the record-time boundaries the third
+review installed.
+
+The distinction between opening and settling is real. The conclusion drawn
+from it was backwards: opening asks the STRICTER question, not a weaker one.
+And the second half of the argument was a statement about my test fixtures —
+that several cases would start passing at the wrong boundary — presented as a
+statement about the design. That is the same failure mode as round 4's window
+defence, one round later, and the review's own suggested migration (open while
+ready, then move the state) is what the fixtures needed all along.
+
+
+2. WHY THE STATE MATTERS AT THE START BOUNDARY
+
+Frozen §7.3 draws exactly one edge that starts a prompt:
+
+  not-started -> initializing -> ready -> prompting -> turn-ended -> closed
+                                            |
+                                            +-> cancel-requested -> ...
+
+So every state other than `ready` is either before a prompt has become
+possible or past one. `agent-quiescent` says the conversation is over. §3.3
+makes `unknown` and `closed` terminal, and `closed` asserts that a terminal
+fact was observed for EVERY turn the epoch started — so an allocation landing
+after it does not leave a harmless gap, it makes a durable session assertion
+false the instant the row commits. §3.1's reference labels evidence, so a
+mismatched provider label sealed at the opening boundary is a false label on
+the turn from the moment it exists.
+
+And the timing is the whole point: allocation PRECEDES the external prompt,
+while recording FOLLOWS the terminal fact. A check deferred to recording is a
+check made after the thing it exists to prevent.
+
+
+3. THE CHANGE
+
+`TURN_STARTING_SESSION_STATES` is `["ready"]` — a positive set, named the way
+the settle set already was.
+
+`admitTurnStart` checks that set and binds the full durable provider-session
+reference. It runs inside `allocateTurn`'s existing BEGIN IMMEDIATE and BEFORE
+the insert, so a refused opening leaves nothing behind and the state cannot
+move between the check and the row.
+
+`admitTurnSettlement` keeps the separate positive SETTLE set and its own
+provider binding, exactly as the review requires. The provider comparison is
+factored into `bindProviderSession` so the two boundaries cannot drift apart
+on that half.
+
+The two sets are deliberately different and both are needed: a turn OPENS only
+from `ready` and may SETTLE wherever §7.3 has legally advanced to since,
+because the state moves while the agent is working and a terminal fact
+arriving in `cancel-requested` is what the graph describes.
+
+
+4. FIXTURES MIGRATED, ASSERTIONS UNTOUCHED
+
+The review named the migration and it is exactly right. Two of MY cases now
+open while ready and then perturb:
+
+  "every frozen session state admits a turn or refuses one"
+      opens one allocation per state up front while ready, then moves the
+      session and records. Opening inside the loop would have refused at the
+      START boundary and stopped proving anything about the SETTLE boundary
+      the case exists for.
+  "an omitted provider session is still a disagreement"
+      opens before the label is attached, so the refusal comes from the
+      settle-side binding rather than the new start-side one.
+
+A fixture helper `openTurn(store, at)` makes that explicit: a case that
+perturbs the session and then records is describing a turn that opened before
+the perturbation, which is what a relay does.
+
+NAMED RATHER THAN GLOSSED: two of the reviewer's own round-3 cases — "a closed
+session accepts no later turn" and "a turn binds the stored provider session
+identity" — are now decided at the START boundary instead of the settle one.
+Their assertions still hold and were not touched. The settle-side equivalents
+are the two migrated cases above, and mutations S1 and S2 below confirm the
+settle checks are still independently witnessed, so no coverage was lost by
+the shift.
+
+
+5. MUTATIONS — FIVE, ALL WITNESSED
+
+  P1a the start state is not admitted              1 case fails
+        W2929 fifth review: allocation opens only the exact ready session
+  P1b the start provider reference is not bound    1 case fails
+        the same case
+  P1c allocation admits nothing at all             2 cases fail
+        the same case, and "a turn happens INSIDE a session"
+  S1  the SETTLE state is not admitted             1 case fails
+        "every frozen session state admits a turn or refuses one"
+  S2  the SETTLE provider reference is not bound   1 case fails
+        "an omitted provider session is still a disagreement"
+
+S1 and S2 are the evidence for the claim in section 4: both admission
+boundaries are independently exercised after the migration, and disabling
+either one is caught by a different case.
+
+
+6. REGRESSIONS — 50 (48 before, including the reviewer's one)
+
+Two of mine:
+
+  opening and settling are two sets, and START is one — START is exactly
+    `ready`, START is a strict subset of SETTLE, the two cannot collapse, and
+    both are drawn from the frozen vocabulary. A property, so the lists cannot
+    stay different merely by habit.
+  a turn opened while ready settles after the state moves — the positive
+    direction of the split, stated on its own rather than only inside the
+    exhaustive loop: open ready, advance to `prompting`, record the terminal
+    fact against the later state, and the moved-on epoch refuses to OPEN
+    another turn.
+
+
+7. GATES
+
+  cd v12 && npm test                       511 tests, 511 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN with no failure belonging to another Work.
+
+The TMPDIR bracket was /tmp/w4r5-OZRbvA; it retained only Node's own
+`node-compile-cache` and no test-owned root. It and the earlier
+/tmp/w4-tmpdir-MGNB12 and /tmp/w4r4-PT2It9 are left for the operator.
+
+
+8. STILL NOT IMPLEMENTED
+
+Event normalization, the runtime/agent adapter CONTRACTS, and the
+re-identification gate after transport ambiguity.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/agent_turn.mjs          TURN_STARTING_SESSION_STATES;
+                                                 admitTurnStart under the
+                                                 allocation write lock before
+                                                 the insert; admitTurn split
+                                                 into start and settlement
+                                                 with a shared provider
+                                                 binding
+  v12/test/worker_manager_agent_turn.test.mjs    +2 cases, 2 fixtures migrated
+                                                 to open-while-ready, one
+                                                 openTurn helper; no existing
+                                                 assertion changed

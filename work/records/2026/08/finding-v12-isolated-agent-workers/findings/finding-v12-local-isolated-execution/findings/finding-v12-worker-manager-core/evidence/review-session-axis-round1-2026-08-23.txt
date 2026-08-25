@@ -1,0 +1,42 @@
+W4 / W2929 agent-session observation-axis independent review
+Date: 2026-08-23T18:02:11Z
+Reviewer: baton.codex
+
+Focused command:
+  cd v12 && node test/worker_manager_agent_session_axis.test.mjs
+
+Result:
+  tests 14
+  pass 12
+  fail 2
+
+The only failures are the two additive review regressions:
+  - state observation does not bind provider_session_id on moves or no-ops
+  - malformed session references reach lookup as raw/wrongly classified input
+
+Full command:
+  cd v12 && npm test
+
+Result:
+  tests 590
+  pass 588
+  fail 2
+
+Accepted delivered boundaries:
+  - nine states and successor table match the frozen model edge for edge
+  - all 81 ordered pairs are decided
+  - self-observation answers without moving
+  - durable transition decision and write share one transaction
+  - unknown and closed remain terminal
+  - every agent-session state fails runtime-quiescence satisfaction
+
+Separate lifecycle conflict:
+  W771 / work/records/2026/08/finding-agent-session-close-axis-conflict/
+  The retained probe proves closeAgentSession takes four forbidden edges;
+  correcting that path requires an owning ruling about unknown and posture
+  release and is not authorized by this review.
+
+Whitespace command:
+  git diff --check
+
+Result: clean.

@@ -1,0 +1,122 @@
+W641 — third correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T20-37-50Z.md (one P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test test/worker_manager_records.test.mjs           6 pass, 1 fail
+  node --test test/worker_manager_agent_handshake.test.mjs  28 pass, 1 fail
+
+Exactly the two additive review regressions. The finding is correct.
+
+
+2. THE RULE HAS TWO DIRECTIONS AND I IMPLEMENTED ONE
+
+Round one established rule 6 -- looking empty is not BEING the empty document
+-- and I implemented it by counting hidden own keys, so an EXTRA
+non-enumerable member could not smuggle a `toJSON` past the proof.
+
+Then I proved the EXPECTED members by property access alone. So this passed:
+
+  const offered = {};
+  Object.defineProperties(offered, {
+    fs:       { value: {},    enumerable: false },
+    terminal: { value: false, enumerable: false },
+  });
+
+Both values are readable. `JSON.stringify(offered)` is `{}`. The validator
+answered "can I read fs and terminal off this object" when the contract asks
+"is this the document `{fs: {}, terminal: false}`" -- which is the exact
+distinction the Date correction established two rounds earlier, at the other
+end of the same function.
+
+I HAD THE RULE AND APPLIED IT TO THE MEMBERS I DID NOT EXPECT. The members I
+did expect got the older, weaker question.
+
+`recordFault` now requires every expected member's descriptor to be
+ENUMERABLE as well as a data descriptor. It stays an inert descriptor check:
+the value is still never read, no behaviour runs, and Proxy handling is
+untouched.
+
+
+3. WHAT DID NOT CHANGE, AS THE REVIEW REQUIRES
+
+Empty records, ordinary and null-prototype records, insertion-order
+independence, hidden EXTRA-member refusal, accessor refusal, the Proxy-first
+non-observing guard, and both caller taxonomies. Reconnect is 32/32 with no
+assertion changed; handshake 29/29; profile 14/14; session 18/18.
+
+
+4. MUTATIONS -- FOUR, ALL WITNESSED
+
+  U1 the enumerable rule removed                    3 cases fail
+  U2 enumerability inferred rather than proved      3 cases fail
+  U3 hidden own keys revert to Object.keys          3 cases fail
+  U4 the data-descriptor rule removed               2 cases fail
+
+U3 and U4 are the two neighbouring rules, re-measured: this change did not
+make either of them redundant, and each still fails cases of its own.
+
+
+5. THE REGRESSION I ADDED IS THE PROPERTY, NOT THE BRANCH
+
+`records correction: acceptance MEANS the JSON document`. The finding was that
+the rule has two directions, so asserting the new branch would be repeating
+the mistake in test form -- I would be checking the direction I just noticed.
+Instead it asserts the property against the GROUND TRUTH the proof stands in
+for:
+
+  recordFault(v, expected) === null  =>  the JSON document of v has EXACTLY
+                                         those members
+
+driven over five accepted spellings -- the empty document, the ACP document,
+the same in the other insertion order, the same with no prototype, and a
+document whose only member is `false` -- each checked by round-tripping
+through `JSON.stringify` and comparing the actual wire keys.
+
+THE CONVERSE IS DELIBERATELY NOT CLAIMED, and the case says so. A hidden EXTRA
+member does not change the wire form either, and the proof refuses it anyway,
+because a document carrying invisible state is not the document -- which is
+what stops a non-enumerable `toJSON` from deciding the whole serialization.
+The rule is stricter than the wire ON PURPOSE. Four refusal cases state that
+edge explicitly: every expected member hidden, one of two hidden, a hidden
+extra, and a hidden `toJSON`.
+
+And it ends by showing the distinction itself: the hidden envelope's members
+are READABLE and `JSON.stringify` of it is `{}`.
+
+Both review regressions are retained unchanged.
+
+
+6. GATES
+
+  records                      9 / 9
+  handshake                    29 / 29
+  reconnect                    32 / 32
+  profile                      14 / 14
+  session                      18 / 18
+  full v12 npm test            677 tests, 677 pass, 0 FAIL
+  TMPDIR bracket               zero test-owned roots (the one entry is
+                               node-compile-cache, Node's own)
+  design models                64 / 66 / 24 / 74, all OK
+  v11 pytest                   2980 passed; serial 52 passed
+  codex-event-bridge           336 / 336
+  acp-baton-bridge             55 / 55
+  frozen vs product schema     byte-identical
+  whitespace-damage check      clean
+
+THE FULL v12 GATE IS GREEN. W4's composition revalidation landed while this
+correction was in review and its own suites are included in that 677.
+
+
+7. STILL OPEN
+
+Plan item 10: a future adapter built against this contract must be re-reviewed
+against it.
+
+Carried from W4 and unaffected here: the session-reference container question
+(W4 item 4ah) is an open ruling. If references are ruled inert,
+`recordFault(ref, [the four members])` is what implements it, and this
+correction is part of why -- the enumerability rule is exactly what would stop
+a reference from carrying hidden state.

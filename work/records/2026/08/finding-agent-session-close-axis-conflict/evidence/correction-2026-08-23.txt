@@ -1,0 +1,165 @@
+W771 — first correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T18-49-02Z.md (three P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node test/worker_manager_posture_slots.test.mjs   16 pass, 5 fail of 21
+
+The five additive regressions were the only failures. All three findings are
+correct, and together they say one thing: I built a closed vocabulary of
+evidence LABELS and called it positive evidence.
+
+
+2. P1 — SLOT MUTATIONS WERE NOT BOUND TO THE EPOCH
+
+Both mutations selected by attempt and posture only. A delayed epoch-1
+ambiguity report moved epoch 2 to recovery-required, and a delayed epoch-1
+release or close freed epoch 2.
+
+Both now take `sessionEpoch` and compare it with the slot's durable
+`session_epoch` inside the write transaction, INCLUDING in the idempotent
+branches — "already released" is only an answer to a retry if the release
+being retried is the one that happened.
+
+`occupySlot` takes the same operand name, so all four functions in the module
+say `sessionEpoch` rather than three of them saying it.
+
+
+3. P1 — EVIDENCE NAMES WERE ACCEPTED WITHOUT THE NAMED FACT
+
+This is the one worth stating plainly. `RECOVERY_EVIDENCE` is a closed set and
+I checked membership in it — the SPELLING of a caller's assertion — and called
+that the ruling's "positive evidence". `provider-session-closed` released a
+slot whose session was still `ready`, and `runtime-absent` accepted any
+non-empty string.
+
+`proveEvidence` reads the fact now. `provider-session-closed` requires the
+same epoch's durable observation to BE `closed` — the axis is where that fact
+is established and this reads it. `runtime-absent` requires the exact
+`attempts.runtime_id`; a missing, foreign or stale identity recovers nothing,
+because "some container is gone" is not "the container that held this
+assignment is gone". Neither path rewrites the observation.
+
+The proof runs BEFORE the slot state is read, so a caller whose evidence is
+not real never learns whether a retry would have answered.
+
+
+4. P1 — TRANSPORT LOSS LEFT THE SLOT OCCUPIED
+
+`handleTransportLoss` recorded `unknown` and moved no slot, contradicting the
+ruling's own transition and bypassing the recovery API.
+
+It composes with `requireSlotRecovery` now, and in ONE transaction. Two
+transactions would leave a crash window in which the observation had landed
+and the slot had not — a session recorded `unknown` whose posture still looked
+live. `observeAgentSessionStateIn`, `requireSlotRecoveryIn` and
+`releaseSlotIn` are the in-transaction variants that make that possible; the
+store-level functions are thin wrappers, so there is one implementation of
+each rule rather than two.
+
+`closeAgentSession` is one transaction for the same reason.
+
+
+5. AND ONE THING THE REVIEW DID NOT ASK FOR, WHICH ITS OWN CASE REQUIRED
+
+`W771 review: a delayed close cannot release a newer epoch` expects epoch 1 to
+end up OBSERVED `closed` while epoch 2's slot is untouched. My first
+correction refused the whole act, which rolled the observation back too.
+
+That is wrong and the case is right: epoch 1's provider session really did
+close, and that observation is true whatever the posture has done since. The
+close now always records the observation and releases only if the slot is
+still this epoch's, reporting `releasedSlot: false` when it is not — because
+"the close landed and the posture did not move" is a result a caller has to be
+able to see.
+
+
+6. MUTATIONS — SEVEN
+
+  V1 the slot epoch is not bound                       1 case fails
+  V2 a provider-close label is trusted                 2 cases fail
+  V3 runtime absence is not compared with the attached 1 case fails
+  V4 an unattached attempt can be declared absent      1 case fails
+  V5 evidence is proved after the slot state is read   3 cases fail
+  V6 transport loss leaves the slot occupied           2 cases fail
+  V7 a delayed close frees a newer epoch's slot        1 case fails
+
+V4 reported ZERO on the first pass and the instrument was not at fault — the
+CASE was missing. With the identity comparison still in place an unattached
+attempt refuses anyway, with a pair that says the caller named the wrong
+runtime when the truth is that this attempt names none. The added case drives
+that distinction and V4 now fails.
+
+
+7. REGRESSIONS — 22 (21 before, including the reviewer's five)
+
+One of mine, plus corrections to several of my own that were wrong under the
+ruling I had implemented incompletely:
+
+  an unattached attempt has no absence to observe — the V4 distinction above
+  the NORMAL-close case now drives the product's own atomic close path
+    instead of releasing before recording `closed`, which is the review's
+    exact point, and additionally asserts that a bare release before the
+    observation refuses
+  the two-postures and available-slot cases use runtime evidence, because a
+    provider-close release now READS the session's observation and those
+    slots have no session — which is the rule working
+
+THE SIGNED-OFF TITLE IS RENAMED on the review's case-specific authority:
+`W2929: only CLOSING frees the posture` is now
+`W771: positive absence evidence recovers the posture`. Every assertion is
+retained and the case gained three non-evidence attempts and an assertion that
+the `unknown` observation survives.
+
+I ALSO DAMAGED ONE OF THE REVIEWER'S CASES AND REPAIRED IT. A blanket textual
+rename of `epoch:` to `sessionEpoch:` across the file rewrote `session_epoch:`
+inside one of their expected rows. Caught by the failure it caused, repaired,
+and the file re-audited for other instances — there were none. A mechanical
+edit across a file somebody else also writes in is worth doing narrowly.
+
+
+8. GATES
+
+  cd v12 && npm test                       643 tests, 639 pass, 4 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  W771's suites                            posture slots 22/22, sessions
+                                           18/18, axis 16/16
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+ALL FIVE W771 FAILURES ARE FIXED. The four remaining are other Works' open
+rounds and are named rather than glossed: two "W543 review" cases on the
+tool-call `kind` ruling and two "W2929 fourth review" cases on the
+transport-loss options envelope. Both are queued for their own rounds and were
+not touched here.
+
+
+9. STILL OPEN
+
+Plan item 5 — re-reviewing W4 composition and every adapter consumer against
+the corrected lifecycle — is not discharged by this correction. This round
+composed the two product entry points W771's own rule reaches; the sweep of
+every consumer is still that item's.
+
+
+10. FILES CHANGED
+
+  v12/src/worker_manager/posture_slots.mjs        epoch binding, proveEvidence,
+                                                  and the in-transaction
+                                                  variants
+  v12/src/worker_manager/agent_session_axis.mjs   observeAgentSessionStateIn
+  v12/src/worker_manager/agent_session.mjs        close is one transaction and
+                                                  releases only its own slot
+  v12/src/worker_manager/agent_reconnect.mjs      transport loss composes with
+                                                  recovery atomically
+  v12/test/worker_manager_posture_slots.test.mjs  +1 case, several corrected
+  v12/test/worker_manager_agent_session.test.mjs  epochs, real evidence, and
+                                                  the authorized rename
+  v12/test/worker_manager_agent_reconnect.test.mjs  the fixture occupies its
+                                                  slot; the answer assertion
+                                                  gained slotOccupancy

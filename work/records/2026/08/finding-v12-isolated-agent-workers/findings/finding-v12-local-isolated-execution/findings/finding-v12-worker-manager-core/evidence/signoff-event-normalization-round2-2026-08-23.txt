@@ -1,0 +1,41 @@
+W4/W2929 item 4q independent sign-off evidence — 2026-08-23
+
+Reviewed
+--------
+* The complete current event-normalization implementation and its 44 focused
+  cases.
+* The second-correction FINDING, PLAN, PROGRESS and
+  evidence/correction-event-normalization-round2-2026-08-23.txt.
+* The two paths from review-2026-08-23T17-01-19Z.md.
+
+Accepted correction
+-------------------
+* `eventRecordOf` now authenticates the retained event and compares every
+  component of its full session reference with the requested reference,
+  including provider-session id. A genuinely absent row remains null; a
+  present row under a different sealed reference refuses
+  runtime-observation.identity-mismatch.
+* `sealEvent` owns content, tool-call data and adapter diagnostics through one
+  closed clone boundary. Non-cloneable data reports integrity.schema. The
+  canonical seal has its own wrapper and preserves an existing precise
+  ContractError unchanged.
+* The original four event-normalization corrections remain intact, and W543
+  remains the separate owner of the ACP tool-call kind contract conflict.
+
+Independent commands
+--------------------
+  cd v12 && node test/worker_manager_agent_events.test.mjs
+    44 passed, 0 failed
+
+  cd v12 && npm test
+    555 passed, 0 failed
+
+  git diff --check
+    clean (no output)
+
+Disposition
+-----------
+Signed off for plan item 4q. This does not sign off the still-open §6.5 relay
+queue, adapter composition, runtime/agent adapter contracts, transport-loss
+re-identification, or W4 as a whole.
+

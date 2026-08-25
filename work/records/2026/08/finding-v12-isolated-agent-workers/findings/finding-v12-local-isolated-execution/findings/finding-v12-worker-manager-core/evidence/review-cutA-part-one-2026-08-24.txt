@@ -1,0 +1,77 @@
+W4 Python Cut A part-one independent review evidence
+2026-08-24
+
+Reviewed scope
+==============
+
+  v12/python/src/baton_v12/contracts/{errors,pod,frozen,canonical}.py
+  v12/python/src/baton_v12/contracts/schema/*.json
+  v12/python/tests/manager/*
+  v12/python/{pyproject.toml,requirements.lock,justfile}
+
+Canonical record read with the implementation:
+
+  FINDING.md
+  PLAN.md
+  PROGRESS.md (read only; implementer-owned)
+  review-2026-08-24T04-06-44Z.md
+  evidence/python-boundary-revalidation-2026-08-24.txt
+  evidence/w4-prerequisite-revalidation-2026-08-24.txt
+  evidence/cutA-part-one-2026-08-24.txt
+
+Focused reproductions
+=====================
+
+Command:
+
+  cd v12/python
+  env PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_pod.ABehaviourBearingContainerNeverEnters.test_naming_a_rejected_type_does_not_run_its_metaclass \
+    tests.manager.test_pod.AnExactRecordCarriesExactlyItsMembers.test_escaped_unicode_does_not_expand_a_bounded_diagnostic -v
+
+Result: 0/2.
+
+  * own(Value()) executes the caller-controlled metaclass lookup for __name__
+    and escapes as AssertionError rather than ContractRefusal;
+  * four astral extra names produce a 1,933-character refusal.
+
+Command:
+
+  cd v12/python
+  env PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.test_a_caller_cannot_open_the_frozen_pairing -v
+
+Result: 0/1. Mutating exported ERROR_CODES makes the invented
+policy/caller-invented pair pass ContractRefusal's closed-pair guard.
+
+Additional direct measurement
+=============================
+
+  four 300-astral-character extra names: 1,933-character encodable refusal
+  a 300-lone-surrogate caller label:       1,004-character encodable refusal
+
+Complete gate
+=============
+
+Command:
+
+  cd v12/python
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result on Python 3.13.7: source 267/270. Only the three additive reviewer
+regressions fail; all 267 delivered cases pass. The source failure correctly
+stops the installed-wheel stage.
+
+Command:
+
+  git diff --check
+
+Result: clean.
+
+Review conclusion
+=================
+
+Changes requested. Preserve the delivered POD/schema/canonical behavior,
+retain all three regressions, close the metaclass execution, immutable-pairing
+and escaped-rendering defects, then complete current approved plan items 4bh
+and 4bi by adding runtime jsonschema 4.26.0 through the locked offline build.

@@ -9,17 +9,21 @@
 
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { ownedTemp, removeOwnedRoots } from "./owned_roots.mjs";
-import { ContractError, GOLDEN_BEARER, digest }
+import { ContractError, GOLDEN_BEARER, digest, forgetSecret, rememberSecret }
 	from "../src/worker_manager/contracts.mjs";
 import { ControlStore } from "../src/worker_manager/store.mjs";
 import { recordAttempt } from "../src/worker_manager/attempts.mjs";
+import { AGENT_SESSION_SCHEMA_PATH }
+	from "../src/worker_manager/agent_profile.mjs";
 import { ACP_STOP_REASONS, CODEX_ERROR_INFO, CODEX_TURN_STATUSES, CONCLUSIVE,
-         PERMITTED_DISPOSITIONS, TURN_OUTCOMES, fromTerminalFact,
-         permitsDisposition, recordTurn, selectTurnOutcome, turnId,
-         turnRecordOf }
+         PERMITTED_DISPOSITIONS, TURN_ADMITTING_SESSION_STATES,
+         TURN_OUTCOMES, TURN_STARTING_SESSION_STATES, allocateTurn,
+         fromTerminalFact, permitsDisposition, recordTurn, selectTurnOutcome,
+         turnRecordOf, turnToken }
 	from "../src/worker_manager/agent_turn.mjs";
 
 after(removeOwnedRoots);
@@ -54,9 +58,51 @@ function withSession(store) {
 	return REF;
 }
 
+// THE RELAY'S MEMORY, which is what a fixture is standing in for here.
+//
+// Schema 12 moved the turn identity from something derived to something the
+// supervision boundary ALLOCATES, so a caller now holds a token across the
+// life of one supervised turn — including across a retry of the record call.
+// These cases say "the same supervised turn" by repeating a call's operands
+// and "a different one" by moving the manager's window, so the fixture maps
+// window -> allocated token to mean exactly that.
+//
+// It is scaffolding, not a contract: the window never reaches the product's
+// identity, which is the ordinal `allocateTurn` claimed. Any case that wants
+// two turns under ONE window, or one turn under two windows, passes its own
+// `turnToken` and says so.
+const _relayTokens = new Map();
+
+function tokenFor(store, startedAt, deadlineAt) {
+	let byWindow = _relayTokens.get(store);
+	if (byWindow === undefined) {
+		byWindow = new Map();
+		_relayTokens.set(store, byWindow);
+	}
+	const key = `${startedAt}|${deadlineAt}`;
+	if (!byWindow.has(key)) {
+		byWindow.set(key, allocateTurn(store, REF).turnToken);
+	}
+	return byWindow.get(key);
+}
+
+/** OPEN the default supervised turn now, while the session is still ready.
+ *
+ *  §7.3 opens a turn only from `ready`, so a case that perturbs the session
+ *  and THEN records is describing a turn that opened before the perturbation
+ *  — which is exactly what a relay does: open, prompt, watch the state
+ *  advance, record. Calling this first is the fixture saying so, and it keeps
+ *  the perturbation being decided at the boundary the case is about. */
+function openTurn(store, at = {}) {
+	return tokenFor(store, at.startedAt ?? STARTED, at.deadlineAt ?? DEADLINE);
+}
+
 function ended(store, extra = {}) {
+	const startedAt = "startedAt" in extra ? extra.startedAt : STARTED;
+	const deadlineAt = "deadlineAt" in extra ? extra.deadlineAt : DEADLINE;
 	return recordTurn(store, { sessionRef: REF, promptDigest: PROMPT,
-		startedAt: STARTED, deadlineAt: DEADLINE, endedAt: ENDED, ...extra });
+		startedAt: STARTED, deadlineAt: DEADLINE, endedAt: ENDED,
+		turnToken: tokenFor(store, startedAt, deadlineAt), ...extra });
 }
 
 // -- the closed vocabulary and its two tables -------------------------------
@@ -259,7 +305,11 @@ test("W2929: the ambiguous and ended outcomes permit NOTHING", () => {
 					condition: "unexpected-approval",
 					error: { category: "policy", code: "denied" },
 					observed_at: ENDED, granted: false }] }]]) {
+			// Schema 12: four DISTINCT supervised turns, so four allocated
+			// identities. They used to be told apart by their prompt bytes,
+			// which is the fallback the fourth re-review removed.
 			const turn = ended(store, { ...extra,
+				turnToken: allocateTurn(store, REF).turnToken,
 				promptDigest: digest(what) });
 			assert.equal(turn.outcome, what);
 			assert.deepEqual(turn.permittedDispositions, [], what);
@@ -395,13 +445,24 @@ test("W2929: a turn happens INSIDE a session", () => {
 	}
 });
 
-test("W2929: the turn identity is derived from its epoch and prompt", () => {
-	const first = turnId(REF, PROMPT);
-	assert.equal(turnId({ ...REF, sessionEpoch: 2 }, PROMPT) === first, false);
-	assert.equal(turnId({ ...REF, posture: "consent" }, PROMPT) === first,
-		false);
-	assert.equal(turnId(REF, digest("other")) === first, false);
-	assert.equal(turnId({ ...REF }, PROMPT), first);
+test("W2929: the turn identity is ALLOCATED, and carries no prompt", () => {
+	// SUPERSEDED ASSERTION, on the fourth re-review's P1 ruling. This case
+	// used to assert that `turnId(REF, digest("other"))` differed from
+	// `turnId(REF, PROMPT)` — that the PROMPT was part of the identity. The
+	// review ruled that prompt bytes belong in the effective signature and
+	// cannot be the fallback deciding whether one supervised act is one turn
+	// or two, so the old assertion states a contract that no longer exists.
+	// The identity is the ordinal the supervision boundary claimed.
+	const first = turnToken(REF, 1);
+	assert.equal(turnToken({ ...REF }, 1), first, "the token is not stable");
+	assert.equal(turnToken({ ...REF, sessionEpoch: 2 }, 1) === first, false);
+	assert.equal(turnToken({ ...REF, posture: "consent" }, 1) === first, false);
+	assert.equal(turnToken({ ...REF, runtimeAttemptId: "attempt-2" }, 1)
+		=== first, false);
+	assert.equal(turnToken(REF, 2) === first, false, "the ordinal is inert");
+	// And nothing a caller says about the turn can reach it: there is no
+	// prompt, no timestamp and no outcome in the derivation at all.
+	assert.match(first, /^turn:[0-9a-f]{64}$/);
 });
 
 // -- the record is the record ------------------------------------------------
@@ -651,7 +712,15 @@ test("W2929: a record filed under another turn's identity is refused", () => {
 		withSession(store);
 		const first = ended(store, {
 			terminalFact: { kind: "acp-stop-reason", value: "end_turn" } });
-		const other = ended(store, { promptDigest: digest("other"),
+		// REVALIDATED against the schema-12 identity contract, as the fourth
+		// re-review directed. This fixture used to mint its second turn by
+		// changing the prompt under one window — the very thing that is no
+		// longer an identity. Two supervised turns are two ALLOCATIONS; the
+		// differing prompt is now incidental to what the case asserts, which
+		// is that a body copied onto another turn's row is caught.
+		const other = ended(store, {
+			turnToken: allocateTurn(store, REF).turnToken,
+			promptDigest: digest("other"),
 			terminalFact: { kind: "acp-stop-reason", value: "refusal" } });
 		const body = store.db.prepare(
 			"SELECT body, document_digest FROM turns WHERE turn_id = ?")
@@ -669,3 +738,553 @@ test("W2929: a record filed under another turn's identity is refused", () => {
 		store.close();
 	}
 });
+
+test("W2929 re-review: repeated prompt bytes can identify a later turn", () => {
+	const store = open();
+	try {
+		withSession(store);
+		const first = ended(store, {
+			terminalFact: { kind: "acp-stop-reason", value: "end_turn" } });
+		const second = ended(store, {
+			startedAt: "2026-08-22T12:02:00.000Z",
+			deadlineAt: "2026-08-22T12:17:00.000Z",
+			endedAt: "2026-08-22T12:03:00.000Z",
+			terminalFact: { kind: "acp-stop-reason", value: "end_turn" } });
+		assert.notEqual(second.turnId, first.turnId,
+			"two supervised turns with identical prompt bytes were conflated");
+		assert.equal(store.db.prepare(
+			"SELECT COUNT(*) AS n FROM turns").get().n, 2);
+	} finally {
+		store.close();
+	}
+});
+
+test("W2929 re-review: a closed session accepts no later turn", () => {
+	const store = open();
+	try {
+		withSession(store);
+		store.db.prepare(
+			"UPDATE agent_sessions SET state = 'closed' WHERE "
+			+ "runtime_attempt_id = ? AND posture = ? AND session_epoch = ?")
+			.run(ATTEMPT, REF.posture, REF.sessionEpoch);
+		assert.throws(() => ended(store, {
+			terminalFact: { kind: "acp-stop-reason", value: "end_turn" } }),
+			(error) => error instanceof ContractError
+				&& error.category === "refused"
+				&& error.code === "precondition");
+		assert.equal(store.db.prepare(
+			"SELECT COUNT(*) AS n FROM turns").get().n, 0);
+	} finally {
+		store.close();
+	}
+});
+
+test("W2929 re-review: a turn binds the stored provider session identity", () => {
+	const store = open();
+	try {
+		withSession(store);
+		store.db.prepare(
+			"UPDATE agent_sessions SET provider_session_id = ? WHERE "
+			+ "runtime_attempt_id = ? AND posture = ? AND session_epoch = ?")
+			.run("provider-session-a", ATTEMPT, REF.posture, REF.sessionEpoch);
+		assert.throws(() => ended(store, {
+			sessionRef: { ...REF, providerSessionId: "provider-session-b" },
+			terminalFact: { kind: "acp-stop-reason", value: "end_turn" } }),
+			(error) => error instanceof ContractError
+				&& error.category === "refused"
+				&& error.code === "precondition");
+		assert.equal(store.db.prepare(
+			"SELECT COUNT(*) AS n FROM turns").get().n, 0);
+	} finally {
+		store.close();
+	}
+});
+
+test("W2929 re-review: malformed turn input uses the closed error taxonomy",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			assert.throws(() => ended(store, { policyFailures: null }),
+				(error) => error instanceof ContractError
+					&& error.category === "integrity"
+					&& error.code === "schema");
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 re-review: malformed summary uses the closed error taxonomy",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			const turn = ended(store, {
+				terminalFact: { kind: "acp-stop-reason", value: "end_turn" } });
+			store.db.prepare(
+				"UPDATE turns SET permitted = ? WHERE turn_id = ?")
+				.run("not-json", turn.turnId);
+			assert.throws(() => permitsDisposition(store, turn.turnId, "completed"),
+				(error) => error instanceof ContractError
+					&& error.category === "integrity"
+					&& error.code === "digest");
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 re-review: exact turn replay precedes current secret liveness", () => {
+	const store = open();
+	const laterBearer = "review-secret-that-was-benign-when-first-recorded";
+	try {
+		withSession(store);
+		const operands = {
+			terminalFact: { kind: "acp-stop-reason", value: "end_turn" },
+			adapterDiagnostics: { "baton.relay/1": { note: laterBearer } },
+		};
+		const first = ended(store, operands);
+		rememberSecret(laterBearer);
+		assert.deepEqual(ended(store, operands), first,
+			"current ephemeral registry state hid an exact committed replay");
+	} finally {
+		forgetSecret(laterBearer);
+		store.close();
+	}
+});
+
+// -- the correction's own boundaries ----------------------------------------
+
+const SESSION_STATES = JSON.parse(
+	readFileSync(AGENT_SESSION_SCHEMA_PATH).toString("utf8"))
+	.$defs.sessionState.enum;
+
+/** Put the one fixture session into an exact state. */
+function sessionState(store, state) {
+	store.db.prepare(
+		"UPDATE agent_sessions SET state = ? WHERE runtime_attempt_id = ? "
+		+ "AND posture = ? AND session_epoch = ?")
+		.run(state, ATTEMPT, REF.posture, REF.sessionEpoch);
+}
+
+/** A supervision window nobody else in this file uses, keyed by minute. */
+function window(minute) {
+	const at = (m) => `2026-08-22T13:${String(m).padStart(2, "0")}:00.000Z`;
+	return { startedAt: at(minute), deadlineAt: at(minute + 30),
+	         endedAt: at(minute + 1) };
+}
+
+test("W2929 fifth review: allocation opens only the exact ready session",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			store.db.prepare(
+				"UPDATE agent_sessions SET provider_session_id = ? WHERE "
+				+ "runtime_attempt_id = ? AND posture = ? AND session_epoch = ?")
+				.run("provider-session-a", ATTEMPT, REF.posture,
+				     REF.sessionEpoch);
+			for (const state of SESSION_STATES.filter((value) => value !== "ready")) {
+				sessionState(store, state);
+				assert.throws(() => allocateTurn(store, {
+					...REF, providerSessionId: "provider-session-a" }),
+					(error) => error instanceof ContractError
+						&& error.category === "refused"
+						&& error.code === "precondition", state);
+			}
+			sessionState(store, "ready");
+			assert.throws(() => allocateTurn(store, {
+				...REF, providerSessionId: "provider-session-b" }),
+				(error) => error instanceof ContractError
+					&& error.category === "refused"
+					&& error.code === "precondition");
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turn_allocations").get().n, 0,
+				"a refused opening left a supervised-turn allocation behind");
+			const opened = allocateTurn(store, {
+				...REF, providerSessionId: "provider-session-a" });
+			assert.equal(opened.turnOrdinal, 1);
+			assert.equal(opened.agentSessionRef.providerSessionId,
+				"provider-session-a");
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: an allocation is the identity, and it is epoch-local",
+	() => {
+		// SUPERSEDES my round-3 case, which asserted that the manager's
+		// supervision window `(startedAt, deadlineAt)` was the identity
+		// component. The fourth re-review ruled that reusable operands are
+		// not an allocation however manager-owned they are, and it is right:
+		// nothing recorded the window, nothing bounded it, and prompt bytes
+		// were still deciding whether a reuse meant one turn or two.
+		const store = open();
+		try {
+			withSession(store);
+			const first = allocateTurn(store, REF);
+			const second = allocateTurn(store, REF);
+			assert.equal(first.turnOrdinal, 1);
+			assert.equal(second.turnOrdinal, 2, "the ordinal did not advance");
+			assert.notEqual(second.turnToken, first.turnToken);
+			assert.equal(first.turnToken, turnToken(REF, 1));
+			// RECORDED, which is the half a derived component never had.
+			assert.deepEqual(store.db.prepare(
+				"SELECT turn_ordinal FROM turn_allocations WHERE "
+				+ "runtime_attempt_id = ? AND posture = ? AND "
+				+ "session_epoch = ? ORDER BY turn_ordinal")
+				.all(ATTEMPT, REF.posture, REF.sessionEpoch)
+				.map((row) => row.turn_ordinal), [1, 2]);
+			// And the counter is per epoch, not per store: a second epoch
+			// starts at one and its tokens are still distinct, because the
+			// epoch is in the derivation.
+			store.db.prepare(
+				"UPDATE agent_sessions SET state = 'closed' WHERE "
+				+ "runtime_attempt_id = ? AND posture = ? AND "
+				+ "session_epoch = ?")
+				.run(ATTEMPT, REF.posture, REF.sessionEpoch);
+			store.db.prepare(
+				"INSERT INTO agent_sessions (runtime_attempt_id, posture, "
+				+ "session_epoch, profile_digest, pinned_policy, work_id, "
+				+ "authority_uuid, state, opened_at) "
+				+ "VALUES (?, 'execution', 2, ?, ?, ?, ?, 'ready', ?)")
+				.run(ATTEMPT, digest("profile"), digest("policy"), WORK, UUID,
+				     NOW);
+			const later = allocateTurn(store, { ...REF, sessionEpoch: 2 });
+			assert.equal(later.turnOrdinal, 1, "the counter is not per epoch");
+			assert.notEqual(later.turnToken, first.turnToken);
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: a changed prompt under one allocated turn COLLIDES",
+	() => {
+		// THE POINT OF THE FOURTH RE-REVIEW, asserted directly. Prompt bytes
+		// are in the effective signature and nowhere near the identity, so
+		// re-recording ONE supervised turn with different prompt bytes is
+		// changed operands for one act — not a quiet second turn.
+		const store = open();
+		try {
+			withSession(store);
+			const token = allocateTurn(store, REF).turnToken;
+			const fact = { kind: "acp-stop-reason", value: "end_turn" };
+			const first = ended(store, { turnToken: token, terminalFact: fact });
+			assert.deepEqual(ended(store, { turnToken: token,
+				terminalFact: { ...fact } }), first, "the exact retry did not "
+				+ "replay");
+			assert.throws(() => ended(store, { turnToken: token,
+				promptDigest: digest("a different prompt"),
+				terminalFact: fact }),
+				(error) => error instanceof ContractError
+					&& error.code === "operation-collision");
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turns").get().n, 1);
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: a record is written under an allocation, or refused",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			const fact = { kind: "acp-stop-reason", value: "end_turn" };
+			// A well-formed token nobody allocated is a string, not an
+			// identity — the foreign key alone would only ask whether the
+			// string exists somewhere.
+			assert.throws(() => ended(store, { turnToken: turnToken(REF, 99),
+				terminalFact: fact }),
+				(error) => error instanceof ContractError
+					&& error.category === "refused"
+					&& error.code === "precondition");
+			// And an allocation belonging to ANOTHER epoch is not this turn's
+			// identity however well formed it is.
+			//
+			// The other epoch is the CONSENT posture, deliberately: §3.2 lets
+			// both postures hold an open session under one attempt, so the
+			// execution epoch stays `ready` and the refusal has to come from
+			// the allocation binding. Closing this epoch to make room for a
+			// second execution one would have let admission refuse first and
+			// proved nothing about the binding.
+			store.db.prepare(
+				"INSERT INTO agent_sessions (runtime_attempt_id, posture, "
+				+ "session_epoch, profile_digest, pinned_policy, work_id, "
+				+ "authority_uuid, state, opened_at) "
+				+ "VALUES (?, 'consent', 1, ?, ?, ?, ?, 'ready', ?)")
+				.run(ATTEMPT, digest("profile"), digest("policy"), WORK, UUID,
+				     NOW);
+			const other = { ...REF, posture: "consent" };
+			const foreign = allocateTurn(store, other);
+			assert.throws(() => recordTurn(store, {
+				sessionRef: REF, promptDigest: PROMPT,
+				startedAt: STARTED, deadlineAt: DEADLINE, endedAt: ENDED,
+				turnToken: foreign.turnToken, terminalFact: fact }),
+				(error) => error instanceof ContractError
+					&& error.category === "refused"
+					&& error.code === "precondition");
+			// A missing or malformed token is the closed schema pair, not a
+			// raw property read on undefined.
+			for (const [what, bad] of [["absent", undefined],
+			                           ["null", null],
+			                           ["empty", ""],
+			                           ["a number", 7]]) {
+				assert.throws(() => recordTurn(store, { sessionRef: REF,
+					promptDigest: PROMPT, startedAt: STARTED,
+					deadlineAt: DEADLINE, endedAt: ENDED, turnToken: bad,
+					terminalFact: fact }),
+					(error) => error instanceof ContractError
+						&& error.category === "integrity"
+						&& error.code === "schema", what);
+			}
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turns").get().n, 0);
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: a re-reported end instant COLLIDES, never re-turns",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			const fact = { kind: "acp-stop-reason", value: "end_turn" };
+			ended(store, { terminalFact: fact });
+			// `ended_at` is what the manager OBSERVED, not what it allocated.
+			// Folding it into the identity would have answered this with a
+			// silent second turn document for one supervised turn.
+			assert.throws(() => ended(store, { terminalFact: fact,
+				endedAt: "2026-08-22T12:04:00.000Z" }),
+				(error) => error instanceof ContractError
+					&& error.code === "operation-collision");
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turns").get().n, 1);
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: every frozen session state admits a turn or refuses one",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			// EXHAUSTIVE over the frozen vocabulary, in BOTH directions: a
+			// partition tested only on the states somebody remembered is a
+			// partition a newly frozen state joins silently.
+			assert.equal(SESSION_STATES.length > 0, true);
+			assert.deepEqual(TURN_ADMITTING_SESSION_STATES
+				.filter((state) => !SESSION_STATES.includes(state)), [],
+				"an admitting state is not in the frozen vocabulary");
+			// OPENED WHILE READY, every one of them, and only then does the
+			// state move. Fifth re-review: allocation now admits the exact
+			// `ready` session, so opening inside the loop would have refused
+			// at the START boundary and stopped proving anything about the
+			// SETTLE boundary this case exists for. The two are different
+			// questions and this case asks the second one.
+			const opened = SESSION_STATES.map((_state, index) => {
+				const at = window((index + 1) * 2);
+				return { at, token: openTurn(store, at) };
+			});
+			for (const [index, state] of SESSION_STATES.entries()) {
+				const { at } = opened[index];
+				sessionState(store, state);
+				const before = store.db.prepare(
+					"SELECT COUNT(*) AS n FROM turns").get().n;
+				const token = opened[index].token;
+				const record = () => recordTurn(store, { sessionRef: REF,
+					promptDigest: PROMPT, ...at, turnToken: token,
+					terminalFact: { kind: "acp-stop-reason",
+					                value: "end_turn" } });
+				if (TURN_ADMITTING_SESSION_STATES.includes(state)) {
+					assert.equal(record().outcome, "completed", state);
+					assert.equal(store.db.prepare(
+						"SELECT COUNT(*) AS n FROM turns").get().n,
+						before + 1, state);
+				} else {
+					assert.throws(record,
+						(error) => error instanceof ContractError
+							&& error.category === "refused"
+							&& error.code === "precondition", state);
+					assert.equal(store.db.prepare(
+						"SELECT COUNT(*) AS n FROM turns").get().n,
+						before, state);
+				}
+			}
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: opening and settling are two sets, and START is one",
+	() => {
+		// The fifth re-review's structural point, held as a property rather
+		// than left to the two lists staying different by habit. §7.3 draws
+		// ONE edge that starts a prompt, so the start set is exactly `ready`;
+		// a turn opened there may settle wherever the state has legally
+		// advanced to since, so START is a strict subset of SETTLE.
+		assert.deepEqual([...TURN_STARTING_SESSION_STATES], ["ready"]);
+		assert.deepEqual(TURN_STARTING_SESSION_STATES
+			.filter((state) => !TURN_ADMITTING_SESSION_STATES.includes(state)),
+			[], "a turn may open in a state it could not settle in");
+		assert.equal(
+			TURN_STARTING_SESSION_STATES.length
+				< TURN_ADMITTING_SESSION_STATES.length, true,
+			"the two sets collapsed; opening asks the stricter question");
+		// And both are drawn from the frozen vocabulary, so neither can name
+		// a state the boundary does not have.
+		for (const state of [...TURN_STARTING_SESSION_STATES,
+		                     ...TURN_ADMITTING_SESSION_STATES]) {
+			assert.equal(SESSION_STATES.includes(state), true, state);
+		}
+	});
+
+test("W2929 correction: a turn opened while ready settles after the state moves",
+	() => {
+		// The positive direction of the split, stated on its own rather than
+		// only inside the exhaustive loop: the relay opens while ready,
+		// prompts, the session advances to `prompting` as §7.3 says it does,
+		// and the terminal fact is recorded against that later state.
+		const store = open();
+		try {
+			withSession(store);
+			const token = openTurn(store);
+			sessionState(store, "prompting");
+			const turn = ended(store, { turnToken: token,
+				terminalFact: { kind: "acp-stop-reason", value: "end_turn" } });
+			assert.equal(turn.outcome, "completed");
+			assert.equal(turnRecordOf(store, turn.turnId).turn_id, token);
+			// And the epoch that has moved on refuses to OPEN another one.
+			assert.throws(() => allocateTurn(store, REF),
+				(error) => error instanceof ContractError
+					&& error.category === "refused"
+					&& error.code === "precondition");
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: a turn committed before the epoch closed still replays",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			const fact = { kind: "acp-stop-reason", value: "end_turn" };
+			const first = ended(store, { terminalFact: fact });
+			// Both facts are true: the turn settled legitimately, and the
+			// session closed afterwards. The immutable one is the answer the
+			// retry is owed, so admission never gets to reconsider it.
+			sessionState(store, "closed");
+			assert.deepEqual(ended(store, { terminalFact: fact }), first,
+				"a later session close rewrote an already committed answer");
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turns").get().n, 1);
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: an omitted provider session is still a disagreement",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			// Opened while the epoch is ready and still unlabelled, so the
+			// refusal below has to come from the SETTLE-side binding rather
+			// than from the start-side one the fifth review added.
+			openTurn(store);
+			store.db.prepare(
+				"UPDATE agent_sessions SET provider_session_id = ? WHERE "
+				+ "runtime_attempt_id = ? AND posture = ? AND session_epoch = ?")
+				.run("provider-session-a", ATTEMPT, REF.posture,
+				     REF.sessionEpoch);
+			// Saying nothing is not agreeing. The sealed record would have
+			// carried `provider_session_id: null` for an epoch that durably
+			// holds one, and §3.1's reference labels evidence.
+			assert.throws(() => ended(store, {
+				terminalFact: { kind: "acp-stop-reason", value: "end_turn" } }),
+				(error) => error instanceof ContractError
+					&& error.category === "refused"
+					&& error.code === "precondition");
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turns").get().n, 0);
+			// And the agreeing reference is sealed into the record.
+			const turn = ended(store, {
+				sessionRef: { ...REF, providerSessionId: "provider-session-a" },
+				terminalFact: { kind: "acp-stop-reason", value: "end_turn" } });
+			assert.equal(turnRecordOf(store, turn.turnId)
+				.agent_session_ref.provider_session_id, "provider-session-a");
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 correction: a malformed session reference reports a closed pair",
+	() => {
+		// The BEHAVIOUR, not one line: measured, `turnSessionRef` is masked
+		// here by the frozen record validation, which refuses the same
+		// references with the same pair. What is asserted is that no shape a
+		// caller can supply escapes the closed taxonomy as a raw `TypeError`.
+		const store = open();
+		try {
+			withSession(store);
+			for (const [what, ref] of [
+					["absent", undefined],
+					["not an object", "execution/1"],
+					["no attempt", { ...REF, runtimeAttemptId: null }],
+					["invented posture", { ...REF, posture: "review" }],
+					["epoch zero", { ...REF, sessionEpoch: 0 }],
+					["fractional epoch", { ...REF, sessionEpoch: 1.5 }],
+					["provider id object", { ...REF,
+						providerSessionId: { id: "a" } }]]) {
+				assert.throws(() => ended(store, { sessionRef: ref,
+					terminalFact: { kind: "acp-stop-reason",
+					                value: "end_turn" } }),
+					(error) => error instanceof ContractError
+						&& error.category === "integrity"
+						&& error.code === "schema", what);
+			}
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turns").get().n, 0);
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 fourth review: a non-cloneable policy failure reports a closed pair",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			assert.throws(() => ended(store, {
+				policyFailures: [() => "not a frozen document"],
+				terminalFact: { kind: "acp-stop-reason", value: "end_turn" } }),
+				(error) => error instanceof ContractError
+					&& error.category === "integrity"
+					&& error.code === "schema");
+			assert.equal(store.db.prepare(
+				"SELECT COUNT(*) AS n FROM turns").get().n, 0);
+		} finally {
+			store.close();
+		}
+	});
+
+test("W2929 fourth review: malformed sealed-record bytes use the closed taxonomy",
+	() => {
+		const store = open();
+		try {
+			withSession(store);
+			const turn = ended(store, {
+				terminalFact: { kind: "acp-stop-reason", value: "end_turn" } });
+			store.db.prepare(
+				"UPDATE turns SET body = ? WHERE turn_id = ?")
+				.run("not-json", turn.turnId);
+			assert.throws(() => turnRecordOf(store, turn.turnId),
+				(error) => error instanceof ContractError
+					&& error.category === "integrity"
+					&& error.code === "digest");
+		} finally {
+			store.close();
+		}
+	});

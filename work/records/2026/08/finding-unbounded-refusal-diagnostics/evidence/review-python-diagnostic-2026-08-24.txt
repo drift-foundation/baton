@@ -1,0 +1,65 @@
+W1593 independent Python review evidence — 2026-08-24
+
+Scope
+-----
+Reviewed the Python POD primitive delivered under W4 and searched for the
+public ACP client-capability consumer required by W1593's placement review.
+The frozen Node measurements and red reference cases were not changed.
+
+Observed implementation
+-----------------------
+v12/python/src/baton_v12/contracts/pod.py::own_record first constructs the
+unexpected-name list and refuses immediately when it is non-empty. It computes
+missing expected members only after that return. Neither refusal branch names
+the total number of received members.
+
+For a session reference carrying only authority_uuid and seven unexpected
+members, the current message is:
+
+  a session reference does not carry 'unexpected-0', 'unexpected-1',
+  'unexpected-2' and 4 more; an extra member in an exact record is one the
+  sender believes was read
+
+It is bounded, but it omits work_id, participant, provider_session_id, and
+"8 received members".
+
+Additive tests
+--------------
+v12/python/tests/manager/test_pod.py adds four methods covering:
+
+* one combined missing-plus-extra diagnostic and the received count;
+* zero through five unexpected members without prescribing a sample size;
+* a non-string member name whose repr/str/iterator must not run; and
+* coarse refusal of a dict subclass without key enumeration.
+
+Focused command:
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_pod -v
+
+Result: 27 methods; six failure reports, comprising the combined diagnostic
+method and five unexpected-count subtests. The two inertness regressions pass,
+and every pre-existing method passes.
+
+Full source command:
+
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t . -v
+
+Result: Ran 581 tests in 66.721s; FAILED (failures=6, skipped=1). The six are
+exactly the new W1593 reports. The skip is the existing locked-environment
+dependency assertion. No unrelated source test failed.
+
+Public-boundary search
+----------------------
+The Python implementation has no ACP client-capability consumer or public
+composition boundary. `clientCapabilities` occurs in the frozen schema assets,
+not in a Python manager validator/caller equivalent. Consequently the primitive
+can be corrected under W1593, but the black-box consumer acceptance cannot be
+performed until separately scheduled manager composition work exposes the real
+boundary.
+
+Disposition
+-----------
+Changes requested. Keep the accepted bounds and inertness. Combine missing and
+unexpected reporting into one rule-oriented diagnostic and add the exact total
+received count. Do not change host-side Node code and do not invent a public
+Python capability API in this Work.

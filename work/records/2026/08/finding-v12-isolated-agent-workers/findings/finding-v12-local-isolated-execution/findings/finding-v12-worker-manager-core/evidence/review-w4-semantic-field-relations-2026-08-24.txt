@@ -1,0 +1,74 @@
+W4 independent review — semantic field relationships
+2026-08-24
+
+Scope
+-----
+Re-review PLAN 4cf-done against the centralized receiving-entry model, the
+shared assignment owner, the settlement port, and adopted refusal replay.
+
+Focused retained inventory gate
+--------------------------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest -v tests.manager.test_boundary_inventory
+
+Result:
+  Ran 51 tests in 4.788s
+  OK
+
+The gate reports 27 injected entries. Its own projection shows a retirement's
+record only as `settle_operation.record`; it does not enumerate the `reason` or
+`disposition` fields consumed after `bound = answer.get("record") or {}`.
+Adopted SQL input remains one entry per table, so the operation row's sealed
+refusal members are likewise not entries with semantic owners.
+
+Additive regressions
+--------------------
+  tests.manager.test_offers.TheClaimAndItsSettlement.
+    test_a_claim_answer_must_name_the_offers_authority
+  tests.manager.test_offers.TheClaimAndItsSettlement.
+    test_a_late_committed_claim_must_name_the_offers_authority
+  tests.manager.test_offers.TheClaimAndItsSettlement.
+    test_a_retirement_owns_the_reason_and_disposition_it_adopts
+  tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer.
+    test_an_adopted_refusals_members_are_owned_before_revival
+
+Focused result:
+  Ran 3 tests in 0.005s — FAILED (failures=3)
+  Ran 1 test in 0.003s — FAILED (failures=1)
+
+Observed outcomes:
+  * A direct claim with a different authority_uuid is accepted and the offer
+    advances from accepted to claimed.
+  * The same foreign-authority assignment in a late committed settlement is
+    accepted and recorded.
+  * A retirement whose adopted reason is integer 7 is accepted and settles the
+    offer.
+  * A persisted sealed refusal whose category is integer 7 passes the row
+    contract and escapes replay as AssertionError from ContractRefusal.
+
+Full source gate
+----------------
+Command:
+  cd v12/python
+  env PYTHONPATH=src:. python3 -m unittest discover -v -s tests -t .
+
+Result:
+  Ran 477 tests in 5.721s
+  FAILED (failures=4, skipped=1)
+
+All four failures are the additive regressions above. The skip is the retained
+ambient-version distribution skip.
+
+Diff hygiene
+------------
+  git diff --check
+
+Result: clean.
+
+Conclusion
+----------
+PLAN 4cf is not signed off. The exact-POD/member-set correction still does not
+own every semantic member and relationship. Cut D remains unstarted. Correct
+the centralized entry/owner/probe model and its shared owners; do not patch the
+four witnesses independently.

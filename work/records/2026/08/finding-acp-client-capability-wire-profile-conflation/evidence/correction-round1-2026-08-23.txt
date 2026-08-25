@@ -1,0 +1,172 @@
+W641 — first correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T19-36-46Z.md (one P1, one P2).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test v12/test/worker_manager_agent_handshake.test.mjs  21 pass, 2 fail
+
+Exactly the two additive review regressions. Both findings are correct.
+
+
+2. [P1] I ASKED WHETHER THE OBJECT LOOKED EMPTY, NOT WHETHER IT WAS THE DOCUMENT
+
+`Object.keys(new Date(0))` is empty and a Date is not the empty JSON document
+-- it serializes as a STRING. Counting enumerable members answers "does this
+look like {}", and the question this boundary exists to ask is "is this the
+document 2.2 sends". Those are different questions and only one of them is
+about the wire.
+
+An INERT JSON RECORD is now proved at BOTH levels, and it is four things:
+
+  - an object, not null and not an array;
+  - carrying `Object.prototype` or NO prototype, so nothing it inherits can
+    decide its wire form -- this is what refuses a Date, a Map, a regular
+    expression and every class instance, generically, rather than by a list of
+    the exotic types this contract happens to know today;
+  - with exactly the expected own keys COUNTING THE ONES `Object.keys` HIDES.
+    A non-enumerable `toJSON` is invisible to `Object.keys` and decides the
+    ENTIRE serialization of the document it hides in, so own names and own
+    symbols are both counted;
+  - and every one of those members a DATA member. A getter is a program: it
+    may answer one thing to this check and another to the wire, and reading it
+    runs the caller's code at the boundary that decides this policy.
+
+`Object.create(null)` remains a valid spelling and member order remains
+irrelevant, as the review requires. Both are asserted.
+
+A Proxy over an array whose `getPrototypeOf` trap answers `Object.prototype`
+is refused too, because array classification follows a proxy to its target and
+the trap does not.
+
+
+3. [P2] THE REFUSAL SERIALIZED THE VALUE IT REFUSED -- AT THREE SITES, NOT ONE
+
+The review found `JSON.stringify(advertised.terminal)`. The envelope refusal
+and the `fs` refusal carried the SAME LINE and the same defect:
+
+  denied(`it offered ${JSON.stringify(advertised ?? null)}`)     <- BigInt
+  denied(`fs is ${JSON.stringify(fs ?? null)} ...`)              <- BigInt
+  denied(`terminal is ${JSON.stringify(advertised.terminal)}`)   <- reported
+
+A rule applied at one of three sites is not applied. All three name the value
+by its SHAPE now, through one helper that runs nothing: `typeof` cannot fail,
+`true`/`false`/`null`/`undefined` are single tokens with no caller content in
+them, and every object is described from translated reflection.
+
+Member NAMES are still reported, deliberately. A property name is an inert
+string, the reviewer accepted those messages, and "which members did you send"
+is the whole diagnostic. What is never reported is a VALUE.
+
+
+4. AND THE ENVELOPE IS PROVED BEFORE ITS MEMBERS ARE READ
+
+The old order read `advertised.terminal` after checking `Object.keys` but
+before anything had established that `advertised` was a record at all. Proving
+the envelope FIRST is what makes the two member reads inert: a data member on
+a plain record runs nothing, and until the record is proved neither of those
+facts is known. Mutation Q9 witnesses the ordering.
+
+
+5. MUTATIONS -- NINE
+
+  Q1 an empty-key object is the empty document again    2 cases fail
+  Q2 hidden and symbol members stop counting            1 case fails
+  Q3 an accessor member is a document member again      1 case fails
+  Q4 terminal's refusal serializes the value again      2 cases fail
+  Q5 the envelope refusal serializes it again           3 cases fail
+  Q6 array classification outside the translation       0 -- EQUIVALENT
+  Q7 the reflection wrapper removed entirely            2 cases fail
+  Q8 the descriptor reflection wrapper removed          1 case fails
+  Q9 the envelope not proved before its members read    3 cases fail
+
+TWO OF THESE ZEROS WERE INVESTIGATED RATHER THAN ACCEPTED, AND THEY HAD
+DIFFERENT ANSWERS.
+
+Q6 is genuinely equivalent, and provably so rather than by observation:
+`Array.isArray` throws on exactly one kind of value, a revoked Proxy, and
+EVERY reflection on a revoked Proxy throws. The prototype read therefore fails
+first and sets `read: false`, and the array line is never reached with a value
+that could make it throw. It stays inside the translated snapshot because that
+ordering is what makes it safe and ordering is easy to change -- but it earns
+no witness and is not counted as a guard. (This is the opposite finding to
+W2929's fifth review, where the same operation ran BEFORE the prototype read
+and was load-bearing. Same operation, different position, different answer.)
+
+Q8's zero was a MISSING CASE. The descriptor read happens after the record has
+otherwise been proved, so reaching it needs a Proxy that answers
+`Object.prototype`, answers exactly [fs, terminal], and then throws from the
+`getOwnPropertyDescriptor` trap. I built that value, confirmed it reaches the
+descriptor read, and added it. Q8 now fails the case that owns it.
+
+A zero is a question, not a result. These two had different answers and I
+could not have told them apart without asking.
+
+
+6. REGRESSIONS ADDED -- 3, ALL SHAPED AS PROPERTIES
+
+  an inert JSON record is proved at BOTH levels
+      ten shapes -- Date, Map, regular expression, class instance, array,
+      array wearing Object.prototype, revoked Proxy, bigint, null, string --
+      each offered as the WHOLE ENVELOPE and as `fs`. Plus the two spellings
+      2.2 does send, at both levels and in either insertion order.
+
+  a document carries DATA, seen and unseen
+      a non-enumerable `toJSON` at both levels; a Proxy that answers the right
+      prototype and the right member names and then throws from its descriptor
+      trap; and `fs` and `terminal` each as an own enumerable ACCESSOR, with
+      the getter asserted NOT to have run.
+
+  no refusal serializes what it refuses, at any site
+      a BigInt and an object whose toJSON, toString and valueOf are all
+      throwing getters, at each of the three sites, plus a revoked Proxy as
+      `terminal`. Asserts the closed pair AND that nothing ran.
+
+Both review regressions are retained unchanged and no earlier assertion in the
+file was edited or weakened.
+
+
+7. A DUPLICATION I AM REPORTING RATHER THAN RESOLVING
+
+`v12/src/worker_manager/agent_reconnect.mjs` now contains its own `classify`,
+`isPlainRecord` and `describe` with the same rules, from W2929's fourth and
+fifth reconnect corrections. This module has a second implementation of them.
+
+I did not unify them. `agent_reconnect.mjs` is inside W4's open review round --
+a sixth review of it landed while I was working here -- and moving code out of
+a module under review would put the change in the wrong Work and disturb a
+pending review. The natural moment is W4's composition, where one shared
+"prove an inert record" primitive replaces both. Raised here so the fork is
+visible rather than silent.
+
+
+8. GATES
+
+  handshake                    26 / 26
+  profile                      14 / 14
+  session                      18 / 18
+  full v12 npm test            661 tests, 659 pass, 2 fail
+  TMPDIR bracket               zero test-owned roots (the one entry is
+                               node-compile-cache, Node's own)
+  design models                64 / 66 / 24 / 74, all OK
+  v11 pytest                   2980 passed; serial 52 passed
+  codex-event-bridge           336 / 336
+  acp-baton-bridge             55 / 55
+  frozen vs product schema     byte-identical
+  whitespace-damage check      clean
+
+BOTH REMAINING v12 FAILURES ARE W4's, and they are NEW: "W2929 sixth review: a
+Proxy envelope is not a plain record" and "W2929 sixth review: refusing a Proxy
+member runs no trap", in `worker_manager_agent_reconnect.test.mjs`. They landed
+during this correction, in a suite W641 does not touch. W543's two and W771's
+two are gone because those Works fixed them.
+
+
+9. STILL OPEN
+
+Plan item 5, and unchanged by this correction: a future adapter built against
+this contract must be re-reviewed against it. The review's sweep found no 1.0
+source consumer retaining the removed constants; `v12/src/acp_session.mjs` and
+`tools/acp-baton-bridge` remain the accepted 0-spike and the earlier v11
+bridge respectively, outside 1.0 scope.

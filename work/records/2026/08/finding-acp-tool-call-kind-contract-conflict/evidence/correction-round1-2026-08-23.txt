@@ -1,0 +1,188 @@
+W543 — first correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T19-05-30Z.md (one P1, one P2).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test v12/test/worker_manager_agent_events.test.mjs   48 pass, 2 fail
+  python3 -m unittest test_acp_boundary_model                 62 pass, 2 fail
+
+Exactly the four additive review regressions. Both findings are correct.
+
+
+2. [P1] I QUOTED THE DISTINCTION AND THEN IMPLEMENTED ONE PATH
+
+The comment in the v12 normalizer and the docstring in the model both state
+the pinned declaration verbatim -- `kind?: ToolKind` on ToolCall and
+`kind?: ToolKind | null` on ToolCallUpdate -- and both then treated null as
+absence on either source, which erases the only difference that declaration
+states. The v12 absent-case fixture even supplied `kind: null` on `tool_call`
+while its own comment said null was the SDK's absence form "for an update".
+
+The rule now implemented in both consumers, and now stated in SPEC 6.2.1 as
+well so prose and code finish in one state:
+
+  omitted member          absence on either source
+  explicit undefined      absence on either source (TypeScript optionality)
+  explicit null           absence on tool_call_update; REFUSES on tool_call
+  pinned value            copied on either source
+  anything else           REFUSES on either source
+
+The model normalized without any source at all. It reads `sessionUpdate` now,
+and a source it cannot see is NOT proof that a null was permitted: absence of
+evidence refuses on the strict side rather than defaulting to the lenient one.
+
+DOCUMENTING A DISTINCTION IS NOT IMPLEMENTING IT. That is the actual lesson
+and it is the second time in two Works that I have written a rule into a
+comment and left one call site outside it.
+
+
+3. [P2] THE REFUSAL RAN THE VALUE IT WAS REFUSING
+
+Two different mechanisms, one shape:
+
+  JavaScript   `JSON.stringify(update.kind)` in the diagnostic. A BigInt is
+               not serializable, so the message construction threw a raw
+               TypeError and the closed pair never left the boundary.
+  Python       `update["kind"] not in TOOL_KINDS` HASHES the value. A list or
+               dict raised a raw unhashable TypeError, and the `{...!r}` in
+               the diagnostic would run a caller's `__repr__`.
+
+Both now test the value's SHAPE before its membership, and neither message
+names the value. JavaScript reports `typeof`; Python reports
+`type(x).__name__`. Neither can run provider code and neither can fail.
+
+Python uses `type(supplied) is not str` rather than `isinstance`, because a
+str subclass can override `__hash__` and `__eq__` -- membership of a frozenset
+would run them. The pinned wire shape is the JSON string exactly.
+
+This is the same rule I was taught over four rounds on the reconnect
+primitive: A REFUSAL MUST NEVER RUN THE VALUE IT IS REFUSING. It applies to
+the diagnostic, not only to the check.
+
+
+4. AN ADDITIONAL DEFECT I FOUND WHILE REPRODUCING, AND FIXED
+
+`ToolCallKind` -- the whole test class this Work added, now 9 cases -- was
+appended BELOW the `if __name__ == "__main__": unittest.main()` guard in
+`test_acp_boundary_model.py`. Run as a script the module never reached the
+class definition at all:
+
+  python3 test_acp_boundary_model.py       57 tests   <- W543 cases INERT
+  python3 -m unittest ...                  64 tests
+
+The reviewer's runner found them; the file's own entry point did not. Class
+moved above the guard. Both runners now report 66 and agree.
+
+I delivered a suite whose result depended on which runner you used. The count
+I reported last round was real but it was not the count the file produces when
+you run the file.
+
+
+5. MUTATIONS
+
+JavaScript, against v12/test/worker_manager_agent_events.test.mjs:
+
+  M1 null is absence on both sources again        2 cases fail
+  M2 membership without the shape check           0 cases fail  -- EQUIVALENT
+  M3 the refusal serializes what it refuses       2 cases fail
+  M4 an omitted member is not absence             5 cases fail
+  M5 the source is not carried into the view      2 cases fail
+
+M2 IS MEASURED EQUIVALENT AND I AM REPORTING IT AS EQUIVALENT RATHER THAN
+COUNTING IT. `Array.prototype.includes` uses SameValueZero: it coerces
+nothing, calls nothing, and already returns false for a BigInt, a symbol, a
+String object or an array. So in JavaScript the shape check changes no
+outcome; the leak was entirely in the diagnostic, which M3 witnesses. I keep
+the explicit check because it states the rule the Python consumer needs
+load-bearing, and because a later change of the membership test to something
+that does coerce would otherwise be silent -- but it earns no witness today
+and I am not claiming one.
+
+Python, against test_acp_boundary_model.py:
+
+  P1 null is absence on both sources again        2 cases fail
+  P2 membership without the shape check           2 cases fail (4F + 5E)
+  P3 the refusal reprs what it refuses            1 case fails (14 subtests)
+  P4 an omitted member is not absence             3 cases fail
+  P5 the source is read from nowhere              2 cases fail
+
+MEASUREMENT INSTRUMENT CORRECTED MID-RUN. My first Python harness scraped
+`... FAIL` from verbose output and reported P1=1, P3=0. Both were wrong:
+`subTest` failures are not printed in that form. Reading the FAILED/ERROR
+summary instead gives the numbers above, and P3 -- the mutation I had briefly
+recorded as inert -- is witnessed 14 times over. A zero from an instrument
+I wrote is a claim about the instrument first.
+
+
+6. REGRESSIONS ADDED -- 2 IN v12, 2 IN THE MODEL
+
+Both pairs are shaped as TABLES OVER BOTH SOURCES rather than as the two
+corners that happened to fail, because the finding was that one path was
+implemented and the other was not:
+
+  the source decides which shapes are absence
+      five shapes x two sources, all ten outcomes asserted
+  a refusal names the shape and never runs the value
+      BigInt, symbol, String object, an object whose toJSON/toString/valueOf
+      all throw, a function, an array, a plain object and a marked invalid
+      string -- x two sources; asserts the closed pair, that the message
+      does NOT contain the marker, and that it DOES name the shape
+
+The Python pair adds a `str` subclass whose `__hash__` raises and an object
+whose `__repr__`, `__str__`, `__hash__` and `__eq__` all raise. If any part of
+the boundary touches the value, those cases fail rather than pass quietly.
+
+
+7. THE FOUR REVIEW REGRESSIONS ARE RETAINED UNCHANGED
+
+and the two null-absence fixtures were migrated on the review's explicit
+authority -- v12's from `tool_call` and the model's from an unspecified source
+to `tool_call_update` -- with their omission assertions unchanged and the
+migration marked where it stood.
+
+
+8. ARTEFACTS CHANGED
+
+  finding-acp-agent-boundary/SPEC.md            6.2.1: the nullability
+                                                consequence and the
+                                                refusal-does-not-run-the-value
+                                                rule
+  finding-acp-agent-boundary/FINDING.md         amendment appended to the
+                                                W543 correction section
+  evidence/acp_boundary_model.py                normalize_tool_call
+  evidence/test_acp_boundary_model.py           fixture migration, class moved
+                                                above the main guard, 2 cases
+  v12/src/worker_manager/agent_events.mjs       normalizeToolCall takes its
+                                                source kind
+  v12/test/worker_manager_agent_events.test.mjs fixture migration, 2 cases
+
+The frozen schema is UNCHANGED and remains byte-identical to the product copy:
+null never reaches the portable view, so `toolCallView` has nothing to say
+about it.
+
+
+9. GATES
+
+  design models         64 / 66 / 24 / 74, all OK, and the ACP boundary model
+                        now reports 66 under BOTH runners
+  v12 npm test          654 tests, 650 pass, 4 fail
+  v11 pytest            2980 passed; serial 52 passed
+  acp-baton-bridge      55 / 55
+  frozen vs product schema        byte-identical
+  whitespace-damage check         clean
+  TMPDIR bracket over npm test    zero test-owned roots (the one entry is
+                                  node-compile-cache, Node's own)
+
+Both W543 review regressions pass and NONE of the four remaining v12 failures
+is this Work's: two "W641 review" and two "W2929 fifth review" cases, in
+suites W543 does not touch. W771's five are gone because W771 fixed them.
+
+
+10. STILL OPEN
+
+Plan item 5. The review's own sweep found no runtime reader of the advisory
+field beyond these two consumers, and I repeated it after the change with the
+same result, so what remains of item 5 is confirmation at W4 composition
+rather than a search.

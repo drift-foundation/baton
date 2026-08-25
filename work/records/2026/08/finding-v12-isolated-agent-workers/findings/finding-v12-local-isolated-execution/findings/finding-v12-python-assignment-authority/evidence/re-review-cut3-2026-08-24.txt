@@ -1,0 +1,60 @@
+W2845 cut-3 correction independent verification — 2026-08-24
+
+Original P1 probes
+------------------
+
+The delivered correction was probed through the three paths that previously
+accepted malformed identities:
+
+    operation_result(operation_id)
+    operation_record(operation_id)
+    settle_operation(operation_id, signature="sig", reason="deadline",
+                     disposition="settlement-expired", may_retire=True)
+
+For both `"bad id"` and a one-million-character string, every path raised
+`Refusal`. Direct inspection of the private test fixture store returned no
+operation rows.
+
+A valid `op-1` retirement was then followed by a claim under the same identity.
+The claim refused with the retirement's bound reason `deadline`, proving the
+replay path sees the retirement rather than rejecting the identity's shape.
+
+The additive regression drives ten invalid IDs through replay, settlement and
+both reads (forty negative checks), asserts no assignment or operation row was
+created, drives five valid IDs through the journal paths, and separately pins
+retirement precedence.
+
+Full gate
+---------
+
+    XDG_RUNTIME_DIR=/tmp just gate
+
+Observed on Python 3.13.7:
+
+    source-tree suite: Ran 136 tests; OK
+    wheel built and installed offline from the hash-locked wheelhouse
+    installed package imported from the temporary venv's site-packages
+    installed-layout suite: Ran 136 tests; OK
+
+Both spawned child programs now inherit the gate's import environment rather
+than receiving a source path. Every child reports its `baton_v12.authority`
+directory, and the parent asserts exact equality with its own package directory
+in every real-process race. Thus the source stage stays source and the installed
+stage exercises the installed wheel in both parent and children.
+
+Static boundaries
+-----------------
+
+    git diff --check
+
+Observed: clean.
+
+`git diff --name-only` over the frozen Node authority modules and seven frozen
+authority test files produced no output. Cuts 4 and 5 remain absent.
+
+Review disposition
+------------------
+
+The P1 operation-identity inconsistency and P2 installed-subprocess escape from
+`review-2026-08-24T05-38-39Z.md` are closed. Cut 3 is independently signed off.
+The accepted no-local-cap decision for exact settlement signatures is unchanged.

@@ -1,0 +1,54 @@
+W641 independent review round 3
+Date: 2026-08-23. Reviewer: baton.codex.
+
+OUTCOME
+
+  Changes requested: one P1 in the shared member proof.
+
+ACCEPTED
+
+  - records.mjs is the one primitive used by handshake and reconnect
+  - isProxy decides before reflection and runs no trap
+  - both second-review Proxy regressions pass
+  - reconnect remains 32/32 with no assertion migration
+  - caller-specific policy.denied and integrity.schema taxonomies remain local
+  - ordinary/null-prototype records, array refusal and hidden extra-member
+    refusal remain covered
+
+P1 REPRO
+
+  A record with an own, non-enumerable data property `fs` satisfies
+  recordFault(value, ["fs"]), even though JSON.stringify(value) is `{}`.
+
+  An ACP envelope with non-enumerable data properties `fs` and `terminal`
+  satisfies validateClientCapabilities, even though JSON.stringify(envelope)
+  is `{}` rather than `{ "fs": {}, "terminal": false }`.
+
+  The member proof checks that the descriptor has a value but not that it is
+  enumerable. Expected JSON members must be enumerable data descriptors.
+
+ADDITIVE REGRESSIONS
+
+  records review: an expected JSON member must be enumerable
+  W641 third review: hidden fields are not the wire document
+
+FOCUSED GATES
+
+  records                              6 pass, 1 fail
+  handshake                           28 pass, 1 fail
+  reconnect                           32 pass
+  profile                             14 pass
+  session                             18 pass
+  ACP boundary model                  66 pass
+  frozen/product schema               byte-identical
+
+FULL V12
+
+  npm test
+    672 tests: 670 pass, 2 fail
+    Exactly the two additive round-3 regressions fail.
+
+CHECK
+
+  git diff --check
+    clean

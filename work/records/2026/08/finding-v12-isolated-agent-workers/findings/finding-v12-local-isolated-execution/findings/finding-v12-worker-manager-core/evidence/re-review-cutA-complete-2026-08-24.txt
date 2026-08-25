@@ -1,0 +1,103 @@
+W4 — independent re-review of complete Python Cut A
+Date: 2026-08-24. Reviewer: baton.codex.
+Reviewed handoff: evidence/cutA-complete-2026-08-24.txt.
+
+OUTCOME
+
+Changes requested. The three findings from review-2026-08-24T09-56-54Z.md
+are closed. Five newly added reviewer methods expose four remaining authority
+seams and one shared-bound inconsistency.
+
+
+DELIVERED CORRECTIONS VERIFIED
+
+  original hostile metaclass override       green
+  caller mutation of public ERROR_CODES     green
+  escaped-Unicode diagnostic expansion      green
+
+The implementation now pins jsonschema 4.26.0. Wheel metadata independently
+shows its non-extra runtime requirements are exactly attrs,
+jsonschema-specifications, referencing and rpds-py; requirements.lock and the
+local wheelhouse contain that closure. Authority imports remain scoped away
+from the validator dependency.
+
+
+ADDITIVE REGRESSIONS
+
+1. tests.manager.test_pod.ABehaviourBearingContainerNeverEnters.
+   test_naming_a_type_does_not_run_a_metaclass_descriptor
+
+   A metaclass property installed as __name__ records that it ran.
+   own(Value) raises ContractRefusal, but the property ran once. Directly
+   calling type.__getattribute__ skips an override; it does not bypass the
+   metaclass descriptor protocol.
+
+2. tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.
+   test_the_authoritative_pairing_is_actually_frozen
+
+   Replacing errors._PAIRING["policy"] with a frozenset containing an invented
+   code causes ContractRefusal("policy", "caller-invented", ...) to succeed.
+   The member values are immutable; the authoritative outer dict is not.
+
+3. tests.manager.test_validate.TheLibraryDecidesTheContract.
+   test_a_caller_supplied_validator_is_not_executed
+
+   Passing a hostile object to exported validate_against executes its
+   iter_errors method and lets the caller's AssertionError escape.
+
+4. tests.manager.test_validate.TheLibraryDecidesTheContract.
+   test_mutating_the_readable_schema_does_not_change_validation
+
+   Temporarily replacing WORKER_CONTROL["oneOf"] with [] changes the fixed
+   worker-control validator's answer. _WORKER_CONTROL.schema is the exact
+   exported WORKER_CONTROL object, so the readable copy is live authority.
+
+5. tests.manager.test_canonical.WhatCannotAcquireADigest.
+   test_canonicalization_enforces_the_owned_shape_bounds
+
+   A document beyond MAX_DEPTH, a list beyond MAX_MEMBERS and a dict beyond
+   MAX_MEMBERS all canonicalize successfully even though own refuses them.
+   All three subtests fail.
+
+
+FULL SOURCE RUN
+
+Command, from v12/python:
+
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+
+Result:
+
+  Ran 302 tests in 0.594s
+  FAILED (failures=6, errors=1)
+
+The accounting is five failing test methods: the canonical method contributes
+three failure records, the pairing, metaclass and hostile-validator methods
+contribute one failure each, and the live-schema method contributes one error.
+No delivered method fails, so the implementation baseline remains 297/297.
+The run also emits nine pre-existing sqlite ResourceWarnings from authority
+tests; they are not a Cut A contracts failure and were not investigated here.
+
+
+PROPOSED CORRECTION BOUNDARY
+
+  type naming       bind the built-in type __name__ descriptor directly,
+                    without metaclass dispatch
+  refusal pairing   freeze the authoritative outer mapping
+  validator helper  make generic injection private or restrict public calls
+                    to the two authority-owned validators
+  schema authority  construct fixed validators from private deep copies
+  canonical bounds  apply the exact ownership depth/width limits once at the
+                    public canonical boundary before recursive rendering
+  drift             correct frozen.py and justfile's superseded no-validator
+                    and empty-runtime-dependency statements
+
+
+WHEELHOUSE PROPOSAL
+
+Keep v12/python/wheelhouse in the tree for this cut. The approved package is
+self-contained and its installed-layout gate is offline and hash-locked. The
+previous shared wheelhouse cannot supply or accept this closure, and no
+separate reproducible provisioning boundary exists. Removing the artifacts
+would make the default gate incomplete in a fresh checkout. This is proposed
+for Slawomir's repository-shape ruling, not asserted as reviewer authority.

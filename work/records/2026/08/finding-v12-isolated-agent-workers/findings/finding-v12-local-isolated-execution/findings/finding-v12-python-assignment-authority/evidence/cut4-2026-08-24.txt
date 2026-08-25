@@ -1,0 +1,181 @@
+W2845 — implementation cut 4
+Date: 2026-08-24. Implementer: baton.claude.
+Scope: contract progression, canonical activity, proposal publication, the four
+immutable attributable receipts, policy-generation binding, configured
+capabilities, authorized close, and the stale-target durable integration
+attempt. Cut 4 ONLY.
+Cut 3 was signed off in review-2026-08-24T05-47-26Z.md.
+
+
+1. WHAT IS IMPLEMENTED, AND THE ONE THING NEITHER CUT NAMED
+
+  advance_contract   the compare-and-swap on the CONTRACT as well as the
+                     assignment, the policy check, and the ending through the
+                     one helper.  §11: a Work MAY advance to a contract whose
+                     runtime is not deployed yet -- it stays THE SAME WORK and
+                     waits visibly on a typed gate rather than being recreated
+                     or misclaimed.
+  activity           NEITHER cut 2's list nor cut 4's mentions it.  An
+                     assignment-owned durable act with a caller-supplied
+                     idempotency key belongs with the assignment-owned
+                     transitions, so it is here and named rather than left
+                     between cuts.  Idempotent by the store's unique index,
+                     which is why the v11 null-generation case matters: SQLite
+                     treats NULLs as distinct, so without `IFNULL` the key
+                     silently stops working for exactly the contract that mints
+                     no generation.
+  publish            all five digests required, the v12 contract required, and
+                     a proposal identity reused for different bytes REFUSED --
+                     later bytes are a new proposal, not an edit.
+  the four receipts  separately attributable, IMMUTABLE, ordered, each carrying
+                     the actor and the candidate digest and target that actor
+                     was LOOKING AT, and each written only by the holder of the
+                     configured capability for that step.
+  approve            the policy generation is a positive integer, checked
+                     BEFORE the journal so a malformed one does not consume the
+                     identity, and it RIDES the operation signature.
+  integrate          the one transition whose refusal can write something.
+  close              both forms, both authorized.
+
+
+2. THE OBLIGATIONS I PORTED WITH THEIR CORRECTIONS INTACT
+
+  one undifferentiated digest  the frozen host took a single `digest`, so a
+                               published candidate could not say what it was
+                               built FROM.  Five, all required, all in the
+                               signature.
+  actorless receipts           they were disposition STRINGS on the proposal
+                               with no actor and no authorization, so one
+                               consumer could publish, self-verify,
+                               self-review, self-approve, integrate into the
+                               canonical target and close the Work.  Every
+                               receipt names its actor and the actor must hold
+                               the capability.
+  the optional generation      it was outside the signature, so committing one
+                               operation under generation 7 and resubmitting
+                               the same id under 8 REPLAYED success instead of
+                               colliding -- one identity taking two different
+                               durable meanings.
+  the blanket durable flag     it was on the CALL, so every integration
+                               refusal, including a pre-approval one that wrote
+                               nothing, was recorded REFUSED and permanently
+                               closed.  Only the refusal that journalled its
+                               attempt is durable.
+  a close with no actor        §7 says an AUTHORIZED actor holding the
+                               configured close capability, and the frozen host
+                               had neither an actor nor a check.  HOLDING THE
+                               ASSIGNMENT IS NOT AUTHORITY TO TERMINALIZE THE
+                               WORK, and a case says so.
+
+And one lesson carried forward rather than waiting to be told again: a supplied
+`expect` on `close` must name the Work being closed. That was cut 2's P1 on
+`install_gate`; applying it here before somebody finds it is the whole point of
+having been told once.
+
+
+3. THE ONE GAP I FOUND BY PROBING MY OWN CUT
+
+A `receipt_id` REUSED -- across kinds on one proposal, or across two proposals
+-- hit the table's uniqueness and left as `IntegrityError`. That is a FAULT: it
+takes the whole transaction down and journals nothing, so the caller got an
+unexplained crash instead of "that identity is taken".
+
+`publish` already had exactly this rule for proposal identities. The receipts
+did not. Same omission, neighbouring transition -- which is the shape I have now
+been shown four times, so I looked for it deliberately and it was there.
+
+Receipt identities are claimed once now, and the refusal names the holder.
+
+
+4. MUTATIONS -- TWENTY-SIX
+
+  R1  an uncertified target advances without a gate    1 case
+  R2  the contract compare-and-swap is dropped         1
+  R3  policy no longer gates the transition            1
+  R4  the progression does not end the assignment      2
+  R5  the digests are not required at all             16
+  R6  a proposal id may be reused for different bytes  1
+  R7  publication accepts a v11 contract               1
+  R8  a receipt needs no capability                    5
+  R9  a receipt is not immutable                       3
+  R10 a receipt identity may be reused                 2
+  R11 any disposition is valid                         2
+  R12 the receipt order is not enforced                2
+  R13 an approval needs no policy generation           2
+  R14 the policy generation leaves the signature       1
+  R15 integration needs no approval                    1
+  R16 a stale target is not journalled                 1
+  R17 the stale-target refusal is ordinary             1
+  R18 every integration refusal is durable             1
+  R19 integration does not move the target             1
+  R20 close needs no capability                        1
+  R21 a live close needs no identity                   1
+  R22 a close does not fence                           1
+  R23 any outcome closes                               2
+  R24 a closed Work can be closed again                1
+  R25 a close may name another Work                    1
+  R26 an activity is not assignment-owned              1
+
+THREE ZEROS, AND EACH GOT A DIFFERENT ANSWER -- which is the useful part.
+
+  R15 and R18 were MISSING COVERAGE, and they were missing for the same reason:
+  the approval check is SHADOWED by the review check that fires before it, so
+  three cases mentioned "integration requires explicit approval" and none of
+  them ever reached that line.  One case -- verification passed, review
+  accepted, and nothing else -- witnesses both, and it also pins that this
+  refusal is ORDINARY (nothing journalled, identity still usable) and that a
+  DENIED approval is not an approval.
+
+  R5 was a GENUINE REDUNDANCY, and I removed it rather than reporting it.  A
+  separate "is it missing" check in front of `check_text` changed neither the
+  verdict nor the message -- `check_text` already names the member -- so keeping
+  it would have been a guard nothing can observe.  Collapsed to one mechanism;
+  mutating THAT fails sixteen cases.
+
+  The lesson I am taking is that "no witness" has three distinct answers --
+  missing case, redundant code, real equivalence -- and the last two rounds I
+  reached for the third one first.
+
+
+5. REGRESSIONS -- 33 ADDED, THE SUITE IS 136 -> 169
+
+Catalog D in full: progression to a certified and to an uncertified target, with
+the gate released by certification and the first v12 claim then minting
+generation one on the same Work; the exact contract compare-and-swap; the policy
+refusal; activity idempotency including the v11 null-generation case; every
+digest required BY NAME; the reused proposal identity; the v12 requirement; four
+ordered immutable attributable receipts; the order enforced rather than
+expected; a failed verification stopping the chain; only each step's own
+dispositions; the capability requirement at all four steps with a refusal that
+writes nothing and stays retryable; one participant holding several
+capabilities with the receipts still distinct; the policy generation validated
+and riding the identity; integration moving the canonical target; THE STALE
+TARGET journalling its attempt and refusing DURABLY with the retry replaying it;
+the pre-approval refusal writing nothing; approval as a real gate; authorized
+unclaimed close manufacturing no claim; the live close requiring its exact
+identity and fencing; holding the assignment not being authority; a close naming
+the Work it ends; the known outcomes and the rationale; closing once; and a
+terminal Work admitting no claim.
+
+
+6. GATES
+
+  just gate (v12/python)      version + 169 tests + the locked build, all pass
+                              on Python 3.13.7
+  the installed stage         169/169 from the wheel, with the race children
+                              still proving their package origin
+  temp roots after the run    zero
+  the frozen Node reference   UNTOUCHED
+  whitespace-damage check     clean
+
+
+7. STILL ABSENT ON PURPOSE
+
+Cut 5: the exact exported bootstrap and the participant-bound session face --
+the session owning actor and claimant identity so neither is ever an operand,
+accepting only owned exact operand documents, exposing the enumerated
+transition and read surface, and returning fresh built-ins.  Also the natural
+moment to revisit any operand bound a PARTICIPANT supplies, which is where cut
+3's raised settlement-signature question lands.
+
+W4 stays blocked on W2845.

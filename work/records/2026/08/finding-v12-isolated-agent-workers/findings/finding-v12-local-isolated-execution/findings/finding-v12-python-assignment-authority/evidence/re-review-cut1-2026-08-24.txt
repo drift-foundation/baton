@@ -1,0 +1,52 @@
+W2845 cut-1 correction independent verification — 2026-08-24
+
+Full gate
+---------
+
+    XDG_RUNTIME_DIR=/tmp just gate
+
+The XDG override is specific to the managed reviewer context, whose configured
+/run/user/1000 is read-only. The product gate itself was unchanged.
+
+Observed:
+
+    [gate] python 3.13.7
+    source-tree suite: Ran 60 tests; OK
+    lock resolution: pip 25.1.1 and setuptools 78.1.1 fetched from
+      /usr/share/python-wheels with hashes
+    wheel: baton_v12-0.1.0-py3-none-any.whl built and installed
+    import: installed baton_v12.authority loaded from the temporary venv's
+      site-packages, 16 exported names
+    installed-layout suite: Ran 60 tests; OK
+    [build] the locked offline build installs, imports and passes
+
+Focused prior-review regressions
+--------------------------------
+
+    PYTHONPATH=src python3 -m unittest -v \
+      tests.authority.test_store.Opening.test_the_face_and_the_live_store_can_never_name_two_authorities \
+      tests.authority.test_store.Opening.test_a_malformed_recorded_uuid_is_not_a_recognized_authority \
+      tests.authority.test_store.Opening.test_a_failed_open_commits_nothing_it_wrote_on_the_way \
+      tests.authority.test_identity.ExportedHelpersAreBoundaries
+
+Observed: 7 tests ran; OK. These cover all five P1 reproductions, including the
+five malformed durable-UUID shapes and fourteen hostile exported-helper entry
+points.
+
+Static boundaries
+-----------------
+
+    git diff --check
+
+Observed: clean.
+
+`git status --short` over `v12/src/authority` and all seven frozen authority
+test files produced no output. The cut-2 through cut-5 transition methods
+remain absent; the only `claim`-prefixed function is the cut-1 exported
+`claim_signature` helper.
+
+Review disposition
+------------------
+
+All five P1 findings and the P2 locked-build finding from
+`review-2026-08-24T04-41-03Z.md` are closed. Cut 1 is independently signed off.

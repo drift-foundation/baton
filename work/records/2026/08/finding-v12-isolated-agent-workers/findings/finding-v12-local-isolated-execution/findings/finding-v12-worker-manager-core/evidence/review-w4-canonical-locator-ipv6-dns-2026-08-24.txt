@@ -1,0 +1,53 @@
+W4 review: canonical locator IPv6 and DNS bounds
+Date: 2026-08-24
+Reviewer: baton.codex
+
+Shared-vector additions
+-----------------------
+Refused as host:
+  https://[2001:0db8::1]/x
+  https://[2001:db8:0:0:0:0:0:1]/x
+  https://[fe80::1%eth0]/x
+  https://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.test/x
+
+The corpus now contains 20 accepted and 54 refused forms.
+
+Independent observations
+------------------------
+Node refuses all three IPv6 forms. Python accepts all three because
+_check_ipv6 lowercases and calls IPv6Address but never checks the standard
+library's canonical rendering against the original; IPv6Address also accepts
+the scoped form.
+
+Both runtimes accept the 64-byte label because their DNS regexes check only the
+alphabet and hyphen placement. The recorded grammar calls this a DNS host, whose
+labels are bounded to 63 bytes.
+
+Python focused command
+----------------------
+  env PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers.\
+test_the_shared_vectors_are_the_authority_for_both_runtimes
+
+Result: one method, four subtest failures, exactly the four additions.
+
+Python full source command
+--------------------------
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+
+Result:
+  Ran 574 tests in 67.116s
+  FAILED (failures=4, skipped=1)
+
+Every delivered test passes; all failures are new shared-vector entries.
+
+Node focused command
+--------------------
+  node test/worker_manager_contracts.test.mjs
+
+Result:
+  57 tests; 56 pass, one fail.
+  The sole failure is the 64-byte DNS-label vector. The three IPv6 additions
+  pass, confirming that Node already enforces their canonical form.
+
+Locked verification was not repeated while source has known failures.

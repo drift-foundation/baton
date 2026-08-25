@@ -436,22 +436,12 @@
     },
     "clientCapabilities": {
       "type": "object",
-      "description": "What the relay advertises to the ACP agent. Version 1.0 withholds filesystem and terminal capability structurally, and omits every other client capability whether stable or experimental.",
+      "description": "The ACP clientCapabilities document, persisted as the ONE canonical representation. W641 correction 2026-08-23: this definition previously required a Baton-invented normalized summary with snake_case read_text_file/write_text_file explicit-false members, which contradicted SPEC 2.2's wire document and the pinned ACP 1.3 SDK's own optional camelCase members. ACP's names and OMISSION semantics are authoritative: an absent readTextFile or writeTextFile member means that capability was not advertised, and Baton does not synthesize an explicit false to restate it. Version 1.0 withholds filesystem and terminal capability structurally and omits every other client capability, stable or experimental.",
       "properties": {
         "fs": {
           "type": "object",
-          "properties": {
-            "read_text_file": {
-              "const": false
-            },
-            "write_text_file": {
-              "const": false
-            }
-          },
-          "required": [
-            "read_text_file",
-            "write_text_file"
-          ],
+          "description": "Empty in 1.0. The ACP members are optional, so withholding is expressed by ABSENCE; a member present at all, even set false, is a member this version does not send.",
+          "properties": {},
           "additionalProperties": false
         },
         "terminal": {
@@ -1571,6 +1561,9 @@
         "title": {
           "$ref": "#/$defs/boundedText"
         },
+        "kind": {
+          "$ref": "#/$defs/toolKind"
+        },
         "status": {
           "enum": [
             "pending",
@@ -1584,7 +1577,23 @@
         "tool_call_id",
         "status"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The portable view of one provider tool call. W543 correction 2026-08-23: `kind` is optional advisory evidence copied verbatim when the provider supplies one of the pinned ACP 1.3 ToolKind values, and OMITTED when it does not. Baton never infers one. It may support presentation and it decides no permission, policy, tool authority, turn outcome or disposition."
+    },
+    "toolKind": {
+      "description": "The pinned ACP 1.3 ToolKind vocabulary, verbatim. A value outside it refuses rather than silently widening the frozen contract; a later ACP vocabulary needs explicit version/certification work.",
+      "enum": [
+        "read",
+        "edit",
+        "delete",
+        "move",
+        "search",
+        "execute",
+        "think",
+        "fetch",
+        "switch_mode",
+        "other"
+      ]
     },
     "normalizedEvent": {
       "type": "object",

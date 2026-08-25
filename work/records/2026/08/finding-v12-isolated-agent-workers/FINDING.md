@@ -1526,3 +1526,119 @@ review could run concurrently, while the implementation offer would remain
 ineligible until W2929 completed. One-live-claim capacity may also serialize a
 particular implementer, but capacity is not a substitute for the durable
 stage-scoped dependency because other eligible implementers may exist.
+
+## TUI modularity follows usability proof — confirmed 2026-08-23
+
+The current v11 TUI is concentrated in a large `app.py`, with dependency-graph
+rendering already separated. That shape is a maintainability constraint, but
+it does not justify a broad transitional refactor while v12 is still an
+experiment.
+
+V11 receives bounded usability corrections and necessary defects only. A v11
+change may extract a narrowly owned component when that is the safest patch,
+but modularization is not an independent v11 campaign and must not delay v12
+execution work.
+
+V12 must learn from the v11 application's growth and use explicit module
+boundaries for terminal input, navigation, view state, rendering, command
+editing, and authority interaction. That decomposition starts only after the
+v12 worker path proves practically usable end to end. It is an adoption and
+maintainability requirement, not an early PoC prerequisite. This ordering
+balances keeping v11 usable with avoiding throw-away architecture work before
+v12 has earned continued investment.
+
+## Provider-native code stays inside the worker — confirmed 2026-08-23
+
+Code packaged inside an isolated worker may use whichever implementation
+language and provider SDK make that agent practical. A Claude worker may use
+the Node SDK, another provider may use Python, Rust, or its own native client,
+and a native ACP endpoint may need no provider adapter at all. This choice is
+part of the worker image and certified runtime profile, not Baton product
+vocabulary.
+
+The worker is opaque outside its confinement boundary. Host-side Baton sees
+only the versioned worker-control, agent-session, ACP/JSON where applicable,
+event, artifact, and evidence contracts. It never imports provider SDK types,
+depends on an in-container module layout, or treats one worker's language as
+the host implementation language. Provider-native objects are converted to
+bounded canonical data before they cross that boundary.
+
+The current Node `v12/` tree remains an executable reference and M2 proof. Its
+success does not adopt Node as the production authority or Worker Manager
+language. Host-side language and module placement require a separate adoption
+decision before product integration; portable behavior is certified through
+black-box contracts and conformance, while Proxy, accessor, UTF-16, and other
+runtime-specific checks remain implementation tests for the runtime that has
+those hazards.
+
+## The v12 host is Python, with Drift as a possible successor — confirmed 2026-08-23
+
+The open host-language decision in the preceding section is resolved and that
+sentence is superseded. V12 host-side Baton, including the authority,
+scheduler, Worker Manager, durable control store, runtime adapters, proposal
+intake, and operator surfaces, is implemented in Python now. A later migration
+of some or all of that trusted host to Drift is possible only through a
+separate explicit design, conformance, and rollout decision.
+
+No new Node or JavaScript implementation is admitted outside an isolated
+worker image. Provider-native Node code may remain inside a Claude, Gemini, or
+other worker where its SDK makes that practical, fully wrapped by the worker's
+canonical data boundary. Existing v11 Node bridges are transitional deployed
+infrastructure, not a v12 architecture precedent and not a surface to expand.
+
+The existing host-side Node code under `v12/` is frozen as historical
+executable-reference evidence. Its contracts, test scenarios, measurements,
+and reviewed state-machine decisions are inputs to the Python implementation;
+its modules are not promoted, extended, or treated as the next implementation
+slice. M2 must be replanned around a Python host before further host-side
+implementation, while provider SDK code remains free to use its practical
+language inside the worker container.
+
+## Campaigns contain bounded implementation Jobs — confirmed 2026-08-24
+
+The 119-message W4 history demonstrates that one broad implementation Work is
+not useful progress reporting. It hides completed slices, remaining scope and
+repeated correction boundaries inside one thread, even though the ledger can
+show containment and per-Job state directly.
+
+A campaign or milestone Work is therefore a roll-up container, not the unit of
+implementation. Each independently reviewable deliverable is a separately
+claimed contained Job with its own acceptance boundary, discussion, evidence,
+review cycle and terminal outcome. Dependencies between those Jobs are explicit
+edges only where execution order genuinely requires them; containment alone
+does not serialize useful parallel work. Parent progress is the visible count
+of completed and open children.
+
+The decomposition happens before implementation whenever the plan already
+names multiple cuts. A review that discovers a materially separate correction,
+new trust boundary or still-unstarted subsystem creates or orders a sibling or
+follow-up Job instead of growing the current thread indefinitely. A long thread
+is a diagnostic, not authority, but any handoff with substantial unstarted scope
+must include a decomposition check. The active Job may finish its current
+bounded correction; it is not split underneath a live claim.
+
+For the current M2 campaign, W4 may finish the canonical-locator correction
+already in flight. Before any later contracts-inventory, section 13 or retention
+slice begins, the remaining independently reviewable slices are represented as
+separate Jobs contained by M2 so their progress is visible on the ledger.
+
+**Clarified after W6592 intake — 2026-08-24:** separate implementation and
+review rounds inside one Work are not separate Jobs. W6592 incorrectly grouped
+public manager composition and the contracts-package inventory as Cut A and Cut
+B while claiming that separate reviews satisfied this ruling. Cut A was already
+implemented; Cut B was not. W6592 therefore stops after Cut A review, and Cut B
+receives a separate M2-contained Work identity before implementation.
+
+**Confirmed execution model — 2026-08-24:** there is no target limit on the
+number or logical nesting of bounded Jobs. A larger project is its complete
+Work graph. Containment provides project and milestone roll-ups; dependency
+edges determine which leaf Jobs are eligible; worker capacity determines how
+many independent ready leaves run concurrently. Every completed worker attempt
+produces an isolated immutable result or proposal. Clean verification, review
+and the trusted integrator decide what is accepted and merged; workers never
+merge directly into the canonical checkout.
+
+The repository's deliberately bounded dossier-directory nesting is not a Work-
+graph limit. A deeper independently scheduled finding may be promoted to a
+top-level permanent record with forwarding provenance while its Baton Work
+retains the appropriate logical containment and dependency links.

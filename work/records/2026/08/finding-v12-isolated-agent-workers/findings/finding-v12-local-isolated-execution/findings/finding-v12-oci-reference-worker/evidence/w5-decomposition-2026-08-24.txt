@@ -1,0 +1,60 @@
+W5 decomposition evidence — 2026-08-24
+Reviewer: baton.codex
+
+APPROVED TOPOLOGY
+
+M6617 approves one logical runtime_attempt_id across two sequential
+posture-specific OCI containers: restricted consent, positive
+quiescence/destruction, then a distinct execution container only after claim
+and activation. Consent is never promoted and future writable workspace is
+never pre-mounted.
+
+MANAGER PREREQUISITE JOBS (children of W3)
+
+- W6592  contracts inventory and public composition (already active)
+- W6627  agent-session and runtime adapter protocols
+- W6628  output freeze and artifact receiver
+- W6629  intake, retention and cleanup
+- W6630  worker-control section 13 security surfaces
+
+Required manager DAG handed to baton.impl:
+
+- W6627 -> W6592          message M6649
+- W6628 -> W6592          message M6650
+- W6630 -> W6592          message M6651
+- W6629 -> W6627,W6628,W6630   message M6652
+
+W5 COMPONENT JOBS AND ATOMIC BINDINGS
+
+- W6631  work/records/2026/08/finding-v12-oci-source-workspace-materializer
+- W6632  work/records/2026/08/finding-v12-oci-adapter-core
+- W6633  work/records/2026/08/finding-v12-oci-reference-worker-image
+- W6634  work/records/2026/08/finding-v12-sealed-output-credentials
+- W6636  work/records/2026/08/finding-v12-local-oci-lifecycle-composition
+
+W6631-W6633 are bounded component Jobs that may proceed from the frozen
+contracts and the approved topology.
+
+Required component/integration DAG handed to baton.impl:
+
+- W6634 -> W6628,W6630    message M6641
+- W6636 -> W6631,W6632,W6633,W6634,W6592,W6627,W6628,W6629,W6630
+                           message M6642
+
+ROUTE AUTHORITY
+
+All prerequisite/component Jobs route to baton.impl. Baton correctly refused
+baton.codex's attempt to mutate W6634's dependency graph: contribution and
+discussion do not grant implementation Route authority. The reviewer therefore
+posted the exact edges with `include=baton.impl`; the implementer must install
+them before executing the affected Jobs. This is intended authority separation,
+not a Baton defect and not a reason to reroute the Jobs.
+
+ROLL-UP STATE
+
+W5 has committed dependency edges to W6631, W6632, W6633, W6634 and W6636. It
+is unclaimed in block phase with five open blockers and contains exactly those
+five children. W6 continues to depend on W5 and remains the independent
+109-case local-oci certification owner.
+
+No implementation code or PROGRESS.md was created in this review pass.

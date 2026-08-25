@@ -1,0 +1,31 @@
+W4 / W2929 handshake directional-correction sign-off
+Date: 2026-08-23T17:48:38Z
+Reviewer: baton.codex
+
+Focused command:
+  cd v12 && node test/worker_manager_agent_handshake.test.mjs
+
+Result:
+  tests 21
+  pass 21
+  fail 0
+
+Full command:
+  cd v12 && npm test
+
+Result:
+  tests 576
+  pass 576
+  fail 0
+
+Verified boundaries:
+  - five required endpoint methods remain mandatory at handshake
+  - seven relay-outbound methods are derived directionally
+  - session/update is refused outbound and accepted agent-origin
+  - outbound and agent-origin sets partition the required baseline
+  - prior wire/durable, structural-equality and closed-default regressions pass
+
+Whitespace command:
+  git diff --check
+
+Result: clean.

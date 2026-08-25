@@ -1,0 +1,127 @@
+W2929 / current authority W4 — reconnect slice, FIRST correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T18-21-55Z.md (two P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+    tests 11, pass 9, fail 2
+  cd v12 && npm test
+    tests 603, pass 601, fail 2
+
+Both additive regressions were the only failures. Both findings are correct.
+
+
+2. P1 — THE ANSWER RE-READ THE CALLER'S REFERENCE
+
+`handleTransportLoss` passed the caller's object to the axis, which validated
+and bound its own normalized copy — and then the ANSWER spread the caller's
+object again and read `providerSessionId` a second time. So a getter could
+answer provider A to the check that committed the epoch and provider B to the
+record of it, and members the closed §3.1 shape does not have rode along into
+something that looks like a session reference.
+
+Two reads of one untrusted value, one of which decides and one of which
+reports. This Work has the same shape recorded in `store.mjs` — "a `toJSON`
+method can return `{diagnostic: <bearer>}` while `Object.entries` shows only
+the method" — and I wrote it again at a new boundary.
+
+Corrected: `normalizeAgentSessionRef` is exported from the axis module, the
+reference is proved ONCE here, and the SAME object goes to the axis and into
+the answer. The answer carries exactly the four members and is a fresh copy.
+
+The proof also moved BEFORE the durable observation, so a malformed reference
+cannot commit an epoch and then be refused on the way out.
+
+
+3. P1 — THE OPTIONS ENVELOPE WAS UNPROVED
+
+`{ turnInFlight = false } = {}` defaults only for `undefined`. An explicit
+`null` reached a property read and left as a raw `TypeError`; a boolean, a
+string or an array destructured to `undefined`, silently took the `false`
+default, and COMMITTED the epoch to `unknown` on operands nobody proved.
+
+A DEFAULT IS FOR AN ARGUMENT NOBODY GAVE, not for one somebody gave wrongly.
+The envelope is proved before anything durable happens.
+
+AND MY FIRST FIX MADE THE SAME MISTAKE ONE LEVEL DOWN. I wrote
+`options?.turnInFlight ?? false`, which turns an explicit `null` member into
+the default — and my own earlier case, the one asserting that whether a turn
+was in flight is stated rather than inferred, failed immediately and caught
+it. The member is now read only when the KEY is present.
+
+
+4. MUTATIONS — SIX
+
+  S1 the options envelope is taken on trust           1 case fails
+  S2 an array envelope is admitted                    1 case fails
+  S3 absent is not distinguished from wrong           2 cases fail
+  S4 the reference is re-read for the answer          2 cases fail
+  S5 the answer aliases the snapshot                  0  EQUIVALENT
+  S6 the reference is proved after the durable move   1 case fails
+
+S5 is MEASURED AS EQUIVALENT: `ref` is created by `normalizeAgentSessionRef`
+and nothing else holds it, so returning it directly passes every case. The
+copy is kept because a boundary that hands back the object it validated
+against is one edit away from handing back the object it is still using, and
+it is not counted as a guard.
+
+S6 is worth naming: it keeps every check and only moves the proof one line
+after the commit, which is exactly the shape a correction that thought about
+VALIDATION but not about ORDER would have produced.
+
+
+5. REGRESSIONS — 13 (11 before, including the reviewer's two)
+
+Two of mine:
+
+  an absent operand defaults, a wrong one refuses — the distinction both P1s
+    share, held on its own and driven at both levels: absent envelope and
+    absent member take the honest default, while an explicit null, an
+    undefined, an empty string and a zero member each refuse and leave the
+    axis where it was
+  the reported reference is read once and is CLOSED — the answer carries
+    exactly the four §3.1 members, so this boundary cannot be used to launder
+    an extra field into something that looks like a session reference, and
+    editing the answer reaches nothing the caller still holds
+
+
+6. GATES
+
+  cd v12 && npm test                       605 tests, 605 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 601 -> 605. No existing
+assertion was changed and no schema change was needed.
+
+The axis module gained one export and changed no behaviour; its signed-off
+16-case suite is unchanged and green.
+
+
+7. ACKNOWLEDGED
+
+The next-epoch flag is REPORTED and is not durable enforcement — the review
+says so and this correction does not change it. W151 §9's re-identification
+gate remains deferred, and W771 remains mandatory to revalidate at final W4
+composition.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/agent_session_axis.mjs      normalizeAgentSessionRef
+                                                     exported; no behaviour
+                                                     change
+  v12/src/worker_manager/agent_reconnect.mjs         the envelope and the
+                                                     member are proved before
+                                                     anything durable; the
+                                                     reference is proved once
+                                                     and reported from that
+                                                     one snapshot
+  v12/test/worker_manager_agent_reconnect.test.mjs   +2 cases

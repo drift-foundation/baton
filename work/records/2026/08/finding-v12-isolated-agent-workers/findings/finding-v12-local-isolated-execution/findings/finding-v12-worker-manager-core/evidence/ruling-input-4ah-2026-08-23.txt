@@ -1,0 +1,143 @@
+W4 / W2929 items 4ah and 4ao — input for the ruling
+Date: 2026-08-23. Implementer: baton.claude.
+NOT A DECISION. Measurements taken against the current tree so the ruling
+rests on facts that are true today rather than on facts that were true when
+the question was first asked.
+
+Tree state: full v12 687 tests, 684 pass, 3 fail. All three failures belong to
+W1593 (section 5 below); none is W4's to fix under this claim.
+
+
+1. THE QUESTION
+
+Is a section 3.1 agent-session reference, as an IN-PROCESS API OPERAND, the
+same exact inert data record the frozen schema describes -- or a structural
+value whose four members are read once?
+
+The independent review recommends the inert reading and asks that, if
+approved, it explicitly supersede item 4aa's structural one-read boundary and
+be implemented through W641's shared `recordFault`.
+
+
+2. WHAT IS TRUE TODAY, RE-MEASURED AGAINST THE CURRENT TREE
+
+  a plain record                        ACCEPTED
+  four ACCESSORS                        ACCEPTED, and all four getters RAN
+  a class instance                      ACCEPTED
+  an ARRAY carrying the four members    ACCEPTED
+  extra members                         ACCEPTED, extras silently dropped
+  a Proxy                               ACCEPTED
+  a shifting getter                     read ONCE -- item 4aa's guarantee holds
+
+THE PROXY ROW IS THE SHARPEST. The reconnect OPTIONS envelope refuses a Proxy
+before any reflection, after six review rounds. The REFERENCE beside it does
+not. Two operands of the same call, two different answers to "is a document
+allowed to be a program".
+
+
+3. WHAT THE FROZEN SCHEMA SAYS
+
+`$defs.agentSessionRef` is `additionalProperties: false` over exactly
+`runtime_attempt_id`, `posture`, `session_epoch`, `provider_session_id`, and
+all four are REQUIRED. `provider_session_id` is required-but-nullable:
+`oneOf [providerSessionId, null]`.
+
+That is contract evidence for the inert reading. It governs the DOCUMENT form,
+and whether the in-process operand must match it is exactly the open question.
+
+
+4. THE COST, MEASURED RATHER THAN ESTIMATED
+
+I applied `recordFault(ref, [the four])` inside `normalizeAgentSessionRef` as a
+TEMPORARY measurement, ran the whole v12 gate, reverted it, and counted every
+reason it would have refused. 228 refusals across the gate:
+
+   168  a reference that OMITS providerSessionId
+     8  is a bigint value          <- already refused today
+     8  carries [self]  (circular) <- already refused today
+     8  carries [toJSON]           <- already refused today
+     8  is a Proxy                 <- ACCEPTED today; this is the change
+     8  is a symbol value          <- already refused today
+     8  is a function value        <- already refused today
+     3  is null                    <- already refused today
+     2  carries [... untrustedExtra] <- ACCEPTED today; this is the change
+     2  is undefined               <- already refused today
+     2  is a string value          <- already refused today
+     1  is a number value          <- already refused today
+     1  is an array                <- ACCEPTED today; this is the change
+     1  carries []                 <- already refused today
+
+SO THE COST DECOMPOSES INTO THREE UNEQUAL PARTS:
+
+  (i)  168 of 228 -- five sixths -- are ONE benign cause: a reference written
+       without `providerSessionId` at all. Those are valid today, because the
+       API reads `sessionRef?.providerSessionId ?? null`. They are the reason
+       all 37 W2929 cases fail under the drop-in, and NOTHING ELSE.
+
+  (ii) Everything in the middle of the table is already refused today. The
+       inert proof AGREES with the current boundary on every one of them; it
+       would only change the reason given.
+
+  (iii) The genuinely new refusals are three: a Proxy reference, a reference
+        with an extra member, and an array carrying the four. Eleven
+        occurrences in the whole gate, all in cases that deliberately probe
+        the container.
+
+
+5. A THIRD OPTION THE FRAMING DID NOT NAME
+
+Finding (i) exposes a choice hiding inside "inert exact record": whether
+`providerSessionId` is REQUIRED AT THE API or OPTIONAL-IN-ABSENCE.
+
+  INERT, STRICT      expected = all four. Faithful to the frozen document,
+                     where the member is required-but-nullable. ~168 call
+                     sites and fixtures must write `providerSessionId: null`
+                     explicitly.
+  INERT, ABSENCE     expected = three required plus one optional; an absent
+  MEANS NULL         member still means the null the document requires. The
+                     168 vanish. Every container change in (iii) still holds.
+                     The in-process operand and the durable document differ in
+                     exactly one stated way.
+  STRUCTURAL         today's boundary, made explicit rather than implicit --
+  (the status quo)   the API accepts any container and reads each member once.
+                     Then item 4aa stands as written and the Proxy asymmetry
+                     in section 2 should be stated as deliberate.
+
+I am not recommending one. What I can say from the measurement is that the
+cost people would associate with "inert" is almost entirely the
+provider-member question and not the container question, and those are
+separable.
+
+
+6. WHAT IS ALREADY DONE, WHICHEVER WAY IT GOES
+
+The MEMBER half. Both frozen member bounds are enforced, in one shared place,
+at every boundary that types them: the `opaqueId` grammar and 160-character
+limit, and the provider-session 512-character limit, both counted in the
+frozen contract's own Unicode unit (items 4an, 4ar).
+
+And there is ONE normalizer, not two: `turnSessionRef` delegates to the axis
+(item 4ap). Whatever is ruled has a single implementation to change.
+
+
+7. W4'S GATE, REPORTED PLAINLY
+
+684 of 687. All three failures are W1593's:
+
+  W1593 review: a wide record has bounded fault output
+  W1593 review: shape prose does not enumerate unreported members
+  W2929 correction: a refusal is bounded by the RULE, not by the operand
+
+The third is in W4's OWN test file. The item-4as review deliberately enabled
+the two capability rows I had left commented, so that one property guards both
+W4's five boundaries and the shared primitive. That is the right shape and I
+have not touched it -- but it means W4'S SUITE CANNOT GO GREEN UNTIL W1593
+LANDS, and W1593 is itself queued for `baton.decide`. Worth knowing before W4
+is expected to close.
+
+
+8. WHAT I DID NOT DO
+
+I did not decide 4ah or 4ao. I did not implement any of the three options. The
+measurement in section 4 was applied, measured and reverted; the tree is
+unchanged by it, which the section-7 numbers confirm.

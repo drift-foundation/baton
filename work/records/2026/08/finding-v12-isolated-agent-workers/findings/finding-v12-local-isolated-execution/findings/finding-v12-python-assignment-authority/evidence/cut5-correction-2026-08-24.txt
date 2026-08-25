@@ -1,0 +1,183 @@
+W2845 — cut 5 correction
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T06-36-30Z.md (one P1, one P2).
+Cut 5 only. No cut 1-4 code changed.
+
+
+1. BOTH REPRODUCED BEFORE ANY EDIT
+
+  foreign assignment participant      Refusal, 1,000,057 characters
+  one unknown operand name            Refusal, 1,000,089 characters
+  claim()                             refused for MISSING MEMBERS
+  claim(None)                         the same refusal; the explicit null was
+                                      silently replaced
+  claim({}, {})                       raw TypeError, not a Refusal
+
+The reviewer's numbers reproduce to the character. After the correction the same
+five calls answer:
+
+  foreign assignment participant      127 characters
+  one unknown operand name            157 characters
+  claim()                             takes exactly one operand document; this
+                                      call supplies 0
+  claim(None)                         takes one operand document; this is none
+  claim({}, {})                       takes exactly one operand document; this
+                                      call supplies 2
+
+
+2. [P1] I STATED THE RULE AND THEN WROTE THE SITES THAT BREAK IT
+
+`errors.py` says it two files away: caller-controlled text in a refusal is
+bounded by the RULE and never by the operand. Section 4 of my own cut-5 evidence
+went further and asserted the bound HELD in the session, because `name_of` caps
+a shown string at sixty characters -- while two sites in the file I was writing
+interpolated caller text directly.
+
+That is cut 4's projection defect one cut later, and the same reason: I checked
+the helper I was calling instead of the message I was writing.
+
+Every caller-controlled rendering now goes through `name_of`:
+
+  the assignment's named participant   the caller's text
+  the session's own participant        has a grammar, has NO LENGTH -- so it is
+                                      bounded too, not assumed short
+  unknown operand names                a bounded sample plus a count
+
+AND THE MULTI-NAME HALF IS THE WORSE HALF, which the review's single-key probe
+does not show. `own` admits up to 512 members, so 510 unexpected names of
+100,000 characters each was a ~51,000,000-character refusal -- from a boundary
+that had already decided to refuse. A sample of three plus a count is bounded by
+CONSTRUCTION: the rule text is fixed, the transition name comes from the table,
+and nothing else is interpolated.
+
+The count is what makes the sample honest. "does not take three things" would
+understate a 400-name mistake, so the message says three names and 397 more.
+
+The full sort is gone as the review asked. The sample is now the first
+unexpected names in the order the caller wrote them, which is also the more
+useful answer: sorting a rejected set is work done for prose.
+
+A THIRD SITE, FOUND BY SWEEPING THE MODULE RATHER THAN BY BEING TOLD: `__repr__`
+interpolated the participant raw, so a session bound to a one-million-character
+participant had a one-million-character repr. A repr is a diagnostic that gets
+logged exactly like a refusal. Bounded, with a case.
+
+
+3. [P2] "EXACTLY ONE" WAS NOT EXACTLY ONE
+
+The wrapper took `given=None`, so an omitted document and an explicitly supplied
+`None` became the same empty dict -- IN THE ONE PLACE whose stated purpose is to
+refuse an operand supplied and then ignored. And a second document left as a raw
+`TypeError`: a fault escaping a boundary that had a refusal ready for it.
+
+The arity is checked HERE now rather than by Python. The generated method takes
+`*documents`, and zero, null and several are each the one-document rule saying
+so. `None` is no longer coalesced with absence anywhere on the path.
+
+The superseded case is updated as specifically authorized: it used to call
+explicit `None` "a legitimate operand document for nothing" and expect the
+missing-member refusal. That sentence was the defect written down as a rule.
+
+
+4. THE SAME DEFECT AT CUT 1-4 SITES -- MEASURED, NOT CORRECTED
+
+A rule applied at one of N sites is not applied, so I swept every `Refusal`
+interpolation in the package with an AST walk rather than by eye. Opaque
+identities are already bounded (160 characters) and UUIDs are fixed-width, but
+participants, Work ids, routes, contracts and digests have grammars with NO
+LENGTH, and several cut 1-4 messages interpolate them raw.
+
+MEASURED:
+
+  core.py, a Work id already created          1,000,030 characters
+  core.py, actor does not hold the capability 1,000,118 characters
+
+NOT CHANGED, because the boundary says correct cut 5 only and those messages are
+in code that has been independently signed off with cases asserting their
+content. Raised for a ruling instead, and it is the same question already carried
+twice: the settlement signature, and W1593 on the Node side. THE ROOT CAUSE IS
+ONE THING -- durable text has no system-wide bound -- and bounding renderings is
+the correct local fix at every site, not just this one.
+
+If the ruling is to fix them in this Work, say so and I will; if it is a
+follow-up, the two measurements above are the reproduction.
+
+
+5. MUTATIONS -- TEN, ALL WITNESSED, EVERY NUMBER ATTRIBUTED
+
+  V1  the whole rejected key set is joined again    3 cases
+  V2  the sample is not a sample                    1
+  V3  the sample shows no count                     2
+  V4  the sample renders names raw                  2
+  V5  the named participant is rendered raw         8
+  V6  the session's own participant is rendered raw 8
+  V7  the repr is unbounded again                   1
+  V8  a second document is tolerated                1
+  V9  an explicit null is coalesced with omission    2
+  V10 the shown-extras bound is the member limit     2
+
+No zeros. V5 and V6 fail eight because the binding case's seven transitions now
+assert BOTH rendered names, which is the assertion earning its keep.
+
+AND ONE INSTRUMENT ERROR, RECORDED BECAUSE IT IS A NEW SHAPE: my first run
+reported V7 as EIGHT failing. By hand it is one. The harness had been given a
+stripped environment, and the real-process race children fail intermittently
+without it -- so the run added phantom failures. Every number above was
+re-measured with the gate's own environment AND with the failing case NAMES
+captured, so each count is attributable rather than merely counted.
+
+Cut 3 taught me a false zero is more dangerous than a false failure. This is the
+mirror case: a FALSE NON-ZERO is dangerous in the other direction, because it
+gets written down as "witnessed" and the guard is never actually checked. The
+fix for both is the same -- attribute the number to named cases instead of
+counting lines.
+
+
+6. REGRESSIONS -- 5 ADDED, THE SUITE IS 200 -> 205
+
+The reviewer's two, now green:
+
+  session refusals are bounded by the rule, not caller text
+  a transition takes exactly one built-in operand document
+
+And three of mine, covering what the reviewer's probes do not reach:
+
+  many rejected names become a bounded sample AND a count
+      400 unexpected names of 2,000 characters each; the message stays under 500
+      characters and says "and 397 more"
+  the sample is a sample only when there is more to show
+      one, three and four names -- no "more" until there is more, so the count
+      is not decoration
+  the repr is bounded too
+      the third site, the one nobody asked about
+
+One existing case updated as authorized (explicit `None`), and one existing
+assertion widened rather than pinned: the binding case now asserts both rendered
+names instead of one bare one.
+
+
+7. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 205 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the installed stage              205/205 from the wheel, imported out of
+                                   site-packages, race children still proving
+                                   their package origin
+  exported names                   20, unchanged
+  temp roots after the run         zero
+  the frozen Node authority        UNTOUCHED
+  whitespace-damage check          clean
+  cut 1-4 source                   UNCHANGED (the section 4 finding is reported,
+                                   not silently fixed)
+
+
+8. THE TWO RESOLVED QUESTIONS, TAKEN AS RULED
+
+The cross-participant `slot_holder` read stays: it projects deployment-wide
+scheduler capacity and grants no ability to act as the named participant.
+
+No settlement-only signature cap. The authority must settle the exact
+100,185-character signature it can itself produce.
+
+Both are recorded in the dossier so the next reader finds the ruling rather than
+the question.

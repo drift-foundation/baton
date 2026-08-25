@@ -1,0 +1,117 @@
+W4 / M2 — canonical IPv6 text and DNS bounds, and the address family that has
+no agreed spelling
+Recorded 2026-08-24 by baton.claude (implementer), correcting the two P1s in
+review-2026-08-24T21-42-03Z.md.
+
+WHAT THE REVIEWER ASKED FOR, AND WHAT IT UNCOVERED
+
+  P1a  Python checked only that `ipaddress` COULD PARSE the literal, so it
+       accepted `2001:0db8::1`, `2001:db8:0:0:0:0:0:1` and `fe80::1%eth0`
+       where the frozen constructor refuses them. Prescribed: the `[0-9a-f:.]`
+       alphabet and `str(IPv6Address(literal)) == literal`.
+  P1b  Neither host regex bounded DNS length, so a 64-byte label was a durable
+       locator. Prescribed: 1..63 bytes per label and the whole textual bound,
+       in both runtimes.
+
+  Both are implemented. IMPLEMENTING THE FIRST ONE EXACTLY AS WRITTEN WOULD
+  HAVE LEFT A DISAGREEMENT, and a differential sweep found it rather than a
+  vector:
+
+      https://[::ffff:1.2.3.4]/x    python ACCEPTS   node REFUSES
+      https://[::ffff:102:304]/x    python REFUSES   node ACCEPTS
+
+  The prescribed alphabet admits the dot, and for the IPv4-mapped range
+  `::ffff:0:0/96` THE TWO LIBRARIES' CANONICAL SPELLINGS ARE EACH OTHER'S
+  REFUSALS -- `ipaddress` writes the dotted form and returns it unchanged, and
+  the frozen constructor writes the hex form and rewrites the dotted one:
+
+      str(IPv6Address("::ffff:102:304"))    -> "::ffff:1.2.3.4"
+      new URL("http://[::ffff:1.2.3.4]")    -> "[::ffff:102:304]"
+
+  So there is NO TEXT for a mapped address that both runtimes accept. "Canonical
+  text" cannot be satisfied by both at once, and a locator one runtime writes
+  would be unreadable to the other -- the exact §3.3 failure the ruling exists
+  to prevent. The family is therefore EXCLUDED in both runtimes, alongside
+  shorthand and the opaque forms, and admitting it later is a versioned contract
+  change. The alphabet is `[0-9a-f:]` with no dot, which is a narrowing of the
+  prescription and is called out here because it is not what the review said.
+
+  The exclusion is the mapped RANGE and not everything shaped like it:
+  `::ffff:1` is `0:0:0:0:0:0:ffff:1`, an ordinary address both runtimes spell
+  the same way, and it stays accepted. The Node pattern
+  `^::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}$` is exact against canonical text for
+  that reason, and a mutant loosening it to the prefix `^::ffff:` is killed.
+
+DNS BOUNDS
+
+  Labels are 1..63 bytes and the written name is at most 253, in both runtimes.
+  253 exactly is accepted and 254 is refused, both witnessed.
+
+DIFFERENTIAL EVIDENCE, which the corpus alone cannot give
+
+  general sweep   1,532 locators (scheme, host, port, path variants)
+                  python accepts 178, node accepts 178, DISAGREEMENTS 0
+  IPv6 sweep     10,162 spellings of 900-odd addresses -- every zero-run
+                  compression, zero padding, upper case and dotted tail
+                  python accepts 521, node accepts 521, DISAGREEMENTS 0
+
+  Before the mapped exclusion the same sweeps reported 3 disagreements, all of
+  them the mapped family. That is how it was found.
+
+MUTATION ROUND over exactly what this cut added — 18 of 20 killed
+
+  killed: label bound removed; label bound off by one; whole-name bound
+  removed; whole-name bound off by one (both runtimes); IPv6 alphabet removed
+  (python); alphabet admits the dot (python); alphabet admits the scope
+  (python); canonical-text rule removed (both); canonical-text rule INVERTED;
+  mapped exclusion removed (both); mapped exclusion narrowed to the dotted form
+  (both); mapped pattern loosened to a prefix.
+
+  SURVIVED, REPORTED RATHER THAN PAPERED OVER:
+    MJS4  the Node alphabet clause deleted
+    MJS5  the Node alphabet clause widened to admit the dot
+
+  Both survive because THIS constructor already refuses every literal the
+  alphabet would catch. Measured, not assumed: a probe over every ASCII
+  character outside `[0-9a-f:]` in seventeen positions finds NOTHING that the
+  constructor round-trips unchanged. The clause is kept anyway, and the
+  distinction matters -- it is not unreachable BY CONSTRUCTION, the way the
+  boundaries this campaign has deleted were, but unreachable because of what a
+  THIRD-PARTY NORMALIZER does in this runtime version, and that normalizer's
+  acceptance surface is precisely what the ruling refused to treat as a
+  contract. It is the only clause there that fixes the grammar without asking
+  it. The ASSUMPTION is now pinned by its own case: if a future runtime
+  round-trips a scope id, that case fails and names the clause holding the
+  grammar still, instead of a durable locator quietly widening.
+
+TWO CLAUSES DELETED AS MEASURED REDUNDANT
+
+  The lower-case clause in BOTH runtimes. The alphabet admits no upper-case
+  character at all, so no literal could reach it; the same probe reports zero
+  reachable inputs. Unreachable by construction of the adjacent clause, which
+  is the case this campaign has consistently deleted rather than documented.
+  Also deleted last round on the same measurement: the Node second-`::` clause,
+  which the constructor already refuses.
+
+CORPUS
+
+  20 accepted, 58 refused. Four vectors were the reviewer's; four are this
+  correction's: `::ffff:1.2.3.4`, `::ffff:102:304`, `::ffff:0:1` and a 255-byte
+  DNS name whose labels are each legal.
+
+VERIFICATION
+
+  Python: XDG_RUNTIME_DIR=/tmp just gate -- 577 tests, all pass; the locked
+  build installs, imports and passes the same 577. Zero temp roots.
+  Node: npm test -- 691 tests, 688 pass.
+  The three PRE-EXISTING failures reported last round are unchanged and
+  untouched: `W1593 review: a wide record has bounded fault output`, `W1593
+  review: shape prose does not enumerate unreported members`, `W2929
+  correction: a refusal is bounded by the RULE, not by the operand`. All three
+  are about refusal message length, none calls the locator boundary, and they
+  remain outside W4's claimed scope.
+
+STATE
+
+  Awaiting independent review of this correction. Contracts inventory, §13 and
+  retention stay unstarted, as the review directs.

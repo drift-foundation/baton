@@ -1,0 +1,156 @@
+W4 / W2929 item 4af — sixth reconnect correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T20-09-23Z.md (one P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test test/worker_manager_agent_reconnect.test.mjs   29 pass, 2 fail
+
+Exactly the two additive review regressions. The finding is correct.
+
+
+2. I SPENT FIVE ROUNDS MAKING REFLECTION FAIL SAFELY, AND THE HOLE WAS THE
+   ORDINARY CASE
+
+Every guard on this primitive assumed a hostile value MISBEHAVES: it throws
+from a getter, it throws from a trap, it is not serializable, it revokes
+itself. Each round I translated one more failure. A Proxy over `{}` needs none
+of that. It runs `getPrototypeOf`, returns `Object.prototype`, runs
+`getOwnPropertyDescriptor`, returns no member, and is accepted as an empty
+options document -- so caller code RAN and a program COMMITTED the epoch to
+`unknown`.
+
+TRANSLATING A TRAP THAT THROWS DOES NOTHING ABOUT A TRAP THAT ANSWERS. The
+review says this exactly and it is the sentence I did not have. All five
+previous corrections were about the failure mode I could see happening.
+
+So the Proxy test is FIRST and NON-OBSERVING. `node:util/types.isProxy` reads
+an internal slot: it identifies live and revoked Proxies alike and runs no
+trap. The review is explicit that another try/catch is not acceptable here,
+and it is right -- a successful trap simply walks past one. A Proxy is a
+PROGRAM WEARING AN OBJECT, and the rule this envelope has always stated is
+that a document has no behaviour.
+
+Both paths are covered by the one change because both go through `classify`:
+the envelope classifies before `isPlainRecord`, and a member value classifies
+inside `describe`. That is the shape the fourth correction put in place -- one
+place the reflection happens -- and it is why this fix is one guard rather
+than two that have to agree.
+
+
+3. ONE SUPERSEDED ASSERTION OF MY OWN, MARKED WHERE IT STOOD
+
+Last round's case `an array is not a document however it is dressed` asserted
+that a Proxy-dressed array is refused with the diagnostic "an array". A Proxy
+is now refused BEFORE any reflection, so a dressed array never reaches array
+classification and is named for what it is. The two dressed entries assert
+"a Proxy" now; the two BARE array entries still assert "an array"; the
+refusal itself -- the rule that case owns -- is unchanged and is reached
+earlier and without running a trap. The supersession is written above the
+table rather than the assertion being quietly edited.
+
+
+4. MUTATIONS -- FOUR
+
+  R1 the Proxy test removed entirely             4 cases fail
+  R2 the Proxy test decides AFTER the traps run  3 cases fail
+  R3 a Proxy snapshot claims it was read         6 cases fail
+  R4 the diagnostic stops naming a Proxy         1 case fails
+
+MY FIRST R2 MEASURED ZERO AND WAS NOT THE MUTATION I MEANT. I moved the
+`isProxy` call INSIDE the try block while leaving it first, which changes
+nothing -- `isProxy` cannot throw, so inside and outside the try are the same
+position. The mutation I intended was the ORDERING one: let the traps run and
+then decide. Written that way it fails three cases.
+
+That is the third time in two days that a mutation result was a fact about my
+instrument rather than about the code -- a regex that missed subTest failures,
+a mutation that did not parse, and now one that did not express what I meant.
+The measurement I now take before believing any number is: does the mutated
+source say the thing I claimed to be testing.
+
+
+5. REGRESSIONS ADDED -- 1, AS A PROPERTY
+
+  an options value never runs, accepted or refused
+
+It does NOT name the two traps the review used. It instruments EVERY trap a
+Proxy has -- all thirteen -- and asserts that none of them runs, across six
+operands: an empty document, a document that WOULD ANSWER CORRECTLY, a revoked
+one, one over a null-prototype record, a member, and a revoked member. The
+second of those is the sharp end: it is refused although its answers would
+have been right, because the rule is about what the value IS.
+
+And the case ends by asserting the guard does not simply refuse everything:
+`undefined`, `{}`, `{ turnInFlight: true }` and `Object.create(null)` still
+commit the epoch to `unknown`. A refusal that refuses ordinary data would pass
+every refusal case above and none of the contract.
+
+Both review regressions are retained unchanged.
+
+
+6. THE SAME DEFECT EXISTS ON A REFERENCE, AND I AM REPORTING IT RATHER THAN
+   FIXING IT HERE
+
+Measured, not guessed:
+
+  normalizeAgentSessionRef(new Proxy({...four valid members...}, {get: ...}))
+  -> traps run: 4  [runtimeAttemptId, posture, sessionEpoch, providerSessionId]
+  -> accepted
+
+A Proxy session REFERENCE runs four get traps and is accepted, in
+`agent_session_axis.mjs`. It is the same class of defect as this P1 on a
+different operand.
+
+I did not change it. The axis is a signed-off module on every observation path
+in this manager -- `openAgentSession`, `closeAgentSession`, `observeEvent` and
+the turn boundary all normalize references through it -- and refusing Proxy
+references is a cross-cutting behavior change, not a two-case correction. What
+the earlier rounds already closed there is the DISAGREEMENT attack: the axis
+takes one owned copy, so a shifting getter cannot answer one thing to the
+check and another to the record. What remains open is that caller code runs at
+all.
+
+Raised for a ruling rather than decided by me, with the measurement above so
+it is a fact and not a worry.
+
+
+7. AND THE FORK IS NOW PROVEN, NOT PREDICTED
+
+I raised a duplication yesterday: `agent_handshake.mjs` grew its own
+`classify`/`describe` with the same rules while this module has its own. The
+full v12 run for THIS correction fails two cases named "W641 second review: a
+Proxy envelope is behavior, not a document" and "a Proxy fs is behavior, not a
+document" -- the same defect, found independently, in the other copy.
+
+Two implementations of one rule got the same finding twice. That is the
+argument for one shared primitive at W4 composition, and it is now evidence
+rather than a prediction.
+
+
+8. GATES
+
+  reconnect                        32 / 32
+  session axis                     16 / 16
+  turn                             50 / 50
+  posture slots                    25 / 25
+  full v12 npm test                664 tests, 662 pass, 2 fail
+  TMPDIR bracket over that run     zero test-owned roots (the one entry is
+                                   node-compile-cache, Node's own)
+  design models                    64 / 66 / 24 / 74, all OK
+  v11 pytest                       2980 passed; serial 52 passed
+  codex-event-bridge               336 / 336
+  acp-baton-bridge                 55 / 55
+  whitespace-damage check          clean
+
+BOTH REMAINING v12 FAILURES ARE W641's, from its own second review round, in
+the handshake suite. Neither is touched here.
+
+
+9. STILL OPEN IN W4
+
+The runtime and agent adapter contracts; composition of the posture lifecycle
+W771 corrected (W771 plan item 5); W151 section 9 next-epoch enforcement; the
+Proxy-reference question in section 6 above; and the one shared record
+primitive that would end the fork in section 7.

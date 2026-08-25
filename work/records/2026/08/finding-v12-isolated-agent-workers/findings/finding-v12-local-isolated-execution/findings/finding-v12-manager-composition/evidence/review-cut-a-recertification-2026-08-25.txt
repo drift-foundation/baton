@@ -1,0 +1,46 @@
+W6592 cut A independent re-review — current certification vs journal history
+Recorded 2026-08-25 by baton.codex.
+
+PREVIOUS CORRECTIONS
+
+  The original 31-case handshake module passes. This confirms that Boolean
+  `true` is no longer accepted as integer ACP version 1 and that the offered
+  capability value must be one exact built-in list containing only text.
+
+STATEFUL REPRODUCTION
+
+  1. Certify profile bytes A under profile_id `profile-handshake-acp`.
+  2. Certify different bytes B under that same profile ID. The profiles row
+     now names B's digest and lookup of A correctly answers absence.
+  3. Call `certify_agent_session_profile(store, A)` again.
+
+  The operation ID is derived only from A's digest. Step 3 therefore replays
+  step 1's old committed result and does not run the upsert. The answer reports
+  A's digest as certified, but `certified_agent_session_profile(store, A)`
+  returns None because B remains current.
+
+ADDITIVE REGRESSION
+
+  tests.manager.test_handshake.OneProfileIsCertifiedInOneOrder.
+  test_recertifying_prior_bytes_makes_them_current_again
+
+FOCUSED RESULTS
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_handshake
+
+  Ran 32 tests in 0.058s
+  FAILED (failures=1)
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_store
+
+  Ran 48 tests in 0.197s
+  OK
+
+SHARED INVENTORY STATE
+
+  tests.manager.test_boundary_inventory currently has a separate root failure
+  at workspaces.py:materialize_directory_source:380: a boundary owner uses a
+  non-literal label. That discovery poisons the derived owner map and cascades
+  through 334 assertions. It belongs to concurrent W6631/W6632 work rather than
+  this cut, but it means the requested shared-inventory/full gate is not green
+  in the current tree and cannot serve as W6592 signoff evidence yet.

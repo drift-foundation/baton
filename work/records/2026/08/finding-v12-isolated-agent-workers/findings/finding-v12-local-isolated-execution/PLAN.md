@@ -25,3 +25,30 @@
    and only W2928 is runnable at `baton.impl`.
 6. [pending after children] Reconcile independently reviewed child results
    against the frozen M1 contract and return M2 for approval.
+7. [confirmed 2026-08-23; review next] Replan the remaining M2 children for a
+   Python host. Freeze the host-side Node tree as executable-reference
+   evidence; revise W4 to implement the Worker Manager in Python, revise W5 to
+   separate its Python OCI runtime adapter from provider-native code inside
+   the worker image, and make W6 certify the portable composition. Preserve
+   the dependency chain while these boundaries are reviewed; do not route new
+   host-side JavaScript implementation.
+8. [approved 2026-08-24; prerequisite creation active] Use one self-contained
+   `v12/python/` distribution with Python `>=3.13`, its own disposable
+   `.venv`, `pyproject.toml`, and a hash-locked `requirements.lock`. Add a
+   separately owned Python assignment-authority prerequisite before W4. Authority
+   and manager may share the distribution but never modules, SQLite stores,
+   connections, schemas or transactions; W4 receives only an already-minted
+   participant-bound authority session.
+9. [confirmed 2026-08-24] Retain the superseded Node authority and Worker
+   Manager as a frozen executable oracle throughout the Python port. Retire it
+   only through an explicit post-parity step after independently reviewed
+   Python coverage of every portable obligation and a production import audit;
+   never delete it as incidental cleanup while the replacement is incomplete.
+10. [confirmed 2026-08-24] Keep dependency distributions out of Git. The
+    self-contained Python distribution owns `pyproject.toml` and the exact
+    hash-locked `requirements.lock`, while each checkout creates its disposable
+    venv and downloads the permitted artifacts from its configured package
+    index. A wheelhouse, offline mirror or certified artifact bundle is
+    operator infrastructure outside the source tree, not a repository payload.
+    Enforce the generated wheelhouse boundary with the exact
+    `v12/python/wheelhouse/` `.gitignore` entry.

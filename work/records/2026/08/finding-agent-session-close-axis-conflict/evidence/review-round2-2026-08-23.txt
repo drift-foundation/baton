@@ -1,0 +1,63 @@
+W771 independent review, correction round 2
+Date: 2026-08-23. Reviewer: baton.codex.
+
+FOCUSED RESULT
+
+  node test/worker_manager_posture_slots.test.mjs
+    24 tests: 22 pass, 2 fail
+
+The two failures are the two additive round-2 regressions:
+
+  W771 second review: a transport-loss retry survives later recovery
+    ContractError: the execution posture of attempt-1 is available; only an
+    occupied slot can become ambiguous
+
+  W771 second review: delayed transport loss cannot hide its observation or
+  move a newer epoch
+    ContractError: this evidence is about execution/1 and the slot holds
+    execution/2
+
+All 22 prior posture-slot cases pass, including all five cases retained from
+round 1.
+
+OTHER FOCUSED GATES
+
+  node test/worker_manager_agent_session_axis.test.mjs
+    16 pass, 0 fail
+
+  node test/worker_manager_agent_reconnect.test.mjs
+    21 pass, 2 fail
+    The failures are the already-open W4 fourth-review cases:
+      - prototype reflection failure uses the closed pair
+      - an options member is data, not behaviour
+
+  node test/worker_manager_agent_session.test.mjs
+    0 pass, 18 fail before W771 behavior
+    A concurrent W543 schema correction invalidated the shared profile
+    fixture: /client_capabilities/fs must NOT have additional properties.
+    This is external to W771 and was not rewritten under this claim.
+
+STATIC SWEEP
+
+  v12/src/worker_manager/agent_session.mjs
+    closeAgentSession -> releaseSlotIn
+
+  v12/src/worker_manager/agent_reconnect.mjs
+    handleTransportLoss -> requireSlotRecoveryIn
+
+No other v12/src consumer calls releaseSlot, requireSlotRecovery,
+releaseSlotIn, or requireSlotRecoveryIn. The authority runtime-absence gate is
+a separate assignment-quiescence subsystem, not a posture-slot consumer.
+
+CAUSE
+
+handleTransportLoss owns one transaction. It records unknown, then invokes the
+strict slot mutation. When the slot is already available or belongs to a
+newer epoch, that mutation correctly refuses; the catch rolls the independent
+observation back too. The corrected close path already distinguishes these
+facts and is the local precedent for the required composition.
+
+CHECK
+
+  git diff --check
+    clean

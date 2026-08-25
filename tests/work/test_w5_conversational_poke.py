@@ -679,7 +679,7 @@ def test_the_public_grammar_carries_the_whole_conversation(world, capsys):
 	             "request=what's up?")
 	seq = asked["result"]["poke"]
 	assert asked["result"]["target"] == "lang.grace"
-	assert asked["projection_version"] == "12.4"  # the poke major
+	assert asked["projection_version"] == "12.5"  # the poke major
 
 	woken = _run(capsys, config, "wait", "timeout=0",
 	             participant="lang.grace")["result"]

@@ -1,0 +1,45 @@
+W4 / former W2929 reconnect correction, independent review round 4
+UTC: 2026-08-23T19:13:23Z
+
+Accepted from item 4ac:
+  - rejected BigInt member returns integrity.schema
+  - hostile prototype constructor getter is not read
+  - rejected values are not serialized
+  - coarse diagnostics remain useful
+  - original plain-record and own-member cases remain green
+
+Focused delivered baseline:
+  node test/worker_manager_agent_reconnect.test.mjs
+  21 tests, 21 passed
+
+Focused result after two additive reviewer regressions:
+  node test/worker_manager_agent_reconnect.test.mjs
+  23 tests, 21 passed, 2 failed
+
+Failure 1:
+  W2929 fourth review: prototype reflection failure uses the closed pair
+  Expected integrity.schema; observed the arbitrary Error from a Proxy
+  getPrototypeOf trap. isPlainRecord performs an unwrapped prototype read
+  before describe reaches its wrapped read. Durable state remained prompting.
+
+Failure 2:
+  W2929 fourth review: an options member is data, not behaviour
+  Expected integrity.schema without executing the accessor; observed the
+  arbitrary Error thrown by an own turnInFlight getter. Durable state remained
+  prompting.
+
+Full current v12 gate:
+  npm test
+  642 total, 633 passed, 9 failed
+  Two are the W4 review cases above. Two are W543 review cases and five are
+  W771 review cases, each retained under its own active correction.
+
+Whitespace:
+  git diff --check
+  clean
+
+Review:
+  work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+  finding-v12-local-isolated-execution/findings/
+  finding-v12-worker-manager-core/review-2026-08-23T19-13-23Z.md
+

@@ -1,0 +1,51 @@
+W4 / W2929 reconnect-ambiguity first review
+Date: 2026-08-23T18:21:55Z
+Reviewer: baton.codex
+
+Delivered focused baseline:
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+
+Result before review cases:
+  tests 9
+  pass 9
+  fail 0
+
+Review reproduction 1 — caller reference is re-read after commit:
+  - providerSessionId getter returns provider-session-a on its first read and
+    provider-session-b thereafter
+  - the durable row for provider-session-a moves prompting -> unknown
+  - returned agentSessionRef names provider-session-b
+  - returned agentSessionRef also contains caller member untrustedExtra
+
+Review reproduction 2 — malformed options are not closed before mutation:
+  supplied      refusal             stored state
+  null          raw TypeError        prompting
+  true          none                 unknown
+  "in-flight"   none                 unknown
+  []            none                 unknown
+
+Required for each supplied malformed container:
+  integrity.schema and stored state prompting
+
+Focused command after adding the two review cases:
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+
+Result:
+  tests 11
+  pass 9
+  fail 2
+
+Full command:
+  cd v12 && npm test
+
+Result:
+  tests 603
+  pass 601
+  fail 2
+
+Only the two additive review regressions fail.
+
+Whitespace command:
+  git diff --check
+
+Result: clean.

@@ -1,0 +1,44 @@
+W4 technical re-review: locator bounds and mapped-family ruling
+Date: 2026-08-24
+Reviewer: baton.codex
+
+Accepted verification
+---------------------
+Python focused:
+  env PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers
+  Ran 10 tests in 0.004s -- OK
+
+Python full source:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+  Ran 577 tests in 66.763s -- OK (skipped=1)
+
+Node focused:
+  node test/worker_manager_contracts.test.mjs
+  60 tests -- 60 pass
+
+Shared corpus:
+  20 accepted, 58 refused
+
+Whitespace:
+  git diff --check -- clean
+
+Decision boundary
+-----------------
+Python:
+  str(IPv6Address("::ffff:102:304")) -> "::ffff:1.2.3.4"
+
+Node:
+  new URL("http://[::ffff:1.2.3.4]").hostname -> "[::ffff:102:304]"
+
+No spelling passes both runtimes' same-text canonical check. The implementation
+therefore excludes IPv4-mapped IPv6 in both runtimes. That is technically
+coherent but narrows the confirmed bracketed-IPv6 grammar, so explicit approver
+confirmation is required before W4 closes.
+
+Evidence limitation
+-------------------
+The implementer reports differential sweeps of 1,532 and 10,162 candidates, but
+no durable generator script is present in the dossier. This review does not
+independently attest those counts and relies on direct examples, shared vectors,
+source inspection and focused tests instead.

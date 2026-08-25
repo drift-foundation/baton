@@ -1,0 +1,169 @@
+W641 — second correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T20-20-01Z.md (one P1 plus a required
+composition).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test v12/test/worker_manager_agent_handshake.test.mjs  26 pass, 2 fail
+
+Exactly the two additive review regressions. The finding is correct.
+
+
+2. THE P1, AND WHY IT ARRIVED TWICE
+
+A Proxy whose traps ANSWER passes a record proof built to catch traps that
+THROW. Both capability levels accepted one, and caller code ran while policy
+was being decided.
+
+This is the same defect W2929's sixth reconnect review found in the OTHER copy
+of these rules, one round earlier. I raised the duplication as W641 plan item 7
+yesterday and predicted it would cost something; it cost this. Two
+implementations of one rule earned the same finding twice, independently.
+
+
+3. THE COMPOSITION THE REVIEW REQUIRED, AND IT IS THE WHOLE FIX
+
+There is now ONE record proof: `v12/src/worker_manager/records.mjs`. Both
+`agent_handshake.mjs` and `agent_reconnect.mjs` call it and neither carries its
+own copy any more.
+
+  classify(value)        one non-observing, translated snapshot
+  describe(value, seen)  a rejected value named from inert facts only
+  isPlainRecord(...)     data without behaviour
+  recordFault(v, want)   ...with exactly these members, or why not
+
+A Proxy is rejected FIRST, by `node:util/types.isProxy`, which reads an
+internal slot and runs no trap. The review is right that another try/catch is
+not acceptable: a successful trap walks past one.
+
+THE CALLERS KEEP THEIR OWN TAXONOMIES. The module returns facts and prose and
+never a `ContractError` -- `integrity.schema` at reconnect and `policy.denied`
+at the capability envelope are the callers' policies, and a shared primitive
+that threw one of them would be deciding something that is not its business.
+
+THE MODULE HEADER CARRIES THE HISTORY. Six review rounds produced six rules --
+do not serialize the value, do not read it, do not interview what was thrown,
+"runs no user code" is not "cannot fail", translating a trap that throws does
+nothing about a trap that answers, and looking empty is not being the empty
+document. Each was learned by getting it wrong. They are written where the
+next person to touch this will read them, because the rules are not obvious
+and every one of them cost a review round.
+
+
+4. TOUCHING RECONNECT WHILE W4 IS IN REVIEW, AND WHY
+
+`agent_reconnect.mjs` is inside W4's item 4af, which is with baton.feat right
+now. I declined to unify yesterday for exactly that reason. This review
+overrides that: it names plan item 7, pulls it into this correction, and says
+two divergent fixes would leave the duplication item 7 exists to remove.
+
+NO ASSERTION IN EITHER SUITE CHANGED. I chose the shared vocabulary to be
+reconnect's existing vocabulary precisely so W4's in-review cases keep passing
+unedited -- "an object with a prototype of its own", "an object that refused
+inspection", "an array", "a Proxy" are the strings that module already
+produced. The handshake's messages gained the same words. The only
+call-site changes in reconnect are the import and one argument order.
+
+Both suites are green with no test edits: reconnect 32/32 unchanged from item
+4af, handshake 28/28.
+
+
+5. MUTATIONS -- EIGHT, AGAINST ALL THREE SUITES AT ONCE
+
+  S1 the Proxy test removed                        9 cases fail
+  S2 the Proxy test decides AFTER the traps run    7 cases fail
+  S3 the reflection wrapper removed                1 case fails
+  S4 hidden and symbol members stop counting       2 cases fail
+  S5 an accessor member is a document member       2 cases fail
+  S6 the prototype rule dropped                    7 cases fail
+  S7 an array is a document again                  1 case fails
+  S8 the descriptor reflection wrapper removed     0 -- UNREACHABLE
+
+S1, S2 and S6 fail cases from ALL THREE suites, which is the composition
+working: one guard, three sets of witnesses.
+
+TWO ZEROS, INVESTIGATED, WITH DIFFERENT ANSWERS AGAIN.
+
+S7's zero was a MISSING CASE and a real one. A bare array is refused by the
+prototype rule, and a Proxy-dressed array is now refused by the Proxy test --
+so nothing left reached the array line. But `Object.setPrototypeOf([],
+Object.prototype)` is an ORDINARY ARRAY, no Proxy involved, wearing the
+document prototype, and it still serializes as `[]`. I added it and S7 now
+fails the case that owns it.
+
+S8 is measured UNREACHABLE, and it became unreachable in this correction. The
+descriptor read happens after the record is otherwise proved, so the only
+value that could throw there was a descriptor-trapping Proxy -- which was my
+own witness for it last round, and which the Proxy test now rejects long
+before. I keep the wrapper for host exotica and because rule 4 in the module
+header says translate every reflection, but IT EARNS NO WITNESS TODAY AND IS
+NOT COUNTED AS A GUARD.
+
+
+6. A NEW SUITE FOR THE PRIMITIVE ITSELF -- 6 CASES
+
+`v12/test/worker_manager_records.test.mjs`. The two callers assert this rule
+through their own error taxonomies; what neither can state is the primitive's
+own contract, which is that THESE FUNCTIONS ANSWER -- answering never throws
+and never runs the value. That is the property that makes them safe to share,
+because a shared helper that can throw turns one caller's refusal into another
+caller's crash.
+
+  answering never throws and never runs the value
+      ten hostile values x five entry points, with all thirteen Proxy traps
+      and seven throwing accessors instrumented; asserts nothing ran and
+      nothing threw, 50 combinations
+  a Proxy is refused however plausibly it answers
+      including one whose answers are all CORRECT, and both live and revoked
+      reaching the same verdict by the same route
+  the documents the contracts DO send are accepted
+      because a proof that refuses everything satisfies every refusal case
+      above and no contract at all
+  an array is not a document, wearing any prototype
+  the member proof counts what Object.keys hides
+  a rejected value is named by shape and never by content
+      eleven shapes, plus: a marked string never appears in any answer, member
+      NAMES do appear because they are structure, and a member VALUE is never
+      inspected once the shape holds
+
+Both review regressions are retained unchanged.
+
+
+7. GATES
+
+  records (new)                6 / 6
+  handshake                    28 / 28
+  reconnect                    32 / 32
+  profile                      14 / 14
+  session                      18 / 18
+  full v12 npm test            670 tests, 670 pass, 0 FAIL
+  TMPDIR bracket               zero test-owned roots (the one entry is
+                               node-compile-cache, Node's own)
+  design models                64 / 66 / 24 / 74, all OK
+  v11 pytest                   2980 passed; serial 52 passed
+  codex-event-bridge           336 / 336
+  acp-baton-bridge             55 / 55
+  frozen vs product schema     byte-identical
+  whitespace-damage check      clean
+
+THE FULL v12 GATE IS GREEN. Every open review round across W4, W543, W641 and
+W771 now passes; there is nothing left to attribute to another Work. I have
+reported a non-zero failure count in every hand-back for days, so this one is
+worth stating plainly.
+
+
+8. STILL OPEN
+
+Plan item 8: a future adapter built against this contract must be re-reviewed
+against it. `v12/src/acp_session.mjs` and `tools/acp-baton-bridge` remain the
+accepted 0-spike and the earlier v11 bridge, outside 1.0 scope.
+
+Item 7 is discharged by this correction.
+
+Carried from W4 and unaffected here: a Proxy session REFERENCE still runs four
+get traps in `normalizeAgentSessionRef` and is accepted. That is the same class
+of defect on a different operand, raised in W4's sixth correction for a ruling
+because the axis is a signed-off module on every observation path. If it is
+ruled in, this module is where the fix belongs.

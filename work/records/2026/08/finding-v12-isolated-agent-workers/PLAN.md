@@ -456,3 +456,53 @@ whose prerequisites have closed are actionable.
     Work-level dependency behavior and the current W2929→W2930 edge unchanged;
     create bounded implementation Work only when the v12 scheduler slice is
     ordered.
+17. [deferred; confirmed 2026-08-23] Modularize the v12 TUI after the isolated
+    worker path is practically usable end to end. Separate terminal input,
+    navigation, view state, rendering, command editing, and authority
+    interaction instead of reproducing v11's large `app.py`. Treat this as an
+    adoption and maintainability requirement rather than an early PoC gate.
+    Keep v11 changes bounded to necessary usability and defect corrections;
+    do not start a broad v11 refactor or create implementation Work for this
+    item until v12 has passed its usability proof.
+18. [confirmed 2026-08-23; adoption gate] Keep provider-native language and SDK
+    choices inside the isolated worker image. Expose only versioned canonical
+    worker-control, agent-session, ACP/JSON where applicable, event, artifact,
+    and evidence contracts to the host. Treat the current Node tree as the M2
+    executable reference, not a production-language commitment. Before product
+    integration, choose the host-side authority and Worker Manager language
+    explicitly and run the portable black-box conformance suite against that
+    implementation; keep runtime-specific hardening in the worker or adapter
+    implementation that needs it.
+19. [confirmed 2026-08-23; supersedes item 18's open host-language gate]
+    Implement v12 host-side Baton, authority, scheduler, Worker Manager,
+    durable control store, runtime adapters, proposal intake, and operator
+    surfaces in Python. Permit a future Drift migration only through separate
+    explicit Work. Admit Node or JavaScript only inside isolated worker images
+    when practical for a provider SDK; do not expose those internals outside
+    the canonical worker boundary. Freeze the current host-side Node tree as
+    executable-reference evidence, replan M2 around the Python host, and do not
+    extend Node host modules as the implementation path.
+20. [confirmed 2026-08-24; apply at the next W4 handoff] Represent campaigns
+    and milestones as roll-up Work containing bounded, independently reviewable
+    implementation Jobs. Give every planned cut its own claim, discussion,
+    evidence, review cycle and terminal outcome; use explicit dependency edges
+    only where ordering is real. Do not split underneath a live claim. Let W4
+    finish its current canonical-locator correction, then create or order
+    separate M2-contained Jobs for the contracts inventory, section 13 and
+    retention before any of those slices starts. Apply the same decomposition
+    rule to later v12 milestones so progress is visible through child counts
+    rather than hidden in a single large message history.
+20a. [clarified 2026-08-24 after W6592 intake] Multiple named cuts or review
+     rounds inside one Work do not satisfy item 20. W6592 ends with its already
+     implemented public-composition Cut A after independent review. Create the
+     still-unstarted contracts-package receiving inventory as a separate
+     W3-contained Job with its own dossier, claim, evidence, review and outcome
+     before routing it for implementation.
+20b. [confirmed 2026-08-24; scheduler and proposal-pipeline invariant] Treat
+     the complete Work graph as the project execution model, without a product
+     limit on child count or logical nesting. Schedule independent ready leaf
+     Jobs across N available workers, preserve every result as an isolated
+     immutable proposal, and merge only through clean verification, review and
+     the trusted integrator. Keep dossier-path flattening or promotion an
+     indexing concern that never reduces logical containment, dependency or
+     scheduling fidelity.

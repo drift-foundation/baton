@@ -1,0 +1,166 @@
+W2929 / current authority W4 — handshake slice, FIRST correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T17-26-19Z.md (two P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_handshake.test.mjs
+    tests 18, pass 14, fail 4
+  cd v12 && npm test
+    tests 573, pass 569, fail 4
+
+The four additive regressions were the only failures. Both findings are
+correct.
+
+
+2. P1 — I CLAIMED A CLOSED SURFACE AND BUILT TWO DENY LISTS
+
+This is the finding worth stating plainly, because the slice's own header
+comment claimed the opposite.
+
+`checkOutboundMethod` rejected the twenty-one names section 2.3 enumerates and
+RETURNED EVERY OTHER STRING. So `session/reuse` — the frozen contract's own
+example of a capability that does not exist — passed, and so would any method
+a future SDK adds, on the day it adds it. `serveClientMethod` had the same
+shape over ACP 1.3.0's eight client methods.
+
+That is the inverse of the rule. Section 2.2 says withholding by default costs
+nothing while "advertising by default means every future SDK release silently
+widens the boundary", and I wrote the widening it describes into both guards
+while quoting the sentence three lines above them.
+
+Both are allow lists now:
+
+  checkOutboundMethod   admits only KNOWN_AGENT_SURFACE — the five required
+                        plus the three optional, which together are every
+                        method that exists in 1.0. Everything else is
+                        refused.capability. Whether a particular OPTIONAL
+                        method may be used on a particular session depends on
+                        its advertisement and the pinned policy, and neither
+                        is in hand here; that check belongs to composition and
+                        is named as such.
+  serveClientMethod     denies EVERY method. There is nothing to enumerate:
+                        section 2.2 advertises no client capability at all, so
+                        every client-directed call is a call on something the
+                        relay structurally withheld, whatever it is named.
+  routeAgentOriginCall  NEW, on the review's authority. The closed inbound
+                        surface is one name: session/update is the only member
+                        of the required five that flows agent-to-client.
+                        Everything else is policy.denied.
+
+One function had been answering two questions — which client capabilities are
+served (none) and which agent-origin calls are accepted (one) — and the
+session/update assertion migrated to the boundary that now owns it rather than
+being dropped.
+
+
+3. P1 — ONE CONSTANT FOR TWO DIFFERENT DOCUMENTS
+
+Frozen section 2.2 says the ACP wire sends exactly `{ "fs": {}, "terminal":
+false }`, with both filesystem members ABSENT — the pinned SDK 1.3.0
+declaration makes them optional. The frozen agent-session schema separately
+records a normalized snake-case SUMMARY with both members explicitly false.
+
+I had one constant for both, so `validateClientCapabilities` refused section
+2.2's exact wire document and `negotiateAcp` emitted `read_text_file` and
+`write_text_file`, which are not ACP wire field names.
+
+Two representations, two names: ACP_WIRE_CLIENT_CAPABILITIES is what goes out
+and what an advertisement is compared against; NORMALIZED_CLIENT_CAPABILITIES
+is what the durable profile records. A case asserts they are DIFFERENT
+documents, which is the whole finding.
+
+The comparison is STRUCTURAL now. Comparing `JSON.stringify` output had made
+member ORDER part of the rule; JSON object member order carries no meaning,
+so the same document in a different insertion order is the same document while
+a different member or value is a different one.
+
+ABSENCE IS HOW THE WIRE WITHHOLDS, and a case drives the distinction directly:
+an `fs` member present AT ALL — even set false — is denied, because it is a
+member ACP's optional type did not have to carry and this boundary is the one
+place that difference is still visible.
+
+W641 owns the frozen-artifact conflict between the model, the schema and
+section 2.2. This slice follows the explicit section 2.2 wire text and the
+pinned SDK declaration now, as the review directs, and rewrites neither
+artifact.
+
+
+4. FOUR EXISTING CASES MIGRATED, ON THE REVIEW'S EXPLICIT AUTHORITY
+
+  "the relay advertises nothing, and `session` is stable and absent"
+      now names the WIRE document and additionally asserts the two
+      representations differ. Every withholding assertion is preserved.
+  "an advertisement that is not EXACTLY the minimal one is denied"
+      drives the wire shape, with the durable summary added as a DENIED case
+      and four more shapes besides.
+  "an exact wire version negotiates, and nothing else does"
+      expects the wire document from `negotiateAcp`. The fresh-copy assertion
+      is unchanged.
+  "the relay never SERVES a client method, all eight"
+      keeps all eight and now asserts that `session/update` is denied HERE
+      too — the routing assertion moved to `routeAgentOriginCall`, which is
+      the boundary that owns it, rather than being dropped.
+
+
+5. MUTATIONS — EIGHT, ALL WITNESSED
+
+  W1 the wire document becomes the durable summary     4 cases fail
+  W2 the advertisement is compared by member order     1 case fails
+  W3 an fs member present is admitted                  2 cases fail
+  W4 an extra top-level member is admitted             1 case fails
+  W5 the outbound guard reverts to a deny list         2 cases fail
+  W6 the client boundary reverts to a deny list        2 cases fail
+  W7 the agent-origin route defaults open              1 case fails
+  W8 negotiation emits the durable summary             2 cases fail
+
+W5 and W6 are the two that matter: reverting either guard to exactly what I
+delivered last round now fails, including the case that drives a method the
+contract has never heard of.
+
+
+6. REGRESSIONS — 19 (18 before, including the reviewer's four)
+
+One of mine: the agent-origin surface accepts one name and denies every other
+— driven over all eight client methods, all twenty-one refused methods, a
+required method that is not agent-origin, a future vendor notification, the
+empty string, null and undefined.
+
+The outbound case also gained the allow-list direction: every one of the eight
+known methods passes, six unknown shapes refuse, and the known set is proved
+disjoint from the refused list.
+
+
+7. GATES
+
+  cd v12 && npm test                       574 tests, 574 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 569 -> 574.
+
+
+8. STILL NOT IMPLEMENTED
+
+Sections 6.5, 8.1, 8.2, 8.4 and 8.5; adapter prompt composition; the runtime
+adapter contract; and re-identification after transport ambiguity. W543 owns
+the tool-call `kind` conflict and W641 owns the client-capability artifact
+conflation; neither is touched here.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/agent_handshake.mjs        the wire document and the
+                                                    durable summary are named
+                                                    separately and compared
+                                                    structurally; both method
+                                                    surfaces are allow lists;
+                                                    routeAgentOriginCall added
+  v12/test/worker_manager_agent_handshake.test.mjs  +1 case, 4 authorized
+                                                    migrations

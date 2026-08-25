@@ -1,0 +1,130 @@
+W2845 — cut 4 correction
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T06-03-28Z.md (three P1).
+Cut 4 only. Cut 5 remains absent.
+
+
+1. ALL THREE REPRODUCED BEFORE ANY EDIT
+
+  publish with a spaced result_id             ACCEPTED
+  the same result_id with a CONTRADICTORY
+  result_digest                               ACCEPTED
+  publish with a dict canonical_target        LEAK ProgrammingError
+  publish with an empty canonical_target      ACCEPTED; target published as ""
+  activities / contract_events / proposal     bare work_id, participant,
+                                              generation
+  the publish answer                          no assignment at all
+
+Six reproductions, all true while 169 cases passed.
+
+
+2. [P1 1] A FROZEN RESULT IDENTITY NAMED TWO DIFFERENT THINGS
+
+`result_id` had only the text rule, so an identifier with a space was accepted
+and -- the part that matters -- the SAME frozen result identity could be
+published twice with contradictory digests. Downstream, nothing could tell which
+bytes `r1` meant.
+
+It is a `check_opaque_id` now, checked BEFORE the signature and the journal so a
+malformed one never consumes an operation identity. And the binding is stable:
+a `result_id` already in the proposal table must name the same
+`result_digest` and the same full assignment.
+
+CONSISTENT REUSE STAYS PERMITTED, as the review allows: one frozen result may
+back several proposals, so the rule is about CONTRADICTION rather than about
+reuse. A second proposal citing the same result with the same bytes and the same
+producer is accepted; a different digest, or a different assignment, refuses.
+
+The assignment half is worth stating: a frozen result is produced BY an
+assignment, and the same identity appearing under a different one is a claim
+that two producers made the same bytes -- which this boundary cannot verify and
+so must not record.
+
+
+3. [P1 2] GENERIC STORAGE PLUS A SPECIFIC MEANING
+
+`policy` is deliberately generic: a policy value is any owned JSON document, and
+`own` is what makes it safe to STORE. `canonical_target` then handed whatever it
+found straight into a durable column.
+
+A dict reached parameter binding as a raw `ProgrammingError`. An EMPTY STRING
+was worse: it published successfully, so the proposal was bound to no target at
+all and integration would later compare against nothing.
+
+Generic storage with a specific meaning is exactly where the type has to be
+asserted, and the semantic accessor is the only place that knows the meaning.
+It refuses now, and the refusal covers both side effects -- publication AND
+integration, which compares the target and then writes it.
+
+
+4. [P1 3] I CORRECTED ONE PROJECTION AND THEN WROTE FOUR MORE THE OLD WAY
+
+Cut 2 corrected `assignment_events` to answer with a nested `assignment_ref`,
+because answering in bare columns is three quarters of an identity in the one
+place a reader reconstructs history from. Cut 4 then added activity answers,
+contract events, proposal reads and a publish result -- four new projections,
+all in bare columns, and the publish result with no assignment at all.
+
+That is the same defect one cut later, and the reason is instructive: I ported
+each projection from the frozen host's shape rather than from the corrected
+shape beside it. THE CORRECTION WAS IN THE FILE I WAS EDITING.
+
+There is ONE projector now, `_assignment_ref_of`, and every answer carrying an
+assignment goes through it -- including `assignment_events`, which was rewritten
+to use it rather than keeping its own copy of the same six lines.
+
+
+5. MUTATIONS -- SEVEN, ALL WITNESSED
+
+  S1 result_id is only text again              3 cases
+  S2 a result identity may name two digests    1
+  S3 a result identity may name two assignments 1
+  S4 the binding is not looked up at all       2
+  S5 the canonical target is read generically  7
+  S6 the shared projector answers in bare columns 12
+  S7 the publish answer omits the assignment   2
+
+No zeros. S6 failing twelve cases is the shared projector earning its keep: one
+line, five projections, twelve witnesses -- which is exactly the argument for
+having one instead of five.
+
+
+6. REGRESSIONS -- 5 ADDED, THE SUITE IS 169 -> 174
+
+  a result identity names one set of bytes
+      the contradiction refused, and consistent reuse accepted, so the rule is
+      about contradiction rather than about reuse
+  a result identity names the assignment that made it
+      including that a malformed one never reaches the journal
+  the canonical target is read semantically
+      six malformed values, each refused at the accessor AND at publication,
+      with the default and an ordinary value still reading cleanly
+  a malformed target also stops integration
+      the other side effect, with nothing journalled and no receipt written
+  every cut-4 projection answers with the whole identity
+      all five projections walked in one case, each asserting the full
+      four-part identity AND that no bare column survives
+
+Two existing cases were updated rather than pinned: the proposal read now
+asserts the nested identity, and the digest loop no longer covers `result_id`,
+which is refused one rule earlier and by name as an identity rather than a
+digest.
+
+
+7. GATES
+
+  just gate (v12/python)      version + 174 tests + the locked build, all pass
+                              on Python 3.13.7
+  the installed stage         174/174 from the wheel, race children still
+                              proving their package origin
+  temp roots after the run    zero
+  the frozen Node reference   UNTOUCHED
+  whitespace-damage check     clean
+  every reproduction          now refuses or answers with the whole identity
+
+
+8. STILL ABSENT ON PURPOSE
+
+Cut 5: the exact exported bootstrap and the participant-bound session face, and
+the natural moment for cut 3's raised settlement-signature question.
+W4 stays blocked on W2845.

@@ -1,0 +1,67 @@
+W2845 cut-2 correction independent verification — 2026-08-24
+
+Full gate
+---------
+
+    XDG_RUNTIME_DIR=/tmp just gate
+
+The XDG override is specific to the managed reviewer context, whose configured
+/run/user/1000 is read-only. The product gate itself was unchanged.
+
+Observed:
+
+    [gate] python 3.13.7
+    source-tree suite: Ran 107 tests; OK
+    lock resolution: pip 25.1.1 and setuptools 78.1.1 fetched from
+      /usr/share/python-wheels with hashes
+    wheel: baton_v12-0.1.0-py3-none-any.whl built and installed
+    import: installed baton_v12.authority loaded from the temporary venv's
+      site-packages, 17 exported names
+    installed-layout suite: Ran 107 tests; OK
+    [build] the locked offline build installs, imports and passes
+
+Prior-review regressions
+------------------------
+
+The complete gate exercised all eight additive correction cases in
+`CutTwoReviewFindings`, plus the strengthened gate cases in `Gates`:
+
+* a cross-Work assignment cannot satisfy or be ended by another Work's gate
+  compare-and-swap;
+* the last safe generation is usable and the next claim refuses without
+  changing the counter, Handler or deployment-wide slot;
+* every durable scalar and both gate-token components refuse lone surrogates,
+  while ordinary non-ASCII text round-trips;
+* quiescence, plan-revision and contract-runtime evidence is exact typed text
+  and is bound to the configured runtime, pinned clause, plan or certified
+  profile;
+* claim is the first assignment event, repeat claims remain distinguishable,
+  and every event projects the full four-part `assignment_ref`;
+* all four assignment-ending entry points refuse the absent operand through
+  the common taxonomy;
+* the invariant backstop rejects every open phase outside the closed axis,
+  either direction of a broken phase/gate pairing, and malformed or unknown
+  gates.
+
+The pinned-isolation representation is accepted: configuration stores the
+exact clause identity, not a boolean, and evidence must name the same clause.
+This gives durable meaning to W151's requirement for an explicitly pinned
+certified-isolation clause.
+
+Static boundaries
+-----------------
+
+    git diff --check
+
+Observed: clean.
+
+`git diff --name-only` over `v12/src/authority` and all seven frozen Node
+authority test files produced no output. Operation IDs, replay/settlement,
+contract progression and exported participant sessions remain deferred to
+cuts 3-5 as planned.
+
+Review disposition
+------------------
+
+All five P1 and two P2 findings from `review-2026-08-24T05-12-08Z.md` are
+closed. Cut 2 is independently signed off.

@@ -1,0 +1,268 @@
+{
+  "vectors": "baton.worker-control/1.0 durable locator grammar",
+  "authority": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-worker-manager-core/FINDING.md#confirmed-decision--one-smaller-canonical-uri-grammar",
+  "why": [
+    "The frozen JavaScript constructor NORMALIZES: ten of nineteen forms it",
+    "accepts come back as a different string. A durable locator whose meaning",
+    "depends on a normalizing parser is one two conforming readers can disagree",
+    "about, which is the failure \u00a73.3 exists to prevent. So both runtimes",
+    "enforce this smaller grammar over the ORIGINAL TEXT instead, and this file",
+    "is the authority for both -- not two implementations that agree today."
+  ],
+  "accepted": [
+    "https://source.invalid/archive",
+    "https://source.invalid",
+    "https://source.invalid/",
+    "https://source.invalid:8443/archive",
+    "https://source.invalid:1/archive",
+    "https://source.invalid:65535/archive",
+    "https://a.b.c.d.example/deep/path",
+    "https://192.0.2.10/archive",
+    "https://192.0.2.10:8443/archive",
+    "https://[2001:db8::1]/archive",
+    "https://[2001:db8::1]:8443/archive",
+    "https://[::1]/archive",
+    "artifact://inputs/source-1",
+    "artifact://store/item",
+    "ssh://host.example/repo",
+    "file:///srv/x",
+    "file:///srv/x/y.txt",
+    "https://host.example/a%2Fb",
+    "https://host.example/a-b_c.d~e",
+    "https://host.example/a!$&'()*+,;=:@b"
+  ],
+  "refused": [
+    {
+      "uri": "https://source.invalid/archive?token=secret",
+      "why": "query"
+    },
+    {
+      "uri": "https://source.invalid/archive#frag",
+      "why": "fragment"
+    },
+    {
+      "uri": "https://user:pass@source.invalid/archive",
+      "why": "userinfo"
+    },
+    {
+      "uri": "https://user@source.invalid/archive",
+      "why": "userinfo"
+    },
+    {
+      "uri": "https:worker@example.test",
+      "why": "authority"
+    },
+    {
+      "uri": "https:/worker@example.test",
+      "why": "authority"
+    },
+    {
+      "uri": "https:///worker@example.test",
+      "why": "authority"
+    },
+    {
+      "uri": "https:x",
+      "why": "authority"
+    },
+    {
+      "uri": "https:/x",
+      "why": "authority"
+    },
+    {
+      "uri": "https:///x",
+      "why": "authority"
+    },
+    {
+      "uri": "https://",
+      "why": "host"
+    },
+    {
+      "uri": "http://",
+      "why": "host"
+    },
+    {
+      "uri": "https://x:",
+      "why": "port"
+    },
+    {
+      "uri": "https://x:0",
+      "why": "port"
+    },
+    {
+      "uri": "https://x:00080",
+      "why": "port"
+    },
+    {
+      "uri": "https://x:65536",
+      "why": "port"
+    },
+    {
+      "uri": "https://x:bad",
+      "why": "port"
+    },
+    {
+      "uri": "https://a:b:8443/x",
+      "why": "port"
+    },
+    {
+      "uri": "https://EXAMPLE.test/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://\u00e4.test/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://%41.test/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://a_b/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://a..b/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://-a/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://a-/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.test/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://exa mple.test/x",
+      "why": "space"
+    },
+    {
+      "uri": "https://host.example/a\\b",
+      "why": "backslash"
+    },
+    {
+      "uri": "https://host.example/a\u0000b",
+      "why": "control"
+    },
+    {
+      "uri": "https://[",
+      "why": "host"
+    },
+    {
+      "uri": "https://[gg]/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://[:::1]/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://[2001:0db8::1]/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://[2001:db8:0:0:0:0:0:1]/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://[fe80::1%eth0]/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://[2001:db8::1/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://2001:db8::1/x",
+      "why": "port"
+    },
+    {
+      "uri": "urn:uuid:1",
+      "why": "authority"
+    },
+    {
+      "uri": "mailto:worker@example.invalid",
+      "why": "authority"
+    },
+    {
+      "uri": "file://",
+      "why": "authority"
+    },
+    {
+      "uri": "file:///",
+      "why": "path"
+    },
+    {
+      "uri": "file://host/srv/x",
+      "why": "authority"
+    },
+    {
+      "uri": "file:/srv/x",
+      "why": "authority"
+    },
+    {
+      "uri": "file:x",
+      "why": "authority"
+    },
+    {
+      "uri": "HTTPS://host.example/x",
+      "why": "scheme"
+    },
+    {
+      "uri": "1https://host.example/x",
+      "why": "scheme"
+    },
+    {
+      "uri": "://x",
+      "why": "scheme"
+    },
+    {
+      "uri": "/not/absolute",
+      "why": "scheme"
+    },
+    {
+      "uri": "//source.invalid/archive",
+      "why": "scheme"
+    },
+    {
+      "uri": "https://host.example/a%2fb",
+      "why": "escape"
+    },
+    {
+      "uri": "https://host.example/a%2/b",
+      "why": "escape"
+    },
+    {
+      "uri": "https://host.example/a%ZZb",
+      "why": "escape"
+    },
+    {
+      "uri": "https://host.example/a%",
+      "why": "escape"
+    },
+    {
+      "uri": "",
+      "why": "scheme"
+    },
+    {
+      "uri": "https://[::ffff:1.2.3.4]/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://[::ffff:102:304]/x",
+      "why": "host"
+    },
+    {
+      "uri": "https://[::ffff:0:1]/x",
+      "why": "host"
+    }
+  ]
+}

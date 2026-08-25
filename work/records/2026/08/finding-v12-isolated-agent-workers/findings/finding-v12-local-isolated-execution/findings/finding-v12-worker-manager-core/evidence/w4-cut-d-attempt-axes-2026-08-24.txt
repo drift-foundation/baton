@@ -1,0 +1,149 @@
+W4 / M2 — Cut D, first slice: the runtime attempt, its activation and its
+observations
+Recorded 2026-08-24 by baton.claude (implementer), after PLAN 4ck signed off the
+centralized boundary model and released Cut D.
+
+WHAT THIS SLICE IS, AND WHAT IT IS NOT
+
+  PLAN 4be names attempt axes, activation, cancellation ordering, output freeze,
+  intake and cleanup. This delivers the first three of those in the order the
+  frozen host itself is sliced in:
+
+    record_attempt        the attempt an accepted offer named, under an
+                          operation identity that signs every durable operand
+    activate_assignment   bind the attempt to THIS attempt's own committed
+                          claim, through the participant-bound session, fixing
+                          all four parts before anything writable runs
+    observe               per-axis transitions, decided and written in one
+                          savepoint against the exact value the update compares,
+                          journalled by SOURCE IDENTITY
+
+  ABSENT RATHER THAN STUBBED, and named in the module's own docstring: runtime
+  start, reconciliation and cancellation ordering -- which introduce the injected
+  runtime adapter and agent boundaries -- and then output freeze, intake and
+  cleanup. `attempts.mjs` carries the same sentence for the same reason: what a
+  conforming adapter must BE is a later item's to pin, and until then positive
+  absence cannot be proven.
+
+THE SCHEMA
+
+  Version 5. `attempts` with the four assignment columns under an all-four-or-
+  none CHECK, ten axis columns each constrained to its own vocabulary, and
+  `observations` keyed by `(attempt, incarnation, source_seq)` with a second
+  unique index on the manager's own ordering. A partial unique index makes one
+  claimed offer per attempt.
+
+  THE VOCABULARY AND THE TRANSITIONS ARE DIFFERENT THINGS. The CHECK constraints
+  say what an axis may SAY; `TRANSITIONS` says what may FOLLOW what, frozen all
+  the way down. Treating the vocabulary's order as a transition order is how
+  `worker_disposition=completed` once advanced to `unable` -- a different
+  terminal ANSWER, not a later stage of the same one. A case asserts the two
+  agree, because a vocabulary written in two languages is two vocabularies that
+  agree until they do not.
+
+WHAT THE BOUNDARY MODEL DID TO THIS CUT
+
+  The inventory is now load-bearing rather than descriptive, and writing a new
+  module against it was the first real test of that. It caught three things
+  before any reader:
+
+  1. A SHARED OWNER WITH NO LITERAL IN ITS LABEL. `_optional(value, what)` took
+     the caller's noun whole, and the inventory refused it on the spot -- the
+     second time this campaign a shared owner has been written that way and the
+     second time the machinery, not a review, said so.
+  2. A BLANKET RENAME THAT ATE ITS OWN DEFINITION. Making `fixed_assignment`
+     private with a search-and-replace turned `def _fixed_assignment` into
+     `def __fixed_assignment`, exactly the defect I recorded three cuts ago as
+     "a rename is a refactor and I did it as a search-and-replace". Caught by
+     the probe run in seconds; recorded again because I evidently need it
+     written down more than once.
+  3. TWO UNREACHABLE BOUNDARIES, deleted rather than documented. A
+     `boundaries.count_of` over `COALESCE(MAX(x), 0) + 1` cannot fail: the
+     column is INTEGER in a STRICT table and the empty case is the COALESCE.
+     That is the fourth and fifth unreachable owner this campaign has made me
+     remove.
+
+  The universe grew from 148 entries to 194 without a single hand-written
+  addition to the discovery: the new module's parameters, capability calls, SQL
+  reads and member reads were found by the same rules. What I had to write was
+  owners and probes.
+
+INVENTORY
+
+  194 receiving entries    124 caller, 35 injected, 35 adopted
+  116 probes               one per (entry, label fragment)
+  62 stated owners         each naming a witness test that must exist
+  1 unprobed entry         declared with its reason and checked to be OWNED
+  13 delegations, 2 constructor exceptions, 3 declared exceptions
+
+MUTATIONS, ROUND 9 (18 run against the 514-test suite)
+
+  H1  the attempt's own claim is not required          1 failing
+  H2  the claim need not match the activation          1
+  H3  a fixed assignment may be replaced               1
+  H4  the live assignment is not consulted             1
+  H5  the session binding does not decide              1
+  H6  two claimed offers are chosen between            1
+  H7  the transition map is not consulted              4
+  H8  the source identity is not compared              5
+  H9  an inert sourced observation writes no row       1
+  H10 the axis vocabulary is open                      1
+  H11 the axis name is not closed                      1
+  H12 a refused observation keeps its writes           1
+  H13 the compare-and-swap is not compared            12
+  H14 activation does not compare-and-swap             0 -- MEASURED EQUIVALENT
+  H15 the attempt row is not adopted                   4
+  H16 an axis column admits any vocabulary             1
+  H17 the port does not own the live assignment        3
+  H18 an unprobed entry need not be owned              0 -- MEASURED EQUIVALENT
+
+  Four began as zeros; two were missing cases of one shape -- a guard whose
+  condition ONE PROCESS CANNOT REACH ON ITS OWN. H6 needs a store written before
+  the unique index, and H12 needs the observation insert itself to fail. Both
+  are now driven the way they actually happen: a side connection that drops the
+  index, and a trigger some other build could have put on the table. A guard
+  that can only be reasoned about is a guard nobody has checked.
+
+  H14 IS A MEASURED EQUIVALENCE AND THE FINDING IS THE MEASUREMENT. I wrote the
+  case expecting activation's compare-and-swap to refuse when a second manager
+  activates first, and it does not: both derive the SAME operation identity from
+  the same operands, so the journal replays the first committed answer before
+  the second act runs. Effectively-once settles the race a layer above the swap,
+  and the swap is therefore not drivable through the public surface.
+
+  I KEPT IT, and I am flagging that as a judgement call rather than a proof.
+  Unlike the five unreachable VALIDATIONS this campaign has made me delete, this
+  is the write's own condition -- the thing that makes the UPDATE conditional at
+  all -- and removing it would leave a durable write unguarded against a future
+  caller reaching it under another identity. The test now records what the race
+  actually produces, including that exactly one journal row exists.
+
+  H18 is the familiar shape: the exemption's entry is owned, so relaxing the
+  assertion that says so changes no verdict. The counting is proved separately
+  by a fabricated unowned exemption.
+
+AN INSTRUMENT FAILURE, RECORDED
+
+  The first mutation run exceeded a ten-minute execution cap and was killed
+  BETWEEN writing a mutant and restoring the original, leaving `attempts.py`
+  mutated. The next run's baseline was consequently dirty, and every row in it
+  reported the same failure the baseline already had -- a fourth instrument-
+  failure shape after the false zero, the false non-zero and the stale bytecode.
+
+  Two corrections: the restore moved into a `finally`, so an interrupted run
+  cannot leave a mutant behind, and the run moved off the capped path. The
+  discarded results are not reported. The tree was repaired by rewriting the
+  original text, not by a Git operation.
+
+VERIFICATION
+
+  XDG_RUNTIME_DIR=/tmp just gate -- 514 tests, all pass, Python 3.13.7; the
+  locked build installs, imports and passes the same 514. 483 -> 514 (31 added).
+  Zero temp roots. The working tree reports no whitespace errors. The frozen Node
+  oracle under v12/src/authority is untouched.
+
+STATE
+
+  Awaiting independent review of Cut D's first slice. The next slice is runtime
+  start, reconciliation and cancellation ordering, which is where the runtime
+  adapter and agent boundaries enter.

@@ -1,0 +1,134 @@
+W2929 / current authority W4 — RECONNECT AMBIGUITY (frozen SPEC 8.4)
+Date: 2026-08-23. Implementer: baton.claude.
+First delivery of this slice; no review to answer.
+
+
+1. WHY THIS ONE NEXT
+
+Section 8.4 was on every "still not implemented" list this Work has written,
+and the session axis landing last round is what made it buildable: transport
+loss is exactly the ordinary way an epoch reaches `unknown`, and until the
+axis existed there was no boundary to move it through. This is the first slice
+that COMPOSES two earlier ones rather than adding a new one beside them.
+
+IN: section 8.4's three facts and two refusals.
+
+OUT, unchanged from the previous slices' statements: sections 6.5, 8.1, 8.2
+and 8.5, adapter prompt composition, and the runtime adapter contract. W151
+section 9's positive re-identification gate is also OUT and deliberately so —
+see item 3.
+
+
+2. THE DESIGN
+
+A lost transport ENDS THE EPOCH. `handleTransportLoss` moves the durable axis
+to `unknown` through `observeAgentSessionState`, so the full section 3.1
+reference is proved and bound exactly as every other observation is, and the
+answer reports three facts plus the outcome:
+
+  sessionState                                          unknown
+  resume                                                false
+  reprompt                                              false
+  nextEpochAllowedWithoutRuntimeReidentification        false
+  turnOutcome        transport-lost if one was in flight, else null
+
+IT REPORTS THE TURN OUTCOME AND DOES NOT RECORD IT. `recordTurn` needs an
+allocated turn token, a prompt digest and the supervision window, and this
+boundary holds none of them; inventing them to write a turn document here
+would be minting evidence about a turn it never saw. The caller records the
+turn with its own operands and this answer's outcome. A case asserts that
+`transport-lost` is one of the closed eight, so this boundary cannot become a
+second outcome vocabulary.
+
+WHETHER A TURN WAS IN FLIGHT IS STATED, NOT INFERRED. It decides an outcome,
+and section 5.4 spends a section on what an outcome may not be derived from,
+so a non-boolean is `integrity.schema` rather than something truthy.
+
+RE-PROMPTING IS `ambiguous.operation`, not `refused.precondition`. The manager
+is not saying the request is malformed or out of order — it is saying it
+CANNOT KNOW what the first attempt did, against a workspace that already holds
+that attempt's partial output. The closed pair carries that to a caller who
+never read section 8.4. The prompt argument is ignored on purpose: a signature
+accepting nothing would invite a caller to believe some other prompt might be
+acceptable.
+
+`transportReachabilityReidentifies` always answers false, the mirror of
+section 7.4's quiescence gate. A fact about a socket is not a fact about the
+process that held the generation.
+
+
+3. WHAT I DID NOT BUILD, AND WHY IT IS STATED RATHER THAN OMITTED
+
+W151 section 9's positive runtime re-identification is not implemented here.
+It is a different Work's gate and it needs runtime inspection this manager
+slice does not have.
+
+But the FLAG is implemented, and that is the half worth having now:
+`nextEpochAllowedWithoutRuntimeReidentification: false` is an explicit answer
+rather than an absence. A later slice that mints a new epoch has to contend
+with a recorded `false` instead of with a gap in a section it may not have
+read. `nextEpoch` is untouched — this slice adds no gate to it — and that is
+named here so the boundary is not mistaken for one.
+
+
+4. MUTATIONS — EIGHT, ALL WITNESSED
+
+  R1 the axis is not moved to unknown              4 cases fail
+  R2 the epoch is closed rather than left unknown  4 cases fail
+  R3 resume becomes permitted                      1 case fails
+  R4 a new epoch needs no re-identification        1 case fails
+  R5 the turn outcome is inferred rather than stated 1 case fails
+  R6 a lost turn reports no outcome                1 case fails
+  R7 re-prompting is permitted                     1 case fails
+  R8 reachability re-identifies the runtime        1 case fails
+
+R2 is the one section 3.3 exists to prevent — ending the epoch at `closed`
+rather than `unknown` would record a terminal fact for every turn the epoch
+started when the honest answer is that nobody saw the ending. It fails,
+because the axis refuses the edge and because the answer names the state.
+
+
+5. REGRESSIONS — 9, in a new file
+
+The full answer shape with the durable move; no turn in flight and the honest
+default; `transport-lost` proved to be one of the closed eight; four
+non-boolean in-flight values; EXHAUSTIVE over the nine session states, with
+the refusing set asserted to be exactly `agent-quiescent` and `closed` — the
+two that already ended knowingly; the identity question asked of this boundary
+explicitly, in both the wrong-label and malformed-reference directions plus
+the agreeing case; no session at all; five re-prompt shapes; and five
+reachability shapes.
+
+THE IDENTITY CASE IS THE COMMITMENT THE LAST CORRECTION ENDED ON. That finding
+needed three rounds because the missing component never breaks a happy path,
+so this boundary got the question asked of it explicitly rather than inferred
+from whether its own subject-matter cases pass.
+
+
+6. GATES
+
+  cd v12 && npm test                       601 tests, 601 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 592 -> 601. No existing
+assertion was changed and no schema change was needed.
+
+
+7. STILL NOT IMPLEMENTED
+
+Sections 6.5, 8.1, 8.2 and 8.5; adapter prompt composition; the runtime
+adapter contract; and W151 section 9's re-identification gate. W543, W641 and
+W771 own their contract defects; W771 remains mandatory to revalidate at final
+W4 composition.
+
+
+8. FILES CHANGED
+
+  v12/src/worker_manager/agent_reconnect.mjs        NEW — the whole slice
+  v12/test/worker_manager_agent_reconnect.test.mjs  NEW — 9 cases

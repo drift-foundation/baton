@@ -1,0 +1,113 @@
+W4 — cut C: my sweep measured my imagination
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T11-38-34Z.md (two P1).
+
+
+1. THE FINDING BEHIND BOTH FINDINGS
+
+Last round I wrote: "I also swept every SQL and time boundary in cut C rather
+than fixing the two you named: all seven refuse with the closed pair."
+
+That sentence was true about the seven I called and false about the claim it
+made. I PROBED THE ENTRY POINTS I COULD THINK OF. The review then enumerated the
+code and found six more -- two claim paths looking offers up by unproved
+identity, an optional Work filter going straight to SQLite, both certification
+key parts, and the injected signature's ANSWER.
+
+Cut B's sweep was real: I walked the SQL statements and the AST. Cut C's was
+recall wearing a sweep's clothes, and the difference did not show up in the
+evidence because both were written the same way.
+
+PROBING MEASURES IMAGINATION. ENUMERATION MEASURES THE CODE.
+
+
+2. [P1] SIX TEXT IDENTITIES, FIXED AT THE OWNING BOUNDARIES
+
+The review is precise about where, and it matters: "apply the shared rule at the
+owning common boundaries, not only at the individual witnesses."
+
+  the offer lookup    `_offer_row` proves the identity now. I had proved it at
+                      `accept_offer` -- the site I had probed -- so `submit_claim`
+                      and `settle_claim` each looked one up unproved. Proving it
+                      at each caller is HOW a rule ends up applied at some of its
+                      sites; proving it where the lookup happens is how it ends
+                      up applied at all of them.
+  the optional filter `expire_overdue`'s `work_id`. An optional operand is
+                      exactly the kind a sweep by recall misses, because the
+                      happy path never supplies it.
+  both key parts      `certify_profile` proved the digest and not the kind or
+                      the name. CANONICALIZABILITY IS NOT DURABLE TEXT: an
+                      integer canonicalizes happily, is interpolated into the
+                      metadata key, and commits.
+  the injected answer the port proves the derivation is CALLABLE and said
+                      nothing about what it returns. `None` reached the
+                      schema-v4 CHECK during acceptance and escaped as a raw
+                      `IntegrityError`. An injected capability is trusted to be
+                      the authority's; it is not trusted to be correct.
+
+
+3. [P1] REPRESENTABILITY IS A THIRD PROPERTY
+
+`ttl_seconds = 10 ** 100` is an integer and is positive and is not a duration
+this domain can express -- it escaped `timedelta` as `OverflowError` after the
+authority reads had already happened.
+
+It is a property of the SUM rather than of either operand: a small duration added
+to a late instant leaves the domain just as surely. And the deadline is computed
+BEFORE the authority is read at all now, because the clock is this manager's own
+and nothing about computing a deadline needs the authority -- which makes "before
+reads or entropy" true rather than nearly true.
+
+
+4. AND THE SWEEP IS DERIVED NOW, BECAUSE TWICE IS A PATTERN
+
+`tests/manager/test_text_sweep.py` walks `worker_manager.__all__`, and every
+exported callable must appear in a table with one minimal valid call and its text
+operands named. Each of those operands is replaced with a lone surrogate in turn
+and the answer must be a closed refusal rather than a driver fault.
+
+A COMPLETENESS CASE ASSERTS THE TABLE NAMES EVERY EXPORTED CALLABLE, so adding
+one without adding a row fails the gate. The judgement -- what a valid call looks
+like -- stays where a person can see it; the enumeration goes where a person
+cannot forget it.
+
+Its own vacuity is refused: more than five rows must declare text operands and
+more than twelve operands must be covered, or the table would pass by covering
+nothing.
+
+MEASURED: removing the proof at each of the four boundaries above fails this
+sweep, including the two the review found that I never called.
+
+
+5. MUTATIONS -- SEVEN, SIX WITNESSED, ONE MEASURED EQUIVALENT
+
+  Z1 the lookup boundary does not prove its identity   4 cases
+  Z2 the optional work filter is unproved              2
+  Z3 the certification key parts are unproved          5
+  Z4 the injected signature answer is unproved         1
+  Z5 the deadline sum is not proved representable      0 -- EQUIVALENT
+  Z6 overflow escapes the deadline arithmetic          1
+  Z7 the deadline is computed after the authority reads 33
+
+Z5 IS AN EQUIVALENCE AND THE COMMENT NOW CLAIMS THE SMALLER TRUE THING.
+`datetime` tops out at year 9999 and refuses beyond it with the `OverflowError`
+Z6 covers, so every answer `strftime` can reach is already in the grammar.
+
+The line stays because the hazard it names is real and is not about `timedelta`:
+a five-digit year renders as five digits and sorts BELOW a four-digit one, so an
+out-of-domain deadline would not merely be wrong -- it would ORDER BACKWARDS, and
+every comparison in this module is lexicographic. If the rendering ever changes,
+this is the line that notices.
+
+
+6. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 407 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 407/407 inside the environment built from the
+                                   lock, nothing skipped
+  temp roots from this run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+7 regressions added; the suite is 400 -> 407.

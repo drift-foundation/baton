@@ -1,0 +1,85 @@
+W4 — cut B: I widened a helper into a hazard I had already closed twice
+Date: 2026-08-24. Implementer: baton.claude.
+Review answered: review-2026-08-24T11-09-02Z.md (one P1).
+
+
+1. REPRODUCED FIRST
+
+  a hostile label   ran its `__format__` while an invalid value was being
+                    refused, and its AssertionError escaped
+  a 100,000-character label   produced a 100,061-character refusal
+
+Both from a helper whose `what` was written for internal literals.
+
+
+2. THE DEFECT WAS THE EXPORT, NOT THE CODE
+
+`_durable_text` was correct where it was called from: every label reaching it is
+one of this module's own literals. What made it a boundary was adding one name to
+two `__all__` lists.
+
+A DIAGNOSTIC LABEL IS THIS PACKAGE'S PROSE AT AN INTERNAL CALL SITE AND CALLER
+INPUT THE MOMENT THE FUNCTION IS EXPORTED. The distinction is invisible in the
+function body, which is exactly why it keeps being missed -- the authority slice
+was corrected for ten exported helpers whose labels were interpolated raw, and I
+then recreated the same class here by widening a surface no caller had asked for.
+
+The shared SQL rule does not need to be public. It is private and unexported now,
+which is the review's preferred resolution and the smaller change.
+
+
+3. AND THE RULE IS MECHANICAL NOW, BECAUSE REMEMBERING IT HAS FAILED TWICE
+
+`AnExportedLabelIsCallerInput` walks both packages' `__all__`, resolves each
+exported name to its definition, and requires any function taking a label
+parameter to route it through the bounded no-code label rule -- or not be
+exported.
+
+ITS FIRST RUN FOUND TWO MORE. `validate_worker_control` and
+`validate_agent_session` pass `what` to a body that bounds it, so they were SAFE
+IN EFFECT and still violated the rule's letter: a property that holds only
+because of what a callee happens to do is a property that holds where somebody
+looked. They bound their own label now -- `label_of` is idempotent, so it costs a
+call and makes the guarantee local to the function that makes it.
+
+That is the difference between fixing a finding and closing a class. The review
+named one helper; the check found the two the review did not, and would have
+refused the export that caused this one.
+
+Its own vacuity is refused too: the sweep must resolve more than eight exported
+functions across BOTH packages, and at least one must actually take a label, or
+the rule above is being proved against an empty set.
+
+
+4. MUTATIONS -- FOUR, ALL WITNESSED
+
+  W1 the shared rule is exported again                    1 case
+  W2 an exported entry point stops bounding its label     1
+  W3 the label rule accepts no label parameter names      1
+  W4 the sweep resolves nothing                           1
+
+W1 is the reviewer's conditional method doing exactly what it was written for: it
+accepts a private helper or a genuinely safe public one, so re-exporting the
+unsafe one is what makes it fire.
+
+
+5. ONE INSTRUMENT ERROR, MINE, CAUGHT BY THE SUITE
+
+Renaming with a blanket text substitution turned the DEFINITION into
+`__durable_text` while every call site became `_durable_text`, and 38 cases
+errored at once. Loud, immediate, and my own -- recorded because the useful
+observation is that a rename is a refactor and I did it as a search-and-replace.
+
+
+6. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 355 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 355/355 inside the environment built from the
+                                   lock, nothing skipped
+  exported names                   20 authority, 22 contracts, 7 worker manager
+  temp roots from this run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+3 regressions added; the suite is 352 -> 355.

@@ -923,6 +923,50 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		# child matches; a group with no match disappears whole.
 		# Filtering never promotes a child, changes depth, or reorders.
 		active = normalize_filter(store, work_filter, viewer_team)
+		# W6814: the hidden active claims, and the containment path from each
+		# up to a row of this window. Derived here, before the filter decides
+		# what is kept, because a hidden claim that MATCHES has to retain its
+		# bounded ancestors as structural context -- exactly as an ordinarily
+		# visible matching descendant does. Review [P1]: leaving `rows` empty
+		# and anchoring to the requested root gave the renderer no visible
+		# ancestor to group under and returned an anchor that was not the
+		# nearest RETURNED ancestor.
+		painted = {row["id"] for row in rows}
+		within = {base["id"] for base in bases}
+		parents, rank, seen_under = {}, {}, {}
+		for entry in store.conn.execute(
+				"SELECT * FROM work WHERE team=? " + WORK_ORDER,
+				(viewer_team,)):
+			parents[entry["id"]] = entry["parent"]
+			# The sibling's place in its parent's group, from the SAME
+			# canonical order the window uses -- so a containment path built
+			# from these orders exactly as the tree does.
+			at = seen_under.setdefault(entry["parent"], 0)
+			rank[entry["id"]] = (at,)
+			seen_under[entry["parent"]] = at + 1
+		hidden = _hidden_claims(store, viewer_team, painted, within, parents,
+		                        WORK_ORDER)
+		trail_rows = {}
+		if hidden:
+			# One batched read for ALL trail endpoints, the same no-N+1
+			# boundary the window keeps -- and the SAME sampled `now`, so a
+			# trail's claim facts are derived at the moment the rows were.
+			endpoints = [claim["id"] for claim, _chain in hidden]
+			trail_first = _first_open_blockers(store, endpoints)
+			trail_claimed = _claimed_ats(store, endpoints)
+			trail_handed = _handoffs(store, endpoints)
+			trail_rows = {
+				claim["id"]: _row_view(store, claim, viewer_team,
+				                       viewer_member,
+				                       first_blockers=trail_first,
+				                       claimed_ats=trail_claimed,
+				                       handoffs=trail_handed,
+				                       now=window_now)
+				for claim, _chain in hidden}
+		matched_hidden = [
+			(claim, chain) for claim, chain in hidden
+			if not active or _filter_matches(trail_rows[claim["id"]], active,
+			                                 viewer_team, viewer_member)]
 		if active:
 			# W155: the same W5 containment rule over three levels
 			# instead of two. A row is kept when it matches, or when a
@@ -947,6 +991,16 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 						depth = rows[above]["depth"]
 						if depth == 0:
 							break
+			# W6814 [P1]: a hidden MATCHING claim keeps its bounded ancestors
+			# too. The ruling says the containment a match lives in is
+			# preserved whether the match is inside the window or below it,
+			# and without this the filtered screen is empty about a handler
+			# who is holding something.
+			position = {row["id"]: index for index, row in enumerate(rows)}
+			for _claim, chain in matched_hidden:
+				for ancestor in chain:
+					if ancestor in position:
+						keep[position[ancestor]] = True
 			rows = [dict(row, filter_match=matches[index])
 			        for index, row in enumerate(rows) if keep[index]]
 		# W155: `deeper` is decided LAST, against the rows this call
@@ -959,9 +1013,87 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		deeper = _children_outside(store, returned, returned)
 		rows = [dict(row, deeper=row["id"] in deeper) for row in rows]
 		summary = _summary_in_snapshot(store, viewer_team, store.clock())
+		# W6814: the trails, anchored to the rows this call ACTUALLY
+		# returns and ordered by full containment.
+		returned = {row["id"]: index for index, row in enumerate(rows)}
+		trails = []
+		for claim, chain in matched_hidden:
+			anchor, hops = None, 0
+			for ancestor in chain:
+				if ancestor in returned:
+					anchor = ancestor
+					break
+				hops += 1
+			if anchor is None:
+				continue
+			trails.append({"anchor": anchor, "hidden_depth": hops + 1,
+			               "work": trail_rows[claim["id"]],
+			               "_path": _containment_path(claim["id"], parents,
+			                                          rank)})
+		# THE FULL CONTAINMENT ORDER, not the endpoints' own. Review [P1]:
+		# ordering by each claim's global sibling rank let two claims under
+		# different hidden branches of one anchor leapfrog their branch order.
+		# The key is the whole root-to-endpoint path, so a branch orders as a
+		# branch and its endpoints order inside it.
+		trails.sort(key=lambda trail: (returned.get(trail["anchor"], 0),
+		                               trail["_path"]))
+		trails = [{name: value for name, value in trail.items()
+		           if name != "_path"} for trail in trails]
 		snapshot_seq = store.last_seq()
 	return {"rows": rows, "summary": summary, "filter": active,
-	        "snapshot_seq": snapshot_seq}
+	        "active_trails": trails, "snapshot_seq": snapshot_seq}
+
+
+def _hidden_claims(store, viewer_team, painted, within, parents, order):
+	"""Every actively claimed Work this window HIDES, with its ancestry.
+
+	W6814. The window is three containment levels; a Work claimed below that is
+	invisible, so an operator sees a roll-up with no Handler and no reason to
+	re-root while somebody is working underneath it.
+
+	ACTIVITY IS A CLAIM. Nothing here infers it from messages or timers.
+
+	ONE TRAIL PER HIDDEN CLAIM, EVEN WHEN THE CLAIMED WORK HAS CHILDREN
+	(approved ruling): reporting only containment leaves would hide a handler
+	holding a roll-up, and handlers working at the same time are exactly who
+	this field exists to surface.
+
+	Returns `(row, chain)` where the chain runs from the claim's parent upward,
+	so the caller can find the nearest RETURNED ancestor after filtering.
+	"""
+	held = [dict(row) for row in store.conn.execute(
+		"SELECT * FROM work WHERE team=? AND status='open' "
+		"AND phase='active' AND handler_team IS NOT NULL " + order,
+		(viewer_team,))]
+	found = []
+	for claim in held:
+		if claim["id"] in painted:
+			# ORDINARILY VISIBLE ROWS ARE NEVER DUPLICATED. The trail is for
+			# what the window hides.
+			continue
+		chain, at, seen = [], parents.get(claim["id"]), {claim["id"]}
+		inside = False
+		while at is not None and at not in seen:
+			seen.add(at)
+			chain.append(at)
+			if at in within:
+				inside = True
+				break
+			at = parents.get(at)
+		if inside:
+			found.append((claim, chain))
+	return found
+
+
+def _containment_path(work_id, parents, rank):
+	"""The root-to-this sibling-order path, for ordering a set of claims by
+	the containment they live in rather than by their own priority."""
+	path, at, seen = [], work_id, set()
+	while at is not None and at not in seen:
+		seen.add(at)
+		path.append(rank.get(at, (0,)))
+		at = parents.get(at)
+	return tuple(reversed(path))
 
 
 # W4996: the ONE bounded dependency neighborhood, read under one snapshot.

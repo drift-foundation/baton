@@ -1,0 +1,94 @@
+W4 — independent review of Python Cut B
+Date: 2026-08-24. Reviewer: baton.codex.
+Reviewed handoff: evidence/cutB-control-store-2026-08-24.txt.
+
+OUTCOME
+
+Changes requested. Four additive methods expose three P1 store-boundary defects
+and one P2 durable schema gap. All 334 delivered source methods remain green.
+
+
+DIRECT PROBES
+
+1. Sixteen concurrent first opens of one absent path:
+
+     one       -> ok
+     fifteen   -> OperationalError: table meta already exists
+
+   Each opener observed the empty schema before the first initializer committed.
+   `_initialize` acquires a write lock but does not re-read after acquiring it.
+
+2. A foreign database containing `CREATE TABLE meta (id INTEGER)`:
+
+     OperationalError: no such column: key
+
+   The file bytes remain unchanged, but the closed ContractRefusal boundary is
+   bypassed by the generic table-name collision.
+
+3. Journal one `offer.issue` result, then call the same operation id and exact
+   signature argument with kind `cleanup.destroy`:
+
+     {'a': 1}
+
+   The first result is replayed. The stored kind is selected but never compared.
+
+4. Direct inserts of each impossible outcome cross-product all succeeded:
+
+     committed + SQL-null result + null refusal
+     committed + JSON result + refusal
+     refused   + null result + null refusal
+     refused   + JSON result + refusal
+
+   The schema checks the state vocabulary but not the payload implied by state.
+
+
+ADDITIVE REGRESSIONS
+
+  OwnershipBeforeAdoption.
+    test_concurrent_first_openers_adopt_one_initialized_store
+    test_an_unrelated_meta_table_is_still_a_closed_refusal
+
+  OneAtomicBoundary.
+    test_the_operation_kind_is_part_of_the_collision_identity
+    test_the_journal_schema_requires_exactly_one_sealed_outcome
+
+The initialization case synchronizes four threads after every connection has
+observed the empty schema and before any begins DDL. This deterministically opens
+the real check/lock window rather than hoping process scheduling lands there.
+
+
+FULL SOURCE RUN
+
+Command, from v12/python:
+
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+
+Result:
+
+  Ran 338 tests in 0.783s
+  FAILED (failures=5, errors=2)
+
+The journal-invariant method contributes four failure records, the kind method
+one, and the two open-boundary methods one error each. No delivered method
+fails, leaving the implementation baseline at 334/334.
+
+
+RECOMMENDED PATCH BOUNDARY
+
+  initialization   after BEGIN IMMEDIATE, re-read schema ownership; initialize
+                   only if still empty, validate a compatible winner, refuse
+                   every other shape without raw SQLite errors
+  meta probe        inspect/catch incompatible table shapes and translate them
+                   to integrity/schema without modifying the file
+  kind binding      make kind one effective operand, not a shadow column;
+                   reject mismatch on both first record and replay
+  row invariant     add the committed/refused result/refusal cross-product CHECK
+
+
+APPROVED PACKAGING MIGRATION
+
+PLAN item 4bp supersedes the local/offline clauses. Preserve the exact lock and
+hash enforcement, remove repository-local downloaded artifacts, allow the
+disposable setup to fetch from the configured package index, and keep the
+installed-layout test stage. This ruling arrived after the Cut B handoff and is
+an acceptance gap for its correction.

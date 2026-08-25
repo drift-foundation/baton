@@ -1,0 +1,39 @@
+W4 Cut B signature-correction re-review — 2026-08-24
+
+Accepted correction probes:
+  test_a_noncanonical_json_spelling_is_not_a_durable_identity ... ok
+  test_a_signature_has_exactly_the_manager_owned_shape ... ok
+  test_no_live_statement_describes_a_removed_mechanism ... ok
+  Ran 3 tests: OK
+
+New reviewer regression:
+  test_an_operation_kind_is_durable_text_before_it_reaches_sql
+    null       ERROR: sqlite3.IntegrityError, operations.kind NOT NULL
+    integer    FAIL: no ContractRefusal; row commits
+    empty      FAIL: no ContractRefusal; row commits
+    behaviour  FAIL: hostile __eq__ executed and raised AssertionError
+  Ran 1 method: FAILED (failures=3, errors=1)
+
+Integer exact-retry probe:
+  first answer: {'n': 1}
+  durable row kind: '7' (text)
+  durable signature: {"kind":7,"operands":{}}
+  exact retry with integer kind 7:
+    refused.operation-collision
+
+Complete source run:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+  Ran 350 tests in 0.787s
+  FAILED (failures=3, errors=1, skipped=1)
+  The three failures and one error are the new reviewer method.
+
+Independent installed-layout attempt:
+  env XDG_RUNTIME_DIR=/tmp just build
+  pip exhausted retries resolving /simple/jsonschema/:
+    Failed to establish a new connection: [Errno -2] Name or service not known
+    No matching distribution found for jsonschema==4.26.0
+  The attempt stopped before installation and was not escalated under managed
+  Baton policy. Implementer evidence records 349/349 in the locked environment.
+
+Whitespace check: clean.
+

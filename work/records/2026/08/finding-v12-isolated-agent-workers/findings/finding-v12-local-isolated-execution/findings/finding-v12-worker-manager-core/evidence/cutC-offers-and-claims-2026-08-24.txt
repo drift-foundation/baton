@@ -1,0 +1,180 @@
+W4 — implementation cut C: the offer and the claim
+Date: 2026-08-24. Implementer: baton.claude.
+Boundary: PLAN item 4bd, after cut B was signed off in
+review-2026-08-24T11-13-41Z.md.
+
+
+1. WHAT IS IMPLEMENTED
+
+  authority_port.py   the injected capability, TYPED to the five session
+                      members cut C uses and nothing else
+  the offers table    schema version 3, with the partial unique index that
+                      makes one live offer per Work a durable fact
+  issue               Work state, certification, expiry and capacity all before
+                      entropy; the full signature; the replay check before
+                      minting; the verifier stored and the bearer returned
+  accept / decline    binding before secret, constant-time possession, one
+                      transaction consuming the verifier, freezing the intent,
+                      deriving the fixed claim operation id and storing the
+                      settlement deadline and the authority's claim signature
+  submit              the claim through the bound session, recorded before
+                      anything else may run
+  settle              observe-only before the deadline; adopt an existing
+                      retirement's bound answer; record late a commit this
+                      manager never saw
+  recover             asymmetric restart rules, and only this incarnation's
+
+
+2. TWO DECISIONS I MADE RATHER THAN INHERITED, BOTH WRITTEN INTO THE CODE
+
+THE PORT NAMES ONLY WHAT W4 USES. The delivered session carries sixteen
+transitions and sixteen reads. A port naming all thirty-two would be a capability
+nobody granted -- the manager would type, and a fake would have to implement,
+authority the manager never exercises. Five members is what cut C needs; a later
+cut widens the port deliberately rather than inheriting the width.
+
+THE CLAIM SIGNATURE ARRIVES BY INJECTION RATHER THAN BY IMPORT. The frozen host
+imports the authority's own derivation, and it is right that the manager must not
+recompute it: a manager with its own spelling would be a second authority on
+whether two claims are the same claim. But IMPORTING the sibling package would
+make the manager depend on the authority's module graph to do arithmetic on a
+string -- while the deployment that mints the session already holds the authority
+and can hand the derivation over with it. One injected capability, one trusted
+supplier, and the manager's import boundary stays where its own cases say it is.
+
+
+3. THE OBLIGATIONS PORTED WITH THEIR CORRECTIONS INTACT
+
+  the participant       is the session's BINDING. The frozen host took one
+                        independently and never compared it, so the offer, the
+                        verifier and the intent could name B while the claim was
+                        necessarily taken as A -- an authorization recorded for
+                        one identity and spent by another.
+  certification         is UNAVOIDABLE. Its comparison was conditional on an
+                        operand being supplied, so omitting it issued an offer
+                        with no check at all, and the happy-path fixtures omitted
+                        it throughout. There is no operand here: the control
+                        store's own record is the only fact.
+  expiry                is manager-owned time processing and runs BEFORE
+                        entropy. It was reachable only from a late decision, so
+                        an offer nobody answered held the per-Work slot forever.
+  the replay check      runs BEFORE minting. Minting first meant an exact replay
+                        answered with the first offer's verifier beside a new
+                        bearer that does not derive it -- a secret the holder
+                        cannot use and cannot tell is unusable.
+  provenance            comes from the JOURNAL. It was inferred from bearer
+                        inequality, and inequality proves a loss while equality
+                        proves nothing.
+  every durable operand rides the signature, INCLUDING THE AUTHORITY. The
+                        signature carried the local Work id alone, so reusing an
+                        issue identity against another authority read as an exact
+                        replay rather than a collision.
+  expiry                is a SETTLEMENT, not only a refusal.
+  the verifier          is single-use across acceptance, decline and expiry
+                        alike, so a decline cannot be replayed into an
+                        acceptance.
+  terminal transitions  CAS only from `issued`. Both callers act from an earlier
+                        read and another manager can accept in between; a stale
+                        expiry then destroyed the authorization and the fixed
+                        claim identity acceptance had just frozen.
+  the claim record      is WHAT THE AUTHORITY RETURNED, not a member of it. The
+                        host read `result.assignment` while the session returns
+                        the assignment directly, so the authority held a live
+                        generation while the manager durably recorded null.
+  settlement            may only OBSERVE before the deadline, and adopts an
+                        existing retirement's bound disposition -- a second
+                        manager inventing its own answer would give one operation
+                        two meanings.
+
+
+4. ITEM 4bd'S OWN SENTENCE, AS A CASE
+
+"No adapter write occurs while claim outcome is ambiguous." That is why the
+`live` answer writes nothing and says so: a control row written there would claim
+knowledge this manager does not have. Two mutations witness it -- retiring early,
+and writing a row on the ambiguous path.
+
+
+5. A DEFECT MY OWN FIXTURE FOUND
+
+The one-live-offer-per-Work rule is enforced by a partial unique index, and an
+index violation is a raw `sqlite3.IntegrityError`. My fixture asked for a second
+offer on one Work and got the driver's error rather than this manager's refusal.
+
+A manager that loses that race is having an ORDINARY PRECONDITION refused, and
+telling it so in SQLite's vocabulary would make a caller learn our taxonomy from
+a driver. It lands in the closed pair now.
+
+AND THE CASE THAT SHOULD HAVE CAUGHT IT WAS MINE, WRITTEN WEAKLY:
+`assertRaises(Exception)` -- the weak assertion I have criticised in other
+people's cases. It names the closed pair now, and naming it is what found the
+defect.
+
+
+6. MUTATIONS -- TWENTY-EIGHT, TWENTY-SIX WITNESSED, TWO MEASURED EQUIVALENT
+
+Twenty-four guards plus four re-measured. Six began as zeros:
+
+  X3  certification optional      the OTHER branch refused with the same code,
+                                  so the case had to read the REASON. Two
+                                  refusals sharing a code are two answers.
+  X8  the commit marker           only reachable under concurrency, so the
+                                  window is opened on purpose -- a competing
+                                  connection commits during the peek, and the
+                                  loser must be told it lost without a secret in
+                                  the answer.
+  X9  the authority in the        MY CASE VARIED TWO THINGS: it also advanced the
+      signature                   clock, and `expires_at` is signed too, so the
+                                  collision fired for that instead. A case that
+                                  varies two things measures neither.
+  X15 the terminal CAS            reachable through expiry, which sweeps
+                                  `accepted` rows -- so a stale expiry really can
+                                  destroy a frozen claim identity, and now a case
+                                  proves it does not.
+  X16 the frozen claim signature  my mutation was `None or X`, which is X.
+  X3/X16                          both my instrument, not the code.
+
+THE TWO EQUIVALENCES, with reasons:
+
+  X10 comparing the verifier with `!=` instead of `compare_digest` changes no
+      verdict. The property is about INFORMATION, not outcome: an early return
+      tells the holder of a wrong bearer how much of it was right, and no
+      assertion in a suite can see that. Kept because the leak is real even
+      though the test cannot be.
+  X12 refusing a spent verifier is subsumed by the state check today, because
+      nothing this module writes leaves `spent` set on an `issued` row. It
+      states single-use independently of state, and it is the guard that stays
+      correct if a later cut adds a state where both are possible.
+
+
+7. GATES
+
+  XDG_RUNTIME_DIR=/tmp just gate   version + 393 tests + the locked build, all
+                                   pass on Python 3.13.7
+  the locked stage                 393/393 inside the environment built from the
+                                   lock, nothing skipped
+  temp roots from this run         zero
+  the frozen Node oracle           UNTOUCHED
+  whitespace-damage check          clean
+
+39 regressions added; the suite is 355 -> 393. Schema version 3.
+
+
+8. THE OPERAND SWEEP CAUGHT ITS OWN PROXY
+
+Cut C's public surface added twenty operand names, and my declared-operand check
+required the list to stay SMALLER than the surface it permits -- a proxy for "the
+list must not become the answer". Cut C made that proxy wrong rather than strict:
+a package can legitimately have more distinct operand names than functions, and
+the ratio then fails for growth instead of for laxity.
+
+Measuring the wrong thing strictly is not rigour. The proxy is gone and the
+property it stood for is stated directly: a declared operand may not be
+bookkeeping BY NATURE -- `depth`, `seen`, `budget`, `stack`, `cursor` -- and no
+declared operand may be stale.
+
+
+9. STILL ABSENT ON PURPOSE
+
+Cuts D through F: attempt axes and activation, cancellation ordering, output
+freeze and intake, the agent state machines, and the public manager composition.

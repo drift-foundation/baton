@@ -1,0 +1,86 @@
+Independent Cut C review evidence — 2026-08-24
+
+Reviewed delivery
+-----------------
+
+Implementer handoff: Baton T4 message 4361 and PLAN item 4bd-done.
+Implementer evidence: evidence/cutC-offers-and-claims-2026-08-24.txt.
+Delivered baseline: 393/393 source and locked according to the handoff.
+
+Accepted boundaries
+-------------------
+
+The review accepts the narrow injected authority port and injected claim-
+signature derivation as the two explicit Cut C decisions. The issue, accept,
+decline, submit, settlement, late-commit and asymmetric-recovery paths are
+present, including participant binding, certification before entropy, capacity,
+full issue signature, replay/commit marker, constant-time bearer verification,
+accepted-state CAS, fixed claim identity/signature, observe-only ambiguity,
+late commit recording, adopted retirement and restart abandonment.
+
+Additive review probes
+----------------------
+
+The following methods were added to v12/python/tests/manager/test_offers.py:
+
+* TheInjectedCapabilityIsTyped.
+  test_every_session_operation_the_port_names_is_callable
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_a_nonpositive_ttl_is_refused_before_entropy
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_cut_c_text_is_encodable_before_any_sql_read
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_time_comparison_refuses_text_outside_the_instant_grammar
+* AcceptanceBindsAndConsumes.
+  test_acceptance_fields_are_all_frozen_or_all_absent_in_the_schema
+
+The five methods expose eight assertion failures and two raw errors. The four
+non-callable session operations are four failing subtests; the two malformed
+acceptance-row shapes are two failing subtests; the text probe produces two
+raw UnicodeEncodeError results. The negative-TTL and instant-grammar probes are
+one failure each. All 393 delivered methods remain green; the full source
+inventory is therefore 398 methods plus one explicit ambient-version skip.
+
+Observed defects
+----------------
+
+1. AuthorityPort checks that its five session names exist, but checks only the
+   injected claim_signature for callability. None of project_work,
+   slot_holder, claim or settle_operation is required callable. A non-callable
+   claim therefore passes construction and is discovered only after offer
+   acceptance, as a raw TypeError with durable state already frozen. Validate
+   every operation at construction; the participant member remains the bound
+   value rather than an operation. authority_port.py:36,49-63.
+
+2. offers._text checks only exact str and nonempty. A lone surrogate in an
+   offer id reaches the accept read as a raw SQLite UnicodeEncodeError, and the
+   same defect occurs for expire_overdue's now operand. Reuse the established
+   durable-text rule before SQL. offers.py:78-83.
+
+3. Time operands are compared as unrestricted strings. The value
+   "not-an-instant" is accepted as now and lexicographically expires a valid
+   offer. Validate the exact canonical instant grammar before any ordering
+   comparison; encodability alone does not establish time meaning.
+
+4. issue_offer exposes ttl_seconds as a caller operand but does not validate
+   it before _later or entropy. A negative TTL mints a bearer and commits an
+   already-expired authorization. Require the exact positive-integer policy
+   before SQL/entropy, or remove the operand if the duration is fixed policy.
+   offers.py:185,258.
+
+5. The schema comment says acceptance freezes all five fields or none, but the
+   CHECK constrains only three fields and only while state is issued. SQLite
+   accepts an accepted row with all five absent and an issued row with
+   accepted_at/settle_by populated. Enforce the whole cross-product: the five
+   fields intent_digest, accepted_at, settle_by, claim_operation_id and
+   claim_signature are all absent for issued/declined/expired/
+   abandoned-after-restart and all present for accepted/claimed/
+   claim-refused/settlement-expired. This is a durable-shape correction and
+   requires an explicit schema-version transition. schema.py:126-131.
+
+Review outcome
+--------------
+
+Changes requested. Retain the five additive probes and the 393 delivered
+methods. Re-review the corrected callable, durable-text, instant, TTL and row-
+invariant boundaries before advancing from Cut C.

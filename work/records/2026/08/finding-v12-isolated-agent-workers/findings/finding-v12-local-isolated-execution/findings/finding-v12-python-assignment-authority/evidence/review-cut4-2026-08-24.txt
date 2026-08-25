@@ -1,0 +1,95 @@
+Cut 4 independent review evidence — 2026-08-24
+
+Scope
+-----
+Reviewed the Python authority's contract progression, activity, proposal,
+receipt, integration, and close implementation against W151 SPEC sections 4,
+7, and 10.11. The frozen Node reference was used only as an oracle; it was not
+modified.
+
+Gate
+----
+Command: XDG_RUNTIME_DIR=/tmp just gate
+Directory: v12/python
+Result: PASS
+  source tree:     169/169
+  installed wheel: 169/169
+The installed run imported baton_v12 from the isolated venv site-packages, and
+the real-process race child retained its package-origin assertion.
+
+Finding 1 — result_id is neither parsed as an opaque ID nor bound immutably
+-------------------------------------------------------------------------
+`Authority.publish` validates `proposal_id` with `check_opaque_id`, but includes
+`result_id` in the digest mapping and therefore applies only `check_text` to it.
+An independent probe published and read back:
+
+  result_id="bad result id"
+
+A second probe published these two proposals successfully:
+
+  [('result-1', 'sha256:first'), ('result-1', 'sha256:other')]
+
+Thus one purported immutable-result identity can durably name contradictory
+content. W151 section 4 defines `result_id` as an opaque immutable-result
+identifier with a required content digest and assignment_ref. Consistent reuse
+may be valid, but reuse must preserve both its digest and full assignment
+identity.
+
+Finding 2 — canonical_target is an untyped special policy
+---------------------------------------------------------
+`set_policy` accepts arbitrary JSON and `canonical_target` returns the value
+without validating its semantic type. An independent probe stored:
+
+  {"not": "text"}
+
+`canonical_target()` returned that dict. A subsequent `publish` with omitted
+target escaped as:
+
+  ProgrammingError: Error binding parameter 10: type 'dict' is not supported
+
+The operation journal contained no row for the failed operation. A separate
+probe configured `canonical_target` as the empty string and publication
+succeeded durably with an empty target. The semantic accessor must require
+exact, nonempty, encodable text and return a typed Refusal before publication
+or integration can reach SQLite. Generic JSON policy storage need not change.
+
+Finding 3 — Cut 4 reads expose partial or missing assignment identities
+------------------------------------------------------------------------
+W151 section 4 requires assignment_ref to be the full
+`(authority_uuid, work_id, participant, generation)` identity. Exact probe
+result keys were:
+
+  activity return/read:
+    ['action_key', 'at', 'generation', 'participant', 'seq', 'work_id']
+  contract event:
+    ['at', 'from_contract', 'generation', 'participant', 'rationale', 'seq',
+     'to_contract', 'work_id']
+  publish return:
+    ['candidate_digest', 'input_digest', 'policy_digest', 'proposal_id',
+     'result_digest', 'result_id', 'target']
+  proposal read:
+    ['candidate_digest', 'generation', 'input_digest', 'participant',
+     'policy_digest', 'proposal_id', 'published_at', 'result_digest',
+     'result_id', 'target', 'work_id']
+
+The first two expose only three quarters of the identity; publish omits it;
+proposal reads again expose only three quarters. `assignment_events` already
+demonstrates the required nested, full assignment_ref projection. Durable
+columns may remain indexed separately, but operation results and reads should
+project the complete nested identity consistently.
+
+Requested focused correction
+----------------------------
+1. Validate result_id with the frozen opaque-ID grammar before signature or
+   journal work, and enforce stable result_id -> (digest, assignment_ref)
+   binding while allowing consistent reuse if the contract permits it.
+2. Validate canonical_target as exact nonempty encodable text at its semantic
+   boundary; convert invalid configured shapes to Refusal rather than exposing
+   driver faults or durable empty targets.
+3. Project a nested full assignment_ref in all new Cut 4 operation/read
+   answers, preferably through one shared projection helper.
+4. Add focused invalid-shape, contradictory-reuse, restart/read, and fresh-copy
+   regressions; rerun the complete source and installed-wheel gate.
+
+Result: CHANGES REQUESTED. Do not start Cut 5 until this Cut 4 correction is
+independently reviewed.

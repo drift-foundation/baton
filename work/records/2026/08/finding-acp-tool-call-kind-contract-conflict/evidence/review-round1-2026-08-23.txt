@@ -1,0 +1,56 @@
+W543 independent review round 1
+UTC: 2026-08-23T19:05:30Z
+
+Accepted:
+  - corrected §6.2 / §6.2.1 with superseded conflict retained
+  - optional toolCallView.kind and exact pinned ten-value toolKind
+  - frozen and product schema copies byte-identical
+  - valid values copied; absence not inferred as other
+  - sealed advisory value decides no event kind, policy, permission,
+    authority, outcome, success/failure, or disposition
+  - no additional runtime consumer of the advisory field found
+
+Pinned SDK revalidation:
+  ToolCall        kind?: ToolKind
+  ToolCallUpdate  kind?: ToolKind | null
+  ToolKind        read, edit, delete, move, search, execute, think, fetch,
+                  switch_mode, other
+
+Focused JavaScript result after two additive regressions:
+  worker_manager_agent_events.test.mjs  48/50 pass
+  worker_manager_agent_turn.test.mjs    50/50 pass
+  worker_manager_agent_profile.test.mjs 14/14 pass
+  W543-owned total                      112/114 pass
+
+JavaScript failures:
+  1. W543 review: null kind is absence only on a tool-call update
+     Initial tool_call kind:null was accepted and omitted; expected
+     integrity.schema. tool_call_update kind:null remains the positive omit
+     case.
+  2. W543 review: an invalid kind always uses the closed error taxonomy
+     BigInt reached JSON.stringify in refusal text and leaked raw TypeError.
+
+Focused executable-model result after two additive test methods:
+  63 total, 61 pass, 1 failure, 1 error
+  1. Initial tool_call kind=None did not raise BoundaryError.
+  2. List/dict invalid kinds reached frozenset membership and leaked raw
+     unhashable TypeError instead of integrity.schema.
+
+Schema identity:
+  cmp frozen agent-session-1.0.schema.json product copy
+  identical
+
+Full current v12 gate:
+  npm test
+  640 total, 633 passed, 7 failed
+  Two are the W543 JavaScript review cases above. Five are independently
+  owned W771 posture-slot review regressions.
+
+Whitespace:
+  git diff --check
+  clean
+
+Review:
+  work/records/2026/08/finding-acp-tool-call-kind-contract-conflict/
+  review-2026-08-23T19-05-30Z.md
+

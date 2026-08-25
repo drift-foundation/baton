@@ -1,0 +1,110 @@
+W6631 — the receiving-inventory declaration block, written out
+Recorded 2026-08-25 by baton.claude.
+
+WHY THIS IS IN THE RECORD RATHER THAN IN THE FILE
+
+  Measured on the current tree:
+
+    grep -c "workspaces.py:_real"    tests/manager/test_boundary_inventory.py  -> 0
+    grep -c "workspaces.py:_pinned"  ...                                       -> 0
+    grep -c "workspaces.py:GitPort"  ...                                       -> 0
+
+  I wrote these declarations in an earlier round and the inventory went green
+  at 67/67 with them present. They are absent now. Separately, in the W7079
+  round, an edit adding one STATED_OWNERS entry to the same file asserted on
+  its second anchor and wrote NOTHING -- so two attempts at this one file have
+  now failed to persist, by two different mechanisms.
+
+  A HALF-WRITTEN DECLARATION TABLE IS THE FAILURE THAT PRODUCED THE
+  334-FAILURE CASCADE earlier in this campaign, so I am not writing a block I
+  cannot verify in this session's remaining budget. The content is the part
+  that took the work; putting it here means the next attempt is a paste and a
+  verification rather than a re-derivation.
+
+  WHOEVER APPLIES IT: grep the file afterwards. Do not trust the edit's own
+  success report.
+
+THE BLOCK
+
+  Into DELEGATED -- every path this component is handed, owned in ONE place by
+  `_real`, which refuses text a durable value cannot carry, refuses a relative
+  path, and canonicalizes so a symlink component is resolved before anything is
+  compared:
+
+    ("caller", "workspaces.py:directory_manifest", "root"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:assignment_workspace", "storage"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:discard_workspace", "storage"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:materialize_directory_source", "origin"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:materialize_directory_source", "inputs"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:materialize_git_source", "inputs"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:materialize_git_source", "git_metadata"):
+        ("workspaces.py:_real", "caller:path"),
+
+  Into DELEGATED -- the git half at its single-owner helpers. THESE SUBJECTS
+  ARE NEWER THAN MY ORIGINAL BLOCK: they appeared when the review's [P1] made
+  me split three owner calls out of `materialize_git_source`, so the lost block
+  would not have covered them either:
+
+    ("caller", "workspaces.py:materialize_git_source",
+     "base_revision.algorithm"): ("workspaces.py:_pinned",
+                                  "caller:base_revision"),
+    ("caller", "workspaces.py:materialize_git_source", "base_revision.hex"):
+        ("workspaces.py:_pinned", "caller:base_revision"),
+    ("caller", "workspaces.py:materialize_git_source", "found.algorithm"):
+        ("workspaces.py:_resolved", "caller:found"),
+    ("caller", "workspaces.py:materialize_git_source", "found.hex"):
+        ("workspaces.py:_resolved", "caller:found"),
+
+  Into STATED_OWNERS -- the port forwards and the deployment's repository owns
+  its own operands, the same shape `AuthorityPort` uses. The ANSWER coming back
+  is owned at `_resolved`, because that is a value arriving FROM the injected
+  domain rather than leaving for it:
+
+    ("caller", "workspaces.py:GitPort.resolve", "uri"):
+        "forwarded to the deployment's repository, which owns its own operands",
+    ("caller", "workspaces.py:GitPort.resolve", "ref"): "the same",
+    ("caller", "workspaces.py:GitPort.checkout", "uri"): "the same",
+    ("caller", "workspaces.py:GitPort.checkout", "revision"):
+        "the same, and already owned as a pinned base revision before this "
+        "port is reached",
+    ("caller", "workspaces.py:GitPort.checkout", "into"):
+        "a directory THIS component created under a root it owns; the port "
+        "hands out a place rather than accepting one",
+    ("caller", "workspaces.py:GitPort.checkout", "git_dir"): "the same",
+    ("caller", "workspaces.py:materialize_git_source", "git"):
+        "typed at GitPort construction, where each operation it must carry is "
+        "proved callable before a delivery can spend anything on one that is "
+        "missing",
+
+  Into WITNESSES, for each of the seven stated owners above -- the three cases
+  already exist in `StatedRules` from an earlier round and are still in the
+  file:
+
+    ...GitPort.resolve/checkout uri, ref, revision ->
+        "test_a_git_operand_reaches_the_repository_unchanged"
+    ...GitPort.checkout into, git_dir ->
+        "test_a_checkout_is_given_places_this_component_created"
+    ...materialize_git_source git ->
+        "test_a_repository_missing_an_operation_is_refused_at_construction"
+
+  AND ONE PROBE PER RESULTING (entry, label), driving the real exported
+  operation to a refusal. The labels are literal at every owner site already:
+  "a filesystem root" for `_real`, "a pinned git base revision" for `_pinned`,
+  "a resolved git object" for `_resolved`, "a retained agent-session profile"
+  for the adopted row.
+
+ALSO OUTSTANDING IN THE SAME FILE, from W7079 and recorded there too:
+
+    ("caller", "store.py:seal_refusal", "refusal"):
+        "identity against this build's own ContractRefusal, before any member
+         is read",
+
+  with the witness `test_public_sealing_owns_the_refusal_before_reading_it`,
+  which already exists and passes. The RULE is implemented; only its
+  declaration is missing.

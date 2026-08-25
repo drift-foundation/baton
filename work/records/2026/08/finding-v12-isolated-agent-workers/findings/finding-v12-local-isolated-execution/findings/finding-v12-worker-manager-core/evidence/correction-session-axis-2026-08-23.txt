@@ -1,0 +1,120 @@
+W2929 / current authority W4 — session axis, FIRST correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T18-02-11Z.md (one P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_session_axis.test.mjs
+    tests 14, pass 12, fail 2
+  cd v12 && npm test
+    tests 590, pass 588, fail 2
+
+Both additive regressions were the only failures. The finding is correct.
+
+
+2. THE FINDING, AND THAT IT IS THE THIRD TIME
+
+observeAgentSessionState built its reference from attempt, posture and epoch
+and DISCARDED providerSessionId, so a label naming provider session B moved
+the row durably held for provider session A — and a malformed reference
+reached SQLite as a raw binding error rather than a closed pair.
+
+This is the same sentence for the third boundary in this Work. Section 3.1
+makes the provider id the fourth component of the reference that labels
+evidence. The turn boundary binds it. The event WRITE path binds it. The event
+READ path did not, and that was corrected two rounds ago as "binding three
+quarters of a reference is not binding it". Then I wrote a new module that
+bound three quarters.
+
+What makes it repeatable is that the missing component is the one that
+authorizes nothing, so its absence never breaks a happy path — the row is
+found, the state moves, every ordinary case passes. Eighty-one exhaustively
+driven transition pairs said nothing about it, because none of them was about
+identity.
+
+Corrected: `sessionAxisRef` proves the complete reference before any query —
+nonempty attempt id, one of the two postures, positive integer epoch, and a
+NONEMPTY provider id or null — and refuses `integrity.schema`.
+
+
+3. THE NO-OP IS STILL AN OBSERVATION
+
+The review's sharpest point, and the half a move-only check would miss.
+Affirming that provider session B's axis reads `prompting` is a claim ABOUT B,
+and answering it from A's row is the same mistake as moving A's row. So the
+binding precedes the self-observation shortcut rather than sitting after it,
+and the stored provider id is selected with the state in the same query and
+compared inside the same transaction.
+
+A disagreement is `runtime-observation.identity-mismatch` and changes nothing.
+
+
+4. MUTATIONS — FOUR, ALL WITNESSED
+
+  B1 the provider label is not bound at all                3 cases fail
+  B2 the binding runs AFTER the self-observation answer     2 cases fail
+  B3 the reference shape is taken on trust                  1 case fails
+  B4 an empty provider id is admitted                       1 case fails
+
+B2 is the one worth naming: it keeps the binding but moves it one line, which
+is exactly the shape a correction that only thought about moves would have
+produced. It fails.
+
+
+5. REGRESSIONS — 16 (14 before, including the reviewer's two)
+
+Two of mine:
+
+  the label is bound BEFORE the self-observation answer — driven over ALL NINE
+    states the row can hold, each time observing the SAME state so nothing
+    would move even if the binding were skipped, and each time also checking
+    that the agreeing label gets the ordinary no-op answer
+  an unlabelled session is bound by its absence — the mirror direction: the
+    fixture's session holds NULL, so a reference naming any provider id
+    disagrees. Saying nothing is agreement here and saying something is not
+
+
+6. GATES
+
+  cd v12 && npm test                       592 tests, 592 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 588 -> 592. No existing
+assertion was changed and no schema change was needed.
+
+
+7. W771, ACKNOWLEDGED AND UNTOUCHED
+
+The closeAgentSession versus frozen-axis and posture-release contradiction is
+durably owned by W771 at
+`work/records/2026/08/finding-agent-session-close-axis-conflict/`. Nothing
+here changes the frozen successor table, weakens a signed-off close assertion
+or papers over `unknown`. Recorded in this dossier's PLAN and PROGRESS: final
+W4 composition must revalidate W771's disposition before integrated session
+lifecycle work, and this correction does not discharge that.
+
+
+8. STILL NOT IMPLEMENTED
+
+Sections 6.5, 8.1, 8.2, 8.4 and 8.5; adapter prompt composition; the runtime
+adapter contract; and re-identification after transport ambiguity.
+
+
+9. FILES CHANGED
+
+  v12/src/worker_manager/agent_session_axis.mjs        sessionAxisRef proves
+                                                       the complete reference;
+                                                       the stored provider id
+                                                       is selected with the
+                                                       state and bound before
+                                                       both the no-op answer
+                                                       and the successor
+                                                       decision
+  v12/test/worker_manager_agent_session_axis.test.mjs  +2 cases

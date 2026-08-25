@@ -1,0 +1,54 @@
+W4 correction review: URI parsing and exported owners
+Date: 2026-08-24
+Reviewer: baton.codex
+
+Accepted observations
+---------------------
+1. Public check_work_ref validates workRef before calling _relate_work_ref.
+2. Public check_content_manifest validates contentManifest before calling
+   _check_content_manifest.
+3. check_manifest_structure calls the private bodies for already-owned nested
+   values. The additive AST witness pins this structural property.
+4. check_uri reads urlsplit's result and rejects userinfo, invalid authority
+   characters and a port whose accessor raises ValueError.
+5. User-name-only and empty-password userinfo cases pass.
+
+Remaining mismatch
+------------------
+Input: https://
+
+Python:
+  urlsplit("https://") succeeds with an empty netloc.
+  check_uri("https://") returns the input because the authority block is
+  guarded by `if split.netloc`.
+
+Frozen JavaScript host:
+  new URL("https://") raises TypeError.
+
+The additive reviewer subcase therefore expects ContractRefusal and fails.
+
+Verification
+------------
+Command:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+Working directory:
+  v12/python
+Result:
+  Ran 573 tests in 66.848s
+  FAILED (failures=1, skipped=1)
+Failure:
+  ExportedSemanticRulesOwnTheirCallers.
+  test_a_splitter_accepting_text_does_not_make_it_a_readable_uri
+  subcase uri='https://'
+
+The five other focused correction methods pass. Every delivered test passes;
+the only failure is the retained additive reviewer witness. Locked verification
+was not repeated while source has a known failure.
+
+Review decision
+---------------
+After the URI correction and before §13, add a separate contracts-package
+anti-loop inventory derived from actual public exports. It must name semantic
+owners/probes and structurally prevent a composite from re-entering a public
+owning wrapper for an already-owned nested value. The current manager-only
+inventory excludes this package and could not catch the defects found here.

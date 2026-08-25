@@ -1,0 +1,156 @@
+W2929 / current authority W4 — THE AGENT-SESSION OBSERVATION AXIS (SPEC 7.3-7.4)
+Date: 2026-08-23. Implementer: baton.claude.
+First delivery of this slice; no review to answer.
+
+
+1. WHY THIS SLICE, AND WHY NOW
+
+The turn slice's admission reads agent_sessions.state and the event slice
+deliberately does not. Nothing WRITES the axis: openAgentSession inserts
+'not-started' and closeAgentSession sets 'closed', so seven of the nine states
+were unreachable and the turn slice's own progress note said so — "nothing in
+this slice moves a session out of not-started yet". This closes that.
+
+IN: section 7.3's nine states and their successor table, the durable monotone
+axis, and section 7.4's runtime-quiescence rule.
+
+OUT: sections 6.5, 8.1, 8.2, 8.4 and 8.5, adapter prompt composition and the
+runtime adapter contract, all unchanged from the previous slices' statements.
+
+
+2. THE DESIGN
+
+SESSION_STATES and ALLOWED_SESSION_SUCCESSORS are transcribed from the frozen
+design model, and the case file PARSES that model's table and compares edge
+for edge. The diagram in section 7.3 draws the spine; the model carries the
+exact successor sets including the edges the spine does not draw —
+ready -> cancel-requested, turn-ended -> prompting for a second supervised
+turn in one epoch, and the three -> closed edges.
+
+A SELF-OBSERVATION IS NOT A MOVE. The axis is what the relay has OBSERVED, and
+observing the same state twice is ordinary; refusing it would make a duplicate
+look like a regression, which is the reading the event slice already rejected
+for frames. observeAgentSessionState answers { state, moved: false }.
+
+DECIDED INSIDE THE WRITE TRANSACTION, for the reason the runtime observations
+already carry: a read of the current state followed by a separate write is not
+a monotone axis across two manager connections.
+
+UNKNOWN IS TERMINAL IN THE DIRECTION THAT MATTERS. It never becomes closed,
+because closed asserts a terminal fact for every turn the epoch started and
+unknown means nobody saw the ending.
+
+AND AGENT-QUIESCENT CANNOT REACH UNKNOWN EITHER — the interesting exception,
+and my own first assertion got it wrong. agent-quiescent means a terminal turn
+fact WAS observed after cancellation was ordered, so the ending is known;
+moving to unknown there would be a regression in knowledge rather than the
+honest absence of it. The case now states that as a filtered list rather than
+a loose "every non-terminal state can reach unknown".
+
+Section 7.4's gate always answers false and is driven over all nine states. It
+validates its argument rather than ignoring it, because answering false to a
+malformed question is how a caller concludes it asked a good one.
+
+
+3. OBSERVED DEFECT IN SIGNED-OFF CODE — NOT FIXED HERE, AND WHY
+
+closeAgentSession (agent_session.mjs, delivered and signed off in the session
+slice) sets state = 'closed' for ANY row whose state is not already 'closed'.
+Measured against the frozen table with the retained probe
+`evidence/probe-close-session-axis-2026-08-23.mjs`:
+
+  not-started       -> closed   FORBIDDEN (successors: initializing, unknown)
+  initializing      -> closed   permitted
+  ready             -> closed   permitted
+  prompting         -> closed   FORBIDDEN (turn-ended, cancel-requested,
+                                           unknown)
+  turn-ended        -> closed   permitted
+  cancel-requested  -> closed   FORBIDDEN (agent-quiescent, unknown)
+  agent-quiescent   -> closed   permitted
+  unknown           -> closed   FORBIDDEN — and this is the one section 3.3
+                                calls out by name as recording knowledge that
+                                was never acquired
+  closed            -> closed   no-op
+
+Full output: `evidence/observed-close-session-axis-conflict-2026-08-23.txt`.
+
+I DID NOT REWIRE IT, deliberately, and the reason is not caution:
+
+  a) Existing signed-off cases close freshly opened ('not-started') sessions
+     to free the posture, so routing close through the axis would fail them.
+     Editing signed-off assertions to match my new module is exactly the move
+     the reviewer has corrected me for twice.
+
+  b) There is a REAL contract question underneath, and it is not mine to
+     settle. The partial unique index frees a posture only at 'closed'. Under
+     the frozen table a session that never initialized can only end at
+     'unknown', and 'unknown' does not free the posture — the schema comment
+     says so on purpose ("re-identification after it is a gate this slice has
+     not built"). So a strict reading deadlocks the posture for any session
+     that ends before initializing. Either the table needs an edge, or
+     closeAgentSession needs a different lifecycle, or posture freeing needs
+     to stop depending on 'closed'. That is a contract ruling.
+
+So this is raised for an owning record, exactly as the tool-call `kind` and
+client-capability conflicts were before they became W543 and W641. The new
+module does not paper over it: it refuses every forbidden edge, and the
+conflict is that one existing function does not go through it.
+
+
+4. MUTATIONS — EIGHT
+
+  A1 unknown gains a successor                        2 cases fail
+  A2 the successor table is not consulted             4 cases fail
+  A3 a self-observation is treated as a move          2 cases fail
+  A4 the durable move skips the transition check      2 cases fail
+  A5 the stored state is not proved                   0  alone
+  A6 the observed state is not proved                 0  alone
+  A5 + A6 together                                    1 case fails
+  A7 the quiescence gate answers true for quiescent   1 case fails
+  A8 the durable row is not updated                   1 case fails
+
+A5 and A6 MUTUALLY MASK, and finding that out fixed a real gap in my own case
+file rather than in the code. Either validation alone catches a bad state
+arriving against a good stored one, or the reverse — but the input where
+NEITHER covers for the other is observing an invented state against a row that
+already holds that same invented state, because the self-observation shortcut
+answers before anything is proved. My case did not drive it. It does now, and
+the pair mutation fails. A zero-witness mutation is a claim about the code;
+this time it was a claim about the test.
+
+
+5. REGRESSIONS — 12, in a new file
+
+The nine states against the placed schema's enum; the successor table parsed
+out of the frozen model and compared edge for edge; the terminal two and the
+agent-quiescent exception; ALL EIGHTY-ONE ordered pairs decided in both
+directions with the permitted count derived from the table rather than
+counted by the loop; six malformed states in both argument positions and at
+the quiescence gate; the durable spine including turn-ended -> prompting;
+self-observation; three regressions from turn-ended; every state refused from
+each of the two terminal ones; no session at all; an invented stored state in
+both directions; and the quiescence gate over all nine.
+
+
+6. GATES
+
+  cd v12 && npm test                       588 tests, 588 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 576 -> 588. No existing
+test assertion was changed and no schema change was needed.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/agent_session_axis.mjs        NEW — the whole slice
+  v12/test/worker_manager_agent_session_axis.test.mjs  NEW — 12 cases
+  evidence/probe-close-session-axis-2026-08-23.mjs      NEW — the retained
+                                                        probe for section 3
+  evidence/observed-close-session-axis-conflict-...txt  NEW — its output

@@ -1,0 +1,171 @@
+W2929 / current authority W4 — event normalization, FIRST correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T16-47-06Z.md (four P1).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_events.test.mjs
+    tests 35, pass 29, fail 6
+  cd v12 && npm test
+    tests 546, pass 540, fail 6
+
+The six additive regressions were the only failures. All four findings are
+correct and none is disputed.
+
+
+2. P1 — TWO ACP MAPPINGS DID NOT ACCEPT THE FROZEN EVIDENCE
+
+REASONING. I made only `other` contentless. §6.2 marks `agent_thought_chunk`
+content "diagnostics; never portable evidence" — the same sentence about a
+different member, and I applied it to one row and not the other. A chain of
+thought in an event's portable `content` is exactly the durable agent evidence
+that row forbids. `agent-reasoning` joins the contentless set; the bytes are
+still counted, as they are for every body this boundary declines to carry.
+
+TOOL CALLS. I read `update.toolCall.toolCallId`. The frozen captured trace
+carries `toolCallId` and `status` at the UPDATE ROOT:
+
+  {"sessionUpdate": "tool_call", "toolCallId": "tc-1", "status": "in_progress"}
+  {"sessionUpdate": "tool_call_update", "toolCallId": "tc-1", "status": "completed"}
+
+So the normalizer refused the exact provider shape it was built to normalize,
+and my own fixture agreed with the code because I wrote both. A mapping table
+is half the contract; the captured evidence is the other half, and I read the
+first without checking it against the second.
+
+THE OPEN CONTRACT INCONSISTENCY, CARRIED FORWARD NOT RESOLVED. §6.2's prose
+says `tool_call` "carries the ACP `toolCallId`, `kind`, `status`", and the
+frozen `$defs.toolCallView` permits only `tool_call_id`, optional `title` and
+`status` with `additionalProperties: false`. Two frozen artefacts disagree.
+Per the review, no portable `kind` member is invented here; a case asserts
+that the normalized view has exactly `tool_call_id` and `status` even when the
+update carries `kind`, so the omission is a recorded decision. THIS NEEDS AN
+OWNING RECORD before any implementation relies on that field — raised on the
+handoff, since formal enrichment and priority are the reviewer's and
+Slawomir's.
+
+
+3. P1 — OBSERVATION DID NOT ANSWER FROM THE AUTHENTICATED FRAME
+
+§6.4 requires the consumer to answer with the same sealed bytes and to return
+owned copies. I returned summary metadata only, and on replay I compared the
+indexed digest column and never read the body — so a retained frame that had
+become unreadable was reported as a successful replay. The one place a stale
+index is most convincing is the place a record is not read.
+
+`authenticateRetained` is now shared by the reader and the REPLAY path: parse,
+validate, and bind the declared digest, the recomputed digest, the stored
+digest and the sequence the caller asked for. Both answers carry the
+document — the first from the authenticated incoming frame, the replay from
+durable state.
+
+
+4. P1 — THE SEALED TURN IDENTITY COULD DISAPPEAR
+
+A separate `turnId` operand defaulted to null, the sealed `turn_id` was checked
+only when that operand happened to be non-null, and the OPERAND was what got
+written. A frame sealed for a turn therefore became a durable UNBOUND event
+whenever a caller omitted the option, losing an authenticated identity member
+and giving lateness the wrong subject.
+
+The sealed `owned.turn_id` is the durable identity. A redundant operand may
+only AGREE, in both directions — sealed-null/operand-named,
+sealed-named/operand-null, and sealed-named/operand-different all refuse
+`runtime-observation.identity-mismatch` and write nothing. For a non-null
+effective turn the allocation is validated in this session, lateness is
+derived from it, and it is persisted.
+
+
+5. P1 — THE BOUND TRUSTED AN ATTACKER-CONTROLLED MEMBER
+
+I compared `owned.byte_count`, which is source accounting living INSIDE the
+untrusted sealed document: a frame may claim 1 while the event is far over the
+limit. The frozen model measures `canonical_bytes(event)` and §6.3 bounds
+every normalized EVENT, so the thing being bounded is now what gets measured.
+
+`byte_count` keeps its own distinct job — how much SOURCE there was, including
+the parts that were dropped — and a case drives the converse the review's case
+does not: a frame claiming ten million source bytes whose canonical event fits
+is ADMITTED, and the count survives into the row unrewritten.
+
+
+6. THREE EXISTING TESTS MIGRATED, ON THE REVIEW'S EXPLICIT AUTHORITY
+
+  "every mapped update normalizes to its exact row"        fixture -> root
+  "a tool call carries the provider's id and ONE of four"  fixture -> root
+  "observing a frame records it and answers with the ..."  answer + document
+
+The first two replace a nested `toolCall` fixture with the captured
+root-level fields and preserve every id and status assertion. The third
+extends an exact expected answer that contradicted §6.4 and preserves every
+observation-metadata assertion. Each carries a comment naming the authority.
+
+
+7. MUTATIONS — NINE
+
+  C1 reasoning content becomes portable again          2 cases fail
+  C2 the tool call is read from a nested member again  4 cases fail
+  C3 the first answer omits the sealed document        4 cases fail
+  C3b the replay answer omits the sealed document      3 cases fail
+  C4 the first answer aliases the caller's object      0  EQUIVALENT
+  C5 a replay answers from the index without reading   2 cases fail
+  C6 the turn operand overrides the sealed identity    2 cases fail
+  C7 the bound measures the claimed count again        2 cases fail
+
+C4 is MEASURED AS EQUIVALENT and said rather than implied: `owned` is already
+a fresh object because `authenticateEvent` reaches it through a
+serialize/parse round-trip, so returning it directly passes every case. The
+round-trip is what makes the answer owned, not the clone. The clone is kept
+because a boundary that hands back the object it is still holding is how a
+later edit here becomes a caller's surprise; it is not counted as a guard.
+
+
+8. REGRESSIONS — 39 (35 before, including the reviewer's six)
+
+Four of mine:
+
+  the contentless kinds are the two the contract names — held as a property,
+    and the OTHER eleven rows are driven to prove the exclusion is two rows
+    rather than a general silence
+  a redundant turn operand may only AGREE — all three disagreement directions
+    refuse and write nothing; agreement and absence both observe the sealed
+    turn, and the durable rows carry it
+  byte_count keeps its own job and is not the bound — the converse of the
+    review's case
+  a replay refuses a retained frame that has drifted — parsable, valid-shaped
+    and no longer what was sealed, so only reading the record catches it
+
+
+9. GATES
+
+  cd v12 && npm test                       550 tests, 550 pass, 0 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  design models, all four:                 64, 56, 74, 24
+  pytest -n auto -m "not serial" tests/work   2980 passed, 0 failed
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+EVERY GATE IN THE TREE IS GREEN. The v12 count moved 540 -> 550.
+
+
+10. STILL NOT IMPLEMENTED
+
+Section 6.5's relay queue, adapter prompt composition, the runtime/agent
+adapter CONTRACTS, and re-identification after transport ambiguity.
+
+
+11. FILES CHANGED
+
+  v12/src/worker_manager/agent_events.mjs        reasoning is contentless; the
+                                                 captured root tool-call
+                                                 shape; shared retained-frame
+                                                 authentication used by the
+                                                 replay path; the sealed
+                                                 turn_id is the identity; the
+                                                 bound measures canonical
+                                                 event bytes
+  v12/test/worker_manager_agent_events.test.mjs  +4 cases, 3 authorized
+                                                 migrations

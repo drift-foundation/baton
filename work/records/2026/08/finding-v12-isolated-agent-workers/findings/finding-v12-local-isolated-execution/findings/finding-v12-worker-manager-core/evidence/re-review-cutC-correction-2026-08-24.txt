@@ -1,0 +1,78 @@
+Independent Cut C correction re-review — 2026-08-24
+
+Reviewed delivery
+-----------------
+
+Implementer handoff: Baton T4 message 4400 and PLAN item 4bd-corr.
+Correction evidence: evidence/cutC-correction-2026-08-24.txt.
+
+Accepted corrections
+--------------------
+
+The original five retained reviewer methods pass. AuthorityPort now separates
+the participant value from four callable operations and refuses every
+non-callable operation at construction. Offer inputs use the shared durable-
+text and durable-instant validators. Nonpositive and non-exact-integer TTLs are
+refused before entropy. Schema version 4 enforces all five acceptance fields
+absent for states reachable without acceptance and present for accepted-derived
+states, and every earlier schema version is refused.
+
+`env PYTHONPATH=src python3 -m unittest -v tests.manager.test_offers` ran 43/43
+green before the new re-review methods were added.
+
+Retained re-review probes
+-------------------------
+
+Four additive methods were added to tests/manager/test_offers.py:
+
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_a_positive_ttl_must_fit_deadline_arithmetic_before_reads
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_every_public_offer_lookup_proves_text_before_sql
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_profile_certification_owns_key_text_before_composing_sql
+* AcceptanceBindsAndConsumes.
+  test_the_injected_claim_signature_result_is_durable_text
+
+Focused result: four methods report two assertion failures and five raw errors.
+Full source result: 404 methods, two failures, five errors and one explicit
+ambient-version skip. The four new methods account for every nonpassing result;
+the delivered 400-method inventory is otherwise unchanged (399 source passes
+plus that skip; implementer evidence records 400/400 locked).
+
+Observed — the durable-text sweep is incomplete
+------------------------------------------------
+
+Three public lookup paths still reach SQL without proving their identifier:
+submit_claim and settle_claim pass offer_id through _require_accepted to
+_offer_row, and expire_overdue appends its optional work_id directly to the
+query operands. Lone surrogates escape from all three as raw
+UnicodeEncodeError.
+
+certify_profile proves only profile_digest. Integer kind and name operands are
+canonicalized, interpolated into `profile:<kind>:<name>`, and committed as
+durable keys rather than refused as non-text. Canonicalizability is not the
+accepted durable-text rule.
+
+Finally, AuthorityPort proves that claim_signature is callable but acceptance
+does not prove its answer. A derivation returning None reaches the schema-v4
+CHECK and escapes as raw sqlite3.IntegrityError after the bearer comparison.
+The answer is a frozen TEXT identity and must satisfy the same shared rule
+before opening the acceptance write.
+
+Observed — positive TTL is not enough to make a deadline
+---------------------------------------------------------
+
+The correction accepts every positive exact integer. `10 ** 100` passes that
+check, performs project_work and slot_holder reads, then escapes from
+timedelta as OverflowError. Prove the duration and clock-plus-duration are
+representable in the frozen deadline domain before authority reads or entropy,
+and return the closed contract refusal for values outside it.
+
+Outcome
+-------
+
+Changes requested. Retain all nine reviewer methods. The original callable,
+instant, nonpositive-TTL and schema-v4 corrections are accepted; re-review only
+the remaining SQL-text/signature-result sweep and deadline-representability
+boundary.

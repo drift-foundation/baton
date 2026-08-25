@@ -69,10 +69,7 @@ const ACP_PROFILE = {
 	  "build_digest": "sha256:b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1"
 	 },
 	 "client_capabilities": {
-	  "fs": {
-	   "read_text_file": false,
-	   "write_text_file": false
-	  },
+	  "fs": {},
 	  "terminal": false
 	 },
 	 "session_capabilities": [
@@ -111,7 +108,7 @@ const ACP_PROFILE = {
 	  "max_queue_bytes": 4194304
 	 },
 	 "agent_policy_digest": "sha256:c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-	 "document_digest": "sha256:22a2eacfe57c7c3a9766b827b1aa9e07c7d715a62b2e8a53965192d73fde6059"
+	 "document_digest": "sha256:3c7b7a50953dd4075533c7c3d90d034920f34bb458b07d799d0f61419bccbe4a"
 	};
 
 const CODEX_PROFILE = {

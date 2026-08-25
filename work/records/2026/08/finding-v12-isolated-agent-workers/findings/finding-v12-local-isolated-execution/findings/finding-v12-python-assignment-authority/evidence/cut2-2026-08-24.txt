@@ -1,0 +1,198 @@
+W2845 — implementation cut 2
+Date: 2026-08-24. Implementer: baton.claude.
+Scope: Work/route/capability/contract configuration, the generation-bearing
+claim, the deployment-wide claim slot, the centralized assignment end, fences,
+typed gates, events, projections and invariant checks. Cut 2 ONLY.
+Cut 1 was signed off in review-2026-08-24T04-51-24Z.md.
+
+
+1. REVALIDATED BEFORE WRITING ANYTHING
+
+  the frozen Node authority         `authority.mjs` read in full (1,343 lines)
+                                    plus `projection.mjs`; the cut-2 surface
+                                    transcribed by OBLIGATION rather than by
+                                    syntax
+  cut 1 as signed off               60/60 from source and from the installed
+                                    wheel; nothing in it was edited except the
+                                    two boundary cases that ENUMERATE the
+                                    public surface, which cut 2 legitimately
+                                    grows
+  the frozen reference              untouched; `git status` on
+                                    `v12/src/authority` is empty
+
+
+2. THE ONE OPERAND CUT 2 DOES NOT TAKE, AND WHY
+
+Every transition in the frozen host is wrapped in the journal's `replay` and
+takes an `operation_id`. The journal is cut 3.
+
+I did not add the operand. Accepting an `operation_id` here and doing nothing
+with it would be a claim with no mechanism behind it: an exact retry would
+re-perform the act while the caller believed it had been made
+effectively-once. That is the same finding the cut-1 review gave me about
+`requirements.lock` -- a lock nobody resolves from is a document about a build
+rather than a property of one -- and the frozen host states the rule itself: a
+caller who supplies an operand and has it ignored believes it chose something.
+
+So the operand arrives in cut 3 WITH the journal that gives it meaning, and
+these transitions run in a plain write transaction until then. Cut 3 therefore
+changes these signatures, which is stated here rather than discovered there.
+
+
+3. WHAT IS IMPLEMENTED
+
+  configuration    certify/withdraw contracts, permit transitions, policy,
+                   capability grant/revoke/read, create Work, route handlers
+  claim            generation minted by the AUTHORITY, deployment-wide slot
+                   taken in the same transaction as the Handler
+  the ONE ending   `_end_assignment`, called by release, recovered, pass,
+                   cancel, plan rejection and gate arrival -- and by nothing
+                   else. It clears Handler and live generation, frees the slot,
+                   appends exactly one event, and NEVER changes the counter
+  gates            install, and satisfy on evidence of the gate's KIND
+  projections      `project_work`, `assignment_of`, `fenced_generations`,
+                   `assignment_events`, `gate_evidence`, `slot_holder`
+  invariants       the backstop, which RAISES rather than refusing: an
+                   invariant violation is not an ordinary outcome a caller may
+                   retry
+
+`Core` stays private. The bootstrap face gained configuration and projections
+and NO transition, because a bootstrap that could also claim would be one
+object holding both the configuration authority and the authority it
+configures -- the exact defect the frozen host was corrected for, where a
+consumer granted itself the close capability, closed the live Work as that
+actor and moved the canonical target with zero receipts. Cut 2's tests drive
+`Core` directly; cut 5 adds the participant-bound session that exposes the
+enumerated subset.
+
+
+4. THREE GAPS I FOUND BY PROBING MY OWN CUT
+
+The cut-1 review's most useful sentence was that my gate passing proves the
+rules I thought of. So before handing this over I probed it the way a reviewer
+would. All 36 assignment cases passed first time AND the probe found three
+things:
+
+  a) `install_gate` with a STALE `expect` on an UNCLAIMED Work was ACCEPTED.
+     The frozen host takes the unclaimed branch first and never looks at
+     `expect`, so a caller that passed an identity for a Work since released
+     got success and believed it had performed a compare-and-swap. A supplied
+     `expect` is now always compared. This is a deliberate divergence from the
+     frozen host, on the frozen host's OWN stated rule about ignored operands.
+
+  b) A CLOCK ANSWERING `banana` WROTE `banana` INTO A DURABLE `created_at`.
+     `_now` validated that the configured clock answered nonempty TEXT, and the
+     boundary says timestamps cross as VALIDATED UTC text. "Validated" has to
+     mean the shape or it means nothing. The frozen `$defs.timestamp` grammar
+     is enforced now, at the one place the clock's answer enters.
+
+  c) A clock that RAISES leaks its exception, and that is left as it is,
+     deliberately. The clock is a TRUSTED bootstrap collaborator; an act whose
+     failure we cannot describe is not one we may record an outcome for. What
+     is asserted instead is that the fault takes nothing with it -- the
+     transaction rolls back, no row survives, and the store is still usable.
+     Reported as a decision rather than fixed quietly, so it can be ruled
+     otherwise.
+
+
+5. MUTATIONS -- TWENTY-FOUR
+
+  M1  create_work accepts active                     1 case
+  M2  the cross-product is not checked before CAS    0 -- EQUIVALENT TODAY
+  M3  a gate outside block is allowed                1
+  M4  an untyped gate is installable                 1
+  M5  the deployment-wide slot becomes per Work      2
+  M6  a v11 claim mints a generation                 2
+  M7  the generation counter is reused               2
+  M8  blocked work is claimable                      1
+  M9  the route does not have to resolve             1
+  M10 a fenced generation is reported as stale       1
+  M11 the CAS accepts a foreign authority            1
+  M12 cancel does not fence                          4
+  M13 a v11 assignment can be cancelled              1
+  M14 end accepts any disposition                    1
+  M15 the slot is not freed by an ending             7
+  M16 an ending writes no event                      2
+  M17 an unreachable runtime satisfies quiescence    2
+  M18 the rejected plan can be reoffered             1
+  M19 the gate holding the Work is not compared      1
+  M20 a supplied expect is ignored when unclaimed    1
+  M21 a gate arrival over a live assignment          1
+  M22 an unknown capability is grantable             1
+  M23 the clock answer is not validated              1
+  M24 a projection is cached rather than fresh       10
+
+FOUR ZEROS, AND ONLY ONE SURVIVED AS AN EQUIVALENCE.
+
+  M11 and M21 measured zero because the inner compare-and-swap refuses them
+  anyway -- with a WORSE message. "This Work has a live assignment; name it"
+  tells a caller what to do; "an assignment identity is a document" does not,
+  and neither does "stale" when the real fact is a foreign authority. So the
+  cases now assert the MESSAGE, and both mutations fail. A specific refusal
+  that no case distinguishes from the generic one can be deleted without
+  anything noticing, which is the same reasoning as keeping cut 1's empty-file
+  check for its diagnosis -- except there I reported an equivalence and here I
+  could remove it, so I did.
+
+  M24 measured zero because MY MUTATION WAS NONSENSE: it added a key rather
+  than caching anything, so it tested nothing. Written as a real cache it fails
+  ten cases. That is the fifth instrument error I have recorded this week, and
+  the only reason it was caught is that a zero on a freshness property looked
+  wrong.
+
+  M2 IS A GENUINE EQUIVALENCE TODAY and is reported as one. The cross-product
+  check inside `_end_assignment` runs before the compare-and-swap so an
+  impossible outcome refuses without touching state -- but every current caller
+  already passes a coherent pair, and `install_gate` checks the same thing one
+  frame up. It becomes load-bearing when cut 4 adds `close` and
+  `advance_contract` as callers. Kept for the ordering property, not counted as
+  a guard.
+
+
+6. REGRESSIONS -- 39 ADDED, THE SUITE IS 60 -> 99
+
+Catalog A (identity/assignment): v11 no-generation; first v12 generation one;
+monotonic non-reuse across three claims; the full four-part identity; the CAS
+against every wrong part including a foreign authority; the STALE
+SAME-PARTICIPANT SUCCESSOR, which is the case §8 exists for; route resolution;
+and the deployment-wide slot, including that capacity is enforced INSIDE the
+transaction rather than advisorily.
+
+Catalog B (end/gates): EVERY Handler-clear path in one table -- release,
+recovered, pass, cancelled, plan-rejected, gate-arrival -- each asserting the
+cleared Handler, the freed slot, the derived phase and gate, the single event
+with its cause and instant, and that the counter did not move. Plus the
+fence/end atomicity; the v11 cancellation refusal; positive runtime absence
+versus an unreachable runtime; the pinned isolation clause; the rejected plan
+that cannot be reoffered; the contract-runtime gate; and that only the gate
+actually holding the Work can be satisfied.
+
+Plus: the invariant backstop reaching PAST the transitions into the store to
+corrupt a row the way a bug would, because an invariant nothing can violate is
+untested; durability across a reopen; and that projections and returned
+assignments are fresh owned documents rather than live rows or caller aliases.
+
+
+7. GATES
+
+  just gate (v12/python)       version + 99 tests + the locked build, all pass
+                               on Python 3.13.7
+  the locked build             offline, hash-enforced; the suite passes from
+                               the INSTALLED layout, 17 exported names
+  temp roots after the run     zero; every fixture owns and cleans its own
+  the frozen Node reference    UNTOUCHED
+  whitespace-damage check      clean
+
+
+8. STILL ABSENT ON PURPOSE
+
+Cut 3: the operation journal, savepoint-scoped ordinary/durable refusals, exact
+replay and collision, retirement, settlement, restart-with-journal and real
+spawned-process races. Cut 4: contract progression, proposal, receipts,
+capability-checked transitions, authorized close. Cut 5: the participant-bound
+session face.
+
+`test_a_later_cut_adds_methods_rather_than_stubs` still asserts that `claim`,
+`end`, `cancel`, `pass_work`, `install_gate`, `satisfy_gate`, `reject_plan`,
+`close_work`, `session` and `mint_session` are absent from the bootstrap face.
+W4 stays blocked on W2845.

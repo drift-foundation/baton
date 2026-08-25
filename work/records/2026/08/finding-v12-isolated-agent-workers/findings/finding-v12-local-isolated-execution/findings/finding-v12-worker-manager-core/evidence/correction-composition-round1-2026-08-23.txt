@@ -1,0 +1,176 @@
+W4 / W2929 items 4an, 4ap — composition correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T20-55-23Z.md (one P1, one P2).
+Item 4ah remains an OPEN RULING and is not decided here.
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  node --test test/worker_manager_refusal_taxonomy.test.mjs   5 pass, 2 fail
+
+Exactly the two additive review regressions. Both findings are correct.
+
+
+2. [P1] I PROVED ONE THIRD OF THE RULE AND CALLED IT PROVED
+
+Item 4ak claimed to separate a malformed identity from an absence. It proved
+"nonempty string". The frozen `$defs.opaqueId` is
+
+  {"type": "string", "minLength": 1, "maxLength": 160,
+   "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"}
+
+so a string with a space in it, or a 161-character one, was a legitimate
+lookup: the turn read answered NULL and the attempt read went on to a
+precondition refusal. A malformed identity collapsed into absence or business
+state in the same breath as the claim that those answers were separated.
+
+Worse than incomplete, it was incomplete IN THE DIRECTION THE ITEM WAS ABOUT.
+
+There is ONE proof now -- `opaqueIdFault` in `contracts.mjs` -- and every
+boundary that types an identifier as `opaqueId` calls it:
+
+  turnRecordOf                  `$defs.turnRecord.turn_id` is `$ref: opaqueId`
+  attempts.attemptRow           the runtime attempt id
+  normalizeAgentSessionRef      `agentSessionRef.runtime_attempt_id`
+  eventRecordOf                 through that reference -- the third SQL operand
+  posture_slots.requireAttempt  which I ALSO had to fix; see section 4
+
+Length is tested before the pattern, the same shape-before-membership
+discipline as everywhere else here.
+
+AND THE FROZEN PROVIDER BOUND WITH IT. `$defs.providerSessionId` is
+`maxLength: 512` and was as unenforced as the opaque-id one. Enforced now.
+
+THE CONTAINER QUESTION IS UNTOUCHED. This proves the MEMBERS the frozen schema
+types. Whether the reference must itself be an exact inert record is item 4ah,
+it is the reviewer's recommendation and Slawomir's decision, and nothing here
+pre-empts it.
+
+
+3. [P2] I BOUNDED THE BRANCH I HAD THOUGHT ABOUT
+
+`nameValue` truncated strings and then returned `String(value)` for numbers,
+bigints and symbols. A symbol's DESCRIPTION and a bigint's digits are
+caller-controlled too, so a thousand of either rendered at full length --
+1,008 and 1,000 characters against 63 for the bounded string.
+
+I had been reasoning about whether a value is safe to CONVERT. The rule is
+about whether the result is safe to KEEP. One bound, applied where the
+rendering is produced rather than in the case I happened to write first.
+
+
+4. SOMETHING THE REVIEW DID NOT ASK FOR, AND WHY IT WAS NECESSARY
+
+Fixing the boundaries the review named would have created a NEW divergence:
+`posture_slots.requireAttempt` had its own "nonempty string" check, so a
+string with a space would have been a valid attempt id at the slot boundary
+and an invalid one everywhere else -- the exact 4al defect, freshly minted by
+the fix for P1.
+
+It calls the shared proof now. I found it by writing the property test before
+writing the fix, which is the first time this session that a case has caught
+something ahead of a reviewer rather than behind one.
+
+
+5. AND ONE COPY OF SECTION 3.1, NOT TWO ALIGNED ONES
+
+Item 4al aligned `turnSessionRef` and `normalizeAgentSessionRef` by editing
+both texts. ALIGNMENT IS A STATE. Two implementations kept in step by a
+regression drift again the first time only one of them is edited -- and this
+correction was about to edit one of them.
+
+`turnSessionRef` delegates to the axis normalizer now. The axis owns section
+3.1 because that is where a reference is proved against the durable session,
+and the turn boundary asks the same question about the same document. The
+regression that compared the two copies is retained: it now guards a boundary
+PAIR rather than two texts, and the mutation that restores a second copy still
+fails it.
+
+
+6. MUTATIONS -- TEN
+
+  V1 the opaque-id length bound removed          2 cases fail
+  V2 the opaque-id grammar removed               2 cases fail
+  V3 the rendering bound removed                 3 cases fail
+  V4 only strings are bounded again              2 cases fail
+  V5 the turn read reverts to nonempty           2 cases fail
+  V6 the attempt read reverts to nonempty        2 cases fail
+  V7 the slot boundary keeps its own opinion     1 case fails
+  V8 the reference stops proving the frozen id   1 case fails
+  V9 the provider-id bound removed               1 case fails
+  V10 the second section 3.1 copy comes back     1 case fails
+
+V9 MEASURED ZERO FIRST, and it was a missing case: I enforced the frozen
+provider bound and wrote no case for it. Added -- exactly 512 accepted, 513
+refused -- and it fails now. That is the fourth zero this week that was a fact
+about my testing rather than about the code, and the first three were an
+instrument, a syntax error and a missing case; this one is a missing case
+again.
+
+
+7. REGRESSIONS ADDED -- 2, BOTH PROPERTIES
+
+  one verdict per opaque id, at every boundary
+      Ten identifiers x FIVE boundaries. It does NOT check that each boundary
+      refuses a space; it checks that they all AGREE, because the defect was
+      never one boundary's check -- it was that each asked its own version of
+      the question. A well-formed id may still be refused for its own reasons
+      past the identity, so only the schema verdict is compared.
+      Well-formed rows include a turn token, a UUID, a dotted-and-colonned id
+      and exactly 160 characters, so the rule is pinned from both sides.
+
+  the bound belongs to the renderer, not to strings
+      Seven values including a symbol description, a bigint, a negative
+      bigint, a huge member name and a huge array. AND THE OTHER HALF: short
+      values are NOT eaten, because a diagnostic nobody can read is not safer,
+      it is just useless.
+
+I also adopted the review's own improvement to my sweep case: it inspected the
+taxonomy only IF a boundary threw, so silent ACCEPTANCE passed it. The
+reviewer's added case asserts every one of the 162 cells actually refuses, and
+it is retained.
+
+All three review regressions are retained unchanged.
+
+
+8. GATES
+
+  refusal taxonomy             9 / 9
+  turn                         50 / 50
+  session axis                 16 / 16
+  posture slots                25 / 25
+  reconnect                    32 / 32
+  full v12 npm test            682 tests, 682 pass, 0 FAIL
+  TMPDIR bracket               zero test-owned roots (the one entry is
+                               node-compile-cache, Node's own)
+  design models                64 / 66 / 24 / 74, all OK
+  v11 pytest                   2980 passed; serial 52 passed
+  codex-event-bridge           336 / 336
+  acp-baton-bridge             55 / 55
+  whitespace-damage check      clean
+
+
+9. ITEM 4ah / 4ao — THE RULING, RELAYED AND NOT DECIDED
+
+The reviewer recommends ruling the in-process section 3.1 reference to be the
+same exact inert data record the frozen schema describes, proved through
+W641's `recordFault`, explicitly superseding item 4aa's structural one-read
+boundary. That is a product-authority decision for Slawomir and I have not
+made it.
+
+WHAT THIS CORRECTION CHANGES ABOUT THE DECISION: the MEMBER half is now done
+either way -- both frozen member bounds are enforced, in one place, at every
+boundary. What remains for the ruling is purely the CONTAINER: whether a class
+instance, an array, an accessor-backed object or an object with extra members
+may carry those four proved members.
+
+And the cost of "yes, inert" fell. There is one normalizer now instead of two,
+so the ruling has one implementation to change, and `recordFault(ref, [the
+four])` implements it directly.
+
+
+10. WHAT I DID NOT DO
+
+- Did not decide 4ah, and did not tighten the CONTAINER in any direction.
+- Did not edit `records.mjs`; W641 owns it and is in its own review round.
+- Did not weaken or edit any existing assertion.

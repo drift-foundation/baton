@@ -1,0 +1,152 @@
+W4 — revalidation of the Python boundary's two prerequisites
+Date: 2026-08-24. Implementer: baton.claude.
+Boundary revalidated: review-2026-08-24T04-06-44Z.md and
+evidence/python-boundary-revalidation-2026-08-24.txt.
+NOTHING IMPLEMENTED. No file under v12/python was created or changed by this
+episode; the measurements below are reads.
+
+
+1. WHY THIS EPISODE IS A REVALIDATION AND NOT A CUT
+
+The boundary ends: "Do not route W4 to implementation until those two
+prerequisites and the proposed package/POD boundary are approved." W4 is
+routed to implementation now, and the visible cause is that its ledger
+dependency closed -- W2845 is closed satisfying. A dependency closing is not
+the same event as an approval landing, and the thread carries no message after
+the routing request.
+
+So the useful thing to do is the thing my role asks for anyway: revalidate
+every pinned decision against the current tree, and report what is and is not
+now true. One prerequisite is met. The other is HALF met, and the missing half
+cannot be met by editing files.
+
+
+2. PREREQUISITE ONE -- THE PYTHON AUTHORITY SIBLING: MET
+
+W2845 is closed satisfying and delivers exactly the object `authority_port.py`
+was specified to type: an already-minted, participant-bound session that grants
+no bootstrap, no configuration, no path and no store handle.
+
+The boundary asked for "participant plus project/slot/operation reads and
+claim, settlement, activity, cancel, end, pass, publish and gate transitions".
+Measured against the delivered package:
+
+  claim, settle_operation, activity, cancel, end, pass_work, publish,
+  install_gate, satisfy_gate                          ALL PRESENT
+  project_work, slot_holder, operation_record,
+  operation_result                                    ALL PRESENT
+  Session.participant                                 PRESENT
+  claim_signature exported from the package           PRESENT
+
+That last one matters more than its size. The boundary forbids W4 mirroring
+authority, and a manager that recomputed the claim signature would be a second
+authority on whether two claims are the same claim. It is exported, so W4
+consumes it rather than reinventing it.
+
+Sixteen transitions and sixteen reads are available in total; W4 will use the
+subset above and should type only that subset, because a port that names more
+than it uses is a capability nobody granted.
+
+
+3. PREREQUISITE TWO -- TOOLCHAIN AND VALIDATOR: HALF MET
+
+MET, and proven by W2845's own gate:
+
+  the Python floor            requires-python = ">=3.13", refused at the gate
+                              rather than assumed
+  the lock mechanism          requirements.lock with per-artifact SHA-256, an
+                              offline wheelhouse, --require-hashes and
+                              --ignore-installed, and a build that REFUSES
+                              rather than skips when the wheelhouse is absent
+  reproducibility             the distribution installs, imports from
+                              site-packages, and passes its suite from the
+                              installed layout
+
+NOT MET:
+
+  the wheelhouse holds two artifacts, pip and setuptools. There is no
+  validator wheel in it.
+  jsonschema 4.19.2 exists ONLY as an ambient system dist-package at
+  /usr/lib/python3/dist-packages. The boundary itself calls ambient packages
+  "research evidence, not a reproducible product dependency", and the locked
+  build stage cannot see it: it installs into an isolated venv with
+  --ignore-installed and resolves only from the wheelhouse.
+
+So under the build discipline W2845 delivered and the reviewer approved, a
+Draft 2020-12 validator is not obtainable today.
+
+I confirmed the frozen schemas themselves are fine, so this is a supply
+question and not a schema question:
+
+  worker-control-1.0  be1a536bc9aa2d7e23749cf54ceb98906f8dceeb8de9d72e2abc17b9baf18658
+  agent-session-1.0   22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c
+
+Both still byte-identical to their canonical dossier assets, both declare
+https://json-schema.org/draft/2020-12/schema, and both pass
+Draft202012Validator.check_schema under the ambient library.
+
+
+4. THE PART THAT MAKES THIS A DECISION RATHER THAN A CHORE
+
+"Add a wheel to the wheelhouse" is not one wheel. The minimum runtime closure
+for jsonschema 4.19.2, measured from the installed metadata:
+
+  jsonschema==4.19.2            jsonschema-specifications==2023.12.1
+  referencing==0.36.2           attrs==25.3.0
+  typing-extensions==4.13.2     rpds-py==0.21.0
+
+Six distributions. AND `rpds-py` IS A COMPILED RUST EXTENSION --
+rpds.cpython-313-x86_64-linux-gnu.so -- with no pure-Python fallback. It cannot
+be built offline on this host without a prebuilt wheel and a Rust toolchain, so
+provisioning is a real environment change and not a file edit.
+
+I did not attempt a network fetch. That is an environment action outside what I
+own, and guessing at it would be the wrong kind of initiative.
+
+
+5. THE OPTIONS, MEASURED RATHER THAN RECOMMENDED
+
+I am not choosing. These are what the measurements actually leave open.
+
+  A. PROVISION THE WHEELHOUSE. Six wheels with hashes, one compiled, added to
+     the offline wheelhouse and to requirements.lock. Cut A then proceeds as
+     written. Cost: an environment change plus six pinned third-party
+     artifacts in a distribution whose current runtime dependency set is
+     deliberately EMPTY, and which has a case asserting that.
+
+  B. VALIDATOR AT TEST TIME ONLY. The runtime keeps the exact-POD semantic
+     rules the ruling already approved, and a TEST-time conformance harness
+     proves those rules agree with the frozen schemas over a vector corpus.
+     This is not the "partial handwritten validator" the boundary forbids --
+     that was forbidden as a SUBSTITUTE for the product validator, and this
+     makes the schema the oracle rather than the implementation. It keeps the
+     runtime dependency set empty and moves the third-party artifacts into a
+     test extra. Cost: the agreement is proven over a corpus rather than
+     universally, so the corpus becomes the thing to argue about.
+
+  C. NARROW THE CUT. Scope cut A to the package skeleton, byte-identical
+     schema assets and digests, exact-POD ownership, closed refusals and
+     bounded diagnostics -- everything except schema validation -- and take the
+     validator decision before the part that needs it. Cost: cut A stops being
+     a whole obligation, which is the property the serial-cut plan was built
+     on.
+
+The three differ in what they cost, not in whether they work, so this is a
+product call and not an implementation detail. I have a mild preference for B
+because it preserves the empty runtime lock that W2845 was reviewed into
+having, but B changes what "a real validator pinned in the package" means and
+that sentence is the reviewer's, not mine.
+
+
+6. WHAT I DID NOT DO, AND WHY
+
+I did not start cut A. The boundary says not to route to implementation until
+the prerequisites and the package/POD boundary are APPROVED, and one
+prerequisite is still open. Starting the parts that do not need the validator
+would be choosing option C by doing it, which is the kind of decision I have
+been told twice this campaign to route rather than take.
+
+I did not add a validator, vendor one, or write a substitute.
+
+I did not touch the frozen Node reference, which remains the executable
+evidence this port is measured against.

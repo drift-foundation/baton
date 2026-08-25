@@ -34,6 +34,8 @@
 
 import { ContractError, digest } from "./contracts.mjs";
 import { certifiedAgentSessionProfile } from "./agent_profile.mjs";
+import { observeAgentSessionStateIn } from "./agent_session_axis.mjs";
+import { occupySlot, releaseSlotIn } from "./posture_slots.mjs";
 
 export const POSTURES = Object.freeze(["consent", "execution"]);
 
@@ -161,24 +163,34 @@ export function openAgentSession(store, session,
 		assignment = { participant: fixed.participant,
 		               generation: fixed.generation };
 	}
-	const epoch = nextEpoch(store, attemptId, posture);
 	const pinned = digest(binding.policy);
-	// ONE OPEN SESSION PER POSTURE, decided by the DATABASE. Review [P1]:
+	// ONE LIVE SESSION PER POSTURE, decided by the DATABASE. Review [P1]:
 	// freshness and concurrency are two rules, and allocating the next epoch
 	// answered only the first. A read of MAX followed by a separate insert is
-	// not an atomic allocator across two manager connections, so the partial
-	// unique index is what refuses — and its refusal is translated to the
-	// frozen pair rather than surfacing as a raw constraint.
+	// not an atomic allocator across two manager connections, so the database
+	// is what refuses — and its refusal is translated to the frozen pair
+	// rather than surfacing as a raw constraint.
+	//
+	// W771: that used to be a partial unique index on the session's own
+	// STATE, which made occupancy a projection of what the provider had been
+	// observed to do — and the only way to free a posture was to write
+	// `closed`, which asserts terminal turn facts nobody may have seen. The
+	// slot is a separate manager-owned axis now, and taking it is a
+	// compare-and-set against `available` inside the same transaction that
+	// writes the session row: an occupied posture with no session, or a
+	// session holding no posture, would each be a stranding of their own.
+	const db = store.db;
+	db.exec("BEGIN IMMEDIATE");
+	let epoch;
 	try {
+		epoch = nextEpoch(store, attemptId, posture);
+		occupySlot(db, { attemptId, posture, sessionEpoch: epoch,
+		                 at: store.clock() });
 		insertSession(store, { attemptId, posture, epoch, profileDigest,
 		                       pinned, attempt, assignment });
+		db.exec("COMMIT");
 	} catch (failure) {
-		if (isUniqueViolation(failure)) {
-			throw new ContractError("runtime-observation", "duplicate-runtime",
-				`attempt ${attemptId} already has an open ${posture} session; `
-				+ `a posture holds one, and a later epoch begins after this `
-				+ `one closes`);
-		}
+		try { db.exec("ROLLBACK"); } catch { /* already settled */ }
 		throw failure;
 	}
 	return openedAnswer({ attemptId, posture, epoch, profileDigest, pinned,
@@ -199,14 +211,6 @@ function insertSession(store, { attemptId, posture, epoch, profileDigest,
 		     store.clock());
 }
 
-// A UNIQUE violation, and nothing else. The same narrowing the observation
-// boundary already carries: a wrong diagnosis is worse than a raw error.
-function isUniqueViolation(failure) {
-	const errcode = failure?.errcode;
-	return typeof errcode === "number" && (errcode & 0xff) === 19
-		&& /UNIQUE/i.test(String(failure?.message ?? ""));
-}
-
 function openedAnswer({ attemptId, posture, epoch, profileDigest, pinned,
                         attempt, assignment, binding }) {
 	return {
@@ -225,18 +229,82 @@ function openedAnswer({ attemptId, posture, epoch, profileDigest, pinned,
 	};
 }
 
-/** Close one session, which is the ONLY thing that frees its posture.
+/** Observe one session CLOSED, and release the posture it held.
  *
- *  A later epoch begins after this one closes. `unknown` does not free the
- *  posture and never will here: re-identification after transport ambiguity
- *  is a gate this slice has not built, and opening a second session while the
- *  first may still be alive is exactly what the one-open rule prevents. */
-export function closeAgentSession(store, { attemptId, posture, epoch }) {
-	const changed = store.db.prepare(
-		"UPDATE agent_sessions SET state = 'closed' WHERE "
-		+ "runtime_attempt_id = ? AND posture = ? AND session_epoch = ? "
-		+ "AND state <> 'closed'").run(attemptId, posture, epoch).changes;
-	return { attemptId, posture, epoch, closed: changed === 1 };
+ *  SUPERSEDED BEHAVIOUR, W771. This used to write `closed` over any state
+ *  that was not already `closed`, which took four edges frozen §7.3 forbids —
+ *  `not-started`, `prompting`, `cancel-requested` and, worst, `unknown`,
+ *  which §3.3 names as recording knowledge that was never acquired. It did
+ *  that because `closed` was also the only thing that freed the posture, so
+ *  recovering capacity required inventing an observation.
+ *
+ *  The two facts are separate now. This function is the NORMALLY OBSERVED
+ *  end: the provider session was seen to close, so the observation axis moves
+ *  through its own boundary — refusing every edge the table forbids, exactly
+ *  as any other observation would — and the slot is released on that
+ *  observation as positive evidence.
+ *
+ *  A session that did NOT close normally is not this function's business.
+ *  Transport loss goes to `handleTransportLoss`, which records `unknown` and
+ *  leaves the slot needing recovery; a slot is then returned by
+ *  `releaseSlot` with the evidence that actually established absence. */
+export function closeAgentSession(store, { attemptId, posture, epoch,
+                                           reason = "the provider session "
+                                             + "was observed closed" }) {
+	const ref = { runtimeAttemptId: attemptId, posture, sessionEpoch: epoch,
+	              providerSessionId: providerSessionOf(store, attemptId,
+	                                                   posture, epoch) };
+	// ONE ACT, and the release reads the observation this act just made.
+	// Review [P1]: these were two transactions, so a crash between them left
+	// a `closed` session whose posture still looked live — and the release
+	// named no epoch, so a delayed close could free a LATER occupant. Both
+	// halves are inside one transaction now and both carry the epoch.
+	const db = store.db;
+	db.exec("BEGIN IMMEDIATE");
+	try {
+		const observed = observeAgentSessionStateIn(db, ref, "closed");
+		// THE OBSERVATION IS ABOUT THIS EPOCH AND IS ALWAYS RECORDED. The
+		// RELEASE is about the slot, and a slot a later epoch has taken is
+		// not this close's to free.
+		//
+		// Review [P1]: a delayed close of epoch 1 used to free epoch 2's
+		// slot. Refusing the whole act would be the other error — epoch 1's
+		// provider session really did close, and that observation is true
+		// whatever the posture has done since. So both happen in one
+		// transaction and only the applicable half acts.
+		const held = db.prepare(
+			"SELECT occupancy, session_epoch FROM posture_slots WHERE "
+			+ "runtime_attempt_id = ? AND posture = ?").get(attemptId, posture);
+		const mine = held !== undefined && held.session_epoch === epoch;
+		const slot = mine
+			? releaseSlotIn(db, store.clock(), { attemptId, posture,
+				sessionEpoch: epoch, evidence: "provider-session-closed",
+				reason }).occupancy
+			: held?.occupancy ?? null;
+		db.exec("COMMIT");
+		return { attemptId, posture, epoch, closed: observed.moved,
+		         state: observed.state, slot,
+		         // Said out loud, because "the close landed and the posture
+		         // did not move" is a result a caller has to be able to see.
+		         releasedSlot: mine };
+	} catch (failure) {
+		try { db.exec("ROLLBACK"); } catch { /* already settled */ }
+		throw failure;
+	}
+}
+
+/** The provider session id this epoch durably holds, so the observation this
+ *  function makes binds the same full §3.1 reference every other one does. */
+function providerSessionOf(store, attemptId, posture, epoch) {
+	const row = store.db.prepare(
+		"SELECT provider_session_id FROM agent_sessions WHERE "
+		+ "runtime_attempt_id = ? AND posture = ? AND session_epoch = ?")
+		.get(attemptId, posture, epoch);
+	if (row === undefined) {
+		throw new ContractError("refused", "precondition",
+			`no agent session ${posture}/${epoch} for attempt ${attemptId}`);
+	}
+	return row.provider_session_id ?? null;
 }
 
 /** Every session opened for this attempt, oldest first. */

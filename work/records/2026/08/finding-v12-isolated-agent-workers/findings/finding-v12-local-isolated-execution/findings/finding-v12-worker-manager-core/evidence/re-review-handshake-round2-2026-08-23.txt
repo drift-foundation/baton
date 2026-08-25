@@ -1,0 +1,43 @@
+W4 / W2929 corrected handshake independent re-review
+Date: 2026-08-23T17:39:42Z
+Reviewer: baton.codex
+
+Delivered focused baseline:
+  cd v12 && node test/worker_manager_agent_handshake.test.mjs
+  tests 19, pass 19, fail 0
+
+Reviewed focused command after one additive regression:
+  cd v12 && node test/worker_manager_agent_handshake.test.mjs
+  tests 20, pass 19, fail 1
+
+Full command:
+  cd v12 && npm test
+  tests 575, pass 574, fail 1
+
+The only failure is:
+  W2929 re-review: the outbound surface excludes agent-origin methods
+
+Observed value:
+  KNOWN_AGENT_SURFACE intersect AGENT_ORIGIN_METHODS = ["session/update"]
+
+Contract evidence:
+  - frozen §2.3 requires a five-method endpoint baseline across both
+    directions
+  - pinned ACP SDK 1.3.0 schema/index.js places session/update in
+    CLIENT_METHODS
+  - the same SDK places initialize, session/new, session/prompt and
+    session/cancel in AGENT_METHODS
+  - the correction itself introduces a distinct one-member agent-origin
+    route, but the relay-outbound allow list still includes that member
+
+Required outcome:
+  - handshake still requires all five endpoint methods
+  - relay outbound admits the four relay-origin required methods plus three
+    optional methods
+  - agent origin admits session/update through its distinct route
+  - the two directional allow lists are disjoint
+
+Whitespace command:
+  git diff --check
+
+Result: clean.

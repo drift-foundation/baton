@@ -1,0 +1,56 @@
+Independent W4 composition review, 2026-08-23
+
+Reviewed:
+- items 4ai through 4am in FINDING.md and PLAN.md
+- v12/src/worker_manager/{records,contracts,agent_reconnect,
+  agent_session_axis,agent_turn,agent_events,attempts}.mjs
+- v12/src/worker_manager/schema/agent-session-1.0.schema.json
+- v12/test/worker_manager_refusal_taxonomy.test.mjs
+- composition-revalidation-2026-08-23.txt
+
+Added reviewer regressions:
+- `W2929 review: every hostile taxonomy cell actually refuses`
+- `W2929 review: every caller-controlled primitive name is bounded`
+- `W2929 review: only a frozen opaque id can be absent`
+
+Focused result:
+
+  $ node v12/test/worker_manager_refusal_taxonomy.test.mjs
+  tests 7; pass 5; fail 2
+
+The explicit 27 x 6 refusal witness passes. The two failures are:
+- `nameValue(Symbol("x".repeat(1000)))` is not bounded;
+- `turnRecordOf(store, "contains a space")` answers absence rather than
+  refusing an operand outside the frozen opaque-id grammar.
+
+Direct bound measurement:
+
+  {"string":63,"symbol":1008,"bigint":1000}
+
+The values are `nameValue` output lengths for 1,000-character/digit string,
+Symbol-description, and BigInt inputs. The string is bounded; Symbol and
+BigInt are not.
+
+Full result:
+
+  $ cd v12 && npm test
+  tests 680; pass 678; fail 2
+
+Both failures are the two additive W4 reviewer cases above. W641's third-round
+record cases are green in this run.
+
+Session-reference ruling evidence rechecked:
+- the frozen schema is an exact object (`additionalProperties: false`) with
+  four required members;
+- both in-process normalizers accept arrays, class instances, accessors and
+  extra members, and accessors run;
+- the earlier one-read snapshot prevents disagreement but does not make the
+  boundary inert;
+- W641's shared `recordFault` primitive can prove the exact inert document
+  without running accessors or Proxy traps.
+
+Reviewer recommendation, not an authority ruling: make the in-process
+session reference the same exact inert four-member record as its frozen
+document form. If accepted, explicitly supersede item 4aa's structural
+one-read boundary, share the W641 primitive across both copies, and enforce
+the frozen opaque-id/provider-id bounds in the same proof.

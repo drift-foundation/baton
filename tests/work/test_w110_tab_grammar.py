@@ -167,11 +167,16 @@ def test_exactly_one_top_tab_is_highlighted(world, presses):
 
 
 def test_the_detail_bar_brackets_both_tabs_and_highlights_one(world):
+	"""W6814 adds `[Jobs]` to the contextual Work page's row — the Work
+	rendered as the tree root is the third thing an operator can want
+	to see about the Work they opened. The GRAMMAR this case pins is
+	unchanged: every label is bracketed at every moment, and exactly one
+	carries the active weight."""
 	view = open_detail(console(world))
 	screen = painted(view)
 	row = detail_bar(screen)
 	assert [text for text, _attr in screen.labels(row)] == \
-		["[Messages]", "[Events]"]
+		["[Jobs]", "[Messages]", "[Events]"]
 	assert screen.active(row) == ["[Messages]"]
 	view.handle(NEXT)
 	screen = painted(view)
@@ -189,7 +194,9 @@ def test_the_bracket_is_not_the_active_cue_at_either_level(world):
 		view.handle(NEXT)
 	view = open_detail(console(world))
 	for _ in range(2):
-		assert view._tab_bar() == "[Messages]  [Events]"
+		# W6814: three labels now, and still every one of them
+		# bracketed through every selection.
+		assert view._tab_bar() == "[Jobs]  [Messages]  [Events]"
 		view.handle(NEXT)
 
 
@@ -210,16 +217,22 @@ def test_bracket_keys_cycle_the_top_level_with_wrap(world):
 
 
 def test_bracket_keys_cycle_work_detail_with_wrap(world):
+	"""W6814: the cycle is the contextual Work page's THREE tabs, and
+	`Jobs` is a mode change rather than another reader — so the tab in
+	view is read from `context_tab()`, which answers for all three."""
 	view = open_detail(console(world))
 	seen = []
-	for _ in range(3):
-		seen.append(view.detail_tab)
+	for _ in range(4):
+		seen.append(view.context_tab())
 		view.handle(NEXT)
-	assert seen == ["messages", "events", "messages"], seen
+	assert seen == ["messages", "events", "jobs", "messages"], seen
+	assert view.context_tab() == "events"
 	view.handle(PREV)
-	assert view.detail_tab == "messages"
+	assert view.context_tab() == "messages", "] and [ did not undo each other"
 	view.handle(PREV)
-	assert view.detail_tab == "events", "[ did not wrap backwards"
+	assert view.context_tab() == "jobs"
+	view.handle(PREV)
+	assert view.context_tab() == "events", "[ did not wrap backwards"
 
 
 @pytest.mark.parametrize("start", list(TABS))

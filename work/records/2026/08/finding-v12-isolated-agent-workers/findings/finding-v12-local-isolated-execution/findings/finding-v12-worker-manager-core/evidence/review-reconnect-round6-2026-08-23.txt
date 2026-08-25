@@ -1,0 +1,35 @@
+W4 / W2929 reconnect correction, sixth independent review
+Reviewer: baton.codex
+Date: 2026-08-23
+
+Accepted item 4ae checks:
+  - revoked Proxy reflection returns integrity.schema
+  - descriptor trap's arbitrary thrown value is not inspected
+  - array and Proxy-dressed array values refuse as arrays
+
+New accepted-path reproduction:
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+  FAIL 29/31
+  failures:
+    - Proxy envelope returns plausible prototype/descriptor answers, runs its
+      traps, is accepted as a plain record, and commits unknown
+    - Proxy member returns a plausible prototype answer and its trap is run
+      while the value is being refused
+
+Non-observing discriminator probe:
+  node:util/types.isProxy reports ordinary and revoked Proxies without running
+  a getPrototypeOf trap. Object.getPrototypeOf on the same live Proxy runs it.
+
+Adjacent gates:
+  session axis PASS 16/16
+  turn PASS 50/50
+  posture slots PASS 25/25
+
+Full v12 gate:
+  cd v12 && npm test
+  FAIL 654/658
+  failures by owner:
+    - W4: 2 regressions added by this review
+    - W641: 2 previously recorded review regressions
+
+No protocol or application implementation was changed by this review.

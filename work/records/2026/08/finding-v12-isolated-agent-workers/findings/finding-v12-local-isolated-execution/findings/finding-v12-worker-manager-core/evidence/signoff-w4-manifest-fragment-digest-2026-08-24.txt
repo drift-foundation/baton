@@ -1,0 +1,72 @@
+W4 Cut D manifest-fragment groundwork signoff evidence — 2026-08-24
+
+Scope and ruling
+----------------
+Reviewed PLAN 4ct, `contracts.validate`, the twelve new manifest-rule cases and
+the frozen Node host's fragment/digest behavior.
+
+The two requested design decisions are accepted:
+
+1. The public fragment boundary accepts a frozen definition NAME, never a
+   caller-supplied subschema. A subschema is executable validation policy; the
+   package must choose every validator it runs. Future internal constraints
+   that are not `$defs` entries may acquire private, package-built validators,
+   but do not justify reopening this caller boundary.
+2. A definition validator contains exactly the frozen `$schema`, `$id`, `$defs`
+   and one `$ref`. Carrying the root envelope's `oneOf` or other root
+   constraints into that validator would require a fragment to be an envelope
+   as well as its own definition and would make positive fragment validation
+   impossible.
+
+The definition operand types before closed-set membership. Validators are built
+once from the same private frozen parse and join the package-owned identity set;
+documents are exact-POD owned before jsonschema walks them. The digest helper
+owns the document, requires `manifest_digest`, recomputes over every other
+member, compares the declared value and returns the computation.
+
+Scope remains honest
+--------------------
+These helpers are not named `validate_manifest` and do not claim the rest of
+the §12 trust entry. No-durable-secret, Work/assignment relationships, URI and
+path semantics, content ordering/counts/totals, input name/destination rules,
+retention, output tables and freeze/record remain explicitly queued. This is an
+accepted decomposition, not a partial contract presented as the whole.
+
+Independent checks
+------------------
+Focused helper and validator tests:
+
+    env PYTHONPATH=src python3 -m unittest -v \
+      tests.manager.test_manifest_rules \
+      tests.manager.test_validate.BothFrozenSchemasAreReachable \
+      tests.manager.test_validate.TheLibraryDecidesTheContract
+
+Result: 22/22 pass.
+
+The exact frozen vector
+`input-manifest-directory-and-declared-output` was loaded from the canonical
+worker-manifest record and passed both
+`validate_fragment(document, "inputManifest")` and
+`verify_manifest_digest(document)`. The owned result is equal to the vector and
+the recomputed digest equals its declared digest.
+
+Full source:
+
+    env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+
+Result: 555/555 pass in 66.706s with one retained ambient-version skip.
+
+The independent locked attempt:
+
+    env XDG_RUNTIME_DIR=/tmp just build
+
+reached dependency resolution but could not resolve `jsonschema==4.26.0`
+because the configured index hostname was unavailable (`Name or service not
+known`). Non-interactive policy permits no escalation or alternate dependency
+source. This review therefore does not claim an independent locked pass;
+implementer evidence records 555/555 in its locked environment.
+
+Verdict
+-------
+PLAN 4ct is accepted. The remaining §12 semantic rules may proceed.
+

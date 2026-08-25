@@ -1,0 +1,38 @@
+W4 Python Cut B final sign-off evidence — 2026-08-24
+
+Focused independent run:
+  test_an_exported_text_rule_is_itself_a_closed_boundary ... ok
+  test_an_operation_kind_is_durable_text_before_it_reaches_sql ... ok
+  test_every_value_that_reaches_a_text_column_is_durable_text ... ok
+  test_the_exported_helper_cannot_build_an_identity_the_store_refuses ... ok
+  test_every_exported_function_bounds_the_label_it_is_given ... ok
+  test_the_sweep_finds_the_exported_functions_it_claims_to ... ok
+  Ran 6 tests: OK
+
+Complete independent source run:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+  Ran 355 tests in 0.801s
+  OK (skipped=1)
+  The explicit skip reports the ambient jsonschema mismatch; the locked stage
+  is the stage that proves the pinned version.
+
+Exported surface:
+  baton_v12.worker_manager.__all__ does not contain durable_text
+  baton_v12.worker_manager.store.__all__ does not contain durable_text
+  private implementation name: _durable_text
+
+No-wheelhouse evidence retained from the immediately preceding review:
+  .gitignore:5:v12/python/wheelhouse/
+  representative nested wheel => ignored by that exact rule
+  adjacent wheel and wheelhouse.lock => not ignored
+  requirements.lock, justfile, pyproject.toml => unignored and visible
+  global *.whl ignore search => no match
+
+Locked installed evidence:
+  evidence/cutB-exported-label-2026-08-24.txt
+  355/355 inside the locked environment, nothing skipped.
+  Independent locked construction remains unavailable under managed DNS and
+  was not escalated.
+
+Whitespace check: clean.
+

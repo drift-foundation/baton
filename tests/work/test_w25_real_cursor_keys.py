@@ -159,12 +159,18 @@ def _header(screen):
 def test_raw_cursor_sequences_move_the_selection_like_vi(executable, world,
                                                          vi, raw):
 	"""Same starting screen, same number of presses, same visible
-	landing row — proven by opening detail, which names the exact Work."""
+	landing row — proven by opening detail, which names the exact Work.
+
+	W6814 made Enter conditional on the selected row's child count, so
+	`\r` alone reaches detail for some landing rows and re-roots for
+	others. `u` then `]` reaches the selected Work's Messages from ANY
+	row — which is what this case needs, since the whole point is that
+	the landing row is not known in advance."""
 	by_vi = _header(_screen(executable, world,
-	                        [(b"j", 0.4), (vi, 0.4), (b"\r", 0.6)],
+	                        [(b"j", 0.4), (vi, 0.4), (b"u]", 0.6)],
 	                        quit_from_bar=True))
 	by_raw = _header(_screen(executable, world,
-	                         [(b"j", 0.4), (raw, 0.4), (b"\r", 0.6)],
+	                         [(b"j", 0.4), (raw, 0.4), (b"u]", 0.6)],
 	                         quit_from_bar=True))
 	assert by_vi is not None, "the vi run never opened a detail header"
 	assert by_raw == by_vi, \

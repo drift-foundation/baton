@@ -1,0 +1,106 @@
+W2845 independent re-review evidence — label and classifier correction
+2026-08-24
+
+Accepted correction
+===================
+
+The correction answers both findings from
+`review-2026-08-24T07-10-44Z.md` on the paths they named:
+
+* all ten exported-helper million-character labels now produce bounded
+  Refusals;
+* hostile non-text labels are named without running caller `str`, `repr` or
+  formatting code;
+* the 160-character label bound is measured against the longest package label
+  plus one bounded member rendering, so ordinary digest diagnostics retain the
+  member they are about;
+* the reviewer's three expression-shape false positives are rejected, along
+  with nine additional composite shapes;
+* named-site exceptions are module/function/expression keyed and tested against
+  travel to a differently named function or module;
+* no durable operand cap was added, and exact long-signature settlement remains
+  green.
+
+Independent command before adding the regressions below:
+
+  cd v12/python
+  env XDG_RUNTIME_DIR=/tmp just gate
+
+Result: 221/221 from source; locked offline wheel built, installed and imported
+from site-packages; 221/221 from the installed layout. Python 3.13.7. Frozen
+Node authority untouched.
+
+Finding 1: an exact string label may still be unencodable
+=========================================================
+
+`label_of` proves an exact `str` inert and bounds its length, but unlike
+`name_of` it returns the text itself. Python exact strings may contain lone
+surrogates. Calling the exported `check_work_id(None, what="\\ud800")` returns
+a Refusal whose first character is that raw surrogate; encoding the message as
+UTF-8 raises `UnicodeEncodeError` at position zero.
+
+That is not merely display polish. The package already treats a diagnostic as
+text likely to cross a log or wire, and its value renderer deliberately uses
+`ascii` so a lone surrogate cannot replace an ordinary refusal with an encoding
+fault. The new label boundary needs the same round-trip property without
+running caller behavior or changing ordinary labels.
+
+Finding 2: the origin analysis still has false positives
+=========================================================
+
+The rewritten analyzer proves more than the AST establishes in four ways:
+
+1. `owned_constants` is one package-global set of bare names. A literal `LIMIT`
+   in one module therefore proves a caller-supplied parameter named `LIMIT` in
+   another module.
+2. `proven_locals(function)` uses `ast.walk(function)`, descending into nested
+   functions. An assignment `what = label_of(...)` inside `nested` therefore
+   proves the caller-supplied `what` in `outer`.
+3. A local is called proven if ANY safe assignment exists. A later raw
+   reassignment, or a branch in which the reaching assignment is raw, still
+   leaves the interpolation classified safe.
+4. A named-site key uses module + short function name + expression. Core
+   deliberately has many nested functions named `body`; one exception for a
+   `body` therefore excuses a same-spelled interpolation in a distinct sibling
+   `body` in the same module.
+
+These are not hypothetical parser curiosities: each was reproduced with a
+minimal fabricated package driven through the audit's own `interpolations` and
+`offenders` entry points. The analyzer returned no offenders for all of them.
+The checker therefore still matches spelling beyond the origin it claims to
+prove, just at more specific spellings than the prior version.
+
+Reviewer regressions and current suite
+======================================
+
+Three additive methods are the red handoff:
+
+* `test_identity.TheLabelBoundIsMeasuredRatherThanChosen.
+  test_a_caller_supplied_label_produces_encodable_diagnostics`
+* `test_boundary.EveryDiagnosticIsBoundedByTheRule.
+  test_origin_proof_respects_modules_scopes_and_control_flow`
+* `test_boundary.EveryDiagnosticIsBoundedByTheRule.
+  test_a_named_site_does_not_travel_between_same_named_functions`
+
+The complete source suite now runs 224 tests. Every one of the 221 pre-existing
+tests passes; only the three new methods fail (two assertion failures and the
+expected `UnicodeEncodeError`). The installed gate was not rerun after adding
+deliberately red reviewer cases.
+
+Required correction
+===================
+
+1. Make `label_of` return encodable bounded diagnostic text even for an exact
+   string containing a lone surrogate, while preserving normal short labels and
+   the measured useful ending.
+2. Prove constants with module/import and lexical-shadowing context rather than
+   a package-global bare-name set.
+3. Keep local proofs inside their lexical scope and accept them only when safe
+   reaching definitions dominate the interpolation with no unsafe reassignment
+   or branch. A deliberately conservative rule or direct rendering at the site
+   is preferable to an unsound data-flow claim.
+4. Give named sites a unique lexical identity so an exception cannot travel
+   between same-named nested functions.
+5. Mutation-check these families, make all three reviewer methods green, and
+   rerun the complete source and locked installed-wheel gate.
+

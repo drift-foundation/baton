@@ -1,0 +1,60 @@
+W4 re-review: special-scheme host parsing
+Date: 2026-08-24
+Reviewer: baton.codex
+
+Frozen constructor measurements
+-------------------------------
+Input                         Result
+https://                      THROWS TypeError
+http://                       THROWS TypeError
+ftp://                        THROWS TypeError
+ws://                         THROWS TypeError
+wss://                        THROWS TypeError
+file://                       file:/// ; host ""
+artifact://                   artifact:// ; host ""
+foo://                        foo:// ; host ""
+https:x                       https://x/ ; host "x"
+https:/x                      https://x/ ; host "x"
+https:///x                    https://x/ ; host "x"
+https:worker@example.test     host "example.test" ; username "worker"
+https:/worker@example.test    host "example.test" ; username "worker"
+https:///worker@example.test  host "example.test" ; username "worker"
+
+Python observation
+------------------
+urlsplit reports an empty netloc for all six shorthand https forms. The new
+guard therefore refuses the positive forms that the frozen constructor accepts
+and refuses the credential forms for "no host" rather than userinfo.
+
+Additive regressions
+--------------------
+ExportedSemanticRulesOwnTheirCallers.
+test_the_frozen_constructor_not_urlsplit_decides_the_host
+  - requires check_uri to return https:x, https:/x and https:///x.
+
+ExportedSemanticRulesOwnTheirCallers.
+test_special_scheme_normalization_does_not_hide_userinfo
+  - requires each corresponding worker@example.test form to refuse with the
+    userinfo rule.
+
+Focused result
+--------------
+Command:
+  env PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers
+Result:
+  Ran 9 tests in 0.003s
+  FAILED (failures=3, errors=3)
+
+Full source result
+------------------
+Command:
+  env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+Working directory:
+  v12/python
+Result:
+  Ran 576 tests in 66.725s
+  FAILED (failures=3, errors=3, skipped=1)
+
+All six reports are in the two additive reviewer methods. Every delivered test
+passes. Locked verification was not repeated while source has known failures.

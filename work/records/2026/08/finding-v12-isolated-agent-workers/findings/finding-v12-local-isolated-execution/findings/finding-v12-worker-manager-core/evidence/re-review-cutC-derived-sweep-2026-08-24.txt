@@ -1,0 +1,83 @@
+Independent Cut C derived-sweep re-review — 2026-08-24
+
+Reviewed delivery
+-----------------
+
+Implementer handoff: Baton T4 message 4435 and PLAN item 4bd-sweep.
+Correction evidence: evidence/cutC-derived-sweep-2026-08-24.txt.
+
+Accepted corrections
+--------------------
+
+All nine prior reviewer methods pass. The offer lookup owns offer-id text
+before SQL; filtered expiry owns its Work id; profile certification owns both
+key parts; the injected signature answer is owned before the acceptance write;
+and positive-but-unrepresentable duration overflow is translated before
+authority reads. The focused offer suite is 47/47 and the new text-sweep suite
+is 3/3.
+
+Retained review probes
+----------------------
+
+Two additive methods were added to tests/manager/test_offers.py:
+
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_the_deadline_source_must_be_representable_before_reads
+* WhatMustHoldBeforeEntropyIsSpent.
+  test_time_comparison_refuses_a_calendar_impossible_instant
+
+Focused result: one raw ValueError and one assertion failure. Full source is
+409 methods with one error, one failure and one explicit ambient-version skip;
+the two new methods account for both nonpassing results. The delivered 407
+methods are otherwise unchanged (406 source passes plus the skip; implementer
+evidence records 407/407 locked).
+
+Observed — instant shape is not instant representability
+--------------------------------------------------------
+
+The shared `_durable_instant` checks only fixed-width digits. Consequently
+`2026-99-99T99:99:99.999Z` passes the rule even though it names no calendar
+instant.
+
+On issue, `_later` invokes `datetime.strptime` before entering its exception
+boundary, so the configured clock value escapes as raw ValueError. No authority
+read or entropy occurs, but the answer is not the closed contract refusal the
+boundary promises.
+
+On comparison-only expiry, the same value is never parsed. It sorts after a
+real August deadline and silently expires a live offer. Thus this is not only
+an exception-translation placement error: the shared rule must establish a
+real representable calendar instant before every lexicographic comparison.
+
+Observed — one derived-sweep row is vacuous
+-------------------------------------------
+
+`test_text_sweep.py` says every table entry is a minimal valid call and accepts
+any ContractRefusal as proof of the spoiled text operand. Its settle_claim row
+does not create an accepted offer. When the `now` operand is spoiled,
+`_require_accepted` refuses absent `offer-1` before `_durable_instant(now)` is
+reached. Removing settlement's clock validation would therefore leave that
+advertised sweep case green.
+
+Give later-boundary rows the state required to reach their named operand, or
+assert the exact integrity/schema refusal from that operand. The completeness
+check over exported names is useful and accepted; precondition validity must
+make its per-operand coverage non-vacuous.
+
+Outcome
+-------
+
+Changes requested. Retain all eleven reviewer methods. Re-review only shared
+calendar-instant representability and the non-vacuous settlement-clock sweep;
+the six durable-text corrections and positive-duration overflow correction are
+accepted.
+
+Anti-loop routing addendum
+-------------------------
+
+PLAN item 4bx was confirmed during this review. The calendar-impossible instant
+is the same instant/deadline class surviving outside the claimed inventory, and
+the settlement-clock row demonstrates non-reachability inside that inventory.
+The gate is met: keep Cut D unstarted and return the centralized boundary layer
+for explicit redesign rather than another named-site patch. See
+review-2026-08-24T11-46-38Z.md.

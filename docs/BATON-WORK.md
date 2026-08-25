@@ -131,10 +131,20 @@ you walked, and the page you are on shows only its own tabs beneath
 it:
 
     Jobs > the root > the child                              team.member
-    [Messages] [Events]
+    [Jobs] [Messages] [Events]
 
 Two tab rows on one screen would say you are in two places at once,
 and one of them is a drill-down inside the other.
+
+Those three local tabs belong to the Work the breadcrumb ENDS at, and
+to nothing else. `Jobs` renders that Work as the tree root; `Messages`
+and `Events` are that Work's own. Moving the highlight through the
+tree changes which row you would open next and never which Work owns
+Messages or Events — otherwise the conversation you were about to read
+would move under you as you scrolled. A Work with children opens on
+`Jobs`; one with none opens on `Messages` and keeps `Events` beside
+it. Switching tabs is a local move: it changes no breadcrumb segment
+and costs no Back.
 
 `]` selects the next tab and `[` the previous one, with wrap-around.
 They always act at the level you are ON: at the top level they move
@@ -146,14 +156,30 @@ are not any more, because Tab has a better job one level down. Where
 the console is taking text — the command bar, a batch buffer, the
 search line — `[` and `]` are typed characters like any other.
 
-**Esc (or Left) goes back exactly one segment**, never straight to the
-top. From a grandchild's detail it reveals the child's, then the
-root's, then the Jobs table — and each level comes back the way you
-left it: the same row selected, the same local tab, the same pane. A
-search you drilled a result out of is still there when you come back,
-and one more Esc returns the table it was run from. Opening a Work
-from Inbox is a HANDOFF into Jobs, so Back from there leaves you in
-Jobs rather than returning to the Inbox row.
+**Esc (or Left) goes back exactly one thing you did**, never straight
+to the top — and each page comes back the way you left it: the same
+row selected, the same local tab, the same pane. A search you drilled
+a result out of is still there when you come back, and one more Esc
+returns the table it was run from. Opening a Work from Inbox is a
+HANDOFF into Jobs, so Back from there leaves you in Jobs rather than
+returning to the Inbox row.
+
+Back is browser history, not containment. The breadcrumb is
+STRUCTURAL: it names the whole containment path of the Work you are
+looking at, whether or not you opened each level. The Back stack
+records what you actually DID. Opening a visible grandchild with one
+Enter is one action, so one Esc returns to where you were, even though
+the trail names two parents in between; explicitly opening the parent
+and then its child is two actions and therefore two Escs. Selecting
+rows, scrolling, filtering and moving between a page's local tabs
+change nothing in that history, and going to the page you are already
+on is not recorded at all.
+
+The history is per session, bounded at 64 ordinary page transitions,
+and starts empty on every launch. Past the bound the OLDEST ordinary
+entry is dropped — but the page you originally drilled in from is kept
+separately and is never dropped, so a long walk can always be left in
+one Esc.
 
 Narrow terminals drop the OLDEST breadcrumb segments and mark the
 shortened trail with a leading `…`, because where you are now is the
@@ -348,8 +374,36 @@ not show — the fourth level and below, or children a filter removed —
 reached with `u`. The tree the console
 paints is one canonical projection — the JSON verb `tree` (optionally
 `tree WORK` for a re-rooted window) returns the identical rows,
-summary and snapshot token, all read under one transaction. Keys: j/k select, Enter
-opens the selected Work's DETAILS: the compact summary, the Thread
+summary and snapshot token, all read under one transaction.
+
+Work that is CLAIMED below that three-level window is still shown,
+because a roll-up that looks idle while somebody is working under it
+is the one thing this view must not do. Beneath the deepest visible
+ancestor of each such claim the console paints a `⋮` (or `...` where
+the terminal's encoding cannot carry it) and then the exact active
+Work, with its own identity, title, Handler and Run state:
+
+    W2  Design v12 isolated workers
+      ↳ W3  Prove local isolated execution
+        ↳ W5  Build OCI reference worker and adapter
+          ⋮
+          ↳ W6631  Materialize exact source   team.member  working
+
+The `⋮` says one or more containment levels were omitted. It is not a
+Work: it has no Id, it cannot be selected, and no key acts on it. The
+row under it is a real Work row and Enter opens it. An ancestor never
+borrows its descendant's Handler or Phase — W5 above is still
+unclaimed and still says so. Every concurrent claim gets its own row
+rather than a count, one `⋮` is shared by all the claims under one
+ancestor, and a claim already visible in the ordinary window is not
+repeated. The same list rides JSON as `tree`'s `active_trails`, so
+both surfaces read it from one snapshot.
+
+Keys: j/k select, Enter OPENS the selected Work — and what that means
+is decided by the Work, from the same child count the `▸N` disclosure
+draws. A Work that contains other Work becomes the tree root and the
+window (and its `⋮` groups) is recomputed beneath it. A Work that
+contains none opens its DETAILS: the compact summary, the Thread
 list, and below it a compact Message index (`M<seq>` labels over the
 existing stable sequence, with author, time, and your personal
 new/seen state) beside a reader showing exactly ONE selected message
@@ -373,9 +427,10 @@ and nothing in the authority. Where the console is taking text, Tab
 keeps that surface's own contract — command-bar completion is still
 completion.
 
-Refs section. Work detail carries TWO tabs — `[Messages]` and
-`[Events]`, both bracketed like every other tab, with Messages the
-default and the active one highlighted. `]` selects the next tab and
+Refs section. A Work page carries THREE tabs — `[Jobs]`, `[Messages]`
+and `[Events]`, all bracketed like every other tab, with the active
+one highlighted; a Work with children opens on `Jobs` and one without
+opens on `Messages`. `]` selects the next tab and
 `[` the previous, from anywhere in the detail view — the same keys and
 the same wrap the top level uses — and the footer always advertises
 `[/] tabs`. Events is the Work's
@@ -407,9 +462,9 @@ from the lower panes. At usable width the index sits left of the
 reader; at narrow width they stack, index above reader — never merged
 into a flat stream. Selecting a Thread opens its newest Message, which
 is also its newest unseen one whenever anything is unseen. u
-unfolds/re-roots the tree at the selected Work (adding breadcrumb
-segments for its containment path, one per Esc on the way out),
-Esc goes back one segment, Ctrl-W then h/j/k/l (or arrows, or w / another
+unfolds/re-roots the tree at the selected Work (the breadcrumb names
+its whole containment path; one Esc leaves it), Esc goes back one
+action, Ctrl-W then h/j/k/l (or arrows, or w / another
 Ctrl-W) moves GEOMETRICALLY across the three regions — Threads sits
 above both Message panes, index and reader sit beside each other, so
 one upward move from the reader reaches Threads directly and an
@@ -420,7 +475,8 @@ long body, tagged `M<seq> (cont.)`), n pages toward OLDER messages
 through the Message index (or forward through the Thread list) while
 more exists, p returns to the newest page (not a previous-page step), s advances your seen cursor
 through the SELECTED message and no later one, z reveals closed
-rows, [b] deps opens
+rows, u unfolds the selected Work explicitly (which is how you root at
+a Work that has no children), [d] deps opens
 the dependency NEIGHBOURHOOD GRAPH described below (from the table and
 from search results alike), p opens the poke view described
 below, q asks Exit? y/N on one row (y exits; n or Esc returns to the unchanged view). `:` opens the command bar: everything typed there is
@@ -433,7 +489,7 @@ body="..."`), with the public refusals. As you type, the bar shows context-sensi
 
 ### The dependency graph
 
-`[b] deps` opens the selected Work's dependency NEIGHBOURHOOD — the Work
+`[d] deps` opens the selected Work's dependency NEIGHBOURHOOD — the Work
 between what it waits on and what waits on it — from the Jobs table and
 from search results alike. It draws dependencies ONLY: containment stays
 in the Jobs tree, and duplicates and follow-ups keep their own
@@ -636,7 +692,7 @@ The table's `Wait` field shows the inline dependency cue, arrowless:
 and `Wn+N` adds the count of remaining open blockers; a row with no
 open blocker has an empty cell, and satisfied edges leave it (the
 ledger keeps history). `↳` remains exclusively the containment-tree
-marker; `[b] deps` remains the full neighbour view, now drawn as the
+marker; `[d] deps` remains the full neighbour view, now drawn as the
 graph described under **The dependency graph** below; narrow layouts
 omit the cue whole — never clipped or relabelled. The boolean Ready column
 is gone: the cue names what must finish.

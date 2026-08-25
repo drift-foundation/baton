@@ -153,21 +153,22 @@ def test_the_global_tab_row_is_the_top_level_only(world):
 
 	view.handle(curses.KEY_ENTER)
 	row = header(view)
-	assert view.nav, "entering Work detail recorded no navigation path"
-	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+	assert view.nav, "entering a Work page recorded no navigation path"
+	for label in ("[Jobs]  [Teams]", "[Teams]", "[Inbox"):
 		assert label not in row, row
 	assert row.startswith("Jobs > "), row
 	# The drilled page's OWN tabs are still there, and exactly one is
-	# active — the local row is not what this ruling removed.
+	# active — the local row is not what this ruling removed. W6814
+	# makes them three, all scoped to the Work this page is about.
 	labels = [label for _name, label in view.detail_tab_segments()]
-	assert labels == ["[Messages]", "[Events]"], labels
+	assert labels == ["[Jobs]", "[Messages]", "[Events]"], labels
 	# The painter writes each label at its own column so exactly one can
-	# carry the active weight, so the two labels are two calls.
+	# carry the active weight, so the labels are separate calls.
 	drawn = painted(view).lines()
 	for label in labels:
 		assert label in drawn, (label, drawn[:8])
 	screen = painted(view)
-	assert screen.attr_of("[Messages]") != screen.attr_of("[Events]"), \
+	assert screen.attr_of("[Jobs]") != screen.attr_of("[Messages]"), \
 		"the local row does not distinguish its active tab"
 
 
@@ -180,44 +181,62 @@ def test_the_trail_names_the_whole_path_and_ends_where_it_is(world):
 	assert header(view).rstrip().endswith("lang.ada")
 
 
-def test_direct_grandchild_entry_pops_one_work_segment_per_back(world):
-	"""The finding's rule: do not paint ancestry that one Back skips."""
+def test_direct_grandchild_entry_is_one_action_and_one_back(world):
+	"""W6814 SUPERSEDES W292's rule that the trail and the Back stack
+	are the same list.
+
+	W292 read "do not paint ancestry that one Back skips" as a reason to
+	make every painted ancestor its own Back step. That charged the
+	operator two extra Escs — through two Work pages they never asked to
+	open — for one Enter into a row the screen was already showing.
+
+	The trail is structural and still names the whole containment path;
+	the stack is explicit navigation ACTIONS, and one entry is one Back.
+	Both halves are asserted here so neither can drift back into the
+	other."""
 	view = console(world)
 	view._enter_detail(world["grand"]["work_id"], came_from="table")
 	assert view.nav_segments() == ["Jobs", "the root", "the child",
-	                               "the grandchild"]
+	                               "the grandchild"], view.nav_segments()
 	assert view.detail_work == world["grand"]["work_id"]
-
-	view.handle(27)
-	assert view.nav_segments() == ["Jobs", "the root", "the child"]
-	assert view.mode == "detail"
-	assert view.detail_work == world["child"]["work_id"], \
-		"Back skipped the parent Work scope the trail named"
-
-	view.handle(27)
-	assert view.detail_work == world["root"]["work_id"]
-	assert view.nav_segments() == ["Jobs", "the root"]
+	assert len(view.nav) == 1, \
+		"one navigation action recorded more than one Back step"
 
 	view.handle(27)
 	assert view.nav == [] and view.mode == "table"
 	assert header(view).startswith("[Jobs]"), "the last Back left the top level"
 
+	# Explicitly opening the intermediate parent first IS two actions,
+	# and is therefore two Back steps — the other half of the ruling.
+	view._enter_detail(world["child"]["work_id"], came_from="table")
+	view._enter_detail(world["grand"]["work_id"], came_from="table")
+	assert len(view.nav) == 2
+	view.handle(27)
+	assert view.detail_work == world["child"]["work_id"], \
+		"Back skipped a level the operator had explicitly opened"
+	view.handle(27)
+	assert view.nav == [] and view.mode == "table"
+
 
 def test_back_from_detail_restores_the_caller_selection(world):
+	"""W6814: activation opens a childless Job's detail, so the walk
+	aims at the grandchild. What the case pins is unchanged — Back
+	returns the caller's exact row and cursor."""
 	view = console(world)
-	rows, _hidden = view.visible_rows(view.rows())
-	assert len(rows) > 1
+	rows, _hidden = view.table_rows()
+	assert len(rows) > 2
+	view.handle(ord("j"))
 	view.handle(ord("j"))
 	chosen = view.selected_id
-	assert chosen is not None
+	assert chosen == world["grand"]["work_id"], chosen
 	view.handle(curses.KEY_ENTER)
-	assert view.mode == "detail"
+	assert view.mode == "detail", "a childless Job did not open its detail"
 	while view.nav:
 		view.handle(27)
 	assert view.mode == "table"
 	assert view.selected_id == chosen, \
 		"Back reset the caller's stable selection"
-	assert view.cursor == 1
+	assert view.cursor == 2
 
 
 def test_table_re_root_is_a_drill_that_restores_its_opener(world):
@@ -275,19 +294,27 @@ def test_a_nested_re_root_appends_one_segment_not_the_whole_ancestry(world):
 	assert header(view).startswith("[Jobs]")
 
 
-def test_opening_a_re_rooted_works_detail_is_a_distinguishable_level(world):
-	"""A re-rooted subtree and that Work's detail page are two different
-	pages of the same Work, so they are two levels — and two segments
-	reading the same title would not say which is which."""
+def test_a_works_own_pages_are_tabs_of_one_level_not_two_levels(world):
+	"""W6814 SUPERSEDES W292's `the root · detail` second segment.
+
+	A re-rooted subtree and that Work's Messages are two pages of ONE
+	Work, and the confirmed model makes them two TABS of one contextual
+	page rather than two levels of a path. So the trail does not grow,
+	the tab move records no history, and one Esc still leaves the Work
+	the operator actually opened."""
 	view = console(world)
 	select(view, "the root")
 	view.handle(ord("u"))
-	view.handle(curses.KEY_ENTER)
-	assert view.mode == "detail"
-	assert view.nav_segments() == ["Jobs", "the root", "the root · detail"], \
-		view.nav_segments()
+	assert view.nav_segments() == ["Jobs", "the root"]
+	depth = len(view.nav)
+	view.handle(ord("]"))
+	assert view.mode == "detail" and view.detail_tab == "messages"
+	assert view.detail_work == world["root"]["work_id"], \
+		"the local tab moved to a Work other than the page's root"
+	assert view.nav_segments() == ["Jobs", "the root"], view.nav_segments()
+	assert len(view.nav) == depth, "a local tab move recorded history"
 	view.handle(27)
-	assert view.mode == "table" and view.nav_segments() == ["Jobs", "the root"]
+	assert view.nav == [] and view.mode == "table"
 
 
 def select_neighbour(view):
@@ -323,7 +350,7 @@ def test_a_linked_drill_through_rebuilds_the_far_works_own_ancestry(world):
 	is recorded in the dossier rather than absorbed here."""
 	view = console(world)
 	select(view, "a second root")
-	view.handle(ord("b"))
+	view.handle(ord("d"))
 	assert view.mode == "links"
 	assert view.nav_segments() == ["Jobs", "a second root · deps"], \
 		view.nav_segments()
@@ -366,7 +393,7 @@ def test_a_drill_through_from_a_re_rooted_caller_carries_no_caller_ancestry(
 	# The re-rooted window shows the root's subtree; open the neighbour
 	# view of the grandchild, whose dependent is outside that subtree.
 	select(view, "the grandchild")
-	view.handle(ord("b"))
+	view.handle(ord("d"))
 	assert view.mode == "links"
 	assert view._graph_view()["edges"], \
 		"the fixture dependency did not reach the neighbour view"
@@ -470,7 +497,7 @@ def test_the_inbox_handoff_lands_in_jobs_and_backs_out_there(world):
 
 def test_the_links_page_is_a_segment_too(world):
 	view = console(world)
-	view.handle(ord("b"))
+	view.handle(ord("d"))
 	assert view.mode == "links"
 	assert view.nav_segments()[0] == "Jobs"
 	# W17 ruled the label reads "deps"; W4996 made the page the
@@ -601,26 +628,30 @@ def test_a_real_terminal_walks_in_and_out_one_segment_at_a_time(world):
 	"""Bare Esc and the decoded Left key are the same Back, and the whole
 	walk is read-only."""
 	before = world["store"].last_seq()
+	# W6814: activation re-roots a Job that has children, so the second
+	# segment is opening `the child` from inside `the root` — one
+	# explicit action, one segment, one Back.
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
 		(b"", 0.5),                # 0: the top level
 		(b"u", 0.5),               # 1: re-root — a drilled page
-		(b"\r", 0.6),              # 2: its detail — another segment
+		(b"j\r", 0.6),             # 2: open the child — another segment
 		(b"]", 0.5),               # 3: local tab move, same location
 		(b"\x1b", 0.5),            # 4: one segment out
 		(b"\x1b[D", 0.5),          # 5: decoded Left, one more
 		(b"qy", 0.4),
 	])
-	top, rooted, detail, events, out_one, out_two = (
+	top, rooted, deeper, messages, out_one, out_two = (
 		ptyharness.replay(step) for step in steps[:6])
 	assert top[0].startswith("[Jobs]  [Teams]  [Inbox"), top[0]
-	for screen in (rooted, detail, events, out_one):
-		for label in ("[Jobs]", "[Teams]", "[Inbox"):
+	for screen in (rooted, deeper, messages, out_one):
+		for label in ("[Jobs]  [Teams]", "[Teams]", "[Inbox"):
 			assert label not in screen[0], screen[0]
 		assert screen[0].startswith("Jobs > "), screen[0]
 		assert screen[0].rstrip().endswith("lang.ada"), screen[0]
-	assert detail[0] == events[0], \
+	assert deeper[0] == messages[0], \
 		"the local tab move changed the location row"
-	assert any("[Messages]  [Events]" in line for line in events), events[:12]
+	assert any("[Messages]  [Events]" in line for line in messages), \
+		messages[:12]
 	assert out_two[0].startswith("[Jobs]  [Teams]  [Inbox"), out_two[0]
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, text[-600:]
 	assert world["store"].last_seq() == before, \

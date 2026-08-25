@@ -1,0 +1,103 @@
+W2929 / current authority W4 — reconnect slice, FOURTH correction
+Date: 2026-08-23. Implementer: baton.claude.
+Review answered: review-2026-08-23T19-13-23Z.md (one P2, two parts).
+
+
+1. REPRODUCED BEFORE ANY EDIT
+
+  cd v12 && node test/worker_manager_agent_reconnect.test.mjs
+    tests 23, pass 21, fail 2
+
+Both additive regressions were the only failures in that file. Both findings
+are correct.
+
+
+2. THE RULE WAS RIGHT AND I APPLIED IT AT ONE OF TWO SITES
+
+Last round I wrote that a refusal must never run the value it is refusing,
+and that "translating an unavoidable reflection failure is cheaper than
+proving no host or Proxy object can make `getPrototypeOf` throw". Then I
+wrapped the reflection in `describe` and left the one in `isPlainRecord` bare
+— and `isPlainRecord` runs FIRST. So a Proxy with a `getPrototypeOf` trap
+leaked an arbitrary Error before the guard I had just written was reached.
+
+A rule applied at the second of two sites is not applied. The correction is
+ONE translated prototype snapshot, taken once and shared by the record test
+and the description, so there is a single place the reflection happens.
+
+The second part is the same rule at a place I had not thought of as
+reflection at all. `hasOwnProperty` runs nothing, so I treated the ownership
+check as inert — but the property READ that followed it executes an own
+ACCESSOR. An ACCEPTED plain record could therefore still run the caller's code
+at a boundary whose entire rule is that it does not.
+
+`ownTurnInFlight` reads one guarded own-property DESCRIPTOR and accepts
+absence or a data descriptor. An options document carries data; a getter is a
+program, and a program is not an operand.
+
+
+3. MUTATIONS — FIVE, WITH ONE MEASUREMENT
+
+  Y1 the prototype snapshot is untranslated again   3 cases fail
+  Y2 an unreadable prototype is treated as a record 2 cases fail
+  Y3 the member is read as a property again         6 cases fail
+  Y4 an accessor is accepted as data                0  MASKED
+  Y5 the descriptor read is untranslated            1 case fails
+
+Y4 is MEASURED AS MASKED and the distinction is worth stating: an accessor's
+descriptor has no `value`, so the boolean proof downstream refuses it with the
+same closed pair. What the accessor branch adds is the MESSAGE. What actually
+keeps the getter from RUNNING is reading the descriptor instead of the
+property — Y3 — and that fails six cases. The guard is the descriptor read;
+the accessor branch is its explanation and is not counted as one.
+
+
+4. REGRESSIONS — 25 (23 before, including the reviewer's two)
+
+Two of mine:
+
+  reflection is translated at EVERY site, not the last — a Proxy trapping
+    `getPrototypeOf` and one trapping `getOwnPropertyDescriptor`, because the
+    finding is that a rule has to hold at every site rather than at the one I
+    happened to look at
+  an operand is DATA, and a getter is a program — an own enumerable accessor
+    refuses, the getter is asserted NOT to have run, and a data member of the
+    same name still decides, so the rule is about the KIND of member rather
+    than about ignoring it
+
+
+5. GATES
+
+  W4's own suites                          reconnect 25/25, axis 16/16,
+                                           turn 50/50
+  cd v12 && npm test                       649 tests, 643 pass, 6 fail
+  the same under a TMPDIR bracket          zero test-owned roots retained
+  pytest -m serial tests/work              52 passed, 0 failed
+  tools/codex-event-bridge npm test        336 pass, 0 fail
+  tools/acp-baton-bridge npm test          55 pass, 0 fail
+  whitespace-damage check                  clean
+
+W4's two failures from last round are fixed and NONE of the six remaining is
+W4's. They are three other Works' open review rounds, all of which landed
+while this correction was being made:
+
+  2  "W543 review"        the tool-call `kind` ruling
+  2  "W641 review"        the client-capability representation
+  2  "W771 second review" the posture-slot lifecycle
+
+The handshake suite carries the two W641 cases; they belong to W641's round
+and were not touched here.
+
+
+6. UNCHANGED
+
+The next-epoch flag remains reported rather than durable enforcement; W151 §9
+stays deferred; W771's plan item 5 remains open.
+
+
+7. FILES CHANGED
+
+  v12/src/worker_manager/agent_reconnect.mjs        one translated prototype
+                                                    snapshot; a guarded own
+                                                    descriptor read
+  v12/test/worker_manager_agent_reconnect.test.mjs  +2 cases
