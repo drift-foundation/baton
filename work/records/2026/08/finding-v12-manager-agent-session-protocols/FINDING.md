@@ -138,6 +138,12 @@ and what a manager does when the answer is nothing.
 
 ## Confirmed operator interrogation split — 2026-08-25
 
+This ruling **supersedes the earlier “Not in this slice” exclusion for turns,
+deadlines, and agent-origin routing to the extent required by `inquire`**. The
+remaining exclusion still applies to general turn supervision, event
+normalization, and App Server provider binding. The adapter contract is not
+certifiable until the narrower interrogation lifecycle below is implemented.
+
 The v11 conversational `poke` conflates two facts: whether the adapter/session
 can be observed now, and whether a model has accepted and answered a new
 conversational request. V12 exposes them as different manager-owned
@@ -175,3 +181,137 @@ it means "the gate is green" is not a sentence this slice can honestly say —
 so the claim it makes instead is the one it can prove: `evidence/
 gate-after-2026-08-25.txt` is the same list minus one, diffable against the
 baseline, with nothing added.
+
+## Independent review — changes requested — 2026-08-25
+
+**Confirmed:** the implemented session slice preserves the reviewed invariants:
+the frozen state axis and terminal `unknown`, separate posture occupancy,
+atomic slot/session movements, exact epoch and provider identity checks,
+effectively-once opening, positive session absence, restart observation, and
+fence-before-agent-before-runtime cancellation. The focused 73-case session
+suite passes.
+
+**Blocking:** the confirmed interrogation split above arrived after the
+implementation handoff and is not implemented. The current exported adapter
+contract still contains only `cancel` and `observe_session`; the manager has no
+`probe` or `inquire` operation, no durable interrogation lifecycle or answer
+documents, no deadline/outcome model, and no manager-owned Baton publication
+boundary. Certifying that contract now would freeze the exact `poke`
+conflation this ruling exists to remove.
+
+**Observed gate state:** the adjacent boundary/dependency/text inventories ran
+101 tests with 8 failures and 1 skip. The failing test cases are all members of
+the dossier's already-recorded red baseline; their current detailed deltas
+span the concurrently evolving OCI, workspace, profile-retention and operation
+inventory. They do not make the gate green and are not evidence against the
+73-case focused pass.
+
+Disposition: **changes requested**. Implement PLAN item 8, including positive,
+negative, replay/collision, restart, deadline-without-cancellation,
+unreachable/runtime-absent, correlation, safe-turn delivery, capability
+isolation, and Baton-publication regressions; then return the complete adapter
+contract for independent review.
+
+## Divergences and decisions taken while implementing the split — 2026-08-25
+
+Recorded here because each is a decision a re-reviewer should be able to
+disagree with, not an implementation detail.
+
+**`answered` is not an acknowledgement.** `INQUIRY_ACKNOWLEDGEMENTS` names
+`queued`, `delivered`, `unreachable` and `runtime-absent`. An adapter that
+answered synchronously would be reporting a model turn it has not had, so the
+answer arrives through `record_inquiry_answer` at a safe turn boundary or not
+at all. This is the split's whole content and it is enforced by the closed set
+rather than by convention.
+
+**The commit marker, not the returned document, decides replay.** `_ask`
+appends to a list inside the transacted action, because `store.transact` runs
+the action only when it did not replay. Reading the answered document instead
+does not work: a fresh commit and a replay both carry `outcome: "requested"`,
+since that is what the row said both times. The idiom is `offers.py`'s and is
+used here for the same reason.
+
+**A timeout is an observation the manager makes about its own waiting.**
+`timed-out` still admits `answered` for an inquiry and `observed` for a probe,
+and nothing on this axis cancels anything. A manager that stopped waiting has
+said something about the manager.
+
+**Two dead or doubled validators, found by the gate and removed rather than
+exempted.** `interrogation._kind` validated a kind that never crosses a
+boundary. `publish_inquiry_answer` re-proved `port.publish_answer` after
+`AuthorityPort.__init__` had already typed the whole session surface. Both are
+the blanket revalidation PLAN 4bz forbids; the inventory's
+"attributed to no entry" and "owned more than once" checks are what found
+them.
+
+## Operational finding — unowned `documents.py` constructors, not this claim's
+
+**Observed 2026-08-25.** `test_every_receiving_entry_has_an_owning_validator`
+is part of the recorded red baseline, and part of what it lists is every
+`documents.py` constructor whose `members` parameter has no `STATED_OWNERS`
+line. Ten belong to HEAD (`session_ref`, `session_opened`, `session_observed`,
+`session_closed`, `session_reconciled`, `session_quiescence_requested`,
+`provider_session_adopted`, `transport_lost`, `posture_slot`, `slot_moved`);
+seven belong to W6628, which is in independent review (`operation`,
+`manifest_retained`, `freeze_requested`, `frozen_output`, `output_answer`,
+`output_artifact`, `result_frozen`).
+
+Each needs one line — `"documents.py:_emit, against this document's entry in
+CONTRACTS"` — plus its witness. This claim added exactly that for the two
+constructors it introduced and left the rest alone: a claim reaching into
+another Work's inventory rows while that Work is under review is how a red
+baseline stops meaning anything. Reported so whoever holds them can act.
+
+## Independent re-review observations — 2026-08-25
+
+**Observed:** An exact retry recomputes its absolute deadline from the current
+manager clock and includes that derived instant in its signature. Advancing
+only the clock turns identical caller operands into `operation-collision`, so
+the effectively-once identity does not survive restart.
+
+**Observed:** A successful probe's state, last activity and diagnostics exist
+only in the fresh return value. The row persists `outcome: observed` but not
+the observation, so lookup, replay, listing and restart silently lose the
+control-plane reading.
+
+**Observed:** The adapter's `observed` shape is member-closed but its values
+are not typed. In particular, a runtime state such as `running` is accepted as
+an agent-session state, contrary to the record's three-vocabulary boundary.
+
+The exact regressions and correction boundary are in
+`review-2026-08-25T08-48-15Z.md`. These observations do not supersede the
+confirmed interrogation ruling; they are defects in its implementation.
+
+## Independent third-review observations — 2026-08-25
+
+**Observed, P1:** The corrected signature is stable, but `_ask` still computes
+a fresh absolute deadline before the journal can replay. A later clock whose
+duration would overflow refuses an exact retry, so the second clock still
+decides an operation that already has a durable first deadline.
+
+**Observed, P1:** Observation typing exists only on the fresh adapter path.
+Exported `settle_interrogation` accepts and persists an observation directly,
+allowing runtime state `running` to cross as an agent-session state and
+bypassing exact-session validation.
+
+**Observed, P1:** Diagnostics bound entry count and string values but not key
+length. A one-entry document with a 2,001-character diagnostic name is accepted
+and persisted despite the stated per-entry bound.
+
+Three additive regressions and the correction boundaries are in
+`review-2026-08-25T10-26-49Z.md`.
+
+## Independent fourth-review observations — 2026-08-25
+
+**Observed, P1:** Exact replay still calls `_bound_session` before the journal,
+so a later ended assignment refuses an already answered operation instead of
+replaying it. Mutable external authority still re-decides historical work even
+though the later clock no longer does.
+
+**Observed, P1:** Probe diagnostics are free injected structure written to the
+durable observation column, but their owner never performs the section-13
+secret walk. A `claim_token` member is accepted and persisted; the
+durable-writer inventory's ownership-only exemption is false.
+
+Two additive regressions and the correction boundaries are in
+`review-2026-08-25T11-30-14Z.md`.

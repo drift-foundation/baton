@@ -45,7 +45,7 @@ and what one may advertise.
 """
 
 from ..contracts import (AGENT_SESSION, ContractRefusal, canonical_bytes,
-                         digest, own, own_record,
+                         check_no_durable_secret, digest, own, own_record,
                          validate_agent_session_fragment)
 from types import MappingProxyType
 
@@ -169,6 +169,15 @@ def certify_agent_session_profile(store, profile):
     owned = boundaries.document(profile, "an agent-session profile")
     what = "an agent-session profile"
     validate_agent_session_fragment(owned, "sessionProfile", what=what)
+    # §13 (W6630), between the shape and the seal. An agent-session document
+    # does NOT go through the manifest composite -- it is a different frozen
+    # family with its own validator -- so the durable-secret walk has to be
+    # here or this build would file profile bytes nothing had ever walked.
+    #
+    # Before the seal rather than after: a document carrying a secret is
+    # refused as such rather than as whatever digest disagreement is also in
+    # it, and the two answers send a caller to different places.
+    check_no_durable_secret(owned, what=what)
     # 2. THE DOCUMENT SEAL, over the document with `document_digest` OMITTED --
     # not nulled and not emptied, which are different documents with different
     # canonical bytes.
@@ -284,6 +293,14 @@ def certified_agent_session_profile(store, profile_digest):
             f"{name_value(recomputed)} and is filed under "
             f"{name_value(profile_digest)}; a profile is the one document all "
             f"three name or it is not certified")
+    # §13 ON THE READ SIDE, for the reason the shape and the digest are already
+    # re-checked here. Re-review [P1]: the inventory called this prose-only
+    # because `certify_agent_session_profile` walks on the way in -- but this
+    # function exists precisely because a write-side guard cannot see a later
+    # store edit, and a §13 rule left out of that argument is the one rule this
+    # read-side trust boundary was not applying. A hand-edited row carrying a
+    # live bearer was revalidated, found well-formed, and returned.
+    check_no_durable_secret(owned, what=what)
     return owned
 
 

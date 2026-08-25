@@ -1,0 +1,83 @@
+W6627 — the v12 Python gate after the FOURTH re-review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_interrogation tests.manager.test_sessions
+    # Ran 150 tests -- OK
+    # 77 interrogation, 73 session.
+    # 146 before, plus four of mine covering the two corrections.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1100 tests -- FAILED (failures=14, skipped=1)
+
+    cd v12/python && just build
+    # Ran 1100 tests -- FAILED (failures=14)
+    # and the installed-layout suite run directly, list captured and compared
+    # line by line against the source run's: IDENTICAL.
+
+THE DELTA AGAINST `gate-after-third-correction-2026-08-25.txt`
+
+  ADDED BY THIS CORRECTION ....................... 0
+  REMOVED BY THIS CORRECTION ..................... 2  (the review's own)
+      test_an_exact_retry_is_not_redecided_by_later_assignment_liveness
+      test_probe_diagnostics_named_for_a_secret_never_reach_the_row
+  W6633's two container cases were fixed by that Work's own claim; one new
+  W6633 reviewer case took their place.
+
+  Twelve remain pre-existing: `test_oci` 4, `test_boundary_inventory` 7,
+  `test_dependencies` 1.
+
+STILL OPEN AND NOT THIS WORK'S
+
+  tests.manager.test_worker_container ....... 1   -- W6633, in review
+      test_two_independent_builds_have_one_pinnable_image_identity
+      (from `review-2026-08-25T12-19-50Z.md`)
+  tests.manager.test_secrets ................ 1   -- W6630, in review
+      test_the_secret_walk_precedes_column_diagnostics_that_quote_values
+
+  Neither names an interrogation, a session, a deadline or an observation.
+  Reported, not fixed.
+
+WHAT THE TWO CORRECTIONS CHANGED
+
+  [P1] NOTHING MUTABLE IS CONSULTED BEFORE THE JOURNAL DECIDES.
+  `_bound_session` read the LIVE assignment through `port.assignment_of`
+  before `store.transact`, so an exact retry of an already answered operation
+  was refused once that assignment ended — the second authority observation
+  deciding a historical operation exactly as the second clock used to. The
+  durable half stays where it was, because the signature is built from it;
+  `_still_live` is called from inside the fresh action, which `transact` runs
+  only when it did not replay.
+
+  A fresh interrogation still requires the live exact generation, and a case
+  holds that half explicitly — including that a refused fresh request is NOT
+  journalled. `test_nothing_mutable_is_consulted_before_the_journal_decides`
+  counts BOTH mutable inputs, the clock and the authority, and requires zero
+  reads of each on the replay path; it is the two corrections stated as one
+  property so a third mutable input added later has somewhere to fail.
+
+  [P1] §13 AT THE OBSERVATION'S COMMON RECEIVING OWNER. `_diagnostics` owned
+  shape, count, key and value types and lengths — and ownership is not
+  `check_no_durable_secret`, so a diagnostic named `claim_token` was owned,
+  accepted and written to the durable `observation` column. The raw adapter
+  answer is walked in `_observation`, which is the one owner both the fresh
+  adapter path and the exported settlement reach, and the walk runs BEFORE the
+  members are composed because the walk's named half is about member names.
+
+  The durable-writer inventory reason is corrected to name the path that
+  performs the walk, which is what the review required and what this Work has
+  now been corrected for more than once: a reason is evidence only when it
+  describes what runs.
+
+  Cases cover both doors and use `SECRET_MEMBERS` itself rather than a
+  retyped list, so a name outside the frozen set is not quietly treated as a
+  secret.
+
+AN OPERATIONAL NOTE, so a number in this file is not left unexplained
+
+  Two `just build` invocations during this session reported 16 failures rather
+  than 14. Both overlapped other Docker activity in the same session. The
+  container suite's residual sweep asks the ENGINE a global question, so two
+  concurrent runs see each other's containers and both fail — the same
+  property recorded in W6633's evidence. A `just build` run with a verified
+  idle engine reports 14, matching the source run, and the installed-layout
+  list captured directly matches it line by line.

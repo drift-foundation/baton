@@ -47,17 +47,84 @@ import unittest
 
 import baton_v12.worker_manager as worker_manager
 from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts import digest as _contracts_digest
 from baton_v12.worker_manager import (AuthorityPort, ControlStore, boundaries,
                                       certify_profile, documents, schema)
 
 from baton_v12.worker_manager import workspaces
 
 from .test_handshake import acp_profile
+from .test_output import AUTHORITY, JOB, POLICY, OutputCase
 from .test_offers import (FakeSession, PROFILE, UUID, WHO, WORK,
                           fake_claim_signature)
 
 NOW = "2026-08-24T00:00:00.000Z"
 SURROGATE = "\ud800"
+
+
+class _Raising:
+    """A sentinel the fixture adapter raises instead of answering, so a probe
+    leaves its journalled request behind and settles nothing."""
+
+
+class _ProbesButCannotBeAsked:
+    """An adapter that can be looked at and not spoken to.
+
+    W6627's contract names four operations and `_ask` proves both
+    interrogations before it uses either, so the half that is missing decides
+    which boundary the refusal names.
+    """
+
+    def cancel(self, operands):
+        return {"acknowledged": True}
+
+    def observe_session(self, reference):
+        return {"kind": "absent", "provider_session_id": "provider-1"}
+
+    def probe(self, request):
+        return {"kind": "unreachable", "why": "not asked"}
+
+
+class _Interrogating:
+    """An adapter carrying all four operations, with the two interrogation
+    answers a case may set."""
+
+    def __init__(self, provider, probe=None, inquire=None):
+        self._provider = provider
+        self._probe = probe
+        self._inquiry = inquire
+
+    def cancel(self, operands):
+        return {"acknowledged": True}
+
+    def observe_session(self, reference):
+        return {"kind": "present", "state": "ready",
+                "provider_session_id": self._provider}
+
+    def probe(self, request):
+        if self._probe is _Raising:
+            raise TimeoutError("the adapter never came back")
+        if self._probe is not None:
+            return self._probe
+        return {"kind": "observed", "state": "ready",
+                "provider_session_id": self._provider,
+                "last_activity_at": NOW, "diagnostics": {}}
+
+    def inquire(self, request):
+        return self._inquiry or {"kind": "queued"}
+
+
+class _Sealing:
+    """The runtime adapter's seal, answering nothing.
+
+    Every probe using it spoils an operand that is read BEFORE the adapter is
+    called, so the answer never matters -- but an adapter missing the operation
+    would be refused at the capability check and make the probe prove the wrong
+    thing.
+    """
+
+    def seal(self, operands):
+        return None
 
 
 class _ObservingAgent:
@@ -75,12 +142,22 @@ class _ObservingAgent:
                     "provider_session_id": reference["provider_session_id"]}
         return self._answer
 
+    def probe(self, request):
+        # W6627: the adapter contract now names `probe` and `inquire`. A fake
+        # missing either is refused at the capability check, which would make
+        # every case in this file fail for a reason it is not about.
+        return {"kind": "unreachable", "why": "this fixture does not probe"}
+
+    def inquire(self, request):
+        return {"kind": "unreachable", "why": "this fixture does not inquire"}
+
 
 class _HalfAnAgent:
-    """An adapter carrying one of the two operations the contract names.
+    """An adapter carrying one of the operations the contract names.
 
     W6627 defined that contract for the first time: before it, `agent.cancel`
-    was a call with nothing saying an adapter had to have it.
+    was a call with nothing saying an adapter had to have it. The contract is
+    four operations now, and this fake still carries exactly one.
     """
 
     def cancel(self, operands):
@@ -1036,6 +1113,18 @@ STATED_OWNERS = {
     ("injected", "authority_port.py:AuthorityPort.cancel", "cancel.fenced"):
         "a closed value: the authority either fenced the generation or this "
         "cancellation may not proceed, and anything but true refuses",
+    # -- W6627: publishing one model answer, which is the manager's act ------
+    ("caller", "authority_port.py:AuthorityPort.publish_answer", "work_ref"):
+        "the Work this manager already fixed and adopted; forwarded to the "
+        "authority, which owns its own operands",
+    ("caller", "authority_port.py:AuthorityPort.publish_answer",
+     "operation_id"):
+        "the interrogation identity the manager minted and journalled, "
+        "forwarded to the authority",
+    ("caller", "authority_port.py:AuthorityPort.publish_answer", "body"):
+        "the answer, owned where it entered as bounded storable text and "
+        "forwarded intact; re-owning prose here would be the blanket "
+        "revalidation 4bz refuses",
     ("injected", "attempts.py:_order_quiescence", "agent.cancel"):
         "passed through UNINTERPRETED: reaching a boundary is not evidence of "
         "its effect, and the manager has no basis for turning a settlement "
@@ -1071,6 +1160,17 @@ STATED_OWNERS = {
     ("caller", "documents.py:attempt_recorded", "members"): "the same",
     ("caller", "documents.py:assignment_activated", "members"): "the same",
     ("caller", "documents.py:observation", "members"): "the same",
+    # -- W6627: the operator interrogation split -----------------------------
+    ("caller", "documents.py:interrogation_requested", "members"):
+        "documents.py:_emit, against this document's entry in CONTRACTS",
+    ("caller", "documents.py:interrogation", "members"): "the same",
+    # The optional member, OMITTED rather than nulled when a probe never
+    # observed anything -- `_emit` refuses a member CONTRACTS does not name and
+    # refuses a required one that is missing, so absence is a shape decision it
+    # owns rather than a value this constructor invents.
+    ("caller", "documents.py:interrogation", "members.observation"):
+        "documents.py:_emit, against this document's entry in CONTRACTS: an "
+        "optional member is absent or present, never present-and-empty",
     ("adopted", "attempts.py:_next_source_seq", "observations"):
         "nothing to own: COALESCE(MAX(x), 0) + 1 over a STRICT INTEGER column "
         "is a whole number by construction, and the empty case is the COALESCE",
@@ -1110,6 +1210,24 @@ STATED_OWNERS = {
     ("adopted", "sessions.py:_next_epoch", "agent_sessions"):
         "nothing to own: COALESCE(MAX(x), 0) + 1 over a STRICT INTEGER column "
         "is a whole number by construction, and the empty case is the COALESCE",
+    # -- W6628: the output freeze and the sealed receiver --------------------
+    #
+    # A MANIFEST IS OWNED BY THE CONTRACTS LAYER'S OWN COMPOSITE, which is a
+    # different owner from `boundaries` and a stronger one: schema first, then
+    # the digest recomputed over the document's own canonical bytes, then §12's
+    # semantics. Owning the envelope here as well would be the blanket
+    # revalidation 4bz forbids, and it would answer a weaker question than the
+    # one already being answered.
+    ("caller", "manifests.py:retain_manifest", "document"):
+        "contracts.check_manifest_structure, against the named definition: "
+        "schema, then the self-identifying digest, then §12's semantics",
+    ("caller", "output.py:record_frozen_result", "sealed"):
+        "the same, against resultManifest -- and then bound to THIS attempt, "
+        "which is the half a validator cannot know",
+    ("injected", "output.py:request_freeze", "adapter.seal"):
+        "what the adapter answers is a sealed result and is owned as one where "
+        "it arrives, by `record_frozen_result`; an adapter's account of its "
+        "own success decides nothing here",
     # A POSITIVE EPOCH, refused by `posture_slots._epoch` and not by the layer.
     # `boundaries.generation` is the ASSIGNMENT generation's rule and counts
     # from zero; epoch zero is a session nobody allocated, and a query for one
@@ -1123,6 +1241,21 @@ STATED_OWNERS = {
         "the same",
     ("caller", "sessions.py:reconcile_agent_session", "session_epoch"):
         "the same",
+    # -- W6627: the operator interrogation split -----------------------------
+    ("caller", "interrogation.py:probe", "session_epoch"):
+        "posture_slots.py:_epoch, the frozen positiveInt: one membership "
+        "question with its type established in the same expression",
+    ("caller", "interrogation.py:inquire", "session_epoch"): "the same",
+    ("caller", "interrogation.py:interrogations_of", "session_epoch"):
+        "the same",
+    # THE DISCRIMINATORS of two closed alternatives, proved by
+    # `boundaries.alternative` before any member of the variant they name is
+    # read.
+    ("injected", "interrogation.py:probe", "agent.probe.kind"):
+        "boundaries.alternative's discriminator, proved before any member of "
+        "the variant it names is read",
+    ("injected", "interrogation.py:inquire", "agent.inquire.kind"):
+        "the same, for the acknowledgement set",
 }
 
 # Entries owned by a helper that owns them FOR their caller. The layer owns by
@@ -1148,11 +1281,65 @@ NO_PROBE = {
         "the same: a session epoch column SQLite will not let a writer spoil",
     ("adopted", "sessions.py:_session_row", "agent_sessions.session_epoch"):
         "the same",
+    ("adopted", "output.py:frozen_output_of", "output_artifacts.bytes"):
+        "the same: an artifact byte count SQLite will not let a writer spoil",
+    ("adopted", "output.py:frozen_output_of", "outputs.runtime_attempt_id"):
+        "the one read of this table SELECTS BY this column, so a spoiled value "
+        "makes the row unfindable and a probe would prove absence rather than "
+        "the rule; the contract still owns it for any later reader",
     ("adopted", "attempts.py:_attempts", "attempts.assignment_generation"):
         "the same: a generation column SQLite will not let a writer spoil",
+    ("adopted", "interrogation.py:_row", "interrogations.session_epoch"):
+        "the same: a session epoch column SQLite will not let a writer spoil",
 }
 
 DELEGATED = {
+    # -- W6627: the operator interrogation split -----------------------------
+    #
+    # `probe` and `inquire` are the two halves of one act and share `_ask`,
+    # which binds the session, journals the request and only then reaches the
+    # adapter. Owning their operands there rather than twice is what keeps the
+    # two operations one rule.
+    ("caller", "interrogation.py:probe", "attempt_id"):
+        ("interrogation.py:_ask", "caller:attempt_id"),
+    ("caller", "interrogation.py:inquire", "attempt_id"):
+        ("interrogation.py:_ask", "caller:attempt_id"),
+    ("caller", "interrogation.py:probe", "operation_id"):
+        ("interrogation.py:_ask", "caller:operation_id"),
+    ("caller", "interrogation.py:inquire", "operation_id"):
+        ("interrogation.py:_ask", "caller:operation_id"),
+    ("caller", "interrogation.py:probe", "deadline_seconds"):
+        ("interrogation.py:_ask", "caller:deadline_seconds"),
+    ("caller", "interrogation.py:inquire", "deadline_seconds"):
+        ("interrogation.py:_ask", "caller:deadline_seconds"),
+    ("caller", "interrogation.py:probe", "agent"):
+        ("interrogation.py:_ask", "caller:agent"),
+    ("caller", "interrogation.py:inquire", "agent"):
+        ("interrogation.py:_ask", "caller:agent"),
+    ("caller", "interrogation.py:inquire", "question"):
+        ("interrogation.py:_ask", "caller:question"),
+    ("caller", "interrogation.py:probe", "posture"):
+        ("posture_slots.py:_posture", "caller:posture"),
+    ("caller", "interrogation.py:inquire", "posture"):
+        ("posture_slots.py:_posture", "caller:posture"),
+    ("caller", "interrogation.py:interrogations_of", "posture"):
+        ("posture_slots.py:_posture", "caller:posture"),
+    # W6627 re-review [P1]: the probe observation's members are owned before
+    # any of them is returned or persisted. `_diagnostics` is where the
+    # provider's free-form report becomes an exact bounded document.
+    ("injected", "interrogation.py:probe", "agent.probe.diagnostics"):
+        ("interrogation.py:_diagnostics", "caller:given"),
+    # -- W6628: the output freeze and the sealed receiver --------------------
+    #
+    # TWO SHARED OWNERS, each written once. The kind a retained document must
+    # be is the same question at both ends of the retention, and a declared
+    # disposition is the same question wherever it is declared.
+    ("caller", "manifests.py:retain_manifest", "definition"):
+        ("manifests.py:_definition", "caller:definition"),
+    ("caller", "manifests.py:load_manifest", "definition"):
+        ("manifests.py:_definition", "caller:definition"),
+    ("caller", "output.py:request_freeze", "disposition"):
+        ("output.py:_disposition", "caller:disposition"),
     # -- W6627: the agent session -------------------------------------------
     #
     # THREE SHARED OWNERS, each written once. `_posture`, `_epoch` and
@@ -1462,6 +1649,255 @@ class BoundaryCase(unittest.TestCase):
                 **{k: v for k, v in operands.items() if k != "agent"})
         return run
 
+    # -- W6627's interrogation half ------------------------------------------
+
+    def interrogating(self, posture="execution"):
+        """An open session with a provider identity adopted -- the precondition
+        both interrogations need to REACH the boundary they name."""
+        self.sessioned(posture)
+        worker_manager.adopt_provider_session(
+            self.store, attempt_id="attempt-1", posture=posture,
+            session_epoch=1, provider_session_id="provider-1")
+        return "provider-1"
+
+    def asking(self, kind, *, agent=None, **spoiled):
+        def run():
+            self.interrogating()
+            operands = dict(attempt_id="attempt-1", posture="execution",
+                            session_epoch=1, operation_id=f"{kind}-1",
+                            deadline_seconds=30)
+            if kind == "inquire":
+                operands["question"] = "how is it going?"
+            operands.update(spoiled)
+            getattr(worker_manager, kind)(
+                self.store, self.port,
+                _Interrogating("provider-1") if agent is None else agent,
+                **operands)
+        return run
+
+    def spoiling_interrogation(self, column, driver="one"):
+        def run():
+            self.interrogating()
+            worker_manager.probe(
+                self.store, self.port, _Interrogating("provider-1"),
+                attempt_id="attempt-1", posture="execution", session_epoch=1,
+                operation_id="probe-1", deadline_seconds=30)
+            self.corrupt(f"UPDATE interrogations SET {column} = ?",
+                         self.SPOILED[
+                             schema.INTERROGATION_COLUMNS[column].kind])
+            if driver == "one":
+                worker_manager.interrogation_of(self.store, "probe-1")
+            else:
+                worker_manager.interrogations_of(self.store, "attempt-1",
+                                                 "execution", 1)
+        return run
+
+    def settling(self, observation):
+        """The exported settlement, driven with a spoiled reading.
+
+        The interrogation is left REQUESTED — its adapter never answered — so
+        what the probe reaches is this door's own owner rather than a move the
+        axis would have refused anyway."""
+        def run():
+            self.interrogating()
+            try:
+                worker_manager.probe(
+                    self.store, self.port,
+                    _Interrogating("provider-1", probe=_Raising),
+                    attempt_id="attempt-1", posture="execution",
+                    session_epoch=1, operation_id="settle-1",
+                    deadline_seconds=30)
+            except TimeoutError:
+                pass
+            worker_manager.settle_interrogation(
+                self.store, operation_id="settle-1", outcome="observed",
+                observation=observation)
+        return run
+
+    def publishing(self, reference):
+        def run():
+            self.interrogating()
+            worker_manager.inquire(
+                self.store, self.port, _Interrogating("provider-1"),
+                attempt_id="attempt-1", posture="execution", session_epoch=1,
+                operation_id="inquire-1", deadline_seconds=30,
+                question="how is it going?")
+            worker_manager.record_inquiry_answer(
+                self.store, operation_id="inquire-1",
+                answer={"body": "halfway through the second gate"})
+            self.session._published = reference
+            worker_manager.publish_inquiry_answer(self.store, self.port,
+                                                  operation_id="inquire-1")
+        return run
+
+    def interrogation_probes(self):
+        """One probe per (entry, label) W6627's interrogation split added.
+
+        Every one drives the REAL exported operation with exactly one operand
+        spoiled, and `refusing` requires the refusal to name the label -- so a
+        probe stopped by an earlier precondition fails rather than passing for
+        the wrong reason.
+        """
+        I = "interrogation.py"
+
+        def at(site, subject, domain="caller"):
+            return (domain, site, subject)
+
+        found = {
+            # -- the shared operands, owned once in `_ask` -------------------
+            (at(f"{I}:publish_inquiry_answer", "operation_id"),
+             "an interrogation operation id"): (
+                "an interrogation operation id",
+                lambda: worker_manager.publish_inquiry_answer(
+                    self.store, self.port, operation_id=SURROGATE)),
+            (at(f"{I}:interrogation_of", "operation_id"),
+             "an interrogation operation id"): (
+                "an interrogation operation id",
+                lambda: worker_manager.interrogation_of(self.store,
+                                                        SURROGATE)),
+            (at(f"{I}:settle_interrogation", "operation_id"),
+             "an interrogation operation id"): (
+                "an interrogation operation id",
+                lambda: worker_manager.settle_interrogation(
+                    self.store, operation_id=SURROGATE, outcome="observed")),
+            (at(f"{I}:settle_interrogation", "outcome"),
+             "an interrogation outcome"): (
+                "an interrogation outcome",
+                lambda: worker_manager.settle_interrogation(
+                    self.store, operation_id="probe-1", outcome=SURROGATE)),
+            (at(f"{I}:record_inquiry_answer", "operation_id"),
+             "an interrogation operation id"): (
+                "an interrogation operation id",
+                lambda: worker_manager.record_inquiry_answer(
+                    self.store, operation_id=SURROGATE,
+                    answer={"body": "done"})),
+            (at(f"{I}:record_inquiry_answer", "answer"),
+             "an inquiry answer"): (
+                "an inquiry answer",
+                lambda: worker_manager.record_inquiry_answer(
+                    self.store, operation_id="inquire-1", answer="done")),
+            (at(f"{I}:record_inquiry_answer", "answer.body"),
+             "an inquiry answer body"): (
+                "an inquiry answer body",
+                # NOT the surrogate: the document's own encodability walk
+                # refuses that first, and a probe stopped by an earlier
+                # boundary proves the earlier boundary. A number is a
+                # perfectly storable JSON value and still not prose.
+                lambda: worker_manager.record_inquiry_answer(
+                    self.store, operation_id="inquire-1",
+                    answer={"body": 7})),
+            (at(f"{I}:interrogations_of", "attempt_id"),
+             "a runtime attempt id"): (
+                "a runtime attempt id",
+                lambda: worker_manager.interrogations_of(
+                    self.store, SURROGATE, "execution", 1)),
+            (at(f"{I}:interrogations_of", "posture"), "a posture"): (
+                "a posture",
+                lambda: worker_manager.interrogations_of(
+                    self.store, "attempt-1", SURROGATE, 1)),
+            # -- what Baton answered when the manager published --------------
+            (at("authority_port.py:AuthorityPort.publish_answer",
+                "publish_answer", "injected"),
+             "a published answer reference"): (
+                "a published answer reference", self.publishing(7)),
+        }
+        # THE TWO OPERATIONS, spoiled the same way, because the delegation says
+        # they are owned in one place: a probe that only ever drove `probe`
+        # would leave `inquire` claiming an owner nothing exercised.
+        for kind in ("probe", "inquire"):
+            for subject, label, spoiled in (
+                    ("attempt_id", "a runtime attempt id",
+                     {"attempt_id": SURROGATE}),
+                    ("posture", "a posture", {"posture": SURROGATE}),
+                    ("operation_id", "an interrogation operation id",
+                     {"operation_id": SURROGATE}),
+                    ("deadline_seconds", "an interrogation deadline",
+                     {"deadline_seconds": "thirty"})):
+                found[(at(f"{I}:{kind}", subject), label)] = (
+                    label, self.asking(kind, **spoiled))
+            # `_ask` proves BOTH operations before either is used, so an
+            # adapter missing only `inquire` is what reaches the second label.
+            found[(at(f"{I}:{kind}", "agent"), "the agent adapter's ")] = (
+                f"the agent adapter's {kind}",
+                self.asking(kind, agent=_HalfAnAgent() if kind == "probe"
+                            else _ProbesButCannotBeAsked()))
+            found[(at(f"{I}:{kind}", f"agent.{kind}", "injected"),
+                   f"an agent {'probe answer' if kind == 'probe' else 'inquiry acknowledgement'}")] = (
+                f"an agent {'probe answer' if kind == 'probe' else 'inquiry acknowledgement'}",
+                self.asking(kind, agent=_Interrogating(
+                    "provider-1", **{kind: "not an answer"})))
+            found[(at(f"{I}:{kind}", f"agent.{kind}.provider_session_id",
+                      "injected"), "an observed provider session id")] = (
+                "an observed provider session id",
+                self.asking(kind, agent=_Interrogating(
+                    "provider-1",
+                    **{kind: {"kind": "runtime-absent",
+                              "provider_session_id": ""}})))
+        # -- W6627 re-review [P1]: the observed variant's own members --------
+        #
+        # `alternative` closes the member NAMES and deliberately does not own
+        # their values, and this reading is now DURABLE — so each member is
+        # owned before it is returned or written, and each has its own probe.
+        for subject, label, spoiled in (
+                ("state", "an observed session state", {"state": ""}),
+                ("last_activity_at", "an observed last activity instant",
+                 {"last_activity_at": "not-an-instant"}),
+                ("diagnostics", "probe diagnostics",
+                 {"diagnostics": "not a document"})):
+            found[(at(f"{I}:probe", f"agent.probe.{subject}", "injected"),
+                   label)] = (
+                label,
+                self.asking("probe", agent=_Interrogating(
+                    "provider-1",
+                    probe={"kind": "observed", "state": "ready",
+                           "provider_session_id": "provider-1",
+                           "last_activity_at": NOW, "diagnostics": {},
+                           **spoiled})))
+        found[(at(f"{I}:inquire", "question"), "an inquiry question")] = (
+            "an inquiry question", self.asking("inquire", question=SURROGATE))
+        # -- the adopted row, member by member ------------------------------
+        for column in ("answer", "authority_uuid", "kind", "outcome",
+                       "published_at", "work_id"):
+            found[(at(f"{I}:_row", f"interrogations.{column}", "adopted"),
+                   "a persisted interrogation")] = (
+                "a persisted interrogation",
+                self.spoiling_interrogation(column))
+        found[(at(f"{I}:_row", "interrogations", "adopted"),
+               "a persisted interrogation")] = (
+            "a persisted interrogation", self.spoiling_interrogation("kind"))
+        # W6627's third correction: the observation is a persisted column now,
+        # and the posture/epoch are read to bind a settlement to its session.
+        for column in ("observation", "posture"):
+            found[(at(f"{I}:_row", f"interrogations.{column}", "adopted"),
+                   "a persisted interrogation")] = (
+                "a persisted interrogation",
+                self.spoiling_interrogation(column))
+        # -- the PUBLIC settlement door, which owns its caller's reading -----
+        #
+        # Third review [P1]: this door took an observation straight to the
+        # column while the adapter path owned one. Each member is spoiled on
+        # its own, because an envelope owner answering for five members would
+        # demand one probe prove five things.
+        sound = {"kind": "observed", "state": "ready",
+                 "provider_session_id": "provider-1",
+                 "last_activity_at": NOW, "diagnostics": {}}
+        found[(at(f"{I}:settle_interrogation", "observation"),
+               "an interrogation observation")] = (
+            "an interrogation observation",
+            self.settling("not a document"))
+        for member in ("state", "provider_session_id", "last_activity_at",
+                       "diagnostics"):
+            found[(at(f"{I}:settle_interrogation", f"observation.{member}"),
+                   "an interrogation observation")] = (
+                "an interrogation observation",
+                self.settling({name: value for name, value in sound.items()
+                               if name != member}))
+        found[(at(f"{I}:interrogations_of", "interrogations", "adopted"),
+               "a persisted interrogation")] = (
+            "a persisted interrogation",
+            self.spoiling_interrogation("kind", driver="many"))
+        return found
+
     def answering(self, **answer):
         """The adapter's own ANSWER spoiled, which is the injected domain: its
         callability was proved when the capability was accepted, and what it
@@ -1741,6 +2177,259 @@ class BoundaryCase(unittest.TestCase):
                 "a persisted attempt",
                 self.spoiling_session_attempt("authority_uuid")),
         }
+
+    # -- W6628: the output freeze and the sealed receiver --------------------
+
+    def output_world(self):
+        """The published declaration retained, and one activated, quiescent
+        attempt with a terminal disposition -- the precondition every probe
+        below needs to REACH the boundary it names rather than an earlier one.
+
+        The session is re-pointed at the DECLARATION's own Work, because §12
+        rule 1 makes a Work id carry its authority's prefix and the offer
+        fixtures this file shares were written for a path that never validates
+        a manifest.
+        """
+        self.session._work = {"status": "open", "phase": "queued",
+                              "handler": None, "gate": None,
+                              "authority_uuid": AUTHORITY}
+        self.session.claim_answer = {
+            "work_ref": {"authority_uuid": AUTHORITY, "work_id": JOB},
+            "participant": WHO, "generation": 1}
+        self.session.live_assignment = dict(self.session.claim_answer)
+        declaration = OutputCase.published()
+        self.declaration = declaration
+        self.input_digest = worker_manager.retain_manifest(
+            self.store, declaration, "inputManifest")["digest"]
+        worker_manager.issue_offer(
+            self.store, self.port, offer_id="offer-o", work_id=JOB,
+            runtime_attempt_id="attempt-1", input_digest=self.input_digest,
+            policy_digest=POLICY, profile_digest=PROFILE,
+            profile_name="reference", mint_bearer=lambda: "bearer-1")
+        worker_manager.accept_offer(
+            self.store, self.port, offer_id="offer-o", decision="accept",
+            bearer="bearer-1", now=NOW, runtime_attempt_id="attempt-1",
+            work_ref={"authority_uuid": AUTHORITY, "work_id": JOB})
+        worker_manager.record_attempt(
+            self.store, attempt_id="attempt-1", adapter_name="acp",
+            adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE,
+            input_digest=self.input_digest, policy_digest=POLICY)
+        worker_manager.submit_claim(self.store, self.port, offer_id="offer-o")
+        worker_manager.activate_assignment(
+            self.store, self.port, attempt_id="attempt-1",
+            expect=dict(self.session.claim_answer))
+        for axis, value in (("execution_runtime", "running"),
+                            ("execution_runtime", "quiescent"),
+                            ("worker_disposition", "completed")):
+            worker_manager.observe(self.store, attempt_id="attempt-1",
+                                   axis=axis, value=value)
+        return "attempt-1"
+
+    def attempt_row(self):
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        beside.row_factory = sqlite3.Row
+        try:
+            found = beside.execute(
+                "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
+                ("attempt-1",)).fetchone()
+            return {key: found[key] for key in found.keys()}
+        finally:
+            beside.close()
+
+    def sealed_result(self, **members):
+        body = {
+            "version": {"major": 1, "minor": 0},
+            "manifest_id": "result-manifest-1", "created_at": NOW,
+            "extensions": {}, "schema": "baton.worker-manifest/result",
+            "result_id": "result-1",
+            "assignment_ref": {
+                "work_ref": {"authority_uuid": AUTHORITY, "work_id": JOB},
+                "participant": WHO, "generation": 1},
+            "input_manifest_digest": self.input_digest,
+            "policy_digest": POLICY, "disposition": "completed",
+            "outputs": OutputCase.present(), "evidence": [],
+            "freeze_operation": dict(
+                worker_manager.freeze_operation(self.attempt_row())),
+            "manager_observed_at": NOW,
+        }
+        body.update(members)
+        rest = {name: value for name, value in body.items()
+                if name != "manifest_digest"}
+        return {**rest, "manifest_digest": _contracts_digest(rest)}
+
+    def froze(self):
+        attempt_id = self.output_world()
+
+        class Sealer:
+            def __init__(self, answer):
+                self._answer = answer
+
+            def seal(self, operands):
+                return self._answer
+
+        worker_manager.request_freeze(
+            self.store, self.port, Sealer(self.sealed_result()),
+            attempt_id=attempt_id, disposition="completed")
+        return attempt_id
+
+    def spoiling_output_attempt(self, column):
+        def run():
+            self.output_world()
+            self.corrupt(f"UPDATE attempts SET {column} = ?",
+                         self.SPOILED[schema.ATTEMPT_COLUMNS[column].kind])
+            worker_manager.record_frozen_result(
+                self.store, attempt_id="attempt-1",
+                sealed=self.sealed_result())
+        return run
+
+    def spoiling_retained(self, column):
+        def run():
+            self.output_world()
+            self.corrupt(f"UPDATE manifests SET {column} = ?",
+                         self.SPOILED[schema.MANIFEST_COLUMNS[column].kind])
+            worker_manager.load_manifest(self.store, self.input_digest,
+                                         "inputManifest")
+        return run
+
+    def spoiling_frozen(self, column):
+        def run():
+            self.froze()
+            self.corrupt(f"UPDATE outputs SET {column} = ?",
+                         self.SPOILED[schema.OUTPUT_COLUMNS[column].kind])
+            worker_manager.frozen_output_of(self.store, "attempt-1")
+        return run
+
+    def spoiling_artifact(self, column):
+        def run():
+            self.froze()
+            self.corrupt(f"UPDATE output_artifacts SET {column} = ?",
+                         self.SPOILED[
+                             schema.OUTPUT_ARTIFACT_COLUMNS[column].kind])
+            worker_manager.frozen_output_of(self.store, "attempt-1")
+        return run
+
+    def freezing(self, **spoiled):
+        def run():
+            attempt_id = self.output_world()
+            operands = dict(attempt_id=attempt_id, disposition="completed")
+            operands.update(spoiled)
+            worker_manager.request_freeze(
+                self.store, self.port, spoiled.pop("adapter", _Sealing()),
+                **{k: v for k, v in operands.items() if k != "adapter"})
+        return run
+
+    def output_probes(self):
+        """One probe per (entry, label) W6628 added."""
+        M, O = "manifests.py", "output.py"
+
+        def at(site, subject, domain="caller"):
+            return (domain, site, subject)
+
+        row = {"runtime_attempt_id": "attempt-1", "adapter_name": "acp",
+               "adapter_digest": "sha256:" + "a" * 64,
+               "profile_digest": PROFILE, "input_digest": None,
+               "policy_digest": None, "image_digest": None,
+               "toolchain_digest": None, "created_at": NOW,
+               "work_id": JOB, "authority_uuid": AUTHORITY,
+               "assignment_participant": WHO, "assignment_generation": 1,
+               "runtime_id": None, "observation_seq": 0, "observed_at": None}
+        for axis in schema.ATTEMPT_AXES:
+            row[axis] = next(iter(schema.ATTEMPT_COLUMNS[axis].allowed))
+
+        def deriving(**spoiled):
+            return lambda: worker_manager.freeze_operation(
+                dict(row, **spoiled))
+
+        found = {
+            (at(f"{M}:retain_manifest", "definition"),
+             "a retained manifest definition"): (
+                "a retained manifest definition",
+                lambda: worker_manager.retain_manifest(
+                    self.store, OutputCase.published(), SURROGATE)),
+            (at(f"{M}:load_manifest", "definition"),
+             "a retained manifest definition"): (
+                "a retained manifest definition",
+                lambda: worker_manager.load_manifest(
+                    self.store, "sha256:" + "a" * 64, SURROGATE)),
+            (at(f"{M}:load_manifest", "manifest_digest"),
+             "a retained manifest digest"): (
+                "a retained manifest digest",
+                lambda: worker_manager.load_manifest(
+                    self.store, SURROGATE, "inputManifest")),
+            (at(f"{O}:request_freeze", "attempt_id"), "a runtime attempt id"): (
+                "a runtime attempt id",
+                lambda: worker_manager.request_freeze(
+                    self.store, self.port, _Sealing(), attempt_id=SURROGATE,
+                    disposition="completed")),
+            (at(f"{O}:request_freeze", "disposition"),
+             "a declared worker disposition"): (
+                "a declared worker disposition",
+                lambda: worker_manager.request_freeze(
+                    self.store, self.port, _Sealing(),
+                    attempt_id="attempt-1", disposition=SURROGATE)),
+            (at(f"{O}:request_freeze", "adapter"),
+             "the runtime adapter's seal"): (
+                "the runtime adapter's seal",
+                lambda: worker_manager.request_freeze(
+                    self.store, self.port, object(), attempt_id="attempt-1",
+                    disposition="completed")),
+            (at(f"{O}:record_frozen_result", "attempt_id"),
+             "a runtime attempt id"): (
+                "a runtime attempt id",
+                lambda: worker_manager.record_frozen_result(
+                    self.store, attempt_id=SURROGATE, sealed={})),
+            (at(f"{O}:frozen_output_of", "attempt_id"),
+             "a runtime attempt id"): (
+                "a runtime attempt id",
+                lambda: worker_manager.frozen_output_of(self.store,
+                                                        SURROGATE)),
+            (at(f"{O}:freeze_operation", "attempt"), "a persisted attempt"): (
+                "a persisted attempt",
+                lambda: worker_manager.freeze_operation("not a row")),
+            (at(f"{M}:_manifest_row", "manifests", "adopted"),
+             "a retained manifest"): (
+                "a retained manifest", self.spoiling_retained("body")),
+            (at(f"{M}:_manifest_row", "manifests.body", "adopted"),
+             "a retained manifest"): (
+                "a retained manifest", self.spoiling_retained("body")),
+        }
+        # THE MEMBERS OF THE ADOPTED ROW CROSSING BACK IN. Each is its own
+        # entry, and each is spoiled on its own -- an envelope owner answering
+        # for five members would demand one probe prove five things.
+        for member in ("runtime_attempt_id", "work_id", "authority_uuid",
+                       "assignment_participant", "assignment_generation",
+                       "worker_disposition"):
+            found[(at(f"{O}:freeze_operation", f"attempt.{member}"),
+                   "a persisted attempt")] = (
+                "a persisted attempt", deriving(**{member: SURROGATE}))
+        for column in ("work_id", "authority_uuid", "input_digest",
+                       "policy_digest", "output", "worker_disposition",
+                       "execution_runtime"):
+            for subject in (f"attempts.{column}",):
+                found[(at(f"{O}:_attempt_of", subject, "adopted"),
+                       "a persisted attempt")] = (
+                    "a persisted attempt", self.spoiling_output_attempt(column))
+        found[(at(f"{O}:_attempt_of", "attempts", "adopted"),
+               "a persisted attempt")] = (
+            "a persisted attempt", self.spoiling_output_attempt("work_id"))
+        for column in ("result_id", "disposition", "manifest_digest",
+                       "freeze_operation_id", "frozen_at"):
+            found[(at(f"{O}:frozen_output_of", f"outputs.{column}", "adopted"),
+                   "a persisted frozen output")] = (
+                "a persisted frozen output", self.spoiling_frozen(column))
+        found[(at(f"{O}:frozen_output_of", "outputs", "adopted"),
+               "a persisted frozen output")] = (
+            "a persisted frozen output", self.spoiling_frozen("result_id"))
+        for column in ("output_name", "artifact_id", "media_type",
+                       "content_digest", "locator"):
+            found[(at(f"{O}:frozen_output_of",
+                      f"output_artifacts.{column}", "adopted"),
+                   "a persisted output artifact")] = (
+                "a persisted output artifact", self.spoiling_artifact(column))
+        found[(at(f"{O}:frozen_output_of", "output_artifacts", "adopted"),
+               "a persisted output artifact")] = (
+            "a persisted output artifact", self.spoiling_artifact("locator"))
+        return found
 
     def corrupt(self, statement, *operands):
         """Change persisted bytes behind this build's back.
@@ -3056,7 +3745,8 @@ class EveryProbeProvesItArrived(BoundaryCase):
 
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
-                **self.session_probes()}
+                **self.session_probes(), **self.output_probes(),
+                **self.interrogation_probes()}
 
     def expected(self):
         """(entry, label) for every entry the LAYER or a DELEGATE owns.
@@ -3136,6 +3826,24 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
 WITNESSES = {
+    # -- W6627: the operator interrogation split -----------------------------
+    ("caller", "interrogation.py:probe", "session_epoch"):
+        "test_a_session_epoch_counts_from_one",
+    ("caller", "interrogation.py:inquire", "session_epoch"):
+        "test_a_session_epoch_counts_from_one",
+    ("caller", "interrogation.py:interrogations_of", "session_epoch"):
+        "test_a_session_epoch_counts_from_one",
+    ("injected", "interrogation.py:probe", "agent.probe.kind"):
+        "test_an_interrogation_discriminator_decides_before_anything_is_read",
+    ("injected", "interrogation.py:inquire", "agent.inquire.kind"):
+        "test_an_interrogation_discriminator_decides_before_anything_is_read",
+    # -- W6628: the output freeze and the sealed receiver --------------------
+    ("caller", "manifests.py:retain_manifest", "document"):
+        "test_a_manifest_is_owned_by_the_contracts_own_composite",
+    ("caller", "output.py:record_frozen_result", "sealed"):
+        "test_a_manifest_is_owned_by_the_contracts_own_composite",
+    ("injected", "output.py:request_freeze", "adapter.seal"):
+        "test_what_the_adapter_seals_is_owned_where_it_arrives",
     # -- W6627: the agent session -------------------------------------------
     ("caller", "sessions.py:permits_session_transition", "from_state"):
         "test_the_nine_frozen_states_are_a_closed_vocabulary",
@@ -3360,6 +4068,19 @@ WITNESSES = {
         "test_every_outbound_constructor_holds_its_contract",
     ("caller", "documents.py:observation", "members"):
         "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:interrogation_requested", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:interrogation", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:interrogation", "members.observation"):
+        "test_an_absent_observation_is_omitted_and_not_nulled",
+    ("caller", "authority_port.py:AuthorityPort.publish_answer", "work_ref"):
+        "test_an_answer_is_published_by_the_manager_and_never_the_worker",
+    ("caller", "authority_port.py:AuthorityPort.publish_answer",
+     "operation_id"):
+        "test_an_answer_is_published_by_the_manager_and_never_the_worker",
+    ("caller", "authority_port.py:AuthorityPort.publish_answer", "body"):
+        "test_an_answer_is_published_by_the_manager_and_never_the_worker",
     ("adopted", "attempts.py:_next_source_seq", "observations"):
         "test_a_minted_sequence_is_whole_because_the_column_is",
     ("adopted", "store.py:ControlStore._objects", "sqlite_master"):
@@ -3382,6 +4103,139 @@ class EveryStatedOwnerHasAWitness(BoundaryCase):
 
 class StatedRules(SourceMaterializerCase):
     """The witnesses themselves. Each exercises one stated rule."""
+
+    # -- W6627's stated owners, exercised through the public operation -------
+
+    def test_an_interrogation_discriminator_decides_before_anything_is_read(
+            self):
+        """An unrecognised answer is refused rather than read as the least
+        alarming member of the set -- and each operation has its OWN set,
+        because a probe is never queued and an inquire is never observed."""
+        provider = self.interrogating()
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.probe(
+                self.store, self.port,
+                _Interrogating(provider, probe={"kind": "queued"}),
+                attempt_id="attempt-1", posture="execution", session_epoch=1,
+                operation_id="probe-x", deadline_seconds=30)
+        self.assertIn("an agent probe answer answers", caught.exception.message)
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.inquire(
+                self.store, self.port,
+                _Interrogating(provider, inquire={"kind": "observed"}),
+                attempt_id="attempt-1", posture="execution", session_epoch=1,
+                operation_id="inquire-x", deadline_seconds=30,
+                question="how is it going?")
+        self.assertIn("an agent inquiry acknowledgement answers",
+                      caught.exception.message)
+
+    def test_an_absent_observation_is_omitted_and_not_nulled(self):
+        """An inquiry never observes anything, and the view says so by not
+        carrying the member -- `_emit` owns the shape, so absence is a decision
+        the contract makes rather than a null this constructor invents."""
+        provider = self.interrogating()
+        answer = worker_manager.inquire(
+            self.store, self.port, _Interrogating(provider),
+            attempt_id="attempt-1", posture="execution", session_epoch=1,
+            operation_id="inquire-w", deadline_seconds=30,
+            question="how is it going?")
+        self.assertEqual(answer["kind"], "inquire")
+        self.assertNotIn("observation", answer)
+        probed = worker_manager.probe(
+            self.store, self.port, _Interrogating(provider),
+            attempt_id="attempt-1", posture="execution", session_epoch=1,
+            operation_id="probe-w", deadline_seconds=30)
+        self.assertIn("observation", probed)
+
+    def test_an_answer_is_published_by_the_manager_and_never_the_worker(self):
+        """The whole isolation topology exists so that a worker holds no Baton
+        capability. This is the boundary where that is true rather than
+        asserted: the answer reaches Baton through the manager's own session,
+        carrying the interrogation identity the manager minted."""
+        provider = self.interrogating()
+        worker_manager.inquire(
+            self.store, self.port, _Interrogating(provider),
+            attempt_id="attempt-1", posture="execution", session_epoch=1,
+            operation_id="inquire-p", deadline_seconds=30,
+            question="how is it going?")
+        worker_manager.record_inquiry_answer(
+            self.store, operation_id="inquire-p",
+            answer={"body": "halfway through the second gate"})
+        self.session.calls.clear()
+        published = worker_manager.publish_inquiry_answer(
+            self.store, self.port, operation_id="inquire-p")
+        self.assertEqual(
+            [call for call in self.session.calls
+             if call[0] == "publish_answer"],
+            [("publish_answer",
+              {"work_ref": {"authority_uuid": UUID, "work_id": WORK},
+               "operation_id": "inquire-p",
+               "body": "halfway through the second gate"})])
+        self.assertIsNotNone(published["published_at"])
+
+    # -- W6628's stated owners, exercised through the public operation -------
+
+    def test_a_manifest_is_owned_by_the_contracts_own_composite(self):
+        """A DIFFERENT OWNER FROM `boundaries`, and a stronger one: schema
+        first, then the digest recomputed over the document's own canonical
+        bytes, then §12's semantics.
+
+        Owning the envelope with the boundary layer as well would be the
+        blanket revalidation 4bz forbids and would answer a weaker question
+        than the one already being answered -- so what has to be true is that
+        the composite's own refusal is what a caller gets, for both directions
+        of the retention.
+        """
+        published = OutputCase.published()
+        for what, document, run in [
+                ("not a document", "not a manifest",
+                 lambda value: worker_manager.retain_manifest(
+                     self.store, value, "inputManifest")),
+                ("a manifest with no declared outputs",
+                 dict(published, outputs=[]),
+                 lambda value: worker_manager.retain_manifest(
+                     self.store, value, "inputManifest")),
+                ("a document that does not identify itself",
+                 dict(published, manifest_id="edited-after-sealing"),
+                 lambda value: worker_manager.retain_manifest(
+                     self.store, value, "inputManifest")),
+                ("a sealed result that is not one", {"schema": "wrong"},
+                 lambda value: worker_manager.record_frozen_result(
+                     self.store, attempt_id="attempt-1", sealed=value))]:
+            with self.subTest(what=what):
+                self.setUp()
+                if "sealed" in what:
+                    self.output_world()
+                with self.assertRaises(ContractRefusal) as caught:
+                    run(document)
+                self.assertIn("a sealed result" if "sealed" in what
+                              else "a retained manifest",
+                              caught.exception.message)
+
+    def test_what_the_adapter_seals_is_owned_where_it_arrives(self):
+        """An adapter's account of its own success decides NOTHING here.
+
+        What it returns is a sealed result and is owned as one by
+        `record_frozen_result`, which is where it arrives -- so an adapter that
+        answers with something that is not a result manifest is refused there,
+        and the axis is left where the durable state honestly is rather than
+        advanced because a call returned.
+        """
+        attempt_id = self.output_world()
+
+        class Confident:
+            """Reports success and answers with nothing that is a result."""
+
+            def seal(self, operands):
+                return {"ok": True, "frozen": True}
+
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.request_freeze(
+                self.store, self.port, Confident(), attempt_id=attempt_id,
+                disposition="completed")
+        self.assertIn("a sealed result", caught.exception.message)
+        self.assertIsNone(worker_manager.frozen_output_of(self.store,
+                                                          attempt_id))
 
     # -- W6627's stated owners, exercised through the public operation -------
 

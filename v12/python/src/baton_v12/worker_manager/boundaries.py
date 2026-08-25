@@ -49,7 +49,7 @@ from datetime import datetime, timedelta, timezone
 import json
 import re
 
-from ..contracts import ContractRefusal, own
+from ..contracts import ContractRefusal, check_no_durable_secret, own
 from ..contracts.errors import is_closed_pair, name_value
 
 __all__ = ["text", "identity", "instant", "deadline", "injected", "document",
@@ -421,6 +421,23 @@ def row(record, what, columns):
         if contract.allowed is not None and value not in contract.allowed:
             _refuse(f"{what} records {name} {name_value(value)}, which is not "
                     f"one of {', '.join(contract.allowed)}")
+    # §13 AT THE ONE CROSSING OUT OF THE STORE. Third review [P1]: the column
+    # contract proves the SET and the SHAPES and says nothing about content, so
+    # a hand edit could put a currently live bearer into a persisted value and
+    # every public read that returns the row would hand it out. A write-side
+    # walk cannot establish §13 for bytes read after a later edit -- which is
+    # the reasoning `certified_agent_session_profile` was corrected on, and
+    # this docstring already calls the store a receiving trust domain.
+    #
+    # HERE rather than in each reader, because "each reader" is a list somebody
+    # maintains: every adopted row in this manager comes through this one
+    # function, so a projection added tomorrow is covered tomorrow.
+    #
+    # THE DYNAMIC RULE, NOT A SECOND SHAPE ADOPTION. It refuses a value this
+    # process is holding LIVE; a genuinely forgotten secret is absent from the
+    # registry and its row stays readable and replayable, which is what keeps
+    # an exact durable replay from failing on the retry.
+    check_no_durable_secret(taken, what=what)
     return taken
 
 

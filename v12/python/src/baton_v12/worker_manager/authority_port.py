@@ -42,7 +42,13 @@ __all__ = ["AuthorityPort", "SESSION_MEMBERS", "SESSION_OPERATIONS",
 # session's binding and this attempt's own claim agreeing is not enough -- any
 # two of the three agreeing is exactly how a replayed activation gets in.
 SESSION_OPERATIONS = ("project_work", "slot_holder", "claim",
-                      "settle_operation", "assignment_of", "cancel")
+                      "settle_operation", "assignment_of", "cancel",
+                      # W6627: the manager is the ONE Baton client, so a
+                      # conversational answer reaches Baton through this port
+                      # and never through the worker. The worker holds no
+                      # Baton and no SQLite capability at any point, and this
+                      # member is where that stops being an assertion.
+                      "publish_answer")
 
 # WHAT A FENCE ANSWERS WITH. The authority ends the assignment, fences the exact
 # generation and installs the typed quiescence gate in ONE transaction, and says
@@ -318,6 +324,27 @@ class AuthorityPort:
                 f"is taken as the binding, so an answer naming anybody else is "
                 f"not this session's")
         return answer
+
+    def publish_answer(self, work_ref, operation_id, body):
+        """Publish one model answer into Baton, with this manager's own
+        provenance.
+
+        FORWARDED, and the authority owns its own operands -- the same shape
+        every other member of this port has. What is added here is that the
+        manager is the party doing it: an answer published by the WORKER would
+        need the worker to hold a Baton capability, and the whole isolation
+        topology exists so that it does not.
+
+        The answer's reference comes back as durable text, owned as the
+        injected value it is: a port that types the call and not the answer
+        lets `None` become a durable identity, which is the defect the claim
+        path was corrected for.
+        """
+        return boundaries.injected(
+            self._session.publish_answer({"work_ref": work_ref,
+                                          "operation_id": operation_id,
+                                          "body": body}),
+            "a published answer reference")
 
     def settle_operation(self, operation_id, signature, reason, disposition,
                          may_retire, work_id, authority_uuid):

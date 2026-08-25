@@ -43,11 +43,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/opt/baton \
     PYTHONHASHSEED=0
 
-# The posture arrives from the manager, never from the image. An image that
-# defaulted to a posture would be an image that runs as `execution` when the
-# manager forgot to say -- and forgetting is exactly when the default matters.
+# The posture and the SESSION IDENTITY both arrive from the manager, never
+# from the image. An image that defaulted to a posture would run as
+# `execution` when the manager forgot to say -- and forgetting is exactly when
+# a default matters. An image that carried a session identity would be an
+# image every container built from it shares one identity with, which is the
+# opposite of what `baton.worker-entry/1` binds a frame to.
 #
-# There is deliberately no `ENV BATON_WORKER_POSTURE`.
+# There is deliberately no `ENV BATON_WORKER_POSTURE` and no
+# `ENV BATON_WORKER_SESSION`. A container started without the session cannot
+# correlate anything it says, so it exits non-zero WITHOUT a frame and the
+# Worker Manager settles its already identified operation from the engine.
 #
 # There is also no `VOLUME`, no `EXPOSE` and no `HEALTHCHECK`: the worker has
 # no network, its writable workspace is a mount the manager names per

@@ -89,7 +89,9 @@ class OwnershipBeforeAdoption(StoreCase):
         from baton_v12.worker_manager import TABLES
         self.assertEqual(objects, set(TABLES) | {
             "offers_one_live_per_work", "offers_one_claim_per_attempt",
-            "observations_manager_order", "profiles_by_digest"})
+            "observations_manager_order", "profiles_by_digest",
+            # W6627: one interrogation lists by the session it is addressed to.
+            "interrogations_by_session"})
         del before
 
     def test_somebody_else_s_database_is_refused_with_nothing_changed(self):

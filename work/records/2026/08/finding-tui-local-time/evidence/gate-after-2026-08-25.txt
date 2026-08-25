@@ -1,0 +1,69 @@
+W8160 — the v11 gate after this implementation claim.
+
+    just test-v11
+    # (pytest -n $(nproc) -m "not serial" tests/work) 3067 passed
+    # (pytest -m serial tests/work)                     52 passed
+    # (test-acp)                                        55 pass, 0 fail
+    # exit 0
+
+GREEN, and green before this claim: the gate this repository runs was already
+passing when W8160 was claimed, so there is no red baseline to diff against —
+the claim's own statement is that it neither added a failure nor needed an
+exemption.
+
+THE FOCUSED SUITE
+
+    tests/work/test_w8160_local_time.py .................. 30 passed
+
+  Pure formatter — `Z`, offset-bearing and canonical naive UTC forms reaching
+  ONE instant; fractional seconds parsed and not painted; absence empty;
+  unparseable text returned verbatim.
+  Denver — `2026-08-25T00:36:19Z` renders `2026-08-24 18:36:19 MDT`, the
+  reported cross-calendar-day shape, and the naive spelling of the same
+  instant renders identically.
+  DST — January `MST` against July `MDT` on one host; the two local `01:30`s
+  of the fall-back hour distinguishable only by their labels.
+  Live timezone change — three zones in one process through `time.tzset()`,
+  all three answers different, `TZ` and libc restored in teardown.
+  Nameless zone — a POSIX `<+0545>-5:45` spelling falls back to the numeric
+  offset rather than dropping the context.
+  UTC host — the wall clock is unchanged and gains a visible `UTC`.
+  Elapsed cells — `held_cell` and `duration_cell` proved identical across two
+  zones, so the timezone-invariant half cannot drift into this ruling.
+  Surfaces — Message reader and index, Event reader, index and claim interval,
+  Poke table and detail, Teams pickup `Since`, runtime `Since`/`Last
+  contact`/`Lease expires`, and the last poke answer's `At`.
+  Responsive — the measured `Time`/`TIME` allocations, the pane that grows
+  with the Events index, and every width from 20 to 70 asserted to carry the
+  WHOLE zone-bearing cell or none of it.
+  Canonical — the projection page byte-identical across rendering under a
+  non-UTC host, with no zone abbreviation anywhere in it.
+  Real terminals — two, both asserting the EXACT expected local rendering
+  rather than the presence of a label, because a console that appended `MDT`
+  to an unchanged UTC number would pass the weaker check. The second chooses
+  UTC-11 or UTC+14 from the instant so the cross-day rule is exercised
+  whatever hour the suite runs at.
+
+SUPERSEDED IN PLACE, each naming the ruling
+
+  tests/work/test_w49_message_index_columns.py
+      The `Time` cell is `HH:MM ZONE`, so a full row needs 44 cells rather
+      than 34 and `Time` drops at 34 rather than 30. Every rule W49 states is
+      unchanged — fixed per-page allocations, one header, clipping inside a
+      cell, whole fields dropped in reverse priority, `Id` unconditional. The
+      arithmetic now lives in `WIDEST` and `_time_cell`, so a later change to
+      the cell's width moves one constant instead of six slices.
+
+  tests/work/test_w93_runtime_state.py
+      `test_the_teams_row_and_the_details_answer_different_questions` pinned
+      the detail block's `Since` to the canonical `...T10:00:00Z` spelling.
+      The property it states — the row is a duration, the detail is an
+      instant — is unchanged and is now asserted against the local rendering,
+      AND against the local rendering being absent from the compact row: a
+      console that painted a local clock in an elapsed cell would be the same
+      defect wearing different digits.
+
+  docs/BATON-WORK.md
+      One paragraph, and a rewording found by `test_w103_public_docs`: the
+      first draft said "`Waiting`", which that gate reads as the retired
+      scheduler phase beside live ones. It says "the pickup wait" now.

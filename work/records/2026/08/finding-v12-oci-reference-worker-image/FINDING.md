@@ -76,3 +76,53 @@ truthfully produce a worker response. The Worker Manager already owns the
 launched session and operation identity and settles that case as its own
 correlated `worker_start_failed` runtime result from the container-engine
 failure. The protocol never invents an uncorrelated startup-response shape.
+
+## Review observations — 2026-08-25 final re-review
+
+**Observed:** The corrected startup path reads one bounded identity envelope,
+but returns a latched posture fault before comparing its protocol and session
+to this container's expected identity. A wrong-session frame therefore receives
+the pending startup fault rather than the contract's session refusal.
+
+**Observed:** The daemon gate builds one image without an explicit platform
+and checks only that its ID has digest syntax. It does not reproduce the build
+or compare image identities, so the required reproducible pinned-platform
+identity remains unproved.
+
+**Observed:** The daemon gate's residual-container query discards every name
+with the suite's own prefix before asserting emptiness. The assertion is
+vacuous for exactly the resources it claims to detect.
+
+These observations are reviewed in
+`review-2026-08-25T07-19-30Z.md`; they do not supersede either confirmed
+protocol ruling above.
+
+## Independent fourth-review observations — 2026-08-25
+
+**Observed, P1:** The three preceding corrections landed, but the daemon gate's
+real containers do not use the manager adapter's unconditional runtime
+restrictions. Channel, inspection and cancellation starts retain only
+`--network none`; they omit cap-drop, no-new-privileges, fixed-user argv,
+read-only root, resource ceilings and bounded tmpfs posture. A green run proves
+the weaker container it launched, not the recorded capability boundary.
+
+**Observed, P1:** The second supposedly independent image build shares the
+first build's cache. Changing only the output tag does not force recipe
+execution, so equal IDs can prove a cache hit rather than reproducibility.
+
+Two daemon-free additive regressions isolate the argv defects. Full analysis
+and correction boundary: `review-2026-08-25T09-47-54Z.md`.
+
+## Independent fifth-review observation — 2026-08-25
+
+**Observed, P1:** Cache isolation is now real, but it exposes that two
+independent builds have different OCI image IDs. The correction compares equal
+filesystem layers and selected config members instead and adds a test that
+requires the image IDs to differ. This does not satisfy the confirmed
+reproducible immutable image-digest acceptance or produce the one digest the
+manager pins and launches.
+
+The additive daemon-backed identity regression and correction/decision
+boundary are in `review-2026-08-25T12-19-50Z.md`. A weaker layer-equivalence
+contract requires an explicit approver supersession; implementation prose does
+not supersede the confirmed acceptance.

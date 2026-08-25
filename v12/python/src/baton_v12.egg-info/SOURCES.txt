@@ -19,6 +19,7 @@ src/baton_v12/contracts/errors.py
 src/baton_v12/contracts/frozen.py
 src/baton_v12/contracts/manifest.py
 src/baton_v12/contracts/pod.py
+src/baton_v12/contracts/secrets.py
 src/baton_v12/contracts/validate.py
 src/baton_v12/contracts/schema/agent-session-1.0.schema.json
 src/baton_v12/contracts/schema/worker-control-1.0.schema.json
@@ -28,8 +29,11 @@ src/baton_v12/worker_manager/authority_port.py
 src/baton_v12/worker_manager/boundaries.py
 src/baton_v12/worker_manager/documents.py
 src/baton_v12/worker_manager/handshake.py
+src/baton_v12/worker_manager/interrogation.py
+src/baton_v12/worker_manager/manifests.py
 src/baton_v12/worker_manager/oci.py
 src/baton_v12/worker_manager/offers.py
+src/baton_v12/worker_manager/output.py
 src/baton_v12/worker_manager/posture_slots.py
 src/baton_v12/worker_manager/schema.py
 src/baton_v12/worker_manager/sessions.py

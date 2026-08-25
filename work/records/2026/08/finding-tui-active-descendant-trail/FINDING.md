@@ -268,3 +268,23 @@ than two complete disclosures. The additive reviewer regression fails in the
 focused and full parallel gates; all other current cases pass.
 
 Review: `review-2026-08-25T04-07-45Z.md`.
+
+## Final correction review and sign-off — 2026-08-25
+
+**Confirmed:** the filter/tab overpaint is corrected. The Jobs renderer now
+allocates every row above the table from one monotonic cursor: contextual tabs
+and normalized filter clauses occupy separate physical lines in stable order,
+and the table begins beneath both. The correction preserves narrow clause
+viewporting and the full active-trail display stream.
+
+**Verified:** the expanded focused W6814/projection/navigation/parity set is
+103/103. The complete `just test-v11` gate passes all three phases: 3,036
+parallel tests, 52 serial tests, and 55 ACP bridge tests.
+
+No remaining defect was found in the correction or the previously accepted
+active-trail, exact-selection, contextual activation, root-scoped-tab,
+bounded-history, projection-parity, and real-terminal boundary. W6814 is
+signed off. The separate W7203 drain/deploy Work remains the rollout owner;
+this review neither drains dispatch nor deploys.
+
+Review: `review-2026-08-25T05-30-30Z.md`.

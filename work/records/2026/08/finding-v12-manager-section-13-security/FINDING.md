@@ -78,3 +78,107 @@ durable surfaces — a second enforcement point would be a second definition of
 - Restart and cancellation semantics that forget rather than persist.
 
 The implementer creates and exclusively owns `PROGRESS.md`.
+
+## Implementation decisions — 2026-08-25
+
+Recorded by the implementer under the claim that built this slice.
+
+**The registry lives in `contracts`, not the manager.** The manifest composite
+has to consult it and this package may not import from the one above it. It is
+deliberately small, holds nothing that is not currently live, and every entry
+is forgotten by the act that acquired it.
+
+**`held_secret` is a context manager rather than a callback.** The frozen host
+needed a callback and then three review rounds of thenable handling to make its
+release wait for an asynchronous act. There is no such split in a `with` block:
+it ends when the block ends, on a return, a raise or a `break`. The property
+the host was reaching for is Python's by construction here.
+
+**`live_secret` proves its operand.** Answering "no" to a malformed question is
+how a caller concludes it asked a good one — the same rule W6627's quiescence
+gate carries, applied one module over.
+
+**The named-member half is unreachable through a frozen manifest, MEASURED.**
+Every object in the manifest family is `additionalProperties: false` except
+`extensions`, whose `propertyNames` pattern requires a reverse-DNS namespace
+with a version, so a member called `authorization` is refused by the schema
+before §13 is reached. The value half is what §13 adds at that surface, and a
+case pins the reliance so the gate speaks if the schema ever stops carrying it.
+
+**No golden pinned bearer.** The frozen host pins its conformance bearer in a
+register that is never released, because nothing acquired it and so nothing may
+hand it back. This distribution has no golden bearer in its Python fixtures, so
+pinning one would add a value nothing uses and a branch nothing can drive. If a
+conformance bearer lands, `_live` is the wrong register for it and a separate
+pinned one is right; the reasoning is recorded so it is not re-derived.
+
+**`threading` is added to the distribution's standard-library record.** The
+registry's reference count is a read-modify-write over shared process state,
+and a lost update means a bearer stops being live while an owner still holds it
+— a leak boundary that silently stops guarding. The module is standard library,
+so the locked build is unchanged, and the lock is held only around the
+arithmetic.
+
+**Not here, and named so the absence is deliberate:** provider login, OCI
+injection mechanics, output collection, retention, and lifecycle composition.
+
+## Independent review finding — 2026-08-25
+
+**Observed, P1.** The derived coverage sweep enumerates SQLite writers but no
+public surfaces. Consequently exported `manager_signature` can return
+canonical protocol-identity text containing a live bearer verbatim, and
+exported `seal_refusal` can return a portable refusal whose message contains
+an interpolated live bearer. The later journal walk refuses either row, but it
+cannot undo the public representation that has already been constructed and
+returned.
+
+The two deterministic regressions and full analysis are in
+`review-2026-08-25T06-35-31Z.md`. The guards must be local to the public
+construction boundaries, and the enumerated gate must cover applicable public
+surfaces as well as durable writers.
+
+**Partially resolved 2026-08-25.** `manager_signature` and `seal_refusal` now
+walk before returning, and their regressions pass. Re-review found the public
+inventory still omits exported class methods and accepts false safe-by-reason
+classifications: `revive_refusal` and `certified_agent_session_profile` can
+still return live-bearer surfaces. See
+`review-2026-08-25T06-57-14Z.md`.
+
+## Independent re-review finding — 2026-08-25
+
+**Observed, P1.** The public sweep derives top-level `__all__` callables only;
+it treats an exported class as one surface and omits its public methods.
+Further, only the constructor class is probed. A prose-only reason incorrectly
+claims public `revive_refusal` receives bytes already walked, although direct
+callers supply arbitrary sealed text, and another claims retained profile
+bytes were walked on write while the read boundary exists specifically because
+later store edits are possible.
+
+The three deterministic regressions and required correction are recorded in
+`review-2026-08-25T06-57-14Z.md`.
+
+## Independent third-review finding — 2026-08-25
+
+**Observed, P1.** The second correction fixes the three reported paths, but
+the public sweep still falsely classifies persisted journal reads as safe from
+their write history. `ControlStore.operation_record` and `replay` both receive
+an adopted row without a §13 walk, so a later edit to `operations.result` can
+make both public methods return a currently live bearer. The store is already
+documented as a receiving trust domain; shape adoption does not establish the
+dynamic known-secret rule.
+
+One additive regression drives both public reads and fails in both subcases.
+Full analysis and the required read-side re-audit are in
+`review-2026-08-25T09-30-45Z.md`.
+
+## Independent fourth-review finding — 2026-08-25
+
+**Observed, P1.** The central row guard runs after column validation. An
+invalid typed column containing a currently live bearer is therefore quoted by
+the column owner's schema diagnostic before §13 runs; public
+`operation_record` returns a refusal whose message contains the complete
+bearer. The guard must precede any content validator that can format the row's
+values, not merely precede the successful return.
+
+One additive regression records the leak. Full analysis is in
+`review-2026-08-25T10-49-54Z.md`.

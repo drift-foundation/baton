@@ -1,0 +1,115 @@
+W6633 — the gates after the FOURTH review correction.
+
+FOCUSED, the entry point and the recipe:
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_worker_image
+    # Ran 58 tests -- OK   (unchanged; this review touched the daemon gate)
+
+THE DAEMON-BACKED GATE, corrected and recorded GREEN:
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_worker_container
+    # Ran 29 tests in 22.4s -- OK
+    # docker server 29.1.3, platform linux/amd64
+
+    23 before, plus the reviewer's two daemon-free cases (both now pass) and
+    four of mine that read the applied posture from INSIDE the container:
+      test_the_running_container_holds_no_effective_capability
+      test_the_running_container_has_a_read_only_root
+      test_the_running_container_carries_the_bounded_tmpfs_posture
+      test_the_image_id_is_a_receipt_and_not_the_artefact
+
+    After the run, asked of the engine:
+      docker ps --all --filter name=baton-w6633-test      ->  0 lines
+      docker images  --filter reference=baton-w6633-test  ->  0 lines
+
+FULL SOURCE AND LOCKED INSTALLED-LAYOUT:
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1095 tests -- FAILED (failures=14, errors=1, skipped=1)
+
+    the same suite from the INSTALLED layout, outside the source tree
+    # Ran 1095 tests -- FAILED (failures=14, errors=1)
+    # Failure list compared line by line: IDENTICAL.
+
+FIFTEEN, AND THREE OF THEM ARE NOT THIS WORK'S
+
+  Twelve pre-existing: `test_oci` 4, `test_boundary_inventory` 7,
+  `test_dependencies` 1.
+
+  tests.manager.test_interrogation ........... 2   -- W6627, in review
+      test_an_exact_retry_is_not_redecided_by_later_assignment_liveness
+      test_probe_diagnostics_named_for_a_secret_never_reach_the_row
+      (from `review-2026-08-25T11-30-14Z.md`, dated after this claim began)
+  tests.manager.test_secrets ................. 1   -- W6630, in review
+      test_the_secret_walk_precedes_column_diagnostics_that_quote_values
+
+  ADDED BY THIS CORRECTION ..................... 0
+  REMOVED BY THIS CORRECTION ................... 2  (the review's own)
+
+AN OPERATIONAL NOTE ON RUNNING THIS GATE
+
+  An earlier `just build` in this session reported 16+1 rather than 14+1. It
+  was running CONCURRENTLY with a source run of the same suite against the
+  same daemon. `test_no_container_of_this_suite_survives_it` asks the ENGINE a
+  global question — `docker ps --filter name=baton-w6633-test` — so two
+  simultaneous runs see each other's containers and both fail. Recorded rather
+  than left as an unexplained number: this suite is not safe to run
+  concurrently with itself, which is a property of asking the engine rather
+  than a bookkeeping list, and that trade was deliberate.
+
+WHAT THE TWO CORRECTIONS CHANGED
+
+  [P1] THE RESTRICTIONS ARE THE MANAGER'S. `restricted(*flags)` is derived
+  from `worker_manager.oci.RESTRICTIONS` and applied to every launch — the
+  channel, the filesystem inspection, both cancellation starts, and the new
+  in-container probes. Derived rather than retyped, so a restriction added to
+  the adapter tomorrow is applied here tomorrow. It is module-level so the
+  reviewer's duck-typed harness reaches it, and their derived regression is
+  kept exactly as written.
+
+  ARGV IS NOT EVIDENCE OF WHAT WAS APPLIED, which the review said plainly, so
+  three cases read the kernel's own account from inside a running container:
+  `CapEff`/`CapPrm`/`CapBnd` all empty and `NoNewPrivs` 1; writes to `/` and
+  `/opt/baton` refused while `/tmp` succeeds; and `/proc/self/mounts` showing
+  both tmpfs mounts carrying `noexec,nosuid,nodev`.
+
+  [P1] THE CACHE IS ISOLATED, UNCONDITIONALLY. `--no-cache` is not a keyword
+  a caller may relax — the same reasoning the adapter's own table gives — so
+  every image this gate inspects was BUILT rather than attached to an earlier
+  result.
+
+A DISAGREEMENT WITH THE LETTER OF THE SECOND FINDING, WITH THE MEASUREMENT
+
+  The review asked, after cache isolation, to "compare immutable identities".
+  That is not achievable on this engine, and the reason is structural rather
+  than a gap in effort:
+
+    the image ID is the digest of the image CONFIG, and the config carries a
+    `Created` timestamp the classic builder stamps from the wall clock. Two
+    genuinely independent builds therefore have two ids BY CONSTRUCTION.
+
+  Measured on docker 29.1.3, twice, with the real recipe:
+
+    build A  Id sha256:a2ef4b84...  Created 2026-08-25T11:28:35.868565166Z
+    build B  Id sha256:a9e423f3...  Created 2026-08-25T11:28:35.931457870Z
+    RootFS layers: all six identical.
+
+  `SOURCE_DATE_EPOCH` as an environment variable and as a build-arg changes
+  neither; this host has no `buildx`, so BuildKit's reproducible-output path
+  is not available.
+
+  So the case compares THE ARTEFACT rather than the receipt: every RootFS
+  layer digest — content-addressed, and the actual bytes a worker runs — and
+  the applied `User`, `Entrypoint`, `Cmd`, `Env` and `WorkingDir`. That is the
+  property the acceptance needs (two executions of the recipe produce one
+  worker) and it is one this engine can establish.
+
+  `test_the_image_id_is_a_receipt_and_not_the_artefact` holds the measurement
+  itself, so the docstring's claim is checked rather than believed — and if a
+  later engine DOES make ids reproducible, that case fails and the comparison
+  above can be strengthened, which is the right way round for a claim limited
+  by tooling. If the reviewer would rather the gate FAIL until an engine with
+  reproducible ids is available, say so and I will invert it; that is a
+  deployment decision rather than mine to take.

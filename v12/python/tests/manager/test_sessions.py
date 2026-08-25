@@ -86,6 +86,15 @@ class Agent:
         return {"kind": "present", "state": "ready",
                 "provider_session_id": self.provider_session_id}
 
+    def probe(self, request):
+        # W6627: the adapter contract now names `probe` and `inquire`. A fake
+        # missing either is refused at the capability check, which would make
+        # every case in this file fail for a reason it is not about.
+        return {"kind": "unreachable", "why": "this fixture does not probe"}
+
+    def inquire(self, request):
+        return {"kind": "unreachable", "why": "this fixture does not inquire"}
+
 
 PROVIDER = "provider-session-1"
 
@@ -983,8 +992,17 @@ class TheStoreKnowsItsOwnShape(SessionCase):
 
     def test_the_schema_version_moved_with_the_shape(self):
         """A store written under an earlier shape cannot hold what this build
-        enforces, and keeping the number would let this build adopt one."""
-        self.assertEqual(schema.SCHEMA_VERSION, 7)
+        enforces, and keeping the number would let this build adopt one.
+
+        PAST SIX, not EQUAL TO SEVEN. The property this case owns is that a
+        store written before the agent session existed cannot be adopted by a
+        build that requires it; which number the CURRENT shape is at is a fact
+        about the newest slice, and `test_store` already pins that the store
+        records whatever this constant says. Asserting the literal here made
+        every later table addition edit a case about agent sessions, which is
+        a coupling this case never meant to claim. (W6628 moved it to eight.)
+        """
+        self.assertGreater(schema.SCHEMA_VERSION, 6)
 
     def test_a_persisted_state_this_contract_never_had_is_refused(self):
         """The store is a receiving trust domain: this process did not write

@@ -45,6 +45,11 @@ class FakeSession:
                                           "work_id": WORK},
                              "participant": participant, "generation": 1}
         self.settle_answer = {"kind": "live", "record": None}
+        # W6627: what Baton answers when this manager publishes a model's
+        # answer. Settable because the port owns the ANSWER as well as the
+        # call -- a session that returned `None` would otherwise make `None` a
+        # durable reference.
+        self._published = "baton:M1"
         # Cut D: the authority's own live-assignment projection, in the shape
         # the authority answers with.
         self.live_assignment = {"work_ref": {"authority_uuid": UUID,
@@ -86,6 +91,16 @@ class FakeSession:
     def settle_operation(self, operands):
         self.calls.append(("settle_operation", dict(operands)))
         return self.settle_answer
+
+    def publish_answer(self, operands):
+        # W6627: the manager is the ONE Baton client, so a conversational
+        # answer reaches Baton through the injected session and never through
+        # the worker. Every suite that builds a port inherits the member from
+        # here, because the port types the whole session surface at
+        # construction -- a capability that cannot be called would otherwise
+        # fault inside a transaction.
+        self.calls.append(("publish_answer", dict(operands)))
+        return self._published
 
 
 def fake_claim_signature(work_id, participant):

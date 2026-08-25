@@ -1,0 +1,55 @@
+W6633 - the gates after the review correction.
+
+FOCUSED, the entry point and the recipe:
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_worker_image
+    # Ran 54 tests -- OK
+
+THE IMAGE AND CONTAINER GATE, which is the half the review said was absent:
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_worker_container
+    # Ran 21 tests in 21.9s -- OK
+    # docker server 29.1.3; base pulled and built from the pinned digest
+
+    docker ps  --all --filter name=baton-w6633-test | wc -l   ->  0
+    docker images    --filter reference=baton-w6633-test | wc -l -> 0
+
+It builds the pinned image, inspects the CONFIG the engine applied, reads the
+layer filesystem from inside a container, drives real consent and execution
+containers through the framed channel, stops a waiting container through the
+engine and records its settlement, and removes every resource it made on every
+path. It FAILS rather than skips without a daemon.
+
+FULL SOURCE AND LOCKED INSTALLED-LAYOUT:
+
+    cd v12/python && just build
+    # Ran 997 tests -- FAILED (failures=15, skipped=1)
+
+FIFTEEN, AND THREE OF THEM ARE NOT THIS WORK'S. Twelve are the pre-existing
+`oci.py` and `workspaces.py` failures carried by every Job in this campaign.
+The other three are the reviewer's additive cases on W6630, which landed in
+this tree while W6633 was being corrected:
+
+    test_a_profile_is_rewalked_before_the_read_surface_returns_it
+    test_an_exported_class_does_not_hide_its_public_methods
+    test_reviving_untrusted_text_cannot_construct_a_bearer_diagnostic
+
+All three are in `tests/manager/test_secrets.py`, which is W6630's file. W6630
+is queued at `baton.impl` and was not held by this claim.
+
+FAIL: test_a_profile_is_rewalked_before_the_read_surface_returns_it (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_a_profile_is_rewalked_before_the_read_surface_returns_it)
+FAIL: test_a_symlink_descendant_cannot_escape_an_assignment_root (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_symlink_descendant_cannot_escape_an_assignment_root)
+FAIL: test_an_exported_class_does_not_hide_its_public_methods (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_an_exported_class_does_not_hide_its_public_methods)
+FAIL: test_assignment_roots_cannot_overlap (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_assignment_roots_cannot_overlap)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='oci.py:run_vector', parameter='assignment_roots')
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_nested_mount_sources_and_targets_are_ambiguous (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_nested_mount_sources_and_targets_are_ambiguous) (what='sources')
+FAIL: test_nested_mount_sources_and_targets_are_ambiguous (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_nested_mount_sources_and_targets_are_ambiguous) (what='targets')
+FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'workspaces.py:materialize_git_source', 'base_revision.algorithm'))
+FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'workspaces.py:materialize_git_source', 'base_revision.hex'))
+FAIL: test_reviving_untrusted_text_cannot_construct_a_bearer_diagnostic (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_reviving_untrusted_text_cannot_construct_a_bearer_diagnostic)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)

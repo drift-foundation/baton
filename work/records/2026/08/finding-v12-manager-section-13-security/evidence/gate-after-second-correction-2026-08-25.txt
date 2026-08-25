@@ -1,0 +1,74 @@
+W6630 — the v12 Python gate after the SECOND review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1060 tests -- FAILED (failures=14, errors=2, skipped=1)
+
+    cd v12/python && just build
+    # the locked, hash-enforced install, run from the INSTALLED layout:
+    #   Ran 1060 tests -- FAILED (failures=14, errors=2)
+    # Byte-identical verdicts, so nothing here is a `PYTHONPATH=src` artefact.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    # Ran 52 tests -- OK
+
+THE DELTA AGAINST `gate-after-2026-08-25.txt` IN THIS DIRECTORY
+
+  That file recorded twelve, every one naming `oci.py` or `workspaces.py`.
+  All twelve are still here and are still not this Work's:
+
+    test_oci .......................... 4
+    test_boundary_inventory ........... 7
+    test_dependencies ................. 1
+
+  REMOVED BY THIS CORRECTION ..................... 3
+  ADDED BY THIS CORRECTION ....................... 0
+  ADDED BY OTHER PARTIES' REVIEW CASES ........... 4
+
+REMOVED (-3), the three the re-review left
+
+  test_reviving_untrusted_text_cannot_construct_a_bearer_diagnostic
+  test_a_profile_is_rewalked_before_the_read_surface_returns_it
+  test_an_exported_class_does_not_hide_its_public_methods
+
+  All three are kept exactly as the reviewer wrote them.
+
+ADDED (+4), NONE OF THEM THIS CLAIM'S
+
+  test_a_latched_fault_does_not_answer_another_sessions_envelope
+      (tests.manager.test_worker_image)                      -- W6633, in review
+
+  test_a_probe_state_is_owned_as_the_frozen_session_vocabulary
+  test_a_restart_reads_a_probe_observation_not_only_its_outcome
+  test_an_exact_retry_does_not_collide_with_the_managers_new_clock
+      (tests.manager.test_interrogation)                     -- W6627, in review
+
+  The last three arrived with `review-2026-08-25T08-48-15Z.md` in
+  `finding-v12-manager-agent-session-protocols/`, dated after this claim
+  began. They are reported and NOT fixed: repairing another Work's review
+  findings while that Work is in review would be closing its own review. None
+  of the four names a secret, a walk or a §13 code.
+
+WHAT THE RE-AUDIT FOUND, which is the part worth reading
+
+  The re-review asked for a re-audit of prose-only classifications whose
+  reasons might describe a narrower internal caller than the public path. Two
+  were named. A THIRD was found, and it was not a wording defect:
+
+    record_inquiry_answer
+
+  Its durable-sweep entry and its public entry both said the answer rode the
+  same journalled signature `_ask` walks. It does not. An answer arrives at
+  its own boundary long after the request, and that function writes through a
+  direct `UPDATE ... SET answer = ?` rather than through `transact` — so
+  `_record`'s walk never ran on it, and an answer body carrying a live bearer
+  reached durable storage with no §13 guard at all.
+
+  Guarded at its own boundary now, with three regressions in
+  `ARecordedAnswerIsWalkedAtItsOwnBoundary`: a live bearer refused with the
+  column still NULL and the outcome not `answered`; a member named for a
+  secret refused whether or not one is held; and an ordinary answer recorded
+  unchanged, so the guard refuses a leak and nothing else.
+
+  `request_freeze`'s reason was corrected too — it answers with a request
+  document over owned identities, not "with what `record_frozen_result`
+  walked".

@@ -1,0 +1,72 @@
+W6630 — the v12 Python gate after the THIRD review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    # Ran 57 tests -- OK
+    # 52 before, plus the reviewer's two-subcase regression (green) and four
+    # of mine generalizing it.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1084 tests -- FAILED (failures=16, errors=1, skipped=1)
+
+    cd v12/python && just build
+    # Ran 1084 tests -- FAILED (failures=16, errors=1)
+    # Byte-identical from the INSTALLED layout.
+
+THE DELTA AGAINST `gate-after-second-correction-2026-08-25.txt`
+
+  ADDED BY THIS CORRECTION ....................... 0
+  REMOVED BY THIS CORRECTION ..................... 1 test, 2 subcases
+      test_a_hand_edited_journal_row_cannot_leave_either_public_read
+        (surface='operation_record' and surface='replay')
+  ADDED BY OTHER PARTIES' REVIEW CASES ........... 3
+
+THE TWELVE that remain are the pre-existing `oci.py`/`workspaces.py` set:
+`test_oci` 4, `test_boundary_inventory` 7, `test_dependencies` 1.
+
+ADDED (+3), NONE OF THEM THIS WORK'S
+
+  tests.manager.test_interrogation ........... 3   -- W6627, in review
+      test_an_exact_retry_does_not_recompute_an_impossible_later_deadline
+      test_diagnostic_names_and_numbers_cannot_bypass_the_character_bound
+      test_public_settlement_cannot_bypass_observation_ownership
+
+  They arrived with `review-2026-08-25T10-26-49Z.md` in the agent-session
+  dossier, dated after this claim began. Checked against this correction: none
+  raises or mentions `secret-leak`, and none touches an adopted row — the
+  first is an overflow in deadline arithmetic, the other two are gaps in
+  W6627's own diagnostics bound and public settlement path. Reported, not
+  fixed.
+
+  The two W6633 container cases this dossier's previous evidence recorded as
+  not-ours have since been fixed by W6633's own claim and are gone. Two more
+  from that Work's newest review are present and are counted in the sixteen.
+
+WHERE THE GUARD WENT, AND WHY THERE
+
+  `boundaries.row` — the ONE crossing every adopted row in this manager comes
+  through, and the function whose own docstring already calls the store a
+  receiving trust domain. The column contract proves the SET and the SHAPES
+  and says nothing about content, which is exactly the gap the review found.
+
+  Not in the two readers it named, because "walk it in each public reader" is
+  a list somebody maintains — and this Work has now been corrected three times
+  for reasons that described a path other than the one that ran. A guard at
+  the crossing cannot be forgotten by a projection written later.
+
+  The reach is proved rather than asserted:
+  `test_the_walk_is_reached_by_the_row_boundary_and_not_by_a_reader` drives
+  `claimed_offers_for`, whose module contains no §13 call at all, and reads
+  the source to show it.
+
+THE SPLIT IS KEPT AND IS NOW THE POINT
+
+  The rule is DYNAMIC. It refuses a value this process is HOLDING; a value it
+  has forgotten is absent from the registry, so its row stays readable and an
+  exact durable replay still returns it —
+  `test_a_forgotten_value_stays_readable_and_replayable`.
+
+  And it cannot collide with the one sanctioned disclosure: `issue_offer`
+  answers with the bearer to the caller entitled to it and holds it live
+  across that act, while the offer row stores a VERIFIER and never the bearer.
+  `test_the_bearer_the_issue_path_returns_is_not_a_persisted_column` asserts
+  both halves — the column set and the row's actual bytes.

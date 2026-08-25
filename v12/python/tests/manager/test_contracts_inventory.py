@@ -100,6 +100,27 @@ OWNERS = {
 	# suspicion explains nothing.
 	("ContractRefusal", "message"): ASSERTED,
 	("ContractRefusal", "durable"): ASSERTED,
+	# -- W6630: §13 -----------------------------------------------------
+	#
+	# The WALK owns its own operand by construction: it descends only into
+	# the built-in containers it recognises and reads nothing else, so a
+	# value with behaviour is passed over rather than interrogated. There is
+	# no shape to refuse -- any document is a legal question -- and what it
+	# answers is whether that document carries a secret.
+	("check_no_durable_secret", "document"):
+		"the walk's own type dispatch: strings, lists, tuples and dicts are "
+		"descended and nothing else is read",
+	("check_no_durable_secret", "what"): "label_of, at the refusal",
+	("remember_secret", "value"):
+		"the registry's own rule: a remembered secret is non-empty text",
+	("forget_secret", "value"): "the same rule, one direction over",
+	("held_secret", "value"):
+		"delegated to remember_secret on entry; a value that cannot be "
+		"remembered never becomes a held one",
+	("live_secret", "value"):
+		"the registry's own rule: a value that cannot be a registered secret "
+		"is a malformed question, and answering it would be worse than "
+		"refusing it",
 	("canonical_bytes", "value"): "the canonicalizer's own type walk",
 	("canonical_text", "value"): "the same walk",
 	("digest", "value"): "the same walk, then sha256 over its bytes",
@@ -197,6 +218,20 @@ class EveryOwnerIsProvedByANonVacuousProbe(unittest.TestCase):
 	def probes(self):
 		return {
 
+			("check_no_durable_secret", "document"):
+				lambda: contracts.check_no_durable_secret(
+					{"password": "x"}),
+			("check_no_durable_secret", "what"):
+				lambda: contracts.check_no_durable_secret(
+					{"password": "x"}, what=SURROGATE),
+			("remember_secret", "value"):
+				lambda: contracts.remember_secret(""),
+			("forget_secret", "value"):
+				lambda: contracts.forget_secret(object()),
+			("held_secret", "value"):
+				lambda: contracts.held_secret("").__enter__(),
+			("live_secret", "value"):
+				lambda: contracts.live_secret(object()),
 			("canonical_bytes", "value"):
 				lambda: contracts.canonical_bytes(object()),
 			("canonical_text", "value"):

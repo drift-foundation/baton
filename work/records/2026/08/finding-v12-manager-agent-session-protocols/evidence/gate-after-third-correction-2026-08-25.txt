@@ -1,0 +1,76 @@
+W6627 — the v12 Python gate after the THIRD re-review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_interrogation tests.manager.test_sessions
+    # Ran 144 tests -- OK
+    # 71 interrogation, 73 session.
+    # 139 before, plus five of mine covering the three corrections.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1089 tests -- FAILED (failures=15, skipped=1)
+
+    cd v12/python && just build
+    # Ran 1089 tests -- FAILED (failures=15)
+    # Byte-identical from the INSTALLED layout.
+
+THE DELTA AGAINST `gate-after-second-correction-2026-08-25.txt`
+
+  ADDED BY THIS CORRECTION ....................... 0
+  REMOVED BY THIS CORRECTION ..................... 3 (the review's own)
+  ADDED BY OTHER PARTIES' REVIEW CASES ........... 0 net
+      W6633's two container cases are still open; W6630's two secrets
+      subcases were fixed by that Work's own claim and one new W6630
+      reviewer case took their place.
+
+  Twelve remain pre-existing: `test_oci` 4, `test_boundary_inventory` 7,
+  `test_dependencies` 1.
+
+REMOVED (-3), all three kept exactly as the reviewer wrote them
+
+  test_an_exact_retry_does_not_recompute_an_impossible_later_deadline
+  test_public_settlement_cannot_bypass_observation_ownership
+  test_diagnostic_names_and_numbers_cannot_bypass_the_character_bound
+
+STILL OPEN AND NOT THIS WORK'S
+
+  tests.manager.test_worker_container ....... 2   -- W6633, in review
+  tests.manager.test_secrets ................ 1   -- W6630, in review
+      test_the_secret_walk_precedes_column_diagnostics_that_quote_values
+      (from `review-2026-08-25T10-49-54Z.md`, dated after this claim began)
+
+  Checked against this correction: none names an interrogation, a deadline, an
+  observation or a diagnostic. Reported, not fixed.
+
+WHAT THE THREE CORRECTIONS CHANGED
+
+  [P1] THE CLOCK. `store._now()` and `boundaries.deadline(...)` moved inside
+  the transacted `act`, which `transact` runs only when it did NOT replay. The
+  signature keeps the caller's duration and is still computed before the act,
+  as the review required. `test_no_clock_is_read_before_the_journal_decides`
+  asserts the property rather than one instant: on the replay path the clock
+  is read ZERO times, counted through an instrumented `_clock`.
+
+  [P1] THE OBSERVATION OWNER. The public `settle_interrogation` applies
+  `_observation` and the exact provider-session comparison; `_settle` performs
+  the move over a reading somebody has already owned. PLAN 4bz's split, the
+  same shape `revive_refusal`/`_revived` uses — and deliberately NOT an
+  `owned=` flag on a public signature, which would have put internal state in
+  an operand list and in the declared-operand gate.
+
+  Idempotence re-audited as asked: a second settlement with a DIFFERENT
+  reading is refused rather than answered with the first, because returning
+  the first would say the second was kept.
+
+  [P1] THE DIAGNOSTIC NAME. Bounded like its value. A case pins the refusal at
+  2001 characters AND the acceptance at exactly 2000, because a bound that
+  refused legitimate reports would be a different defect.
+
+  GATE BOOKKEEPING. The durable-writer sweep entry follows the rename to
+  `_settle`. The stated owner that used to excuse
+  `settle_interrogation`'s observation as an outbound value is REMOVED — the
+  door owns it now, and `test_no_entry_is_owned_twice` is what caught the
+  contradiction. Five probes added for the public settlement door, two for
+  the newly read columns, and `interrogations.session_epoch` joins `NO_PROBE`
+  beside the other STRICT INTEGER columns SQLite will not let a writer spoil.
+  The boundary-inventory file's failure list is byte-identical to the
+  baseline's seven and none of them names `interrogation.py`.

@@ -143,3 +143,37 @@ Status: **changes requested** in
    parallel, serial and ACP gates.
 4. [pending] Return for final independent review; terminal closure still
    precedes the separate W7203 drain/deploy gate.
+
+## Renderer review correction — 2026-08-25
+
+Status: **corrected and verified; awaiting final review.**
+
+1. [done] Review [P1]: the rows above the Jobs table are allocated from ONE
+   running cursor. The filter branch painted at a literal row 1 and reset the
+   cursor to a literal 2, so on a re-rooted page whose filter survived the
+   re-root the clause text overpainted the contextual tab row. Both rows are
+   required — W5 always discloses an active filter, W6814 always discloses
+   which local tab a contextual page is on — and neither may overpaint the
+   other.
+2. [done] The reviewer's additive case is green, with three further
+   regressions beside it: the stable order breadcrumb → tabs → filter →
+   table header, the table's viewport budget beneath them (every window row
+   and its elision group still painted), and W5's narrow-width horizontal
+   viewporting of the clause line with the tab row present.
+3. [done] Full gate: `just test-v11` — 3,036 parallel, 52 serial, 55 ACP, all
+   passing, all three phases entered.
+
+## Final independent review — 2026-08-25
+
+Status: **signed off; W6814 may close satisfying.**
+
+1. [done] Inspected the one-cursor correction and its additive regressions;
+   tabs, filter disclosure and table header retain distinct physical rows,
+   narrow clause viewporting survives, and the active-trail stream remains
+   present beneath them.
+2. [done] Expanded focused W6814/projection/navigation/parity verification:
+   103 passed.
+3. [done] Complete `just test-v11`: 3,036 parallel, 52 serial and 55 ACP,
+   all passing.
+4. [done] Independent sign-off recorded in
+   `review-2026-08-25T05-30-30Z.md`. Rollout remains separately owned by W7203.

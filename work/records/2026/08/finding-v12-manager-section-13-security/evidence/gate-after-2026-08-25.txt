@@ -1,0 +1,25 @@
+W6630 - the v12 Python gate after the review correction.
+
+    cd v12/python && just build
+    # Ran 951 tests -- FAILED (failures=12, skipped=1)
+
+TWELVE, AND THE LIST IS BYTE-IDENTICAL TO THE ONE THIS CLAIM FOUND. Every one
+names `oci.py` or `workspaces.py` -- W6632's and W6631's modules -- and the
+same list is filed in W6627's and W6628's dossiers.
+
+The first pass of this Work reported thirteen, the extra being the reviewer's
+in-flight W6628 regression. That Work has since been corrected and returned,
+so the gate is back to the pre-existing set.
+
+FAIL: test_a_symlink_descendant_cannot_escape_an_assignment_root (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_symlink_descendant_cannot_escape_an_assignment_root)
+FAIL: test_assignment_roots_cannot_overlap (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_assignment_roots_cannot_overlap)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='oci.py:run_vector', parameter='assignment_roots')
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_nested_mount_sources_and_targets_are_ambiguous (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_nested_mount_sources_and_targets_are_ambiguous) (what='sources')
+FAIL: test_nested_mount_sources_and_targets_are_ambiguous (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_nested_mount_sources_and_targets_are_ambiguous) (what='targets')
+FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'workspaces.py:materialize_git_source', 'base_revision.algorithm'))
+FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'workspaces.py:materialize_git_source', 'base_revision.hex'))
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)

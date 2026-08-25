@@ -47,7 +47,17 @@ STANDARD_LIBRARY = {"json", "pathlib", "hashlib", "re", "os", "typing",
                     "collections", "itertools", "functools", "contextlib",
                     "types", "importlib", "unicodedata", "sqlite3", "ipaddress",
                     # cut C: constant-time comparison and instant arithmetic
-                    "hmac", "datetime"}
+                    "hmac", "datetime",
+                    # W6630: §13's live-secret registry is shared mutable
+                    # process state, and its reference count is a
+                    # read-modify-write. A lost update there means a bearer
+                    # stops being live while an owner still holds it -- a leak
+                    # boundary that silently stops guarding, which is exactly
+                    # the failure §13 exists to prevent. "This package is
+                    # single-threaded today" is the kind of assumption this
+                    # distribution has been corrected for, and `threading`
+                    # costs the locked build nothing.
+                    "threading"}
 
 # The complete ruled runtime closure, written out. A closure that is merely
 # "whatever pip resolved" is not pinned, and item 4bh named the version.
@@ -424,6 +434,22 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         "posture", "session_epoch", "session_ref", "provider_session_id",
         "state", "from_state", "to_state", "intent", "evidence",
         "observed_identity", "turn_in_flight", "prompt",
+        # W6628: the output freeze and the sealed receiver. `attempt` is one
+        # persisted attempt row crossing back IN as a caller operand -- the
+        # freeze identity is derived from it, and a caller that already holds
+        # the row should not have to re-fetch it by id -- and
+        # `manifest_digest` names one retained document.
+        "attempt", "manifest_digest",
+        # W6627's interrogation split. `deadline_seconds` is the manager's own
+        # waiting window -- a timeout is an observation it makes about itself,
+        # so the duration is an operand and the instant is derived; `question`
+        # is the conversational prose an inquiry carries; `outcome` is the
+        # observed movement on the interrogation axis; `observation` is a
+        # probe's control-plane reading; and `body` is what a model answered.
+        "deadline_seconds", "question", "outcome", "observation", "body",
+        # And the whole answer document a model's turn produced; `body` is its
+        # bounded prose, and the envelope around it is what gets journalled.
+        "answer",
     }
 
     # Names that are BOOKKEEPING whatever they are attached to. This is the

@@ -59,8 +59,16 @@ class ScriptedAgent:
         task = request.get("task")
         if type(task) is not str:
             raise ValueError("a work request names one task")
+        # THE ANSWER IS EXACTLY WHAT THE CONTRACT PINS: `disposition`,
+        # `workspace`, `recap`. Review [P1]: this also returned a
+        # `task_digest`, which the closed answer set does not name -- a member
+        # the worker boundary would have had to refuse, and which said nothing
+        # a manager holding the task could not compute for itself.
+        #
+        # The task still DECIDES the answer, which is what deterministic
+        # means here: the recap is derived from it, so two runs of the same
+        # assignment produce the same bytes.
         recap = f"scripted worker completed {task}"[:MAX_RECAP]
         return {"disposition": "completed",
-                "task_digest": _digest(task),
                 "workspace": seen.get("BATON_WORKER_WORKSPACE"),
                 "recap": recap}

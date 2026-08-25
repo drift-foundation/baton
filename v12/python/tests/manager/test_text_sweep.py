@@ -56,10 +56,31 @@ class _NoAdapter:
     def stop(self, operands):
         return None
 
+    def seal(self, operands):
+        # W6628 added a third operation to the runtime adapter's surface. This
+        # sweep never reaches an answer -- the operand is spoiled before the
+        # adapter is asked -- but an adapter missing an operation is refused at
+        # the capability check, which would make the row refuse for the wrong
+        # reason.
+        return None
+
 
 class _NoAgent:
     def cancel(self, operands):
         return None
+
+    def observe_session(self, reference):
+        return {"kind": "absent", "provider_session_id": "provider-1"}
+
+    def probe(self, request):
+        # W6627 grew the adapter contract to four operations. This sweep never
+        # reaches an answer -- the operand is spoiled before the adapter is
+        # asked -- but an adapter missing one is refused at the capability
+        # check, which would make every row refuse for the wrong reason.
+        return {"kind": "unreachable", "why": "not asked"}
+
+    def inquire(self, request):
+        return {"kind": "unreachable", "why": "not asked"}
 
     def observe_session(self, reference):
         # W6627 added a second operation to the agent adapter contract. This
@@ -224,8 +245,65 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             "reprompt_after_transport_loss": (("continue",), {}, []),
             "transport_reachability_reidentifies": (("the socket is up",), {},
                                                     []),
+            # -- W6628: the output freeze and the sealed receiver ----------
+            #
+            # `retain_manifest` and `record_frozen_result` take DOCUMENTS
+            # rather than durable text; every member of one is spoiled on its
+            # own in the boundary inventory's probes. What is driven here is
+            # the text each operation carries beside its document.
+            "retain_manifest": (
+                (store, {}, "inputManifest"), {}, [2]),
+            "load_manifest": (
+                (store, "sha256:" + "a" * 64, "inputManifest"), {}, [1, 2]),
+            "request_freeze": (
+                (store, port, _NoAdapter()),
+                dict(attempt_id="attempt-1", disposition="completed"),
+                ["attempt_id", "disposition"]),
+            "record_frozen_result": (
+                (store,), dict(attempt_id="attempt-1", sealed={}),
+                ["attempt_id"]),
+            "frozen_output_of": ((store, "attempt-1"), {}, [1]),
+            # A pure derivation over a row this build already adopted; its
+            # operand is a document and carries no durable text of its own.
+            "freeze_operation": (({},), {}, []),
+            # -- W6627: the operator interrogation split -------------------
+            #
+            # Every row drives the REAL exported operation. None of them has a
+            # session to act on, which is deliberate: the operand is spoiled
+            # before any state is consulted, so what these prove is that
+            # unstorable text is refused at the boundary rather than carried
+            # to a query that would answer absence.
+            "probe": (
+                (store, port, _NoAgent()),
+                dict(attempt_id="attempt-1", posture="execution",
+                     session_epoch=1, operation_id="probe-1",
+                     deadline_seconds=30),
+                ["attempt_id", "posture", "operation_id"]),
+            "inquire": (
+                (store, port, _NoAgent()),
+                dict(attempt_id="attempt-1", posture="execution",
+                     session_epoch=1, operation_id="inquire-1",
+                     deadline_seconds=30, question="how is it going?"),
+                ["attempt_id", "posture", "operation_id", "question"]),
+            "settle_interrogation": (
+                (store,), dict(operation_id="probe-1", outcome="observed"),
+                ["operation_id", "outcome"]),
+            "record_inquiry_answer": (
+                (store,), dict(operation_id="inquire-1",
+                               answer={"body": "done"}),
+                ["operation_id"]),
+            "publish_inquiry_answer": (
+                (store, port), dict(operation_id="inquire-1"),
+                ["operation_id"]),
+            "interrogation_of": ((store, "probe-1"), {}, [1]),
+            "interrogations_of": (
+                (store, "attempt-1", "execution", 1), {}, [1, 2]),
             "TRANSITIONS": None,
             "AXES": None,
+            "INTERROGATION_KINDS": None,
+            "DISPOSITIONS": None,
+            "OUTPUT_STATUSES": None,
+            "OUTPUT_TYPES": None,
             "AGENT_ADAPTER": None,
             "POSTURES": None,
             "RECOVERY_EVIDENCE": None,

@@ -111,7 +111,12 @@ TERMINAL_SESSION_STATES = tuple(state for state in SESSION_STATES
 # adapter had to have it. `observe_session` is new and is what makes positive
 # session absence expressible at all: without an operation that LOOKS, absence
 # could only ever be inferred from silence, which this whole design refuses.
-AGENT_ADAPTER = ("cancel", "observe_session")
+# W6627's confirmed split adds `probe` and `inquire`. They are two members
+# rather than one because the v11 `poke` they replace conflated two facts --
+# whether the adapter and session can be OBSERVED now, and whether a model has
+# accepted and answered a new request -- and an adapter contract with one of
+# them would freeze exactly that conflation.
+AGENT_ADAPTER = ("cancel", "observe_session", "probe", "inquire")
 
 # WHAT `observe_session` MAY ANSWER. A closed set of SHAPES, not of names:
 # knowing which alternative arrived tells you nothing if you do not then know

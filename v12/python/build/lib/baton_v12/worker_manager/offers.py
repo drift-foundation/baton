@@ -26,7 +26,7 @@ row written there would claim knowledge this manager does not have.
 import hmac
 import sqlite3
 
-from ..contracts import ContractRefusal, digest
+from ..contracts import ContractRefusal, digest, held_secret
 from ..contracts.errors import name_value
 from . import boundaries, documents, schema
 from .store import manager_signature
@@ -404,8 +404,19 @@ def issue_offer(store, port, *, offer_id, work_id, runtime_attempt_id,
             runtime_attempt_id=runtime_attempt_id, verifier=verifier,
             issued_at=issued_at, expires_at=expires_at)
 
-    record = store.transact(f"offer.issue:{offer_id}", "offer.issue",
-                            signature, act)
+    # §13 (W6630): THE BEARER IS LIVE FOR EXACTLY THIS ACT, so the journal's
+    # own durable-surface walk has something to refuse. Registering it is what
+    # turns the value half of §13 from a dormant rule into an enforced one --
+    # a check against an empty registry reads as a leak boundary while being
+    # nothing at all, which is the same failure a name-only check would be.
+    #
+    # SCOPED TO THE JOURNALLED ACT and no wider. The bearer rides back with
+    # the RESULT deliberately (`offer_bearer` below), and holding it across
+    # that return would make this manager refuse to answer with the one value
+    # the caller is entitled to.
+    with held_secret(bearer):
+        record = store.transact(f"offer.issue:{offer_id}", "offer.issue",
+                                signature, act)
     # AND THE DECIDING REPLAY IS THE ONE INSIDE THE TRANSACTION. The optimistic
     # check above answers the sequential case and two concurrent exact issuers
     # both pass it; the winner commits its verifier and `transact` hands the
@@ -506,8 +517,14 @@ def accept_offer(store, port, *, offer_id, decision, bearer, now,
         # A decline terminates without spending anything else. The verifier is
         # still consumed -- single-use across every outcome -- so a decline
         # cannot be replayed into an acceptance.
-        return _settle_terminal(store, issued, "declined",
-                                reason or "declined by the worker", now)
+        #
+        # §13: `reason` is caller prose that reaches a durable column and rides
+        # the settlement's signature. A decline that explained itself by
+        # quoting the bearer is the containment case exactly, so the bearer is
+        # live while this settles.
+        with held_secret(bearer):
+            return _settle_terminal(store, issued, "declined",
+                                    reason or "declined by the worker", now)
 
     # The INTENT is frozen here and never rewritten: it is what the claim
     # operation id derives from, so a later incarnation deriving the same id
@@ -558,8 +575,12 @@ def accept_offer(store, port, *, offer_id, decision, bearer, now,
             claim_operation_id=operation_id, claim_signature=claim_signature,
             accepted_at=now, settle_by=settle_by)
 
-    return store.transact(f"offer.accept:{offer_id}", "offer.accept",
-                          signature, act)
+    # §13: the same scope, for the bearer a caller handed us. By here it has
+    # been proved to derive the stored verifier, so it IS the one deliberate
+    # secret and everything this act journals is walked against it.
+    with held_secret(bearer):
+        return store.transact(f"offer.accept:{offer_id}", "offer.accept",
+                              signature, act)
 
 
 # -- steps 4, 5 and 6: the claim ---------------------------------------------

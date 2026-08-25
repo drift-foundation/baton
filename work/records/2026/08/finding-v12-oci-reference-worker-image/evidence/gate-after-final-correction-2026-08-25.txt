@@ -1,0 +1,77 @@
+W6633 — the gates after the FINAL re-review correction.
+
+FOCUSED, the entry point and the recipe:
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_worker_image
+    # Ran 58 tests -- OK
+
+    54 before, plus the reviewer's additive wrong-session bootstrap case
+    (which now passes) and three of mine pinning the properties the
+    correction had to KEEP:
+      test_a_latched_fault_does_not_answer_another_sessions_envelope  [theirs]
+      test_a_latched_fault_refuses_a_foreign_protocol_the_same_way
+      test_a_refused_binding_on_a_latched_container_still_answers_once
+      test_a_healthy_container_keeps_answering_after_a_foreign_frame
+
+THE DAEMON-BACKED GATE, corrected and recorded GREEN:
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_worker_container
+    # Ran 23 tests in 21.9s -- OK
+    # docker server 29.1.3, platform linux/amd64, base pulled and built from
+    # the pinned digest
+
+    21 before, plus:
+      test_the_same_context_builds_to_the_same_identity
+      test_the_residual_check_can_actually_fail
+    and `test_the_image_has_one_identity_and_it_is_a_digest` replaced by
+    `test_the_image_identity_is_a_digest_and_names_its_platform`.
+
+    After the run, asked of the engine rather than of a list:
+      docker ps --all --filter name=baton-w6633-test   ->  0 lines
+      docker images  --filter reference=baton-w6633-test -> 0 lines
+
+FULL SOURCE AND LOCKED INSTALLED-LAYOUT:
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1066 tests -- FAILED (failures=15, errors=2, skipped=1)
+
+    cd v12/python && just build
+    # Ran 1066 tests -- FAILED (failures=15, errors=2)
+    # Byte-identical verdicts from the INSTALLED layout.
+
+SEVENTEEN, AND FIVE OF THEM ARE NOT THIS WORK'S
+
+  Twelve are the pre-existing `oci.py` and `workspaces.py` failures carried by
+  every Job in this campaign and recorded in this dossier's earlier
+  `gate-after-2026-08-25.txt`:
+
+    test_oci ....................... 4
+    test_boundary_inventory ........ 7
+    test_dependencies .............. 1
+
+  Five are reviewer-authored cases on OTHER Work, all of which landed in this
+  tree after this claim began:
+
+    tests.manager.test_interrogation .......... 3   -- W6627, in review
+      test_a_probe_state_is_owned_as_the_frozen_session_vocabulary
+      test_a_restart_reads_a_probe_observation_not_only_its_outcome
+      test_an_exact_retry_does_not_collide_with_the_managers_new_clock
+
+    tests.manager.test_secrets ................ 2   -- W6630, in review
+      test_a_hand_edited_journal_row_cannot_leave_either_public_read
+        (surface='operation_record' and surface='replay')
+
+  Both arrived with reviews dated after this claim was taken
+  (`review-2026-08-25T08-48-15Z.md` in the agent-session dossier and
+  `review-2026-08-25T09-30-45Z.md` in the section-13 one). They are reported
+  and NOT fixed: repairing another Work's review findings while that Work is
+  in review would be closing its own review.
+
+  ADDED BY THIS CORRECTION ..................... 0
+  REMOVED BY THIS CORRECTION ................... 1
+      test_a_latched_fault_does_not_answer_another_sessions_envelope
+
+  The three earlier W6630 cases this dossier's previous evidence file recorded
+  as not-ours have since been fixed by W6630's own claim and are gone.

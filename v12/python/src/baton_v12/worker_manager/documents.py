@@ -41,7 +41,10 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "attempt_cancelled", "SESSION_REF", "session_ref", "posture_slot",
            "slot_moved", "session_opened", "provider_session_adopted",
            "session_observed", "session_closed", "transport_lost",
-           "session_reconciled", "session_quiescence_requested"]
+           "session_reconciled", "session_quiescence_requested",
+           "operation", "manifest_retained", "freeze_requested",
+           "result_frozen", "output_answer", "frozen_output",
+           "output_artifact", "interrogation", "interrogation_requested"]
 
 # name -> (required, optional). ONE table, so "what does this manager answer
 # with" is a question with a written answer rather than a survey of return
@@ -193,6 +196,53 @@ CONTRACTS = {
     # all.
     "session.quiescence-requested": (("agent_session_ref", "requested",
                                       "state", "why"), ()),
+    # -- W6628: the output freeze and the sealed receiver --------------------
+    #
+    # THE WHOLE OPERATION IDENTITY, in the frozen §4.2 shape. The id is the
+    # retry key and the signature is the BINDING over the kind and every
+    # effective operand; an adapter handed only the key cannot echo the
+    # binding, and a manager that asks for an echo it never supplied is asking
+    # the adapter to guess.
+    "operation": (("operation_id", "signature_digest"), ()),
+    # `retained` says whether THIS call wrote the bytes. Retention is
+    # idempotent by construction -- the key is the digest -- so "already held"
+    # and "held by this call" are different facts and both are answers.
+    "manifest.retained": (("digest", "schema", "retained"), ()),
+    "output.freeze-requested": (("attempt_id", "operation", "disposition"),
+                                ()),
+    # EVERY OUTPUT IS REPORTED, present or missing. `missing-optional` is a
+    # status and not an absence: an output the assignment declared as not
+    # required and which did not appear is the worker having been asked and
+    # having answered, and a result document that dropped it would lose that.
+    "output.answer": (("name", "type", "status"), ()),
+    "output.result-frozen": (("attempt_id", "result_id", "manifest_digest",
+                              "disposition", "outputs"), ()),
+    "output.artifact": (("output_name", "artifact_id", "media_type", "bytes",
+                         "content_digest", "locator"), ()),
+    # THE INDEXED HALF, and it says so by carrying the digest of the retained
+    # document rather than pretending to be it. The content trees, the
+    # explicitly missing outputs and the evidence are in the manifest that
+    # digest names.
+    "output.frozen": (("attempt_id", "result_id", "disposition",
+                       "manifest_digest", "freeze_operation_id", "frozen_at",
+                       "artifacts"), ()),
+    # -- W6627: the operator interrogation split -----------------------------
+    #
+    # THE REQUEST, journalled before the adapter is asked. Its four bindings
+    # are all present because an interrogation that could not name one of them
+    # is one nobody can correlate afterwards.
+    "interrogation.requested": (("operation_id", "kind", "agent_session_ref",
+                                 "assignment", "requested_at", "deadline_at",
+                                 "outcome"), ()),
+    # THE WHOLE LIFECYCLE, in one shape. `answered` is a fact about whether an
+    # answer exists and `published_at` a fact about whether Baton has it --
+    # two members because they are two acts, and a committed Baton request is
+    # never proof that a model said anything. `observation` carries a probe's
+    # control-plane reading and is absent for everything else.
+    "interrogation": (("operation_id", "kind", "agent_session_ref",
+                       "assignment", "requested_at", "deadline_at", "outcome",
+                       "settled_at", "answered", "published_at"),
+                      ("observation",)),
 }
 
 # The member names of one assignment identity, for the boundaries that own an
@@ -234,6 +284,7 @@ def _emit(name, members):
 
 
 SESSION_REF = CONTRACTS["session.ref"][0]
+OPERATION = CONTRACTS["operation"][0]
 
 
 def profile_certified(**members):
@@ -278,6 +329,48 @@ def session_reconciled(**members):
 
 def session_quiescence_requested(**members):
     return _emit("session.quiescence-requested", members)
+
+
+def operation(**members):
+    return _emit("operation", members)
+
+
+def manifest_retained(**members):
+    return _emit("manifest.retained", members)
+
+
+def freeze_requested(**members):
+    return _emit("output.freeze-requested", members)
+
+
+def output_answer(**members):
+    return _emit("output.answer", members)
+
+
+def result_frozen(**members):
+    return _emit("output.result-frozen", members)
+
+
+def output_artifact(**members):
+    return _emit("output.artifact", members)
+
+
+def frozen_output(**members):
+    return _emit("output.frozen", members)
+
+
+def interrogation_requested(**members):
+    return _emit("interrogation.requested", members)
+
+
+def interrogation(**members):
+    # THE OPTIONAL MEMBER IS OMITTED RATHER THAN NULLED when there is no
+    # observation: absent and null are different documents, and only one of
+    # them says "this operation has no control-plane reading to give".
+    if members.get("observation") is None:
+        members = {name: value for name, value in members.items()
+                   if name != "observation"}
+    return _emit("interrogation", members)
 
 
 def agent_session_certified(**members):

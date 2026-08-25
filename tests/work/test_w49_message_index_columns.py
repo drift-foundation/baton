@@ -15,6 +15,18 @@ on.
 W228's viewer-relative action cue is deliberately absent. This Work
 leaves the seam: the column set is data, so adding one is an entry in a
 tuple.
+
+SUPERSEDED IN PART by W8160 (finding-tui-local-time), 2026-08-25: the
+`Time` cell is `HH:MM ZONE` in the host's own timezone rather than five
+sliced UTC characters, and its allocation is MEASURED from the page the
+way `Do` and `Id` already were — the declared five is a floor. Every
+rule W49 states is unchanged and is still what these cases hold: fixed
+per-page allocations, one header, clipping inside a cell, and whole
+fields dropped in reverse priority with `Id` unconditional. What moved
+is the arithmetic, because the cell is genuinely wider — the same kind
+of change W228 made when it inserted `Do`. `WIDEST` below is the one
+place that knows a full row now needs more cells than it did, and
+`_time_at` is the one place that knows the cell is no longer five wide.
 """
 
 from __future__ import annotations
@@ -32,7 +44,7 @@ sys.path.insert(0, os.path.join(
 import baton_work as bw                                       # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
-from baton_work.tui.app import Console                        # noqa: E402
+from baton_work.tui.app import Console, local_stamp            # noqa: E402
 import fixtures as fx                                         # noqa: E402
 import ptyharness                                             # noqa: E402
 
@@ -90,6 +102,11 @@ def _index(world, cell_width=34, rows=10, viewer="ada", cursor=None,
 	return screen
 
 
+# W8160: the width at which every column, including the zone-bearing
+# `Time`, still fits. The old default of 34 predates the wider cell.
+WIDEST = 44
+
+
 def _columns_of(header):
 	"""Where each heading starts in the painted header row."""
 	return {name: header.index(name)
@@ -97,11 +114,21 @@ def _columns_of(header):
 	        if name in header}
 
 
+def _time_cell(row, at, page):
+	"""The painted `Time` cell, read at the page's own allocation.
+
+	W8160: a fixed five-character slice would read `08:56` out of
+	`08:56 UTC` and pass while the zone sat unexamined one column
+	over."""
+	width = Console.message_time_width(page)
+	return row[at["Time"]:at["Time"] + width]
+
+
 # -- the header and the offsets ---------------------------------------------
 
 def test_one_header_names_the_fields(world):
 	_say(world, 3)
-	header = _index(world).lines()[0]
+	header = _index(world, cell_width=WIDEST).lines()[0]
 	assert header.startswith("Id "), header
 	for name in ("From", "Time", "St"):
 		assert name in header, header
@@ -112,13 +139,14 @@ def test_every_row_uses_the_same_offsets(world):
 	the later fields."""
 	_say(world, 2, author="ada")        # lang.ada — short
 	_say(world, 2, author="grace")      # lang.grace — longer
-	painted = _index(world).lines()
+	painted = _index(world, cell_width=WIDEST).lines()
 	header, rows = painted[0], painted[1:]
 	at = _columns_of(header)
+	page = _page(world)
 	assert len({len(row) for row in rows}) == 1, "rows have unequal widths"
 	for row in rows:
 		assert row[at["From"]] != " ", f"the From cell is empty: {row!r}"
-		assert row[at["Time"]:at["Time"] + 5].strip(), \
+		assert _time_cell(row, at, page).strip(), \
 			f"the Time cell is not under its heading: {row!r}"
 		state = row[at["St"]:at["St"] + 4].strip()
 		assert state in ("new", "seen"), f"St is misaligned: {row!r}"
@@ -146,14 +174,14 @@ def test_a_long_handle_cannot_push_a_later_field(tmp_path):
 	                 limit=10)["messages"]
 	console.msg_cursor = page[-1]["seq"]
 	screen = Screen()
-	console._paint_index(screen, 0, 8, 0, 34, page)
+	console._paint_index(screen, 0, 8, 0, WIDEST, page)
 	painted = screen.lines()
 	store.close()
 	at = _columns_of(painted[0])
 	assert "engng.alexfz" in painted[1], painted[1]
 	assert len("engng.alexfz") == 12, "the fixture is not at the limit"
 	for row in painted[1:]:
-		assert row[at["Time"]:at["Time"] + 5].strip(), \
+		assert _time_cell(row, at, page).strip(), \
 			f"a maximum-width handle moved the clock: {row!r}"
 		assert row[at["St"]:at["St"] + 4].strip() in ("new", "seen"), row
 
@@ -202,8 +230,9 @@ def test_the_id_column_is_at_least_its_own_heading(world):
 # -- responsive omission -----------------------------------------------------
 
 @pytest.mark.parametrize("cell_width,expected", [
-	(40, ["Id", "Do", "From", "Time", "St"]),
-	(34, ["Id", "Do", "From", "Time", "St"]),
+	(44, ["Id", "Do", "From", "Time", "St"]),
+	(38, ["Id", "Do", "From", "Time", "St"]),
+	(34, ["Id", "Do", "From", "St"]),
 	(30, ["Id", "Do", "From", "St"]),
 	(26, ["Id", "Do", "From", "St"]),
 	(22, ["Id", "Do", "From"]),
@@ -224,7 +253,13 @@ def test_width_pressure_drops_whole_fields_in_reverse_priority(
 	last in the drop order. That is the composition W49 was designed
 	for: one entry in the column tuple and one drop-order position, no
 	change to the painter. The widths here moved because the row is
-	genuinely wider now, not because the rule changed."""
+	genuinely wider now, not because the rule changed.
+
+	W8160 moved them again for the same reason and no other: `Time` is
+	`HH:MM ZONE` rather than five UTC characters, so a full row needs
+	four more cells. `Time` is still the first thing to go and still
+	goes WHOLE — which is exactly why the zone can be trusted wherever
+	the cell survives."""
 	_say(world, 3)
 	header = _index(world, cell_width=cell_width).lines()[0]
 	present = [name for name in ("Id", "Do", "From", "Time", "St")
@@ -320,10 +355,12 @@ def test_the_state_column_is_the_viewers_own(world):
 def test_the_time_column_is_the_event_time(world):
 	_say(world, 1)
 	page = _page(world)
-	painted = _index(world).lines()
+	painted = _index(world, cell_width=WIDEST).lines()
 	at = _columns_of(painted[0])
-	stamp = (page[-1].get("ts") or "")[11:16]
-	assert painted[1][at["Time"]:at["Time"] + 5] == stamp
+	# W8160: the event time in the HOST's timezone, named. The value is
+	# the shared formatter's, so this case cannot drift from it.
+	assert _time_cell(painted[1], at, page) \
+		== local_stamp(page[-1].get("ts"), compact=True)
 
 
 def test_new_rows_are_bold_and_the_selection_is_reversed(world):
@@ -427,11 +464,11 @@ def test_an_oversized_cell_is_clipped_rather_than_shifting_the_row(world):
 	page = list(_page(world))
 	page[-1] = dict(page[-1], author_team="engineering",
 	                author="alexandra-fitzgerald")
-	painted = _index(world, messages=page).lines()
+	painted = _index(world, messages=page, cell_width=WIDEST).lines()
 	at = _columns_of(painted[0])
 	row = painted[1]
 	assert row[at["From"]:at["From"] + 13] == "engineering.a", row
-	assert row[at["Time"]:at["Time"] + 5].strip(), \
+	assert _time_cell(row, at, page).strip(), \
 		f"an oversized handle pushed the clock sideways: {row!r}"
 	assert row[at["St"]:at["St"] + 4].strip() in ("new", "seen"), row
 	# and every row on the page still ends at the same column

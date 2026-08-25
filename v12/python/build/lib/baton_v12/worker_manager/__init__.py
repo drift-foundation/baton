@@ -23,6 +23,21 @@ bytes are filed rather than its digest alone, it is read back only when all
 three witnesses agree, and §2.2's client-capability rule is enforced where the
 document actually arrives.
 
+W6627's confirmed interrogation split adds `probe` and `inquire`: an immediate
+control-plane observation that consumes no model turn, and a conversational
+request whose acknowledgement and eventual answer are two separate correlated
+facts. Both bind the exact assignment generation, the posture session, an
+effectively-once operation identity and a manager-observed deadline; a timeout
+is an OBSERVATION and never a cancellation; and the manager publishes any
+answer into Baton itself, because the worker holds no Baton capability.
+
+W6628 adds THE OUTPUT FREEZE and the sealed artifact receiver: the four
+preconditions read from durable state, the liveness read that can only ever be
+a read, an immutable record identity fixed per attempt so the same digest
+replays and changed bytes refuse, and the retained manifests a declaration is
+finally comparable against. Freezing is not accepting: this ends at `frozen`,
+because `invalid` is reachable from there.
+
 W6627 adds THE AGENT SESSION: the nine-state frozen axis, the manager-owned
 posture slot beside it, what an agent adapter must answer, and the three kinds
 of positive absence -- a provider session observed closed, a provider session
@@ -63,13 +78,27 @@ from .sessions import (AGENT_ADAPTER, SESSION_OBSERVATIONS, SESSION_STATES,
                        reprompt_after_transport_loss,
                        satisfies_runtime_quiescence_gate,
                        transport_reachability_reidentifies)
-from .schema import (POSTURES, SCHEMA_VERSION, SLOT_OCCUPANCY, STORE_KIND,
-                     TABLES)
+from .interrogation import (INTERROGATION_KINDS, inquire,
+                            interrogation_of, interrogations_of, probe,
+                            publish_inquiry_answer, record_inquiry_answer,
+                            settle_interrogation)
+from .manifests import load_manifest, retain_manifest
+from .output import (freeze_operation, frozen_output_of, record_frozen_result,
+                     request_freeze)
+from .schema import (DISPOSITIONS, OUTPUT_STATUSES, OUTPUT_TYPES, POSTURES,
+                     SCHEMA_VERSION, SLOT_OCCUPANCY, STORE_KIND, TABLES)
 from .store import (ControlStore, manager_signature, revive_refusal,
                     seal_refusal)
 
 __all__ = ["ACP_CLIENT_CAPABILITIES", "ACP_CLIENT_CAPABILITY_MEMBERS",
-           "AGENT_ADAPTER", "POSTURES", "RECOVERY_EVIDENCE",
+           "AGENT_ADAPTER", "DISPOSITIONS", "INTERROGATION_KINDS",
+           "inquire", "interrogation_of", "interrogations_of", "probe",
+           "publish_inquiry_answer", "record_inquiry_answer",
+           "settle_interrogation",
+           "OUTPUT_STATUSES",
+           "OUTPUT_TYPES", "POSTURES", "RECOVERY_EVIDENCE",
+           "freeze_operation", "frozen_output_of", "load_manifest",
+           "record_frozen_result", "request_freeze", "retain_manifest",
            "SESSION_OBSERVATIONS", "SESSION_STATES", "SESSION_SUCCESSORS",
            "SLOT_OCCUPANCY", "TERMINAL_SESSION_STATES",
            "adopt_provider_session", "agent_sessions_of",

@@ -619,6 +619,71 @@ def visible_columns(width: int, id_width: int = 0,
 	return tuple(columns)
 
 
+def local_stamp(value, compact: bool = False) -> str:
+	"""W8160: ONE conversion from a canonical UTC instant to the wall
+	clock the operator is actually reading, with the zone that decided
+	it.
+
+	The defect this exists for: the console painted stored UTC fields
+	verbatim, so `2026-08-25 00:36:19` appeared on a Denver terminal
+	whose own clock said `2026-08-24 18:36` — a FUTURE local time, with
+	nothing on screen to say it was not local. An unlabelled wall clock
+	is not merely inconvenient; it is read as local, because that is
+	what a wall clock means.
+
+	Storage, the JSON API and every protocol value stay UTC and are
+	untouched. This is the rendering boundary and nothing else.
+
+	TWO INPUT FORMS, and the difference between them is the trap. The
+	projection emits explicit instants like `2026-08-25T05:17:35.151Z`,
+	and Baton's canonical Message spelling is `2026-08-25 05:11:03` —
+	UTC fields with no offset, which `fromisoformat` returns NAIVE.
+	Calling `astimezone()` on that would assume the fields are ALREADY
+	local, silently keep the wrong number and add a zone label swearing
+	to it. So UTC is attached explicitly first, and the conversion runs
+	on an aware instant either way.
+
+	THE ZONE IS NOT CACHED. `astimezone()` with no argument asks the C
+	library for the offset in force AT THIS INSTANT, so the historical
+	daylight rule decides — a January instant reads `MST` and a July one
+	`MDT` on the same host, and the two local `01:30`s of a fall-back
+	hour stay distinguishable by their labels. A timezone object built
+	once at import would answer for the wrong half of the year and would
+	not notice `TZ` changing under the process.
+
+	`tzname()` is preferred over the numeric offset because an
+	abbreviation is what an operator's other windows say; a platform
+	that has no name for the zone falls back to `%z` rather than
+	dropping the context, which would restore exactly the ambiguity
+	this ruling removes.
+
+	Full renders `2026-08-24 18:36:19 MDT`; `compact` renders
+	`18:36 MDT` for the index tables, whose columns MEASURE the
+	formatted value and drop whole rather than clipping the suffix off
+	— a five-cell slice would leave an unlabelled wall clock again.
+
+	Absent is `""`, so each caller keeps its own absent spelling. A
+	value that will not parse is returned VERBATIM: the console is not
+	the place to discover a malformed projection instant, and text that
+	is visibly not a local stamp is a better report than a crash."""
+	import datetime as _dt
+	text = str(value or "").strip()
+	if not text:
+		return ""
+	try:
+		stamp = _dt.datetime.fromisoformat(
+			text.replace("Z", "+00:00").replace(" ", "T"))
+	except ValueError:
+		return text
+	if stamp.tzinfo is None:
+		stamp = stamp.replace(tzinfo=_dt.timezone.utc)
+	here = stamp.astimezone()
+	zone = here.tzname() or here.strftime("%z")
+	if compact:
+		return f"{here:%H:%M} {zone}"
+	return f"{here:%Y-%m-%d %H:%M:%S} {zone}"
+
+
 def duration_cell(seconds) -> str:
 	"""W47: the same MM:SS scale as `held_cell`, from a count of whole
 	seconds the PROJECTION computed rather than a client clock.
@@ -1153,7 +1218,8 @@ def format_message(message: dict, width: int) -> list[str]:
 	import textwrap
 	marker = " • new" if message.get("new") else ""
 	lines = [f"#{message['seq']} {message['author_team']}."
-	         f"{message['author']} {message.get('ts', '')}{marker}"]
+	         f"{message['author']} "
+	         f"{local_stamp(message.get('ts'))}{marker}"]
 	# W228: the selected Message states the action it owes and how to
 	# satisfy it. The index cue says WHICH Message; this says what to
 	# type, so an ordinary directed decision stops requiring a trip to
@@ -2259,6 +2325,20 @@ class Console:
 				"j/k select · Enter details · / new query · "
 				"n/p page · Esc back", width - 1)
 		else:
+			# EVERY ROW ABOVE THE TABLE IS ALLOCATED FROM ONE RUNNING
+			# CURSOR. W6814 review [P1]: the filter branch painted at a
+			# LITERAL row 1 and then reset the cursor to a literal 2, so
+			# on a re-rooted page whose filter survived the re-root the
+			# clause text overpainted the contextual tab row — leaving
+			# `filter: status=open [Events]`, which is one disclosure
+			# destroyed and the other made misleading.
+			#
+			# Both rows are required and neither is optional to the
+			# other: W5 rules that an active filter is ALWAYS disclosed,
+			# and W6814 rules that a contextual Work page always shows
+			# which of its three tabs it is on. Two independent rules
+			# writing to one hard-coded row is how one of them silently
+			# wins.
 			table_top = 1
 			if self.context_work():
 				# W6814: the contextual Work page's own tabs sit
@@ -2272,8 +2352,9 @@ class Console:
 				clauses = "filter: " + self._filter_clauses()
 				if len(clauses) > width - 1:
 					clauses = clauses[:max(0, width - 2)] + "…"
-				screen.addnstr(1, 0, clauses, width - 1, curses.A_DIM)
-				table_top = 2
+				screen.addnstr(table_top, 0, clauses, width - 1,
+				               curses.A_DIM)
+				table_top += 1
 			self._render_table(screen, height, width, rows,
 			                   top=table_top, trails=trails)
 		self._render_bar(screen, height, width)
@@ -2678,7 +2759,7 @@ class Console:
 			return []
 		pairs = [("Pickup", state),
 		         ("Waiting", duration_cell(pickup.get("elapsed_seconds"))),
-		         ("Since", (pickup.get("since") or "-")[:19])]
+		         ("Since", local_stamp(pickup.get("since")) or "-")]
 		suggested = pickup.get("next_work")
 		if suggested:
 			pairs.append(("Suggested next claim",
@@ -2704,11 +2785,11 @@ class Console:
 		         ("Model", runtime.get("model") or "-"),
 		         ("Session", runtime.get("session") or "-"),
 		         ("Incarnation", runtime.get("incarnation") or "-"),
-		         ("Since", (runtime.get("since") or "-")[:19]),
+		         ("Since", local_stamp(runtime.get("since")) or "-"),
 		         ("Last contact",
-		          (runtime.get("last_contact") or "-")[:19]),
+		          local_stamp(runtime.get("last_contact")) or "-"),
 		         ("Lease expires",
-		          (runtime.get("expires_at") or "-")[:19]),
+		          local_stamp(runtime.get("expires_at")) or "-"),
 		         # Its own row: the deadline and whether it has passed
 		         # are different facts, and a reader should not have to
 		         # subtract one from the clock to learn the other.
@@ -2720,8 +2801,8 @@ class Console:
 		if runtime.get("refresh_requested"):
 			pairs.append(("Refresh",
 			              f"asked at "
-			              f"{runtime['refresh_requested'][:19]} — "
-			              f"awaiting the adapter's next poll"))
+			              f"{local_stamp(runtime['refresh_requested'])}"
+			              f" — awaiting the adapter's next poll"))
 		if runtime.get("note"):
 			pairs.append(("Note", runtime["note"]))
 		return pairs
@@ -2764,7 +2845,7 @@ class Console:
 			         "by this participant")]
 		runner = answer["runner"]
 		pairs = [("Said", answer["state"]),
-		         ("At", answer["at"][:16].replace("T", " ")),
+		         ("At", local_stamp(answer["at"])),
 		         ("Explanation", answer["explanation"]),
 		         ("Provider", runner["provider"]),
 		         ("Model", runner["model"]),
@@ -2772,7 +2853,7 @@ class Console:
 		         ("Auth state", runner["auth_state"]),
 		         ("Limit state", runner["limit_state"])]
 		if runner["retry_at"]:
-			pairs.append(("Retry at", runner["retry_at"]))
+			pairs.append(("Retry at", local_stamp(runner["retry_at"])))
 		telemetry = answer["telemetry"]
 		if any(value is not None for value in telemetry.values()):
 			# W184 review R1: the three counters are supplied
@@ -3430,12 +3511,21 @@ class Console:
 
 	@staticmethod
 	def _poke_stamp(value) -> str:
-		"""One canonical instant as the console shows instants: date and
-		minute, with the `T` and the zone marker spent on nothing a
-		reader of a live console needs. The canonical value stays in
-		JSON — this is the row's timestamp cell, not the record."""
-		text = (value or "").replace("T", " ")
-		return text[:16]
+		"""One canonical instant as the console shows instants.
+
+		W8160 supersedes the truncation this used to be. The old cell
+		dropped the `T` and cut at the minute, on the reasoning that a
+		zone marker was spent on nothing a live reader needs — which was
+		true only while the marker was `Z` on a value nobody could act
+		on. It is FALSE for a local instant: the zone is what says the
+		number is the operator's own clock rather than the store's, and
+		the poke table already measures this cell and drops it whole, so
+		the width is not bought by removing the one field that makes the
+		rest legible.
+
+		The canonical value stays in JSON — this is the row's timestamp
+		cell, not the record."""
+		return local_stamp(value)
 
 	def _poke_cells(self, row: dict) -> dict:
 		"""Every drawable cell for one poke — canonical values only.
@@ -3789,7 +3879,7 @@ class Console:
 		index_label = f"{imarker}Events ({len(events)}){more}"
 		reader_label = f"{rmarker}Event E{selected['seq']}" \
 			if selected else f"{rmarker}Event"
-		index_width = self.EVENT_INDEX_WIDTH
+		index_width = self.event_index_width(events)
 		wide = width - 1 - index_width - 2 >= self.MIN_READER
 		if wide:
 			reader_x = index_width + 2
@@ -3839,13 +3929,45 @@ class Console:
 	# every terminal size, which is the whole point of the table.
 	EVENT_INDEX_WIDTH = sum(w for _n, w in EVENT_COLUMNS) + 5
 
-	def _event_columns(self, cell_width):
+	@staticmethod
+	def event_time_width(events) -> int:
+		"""The `TIME` allocation for ONE painted page.
+
+		W8160: the declared five cells were exactly `HH:MM`, and a local
+		instant carries its zone. Sized from the page for the reason
+		`Do` and `Id` are — the declared width is a FLOOR, never a cap —
+		because clipping `18:36 MDT` back to five cells restores the
+		unlabelled wall clock this ruling removed, whereas dropping the
+		whole column costs a fact the reader can still get from the
+		Event pane beside it."""
+		widest = max((len(local_stamp(entry.get("ts"), compact=True))
+		              for entry in events or ()), default=0)
+		return max(len("TIME"), widest)
+
+	def _event_columns(self, cell_width, time_width: int | None = None):
 		"""The widest column set that fits, dropping from the right."""
-		columns = list(self.EVENT_COLUMNS)
+		columns = [(name, max(width, time_width)
+		            if name == "TIME" and time_width is not None
+		            else width)
+		           for name, width in self.EVENT_COLUMNS]
 		while columns and sum(w for _n, w in columns) + len(columns) - 1 \
 				> cell_width:
 			columns.pop()
 		return columns
+
+	def event_index_width(self, events) -> int:
+		"""The Events index PANE, sized for the page it is about to
+		paint.
+
+		W8160: `EVENT_INDEX_WIDTH` is a constant computed from the
+		declared widths, so a measured `TIME` would have been dropped by
+		`_event_columns` at every terminal size — the pane would never
+		have offered it the cells. It stays as the floor and the page
+		raises it."""
+		return max(self.EVENT_INDEX_WIDTH,
+		           self.EVENT_INDEX_WIDTH
+		           - dict(self.EVENT_COLUMNS)["TIME"]
+		           + self.event_time_width(events))
 
 	def _event_row(self, entry, columns) -> str:
 		interval = entry.get("phase_interval")
@@ -3853,7 +3975,7 @@ class Console:
 			"EVENT": f"E{entry['seq']}",
 			"KIND": entry["kind"],
 			"ACTOR": entry["actor"] or "",
-			"TIME": (entry.get("ts") or "")[11:16],
+			"TIME": local_stamp(entry.get("ts"), compact=True),
 			# The phase-ENTRY event owns these two cells; every other
 			# row reads `-`, so one episode appears exactly once.
 			"PHASE": compact_phase(interval["phase"])
@@ -3873,7 +3995,8 @@ class Console:
 			screen.addnstr(top, x, "(no events on this page)",
 			               cell_width)
 			return
-		columns = self._event_columns(cell_width)
+		columns = self._event_columns(cell_width,
+		                              self.event_time_width(events))
 		header = " ".join(name[:width].ljust(width)
 		                  for name, width in columns)
 		screen.addnstr(top, x, header[:cell_width].ljust(cell_width),
@@ -3906,7 +4029,7 @@ class Console:
 		if payload is _ABSENT_PAYLOAD:
 			payload = {}
 		lines = [f"#{entry['seq']} {entry['kind']} {entry['actor']} "
-		         f"{entry['ts']}"]
+		         f"{local_stamp(entry['ts'])}"]
 		# W1217 (finding-event-relation-display): `subject` is why this
 		# Event is on the screen at all — every row in this Work's
 		# Events tab is here because it relates to this Work — so a row
@@ -3934,7 +4057,7 @@ class Console:
 			held = interval["elapsed_seconds"]
 			lines.append(f"  claim: {interval['claimant']} from "
 			             f"E{interval['claim_seq']} "
-			             f"{interval['started_at']}")
+			             f"{local_stamp(interval['started_at'])}")
 			if interval["end_seq"] is None:
 				# W123 R3: an open claim shows how long it has been
 				# held, not merely that it is open.
@@ -4171,19 +4294,37 @@ class Console:
 		             default=0)
 		return max(len("Do"), widest)
 
+	@staticmethod
+	def message_time_width(messages) -> int:
+		"""The `Time` allocation for ONE painted page.
+
+		W8160, and the same rule `message_cue_width` states: the
+		declared width is a floor. Five cells were exactly `HH:MM`, and
+		a local instant carries the zone that makes it readable as
+		local. `Time` is first in `MESSAGE_DROP_ORDER` and still drops
+		WHOLE under pressure — losing the column is honest, losing its
+		suffix is the original defect."""
+		widest = max((len(local_stamp(message.get("ts"), compact=True))
+		              for message in messages or ()), default=0)
+		return max(len("Time"), widest)
+
 	@classmethod
 	def message_columns(cls, cell_width: int, id_width: int,
-	                    cue_width: int | None = None):
+	                    cue_width: int | None = None,
+	                    time_width: int | None = None):
 		"""The columns that fit, dropping whole fields in reverse
 		priority. `Id` and the selection cue always survive: a row whose
 		selector is gone cannot be acted on, so there is nothing left to
 		render.
 
-		`cue_width` is the page's own `Do` allocation; the declared
-		width is the minimum, never a cap."""
+		`cue_width` is the page's own `Do` allocation and `time_width`
+		its own `Time` allocation; each declared width is the minimum,
+		never a cap."""
 		widths = {name: width for name, width in cls.MESSAGE_COLUMNS}
 		if cue_width is not None and "Do" in widths:
 			widths["Do"] = max(widths["Do"], cue_width)
+		if time_width is not None and "Time" in widths:
+			widths["Time"] = max(widths["Time"], time_width)
 		kept = [name for name, _width in cls.MESSAGE_COLUMNS]
 
 		def used(names):
@@ -4210,7 +4351,7 @@ class Console:
 		return {
 			"Do": f"@{owed['seq']}" if owed else "",
 			"From": f"{message['author_team']}.{message['author']}",
-			"Time": (message.get("ts") or "")[11:16],
+			"Time": local_stamp(message.get("ts"), compact=True),
 			"St": "new" if message.get("new") else "seen",
 		}
 
@@ -4229,8 +4370,9 @@ class Console:
 			               cell_width)
 			return
 		id_width = self.message_id_width(messages)
-		columns = self.message_columns(cell_width, id_width,
-		                               self.message_cue_width(messages))
+		columns = self.message_columns(
+			cell_width, id_width, self.message_cue_width(messages),
+			self.message_time_width(messages))
 		header = "Id".ljust(id_width)
 		for name, width in columns:
 			header += " " + name.ljust(width)

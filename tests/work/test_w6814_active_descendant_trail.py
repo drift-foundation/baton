@@ -602,6 +602,59 @@ class TestRootScopedTabs:
 		assert any(line.startswith("filter: status=open") for line in lines), \
 			lines[:6]
 
+	def test_the_rows_above_the_table_keep_a_stable_order(self, world):
+		"""Both disclosures are required and neither is optional to the
+		other, so they are allocated from one running cursor rather than
+		written at literal rows. The order is breadcrumb, tabs, filter,
+		then the table's own header — and the header is what proves the
+		table starts BELOW both rather than under one of them."""
+		levels = chain(world, 3)
+		view = console(world, work_filter={"status": "open"})
+		view.selected_id, view.cursor = levels[0], 0
+		view.handle(ENTER)
+		screen = painted(view)
+		rows = screen.rows()
+		tabs = next(index for index, line in enumerate(rows)
+		            if "[Jobs]  [Messages]  [Events]" in line)
+		clauses = next(index for index, line in enumerate(rows)
+		               if line.startswith("filter: status=open"))
+		header = next(index for index, line in enumerate(rows)
+		              if line.startswith("Id Title"))
+		assert screen.row(0).startswith("Jobs > "), screen.row(0)
+		assert 0 < tabs < clauses < header, (tabs, clauses, header)
+		# And nothing was overpainted: the tab row is the WHOLE row.
+		assert "filter:" not in rows[tabs], rows[tabs]
+		assert "[" not in rows[clauses], rows[clauses]
+
+	def test_neither_row_costs_the_table_its_rows(self, world):
+		"""The viewport budget beneath them is unchanged: every Work the
+		window holds is still painted, and so is its elision group."""
+		levels = chain(world, 4)
+		claim(world, levels[3])
+		view = console(world, work_filter={"status": "open"})
+		view.selected_id, view.cursor = levels[0], 0
+		view.handle(ENTER)
+		for work in levels[:3] + [levels[3]]:
+			assert row_of(view, work) is not None, body(view)
+		assert marker_lines(view), body(view)
+
+	def test_a_narrow_terminal_still_viewports_the_clause_line(self, world):
+		"""W5's rule survives the extra row: the clause line is
+		horizontally viewported and marked, never silently dropped."""
+		levels = chain(world, 3)
+		view = console(world, work_filter={"status": "open",
+		                                   "priority": "normal",
+		                                   "phase": "queued"})
+		view.selected_id, view.cursor = levels[0], 0
+		view.handle(ENTER)
+		for width in (110, 60, 30):
+			rows = painted(view, width=width).rows()
+			clauses = [line for line in rows
+			           if line.startswith("filter: ")]
+			assert clauses, (width, rows[:6])
+			assert len(clauses[0]) <= width - 1, (width, clauses[0])
+			assert any("[Jobs]" in line for line in rows), (width, rows[:6])
+
 
 # -- Back history ------------------------------------------------------------
 

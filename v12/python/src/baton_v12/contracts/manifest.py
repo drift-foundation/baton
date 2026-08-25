@@ -6,14 +6,17 @@ against the entries would be trusting a claim about a tree it also holds, and a
 Work id that does not carry its authority's prefix is a reference to a Work in
 somebody else's store wearing this one's name.
 
-WHAT IS NOT HERE, and is named rather than implied: §13's durable-secret rule.
-Its two halves are a set of forbidden member NAMES and a check against the live
-bearer VALUES this process is holding, and the second needs a reference-counted
-secret registry this distribution does not have yet. Shipping the name half
-under the whole rule's name would be the floor-versus-contract mistake this
-dossier already carries twice, so the composite below is called what it is --
-`check_manifest_structure` -- and becomes the manifest trust entry when the
-secret rule lands beside it.
+§13'S DURABLE-SECRET RULE IS NOW HERE, and the composite below is therefore
+the manifest trust entry the paragraph this replaces promised. W6630 landed the
+reference-counted registry beside this module, so both halves are available:
+the forbidden member NAMES and the live bearer VALUES this process is holding.
+The composite keeps its name -- what it does is check a manifest's structure,
+and §13 is one of the structural rules a durable manifest has to satisfy.
+
+The superseded text said the registry did not exist yet and that shipping the
+name half alone would be a floor wearing a contract's name. That was true and
+is why the rule waited; it is not true now, and leaving the paragraph would
+tell the next reader to look for a gap that has been closed.
 
 EVERY RULE IS ABOUT WHAT THE DOCUMENT CONTAINS, not about where a current schema
 revision happens to put it. The artifact and content-manifest walks find every
@@ -25,6 +28,7 @@ import re
 
 from .canonical import digest
 from .errors import ContractRefusal, label_of, name_value
+from .secrets import check_no_durable_secret
 from .validate import validate_fragment, verify_manifest_digest
 
 __all__ = ["check_manifest_structure", "check_work_ref", "check_uri",
@@ -424,13 +428,20 @@ def check_manifest_structure(document, definition, *, what="a manifest"):
     Returns the owned document: a validated one a caller can still mutate is a
     time-of-check alias wearing the word "validated".
 
-    NOT the whole §12 trust entry. §13's durable-secret rule is not here, and
-    the module docstring says why; when it lands beside this, the composite
-    becomes the entry.
+    §13 RUNS BEFORE THE §12 RULES, and the order is deliberate: a document
+    carrying a secret is refused AS SUCH rather than as whatever structural
+    fault is also in it, because the two answers send a caller to different
+    places -- one to fix a shape, one to stop leaking a bearer.
+
+    It runs after the SCHEMA, though, for the reason every rule here does:
+    the walk reads members, and reading a member the schema has not
+    established is how a document with the wrong shape gets to decide what
+    happens next.
     """
     what = label_of(what)
     owned = validate_fragment(document, definition, what=what)
     verify_manifest_digest(owned, what=what)
+    check_no_durable_secret(owned, what=what)
     # THE PRIVATE BODIES from here down. Every value below is a member of a
     # document the fragment validator has already owned, so validating it again
     # is the blanket revalidation 4bz forbids.

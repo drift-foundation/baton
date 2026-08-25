@@ -35,7 +35,8 @@ this cut has no ruling for.
 import json
 import sqlite3
 
-from ..contracts import ContractRefusal, canonical_text, own
+from ..contracts import (ContractRefusal, canonical_text,
+                         check_no_durable_secret, own)
 from ..contracts.errors import name_value
 from ..contracts.errors import sample_of
 from . import boundaries, schema
@@ -86,6 +87,19 @@ def manager_signature(kind, operands):
     to discover the rule by hitting it.
     """
     boundaries.text(kind, "an operation kind")
+    # §13 AT THE CONSTRUCTOR, not at the eventual write. Review [P1]: this
+    # returned protocol identity containing a live bearer verbatim, and the
+    # journal walk refused the ROW afterwards -- by which point the caller
+    # already held the leak. "Secret bytes stay outside protocol identity"
+    # cannot be established by a guard that runs after the identity has been
+    # handed out.
+    #
+    # THE OPERANDS RATHER THAN THE COMPOSED TEXT, because the walk's named
+    # half is about MEMBERS: a `claim_token` operand is refused by its name
+    # here and would be an ordinary substring once serialized. The value half
+    # answers the same either way.
+    check_no_durable_secret({"kind": kind, "operands": operands},
+                            what="an operation signature")
     return canonical_text({"kind": kind, "operands": operands})
 
 
@@ -130,10 +144,19 @@ def seal_refusal(refusal):
     # The COMPOSED seal is still owned below, because that text is this
     # build's own value on its way into SQLite and the categories, codes and
     # separators around the message are not the message.
+    # §13 AT THE SEALING SURFACE. Review [P1]: an interpolated live bearer
+    # left this boundary in `message` and was refused only when a later
+    # journal write happened -- so a direct caller received the portable leak.
+    # Sealing is the point a diagnostic BECOMES a portable document, which is
+    # exactly the bounded-diagnostic surface §13 names.
+    #
+    # The whole document, before it is composed into text, for the same reason
+    # the signature walks its operands.
+    sealed = {"category": refusal.category, "code": refusal.code,
+              "message": refusal.message, "durable": True}
+    check_no_durable_secret(sealed, what="a sealed refusal")
     return boundaries.text(
-        json.dumps({"category": refusal.category, "code": refusal.code,
-                    "message": refusal.message, "durable": True},
-                   sort_keys=True, ensure_ascii=False),
+        json.dumps(sealed, sort_keys=True, ensure_ascii=False),
         "a sealed refusal")
 
 
@@ -151,8 +174,22 @@ def revive_refusal(sealed):
     # integer message was accepted into a refusal, and a `false` durable marker
     # was silently rewritten to true. The public door and the replay door lead
     # to one document; fitting a lock to one of them is not locking it.
-    return _revived(boundaries.sealed(
-        boundaries.adopted(sealed, "a sealed refusal"), "a sealed refusal"))
+    record = boundaries.sealed(
+        boundaries.adopted(sealed, "a sealed refusal"), "a sealed refusal")
+    # §13 AT THE PUBLIC DOOR, in the other direction. Re-review [P1]: the
+    # inventory called this prose-only on the reasoning that the bytes were
+    # walked on the way in -- true of the internal replay path, whose input is
+    # a journal row this build wrote, and NOT of this function, whose input is
+    # whatever text a caller holds. A caller supplying an interpolated live
+    # bearer in `message` received the diagnostic object back, which is the
+    # same portable surface `seal_refusal` guards travelling the other way.
+    #
+    # The SEALED DOCUMENT rather than the composed refusal, for the reason
+    # `manager_signature` walks operands: the named half of the walk is about
+    # MEMBERS, and a member named for a secret is an ordinary substring once
+    # it has been folded into a message.
+    check_no_durable_secret(record, what="a revived refusal")
+    return _revived(record)
 
 
 def _revived(record):
@@ -169,6 +206,12 @@ def _revived(record):
     checks removed. A caller holding raw sealed text still gets the public
     boundary above; the replay path, which is holding an owned document, gets
     this.
+
+    NO §13 WALK HERE EITHER, and for the same reason the adoption is absent:
+    replay's bytes came out of a journal row `_record` walked before it wrote
+    them. Walking them again would be the blanket revalidation 4bz forbids,
+    and it would make an exact durable replay of a refusal that legitimately
+    quotes a since-forgotten secret fail on the second attempt.
     """
     return ContractRefusal(record["category"], record["code"],
                            record["message"], durable=True)
@@ -626,6 +669,22 @@ class ControlStore:
         return (True, json.loads(row["result"]))
 
     def _record(self, operation_id, kind, signature, state, result, refusal):
+        # §13 (W6630): THE JOURNAL IS A DURABLE SURFACE, and it is the one
+        # every mutating manager act passes through. The row carries an
+        # operation's identity, the full effective signature of its operands,
+        # its byte-stable result and its sealed refusal -- and a refusal that
+        # interpolated an operand carries whatever that operand was, which is
+        # exactly the containment case the walk exists for.
+        #
+        # THE WHOLE ROW, not the payload alone. The identity and the kind are
+        # written by this build and the operands are not, and a rule applied
+        # to some columns of a row is a rule applied to a row nobody can point
+        # at.
+        check_no_durable_secret(
+            {"operation_id": operation_id, "kind": kind,
+             "signature": signature, "state": state, "result": result,
+             "refusal": refusal},
+            what="a journalled operation")
         self._connection.execute(
             "INSERT INTO operations (operation_id, kind, signature, state, "
             "result, refusal, settled_at) VALUES (?, ?, ?, ?, ?, ?, ?)",

@@ -1,0 +1,93 @@
+W8160 reviewer inventory — 2026-08-25
+
+GOAL
+
+  Keep canonical UTC storage and JSON untouched. Convert only human-facing
+  absolute timestamps at the TUI rendering boundary through the host's active
+  local timezone, with visible zone context.
+
+ABSOLUTE TUI SITES IN src/baton_work/tui/app.py
+
+  format_message
+    Message reader metadata; currently prints message.ts verbatim.
+
+  Console._message_cells
+    Message index Time; currently slices UTC fields [11:16].
+
+  Console._event_lines
+    Event reader metadata prints entry.ts verbatim.
+    Claim metadata prints claim_interval.started_at verbatim.
+
+  Console._event_row
+    Event index TIME; currently slices UTC fields [11:16].
+
+  Console._poke_stamp and its callers
+    Poke Asked table cell; asked-at, expires-at and answer-at detail fields;
+    currently replaces T and truncates at the minute without a zone.
+
+  Console._detail_pickup
+    Teams member Claim pickup / Since; currently slices 19 characters.
+
+  Console._detail_runner
+    Teams member runtime Since, Last contact, Lease expires and refresh
+    requested-at; currently slices 19 characters.
+
+  Console._detail_answer
+    Teams member last poke answer At and Retry at; currently truncates or
+    passes through UTC.
+
+INTENTIONALLY NOT ABSOLUTE-TIME FORMATTING
+
+  held_cell / held_field
+    Jobs Held and Teams Since are elapsed MM:SS/∞ values.
+
+  duration_cell
+    Phase and claim interval duration is elapsed seconds rendered MM:SS/∞.
+
+  Console._detail_facts
+    observed_at is rendered as an elapsed age through held_cell.
+
+  Pickup Waiting
+    projection-owned elapsed_seconds rendered through duration_cell.
+
+INPUT-FORM HAZARD
+
+  The projection has explicit UTC forms with Z, including fractional seconds,
+  and Message timestamps in the canonical SQLite spelling with a space and no
+  offset. Python datetime.fromisoformat returns the latter as naive. A bare
+  naive_datetime.astimezone() assumes those fields are already local, which is
+  false here. The formatter must attach timezone.utc to that canonical naive
+  UTC spelling before converting.
+
+RECOMMENDED DISPLAY SHAPES
+
+  Full:    2026-08-24 18:36:19 MDT
+  Compact: 18:36 MDT
+
+  Use numeric %z when tzname() is empty. Compact Message/Event columns must
+  measure the formatted values or disappear as whole responsive columns; a
+  five-cell slice that removes the zone recreates the ambiguity.
+
+TEST MATRIX
+
+  Denver cross-day:
+    2026-08-25T00:36:19Z -> 2026-08-24 18:36:19 MDT
+
+  Naive canonical UTC equivalence:
+    2026-08-25 00:36:19 -> same result as the Z form above
+
+  DST:
+    summer uses MDT; winter uses MST.
+    fall-back's two local 01:30 values remain distinguishable as MDT and MST.
+
+  Runtime timezone change:
+    set TZ, call time.tzset(), render; change TZ, tzset and render again.
+    Restore both the environment and libc timezone state in test cleanup.
+
+  UTC host:
+    wall-clock fields remain equal and gain visible UTC.
+
+  Boundaries:
+    virtual Message/Event/Poke/Teams/Work surfaces, responsive compact columns,
+    one non-UTC real PTY, and byte-identical canonical JSON before/after TUI
+    rendering.

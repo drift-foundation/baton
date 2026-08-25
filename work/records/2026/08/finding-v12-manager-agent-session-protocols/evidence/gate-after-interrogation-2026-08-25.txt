@@ -1,0 +1,91 @@
+W6627 — the v12 Python gate AFTER the approved `probe`/`inquire` split
+(PLAN item 8), diffed against `gate-baseline-2026-08-25.txt` in this
+directory rather than compared from memory.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1053 tests -- FAILED (failures=16, skipped=1)
+
+    cd v12/python && just build
+    # the locked build installs, imports, and runs the same suite from the
+    # INSTALLED layout outside the source tree:
+    #   [build] imported the INSTALLED authority from .../site-packages/...
+    #   [build] the frozen schema assets travelled: 2
+    #   Ran 1053 tests -- FAILED (failures=16)
+    # Byte-identical verdicts, so nothing here is a `PYTHONPATH=src` artefact.
+
+THE DELTA, EXACTLY
+------------------
+
+Baseline: 13 failures, every one naming `oci.py` or `workspaces.py`.
+Now:      16 failures.
+
+  ADDED BY THIS CLAIM ............................ 0
+  REMOVED, NOT BY THIS CLAIM ..................... 1
+  ADDED BY OTHER PARTIES' REVIEW CASES ........... 4
+
+REMOVED (-1)
+
+  test_every_public_parameter_is_a_declared_operand
+      (function='oci.py:run_vector', parameter='posture')
+
+  Gone because commit 0b7b8ac landed under this claim and declared `posture`.
+  HEAD moved from 14aecfb to 0b7b8ac mid-claim; the operand table line is
+  unmodified in this working tree, so the fix is not mine to report as one.
+
+ADDED (+4), NONE OF THEM THIS CLAIM'S
+
+  test_a_latched_fault_does_not_answer_another_sessions_envelope
+      (tests.manager.test_worker_image)                      -- W6633, in review
+  test_a_profile_is_rewalked_before_the_read_surface_returns_it
+  test_reviving_untrusted_text_cannot_construct_a_bearer_diagnostic
+  test_an_exported_class_does_not_hide_its_public_methods
+      (tests.manager.test_secrets)                           -- W6630, in review
+
+  All four are reviewer-authored cases that landed against Work this
+  participant has already PASSED BACK. They are reported, not fixed: a claim
+  that repaired another Work's review findings would be closing its own review.
+  The third demands `ControlStore.operation_record` in the exported public
+  surface and names nothing in the interrogation slice.
+
+THE INTERROGATION SLICE ITSELF
+
+  tests.manager.test_interrogation ................ 51 cases, OK
+  tests.manager.test_sessions ..................... 73 cases, OK
+  tests.manager.test_boundary_inventory ........... 7 failures, the SAME seven
+      the baseline recorded, and none of them names `interrogation.py`,
+      `documents.py:interrogation*` or `AuthorityPort.publish_answer`. The
+      remaining unowned/unprobed sets are `oci.py`, `workspaces.py`,
+      `handshake.py` and `sessions.py` entries that predate this claim.
+  tests.manager.test_dependencies ................. 1 failure, `oci.py`, W6632's
+  tests.manager.test_text_sweep ................... OK
+  tests.manager.test_store ........................ OK
+  tests.manager.test_offers ....................... OK
+
+WHAT THE GATE BOOKKEEPING COST, recorded because it found two real defects
+
+  - `interrogation._kind` was DEAD. It validated a kind that never crosses a
+    boundary: `probe` and `inquire` pass their own literal and the persisted
+    column is owned by `INTERROGATION_COLUMNS`. The inventory found it as a
+    boundary call attributed to no entry, and it is deleted rather than
+    exempted.
+  - `publish_inquiry_answer` re-proved `port.publish_answer` as a capability.
+    `AuthorityPort.__init__` types the whole session surface once — which is
+    why adding `publish_answer` to `SESSION_OPERATIONS` was a construction-time
+    change that touched every fake — so the second check was the blanket
+    revalidation 4bz forbids. `test_no_entry_is_owned_twice` caught it.
+
+A PRE-EXISTING CONDITION, REPORTED NOT FIXED
+
+  `test_every_receiving_entry_has_an_owning_validator` is baseline-red, and
+  part of what it lists is every `documents.py` constructor whose `members`
+  has no STATED_OWNERS line. Some are HEAD's (`session_opened`, `posture_slot`,
+  `slot_moved`, `provider_session_adopted`, `transport_lost`, `session_ref`,
+  `session_observed`, `session_closed`, `session_reconciled`,
+  `session_quiescence_requested`); some belong to W6628, which is in review
+  (`operation`, `manifest_retained`, `freeze_requested`, `frozen_output`,
+  `output_answer`, `output_artifact`, `result_frozen`). The idiom they need is
+  one line each — `"documents.py:_emit, against this document's entry in
+  CONTRACTS"` — and this claim added exactly that for its own two constructors
+  and left the rest alone. Whoever holds those Works should be told; a claim
+  reaching into another Work's inventory rows is how a red baseline stops
+  meaning anything.

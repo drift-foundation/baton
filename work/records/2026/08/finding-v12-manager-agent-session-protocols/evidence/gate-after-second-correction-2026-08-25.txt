@@ -1,0 +1,96 @@
+W6627 — the v12 Python gate after the SECOND re-review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_interrogation tests.manager.test_sessions
+    # Ran 136 tests -- OK
+    # 63 interrogation (51 mine, the reviewer's 3, and 9 more of mine below)
+    # 73 session, unchanged
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1077 tests -- FAILED (failures=16, skipped=1)
+
+    cd v12/python && just build
+    # Ran 1077 tests -- FAILED (failures=16)
+    # Byte-identical from the INSTALLED layout.
+
+THE DELTA AGAINST `gate-baseline-2026-08-25.txt` IN THIS DIRECTORY
+
+  Baseline: 13, every one naming `oci.py` or `workspaces.py`.
+  Now:      16.
+
+  ADDED BY THIS CORRECTION ....................... 0
+  REMOVED BY THIS CORRECTION ..................... 3  (the review's own)
+  REMOVED, NOT BY THIS CLAIM ..................... 1
+  ADDED BY OTHER PARTIES' REVIEW CASES ........... 4
+
+REMOVED (-3), the re-review's three, all kept as written
+
+  test_an_exact_retry_does_not_collide_with_the_managers_new_clock
+  test_a_restart_reads_a_probe_observation_not_only_its_outcome
+  test_a_probe_state_is_owned_as_the_frozen_session_vocabulary
+
+REMOVED (-1), not this claim's
+
+  test_every_public_parameter_is_a_declared_operand
+      (function='oci.py:run_vector', parameter='posture')
+  Declared by commit 0b7b8ac, which landed under the previous claim.
+
+ADDED (+4), NONE OF THEM THIS WORK'S
+
+  tests.manager.test_secrets ................ 2   -- W6630, in review
+      test_a_hand_edited_journal_row_cannot_leave_either_public_read
+        (surface='operation_record' and surface='replay')
+
+  tests.manager.test_worker_container ....... 2   -- W6633, in review
+      test_the_channel_container_uses_every_unconditional_restriction
+      test_the_reproducibility_build_does_not_reuse_builder_cache
+
+  Both are reviewer-authored cases on Work this participant has already passed
+  back, arriving after this claim began. Reported and NOT fixed: repairing
+  another Work's review findings while that Work is in review would be closing
+  its own review.
+
+THE TWELVE THAT REMAIN are the pre-existing set this campaign has carried
+throughout: `test_oci` 4, `test_boundary_inventory` 7, `test_dependencies` 1.
+None names `interrogation.py`, `sessions.py`'s new work, or the schema.
+
+WHAT THE THREE CORRECTIONS COST, and what they bought
+
+  [P1] THE SIGNATURE. `deadline_at` out, `deadline_seconds` in. The absolute
+  deadline stays the committed RESULT, so the first manager-observed one is
+  what a replay answers with — proved by
+  `test_a_replayed_request_answers_with_the_first_deadline`, and the duration
+  is still part of identity, proved by
+  `test_a_different_duration_is_a_different_request`.
+
+  [P1] THE OBSERVATION IS DURABLE. New nullable `observation` column, written
+  in the same statement as the `observed` transition, with two CHECKs stating
+  the pairing both ways and a refusal in this build's own vocabulary before
+  the driver's. `_view` no longer takes it as an argument at all — what a view
+  says is what the row holds. Schema version 9 -> 10. Proved across replay,
+  single lookup, list and restart by
+  `test_an_observation_is_read_back_by_every_durable_view`, with the absent
+  case (`test_an_unobserved_outcome_carries_no_observation_member_at_all`)
+  showing the member is OMITTED rather than nulled, and the pairing itself by
+  `test_an_outcome_without_its_reading_is_refused_both_ways`.
+
+  [P1] THE OBSERVATION IS TYPED. `state` as injected text and then the frozen
+  §7.3 nine, `last_activity_at` as an instant, `diagnostics` as an exact
+  bounded document — 32 entries, 2000 characters per value, no nesting.
+  `test_a_runtime_axis_state_never_crosses_as_a_session_state` covers both
+  ordered rules and asserts which one refused;
+  `test_an_observed_instant_and_its_diagnostics_are_owned`,
+  `test_diagnostics_are_bounded_in_both_dimensions` and
+  `test_an_ordinary_diagnostics_document_is_kept_verbatim` cover the rest —
+  the last because a bound that refused legitimate reports would be a
+  different defect.
+
+  ONE EXISTING CASE SUPERSEDED IN PLACE, naming the ruling:
+  `test_a_probe_may_also_be_observed_after_a_timeout` now passes the reading
+  with the late `observed` move, because the pairing is a rule rather than a
+  habit of the one caller.
+
+  THE INVENTORY grew one delegation (`agent.probe.diagnostics` ->
+  `interrogation.py:_diagnostics`) and three probes, one per newly owned
+  member. The boundary-inventory file's failure list is byte-identical to the
+  baseline's seven, and none of them names `interrogation.py`.

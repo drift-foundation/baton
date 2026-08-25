@@ -135,6 +135,35 @@ Focused: `test_w6814_active_descendant_trail` 40/40,
   separate change and is recorded as a clarification in FINDING.md rather
   than done quietly here.
 
+## Review correction — 2026-08-25
+
+**[P1] An active filter overwrote the contextual Work tab row.** Two
+independent rules wrote to one hard-coded screen row. W5 says an active filter
+is ALWAYS disclosed; W6814 says a contextual Work page always shows which of
+its three tabs it is on. I painted the tab row at `table_top` and advanced it,
+and then painted the filter clauses at a literal row `1` and reset `table_top`
+to a literal `2` — so on a re-rooted page whose filter survived the re-root the
+clause text landed on top of the tabs, leaving `filter: status=open [Events]`:
+one disclosure destroyed and the other made misleading.
+
+Every row above the table is now allocated from one running cursor, so the
+order is breadcrumb, tabs, filter, table header and each row is the whole row.
+The literals were the defect, not the arithmetic — which is why the correction
+is a cursor rather than a bigger constant.
+
+Beside the reviewer's additive case I added three more, because the review asks
+for properties the single case does not pin: the stable ORDER of the four rows
+(and that neither overpaints the other), that the table's viewport budget
+beneath them is unchanged — every window row and its elision group still
+painted — and that W5's narrow-width horizontal viewporting of the clause line
+survives the extra row.
+
+    just test-v11
+    # 3,036 passed (parallel), 52 passed (serial), ACP: 55 pass / 0 fail
+
+All three phases entered this time; the review's run stopped at the failing
+regression before its serial and ACP phases.
+
 ## State
 
-**Awaiting independent review of the renderer and navigation half.**
+**Awaiting final review.**

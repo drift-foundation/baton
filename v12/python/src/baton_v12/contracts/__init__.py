@@ -4,6 +4,13 @@ W4 cut A: the exported surface is the promise. Nothing here opens a store,
 performs a transition, or reaches for the authority; the manager's state and
 its injected authority session arrive in later cuts.
 
+W6630 adds §13: the one deliberate secret stays off every durable surface.
+It is a WALK at any depth, both halves independent -- a member named for a
+secret and a live bearer VALUE by containment -- anchored by the
+`integrity.secret-leak` code this package's closed pairing already carried.
+The reference-counted registry lives here because the manifest composite has
+to consult it and this package may not import from the one above it.
+
 THE VALIDATOR IS THE RULED ONE. PLAN item 4bh: a real Draft 2020-12 validator,
 pinned with its complete Python 3.13 closure in the hash-locked build,
 with no handwritten substitute. It is a dependency of THIS SLICE ONLY -- the
@@ -18,6 +25,8 @@ from .frozen import (AGENT_SESSION, AGENT_SESSION_BYTES, CAPABILITIES,
                      OPAQUE_ID_LIMIT, PROTOCOL, VERSION, WORKER_CONTROL,
                      WORKER_CONTROL_BYTES)
 from .pod import MAX_DEPTH, MAX_MEMBERS, own, own_record
+from .secrets import (SECRET_MEMBERS, check_no_durable_secret, forget_secret,
+                      held_secret, live_secret, remember_secret)
 from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
                        check_content_manifest, check_manifest_structure,
                        check_relative_path, check_uri, check_work_ref)
@@ -32,6 +41,8 @@ __all__ = [
     "ARTIFACT_REF_MEMBERS", "CONTENT_MANIFEST_MEMBERS",
     "check_content_manifest", "check_manifest_structure",
     "check_relative_path", "check_uri", "check_work_ref",
+    "SECRET_MEMBERS", "check_no_durable_secret", "forget_secret",
+    "held_secret", "live_secret", "remember_secret",
     "AGENT_SESSION", "AGENT_SESSION_BYTES", "CAPABILITIES", "ContractRefusal",
     "ERROR_CODES", "MESSAGE_LIMIT", "MAX_DEPTH", "MAX_MEMBERS", "MAX_SAFE_INTEGER",
     "OPAQUE_ID_LIMIT", "PROTOCOL", "VERSION", "WORKER_CONTROL",

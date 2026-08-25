@@ -1017,7 +1017,16 @@ def test_the_reported_interval_survives_in_the_derived_note(world):
 
 def test_the_teams_row_and_the_details_answer_different_questions(world):
 	"""`Since` is elapsed time in the state; the absolute instants live
-	in the detail block, which is where an operator reads them."""
+	in the detail block, which is where an operator reads them.
+
+	SUPERSEDED IN PART by W8160 (finding-tui-local-time), 2026-08-25:
+	the detail block's absolute instant is rendered in the HOST's
+	timezone with its zone named, so the canonical `...T10:00:00Z`
+	spelling is no longer what appears there — and its absence from the
+	compact row is now proved against the LOCAL spelling too, since a
+	console that painted a local clock in an elapsed cell would be the
+	same defect wearing different digits. The property W93 states is
+	unchanged: the row is a duration and the detail is an instant."""
 	at("2026-08-19T10:00:00Z")
 	work = _held(world)
 	start(world, session="01a01552")
@@ -1033,11 +1042,14 @@ def test_the_teams_row_and_the_details_answer_different_questions(world):
 	# ruled spelling.
 	cell = row.split()[-1]
 	assert cell == "∞" or (len(cell) == 5 and cell[2] == ":"), row
+	from baton_work.tui.app import local_stamp
+	local = local_stamp("2026-08-19T10:00:00Z")
 	assert "2026-08-19T10:00" not in row, \
 		"the compact row spent its cells on an absolute instant"
-	assert any(line.strip().startswith("Since")
-	           and "2026-08-19T10:00:00" in line
-	           for line in lines), lines
+	assert local not in row, \
+		"the compact row spent its cells on a local wall clock"
+	assert any(line.strip().startswith("Since") and local in line
+	           for line in lines), (local, lines)
 
 
 # -- slice 6: the safe operational inventory ---------------------------------

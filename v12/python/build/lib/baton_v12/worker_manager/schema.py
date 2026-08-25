@@ -26,7 +26,11 @@ __all__ = ["STORE_KIND", "SCHEMA_VERSION", "SCHEMA", "TABLES",
            "OFFER_COLUMNS", "OPERATION_COLUMNS", "OFFER_STATES",
            "OPERATION_STATES", "ATTEMPT_COLUMNS", "OBSERVATION_COLUMNS",
            "POSTURES", "SESSION_STATES", "SLOT_OCCUPANCY",
-           "AGENT_SESSION_COLUMNS", "POSTURE_SLOT_COLUMNS"]
+           "AGENT_SESSION_COLUMNS", "POSTURE_SLOT_COLUMNS",
+           "OUTPUT_STATUSES", "OUTPUT_TYPES", "DISPOSITIONS",
+           "MANIFEST_COLUMNS", "OUTPUT_COLUMNS", "OUTPUT_ARTIFACT_COLUMNS",
+           "INTERROGATION_KINDS", "INTERROGATION_OUTCOMES",
+           "INTERROGATION_COLUMNS"]
 
 STORE_KIND = "baton.v12.python.worker-manager"
 
@@ -38,11 +42,72 @@ STORE_KIND = "baton.v12.python.worker-manager"
 # shape cannot hold what this build enforces, and keeping the number would let
 # this build adopt one -- the "does not guess across versions" rule applied to my
 # own changes rather than to somebody else's.
-# Seven, because W6627 added the agent session and the posture slot it holds.
-SCHEMA_VERSION = 7
+# Seven, because W6627 added the agent session and the posture slot it holds;
+# eight, because W6628 added the retained manifests a declaration is compared
+# against and the frozen result those declarations answer; nine, because
+# W6627's confirmed interrogation split needs a durable lifecycle of its own.
+SCHEMA_VERSION = 10
 
 TABLES = ("meta", "operations", "offers", "attempts", "observations",
-          "profiles", "agent_sessions", "posture_slots")
+          "profiles", "agent_sessions", "posture_slots", "manifests",
+          "outputs", "output_artifacts", "interrogations")
+
+# THE TWO OPERATOR INTERROGATIONS, and they are two because v11's `poke`
+# conflated two facts: whether the adapter and session can be OBSERVED now,
+# and whether a model has accepted and answered a new conversational request.
+#
+#   probe    an immediate control-plane observation. It requires and consumes
+#            no model turn.
+#   inquire  a conversational request to the agent. The acknowledgement and
+#            the eventual answer are two separate facts.
+INTERROGATION_KINDS = ("probe", "inquire")
+
+# WHAT MAY FOLLOW WHAT, per kind. Two tables rather than one plus conditionals,
+# for the reason the runtime axes are two: a probe is never queued and an
+# inquire is never merely observed, and one merged table would admit both.
+#
+# `timed-out` IS NOT TERMINAL, and that is the ruling rather than an oversight.
+# A timeout is an OBSERVATION -- it says the manager stopped waiting, not that
+# the work stopped or that anybody may discard it -- so a model that answers
+# afterwards is answering, and the axis has to be able to say so. An axis that
+# made `timed-out` terminal would turn the manager's patience into a decision
+# about somebody else's turn.
+INTERROGATION_OUTCOMES = {
+    "probe": {
+        "requested": ("observed", "timed-out", "adapter-unreachable",
+                      "runtime-absent"),
+        "timed-out": ("observed",),
+        "observed": (), "adapter-unreachable": (), "runtime-absent": (),
+    },
+    "inquire": {
+        "requested": ("queued", "delivered", "timed-out",
+                      "adapter-unreachable", "runtime-absent"),
+        "queued": ("delivered", "answered", "timed-out",
+                   "adapter-unreachable", "runtime-absent"),
+        "delivered": ("answered", "timed-out", "adapter-unreachable",
+                      "runtime-absent"),
+        "timed-out": ("answered",),
+        "answered": (), "adapter-unreachable": (), "runtime-absent": (),
+    },
+}
+
+_INTERROGATION_STATES = tuple(sorted(
+    {state for moves in INTERROGATION_OUTCOMES.values() for state in moves}))
+
+# W6628, from the frozen `artifactOutput`. TWO STATUSES, and `missing-optional`
+# is one of them: an output the assignment declared as not required and which
+# did not appear is REPORTED, with a null manifest and a null artifact. It is
+# not silence and it is not an error, and a receiver that treated it as nothing
+# to record would lose the fact that the worker was asked and answered.
+OUTPUT_STATUSES = ("present", "missing-optional")
+
+OUTPUT_TYPES = ("git-change-proposal", "directory-result", "record-output")
+
+# The frozen `resultManifest.disposition`. The same four the
+# `worker_disposition` axis carries beyond `none` -- and they are compared
+# against that axis rather than accepted from the result, because a proof the
+# caller writes is not a proof.
+DISPOSITIONS = ("completed", "unable", "plan-rejected", "cancelled")
 
 # THE TWO POSTURES, and they are a third vocabulary rather than a subdivision
 # of either axis below. `posture` says WHICH CONTAINER this is; the runtime
@@ -384,6 +449,135 @@ CREATE TABLE posture_slots (
     -- first occupancy creates.
     CHECK (occupancy = 'available' OR session_epoch IS NOT NULL)
 ) STRICT;
+
+-- THE RETAINED MANIFESTS. W6628.
+--
+-- A DIGEST IS NOT A RECORD. The store held `attempts.input_digest` and would
+-- have held a result's manifest digest, and not one byte of either document --
+-- so a freeze could not compare a sealed result against the OUTPUT
+-- DECLARATIONS the input manifest names, because it never saw them, and any
+-- later reader was left with a number and nothing to inspect.
+--
+-- ONE TABLE SERVES BOTH, because both are the same fact: a validated document
+-- this manager is holding, keyed by the digest that identifies it. The key
+-- being the digest is what makes retention idempotent by construction and what
+-- stops a stored body from drifting from its key -- the key is computed from
+-- the bytes.
+CREATE TABLE manifests (
+    digest      TEXT PRIMARY KEY,
+    schema      TEXT NOT NULL,
+    body        TEXT NOT NULL,
+    retained_at TEXT NOT NULL
+) STRICT;
+
+-- ONE FROZEN RESULT PER ATTEMPT.
+--
+-- The primary key is the attempt and not the result id: an attempt freezes
+-- once, and the record operation is fixed per attempt so changed bytes under
+-- the same identity REFUSE rather than committing a second result. A table
+-- that could hold two would make "which of these is this attempt result" a
+-- question with no answer a manager may guess at.
+--
+-- `manifest_digest` is the RECOMPUTED one, so the number stored beside the
+-- result is derived from the bytes rather than lifted from a member the
+-- document filled in about itself, and it names the retained row those bytes
+-- are in.
+CREATE TABLE outputs (
+    runtime_attempt_id  TEXT PRIMARY KEY,
+    result_id           TEXT NOT NULL,
+    disposition         TEXT NOT NULL CHECK (
+        disposition IN ('completed', 'unable', 'plan-rejected', 'cancelled')),
+    manifest_digest     TEXT NOT NULL,
+    freeze_operation_id TEXT NOT NULL,
+    frozen_at           TEXT NOT NULL
+) STRICT;
+
+-- THE ARTIFACT REFERENCES a frozen result binds, one row per PRESENT output.
+--
+-- A `missing-optional` output has no artifact and gets no row here; the answer
+-- it gave is in the retained result document, which is where every output --
+-- present or missing -- is preserved whole. This table is the indexed half,
+-- not the record.
+CREATE TABLE output_artifacts (
+    runtime_attempt_id TEXT NOT NULL,
+    output_name        TEXT NOT NULL,
+    artifact_id        TEXT NOT NULL,
+    media_type         TEXT NOT NULL,
+    bytes              INTEGER NOT NULL CHECK (bytes >= 0),
+    content_digest     TEXT NOT NULL,
+    locator            TEXT NOT NULL,
+    PRIMARY KEY (runtime_attempt_id, output_name)
+) STRICT;
+
+-- THE OPERATOR INTERROGATION, journalled as its own durable lifecycle.
+--
+-- W6627's confirmed split. The row binds all four things an interrogation is
+-- ABOUT and none of them is a caller's account of itself: the exact assignment
+-- generation, the posture-specific session, the effectively-once operation
+-- identity, and the manager-observed deadline.
+--
+-- `operation_id` IS THE PRIMARY KEY, so effectively-once is the table's rather
+-- than a convention. A second request under one identity is a collision the
+-- store refuses, and a retry replays the row it already has.
+--
+-- `deadline_at` is the MANAGER's, not the adapter's. Timeout is an observation
+-- this manager makes about its own waiting; nothing in the worker is asked to
+-- agree with it, and nothing about it cancels anything.
+--
+-- `answer` is null until a conversational answer arrives and stays null for a
+-- probe, which has no model turn to answer with. `published_at` is separate
+-- from `settled_at` because journalling an answer and publishing it into
+-- Baton are two acts, and a committed Baton request is never proof that the
+-- adapter or the model saw anything.
+CREATE TABLE interrogations (
+    operation_id           TEXT PRIMARY KEY,
+    kind                   TEXT NOT NULL CHECK (
+        kind IN ('probe', 'inquire')),
+    runtime_attempt_id     TEXT NOT NULL,
+    posture                TEXT NOT NULL CHECK (
+        posture IN ('consent', 'execution')),
+    session_epoch          INTEGER NOT NULL CHECK (session_epoch >= 1),
+    authority_uuid         TEXT NOT NULL,
+    work_id                TEXT NOT NULL,
+    assignment_participant TEXT NOT NULL,
+    assignment_generation  INTEGER NOT NULL,
+    requested_at           TEXT NOT NULL,
+    deadline_at            TEXT NOT NULL,
+    -- ALL SEVEN, and `observed` is the probe's own terminal one. A CHECK
+    -- that named six would refuse the very outcome a probe exists to record.
+    outcome                TEXT NOT NULL CHECK (
+        outcome IN ('requested', 'queued', 'delivered', 'answered',
+                    'observed', 'timed-out', 'adapter-unreachable',
+                    'runtime-absent')),
+    settled_at             TEXT,
+    answer                 TEXT,
+    published_at           TEXT,
+    -- THE PROBE'S READING, DURABLE. Re-review [P1]: this column did not
+    -- exist, so the observation reached the caller of a FRESH probe and was
+    -- gone from every replay, lookup, list and restart -- an `observed`
+    -- outcome with nothing observed in it, which is the whole content of the
+    -- operation missing from the only copy that survives.
+    observation            TEXT,
+    -- AN ANSWER BELONGS TO AN INQUIRE. A probe consumes no model turn, so a
+    -- probe row carrying a conversational answer would be a row claiming
+    -- something the operation cannot produce.
+    CHECK (answer IS NULL OR kind = 'inquire'),
+    -- AND PUBLICATION FOLLOWS AN ANSWER. Publishing what nobody answered
+    -- would put a manager-authored sentence into Baton wearing a model's
+    -- provenance.
+    CHECK (published_at IS NULL OR answer IS NOT NULL),
+    -- AN OBSERVATION BELONGS TO AN OBSERVED PROBE, both ways round. A row
+    -- carrying a reading on any other outcome would be reporting something
+    -- nobody looked at, and an `observed` probe without one is the defect
+    -- this column was added for, recorded as a rule rather than as a habit.
+    CHECK (observation IS NULL
+           OR (kind = 'probe' AND outcome = 'observed')),
+    CHECK (NOT (kind = 'probe' AND outcome = 'observed')
+           OR observation IS NOT NULL)
+) STRICT;
+
+CREATE INDEX interrogations_by_session
+    ON interrogations (runtime_attempt_id, posture, session_epoch);
 """
 
 
@@ -544,4 +738,52 @@ POSTURE_SLOT_COLUMNS = {
     "session_epoch": Column("count", nullable=True),
     "reason": Column("text", nullable=True),
     "changed_at": Column("instant"),
+}
+
+# W6628. `body` is proved to DECODE at the read: a retained document that no
+# longer parses is caught where the row is adopted rather than by the caller
+# that was about to compare declarations against it.
+MANIFEST_COLUMNS = {
+    "digest": Column("identity"),
+    "schema": Column("text"),
+    "body": Column("json"),
+    "retained_at": Column("instant"),
+}
+
+OUTPUT_COLUMNS = {
+    "runtime_attempt_id": Column("identity"),
+    "result_id": Column("identity"),
+    "disposition": Column("text", allowed=DISPOSITIONS),
+    "manifest_digest": Column("text"),
+    "freeze_operation_id": Column("identity"),
+    "frozen_at": Column("instant"),
+}
+
+INTERROGATION_COLUMNS = {
+    "operation_id": Column("identity"),
+    "kind": Column("text", allowed=INTERROGATION_KINDS),
+    "runtime_attempt_id": Column("identity"),
+    "posture": Column("text", allowed=POSTURES),
+    "session_epoch": Column("count"),
+    "authority_uuid": Column("text"),
+    "work_id": Column("identity"),
+    "assignment_participant": Column("text"),
+    "assignment_generation": Column("count"),
+    "requested_at": Column("instant"),
+    "deadline_at": Column("instant"),
+    "outcome": Column("text", allowed=_INTERROGATION_STATES),
+    "settled_at": Column("instant", nullable=True),
+    "answer": Column("json", nullable=True),
+    "published_at": Column("instant", nullable=True),
+    "observation": Column("json", nullable=True),
+}
+
+OUTPUT_ARTIFACT_COLUMNS = {
+    "runtime_attempt_id": Column("identity"),
+    "output_name": Column("identity"),
+    "artifact_id": Column("identity"),
+    "media_type": Column("text"),
+    "bytes": Column("count"),
+    "content_digest": Column("text"),
+    "locator": Column("text"),
 }

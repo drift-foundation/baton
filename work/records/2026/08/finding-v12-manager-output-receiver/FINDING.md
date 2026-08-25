@@ -76,3 +76,72 @@ declared. W6592 is open with changes requested, so this Job cannot start.
 - `missing-optional` recorded as the answer it is.
 
 The implementer creates and exclusively owns `PROGRESS.md`.
+
+## Implementation decisions — 2026-08-25
+
+Recorded by the implementer under the claim that built this slice.
+
+**Retention is part of this Job, and it had to be.** The receiver's whole
+declared-output comparison is against a document the store did not hold. The
+frozen host was corrected for exactly this: "the store held only
+`input_digest`, so a schema-valid result could substitute an undeclared output
+or drop a required one while echoing the expected digest." Making the
+declaration a caller operand instead would be a proof the caller writes, which
+is not a proof. So `manifests.py` is here, keyed by digest, serving both the
+input declaration and the frozen result.
+
+**This slice ends at `frozen` and never writes `sealed`.** The brief says
+"sealed artifact observation receiver", and `sealed` there is the adapter's
+sealed OBSERVATION document, not the output axis's `sealed` value. `invalid` is
+reachable from `frozen`, so material can be frozen and then found invalid; the
+axis value belongs to W6634, and writing it here would remove the state that
+expresses the distinction this finding already pinned.
+
+**`freeze_operation` takes an attempt ROW rather than an id.** The identity is
+derived from the row's own assignment members, and a caller that already holds
+the row should not have to re-fetch it — the row crosses back in as a caller
+operand and is owned as one. Its members are each their own inventory entry
+and each is probed.
+
+**The record identity is fixed per attempt and assignment, not per digest.**
+If it varied with the bytes, two different results would be two different
+operations and BOTH would commit, which is the opposite of what an immutable
+record means. The identity is the act; the signature carries the bytes.
+
+**Not here, and named so the absence is deliberate:** filesystem and OCI
+collection, credentials, retention and cleanup, provider code, lifecycle
+composition, and the `sealed` transition.
+
+## Operational finding — the boundary inventory resolves private helpers by name
+
+**Observed 2026-08-25.** `tests/manager/test_boundary_inventory.py` keys
+functions by LEXICAL SITE and its header explains why, but
+`_returned_origins` — the fixpoint resolving what a private helper hands back —
+is keyed by the helper's NAME across the whole package. Two modules with a
+private helper of one name therefore collapse, and one becomes invisible to the
+inventory.
+
+Hit directly: naming this module's attempt reader `_attempt`, as `sessions.py`
+already does, made two of W6627's adopted column entries stop being wanted — a
+green-looking narrowing of the universe caused by a name. Avoided here by
+naming this module's reader `_attempt_of`, with the reason at the site. NOT
+fixed here: correcting it changes how every module's entries are derived, which
+is a change to a shared gate and deserves its own Work.
+
+## Independent review finding — 2026-08-25
+
+**Observed, P1.** The mutable positive-quiescence precondition is checked from
+an attempt row before `store.transact`, but the journalled `_request` action
+does not re-read it under the write lock. A newer `execution_runtime=uncertain`
+observation can therefore land between check and write and the stale row still
+authorizes `output=freeze-requested`.
+
+The deterministic regression and full analysis are in
+`review-2026-08-25T06-08-36Z.md`. The decisive quiescence check must occur
+inside the freeze transaction before the output transition; the optimistic
+outside check cannot authorize the write.
+
+**Resolved 2026-08-25.** The decisive `_provable` check now re-reads the
+attempt on the transaction connection before the output transition. The
+review regression and the surrounding output/attempt/store suites pass; final
+sign-off is recorded in `review-2026-08-25T06-41-52Z.md`.
